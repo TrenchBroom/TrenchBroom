@@ -41,6 +41,8 @@ namespace TrenchBroom::IO
 {
 class FileSystem;
 
+static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empty.png"};
+
 /**
  * Loads a default texture from the given file system. If the default texture cannot be
  * found or opened, an empty texture is returned.

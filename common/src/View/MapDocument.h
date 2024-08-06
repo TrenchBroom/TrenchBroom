@@ -56,6 +56,9 @@ class EntityDefinitionManager;
 class EntityModelManager;
 class Material;
 class MaterialManager;
+struct ProcessContext;
+class ResourceId;
+class ResourceManager;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
@@ -92,6 +95,7 @@ class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
 enum class TransactionScope;
+class AsyncTaskRunner;
 
 struct PointFile
 {
@@ -119,6 +123,7 @@ protected:
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
 
+  std::unique_ptr<Assets::ResourceManager> m_resourceManager;
   std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
   std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
   std::unique_ptr<Assets::MaterialManager> m_materialManager;
@@ -192,6 +197,8 @@ public: // notification
   Notifier<Model::GroupNode*> groupWasClosedNotifier;
 
   Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
+
+  Notifier<const std::vector<Assets::ResourceId>> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
@@ -678,7 +685,9 @@ private: // subclassing interface for command processing
     std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
-  void commitPendingAssets();
+  void processResourcesSync(const Assets::ProcessContext& processContext);
+  void processResourcesAsync(const Assets::ProcessContext& processContext);
+  bool needsResourceProcessing();
 
 public: // picking
   void pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const;

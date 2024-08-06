@@ -167,13 +167,15 @@ Result<Brush> BrushBuilder::createCuboid(
        {bottomMaterial, m_defaultAttribs}}, // bottom
     });
 
-  return kdl::fold_results(kdl::vec_transform(
-                             specs,
-                             [&](const auto spec) {
-                               const auto& [p1, p2, p3, attrs] = spec;
-                               return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
-                             }))
-    .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
+  return kdl::vec_transform(
+           specs,
+           [&](const auto spec) {
+             const auto& [p1, p2, p3, attrs] = spec;
+             return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](auto faces) {
+             return Brush::create(m_worldBounds, std::move(faces));
+           });
 }
 
 Result<Brush> BrushBuilder::createBrush(
@@ -187,27 +189,29 @@ Result<Brush> BrushBuilder::createBrush(
 {
   assert(polyhedron.closed());
 
-  return kdl::fold_results(kdl::vec_transform(
-                             polyhedron.faces(),
-                             [&](const auto* face) {
-                               const auto& boundary = face->boundary();
+  return kdl::vec_transform(
+           polyhedron.faces(),
+           [&](const auto* face) {
+             const auto& boundary = face->boundary();
 
-                               auto bIt = std::begin(boundary);
-                               const auto* edge1 = *bIt++;
-                               const auto* edge2 = *bIt++;
-                               const auto* edge3 = *bIt++;
+             auto bIt = std::begin(boundary);
+             const auto* edge1 = *bIt++;
+             const auto* edge2 = *bIt++;
+             const auto* edge3 = *bIt++;
 
-                               const auto& p1 = edge1->origin()->position();
-                               const auto& p2 = edge2->origin()->position();
-                               const auto& p3 = edge3->origin()->position();
+             const auto& p1 = edge1->origin()->position();
+             const auto& p2 = edge2->origin()->position();
+             const auto& p3 = edge3->origin()->position();
 
-                               return BrushFace::create(
-                                 p1,
-                                 p3,
-                                 p2,
-                                 BrushFaceAttributes{materialName, m_defaultAttribs},
-                                 m_mapFormat);
-                             }))
-    .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
+             return BrushFace::create(
+               p1,
+               p3,
+               p2,
+               BrushFaceAttributes{materialName, m_defaultAttribs},
+               m_mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](auto faces) {
+             return Brush::create(m_worldBounds, std::move(faces));
+           });
 }
 } // namespace TrenchBroom::Model

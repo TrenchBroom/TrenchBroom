@@ -99,34 +99,35 @@ namespace
 void doFindImpl(
   const Entry& entry,
   const std::filesystem::path& entryPath,
-  const TraversalMode traversalMode,
+  const size_t depth,
+  const TraversalMode& traversalMode,
   std::vector<std::filesystem::path>& result)
 {
-  std::visit(
-    kdl::overload(
-      [&](const DirectoryEntry& d) {
-        for (const auto& child : d.entries)
-        {
-          const auto childPath = entryPath / getEntryName(child);
-          result.push_back(childPath);
-          if (traversalMode == TraversalMode::Recursive)
+  if (!traversalMode.depth || depth <= *traversalMode.depth)
+  {
+    std::visit(
+      kdl::overload(
+        [&](const DirectoryEntry& d) {
+          for (const auto& child : d.entries)
           {
-            doFindImpl(child, childPath, traversalMode, result);
+            const auto childPath = entryPath / getEntryName(child);
+            result.push_back(childPath);
+            doFindImpl(child, childPath, depth + 1, traversalMode, result);
           }
-        }
-      },
-      [](const auto&) {}),
-    entry);
+        },
+        [](const auto&) {}),
+      entry);
+  }
 }
 } // namespace
 
 Result<std::vector<std::filesystem::path>> TestFileSystem::doFind(
-  const std::filesystem::path& path, const TraversalMode traversalMode) const
+  const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
   auto result = std::vector<std::filesystem::path>{};
   if (const auto* entry = findEntry(path))
   {
-    doFindImpl(*entry, path, traversalMode, result);
+    doFindImpl(*entry, path, 0, traversalMode, result);
   }
   return result;
 }

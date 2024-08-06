@@ -152,7 +152,7 @@ void AppPreferenceManager::discardChanges()
 void AppPreferenceManager::saveChangesImmediately()
 {
   writePreferencesToFile(m_preferencesFilePath, m_cache)
-    .transform_error(kdl::overload(
+    | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
@@ -252,10 +252,10 @@ void AppPreferenceManager::loadCacheFromDisk()
 
   // Reload m_cache
   readPreferencesFromFile(m_preferencesFilePath)
-    .transform([&](std::map<std::filesystem::path, QJsonValue>&& prefs) {
-      m_cache = std::move(prefs);
-    })
-    .transform_error(kdl::overload(
+    | kdl::transform([&](std::map<std::filesystem::path, QJsonValue>&& prefs) {
+        m_cache = std::move(prefs);
+      })
+    | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath

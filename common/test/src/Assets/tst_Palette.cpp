@@ -72,12 +72,11 @@ TEST_CASE("makePalette")
   CAPTURE(data, colorFormat);
 
   const auto expectedPalette =
-    expectedResult
-      .and_then([](auto paletteData) {
-        return Result<Palette>{
-          Palette{std::make_shared<PaletteData>(std::move(paletteData))}};
-      })
-      .or_else([](auto e) { return Result<Palette>{std::move(e)}; });
+    expectedResult | kdl::and_then([](auto paletteData) {
+      return Result<Palette>{
+        Palette{std::make_shared<PaletteData>(std::move(paletteData))}};
+    })
+    | kdl::or_else([](auto e) { return Result<Palette>{std::move(e)}; });
 
   CHECK(makePalette(data, colorFormat) == expectedPalette);
 }
@@ -209,7 +208,7 @@ TEST_CASE("loadPalette")
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/Assets/Palette/";
   const auto filePath = basePath / filename;
-  const auto file = IO::Disk::openFile(filePath).value();
+  const auto file = IO::Disk::openFile(filePath) | kdl::value();
 
   const auto expectedPalette = makePalette(expectedPaletteData, PaletteColorFormat::Rgb);
 

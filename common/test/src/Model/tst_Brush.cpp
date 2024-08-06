@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -62,8 +63,8 @@ static bool canMoveBoundary(
   const vm::vec3& delta)
 {
   return brush.moveBoundary(worldBounds, faceIndex, delta, false)
-    .transform([&]() { return worldBounds.contains(brush.bounds()); })
-    .value_or(false);
+         | kdl::transform([&]() { return worldBounds.contains(brush.bounds()); })
+         | kdl::value_or(false);
 }
 
 TEST_CASE("BrushTest.constructBrushWithFaces")
@@ -94,7 +95,7 @@ TEST_CASE("BrushTest.constructBrushWithFaces")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value();
+    | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   REQUIRE(brush.faceCount() == 6u);
@@ -142,7 +143,7 @@ TEST_CASE("BrushTest.clip")
 
   // build a cube with length 16 at the origin
   Brush brush =
-    Brush::create(worldBounds, {left, right, front, back, top, bottom}).value();
+    Brush::create(worldBounds, {left, right, front, back, top, bottom}) | kdl::value();
 
   BrushFace clip = createParaxial(
     vm::vec3(8.0, 0.0, 0.0), vm::vec3(8.0, 0.0, 1.0), vm::vec3(8.0, 1.0, 0.0));
@@ -189,7 +190,7 @@ TEST_CASE("BrushTest.moveBoundary")
                       vm::vec3(1.0, 0.0, 0.0),
                       vm::vec3(0.0, 1.0, 0.0)), // bottom
                   })
-                  .value();
+                | kdl::value();
 
   REQUIRE(brush.faceCount() == 6u);
 
@@ -216,17 +217,16 @@ TEST_CASE("BrushTest.resizePastWorldBounds")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Brush brush1 = builder
-                   .createBrush(
-                     std::vector<vm::vec3>{
-                       vm::vec3(64, -64, 16),
-                       vm::vec3(64, 64, 16),
-                       vm::vec3(64, -64, -16),
-                       vm::vec3(64, 64, -16),
-                       vm::vec3(48, 64, 16),
-                       vm::vec3(48, 64, -16)},
-                     "material")
-                   .value();
+  Brush brush1 = builder.createBrush(
+                   std::vector<vm::vec3>{
+                     vm::vec3(64, -64, 16),
+                     vm::vec3(64, 64, 16),
+                     vm::vec3(64, -64, -16),
+                     vm::vec3(64, 64, -16),
+                     vm::vec3(48, 64, 16),
+                     vm::vec3(48, 64, -16)},
+                   "material")
+                 | kdl::value();
 
   const auto rightFaceIndex = brush1.findFace(vm::vec3::pos_x());
   REQUIRE(rightFaceIndex);
@@ -240,10 +240,9 @@ TEST_CASE("BrushTest.expand")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Brush brush1 =
-    builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
-      .value();
+  Brush brush1 = builder.createCuboid(
+                   vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
+                 | kdl::value();
   CHECK(brush1.expand(worldBounds, 6, true).is_success());
 
   const vm::bbox3 expandedBBox(vm::vec3(-70, -70, -70), vm::vec3(70, 70, 70));
@@ -260,10 +259,9 @@ TEST_CASE("BrushTest.contract")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Brush brush1 =
-    builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
-      .value();
+  Brush brush1 = builder.createCuboid(
+                   vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
+                 | kdl::value();
   CHECK(brush1.expand(worldBounds, -32, true).is_success());
 
   const vm::bbox3 expandedBBox(vm::vec3(-32, -32, -32), vm::vec3(32, 32, 32));
@@ -280,10 +278,9 @@ TEST_CASE("BrushTest.contractToZero")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Brush brush1 =
-    builder
-      .createCuboid(vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
-      .value();
+  Brush brush1 = builder.createCuboid(
+                   vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)), "material")
+                 | kdl::value();
   CHECK(brush1.expand(worldBounds, -64, true).is_error());
 }
 
@@ -293,7 +290,8 @@ TEST_CASE("BrushTest.moveVertex")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value();
+    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
+    | kdl::value();
 
   const vm::vec3 p1(-32.0, -32.0, -32.0);
   const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -350,7 +348,7 @@ TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
   points.push_back(top);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(points, "some_material").value();
+  Brush brush = builder.createBrush(points, "some_material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({top});
   auto delta = vm::vec3(0.0, 0.0, -32.0);
@@ -387,7 +385,7 @@ TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -462,7 +460,7 @@ TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -537,7 +535,7 @@ TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -610,7 +608,7 @@ TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -681,7 +679,7 @@ TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -750,7 +748,7 @@ TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -818,7 +816,7 @@ TEST_CASE("BrushTest.moveVertexUpThroughPlane")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -889,7 +887,7 @@ TEST_CASE("BrushTest.moveVertexOntoEdge")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -956,7 +954,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p7 - p8;
@@ -1024,7 +1022,7 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p7});
   auto delta = p8 - p7;
@@ -1093,7 +1091,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p6});
   auto delta = p9 - p6;
@@ -1162,7 +1160,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p8});
   auto delta = p9 - p8;
@@ -1233,7 +1231,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   auto oldVertexPositions = std::vector<vm::vec3>({p9});
   auto delta = p10 - p9;
@@ -1281,7 +1279,7 @@ TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
   const vm::bbox3 worldBounds(8192.0);
   const BrushBuilder builder(MapFormat::Standard, worldBounds);
 
-  Model::Brush brush = builder.createCube(128.0, "material").value();
+  Model::Brush brush = builder.createCube(128.0, "material") | kdl::value();
 
   std::vector<vm::vec3> allVertexPositions;
   for (const auto* vertex : brush.vertices())
@@ -1372,7 +1370,7 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   assertCanMoveVertex(brush, peakPosition, vm::vec3(0.0, 0.0, -127.0));
   assertCanNotMoveVertex(
@@ -1438,7 +1436,7 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   assertMovingVertexDeletes(
     brush, peakPosition, vm::vec3(0.0, 0.0, -65.0)); // Move inside the remaining cuboid
@@ -1463,7 +1461,7 @@ TEST_CASE("BrushTest.removeSingleVertex")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createCube(64.0, "asdf").value();
+  Brush brush = builder.createCube(64.0, "asdf") | kdl::value();
 
   CHECK(brush
           .removeVertices(
@@ -1561,7 +1559,7 @@ TEST_CASE("BrushTest.removeMultipleVertices")
         toRemove.push_back(vertices[j]);
         toRemove.push_back(vertices[k]);
 
-        Brush brush = builder.createBrush(vertices, "asdf").value();
+        Brush brush = builder.createBrush(vertices, "asdf") | kdl::value();
         CHECK(brush.canRemoveVertices(worldBounds, toRemove));
         CHECK(brush.removeVertices(worldBounds, toRemove).is_success());
 
@@ -1585,7 +1583,8 @@ TEST_CASE("BrushTest.moveEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value();
+    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
+    | kdl::value();
 
   const vm::vec3 p1(-32.0, -32.0, -32.0);
   const vm::vec3 p2(-32.0, -32.0, +32.0);
@@ -1677,7 +1676,7 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -1711,7 +1710,7 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge1.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge1.end()).is_success());
   CHECK(brush.addVertex(worldBounds, edge2.start()).is_success());
@@ -1736,7 +1735,7 @@ TEST_CASE("BrushTest.moveFace")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createCube(64.0, "asdf").value();
+  Brush brush = builder.createCube(64.0, "asdf") | kdl::value();
 
   std::vector<vm::vec3> vertexPositions(4);
   vertexPositions[0] = vm::vec3(-32.0, -32.0, +32.0);
@@ -1779,10 +1778,9 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder
-      .createCuboid(
-        vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    builder.createCuboid(
+      vm::vec3(128.0, 128.0, 32.0), Model::BrushFaceAttributes::NoMaterialName)
+    | kdl::value();
 
   std::vector<vm::vec3> vertexPositions(4);
   vertexPositions[0] = vm::vec3(-64.0, -64.0, -16.0);
@@ -1877,7 +1875,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1898,7 +1896,7 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1909,7 +1907,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128.0, Model::BrushFaceAttributes::NoMaterialName).value();
+    builder.createCube(128.0, Model::BrushFaceAttributes::NoMaterialName) | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1934,7 +1932,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
   CHECK(brush.bounds() == vm::bbox3(vm::vec3(-64, -64, -64), vm::vec3(64, 64, 64)));
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1969,7 +1967,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   const auto topFaceIndex = brush.findFace(topFaceNormal);
   assertCanMoveFace(brush, topFaceIndex, vm::vec3(0, 0, -127));
@@ -2017,7 +2015,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   // Try to move the top face down along the Z axis
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2084,7 +2082,7 @@ TEST_CASE("BrushTest.moveTwoFaces")
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
-      .value();
+    | kdl::value();
 
   CHECK(brush.hasFace(vm::polygon3(leftPolygon)));
   CHECK(brush.hasFace(vm::polygon3(bottomPolygon)));
@@ -2111,7 +2109,7 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush =
-    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName).value();
+    builder.createCube(128, Model::BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -2173,10 +2171,11 @@ TEST_CASE("moveFaceWithUVLock")
 
   const vm::bbox3 worldBounds(4096.0);
 
-  Assets::Material testMaterial("testMaterial", 64, 64);
+  auto textureResource = createTextureResource(Assets::Texture{64, 64});
+  auto testMaterial = Assets::Material{"testMaterial", std::move(textureResource)};
 
   BrushBuilder builder(format, worldBounds);
-  Brush brush = builder.createCube(64.0, "").value();
+  Brush brush = builder.createCube(64.0, "") | kdl::value();
   for (auto& face : brush.faces())
   {
     face.setMaterial(&testMaterial);
@@ -2256,22 +2255,20 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   const Brush minuend =
-    builder
-      .createCuboid(
-        vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)),
-        minuendMaterial)
-      .value();
+    builder.createCuboid(
+      vm::bbox3(vm::vec3(-32.0, -16.0, -32.0), vm::vec3(32.0, 16.0, 32.0)),
+      minuendMaterial)
+    | kdl::value();
   const Brush subtrahend =
-    builder
-      .createCuboid(
-        vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)),
-        subtrahendMaterial)
-      .value();
+    builder.createCuboid(
+      vm::bbox3(vm::vec3(-16.0, -32.0, -64.0), vm::vec3(16.0, 32.0, 0.0)),
+      subtrahendMaterial)
+    | kdl::value();
 
   const auto fragments =
-    kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, defaultMaterial, subtrahend))
-      .value();
+
+    minuend.subtract(MapFormat::Standard, worldBounds, defaultMaterial, subtrahend)
+    | kdl::fold() | kdl::value();
   CHECK(fragments.size() == 3u);
 
   const Brush* left = nullptr;
@@ -2396,13 +2393,12 @@ TEST_CASE("BrushTest.subtractDisjoint")
   CHECK_FALSE(brush1Bounds.intersects(brush2Bounds));
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  const Brush brush1 = builder.createCuboid(brush1Bounds, "material").value();
-  const Brush brush2 = builder.createCuboid(brush2Bounds, "material").value();
+  const Brush brush1 = builder.createCuboid(brush1Bounds, "material") | kdl::value();
+  const Brush brush2 = builder.createCuboid(brush2Bounds, "material") | kdl::value();
 
   const auto fragments =
-    kdl::fold_results(
-      brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2))
-      .value();
+    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold()
+    | kdl::value();
   CHECK(fragments.size() == 1u);
 
   const Brush& subtraction = fragments.at(0);
@@ -2419,13 +2415,12 @@ TEST_CASE("BrushTest.subtractEnclosed")
   CHECK(brush1Bounds.intersects(brush2Bounds));
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  const Brush brush1 = builder.createCuboid(brush1Bounds, "material").value();
-  const Brush brush2 = builder.createCuboid(brush2Bounds, "material").value();
+  const Brush brush1 = builder.createCuboid(brush1Bounds, "material") | kdl::value();
+  const Brush brush2 = builder.createCuboid(brush2Bounds, "material") | kdl::value();
 
   const auto fragments =
-    kdl::fold_results(
-      brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2))
-      .value();
+    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold()
+    | kdl::value();
   CHECK(fragments.empty());
 }
 } // namespace Model

@@ -19,8 +19,6 @@
 
 #include "EntityModelLoader.h"
 
-#include "Assets/EntityModel.h"
-
 namespace TrenchBroom::IO
 {
 

@@ -122,24 +122,25 @@ Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
     return Error{"Could not create shader " + name};
   }
 
-  return loadSource(path).and_then([&](const auto& source) -> Result<Shader> {
-    const auto linePtrs =
-      kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
+  return loadSource(path) | kdl::and_then([&](const auto& source) -> Result<Shader> {
+           const auto linePtrs =
+             kdl::vec_transform(source, [](const auto& line) { return line.c_str(); });
 
-    glAssert(
-      glShaderSource(shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));
-    glAssert(glCompileShader(shaderId));
+           glAssert(glShaderSource(
+             shaderId, GLsizei(linePtrs.size()), linePtrs.data(), nullptr));
+           glAssert(glCompileShader(shaderId));
 
-    auto compileStatus = GLint{};
-    glAssert(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus));
+           auto compileStatus = GLint{};
+           glAssert(glGetShaderiv(shaderId, GL_COMPILE_STATUS, &compileStatus));
 
-    if (compileStatus == 0)
-    {
-      return Error{"Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
-    }
+           if (compileStatus == 0)
+           {
+             return Error{
+               "Could not compile shader '" + name + "': " + getInfoLog(shaderId)};
+           }
 
-    return Shader{std::move(name), type, shaderId};
-  });
+           return Shader{std::move(name), type, shaderId};
+         });
 }
 
 } // namespace TrenchBroom::Renderer

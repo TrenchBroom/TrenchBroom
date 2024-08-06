@@ -51,7 +51,7 @@ TEST_CASE("NodeQueries")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -196,7 +196,7 @@ TEST_CASE("collectBrushFaces")
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   worldNode.defaultLayer()->addChild(brushNode);
 

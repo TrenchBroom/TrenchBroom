@@ -44,7 +44,6 @@ namespace TrenchBroom::Model
 {
 
 void setDefaultProperties(
-  const EntityPropertyConfig& propertyConfig,
   const Assets::EntityDefinition& entityDefinition,
   Entity& entity,
   const SetDefaultPropertyMode mode)
@@ -61,8 +60,7 @@ void setDefaultProperties(
         || (mode == SetDefaultPropertyMode::SetExisting && hasProperty)
         || (mode == SetDefaultPropertyMode::SetMissing && !hasProperty))
       {
-        entity.addOrUpdateProperty(
-          propertyConfig, propertyDefinition->key(), defaultValue);
+        entity.addOrUpdateProperty(propertyDefinition->key(), defaultValue);
       }
     }
   }
@@ -72,25 +70,11 @@ kdl_reflect_impl(Entity);
 
 const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
 
-Entity::Entity()
-  : m_cachedProperties{
-    EntityPropertyValues::NoClassname, vm::vec3{}, vm::mat4x4{}, vm::mat4x4{}}
-{
-}
+Entity::Entity() = default;
 
-Entity::Entity(
-  const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties)
+Entity::Entity(std::vector<EntityProperty> properties)
   : m_properties{std::move(properties)}
 {
-  updateCachedProperties(propertyConfig);
-}
-
-Entity::Entity(
-  const EntityPropertyConfig& propertyConfig,
-  std::initializer_list<EntityProperty> properties)
-  : m_properties{std::move(properties)}
-{
-  updateCachedProperties(propertyConfig);
 }
 
 const std::vector<EntityProperty>& Entity::properties() const
@@ -106,11 +90,14 @@ Entity& Entity::operator=(Entity&& other) = default;
 
 Entity::~Entity() = default;
 
-void Entity::setProperties(
-  const EntityPropertyConfig& propertyConfig, std::vector<EntityProperty> properties)
+void Entity::setProperties(std::vector<EntityProperty> properties)
 {
   m_properties = std::move(properties);
-  updateCachedProperties(propertyConfig);
+
+  m_cachedClassname = std::nullopt;
+  m_cachedOrigin = std::nullopt;
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
 }
 
 const std::vector<std::string>& Entity::protectedProperties() const
@@ -128,8 +115,7 @@ bool Entity::pointEntity() const
   return m_pointEntity;
 }
 
-void Entity::setPointEntity(
-  const EntityPropertyConfig& propertyConfig, const bool pointEntity)
+void Entity::setPointEntity(const bool pointEntity)
 {
   if (m_pointEntity == pointEntity)
   {
@@ -137,7 +123,9 @@ void Entity::setPointEntity(
   }
 
   m_pointEntity = pointEntity;
-  updateCachedProperties(propertyConfig);
+
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
 }
 
 Assets::EntityDefinition* Entity::definition()
@@ -157,8 +145,7 @@ const vm::bbox3& Entity::definitionBounds() const
            : DefaultBounds;
 }
 
-void Entity::setDefinition(
-  const EntityPropertyConfig& propertyConfig, Assets::EntityDefinition* definition)
+void Entity::setDefinition(Assets::EntityDefinition* definition)
 {
   if (m_definition.get() == definition)
   {
@@ -166,16 +153,17 @@ void Entity::setDefinition(
   }
 
   m_definition = Assets::AssetReference{definition};
-  updateCachedProperties(propertyConfig);
+
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
 }
 
-const Assets::EntityModelFrame* Entity::model() const
+const Assets::EntityModel* Entity::model() const
 {
   return m_model;
 }
 
-void Entity::setModel(
-  const EntityPropertyConfig& propertyConfig, const Assets::EntityModelFrame* model)
+void Entity::setModel(const Assets::EntityModel* model)
 {
   if (m_model == model)
   {
@@ -183,7 +171,16 @@ void Entity::setModel(
   }
 
   m_model = model;
-  updateCachedProperties(propertyConfig);
+
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
+}
+
+const Assets::EntityModelFrame* Entity::modelFrame() const
+{
+  return m_model && m_model->data()
+           ? m_model->data()->frame(modelSpecification().frameIndex)
+           : nullptr;
 }
 
 Assets::ModelSpecification Entity::modelSpecification() const
@@ -201,9 +198,27 @@ Assets::ModelSpecification Entity::modelSpecification() const
   }
 }
 
-const vm::mat4x4& Entity::modelTransformation() const
+const vm::mat4x4& Entity::modelTransformation(
+  const std::optional<EL::Expression>& defaultModelScaleExpression) const
 {
-  return m_cachedProperties.modelTransformation;
+  if (!m_cachedModelTransformation)
+  {
+    if (
+      const auto* pointDefinition =
+        dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
+    {
+      const auto variableStore = EntityPropertiesVariableStore{*this};
+      const auto scale = Assets::safeGetModelScale(
+        pointDefinition->modelDefinition(), variableStore, defaultModelScaleExpression);
+      m_cachedModelTransformation =
+        vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
+    }
+    else
+    {
+      m_cachedModelTransformation = vm::mat4x4::identity();
+    }
+  }
+  return *m_cachedModelTransformation;
 }
 
 Assets::DecalSpecification Entity::decalSpecification() const
@@ -230,15 +245,12 @@ void Entity::unsetEntityDefinitionAndModel()
 
   m_definition = Assets::AssetReference<Assets::EntityDefinition>{};
   m_model = nullptr;
-  m_cachedProperties.rotation = entityRotation(*this);
-  m_cachedProperties.modelTransformation = vm::mat4x4::identity();
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
 }
 
 void Entity::addOrUpdateProperty(
-  const EntityPropertyConfig& propertyConfig,
-  std::string key,
-  std::string value,
-  const bool defaultToProtected)
+  std::string key, std::string value, const bool defaultToProtected)
 {
   auto it = findEntityProperty(m_properties, key);
   if (it != std::end(m_properties))
@@ -254,13 +266,14 @@ void Entity::addOrUpdateProperty(
       m_protectedProperties.push_back(std::move(key));
     }
   }
-  updateCachedProperties(propertyConfig);
+
+  m_cachedClassname = std::nullopt;
+  m_cachedOrigin = std::nullopt;
+  m_cachedRotation = std::nullopt;
+  m_cachedModelTransformation = std::nullopt;
 }
 
-void Entity::renameProperty(
-  const EntityPropertyConfig& propertyConfig,
-  const std::string& oldKey,
-  std::string newKey)
+void Entity::renameProperty(const std::string& oldKey, std::string newKey)
 {
   if (oldKey == newKey)
   {
@@ -285,37 +298,41 @@ void Entity::renameProperty(
     }
 
     oldIt->setKey(std::move(newKey));
-    updateCachedProperties(propertyConfig);
+
+    m_cachedClassname = std::nullopt;
+    m_cachedOrigin = std::nullopt;
+    m_cachedRotation = std::nullopt;
+    m_cachedModelTransformation = std::nullopt;
   }
 }
 
-void Entity::removeProperty(
-  const EntityPropertyConfig& propertyConfig, const std::string& key)
+void Entity::removeProperty(const std::string& key)
 {
   const auto it = findEntityProperty(m_properties, key);
   if (it != std::end(m_properties))
   {
     m_properties.erase(it);
-    updateCachedProperties(propertyConfig);
+
+    m_cachedClassname = std::nullopt;
+    m_cachedOrigin = std::nullopt;
+    m_cachedRotation = std::nullopt;
+    m_cachedModelTransformation = std::nullopt;
   }
 }
 
-void Entity::removeNumberedProperty(
-  const EntityPropertyConfig& propertyConfig, const std::string& prefix)
+void Entity::removeNumberedProperty(const std::string& prefix)
 {
-  auto it = std::begin(m_properties);
-  while (it != std::end(m_properties))
+  const auto erasedPropertyCount = std::erase_if(m_properties, [&](const auto& property) {
+    return property.hasNumberedPrefix(prefix);
+  });
+
+  if (erasedPropertyCount)
   {
-    if (it->hasNumberedPrefix(prefix))
-    {
-      it = m_properties.erase(it);
-    }
-    else
-    {
-      ++it;
-    }
+    m_cachedClassname = std::nullopt;
+    m_cachedOrigin = std::nullopt;
+    m_cachedRotation = std::nullopt;
+    m_cachedModelTransformation = std::nullopt;
   }
-  updateCachedProperties(propertyConfig);
 }
 
 bool Entity::hasProperty(const std::string& key) const
@@ -361,29 +378,63 @@ std::vector<std::string> Entity::propertyKeys() const
 
 const std::string& Entity::classname() const
 {
-  return m_cachedProperties.classname;
+  if (!m_cachedClassname)
+  {
+    const auto* classnameValue = property(EntityPropertyKeys::Classname);
+    m_cachedClassname =
+      classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
+  }
+  return *m_cachedClassname;
 }
 
-void Entity::setClassname(
-  const EntityPropertyConfig& propertyConfig, const std::string& classname)
+void Entity::setClassname(const std::string& classname)
 {
-  addOrUpdateProperty(propertyConfig, EntityPropertyKeys::Classname, classname);
+  addOrUpdateProperty(EntityPropertyKeys::Classname, classname);
 }
+
+
+namespace
+{
+auto parseOrigin(const std::string* str)
+{
+  if (!str)
+  {
+    return vm::vec3::zero();
+  }
+
+  const auto parsed = vm::parse<FloatType, 3>(*str);
+  if (!parsed || vm::is_nan(*parsed))
+  {
+    return vm::vec3::zero();
+  }
+
+  return *parsed;
+}
+} // namespace
 
 const vm::vec3& Entity::origin() const
 {
-  return m_cachedProperties.origin;
+  if (!m_cachedOrigin)
+  {
+    const auto* originValue = property(EntityPropertyKeys::Origin);
+    m_cachedOrigin = parseOrigin(originValue);
+  }
+  return *m_cachedOrigin;
 }
 
-void Entity::setOrigin(const EntityPropertyConfig& propertyConfig, const vm::vec3& origin)
+void Entity::setOrigin(const vm::vec3& origin)
 {
   addOrUpdateProperty(
-    propertyConfig, EntityPropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
+    EntityPropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
 }
 
 const vm::mat4x4& Entity::rotation() const
 {
-  return m_cachedProperties.rotation;
+  if (!m_cachedRotation)
+  {
+    m_cachedRotation = entityRotation(*this);
+  }
+  return *m_cachedRotation;
 }
 
 std::vector<EntityProperty> Entity::propertiesWithKey(const std::string& key) const
@@ -405,8 +456,7 @@ std::vector<EntityProperty> Entity::numberedProperties(const std::string& prefix
   });
 }
 
-void Entity::transform(
-  const EntityPropertyConfig& propertyConfig, const vm::mat4x4& transformation)
+void Entity::transform(const vm::mat4x4& transformation, const bool updateAngleProperty)
 {
   if (m_pointEntity)
   {
@@ -416,7 +466,7 @@ void Entity::transform(
     const auto newOrigin = transformedCenter - offset;
     if (origin() != newOrigin)
     {
-      setOrigin(propertyConfig, transformedCenter - offset);
+      setOrigin(transformedCenter - offset);
     }
   }
 
@@ -426,64 +476,10 @@ void Entity::transform(
   if (rotation != vm::mat4x4::identity())
   {
     // applyRotation does not read the origin, so it's ok that it's already updated now
-    applyRotation(propertyConfig, rotation);
-  }
-}
-
-void Entity::applyRotation(
-  const EntityPropertyConfig& propertyConfig, const vm::mat4x4& rotation)
-{
-  if (propertyConfig.updateAnglePropertyAfterTransform)
-  {
-    applyEntityRotation(*this, propertyConfig, rotation);
-  }
-}
-
-namespace
-{
-auto parseOrigin(const std::string* str)
-{
-  if (!str)
-  {
-    return vm::vec3::zero();
-  }
-
-  const auto parsed = vm::parse<FloatType, 3>(*str);
-  if (!parsed || vm::is_nan(*parsed))
-  {
-    return vm::vec3::zero();
-  }
-
-  return *parsed;
-}
-} // namespace
-
-void Entity::updateCachedProperties(const EntityPropertyConfig& propertyConfig)
-{
-  const auto* classnameValue = property(EntityPropertyKeys::Classname);
-  const auto* originValue = property(EntityPropertyKeys::Origin);
-
-  // order is important here because EntityRotation::getRotation accesses classname
-  m_cachedProperties.classname =
-    classnameValue ? *classnameValue : EntityPropertyValues::NoClassname;
-  m_cachedProperties.origin = parseOrigin(originValue);
-  m_cachedProperties.rotation = entityRotation(*this);
-
-  if (
-    const auto* pointDefinition =
-      dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
-  {
-    const auto variableStore = EntityPropertiesVariableStore{*this};
-    const auto scale = Assets::safeGetModelScale(
-      pointDefinition->modelDefinition(),
-      variableStore,
-      propertyConfig.defaultModelScaleExpression);
-    m_cachedProperties.modelTransformation =
-      vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
-  }
-  else
-  {
-    m_cachedProperties.modelTransformation = vm::mat4x4::identity();
+    if (updateAngleProperty)
+    {
+      applyEntityRotation(*this, rotation);
+    }
   }
 }
 

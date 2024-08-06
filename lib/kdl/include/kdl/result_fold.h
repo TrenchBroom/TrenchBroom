@@ -97,6 +97,75 @@ auto fold_results(C&& c)
   return fold_results(std::begin(c), std::end(c));
 }
 
+/**
+ * Folds the given range of results into a single result with a vector of success values
+ * or an error. If given void results, the result is a void result again. The returned
+ * result has the same error types as the results in the given range.
+ *
+ * If any of the given results contains an error, that error is returned.
+ */
+template <typename I>
+auto collect_results(I cur, I end)
+{
+  using in_result_type = typename std::iterator_traits<I>::value_type;
+  using in_value_type = typename in_result_type::value_type;
+  using in_error_type = typename in_result_type::error_variant;
+
+  using out_value_vector_type = std::vector<in_value_type>;
+  using out_error_vector_type = std::vector<in_error_type>;
+
+  if constexpr (std::is_same_v<in_value_type, void>)
+  {
+    auto errors = out_error_vector_type{};
+
+    while (cur != end)
+    {
+      if (cur->is_error())
+      {
+        errors.push_back(std::move(*cur).error());
+      }
+      ++cur;
+    }
+
+    return errors;
+  }
+  else if constexpr (in_result_type::error_count == 0)
+  {
+    auto values = out_value_vector_type{};
+
+    while (cur != end)
+    {
+      values.push_back(std::move(*cur).value());
+      ++cur;
+    }
+
+    return values;
+  }
+  else
+  {
+    using out_type = multi_value<out_value_vector_type, out_error_vector_type>;
+
+    auto values = out_value_vector_type{};
+    auto errors = out_error_vector_type{};
+
+    while (cur != end)
+    {
+      std::move(*cur).visit(kdl::overload(
+        [&](in_value_type&& v) { values.push_back(std::move(v)); },
+        [&](auto&& e) { errors.emplace_back(std::forward<decltype(e)>(e)); }));
+      ++cur;
+    }
+
+    return out_type{std::move(values), std::move(errors)};
+  }
+}
+
+template <typename C>
+auto collect_results(C&& c)
+{
+  return collect_results(c.begin(), c.end());
+}
+
 template <typename I, typename F>
 auto select_first(I cur, I end, const F& f)
   -> std::optional<typename decltype(f(*cur))::value_type>
@@ -151,4 +220,18 @@ auto operator|(C&& c, const result_first<F>& first)
   return select_first(std::forward<C>(c), first.f);
 }
 
+struct result_collect
+{
+};
+
+inline auto collect()
+{
+  return result_collect{};
+}
+
+template <typename C>
+auto operator|(C&& c, const result_collect&)
+{
+  return collect_results(std::forward<C>(c));
+}
 } // namespace kdl

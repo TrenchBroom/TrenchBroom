@@ -19,6 +19,7 @@
 
 #include "BrushRenderer.h"
 
+#include "Assets/Material.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -186,6 +187,24 @@ void BrushRenderer::invalidate()
   assert(m_brushInfo.empty());
   assert(m_transparentFaces->empty());
   assert(m_opaqueFaces->empty());
+}
+
+void BrushRenderer::invalidateMaterials(
+  const std::vector<const Assets::Material*>& materials)
+{
+  const auto materialSet =
+    std::unordered_set<const Assets::Material*>{materials.begin(), materials.end()};
+  for (auto* brush : m_allBrushes)
+  {
+    for (const auto& face : brush->brush().faces())
+    {
+      if (materialSet.count(face.material()) > 0)
+      {
+        brush->brushRendererBrushCache().invalidateVertexCache();
+        invalidateBrush(brush);
+      }
+    }
+  }
 }
 
 void BrushRenderer::invalidateBrush(const Model::BrushNode* brushNode)

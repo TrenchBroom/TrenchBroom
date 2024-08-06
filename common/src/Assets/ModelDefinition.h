@@ -19,20 +19,19 @@
 
 #pragma once
 
+#include "Assets/ModelSpecification.h"
 #include "EL/Expression.h"
 #include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <filesystem>
 #include <iosfwd>
 #include <optional>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
 namespace ModelSpecificationKeys
@@ -42,19 +41,6 @@ constexpr auto Skin = "skin";
 constexpr auto Frame = "frame";
 constexpr auto Scale = "scale";
 } // namespace ModelSpecificationKeys
-
-struct ModelSpecification
-{
-  std::filesystem::path path;
-  size_t skinIndex;
-  size_t frameIndex;
-
-  ModelSpecification();
-  ModelSpecification(
-    const std::filesystem::path& path, size_t skinIndex, size_t frameIndex);
-
-  kdl_reflect_decl(ModelSpecification, path, skinIndex, frameIndex);
-};
 
 class ModelDefinition
 {
@@ -112,5 +98,5 @@ vm::vec3 safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
   const std::optional<EL::Expression>& defaultScaleExpression);
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

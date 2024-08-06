@@ -29,7 +29,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
-#include "IO/LoadMaterialCollection.h"
 #include "IO/NodeReader.h"
 #include "IO/NodeWriter.h"
 #include "IO/TestParserStatus.h"
@@ -166,7 +165,9 @@ void TestGame::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager) const
+void TestGame::loadMaterialCollections(
+  Assets::MaterialManager& materialManager,
+  const Assets::CreateTextureResource& createResource) const
 {
   const Model::MaterialConfig materialConfig{
     "textures",
@@ -177,7 +178,7 @@ void TestGame::loadMaterialCollections(Assets::MaterialManager& materialManager)
     {},
   };
 
-  materialManager.reload(*m_fs, materialConfig);
+  materialManager.reload(*m_fs, materialConfig, createResource);
 }
 
 void TestGame::reloadWads(
@@ -193,12 +194,6 @@ void TestGame::reloadWads(
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
     m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
   }
-}
-
-Result<void> TestGame::reloadShaders()
-{
-  return kdl::void_success;
-  ;
 }
 
 bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) const
@@ -245,19 +240,6 @@ Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
 {
   return Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>{
     std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
-}
-
-std::unique_ptr<Assets::EntityModel> TestGame::initializeModel(
-  const std::filesystem::path& /* path */, Logger& /* logger */) const
-{
-  return nullptr;
-}
-void TestGame::loadFrame(
-  const std::filesystem::path& /* path */,
-  size_t /* frameIndex */,
-  Assets::EntityModel& /* model */,
-  Logger& /* logger */) const
-{
 }
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)

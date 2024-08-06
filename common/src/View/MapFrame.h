@@ -84,12 +84,13 @@ class MapFrame : public QMainWindow
 {
   Q_OBJECT
 private:
-  FrameManager* m_frameManager = nullptr;
+  FrameManager& m_frameManager;
   std::shared_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
   std::unique_ptr<Autosaver> m_autosaver;
   QTimer* m_autosaveTimer = nullptr;
+  QTimer* m_processResourcesTimer = nullptr;
 
   QToolBar* m_toolBar = nullptr;
 
@@ -130,7 +131,7 @@ private:
   SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
+  MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document);
   ~MapFrame() override;
 
   void positionOnScreen(QWidget* reference);
@@ -424,6 +425,7 @@ public: // event filter (suppress autosave for user input events)
 
 private:
   void triggerAutosave();
+  void triggerProcessResources();
 };
 
 class DebugPaletteWindow : public QDialog

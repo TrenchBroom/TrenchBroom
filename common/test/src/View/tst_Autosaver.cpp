@@ -215,7 +215,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
     auto autosaver = Autosaver{document, 100ms, maxBackups};
 
     // modify the map
-    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+    auto* entity = new Model::EntityNode{{}};
+    document->addNodes({{document->currentLayer(), {entity}}});
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave(logger);

@@ -51,11 +51,11 @@ void CreateSimpleBrushTool::update(const vm::bbox3& bounds)
     game->config().faceAttribsConfig.defaults);
 
   builder.createCuboid(bounds, document->currentMaterialName())
-    .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
-    .transform_error([&](auto e) {
-      updateBrush(nullptr);
-      document->error() << "Could not update brush: " << e;
-    });
+    | kdl::transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+    | kdl::transform_error([&](auto e) {
+        updateBrush(nullptr);
+        document->error() << "Could not update brush: " << e;
+      });
 }
 
 } // namespace View

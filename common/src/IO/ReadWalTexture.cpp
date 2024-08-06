@@ -200,26 +200,26 @@ Result<Assets::Texture> readDkWal(Reader& reader)
     auto embeddedDefaults = Assets::Q2EmbeddedDefaults{flags, contents, value};
 
     return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
-      .transform([&](const auto& palette) {
-        auto [buffers, hasTransparency] = readMips(
-          palette,
-          mipLevels,
-          offsets,
-          width,
-          height,
-          reader,
-          averageColor,
-          Assets::PaletteTransparency::Index255Transparent);
+           | kdl::transform([&](const auto& palette) {
+               auto [buffers, hasTransparency] = readMips(
+                 palette,
+                 mipLevels,
+                 offsets,
+                 width,
+                 height,
+                 reader,
+                 averageColor,
+                 Assets::PaletteTransparency::Index255Transparent);
 
-        return Assets::Texture{
-          width,
-          height,
-          averageColor,
-          GL_RGBA,
-          hasTransparency ? Assets::TextureMask::On : Assets::TextureMask::Off,
-          std::move(embeddedDefaults),
-          std::move(buffers)};
-      });
+               return Assets::Texture{
+                 width,
+                 height,
+                 averageColor,
+                 GL_RGBA,
+                 hasTransparency ? Assets::TextureMask::On : Assets::TextureMask::Off,
+                 std::move(embeddedDefaults),
+                 std::move(buffers)};
+             });
   }
   catch (const ReaderException& e)
   {

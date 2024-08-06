@@ -75,8 +75,8 @@ TEST_CASE("NodeCollection.counts")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -102,8 +102,8 @@ TEST_CASE("NodeCollection.has")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -219,8 +219,8 @@ TEST_CASE("NodeCollection.iterators")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -251,8 +251,8 @@ TEST_CASE("NodeCollection.collections")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -297,11 +297,11 @@ TEST_CASE("NodeCollection.collections")
   SECTION("nested brushes")
   {
     auto* brushInLayer = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
     auto* brushInGroup = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
     auto* brushInEntity = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
     layerNode.addChild(brushInLayer);
     groupNode.addChild(brushInGroup);
@@ -317,8 +317,8 @@ TEST_CASE("NodeCollection.addNode")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -377,8 +377,8 @@ TEST_CASE("NodeCollection.addNodes")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -413,8 +413,8 @@ TEST_CASE("NodeCollection.removeNode")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -483,8 +483,8 @@ TEST_CASE("NodeCollection.clear")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {

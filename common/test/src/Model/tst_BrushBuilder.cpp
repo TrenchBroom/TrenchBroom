@@ -40,7 +40,7 @@ TEST_CASE("BrushBuilderTest.createCube")
   const auto worldBounds = vm::bbox3{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  const auto cube = builder.createCube(128.0, "someName").value();
+  const auto cube = builder.createCube(128.0, "someName") | kdl::value();
   CHECK(cube.fullySpecified());
   CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
 
@@ -67,7 +67,7 @@ TEST_CASE("BrushBuilderTest.createCubeDefaults")
   defaultAttribs.setColor(Color{255, 255, 255, 255});
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
-  const auto cube = builder.createCube(128.0, "someName").value();
+  const auto cube = builder.createCube(128.0, "someName") | kdl::value();
   CHECK(cube.fullySpecified());
   CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
 
@@ -101,20 +101,19 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
   defaultAttribs.setColor(Color{255, 255, 255, 255});
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
-  const auto brush = builder
-                       .createBrush(
-                         Polyhedron3{
-                           vm::vec3{-64, -64, -64},
-                           vm::vec3{-64, -64, +64},
-                           vm::vec3{-64, +64, -64},
-                           vm::vec3{-64, +64, +64},
-                           vm::vec3{+64, -64, -64},
-                           vm::vec3{+64, -64, +64},
-                           vm::vec3{+64, +64, -64},
-                           vm::vec3{+64, +64, +64},
-                         },
-                         "someName")
-                       .value();
+  const auto brush = builder.createBrush(
+                       Polyhedron3{
+                         vm::vec3{-64, -64, -64},
+                         vm::vec3{-64, -64, +64},
+                         vm::vec3{-64, +64, -64},
+                         vm::vec3{-64, +64, +64},
+                         vm::vec3{+64, -64, -64},
+                         vm::vec3{+64, -64, +64},
+                         vm::vec3{+64, +64, -64},
+                         vm::vec3{+64, +64, +64},
+                       },
+                       "someName")
+                     | kdl::value();
   CHECK(brush.fullySpecified());
   CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
 

@@ -21,10 +21,8 @@
 
 #include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -35,6 +33,7 @@ namespace TrenchBroom::Assets
 {
 class Material;
 class MaterialCollection;
+class ResourceId;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::View
@@ -82,6 +81,8 @@ public:
   void revealMaterial(const Assets::Material* material);
 
 private:
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
+
   void reloadMaterials();
 
   void doInitLayout(Layout& layout) override;
@@ -93,7 +94,7 @@ private:
     const Renderer::FontDescriptor& font);
   void addMaterialToLayout(
     Layout& layout,
-    const Assets::Material* material,
+    const Assets::Material& material,
     const Renderer::FontDescriptor& font);
 
   std::vector<const Assets::MaterialCollection*> getCollections() const;

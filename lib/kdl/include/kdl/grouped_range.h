@@ -142,4 +142,13 @@ auto make_grouped_range(const C& c, Predicate predicate)
   };
 }
 
+template <typename C, typename Predicate>
+auto make_grouped_range(C& c, Predicate predicate)
+{
+  return range{
+    grouped_iterator{range{c.begin(), c.end()}, predicate},
+    grouped_iterator{range{c.end(), c.end()}, predicate},
+  };
+}
+
 } // namespace kdl

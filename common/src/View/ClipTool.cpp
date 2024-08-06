@@ -818,14 +818,14 @@ void ClipTool::updateBrushes()
         p3,
         Model::BrushFaceAttributes(document->currentMaterialName()),
         document->world()->mapFormat())
-        .and_then([&](Model::BrushFace&& clipFace) {
-          setFaceAttributes(brush.faces(), clipFace);
-          return brush.clip(worldBounds, std::move(clipFace));
-        })
-        .transform([&]() {
-          brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
-        })
-        .transform_error(
+        | kdl::and_then([&](Model::BrushFace&& clipFace) {
+            setFaceAttributes(brush.faces(), clipFace);
+            return brush.clip(worldBounds, std::move(clipFace));
+          })
+        | kdl::transform([&]() {
+            brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
+          })
+        | kdl::transform_error(
           [&](auto e) { document->error() << "Could not clip brush: " << e.msg; });
     };
 

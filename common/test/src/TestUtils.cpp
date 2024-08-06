@@ -20,6 +20,8 @@
 #include "TestUtils.h"
 
 #include "Assets/Material.h"
+#include "Assets/Resource.h"
+#include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/DiskIO.h"
@@ -168,7 +170,7 @@ std::string readTextFile(const std::filesystem::path& path)
                (std::istreambuf_iterator<char>(stream)),
                std::istreambuf_iterator<char>()};
            })
-    .value();
+         | kdl::value();
 }
 } // namespace IO
 
@@ -187,7 +189,7 @@ BrushFace createParaxial(
            point2,
            attributes,
            std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes))
-    .value();
+         | kdl::value();
 }
 
 std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges)
@@ -308,8 +310,11 @@ void transformNode(
       groupNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, EntityNode* entityNode) {
+      const auto updateAngleProperty =
+        entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
+
       auto entity = entityNode->entity();
-      entity.transform(entityNode->entityPropertyConfig(), transformation);
+      entity.transform(transformation, updateAngleProperty);
       entityNode->setEntity(std::move(entity));
 
       entityNode->visitChildren(thisLambda);
@@ -397,13 +402,14 @@ DocumentGameConfig loadMapDocument(
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
-  document
-    ->loadDocument(
-      mapFormat,
-      document->worldBounds(),
-      document->game(),
-      std::filesystem::current_path() / mapPath)
-    .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+  document->loadDocument(
+    mapFormat,
+    document->worldBounds(),
+    document->game(),
+    std::filesystem::current_path() / mapPath)
+    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+
+  document->processResourcesSync(Assets::ProcessContext{false});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
@@ -414,9 +420,8 @@ DocumentGameConfig newMapDocument(
   auto [game, gameConfig] = Model::loadGame(gameName);
 
   auto document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
-    throw std::runtime_error{e.msg};
-  });
+  document->newDocument(mapFormat, vm::bbox3(8192.0), game)
+    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
@@ -516,7 +521,8 @@ void checkColor(
 int getComponentOfPixel(
   const Assets::Material& material, std::size_t x, std::size_t y, Component component)
 {
-  return getComponentOfPixel(material.texture(), x, y, component);
+  ensure(material.texture(), "expected material to have a texture");
+  return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
 void checkColor(
@@ -529,6 +535,7 @@ void checkColor(
   const int a,
   const ColorMatch match)
 {
-  return checkColor(material.texture(), x, y, r, g, b, a, match);
+  ensure(material.texture(), "expected material to have a texture");
+  return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
 } // namespace TrenchBroom

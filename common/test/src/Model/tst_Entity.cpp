@@ -56,7 +56,6 @@ TEST_CASE("EntityTest")
   {
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
       auto definition = Assets::PointEntityDefinition{
         "some_name",
         Color{},
@@ -70,12 +69,20 @@ TEST_CASE("EntityTest")
         {}};
 
       auto entity = Entity{};
-      entity.setDefinition(config, &definition);
-      REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      entity.setDefinition(&definition);
 
-      entity.setProperties(config, {{"modelscale", "1 2 3"}});
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
 
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+
+      entity.setProperties({{"modelscale", "1 2 3"}});
+
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
     }
   }
 
@@ -117,8 +124,8 @@ TEST_CASE("EntityTest")
        {{"some_default_prop", "value"}}},
     }));
 
-    auto entity = Entity{propertyConfig, initialProperties};
-    setDefaultProperties(propertyConfig, definition, entity, mode);
+    auto entity = Entity{initialProperties};
+    setDefaultProperties(definition, entity, mode);
 
     CHECK_THAT(entity.properties(), Catch::Matchers::UnorderedEquals(expectedProperties));
   }
@@ -136,7 +143,7 @@ TEST_CASE("EntityTest")
 
     SECTION("Returns definition bounds if definition is set")
     {
-      entity.setDefinition({}, &pointEntityDefinition);
+      entity.setDefinition(&pointEntityDefinition);
       CHECK(entity.definitionBounds() == vm::bbox3{32.0});
     }
   }
@@ -145,7 +152,6 @@ TEST_CASE("EntityTest")
   {
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
       auto definition = Assets::PointEntityDefinition{
         "some_name",
         Color{},
@@ -156,10 +162,18 @@ TEST_CASE("EntityTest")
         {}};
 
       auto entity = Entity{};
-      REQUIRE(entity.modelTransformation() == vm::mat4x4::identity());
 
-      entity.setDefinition(config, &definition);
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::mat4x4::identity());
+
+      entity.setDefinition(&definition);
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
   }
 
@@ -181,12 +195,12 @@ TEST_CASE("EntityTest")
       {}};
 
     auto entity = Entity{};
-    entity.setDefinition({}, &definition);
+    entity.setDefinition(&definition);
     CHECK(
       entity.modelSpecification()
       == Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 
-    entity.addOrUpdateProperty({}, EntityPropertyKeys::Spawnflags, "1");
+    entity.addOrUpdateProperty(EntityPropertyKeys::Spawnflags, "1");
     CHECK(
       entity.modelSpecification()
       == Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
@@ -206,16 +220,15 @@ TEST_CASE("EntityTest")
       Assets::DecalDefinition{decalExpression}};
 
     auto entity = Entity{};
-    entity.setDefinition({}, &definition);
+    entity.setDefinition(&definition);
     CHECK(entity.decalSpecification() == Assets::DecalSpecification{""});
 
-    entity.addOrUpdateProperty({}, "texture", "decal1");
+    entity.addOrUpdateProperty("texture", "decal1");
     CHECK(entity.decalSpecification() == Assets::DecalSpecification{"decal1"});
   }
 
   SECTION("unsetEntityDefinitionAndModel")
   {
-    auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
@@ -226,12 +239,19 @@ TEST_CASE("EntityTest")
       {}};
 
     auto entity = Entity{};
-    entity.setDefinition(config, &definition);
-    REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+    entity.setDefinition(&definition);
+
+    const auto defaultModelScaleExpression =
+      EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+
+    REQUIRE(
+      entity.modelTransformation(defaultModelScaleExpression)
+      == vm::scaling_matrix(vm::vec3{2, 2, 2}));
 
     entity.unsetEntityDefinitionAndModel();
     CHECK(entity.definition() == nullptr);
-    CHECK(entity.modelTransformation() == vm::mat4x4::identity());
+    CHECK(
+      entity.modelTransformation(defaultModelScaleExpression) == vm::mat4x4::identity());
   }
 
   SECTION("addOrUpdateProperty")
@@ -243,20 +263,20 @@ TEST_CASE("EntityTest")
     auto entity = Entity{};
     REQUIRE(entity.property("test") == nullptr);
 
-    entity.addOrUpdateProperty({}, "test", "value");
+    entity.addOrUpdateProperty("test", "value");
     CHECK(*entity.property("test") == "value");
 
-    entity.addOrUpdateProperty({}, "test", "newValue");
+    entity.addOrUpdateProperty("test", "newValue");
     CHECK(*entity.property("test") == "newValue");
 
     SECTION("Setting a new property to protected by default")
     {
-      entity.addOrUpdateProperty({}, "newKey", "newValue", true);
+      entity.addOrUpdateProperty("newKey", "newValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
         Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
-      entity.addOrUpdateProperty({}, "test", "anotherValue", true);
+      entity.addOrUpdateProperty("test", "anotherValue", true);
       CHECK_THAT(
         entity.protectedProperties(),
         Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
@@ -264,13 +284,17 @@ TEST_CASE("EntityTest")
 
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+      entity.setDefinition(&definition);
+      REQUIRE(
+        entity.modelTransformation(
+          EL::Expression{EL::LiteralExpression{EL::Value{1.0}}, 0, 0})
+        == vm::scaling_matrix(vm::vec3{1, 1, 1}));
 
-      entity.setDefinition({}, &definition);
-      REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{1, 1, 1}));
-
-      entity.addOrUpdateProperty(config, "something", "else");
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      entity.addOrUpdateProperty("something", "else");
+      CHECK(
+        entity.modelTransformation(
+          EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0})
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
   }
 
@@ -294,26 +318,26 @@ TEST_CASE("EntityTest")
     SECTION("Rename non existing property")
     {
       REQUIRE(!entity.hasProperty("originalKey"));
-      entity.renameProperty({}, "originalKey", "newKey");
+      entity.renameProperty("originalKey", "newKey");
       CHECK(!entity.hasProperty("originalKey"));
       CHECK(!entity.hasProperty("newKey"));
     }
 
-    entity.addOrUpdateProperty({}, "originalKey", "originalValue");
+    entity.addOrUpdateProperty("originalKey", "originalValue");
     REQUIRE(*entity.property("originalKey") == "originalValue");
 
     SECTION("Rename existing property")
     {
-      entity.renameProperty({}, "originalKey", "newKey");
+      entity.renameProperty("originalKey", "newKey");
       CHECK(!entity.hasProperty("originalKey"));
       CHECK(*entity.property("newKey") == "originalValue");
     }
 
     SECTION("Rename existing property - name conflict")
     {
-      entity.addOrUpdateProperty({}, "newKey", "newValue");
+      entity.addOrUpdateProperty("newKey", "newValue");
 
-      entity.renameProperty({}, "originalKey", "newKey");
+      entity.renameProperty("originalKey", "newKey");
       CHECK(!entity.hasProperty("originalKey"));
       CHECK(*entity.property("newKey") == "originalValue");
     }
@@ -321,7 +345,7 @@ TEST_CASE("EntityTest")
     SECTION("Rename existing protected property")
     {
       entity.setProtectedProperties({"originalKey"});
-      entity.renameProperty({}, "originalKey", "newKey");
+      entity.renameProperty("originalKey", "newKey");
       CHECK_THAT(
         entity.protectedProperties(),
         Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
@@ -329,17 +353,24 @@ TEST_CASE("EntityTest")
 
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
 
-      entity.setDefinition(config, &definition);
-      entity.addOrUpdateProperty(config, "something", "1 2 3");
-      REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      entity.setDefinition(&definition);
+      entity.addOrUpdateProperty("something", "1 2 3");
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
 
-      entity.renameProperty(config, "something", "modelscale");
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+      entity.renameProperty("something", "modelscale");
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
 
-      entity.renameProperty(config, "modelscale", "not modelscale");
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      entity.renameProperty("modelscale", "not modelscale");
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
   }
 
@@ -363,25 +394,25 @@ TEST_CASE("EntityTest")
     SECTION("Remove non existing property")
     {
       REQUIRE(!entity.hasProperty("key"));
-      entity.removeProperty({}, "key");
+      entity.removeProperty("key");
       CHECK(!entity.hasProperty("key"));
     }
 
     SECTION("Remove existing property")
     {
-      entity.addOrUpdateProperty({}, "key", "value");
-      entity.removeProperty({}, "key");
+      entity.addOrUpdateProperty("key", "value");
+      entity.removeProperty("key");
       CHECK(!entity.hasProperty("key"));
     }
 
     SECTION("Remove protected property")
     {
-      entity.addOrUpdateProperty({}, "newKey", "value", true);
+      entity.addOrUpdateProperty("newKey", "value", true);
       REQUIRE_THAT(
         entity.protectedProperties(),
         Catch::UnorderedEquals(std::vector<std::string>{"newKey"}));
 
-      entity.removeProperty({}, "newKey");
+      entity.removeProperty("newKey");
       REQUIRE(!entity.hasProperty("newKey"));
       CHECK_THAT(
         entity.protectedProperties(),
@@ -390,14 +421,20 @@ TEST_CASE("EntityTest")
 
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+      entity.setDefinition(&definition);
+      entity.addOrUpdateProperty("modelscale", "1 2 3");
 
-      entity.setDefinition(config, &definition);
-      entity.addOrUpdateProperty(config, "modelscale", "1 2 3");
-      REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
 
-      entity.removeProperty(config, "modelscale");
-      CHECK(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+
+      entity.removeProperty("modelscale");
+      CHECK(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
   }
 
@@ -406,14 +443,14 @@ TEST_CASE("EntityTest")
     auto entity = Entity{};
     CHECK(!entity.hasProperty("value"));
 
-    entity.setProperties({}, {{"key", "value"}});
+    entity.setProperties({{"key", "value"}});
     CHECK(entity.hasProperty("key"));
   }
 
   SECTION("originUpdateWithSetProperties")
   {
     auto entity = Entity{};
-    entity.setProperties({}, {{"origin", "10 20 30"}});
+    entity.setProperties({{"origin", "10 20 30"}});
 
     CHECK(entity.origin() == vm::vec3{10, 20, 30});
   }
@@ -421,12 +458,10 @@ TEST_CASE("EntityTest")
   SECTION("hasPropertyWithPrefix")
   {
     auto entity = Entity{};
-    entity.setProperties(
-      {},
-      {
-        {"somename", "somevalue"},
-        {"someothername", "someothervalue"},
-      });
+    entity.setProperties({
+      {"somename", "somevalue"},
+      {"someothername", "someothervalue"},
+    });
 
     CHECK(entity.hasPropertyWithPrefix("somename", "somevalue"));
     CHECK(entity.hasPropertyWithPrefix("some", "somevalue"));
@@ -439,13 +474,11 @@ TEST_CASE("EntityTest")
   SECTION("hasNumberedProperty")
   {
     auto entity = Entity{};
-    entity.setProperties(
-      {},
-      {
-        {"target", "value"},
-        {"target1", "value1"},
-        {"target2", "value2"},
-      });
+    entity.setProperties({
+      {"target", "value"},
+      {"target1", "value1"},
+      {"target2", "value2"},
+    });
 
     CHECK(entity.hasNumberedProperty("target", "value"));
     CHECK(entity.hasNumberedProperty("target", "value1"));
@@ -460,7 +493,7 @@ TEST_CASE("EntityTest")
 
     CHECK(entity.property("key") == nullptr);
 
-    entity.addOrUpdateProperty({}, "key", "value");
+    entity.addOrUpdateProperty("key", "value");
     CHECK(entity.property("key") != nullptr);
     CHECK(*entity.property("key") == "value");
   }
@@ -475,7 +508,7 @@ TEST_CASE("EntityTest")
       CHECK(entity.classname() == EntityPropertyValues::NoClassname);
     }
 
-    entity.addOrUpdateProperty({}, EntityPropertyKeys::Classname, "testclass");
+    entity.addOrUpdateProperty(EntityPropertyKeys::Classname, "testclass");
     SECTION("Entities with a classname property return the value")
     {
       CHECK(*entity.property(EntityPropertyKeys::Classname) == "testclass");
@@ -484,14 +517,14 @@ TEST_CASE("EntityTest")
 
     SECTION("addOrUpdateProperty updates cached classname property")
     {
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Classname, "newclass");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Classname, "newclass");
       CHECK(*entity.property(EntityPropertyKeys::Classname) == "newclass");
       CHECK(entity.classname() == "newclass");
     }
 
     SECTION("setProperties updates cached classname property")
     {
-      entity.setProperties({}, {{EntityPropertyKeys::Classname, "newclass"}});
+      entity.setProperties({{EntityPropertyKeys::Classname, "newclass"}});
       CHECK(*entity.property(EntityPropertyKeys::Classname) == "newclass");
       CHECK(entity.classname() == "newclass");
     }
@@ -502,13 +535,13 @@ TEST_CASE("EntityTest")
     auto entity = Entity{};
     REQUIRE(entity.classname() == EntityPropertyValues::NoClassname);
 
-    entity.setClassname({}, "testclass");
+    entity.setClassname("testclass");
     CHECK(*entity.property(EntityPropertyKeys::Classname) == "testclass");
     CHECK(entity.classname() == "testclass");
 
     SECTION("Updates cached classname property")
     {
-      entity.setClassname({}, "otherclass");
+      entity.setClassname("otherclass");
       CHECK(*entity.property(EntityPropertyKeys::Classname) == "otherclass");
       CHECK(entity.classname() == "otherclass");
     }
@@ -526,23 +559,23 @@ TEST_CASE("EntityTest")
 
     SECTION("Entities with invalid origin property return 0,0,0")
     {
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2");
       CHECK(entity.origin() == vm::vec3::zero());
 
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "asdf");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "asdf");
       CHECK(entity.origin() == vm::vec3::zero());
     }
 
     SECTION("Entities with nan origin property return 0,0,0")
     {
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2 nan");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 nan");
       CHECK(entity.origin() == vm::vec3::zero());
 
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "nan nan nan");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "nan nan nan");
       CHECK(entity.origin() == vm::vec3::zero());
     }
 
-    entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2 3");
+    entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
     SECTION("Entities with an origin property return the value")
     {
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
@@ -551,14 +584,14 @@ TEST_CASE("EntityTest")
 
     SECTION("addOrUpdateProperty updates cached classname property")
     {
-      entity.addOrUpdateProperty({}, EntityPropertyKeys::Origin, "1 2 3");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
       CHECK(entity.origin() == vm::vec3{1, 2, 3});
     }
 
     SECTION("setProperties updates cached classname property")
     {
-      entity.setProperties({}, {{EntityPropertyKeys::Origin, "3 4 5"}});
+      entity.setProperties({{EntityPropertyKeys::Origin, "3 4 5"}});
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
       CHECK(entity.origin() == vm::vec3{3, 4, 5});
     }
@@ -582,30 +615,32 @@ TEST_CASE("EntityTest")
     auto entity = Entity{};
     REQUIRE(entity.origin() == vm::vec3::zero());
 
-    entity.setOrigin({}, vm::vec3{1, 2, 3});
+    entity.setOrigin(vm::vec3{1, 2, 3});
     CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
     CHECK(entity.origin() == vm::vec3{1, 2, 3});
 
     SECTION("Updates cached origin property")
     {
-      entity.setOrigin({}, vm::vec3{3, 4, 5});
+      entity.setOrigin(vm::vec3{3, 4, 5});
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
       CHECK(entity.origin() == vm::vec3{3, 4, 5});
     }
 
     SECTION("Updates cached model transformation")
     {
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+      entity.setDefinition(&definition);
 
-      entity.setDefinition(config, &definition);
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+
       REQUIRE(
-        entity.modelTransformation()
+        entity.modelTransformation(defaultModelScaleExpression)
         == vm::translation_matrix(vm::vec3{1, 2, 3})
              * vm::scaling_matrix(vm::vec3{2, 2, 2}));
 
-      entity.setOrigin(config, vm::vec3{9, 8, 7});
+      entity.setOrigin(vm::vec3{9, 8, 7});
       REQUIRE(
-        entity.modelTransformation()
+        entity.modelTransformation(defaultModelScaleExpression)
         == vm::translation_matrix(vm::vec3{9, 8, 7})
              * vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
@@ -631,7 +666,7 @@ TEST_CASE("EntityTest")
     SECTION("Requires classname for rotation")
     {
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-      entity.transform({}, rotation);
+      entity.transform(rotation, true);
 
       // rotation had no effect
       CHECK(entity.rotation() == vm::mat4x4::identity());
@@ -639,12 +674,12 @@ TEST_CASE("EntityTest")
 
     SECTION("Requires point entity for rotation")
     {
-      entity.setClassname({}, "some_class");
-      entity.setPointEntity({}, false);
+      entity.setClassname("some_class");
+      entity.setPointEntity(false);
       REQUIRE(entity.rotation() == vm::mat4x4::identity());
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-      entity.transform({}, rotation);
+      entity.transform(rotation, true);
 
       // rotation had no effect
       CHECK(entity.rotation() == vm::mat4x4::identity());
@@ -652,11 +687,11 @@ TEST_CASE("EntityTest")
 
     SECTION("Rotate - without offset")
     {
-      entity.setClassname({}, "some_class");
-      entity.setOrigin({}, vm::vec3{10, 20, 30});
+      entity.setClassname("some_class");
+      entity.setOrigin(vm::vec3{10, 20, 30});
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-      entity.transform({}, rotation);
+      entity.transform(rotation, true);
 
       CHECK(entity.rotation() == rotation);
       CHECK(entity.origin() == vm::vec3{-20, 10, 30});
@@ -664,13 +699,13 @@ TEST_CASE("EntityTest")
 
     SECTION("Rotate - with offset")
     {
-      entity.setClassname({}, "some_class");
-      entity.setOrigin({}, vm::vec3{32, 32, 0});
+      entity.setClassname("some_class");
+      entity.setOrigin(vm::vec3{32, 32, 0});
 
-      entity.setDefinition({}, &definition);
+      entity.setDefinition(&definition);
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-      entity.transform({}, rotation);
+      entity.transform(rotation, true);
 
       CHECK(entity.rotation() == vm::mat4x4::identity());
       CHECK(entity.origin() == vm::vec3{-64, 32, 0});
@@ -678,52 +713,51 @@ TEST_CASE("EntityTest")
 
     SECTION("Rotate - with subsequent translation")
     {
-      entity.setClassname({}, "some_class");
+      entity.setClassname("some_class");
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
-      entity.transform({}, rotation);
+      entity.transform(rotation, true);
       REQUIRE(entity.rotation() == rotation);
 
-      entity.transform({}, vm::translation_matrix(vm::vec3{100, 0, 0}));
+      entity.transform(vm::translation_matrix(vm::vec3{100, 0, 0}), true);
       CHECK(entity.rotation() == rotation);
     }
 
     SECTION("Updates cached model transformation")
     {
-      entity.setClassname({}, "some_class");
+      entity.setClassname("some_class");
 
-      auto config = EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+      const auto defaultModelScaleExpression =
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
 
-      entity.setDefinition(config, &otherDefinition);
-      REQUIRE(entity.modelTransformation() == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      entity.setDefinition(&otherDefinition);
+      REQUIRE(
+        entity.modelTransformation(defaultModelScaleExpression)
+        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
 
-      entity.transform(config, vm::translation_matrix(vm::vec3{8, 7, 6}));
+      entity.transform(vm::translation_matrix(vm::vec3{8, 7, 6}), true);
       CHECK(
-        entity.modelTransformation()
+        entity.modelTransformation(defaultModelScaleExpression)
         == vm::translation_matrix(vm::vec3{8, 7, 6})
              * vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
 
     SECTION("Updates angle property")
     {
-      auto entityPropertyConfig = EntityPropertyConfig{};
-
-      entity.setClassname(entityPropertyConfig, "light");
-      entity.addOrUpdateProperty(entityPropertyConfig, EntityPropertyKeys::Angle, "0");
+      entity.setClassname("light");
+      entity.addOrUpdateProperty(EntityPropertyKeys::Angle, "0");
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
 
       SECTION("If property update after transform is enabled")
       {
-        entity.transform(entityPropertyConfig, rotation);
+        entity.transform(rotation, true);
         CHECK(*entity.property(EntityPropertyKeys::Angle) == "90");
       }
 
       SECTION("If property update after transform is disabled")
       {
-        entityPropertyConfig.updateAnglePropertyAfterTransform = false;
-
-        entity.transform(entityPropertyConfig, rotation);
+        entity.transform(rotation, false);
         CHECK(*entity.property(EntityPropertyKeys::Angle) == "0");
       }
     }

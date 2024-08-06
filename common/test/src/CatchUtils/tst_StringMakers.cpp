@@ -63,7 +63,8 @@ TEST_CASE("convertToString")
 
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
-  auto* brushNode = new BrushNode{brushBuilder.createCube(64.0, "material").value()};
+  auto* brushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {

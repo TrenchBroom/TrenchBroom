@@ -203,15 +203,12 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 void ModEditor::updateAvailableMods()
 {
   auto document = kdl::mem_lock(m_document);
-  document->game()
-    ->availableMods()
-    .transform([&](auto availableMods) {
-      m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
-    })
-    .transform_error([&](auto e) {
-      m_availableMods.clear();
-      document->error() << "Could not update available mods: " << e.msg;
-    });
+  document->game()->availableMods() | kdl::transform([&](auto availableMods) {
+    m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+  }) | kdl::transform_error([&](auto e) {
+    m_availableMods.clear();
+    document->error() << "Could not update available mods: " << e.msg;
+  });
 }
 
 void ModEditor::updateMods()

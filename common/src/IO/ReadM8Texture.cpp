@@ -82,47 +82,51 @@ Result<Assets::Texture> readM8Texture(Reader& reader)
     reader.seekForward(M8Layout::PaletteSize);
 
     return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
-      .transform([&](const auto& palette) {
-        reader.seekForward(4); // flags
-        reader.seekForward(4); // contents
-        reader.seekForward(4); // value
+           | kdl::transform([&](const auto& palette) {
+               reader.seekForward(4); // flags
+               reader.seekForward(4); // contents
+               reader.seekForward(4); // value
 
-        auto mip0AverageColor = Color{};
-        auto buffers = Assets::TextureBufferList{};
-        for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
-        {
-          const auto w = widths[mipLevel];
-          const auto h = heights[mipLevel];
+               auto mip0AverageColor = Color{};
+               auto buffers = Assets::TextureBufferList{};
+               for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
+               {
+                 const auto w = widths[mipLevel];
+                 const auto h = heights[mipLevel];
 
-          if (w == 0 || h == 0)
-          {
-            break;
-          }
+                 if (w == 0 || h == 0)
+                 {
+                   break;
+                 }
 
-          reader.seekFromBegin(offsets[mipLevel]);
+                 reader.seekFromBegin(offsets[mipLevel]);
 
-          auto rgbaImage = Assets::TextureBuffer{4 * w * h};
+                 auto rgbaImage = Assets::TextureBuffer{4 * w * h};
 
-          auto averageColor = Color{};
-          palette.indexedToRgba(
-            reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
-          buffers.emplace_back(std::move(rgbaImage));
+                 auto averageColor = Color{};
+                 palette.indexedToRgba(
+                   reader,
+                   w * h,
+                   rgbaImage,
+                   Assets::PaletteTransparency::Opaque,
+                   averageColor);
+                 buffers.emplace_back(std::move(rgbaImage));
 
-          if (mipLevel == 0)
-          {
-            mip0AverageColor = averageColor;
-          }
-        }
+                 if (mipLevel == 0)
+                 {
+                   mip0AverageColor = averageColor;
+                 }
+               }
 
-        return Assets::Texture{
-          widths[0],
-          heights[0],
-          mip0AverageColor,
-          GL_RGBA,
-          Assets::TextureMask::Off,
-          Assets::NoEmbeddedDefaults{},
-          std::move(buffers)};
-      });
+               return Assets::Texture{
+                 widths[0],
+                 heights[0],
+                 mip0AverageColor,
+                 GL_RGBA,
+                 Assets::TextureMask::Off,
+                 Assets::NoEmbeddedDefaults{},
+                 std::move(buffers)};
+             });
   }
   catch (const ReaderException& e)
   {

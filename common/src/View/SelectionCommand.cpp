@@ -164,10 +164,11 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
     return std::make_unique<CommandResult>(true);
   case Action::SelectFaces:
     return std::make_unique<CommandResult>(
-      Model::resolveAllRefs(m_faceRefs)
-        .transform([&](const auto& faceHandles) { document->performSelect(faceHandles); })
-        .transform_error([&](const auto& e) { document->error() << e.msg; })
-        .is_success());
+      Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
+        document->performSelect(faceHandles);
+      })
+      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+      | kdl::is_success());
   case Action::SelectAllNodes:
     document->performSelectAllNodes();
     return std::make_unique<CommandResult>(true);
@@ -182,11 +183,11 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
     return std::make_unique<CommandResult>(true);
   case Action::DeselectFaces:
     return std::make_unique<CommandResult>(
-      Model::resolveAllRefs(m_faceRefs)
-        .transform(
-          [&](const auto& faceHandles) { document->performDeselect(faceHandles); })
-        .transform_error([&](const auto& e) { document->error() << e.msg; })
-        .is_success());
+      Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
+        document->performDeselect(faceHandles);
+      })
+      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+      | kdl::is_success());
   case Action::DeselectAll:
     document->performDeselectAll();
     return std::make_unique<CommandResult>(true);
@@ -206,9 +207,10 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
   {
     return std::make_unique<CommandResult>(
       Model::resolveAllRefs(m_previouslySelectedFaceRefs)
-        .transform([&](const auto& faceHandles) { document->performSelect(faceHandles); })
-        .transform_error([&](const auto& e) { document->error() << e.msg; })
-        .is_success());
+      | kdl::transform(
+        [&](const auto& faceHandles) { document->performSelect(faceHandles); })
+      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+      | kdl::is_success());
   }
   return std::make_unique<CommandResult>(true);
 }

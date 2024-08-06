@@ -48,8 +48,8 @@ TEST_CASE("LayerNodeTest.canAddChild")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -75,8 +75,8 @@ TEST_CASE("LayerNodeTest.canRemoveChild")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {

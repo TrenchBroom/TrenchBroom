@@ -61,9 +61,8 @@ void MapDocumentTest::SetUp()
 {
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(m_mapFormat, vm::bbox3{8192.0}, game).transform_error([](auto e) {
-    throw std::runtime_error{e.msg};
-  });
+  document->newDocument(m_mapFormat, vm::bbox3{8192.0}, game)
+    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   // create two entity definitions
   m_pointEntityDef = new Assets::PointEntityDefinition{
@@ -92,7 +91,7 @@ Model::BrushNode* MapDocumentTest::createBrushNode(
     document->worldBounds(),
     document->game()->config().faceAttribsConfig.defaults};
 
-  auto brush = builder.createCube(32.0, materialName).value();
+  auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);
   return new Model::BrushNode{std::move(brush)};
 }
@@ -496,7 +495,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
       Model::Entity{},
       Model::MapFormat::Standard));
     document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
-      .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+      | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<Assets::PointEntityDefinition>(
       "some_name",
@@ -572,7 +571,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
       Model::Entity{},
       Model::MapFormat::Standard));
     document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
-      .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+      | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<Assets::BrushEntityDefinition>(
       "some_name",
@@ -629,11 +628,9 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<Assets::EntityDefinition>>(
     std::move(definitionWithDefaultsOwner)));
 
-  auto* entityNodeWithoutDefinition = new Model::EntityNode{
-    document->world()->entityPropertyConfig(),
-    {
-      {"classname", "some_class"},
-    }};
+  auto* entityNodeWithoutDefinition = new Model::EntityNode{Model::Entity{{
+    {"classname", "some_class"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNodeWithoutDefinition}}});
   document->selectNodes({entityNodeWithoutDefinition});
   document->setProperty("some_prop", "some_value");

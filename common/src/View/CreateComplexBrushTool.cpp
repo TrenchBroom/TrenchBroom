@@ -60,11 +60,11 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
       game->config().faceAttribsConfig.defaults);
 
     builder.createBrush(*m_polyhedron, document->currentMaterialName())
-      .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
-      .transform_error([&](auto e) {
-        updateBrush(nullptr);
-        document->error() << "Could not update brush: " << e.msg;
-      });
+      | kdl::transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+      | kdl::transform_error([&](auto e) {
+          updateBrush(nullptr);
+          document->error() << "Could not update brush: " << e.msg;
+        });
   }
   else
   {

@@ -44,13 +44,13 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
   const auto cfgFiles =
     Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".fgd"}))
-      .value();
+    | kdl::value();
 
   for (const auto& path : cfgFiles)
   {
     CAPTURE(path);
 
-    auto file = Disk::openFile(path).value();
+    auto file = Disk::openFile(path) | kdl::value();
     auto reader = file->reader().buffer();
 
     auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -965,7 +965,7 @@ TEST_CASE("FgdParserTest.parseInclude")
 {
   const auto path =
     std::filesystem::current_path() / "fixture/test/IO/Fgd/parseInclude/host.fgd";
-  auto file = Disk::openFile(path).value();
+  auto file = Disk::openFile(path) | kdl::value();
   auto reader = file->reader().buffer();
 
   auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -985,7 +985,7 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
 {
   const auto path =
     std::filesystem::current_path() / "fixture/test/IO/Fgd/parseNestedInclude/host.fgd";
-  auto file = Disk::openFile(path).value();
+  auto file = Disk::openFile(path) | kdl::value();
   auto reader = file->reader().buffer();
 
   auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
@@ -1008,7 +1008,7 @@ TEST_CASE("FgdParserTest.parseRecursiveInclude")
 {
   const auto path = std::filesystem::current_path()
                     / "fixture/test/IO/Fgd/parseRecursiveInclude/host.fgd";
-  auto file = Disk::openFile(path).value();
+  auto file = Disk::openFile(path) | kdl::value();
   auto reader = file->reader().buffer();
 
   auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};

@@ -174,9 +174,8 @@ Result<CFile::BufferType> CFile::buffer(const size_t position, const size_t size
   auto buffer = std::shared_ptr<char[]>{new char[size]};
 #endif
 
-  return read(buffer.get(), position, size).transform([&]() {
-    return std::move(buffer);
-  });
+  return read(buffer.get(), position, size)
+         | kdl::transform([&]() { return std::move(buffer); });
 }
 
 Error CFile::makeError(const std::string& msg) const
@@ -187,12 +186,12 @@ Error CFile::makeError(const std::string& msg) const
 
 Result<std::shared_ptr<CFile>> createCFile(const std::filesystem::path& path)
 {
-  return openPathAsFILE(path, "rb").and_then([](auto file) {
-    return fileSize(*file).transform([&](auto size) {
-      // NOLINTNEXTLINE
-      return std::shared_ptr<CFile>{new CFile{std::move(file), size}};
-    });
-  });
+  return openPathAsFILE(path, "rb") | kdl::and_then([](auto file) {
+           return fileSize(*file) | kdl::transform([&](auto size) {
+                    // NOLINTNEXTLINE
+                    return std::shared_ptr<CFile>{new CFile{std::move(file), size}};
+                  });
+         });
 }
 
 FileView::FileView(std::shared_ptr<File> file, const size_t offset, const size_t length)

@@ -200,22 +200,22 @@ TEST_CASE("PreferencesTest.read")
   CHECK(parsePreferencesFromJson(QByteArray("{}")).is_success());
 
   readPreferencesFromFile("fixture/test/preferences-v2.json")
-    .transform(
+    | kdl::transform(
       [](const std::map<std::filesystem::path, QJsonValue>& prefs) { testPrefs(prefs); })
-    .transform_error([](const auto&) { FAIL_CHECK(); });
+    | kdl::transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
 TEST_CASE("PreferencesTest.testWriteRead")
 {
   const auto fromFile =
-    readPreferencesFromFile("fixture/test/preferences-v2.json").value();
+    readPreferencesFromFile("fixture/test/preferences-v2.json") | kdl::value();
 
   const QByteArray serialized = writePreferencesToJson(fromFile);
   parsePreferencesFromJson(serialized)
-    .transform([&](const std::map<std::filesystem::path, QJsonValue>& prefs) {
-      CHECK(fromFile == prefs);
-    })
-    .transform_error([](const auto&) { FAIL_CHECK(); });
+    | kdl::transform([&](const std::map<std::filesystem::path, QJsonValue>& prefs) {
+        CHECK(fromFile == prefs);
+      })
+    | kdl::transform_error([](const auto&) { FAIL_CHECK(); });
 }
 
 /**
@@ -242,9 +242,9 @@ static void testSerialize(const QJsonValue& str, const PrimitiveType& value)
   const auto testDeserializeOption = maybeDeserialize<Serializer, PrimitiveType>(str);
   const auto testSerialize = serialize<Serializer, PrimitiveType>(value);
 
-  REQUIRE(testDeserializeOption.has_value());
+  REQUIRE(testDeserializeOption != std::nullopt);
 
-  CHECK(testDeserializeOption.value() == value);
+  CHECK(*testDeserializeOption == value);
   CHECK(testSerialize == str);
 }
 

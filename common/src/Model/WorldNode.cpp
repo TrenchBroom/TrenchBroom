@@ -57,10 +57,8 @@ WorldNode::WorldNode(
   , m_updateNodeTree{true}
 {
   entity.addOrUpdateProperty(
-    m_entityPropertyConfig,
-    EntityPropertyKeys::Classname,
-    EntityPropertyValues::WorldspawnClassname);
-  entity.setPointEntity(m_entityPropertyConfig, false);
+    EntityPropertyKeys::Classname, EntityPropertyValues::WorldspawnClassname);
+  entity.setPointEntity(false);
   setEntity(std::move(entity));
   createDefaultLayer();
 }
@@ -69,8 +67,7 @@ WorldNode::WorldNode(
   EntityPropertyConfig entityPropertyConfig,
   std::initializer_list<EntityProperty> properties,
   const MapFormat mapFormat)
-  : WorldNode{
-    entityPropertyConfig, Entity{entityPropertyConfig, std::move(properties)}, mapFormat}
+  : WorldNode{entityPropertyConfig, Entity{std::move(properties)}, mapFormat}
 {
 }
 

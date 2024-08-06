@@ -114,7 +114,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces")
                             vm::vec3(-161.0, 672.0, 128.0),
                             vm::vec3(-217.0, 672.0, 128.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 7u);
@@ -181,7 +181,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces2")
                             vm::vec3(3280.0, 1344.0, 1280.0),
                             vm::vec3(3280.0, 1152.0, 1280.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 9u);
@@ -230,7 +230,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces3")
                             vm::vec3(-32.0, -864.0, 896.0),
                             vm::vec3(-32.0, -832.0, 896.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -281,7 +281,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces4")
                             vm::vec3(-1268.0, 272.0, 2524.0),
                             vm::vec3(-1280.0, 265.0, 2534.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -334,7 +334,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces5")
                             vm::vec3(1280.0, 896.0, 1056.0),
                             vm::vec3(1296.0, 896.0, 1056.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -379,7 +379,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces6")
                             vm::vec3(-96.0, -32.0, -3840.0),
                             vm::vec3(-80.0, -80.0, -3840.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 5u);
@@ -450,7 +450,7 @@ TEST_CASE("BrushTest.constructBrushWithManySides")
                             vm::vec3(636.0, 812.0, -480.0),
                             "face22"),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 8u);
@@ -530,7 +530,7 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail")
           vm::vec3(-729.68857812925364, -640, 1880.2734073044885),
           vm::vec3(-910.70791411300991, -640, 2061.2927432882443)),
       })
-      .value();
+    | kdl::value();
 
   CHECK(brush.fullySpecified());
 }
@@ -551,7 +551,7 @@ TEST_CASE("BrushTest.moveVertexFailing1")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "material").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   for (size_t i = 0; i < oldPositions.size(); ++i)
   {
@@ -1339,7 +1339,7 @@ TEST_CASE("BrushTest.moveFaceFailure_1499")
   const vm::bbox3 worldBounds(8192.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(points, "asdf").value();
+  Brush brush = builder.createBrush(points, "asdf") | kdl::value();
 
   std::vector<vm::vec3> topFacePos;
   topFacePos.push_back(p1);
@@ -1560,8 +1560,9 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::fold_results(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend));
+  const auto result =
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend)
+    | kdl::fold();
   CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
@@ -1697,9 +1698,8 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto fragments =
-    kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend))
-      .value();
+    minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend)
+    | kdl::fold() | kdl::value();
   CHECK(fragments.size() == 8u);
 
   kdl::col_delete_all(minuendNodes);

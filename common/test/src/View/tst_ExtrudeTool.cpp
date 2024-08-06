@@ -74,7 +74,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});
@@ -133,7 +133,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material").value()};
+    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});

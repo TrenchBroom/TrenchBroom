@@ -63,7 +63,8 @@ TEST_CASE("BrushNodeTest.entity")
   const auto worldBounds = vm::bbox3{4096.0};
 
   auto* brushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure")
+    | kdl::value()};
   auto entityNode = EntityNode{Entity{}};
 
   CHECK(brushNode->entity() == nullptr);
@@ -100,7 +101,7 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
   CHECK(!brush.hasSelectedFaces());
 
@@ -173,7 +174,7 @@ TEST_CASE("BrushNodeTest.containsPatchNode")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
-  auto brushNode = BrushNode{builder.createCube(64.0, "some_material").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
@@ -201,7 +202,7 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 
   auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
-  auto brushNode = BrushNode{builder.createCube(64.0, "some_material").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
@@ -243,10 +244,9 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
   SECTION("Brush does not contain any grid points, but patch intersects")
   {
     auto thinBrushNode = BrushNode{
-      builder
-        .createCuboid(
-          vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_material")
-        .value()};
+      builder.createCuboid(
+        vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_material")
+      | kdl::value()};
     for (const auto& point : patchNode.grid().points)
     {
       REQUIRE_FALSE(thinBrushNode.brush().containsPoint(point.position));
@@ -284,7 +284,7 @@ TEST_CASE("BrushNodeTest.pick")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
   PickResult hits1;
   brush.pick(editorContext, vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
@@ -327,7 +327,7 @@ TEST_CASE("BrushNodeTest.clone")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
   auto clone = std::unique_ptr<BrushNode>{
     static_cast<BrushNode*>(original.clone(worldBounds, SetLinkId::generate))};

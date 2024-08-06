@@ -878,11 +878,34 @@ TEST_CASE("Hierarchical ImageFileSystems")
         "pics/tag1.pcx",
         "bear.cfg",
       }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{0}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "pics",
+        "bear.cfg",
+      }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{1}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "textures/e1u3",
+        "textures/e1u2",
+        "textures/e1u1",
+        "pics",
+        "pics/tag2.pcx",
+        "pics/tag1.pcx",
+        "bear.cfg",
+      }));
   }
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg").value();
+    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -954,7 +977,7 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D").value();
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D") | kdl::value();
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());

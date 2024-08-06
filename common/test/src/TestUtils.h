@@ -56,9 +56,10 @@ namespace IO
 template <typename FS>
 auto openFS(const std::filesystem::path& path)
 {
-  return Disk::openFile(path)
-    .and_then([](auto file) { return createImageFileSystem<FS>(std::move(file)); })
-    .value();
+  return Disk::openFile(path) | kdl::and_then([](auto file) {
+           return createImageFileSystem<FS>(std::move(file));
+         })
+         | kdl::value();
 }
 
 std::string readTextFile(const std::filesystem::path& path);

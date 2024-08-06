@@ -19,17 +19,12 @@
 
 #pragma once
 
-#include <filesystem>
-#include <memory>
+#include "Assets/EntityModel_Forward.h"
+#include "Result.h"
 
 namespace TrenchBroom
 {
 class Logger;
-}
-
-namespace TrenchBroom::Assets
-{
-class EntityModel;
 }
 
 namespace TrenchBroom::IO
@@ -40,13 +35,7 @@ class EntityModelLoader
 public:
   virtual ~EntityModelLoader();
 
-  virtual std::unique_ptr<Assets::EntityModel> initializeModel(
-    const std::filesystem::path& path, Logger& logger) const = 0;
-  virtual void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const = 0;
+  virtual Result<Assets::EntityModelData> load(Logger& logger) = 0;
 };
 
 } // namespace TrenchBroom::IO

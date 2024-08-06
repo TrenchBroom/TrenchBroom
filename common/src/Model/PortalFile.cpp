@@ -49,8 +49,7 @@ bool canLoadPortalFile(const std::filesystem::path& path)
 {
   return IO::Disk::withInputStream(
            path, [](auto& stream) { return stream.is_open() && stream.good(); })
-    .transform_error([](const auto&) { return false; })
-    .value();
+         | kdl::transform_error([](const auto&) { return false; }) | kdl::value();
 }
 
 Result<PortalFile> loadPortalFile(std::istream& stream)

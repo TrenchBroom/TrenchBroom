@@ -96,29 +96,29 @@ Result<Assets::Texture> readMipTexture(
                                 : Assets::PaletteTransparency::Opaque;
 
     Assets::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
-    return getMipPalette(reader).transform([&](const auto& palette) {
-      for (size_t i = 0; i < MipLevels; ++i)
-      {
-        reader.seekFromBegin(offset[i]);
-        const auto size = mipSize(width, height, i);
+    return getMipPalette(reader) | kdl::transform([&](const auto& palette) {
+             for (size_t i = 0; i < MipLevels; ++i)
+             {
+               reader.seekFromBegin(offset[i]);
+               const auto size = mipSize(width, height, i);
 
-        auto tempColor = Color{};
-        palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor);
-        if (i == 0)
-        {
-          averageColor = tempColor;
-        }
-      }
+               auto tempColor = Color{};
+               palette.indexedToRgba(reader, size, buffers[i], transparency, tempColor);
+               if (i == 0)
+               {
+                 averageColor = tempColor;
+               }
+             }
 
-      return Assets::Texture{
-        width,
-        height,
-        averageColor,
-        GL_RGBA,
-        mask,
-        Assets::NoEmbeddedDefaults{},
-        std::move(buffers)};
-    });
+             return Assets::Texture{
+               width,
+               height,
+               averageColor,
+               GL_RGBA,
+               mask,
+               Assets::NoEmbeddedDefaults{},
+               std::move(buffers)};
+           });
   }
   catch (const ReaderException& e)
   {

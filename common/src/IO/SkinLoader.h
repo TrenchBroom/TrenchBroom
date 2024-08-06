@@ -46,7 +46,5 @@ Assets::Material loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger);
 
-Assets::Material loadShader(
-  const std::filesystem::path& path, const FileSystem& fs, Logger& logger);
 } // namespace IO
 } // namespace TrenchBroom

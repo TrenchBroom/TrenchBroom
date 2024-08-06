@@ -49,10 +49,10 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
 
   auto* brushNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
   CHECK(entityNode->children().size() == 1u);
@@ -76,10 +76,10 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
 
   auto* brushNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
   CHECK(entityNode->children().size() == 1u);
@@ -123,13 +123,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
 
   auto brush1 =
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
-      .value();
+    | kdl::value();
   brush1.face(*brush1.findFace(vm::vec3::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto brush2 =
     builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value();
+    | kdl::value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
@@ -165,10 +165,10 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
 
   auto brush1 =
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value();
+    | kdl::value();
   auto brush2 =
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 32}}, "material")
-      .value();
+    | kdl::value();
   brush2.face(*brush2.findFace(vm::vec3::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
@@ -207,13 +207,13 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
 
   auto* minuendNode = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   auto* subtrahendNode1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 32, 64}}, "material")
-      .value()};
+    | kdl::value()};
   auto* subtrahendNode2 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{32, 32, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
 
   document->addNodes({{entityNode, {minuendNode, subtrahendNode1, subtrahendNode2}}});
   CHECK(entityNode->children().size() == 3u);
@@ -250,7 +250,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 
   auto* subtrahend1 = new Model::BrushNode{
     builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-      .value()};
+    | kdl::value()};
   document->addNodes({{entityNode, {subtrahend1}}});
 
   document->selectNodes({subtrahend1});

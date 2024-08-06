@@ -119,7 +119,7 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   }
 
   const auto notifyChange = NotifyPropertyChange{*this};
-  m_entity.setDefinition(entityPropertyConfig(), definition);
+  m_entity.setDefinition(definition);
 }
 
 EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase& node)

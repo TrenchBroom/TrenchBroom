@@ -48,10 +48,12 @@ TEST_CASE("EntityNodeIndexTest.addEntityNode")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
-  EntityNode* entity2 =
-    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 = new EntityNode(Entity{{
+    {"test", "somevalue"},
+    {"other", "someothervalue"},
+  }});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -75,10 +77,12 @@ TEST_CASE("EntityNodeIndexTest.removeEntityNode")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
-  EntityNode* entity2 =
-    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 = new EntityNode(Entity{{
+    {"test", "somevalue"},
+    {"other", "someothervalue"},
+  }});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -97,23 +101,16 @@ TEST_CASE("EntityNodeIndexTest.addProperty")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
-
-  EntityNode* entity2 = new EntityNode(
-    {},
-    {
-      {"test", "somevalue"},
-    });
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
+  EntityNode* entity2 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
 
-  entity2->setEntity(Entity(
-    {},
-    {
-      {"test", "somevalue"},
-      {"other", "someothervalue"},
-    }));
+  entity2->setEntity(Entity{{
+    {"test", "somevalue"},
+    {"other", "someothervalue"},
+  }});
   index.addProperty(entity2, "other", "someothervalue");
 
   CHECK(findExactExact(index, "test", "notfound").empty());
@@ -135,10 +132,12 @@ TEST_CASE("EntityNodeIndexTest.removeProperty")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
-  EntityNode* entity2 =
-    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 = new EntityNode{Entity{{
+    {"test", "somevalue"},
+    {"other", "someothervalue"},
+  }}};
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -160,8 +159,10 @@ TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 =
-    new EntityNode({}, {{"test1", "somevalue"}, {"test2", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{
+    {"test1", "somevalue"},
+    {"test2", "somevalue"},
+  }});
 
   index.addEntityNode(entity1);
 
@@ -178,7 +179,7 @@ TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"delay", "3.5"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"delay", "3.5"}}});
 
   index.addEntityNode(entity1);
 
@@ -195,10 +196,12 @@ TEST_CASE("EntityNodeIndexTest.allKeys")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
-  EntityNode* entity2 =
-    new EntityNode({}, {{"test", "somevalue"}, {"other", "someothervalue"}});
+  EntityNode* entity2 = new EntityNode(Entity{{
+    {"test", "somevalue"},
+    {"other", "someothervalue"},
+  }});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);
@@ -211,10 +214,12 @@ TEST_CASE("EntityNodeIndexTest.allValuesForKeys")
 {
   EntityNodeIndex index;
 
-  EntityNode* entity1 = new EntityNode({}, {{"test", "somevalue"}});
+  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
 
-  EntityNode* entity2 =
-    new EntityNode({}, {{"test", "somevalue2"}, {"other", "someothervalue"}});
+  EntityNode* entity2 = new EntityNode(Entity{{
+    {"test", "somevalue2"},
+    {"other", "someothervalue"},
+  }});
 
   index.addEntityNode(entity1);
   index.addEntityNode(entity2);

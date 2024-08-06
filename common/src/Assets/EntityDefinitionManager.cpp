@@ -47,8 +47,8 @@ Result<void> EntityDefinitionManager::loadDefinitions(
   IO::ParserStatus& status)
 {
   return loader.loadEntityDefinitions(status, path)
-    .transform(
-      [&](auto entityDefinitions) { setDefinitions(std::move(entityDefinitions)); });
+         | kdl::transform(
+           [&](auto entityDefinitions) { setDefinitions(std::move(entityDefinitions)); });
 }
 
 void EntityDefinitionManager::setDefinitions(

@@ -32,6 +32,11 @@ namespace TrenchBroom
 class Color;
 }
 
+namespace TrenchBroom::Assets
+{
+class ResourceId;
+}
+
 namespace TrenchBroom::View
 {
 // FIXME: Renderer should not depend on View
@@ -96,7 +101,6 @@ public: // rendering
 
 private:
   void clear();
-  void commitPendingChanges();
   void setupGL(RenderBatch& renderBatch);
   void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -145,6 +149,8 @@ private: // notification
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
 
   void selectionDidChange(const View::Selection& selection);
+
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resourceIds);
 
   void materialCollectionsWillChange();
   void entityDefinitionsDidChange();

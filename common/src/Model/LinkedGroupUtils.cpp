@@ -246,20 +246,20 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
     return Error{"Updating a linked node would exceed world bounds"};
   }
 
-  return kdl::fold_results(kdl::vec_transform(
-                             nodeToClone->children(),
-                             [&](const auto* childNode) {
-                               return cloneAndTransformRecursive(
-                                 childNode, origNodeToTransformedContents, worldBounds);
-                             }))
-    .transform([&](auto childClones) {
-      for (auto& childClone : childClones)
-      {
-        clone->addChild(childClone.release());
-      }
+  return kdl::vec_transform(
+           nodeToClone->children(),
+           [&](const auto* childNode) {
+             return cloneAndTransformRecursive(
+               childNode, origNodeToTransformedContents, worldBounds);
+           })
+         | kdl::fold() | kdl::transform([&](auto childClones) {
+             for (auto& childClone : childClones)
+             {
+               clone->addChild(childClone.release());
+             }
 
-      return std::move(clone);
-    });
+             return std::move(clone);
+           });
 }
 
 /**
@@ -291,16 +291,19 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
           return std::make_pair(nodeToTransform, NodeContents{std::move(group)});
         },
         [&](const EntityNode* entityNode) -> TransformResult {
+          const auto updateAngleProperty =
+            entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
           auto entity = entityNode->entity();
-          entity.transform(entityNode->entityPropertyConfig(), transformation);
+          entity.transform(transformation, updateAngleProperty);
           return std::make_pair(nodeToTransform, NodeContents{std::move(entity)});
         },
         [&](const BrushNode* brushNode) -> TransformResult {
           auto brush = brushNode->brush();
           return brush.transform(worldBounds, transformation, true)
-            .and_then([&]() -> TransformResult {
-              return std::make_pair(nodeToTransform, NodeContents{std::move(brush)});
-            });
+                 | kdl::and_then([&]() -> TransformResult {
+                     return std::make_pair(
+                       nodeToTransform, NodeContents{std::move(brush)});
+                   });
         },
         [&](const PatchNode* patchNode) -> TransformResult {
           auto patch = patchNode->patch();
@@ -309,27 +312,31 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
         }));
     });
 
-  return kdl::fold_results(std::move(transformResults))
-    .or_else(
-      [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
-        return Error{"Failed to transform a linked node"};
-      })
-    .and_then(
-      [&](auto origNodeAndTransformedContents)
-        -> Result<std::vector<std::unique_ptr<Node>>> {
-        // Move into map for easier lookup
-        auto resultsMap = std::unordered_map<const Node*, NodeContents>{
-          origNodeAndTransformedContents.begin(), origNodeAndTransformedContents.end()};
-        origNodeAndTransformedContents.clear();
+  return std::move(transformResults) | kdl::fold()
+         | kdl::or_else(
+           [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
+             return Error{"Failed to transform a linked node"};
+           })
+         | kdl::and_then(
+           [&](auto origNodeAndTransformedContents)
+             -> Result<std::vector<std::unique_ptr<Node>>> {
+             // Move into map for easier lookup
+             auto resultsMap = std::unordered_map<const Node*, NodeContents>{
+               origNodeAndTransformedContents.begin(),
+               origNodeAndTransformedContents.end()};
+             origNodeAndTransformedContents.clear();
 
-        // Do a recursive traversal of the input node tree again,
-        // creating a matching tree structure, and move in the contents
-        // we've transformed above.
-        return kdl::fold_results(
-          kdl::vec_transform(node.children(), [&](const auto* childNode) {
-            return cloneAndTransformRecursive(childNode, resultsMap, worldBounds);
-          }));
-      });
+             // Do a recursive traversal of the input node tree again,
+             // creating a matching tree structure, and move in the contents
+             // we've transformed above.
+             return kdl::vec_transform(
+                      node.children(),
+                      [&](const auto* childNode) {
+                        return cloneAndTransformRecursive(
+                          childNode, resultsMap, worldBounds);
+                      })
+                    | kdl::fold();
+           });
 }
 
 auto makeLinkIdToNodeMap(const std::vector<Node*>& nodes)
@@ -414,14 +421,13 @@ void preserveEntityProperties(
 
   clonedEntity.setProtectedProperties(correspondingEntity.protectedProperties());
 
-  const auto entityPropertyConfig = clonedEntityNode.entityPropertyConfig();
   for (const auto& propertyKey : allProtectedProperties)
   {
     // this can change the order of properties
-    clonedEntity.removeProperty(entityPropertyConfig, propertyKey);
+    clonedEntity.removeProperty(propertyKey);
     if (const auto* propertyValue = correspondingEntity.property(propertyKey))
     {
-      clonedEntity.addOrUpdateProperty(entityPropertyConfig, propertyKey, *propertyValue);
+      clonedEntity.addOrUpdateProperty(propertyKey, *propertyValue);
     }
   }
 
@@ -472,18 +478,23 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 
   const auto targetGroupNodesToUpdate =
     kdl::vec_erase(targetGroupNodes, &sourceGroupNode);
-  return kdl::fold_results(
-    kdl::vec_transform(targetGroupNodesToUpdate, [&](auto* targetGroupNode) {
-      const auto transformation =
-        targetGroupNode->group().transformation() * *invertedSourceTransformation;
-      return cloneAndTransformChildren(sourceGroupNode, worldBounds, transformation)
-        .transform([&](auto newChildren) {
-          const auto linkIdToNodeMap = makeLinkIdToNodeMap(targetGroupNode->children());
-          preserveGroupNames(newChildren, linkIdToNodeMap);
-          preserveEntityProperties(newChildren, linkIdToNodeMap);
-          return std::pair{static_cast<Node*>(targetGroupNode), std::move(newChildren)};
-        });
-    }));
+  return kdl::vec_transform(
+           targetGroupNodesToUpdate,
+           [&](auto* targetGroupNode) {
+             const auto transformation =
+               targetGroupNode->group().transformation() * *invertedSourceTransformation;
+             return cloneAndTransformChildren(
+                      sourceGroupNode, worldBounds, transformation)
+                    | kdl::transform([&](auto newChildren) {
+                        const auto linkIdToNodeMap =
+                          makeLinkIdToNodeMap(targetGroupNode->children());
+                        preserveGroupNames(newChildren, linkIdToNodeMap);
+                        preserveEntityProperties(newChildren, linkIdToNodeMap);
+                        return std::pair{
+                          static_cast<Node*>(targetGroupNode), std::move(newChildren)};
+                      });
+           })
+         | kdl::fold();
 }
 
 namespace
@@ -501,47 +512,51 @@ template <typename SourceNode, typename TargetNode, typename F>
 Result<void> visitNodesPerPosition(
   const SourceNode& sourceNode, TargetNode& targetNode, const F& f)
 {
-  return sourceNode
-    .accept(kdl::overload(
-      [&](const WorldNode* sourceWorldNode) {
-        return tryCast<WorldNode>(targetNode).and_then([&](WorldNode* targetWorldNode) {
-          return f(*sourceWorldNode, *targetWorldNode);
-        });
-      },
-      [&](const LayerNode* sourceLayerNode) {
-        return tryCast<LayerNode>(targetNode).and_then([&](LayerNode* targetLayerNode) {
-          return f(*sourceLayerNode, *targetLayerNode);
-        });
-      },
-      [&](const GroupNode* sourceGroupNode) {
-        return tryCast<GroupNode>(targetNode).and_then([&](GroupNode* targetGroupNode) {
-          return f(*sourceGroupNode, *targetGroupNode);
-        });
-      },
-      [&](const EntityNode* sourceEntityNode) {
-        return tryCast<EntityNode>(targetNode)
-          .and_then([&](EntityNode* targetEntityNode) {
-            return f(*sourceEntityNode, *targetEntityNode);
-          });
-      },
-      [&](const BrushNode* sourceBrushNode) {
-        return tryCast<BrushNode>(targetNode).and_then([&](BrushNode* targetBrushNode) {
-          return f(*sourceBrushNode, *targetBrushNode);
-        });
-      },
-      [&](const PatchNode* sourcePatchNode) {
-        return tryCast<PatchNode>(targetNode).and_then([&](PatchNode* targetPatchNode) {
-          return f(*sourcePatchNode, *targetPatchNode);
-        });
-      }))
-    .and_then([&](const auto& recurse) {
-      if (recurse)
-      {
-        return visitChildrenPerPosition(sourceNode, targetNode, f);
-      }
+  return sourceNode.accept(kdl::overload(
+           [&](const WorldNode* sourceWorldNode) {
+             return tryCast<WorldNode>(targetNode)
+                    | kdl::and_then([&](WorldNode* targetWorldNode) {
+                        return f(*sourceWorldNode, *targetWorldNode);
+                      });
+           },
+           [&](const LayerNode* sourceLayerNode) {
+             return tryCast<LayerNode>(targetNode)
+                    | kdl::and_then([&](LayerNode* targetLayerNode) {
+                        return f(*sourceLayerNode, *targetLayerNode);
+                      });
+           },
+           [&](const GroupNode* sourceGroupNode) {
+             return tryCast<GroupNode>(targetNode)
+                    | kdl::and_then([&](GroupNode* targetGroupNode) {
+                        return f(*sourceGroupNode, *targetGroupNode);
+                      });
+           },
+           [&](const EntityNode* sourceEntityNode) {
+             return tryCast<EntityNode>(targetNode)
+                    | kdl::and_then([&](EntityNode* targetEntityNode) {
+                        return f(*sourceEntityNode, *targetEntityNode);
+                      });
+           },
+           [&](const BrushNode* sourceBrushNode) {
+             return tryCast<BrushNode>(targetNode)
+                    | kdl::and_then([&](BrushNode* targetBrushNode) {
+                        return f(*sourceBrushNode, *targetBrushNode);
+                      });
+           },
+           [&](const PatchNode* sourcePatchNode) {
+             return tryCast<PatchNode>(targetNode)
+                    | kdl::and_then([&](PatchNode* targetPatchNode) {
+                        return f(*sourcePatchNode, *targetPatchNode);
+                      });
+           }))
+         | kdl::and_then([&](const auto& recurse) {
+             if (recurse)
+             {
+               return visitChildrenPerPosition(sourceNode, targetNode, f);
+             }
 
-      return Result<void>{};
-    });
+             return Result<void>{};
+           });
 }
 
 template <typename SourceNode, typename TargetNode, typename F>
@@ -553,12 +568,13 @@ Result<void> visitChildrenPerPosition(
     return Error{"Inconsistent linked group structure"};
   }
 
-  return kdl::fold_results(kdl::vec_transform(
-    kdl::make_zip_range(sourceNode.children(), targetNode.children()),
-    [&](auto childPair) {
-      auto& [sourceChild, targetChild] = childPair;
-      return visitNodesPerPosition(*sourceChild, *targetChild, f);
-    }));
+  return kdl::vec_transform(
+           kdl::make_zip_range(sourceNode.children(), targetNode.children()),
+           [&](auto childPair) {
+             auto& [sourceChild, targetChild] = childPair;
+             return visitNodesPerPosition(*sourceChild, *targetChild, f);
+           })
+         | kdl::fold();
 }
 
 Result<void> copyLinkIds(
@@ -595,13 +611,12 @@ Result<std::unordered_map<Node*, std::string>> copyLinkIds(
   const GroupNode& sourceGroupNode, const R& targetGroupNodes)
 {
   auto linkIds = std::unordered_map<Node*, std::string>{};
-  return kdl::fold_results(kdl::vec_transform(
-                             targetGroupNodes,
-                             [&](auto* targetGroupNode) {
-                               return copyLinkIds(
-                                 sourceGroupNode, *targetGroupNode, linkIds);
-                             }))
-    .transform([&]() { return std::move(linkIds); });
+  return kdl::vec_transform(
+           targetGroupNodes,
+           [&](auto* targetGroupNode) {
+             return copyLinkIds(sourceGroupNode, *targetGroupNode, linkIds);
+           })
+         | kdl::fold() | kdl::transform([&]() { return std::move(linkIds); });
 }
 
 template <typename R>
@@ -622,26 +637,24 @@ void setLinkIds(
   const R& groups,
   std::vector<Error>& errors)
 {
-  std::move(linkIdResult)
-    .transform([&](auto linkIds) {
-      for (auto& [node, linkId] : linkIds)
-      {
-        node->accept(kdl::overload(
-          [](const WorldNode*) {},
-          [](const LayerNode*) {},
-          [&linkId = linkId](Object* object) { object->setLinkId(std::move(linkId)); }));
-      }
-    })
-    .transform_error([&](auto e) {
-      for (auto* linkedGroupNode : groups)
-      {
-        auto group = linkedGroupNode->group();
-        group.setTransformation(vm::mat4x4::identity());
-        linkedGroupNode->setGroup(std::move(group));
-        linkedGroupNode->setLinkId(generateUuid());
-      }
-      errors.push_back(std::move(e));
-    });
+  std::move(linkIdResult) | kdl::transform([&](auto linkIds) {
+    for (auto& [node, linkId] : linkIds)
+    {
+      node->accept(kdl::overload(
+        [](const WorldNode*) {},
+        [](const LayerNode*) {},
+        [&linkId = linkId](Object* object) { object->setLinkId(std::move(linkId)); }));
+    }
+  }) | kdl::transform_error([&](auto e) {
+    for (auto* linkedGroupNode : groups)
+    {
+      auto group = linkedGroupNode->group();
+      group.setTransformation(vm::mat4x4::identity());
+      linkedGroupNode->setGroup(std::move(group));
+      linkedGroupNode->setLinkId(generateUuid());
+    }
+    errors.push_back(std::move(e));
+  });
 }
 
 } // namespace

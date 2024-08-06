@@ -20,6 +20,7 @@
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"
+#include "Assets/Texture.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"
@@ -56,9 +57,12 @@ protected:
 private:
   void SetUp()
   {
-    auto materialA = Assets::Material{"some_material", 16, 16};
-    auto materialB = Assets::Material{"other_material", 32, 32};
-    auto materialC = Assets::Material{"yet_another_material", 64, 64};
+    auto materialA =
+      Assets::Material{"some_material", createTextureResource(Assets::Texture{16, 16})};
+    auto materialB =
+      Assets::Material{"other_material", createTextureResource(Assets::Texture{32, 32})};
+    auto materialC = Assets::Material{
+      "yet_another_material", createTextureResource(Assets::Texture{64, 64})};
 
     const auto singleParam = std::string{"some_parm"};
     const auto multiParams = std::set<std::string>{"parm1", "parm2"};
@@ -473,12 +477,12 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.matchEntityClassnameTag")
   auto* matchingBrushNode = createBrushNode("asdf");
   auto* nonMatchingBrushNode = createBrushNode("asdf");
 
-  auto matchingEntity = std::make_unique<Model::EntityNode>(
-    Model::Entity{{}, {{"classname", "brush_entity"}}});
+  auto matchingEntity =
+    std::make_unique<Model::EntityNode>(Model::Entity{{{"classname", "brush_entity"}}});
   matchingEntity->addChild(matchingBrushNode);
 
   auto nonMatchingEntity =
-    std::make_unique<Model::EntityNode>(Model::Entity{{}, {{"classname", "something"}}});
+    std::make_unique<Model::EntityNode>(Model::Entity{{{"classname", "something"}}});
   nonMatchingEntity->addChild(nonMatchingBrushNode);
 
   const auto& tag = document->smartTag("entity");
@@ -508,8 +512,10 @@ TEST_CASE_METHOD(
 {
   auto* brushNode = createBrushNode("asdf");
 
-  auto* oldEntity =
-    new Model::EntityNode{{}, {{"classname", "something"}, {"some_attr", "some_value"}}};
+  auto* oldEntity = new Model::EntityNode{Model::Entity{{
+    {"classname", "something"},
+    {"some_attr", "some_value"},
+  }}};
 
   document->addNodes({{document->parentForNodes(), {oldEntity}}});
   document->addNodes({{oldEntity, {brushNode}}});
@@ -533,7 +539,9 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 {
   auto* brushNode = createBrushNode("asdf");
 
-  auto* oldEntity = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
+  auto* oldEntity = new Model::EntityNode{Model::Entity{{
+    {"classname", "brush_entity"},
+  }}};
 
   document->addNodes({{document->parentForNodes(), {oldEntity}}});
   document->addNodes({{oldEntity, {brushNode}}});
@@ -552,7 +560,9 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.disableEntityClassnameTag
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags")
 {
-  auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "brush_entity"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brush = createBrushNode("some_material");
@@ -564,7 +574,9 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagInitializeBrushTags")
 
 TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagRemoveBrushTags")
 {
-  auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "brush_entity"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brush = createBrushNode("some_material");
@@ -581,7 +593,9 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags")
   auto* brushNode = createBrushNode("some_material");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  auto* entityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "brush_entity"},
+  }}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   const auto& tag = document->smartTag("entity");
@@ -594,10 +608,14 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushTags")
 TEST_CASE_METHOD(
   TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterReparenting")
 {
-  auto* lightEntityNode = new Model::EntityNode{{}, {{"classname", "brush_entity"}}};
+  auto* lightEntityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "brush_entity"},
+  }}};
   document->addNodes({{document->parentForNodes(), {lightEntityNode}}});
 
-  auto* otherEntityNode = new Model::EntityNode{{}, {{"classname", "other"}}};
+  auto* otherEntityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "other"},
+  }}};
   document->addNodes({{document->parentForNodes(), {otherEntityNode}}});
 
   auto* brushNode = createBrushNode("some_material");
@@ -613,7 +631,9 @@ TEST_CASE_METHOD(
 TEST_CASE_METHOD(
   TagManagementTest, "TagManagementTest.tagUpdateBrushTagsAfterChangingClassname")
 {
-  auto* lightEntityNode = new Model::EntityNode{{}, {{"classname", "asdf"}}};
+  auto* lightEntityNode = new Model::EntityNode{Model::Entity{{
+    {"classname", "asdf"},
+  }}};
   document->addNodes({{document->parentForNodes(), {lightEntityNode}}});
 
   auto* brushNode = createBrushNode("some_material");

@@ -138,7 +138,7 @@ TEST_CASE("WorldReader.parseDefaultLayerProperties")
   auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
   REQUIRE(defaultLayer != nullptr);
 
-  CHECK(defaultLayer->layer().color().value() == Color(0.0f, 1.0f, 0.0f));
+  CHECK(defaultLayer->layer().color() == Color(0.0f, 1.0f, 0.0f));
   CHECK(defaultLayer->locked());
   CHECK(defaultLayer->hidden());
   CHECK(defaultLayer->layer().omitFromExport());
@@ -1438,7 +1438,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
 {
   const auto mapPath =
     std::filesystem::current_path() / "fixture/test/IO/Map/Heretic2Quark.map";
-  const auto file = Disk::openFile(mapPath).value();
+  const auto file = Disk::openFile(mapPath) | kdl::value();
   auto fileReader = file->reader().buffer();
 
   auto status = TestParserStatus{};
