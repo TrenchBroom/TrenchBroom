@@ -34,11 +34,26 @@ namespace kdl
 #pragma warning(disable : 4717)
 #endif
 
+#ifdef __GNUC__
+#ifndef __clang__
+// GCC also issues a warning about infinite recursion with a range of grouped iterators
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpragmas"
+#pragma GCC diagnostic ignored "-Winfinite-recursion"
+#endif
+#endif
+
 template <typename I>
 std::ostream& operator<<(std::ostream& lhs, const range<I>& rhs)
 {
   return lhs << make_streamable(rhs);
 }
+
+#ifdef __GNUC__
+#ifndef __clang__
+#pragma GCC diagnostic pop
+#endif
+#endif
 
 #ifdef _MSC_VER
 #pragma warning(pop)
