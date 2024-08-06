@@ -186,7 +186,7 @@ std::vector<vm::vec3f> circle2D(
   return vertices;
 }
 
-std::pair<float, float> startAngleAndLength(
+std::tuple<float, float> startAngleAndLength(
   const vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis)
 {
   float angle1, angle2, angleLength;

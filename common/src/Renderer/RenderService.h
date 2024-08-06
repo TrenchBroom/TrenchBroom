@@ -29,9 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class AttrString;
 class PointHandleRenderer;
@@ -48,7 +46,6 @@ class RenderService
 private:
   using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;
   using CullingPolicy = PrimitiveRendererCullingPolicy;
-  class HeadsUpTextAnchor;
 
   RenderContext& m_renderContext;
   RenderBatch& m_renderBatch;
@@ -142,5 +139,4 @@ public:
 private:
   void flush();
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

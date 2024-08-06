@@ -22,7 +22,7 @@
 #include "vm/forward.h"
 #include "vm/util.h"
 
-#include <utility>
+#include <tuple>
 #include <vector>
 
 namespace TrenchBroom::Assets
@@ -69,7 +69,7 @@ std::vector<vm::vec3f> circle2D(
   float startAngle,
   float angleLength,
   size_t segments);
-std::pair<float, float> startAngleAndLength(
+std::tuple<float, float> startAngleAndLength(
   vm::axis::type axis, const vm::vec3f& startAxis, const vm::vec3f& endAxis);
 
 size_t roundedRect2DVertexCount(size_t cornerSegments);

@@ -31,9 +31,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 Circle::Circle(const float radius, const size_t segments, const bool filled)
   : m_filled(filled)
@@ -68,8 +66,8 @@ Circle::Circle(
   assert(radius > 0.0f);
   assert(segments > 0);
 
-  const std::pair<float, float> angles = startAngleAndLength(axis, startAxis, endAxis);
-  init3D(radius, segments, axis, angles.first, angles.second);
+  const auto [startAngle, angleLength] = startAngleAndLength(axis, startAxis, endAxis);
+  init3D(radius, segments, axis, startAngle, angleLength);
 }
 
 Circle::Circle(
@@ -134,5 +132,4 @@ void Circle::init3D(
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

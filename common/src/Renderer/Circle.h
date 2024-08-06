@@ -24,10 +24,9 @@
 #include "vm/forward.h"
 #include "vm/util.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class Circle
 {
 private:
@@ -65,5 +64,5 @@ private:
     float angleLength);
   void init2D(float radius, size_t segments, float startAngle, float angleLength);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer
