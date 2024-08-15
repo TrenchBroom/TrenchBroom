@@ -19,11 +19,10 @@
 
 #pragma once
 
-#include <QString>
-
 #include "Logger.h"
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace TrenchBroom::View
@@ -35,7 +34,7 @@ private:
   struct Message
   {
     LogLevel level;
-    QString str;
+    std::string str;
   };
 
   std::vector<Message> m_cachedMessages;
@@ -45,8 +44,7 @@ public:
   void setParentLogger(Logger* logger);
 
 private:
-  void doLog(LogLevel level, const std::string& message) override;
-  void doLog(LogLevel level, const QString& message) override;
+  void doLog(LogLevel level, std::string_view message) override;
 };
 
 } // namespace TrenchBroom::View

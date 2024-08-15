@@ -25,76 +25,78 @@
 #include <QVBoxLayout>
 
 #include "FileLogger.h"
+#include "Macros.h"
 #include "View/ViewConstants.h"
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
+auto getForegroundBrush(const LogLevel level, const QPalette& palette)
+{
+  // NOTE: QPalette::Text is the correct color role for contrast against QPalette::Base
+  // which is the background of text entry widgets
+
+  switch (level)
+  {
+  case LogLevel::Debug:
+    return QBrush{palette.color(QPalette::Disabled, QPalette::Text)};
+  case LogLevel::Info:
+    return QBrush{palette.color(QPalette::Normal, QPalette::Text)};
+  case LogLevel::Warn:
+    return QBrush{palette.color(QPalette::Active, QPalette::Text)};
+  case LogLevel::Error:
+    return QBrush{QColor{250, 30, 60}};
+    switchDefault();
+  }
+}
+
+} // namespace
+
 Console::Console(QWidget* parent)
-  : TabBookPage(parent)
+  : TabBookPage{parent}
 {
-  m_textView = new QTextEdit();
+  m_textView = new QTextEdit{};
   m_textView->setReadOnly(true);
   m_textView->setWordWrapMode(QTextOption::NoWrap);
 
-  QVBoxLayout* sizer = new QVBoxLayout();
+  auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->addWidget(m_textView);
   setLayout(sizer);
 }
 
-void Console::doLog(const LogLevel level, const std::string& message)
+void Console::doLog(const LogLevel level, const std::string_view message)
 {
-  doLog(level, QString::fromStdString(message));
-}
-
-void Console::doLog(const LogLevel level, const QString& message)
-{
-  if (!message.isEmpty())
+  if (!message.empty())
   {
-    logToDebugOut(level, message);
-    logToConsole(level, message);
+    const auto messageStr = std::string{message};
+    logToDebugOut(level, messageStr);
+    logToConsole(level, messageStr);
     FileLogger::instance().log(level, message);
   }
 }
 
-void Console::logToDebugOut(const LogLevel /* level */, const QString& message)
+void Console::logToDebugOut(const LogLevel /* level */, const std::string& message)
 {
-  qDebug("%s", message.toStdString().c_str());
+  qDebug("%s", message.c_str());
 }
 
-void Console::logToConsole(const LogLevel level, const QString& message)
+void Console::logToConsole(const LogLevel level, const std::string& message)
 {
-  // NOTE: QPalette::Text is the correct color role for contrast against QPalette::Base
-  // which is the background of text entry widgets
-  QTextCharFormat format;
-  switch (level)
-  {
-  case LogLevel::Debug:
-    format.setForeground(
-      QBrush(m_textView->palette().color(QPalette::Disabled, QPalette::Text)));
-    break;
-  case LogLevel::Info:
-    break;
-  case LogLevel::Warn:
-    format.setForeground(
-      QBrush(m_textView->palette().color(QPalette::Active, QPalette::Text)));
-    break;
-  case LogLevel::Error:
-    format.setForeground(QBrush(QColor(250, 30, 60)));
-    break;
-  }
+  auto format = QTextCharFormat{};
+  format.setForeground(getForegroundBrush(level, m_textView->palette()));
   format.setFont(Fonts::fixedWidthFont());
 
-  QTextCursor cursor(m_textView->document());
+  auto cursor = QTextCursor{m_textView->document()};
   cursor.movePosition(QTextCursor::MoveOperation::End);
-  cursor.insertText(message, format);
+
+  cursor.insertText(QString::fromStdString(message), format);
   cursor.insertText("\n");
 
   m_textView->moveCursor(QTextCursor::MoveOperation::End);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

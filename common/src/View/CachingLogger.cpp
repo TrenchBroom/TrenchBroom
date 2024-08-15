@@ -19,8 +19,6 @@
 
 #include "CachingLogger.h"
 
-#include <string>
-
 namespace TrenchBroom::View
 {
 
@@ -37,16 +35,11 @@ void CachingLogger::setParentLogger(Logger* parentLogger)
   }
 }
 
-void CachingLogger::doLog(const LogLevel level, const std::string& message)
-{
-  doLog(level, QString::fromStdString(message));
-}
-
-void CachingLogger::doLog(const LogLevel level, const QString& message)
+void CachingLogger::doLog(const LogLevel level, const std::string_view message)
 {
   if (!m_parentLogger)
   {
-    m_cachedMessages.push_back(Message{level, message});
+    m_cachedMessages.push_back(Message{level, std::string{message}});
   }
   else
   {

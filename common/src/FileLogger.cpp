@@ -19,14 +19,11 @@
 
 #include "FileLogger.h"
 
-#include <QString>
-
 #include "Ensure.h"
 #include "IO/DiskIO.h"
 #include "IO/SystemPaths.h"
 
 #include <cassert>
-#include <string>
 
 namespace TrenchBroom
 {
@@ -51,11 +48,11 @@ FileLogger::FileLogger(const std::filesystem::path& filePath)
 
 FileLogger& FileLogger::instance()
 {
-  static FileLogger Instance(IO::SystemPaths::logFilePath());
+  static auto Instance = FileLogger{IO::SystemPaths::logFilePath()};
   return Instance;
 }
 
-void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
+void FileLogger::doLog(const LogLevel /* level */, const std::string_view message)
 {
   assert(m_stream);
   if (m_stream)
@@ -64,8 +61,4 @@ void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
   }
 }
 
-void FileLogger::doLog(const LogLevel level, const QString& message)
-{
-  log(level, message.toStdString());
-}
 } // namespace TrenchBroom
