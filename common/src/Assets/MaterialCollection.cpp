@@ -98,15 +98,4 @@ Material* MaterialCollection::materialByName(const std::string& name)
     const_cast<const MaterialCollection*>(this)->materialByName(name));
 }
 
-void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
-{
-  for (auto& material : m_materials)
-  {
-    if (auto* texture = material.texture())
-    {
-      texture->setFilterMode(minFilter, magFilter);
-    }
-  }
-}
-
 } // namespace TrenchBroom::Assets

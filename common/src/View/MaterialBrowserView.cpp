@@ -404,7 +404,8 @@ void MaterialBrowserView::renderMaterials(
               Vertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
-            material.activate();
+            material.activate(
+              pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Quads);

@@ -41,13 +41,8 @@
 namespace TrenchBroom::Assets
 {
 EntityModelManager::EntityModelManager(
-  Assets::CreateEntityModelDataResource createResource,
-  const int magFilter,
-  const int minFilter,
-  Logger& logger)
+  Assets::CreateEntityModelDataResource createResource, Logger& logger)
   : m_createResource{std::move(createResource)}
-  , m_minFilter{minFilter}
-  , m_magFilter{magFilter}
   , m_logger{logger}
 {
 }
@@ -80,14 +75,6 @@ void EntityModelManager::reloadShaders()
         [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
       | kdl::value_or(std::vector<Quake3Shader>{});
   }
-}
-
-
-void EntityModelManager::setFilterMode(const int minFilter, const int magFilter)
-{
-  m_minFilter = minFilter;
-  m_magFilter = magFilter;
-  m_resetFilterMode = true;
 }
 
 void EntityModelManager::setGame(const Model::Game* game)
@@ -236,23 +223,7 @@ Result<EntityModel> EntityModelManager::loadModel(
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)
 {
-  resetFilterMode();
   prepareRenderers(vboManager);
-}
-
-void EntityModelManager::resetFilterMode()
-{
-  if (m_resetFilterMode)
-  {
-    for (auto& [path, model] : m_models)
-    {
-      if (auto* entityModelData = model.data())
-      {
-        entityModelData->setFilterMode(m_minFilter, m_magFilter);
-      }
-    }
-    m_resetFilterMode = false;
-  }
 }
 
 void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)

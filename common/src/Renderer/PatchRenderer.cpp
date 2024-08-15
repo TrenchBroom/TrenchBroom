@@ -34,7 +34,6 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VertexArray.h"
@@ -322,12 +321,20 @@ struct RenderFunc : public MaterialRenderFunc
   ActiveShader& shader;
   bool applyMaterial;
   const Color& defaultColor;
+  int minFilter;
+  int magFilter;
 
   RenderFunc(
-    ActiveShader& i_shader, const bool i_applyMaterial, const Color& i_defaultColor)
+    ActiveShader& i_shader,
+    const bool i_applyMaterial,
+    const Color& i_defaultColor,
+    const int i_minFilter,
+    const int i_magFilter)
     : shader{i_shader}
     , applyMaterial{i_applyMaterial}
     , defaultColor{i_defaultColor}
+    , minFilter{i_minFilter}
+    , magFilter{i_magFilter}
   {
   }
 
@@ -336,7 +343,7 @@ struct RenderFunc : public MaterialRenderFunc
     shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
     {
-      material->activate();
+      material->activate(minFilter, magFilter);
       shader.set("ApplyMaterial", applyMaterial);
       shader.set("Color", texture->averageColor());
     }
@@ -397,7 +404,13 @@ void PatchRenderer::doRender(RenderContext& context)
       prefs.get(Preferences::SoftMapBoundsColor).b(),
       0.1f});
 
-  auto func = RenderFunc{shader, applyMaterial, m_defaultColor};
+  auto func = RenderFunc{
+    shader,
+    applyMaterial,
+    m_defaultColor,
+    context.minFilterMode(),
+    context.magFilterMode()};
+
   /*
   if (m_alpha < 1.0f) {
       glAssert(glDepthMask(GL_FALSE));

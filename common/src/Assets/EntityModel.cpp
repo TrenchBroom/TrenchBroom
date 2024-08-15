@@ -410,11 +410,6 @@ void EntityModelSurface::drop(const bool glContextAvailable)
   }
 }
 
-void EntityModelSurface::setFilterMode(const int minFilter, const int magFilter)
-{
-  m_skins->setFilterMode(minFilter, magFilter);
-}
-
 void EntityModelSurface::addMesh(
   EntityModelFrame& frame,
   std::vector<EntityModelVertex> vertices,
@@ -534,14 +529,6 @@ void EntityModelData::drop(const bool glContextAvailable)
   for (auto& surface : m_surfaces)
   {
     surface.drop(glContextAvailable);
-  }
-}
-
-void EntityModelData::setFilterMode(const int minFilter, const int magFilter)
-{
-  for (auto& surface : m_surfaces)
-  {
-    surface.setFilterMode(minFilter, magFilter);
   }
 }
 

@@ -50,7 +50,6 @@ public:
   bool empty() const;
 
   void prepare(VboManager& vboManager);
-  void render();
   void render(MaterialRenderFunc& func);
 };
 } // namespace Renderer

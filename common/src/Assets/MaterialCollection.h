@@ -63,8 +63,6 @@ public:
 
   const Material* materialByName(const std::string& name) const;
   Material* materialByName(const std::string& name);
-
-  void setFilterMode(int minFilter, int magFilter);
 };
 
 } // namespace TrenchBroom::Assets

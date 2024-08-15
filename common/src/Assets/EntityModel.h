@@ -217,15 +217,6 @@ public:
   void drop(bool glContextAvailable);
 
   /**
-   * Sets the minification and magnification filters for the skin materials of this
-   * surface.
-   *
-   * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-   * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
-   */
-  void setFilterMode(int minFilter, int magFilter);
-
-  /**
    * Adds a new mesh to this surface.
    *
    * @param frame the frame which the mesh belongs to
@@ -350,14 +341,6 @@ public:
    * Drops the rendering resources associated with this model.
    */
   void drop(bool glContextAvailable);
-
-  /**
-   * Sets the minification and magnification filters for the skin materials of this model.
-   *
-   * @param minFilter the minification filter (GL_TEXTURE_MIN_FILTER)
-   * @param magFilter the magnification filter (GL_TEXTURE_MIN_FILTER)
-   */
-  void setFilterMode(int minFilter, int magFilter);
 
   /**
    * Adds a frame with the given name and bounds.

@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FloatType.h"
+#include "GL.h"
 #include "Macros.h"
 #include "Renderer/Transformation.h"
 
@@ -54,6 +55,9 @@ private:
   Transformation m_transformation;
   FontManager& m_fontManager;
   ShaderManager& m_shaderManager;
+
+  int m_textureMinFilter = GL_NEAREST_MIPMAP_NEAREST;
+  int m_textureMagFilter = GL_NEAREST;
 
   // settings for any map rendering view
   bool m_showMaterials = true;
@@ -97,6 +101,10 @@ public:
   Transformation& transformation();
   FontManager& fontManager();
   ShaderManager& shaderManager();
+
+  int minFilterMode() const;
+  int magFilterMode() const;
+  void setFilterMode(int minFilter, int magFilter);
 
   bool showMaterials() const;
   void setShowMaterials(bool showMaterials);

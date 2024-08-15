@@ -388,11 +388,8 @@ MapDocument::MapDocument()
         m_resourceManager->addResource(resource);
         return resource;
       },
-      pref(Preferences::TextureMagFilter),
-      pref(Preferences::TextureMinFilter),
       logger()))
-  , m_materialManager(std::make_unique<Assets::MaterialManager>(
-      pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
+  , m_materialManager(std::make_unique<Assets::MaterialManager>(logger()))
   , m_tagManager(std::make_unique<Model::TagManager>())
   , m_editorContext(std::make_unique<Model::EditorContext>())
   , m_grid(std::make_unique<Grid>(4))
@@ -5157,15 +5154,6 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
 
     reloadMaterials();
     setMaterials();
-  }
-  else if (
-    path == Preferences::TextureMinFilter.path()
-    || path == Preferences::TextureMagFilter.path())
-  {
-    m_entityModelManager->setFilterMode(
-      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
-    m_materialManager->setFilterMode(
-      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   }
 }
 

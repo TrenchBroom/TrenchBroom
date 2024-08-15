@@ -160,7 +160,7 @@ public:
   void incUsageCount();
   void decUsageCount();
 
-  void activate() const;
+  void activate(int minFilter, int magFilter) const;
   void deactivate() const;
 };
 

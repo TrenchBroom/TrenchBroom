@@ -88,11 +88,18 @@ MaterialRenderFunc::~MaterialRenderFunc() = default;
 void MaterialRenderFunc::before(const Assets::Material* /* material */) {}
 void MaterialRenderFunc::after(const Assets::Material* /* material */) {}
 
+DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
+  const int minFilter, const int magFilter)
+  : m_minFilter{minFilter}
+  , m_magFilter{magFilter}
+{
+}
+
 void DefaultMaterialRenderFunc::before(const Assets::Material* material)
 {
   if (material)
   {
-    material->activate();
+    material->activate(m_minFilter, m_magFilter);
   }
 }
 

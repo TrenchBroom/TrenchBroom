@@ -36,6 +36,7 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/PrimType.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
@@ -406,7 +407,10 @@ void EntityBrowserView::renderModels(
 
               const auto multMatrix =
                 Renderer::MultiplyModelMatrix{transformation, itemTrans};
-              modelRenderer->render();
+
+              auto renderFunc = Renderer::DefaultMaterialRenderFunc{
+                pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
+              modelRenderer->render(renderFunc);
             }
           }
         }

@@ -57,12 +57,8 @@ private:
   std::unordered_map<std::string, Material*> m_materialsByName;
   std::vector<const Material*> m_materials;
 
-  int m_minFilter;
-  int m_magFilter;
-  bool m_resetFilterMode{false};
-
 public:
-  MaterialManager(int magFilter, int minFilter, Logger& logger);
+  explicit MaterialManager(Logger& logger);
   ~MaterialManager();
 
   void reload(
@@ -79,8 +75,6 @@ private:
 public:
   void clear();
 
-  void setFilterMode(int minFilter, int magFilter);
-
   const Material* material(const std::string& name) const;
   Material* material(const std::string& name);
 
@@ -91,8 +85,6 @@ public:
   const std::vector<MaterialCollection>& collections() const;
 
 private:
-  void resetFilterMode();
-
   void updateMaterials();
 };
 } // namespace Assets

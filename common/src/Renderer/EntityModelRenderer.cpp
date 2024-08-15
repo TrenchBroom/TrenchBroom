@@ -35,6 +35,7 @@
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
@@ -215,7 +216,9 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
 
       shader.set("ModelMatrix", transformation);
 
-      renderer->render();
+      auto renderFunc = DefaultMaterialRenderFunc{
+        renderContext.minFilterMode(), renderContext.magFilterMode()};
+      renderer->render(renderFunc);
     }
   }
 }

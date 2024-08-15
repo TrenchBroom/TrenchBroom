@@ -1003,6 +1003,8 @@ void MapViewBase::doRender()
 
   auto renderContext =
     Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
+  renderContext.setFilterMode(
+    pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
     pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
   renderContext.setShowFaces(

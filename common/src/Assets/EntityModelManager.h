@@ -57,9 +57,6 @@ class EntityModelManager
 {
 private:
   Assets::CreateEntityModelDataResource m_createResource;
-  int m_minFilter;
-  int m_magFilter;
-  bool m_resetFilterMode = false;
   Logger& m_logger;
 
   const Model::Game* m_game = nullptr;
@@ -77,16 +74,12 @@ private:
 
 public:
   EntityModelManager(
-    Assets::CreateEntityModelDataResource createResource,
-    int magFilter,
-    int minFilter,
-    Logger& logger);
+    Assets::CreateEntityModelDataResource createResource, Logger& logger);
   ~EntityModelManager();
 
   void clear();
   void reloadShaders();
 
-  void setFilterMode(int minFilter, int magFilter);
   void setGame(const Model::Game* game);
 
   Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
@@ -105,7 +98,6 @@ public:
   void prepare(Renderer::VboManager& vboManager);
 
 private:
-  void resetFilterMode();
   void prepareRenderers(Renderer::VboManager& vboManager);
 };
 } // namespace Assets

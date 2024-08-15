@@ -168,14 +168,6 @@ public:
 
   /**
    * Renders the primitives stored in this index range map using the vertices in the given
-   * vertex array. The primitives are batched by their associated materials.
-   *
-   * @param vertexArray the vertex array to render with
-   */
-  void render(VertexArray& vertexArray);
-
-  /**
-   * Renders the primitives stored in this index range map using the vertices in the given
    * vertex array. The primitives are batched by their associated materials. The given
    * render function type provides two callbacks. One is called before all primitives with
    * a given material is rendered, and one is called afterwards.

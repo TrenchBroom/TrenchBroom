@@ -148,15 +148,17 @@ public:
   const EmbeddedDefaults& embeddedDefaults() const;
 
   bool isReady() const;
-  void setFilterMode(int minFilter, int magFilter);
 
-  bool activate() const;
+  bool activate(int minFilter, int magFilter) const;
   bool deactivate() const;
 
   void upload(bool glContextAvailable);
   void drop(bool glContextAvailable);
 
   const std::vector<TextureBuffer>& buffersIfLoaded() const;
+
+private:
+  void setFilterMode(int minFilter, int magFilter) const;
 };
 
 

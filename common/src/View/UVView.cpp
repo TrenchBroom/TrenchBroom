@@ -122,7 +122,7 @@ private:
     const auto* texture = material->texture();
     ensure(texture, "texture is null");
 
-    material->activate();
+    material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
@@ -279,6 +279,9 @@ void UVView::doRender()
   {
     auto renderContext = Renderer::RenderContext{
       Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager()};
+    renderContext.setFilterMode(
+      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+
     auto renderBatch = Renderer::RenderBatch{vboManager()};
     renderContext.setDpiScale(float(window()->devicePixelRatioF()));
 

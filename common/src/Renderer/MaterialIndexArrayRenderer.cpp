@@ -44,19 +44,6 @@ void MaterialIndexArrayRenderer::prepare(VboManager& vboManager)
   m_indexArray.prepare(vboManager);
 }
 
-void MaterialIndexArrayRenderer::render()
-{
-  if (m_vertexArray.setup())
-  {
-    if (m_indexArray.setup())
-    {
-      m_indexRanges.render(m_indexArray);
-      m_indexArray.cleanup();
-    }
-    m_vertexArray.cleanup();
-  }
-}
-
 void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
 {
   if (m_vertexArray.setup())

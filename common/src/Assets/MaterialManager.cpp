@@ -43,10 +43,8 @@
 namespace TrenchBroom::Assets
 {
 
-MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
+MaterialManager::MaterialManager(Logger& logger)
   : m_logger{logger}
-  , m_minFilter{minFilter}
-  , m_magFilter{magFilter}
 {
 }
 
@@ -97,13 +95,6 @@ void MaterialManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void MaterialManager::setFilterMode(const int minFilter, const int magFilter)
-{
-  m_minFilter = minFilter;
-  m_magFilter = magFilter;
-  m_resetFilterMode = true;
-}
-
 const Material* MaterialManager::material(const std::string& name) const
 {
   auto it = m_materialsByName.find(kdl::str_to_lower(name));
@@ -133,18 +124,6 @@ const std::vector<const Material*>& MaterialManager::materials() const
 const std::vector<MaterialCollection>& MaterialManager::collections() const
 {
   return m_collections;
-}
-
-void MaterialManager::resetFilterMode()
-{
-  if (m_resetFilterMode)
-  {
-    for (auto& collection : m_collections)
-    {
-      collection.setFilterMode(m_minFilter, m_magFilter);
-    }
-    m_resetFilterMode = false;
-  }
 }
 
 void MaterialManager::updateMaterials()

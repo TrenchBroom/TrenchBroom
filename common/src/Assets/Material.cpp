@@ -217,9 +217,10 @@ void Material::decUsageCount()
   unused(previous);
 }
 
-void Material::activate() const
+void Material::activate(const int minFilter, const int magFilter) const
 {
-  if (const auto* texture = m_textureResource->get(); texture && texture->activate())
+  if (const auto* texture = m_textureResource->get();
+      texture && texture->activate(minFilter, magFilter))
   {
     switch (m_culling)
     {
