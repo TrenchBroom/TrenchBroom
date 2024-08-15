@@ -20,10 +20,14 @@
 #include "Console.h"
 
 #include <QDebug>
+#include <QMutexLocker>
 #include <QScrollBar>
 #include <QTextEdit>
+#include <QThread>
+#include <QTimer>
 #include <QVBoxLayout>
 
+#include "Ensure.h"
 #include "FileLogger.h"
 #include "Macros.h"
 #include "View/ViewConstants.h"
@@ -58,6 +62,7 @@ auto getForegroundBrush(const LogLevel level, const QPalette& palette)
 
 Console::Console(QWidget* parent)
   : TabBookPage{parent}
+  , m_timer{new QTimer{this}}
 {
   m_textView = new QTextEdit{};
   m_textView->setReadOnly(true);
@@ -67,16 +72,17 @@ Console::Console(QWidget* parent)
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->addWidget(m_textView);
   setLayout(sizer);
+
+  connect(m_timer, &QTimer::timeout, this, &Console::logCachedMessages);
+  m_timer->start(50);
 }
 
 void Console::doLog(const LogLevel level, const std::string_view message)
 {
   if (!message.empty())
   {
-    const auto messageStr = std::string{message};
-    logToDebugOut(level, messageStr);
-    logToConsole(level, messageStr);
-    FileLogger::instance().log(level, message);
+    auto lock = QMutexLocker{&m_cacheMutex};
+    m_cache.cacheMessage(level, message);
   }
 }
 
@@ -87,6 +93,10 @@ void Console::logToDebugOut(const LogLevel /* level */, const std::string& messa
 
 void Console::logToConsole(const LogLevel level, const std::string& message)
 {
+  ensure(
+    m_textView->thread() == QThread::currentThread(),
+    "Can only log to console from main thread");
+
   auto format = QTextCharFormat{};
   format.setForeground(getForegroundBrush(level, m_textView->palette()));
   format.setFont(Fonts::fixedWidthFont());
@@ -98,5 +108,17 @@ void Console::logToConsole(const LogLevel level, const std::string& message)
   cursor.insertText("\n");
 
   m_textView->moveCursor(QTextCursor::MoveOperation::End);
+}
+
+void Console::logCachedMessages()
+{
+  auto lock = QMutexLocker{&m_cacheMutex};
+
+  m_cache.getCachedMessages([this](const auto level, const auto& message) {
+    const auto messageStr = std::string{message};
+    logToDebugOut(level, messageStr);
+    logToConsole(level, messageStr);
+    FileLogger::instance().log(level, message);
+  });
 }
 } // namespace TrenchBroom::View

@@ -19,12 +19,16 @@
 
 #pragma once
 
+#include <QMutex>
+
 #include "Logger.h"
+#include "LoggerCache.h"
 #include "View/TabBook.h"
 
 #include <string_view>
 
 class QTextEdit;
+class QTimer;
 class QWidget;
 
 namespace TrenchBroom::View
@@ -32,7 +36,11 @@ namespace TrenchBroom::View
 class Console : public TabBookPage, public Logger
 {
 private:
-  QTextEdit* m_textView;
+  QTextEdit* m_textView = nullptr;
+  QTimer* m_timer = nullptr;
+
+  LoggerCache m_cache;
+  QMutex m_cacheMutex;
 
 public:
   explicit Console(QWidget* parent = nullptr);
@@ -41,5 +49,7 @@ private:
   void doLog(LogLevel level, std::string_view message) override;
   void logToDebugOut(LogLevel level, const std::string& message);
   void logToConsole(LogLevel level, const std::string& message);
+
+  void logCachedMessages();
 };
 } // namespace TrenchBroom::View
