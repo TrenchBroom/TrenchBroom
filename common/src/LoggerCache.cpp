@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,31 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include "Logger.h"
 #include "LoggerCache.h"
-
-#include <mutex>
-#include <string_view>
 
 namespace TrenchBroom::View
 {
 
-class CachingLogger : public Logger
+void LoggerCache::cacheMessage(const LogLevel level, const std::string_view message)
 {
-private:
-  LoggerCache m_cache;
-  std::mutex m_cacheMutex;
-
-  Logger* m_parentLogger = nullptr;
-
-public:
-  void setParentLogger(Logger* logger);
-
-private:
-  void doLog(LogLevel level, std::string_view message) override;
-  bool cacheMessage(LogLevel level, std::string_view message);
-};
+  m_cachedMessages.push_back(Message{level, std::string{message}});
+}
 
 } // namespace TrenchBroom::View

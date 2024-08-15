@@ -103,6 +103,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Logger.cpp
+        ${COMMON_SOURCE_DIR}/LoggerCache.cpp
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
@@ -599,6 +600,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/Logger.h
+        ${COMMON_SOURCE_DIR}/LoggerCache.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
