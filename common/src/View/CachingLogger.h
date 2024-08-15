@@ -21,6 +21,7 @@
 
 #include "Logger.h"
 
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -38,6 +39,8 @@ private:
   };
 
   std::vector<Message> m_cachedMessages;
+  std::mutex m_cacheMutex;
+
   Logger* m_parentLogger = nullptr;
 
 public:
@@ -45,6 +48,7 @@ public:
 
 private:
   void doLog(LogLevel level, std::string_view message) override;
+  bool cacheMessage(LogLevel level, std::string_view message);
 };
 
 } // namespace TrenchBroom::View
