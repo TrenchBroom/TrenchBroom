@@ -20,10 +20,11 @@
 #pragma once
 
 #include "Assets/MaterialCollection.h"
+#include "Assets/TextureResource.h"
 
 #include <filesystem>
-#include <map>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom
@@ -44,6 +45,7 @@ namespace Assets
 {
 class Material;
 class MaterialCollection;
+class ResourceId;
 
 class MaterialManager
 {
@@ -52,49 +54,37 @@ private:
 
   std::vector<MaterialCollection> m_collections;
 
-  std::vector<size_t> m_toPrepare;
-  std::vector<MaterialCollection> m_toRemove;
-
-  std::map<std::string, Material*> m_materialsByName;
+  std::unordered_map<std::string, Material*> m_materialsByName;
   std::vector<const Material*> m_materials;
 
-  int m_minFilter;
-  int m_magFilter;
-  bool m_resetFilterMode{false};
-
 public:
-  MaterialManager(int magFilter, int minFilter, Logger& logger);
+  explicit MaterialManager(Logger& logger);
   ~MaterialManager();
 
-  void reload(const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig);
+  void reload(
+    const IO::FileSystem& fs,
+    const Model::MaterialConfig& materialConfig,
+    const Assets::CreateTextureResource& createResource);
 
   // for testing
   void setMaterialCollections(std::vector<MaterialCollection> collections);
 
 private:
-  void setMaterialCollections(
-    const std::vector<std::filesystem::path>& paths,
-    const IO::FileSystem& fs,
-    const Model::MaterialConfig& materialConfig);
-
   void addMaterialCollection(Assets::MaterialCollection collection);
 
 public:
   void clear();
 
-  void setFilterMode(int minFilter, int magFilter);
-  void commitChanges();
-
   const Material* material(const std::string& name) const;
   Material* material(const std::string& name);
+
+  const std::vector<const Material*> findMaterialsByTextureResourceId(
+    const std::vector<ResourceId>& textureResourceIds) const;
 
   const std::vector<const Material*>& materials() const;
   const std::vector<MaterialCollection>& collections() const;
 
 private:
-  void resetFilterMode();
-  void prepare();
-
   void updateMaterials();
 };
 } // namespace Assets

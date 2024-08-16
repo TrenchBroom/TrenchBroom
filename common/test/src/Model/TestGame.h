@@ -95,13 +95,14 @@ public:
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
+  void loadMaterialCollections(
+    Assets::MaterialManager& materialManager,
+    const Assets::CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  Result<void> reloadShaders() override;
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
@@ -117,14 +118,6 @@ public:
 
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
-
-  std::unique_ptr<Assets::EntityModel> initializeModel(
-    const std::filesystem::path& path, Logger& logger) const override;
-  void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const override;
 
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
   void setSmartTags(std::vector<SmartTag> smartTags);

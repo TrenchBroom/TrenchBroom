@@ -42,7 +42,7 @@ static std::shared_ptr<File> file()
 {
   static auto result =
     Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/10byte")
-      .value();
+    | kdl::value();
   return result;
 }
 
@@ -68,7 +68,7 @@ TEST_CASE("FileReaderTest.createEmpty")
 {
   const auto emptyFile =
     Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/empty")
-      .value();
+    | kdl::value();
   createEmpty(emptyFile->reader());
 }
 

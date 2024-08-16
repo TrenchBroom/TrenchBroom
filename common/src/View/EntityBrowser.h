@@ -32,6 +32,11 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
+namespace TrenchBroom::Assets
+{
+class ResourceId;
+};
+
 namespace TrenchBroom::Model
 {
 class Node;
@@ -77,5 +82,6 @@ private:
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
 };
 } // namespace TrenchBroom::View

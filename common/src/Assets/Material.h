@@ -19,9 +19,7 @@
 
 #pragma once
 
-#include "Assets/Texture.h"
-#include "Assets/TextureBuffer.h"
-#include "Color.h"
+#include "Assets/TextureResource.h"
 #include "Renderer/GL.h"
 
 #include "kdl/reflection_decl.h"
@@ -30,10 +28,9 @@
 
 #include <atomic>
 #include <filesystem>
+#include <memory>
 #include <set>
 #include <string>
-#include <variant>
-#include <vector>
 
 namespace TrenchBroom::Assets
 {
@@ -87,35 +84,17 @@ struct MaterialBlendFunc
 
 std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs);
 
-struct Q2Data
-{
-  int flags;
-  int contents;
-  int value;
-
-  kdl_reflect_decl(Q2Data, flags, contents, value);
-};
-
-using GameData = std::variant<std::monostate, Q2Data>;
-
-std::ostream& operator<<(std::ostream& lhs, const GameData& rhs);
-
 class Material
 {
-private:
-  using Buffer = TextureBuffer;
-  using BufferList = std::vector<Buffer>;
-
 private:
   std::string m_name;
   std::filesystem::path m_absolutePath;
   std::filesystem::path m_relativePath;
 
-  Texture m_texture;
+  std::shared_ptr<TextureResource> m_textureResource;
 
   std::atomic<size_t> m_usageCount = 0;
 
-  // TODO: move these to a Q3Data variant case of m_gameData if possible
   // Quake 3 surface parameters; move these to materials when we add proper support for
   // those.
   std::set<std::string> m_surfaceParms;
@@ -132,39 +111,14 @@ private:
     m_name,
     m_absolutePath,
     m_relativePath,
+    m_textureResource,
     m_usageCount,
     m_surfaceParms,
     m_culling,
     m_blendFunc);
 
 public:
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    const Color& averageColor,
-    Buffer&& buffer,
-    GLenum format,
-    TextureType type,
-    GameData gameData = std::monostate{});
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    const Color& averageColor,
-    BufferList buffers,
-    GLenum format,
-    TextureType type,
-    GameData gameData = std::monostate{});
-  Material(
-    std::string name,
-    size_t width,
-    size_t height,
-    GLenum format = GL_RGB,
-    TextureType type = TextureType::Opaque,
-    GameData gameData = std::monostate{});
-
-  Material(std::string name, Texture texture);
+  Material(std::string name, std::shared_ptr<TextureResource> textureResource);
 
   Material(const Material&) = delete;
   Material& operator=(const Material&) = delete;
@@ -188,8 +142,10 @@ public:
   const std::filesystem::path& relativePath() const;
   void setRelativePath(std::filesystem::path relativePath);
 
-  const Texture& texture() const;
-  Texture& texture();
+  const Texture* texture() const;
+  Texture* texture();
+
+  const TextureResource& textureResource() const;
 
   const std::set<std::string>& surfaceParms() const;
   void setSurfaceParms(std::set<std::string> surfaceParms);
@@ -204,8 +160,11 @@ public:
   void incUsageCount();
   void decUsageCount();
 
-  void activate() const;
+  void activate(int minFilter, int magFilter) const;
   void deactivate() const;
 };
+
+const Texture* getTexture(const Material* material);
+Texture* getTexture(Material* material);
 
 } // namespace TrenchBroom::Assets

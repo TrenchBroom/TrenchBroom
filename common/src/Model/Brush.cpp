@@ -107,9 +107,8 @@ Brush::Brush(std::vector<BrushFace> faces)
 Result<Brush> Brush::create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces)
 {
   auto brush = Brush{std::move(faces)};
-  return brush.updateGeometryFromFaces(worldBounds).transform([&]() {
-    return std::move(brush);
-  });
+  return brush.updateGeometryFromFaces(worldBounds)
+         | kdl::transform([&]() { return std::move(brush); });
 }
 
 Result<void> Brush::updateGeometryFromFaces(const vm::bbox3& worldBounds)
@@ -380,9 +379,8 @@ Result<void> Brush::moveBoundary(
 {
   assert(faceIndex < faceCount());
 
-  return m_faces[faceIndex]
-    .transform(vm::translation_matrix(delta), lockMaterial)
-    .and_then([&]() { return updateGeometryFromFaces(worldBounds); });
+  return m_faces[faceIndex].transform(vm::translation_matrix(delta), lockMaterial)
+         | kdl::and_then([&]() { return updateGeometryFromFaces(worldBounds); });
 }
 
 Result<void> Brush::expand(
@@ -1070,23 +1068,21 @@ void Brush::applyUVLock(
     // (which should have an identical plane to `rightFace` within FP error) to
     // `rightFace`.
     BrushFace leftClone = leftFace;
-    leftClone.transform(*M, true)
-      .transform([&]() {
-        auto snapshot =
-          std::unique_ptr<UVCoordSystemSnapshot>(leftClone.takeUVCoordSystemSnapshot());
-        rightFace.setAttributes(leftClone.attributes());
-        if (snapshot)
-        {
-          // Note, the wrap style doesn't matter because the source and destination faces
-          // should have the same plane
-          rightFace.copyUVCoordSystemFromFace(
-            *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
-        }
-        rightFace.resetUVCoordSystemCache();
-      })
-      .transform_error([](auto) {
-        // do nothing
-      });
+    leftClone.transform(*M, true) | kdl::transform([&]() {
+      auto snapshot =
+        std::unique_ptr<UVCoordSystemSnapshot>(leftClone.takeUVCoordSystemSnapshot());
+      rightFace.setAttributes(leftClone.attributes());
+      if (snapshot)
+      {
+        // Note, the wrap style doesn't matter because the source and destination faces
+        // should have the same plane
+        rightFace.copyUVCoordSystemFromFace(
+          *snapshot, leftClone.attributes(), leftClone.boundary(), WrapStyle::Rotation);
+      }
+      rightFace.resetUVCoordSystemCache();
+    }) | kdl::transform_error([](auto) {
+      // do nothing
+    });
   }
 }
 
@@ -1107,19 +1103,17 @@ Result<void> Brush::updateFacesFromGeometry(
       auto& rightFace = newFaces.emplace_back(leftFace);
 
       rightFace.setGeometry(right);
-      rightFace.updatePointsFromVertices()
-        .transform([&]() {
-          if (uvLock)
-          {
-            applyUVLock(matcher, leftFace, rightFace);
-          }
-        })
-        .transform_error([&](auto e) {
-          if (!error)
-          {
-            error = e;
-          }
-        });
+      rightFace.updatePointsFromVertices() | kdl::transform([&]() {
+        if (uvLock)
+        {
+          applyUVLock(matcher, leftFace, rightFace);
+        }
+      }) | kdl::transform_error([&](auto e) {
+        if (!error)
+        {
+          error = e;
+        }
+      });
     }
   });
 
@@ -1231,33 +1225,32 @@ Result<Brush> Brush::createBrush(
   const BrushGeometry& geometry,
   const std::vector<const Brush*>& subtrahends) const
 {
-  return kdl::fold_results(
-           kdl::vec_transform(
-             geometry.faces(),
-             [&](const auto* face) {
-               const auto* h1 = face->boundary().front();
-               const auto* h0 = h1->next();
-               const auto* h2 = h0->next();
+  return kdl::vec_transform(
+           geometry.faces(),
+           [&](const auto* face) {
+             const auto* h1 = face->boundary().front();
+             const auto* h0 = h1->next();
+             const auto* h2 = h0->next();
 
-               const auto& p0 = h0->origin()->position();
-               const auto& p1 = h1->origin()->position();
-               const auto& p2 = h2->origin()->position();
+             const auto& p0 = h0->origin()->position();
+             const auto& p1 = h1->origin()->position();
+             const auto& p2 = h2->origin()->position();
 
-               return BrushFace::create(
-                 p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
-             }))
-    .and_then([&](std::vector<BrushFace>&& faces) {
-      return Brush::create(worldBounds, std::move(faces));
-    })
-    .transform([&](Brush&& brush) {
-      brush.cloneFaceAttributesFrom(*this);
-      for (const auto* subtrahend : subtrahends)
-      {
-        brush.cloneFaceAttributesFrom(*subtrahend);
-        brush.cloneInvertedFaceAttributesFrom(*subtrahend);
-      }
-      return std::move(brush);
-    });
+             return BrushFace::create(
+               p0, p1, p2, BrushFaceAttributes(defaultMaterialName), mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](std::vector<BrushFace>&& faces) {
+             return Brush::create(worldBounds, std::move(faces));
+           })
+         | kdl::transform([&](Brush&& brush) {
+             brush.cloneFaceAttributesFrom(*this);
+             for (const auto* subtrahend : subtrahends)
+             {
+               brush.cloneFaceAttributesFrom(*subtrahend);
+               brush.cloneInvertedFaceAttributesFrom(*subtrahend);
+             }
+             return std::move(brush);
+           });
 }
 
 Brush Brush::convertToParaxial() const

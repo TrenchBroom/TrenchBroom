@@ -55,7 +55,13 @@ public:
 
 class DefaultMaterialRenderFunc : public MaterialRenderFunc
 {
+private:
+  int m_minFilter;
+  int m_magFilter;
+
 public:
+  DefaultMaterialRenderFunc(int minFilter, int magFilter);
+
   void before(const Assets::Material* material) override;
   void after(const Assets::Material* material) override;
 };

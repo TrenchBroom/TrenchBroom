@@ -138,14 +138,6 @@ public:
 
   /**
    * Renders the recorded primitives using the indices stored in the given index array.
-   * The primitives are batched by their associated materials.
-   *
-   * @param indexArray the index array to render
-   */
-  void render(IndexArray& indexArray);
-
-  /**
-   * Renders the recorded primitives using the indices stored in the given index array.
    * The primitives are batched by their associated materials. The given render function
    * type provides two callbacks. One is called before all primitives with a given
    * material is rendered, and one is called afterwards.

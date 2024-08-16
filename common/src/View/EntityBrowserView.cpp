@@ -36,19 +36,18 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/PrimType.h"
+#include "Renderer/RenderUtils.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
+#include "View/MapDocument.h"
 #include "View/MapFrame.h"
-#include "View/QtUtils.h"
 
-#include "kdl/overload.h"
-#include "kdl/skip_iterator.h"
+#include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/forward.h"
 #include "vm/mat.h"
@@ -56,7 +55,6 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 
-#include <map>
 #include <string>
 #include <vector>
 
@@ -66,18 +64,19 @@ namespace TrenchBroom::View
 EntityBrowserView::EntityBrowserView(
   QScrollBar* scrollBar,
   GLContextManager& contextManager,
-  Assets::EntityDefinitionManager& entityDefinitionManager,
-  Assets::EntityModelManager& entityModelManager,
-  Logger& logger)
+  std::weak_ptr<MapDocument> i_document)
   : CellView{contextManager, scrollBar}
-  , m_entityDefinitionManager{entityDefinitionManager}
-  , m_entityModelManager{entityModelManager}
-  , m_logger{logger}
+  , m_document{std::move(i_document)}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
   const auto vRotation = vm::quatf{vm::vec3f::pos_y(), vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
+
+  auto document = kdl::mem_lock(m_document);
+
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &EntityBrowserView::resourcesWereProcessed);
 }
 
 EntityBrowserView::~EntityBrowserView()
@@ -148,11 +147,13 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
+  const auto document = kdl::mem_lock(m_document);
+  const auto& entityDefinitionManager = document->entityDefinitionManager();
   const auto font = Renderer::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
   {
-    for (const auto& group : m_entityDefinitionManager.groups())
+    for (const auto& group : entityDefinitionManager.groups())
     {
       const auto& definitions =
         group.definitions(Assets::EntityDefinitionType::PointEntity, m_sortOrder);
@@ -168,7 +169,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   }
   else
   {
-    const auto& definitions = m_entityDefinitionManager.definitions(
+    const auto& definitions = entityDefinitionManager.definitions(
       Assets::EntityDefinitionType::PointEntity, m_sortOrder);
     addEntitiesToLayout(layout, definitions, font);
   }
@@ -184,6 +185,12 @@ QString EntityBrowserView::dndData(const Cell& cell)
   static const auto prefix = QString{"entity:"};
   const auto name = QString::fromStdString(cellData(cell).entityDefinition->name());
   return prefix + name;
+}
+
+void EntityBrowserView::resourcesWereProcessed(const std::vector<Assets::ResourceId>&)
+{
+  invalidate();
+  update();
 }
 
 void EntityBrowserView::addEntitiesToLayout(
@@ -220,17 +227,18 @@ void EntityBrowserView::addEntityToLayout(
     (!m_hideUnused || definition->usageCount() > 0)
     && matchesFilterText(*definition, m_filterText))
   {
+    const auto document = kdl::mem_lock(m_document);
+    const auto& entityModelManager = document->entityModelManager();
 
     const auto maxCellWidth = layout.maxCellWidth();
     const auto actualFont =
       fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
     const auto actualSize = fontManager().font(actualFont).measure(definition->name());
     const auto spec =
-      Assets::safeGetModelSpecification(m_logger, definition->name(), [&]() {
+      Assets::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
         return definition->modelDefinition().defaultModelSpecification();
       });
 
-    const auto* frame = m_entityModelManager.frame(spec);
     const auto modelScale = vm::vec3f{Assets::safeGetModelScale(
       definition->modelDefinition(),
       EL::NullVariableStore{},
@@ -240,19 +248,22 @@ void EntityBrowserView::addEntityToLayout(
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = Assets::Orientation::Oriented;
 
-    if (frame != nullptr)
+    const auto* model = entityModelManager.model(spec.path);
+    const auto* modelData = model ? model->data() : nullptr;
+    const auto* modelFrame = modelData ? modelData->frame(spec.frameIndex) : nullptr;
+    if (modelFrame)
     {
       const auto scalingMatrix = vm::scaling_matrix(modelScale);
-      const auto bounds = frame->bounds();
+      const auto bounds = modelFrame->bounds();
       const auto center = bounds.center();
       const auto scaledCenter = scalingMatrix * center;
       const auto transform = vm::translation_matrix(scaledCenter)
                              * vm::rotation_matrix(m_rotation) * scalingMatrix
                              * vm::translation_matrix(-center);
 
-      modelRenderer = m_entityModelManager.renderer(spec);
+      modelRenderer = entityModelManager.renderer(spec);
       rotatedBounds = bounds.transform(transform);
-      modelOrientation = frame->orientation();
+      modelOrientation = modelData->orientation();
     }
     else
     {
@@ -360,7 +371,9 @@ void EntityBrowserView::renderModels(
 {
   glAssert(glFrontFace(GL_CW));
 
-  m_entityModelManager.prepare(vboManager());
+  const auto document = kdl::mem_lock(m_document);
+  auto& entityModelManager = document->entityModelManager();
+  entityModelManager.prepare(vboManager());
 
   auto shader =
     Renderer::ActiveShader{shaderManager(), Renderer::Shaders::EntityModelShader};
@@ -394,7 +407,10 @@ void EntityBrowserView::renderModels(
 
               const auto multMatrix =
                 Renderer::MultiplyModelMatrix{transformation, itemTrans};
-              modelRenderer->render();
+
+              auto renderFunc = Renderer::DefaultMaterialRenderFunc{
+                pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
+              modelRenderer->render(renderFunc);
             }
           }
         }

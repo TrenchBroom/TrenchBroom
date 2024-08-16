@@ -70,8 +70,8 @@ UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
   MapDocumentCommandFacade& document)
 {
-  return computeLinkedGroupUpdates(document).transform(
-    [&]() { doApplyOrUndoLinkedGroupUpdates(document); });
+  return computeLinkedGroupUpdates(document)
+         | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(document); });
 }
 
 void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(MapDocumentCommandFacade& document)
@@ -120,9 +120,10 @@ Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
     kdl::overload(
       [&](const ChangedLinkedGroups& changedLinkedGroups) {
         return computeLinkedGroupUpdates(changedLinkedGroups, document)
-          .transform([&](auto&& linkedGroupUpdates) {
-            m_state = std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
-          });
+               | kdl::transform([&](auto&& linkedGroupUpdates) {
+                   m_state =
+                     std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
+                 });
       },
       [](const LinkedGroupUpdates&) -> Result<void> { return kdl::void_success; }),
     m_state);
@@ -138,20 +139,20 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   }
 
   const auto& worldBounds = document.worldBounds();
-  return kdl::fold_results(
-           kdl::vec_transform(
-             changedLinkedGroups,
-             [&](const auto* groupNode) {
-               const auto groupNodesToUpdate = kdl::vec_erase(
-                 Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
-                 groupNode);
+  return kdl::vec_transform(
+           changedLinkedGroups,
+           [&](const auto* groupNode) {
+             const auto groupNodesToUpdate = kdl::vec_erase(
+               Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
+               groupNode);
 
-               return Model::updateLinkedGroups(
-                 *groupNode, groupNodesToUpdate, worldBounds);
-             }))
-    .and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
-      return kdl::vec_flatten(std::move(nestedUpdateLists));
-    });
+             return Model::updateLinkedGroups(
+               *groupNode, groupNodesToUpdate, worldBounds);
+           })
+         | kdl::fold()
+         | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
+             return kdl::vec_flatten(std::move(nestedUpdateLists));
+           });
 }
 
 void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(

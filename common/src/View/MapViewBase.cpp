@@ -1003,6 +1003,8 @@ void MapViewBase::doRender()
 
   auto renderContext =
     Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
+  renderContext.setFilterMode(
+    pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
     pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
   renderContext.setShowFaces(
@@ -1042,6 +1044,11 @@ void MapViewBase::doRender()
   renderFPS(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
+
+  if (document->needsResourceProcessing())
+  {
+    update();
+  }
 }
 
 void MapViewBase::setupGL(Renderer::RenderContext& context)

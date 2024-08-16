@@ -21,9 +21,11 @@
 
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
+#include "Assets/Resource.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "Exceptions.h"
-#include "IO/LoadMaterialCollection.h"
+#include "IO/LoadMaterialCollections.h"
 #include "Logger.h"
 
 #include "kdl/map_utils.h"
@@ -35,33 +37,36 @@
 #include <chrono>
 #include <iterator>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
-MaterialManager::MaterialManager(int magFilter, int minFilter, Logger& logger)
+MaterialManager::MaterialManager(Logger& logger)
   : m_logger{logger}
-  , m_minFilter{minFilter}
-  , m_magFilter{magFilter}
 {
 }
 
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const IO::FileSystem& fs, const Model::MaterialConfig& materialConfig)
+  const IO::FileSystem& fs,
+  const Model::MaterialConfig& materialConfig,
+  const Assets::CreateTextureResource& createResource)
 {
-  findMaterialCollections(fs, materialConfig)
-    .transform([&](auto materialCollections) {
-      setMaterialCollections(std::move(materialCollections), fs, materialConfig);
-    })
-    .transform_error([&](auto e) {
-      m_logger.error() << "Could not reload material collections: " + e.msg;
-      setMaterialCollections({}, fs, materialConfig);
-    });
+  clear();
+  IO::loadMaterialCollections(fs, materialConfig, createResource, m_logger)
+    | kdl::transform([&](auto materialCollections) {
+        for (auto& collection : materialCollections)
+        {
+          addMaterialCollection(std::move(collection));
+        }
+        updateMaterials();
+      })
+    | kdl::transform_error([&](auto e) {
+        m_logger.error() << "Could not reload material collections: " + e.msg;
+      });
 }
 
 void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> collections)
@@ -73,64 +78,10 @@ void MaterialManager::setMaterialCollections(std::vector<MaterialCollection> col
   updateMaterials();
 }
 
-void MaterialManager::setMaterialCollections(
-  const std::vector<std::filesystem::path>& paths,
-  const IO::FileSystem& fs,
-  const Model::MaterialConfig& materialConfig)
-{
-  auto collections = std::move(m_collections);
-  clear();
-
-  for (const auto& path : paths)
-  {
-    const auto it =
-      std::find_if(collections.begin(), collections.end(), [&](const auto& c) {
-        return c.path() == path;
-      });
-
-    if (it == collections.end() || !it->loaded())
-    {
-      IO::loadMaterialCollection(path, fs, materialConfig, m_logger)
-        .transform_error([&](const auto& error) {
-          if (it == collections.end())
-          {
-            m_logger.error() << "Could not load material collection '" << path
-                             << "': " << error.msg;
-          }
-          return Assets::MaterialCollection{path};
-        })
-        .transform([&](auto collection) {
-          if (!collection.materials().empty())
-          {
-            m_logger.info() << "Loaded material collection '" << path << "'";
-          }
-          addMaterialCollection(std::move(collection));
-        });
-    }
-    else
-    {
-      addMaterialCollection(std::move(*it));
-    }
-
-    if (it != collections.end())
-    {
-      collections.erase(it);
-    }
-  }
-
-  updateMaterials();
-  m_toRemove = kdl::vec_concat(std::move(m_toRemove), std::move(collections));
-}
-
 void MaterialManager::addMaterialCollection(Assets::MaterialCollection collection)
 {
   const auto index = m_collections.size();
   m_collections.push_back(std::move(collection));
-
-  if (m_collections[index].loaded() && !m_collections[index].prepared())
-  {
-    m_toPrepare.push_back(index);
-  }
 
   m_logger.debug() << "Added material collection " << m_collections[index].path();
 }
@@ -138,26 +89,10 @@ void MaterialManager::addMaterialCollection(Assets::MaterialCollection collectio
 void MaterialManager::clear()
 {
   m_collections.clear();
-
-  m_toPrepare.clear();
   m_materialsByName.clear();
   m_materials.clear();
 
   // Remove logging because it might fail when the document is already destroyed.
-}
-
-void MaterialManager::setFilterMode(const int minFilter, const int magFilter)
-{
-  m_minFilter = minFilter;
-  m_magFilter = magFilter;
-  m_resetFilterMode = true;
-}
-
-void MaterialManager::commitChanges()
-{
-  resetFilterMode();
-  prepare();
-  m_toRemove.clear();
 }
 
 const Material* MaterialManager::material(const std::string& name) const
@@ -171,6 +106,16 @@ Material* MaterialManager::material(const std::string& name)
   return const_cast<Material*>(const_cast<const MaterialManager*>(this)->material(name));
 }
 
+const std::vector<const Material*> MaterialManager::findMaterialsByTextureResourceId(
+  const std::vector<ResourceId>& textureResourceIds) const
+{
+  const auto resourceIdSet =
+    std::unordered_set<ResourceId>{textureResourceIds.begin(), textureResourceIds.end()};
+  return kdl::vec_filter(m_materials, [&](const auto* material) {
+    return resourceIdSet.count(material->textureResource().id()) > 0;
+  });
+}
+
 const std::vector<const Material*>& MaterialManager::materials() const
 {
   return m_materials;
@@ -179,28 +124,6 @@ const std::vector<const Material*>& MaterialManager::materials() const
 const std::vector<MaterialCollection>& MaterialManager::collections() const
 {
   return m_collections;
-}
-
-void MaterialManager::resetFilterMode()
-{
-  if (m_resetFilterMode)
-  {
-    for (auto& collection : m_collections)
-    {
-      collection.setFilterMode(m_minFilter, m_magFilter);
-    }
-    m_resetFilterMode = false;
-  }
-}
-
-void MaterialManager::prepare()
-{
-  for (const auto index : m_toPrepare)
-  {
-    auto& collection = m_collections[index];
-    collection.prepare(m_minFilter, m_magFilter);
-  }
-  m_toPrepare.clear();
 }
 
 void MaterialManager::updateMaterials()
@@ -230,5 +153,4 @@ void MaterialManager::updateMaterials()
     return const_cast<const Material*>(t);
   });
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

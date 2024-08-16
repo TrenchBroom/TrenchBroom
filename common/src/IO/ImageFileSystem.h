@@ -20,16 +20,16 @@
 #pragma once
 
 #include "Ensure.h"
-#include "Error.h"
 #include "IO/FileSystem.h"
 #include "Result.h"
 
+#include "kdl/path_hash.h"
 #include "kdl/result.h"
-#include "kdl/string_compare.h"
 
 #include <filesystem>
 #include <functional>
 #include <memory>
+#include <unordered_map>
 #include <variant>
 
 namespace TrenchBroom::IO
@@ -52,6 +52,7 @@ struct ImageDirectoryEntry
 {
   std::filesystem::path name;
   std::vector<ImageEntry> entries;
+  std::unordered_map<std::filesystem::path, size_t, kdl::path_hash> entryMapLC;
 };
 
 class ImageFileSystemBase : public FileSystem
@@ -79,7 +80,7 @@ protected:
 
 private:
   Result<std::vector<std::filesystem::path>> doFind(
-    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+    const std::filesystem::path& path, const TraversalMode& traversalMode) const override;
   Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 
@@ -104,7 +105,7 @@ template <typename T, typename... Args>
 Result<std::unique_ptr<T>> createImageFileSystem(Args&&... args)
 {
   auto fs = std::make_unique<T>(std::forward<Args>(args)...);
-  return fs->reload().transform([&]() { return std::move(fs); });
+  return fs->reload() | kdl::transform([&]() { return std::move(fs); });
 }
 
 } // namespace TrenchBroom::IO

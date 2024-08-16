@@ -32,7 +32,7 @@ namespace TrenchBroom::IO
 class File;
 class FileSystem;
 enum class PathInfo;
-enum class TraversalMode;
+struct TraversalMode;
 
 class FileSystem
 {
@@ -61,7 +61,7 @@ public:
    */
   Result<std::vector<std::filesystem::path>> find(
     const std::filesystem::path& path,
-    TraversalMode traversalMode,
+    const TraversalMode& traversalMode,
     const PathMatcher& pathMatcher = matchAnyPath) const;
 
   /** Open a file at the given path and return it.
@@ -70,7 +70,7 @@ public:
 
 protected:
   virtual Result<std::vector<std::filesystem::path>> doFind(
-    const std::filesystem::path& path, TraversalMode traversalMode) const = 0;
+    const std::filesystem::path& path, const TraversalMode& traversalMode) const = 0;
   virtual Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const = 0;
 };

@@ -18,6 +18,7 @@
  */
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Error.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
@@ -55,7 +56,7 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -395,14 +396,15 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3{8192.0};
 
   // must outlive map
-  auto material = Assets::Material{"some_material", 16, 16};
+  auto textureResource = createTextureResource(Assets::Texture{16, 16});
+  auto material = Assets::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material").value()};
+    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)

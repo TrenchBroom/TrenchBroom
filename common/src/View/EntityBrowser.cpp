@@ -30,7 +30,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "View/EntityBrowserView.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
@@ -54,9 +53,9 @@ EntityBrowser::EntityBrowser(
 
 void EntityBrowser::reload()
 {
-  if (m_view)
+  auto document = kdl::mem_lock(m_document);
+  if (m_view && document->world())
   {
-    auto document = kdl::mem_lock(m_document);
     m_view->setDefaultModelScaleExpression(
       document->world()->entityPropertyConfig().defaultModelScaleExpression);
 
@@ -69,14 +68,7 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 {
   m_scrollBar = new QScrollBar{Qt::Vertical};
 
-  auto document = kdl::mem_lock(m_document);
-
-  m_view = new EntityBrowserView{
-    m_scrollBar,
-    contextManager,
-    document->entityDefinitionManager(),
-    document->entityModelManager(),
-    *document};
+  m_view = new EntityBrowserView{m_scrollBar, contextManager, m_document};
 
   auto* browserPanelSizer = new QHBoxLayout{};
   browserPanelSizer->setContentsMargins(0, 0, 0, 0);
@@ -154,6 +146,8 @@ void EntityBrowser::connectObservers()
     this, &EntityBrowser::entityDefinitionsDidChange);
   m_notifierConnection +=
     document->nodesDidChangeNotifier.connect(this, &EntityBrowser::nodesDidChange);
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &EntityBrowser::resourcesWereProcessed);
 
   auto& prefs = PreferenceManager::instance();
   m_notifierConnection +=
@@ -197,6 +191,11 @@ void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
   {
     m_view->update();
   }
+}
+
+void EntityBrowser::resourcesWereProcessed(const std::vector<Assets::ResourceId>&)
+{
+  reload();
 }
 
 } // namespace TrenchBroom::View

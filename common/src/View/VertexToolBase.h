@@ -337,24 +337,24 @@ public: // csg convex merge
       document->worldBounds(),
       game->config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, document->currentMaterialName())
-      .transform([&](auto b) {
-        for (const auto* selectedBrushNode : document->selectedNodes().brushes())
-        {
-          b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-        }
+      | kdl::transform([&](auto b) {
+          for (const auto* selectedBrushNode : document->selectedNodes().brushes())
+          {
+            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
+          }
 
-        auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
-        auto transaction = Transaction{document, "CSG Convex Merge"};
-        deselectAll();
-        if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}})
-              .empty())
-        {
-          transaction.cancel();
-          return;
-        }
-        transaction.commit();
-      })
-      .transform_error(
+          auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
+          auto transaction = Transaction{document, "CSG Convex Merge"};
+          deselectAll();
+          if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}})
+                .empty())
+          {
+            transaction.cancel();
+            return;
+          }
+          transaction.commit();
+        })
+      | kdl::transform_error(
         [&](auto e) { document->error() << "Could not create brush: " << e.msg; });
   }
 

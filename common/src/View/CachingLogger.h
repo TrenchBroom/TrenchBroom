@@ -19,12 +19,11 @@
 
 #pragma once
 
-#include <QString>
-
 #include "Logger.h"
+#include "LoggerCache.h"
 
-#include <string>
-#include <vector>
+#include <mutex>
+#include <string_view>
 
 namespace TrenchBroom::View
 {
@@ -32,21 +31,17 @@ namespace TrenchBroom::View
 class CachingLogger : public Logger
 {
 private:
-  struct Message
-  {
-    LogLevel level;
-    QString str;
-  };
+  LoggerCache m_cache;
+  std::mutex m_cacheMutex;
 
-  std::vector<Message> m_cachedMessages;
   Logger* m_parentLogger = nullptr;
 
 public:
   void setParentLogger(Logger* logger);
 
 private:
-  void doLog(LogLevel level, const std::string& message) override;
-  void doLog(LogLevel level, const QString& message) override;
+  void doLog(LogLevel level, std::string_view message) override;
+  bool cacheMessage(LogLevel level, std::string_view message);
 };
 
 } // namespace TrenchBroom::View

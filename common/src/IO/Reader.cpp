@@ -201,7 +201,7 @@ public:
 
   void read(char* val, const size_t position, const size_t size) override
   {
-    m_file.read(val, m_offset + position, size).transform_error([](auto error) {
+    m_file.read(val, m_offset + position, size) | kdl::transform_error([](auto error) {
       throw ReaderException{std::move(error.msg)};
     });
   }
@@ -214,14 +214,15 @@ public:
 
   std::shared_ptr<BufferReaderSource> buffer() const override
   {
-    return m_file.buffer(m_offset, m_length)
-      .transform([&](auto buffer) {
-        const auto* begin = buffer.get();
-        const auto* end = begin + m_length;
-        return std::make_shared<OwningBufferReaderSource>(std::move(buffer), begin, end);
-      })
-      .if_error([&](auto error) { throw ReaderException{std::move(error.msg)}; })
-      .value();
+    return m_file.buffer(m_offset, m_length) | kdl::transform([&](auto buffer) {
+             const auto* begin = buffer.get();
+             const auto* end = begin + m_length;
+             return std::make_shared<OwningBufferReaderSource>(
+               std::move(buffer), begin, end);
+           })
+           | kdl::if_error(
+             [&](auto error) { throw ReaderException{std::move(error.msg)}; })
+           | kdl::value();
   }
 };
 

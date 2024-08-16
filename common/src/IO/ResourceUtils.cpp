@@ -31,6 +31,8 @@
 #include <QThread>
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
+#include "Assets/TextureResource.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "IO/File.h"
@@ -57,21 +59,13 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
   {
     const auto set_executing = kdl::set_temp{executing};
 
-    return fs.openFile("textures/__TB_empty.png") | kdl::and_then([&](auto file) {
+    return fs.openFile(DefaultTexturePath) | kdl::and_then([&](auto file) {
              auto reader = file->reader().buffer();
              return readFreeImageTexture(reader);
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;
-               return Assets::Texture{
-                 32,
-                 32,
-                 Color{0, 0, 0, 1},
-                 GL_RGBA,
-                 Assets::TextureMask::Off,
-                 Assets::Q2EmbeddedDefaults{},
-                 std::vector<Assets::TextureBuffer>{},
-               };
+               return Assets::Texture{32, 32};
              })
            | kdl::value();
   }
@@ -80,21 +74,14 @@ Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
     logger.error() << "Could not load default texture";
   }
 
-  return Assets::Texture{
-    32,
-    32,
-    Color{0, 0, 0, 1},
-    GL_RGBA,
-    Assets::TextureMask::Off,
-    Assets::Q2EmbeddedDefaults{},
-    std::vector<Assets::TextureBuffer>{},
-  };
+  return Assets::Texture{32, 32};
 }
 
 Assets::Material loadDefaultMaterial(
   const FileSystem& fs, std::string name, Logger& logger)
 {
-  return Assets::Material{std::move(name), loadDefaultTexture(fs, logger)};
+  auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
+  return Assets::Material{std::move(name), std::move(textureResource)};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)

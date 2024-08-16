@@ -19,6 +19,7 @@
 
 #include "MaterialCollection.h"
 
+#include "Assets/Texture.h"
 #include "Ensure.h"
 
 #include "kdl/reflection_impl.h"
@@ -48,24 +49,7 @@ MaterialCollection::MaterialCollection(
   std::filesystem::path path, std::vector<Material> materials)
   : m_path{std::move(path)}
   , m_materials{std::move(materials)}
-  , m_loaded{true}
 {
-}
-
-MaterialCollection::~MaterialCollection()
-{
-  if (!m_textureIds.empty())
-  {
-    glAssert(glDeleteTextures(
-      static_cast<GLsizei>(m_textureIds.size()),
-      static_cast<GLuint*>(&m_textureIds.front())));
-    m_textureIds.clear();
-  }
-}
-
-bool MaterialCollection::loaded() const
-{
-  return m_loaded;
 }
 
 const std::filesystem::path& MaterialCollection::path() const
@@ -112,39 +96,6 @@ Material* MaterialCollection::materialByName(const std::string& name)
 {
   return const_cast<Material*>(
     const_cast<const MaterialCollection*>(this)->materialByName(name));
-}
-
-bool MaterialCollection::prepared() const
-{
-  return !m_textureIds.empty();
-}
-
-void MaterialCollection::prepare(const int minFilter, const int magFilter)
-{
-  assert(!prepared());
-
-  m_textureIds.resize(materialCount());
-  if (materialCount() != 0u)
-  {
-    glAssert(glGenTextures(
-      static_cast<GLsizei>(materialCount()),
-      static_cast<GLuint*>(&m_textureIds.front())));
-
-    for (size_t i = 0; i < materialCount(); ++i)
-    {
-      auto& material = m_materials[i];
-      material.texture().upload();
-      material.texture().setFilterMode(minFilter, magFilter);
-    }
-  }
-}
-
-void MaterialCollection::setFilterMode(const int minFilter, const int magFilter)
-{
-  for (auto& material : m_materials)
-  {
-    material.texture().setFilterMode(minFilter, magFilter);
-  }
 }
 
 } // namespace TrenchBroom::Assets

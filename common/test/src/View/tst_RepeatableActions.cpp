@@ -78,7 +78,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate")
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate")
 {
   auto entity = Model::Entity();
-  entity.transform({}, vm::translation_matrix(vm::vec3(1, 2, 3)));
+  entity.transform(vm::translation_matrix(vm::vec3(1, 2, 3)), true);
 
   auto* entityNode = new Model::EntityNode(std::move(entity));
 

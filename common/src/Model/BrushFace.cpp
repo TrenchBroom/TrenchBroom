@@ -20,6 +20,7 @@
 #include "BrushFace.h"
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Ensure.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -444,9 +445,9 @@ struct SurfaceData
 
 SurfaceData getDefaultSurfaceData(const Assets::Material* material)
 {
-  if (material)
+  if (const auto* texture = getTexture(material))
   {
-    const auto& defaults = material->texture().embeddedDefaults();
+    const auto& defaults = texture->embeddedDefaults();
     if (const auto* q2Defaults = std::get_if<Assets::Q2EmbeddedDefaults>(&defaults))
     {
       return {
@@ -511,12 +512,11 @@ const Assets::Material* BrushFace::material() const
 
 vm::vec2f BrushFace::textureSize() const
 {
-  if (!material())
+  if (const auto* texture = getTexture(material()))
   {
-    return vm::vec2f{1, 1};
+    return vm::max(texture->sizef(), vm::vec2f{1, 1});
   }
-
-  return vm::max(material()->texture().sizef(), vm::vec2f{1, 1});
+  return vm::vec2f{1, 1};
 }
 
 vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
@@ -656,16 +656,16 @@ Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockAl
     swap(m_points[1], m_points[2]);
   }
 
-  return setPoints(m_points[0], m_points[1], m_points[2]).transform([&]() {
-    m_uvCoordSystem->transform(
-      oldBoundary,
-      m_boundary,
-      transform,
-      m_attributes,
-      textureSize(),
-      lockAlignment,
-      invariant);
-  });
+  return setPoints(m_points[0], m_points[1], m_points[2]) | kdl::transform([&]() {
+           m_uvCoordSystem->transform(
+             oldBoundary,
+             m_boundary,
+             transform,
+             m_attributes,
+             textureSize(),
+             lockAlignment,
+             invariant);
+         });
 }
 
 void BrushFace::invert()
@@ -686,30 +686,30 @@ Result<void> BrushFace::updatePointsFromVertices()
            first->next()->origin()->position(),
            first->origin()->position(),
            first->previous()->origin()->position())
-    .transform([&]() {
-      // Get a line, and a reference point, that are on both the old plane
-      // (before moving the face) and after moving the face.
-      if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
-      {
-        const auto refPoint = project_point(*seam, center());
+         | kdl::transform([&]() {
+             // Get a line, and a reference point, that are on both the old plane
+             // (before moving the face) and after moving the face.
+             if (const auto seam = vm::intersect_plane_plane(oldPlane, m_boundary))
+             {
+               const auto refPoint = project_point(*seam, center());
 
-        // Get the UV coordinates at the refPoint using the old face's attribs and UV
-        // coordinage system
-        const auto desriedCoords =
-          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+               // Get the UV coordinates at the refPoint using the old face's attribs and
+               // UV coordinage system
+               const auto desriedCoords =
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
 
-        m_uvCoordSystem->setNormal(
-          oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
+               m_uvCoordSystem->setNormal(
+                 oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
 
-        // Adjust the offset on this face so that the UV coordinates at the refPoint
-        // stay the same
-        const auto currentCoords =
-          m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
-        const auto offsetChange = desriedCoords - currentCoords;
-        m_attributes.setOffset(
-          correct(modOffset(m_attributes.offset() + offsetChange), 4));
-      }
-    });
+               // Adjust the offset on this face so that the UV coordinates at the
+               // refPoint stay the same
+               const auto currentCoords =
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+               const auto offsetChange = desriedCoords - currentCoords;
+               m_attributes.setOffset(
+                 correct(modOffset(m_attributes.offset() + offsetChange), 4));
+             }
+           });
 }
 
 vm::mat4x4 BrushFace::projectToBoundaryMatrix() const

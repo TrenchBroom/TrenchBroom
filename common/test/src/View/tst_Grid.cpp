@@ -388,7 +388,7 @@ TEST_CASE("GridTest.snapMoveDeltaForFace")
   const auto grid = Grid{4};
 
   const auto brushBuilder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
-  const auto brush = brushBuilder.createBrush(points, "material").value();
+  const auto brush = brushBuilder.createBrush(points, "material") | kdl::value();
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex.has_value());
 

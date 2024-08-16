@@ -54,19 +54,19 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
   }
 
   return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
-    .transform([&]() {
-      setModificationCount(document);
-      return std::move(commandResult);
-    })
-    .transform_error([&](auto e) {
-      doPerformUndo(document);
-      if (document)
-      {
-        document->error() << e.msg;
-      }
-      return std::make_unique<CommandResult>(false);
-    })
-    .value();
+         | kdl::transform([&]() {
+             setModificationCount(document);
+             return std::move(commandResult);
+           })
+         | kdl::transform_error([&](auto e) {
+             doPerformUndo(document);
+             if (document)
+             {
+               document->error() << e.msg;
+             }
+             return std::make_unique<CommandResult>(false);
+           })
+         | kdl::value();
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(

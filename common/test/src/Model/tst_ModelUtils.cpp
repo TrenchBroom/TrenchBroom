@@ -65,7 +65,7 @@ TEST_CASE("ModelUtils.findContainingLayer")
   auto* groupNode = new GroupNode{Group{"group"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -98,7 +98,7 @@ TEST_CASE("ModelUtils.findContainingGroup")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -132,7 +132,7 @@ TEST_CASE("ModelUtils.findOutermostClosedGroup")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -194,8 +194,8 @@ TEST_CASE("ModelUtils.collectTouchingNodes")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"outer"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
   auto patchNode = PatchNode{BezierPatch{
     3,
     3,
@@ -212,8 +212,8 @@ TEST_CASE("ModelUtils.collectTouchingNodes")
 
   groupNode.addChild(new EntityNode{Entity{}});
 
-  auto touchesAll =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(24.0, "material").value()};
+  auto touchesAll = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(24.0, "material") | kdl::value()};
   REQUIRE_FALSE(touchesAll.intersects(&worldNode));
   REQUIRE_FALSE(touchesAll.intersects(&layerNode));
   REQUIRE(touchesAll.intersects(&groupNode));
@@ -272,8 +272,8 @@ TEST_CASE("ModelUtils.collectContainedNodes")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"outer"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
   auto patchNode = PatchNode{BezierPatch{
     3,
     3,
@@ -290,8 +290,8 @@ TEST_CASE("ModelUtils.collectContainedNodes")
 
   groupNode.addChild(new EntityNode{Entity{}});
 
-  auto containsAll =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(128.0, "material").value()};
+  auto containsAll = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(128.0, "material") | kdl::value()};
   REQUIRE_FALSE(containsAll.contains(&worldNode));
   REQUIRE_FALSE(containsAll.contains(&layerNode));
   REQUIRE(containsAll.contains(&groupNode));
@@ -309,8 +309,8 @@ TEST_CASE("ModelUtils.collectContainedNodes")
   REQUIRE_FALSE(containsNothing.contains(&brushNode));
   REQUIRE_FALSE(containsNothing.contains(&patchNode));
 
-  auto containsPatch =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(8.0, "material").value()};
+  auto containsPatch = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(8.0, "material") | kdl::value()};
   REQUIRE_FALSE(containsPatch.contains(&worldNode));
   REQUIRE_FALSE(containsPatch.contains(&layerNode));
   REQUIRE_FALSE(containsPatch.contains(&groupNode));
@@ -352,7 +352,7 @@ TEST_CASE("ModelUtils.collectSelectedNodes")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -420,7 +420,7 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -469,7 +469,7 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
   SECTION("Face selection")
   {
     auto* brushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
     worldNode.defaultLayer()->addChild(brushNode);
     brushNode->selectFace(0);
@@ -484,9 +484,9 @@ TEST_CASE("ModelUtils.collectSelectedBrushFaces")
   SECTION("Node selection")
   {
     auto* selectedBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
     auto* unselectedBrushNode = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
     worldNode.defaultLayer()->addChild(selectedBrushNode);
     worldNode.defaultLayer()->addChild(unselectedBrushNode);
@@ -503,9 +503,9 @@ TEST_CASE("ModelUtils.collectSelectableBrushFaces")
 
   auto worldNode = WorldNode{{}, {}, mapFormat};
   auto* selectableBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
   auto* unselectableBrushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   worldNode.defaultLayer()->addChild(selectableBrushNode);
   worldNode.defaultLayer()->addChild(unselectableBrushNode);
@@ -530,7 +530,7 @@ TEST_CASE("ModelUtils.computeLogicalBounds")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -574,7 +574,7 @@ TEST_CASE("ModelUtils.computePhysicalBounds")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* entityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
@@ -616,8 +616,8 @@ TEST_CASE("ModelUtils.filterNodes")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"outer"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
   auto patchNode = PatchNode{BezierPatch{
     3,
     3,

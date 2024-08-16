@@ -49,6 +49,19 @@ void ObjectRenderer::removeNode(Model::Node* node)
     [&](Model::PatchNode* patch) { m_patchRenderer.removePatch(patch); }));
 }
 
+void ObjectRenderer::invalidateMaterials(
+  const std::vector<const Assets::Material*>& materials)
+{
+  m_brushRenderer.invalidateMaterials(materials);
+  m_patchRenderer.invalidate();
+}
+
+void ObjectRenderer::invalidateEntityModels(
+  const std::vector<const Assets::EntityModel*>& entityModels)
+{
+  m_entityRenderer.invalidateEntityModels(entityModels);
+}
+
 void ObjectRenderer::invalidateNode(Model::Node* node)
 {
   node->accept(kdl::overload(

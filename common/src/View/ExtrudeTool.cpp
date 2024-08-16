@@ -407,53 +407,52 @@ bool splitBrushesOutward(
   auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
   auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-  return kdl::fold_results(
-           kdl::vec_transform(
-             dragState.initialDragHandles,
-             [&](const auto& dragHandle) {
-               auto* brushNode = dragHandle.faceHandle.node();
+  return kdl::vec_transform(
+           dragState.initialDragHandles,
+           [&](const auto& dragHandle) {
+             auto* brushNode = dragHandle.faceHandle.node();
 
-               const auto& oldBrush = dragHandle.brushAtDragStart;
-               const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
-               const auto newDragFaceNormal = dragHandle.faceNormal();
+             const auto& oldBrush = dragHandle.brushAtDragStart;
+             const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
+             const auto newDragFaceNormal = dragHandle.faceNormal();
 
-               auto newBrush = oldBrush;
-               return newBrush
-                 .moveBoundary(worldBounds, dragFaceIndex, delta, lockAlignment)
-                 .and_then([&]() {
-                   auto clipFace = oldBrush.face(dragFaceIndex);
-                   clipFace.invert();
-                   return newBrush.clip(worldBounds, std::move(clipFace));
-                 })
-                 .transform([&]() {
-                   auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                   newNodes[brushNode->parent()].push_back(newBrushNode);
+             auto newBrush = oldBrush;
+             return newBrush.moveBoundary(
+                      worldBounds, dragFaceIndex, delta, lockAlignment)
+                    | kdl::and_then([&]() {
+                        auto clipFace = oldBrush.face(dragFaceIndex);
+                        clipFace.invert();
+                        return newBrush.clip(worldBounds, std::move(clipFace));
+                      })
+                    | kdl::transform([&]() {
+                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                        newNodes[brushNode->parent()].push_back(newBrushNode);
 
-                   // Look up the new face index of the new drag handle
-                   if (
-                     const auto newDragFaceIndex =
-                       newBrushNode->brush().findFace(newDragFaceNormal))
-                   {
-                     newDragFaces.push_back(
-                       Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
-                   }
-                 });
-             }))
-    .transform([&]() {
-      // Apply the changes calculated above
-      document.rollbackTransaction();
+                        // Look up the new face index of the new drag handle
+                        if (
+                          const auto newDragFaceIndex =
+                            newBrushNode->brush().findFace(newDragFaceNormal))
+                        {
+                          newDragFaces.push_back(
+                            Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                        }
+                      });
+           })
+         | kdl::fold() | kdl::transform([&]() {
+             // Apply the changes calculated above
+             document.rollbackTransaction();
 
-      document.deselectAll();
-      const auto addedNodes = document.addNodes(newNodes);
-      document.selectNodes(addedNodes);
-      dragState.currentDragFaces = std::move(newDragFaces);
-      dragState.totalDelta = delta;
-    })
-    .transform_error([&](auto e) {
-      document.error() << "Could not extrude brush: " << e;
-      kdl::map_clear_and_delete(newNodes);
-    })
-    .is_success();
+             document.deselectAll();
+             const auto addedNodes = document.addNodes(newNodes);
+             document.selectNodes(addedNodes);
+             dragState.currentDragFaces = std::move(newDragFaces);
+             dragState.totalDelta = delta;
+           })
+         | kdl::transform_error([&](auto e) {
+             document.error() << "Could not extrude brush: " << e;
+             kdl::map_clear_and_delete(newNodes);
+           })
+         | kdl::is_success();
 }
 
 /**

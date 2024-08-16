@@ -1085,34 +1085,34 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
     m_tokenizer.line(), fmt::format("Parsing included file '{}'", path.string()));
 
   const auto filePath = currentRoot() / path;
-  return m_fs->openFile(filePath)
-    .transform([&](auto file) {
-      status.debug(
-        m_tokenizer.line(),
-        fmt::format("Resolved '{}' to '{}'", path.string(), filePath.string()));
+  return m_fs->openFile(filePath) | kdl::transform([&](auto file) {
+           status.debug(
+             m_tokenizer.line(),
+             fmt::format("Resolved '{}' to '{}'", path.string(), filePath.string()));
 
-      if (isRecursiveInclude(filePath))
-      {
-        status.error(
-          m_tokenizer.line(),
-          fmt::format(
-            "Skipping recursively included file: {} ({})",
-            path.string(),
-            filePath.string()));
-        return std::vector<EntityDefinitionClassInfo>{};
-      }
+           if (isRecursiveInclude(filePath))
+           {
+             status.error(
+               m_tokenizer.line(),
+               fmt::format(
+                 "Skipping recursively included file: {} ({})",
+                 path.string(),
+                 filePath.string()));
+             return std::vector<EntityDefinitionClassInfo>{};
+           }
 
-      const auto pushIncludePath = PushIncludePath{*this, filePath};
-      auto reader = file->reader().buffer();
-      m_tokenizer.replaceState(reader.stringView());
-      return parseClassInfos(status);
-    })
-    .transform_error([&](auto e) {
-      status.error(
-        m_tokenizer.line(), fmt::format("Failed to parse included file: {}", e.msg));
-      return std::vector<EntityDefinitionClassInfo>{};
-    })
-    .value();
+           const auto pushIncludePath = PushIncludePath{*this, filePath};
+           auto reader = file->reader().buffer();
+           m_tokenizer.replaceState(reader.stringView());
+           return parseClassInfos(status);
+         })
+         | kdl::transform_error([&](auto e) {
+             status.error(
+               m_tokenizer.line(),
+               fmt::format("Failed to parse included file: {}", e.msg));
+             return std::vector<EntityDefinitionClassInfo>{};
+           })
+         | kdl::value();
 }
 
 } // namespace TrenchBroom::IO

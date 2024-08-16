@@ -19,6 +19,7 @@
 
 #include "../../test/src/Catch2.h"
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "BenchmarkUtils.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -55,8 +56,10 @@ makeBrushes()
   std::vector<Assets::Material*> materials;
   for (size_t i = 0; i < NumMaterials; ++i)
   {
-    const auto materialName = "material " + std::to_string(i);
-    materials.push_back(new Assets::Material(materialName, 64, 64));
+    auto materialName = "material " + std::to_string(i);
+    auto textureResource = createTextureResource(Assets::Texture{64, 64});
+    materials.push_back(
+      new Assets::Material(std::move(materialName), std::move(textureResource)));
   }
 
   // make brushes, cycling through the materials for each face
@@ -68,7 +71,7 @@ makeBrushes()
   size_t currentMaterialIndex = 0;
   for (size_t i = 0; i < NumBrushes; ++i)
   {
-    Model::Brush brush = builder.createCube(64.0, "").value();
+    Model::Brush brush = builder.createCube(64.0, "") | kdl::value();
     for (Model::BrushFace& face : brush.faces())
     {
       face.setMaterial(materials.at((currentMaterialIndex++) % NumMaterials));

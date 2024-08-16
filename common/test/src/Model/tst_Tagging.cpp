@@ -42,7 +42,8 @@ TEST_CASE("TaggingTest.testTagBrush")
 
   BrushBuilder builder{MapFormat::Standard, worldBounds};
   BrushNode* brushNode = new BrushNode(
-    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom").value());
+    builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
+    | kdl::value());
 
   world.defaultLayer()->addChild(brushNode);
 

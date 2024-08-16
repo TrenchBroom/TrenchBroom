@@ -22,6 +22,7 @@
 #include "Assets/DecalDefinition.h"
 #include "Assets/Material.h"
 #include "Assets/MaterialManager.h"
+#include "Assets/Texture.h"
 #include "BrushRendererArrays.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -61,7 +62,13 @@ std::vector<Vertex> createDecalBrushFace(
   const Model::BrushFace& face,
   const Assets::Material& material)
 {
-  const auto textureSize = material.texture().sizef();
+  const auto* texture = material.texture();
+  if (!texture)
+  {
+    return {};
+  }
+
+  const auto textureSize = texture->sizef();
   const auto materialName = material.name();
 
   // copy the face properties, used to calculate the decal size and UV coords

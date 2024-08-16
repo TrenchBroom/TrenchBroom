@@ -38,10 +38,10 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Assets/Resource.h"
 #include "Console.h"
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Exceptions.h"
-#include "FileLogger.h"
 #include "IO/ExportOptions.h"
 #include "IO/PathQt.h"
 #include "Model/BrushNode.h"
@@ -63,7 +63,6 @@
 #include "TrenchBroomApp.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
-#include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/ClipTool.h"
 #include "View/ColorButton.h"
@@ -111,18 +110,18 @@
 namespace TrenchBroom::View
 {
 
-MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document)
+MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document)
   : m_frameManager{frameManager}
   , m_document{std::move(document)}
-  , m_lastInputTime(std::chrono::system_clock::now())
-  , m_autosaver(std::make_unique<Autosaver>(m_document))
-  , m_autosaveTimer(new QTimer{this})
-  , m_contextManager(std::make_unique<GLContextManager>())
+  , m_lastInputTime{std::chrono::system_clock::now()}
+  , m_autosaver{std::make_unique<Autosaver>(m_document)}
+  , m_autosaveTimer{new QTimer{this}}
+  , m_processResourcesTimer{new QTimer{this}}
+  , m_contextManager{std::make_unique<GLContextManager>()}
   , m_updateTitleSignalDelayer{new SignalDelayer{this}}
   , m_updateActionStateSignalDelayer{new SignalDelayer{this}}
   , m_updateStatusBarSignalDelayer{new SignalDelayer{this}}
 {
-  ensure(m_frameManager != nullptr, "frameManager is null");
   ensure(m_document != nullptr, "document is null");
 
   setAttribute(Qt::WA_DeleteOnClose);
@@ -144,6 +143,7 @@ MapFrame::MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> docu
   m_document->setViewEffectsService(m_mapView);
 
   m_autosaveTimer->start(1000);
+  m_processResourcesTimer->start(20);
 
   connectObservers();
   bindEvents();
@@ -397,7 +397,6 @@ void MapFrame::createGui()
 
   auto* frameLayout = new QVBoxLayout{};
   frameLayout->setContentsMargins(0, 0, 0, 0);
-  frameLayout->setSpacing(0); // no space between BorderLine and m_hSplitter
   frameLayout->addWidget(m_hSplitter);
 
   // NOTE: you can't set the layout of a QMainWindow, so make another widget to wrap this
@@ -886,6 +885,8 @@ void MapFrame::portalFileDidChange()
 void MapFrame::bindEvents()
 {
   connect(m_autosaveTimer, &QTimer::timeout, this, &MapFrame::triggerAutosave);
+  connect(
+    m_processResourcesTimer, &QTimer::timeout, this, &MapFrame::triggerProcessResources);
   connect(qApp, &QApplication::focusChanged, this, &MapFrame::focusChange);
   connect(
     m_gridChoice,
@@ -928,7 +929,7 @@ Result<bool> MapFrame::newDocument(
   }
 
   return m_document->newDocument(mapFormat, MapDocument::DefaultWorldBounds, game)
-    .transform([]() { return true; });
+         | kdl::transform([]() { return true; });
 }
 
 Result<bool> MapFrame::openDocument(
@@ -943,17 +944,17 @@ Result<bool> MapFrame::openDocument(
 
   const auto startTime = std::chrono::high_resolution_clock::now();
   return m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
-    .transform([&]() {
-      const auto endTime = std::chrono::high_resolution_clock::now();
+         | kdl::transform([&]() {
+             const auto endTime = std::chrono::high_resolution_clock::now();
 
-      logger().info() << "Loaded " << m_document->path() << " in "
-                      << std::chrono::duration_cast<std::chrono::milliseconds>(
-                           endTime - startTime)
-                           .count()
-                      << "ms";
+             logger().info() << "Loaded " << m_document->path() << " in "
+                             << std::chrono::duration_cast<std::chrono::milliseconds>(
+                                  endTime - startTime)
+                                  .count()
+                             << "ms";
 
-      return true;
-    });
+             return true;
+           });
 }
 
 bool MapFrame::saveDocument()
@@ -1033,7 +1034,7 @@ void MapFrame::revertDocument()
     const auto game = m_document->game();
     const auto path = m_document->path();
     m_document->loadDocument(mapFormat, MapDocument::DefaultWorldBounds, game, path)
-      .transform_error(
+      | kdl::transform_error(
         [&](auto e) { m_document->error() << "Failed to rever document: " << e.msg; });
   }
 }
@@ -1080,17 +1081,16 @@ bool MapFrame::exportDocument(const IO::ExportOptions& options)
     return false;
   }
 
-  return m_document->exportDocumentAs(options)
-    .transform([&]() {
-      logger().info() << "Exported " << exportPath;
-      return true;
-    })
-    .transform_error([&](auto e) {
-      logger().error() << "Could not export '" << exportPath << "': " + e.msg;
-      QMessageBox::critical(this, "", QString::fromStdString(e.msg));
-      return false;
-    })
-    .value();
+  return m_document->exportDocumentAs(options) | kdl::transform([&]() {
+           logger().info() << "Exported " << exportPath;
+           return true;
+         })
+         | kdl::transform_error([&](auto e) {
+             logger().error() << "Could not export '" << exportPath << "': " + e.msg;
+             QMessageBox::critical(this, "", QString::fromStdString(e.msg));
+             return false;
+           })
+         | kdl::value();
 }
 
 /**
@@ -2400,7 +2400,6 @@ void MapFrame::closeEvent(QCloseEvent* event)
   }
   else
   {
-    ensure(m_frameManager, "frameManager is null");
     if (!confirmOrDiscardChanges())
     {
       event->ignore();
@@ -2412,7 +2411,7 @@ void MapFrame::closeEvent(QCloseEvent* event)
       saveWindowState(m_hSplitter);
       saveWindowState(m_vSplitter);
 
-      m_frameManager->removeFrame(this);
+      m_frameManager.removeFrame(this);
       event->accept();
     }
   }
@@ -2463,6 +2462,12 @@ void MapFrame::triggerAutosave()
   {
     m_autosaver->triggerAutosave(logger());
   }
+}
+
+void MapFrame::triggerProcessResources()
+{
+  auto document = kdl::mem_lock(m_document);
+  document->processResourcesAsync(Assets::ProcessContext{true});
 }
 
 // DebugPaletteWindow

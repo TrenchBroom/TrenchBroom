@@ -19,11 +19,10 @@
 
 #include "Material.h"
 
-#include "Assets/TextureBuffer.h"
+#include "Assets/Resource.h"
+#include "Assets/Texture.h"
 #include "Macros.h"
-#include "Renderer/GL.h"
 
-#include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
 #include "vm/vec_io.h"
@@ -94,108 +93,11 @@ std::ostream& operator<<(std::ostream& lhs, const MaterialBlendFunc::Enable& rhs
   return lhs;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
-{
-  std::visit(
-    kdl::overload(
-      [&](const std::monostate&) { lhs << "std::monostate"; },
-      [&](const auto& x) { lhs << x; }),
-    rhs);
-  return lhs;
-}
-
-kdl_reflect_impl(Q2Data);
-
 kdl_reflect_impl(Material);
 
-namespace
-{
-
-auto textureMask(const TextureType type)
-{
-  return type == TextureType::Masked ? TextureMask::On : TextureMask::Off;
-}
-
-auto embeddedDefaults(const GameData& gameData)
-{
-  return std::visit(
-    kdl::overload(
-      [](const std::monostate&) { return EmbeddedDefaults{NoEmbeddedDefaults{}}; },
-      [](const Q2Data& x) {
-        return EmbeddedDefaults{Q2EmbeddedDefaults{x.flags, x.contents, x.value}};
-      }),
-    gameData);
-}
-
-} // namespace
-
-Material::Material(
-  std::string name,
-  const size_t width,
-  const size_t height,
-  const Color& averageColor,
-  Buffer&& buffer,
-  const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : Material{
-    std::move(name),
-    Texture{
-      width,
-      height,
-      averageColor,
-      format,
-      textureMask(type),
-      embeddedDefaults(gameData),
-      {std::move(buffer)}}}
-{
-}
-
-Material::Material(
-  std::string name,
-  const size_t width,
-  const size_t height,
-  const Color& averageColor,
-  BufferList buffers,
-  const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : Material{
-    std::move(name),
-    Texture{
-      width,
-      height,
-      averageColor,
-      format,
-      textureMask(type),
-      embeddedDefaults(gameData),
-      std::move(buffers)}}
-{
-}
-
-Material::Material(
-  std::string name,
-  const size_t width,
-  const size_t height,
-  const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : Material{
-    std::move(name),
-    Texture{
-      width,
-      height,
-      Color(0.0f, 0.0f, 0.0f, 1.0f),
-      format,
-      textureMask(type),
-      embeddedDefaults(gameData),
-      std::vector<TextureBuffer>{}}}
-{
-}
-
-Material::Material(std::string name, Texture texture)
+Material::Material(std::string name, std::shared_ptr<TextureResource> textureResource)
   : m_name{std::move(name)}
-  , m_texture{std::move(texture)}
+  , m_textureResource{std::move(textureResource)}
 {
 }
 
@@ -205,7 +107,7 @@ Material::Material(Material&& other)
   : m_name{std::move(other.m_name)}
   , m_absolutePath{std::move(other.m_absolutePath)}
   , m_relativePath{std::move(other.m_relativePath)}
-  , m_texture{std::move(other.m_texture)}
+  , m_textureResource{std::move(other.m_textureResource)}
   , m_usageCount{static_cast<size_t>(other.m_usageCount)}
   , m_surfaceParms{std::move(other.m_surfaceParms)}
   , m_culling{std::move(other.m_culling)}
@@ -218,7 +120,7 @@ Material& Material::operator=(Material&& other)
   m_name = std::move(other.m_name);
   m_absolutePath = std::move(other.m_absolutePath);
   m_relativePath = std::move(other.m_relativePath);
-  m_texture = std::move(other.m_texture);
+  m_textureResource = std::move(other.m_textureResource);
   m_usageCount = static_cast<size_t>(other.m_usageCount);
   m_surfaceParms = std::move(other.m_surfaceParms);
   m_culling = std::move(other.m_culling);
@@ -251,14 +153,19 @@ void Material::setRelativePath(std::filesystem::path relativePath)
   m_relativePath = std::move(relativePath);
 }
 
-const Texture& Material::texture() const
+const Texture* Material::texture() const
 {
-  return m_texture;
+  return m_textureResource->get();
 }
 
-Texture& Material::texture()
+Texture* Material::texture()
 {
-  return m_texture;
+  return m_textureResource->get();
+}
+
+const TextureResource& Material::textureResource() const
+{
+  return *m_textureResource;
 }
 
 const std::set<std::string>& Material::surfaceParms() const
@@ -310,9 +217,10 @@ void Material::decUsageCount()
   unused(previous);
 }
 
-void Material::activate() const
+void Material::activate(const int minFilter, const int magFilter) const
 {
-  if (m_texture.activate())
+  if (const auto* texture = m_textureResource->get();
+      texture && texture->activate(minFilter, magFilter))
   {
     switch (m_culling)
     {
@@ -348,7 +256,7 @@ void Material::activate() const
 
 void Material::deactivate() const
 {
-  if (m_texture.deactivate())
+  if (const auto* texture = m_textureResource->get(); texture && texture->deactivate())
   {
     if (m_blendFunc.enable != MaterialBlendFunc::Enable::UseDefault)
     {
@@ -373,6 +281,16 @@ void Material::deactivate() const
 
     glAssert(glBindTexture(GL_TEXTURE_2D, 0));
   }
+}
+
+const Texture* getTexture(const Material* material)
+{
+  return material ? material->texture() : nullptr;
+}
+
+Texture* getTexture(Material* material)
+{
+  return material ? material->texture() : nullptr;
 }
 
 } // namespace TrenchBroom::Assets

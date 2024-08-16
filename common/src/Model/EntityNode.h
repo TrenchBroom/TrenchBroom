@@ -38,7 +38,7 @@
 namespace TrenchBroom::Assets
 {
 enum class PitchType;
-class EntityModelFrame;
+class EntityModel;
 struct ModelSpecification;
 } // namespace TrenchBroom::Assets
 
@@ -64,13 +64,10 @@ private:
 
 public:
   explicit EntityNode(Entity entity);
-  EntityNode(
-    const Model::EntityPropertyConfig& entityPropertyConfig,
-    std::initializer_list<EntityProperty> properties);
 
 public: // entity model
   const vm::bbox3& modelBounds() const;
-  void setModelFrame(const Assets::EntityModelFrame* modelFrame);
+  void setModel(const Assets::EntityModel* model);
 
 private: // implement Node interface
   const vm::bbox3& doGetLogicalBounds() const override;

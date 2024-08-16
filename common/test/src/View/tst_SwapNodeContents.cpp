@@ -131,14 +131,15 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
 {
   constexpr auto Classname = "point_entity";
 
-  auto* entityNode =
-    new Model::EntityNode{{}, {{Model::EntityPropertyKeys::Classname, Classname}}};
+  auto* entityNode = new Model::EntityNode{Model::Entity{{
+    {Model::EntityPropertyKeys::Classname, Classname},
+  }}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   const auto& originalEntity = entityNode->entity();
   auto modifiedEntity = originalEntity;
-  modifiedEntity.addOrUpdateProperty({}, "this", "that");
+  modifiedEntity.addOrUpdateProperty("this", "that");
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
   nodesToSwap.emplace_back(entityNode, std::move(modifiedEntity));

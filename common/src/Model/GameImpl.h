@@ -59,15 +59,6 @@ public: // implement EntityDefinitionLoader interface:
   Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
 
-public: // implement EntityModelLoader interface:
-  std::unique_ptr<Assets::EntityModel> initializeModel(
-    const std::filesystem::path& path, Logger& logger) const override;
-  void loadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const override;
-
 public: // implement Game interface
   const GameConfig& config() const override;
   const IO::FileSystem& gameFileSystem() const override;
@@ -116,13 +107,14 @@ public: // implement Game interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadMaterialCollections(Assets::MaterialManager& materialManager) const override;
+  void loadMaterialCollections(
+    Assets::MaterialManager& materialManager,
+    const Assets::CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  Result<void> reloadShaders() override;
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
   std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
@@ -132,8 +124,6 @@ public: // implement Game interface
   std::filesystem::path findEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
-
-  Result<Assets::Palette> loadPalette() const;
 
   Result<std::vector<std::string>> availableMods() const override;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;

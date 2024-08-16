@@ -29,16 +29,14 @@
 #include "vm/approx.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
+#include "vm/mat_io.h" // IWYU pragma: keep
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
@@ -82,16 +80,20 @@ TEST_CASE("entityRotationInfo")
 
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
-  auto normalPitch =
-    EntityModelLoadedFrame{0, "", {}, PitchType::Normal, Orientation::Oriented};
-  auto invertedPitch =
-    EntityModelLoadedFrame{0, "", {}, PitchType::MdlInverted, Orientation::Oriented};
+  auto normalPitch = EntityModel{
+    "",
+    createEntityModelDataResource(
+      EntityModelData{PitchType::Normal, Orientation::Oriented})};
+  auto invertedPitch = EntityModel{
+    "",
+    createEntityModelDataResource(
+      EntityModelData{PitchType::MdlInverted, Orientation::Oriented})};
 
   using T = std::tuple<
     std::vector<EntityProperty>,
     bool,
     std::optional<EntityDefinitionInfo>,
-    EntityModelFrame*,
+    EntityModel*,
     EntityRotationInfo>;
 
   // clang-format off
@@ -183,10 +185,10 @@ TEST_CASE("entityRotationInfo")
   CAPTURE(entityProperties, point, entityDefinitionInfo, entityModel);
 
   auto entityDefinition = createEntityDefinition(entityDefinitionInfo);
-  auto entity = Entity{{}, entityProperties};
-  entity.setDefinition({}, entityDefinition.get());
-  entity.setModel({}, entityModel);
-  entity.setPointEntity({}, point);
+  auto entity = Entity{entityProperties};
+  entity.setDefinition(entityDefinition.get());
+  entity.setModel(entityModel);
+  entity.setPointEntity(point);
 
   CHECK(entityRotationInfo(entity) == expectedRotationInfo);
 }
@@ -281,5 +283,4 @@ TEST_CASE("applyEntityRotation")
   CHECK(applyEntityRotation(properties, info, transform) == expectedProperty);
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

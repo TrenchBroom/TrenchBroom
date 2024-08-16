@@ -87,12 +87,6 @@ size_t MaterialIndexArrayMap::add(
   return it->second.add(primType, count);
 }
 
-void MaterialIndexArrayMap::render(IndexArray& indexArray)
-{
-  auto func = DefaultMaterialRenderFunc{};
-  render(indexArray, func);
-}
-
 void MaterialIndexArrayMap::render(IndexArray& indexArray, MaterialRenderFunc& func)
 {
   for (const auto& [material, indexRange] : m_ranges)

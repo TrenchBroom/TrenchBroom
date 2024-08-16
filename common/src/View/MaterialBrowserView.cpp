@@ -25,6 +25,7 @@
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"
+#include "Assets/Texture.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -64,6 +65,8 @@ MaterialBrowserView::MaterialBrowserView(
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->materialUsageCountsDidChangeNotifier.connect(
     this, &MaterialBrowserView::reloadMaterials);
+  m_notifierConnection += document->resourcesWereProcessedNotifier.connect(
+    this, &MaterialBrowserView::resourcesWereProcessed);
 }
 
 MaterialBrowserView::~MaterialBrowserView()
@@ -129,6 +132,11 @@ void MaterialBrowserView::revealMaterial(const Assets::Material* material)
   });
 }
 
+void MaterialBrowserView::resourcesWereProcessed(const std::vector<Assets::ResourceId>&)
+{
+  reloadMaterials();
+}
+
 void MaterialBrowserView::reloadMaterials()
 {
   invalidate();
@@ -177,23 +185,25 @@ void MaterialBrowserView::addMaterialsToLayout(
 {
   for (const auto* material : materials)
   {
-    addMaterialToLayout(layout, material, font);
+    addMaterialToLayout(layout, *material, font);
   }
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const Assets::Material* material, const Renderer::FontDescriptor& font)
+  Layout& layout, const Assets::Material& material, const Renderer::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
-  const auto materialName = std::filesystem::path{material->name()}.filename().string();
+  const auto materialName = std::filesystem::path{material.name()}.filename().string();
   const auto titleHeight = fontManager().font(font).measure(materialName).y();
 
   const auto scaleFactor = pref(Preferences::MaterialBrowserIconSize);
-  const auto scaledTextureSize = vm::round(scaleFactor * material->texture().sizef());
+  const auto* texture = material.texture();
+  const auto textureSize = texture ? texture->sizef() : vm::vec2f{64, 64};
+  const auto scaledTextureSize = vm::round(scaleFactor * textureSize);
 
   layout.addItem(
-    material,
+    &material,
     materialName,
     scaledTextureSize.x(),
     scaledTextureSize.y(),
@@ -283,9 +293,6 @@ void MaterialBrowserView::doClear() {}
 
 void MaterialBrowserView::doRender(Layout& layout, const float y, const float height)
 {
-  auto document = kdl::mem_lock(m_document);
-  document->materialManager().commitChanges();
-
   const auto viewLeft = float(0);
   const auto viewTop = float(size().height());
   const auto viewRight = float(size().width());
@@ -397,7 +404,8 @@ void MaterialBrowserView::renderMaterials(
               Vertex{{bounds.right(), height - (bounds.top() - y)}, {1, 0}},
             });
 
-            material.activate();
+            material.activate(
+              pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
             vertexArray.render(Renderer::PrimType::Quads);
@@ -425,11 +433,19 @@ void MaterialBrowserView::doLeftClick(Layout& layout, const float x, const float
 QString MaterialBrowserView::tooltip(const Cell& cell)
 {
   const auto& material = cellData(cell);
-  const auto& texture = material.texture();
+
   auto tooltip = QString{};
   auto ss = QTextStream{&tooltip};
   ss << QString::fromStdString(material.name()) << "\n";
-  ss << texture.width() << "x" << texture.height();
+
+  if (const auto* texture = material.texture())
+  {
+    ss << texture->width() << "x" << texture->height();
+  }
+  else
+  {
+    ss << "Loading...";
+  }
   return tooltip;
 }
 

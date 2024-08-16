@@ -170,7 +170,7 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Flat).value(),
+      Disk::find(env.dir(), TraversalMode::Flat) | kdl::value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
@@ -182,13 +182,40 @@ TEST_CASE("DiskIO")
       }));
 
     CHECK_THAT(
-      Disk::find(env.dir(), TraversalMode::Recursive).value(),
+      Disk::find(env.dir(), TraversalMode::Recursive) | kdl::value(),
       Catch::UnorderedEquals(std::vector<std::filesystem::path>{
         env.dir() / "dir1",
         env.dir() / "dir2",
         env.dir() / "anotherDir",
         env.dir() / "anotherDir/subDirTest",
         env.dir() / "anotherDir/subDirTest/test2.map",
+        env.dir() / "anotherDir/test3.map",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
+        env.dir() / "linkedDir",
+        env.dir() / "linkedDir/test2.map",
+        env.dir() / "linkedTest2.map",
+      }));
+
+    CHECK_THAT(
+      Disk::find(env.dir(), TraversalMode{0}) | kdl::value(),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "test.txt",
+        env.dir() / "test2.map",
+        env.dir() / "linkedDir",
+        env.dir() / "linkedTest2.map",
+      }));
+
+    CHECK_THAT(
+      Disk::find(env.dir(), TraversalMode{1}) | kdl::value(),
+      Catch::UnorderedEquals(std::vector<std::filesystem::path>{
+        env.dir() / "dir1",
+        env.dir() / "dir2",
+        env.dir() / "anotherDir",
+        env.dir() / "anotherDir/subDirTest",
         env.dir() / "anotherDir/test3.map",
         env.dir() / "test.txt",
         env.dir() / "test2.map",

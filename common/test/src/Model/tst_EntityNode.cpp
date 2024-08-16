@@ -62,8 +62,8 @@ TEST_CASE("EntityNodeTest.canAddChild")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -89,8 +89,8 @@ TEST_CASE("EntityNodeTest.canRemoveChild")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
@@ -113,10 +113,10 @@ TEST_CASE("EntityNodeTest.setPointEntity")
   constexpr auto mapFormat = MapFormat::Quake3;
 
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode1 =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
-  auto brushNode2 =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material").value()};
+  auto brushNode1 = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  auto brushNode2 = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   REQUIRE(entityNode.entity().pointEntity());
   entityNode.addChild(&brushNode1);
@@ -160,7 +160,7 @@ protected:
   EntityNodeTest()
   {
     m_worldBounds = vm::bbox3d(8192.0);
-    m_entity = new EntityNode({}, {{EntityPropertyKeys::Classname, TestClassname}});
+    m_entity = new EntityNode(Entity{{{EntityPropertyKeys::Classname, TestClassname}}});
     m_world = new WorldNode({}, {}, MapFormat::Standard);
   }
 
@@ -182,7 +182,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }
@@ -194,7 +194,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProp
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }
@@ -209,7 +209,7 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
-  m_entity->setEntity(Entity({}, {{"origin", "10 20 30"}}));
+  m_entity->setEntity(Entity{{{"origin", "10 20 30"}}});
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }

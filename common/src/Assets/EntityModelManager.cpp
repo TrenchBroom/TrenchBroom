@@ -20,25 +20,30 @@
 #include "EntityModelManager.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/ModelDefinition.h"
+#include "Assets/Material.h"
+#include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
+#include "Assets/Resource.h"
+#include "Error.h"
 #include "Exceptions.h"
-#include "IO/EntityModelLoader.h"
+#include "IO/LoadEntityModel.h"
+#include "IO/LoadMaterialCollections.h"
+#include "IO/LoadShaders.h"
+#include "IO/MaterialUtils.h"
 #include "Logger.h"
 #include "Macros.h"
-#include "Model/EntityNode.h"
+#include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+#include "kdl/range_utils.h"
+#include "kdl/result.h"
+
+namespace TrenchBroom::Assets
 {
 EntityModelManager::EntityModelManager(
-  const int magFilter, const int minFilter, Logger& logger)
-  : m_logger(logger)
-  , m_loader(nullptr)
-  , m_minFilter(minFilter)
-  , m_magFilter(magFilter)
-  , m_resetFilterMode(false)
+  Assets::CreateEntityModelDataResource createResource, Logger& logger)
+  : m_createResource{std::move(createResource)}
+  , m_logger{logger}
 {
 }
 
@@ -52,131 +57,134 @@ void EntityModelManager::clear()
   m_renderers.clear();
   m_models.clear();
   m_rendererMismatches.clear();
-  m_modelMismatches.clear();
 
-  m_unpreparedModels.clear();
   m_unpreparedRenderers.clear();
 
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void EntityModelManager::setFilterMode(const int minFilter, const int magFilter)
+void EntityModelManager::reloadShaders()
 {
-  m_minFilter = minFilter;
-  m_magFilter = magFilter;
-  m_resetFilterMode = true;
+  m_shaders.clear();
+
+  if (m_game)
+  {
+    m_shaders =
+      IO::loadShaders(m_game->gameFileSystem(), m_game->config().materialConfig, m_logger)
+      | kdl::if_error(
+        [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
+      | kdl::value_or(std::vector<Quake3Shader>{});
+  }
 }
 
-void EntityModelManager::setLoader(const IO::EntityModelLoader* loader)
+void EntityModelManager::setGame(const Model::Game* game)
 {
   clear();
-  m_loader = loader;
+  m_game = game;
+  reloadShaders();
 }
 
 Renderer::MaterialRenderer* EntityModelManager::renderer(
   const Assets::ModelSpecification& spec) const
 {
-  auto* entityModel = safeGetModel(spec.path);
-
-  if (entityModel == nullptr)
+  if (auto* entityModel = safeGetModel(spec.path))
   {
-    return nullptr;
+    auto it = m_renderers.find(spec);
+    if (it != std::end(m_renderers))
+    {
+      return it->second.get();
+    }
+
+    if (!m_rendererMismatches.contains(spec))
+    {
+      if (const auto* entityModelData = entityModel->data())
+      {
+        if (
+          auto renderer = entityModelData->buildRenderer(spec.skinIndex, spec.frameIndex))
+        {
+          const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
+          assert(success);
+          unused(success);
+
+          auto* result = pos->second.get();
+          m_unpreparedRenderers.push_back(result);
+          m_logger.debug() << "Constructed entity model renderer for " << spec;
+          return result;
+        }
+
+        m_rendererMismatches.insert(spec);
+        m_logger.error() << "Failed to construct entity model renderer for " << spec
+                         << ", check the skin and frame indices";
+      }
+    }
   }
 
-  auto it = m_renderers.find(spec);
-  if (it != std::end(m_renderers))
-  {
-    return it->second.get();
-  }
-
-  if (m_rendererMismatches.count(spec) > 0)
-  {
-    return nullptr;
-  }
-
-  auto renderer = entityModel->buildRenderer(spec.skinIndex, spec.frameIndex);
-  if (renderer != nullptr)
-  {
-    const auto [pos, success] = m_renderers.emplace(spec, std::move(renderer));
-    assert(success);
-    unused(success);
-
-    auto* result = pos->second.get();
-    m_unpreparedRenderers.push_back(result);
-    m_logger.debug() << "Constructed entity model renderer for " << spec;
-    return result;
-  }
-  else
-  {
-    m_rendererMismatches.insert(spec);
-    m_logger.error() << "Failed to construct entity model renderer for " << spec
-                     << ", check the skin and frame indices";
-    return nullptr;
-  }
+  return nullptr;
 }
 
 const EntityModelFrame* EntityModelManager::frame(
   const Assets::ModelSpecification& spec) const
 {
-  auto* model = this->safeGetModel(spec.path);
-  if (model == nullptr)
+  if (auto* model = this->safeGetModel(spec.path))
   {
-    return nullptr;
-  }
-  else if (spec.frameIndex >= model->frameCount())
-  {
-    return nullptr;
-  }
-  else
-  {
-    if (!model->frame(spec.frameIndex)->loaded())
+    if (const auto* entityModelData = model->data())
     {
-      loadFrame(spec, *model);
+      return entityModelData->frame(spec.frameIndex);
     }
-    return model->frame(spec.frameIndex);
   }
+
+  return nullptr;
 }
 
-EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
+const EntityModel* EntityModelManager::model(const std::filesystem::path& path) const
 {
-  if (path.empty())
+  if (!path.empty())
   {
-    return nullptr;
+    auto it = m_models.find(path);
+    if (it != std::end(m_models))
+    {
+      return &it->second;
+    }
+
+    return loadModel(path) | kdl::transform([&](auto model) {
+             const auto [pos, success] = m_models.emplace(path, std::move(model));
+             assert(success);
+             unused(success);
+
+             auto* modelPtr = &(pos->second);
+             m_logger.debug() << "Loaded entity model " << path;
+
+             return modelPtr;
+           })
+           | kdl::if_error([&](auto e) {
+               m_logger.error() << e.msg;
+               throw GameException{e.msg};
+             })
+           | kdl::value();
   }
 
-  auto it = m_models.find(path);
-  if (it != std::end(m_models))
-  {
-    return it->second.get();
-  }
-
-  if (m_modelMismatches.count(path) > 0)
-  {
-    return nullptr;
-  }
-
-  try
-  {
-    const auto [pos, success] = m_models.emplace(path, loadModel(path));
-    assert(success);
-    unused(success);
-
-    auto* model = pos->second.get();
-    m_unpreparedModels.push_back(model);
-
-    m_logger.debug() << "Loaded entity model " << path;
-
-    return model;
-  }
-  catch (const GameException& e)
-  {
-    m_logger.error() << e.what();
-    m_modelMismatches.insert(path);
-    throw;
-  }
+  return nullptr;
 }
 
-EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path) const
+const std::vector<const EntityModel*> EntityModelManager::
+  findEntityModelsByTextureResourceId(const std::vector<ResourceId>& resourceIds) const
+{
+  using namespace std::ranges;
+
+  const auto filterByResourceId =
+    [resourceIdSet = std::unordered_set<ResourceId>{
+       resourceIds.begin(), resourceIds.end()}](const auto& model) {
+      return resourceIdSet.contains(model.dataResource().id());
+    };
+
+  const auto toPointer = [](const auto& model) { return &model; };
+
+  return m_models | views::values | views::filter(filterByResourceId)
+         | views::transform(toPointer) | kdl::to_vector();
+}
+
+const EntityModel* EntityModelManager::safeGetModel(
+  const std::filesystem::path& path) const
 {
   try
   {
@@ -188,54 +196,34 @@ EntityModel* EntityModelManager::safeGetModel(const std::filesystem::path& path)
   }
 }
 
-std::unique_ptr<EntityModel> EntityModelManager::loadModel(
-  const std::filesystem::path& path) const
+Result<EntityModel> EntityModelManager::loadModel(
+  const std::filesystem::path& modelPath) const
 {
-  ensure(m_loader != nullptr, "loader is null");
-  return m_loader->initializeModel(path, m_logger);
-}
+  if (m_game)
+  {
+    const auto& fs = m_game->gameFileSystem();
+    const auto& materialConfig = m_game->config().materialConfig;
 
-void EntityModelManager::loadFrame(
-  const Assets::ModelSpecification& spec, Assets::EntityModel& model) const
-{
-  try
-  {
-    ensure(m_loader != nullptr, "loader is null");
-    m_loader->loadFrame(spec.path, spec.frameIndex, model, m_logger);
+    const auto createResource = [](auto resourceLoader) {
+      return createResourceSync(std::move(resourceLoader));
+    };
+
+    const auto loadMaterial = [&](const auto& materialPath) {
+      return IO::loadMaterial(
+               fs, materialConfig, materialPath, createResource, m_shaders, std::nullopt)
+             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, m_logger))
+             | kdl::value();
+    };
+
+    return IO::loadEntityModelAsync(
+      fs, materialConfig, modelPath, loadMaterial, m_createResource, m_logger);
   }
-  catch (const Exception& e)
-  {
-    // FIXME: be specific about which exceptions to catch here
-    m_logger.error() << "Could not load entity model frame " << spec << ": " << e.what();
-  }
+  return Error{"Game is not set"};
 }
 
 void EntityModelManager::prepare(Renderer::VboManager& vboManager)
 {
-  resetFilterMode();
-  prepareModels();
   prepareRenderers(vboManager);
-}
-
-void EntityModelManager::resetFilterMode()
-{
-  if (m_resetFilterMode)
-  {
-    for (const auto& [path, model] : m_models)
-    {
-      model->setFilterMode(m_minFilter, m_magFilter);
-    }
-    m_resetFilterMode = false;
-  }
-}
-
-void EntityModelManager::prepareModels()
-{
-  for (auto* model : m_unpreparedModels)
-  {
-    model->prepare(m_minFilter, m_magFilter);
-  }
-  m_unpreparedModels.clear();
 }
 
 void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
@@ -246,5 +234,4 @@ void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
   }
   m_unpreparedRenderers.clear();
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

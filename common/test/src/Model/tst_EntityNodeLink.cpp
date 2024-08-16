@@ -41,9 +41,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink")
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Target, "a"}}});
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
@@ -66,11 +66,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
   worldNode.defaultLayer()->addChild(sourceNode2);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode1->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  sourceNode1->setEntity(Entity{{{EntityPropertyKeys::Target, "a"}}});
 
-  sourceNode2->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
+  sourceNode2->setEntity(Entity{{{EntityPropertyKeys::Target, "a"}}});
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   CHECK(sourceNode1->linkSources().empty());
   CHECK_THAT(
@@ -99,15 +99,14 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
   worldNode.defaultLayer()->addChild(targetNode2);
 
   sourceNode->setEntity(Entity(
-    {},
     {{EntityPropertyKeys::Target + "1", "a1"},
      {EntityPropertyKeys::Target + "2", "a2"}}));
 
   // here we need to query for all entities having a numbered "target" property,
   // not just those having a "target" property
-  targetNode1->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a1"}}});
+  targetNode1->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a1"}}});
 
-  targetNode2->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a2"}}});
+  targetNode2->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a2"}}});
 
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
@@ -128,8 +127,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
 TEST_CASE("EntityNodeLinkTest.testLoadLink")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -148,8 +147,8 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink")
 TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -159,7 +158,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
   REQUIRE(targetNode->linkSources().empty());
   REQUIRE(targetNode->linkTargets().empty());
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "b"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Target, "b"}}});
 
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
@@ -175,8 +174,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
 TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -186,7 +185,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
   REQUIRE(targetNode->linkSources().empty());
   REQUIRE(targetNode->linkTargets().empty());
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
@@ -202,13 +201,13 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Target, "b"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Target, "b"}}});
 
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
@@ -217,13 +216,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
@@ -232,8 +231,8 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -249,8 +248,8 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Target, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -271,9 +270,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
@@ -289,8 +288,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
 TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -310,8 +309,8 @@ TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
 TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -321,7 +320,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
   REQUIRE(targetNode->killSources().empty());
   REQUIRE(targetNode->killTargets().empty());
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "b"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "b"}}});
 
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
@@ -337,8 +336,8 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
 TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -348,7 +347,7 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
   REQUIRE(targetNode->killSources().empty());
   REQUIRE(targetNode->killTargets().empty());
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   CHECK(sourceNode->killSources().empty());
   CHECK_THAT(
@@ -364,13 +363,13 @@ TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  sourceNode->setEntity(Entity{{}, {{EntityPropertyKeys::Killtarget, "b"}}});
+  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "b"}}});
 
   CHECK(sourceNode->killTargets().empty());
   CHECK(targetNode->killSources().empty());
@@ -379,13 +378,13 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
-  targetNode->setEntity(Entity{{}, {{EntityPropertyKeys::Targetname, "b"}}});
+  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
 
   CHECK(sourceNode->killTargets().empty());
   CHECK(targetNode->killSources().empty());
@@ -394,8 +393,8 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget")
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -411,8 +410,8 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource")
 TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget")
 {
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{}, {{EntityPropertyKeys::Targetname, "a"}}});
+  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
+  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);

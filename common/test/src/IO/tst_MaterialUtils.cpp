@@ -61,13 +61,14 @@ TEST_CASE("makeReadTextureErrorHandler")
   auto diskFS = DiskFileSystem{
     std::filesystem::current_path() / "fixture/test/IO/ReadTextureErrorHandler"};
 
-  const auto file = diskFS.openFile("textures/corruptPngTest.png").value();
+  const auto file = diskFS.openFile("textures/corruptPngTest.png") | kdl::value();
   auto reader = file->reader().buffer();
   auto result = readFreeImageTexture(reader);
   REQUIRE(result.is_error());
 
-  const auto defaultTexture =
-    std::move(result).or_else(makeReadTextureErrorHandler(diskFS, logger)).value();
+  const auto defaultTexture = std::move(result)
+                              | kdl::or_else(makeReadTextureErrorHandler(diskFS, logger))
+                              | kdl::value();
   CHECK(defaultTexture.width() == 32);
   CHECK(defaultTexture.height() == 32);
 }

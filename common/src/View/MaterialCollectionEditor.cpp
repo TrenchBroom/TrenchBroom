@@ -310,7 +310,7 @@ void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& p
 
 void MaterialCollectionEditor::updateAvailableMaterialCollections()
 {
-  updateListBox(m_availableCollectionsList, enabledMaterialCollections());
+  updateListBox(m_availableCollectionsList, availableMaterialCollections());
 }
 
 void MaterialCollectionEditor::updateEnabledMaterialCollections()

@@ -21,14 +21,12 @@
 
 #include "Renderer/GLVertexType.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModel;
+class EntityModelData;
 class EntityModelLoadedFrame;
 class EntityModelSurface;
 
 using EntityModelVertex = Renderer::GLVertexTypes::P3UV2::Vertex;
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

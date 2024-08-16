@@ -21,9 +21,6 @@
 
 #include <QApplication>
 
-#include "Exceptions.h"
-#include "TrenchBroomApp.h"
-#include "View/AboutDialog.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
@@ -108,7 +105,7 @@ MapFrame* FrameManager::createOrReuseFrame()
 
 MapFrame* FrameManager::createFrame(std::shared_ptr<MapDocument> document)
 {
-  auto* frame = new MapFrame{this, std::move(document)};
+  auto* frame = new MapFrame{*this, std::move(document)};
   frame->positionOnScreen(topFrame());
   m_frames.insert(m_frames.begin(), frame);
 

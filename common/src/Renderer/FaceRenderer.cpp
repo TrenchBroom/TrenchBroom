@@ -20,6 +20,7 @@
 #include "FaceRenderer.h"
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -44,22 +45,31 @@ private:
   ActiveShader& m_shader;
   bool m_applyMaterial;
   Color m_defaultColor;
+  int m_minFilter;
+  int m_magFilter;
 
 public:
-  RenderFunc(ActiveShader& shader, const bool applyMaterial, const Color& defaultColor)
+  RenderFunc(
+    ActiveShader& shader,
+    const bool applyMaterial,
+    const Color& defaultColor,
+    const int minFilter,
+    const int magFilter)
     : m_shader{shader}
     , m_applyMaterial{applyMaterial}
     , m_defaultColor{defaultColor}
+    , m_minFilter{minFilter}
+    , m_magFilter{magFilter}
   {
   }
 
   void before(const Assets::Material* material) override
   {
-    if (material)
+    if (const auto* texture = getTexture(material))
     {
-      material->activate();
+      material->activate(m_minFilter, m_magFilter);
       m_shader.set("ApplyMaterial", m_applyMaterial);
-      m_shader.set("Color", material->texture().averageColor());
+      m_shader.set("Color", texture->averageColor());
     }
     else
     {
@@ -164,7 +174,13 @@ void FaceRenderer::doRender(RenderContext& context)
       "SoftMapBoundsColor",
       vm::vec4f{prefs.get(Preferences::SoftMapBoundsColor).xyz(), 0.1f});
 
-    auto func = RenderFunc{shader, applyMaterial, m_faceColor};
+    auto func = RenderFunc{
+      shader,
+      applyMaterial,
+      m_faceColor,
+      context.minFilterMode(),
+      context.magFilterMode()};
+
     if (m_alpha < 1.0f)
     {
       glAssert(glDepthMask(GL_FALSE));
@@ -173,8 +189,8 @@ void FaceRenderer::doRender(RenderContext& context)
     {
       if (brushIndexHolderPtr->hasValidIndices())
       {
-        const auto enableMasked =
-          material && material->texture().mask() == Assets::TextureMask::On;
+        const auto* texture = getTexture(material);
+        const auto enableMasked = texture && texture->mask() == Assets::TextureMask::On;
 
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));

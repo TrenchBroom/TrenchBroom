@@ -1958,6 +1958,90 @@ TEST_CASE("result")
       }
     }
 
+    SECTION("collect")
+    {
+      SECTION("result<int>")
+      {
+        SECTION("empty range")
+        {
+          const auto collection = std::vector<result<int>>{} | collect();
+          CHECK(collection == std::vector<int>{});
+        }
+
+        SECTION("non-empty range")
+        {
+          const auto collection = std::vector<result<int>>{{1}, {2}, {3}} | collect();
+          CHECK(collection == std::vector<int>{1, 2, 3});
+        }
+      }
+
+      SECTION("result<void, Error1, Error2>")
+      {
+        using res = result<void, Error1, Error2>;
+        using err = std::variant<Error1, Error2>;
+        using out = std::vector<err>;
+
+        SECTION("empty range")
+        {
+          const auto collection = std::vector<res>{} | collect();
+          CHECK(collection == out{});
+        }
+
+        SECTION("only success values")
+        {
+          const auto collection = std::vector<res>{{}, {}, {}} | collect();
+          CHECK(collection == out{});
+        }
+
+        SECTION("only errors")
+        {
+          const auto collection =
+            std::vector<res>{Error1{}, Error2{}, Error1{}} | collect();
+          CHECK(collection == out{Error1{}, Error2{}, Error1{}});
+        }
+
+        SECTION("mixed results")
+        {
+          const auto collection =
+            std::vector<res>{{}, Error2{}, {}, Error1{}, {}} | collect();
+          CHECK(collection == out{Error2{}, Error1{}});
+        }
+      }
+
+      SECTION("result<int, Error1, Error2>")
+      {
+        using res = result<int, Error1, Error2>;
+        using err = std::variant<Error1, Error2>;
+        using out = multi_value<std::vector<int>, std::vector<err>>;
+
+        SECTION("empty range")
+        {
+          const auto collection = std::vector<res>{} | collect();
+          CHECK(collection == out{{}, {}});
+        }
+
+        SECTION("only success values")
+        {
+          const auto collection = std::vector<res>{{1}, {2}, {3}} | collect();
+          CHECK(collection == out{{1, 2, 3}, {}});
+        }
+
+        SECTION("only errors")
+        {
+          const auto collection =
+            std::vector<res>{Error1{}, Error2{}, Error1{}} | collect();
+          CHECK(collection == out{{}, {Error1{}, Error2{}, Error1{}}});
+        }
+
+        SECTION("mixed results")
+        {
+          const auto collection =
+            std::vector<res>{{1}, Error2{}, {2}, Error1{}, {3}} | collect();
+          CHECK(collection == out{{1, 2, 3}, {Error2{}, Error1{}}});
+        }
+      }
+    }
+
     SECTION("first")
     {
       SECTION("with empty range")

@@ -45,7 +45,6 @@ public:
   virtual bool empty() const = 0;
 
   virtual void prepare(VboManager& vboManager) = 0;
-  virtual void render() = 0;
   virtual void render(MaterialRenderFunc& func) = 0;
 };
 
@@ -68,7 +67,6 @@ public:
   bool empty() const override;
 
   void prepare(VboManager& vboManager) override;
-  void render() override;
   void render(MaterialRenderFunc& func) override;
 };
 
@@ -85,7 +83,6 @@ public:
   bool empty() const override;
 
   void prepare(VboManager& vboManager) override;
-  void render() override;
   void render(MaterialRenderFunc& func) override;
 };
 } // namespace Renderer

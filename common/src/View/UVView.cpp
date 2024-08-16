@@ -20,6 +20,7 @@
 #include "UVView.h"
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -118,15 +119,18 @@ private:
     const auto* material = m_helper.face()->material();
     ensure(material, "material is null");
 
-    material->activate();
+    const auto* texture = material->texture();
+    ensure(texture, "texture is null");
+
+    material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
     auto shader = Renderer::ActiveShader{
       renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
-    shader.set("Color", material->texture().averageColor());
+    shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
-    shader.set("GridSizes", material->texture().sizef());
+    shader.set("GridSizes", texture->sizef());
     shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
@@ -273,11 +277,11 @@ void UVView::doRender()
 {
   if (m_helper.valid())
   {
-    auto document = kdl::mem_lock(m_document);
-    document->commitPendingAssets();
-
     auto renderContext = Renderer::RenderContext{
       Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager()};
+    renderContext.setFilterMode(
+      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+
     auto renderBatch = Renderer::RenderBatch{vboManager()};
     renderContext.setDpiScale(float(window()->devicePixelRatioF()));
 
@@ -329,7 +333,7 @@ void UVView::setupGL(Renderer::RenderContext& renderContext)
 
 void UVView::renderMaterial(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
-  if (m_helper.face()->material())
+  if (getTexture(m_helper.face()->material()))
   {
     renderBatch.addOneShot(new RenderMaterial{m_helper});
   }

@@ -67,6 +67,22 @@ ShaderManager& RenderContext::shaderManager()
   return m_shaderManager;
 }
 
+int RenderContext::minFilterMode() const
+{
+  return m_textureMinFilter;
+}
+
+int RenderContext::magFilterMode() const
+{
+  return m_textureMagFilter;
+}
+
+void RenderContext::setFilterMode(const int minFilter, const int magFilter)
+{
+  m_textureMinFilter = minFilter;
+  m_textureMagFilter = magFilter;
+}
+
 bool RenderContext::showMaterials() const
 {
   return m_showMaterials;

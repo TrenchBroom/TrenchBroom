@@ -26,6 +26,7 @@
 #include <QtGlobal>
 
 #include "Assets/Material.h"
+#include "Assets/Texture.h"
 #include "Color.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -757,12 +758,11 @@ void FaceAttribsEditor::updateControls()
       }
       else
       {
-        if (const auto* material = firstFace.material())
+        if (const auto* texture = getTexture(firstFace.material()))
         {
           m_materialName->setText(QString::fromStdString(materialName));
-          m_textureSize->setText(QStringLiteral("%1 * %2")
-                                   .arg(material->texture().width())
-                                   .arg(material->texture().height()));
+          m_textureSize->setText(
+            QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
           m_materialName->setEnabled(true);
           m_textureSize->setEnabled(true);
         }

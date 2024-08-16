@@ -273,33 +273,14 @@ bool Texture::isReady() const
   return std::holds_alternative<TextureReadyState>(m_state);
 }
 
-void Texture::setFilterMode(int minFilter, int magFilter)
-{
-  if (isReady())
-  {
-    activate();
-    if (m_mask == TextureMask::On)
-    {
-      // Force GL_NEAREST filtering for masked textures.
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    }
-    else
-    {
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-    }
-    deactivate();
-  }
-}
-
-bool Texture::activate() const
+bool Texture::activate(const int minFilter, const int magFilter) const
 {
   return std::visit(
     kdl::overload(
       [](const TextureLoadedState&) { return false; },
-      [](const TextureReadyState& readyState) {
+      [&](const TextureReadyState& readyState) {
         glAssert(glBindTexture(GL_TEXTURE_2D, readyState.textureId));
+        setFilterMode(minFilter, magFilter);
         return true;
       },
       [](const TextureDroppedState&) { return false; }),
@@ -317,13 +298,15 @@ bool Texture::deactivate() const
   return false;
 }
 
-void Texture::upload()
+void Texture::upload(const bool glContextAvailable)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
         const auto textureId =
-          uploadTexture(m_format, m_mask, textureLoadedState.buffers, m_width, m_height);
+          glContextAvailable ? uploadTexture(
+            m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
+                             : 0;
         return TextureReadyState{textureId};
       },
       [](TextureReadyState textureReadyState) -> TextureState {
@@ -335,13 +318,16 @@ void Texture::upload()
     std::move(m_state));
 }
 
-void Texture::drop()
+void Texture::drop(const bool glContextAvailable)
 {
   m_state = std::visit(
     kdl::overload(
       [&](const TextureLoadedState&) { return TextureDroppedState{}; },
-      [](const TextureReadyState& textureReadyState) {
-        dropTexture(textureReadyState.textureId);
+      [&](const TextureReadyState& textureReadyState) {
+        if (glContextAvailable)
+        {
+          dropTexture(textureReadyState.textureId);
+        }
         return TextureDroppedState{};
       },
       [](TextureDroppedState textureDroppedState) { return textureDroppedState; }),
@@ -361,6 +347,22 @@ const std::vector<TextureBuffer>& Texture::buffersIfLoaded() const
         return empty;
       }),
     m_state);
+}
+
+
+void Texture::setFilterMode(const int minFilter, const int magFilter) const
+{
+  if (m_mask == TextureMask::On)
+  {
+    // Force GL_NEAREST filtering for masked textures.
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  }
+  else
+  {
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+  }
 }
 
 } // namespace TrenchBroom::Assets
