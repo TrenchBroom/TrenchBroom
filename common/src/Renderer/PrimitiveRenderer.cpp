@@ -322,7 +322,7 @@ void PrimitiveRenderer::renderCylinder(
   const vm::mat4x4f rotation = vm::rotation_matrix(vm::vec3f::pos_z(), dir);
   const vm::mat4x4f transform = translation * rotation;
 
-  const VertsAndNormals cylinder = cylinder3D(radius, len, segments);
+  const VertsAndNormals cylinder = Renderer::cylinder(radius, len, segments);
   const std::vector<vm::vec3f> vertices = transform * cylinder.vertices;
 
   m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)]

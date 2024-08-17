@@ -30,7 +30,7 @@ Sphere::Sphere(const float radius, const size_t iterations)
 {
   using Vertex = GLVertexTypes::P3::Vertex;
 
-  const auto positions = sphere3D(radius, iterations);
+  const auto positions = sphere(radius, iterations);
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 

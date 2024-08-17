@@ -366,7 +366,7 @@ size_t midPoint(
 }
 } // namespace
 
-std::vector<vm::vec3f> sphere3D(const float radius, const size_t iterations)
+std::vector<vm::vec3f> sphere(const float radius, const size_t iterations)
 {
   assert(radius > 0.0f);
   assert(iterations > 0);
@@ -476,7 +476,7 @@ VertsAndNormals circle3D(const float radius, const size_t segments)
   return {std::move(vertices), std::move(normals)};
 }
 
-VertsAndNormals cylinder3D(const float radius, const float length, const size_t segments)
+VertsAndNormals cylinder(const float radius, const float length, const size_t segments)
 {
   assert(radius > 0.0f);
   assert(length > 0.0f);
@@ -509,7 +509,7 @@ VertsAndNormals cylinder3D(const float radius, const float length, const size_t 
   return {std::move(vertices), std::move(normals)};
 }
 
-VertsAndNormals cone3D(const float radius, const float length, const size_t segments)
+VertsAndNormals cone(const float radius, const float length, const size_t segments)
 {
   assert(radius > 0.0f);
   assert(length > 0.0f);

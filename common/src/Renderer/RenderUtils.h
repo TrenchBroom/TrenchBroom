@@ -90,9 +90,9 @@ struct VertsAndNormals
   std::vector<vm::vec3f> normals;
 };
 
-std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
+std::vector<vm::vec3f> sphere(float radius, size_t iterations);
 VertsAndNormals circle3D(float radius, size_t segments);
-VertsAndNormals cylinder3D(float radius, float length, size_t segments);
-VertsAndNormals cone3D(float radius, float length, size_t segments);
+VertsAndNormals cylinder(float radius, float length, size_t segments);
+VertsAndNormals cone(float radius, float length, size_t segments);
 
 } // namespace TrenchBroom::Renderer
