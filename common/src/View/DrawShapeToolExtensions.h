@@ -96,6 +96,39 @@ private:
   CircularShapeParameters m_parameters;
 };
 
+struct SpheroidShapeParameters
+{
+  size_t accuracy;
+};
+
+class DrawShapeToolSpheroidShapeExtensionPage : public QWidget
+{
+public:
+  explicit DrawShapeToolSpheroidShapeExtensionPage(
+    SpheroidShapeParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  SpheroidShapeParameters& m_parameters;
+
+  Q_OBJECT
+};
+
+class DrawShapeToolSpheroidExtension : public DrawShapeToolExtension
+{
+public:
+  DrawShapeToolSpheroidExtension();
+
+  const std::string& name() const override;
+  QWidget* createToolPage(QWidget* parent) override;
+  Result<std::vector<Model::Brush>> createBrushes(
+    const vm::bbox3& bounds,
+    vm::axis::type axis,
+    const MapDocument& document) const override;
+
+private:
+  SpheroidShapeParameters m_parameters;
+};
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions();
 
 } // namespace TrenchBroom::View

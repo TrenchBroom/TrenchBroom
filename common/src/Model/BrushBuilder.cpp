@@ -24,7 +24,9 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Polyhedron.h"
+#include "Renderer/RenderUtils.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -33,10 +35,30 @@
 #include "vm/mat_ext.h"
 
 #include <cassert>
+#include <ranges>
 #include <string>
 
 namespace TrenchBroom::Model
 {
+namespace
+{
+auto createFromFaces(
+  const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>& specs,
+  const vm::bbox3& worldBounds,
+  const MapFormat mapFormat)
+{
+  return kdl::vec_transform(
+           specs,
+           [&](const auto spec) {
+             const auto& [p1, p2, p3, attrs] = spec;
+             return BrushFace::create(p1, p2, p3, attrs, mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](auto faces) {
+             return Brush::create(worldBounds, std::move(faces));
+           });
+}
+} // namespace
+
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
@@ -140,8 +162,8 @@ Result<Brush> BrushBuilder::createCuboid(
   const std::string& topMaterial,
   const std::string& bottomMaterial) const
 {
-  const auto specs =
-    std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>({
+  return createFromFaces(
+    {
       {bounds.min,
        bounds.min + vm::vec3::pos_y(),
        bounds.min + vm::vec3::pos_z(),
@@ -166,17 +188,9 @@ Result<Brush> BrushBuilder::createCuboid(
        bounds.min + vm::vec3::pos_x(),
        bounds.min + vm::vec3::pos_y(),
        {bottomMaterial, m_defaultAttribs}}, // bottom
-    });
-
-  return kdl::vec_transform(
-           specs,
-           [&](const auto spec) {
-             const auto& [p1, p2, p3, attrs] = spec;
-             return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
-           })
-         | kdl::fold() | kdl::and_then([&](auto faces) {
-             return Brush::create(m_worldBounds, std::move(faces));
-           });
+    },
+    m_worldBounds,
+    m_mapFormat);
 }
 
 namespace
@@ -294,6 +308,34 @@ Result<Brush> BrushBuilder::createCone(
     makeUnitCone(numSides, radiusMode), [&](const auto& v) { return transform * v; });
 
   return createBrush(vertices, textureName);
+}
+
+Result<Brush> BrushBuilder::createIcoSphere(
+  const vm::bbox3& bounds, const size_t iterations, const std::string& textureName) const
+{
+  const auto [sphereVertices, sphereIndices] =
+    Renderer::sphereMesh<FloatType>(iterations);
+
+  const auto specs =
+    sphereIndices
+    | std::views::transform(
+      [sphereVertices = sphereVertices, &textureName, this](const auto& face) {
+        const auto& p1 = sphereVertices[face[0]];
+        const auto& p2 = sphereVertices[face[1]];
+        const auto& p3 = sphereVertices[face[2]];
+        return std::tuple{p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}};
+      })
+    | kdl::to_vector();
+
+  return createFromFaces(specs, m_worldBounds, m_mapFormat)
+         | kdl::and_then([&](auto brush) {
+             const auto transform = vm::translation_matrix(bounds.min)
+                                    * vm::scaling_matrix(bounds.size())
+                                    * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
+                                    * vm::translation_matrix(vm::vec3{1, 1, 1});
+             return brush.transform(m_worldBounds, transform, false)
+                    | kdl::transform([&]() { return std::move(brush); });
+           });
 }
 
 Result<Brush> BrushBuilder::createBrush(

@@ -179,13 +179,72 @@ Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolSpheroidShapeExtensionPage::DrawShapeToolSpheroidShapeExtensionPage(
+  SpheroidShapeParameters& parameters, QWidget* parent)
+  : QWidget{parent}
+  , m_parameters{parameters}
+{
+  auto* accuracyLabel = new QLabel{tr("Accuracy: ")};
+  auto* accuracyBox = new QSpinBox{};
+  accuracyBox->setRange(0, 4);
+  accuracyBox->setValue(int(m_parameters.accuracy));
+
+  connect(
+    accuracyBox,
+    QOverload<int>::of(&QSpinBox::valueChanged),
+    this,
+    [&](const auto accuracy) { m_parameters.accuracy = size_t(accuracy); });
+
+  auto* layout = new QHBoxLayout{};
+  layout->setContentsMargins(QMargins{});
+  layout->setSpacing(LayoutConstants::MediumHMargin);
+
+  layout->addWidget(accuracyLabel, 0, Qt::AlignVCenter);
+  layout->addWidget(accuracyBox, 0, Qt::AlignVCenter);
+  layout->addStretch(1);
+
+  setLayout(layout);
+}
+
+DrawShapeToolSpheroidExtension::DrawShapeToolSpheroidExtension()
+  : m_parameters{1}
+{
+}
+
+const std::string& DrawShapeToolSpheroidExtension::name() const
+{
+  static const auto name = std::string{"Spheroid"};
+  return name;
+}
+
+QWidget* DrawShapeToolSpheroidExtension::createToolPage(QWidget* parent)
+{
+  return new DrawShapeToolSpheroidShapeExtensionPage{m_parameters, parent};
+}
+
+Result<std::vector<Model::Brush>> DrawShapeToolSpheroidExtension::createBrushes(
+  const vm::bbox3& bounds, const vm::axis::type, const MapDocument& document) const
+{
+  const auto game = document.game();
+  const auto builder = Model::BrushBuilder{
+    document.world()->mapFormat(),
+    document.worldBounds(),
+    game->config().faceAttribsConfig.defaults};
+
+  return builder
+    .createIcoSphere(bounds, m_parameters.accuracy, document.currentMaterialName())
+    .transform([](auto brush) { return std::vector{std::move(brush)}; });
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions()
 {
   auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
   result.push_back(std::make_unique<DrawShapeToolCuboidExtension>());
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>());
   result.push_back(std::make_unique<DrawShapeToolConeExtension>());
+  result.push_back(std::make_unique<DrawShapeToolSpheroidExtension>());
   return result;
 }
+
 
 } // namespace TrenchBroom::View

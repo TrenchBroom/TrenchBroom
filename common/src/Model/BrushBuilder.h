@@ -101,6 +101,9 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  Result<Brush> createIcoSphere(
+    const vm::bbox3& bounds, size_t iterations, const std::string& textureName) const;
+
   Result<Brush> createBrush(
     const std::vector<vm::vec3>& points, const std::string& materialName) const;
   Result<Brush> createBrush(
