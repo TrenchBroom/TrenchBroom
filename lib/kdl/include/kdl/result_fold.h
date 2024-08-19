@@ -73,17 +73,18 @@ auto fold_results(I cur, I end)
 
     while (cur != end)
     {
+      decltype(*cur) elem = *cur;
       if constexpr (in_result_type::error_count > 0)
       {
-        if (cur->is_error())
+        if (elem.is_error())
         {
           return std::visit(
             [](auto&& e) { return out_result_type{std::forward<decltype(e)>(e)}; },
-            std::move(*cur).error());
+            std::move(elem).error());
         }
       }
 
-      result_vector.push_back(std::move(*cur).value());
+      result_vector.push_back(std::move(elem).value());
       ++cur;
     }
 
