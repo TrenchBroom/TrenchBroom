@@ -20,7 +20,7 @@
 #include "BrushBuilder.h"
 
 #include "Ensure.h"
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Polyhedron.h"
@@ -29,7 +29,6 @@
 #include "kdl/range_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -37,6 +36,7 @@
 #include <cassert>
 #include <ranges>
 #include <string>
+#include <utility>
 
 namespace TrenchBroom::Model
 {
@@ -47,12 +47,10 @@ auto createFromFaces(
   const vm::bbox3& worldBounds,
   const MapFormat mapFormat)
 {
-  return kdl::vec_transform(
-           specs,
-           [&](const auto spec) {
-             const auto& [p1, p2, p3, attrs] = spec;
-             return BrushFace::create(p1, p2, p3, attrs, mapFormat);
-           })
+  return specs | std::views::transform([&](const auto spec) {
+           const auto& [p1, p2, p3, attrs] = spec;
+           return BrushFace::create(p1, p2, p3, attrs, mapFormat);
+         })
          | kdl::fold | kdl::and_then([&](auto faces) {
              return Brush::create(worldBounds, std::move(faces));
            });
@@ -69,10 +67,10 @@ BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBoun
 BrushBuilder::BrushBuilder(
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
-  const BrushFaceAttributes& defaultAttribs)
+  BrushFaceAttributes defaultAttribs)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
-  , m_defaultAttribs{defaultAttribs}
+  , m_defaultAttribs{std::move(defaultAttribs)}
 {
 }
 
@@ -246,8 +244,11 @@ Result<Brush> BrushBuilder::createCylinder(
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
                          * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
-  const auto vertices = kdl::vec_transform(
-    makeUnitCylinder(numSides, radiusMode), [&](const auto& v) { return transform * v; });
+
+  const auto cylinder = makeUnitCylinder(numSides, radiusMode);
+  const auto vertices =
+    cylinder | std::views::transform([&](const auto& v) { return transform * v; })
+    | kdl::to_vector;
 
   return createBrush(vertices, textureName);
 }
@@ -304,8 +305,11 @@ Result<Brush> BrushBuilder::createCone(
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
                          * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
-  const auto vertices = kdl::vec_transform(
-    makeUnitCone(numSides, radiusMode), [&](const auto& v) { return transform * v; });
+
+  const auto cone = makeUnitCone(numSides, radiusMode);
+  const auto vertices =
+    cone | std::views::transform([&](const auto& v) { return transform * v; })
+    | kdl::to_vector;
 
   return createBrush(vertices, textureName);
 }
@@ -349,27 +353,25 @@ Result<Brush> BrushBuilder::createBrush(
 {
   assert(polyhedron.closed());
 
-  return kdl::vec_transform(
-           polyhedron.faces(),
-           [&](const auto* face) {
-             const auto& boundary = face->boundary();
+  return polyhedron.faces() | std::views::transform([&](const auto* face) {
+           const auto& boundary = face->boundary();
 
-             auto bIt = std::begin(boundary);
-             const auto* edge1 = *bIt++;
-             const auto* edge2 = *bIt++;
-             const auto* edge3 = *bIt++;
+           auto bIt = std::begin(boundary);
+           const auto* edge1 = *bIt++;
+           const auto* edge2 = *bIt++;
+           const auto* edge3 = *bIt++;
 
-             const auto& p1 = edge1->origin()->position();
-             const auto& p2 = edge2->origin()->position();
-             const auto& p3 = edge3->origin()->position();
+           const auto& p1 = edge1->origin()->position();
+           const auto& p2 = edge2->origin()->position();
+           const auto& p3 = edge3->origin()->position();
 
-             return BrushFace::create(
-               p1,
-               p3,
-               p2,
-               BrushFaceAttributes{materialName, m_defaultAttribs},
-               m_mapFormat);
-           })
+           return BrushFace::create(
+             p1,
+             p3,
+             p2,
+             BrushFaceAttributes{materialName, m_defaultAttribs},
+             m_mapFormat);
+         })
          | kdl::fold | kdl::and_then([&](auto faces) {
              return Brush::create(m_worldBounds, std::move(faces));
            });

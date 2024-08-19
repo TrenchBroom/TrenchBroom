@@ -24,7 +24,7 @@
 #include "Model/Polyhedron3.h"
 #include "Result.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/util.h"
 
 #include <string>
@@ -54,7 +54,7 @@ public:
   BrushBuilder(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const BrushFaceAttributes& defaultAttribs);
+    BrushFaceAttributes defaultAttribs);
 
   Result<Brush> createCube(FloatType size, const std::string& materialName) const;
   Result<Brush> createCube(
