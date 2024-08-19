@@ -90,7 +90,7 @@ void loadSurfaceMaterials(
   const LoadMaterialFunc& loadMaterial)
 {
   using std::views::transform;
-  surface.setSkins(shaderPaths | transform(loadMaterial) | kdl::to_vector());
+  surface.setSkins(shaderPaths | transform(loadMaterial) | kdl::to_vector);
 }
 
 Result<void> parseSurfaces(

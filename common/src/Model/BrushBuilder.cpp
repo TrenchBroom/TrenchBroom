@@ -325,7 +325,7 @@ Result<Brush> BrushBuilder::createIcoSphere(
         const auto& p3 = sphereVertices[face[2]];
         return std::tuple{p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}};
       })
-    | kdl::to_vector();
+    | kdl::to_vector;
 
   return createFromFaces(specs, m_worldBounds, m_mapFormat)
          | kdl::and_then([&](auto brush) {
