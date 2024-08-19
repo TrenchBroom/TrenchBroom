@@ -433,7 +433,7 @@ Result<void> loadSkins(
                       return loadSkin(skinPath, fs, logger);
                     });
            })
-         | kdl::fold() | kdl::transform([&](auto materials) {
+         | kdl::fold | kdl::transform([&](auto materials) {
              surface.setSkins(std::move(materials));
            });
 }

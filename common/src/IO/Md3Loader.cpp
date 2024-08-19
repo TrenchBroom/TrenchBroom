@@ -373,7 +373,7 @@ Result<Assets::EntityModelData> Md3Loader::load(Logger&)
                           return parseFrameSurfaces(
                             reader.subReaderFromBegin(surfaceOffset), frame, data);
                         })
-                      | kdl::fold() | kdl::transform([&]() { return std::move(data); });
+                      | kdl::fold | kdl::transform([&]() { return std::move(data); });
              });
   }
   catch (const ReaderException& e)

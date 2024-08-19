@@ -126,7 +126,7 @@ Result<std::vector<std::filesystem::path>> thinBackups(
                       }
                     });
            })
-         | kdl::fold() | kdl::transform([&]() {
+         | kdl::fold | kdl::transform([&]() {
              return kdl::vec_slice_suffix(backups, backups.size() - 1);
            });
 }
@@ -150,7 +150,7 @@ Result<void> cleanBackups(
 
              return oldName != newName ? fs.moveFile(oldName, newName) : Result<void>{};
            })
-         | kdl::fold();
+         | kdl::fold;
 }
 
 } // namespace

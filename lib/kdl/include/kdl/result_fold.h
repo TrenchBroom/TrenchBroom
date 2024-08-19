@@ -191,10 +191,7 @@ struct result_fold
 {
 };
 
-inline auto fold()
-{
-  return result_fold{};
-}
+constexpr auto fold = result_fold{};
 
 template <typename C>
 auto operator|(C&& c, const result_fold&)

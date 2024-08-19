@@ -154,7 +154,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
                             [&](const auto& pathToCopy) {
                               return IO::Disk::copyFile(pathToCopy, targetPath);
                             })
-                          | kdl::fold();
+                          | kdl::fold;
                  });
         }
         return Result<void>{};
@@ -235,7 +235,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
         if (!m_context.test())
         {
-          return kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile) | kdl::fold();
+          return kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile) | kdl::fold;
         }
         return Result<std::vector<bool>>{std::vector<bool>{}};
       })

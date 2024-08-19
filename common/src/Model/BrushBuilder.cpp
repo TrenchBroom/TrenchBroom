@@ -53,7 +53,7 @@ auto createFromFaces(
              const auto& [p1, p2, p3, attrs] = spec;
              return BrushFace::create(p1, p2, p3, attrs, mapFormat);
            })
-         | kdl::fold() | kdl::and_then([&](auto faces) {
+         | kdl::fold | kdl::and_then([&](auto faces) {
              return Brush::create(worldBounds, std::move(faces));
            });
 }
@@ -370,7 +370,7 @@ Result<Brush> BrushBuilder::createBrush(
                BrushFaceAttributes{materialName, m_defaultAttribs},
                m_mapFormat);
            })
-         | kdl::fold() | kdl::and_then([&](auto faces) {
+         | kdl::fold | kdl::and_then([&](auto faces) {
              return Brush::create(m_worldBounds, std::move(faces));
            });
 }

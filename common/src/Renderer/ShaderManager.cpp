@@ -73,7 +73,7 @@ Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
                              | kdl::transform(
                                [&](auto shader) { program.attach(shader.get()); });
                     })
-                  | kdl::fold() | kdl::transform([&]() { return std::move(program); });
+                  | kdl::fold | kdl::transform([&]() { return std::move(program); });
          })
          | kdl::and_then([&](auto program) {
              return kdl::vec_transform(
@@ -83,7 +83,7 @@ Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
                                | kdl::transform(
                                  [&](auto shader) { program.attach(shader.get()); });
                       })
-                    | kdl::fold() | kdl::transform([&]() { return std::move(program); });
+                    | kdl::fold | kdl::transform([&]() { return std::move(program); });
            })
          | kdl::and_then([&](auto program) {
              return program.link() | kdl::transform([&]() { return std::move(program); });

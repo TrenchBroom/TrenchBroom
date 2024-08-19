@@ -1562,7 +1562,7 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
 
   const auto result =
     minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend)
-    | kdl::fold();
+    | kdl::fold;
   CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
@@ -1699,7 +1699,7 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   const auto fragments =
     minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend)
-    | kdl::fold() | kdl::value();
+    | kdl::fold | kdl::value();
   CHECK(fragments.size() == 8u);
 
   kdl::col_delete_all(minuendNodes);
