@@ -193,9 +193,9 @@ Result<Brush> BrushBuilder::createCuboid(
 
 namespace
 {
-auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
+auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
 {
-  auto vertices = std::vector<vm::vec3>{};
+  auto vertices = std::vector<vm::vec2>{};
 
   switch (radiusMode)
   {
@@ -208,8 +208,7 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
       const auto ca = std::cos(a);
       const auto x = std::cos(angle) / ca;
       const auto y = std::sin(angle) / ca;
-      vertices.emplace_back(x, y, -1.0);
-      vertices.emplace_back(x, y, 1.0);
+      vertices.emplace_back(x, y);
     }
     break;
   case RadiusMode::ToVertex:
@@ -219,13 +218,23 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
         FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
       const auto x = std::cos(angle);
       const auto y = std::sin(angle);
-      vertices.emplace_back(x, y, -1.0);
-      vertices.emplace_back(x, y, 1.0);
+      vertices.emplace_back(x, y);
     }
     break;
     switchDefault();
   }
 
+  return vertices;
+}
+
+auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
+{
+  auto vertices = std::vector<vm::vec3>{};
+  for (const auto& v : makeUnitCircle(numSides, radiusMode))
+  {
+    vertices.emplace_back(v.x(), v.y(), -1.0);
+    vertices.emplace_back(v.x(), v.y(), +1.0);
+  }
   return vertices;
 }
 } // namespace
@@ -258,34 +267,10 @@ namespace
 auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
 {
   auto vertices = std::vector<vm::vec3>{};
-
-  switch (radiusMode)
+  for (const auto& v : makeUnitCircle(numSides, radiusMode))
   {
-  case RadiusMode::ToEdge:
-    for (size_t i = 0; i < numSides; ++i)
-    {
-      const auto angle =
-        (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
-      const auto a = vm::C::pi() / FloatType(numSides); // Half angle
-      const auto ca = std::cos(a);
-      const auto x = std::cos(angle) / ca;
-      const auto y = std::sin(angle) / ca;
-      vertices.emplace_back(x, y, -1.0);
-    }
-    break;
-  case RadiusMode::ToVertex:
-    for (size_t i = 0; i < numSides; ++i)
-    {
-      const auto angle =
-        FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
-      const auto x = std::cos(angle);
-      const auto y = std::sin(angle);
-      vertices.emplace_back(x, y, -1.0);
-    }
-    break;
-    switchDefault();
+    vertices.emplace_back(v.x(), v.y(), -1.0);
   }
-
   vertices.emplace_back(0.0, 0.0, 1.0);
   return vertices;
 }
