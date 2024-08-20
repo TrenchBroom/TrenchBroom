@@ -206,9 +206,9 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
         (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
       const auto a = vm::C::pi() / FloatType(numSides); // Half angle
       const auto ca = std::cos(a);
-      const auto x = std::cos(angle) * 0.5 / ca + 0.5;
-      const auto y = std::sin(angle) * 0.5 / ca + 0.5;
-      vertices.emplace_back(x, y, 0.0);
+      const auto x = std::cos(angle) / ca;
+      const auto y = std::sin(angle) / ca;
+      vertices.emplace_back(x, y, -1.0);
       vertices.emplace_back(x, y, 1.0);
     }
     break;
@@ -217,9 +217,9 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
     {
       const auto angle =
         FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
-      const auto x = std::cos(angle) * 0.5 + 0.5;
-      const auto y = std::sin(angle) * 0.5 + 0.5;
-      vertices.emplace_back(x, y, 0.0);
+      const auto x = std::cos(angle);
+      const auto y = std::sin(angle);
+      vertices.emplace_back(x, y, -1.0);
       vertices.emplace_back(x, y, 1.0);
     }
     break;
@@ -242,8 +242,8 @@ Result<Brush> BrushBuilder::createCylinder(
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
-                         * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
+                         * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
+                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
 
   const auto cylinder = makeUnitCylinder(numSides, radiusMode);
   const auto vertices =
@@ -268,9 +268,9 @@ auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
         (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
       const auto a = vm::C::pi() / FloatType(numSides); // Half angle
       const auto ca = std::cos(a);
-      const auto x = std::cos(angle) * 0.5 / ca + 0.5;
-      const auto y = std::sin(angle) * 0.5 / ca + 0.5;
-      vertices.emplace_back(x, y, 0.0);
+      const auto x = std::cos(angle) / ca;
+      const auto y = std::sin(angle) / ca;
+      vertices.emplace_back(x, y, -1.0);
     }
     break;
   case RadiusMode::ToVertex:
@@ -278,15 +278,15 @@ auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
     {
       const auto angle =
         FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
-      const auto x = std::cos(angle) * 0.5 + 0.5;
-      const auto y = std::sin(angle) * 0.5 + 0.5;
-      vertices.emplace_back(x, y, 0.0);
+      const auto x = std::cos(angle);
+      const auto y = std::sin(angle);
+      vertices.emplace_back(x, y, -1.0);
     }
     break;
     switchDefault();
   }
 
-  vertices.emplace_back(0.5, 0.5, 1.0);
+  vertices.emplace_back(0.0, 0.0, 1.0);
   return vertices;
 }
 } // namespace
@@ -303,8 +303,8 @@ Result<Brush> BrushBuilder::createCone(
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
-                         * vm::translation_matrix(vm::vec3{-0.5, -0.5, -0.5});
+                         * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
+                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
 
   const auto cone = makeUnitCone(numSides, radiusMode);
   const auto vertices =
