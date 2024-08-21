@@ -23,6 +23,7 @@
 
 #include "vm/bbox.h"
 #include "vm/line.h"
+#include "vm/mat.h"
 #include "vm/plane.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"
@@ -572,6 +573,36 @@ std::optional<T> intersect_ray_torus(
   s4 = num > 3 && s4 > T(0) ? s4 : std::nullopt;
 
   return safe_min(s1, s2, s3, s4);
+}
+
+template <typename T>
+constexpr std::optional<T> intersect_line_line(const line<T, 2>& l1, const line<T, 2>& l2)
+{
+  const auto p1 = l1.point;
+  const auto p2 = l1.point + l1.direction;
+  const auto p3 = l2.point;
+  const auto p4 = l2.point + l2.direction;
+
+  const auto x1 = p1.x();
+  const auto y1 = p1.y();
+  const auto x2 = p2.x();
+  const auto y2 = p2.y();
+  const auto x3 = p3.x();
+  const auto y3 = p3.y();
+  const auto x4 = p4.x();
+  const auto y4 = p4.y();
+
+  const auto d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
+  if (is_zero(d, constants<T>::almost_zero()))
+  {
+    return std::nullopt;
+  }
+
+  const auto nx = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
+  const auto ny = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
+
+  const auto p = vec<T, 2>{nx / d, ny / d};
+  return dot(p - l1.point, l1.direction);
 }
 
 /**
