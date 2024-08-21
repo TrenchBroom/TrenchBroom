@@ -30,6 +30,8 @@
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 
+#include "vm/intersection.h"
+#include "vm/line.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
@@ -264,6 +266,129 @@ Result<Brush> BrushBuilder::createCylinder(
 
 namespace
 {
+
+auto makeHollowCylinderOuterCircle(
+  const vm::vec2& size, const size_t numSides, const RadiusMode radiusMode)
+{
+  const auto unitCircle = makeUnitCircle(numSides, radiusMode);
+  return unitCircle
+         | std::views::transform(
+           [t = vm::scaling_matrix(size / 2.0)](const auto& v) { return t * v; })
+         | kdl::to_vector;
+}
+
+Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
+  const std::vector<vm::vec2>& outerCircle, const FloatType thickness)
+{
+  const auto numSides = outerCircle.size();
+
+  auto outerLines = std::vector<vm::line2>{};
+  outerLines.reserve(numSides);
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto p1 = outerCircle[i];
+    const auto p2 = outerCircle[(i + 1) % numSides];
+    outerLines.emplace_back(p1, vm::normalize(p2 - p1));
+  }
+
+  const auto innerLines =
+    outerLines | std::views::transform([&](const auto& l) {
+      const auto offsetDir = vm::vec2{-l.direction.y(), l.direction.x()};
+      return vm::line2{l.point + offsetDir * thickness, l.direction};
+    })
+    | kdl::to_vector;
+
+  auto innerCircle = std::vector<vm::vec2>{};
+  innerCircle.reserve(numSides);
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto l1 = innerLines[(i + numSides - 1) % numSides];
+    const auto l2 = innerLines[i];
+    const auto d = vm::intersect_line_line(l1, l2);
+    if (!d)
+    {
+      return Error{"Failed to intersect lines"};
+    }
+
+    innerCircle.push_back(vm::point_at_distance(l1, *d));
+  }
+
+  return innerCircle;
+}
+
+auto makeHollowCylinderFragmentVertices(
+  const std::vector<vm::vec2>& outerCircle,
+  const std::vector<vm::vec2>& innerCircle,
+  const size_t i,
+  const FloatType sz)
+{
+  assert(outerCircle.size() == innerCircle.size());
+  const auto numSides = outerCircle.size();
+
+  const auto po = outerCircle[(i + 0) % numSides];
+  const auto pi = innerCircle[(i + 0) % numSides];
+  const auto no = outerCircle[(i + 1) % numSides];
+  const auto ni = innerCircle[(i + 1) % numSides];
+
+  const auto brushVertices = std::vector<vm::vec3>{
+    {po, -sz},
+    {po, +sz},
+    {pi, -sz},
+    {pi, +sz},
+    {no, -sz},
+    {no, +sz},
+    {ni, -sz},
+    {ni, +sz},
+  };
+
+  return brushVertices;
+}
+
+} // namespace
+
+Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
+  const vm::bbox3& bounds,
+  const FloatType thickness,
+  const size_t numSides,
+  const RadiusMode radiusMode,
+  const vm::axis::type axis,
+  const std::string& textureName) const
+{
+  ensure(numSides > 2, "cylinder has at least three sides");
+
+  const auto rotation = vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
+  const auto rotatedSize = rotation * bounds.size();
+
+  const auto outerCircle =
+    makeHollowCylinderOuterCircle(rotatedSize.xy(), numSides, radiusMode);
+
+  return makeHollowCylinderInnerCircle(outerCircle, thickness)
+    .and_then([&](const auto& innerCircle) {
+      const auto transform =
+        vm::translation_matrix(bounds.min + bounds.size() / 2.0) * rotation;
+
+      auto brushes = std::vector<Result<Brush>>{};
+      brushes.reserve(numSides);
+
+      const auto sz = rotatedSize.z() / 2.0;
+      for (size_t i = 0; i < numSides; ++i)
+      {
+        const auto fragmentVertices =
+          makeHollowCylinderFragmentVertices(outerCircle, innerCircle, i, sz);
+        const auto transformedBrushVertices =
+          fragmentVertices
+          | std::views::transform([&](const auto& v) { return transform * v; })
+          | kdl::to_vector;
+
+        brushes.push_back(createBrush(transformedBrushVertices, textureName));
+      }
+
+      return brushes | kdl::fold;
+    });
+}
+
+namespace
+{
 auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
 {
   auto vertices = std::vector<vm::vec3>{};
@@ -336,7 +461,10 @@ Result<Brush> BrushBuilder::createBrush(
 Result<Brush> BrushBuilder::createBrush(
   const Polyhedron3& polyhedron, const std::string& materialName) const
 {
-  assert(polyhedron.closed());
+  if (polyhedron.empty())
+  {
+    return Error{"Cannot create brush from empty polyhedron"};
+  }
 
   return polyhedron.faces() | std::views::transform([&](const auto* face) {
            const auto& boundary = face->boundary();

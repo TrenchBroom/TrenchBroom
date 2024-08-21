@@ -94,6 +94,15 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  Result<std::vector<Brush>> createHollowCylinder(
+    const vm::bbox3& bounds,
+    FloatType thickness,
+    size_t numSides,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
+
   Result<Brush> createCone(
     const vm::bbox3& bounds,
     size_t numSides,
