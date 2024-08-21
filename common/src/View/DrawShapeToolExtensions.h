@@ -35,6 +35,18 @@ namespace TrenchBroom::View
 {
 class MapDocument;
 
+class DrawShapeToolExtensionPage : public QWidget
+{
+public:
+  explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
+
+protected:
+  void addWidget(QWidget* widget);
+
+  Q_OBJECT
+};
+
+
 class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
@@ -52,7 +64,7 @@ struct CircularShapeParameters
   Model::RadiusMode radiusMode;
 };
 
-class DrawShapeToolCircularShapeExtensionPage : public QWidget
+class DrawShapeToolCircularShapeExtensionPage : public DrawShapeToolExtensionPage
 {
 public:
   explicit DrawShapeToolCircularShapeExtensionPage(
@@ -64,6 +76,24 @@ private:
   Q_OBJECT
 };
 
+struct CylinderShapeParameters : public CircularShapeParameters
+{
+  bool hollow;
+  FloatType thickness;
+};
+
+class DrawShapeToolCylinderShapeExtensionPage
+  : public DrawShapeToolCircularShapeExtensionPage
+{
+public:
+  explicit DrawShapeToolCylinderShapeExtensionPage(
+    CylinderShapeParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  CylinderShapeParameters& m_parameters;
+
+  Q_OBJECT
+};
 class DrawShapeToolCylinderExtension : public DrawShapeToolExtension
 {
 public:
@@ -77,7 +107,7 @@ public:
     const MapDocument& document) const override;
 
 private:
-  CircularShapeParameters m_parameters;
+  CylinderShapeParameters m_parameters;
 };
 
 class DrawShapeToolConeExtension : public DrawShapeToolExtension
@@ -101,7 +131,7 @@ struct SpheroidShapeParameters
   size_t accuracy;
 };
 
-class DrawShapeToolSpheroidShapeExtensionPage : public QWidget
+class DrawShapeToolSpheroidShapeExtensionPage : public DrawShapeToolExtensionPage
 {
 public:
   explicit DrawShapeToolSpheroidShapeExtensionPage(

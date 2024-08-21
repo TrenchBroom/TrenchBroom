@@ -20,6 +20,7 @@
 #include "DrawShapeToolExtensions.h"
 
 #include <QButtonGroup>
+#include <QCheckBox>
 #include <QLabel>
 #include <QSpinBox>
 #include <QToolButton>
@@ -34,6 +35,23 @@
 
 namespace TrenchBroom::View
 {
+
+DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
+  : QWidget{parent}
+{
+
+  auto* layout = new QHBoxLayout{};
+  layout->setContentsMargins(QMargins{});
+  layout->setSpacing(LayoutConstants::MediumHMargin);
+  layout->addStretch(1);
+  setLayout(layout);
+}
+
+void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
+{
+  auto* boxLayout = qobject_cast<QHBoxLayout*>(layout());
+  boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
+}
 
 const std::string& DrawShapeToolCuboidExtension::name() const
 {
@@ -61,7 +79,7 @@ Result<std::vector<Model::Brush>> DrawShapeToolCuboidExtension::createBrushes(
 
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
   CircularShapeParameters& parameters, QWidget* parent)
-  : QWidget{parent}
+  : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
   auto* numSidesLabel = new QLabel{tr("Number of Sides: ")};
@@ -98,21 +116,44 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
     m_parameters.radiusMode = Model::RadiusMode::ToVertex;
   });
 
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(QMargins{});
-  layout->setSpacing(LayoutConstants::MediumHMargin);
+  addWidget(numSidesLabel);
+  addWidget(numSidesBox);
+  addWidget(radiusModeEdgeButton);
+  addWidget(radiusModeVertexButton);
+}
 
-  layout->addWidget(numSidesLabel, 0, Qt::AlignVCenter);
-  layout->addWidget(numSidesBox, 0, Qt::AlignVCenter);
-  layout->addWidget(radiusModeEdgeButton, 0, Qt::AlignVCenter);
-  layout->addWidget(radiusModeVertexButton, 0, Qt::AlignVCenter);
-  layout->addStretch(1);
+DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
+  CylinderShapeParameters& parameters, QWidget* parent)
+  : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
+  , m_parameters{parameters}
+{
+  auto* hollowCheckBox = new QCheckBox{tr("Hollow")};
+  hollowCheckBox->setChecked(m_parameters.hollow);
 
-  setLayout(layout);
+  auto* thicknessLabel = new QLabel{tr("Thickness: ")};
+  auto* thicknessBox = new QDoubleSpinBox{};
+  thicknessBox->setEnabled(parameters.hollow);
+  thicknessBox->setRange(1, 128);
+  thicknessBox->setValue(parameters.thickness);
+
+  connect(
+    hollowCheckBox, &QCheckBox::toggled, this, [&, thicknessBox](const auto hollow) {
+      m_parameters.hollow = hollow;
+      thicknessBox->setEnabled(hollow);
+    });
+  connect(
+    thicknessBox,
+    QOverload<double>::of(&QDoubleSpinBox::valueChanged),
+    this,
+    [&](const auto thickness) { m_parameters.thickness = thickness; });
+
+  addWidget(hollowCheckBox);
+  addWidget(thicknessLabel);
+  addWidget(thicknessBox);
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, Model::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
@@ -124,7 +165,7 @@ const std::string& DrawShapeToolCylinderExtension::name() const
 
 QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
 {
-  return new DrawShapeToolCircularShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolCylinderShapeExtensionPage{m_parameters, parent};
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
@@ -135,14 +176,22 @@ Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};
-  return builder
-    .createCylinder(
-      bounds,
-      m_parameters.numSides,
-      m_parameters.radiusMode,
-      axis,
-      document.currentMaterialName())
-    .transform([](auto brush) { return std::vector{std::move(brush)}; });
+  return m_parameters.hollow
+           ? builder.createHollowCylinder(
+             bounds,
+             m_parameters.thickness,
+             m_parameters.numSides,
+             m_parameters.radiusMode,
+             axis,
+             document.currentMaterialName())
+           : builder
+               .createCylinder(
+                 bounds,
+                 m_parameters.numSides,
+                 m_parameters.radiusMode,
+                 axis,
+                 document.currentMaterialName())
+               .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
 DrawShapeToolConeExtension::DrawShapeToolConeExtension()
@@ -181,7 +230,7 @@ Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
 
 DrawShapeToolSpheroidShapeExtensionPage::DrawShapeToolSpheroidShapeExtensionPage(
   SpheroidShapeParameters& parameters, QWidget* parent)
-  : QWidget{parent}
+  : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
   auto* accuracyLabel = new QLabel{tr("Accuracy: ")};
@@ -195,15 +244,8 @@ DrawShapeToolSpheroidShapeExtensionPage::DrawShapeToolSpheroidShapeExtensionPage
     this,
     [&](const auto accuracy) { m_parameters.accuracy = size_t(accuracy); });
 
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(QMargins{});
-  layout->setSpacing(LayoutConstants::MediumHMargin);
-
-  layout->addWidget(accuracyLabel, 0, Qt::AlignVCenter);
-  layout->addWidget(accuracyBox, 0, Qt::AlignVCenter);
-  layout->addStretch(1);
-
-  setLayout(layout);
+  addWidget(accuracyLabel);
+  addWidget(accuracyBox);
 }
 
 DrawShapeToolSpheroidExtension::DrawShapeToolSpheroidExtension()
