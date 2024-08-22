@@ -19,22 +19,29 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "View/CreateBrushToolBase.h"
+#include "Model/Polyhedron3.h"
+#include "View/CreateBrushesToolBase.h"
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-class MapDocument;
 
-class CreateSimpleBrushTool : public CreateBrushToolBase
+class AssembleBrushTool : public CreateBrushesToolBase
 {
+private:
+  std::unique_ptr<Model::Polyhedron3> m_polyhedron;
+
 public:
-  explicit CreateSimpleBrushTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3& bounds);
+  explicit AssembleBrushTool(std::weak_ptr<MapDocument> document);
+
+  const Model::Polyhedron3& polyhedron() const;
+  void update(const Model::Polyhedron3& polyhedron);
+
+private:
+  bool doActivate() override;
+  bool doDeactivate() override;
+  void doBrushesWereCreated() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

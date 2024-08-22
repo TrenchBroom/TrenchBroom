@@ -275,6 +275,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/Animation.cpp
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.cpp
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushTool.cpp
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/Autosaver.cpp
         ${COMMON_SOURCE_DIR}/View/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/View/BorderPanel.cpp
@@ -312,19 +314,20 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/View/ControlListBox.cpp
         ${COMMON_SOURCE_DIR}/View/CrashDialog.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/View/CreateBrushesToolBase.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.cpp
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.cpp
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.cpp
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DialogHeader.cpp
         ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeTool.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtension.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtensions.cpp
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolPage.cpp
         ${COMMON_SOURCE_DIR}/View/DropTracker.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeTool.cpp
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.cpp
@@ -807,6 +810,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/Animation.h
         ${COMMON_SOURCE_DIR}/View/AppInfoPanel.h
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushTool.h
+        ${COMMON_SOURCE_DIR}/View/AssembleBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/Autosaver.h
         ${COMMON_SOURCE_DIR}/View/BorderLine.h
         ${COMMON_SOURCE_DIR}/View/BorderPanel.h
@@ -843,19 +848,20 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ContainerBar.h
         ${COMMON_SOURCE_DIR}/View/ControlListBox.h
         ${COMMON_SOURCE_DIR}/View/CrashDialog.h
-        ${COMMON_SOURCE_DIR}/View/CreateBrushToolBase.h
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushTool.h
-        ${COMMON_SOURCE_DIR}/View/CreateComplexBrushToolController3D.h
+        ${COMMON_SOURCE_DIR}/View/CreateBrushesToolBase.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityTool.h
         ${COMMON_SOURCE_DIR}/View/CreateEntityToolController.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushTool.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController2D.h
-        ${COMMON_SOURCE_DIR}/View/CreateSimpleBrushToolController3D.h
         ${COMMON_SOURCE_DIR}/View/CurrentGameIndicator.h
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DialogHeader.h
         ${COMMON_SOURCE_DIR}/View/DragTracker.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeTool.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtension.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolExtensions.h
+        ${COMMON_SOURCE_DIR}/View/DrawShapeToolPage.h
         ${COMMON_SOURCE_DIR}/View/DropTracker.h
         ${COMMON_SOURCE_DIR}/View/EdgeTool.h
         ${COMMON_SOURCE_DIR}/View/EdgeToolController.h

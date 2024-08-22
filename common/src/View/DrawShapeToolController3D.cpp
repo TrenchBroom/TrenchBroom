@@ -17,17 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolController3D.h"
+#include "DrawShapeToolController3D.h"
 
 #include "FloatType.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "PreferenceManager.h"
 #include "Renderer/Camera.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -40,39 +38,36 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
-#include <cassert>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
-CreateSimpleBrushToolController3D::CreateSimpleBrushToolController3D(
-  CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController3D::DrawShapeToolController3D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
-  , m_document{document}
+  , m_document{std::move(document)}
 {
 }
 
-Tool& CreateSimpleBrushToolController3D::tool()
+Tool& DrawShapeToolController3D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController3D::tool() const
+const Tool& DrawShapeToolController3D::tool() const
 {
   return m_tool;
 }
 
 namespace
 {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   vm::bbox3 m_worldBounds;
 
 public:
-  CreateSimpleBrushDragDelegate(CreateSimpleBrushTool& tool, const vm::bbox3& worldBounds)
+  DrawShapeDragDelegate(DrawShapeTool& tool, const vm::bbox3& worldBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
   {
@@ -81,11 +76,11 @@ public:
   HandlePositionProposer start(
     const InputState& inputState,
     const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& handleOffset) override
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
-    m_tool.update(currentBounds);
+    m_tool.update(currentBounds, vm::axis::z);
     m_tool.refreshViews();
 
     return makeHandlePositionProposer(
@@ -94,8 +89,20 @@ public:
   }
 
   std::optional<UpdateDragConfig> modifierKeyChange(
-    const InputState& inputState, const DragState& dragState)
+    const InputState& inputState, const DragState& dragState) override
   {
+    if (inputState.modifierKeys() == ModifierKeys::MKShift)
+    {
+      const auto currentBounds = makeBounds(
+        inputState, dragState.initialHandlePosition, dragState.currentHandlePosition);
+
+      if (!currentBounds.is_empty())
+      {
+        m_tool.update(currentBounds, vm::axis::z);
+        m_tool.refreshViews();
+      }
+    }
+
     if (inputState.modifierKeys() == ModifierKeys::MKAlt)
     {
       return UpdateDragConfig{
@@ -118,7 +125,7 @@ public:
   DragStatus drag(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition)
+    const vm::vec3& proposedHandlePosition) override
   {
     if (updateBounds(
           inputState,
@@ -132,15 +139,15 @@ public:
     return DragStatus::Deny;
   }
 
-  void end(const InputState&, const DragState&) { m_tool.createBrush(); }
+  void end(const InputState&, const DragState&) override { m_tool.createBrushes(); }
 
-  void cancel(const DragState&) { m_tool.cancel(); }
+  void cancel(const DragState&) override { m_tool.cancel(); }
 
   void render(
     const InputState&,
     const DragState&,
     Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const
+    Renderer::RenderBatch& renderBatch) const override
   {
     m_tool.render(renderContext, renderBatch);
   }
@@ -162,7 +169,7 @@ private:
       return false;
     }
 
-    m_tool.update(currentBounds);
+    m_tool.update(currentBounds, vm::axis::z);
     return true;
   }
 
@@ -171,10 +178,35 @@ private:
     const vm::vec3& initialHandlePosition,
     const vm::vec3& currentHandlePosition) const
   {
-    const auto bounds = vm::bbox3{
-      vm::min(initialHandlePosition, currentHandlePosition),
-      vm::max(initialHandlePosition, currentHandlePosition)};
-    return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
+    auto bounds = snapBounds(
+      inputState,
+      vm::bbox3{
+        vm::min(initialHandlePosition, currentHandlePosition),
+        vm::max(initialHandlePosition, currentHandlePosition)});
+
+    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    {
+      const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+
+      const auto xyAxes = vm::vec3::pos_x() + vm::vec3::pos_y();
+      const auto zAxis = vm::vec3::pos_z();
+      const auto allAxes = vm::vec3::one();
+      const auto noAxis = vm::vec3::zero();
+      const auto maxLengthAxes = includeZAxis ? allAxes : xyAxes;
+      const auto zLengthAxis = includeZAxis ? noAxis : zAxis;
+
+      const auto maxLength = vm::get_abs_max_component(bounds.size() * maxLengthAxes);
+
+      const auto lengthDiff = zLengthAxis * bounds.size() + maxLengthAxes * maxLength;
+
+      // The direction in which the user is dragging per component:
+      const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
+      bounds = vm::bbox3{
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3::one() - dragDir),
+        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+    }
+
+    return vm::intersect(bounds, m_worldBounds);
   }
 
   vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const
@@ -211,7 +243,7 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
+std::unique_ptr<DragTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
@@ -221,7 +253,10 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+  if (!inputState.checkModifierKeys(
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_DontCare))
   {
     return nullptr;
   }
@@ -237,15 +272,15 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController3D::acceptMouseDrag(
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 
   return createHandleDragTracker(
-    CreateSimpleBrushDragDelegate{m_tool, document->worldBounds()},
+    DrawShapeDragDelegate{m_tool, document->worldBounds()},
     inputState,
     initialHandlePosition,
     initialHandlePosition);
 }
 
-bool CreateSimpleBrushToolController3D::cancel()
+bool DrawShapeToolController3D::cancel()
 {
-  return false;
+  return m_tool.cancel();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

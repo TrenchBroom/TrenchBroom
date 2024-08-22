@@ -24,7 +24,8 @@
 #include "Model/Polyhedron3.h"
 #include "Result.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/util.h"
 
 #include <string>
 #include <vector>
@@ -34,6 +35,12 @@ namespace TrenchBroom::Model
 class Brush;
 class ModelFactory;
 enum class MapFormat;
+
+enum class RadiusMode
+{
+  ToEdge,
+  ToVertex,
+};
 
 class BrushBuilder
 {
@@ -47,7 +54,7 @@ public:
   BrushBuilder(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const BrushFaceAttributes& defaultAttribs);
+    BrushFaceAttributes defaultAttribs);
 
   Result<Brush> createCube(FloatType size, const std::string& materialName) const;
   Result<Brush> createCube(
@@ -79,6 +86,40 @@ public:
     const std::string& backMaterial,
     const std::string& topMaterial,
     const std::string& bottomMaterial) const;
+
+  Result<Brush> createCylinder(
+    const vm::bbox3& bounds,
+    size_t numSides,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
+  Result<std::vector<Brush>> createHollowCylinder(
+    const vm::bbox3& bounds,
+    FloatType thickness,
+    size_t numSides,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
+
+  Result<Brush> createCone(
+    const vm::bbox3& bounds,
+    size_t numSides,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
+  Result<Brush> createUVSphere(
+    const vm::bbox3& bounds,
+    size_t numSides,
+    size_t numRings,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
+  Result<Brush> createIcoSphere(
+    const vm::bbox3& bounds, size_t iterations, const std::string& textureName) const;
 
   Result<Brush> createBrush(
     const std::vector<vm::vec3>& points, const std::string& materialName) const;

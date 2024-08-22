@@ -112,7 +112,7 @@ bool GLContextManager::initialize()
       [&](const auto& shaderConfig) {
         return m_shaderManager->loadProgram(shaderConfig);
       })
-      | kdl::fold()
+      | kdl::fold
       | kdl::transform_error([&](const auto& e) { throw RenderException{e.msg}; });
 
     return true;

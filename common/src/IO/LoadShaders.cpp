@@ -86,7 +86,7 @@ Result<std::vector<Assets::Quake3Shader>> loadShaders(
              return kdl::vec_parallel_transform(
                       paths,
                       [&](const auto& path) { return loadShader(fs, path, logger); })
-                    | kdl::fold();
+                    | kdl::fold;
            })
          | kdl::transform(
            [&](auto nestedShaders) { return kdl::vec_flatten(std::move(nestedShaders)); })

@@ -1480,7 +1480,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
                  return std::make_unique<Model::BrushNode>(std::move(brush));
                });
     })
-    | kdl::fold() | kdl::transform([&](const auto& tallBrushes) {
+    | kdl::fold | kdl::transform([&](const auto& tallBrushes) {
         // delete the original selection brushes before searching for the objects to
         // select
         auto transaction = Transaction{*this, "Select Tall"};
@@ -2927,7 +2927,7 @@ bool MapDocument::transformObjects(
         }));
     });
 
-  return std::move(transformResults) | kdl::fold()
+  return std::move(transformResults) | kdl::fold
          | kdl::and_then([&](auto nodesToUpdate) -> Result<bool> {
              const auto success = swapNodeContents(
                commandName,
@@ -3126,7 +3126,7 @@ bool MapDocument::csgSubtract()
              return kdl::vec_filter(
                       std::move(currentSubtractionResults),
                       [](const auto r) { return r | kdl::is_success(); })
-                    | kdl::fold() | kdl::transform([&](auto currentBrushes) {
+                    | kdl::fold | kdl::transform([&](auto currentBrushes) {
                         if (!currentBrushes.empty())
                         {
                           auto resultNodes = kdl::vec_transform(
@@ -3140,7 +3140,7 @@ bool MapDocument::csgSubtract()
                         toRemove.push_back(minuendNode);
                       });
            })
-         | kdl::fold() | kdl::transform([&]() {
+         | kdl::fold | kdl::transform([&]() {
              deselectAll();
              const auto added = addNodes(toAdd);
              removeNodes(toRemove);
@@ -3229,7 +3229,7 @@ bool MapDocument::csgHollow()
                    m_worldBounds,
                    currentMaterialName(),
                    shrunkenBrush)
-                 | kdl::fold() | kdl::transform([&](auto fragments) {
+                 | kdl::fold | kdl::transform([&](auto fragments) {
                      auto fragmentNodes =
                        kdl::vec_transform(std::move(fragments), [](auto&& b) {
                          return new Model::BrushNode{std::forward<decltype(b)>(b)};
@@ -3285,8 +3285,7 @@ bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::
                           originalBrush->parent(), std::move(clippedBrush));
                       });
            })
-         | kdl::fold()
-         | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
+         | kdl::fold | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
              auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
              const auto toRemove =
                kdl::vec_static_cast<Model::Node*>(m_selectedNodes.brushes());

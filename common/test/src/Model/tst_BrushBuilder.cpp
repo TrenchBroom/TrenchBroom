@@ -17,8 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
-#include "Exceptions.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -26,14 +25,37 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/result.h"
 
 #include <string>
 
-#include "Catch2.h"
+#include "CatchUtils/Matchers.h"
+
+#include "Catch2.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Model
 {
+namespace
+{
+auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
+{
+  return BrushFace::create(
+           std::get<0>(face),
+           std::get<1>(face),
+           std::get<2>(face),
+           BrushFaceAttributes{"someName"},
+           MapFormat::Standard)
+         | kdl::value();
+};
+
+auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& faces)
+{
+  return Brush::create(
+           vm::bbox3{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
+         | kdl::value();
+};
+} // namespace
 
 TEST_CASE("BrushBuilderTest.createCube")
 {
@@ -131,6 +153,47 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
     CHECK(faces[i].attributes().surfaceValue() == 0.1f);
     CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
   }
+}
+
+TEST_CASE("BrushBuilderTest.createCylinder")
+{
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+  const auto cylinder = builder.createCylinder(
+    vm::bbox3{{-32, -32, -32}, {32, 32, 32}},
+    4,
+    RadiusMode::ToEdge,
+    vm::axis::z,
+    "someName");
+
+  CHECK(
+    cylinder
+    == Result<Brush>{makeBrush({
+      {{-32, -32, 32}, {-32, 32, -32}, {-32, 32, 32}},
+      {{32, -32, 32}, {-32, -32, -32}, {-32, -32, 32}},
+      {{32, 32, -32}, {-32, -32, -32}, {32, -32, -32}},
+      {{32, 32, 32}, {-32, -32, 32}, {-32, 32, 32}},
+      {{32, 32, 32}, {-32, 32, -32}, {32, 32, -32}},
+      {{32, 32, 32}, {32, -32, -32}, {32, -32, 32}},
+    })});
+}
+
+TEST_CASE("BrushBuilderTest.createHollowCylinder")
+{
+  const auto worldBounds = vm::bbox3{8192.0};
+
+  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+  const auto cylinder = builder.createHollowCylinder(
+    vm::bbox3{{-32, -32, -32}, {32, 32, 32}},
+    8.0,
+    8,
+    RadiusMode::ToEdge,
+    vm::axis::z,
+    "someName");
+
+  CHECK(cylinder.is_success());
+  CHECK(cylinder.value().size() == 8);
 }
 
 } // namespace TrenchBroom::Model

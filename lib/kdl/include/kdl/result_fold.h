@@ -73,17 +73,18 @@ auto fold_results(I cur, I end)
 
     while (cur != end)
     {
+      decltype(*cur) elem = *cur;
       if constexpr (in_result_type::error_count > 0)
       {
-        if (cur->is_error())
+        if (elem.is_error())
         {
           return std::visit(
             [](auto&& e) { return out_result_type{std::forward<decltype(e)>(e)}; },
-            std::move(*cur).error());
+            std::move(elem).error());
         }
       }
 
-      result_vector.push_back(std::move(*cur).value());
+      result_vector.push_back(std::move(elem).value());
       ++cur;
     }
 
@@ -191,10 +192,7 @@ struct result_fold
 {
 };
 
-inline auto fold()
-{
-  return result_fold{};
-}
+constexpr auto fold = result_fold{};
 
 template <typename C>
 auto operator|(C&& c, const result_fold&)

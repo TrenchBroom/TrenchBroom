@@ -149,7 +149,7 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
              return Model::updateLinkedGroups(
                *groupNode, groupNodesToUpdate, worldBounds);
            })
-         | kdl::fold()
+         | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
              return kdl::vec_flatten(std::move(nestedUpdateLists));
            });

@@ -64,9 +64,6 @@ auto operator|(R&& r, to_vector_helper)
 
 } // namespace detail
 
-inline auto to_vector()
-{
-  return detail::to_vector_helper{};
-}
+constexpr auto to_vector = detail::to_vector_helper{};
 
 } // namespace kdl

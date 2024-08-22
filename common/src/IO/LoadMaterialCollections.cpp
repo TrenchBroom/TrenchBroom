@@ -435,7 +435,7 @@ Result<std::vector<Assets::MaterialCollection>> loadMaterialCollections(
                                      shaders,
                                      paletteResult);
                                  })
-                               | kdl::fold();
+                               | kdl::fold;
                       });
            })
          | kdl::transform([&](auto materials) {

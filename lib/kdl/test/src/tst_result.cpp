@@ -1940,20 +1940,20 @@ TEST_CASE("result")
     {
       SECTION("with empty range")
       {
-        const auto folded = std::vector<result<int>>{} | fold();
+        const auto folded = std::vector<result<int>>{} | fold;
         CHECK(folded == result<std::vector<int>>{std::vector<int>{}});
       }
 
       SECTION("success case")
       {
-        const auto folded = std::vector<result<int>>{{1}, {2}, {3}} | fold();
+        const auto folded = std::vector<result<int>>{{1}, {2}, {3}} | fold;
         CHECK(folded == result<std::vector<int>>{std::vector<int>{1, 2, 3}});
       }
 
       SECTION("error case")
       {
         const auto folded =
-          std::vector<result<int, std::string>>{{1}, {"error"}, {3}} | fold();
+          std::vector<result<int, std::string>>{{1}, {"error"}, {3}} | fold;
         CHECK(folded == result<std::vector<int>, std::string>{"error"});
       }
     }

@@ -1652,22 +1652,22 @@ bool MapFrame::anyToolActive() const
   return m_mapView->anyToolActive();
 }
 
-void MapFrame::toggleCreateComplexBrushTool()
+void MapFrame::toggleAssembleBrushTool()
 {
-  if (canToggleCreateComplexBrushTool())
+  if (canToggleAssembleBrushTool())
   {
-    m_mapView->toggleCreateComplexBrushTool();
+    m_mapView->toggleAssembleBrushTool();
   }
 }
 
-bool MapFrame::canToggleCreateComplexBrushTool() const
+bool MapFrame::canToggleAssembleBrushTool() const
 {
-  return m_mapView->canToggleCreateComplexBrushTool();
+  return m_mapView->canToggleAssembleBrushTool();
 }
 
-bool MapFrame::createComplexBrushToolActive() const
+bool MapFrame::assembleBrushToolActive() const
 {
-  return m_mapView->createComplexBrushToolActive();
+  return m_mapView->assembleBrushToolActive();
 }
 
 void MapFrame::toggleClipTool()
@@ -2188,7 +2188,7 @@ void MapFrame::debugCreateCube()
   {
     const auto size = str.toDouble();
     const auto bounds = vm::bbox3{size / 2.0};
-    const auto positions = bounds.vertices() | kdl::to_vector();
+    const auto positions = bounds.vertices() | kdl::to_vector;
     m_document->createBrush(positions);
   }
 }

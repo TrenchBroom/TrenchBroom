@@ -169,7 +169,7 @@ At most one of the viewports can have focus, that is, only one of them can recei
 
 Game engines often impose a limit on the usable/playable volume of space. TrenchBroom can display this limit as a guide to use when creating your map. Such bounds will appear as an orange square or rectangle in the 2D viewports. For example, the image above shows the Quake map McKinley Base (ctf1 from Threewave CTF) within the normal bounds for a Quake map.
 
-![Map Properties (Ubuntu Linux)](images/SoftBounds.png) If bounds are configured for a game, they will usually represent the limits observed by the last official release or patch of a particular game engine. Those bounds may not be correct for your situation, so you can disable or modify the displayed bounds using the Map Properties portion of the Map Inspector, as shown here. (More about the Map Inspector in the next section below.) 
+![Map Properties (Ubuntu Linux)](images/SoftBounds.png) If bounds are configured for a game, they will usually represent the limits observed by the last official release or patch of a particular game engine. Those bounds may not be correct for your situation, so you can disable or modify the displayed bounds using the Map Properties portion of the Map Inspector, as shown here. (More about the Map Inspector in the next section below.)
 
 In Quake-engine games, these bounds represent a limit on the volume that can contain players, items, or other entities. Static geometry (plain brushes) can extend further, which is why these limits are often called "soft bounds". As far as TrenchBroom is concerned however, it is just drawing orange lines at whatever coordinates are indicated in the [game configuration file](#game_configuration_files)... if this is a non-Quake-engine game then the bounds could represent something else.
 
@@ -326,8 +326,8 @@ Tool                  Viewports    Type          Purpose
 ----                  ---------    ----          -----------
 Camera Tool           2D, 3D       Permanent     Adjusting the 3D camera and the 2D viewports
 Selection Tool        2D, 3D       Permanent     Selecting objects and brush faces
-Simple Brush Tool     2D, 3D       Permanent*    Creating simple cuboid brushes
-Complex Brush Tool    3D           Modal         Creating arbitrarily shaped brushes
+Simple Shape Tool     2D, 3D       Permanent*    Creating simple shapes
+Complex Shape Tool    3D           Modal         Creating arbitrarily shaped brushes
 Entity Drag Tool      2D, 3D       Permanent     Creating entities by drag and drop
 Resize Tool           2D, 3D       Permanent*    Resizing brushes by dragging faces
 Move Tool             2D, 3D       Permanent*    Moving objects around
@@ -341,7 +341,7 @@ Tools of the type Permanent* are deactivated whenever a modal tool is active. Fo
 
 Tool                  Menu
 ----                  -----------
-Complex Brush Tool    #menu(Menu/Edit/Tools/Brush Tool)
+Complex Shape Tool    #menu(Menu/Edit/Tools/Brush Tool)
 Rotate Tool           #menu(Menu/Edit/Tools/Rotate Tool)
 Scale Tool            #menu(Menu/Edit/Tools/Scale Tool)
 Shear Tool            #menu(Menu/Edit/Tools/Shear Tool)
@@ -358,7 +358,7 @@ To cancel a mouse drag, hit #action(Controls/Map view/Cancel). The operation wil
 
 State                 Effect
 -----                 ------
-Complex Brush Tool    Discard all placed points; deactivate tool
+Complex Shape Tool    Discard all placed points; deactivate tool
 Clip Tool             Discard most recently placed clip point; deactivate tool
 Vertex Tool           Discard current vertex selection; deactivate tool
 Selection Tool        Discard current selection
@@ -438,19 +438,31 @@ Create Brush Entity
 
 TrenchBroom gives you various options on how to create new objects. In the following sections, we will introduce these options one by one.
 
-### Creating Simple Brushes
+### Creating Simple Shapes
 
 The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(Alt). Whenever #key(Alt) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
 
-![Creating a cuboid in the 3D viewport](images/CreateSimpleBrush.gif)
+![Creating a cuboid in the 3D viewport](images/DrawBrush.gif)
 
 If, on the other hand, you draw a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
 
 In either case, the material assigned to the newly created brush is the _current material_. The current material is set by choosing a material in the [material browser](#material_browser) or by selecting a face that already has a material. This concept applies to other ways of creating new brushes, too.
 
-This way of creating brushes only allows you to create cuboids. In the next section, you will learn how to create more complex brush shapes with the complex brush tool.
+This way of creating brushes only allows you to the simple shapes listed in the following table. In the next section, you will learn how to create more complex brush shapes with the complex shape tool.
 
-### Creating Complex Brushes
+Shape                  Description
+-----                  -----------
+Cuboid                 Creates a cuboid shape
+Cylinder               Creates a cylinder with a variable number of sides; potentially hollow
+Cone                   Creates a cone with a variable number of sides
+Spheroid (UV)          Creates a spheroid shape made up of triangles and quads with two poles
+Spheroid (Icosahedron) Creates a spheroid shape made up of triangles, based on an icosahedron
+
+Note that the cylinder, cone and UV sphere shapes all have similar options, namely the number of sides and radius mode.
+By using the same values for these options across different shapes, TrenchBroom will create shapes that fit onto each other perfectly.
+The radius mode setting controls how a shape is oriented on the plane perpendicular to its axis.
+
+### Creating Complex Shapes
 
 ![Drawing a rectangle and duplicating it](images/CreateBrushByDuplicatingPolygon.gif) If you want to create a brush that is not a simple, axis-aligned cuboid, you can use the brush tool. The brush tool allows you to define a set of points and create the convex hull of these points. A convex hull is the smallest convex volume that contains all the points. The points become the vertices of the new brush, unless they are placed within the brush, in which case they are discarded. Accordingly, the brush tool gives you several ways to place points, but there are two limitations: First, you can only place points in the 3D viewport, and second, you can only place points by using other brushes as reference.
 
@@ -901,7 +913,7 @@ In TrenchBroom, there is the notion of a current material, which we have already
 
 ### Assigning Materials Manually
 
-To change the material of the currently selected faces, left click on a material in the material browser. This also works if you have selected brushes (and nothing else) - in this case, the new material is applied to all faces of the currently selected brushes. 
+To change the material of the currently selected faces, left click on a material in the material browser. This also works if you have selected brushes (and nothing else) - in this case, the new material is applied to all faces of the currently selected brushes.
 
 You can also transfer material and attributes from one face to another. "Attributes" in this context refers to almost any characteristic &mdash; such as offset, scale, or surface flags &mdash; that you can modify through the [face attribute editor](#face_attribute_editor). The sole exception to this is content flags; the content flags on the target face(s) will always be preserved unchanged.
 
@@ -1309,7 +1321,7 @@ In the map file, these groups would be stored as follows. Refer to the comments 
 // All groups with this linked group ID will be mutually linked.
 "_tb_linked_group_id" "{38b3b39d-a165-4999-985d-d40563ce51c1}"
 
-// The transformation that has been applied to the group as a whole. 
+// The transformation that has been applied to the group as a whole.
 // This will get updated when you transform a group by moving, rotating or scaling it.
 "_tb_transformation" "1 0 0 128 0 1 0 0 0 0 1 0 0 0 0 1"
 
@@ -1331,7 +1343,7 @@ In the map file, these groups would be stored as follows. Refer to the comments 
 "_tb_name" "group"
 "_tb_id" "2"
 
-// This group entity has the same linked group ID as the previous one, 
+// This group entity has the same linked group ID as the previous one,
 // so they will be linked.
 "_tb_linked_group_id" "{38b3b39d-a165-4999-985d-d40563ce51c1}"
 
@@ -1517,7 +1529,7 @@ Working directory
 Tasks
 :   A list of tasks which are executed sequentially when the compilation profile is run.
 
-The checkbox on each task lets you selectively exclude a task from running when you run the compilation profile. 
+The checkbox on each task lets you selectively exclude a task from running when you run the compilation profile.
 
 There are three types of tasks, each with different parameters:
 
@@ -2400,7 +2412,7 @@ Windows   `C:\Users\<username>\AppData\Roaming\TrenchBroom`
 macOS     `~/Library/Application Support/TrenchBroom`
 Linux     `~/.TrenchBroom`
 
-Running TrenchBroom with the `--portable` argument will instead put the `<UserDataPath>` in the current directory. This is intended to be run from within the `<ResourcePath>` directory to provide a fully self-contained instance of the application.  
+Running TrenchBroom with the `--portable` argument will instead put the `<UserDataPath>` in the current directory. This is intended to be run from within the `<ResourcePath>` directory to provide a fully self-contained instance of the application.
 
 To add a new game configuration to TrenchBroom, place it into a folder under `<UserDataPath>/games` -- note that you might need to create that folder if it does not exist. You will need to write your own `GameConfig.cfg` file, or you can copy one of the builtin files and base your game configuration on that. Additionally, you can place additional resources in the folder you created. As an example, suppose you want to add a game configuration for a game called "Example". For this, you would create a new folder `<UserDataPath>/games/Example`, and within that folder, you would create a game configuration file called `GameConfig.cfg`. If you need additional resource such as an icon or entity definition files, you would place those files into this newly created folder as well.
 
@@ -2547,7 +2559,7 @@ TrenchBroom currently supports game config version 9.
 * Version 6
   - Adds the optional `setDefaultProperties` key to the entity configuration.
 * Version 5
-  - Makes the model format whitelist optional. If a whitelist is still present in a config file, it is ignored. 
+  - Makes the model format whitelist optional. If a whitelist is still present in a config file, it is ignored.
 * Version 4
   - Adds support for the `unused` key in surface flags and content flags; this key does not exist in version 3.
   - Adds support for specifying a list of values for the `pattern` key in surfaceparm-type smart tags; in version 3 only a single value is allowed.
@@ -2668,7 +2680,7 @@ The optional `setDefaultProperties` key controls whether [default entity propert
 
 TrenchBroom can recognize certain special brush or face types. An example would be clip faces or trigger brushes. But since the details can be game dependent, these special types are defined in the game configuration. For greater flexibility and future enhancements, a general "smart tags" system is used to realize this functionality.
 
-TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options). 
+TrenchBroom uses these tag definitions to automatically apply attributes to matching brushes/faces &mdash; for example to render trigger brushes partially transparent &mdash; and to populate the filtering options available in the [View menu](#filtering_rendering_options).
 
 Each smart tag definition also makes one or more related [keyboard shortcuts](#keyboard_shortcuts) available (searching the shortcuts by "Tags" will show all of these). Each tag will always have a related shortcut that can be used to toggle the visibility of brushes whose faces match the tag. Additional shortcuts may also be available to apply the characteristics of the tag to the current selection, or remove those characteristics. These shortcuts depend on the tag's `match` criteria as described below.
 

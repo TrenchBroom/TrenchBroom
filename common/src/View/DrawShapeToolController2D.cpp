@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateSimpleBrushToolController2D.h"
+#include "DrawShapeToolController2D.h"
 
 #include "Renderer/Camera.h"
-#include "View/CreateSimpleBrushTool.h"
+#include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -29,45 +29,39 @@
 #include "kdl/memory_utils.h"
 
 #include "vm/intersection.h"
-#include "vm/scalar.h"
 
-#include <optional>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
-CreateSimpleBrushToolController2D::CreateSimpleBrushToolController2D(
-  CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document)
+DrawShapeToolController2D::DrawShapeToolController2D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-Tool& CreateSimpleBrushToolController2D::tool()
+Tool& DrawShapeToolController2D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateSimpleBrushToolController2D::tool() const
+const Tool& DrawShapeToolController2D::tool() const
 {
   return m_tool;
 }
 
 namespace
 {
-class CreateSimpleBrushDragDelegate : public HandleDragTrackerDelegate
+class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   vm::bbox3 m_worldBounds;
   vm::bbox3 m_referenceBounds;
 
 public:
-  CreateSimpleBrushDragDelegate(
-    CreateSimpleBrushTool& tool,
-    const vm::bbox3& worldBounds,
-    const vm::bbox3& referenceBounds)
+  DrawShapeDragDelegate(
+    DrawShapeTool& tool, const vm::bbox3& worldBounds, const vm::bbox3& referenceBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
     , m_referenceBounds{referenceBounds}
@@ -81,7 +75,9 @@ public:
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
-    m_tool.update(currentBounds);
+    const auto axis = vm::find_abs_max_component(inputState.camera().direction());
+
+    m_tool.update(currentBounds, axis);
     m_tool.refreshViews();
 
     const auto& camera = inputState.camera();
@@ -110,9 +106,25 @@ public:
     return DragStatus::Deny;
   }
 
-  void end(const InputState&, const DragState&) override { m_tool.createBrush(); }
+  void end(const InputState&, const DragState&) override { m_tool.createBrushes(); }
 
   void cancel(const DragState&) override { m_tool.cancel(); }
+
+  std::optional<UpdateDragConfig> modifierKeyChange(
+    const InputState& inputState, const DragState& dragState) override
+  {
+    const auto currentBounds = makeBounds(
+      inputState, dragState.initialHandlePosition, dragState.currentHandlePosition);
+
+    if (!currentBounds.is_empty())
+    {
+      const auto axis = vm::find_abs_max_component(inputState.camera().direction());
+      m_tool.update(currentBounds, axis);
+      m_tool.refreshViews();
+    }
+
+    return std::nullopt;
+  }
 
   void render(
     const InputState&,
@@ -140,7 +152,8 @@ private:
       return false;
     }
 
-    m_tool.update(currentBounds);
+    const auto axis = vm::find_abs_max_component(inputState.camera().direction());
+    m_tool.update(currentBounds, axis);
     return true;
   }
 
@@ -149,37 +162,60 @@ private:
     const vm::vec3& initialHandlePosition,
     const vm::vec3& currentHandlePosition) const
   {
-    const auto bounds = vm::merge(
-      vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition);
-    return vm::intersect(snapBounds(inputState, bounds), m_worldBounds);
+    auto bounds = snapBounds(
+      inputState,
+      vm::merge(
+        vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition));
+
+    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    {
+      const auto viewAxis = vm::abs(vm::vec3{inputState.camera().direction()});
+      const auto orthoAxes = vm::vec3::one() - viewAxis;
+
+      // The max length of the bounds along any of the ortho axes:
+      const auto maxLength = vm::get_abs_max_component(bounds.size() * orthoAxes);
+
+      // A vector where the ortho axes have maxLength and the view axis has the size of
+      // the bounds in that direction
+      const auto lengthDiff = viewAxis * bounds.size() + orthoAxes * maxLength;
+
+      // The direction in which the user is dragging per component:
+      const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
+      bounds = vm::bbox3{
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3::one() - dragDir),
+        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+    }
+
+    return vm::intersect(bounds, m_worldBounds);
   }
 
   vm::bbox3 snapBounds(const InputState& inputState, const vm::bbox3& bounds) const
   {
     const auto& grid = m_tool.grid();
-    auto min = grid.snapDown(bounds.min);
-    auto max = grid.snapUp(bounds.max);
+    const auto min = grid.snapDown(bounds.min);
+    const auto max = grid.snapUp(bounds.max);
 
     const auto& camera = inputState.camera();
     const auto& refBounds = m_referenceBounds;
     const auto factors =
       vm::vec3{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
-    min = vm::mix(min, refBounds.min, factors);
-    max = vm::mix(max, refBounds.max, factors);
-
-    return vm::bbox3{min, max};
+    return vm::bbox3{
+      vm::mix(min, refBounds.min, factors), vm::mix(max, refBounds.max, factors)};
   }
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
+std::unique_ptr<DragTracker> DrawShapeToolController2D::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
   {
     return nullptr;
   }
-  if (!inputState.modifierKeysPressed(ModifierKeys::MKNone))
+  if (!inputState.checkModifierKeys(
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_No,
+        ModifierKeyPressed::MK_DontCare))
   {
     return nullptr;
   }
@@ -200,8 +236,7 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
     const auto initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), *distance);
     return createHandleDragTracker(
-      CreateSimpleBrushDragDelegate{
-        m_tool, document->worldBounds(), document->referenceBounds()},
+      DrawShapeDragDelegate{m_tool, document->worldBounds(), document->referenceBounds()},
       inputState,
       initialHandlePosition,
       initialHandlePosition);
@@ -210,9 +245,9 @@ std::unique_ptr<DragTracker> CreateSimpleBrushToolController2D::acceptMouseDrag(
   return nullptr;
 }
 
-bool CreateSimpleBrushToolController2D::cancel()
+bool DrawShapeToolController2D::cancel()
 {
-  return false;
+  return m_tool.cancel();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -212,7 +212,7 @@ public: // UV actions
   void resetUVToWorld();
 
 public: // tool mode actions
-  void createComplexBrush();
+  void assembleBrush();
 
   void toggleClipSide();
   void performClip();

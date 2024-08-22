@@ -62,6 +62,6 @@ Result<std::vector<BrushFaceHandle>> resolveAllRefs(
 {
   return kdl::vec_transform(
            faceRefs, [](const auto& faceRef) { return faceRef.resolve(); })
-         | kdl::fold();
+         | kdl::fold;
 }
 } // namespace TrenchBroom::Model

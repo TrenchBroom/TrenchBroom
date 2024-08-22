@@ -26,25 +26,23 @@
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-class CreateSimpleBrushTool;
+
+class DrawShapeTool;
 class DragTracker;
 class MapDocument;
 
-class CreateSimpleBrushToolController3D : public ToolController
+class DrawShapeToolController3D : public ToolController
 {
 private:
-  CreateSimpleBrushTool& m_tool;
+  DrawShapeTool& m_tool;
   std::weak_ptr<MapDocument> m_document;
 
   vm::vec3 m_initialPoint;
 
 public:
-  CreateSimpleBrushToolController3D(
-    CreateSimpleBrushTool& tool, std::weak_ptr<MapDocument> document);
+  DrawShapeToolController3D(DrawShapeTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   Tool& tool() override;
@@ -54,5 +52,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

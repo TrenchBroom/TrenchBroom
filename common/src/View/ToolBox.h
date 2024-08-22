@@ -33,21 +33,20 @@ class QWindow;
 class QFocusEvent;
 class QMouseEvent;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class DragTracker;
 class DropTracker;
 class InputState;
@@ -61,13 +60,11 @@ class ToolBox : public QObject
 private:
   std::unique_ptr<DragTracker> m_dragTracker;
   std::unique_ptr<DropTracker> m_dropTracker;
-  Tool* m_modalTool;
+  Tool* m_modalTool = nullptr;
 
-  using ToolList = std::vector<Tool*>;
-  using ToolMap = std::map<Tool*, ToolList>;
-  ToolMap m_suppressedTools;
+  std::map<Tool*, std::vector<Tool*>> m_suppressedTools;
 
-  bool m_enabled;
+  bool m_enabled = true;
 
   NotifierConnection m_notifierConnection;
 
@@ -79,7 +76,7 @@ public:
 
 public:
   ToolBox();
-  ~ToolBox();
+  ~ToolBox() override;
 
 protected:
   void addTool(Tool& tool);
@@ -95,11 +92,11 @@ public: // event handling
   bool dragDrop(ToolChain* chain, const InputState& inputState, const std::string& text);
 
   void modifierKeyChange(ToolChain* chain, const InputState& inputState);
-  void mouseDown(ToolChain* chain, const InputState& inputState);
-  void mouseUp(ToolChain* chain, const InputState& inputState);
-  bool mouseClick(ToolChain* chain, const InputState& inputState);
-  void mouseDoubleClick(ToolChain* chain, const InputState& inputState);
-  void mouseMove(ToolChain* chain, const InputState& inputState);
+  void mouseDown(ToolChain* chain, const InputState& inputState) const;
+  void mouseUp(ToolChain* chain, const InputState& inputState) const;
+  bool mouseClick(ToolChain* chain, const InputState& inputState) const;
+  void mouseDoubleClick(ToolChain* chain, const InputState& inputState) const;
+  void mouseMove(ToolChain* chain, const InputState& inputState) const;
 
   bool dragging() const;
   void startMouseDrag(ToolChain* chain, const InputState& inputState);
@@ -122,6 +119,7 @@ public: // tool management
   void suppressWhileActive(Tool& suppressedTool, Tool& primaryTool);
 
   bool anyToolActive() const;
+  Tool* activeTool();
   void toggleTool(Tool& tool);
   void deactivateAllTools();
 
@@ -141,8 +139,8 @@ public: // rendering
     Renderer::RenderBatch& renderBatch);
 
 private:
-  bool activateTool(Tool& tool);
+  void activateTool(Tool& tool);
   void deactivateTool(Tool& tool);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

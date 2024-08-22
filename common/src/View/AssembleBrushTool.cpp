@@ -17,76 +17,76 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateComplexBrushTool.h"
+#include "AssembleBrushTool.h"
 
-#include "Error.h"
-#include "Exceptions.h"
+#include "Error.h" // IWYU pragma: keep
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
 #include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
-#include "PreferenceManager.h"
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-CreateComplexBrushTool::CreateComplexBrushTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushToolBase(false, document)
-  , m_polyhedron(std::make_unique<Model::Polyhedron3>())
+
+AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
+  : CreateBrushesToolBase{false, std::move(document)}
+  , m_polyhedron{std::make_unique<Model::Polyhedron3>()}
 {
 }
 
-const Model::Polyhedron3& CreateComplexBrushTool::polyhedron() const
+const Model::Polyhedron3& AssembleBrushTool::polyhedron() const
 {
   return *m_polyhedron;
 }
 
-void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
+void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
 {
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
     auto document = kdl::mem_lock(m_document);
     const auto game = document->game();
-    const Model::BrushBuilder builder(
+    const auto builder = Model::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->config().faceAttribsConfig.defaults);
+      game->config().faceAttribsConfig.defaults};
 
     builder.createBrush(*m_polyhedron, document->currentMaterialName())
-      | kdl::transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+      | kdl::transform([&](auto b) {
+          updateBrushes(kdl::vec_from(std::make_unique<Model::BrushNode>(std::move(b))));
+        })
       | kdl::transform_error([&](auto e) {
-          updateBrush(nullptr);
+          clearBrushes();
           document->error() << "Could not update brush: " << e.msg;
         });
   }
   else
   {
-    updateBrush(nullptr);
+    clearBrushes();
   }
 }
 
-bool CreateComplexBrushTool::doActivate()
+bool AssembleBrushTool::doActivate()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
   return true;
 }
 
-bool CreateComplexBrushTool::doDeactivate()
+bool AssembleBrushTool::doDeactivate()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
   return true;
 }
 
-void CreateComplexBrushTool::doBrushWasCreated()
+void AssembleBrushTool::doBrushesWereCreated()
 {
-  update(Model::Polyhedron3());
+  update(Model::Polyhedron3{});
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

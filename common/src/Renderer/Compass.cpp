@@ -115,13 +115,13 @@ void Compass::makeArrows()
   const vm::vec3f shaftOffset(0.0f, 0.0f, -(m_shaftLength + m_headLength) / 2.0f + 2.0f);
   const vm::vec3f headOffset = vm::vec3f(0.0f, 0.0f, m_shaftLength) + shaftOffset;
 
-  VertsAndNormals shaft = cylinder3D(m_shaftRadius, m_shaftLength, m_segments);
+  VertsAndNormals shaft = cylinder(m_shaftRadius, m_shaftLength, m_segments);
   for (size_t i = 0; i < shaft.vertices.size(); ++i)
   {
     shaft.vertices[i] = shaft.vertices[i] + shaftOffset;
   }
 
-  VertsAndNormals head = cone3D(m_headRadius, m_headLength, m_segments);
+  VertsAndNormals head = cone(m_headRadius, m_headLength, m_segments);
   for (size_t i = 0; i < head.vertices.size(); ++i)
   {
     head.vertices[i] = head.vertices[i] + headOffset;

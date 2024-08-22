@@ -17,11 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "CreateComplexBrushToolController3D.h"
+#include "AssembleBrushToolController3D.h"
 
 #include "FloatType.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -33,7 +32,7 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
-#include "View/CreateComplexBrushTool.h"
+#include "View/AssembleBrushTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -49,20 +48,18 @@
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 namespace
 {
 class Part
 {
 protected:
-  CreateComplexBrushTool& m_tool;
+  AssembleBrushTool& m_tool;
   Model::Polyhedron3 m_oldPolyhedron;
 
 protected:
-  explicit Part(CreateComplexBrushTool& tool)
+  explicit Part(AssembleBrushTool& tool)
     : m_tool{tool}
   {
   }
@@ -74,12 +71,12 @@ public:
 class DrawFaceDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateComplexBrushTool& m_tool;
+  AssembleBrushTool& m_tool;
   vm::plane3 m_plane;
   const Model::Polyhedron3 m_oldPolyhedron;
 
 public:
-  DrawFaceDragDelegate(CreateComplexBrushTool& tool, const vm::plane3 plane)
+  DrawFaceDragDelegate(AssembleBrushTool& tool, const vm::plane3 plane)
     : m_tool{tool}
     , m_plane{plane}
     , m_oldPolyhedron{m_tool.polyhedron()}
@@ -89,7 +86,7 @@ public:
   HandlePositionProposer start(
     const InputState&,
     const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& handleOffset) override
   {
     using namespace Model::HitFilters;
 
@@ -101,15 +98,17 @@ public:
   }
 
   DragStatus drag(
-    const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition)
+    const InputState&,
+    const DragState& dragState,
+    const vm::vec3& proposedHandlePosition) override
   {
     updatePolyhedron(dragState.initialHandlePosition, proposedHandlePosition);
     return DragStatus::Continue;
   }
 
-  void end(const InputState&, const DragState&) {}
+  void end(const InputState&, const DragState&) override {}
 
-  void cancel(const DragState&) { m_tool.update(m_oldPolyhedron); }
+  void cancel(const DragState&) override { m_tool.update(m_oldPolyhedron); }
 
 private:
   void updatePolyhedron(
@@ -148,7 +147,7 @@ private:
   vm::vec3 m_initialPoint;
 
 public:
-  explicit DrawFacePart(CreateComplexBrushTool& tool)
+  explicit DrawFacePart(AssembleBrushTool& tool)
     : Part{tool}
   {
   }
@@ -188,12 +187,12 @@ private:
 class DuplicateFaceDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  CreateComplexBrushTool& m_tool;
+  AssembleBrushTool& m_tool;
   vm::vec3 m_dragDir;
   const Model::Polyhedron3 m_oldPolyhedron;
 
 public:
-  DuplicateFaceDragDelegate(CreateComplexBrushTool& tool, const vm::vec3 dragDir)
+  DuplicateFaceDragDelegate(AssembleBrushTool& tool, const vm::vec3 dragDir)
     : m_tool{tool}
     , m_dragDir{dragDir}
     , m_oldPolyhedron{m_tool.polyhedron()}
@@ -203,7 +202,7 @@ public:
   HandlePositionProposer start(
     const InputState&,
     const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& handleOffset) override
   {
     using namespace Model::HitFilters;
 
@@ -214,7 +213,9 @@ public:
   }
 
   DragStatus drag(
-    const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition)
+    const InputState&,
+    const DragState& dragState,
+    const vm::vec3& proposedHandlePosition) override
   {
     auto polyhedron = m_oldPolyhedron;
     assert(polyhedron.polygon());
@@ -230,9 +231,9 @@ public:
     return DragStatus::Continue;
   }
 
-  void end(const InputState&, const DragState&) {}
+  void end(const InputState&, const DragState&) override {}
 
-  void cancel(const DragState&) { m_tool.update(m_oldPolyhedron); }
+  void cancel(const DragState&) override { m_tool.update(m_oldPolyhedron); }
 };
 
 class DuplicateFacePart : public Part, public ToolController
@@ -241,7 +242,7 @@ private:
   vm::vec3 m_dragDir;
 
 public:
-  DuplicateFacePart(CreateComplexBrushTool& tool)
+  explicit DuplicateFacePart(AssembleBrushTool& tool)
     : Part{tool}
   {
   }
@@ -284,108 +285,89 @@ private:
 };
 } // namespace
 
-CreateComplexBrushToolController3D::CreateComplexBrushToolController3D(
-  CreateComplexBrushTool& tool)
+AssembleBrushToolController3D::AssembleBrushToolController3D(AssembleBrushTool& tool)
   : m_tool{tool}
 {
   addController(std::make_unique<DrawFacePart>(m_tool));
   addController(std::make_unique<DuplicateFacePart>(m_tool));
 }
 
-Tool& CreateComplexBrushToolController3D::tool()
+Tool& AssembleBrushToolController3D::tool()
 {
   return m_tool;
 }
 
-const Tool& CreateComplexBrushToolController3D::tool() const
+const Tool& AssembleBrushToolController3D::tool() const
 {
   return m_tool;
 }
 
-bool CreateComplexBrushToolController3D::mouseClick(const InputState& inputState)
+bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
 {
-  if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
-  {
-    return false;
-  }
-  if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
+  if (
+    !inputState.mouseButtonsDown(MouseButtons::MBLeft)
+    || !inputState.checkModifierKeys(MK_No, MK_No, MK_No))
   {
     return false;
   }
 
   using namespace Model::HitFilters;
-  const Model::Hit& hit =
-    inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
   {
-    const Grid& grid = m_tool.grid();
+    const auto& grid = m_tool.grid();
 
-    const Model::BrushFace& face = faceHandle->face();
-    const vm::vec3 snapped = grid.snap(hit.hitPoint(), face.boundary());
+    const auto& face = faceHandle->face();
+    const auto snapped = grid.snap(hit.hitPoint(), face.boundary());
 
     m_tool.update(Model::Polyhedron3{kdl::vec_concat(
-      std::vector<vm::vec3>({snapped}), m_tool.polyhedron().vertexPositions())});
+      std::vector<vm::vec3>{snapped}, m_tool.polyhedron().vertexPositions())});
 
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
-bool CreateComplexBrushToolController3D::mouseDoubleClick(const InputState& inputState)
+bool AssembleBrushToolController3D::mouseDoubleClick(const InputState& inputState)
 {
-  if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
-  {
-    return false;
-  }
-  if (!inputState.checkModifierKeys(MK_No, MK_No, MK_No))
+  if (
+    !inputState.mouseButtonsDown(MouseButtons::MBLeft)
+    || !inputState.checkModifierKeys(MK_No, MK_No, MK_No))
   {
     return false;
   }
 
   using namespace Model::HitFilters;
-  const Model::Hit& hit =
-    inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
   {
-    const Model::BrushFace& face = faceHandle->face();
+    const auto& face = faceHandle->face();
 
     m_tool.update(Model::Polyhedron3{
       kdl::vec_concat(face.vertexPositions(), m_tool.polyhedron().vertexPositions())});
 
     return true;
   }
-  else
-  {
-    return false;
-  }
+
+  return false;
 }
 
-bool CreateComplexBrushToolController3D::doShouldHandleMouseDrag(
+bool AssembleBrushToolController3D::doShouldHandleMouseDrag(
   const InputState& inputState) const
 {
-  if (!inputState.mouseButtonsDown(MouseButtons::MBLeft))
-  {
-    return false;
-  }
-  if (!inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare))
-  {
-    return false;
-  }
-
-  return true;
+  return inputState.mouseButtonsDown(MouseButtons::MBLeft)
+         && inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare);
 }
 
-void CreateComplexBrushToolController3D::render(
+void AssembleBrushToolController3D::render(
   const InputState& inputState,
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch)
 {
   m_tool.render(renderContext, renderBatch);
 
-  const Model::Polyhedron3& polyhedron = m_tool.polyhedron();
+  const auto& polyhedron = m_tool.polyhedron();
   if (!polyhedron.empty())
   {
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
@@ -423,16 +405,16 @@ void CreateComplexBrushToolController3D::render(
   }
 }
 
-bool CreateComplexBrushToolController3D::cancel()
+bool AssembleBrushToolController3D::cancel()
 {
-  const Model::Polyhedron3& polyhedron = m_tool.polyhedron();
+  const auto& polyhedron = m_tool.polyhedron();
   if (polyhedron.empty())
   {
     return false;
   }
 
-  m_tool.update(Model::Polyhedron3());
+  m_tool.update(Model::Polyhedron3{});
   return true;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

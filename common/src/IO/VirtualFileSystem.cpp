@@ -237,7 +237,7 @@ Result<std::vector<std::filesystem::path>> VirtualFileSystem::doFind(
            [&](const auto& mountPoint) {
              return findMatchesForMountedFileSystem(mountPoint, path, traversalMode);
            })
-         | kdl::fold() | kdl::transform([](auto nestedPaths) {
+         | kdl::fold | kdl::transform([](auto nestedPaths) {
              if (nestedPaths.empty())
              {
                return std::vector<std::filesystem::path>{};

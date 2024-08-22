@@ -438,7 +438,7 @@ bool splitBrushesOutward(
                         }
                       });
            })
-         | kdl::fold() | kdl::transform([&]() {
+         | kdl::fold | kdl::transform([&]() {
              // Apply the changes calculated above
              document.rollbackTransaction();
 

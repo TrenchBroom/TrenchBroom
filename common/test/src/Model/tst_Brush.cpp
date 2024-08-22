@@ -2268,7 +2268,7 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
   const auto fragments =
 
     minuend.subtract(MapFormat::Standard, worldBounds, defaultMaterial, subtrahend)
-    | kdl::fold() | kdl::value();
+    | kdl::fold | kdl::value();
   CHECK(fragments.size() == 3u);
 
   const Brush* left = nullptr;
@@ -2397,7 +2397,7 @@ TEST_CASE("BrushTest.subtractDisjoint")
   const Brush brush2 = builder.createCuboid(brush2Bounds, "material") | kdl::value();
 
   const auto fragments =
-    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold()
+    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold
     | kdl::value();
   CHECK(fragments.size() == 1u);
 
@@ -2419,7 +2419,7 @@ TEST_CASE("BrushTest.subtractEnclosed")
   const Brush brush2 = builder.createCuboid(brush2Bounds, "material") | kdl::value();
 
   const auto fragments =
-    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold()
+    brush1.subtract(MapFormat::Standard, worldBounds, "material", brush2) | kdl::fold
     | kdl::value();
   CHECK(fragments.empty());
 }

@@ -28,8 +28,6 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
-#include <map>
-
 namespace TrenchBroom::Renderer
 {
 namespace
@@ -337,107 +335,11 @@ std::vector<vm::vec2f> roundedRect2D(
   return vertices;
 }
 
-namespace
-{
-using Triangle = std::array<size_t, 3>;
-using MidPointIndex = std::tuple<size_t, size_t>;
-using MidPointCache = std::map<MidPointIndex, size_t>;
-
-size_t midPoint(
-  std::vector<vm::vec3f>& vertices, MidPointCache& cache, size_t index1, size_t index2);
-
-size_t midPoint(
-  std::vector<vm::vec3f>& vertices, MidPointCache& cache, size_t index1, size_t index2)
-{
-  if (auto it = cache.find(MidPointIndex{index1, index2}); it != cache.end())
-  {
-    return it->second;
-  }
-
-  const auto& vertex1 = vertices[index1];
-  const auto& vertex2 = vertices[index2];
-  auto midPoint = (vertex1 + vertex2) / 2.0f;
-  vertices.push_back(vm::normalize(midPoint));
-
-  auto midPointIndex = vertices.size() - 1;
-  cache[MidPointIndex{index1, index2}] = midPointIndex;
-  cache[MidPointIndex{index2, index1}] = midPointIndex;
-  return midPointIndex;
-}
-} // namespace
-
-std::vector<vm::vec3f> sphere3D(const float radius, const size_t iterations)
+std::vector<vm::vec3f> sphere(const float radius, const size_t iterations)
 {
   assert(radius > 0.0f);
-  assert(iterations > 0);
 
-  auto vertices = std::vector<vm::vec3f>{};
-  auto triangles = std::vector<Triangle>{};
-
-  // build initial icosahedron
-  const auto t = float((1.0 + std::sqrt(5.0)) / 2.0);
-  vertices.push_back(vm::normalize(vm::vec3f{-1.0f, t, 0.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{1.0f, t, 0.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{-1.0f, -t, 0.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{1.0f, -t, 0.0f}));
-
-  vertices.push_back(vm::normalize(vm::vec3f{0.0f, -1.0f, t}));
-  vertices.push_back(vm::normalize(vm::vec3f{0.0f, 1.0f, t}));
-  vertices.push_back(vm::normalize(vm::vec3f{0.0f, -1.0f, -t}));
-  vertices.push_back(vm::normalize(vm::vec3f{0.0f, 1.0f, -t}));
-
-  vertices.push_back(vm::normalize(vm::vec3f{t, 0.0f, -1.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{t, 0.0f, 1.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{-t, 0.0f, -1.0f}));
-  vertices.push_back(vm::normalize(vm::vec3f{-t, 0.0f, 1.0f}));
-
-  // 5 triangles around point 0
-  triangles.push_back(Triangle{0, 5, 11});
-  triangles.push_back(Triangle{0, 1, 5});
-  triangles.push_back(Triangle{0, 7, 1});
-  triangles.push_back(Triangle{0, 10, 7});
-  triangles.push_back(Triangle{0, 11, 10});
-
-  // 5 adjacent faces
-  triangles.push_back(Triangle{4, 11, 5});
-  triangles.push_back(Triangle{9, 5, 1});
-  triangles.push_back(Triangle{8, 1, 7});
-  triangles.push_back(Triangle{6, 7, 10});
-  triangles.push_back(Triangle{2, 10, 11});
-
-  // 5 faces around point 3
-  triangles.push_back(Triangle{3, 2, 4});
-  triangles.push_back(Triangle{3, 6, 2});
-  triangles.push_back(Triangle{3, 8, 6});
-  triangles.push_back(Triangle{3, 9, 8});
-  triangles.push_back(Triangle{3, 4, 9});
-
-  // 5 adjacent faces
-  triangles.push_back(Triangle{11, 4, 2});
-  triangles.push_back(Triangle{10, 2, 6});
-  triangles.push_back(Triangle{7, 6, 8});
-  triangles.push_back(Triangle{1, 8, 9});
-  triangles.push_back(Triangle{5, 9, 4});
-
-  // subdivide the icosahedron
-  MidPointCache cache;
-  for (size_t i = 0; i < iterations; ++i)
-  {
-    auto newTriangles = std::vector<Triangle>{};
-    newTriangles.reserve(triangles.size() * 4);
-
-    for (Triangle& triangle : triangles)
-    {
-      const auto index1 = midPoint(vertices, cache, triangle[0], triangle[1]);
-      const auto index2 = midPoint(vertices, cache, triangle[1], triangle[2]);
-      const auto index3 = midPoint(vertices, cache, triangle[2], triangle[0]);
-      newTriangles.push_back(Triangle{triangle[0], index1, index3});
-      newTriangles.push_back(Triangle{triangle[1], index2, index1});
-      newTriangles.push_back(Triangle{triangle[2], index3, index2});
-      newTriangles.push_back(Triangle{index1, index2, index3});
-    }
-    triangles = std::move(newTriangles);
-  }
+  const auto [vertices, triangles] = sphereMesh<float>(iterations);
 
   auto allVertices = std::vector<vm::vec3f>{};
   allVertices.reserve(3 * triangles.size());
@@ -476,7 +378,7 @@ VertsAndNormals circle3D(const float radius, const size_t segments)
   return {std::move(vertices), std::move(normals)};
 }
 
-VertsAndNormals cylinder3D(const float radius, const float length, const size_t segments)
+VertsAndNormals cylinder(const float radius, const float length, const size_t segments)
 {
   assert(radius > 0.0f);
   assert(length > 0.0f);
@@ -509,7 +411,7 @@ VertsAndNormals cylinder3D(const float radius, const float length, const size_t 
   return {std::move(vertices), std::move(normals)};
 }
 
-VertsAndNormals cone3D(const float radius, const float length, const size_t segments)
+VertsAndNormals cone(const float radius, const float length, const size_t segments)
 {
   assert(radius > 0.0f);
   assert(length > 0.0f);

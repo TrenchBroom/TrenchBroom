@@ -178,7 +178,7 @@ void GameFileSystem::addFileSystemPackages(
                                 mount("", std::move(fs));
                               });
                    })
-                 | kdl::fold();
+                 | kdl::fold;
         })
       | kdl::transform_error([&](auto e) {
           logger.error() << "Could not add file system packages: " << e.msg;

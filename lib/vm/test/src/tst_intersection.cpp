@@ -363,6 +363,22 @@ TEST_CASE("intersection.intersect_ray_torus")
     == std::nullopt);
 }
 
+TEST_CASE("intersection.intersect_line_line")
+{
+  CER_CHECK(
+    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{0, 1}})
+    == std::nullopt);
+  CER_CHECK(
+    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{1, 0}, vec2d{0, 1}})
+    == std::nullopt);
+  CER_CHECK(
+    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 0}, vec2d{1, 0}})
+    == 0.0);
+  CER_CHECK(
+    intersect_line_line(line{vec2d{0, 0}, vec2d{0, 1}}, line{vec2d{0, 1}, vec2d{1, 0}})
+    == 1.0);
+}
+
 TEST_CASE("intersection.intersect_line_plane")
 {
   constexpr auto p = plane3f(5.0f, vec3f::pos_z());

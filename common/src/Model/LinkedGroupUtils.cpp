@@ -252,7 +252,7 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
              return cloneAndTransformRecursive(
                childNode, origNodeToTransformedContents, worldBounds);
            })
-         | kdl::fold() | kdl::transform([&](auto childClones) {
+         | kdl::fold | kdl::transform([&](auto childClones) {
              for (auto& childClone : childClones)
              {
                clone->addChild(childClone.release());
@@ -312,7 +312,7 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
         }));
     });
 
-  return std::move(transformResults) | kdl::fold()
+  return std::move(transformResults) | kdl::fold
          | kdl::or_else(
            [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
              return Error{"Failed to transform a linked node"};
@@ -335,7 +335,7 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
                         return cloneAndTransformRecursive(
                           childNode, resultsMap, worldBounds);
                       })
-                    | kdl::fold();
+                    | kdl::fold;
            });
 }
 
@@ -494,7 +494,7 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
                           static_cast<Node*>(targetGroupNode), std::move(newChildren)};
                       });
            })
-         | kdl::fold();
+         | kdl::fold;
 }
 
 namespace
@@ -574,7 +574,7 @@ Result<void> visitChildrenPerPosition(
              auto& [sourceChild, targetChild] = childPair;
              return visitNodesPerPosition(*sourceChild, *targetChild, f);
            })
-         | kdl::fold();
+         | kdl::fold;
 }
 
 Result<void> copyLinkIds(
@@ -616,7 +616,7 @@ Result<std::unordered_map<Node*, std::string>> copyLinkIds(
            [&](auto* targetGroupNode) {
              return copyLinkIds(sourceGroupNode, *targetGroupNode, linkIds);
            })
-         | kdl::fold() | kdl::transform([&]() { return std::move(linkIds); });
+         | kdl::fold | kdl::transform([&]() { return std::move(linkIds); });
 }
 
 template <typename R>
