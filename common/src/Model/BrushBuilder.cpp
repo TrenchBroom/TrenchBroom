@@ -42,22 +42,6 @@
 
 namespace TrenchBroom::Model
 {
-namespace
-{
-auto createFromFaces(
-  const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>& specs,
-  const vm::bbox3& worldBounds,
-  const MapFormat mapFormat)
-{
-  return specs | std::views::transform([&](const auto spec) {
-           const auto& [p1, p2, p3, attrs] = spec;
-           return BrushFace::create(p1, p2, p3, attrs, mapFormat);
-         })
-         | kdl::fold | kdl::and_then([&](auto faces) {
-             return Brush::create(worldBounds, std::move(faces));
-           });
-}
-} // namespace
 
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
   : m_mapFormat{mapFormat}
@@ -162,35 +146,47 @@ Result<Brush> BrushBuilder::createCuboid(
   const std::string& topMaterial,
   const std::string& bottomMaterial) const
 {
-  return createFromFaces(
-    {
-      {bounds.min,
-       bounds.min + vm::vec3::pos_y(),
-       bounds.min + vm::vec3::pos_z(),
-       {leftMaterial, m_defaultAttribs}}, // left
-      {bounds.max,
-       bounds.max + vm::vec3::pos_z(),
-       bounds.max + vm::vec3::pos_y(),
-       {rightMaterial, m_defaultAttribs}}, // right
-      {bounds.min,
-       bounds.min + vm::vec3::pos_z(),
-       bounds.min + vm::vec3::pos_x(),
-       {frontMaterial, m_defaultAttribs}}, // front
-      {bounds.max,
-       bounds.max + vm::vec3::pos_x(),
-       bounds.max + vm::vec3::pos_z(),
-       {backMaterial, m_defaultAttribs}}, // back
-      {bounds.max,
-       bounds.max + vm::vec3::pos_y(),
-       bounds.max + vm::vec3::pos_x(),
-       {topMaterial, m_defaultAttribs}}, // top
-      {bounds.min,
-       bounds.min + vm::vec3::pos_x(),
-       bounds.min + vm::vec3::pos_y(),
-       {bottomMaterial, m_defaultAttribs}}, // bottom
-    },
-    m_worldBounds,
-    m_mapFormat);
+  return std::vector{
+           BrushFace::create(
+             bounds.min,
+             bounds.min + vm::vec3::pos_y(),
+             bounds.min + vm::vec3::pos_z(),
+             {leftMaterial, m_defaultAttribs},
+             m_mapFormat), // left
+           BrushFace::create(
+             bounds.max,
+             bounds.max + vm::vec3::pos_z(),
+             bounds.max + vm::vec3::pos_y(),
+             {rightMaterial, m_defaultAttribs},
+             m_mapFormat), // right
+           BrushFace::create(
+             bounds.min,
+             bounds.min + vm::vec3::pos_z(),
+             bounds.min + vm::vec3::pos_x(),
+             {frontMaterial, m_defaultAttribs},
+             m_mapFormat), // front
+           BrushFace::create(
+             bounds.max,
+             bounds.max + vm::vec3::pos_x(),
+             bounds.max + vm::vec3::pos_z(),
+             {backMaterial, m_defaultAttribs},
+             m_mapFormat), // back
+           BrushFace::create(
+             bounds.max,
+             bounds.max + vm::vec3::pos_y(),
+             bounds.max + vm::vec3::pos_x(),
+             {topMaterial, m_defaultAttribs},
+             m_mapFormat), // top
+           BrushFace::create(
+             bounds.min,
+             bounds.min + vm::vec3::pos_x(),
+             bounds.min + vm::vec3::pos_y(),
+             {bottomMaterial, m_defaultAttribs},
+             m_mapFormat), // bottom
+         }
+         | kdl::fold | kdl::and_then([&](auto faces) {
+             return Brush::create(m_worldBounds, std::move(faces));
+           });
 }
 
 namespace
@@ -424,31 +420,122 @@ Result<Brush> BrushBuilder::createCone(
   return createBrush(vertices, textureName);
 }
 
+namespace
+{
+auto makeRing(const FloatType angle, const size_t numSides, const RadiusMode radiusMode)
+{
+  const auto r = std::sin(angle);
+  const auto z = std::cos(angle);
+  const auto circle = makeUnitCircle(numSides, radiusMode);
+  return circle
+         | std::views::transform(
+           [&, t = vm::scaling_matrix(vm::vec2{r, r})](const auto& v) {
+             return vm::vec3{t * v, z};
+           })
+         | kdl::to_vector;
+}
+
+} // namespace
+
+Result<Brush> BrushBuilder::createUVSphere(
+  const vm::bbox3& bounds,
+  const size_t numSides,
+  const size_t numRings,
+  const RadiusMode radiusMode,
+  const vm::axis::type axis,
+  const std::string& textureName) const
+{
+  const auto angleDelta = vm::C::pi() / (FloatType(numRings) + 1.0);
+  auto previousRing = makeRing(angleDelta, numSides, radiusMode);
+
+  auto faces = std::vector<Result<BrushFace>>{};
+
+  // top cone
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto p1 = vm::vec3{0, 0, 1};
+    const auto p2 = previousRing[(i + 1) % numSides];
+    const auto p3 = previousRing[(i + 0) % numSides];
+
+    faces.push_back(BrushFace::create(
+      p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}, m_mapFormat));
+  }
+
+  // // quad rings
+  for (size_t i = 0; i < numRings - 1; ++i)
+  {
+    auto currentRing = makeRing(FloatType(i + 2) * angleDelta, numSides, radiusMode);
+    for (size_t j = 0; j < numSides; ++j)
+    {
+      const auto p1 = currentRing[(j + 1) % numSides];
+      const auto p2 = currentRing[(j + 0) % numSides];
+      const auto p3 = previousRing[(j + 0) % numSides];
+
+      faces.push_back(BrushFace::create(
+        p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}, m_mapFormat));
+    }
+    previousRing = std::move(currentRing);
+  }
+
+  // bottom cone
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto p1 = vm::vec3{0, 0, -1};
+    const auto p2 = previousRing[(i + 0) % numSides];
+    const auto p3 = previousRing[(i + 1) % numSides];
+
+    faces.push_back(BrushFace::create(
+      p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}, m_mapFormat));
+  }
+
+  // ensure that the sphere fills the bounds when number or rings is equal
+  const auto centerRingRadius = std::sin(angleDelta * FloatType(numRings / 2));
+  const auto extraScale = numRings % 2 == 0 ? 1.0 / centerRingRadius : 1.0;
+
+  return std::move(faces) | kdl::fold | kdl::and_then([&](auto f) {
+           return Brush::create(m_worldBounds, std::move(f));
+         })
+         | kdl::and_then([&](auto b) {
+             const auto transform =
+               vm::translation_matrix(bounds.min) * vm::scaling_matrix(bounds.size())
+               * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
+               * vm::translation_matrix(vm::vec3{1, 1, 1})
+               * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
+               * vm::scaling_matrix(vm::vec3{extraScale, extraScale, 1.0});
+             return b.transform(m_worldBounds, transform, false)
+                    | kdl::transform([&]() { return std::move(b); });
+           });
+}
+
 Result<Brush> BrushBuilder::createIcoSphere(
   const vm::bbox3& bounds, const size_t iterations, const std::string& textureName) const
 {
   const auto [sphereVertices, sphereIndices] =
     Renderer::sphereMesh<FloatType>(iterations);
 
-  const auto specs =
-    sphereIndices
-    | std::views::transform(
-      [sphereVertices = sphereVertices, &textureName, this](const auto& face) {
-        const auto& p1 = sphereVertices[face[0]];
-        const auto& p2 = sphereVertices[face[1]];
-        const auto& p3 = sphereVertices[face[2]];
-        return std::tuple{p1, p2, p3, BrushFaceAttributes{textureName, m_defaultAttribs}};
-      })
-    | kdl::to_vector;
-
-  return createFromFaces(specs, m_worldBounds, m_mapFormat)
-         | kdl::and_then([&](auto brush) {
+  return sphereIndices
+         | std::views::transform(
+           [sphereVertices = sphereVertices, &textureName, this](const auto& face) {
+             const auto& p1 = sphereVertices[face[0]];
+             const auto& p2 = sphereVertices[face[1]];
+             const auto& p3 = sphereVertices[face[2]];
+             return BrushFace::create(
+               p1,
+               p2,
+               p3,
+               BrushFaceAttributes{textureName, m_defaultAttribs},
+               m_mapFormat);
+           })
+         | kdl::fold | kdl::and_then([&](auto f) {
+             return Brush::create(m_worldBounds, std::move(f));
+           })
+         | kdl::and_then([&](auto b) {
              const auto transform = vm::translation_matrix(bounds.min)
                                     * vm::scaling_matrix(bounds.size())
                                     * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
                                     * vm::translation_matrix(vm::vec3{1, 1, 1});
-             return brush.transform(m_worldBounds, transform, false)
-                    | kdl::transform([&]() { return std::move(brush); });
+             return b.transform(m_worldBounds, transform, false)
+                    | kdl::transform([&]() { return std::move(b); });
            });
 }
 

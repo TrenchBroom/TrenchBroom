@@ -110,6 +110,14 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  Result<Brush> createUVSphere(
+    const vm::bbox3& bounds,
+    size_t numSides,
+    size_t numRings,
+    RadiusMode radiusMode,
+    vm::axis::type axis,
+    const std::string& textureName) const;
+
   Result<Brush> createIcoSphere(
     const vm::bbox3& bounds, size_t iterations, const std::string& textureName) const;
 
