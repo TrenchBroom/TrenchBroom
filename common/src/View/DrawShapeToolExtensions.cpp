@@ -228,8 +228,8 @@ Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
-DrawShapeToolSpheroidShapeExtensionPage::DrawShapeToolSpheroidShapeExtensionPage(
-  SpheroidShapeParameters& parameters, QWidget* parent)
+DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPage(
+  IcoSphereShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
@@ -248,23 +248,23 @@ DrawShapeToolSpheroidShapeExtensionPage::DrawShapeToolSpheroidShapeExtensionPage
   addWidget(accuracyBox);
 }
 
-DrawShapeToolSpheroidExtension::DrawShapeToolSpheroidExtension()
+DrawShapeToolIcoSphereExtension::DrawShapeToolIcoSphereExtension()
   : m_parameters{1}
 {
 }
 
-const std::string& DrawShapeToolSpheroidExtension::name() const
+const std::string& DrawShapeToolIcoSphereExtension::name() const
 {
-  static const auto name = std::string{"Spheroid"};
+  static const auto name = std::string{"Spheroid (Icosahedron)"};
   return name;
 }
 
-QWidget* DrawShapeToolSpheroidExtension::createToolPage(QWidget* parent)
+QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
 {
-  return new DrawShapeToolSpheroidShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolIcoSphereShapeExtensionPage{m_parameters, parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolSpheroidExtension::createBrushes(
+Result<std::vector<Model::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
   const vm::bbox3& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
@@ -278,13 +278,69 @@ Result<std::vector<Model::Brush>> DrawShapeToolSpheroidExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage(
+  UVSphereShapeParameters& parameters, QWidget* parent)
+  : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
+  , m_parameters{parameters}
+{
+  auto* numRingsLabel = new QLabel{tr("Number of Rings: ")};
+  auto* numRingsBox = new QSpinBox{};
+  numRingsBox->setRange(1, 256);
+  numRingsBox->setValue(int(m_parameters.numRings));
+
+  connect(
+    numRingsBox,
+    QOverload<int>::of(&QSpinBox::valueChanged),
+    this,
+    [&](const auto numRings) { m_parameters.numRings = size_t(numRings); });
+
+  addWidget(numRingsLabel);
+  addWidget(numRingsBox);
+}
+
+DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension()
+  : m_parameters{8, Model::RadiusMode::ToEdge, 8}
+{
+}
+
+const std::string& DrawShapeToolUVSphereExtension::name() const
+{
+  static const auto name = std::string{"Spheroid (UV)"};
+  return name;
+}
+
+QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)
+{
+  return new DrawShapeToolUVSphereShapeExtensionPage{m_parameters, parent};
+}
+
+Result<std::vector<Model::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
+  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+{
+  const auto game = document.game();
+  const auto builder = Model::BrushBuilder{
+    document.world()->mapFormat(),
+    document.worldBounds(),
+    game->config().faceAttribsConfig.defaults};
+  return builder
+    .createUVSphere(
+      bounds,
+      m_parameters.numSides,
+      m_parameters.numRings,
+      m_parameters.radiusMode,
+      axis,
+      document.currentMaterialName())
+    .transform([](auto brush) { return std::vector{std::move(brush)}; });
+}
+
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions()
 {
   auto result = std::vector<std::unique_ptr<DrawShapeToolExtension>>{};
   result.push_back(std::make_unique<DrawShapeToolCuboidExtension>());
   result.push_back(std::make_unique<DrawShapeToolCylinderExtension>());
   result.push_back(std::make_unique<DrawShapeToolConeExtension>());
-  result.push_back(std::make_unique<DrawShapeToolSpheroidExtension>());
+  result.push_back(std::make_unique<DrawShapeToolUVSphereExtension>());
+  result.push_back(std::make_unique<DrawShapeToolIcoSphereExtension>());
   return result;
 }
 

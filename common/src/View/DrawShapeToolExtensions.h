@@ -94,6 +94,7 @@ private:
 
   Q_OBJECT
 };
+
 class DrawShapeToolCylinderExtension : public DrawShapeToolExtension
 {
 public:
@@ -126,27 +127,27 @@ private:
   CircularShapeParameters m_parameters;
 };
 
-struct SpheroidShapeParameters
+struct IcoSphereShapeParameters
 {
   size_t accuracy;
 };
 
-class DrawShapeToolSpheroidShapeExtensionPage : public DrawShapeToolExtensionPage
+class DrawShapeToolIcoSphereShapeExtensionPage : public DrawShapeToolExtensionPage
 {
 public:
-  explicit DrawShapeToolSpheroidShapeExtensionPage(
-    SpheroidShapeParameters& parameters, QWidget* parent = nullptr);
+  explicit DrawShapeToolIcoSphereShapeExtensionPage(
+    IcoSphereShapeParameters& parameters, QWidget* parent = nullptr);
 
 private:
-  SpheroidShapeParameters& m_parameters;
+  IcoSphereShapeParameters& m_parameters;
 
   Q_OBJECT
 };
 
-class DrawShapeToolSpheroidExtension : public DrawShapeToolExtension
+class DrawShapeToolIcoSphereExtension : public DrawShapeToolExtension
 {
 public:
-  DrawShapeToolSpheroidExtension();
+  DrawShapeToolIcoSphereExtension();
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
@@ -156,7 +157,41 @@ public:
     const MapDocument& document) const override;
 
 private:
-  SpheroidShapeParameters m_parameters;
+  IcoSphereShapeParameters m_parameters;
+};
+
+struct UVSphereShapeParameters : public CircularShapeParameters
+{
+  size_t numRings;
+};
+
+class DrawShapeToolUVSphereShapeExtensionPage
+  : public DrawShapeToolCircularShapeExtensionPage
+{
+public:
+  explicit DrawShapeToolUVSphereShapeExtensionPage(
+    UVSphereShapeParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  UVSphereShapeParameters& m_parameters;
+
+  Q_OBJECT
+};
+
+class DrawShapeToolUVSphereExtension : public DrawShapeToolExtension
+{
+public:
+  DrawShapeToolUVSphereExtension();
+
+  const std::string& name() const override;
+  QWidget* createToolPage(QWidget* parent) override;
+  Result<std::vector<Model::Brush>> createBrushes(
+    const vm::bbox3& bounds,
+    vm::axis::type axis,
+    const MapDocument& document) const override;
+
+private:
+  UVSphereShapeParameters m_parameters;
 };
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions();
