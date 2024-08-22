@@ -162,8 +162,9 @@ public:
 private:
   GameFactory();
   Result<void> initializeFileSystem(const GamePathConfig& gamePathConfig);
-  Result<std::vector<std::string>> loadGameConfigs();
-  Result<void> loadGameConfig(const std::filesystem::path& path);
+  Result<std::vector<std::string>> loadGameConfigs(const GamePathConfig& gamePathConfig);
+  Result<void> loadGameConfig(
+    const GamePathConfig& gamePathConfig, const std::filesystem::path& path);
   void loadCompilationConfig(GameConfig& gameConfig);
   void loadGameEngineConfig(GameConfig& gameConfig);
 
