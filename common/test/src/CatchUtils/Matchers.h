@@ -42,11 +42,13 @@ namespace TrenchBroom
 template <typename M, typename T, typename... E>
 class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
 {
+  M m_makeMatcher;
   kdl::result<T, E...> m_expected;
 
 public:
-  explicit ResultMatcher(kdl::result<T, E...> expected)
-    : m_expected{std::move(expected)}
+  explicit ResultMatcher(M makeMatcher, kdl::result<T, E...> expected)
+    : m_makeMatcher{std::move(makeMatcher)}
+    , m_expected{std::move(expected)}
   {
   }
 
@@ -55,7 +57,7 @@ public:
     return m_expected.visit(kdl::overload(
       [&](const T& lhs) {
         return in.visit(kdl::overload(
-          [&](const T& rhs) { return M{lhs}.match(rhs); },
+          [&](const T& rhs) { return m_makeMatcher(lhs).match(rhs); },
           [](const auto&) { return false; }));
       },
       (
@@ -68,21 +70,28 @@ public:
 
   std::string describe() const override
   {
-    auto str = std::stringstream{};
-    str << "matches " << m_expected;
-    return str.str();
+    return m_expected.visit(kdl::overload(
+      [&](const T& lhs) { return m_makeMatcher(lhs).describe(); },
+      (
+        [&](const E& lhs) {
+          auto str = std::stringstream{};
+          str << "matches error " << lhs;
+          return str.str();
+        },
+        ...)));
   }
 };
 
 template <typename M, typename T, typename... E>
-auto MatchesResult(kdl::result<T, E...> expected)
+auto MatchesResult(M makeMatcher, kdl::result<T, E...> expected)
 {
-  return ResultMatcher<M, T, E...>{std::move(expected)};
+  return ResultMatcher<M, T, E...>{std::move(makeMatcher), std::move(expected)};
 }
 
 inline auto MatchesPathsResult(std::vector<std::filesystem::path> paths)
 {
-  return MatchesResult<decltype(Catch::UnorderedEquals(paths))>(
+  return MatchesResult(
+    [](auto&& x) { return Catch::UnorderedEquals(std::forward<decltype(x)>(x)); },
     Result<std::vector<std::filesystem::path>>{std::move(paths)});
 }
 
