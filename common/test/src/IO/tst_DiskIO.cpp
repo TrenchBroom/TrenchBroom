@@ -655,6 +655,107 @@ TEST_CASE("DiskIO")
     }
   }
 
+  SECTION("renameDirectory")
+  {
+    SECTION("rename non existing directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "does_not_exist") == PathInfo::Unknown);
+
+      CHECK_THAT(
+        Disk::renameDirectory(
+          env.dir() / "does_not_exist", env.dir() / "dir1/does_not_exist"),
+        MatchesAnyOf({
+          // macOS / Linux
+          Result<void>{Error{
+            "Failed to rename '" + (env.dir() / "does_not_exist").string() + "' to '"
+            + (env.dir() / "dir1/does_not_exist").string()
+            + "': No such file or directory"}},
+          // Windows
+          Result<void>{Error{
+            "Failed to rename '" + (env.dir() / "does_not_exist").string() + "' to '"
+            + (env.dir() / "dir1\\does_not_exist").string()
+            + "': The system cannot find the file specified."}},
+        }));
+    }
+
+    SECTION("rename file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+
+      CHECK(
+        Disk::renameDirectory(env.dir() / "test.txt", env.dir() / "dir1")
+        == Result<void>{Error{
+          "Failed to rename '" + (env.dir() / "test.txt").string()
+          + "': path denotes a file"}});
+      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+    }
+
+    SECTION("target is existing file")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      REQUIRE(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+
+      CHECK(
+        Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "test.txt")
+        == Result<void>{Error{
+          "Failed to rename '" + (env.dir() / "anotherDir").string() + "' to '"
+          + (env.dir() / "test.txt").string() + "': target path already exists"}});
+
+      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
+    }
+
+    SECTION("target is existing directory")
+    {
+      REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      REQUIRE(Disk::pathInfo(env.dir() / "dir1") == PathInfo::Directory);
+
+      CHECK(
+        Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1")
+        == Result<void>{Error{
+          "Failed to rename '" + (env.dir() / "anotherDir").string() + "' to '"
+          + (env.dir() / "dir1").string() + "': target path already exists"}});
+
+      CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+      CHECK(Disk::pathInfo(env.dir() / "dir1") == PathInfo::Directory);
+    }
+
+    SECTION("rename directory")
+    {
+      SECTION("when the directory can be created")
+      {
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+        REQUIRE(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Unknown);
+
+        CHECK(
+          Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
+          == Result<void>{});
+
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Unknown);
+        CHECK(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Directory);
+      }
+
+      SECTION("when the directory cannot be created")
+      {
+#ifndef _WIN32
+        // These tests don't work on Windows due to differences in permissions
+        REQUIRE(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+        REQUIRE(Disk::pathInfo(env.dir() / "dir1/newDir1") == PathInfo::Unknown);
+
+        const auto setPermissions =
+          SetPermissions{env.dir() / "dir1", std::filesystem::perms::owner_exec};
+
+        CHECK(
+          Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1/newDir1")
+          == Result<void>{Error{
+            "Failed to rename '" + (env.dir() / "anotherDir").string() + "' to '"
+            + (env.dir() / "dir1/newDir1").string() + "': Permission denied"}});
+        CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
+#endif
+      }
+    }
+  }
+
   SECTION("resolvePath")
   {
     const auto rootPaths =
