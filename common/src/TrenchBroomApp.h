@@ -35,10 +35,10 @@ class QTimer;
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
-class ExecutableEvent;
 class FrameManager;
 class RecentDocuments;
 class WelcomeWindow;
@@ -69,7 +69,7 @@ private:
   void loadStyle();
 
 public:
-  const std::vector<std::filesystem::path>& recentDocuments() const;
+  std::vector<std::filesystem::path> recentDocuments() const;
   void addRecentDocumentMenu(QMenu& menu);
   void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);
@@ -108,5 +108,5 @@ void setCrashReportGUIEnbled(bool guiEnabled);
   const std::string& stacktrace, const std::string& reason);
 bool isReportingCrash();
 
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

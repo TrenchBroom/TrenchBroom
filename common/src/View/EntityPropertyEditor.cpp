@@ -34,7 +34,7 @@
 #include "View/SmartPropertyEditorManager.h"
 #include "View/Splitter.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <algorithm>
 
@@ -285,6 +285,7 @@ void EntityPropertyEditor::createGui(std::weak_ptr<MapDocument> document)
 
   // should have enough vertical space for at least one row
   m_propertyGrid->setMinimumSize(100, 100);
+  m_smartEditorManager->setMinimumSize(100, 80);
   m_documentationText->setMinimumSize(100, 50);
   updateMinimumSize();
 

@@ -26,37 +26,17 @@
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/vec_io.h>
+#include "vm/scalar.h"
+#include "vm/vec_io.h"
 
 #include <ostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-ModelSpecification::ModelSpecification()
-  : path{""}
-  , skinIndex{0}
-  , frameIndex{0}
-{
-}
-
-ModelSpecification::ModelSpecification(
-  const std::filesystem::path& i_path,
-  const size_t i_skinIndex,
-  const size_t i_frameIndex)
-  : path{i_path}
-  , skinIndex{i_skinIndex}
-  , frameIndex{i_frameIndex}
-{
-}
-
-kdl_reflect_impl(ModelSpecification);
 
 ModelDefinition::ModelDefinition()
   : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
@@ -68,18 +48,17 @@ ModelDefinition::ModelDefinition(const size_t line, const size_t column)
 {
 }
 
-ModelDefinition::ModelDefinition(const EL::Expression& expression)
-  : m_expression{expression}
+ModelDefinition::ModelDefinition(EL::Expression expression)
+  : m_expression{std::move(expression)}
 {
 }
 
-void ModelDefinition::append(const ModelDefinition& other)
+void ModelDefinition::append(ModelDefinition other)
 {
   const size_t line = m_expression.line();
   const size_t column = m_expression.column();
 
-  auto cases = std::vector<EL::Expression>{std::move(m_expression), other.m_expression};
-
+  auto cases = std::vector{std::move(m_expression), std::move(other.m_expression)};
   m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
 }
 
@@ -240,5 +219,5 @@ vm::vec3 safeGetModelScale(
     return vm::vec3{1, 1, 1};
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -44,7 +44,7 @@ protected:
     std::vector<Model::GroupNode*> changedLinkedGroups = {});
 
 public:
-  virtual ~UpdateLinkedGroupsCommandBase();
+  ~UpdateLinkedGroupsCommandBase() override;
 
   std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
   std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document) override;

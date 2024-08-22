@@ -35,13 +35,13 @@
 #include "View/ScaleObjectsTool.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/polygon.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/intersection.h"
+#include "vm/polygon.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {
@@ -138,12 +138,12 @@ void ShearObjectsTool::pick3D(
   {
     const auto poly = polygonForBBoxSide(myBounds, side);
 
-    const auto dist =
-      vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly));
-    if (!vm::is_nan(dist))
+    if (
+      const auto dist =
+        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
-      localPickResult.addHit(Model::Hit(
-        ShearToolSideHitType, dist, vm::point_at_distance(pickRay, dist), side));
+      const auto hitPoint = vm::point_at_distance(pickRay, *dist);
+      localPickResult.addHit(Model::Hit(ShearToolSideHitType, *dist, hitPoint, side));
     }
   }
 

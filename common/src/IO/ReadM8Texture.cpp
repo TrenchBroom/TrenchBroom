@@ -26,7 +26,7 @@
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <iostream>
 #include <string>
@@ -43,15 +43,14 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader& reader)
+Result<Assets::Texture> readM8Texture(Reader& reader)
 {
   try
   {
     const auto version = reader.readInt<int32_t>();
     if (version != M8Layout::Version)
     {
-      return ReadTextureError{
-        std::move(name), "Unknown M8 texture version: " + std::to_string(version)};
+      return Error{"Unknown M8 texture version: " + std::to_string(version)};
     }
 
     reader.seekForward(M8Layout::TextureNameLength);
@@ -83,55 +82,55 @@ Result<Assets::Texture, ReadTextureError> readM8Texture(std::string name, Reader
     reader.seekForward(M8Layout::PaletteSize);
 
     return Assets::loadPalette(paletteReader, Assets::PaletteColorFormat::Rgb)
-      .and_then([&](const auto& palette) {
-        reader.seekForward(4); // flags
-        reader.seekForward(4); // contents
-        reader.seekForward(4); // value
+           | kdl::transform([&](const auto& palette) {
+               reader.seekForward(4); // flags
+               reader.seekForward(4); // contents
+               reader.seekForward(4); // value
 
-        auto mip0AverageColor = Color{};
-        auto buffers = Assets::TextureBufferList{};
-        for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
-        {
-          const auto w = widths[mipLevel];
-          const auto h = heights[mipLevel];
+               auto mip0AverageColor = Color{};
+               auto buffers = Assets::TextureBufferList{};
+               for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
+               {
+                 const auto w = widths[mipLevel];
+                 const auto h = heights[mipLevel];
 
-          if (w == 0 || h == 0)
-          {
-            break;
-          }
+                 if (w == 0 || h == 0)
+                 {
+                   break;
+                 }
 
-          reader.seekFromBegin(offsets[mipLevel]);
+                 reader.seekFromBegin(offsets[mipLevel]);
 
-          auto rgbaImage = Assets::TextureBuffer{4 * w * h};
+                 auto rgbaImage = Assets::TextureBuffer{4 * w * h};
 
-          auto averageColor = Color{};
-          palette.indexedToRgba(
-            reader, w * h, rgbaImage, Assets::PaletteTransparency::Opaque, averageColor);
-          buffers.emplace_back(std::move(rgbaImage));
+                 auto averageColor = Color{};
+                 palette.indexedToRgba(
+                   reader,
+                   w * h,
+                   rgbaImage,
+                   Assets::PaletteTransparency::Opaque,
+                   averageColor);
+                 buffers.emplace_back(std::move(rgbaImage));
 
-          if (mipLevel == 0)
-          {
-            mip0AverageColor = averageColor;
-          }
-        }
+                 if (mipLevel == 0)
+                 {
+                   mip0AverageColor = averageColor;
+                 }
+               }
 
-        return Result<Assets::Texture>{Assets::Texture{
-          std::move(name),
-          widths[0],
-          heights[0],
-          mip0AverageColor,
-          std::move(buffers),
-          GL_RGBA,
-          Assets::TextureType::Opaque}};
-      })
-      .or_else([&](const auto& error) {
-        return Result<Assets::Texture, ReadTextureError>{
-          ReadTextureError{std::move(name), error.msg}};
-      });
+               return Assets::Texture{
+                 widths[0],
+                 heights[0],
+                 mip0AverageColor,
+                 GL_RGBA,
+                 Assets::TextureMask::Off,
+                 Assets::NoEmbeddedDefaults{},
+                 std::move(buffers)};
+             });
   }
   catch (const ReaderException& e)
   {
-    return ReadTextureError{std::move(name), e.what()};
+    return Error{e.what()};
   }
 }
 

@@ -36,11 +36,11 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/result.h"
+#include "kdl/string_compare.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <string>
@@ -203,15 +203,12 @@ void ModEditor::preferenceDidChange(const std::filesystem::path& path)
 void ModEditor::updateAvailableMods()
 {
   auto document = kdl::mem_lock(m_document);
-  document->game()
-    ->availableMods()
-    .transform([&](auto availableMods) {
-      m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
-    })
-    .transform_error([&](auto e) {
-      m_availableMods.clear();
-      document->error() << "Could not update available mods: " << e.msg;
-    });
+  document->game()->availableMods() | kdl::transform([&](auto availableMods) {
+    m_availableMods = kdl::col_sort(std::move(availableMods), kdl::ci::string_less{});
+  }) | kdl::transform_error([&](auto e) {
+    m_availableMods.clear();
+    document->error() << "Could not update available mods: " << e.msg;
+  });
 }
 
 void ModEditor::updateMods()

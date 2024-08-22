@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "traits.h"
+#include "kdl/traits.h"
 
 #include <ostream>
 

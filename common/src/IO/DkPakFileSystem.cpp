@@ -24,8 +24,8 @@
 #include "IO/File.h"
 #include "IO/ReaderException.h"
 
-#include <kdl/result.h>
-#include <kdl/string_format.h>
+#include "kdl/result.h"
+#include "kdl/string_format.h"
 
 #include <cassert>
 #include <cstring>
@@ -140,10 +140,12 @@ Result<void> DkPakFileSystem::doReadDirectory()
           entryPath,
           [entryFile = std::move(entryFile),
            uncompressedSize]() -> Result<std::shared_ptr<File>> {
-            return decompress(entryFile, uncompressedSize).transform([&](auto data) {
-              return std::static_pointer_cast<File>(
-                std::make_shared<OwningBufferFile>(std::move(data), uncompressedSize));
-            });
+            return decompress(entryFile, uncompressedSize)
+                   | kdl::transform([&](auto data) {
+                       return std::static_pointer_cast<File>(
+                         std::make_shared<OwningBufferFile>(
+                           std::move(data), uncompressedSize));
+                     });
           });
       }
       else

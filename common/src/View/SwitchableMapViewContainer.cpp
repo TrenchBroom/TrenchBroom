@@ -40,7 +40,7 @@
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 namespace TrenchBroom::View
 {

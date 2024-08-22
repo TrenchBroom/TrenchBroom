@@ -27,14 +27,15 @@
 #include "Model/HitAdapter.h"
 #include "View/Grid.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/optional_utils.h"
+#include "kdl/reflection_impl.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/line.h>
-#include <vecmath/plane.h>
-#include <vecmath/quat.h>
-#include <vecmath/vec_io.h>
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/quat.h"
+#include "vm/vec_io.h"
 
 #include <ostream>
 
@@ -84,12 +85,10 @@ DragHandlePicker makePlaneHandlePicker(
 {
   return [plane = vm::plane3{plane.anchor() - handleOffset, plane.normal},
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3> {
-    const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
-    if (vm::is_nan(distance))
-    {
-      return std::nullopt;
-    }
-    return vm::point_at_distance(inputState.pickRay(), distance) + handleOffset;
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(inputState.pickRay(), plane), [&](const auto distance) {
+        return vm::point_at_distance(inputState.pickRay(), distance) + handleOffset;
+      });
   };
 }
 
@@ -102,15 +101,12 @@ DragHandlePicker makeCircleHandlePicker(
   return [center = center - handleOffset, normal, radius, handleOffset](
            const InputState& inputState) -> std::optional<vm::vec3> {
     const auto plane = vm::plane3{center, normal};
-    const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane);
-    if (vm::is_nan(distance))
-    {
-      return std::nullopt;
-    }
-
-    const auto hitPoint = vm::point_at_distance(inputState.pickRay(), distance);
-    const auto direction = vm::normalize(hitPoint - center);
-    return center + radius * direction + handleOffset;
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(inputState.pickRay(), plane), [&](const auto distance) {
+        const auto hitPoint = vm::point_at_distance(inputState.pickRay(), distance);
+        const auto direction = vm::normalize(hitPoint - center);
+        return center + radius * direction + handleOffset;
+      });
   };
 }
 

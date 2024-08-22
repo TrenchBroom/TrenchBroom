@@ -25,11 +25,11 @@
 #include "Model/BrushFace.h"
 #include "Polyhedron.h"
 
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
 
 #include <cassert>
 #include <string>
@@ -37,9 +37,9 @@
 namespace TrenchBroom::Model
 {
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
-  : m_mapFormat(mapFormat)
-  , m_worldBounds(worldBounds)
-  , m_defaultAttribs(BrushFaceAttributes::NoTextureName)
+  : m_mapFormat{mapFormat}
+  , m_worldBounds{worldBounds}
+  , m_defaultAttribs{BrushFaceAttributes::NoMaterialName}
 {
 }
 
@@ -47,159 +47,171 @@ BrushBuilder::BrushBuilder(
   const MapFormat mapFormat,
   const vm::bbox3& worldBounds,
   const BrushFaceAttributes& defaultAttribs)
-  : m_mapFormat(mapFormat)
-  , m_worldBounds(worldBounds)
-  , m_defaultAttribs(defaultAttribs)
+  : m_mapFormat{mapFormat}
+  , m_worldBounds{worldBounds}
+  , m_defaultAttribs{defaultAttribs}
 {
 }
 
 Result<Brush> BrushBuilder::createCube(
-  const FloatType size, const std::string& textureName) const
+  const FloatType size, const std::string& materialName) const
 {
   return createCuboid(
-    vm::bbox3(size / 2.0),
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName);
+    vm::bbox3{size / 2.0},
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCube(
   FloatType size,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   return createCuboid(
-    vm::bbox3(size / 2.0),
-    leftTexture,
-    rightTexture,
-    frontTexture,
-    backTexture,
-    topTexture,
-    bottomTexture);
+    vm::bbox3{size / 2.0},
+    leftMaterial,
+    rightMaterial,
+    frontMaterial,
+    backMaterial,
+    topMaterial,
+    bottomMaterial);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::vec3& size, const std::string& textureName) const
+  const vm::vec3& size, const std::string& materialName) const
 {
   return createCuboid(
-    vm::bbox3(-size / 2.0, size / 2.0),
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName,
-    textureName);
+    vm::bbox3{-size / 2.0, size / 2.0},
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
   const vm::vec3& size,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   return createCuboid(
-    vm::bbox3(-size / 2.0, size / 2.0),
-    leftTexture,
-    rightTexture,
-    frontTexture,
-    backTexture,
-    topTexture,
-    bottomTexture);
+    vm::bbox3{-size / 2.0, size / 2.0},
+    leftMaterial,
+    rightMaterial,
+    frontMaterial,
+    backMaterial,
+    topMaterial,
+    bottomMaterial);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::bbox3& bounds, const std::string& textureName) const
+  const vm::bbox3& bounds, const std::string& materialName) const
 {
   return createCuboid(
-    bounds, textureName, textureName, textureName, textureName, textureName, textureName);
+    bounds,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName,
+    materialName);
 }
 
 Result<Brush> BrushBuilder::createCuboid(
   const vm::bbox3& bounds,
-  const std::string& leftTexture,
-  const std::string& rightTexture,
-  const std::string& frontTexture,
-  const std::string& backTexture,
-  const std::string& topTexture,
-  const std::string& bottomTexture) const
+  const std::string& leftMaterial,
+  const std::string& rightMaterial,
+  const std::string& frontMaterial,
+  const std::string& backMaterial,
+  const std::string& topMaterial,
+  const std::string& bottomMaterial) const
 {
   const auto specs =
     std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3, BrushFaceAttributes>>({
       {bounds.min,
        bounds.min + vm::vec3::pos_y(),
        bounds.min + vm::vec3::pos_z(),
-       BrushFaceAttributes(leftTexture, m_defaultAttribs)}, // left
+       {leftMaterial, m_defaultAttribs}}, // left
       {bounds.max,
        bounds.max + vm::vec3::pos_z(),
        bounds.max + vm::vec3::pos_y(),
-       BrushFaceAttributes(rightTexture, m_defaultAttribs)}, // right
+       {rightMaterial, m_defaultAttribs}}, // right
       {bounds.min,
        bounds.min + vm::vec3::pos_z(),
        bounds.min + vm::vec3::pos_x(),
-       BrushFaceAttributes(frontTexture, m_defaultAttribs)}, // front
+       {frontMaterial, m_defaultAttribs}}, // front
       {bounds.max,
        bounds.max + vm::vec3::pos_x(),
        bounds.max + vm::vec3::pos_z(),
-       BrushFaceAttributes(backTexture, m_defaultAttribs)}, // back
+       {backMaterial, m_defaultAttribs}}, // back
       {bounds.max,
        bounds.max + vm::vec3::pos_y(),
        bounds.max + vm::vec3::pos_x(),
-       BrushFaceAttributes(topTexture, m_defaultAttribs)}, // top
+       {topMaterial, m_defaultAttribs}}, // top
       {bounds.min,
        bounds.min + vm::vec3::pos_x(),
        bounds.min + vm::vec3::pos_y(),
-       BrushFaceAttributes(bottomTexture, m_defaultAttribs)}, // bottom
+       {bottomMaterial, m_defaultAttribs}}, // bottom
     });
 
-  return kdl::fold_results(kdl::vec_transform(
-                             specs,
-                             [&](const auto spec) {
-                               const auto& [p1, p2, p3, attrs] = spec;
-                               return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
-                             }))
-    .and_then([&](auto faces) { return Brush::create(m_worldBounds, std::move(faces)); });
+  return kdl::vec_transform(
+           specs,
+           [&](const auto spec) {
+             const auto& [p1, p2, p3, attrs] = spec;
+             return BrushFace::create(p1, p2, p3, attrs, m_mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](auto faces) {
+             return Brush::create(m_worldBounds, std::move(faces));
+           });
 }
 
 Result<Brush> BrushBuilder::createBrush(
-  const std::vector<vm::vec3>& points, const std::string& textureName) const
+  const std::vector<vm::vec3>& points, const std::string& materialName) const
 {
-  return createBrush(Polyhedron3(points), textureName);
+  return createBrush(Polyhedron3{points}, materialName);
 }
 
 Result<Brush> BrushBuilder::createBrush(
-  const Polyhedron3& polyhedron, const std::string& textureName) const
+  const Polyhedron3& polyhedron, const std::string& materialName) const
 {
   assert(polyhedron.closed());
 
-  return kdl::fold_results(
-           kdl::vec_transform(
-             polyhedron.faces(),
-             [&](const auto* face) {
-               const auto& boundary = face->boundary();
+  return kdl::vec_transform(
+           polyhedron.faces(),
+           [&](const auto* face) {
+             const auto& boundary = face->boundary();
 
-               auto bIt = std::begin(boundary);
-               const auto* edge1 = *bIt++;
-               const auto* edge2 = *bIt++;
-               const auto* edge3 = *bIt++;
+             auto bIt = std::begin(boundary);
+             const auto* edge1 = *bIt++;
+             const auto* edge2 = *bIt++;
+             const auto* edge3 = *bIt++;
 
-               const auto& p1 = edge1->origin()->position();
-               const auto& p2 = edge2->origin()->position();
-               const auto& p3 = edge3->origin()->position();
+             const auto& p1 = edge1->origin()->position();
+             const auto& p2 = edge2->origin()->position();
+             const auto& p3 = edge3->origin()->position();
 
-               return BrushFace::create(
-                 p1, p3, p2, Model::BrushFaceAttributes(textureName), m_mapFormat);
-             }))
-    .and_then(
-      [&](auto&& faces) { return Brush::create(m_worldBounds, std::move(faces)); });
+             return BrushFace::create(
+               p1,
+               p3,
+               p2,
+               BrushFaceAttributes{materialName, m_defaultAttribs},
+               m_mapFormat);
+           })
+         | kdl::fold() | kdl::and_then([&](auto faces) {
+             return Brush::create(m_worldBounds, std::move(faces));
+           });
 }
 } // namespace TrenchBroom::Model

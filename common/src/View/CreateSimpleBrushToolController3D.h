@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "View/ToolController.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <memory>
 

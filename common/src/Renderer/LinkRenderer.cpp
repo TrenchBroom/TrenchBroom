@@ -27,14 +27,10 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-LinkRenderer::LinkRenderer()
-  : m_valid(false)
-{
-}
+
+LinkRenderer::LinkRenderer() = default;
 
 void LinkRenderer::render(RenderContext&, RenderBatch& renderBatch)
 {
@@ -66,7 +62,7 @@ void LinkRenderer::doRender(RenderContext& renderContext)
 
 void LinkRenderer::renderLines(RenderContext& renderContext)
 {
-  ActiveShader shader(renderContext.shaderManager(), Shaders::LinkLineShader);
+  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkLineShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
@@ -82,7 +78,7 @@ void LinkRenderer::renderLines(RenderContext& renderContext)
 
 void LinkRenderer::renderArrows(RenderContext& renderContext)
 {
-  ActiveShader shader(renderContext.shaderManager(), Shaders::LinkArrowShader);
+  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::LinkArrowShader};
   shader.set("CameraPosition", renderContext.camera().position());
   shader.set("IsOrtho", renderContext.camera().orthographicProjection());
   shader.set("MaxDistance", 6000.0f);
@@ -117,39 +113,33 @@ static std::vector<LinkRenderer::ArrowVertex> getArrows(
   auto arrows = std::vector<LinkRenderer::ArrowVertex>{};
   for (size_t i = 0; i < links.size(); i += 2)
   {
-    const LinkRenderer::LineVertex& startVertex = links[i];
-    const LinkRenderer::LineVertex& endVertex = links[i + 1];
+    const auto& startVertex = links[i];
+    const auto& endVertex = links[i + 1];
 
-    const vm::vec3f lineVec =
+    const auto lineVec =
       (getVertexComponent<0>(endVertex) - getVertexComponent<0>(startVertex));
-    const float lineLength = length(lineVec);
-    const vm::vec3f lineDir = lineVec / lineLength;
-    const vm::vec4f color = getVertexComponent<1>(startVertex);
+    const auto lineLength = length(lineVec);
+    const auto lineDir = lineVec / lineLength;
+    const auto color = getVertexComponent<1>(startVertex);
 
     if (lineLength < 512)
     {
-      const vm::vec3f arrowPosition =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+      const auto arrowPosition = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
       addArrow(arrows, color, arrowPosition, lineDir);
     }
     else if (lineLength < 1024)
     {
-      const vm::vec3f arrowPosition1 =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
-      const vm::vec3f arrowPosition2 =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
+      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.2f);
+      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.6f);
 
       addArrow(arrows, color, arrowPosition1, lineDir);
       addArrow(arrows, color, arrowPosition2, lineDir);
     }
     else
     {
-      const vm::vec3f arrowPosition1 =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
-      const vm::vec3f arrowPosition2 =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
-      const vm::vec3f arrowPosition3 =
-        getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
+      const auto arrowPosition1 = getVertexComponent<0>(startVertex) + (lineVec * 0.1f);
+      const auto arrowPosition2 = getVertexComponent<0>(startVertex) + (lineVec * 0.4f);
+      const auto arrowPosition3 = getVertexComponent<0>(startVertex) + (lineVec * 0.7f);
 
       addArrow(arrows, color, arrowPosition1, lineDir);
       addArrow(arrows, color, arrowPosition2, lineDir);
@@ -169,5 +159,5 @@ void LinkRenderer::validate()
 
   m_valid = true;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

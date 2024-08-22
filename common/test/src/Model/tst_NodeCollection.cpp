@@ -32,21 +32,20 @@
 #include "Model/NodeCollection.h"
 #include "Model/PatchNode.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
 
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-TEST_CASE("NodeCollectionTest.empty")
+
+TEST_CASE("NodeCollection.empty")
 {
   auto nodeCollection = NodeCollection{};
   CHECK(nodeCollection.empty());
@@ -76,14 +75,14 @@ TEST_CASE("NodeCollection.counts")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
@@ -103,14 +102,14 @@ TEST_CASE("NodeCollection.has")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -180,7 +179,7 @@ TEST_CASE("NodeCollection.has")
 
       SECTION("adding already nested brush")
       {
-        node->addChild(brushNode.clone(worldBounds));
+        node->addChild(brushNode.clone(worldBounds, SetLinkId::generate));
 
         nodeCollection.addNode(node);
         CHECK_FALSE(nodeCollection.hasBrushes());
@@ -193,7 +192,7 @@ TEST_CASE("NodeCollection.has")
         REQUIRE_FALSE(nodeCollection.hasBrushes());
         REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
 
-        node->addChild(brushNode.clone(worldBounds));
+        node->addChild(brushNode.clone(worldBounds, SetLinkId::generate));
         CHECK_FALSE(nodeCollection.hasBrushes());
         CHECK_FALSE(nodeCollection.hasOnlyBrushes());
       }
@@ -220,14 +219,14 @@ TEST_CASE("NodeCollection.iterators")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -252,14 +251,14 @@ TEST_CASE("NodeCollection.collections")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -298,11 +297,11 @@ TEST_CASE("NodeCollection.collections")
   SECTION("nested brushes")
   {
     auto* brushInLayer = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
     auto* brushInGroup = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
     auto* brushInEntity = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
     layerNode.addChild(brushInLayer);
     groupNode.addChild(brushInGroup);
@@ -318,14 +317,14 @@ TEST_CASE("NodeCollection.addNode")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -378,14 +377,14 @@ TEST_CASE("NodeCollection.addNodes")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -414,14 +413,14 @@ TEST_CASE("NodeCollection.removeNode")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -484,14 +483,14 @@ TEST_CASE("NodeCollection.clear")
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
-  auto brushNode =
-    BrushNode{BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "texture").value()};
+  auto brushNode = BrushNode{
+    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
 
   // clang-format off
   auto patchNode = PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   auto nodeCollection = NodeCollection{};
@@ -509,5 +508,5 @@ TEST_CASE("NodeCollection.clear")
   CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
   CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

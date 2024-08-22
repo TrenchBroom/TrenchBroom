@@ -244,6 +244,7 @@ class [[nodiscard]] result
 {
 public:
   using value_type = Value;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -879,7 +880,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -887,8 +888,8 @@ public:
   {
     return std::visit(
       overload(
-        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const value_type&) -> error_variant { throw bad_result_access{}; },
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -896,7 +897,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -904,8 +905,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](value_type&) -> error_variant { throw bad_result_access{}; },
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -913,7 +914,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -921,20 +922,26 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](value_type&&) -> error_variant { throw bad_result_access{}; },
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const { return m_value.index() == 0u; }
+  bool is_success() const
+  {
+    return m_value.index() == 0u;
+  }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -952,7 +959,10 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 
 template <typename... Values, typename... Errors>
@@ -960,6 +970,7 @@ class [[nodiscard]] result<multi_value<Values...>, Errors...>
 {
 public:
   using value_type = multi_value<Values...>;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -1484,7 +1495,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1492,8 +1503,8 @@ public:
   {
     return std::visit(
       overload(
-        [](const value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const value_type&) -> error_variant { throw bad_result_access{}; },
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -1501,7 +1512,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1509,8 +1520,8 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](value_type&) -> error_variant { throw bad_result_access{}; },
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -1518,7 +1529,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -1526,20 +1537,26 @@ public:
   {
     return std::visit(
       overload(
-        [](value_type&&) -> std::variant<Errors...> { throw bad_result_access{}; },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](value_type&&) -> error_variant { throw bad_result_access{}; },
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const { return m_value.index() == 0u; }
+  bool is_success() const
+  {
+    return m_value.index() == 0u;
+  }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -1557,7 +1574,10 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
 
 namespace detail
@@ -1588,6 +1608,7 @@ class result<void>
 {
 public:
   using value_type = void;
+  using error_variant = std::variant<>;
   static constexpr auto error_count = size_t{0};
 
   template <typename OtherValue>
@@ -1677,6 +1698,7 @@ class [[nodiscard]] result<void, Errors...>
 {
 public:
   using value_type = void;
+  using error_variant = std::variant<Errors...>;
   static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
 
   template <typename OtherValue>
@@ -2063,7 +2085,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2071,10 +2093,10 @@ public:
   {
     return std::visit(
       overload(
-        [](const detail::void_success_value_type&) -> std::variant<Errors...> {
+        [](const detail::void_success_value_type&) -> error_variant {
           throw bad_result_access{};
         },
-        [](const auto& e) -> std::variant<Errors...> { return e; }),
+        [](const auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -2082,7 +2104,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing a copy of the error in this result
+   * @return a variant containing a copy of the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2090,10 +2112,10 @@ public:
   {
     return std::visit(
       overload(
-        [](detail::void_success_value_type&) -> std::variant<Errors...> {
+        [](detail::void_success_value_type&) -> error_variant {
           throw bad_result_access{};
         },
-        [](auto& e) -> std::variant<Errors...> { return e; }),
+        [](auto& e) -> error_variant { return e; }),
       m_value);
   }
 
@@ -2101,7 +2123,7 @@ public:
    * Returns a the error contained in this result if it not successful. Otherwise,
    * throws `bad_result_access`.
    *
-   * @return a std::variant<Errors...> containing the error in this result
+   * @return a variant containing the error in this result
    *
    * @throw bad_result_access if this result is an error
    */
@@ -2109,10 +2131,10 @@ public:
   {
     return std::visit(
       overload(
-        [](detail::void_success_value_type&&) -> std::variant<Errors...> {
+        [](detail::void_success_value_type&&) -> error_variant {
           throw bad_result_access{};
         },
-        [](auto&& e) -> std::variant<Errors...> { return std::forward<decltype(e)>(e); }),
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); }),
       std::move(m_value));
   }
 
@@ -2127,7 +2149,10 @@ public:
   /**
    * Indicates whether this result contains an error.
    */
-  bool is_error() const { return !is_success(); }
+  bool is_error() const
+  {
+    return !is_success();
+  }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -2145,6 +2170,191 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+  friend bool operator!=(const result& lhs, const result& rhs)
+  {
+    return !(lhs == rhs);
+  }
 };
+
+template <typename R>
+struct result_join
+{
+  R join;
+};
+
+template <typename R>
+auto join(R r)
+{
+  return result_join<R>{std::move(r)};
+}
+
+template <typename R1, typename R2>
+auto operator|(R1&& r1, result_join<R2> r2)
+{
+  static_assert(is_result_v<std::decay_t<R1>>, "Can only pipe a result type");
+  return std::forward<R1>(r1).join(std::move(r2.join));
+}
+
+template <typename F>
+struct result_and_then
+{
+  F and_then;
+};
+
+template <typename F>
+auto and_then(F f)
+{
+  return result_and_then<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_and_then<F>& t)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).and_then(t.and_then);
+}
+
+template <typename F>
+struct result_or_else
+{
+  F or_else;
+};
+
+template <typename F>
+auto or_else(F f)
+{
+  return result_or_else<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_or_else<F>& t)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).or_else(t.or_else);
+}
+
+template <typename F>
+struct result_transform
+{
+  F transform;
+};
+
+template <typename F>
+auto transform(F f)
+{
+  return result_transform<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_transform<F>& t)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).transform(t.transform);
+}
+
+template <typename F>
+struct result_transform_error
+{
+  F transform_error;
+};
+
+template <typename F>
+auto transform_error(F f)
+{
+  return result_transform_error<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_transform_error<F>& t)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).transform_error(t.transform_error);
+}
+
+template <typename F>
+struct result_if_error
+{
+  F if_error;
+};
+
+template <typename F>
+auto if_error(F f)
+{
+  return result_if_error<F>{std::move(f)};
+}
+
+template <typename R, typename F>
+auto operator|(R&& r, const result_if_error<F>& i)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).if_error(i.if_error);
+}
+
+struct result_value
+{
+};
+
+inline result_value value()
+{
+  return result_value{};
+}
+
+template <typename R>
+auto operator|(R&& r, const result_value&)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).value();
+}
+
+template <typename T>
+struct result_value_or
+{
+  T m_alternative;
+};
+
+template <typename T>
+auto value_or(T alternative)
+{
+  return result_value_or<T>{std::move(alternative)};
+}
+
+template <typename R, typename T>
+auto operator|(R&& r, result_value_or<T> v)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).value_or(std::move(v.m_alternative));
+}
+
+struct result_error
+{
+};
+
+inline result_error error()
+{
+  return result_error{};
+}
+
+template <typename R>
+auto operator|(R&& r, const result_error&)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).error();
+}
+
+struct result_is_success
+{
+};
+
+inline result_is_success is_success()
+{
+  return result_is_success{};
+}
+
+template <typename R>
+auto operator|(R&& r, const result_is_success&)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+  return std::forward<R>(r).is_success();
+}
+
 } // namespace kdl

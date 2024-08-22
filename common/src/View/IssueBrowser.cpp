@@ -31,7 +31,7 @@
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 namespace TrenchBroom
 {

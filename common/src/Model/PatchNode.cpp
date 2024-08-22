@@ -26,27 +26,27 @@
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/zip_iterator.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/zip_iterator.h"
 
-#include <vecmath/bbox_io.h>
-#include <vecmath/intersection.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox_io.h"
+#include "vm/intersection.h"
+#include "vm/vec_io.h"
 
 #include <cassert>
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 constexpr static size_t DefaultSubdivisionsPerSurface = 3u;
 
 kdl_reflect_impl(PatchGrid::Point);
@@ -284,8 +284,8 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
   for (const auto [point, normal] : kdl::make_zip_range(patchGrid, normals))
   {
     const auto position = vm::slice<3>(point, 0);
-    const auto texCoords = vm::slice<2>(point, 3);
-    points.push_back(PatchGrid::Point{position, texCoords, normal});
+    const auto uvCoords = vm::slice<2>(point, 3);
+    points.push_back(PatchGrid::Point{position, uvCoords, normal});
     boundsBuilder.add(position);
   }
 
@@ -342,9 +342,9 @@ BezierPatch PatchNode::setPatch(BezierPatch patch)
   return previousPatch;
 }
 
-void PatchNode::setTexture(Assets::Texture* texture)
+void PatchNode::setMaterial(Assets::Material* material)
 {
-  m_patch.setTexture(texture);
+  m_patch.setMaterial(material);
 }
 
 const PatchGrid& PatchNode::grid() const
@@ -385,9 +385,11 @@ FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* PatchNode::doClone(const vm::bbox3&) const
+Node* PatchNode::doClone(const vm::bbox3&, const SetLinkId setLinkIds) const
 {
-  return new PatchNode(m_patch);
+  auto result = std::make_unique<PatchNode>(m_patch);
+  result->cloneLinkId(*this, setLinkIds);
+  return result.release();
 }
 
 bool PatchNode::doCanAddChild(const Node*) const
@@ -423,11 +425,10 @@ void PatchNode::doPick(
     return;
   }
   const auto pickTriangle = [&](const auto& p0, const auto& p1, const auto& p2) {
-    if (const auto distance = vm::intersect_ray_triangle(pickRay, p0, p1, p2);
-        !vm::is_nan(distance))
+    if (const auto distance = vm::intersect_ray_triangle(pickRay, p0, p1, p2))
     {
-      const auto hitPoint = vm::point_at_distance(pickRay, distance);
-      pickResult.addHit(Hit(PatchHitType, distance, hitPoint, this));
+      const auto hitPoint = vm::point_at_distance(pickRay, *distance);
+      pickResult.addHit(Hit(PatchHitType, *distance, hitPoint, this));
       return true;
     }
     return false;
@@ -486,5 +487,5 @@ void PatchNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

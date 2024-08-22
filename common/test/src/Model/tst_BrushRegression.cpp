@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -33,22 +33,24 @@
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 
-#include <kdl/intrusive_circular_list.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/intrusive_circular_list.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/polygon.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vm/approx.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
+#include "vm/vec_ext.h"
 
 #include <filesystem>
 #include <fstream>
 #include <string>
 #include <vector>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 
@@ -112,7 +114,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces")
                             vm::vec3(-161.0, 672.0, 128.0),
                             vm::vec3(-217.0, 672.0, 128.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 7u);
@@ -179,7 +181,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces2")
                             vm::vec3(3280.0, 1344.0, 1280.0),
                             vm::vec3(3280.0, 1152.0, 1280.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 9u);
@@ -228,7 +230,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces3")
                             vm::vec3(-32.0, -864.0, 896.0),
                             vm::vec3(-32.0, -832.0, 896.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -279,7 +281,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces4")
                             vm::vec3(-1268.0, 272.0, 2524.0),
                             vm::vec3(-1280.0, 265.0, 2534.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -332,7 +334,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces5")
                             vm::vec3(1280.0, 896.0, 1056.0),
                             vm::vec3(1296.0, 896.0, 1056.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 6u);
@@ -377,7 +379,7 @@ TEST_CASE("BrushTest.constructWithFailingFaces6")
                             vm::vec3(-96.0, -32.0, -3840.0),
                             vm::vec3(-80.0, -80.0, -3840.0)),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 5u);
@@ -448,7 +450,7 @@ TEST_CASE("BrushTest.constructBrushWithManySides")
                             vm::vec3(636.0, 812.0, -480.0),
                             "face22"),
                         })
-                        .value();
+                      | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   CHECK(brush.faceCount() == 8u);
@@ -528,7 +530,7 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail")
           vm::vec3(-729.68857812925364, -640, 1880.2734073044885),
           vm::vec3(-910.70791411300991, -640, 2061.2927432882443)),
       })
-      .value();
+    | kdl::value();
 
   CHECK(brush.fullySpecified());
 }
@@ -549,7 +551,7 @@ TEST_CASE("BrushTest.moveVertexFailing1")
   const vm::bbox3 worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(oldPositions, "texture").value();
+  Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
 
   for (size_t i = 0; i < oldPositions.size(); ++i)
   {
@@ -588,7 +590,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -654,8 +656,7 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
 
   IO::TestParserStatus status;
 
-  auto nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -677,7 +678,7 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
   kdl::col_delete_all(nodes);
 }
 
-TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
+TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
@@ -701,7 +702,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -720,46 +721,46 @@ TEST_CASE("BrushTest.removeVertexWithCorrectTextures_2082")
 
   const vm::vec3 p11(32.0, 0.0, 64.0);
 
-  // Make sure that the faces have the textures we expect before the vertex is deleted.
+  // Make sure that the faces have the materials we expect before the vertex is deleted.
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p7, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8, p7});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
-  assertTexture("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p7, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p7, p8, p11});
+  assertMaterial("*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   // delete the vertex
   CHECK(brush.canRemoveVertices(worldBounds, std::vector<vm::vec3d>{p7}));
   CHECK(brush.removeVertices(worldBounds, std::vector<vm::vec3d>{p7}).is_success());
 
-  // assert the structure and textures
+  // assert the structure and materials
 
   // side faces
-  assertTexture("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
-  assertTexture("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
-  assertTexture("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
-  assertTexture("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
-  assertTexture("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
+  assertMaterial("*04awater1", brush, std::vector<vm::vec3d>{p1, p2, p6});
+  assertMaterial("*04mwat1", brush, std::vector<vm::vec3d>{p2, p3, p8});
+  assertMaterial("*04mwat2", brush, std::vector<vm::vec3d>{p3, p4, p9, p8});
+  assertMaterial("*04water1", brush, std::vector<vm::vec3d>{p4, p5, p10, p9});
+  assertMaterial("*04water2", brush, std::vector<vm::vec3d>{p5, p1, p6, p11, p10});
 
   // bottom face
-  assertTexture("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
+  assertMaterial("*lava1", brush, std::vector<vm::vec3d>{p5, p4, p3, p2, p1});
 
   // top faces
-  assertTexture("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
-  assertTexture("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
-  assertTexture(
+  assertMaterial("*slime", brush, std::vector<vm::vec3d>{p6, p2, p11});
+  assertMaterial("*slime0", brush, std::vector<vm::vec3d>{p2, p8, p11});
+  assertMaterial(
     "*slime1", brush, std::vector<vm::vec3d>{p8, p9, p11}); // failure, becomes *slime0
-  assertTexture("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
+  assertMaterial("*teleport", brush, std::vector<vm::vec3d>{p9, p10, p11});
 
   kdl::col_delete_all(nodes);
 }
@@ -773,7 +774,7 @@ static void assertCannotSnapTo(const std::string& data, const FloatType gridSize
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -794,7 +795,7 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize)
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1285,8 +1286,7 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
 
   IO::TestParserStatus status;
 
-  auto nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   REQUIRE(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1339,7 +1339,7 @@ TEST_CASE("BrushTest.moveFaceFailure_1499")
   const vm::bbox3 worldBounds(8192.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
-  Brush brush = builder.createBrush(points, "asdf").value();
+  Brush brush = builder.createBrush(points, "asdf") | kdl::value();
 
   std::vector<vm::vec3> topFacePos;
   topFacePos.push_back(p1);
@@ -1377,7 +1377,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
 
   IO::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(!nodes.empty());
 
   std::vector<vm::vec3> points;
@@ -1445,7 +1445,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   IO::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(nodes.size() == 28);
 
   std::vector<vm::vec3> points;
@@ -1553,15 +1553,16 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
-  const auto result = kdl::fold_results(
-    minuend.subtract(MapFormat::Valve, worldBounds, "some_texture", subtrahend));
+  const auto result =
+    minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend)
+    | kdl::fold();
   CHECK_FALSE(result.is_error());
 
   kdl::col_delete_all(minuendNodes);
@@ -1589,15 +1590,15 @@ TEST_CASE("BrushTest.subtractDome")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto result =
-    minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend);
+    minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend);
 
   kdl::col_delete_all(minuendNodes);
   kdl::col_delete_all(subtrahendNodes);
@@ -1689,17 +1690,16 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
 
   const auto fragments =
-    kdl::fold_results(
-      minuend.subtract(MapFormat::Standard, worldBounds, "some_texture", subtrahend))
-      .value();
+    minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend)
+    | kdl::fold() | kdl::value();
   CHECK(fragments.size() == 8u);
 
   kdl::col_delete_all(minuendNodes);
@@ -1730,7 +1730,7 @@ TEST_CASE("BrushTest.healEdgesCrash")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1790,7 +1790,7 @@ TEST_CASE("BrushTest.healEdgesCrash2")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1932,7 +1932,7 @@ TEST_CASE("BrushTest.healEdgesCrash3")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1978,7 +1978,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail")
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
@@ -2030,7 +2030,7 @@ TEST_CASE("BrushTest.headEdgesFail")
 
   auto status = IO::TestParserStatus{};
   const auto nodes =
-    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, {}, status);
+    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 }
 } // namespace Model

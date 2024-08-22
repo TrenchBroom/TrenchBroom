@@ -67,7 +67,7 @@ public:
 
 protected:
   Result<std::vector<std::filesystem::path>> doFind(
-    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+    const std::filesystem::path& path, const TraversalMode& traversalMode) const override;
   Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 };
@@ -90,7 +90,7 @@ public:
 
 private:
   Result<std::vector<std::filesystem::path>> doFind(
-    const std::filesystem::path& path, TraversalMode traversalMode) const override;
+    const std::filesystem::path& path, const TraversalMode& traversalMode) const override;
   Result<std::shared_ptr<File>> doOpenFile(
     const std::filesystem::path& path) const override;
 

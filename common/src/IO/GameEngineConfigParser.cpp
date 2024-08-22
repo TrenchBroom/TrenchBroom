@@ -26,7 +26,7 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <memory>
 #include <string>

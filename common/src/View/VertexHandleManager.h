@@ -26,9 +26,9 @@
 #include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
-#include <vecmath/segment.h>
+#include "vm/segment.h"
 
 #include <iterator>
 #include <map>

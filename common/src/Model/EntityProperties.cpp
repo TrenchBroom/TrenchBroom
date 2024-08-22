@@ -21,9 +21,9 @@
 
 #include "Assets/EntityDefinition.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/vector_set.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/vector_set.h"
 
 #include <string>
 #include <vector>
@@ -38,6 +38,7 @@ const std::string Classname = "classname";
 const std::string Origin = "origin";
 const std::string Wad = "wad";
 const std::string Mods = "_tb_mod";
+const std::string EnabledMaterialCollections = "_tb_textures";
 const std::string Spawnflags = "spawnflags";
 const std::string EntityDefinitions = "_tb_def";
 const std::string Angle = "angle";
@@ -60,7 +61,7 @@ const std::string GroupId = "_tb_id";
 const std::string GroupName = "_tb_name";
 const std::string Group = "_tb_group";
 const std::string GroupTransformation = "_tb_transformation";
-const std::string LinkedGroupId = "_tb_linked_group_id";
+const std::string LinkId = "_tb_linked_group_id";
 const std::string Message = "_tb_message";
 const std::string ValveVersion = "mapversion";
 const std::string SoftMapBounds = "_tb_soft_map_bounds";

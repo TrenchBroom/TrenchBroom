@@ -25,10 +25,9 @@
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class DragTracker;
 class MapDocument;
 class UVViewHelper;
@@ -56,5 +55,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

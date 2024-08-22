@@ -21,7 +21,7 @@
 
 #include "Polyhedron.h"
 
-#include <kdl/intrusive_circular_list.h>
+#include "kdl/intrusive_circular_list.h"
 
 namespace TrenchBroom
 {

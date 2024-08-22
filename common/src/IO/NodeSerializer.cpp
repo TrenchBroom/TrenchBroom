@@ -28,11 +28,11 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/vec_io.h> // for Color stream output operator
+#include "vm/vec_io.h" // for Color stream output operator
 
 #include <fmt/format.h>
 
@@ -94,57 +94,47 @@ void NodeSerializer::defaultLayer(const Model::WorldNode& world)
   // object to worldspawn
   const Model::LayerNode* defaultLayerNode = world.defaultLayer();
   const Model::Layer& defaultLayer = defaultLayerNode->layer();
-  const auto& entityPropertyConfig = world.entityPropertyConfig();
   if (defaultLayer.color())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
-      Model::EntityPropertyKeys::LayerColor,
-      kdl::str_to_string(*defaultLayer.color()));
+      Model::EntityPropertyKeys::LayerColor, kdl::str_to_string(*defaultLayer.color()));
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerColor);
   }
 
   if (defaultLayerNode->lockState() == Model::LockState::Locked)
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerLocked,
       Model::EntityPropertyValues::LayerLockedValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerLocked);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerLocked);
   }
 
   if (defaultLayerNode->hidden())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerHidden,
       Model::EntityPropertyValues::LayerHiddenValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerHidden);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerHidden);
   }
 
   if (defaultLayer.omitFromExport())
   {
     worldEntity.addOrUpdateProperty(
-      entityPropertyConfig,
       Model::EntityPropertyKeys::LayerOmitFromExport,
       Model::EntityPropertyValues::LayerOmitFromExportValue);
   }
   else
   {
-    worldEntity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    worldEntity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   if (m_exporting && defaultLayer.omitFromExport())
@@ -353,13 +343,13 @@ std::vector<Model::EntityProperty> NodeSerializer::groupProperties(
       Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
   };
 
-  if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-  {
-    result.emplace_back(
-      Model::EntityPropertyKeys::LinkedGroupId, kdl::str_to_string(*linkedGroupId));
+  const auto& linkId = groupNode->linkId();
+  result.emplace_back(Model::EntityPropertyKeys::LinkId, kdl::str_to_string(linkId));
 
-    // write transformation matrix in column major format
-    const auto& transformation = groupNode->group().transformation();
+  // write transformation matrix in column major format
+  const auto& transformation = groupNode->group().transformation();
+  if (transformation != vm::mat4x4d::identity())
+  {
     const auto transformationStr = fmt::format(
       "{} {} {} {} {} {} {} {} {} {} {} {} {} {} {} {}",
       transformation[0][0],

@@ -30,28 +30,31 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
 
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+namespace
 {
+
 class TestIssue : public Issue
 {
 public:
-  TestIssue(Node& node)
+  explicit TestIssue(Node& node)
     : Issue{0, node, ""}
   {
   }
 };
+
+} // namespace
 
 TEST_CASE("Issue.addSelectableNodes")
 {
@@ -62,18 +65,20 @@ TEST_CASE("Issue.addSelectableNodes")
   auto* innerGroupNode = new GroupNode{Group{"inner"}};
   auto* pointEntityNode = new EntityNode{Entity{}};
   auto* brushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    | kdl::value()};
 
   auto* brushEntityNode = new EntityNode{Entity{}};
   auto* entityBrushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "texture").value()};
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "material")
+    | kdl::value()};
   brushEntityNode->addChild(entityBrushNode);
 
   // clang-format off
   auto* patchNode = new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
   // clang-format on
 
   outerGroupNode.addChildren(
@@ -125,5 +130,5 @@ TEST_CASE("Issue.addSelectableNodes")
     getSelectableNodes(TestIssue{*patchNode}),
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{patchNode}));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

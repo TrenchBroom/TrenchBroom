@@ -24,7 +24,7 @@
 #include "EL/Value.h"
 #include "IO/ParserStatus.h"
 
-#include <kdl/string_compare.h>
+#include "kdl/string_compare.h"
 
 #include <algorithm>
 #include <string>

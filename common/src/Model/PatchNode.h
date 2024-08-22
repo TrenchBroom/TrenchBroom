@@ -24,21 +24,19 @@
 #include "Model/Node.h"
 #include "Model/Object.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 
@@ -47,10 +45,10 @@ struct PatchGrid
   struct Point
   {
     vm::vec3 position;
-    vm::vec2 texCoords;
+    vm::vec2 uvCoords;
     vm::vec3 normal;
 
-    kdl_reflect_decl(Point, position, texCoords, normal);
+    kdl_reflect_decl(Point, position, uvCoords, normal);
   };
 
   size_t pointRowCount;
@@ -68,9 +66,9 @@ struct PatchGrid
 
 // public for testing
 std::vector<vm::vec3> computeGridNormals(
-  const std::vector<BezierPatch::Point> patchGrid,
-  const size_t pointRowCount,
-  const size_t pointColumnCount);
+  std::vector<BezierPatch::Point> patchGrid,
+  size_t pointRowCount,
+  size_t pointColumnCount);
 
 // public for testing
 PatchGrid makePatchGrid(const BezierPatch& patch, size_t subdivisionsPerSurface);
@@ -93,7 +91,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setTexture(Assets::Texture* texture);
+  void setMaterial(Assets::Material* material);
 
   const PatchGrid& grid() const;
 
@@ -104,7 +102,7 @@ private: // implement Node interface
 
   FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -132,5 +130,5 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(TagVisitor& visitor) override;
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -25,7 +25,7 @@
 #include "Preferences.h"
 #include "QtUtils.h"
 
-#include <kdl/path_utils.h>
+#include "kdl/path_utils.h"
 
 #include <filesystem>
 

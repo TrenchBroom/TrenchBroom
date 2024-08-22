@@ -25,11 +25,9 @@
 
 class QSplitter;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-class CollapsibleTitledPanel;
+
 class EntityBrowser;
 class EntityPropertyEditor;
 class GLContextManager;
@@ -39,10 +37,9 @@ class EntityInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  QSplitter* m_splitter;
-  EntityPropertyEditor* m_attributeEditor;
-  EntityBrowser* m_entityBrowser;
-  CollapsibleTitledPanel* m_entityDefinitionFileChooser;
+  QSplitter* m_splitter = nullptr;
+  EntityPropertyEditor* m_attributeEditor = nullptr;
+  EntityBrowser* m_entityBrowser = nullptr;
 
 public:
   EntityInspector(
@@ -58,8 +55,6 @@ private:
     QWidget* parent,
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager);
-  CollapsibleTitledPanel* createEntityDefinitionFileChooser(
-    QWidget* parent, std::weak_ptr<MapDocument> document);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -19,17 +19,23 @@
 
 #pragma once
 
-#include <iosfwd>
+#include "kdl/reflection_decl.h"
+
+#include <optional>
 
 namespace TrenchBroom::IO
 {
 
-enum class TraversalMode
+struct TraversalMode
 {
-  Flat,
-  Recursive
-};
+  std::optional<size_t> depth;
 
-std::ostream& operator<<(std::ostream& lhs, const TraversalMode& rhs);
+  static const TraversalMode Flat;
+  static const TraversalMode Recursive;
+
+  kdl_reflect_decl(TraversalMode, depth);
+
+  std::optional<TraversalMode> reduceDepth(size_t depthToSubtract) const;
+};
 
 } // namespace TrenchBroom::IO

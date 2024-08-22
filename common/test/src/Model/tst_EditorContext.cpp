@@ -35,11 +35,11 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
 
 #include <functional>
 #include <tuple>
@@ -81,7 +81,7 @@ public:
   std::tuple<EntityNode*, BrushNode*> createTopLevelBrushEntity()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* entityNode = new EntityNode{Entity{}};
     entityNode->addChild(brushNode);
     worldNode.defaultLayer()->addChild(entityNode);
@@ -94,7 +94,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* entityNode = new EntityNode{Entity{}};
@@ -106,7 +106,7 @@ public:
   BrushNode* createTopLevelBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     worldNode.defaultLayer()->addChild(brushNode);
     return brushNode;
   }
@@ -117,7 +117,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     worldNode.defaultLayer()->addChild(patchNode);
@@ -136,7 +136,7 @@ public:
   std::tuple<GroupNode*, BrushNode*> createGroupedBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
 
     groupNode->addChild(brushNode);
@@ -162,7 +162,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* groupNode = new GroupNode{Group{"somegroup"}};
@@ -176,7 +176,7 @@ public:
   std::tuple<GroupNode*, EntityNode*, BrushNode*> createGroupedBrushEntity()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* brushNode = new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* entityNode = new EntityNode{Entity{}};
     auto* groupNode = new GroupNode{Group{"somegroup"}};
 
@@ -193,7 +193,7 @@ public:
     auto* patchNode = new PatchNode{BezierPatch{3, 3, {
       {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
       {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "texture"}};
+      {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
     // clang-format on
 
     auto* entityNode = new EntityNode{Entity{}};
@@ -209,7 +209,8 @@ public:
   std::tuple<GroupNode*, GroupNode*, BrushNode*> createdNestedGroupedBrush()
   {
     BrushBuilder builder(worldNode.mapFormat(), worldBounds);
-    auto* innerBrushNode = new BrushNode{builder.createCube(32.0, "sometex").value()};
+    auto* innerBrushNode =
+      new BrushNode{builder.createCube(32.0, "sometex") | kdl::value()};
     auto* innerGroupNode = new GroupNode{Group{"inner"}};
     auto* outerGroupNode = new GroupNode{Group{"outer"}};
 

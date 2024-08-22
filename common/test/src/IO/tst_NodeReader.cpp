@@ -23,9 +23,9 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
-#include "Model/ParaxialTexCoordSystem.h"
+#include "Model/ParaxialUVCoordSystem.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include "Catch2.h"
 
@@ -43,8 +43,7 @@ TEST_CASE("NodeReaderTest.parseFaceAsNode")
 
   IO::TestParserStatus status;
 
-  CHECK(
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status).empty());
+  CHECK(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
 }
 
 TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
@@ -71,13 +70,13 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(brushNode != nullptr);
 
   Brush brush = brushNode->brush();
   CHECK(
-    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
     != nullptr);
 }
 
@@ -107,7 +106,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
   IO::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, {}, status);
+    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
 
   auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
   REQUIRE(groupNode != nullptr);
@@ -117,7 +116,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
 
   const Brush brush = brushNode->brush();
   CHECK(
-    dynamic_cast<const ParaxialTexCoordSystem*>(&brush.face(0).texCoordSystem())
+    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
     != nullptr);
 }
 
@@ -144,7 +143,7 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
   const auto worldBounds = vm::bbox3{4096.0};
   auto status = IO::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, {}, status);
+  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1);
 }
 } // namespace Model

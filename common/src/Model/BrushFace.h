@@ -27,27 +27,28 @@
 #include "Model/Tag.h" // BrushFace inherits from Taggable
 #include "Result.h"
 
-#include <kdl/reflection_decl.h>
-#include <kdl/transform_range.h>
+#include "kdl/reflection_decl.h"
+#include "kdl/transform_range.h"
 
-#include <vecmath/plane.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vm/plane.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <array>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 }
 
 namespace TrenchBroom::Model
 {
-class TexCoordSystem;
-class TexCoordSystemSnapshot;
+class UVCoordSystem;
+class UVCoordSystemSnapshot;
 enum class WrapStyle;
 enum class MapFormat;
 
@@ -92,8 +93,8 @@ private:
   vm::plane3 m_boundary;
   BrushFaceAttributes m_attributes;
 
-  Assets::AssetReference<Assets::Texture> m_textureReference;
-  std::unique_ptr<TexCoordSystem> m_texCoordSystem;
+  Assets::AssetReference<Assets::Material> m_materialReference;
+  std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry;
 
   mutable size_t m_lineNumber;
@@ -112,18 +113,18 @@ public:
 
   ~BrushFace();
 
-  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_textureReference);
+  kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_materialReference);
 
   /**
-   * Creates a face using TB's default texture projection for the given map format and the
+   * Creates a face using TB's default UV projection for the given map format and the
    * given plane.
    *
-   * Used when creating new faces when we don't have a particular texture alignment to
-   * request. On Valve format maps, this differs from createFromStandard() by creating a
-   * face-aligned texture projection, whereas createFromStandard() creates an axis-aligned
-   * texture projection.
+   * Used when creating new faces when we don't have a particular alignment to request.
+   * On Valve format maps, this differs from createFromStandard() by creating a
+   * face-aligned UV projection, whereas createFromStandard() creates an axis-aligned
+   * UV projection.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> create(
     const vm::vec3& point0,
@@ -133,12 +134,12 @@ public:
     MapFormat mapFormat);
 
   /**
-   * Creates a face from a Standard texture projection, converting it to Valve if
+   * Creates a face from a Standard UV projection, converting it to Valve if
    * necessary.
    *
    * Used when loading/pasting a Standard format map.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromStandard(
     const vm::vec3& point0,
@@ -148,20 +149,20 @@ public:
     MapFormat mapFormat);
 
   /**
-   * Creates a face from a Valve texture projection, converting it to Standard if
+   * Creates a face from a Valve UV projection, converting it to Standard if
    * necessary.
    *
    * Used when loading/pasting a Valve format map.
    *
-   * The returned face has a TexCoordSystem matching the given format.
+   * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromValve(
     const vm::vec3& point1,
     const vm::vec3& point2,
     const vm::vec3& point3,
     const BrushFaceAttributes& attributes,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis,
     MapFormat mapFormat);
 
   static Result<BrushFace> create(
@@ -169,20 +170,20 @@ public:
     const vm::vec3& point1,
     const vm::vec3& point2,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3& boundary,
     const BrushFaceAttributes& attributes,
-    std::unique_ptr<TexCoordSystem> texCoordSystem);
+    std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);
 
-  std::unique_ptr<TexCoordSystemSnapshot> takeTexCoordSystemSnapshot() const;
-  void restoreTexCoordSystemSnapshot(const TexCoordSystemSnapshot& coordSystemSnapshot);
-  void copyTexCoordSystemFromFace(
-    const TexCoordSystemSnapshot& coordSystemSnapshot,
+  std::unique_ptr<UVCoordSystemSnapshot> takeUVCoordSystemSnapshot() const;
+  void restoreUVCoordSystemSnapshot(const UVCoordSystemSnapshot& coordSystemSnapshot);
+  void copyUVCoordSystemFromFace(
+    const UVCoordSystemSnapshot& coordSystemSnapshot,
     const BrushFaceAttributes& attributes,
     const vm::plane3& sourceFacePlane,
     WrapStyle wrapStyle);
@@ -205,42 +206,42 @@ public:
   float resolvedSurfaceValue() const;
   Color resolvedColor() const;
 
-  void resetTexCoordSystemCache();
-  const TexCoordSystem& texCoordSystem() const;
+  void resetUVCoordSystemCache();
+  const UVCoordSystem& uvCoordSystem() const;
 
-  const Assets::Texture* texture() const;
+  const Assets::Material* material() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setTexture(Assets::Texture* texture);
+  bool setMaterial(Assets::Material* material);
 
-  vm::vec3 textureXAxis() const;
-  vm::vec3 textureYAxis() const;
-  void resetTextureAxes();
-  void resetTextureAxesToParaxial();
+  vm::vec3 uAxis() const;
+  vm::vec3 vAxis() const;
+  void resetUVAxes();
+  void resetUVAxesToParaxial();
 
   void convertToParaxial();
   void convertToParallel();
 
-  void moveTexture(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
-  void rotateTexture(float angle);
-  void shearTexture(const vm::vec2f& factors);
-  void flipTexture(
+  void moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
+  void rotateUV(float angle);
+  void shearUV(const vm::vec2f& factors);
+  void flipUV(
     const vm::vec3& cameraUp,
     const vm::vec3& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
-  Result<void> transform(const vm::mat4x4& transform, bool lockTexture);
+  Result<void> transform(const vm::mat4x4& transform, bool lockAlignment);
   void invert();
 
   Result<void> updatePointsFromVertices();
 
   vm::mat4x4 projectToBoundaryMatrix() const;
-  vm::mat4x4 toTexCoordSystemMatrix(
+  vm::mat4x4 toUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
-  vm::mat4x4 fromTexCoordSystemMatrix(
+  vm::mat4x4 fromUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
-  float measureTextureAngle(const vm::vec2f& center, const vm::vec2f& point) const;
+  float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
   EdgeList edges() const;
@@ -262,9 +263,9 @@ public:
   void select();
   void deselect();
 
-  vm::vec2f textureCoords(const vm::vec3& point) const;
+  vm::vec2f uvCoords(const vm::vec3& point) const;
 
-  FloatType intersectWithRay(const vm::ray3& ray) const;
+  std::optional<FloatType> intersectWithRay(const vm::ray3& ray) const;
 
 private:
   Result<void> setPoints(

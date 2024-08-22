@@ -24,7 +24,7 @@
 #include "View/Grid.h"
 #include "View/VertexTool.h"
 
-#include <vecmath/polygon.h>
+#include "vm/polygon.h"
 
 #include <memory>
 

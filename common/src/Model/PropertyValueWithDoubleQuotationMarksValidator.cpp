@@ -25,7 +25,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <string>
 #include <vector>

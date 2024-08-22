@@ -24,11 +24,11 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/plane_io.h>
+#include "vm/plane_io.h"
 
 #include <cassert>
 
@@ -60,7 +60,8 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
   const std::vector<BrushFaceReference>& faceRefs)
 {
-  return kdl::fold_results(
-    kdl::vec_transform(faceRefs, [](const auto& faceRef) { return faceRef.resolve(); }));
+  return kdl::vec_transform(
+           faceRefs, [](const auto& faceRef) { return faceRef.resolve(); })
+         | kdl::fold();
 }
 } // namespace TrenchBroom::Model

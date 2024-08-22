@@ -25,21 +25,19 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_utils.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <ostream>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 std::ostream& operator<<(std::ostream& lhs, const EntityRotationType& rhs)
@@ -123,7 +121,8 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
   EntityRotationUsage usage = EntityRotationUsage::Allowed;
 
   const auto* model = entity.model();
-  const auto pitchType = model ? model->pitchType() : Assets::PitchType::Normal;
+  const auto* modelData = model ? model->data() : nullptr;
+  const auto pitchType = modelData ? modelData->pitchType() : Assets::PitchType::Normal;
   const EntityRotationType eulerType =
     (pitchType == Assets::PitchType::MdlInverted
        ? EntityRotationType::Euler
@@ -401,10 +400,7 @@ std::optional<EntityProperty> applyEntityRotation(
   }
 }
 
-void applyEntityRotation(
-  Entity& entity,
-  const EntityPropertyConfig& propertyConfig,
-  const vm::mat4x4& transformation)
+void applyEntityRotation(Entity& entity, const vm::mat4x4& transformation)
 {
   const auto info = entityRotationInfo(entity);
 
@@ -412,10 +408,8 @@ void applyEntityRotation(
     const auto entityProperty =
       applyEntityRotation(entity.properties(), info, transformation))
   {
-    entity.addOrUpdateProperty(
-      propertyConfig, entityProperty->key(), entityProperty->value());
+    entity.addOrUpdateProperty(entityProperty->key(), entityProperty->value());
   }
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

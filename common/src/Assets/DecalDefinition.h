@@ -21,9 +21,9 @@
 
 #include "EL/Expression.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <iosfwd>
 
@@ -32,14 +32,14 @@ namespace TrenchBroom::Assets
 
 namespace DecalSpecificationKeys
 {
-constexpr auto Texture = "texture";
+constexpr auto Material = "texture";
 } // namespace DecalSpecificationKeys
 
 struct DecalSpecification
 {
-  std::string textureName;
+  std::string materialName;
 
-  kdl_reflect_decl(DecalSpecification, textureName);
+  kdl_reflect_decl(DecalSpecification, materialName);
 };
 
 class DecalDefinition

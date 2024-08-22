@@ -19,51 +19,41 @@
 
 #include "CachingLogger.h"
 
-#include <string>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
+void CachingLogger::setParentLogger(Logger* parentLogger)
 {
-namespace View
-{
-CachingLogger::Message::Message(const LogLevel i_level, const QString& i_str)
-  : level(i_level)
-  , str(i_str)
-{
-}
+  const auto lock = std::lock_guard{m_cacheMutex};
 
-CachingLogger::CachingLogger()
-  : m_logger(nullptr)
-{
-}
-
-void CachingLogger::setParentLogger(Logger* logger)
-{
-  m_logger = logger;
-  if (m_logger != nullptr)
+  m_parentLogger = parentLogger;
+  if (m_parentLogger)
   {
-    for (const Message& message : m_cachedMessages)
-    {
-      log(message.level, message.str);
-    }
-    m_cachedMessages.clear();
+    m_cache.getCachedMessages([this](const auto level, const auto& message) {
+      m_parentLogger->log(level, message);
+    });
   }
 }
 
-void CachingLogger::doLog(const LogLevel level, const std::string& message)
+void CachingLogger::doLog(const LogLevel level, const std::string_view message)
 {
-  doLog(level, QString::fromStdString(message));
+  if (!cacheMessage(level, message))
+  {
+    m_parentLogger->log(level, message);
+  }
 }
 
-void CachingLogger::doLog(const LogLevel level, const QString& message)
+bool CachingLogger::cacheMessage(const LogLevel level, const std::string_view message)
 {
-  if (m_logger == nullptr)
+  auto lock = std::lock_guard{m_cacheMutex};
+
+  if (!m_parentLogger)
   {
-    m_cachedMessages.push_back(Message(level, message));
+    m_cache.cacheMessage(level, message);
+    return true;
   }
-  else
-  {
-    m_logger->log(level, message);
-  }
+
+  return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

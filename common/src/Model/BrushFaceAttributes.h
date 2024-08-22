@@ -21,35 +21,33 @@
 
 #include "Color.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <optional>
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 
 class BrushFaceAttributes
 {
 public:
-  static const std::string NoTextureName;
+  static const std::string NoMaterialName;
 
 private:
-  std::string m_textureName;
+  std::string m_materialName;
 
-  vm::vec2f m_offset;
-  vm::vec2f m_scale;
-  float m_rotation;
+  vm::vec2f m_offset = vm::vec2f::zero();
+  vm::vec2f m_scale = vm::vec2f::one();
+  float m_rotation = 0.0f;
 
   std::optional<int> m_surfaceContents;
   std::optional<int> m_surfaceFlags;
@@ -58,15 +56,12 @@ private:
   std::optional<Color> m_color;
 
 public:
-  explicit BrushFaceAttributes(std::string_view textureName);
-  BrushFaceAttributes(const BrushFaceAttributes& other);
-  BrushFaceAttributes(std::string_view textureName, const BrushFaceAttributes& other);
-
-  BrushFaceAttributes& operator=(BrushFaceAttributes other);
+  explicit BrushFaceAttributes(std::string_view materialName);
+  BrushFaceAttributes(std::string_view materialName, const BrushFaceAttributes& other);
 
   kdl_reflect_decl(
     BrushFaceAttributes,
-    m_textureName,
+    m_materialName,
     m_offset,
     m_scale,
     m_rotation,
@@ -75,14 +70,12 @@ public:
     m_surfaceValue,
     m_color);
 
-  friend void swap(BrushFaceAttributes& lhs, BrushFaceAttributes& rhs);
-
-  const std::string& textureName() const;
+  const std::string& materialName() const;
 
   const vm::vec2f& offset() const;
   float xOffset() const;
   float yOffset() const;
-  vm::vec2f modOffset(const vm::vec2f& offset, const vm::vec2f& textureSize) const;
+  vm::vec2f modOffset(const vm::vec2f& offset, const vm::vec2f& size) const;
 
   const vm::vec2f& scale() const;
   float xScale() const;
@@ -100,7 +93,7 @@ public:
 
   bool valid() const;
 
-  bool setTextureName(const std::string& textureName);
+  bool setMaterialName(const std::string& materialName);
   bool setOffset(const vm::vec2f& offset);
   bool setXOffset(float xOffset);
   bool setYOffset(float yOffset);
@@ -114,5 +107,4 @@ public:
   bool setColor(const std::optional<Color>& color);
 };
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

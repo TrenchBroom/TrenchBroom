@@ -23,42 +23,41 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class ActiveShader;
 class Camera;
 class OrthographicCamera;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class UVViewHelper
 {
 private:
   Renderer::OrthographicCamera& m_camera;
-  bool m_zoomValid;
+  bool m_zoomValid = false;
 
   std::optional<Model::BrushFaceHandle> m_faceHandle;
 
-  vm::vec2i m_subDivisions;
+  vm::vec2i m_subDivisions = {1, 1};
 
   /**
    The position of the scaling origin / rotation center handle in world coords.
@@ -70,7 +69,7 @@ public:
 
   bool valid() const;
   const Model::BrushFace* face() const;
-  const Assets::Texture* texture() const;
+  const Assets::Material* material() const;
   void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 
@@ -80,19 +79,19 @@ public:
 
   const vm::vec3 origin() const;
   const vm::vec2f originInFaceCoords() const;
-  const vm::vec2f originInTexCoords() const;
+  const vm::vec2f originInUVCoords() const;
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
   const Renderer::OrthographicCamera& camera() const;
   float cameraZoom() const;
 
-  void pickTextureGrid(
+  void pickUVGrid(
     const vm::ray3& ray,
     const Model::HitType::Type hitTypes[2],
     Model::PickResult& pickResult) const;
 
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
-  vm::vec2f computeDistanceFromTextureGrid(const vm::vec3& position) const;
+  vm::vec2f computeDistanceFromUVGrid(const vm::vec3& position) const;
 
   void computeOriginHandleVertices(
     vm::vec3& x1, vm::vec3& x2, vm::vec3& y1, vm::vec3& y2) const;
@@ -108,9 +107,9 @@ public:
     const vm::mat4x4& toWorld) const;
 
   /**
-   * Converts texture space to view space (pixels in the UV viewport).
+   * Converts UV space to view space (pixels in the UV viewport).
    */
-  vm::vec2f texToViewCoords(const vm::vec2f& pos) const;
+  vm::vec2f uvToViewCoords(const vm::vec2f& pos) const;
 
 private:
   void resetOrigin();
@@ -121,5 +120,5 @@ private:
   vm::vec3 transformToCamera(const vm::vec3& point) const;
   vm::vec3 transformFromCamera(const vm::vec3& point) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

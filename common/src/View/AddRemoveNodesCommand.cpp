@@ -25,7 +25,7 @@
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/map_utils.h>
+#include "kdl/map_utils.h"
 
 #include <map>
 #include <vector>

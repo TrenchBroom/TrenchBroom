@@ -36,12 +36,6 @@ public:
   const char* what() const noexcept override;
 };
 
-class EntityAttributeException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class ParserException : public Exception
 {
 public:

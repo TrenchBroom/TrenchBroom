@@ -26,19 +26,15 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
-{
-namespace DefToken
+namespace TrenchBroom::IO::DefToken
 {
 using Type = unsigned int;
 static const Type Integer = 1 << 0;      // integer number
@@ -57,7 +53,10 @@ static const Type Comma = 1 << 13;       // comma: ,
 static const Type Equality = 1 << 14;    // equality sign: =
 static const Type Minus = 1 << 15;       // minus sign: -
 static const Type Eof = 1 << 16;         // end of file
-} // namespace DefToken
+} // namespace TrenchBroom::IO::DefToken
+
+namespace TrenchBroom::IO
+{
 
 class DefTokenizer : public Tokenizer<DefToken::Type>
 {
@@ -85,13 +84,14 @@ private:
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
   std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-  PropertyDefinitionPtr parseSpawnflags(ParserStatus& status);
+  std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(ParserStatus& status);
   void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
   bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
   void parseDefaultProperty(ParserStatus& status);
   std::string parseBaseProperty(ParserStatus& status);
-  PropertyDefinitionPtr parseChoicePropertyDefinition(ParserStatus& status);
+  std::unique_ptr<Assets::PropertyDefinition> parseChoicePropertyDefinition(
+    ParserStatus& status);
   Assets::ModelDefinition parseModelDefinition(ParserStatus& status);
 
   std::string parseDescription();
@@ -102,5 +102,5 @@ private:
 
   Token nextTokenIgnoringNewlines();
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

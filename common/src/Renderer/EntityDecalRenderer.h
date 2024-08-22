@@ -25,7 +25,7 @@
 #include "Renderer/FaceRenderer.h"
 #include "Renderer/Renderable.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <memory>
 #include <unordered_map>
@@ -33,7 +33,7 @@
 
 namespace TrenchBroom::Assets
 {
-class Texture;
+class Material;
 struct DecalSpecification;
 } // namespace TrenchBroom::Assets
 
@@ -63,7 +63,7 @@ private:
      * and the decal geometry is stored in the VBO */
     bool validated = false;
 
-    Assets::Texture* texture = nullptr;
+    Assets::Material* material = nullptr;
 
     AllocationTracker::Block* vertexHolderKey = nullptr;
     AllocationTracker::Block* faceIndicesKey = nullptr;
@@ -76,10 +76,10 @@ private:
   EntityWithDependenciesMap m_entities;
 
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
-  using TextureToBrushIndicesMap =
-    std::unordered_map<const Assets::Texture*, std::shared_ptr<BrushIndexArray>>;
+  using MaterialToBrushIndicesMap =
+    std::unordered_map<const Assets::Material*, std::shared_ptr<BrushIndexArray>>;
 
-  std::shared_ptr<TextureToBrushIndicesMap> m_faces;
+  std::shared_ptr<MaterialToBrushIndicesMap> m_faces;
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   FaceRenderer m_faceRenderer;
   Color m_faceColor;

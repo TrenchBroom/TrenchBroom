@@ -23,7 +23,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/NodeSerializer.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <array>
 #include <iosfwd>
@@ -33,22 +33,20 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ObjSerializer : public NodeSerializer
 {
@@ -84,15 +82,15 @@ public:
   struct IndexedVertex
   {
     size_t vertex;
-    size_t texCoords;
+    size_t uvCoords;
     size_t normal;
   };
 
   struct BrushFace
   {
     std::vector<IndexedVertex> verts;
-    std::string textureName;
-    const Assets::Texture* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   struct BrushObject
@@ -112,8 +110,8 @@ public:
     size_t entityNo;
     size_t patchNo;
     std::vector<PatchQuad> quads;
-    std::string textureName;
-    const Assets::Texture* texture;
+    std::string materialName;
+    const Assets::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;
@@ -132,7 +130,7 @@ private:
   ObjExportOptions m_options;
 
   IndexMap<vm::vec3> m_vertices;
-  IndexMap<vm::vec2f> m_texCoords;
+  IndexMap<vm::vec2f> m_uvCoords;
   IndexMap<vm::vec3> m_normals;
 
   std::optional<BrushObject> m_currentBrush;
@@ -158,5 +156,5 @@ private:
 
   void doPatch(const Model::PatchNode* patchNode) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

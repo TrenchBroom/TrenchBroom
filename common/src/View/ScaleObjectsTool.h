@@ -25,8 +25,8 @@
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
 #include <bitset>
 #include <memory>

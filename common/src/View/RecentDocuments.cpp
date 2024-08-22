@@ -27,7 +27,7 @@
 #include "Notifier.h"
 #include "View/QtUtils.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {
@@ -78,7 +78,7 @@ RecentDocuments::RecentDocuments(
   assert(m_maxSize > 0);
 }
 
-const std::vector<std::filesystem::path>& RecentDocuments::recentDocuments() const
+std::vector<std::filesystem::path> RecentDocuments::recentDocuments() const
 {
   return m_filteredDocuments;
 }

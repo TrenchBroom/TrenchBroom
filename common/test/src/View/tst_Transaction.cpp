@@ -22,7 +22,7 @@
 #include "Model/EntityNode.h"
 #include "TestUtils.h"
 
-#include <vecmath/mat_ext.h>
+#include "vm/mat_ext.h"
 
 #include "Catch2.h"
 

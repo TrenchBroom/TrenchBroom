@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 #include <cassert>
 #include <string>

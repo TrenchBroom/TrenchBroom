@@ -19,6 +19,8 @@
 
 #include "Quake3Shader.h"
 
+#include "kdl/reflection_impl.h"
+
 #include <string>
 
 namespace TrenchBroom
@@ -136,27 +138,8 @@ void Quake3ShaderStage::BlendFunc::reset()
   srcFactor = destFactor = "";
 }
 
-bool operator==(
-  const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs)
-{
-  return lhs.srcFactor == rhs.srcFactor && lhs.destFactor == rhs.destFactor;
-}
-
-bool operator!=(
-  const Quake3ShaderStage::BlendFunc& lhs, const Quake3ShaderStage::BlendFunc& rhs)
-{
-  return !(lhs == rhs);
-}
-
-bool operator==(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs)
-{
-  return lhs.map == rhs.map && lhs.blendFunc == rhs.blendFunc;
-}
-
-bool operator!=(const Quake3ShaderStage& lhs, const Quake3ShaderStage& rhs)
-{
-  return !(lhs == rhs);
-}
+kdl_reflect_impl(Quake3ShaderStage::BlendFunc);
+kdl_reflect_impl(Quake3ShaderStage);
 
 Quake3ShaderStage& Quake3Shader::addStage()
 {
@@ -164,16 +147,24 @@ Quake3ShaderStage& Quake3Shader::addStage()
   return stages.back();
 }
 
-bool operator==(const Quake3Shader& lhs, const Quake3Shader& rhs)
+kdl_reflect_impl(Quake3Shader);
+
+std::ostream& operator<<(std::ostream& lhs, const Quake3Shader::Culling rhs)
 {
-  return lhs.shaderPath == rhs.shaderPath && lhs.editorImage == rhs.editorImage
-         && lhs.lightImage == rhs.lightImage && lhs.culling == rhs.culling
-         && lhs.surfaceParms == rhs.surfaceParms && lhs.stages == rhs.stages;
+  switch (rhs)
+  {
+  case Quake3Shader::Culling::Front:
+    lhs << "Front";
+    break;
+  case Quake3Shader::Culling::Back:
+    lhs << "Back";
+    break;
+  case Quake3Shader::Culling::None:
+    lhs << "None";
+    break;
+  }
+  return lhs;
 }
 
-bool operator!=(const Quake3Shader& lhs, const Quake3Shader& rhs)
-{
-  return !(lhs == rhs);
-}
 } // namespace Assets
 } // namespace TrenchBroom

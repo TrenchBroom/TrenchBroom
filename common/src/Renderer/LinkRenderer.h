@@ -24,9 +24,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderContext;
 class RenderBatch;
@@ -41,6 +39,7 @@ public:
   {
     static inline const auto name = std::string{"arrowPosition"};
   };
+
   struct LineDirName
   {
     static inline const auto name = std::string{"lineDir"};
@@ -56,7 +55,7 @@ private:
   VertexArray m_lines;
   VertexArray m_arrows;
 
-  bool m_valid;
+  bool m_valid = false;
 
 public:
   LinkRenderer();
@@ -77,5 +76,5 @@ private:
 
   deleteCopy(LinkRenderer);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

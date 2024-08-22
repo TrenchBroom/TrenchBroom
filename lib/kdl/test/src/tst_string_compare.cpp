@@ -21,7 +21,7 @@
 #include "kdl/collection_utils.h"
 #include "kdl/string_compare.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {

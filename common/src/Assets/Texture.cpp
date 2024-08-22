@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,260 +19,213 @@
 
 #include "Texture.h"
 
-#include "Assets/TextureBuffer.h"
-#include "Assets/TextureCollection.h"
 #include "Macros.h"
-#include "Renderer/GL.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/vec_io.h>
-
-#include <algorithm> // for std::max
-#include <cassert>
-#include <ostream>
+#include "vm/vec_io.h"
 
 namespace TrenchBroom::Assets
 {
 
-std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
+namespace
 {
-  switch (rhs)
-  {
-  case TextureType::Opaque:
-    lhs << "Opaque";
-    break;
-  case TextureType::Masked:
-    lhs << "Masked";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
 
-std::ostream& operator<<(std::ostream& lhs, const TextureCulling& rhs)
-{
-  switch (rhs)
-  {
-  case TextureCulling::Default:
-    lhs << "Default";
-    break;
-  case TextureCulling::None:
-    lhs << "None";
-    break;
-  case TextureCulling::Front:
-    lhs << "Front";
-    break;
-  case TextureCulling::Back:
-    lhs << "Back";
-    break;
-  case TextureCulling::Both:
-    lhs << "Both";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
-
-kdl_reflect_impl(TextureBlendFunc);
-
-std::ostream& operator<<(std::ostream& lhs, const TextureBlendFunc::Enable& rhs)
-{
-  switch (rhs)
-  {
-  case TextureBlendFunc::Enable::UseDefault:
-    lhs << "UseDefault";
-    break;
-  case TextureBlendFunc::Enable::UseFactors:
-    lhs << "UseFactors";
-    break;
-  case TextureBlendFunc::Enable::DisableBlend:
-    lhs << "DisableBlend";
-    break;
-    switchDefault();
-  }
-  return lhs;
-}
-
-std::ostream& operator<<(std::ostream& lhs, const GameData& rhs)
-{
-  std::visit(
-    kdl::overload(
-      [&](const std::monostate&) { lhs << "std::monostate"; },
-      [&](const auto& x) { lhs << x; }),
-    rhs);
-  return lhs;
-}
-
-kdl_reflect_impl(Q2Data);
-
-kdl_reflect_impl(Texture);
-
-Texture::Texture(
-  std::string name,
+auto makeTextureLoadedState(
   const size_t width,
   const size_t height,
-  const Color& averageColor,
-  Buffer&& buffer,
   const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : m_name{std::move(name)}
-  , m_width{width}
-  , m_height{height}
-  , m_averageColor{averageColor}
-  , m_usageCount{0u}
-  , m_overridden{false}
-  , m_format{format}
-  , m_type{type}
-  , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
-  , m_textureId{0}
-  , m_gameData{std::move(gameData)}
+  std::vector<TextureBuffer> buffers)
 {
-  assert(m_width > 0);
-  assert(m_height > 0);
-  assert(buffer.size() >= m_width * m_height * bytesPerPixelForFormat(format));
-  m_buffers.push_back(std::move(buffer));
-}
-
-Texture::Texture(
-  std::string name,
-  const size_t width,
-  const size_t height,
-  const Color& averageColor,
-  BufferList buffers,
-  const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : m_name{std::move(name)}
-  , m_width{width}
-  , m_height{height}
-  , m_averageColor{averageColor}
-  , m_usageCount{0u}
-  , m_overridden{false}
-  , m_format{format}
-  , m_type{type}
-  , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
-  , m_textureId(0)
-  , m_buffers{std::move(buffers)}
-  , m_gameData{std::move(gameData)}
-{
-  assert(m_width > 0);
-  assert(m_height > 0);
-
   const auto compressed = isCompressedFormat(format);
   [[maybe_unused]] const auto bytesPerPixel =
     compressed ? 0U : bytesPerPixelForFormat(format);
   [[maybe_unused]] const auto blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
-  for (size_t level = 0; level < m_buffers.size(); ++level)
+  for (size_t level = 0; level < buffers.size(); ++level)
   {
-    [[maybe_unused]] const auto mipSize = sizeAtMipLevel(m_width, m_height, level);
+    [[maybe_unused]] const auto mipSize = sizeAtMipLevel(width, height, level);
     [[maybe_unused]] const auto numBytes =
       compressed ? (
         blockSize * std::max(size_t(1), mipSize.x() / 4)
         * std::max(size_t(1), mipSize.y() / 4))
                  : (bytesPerPixel * mipSize.x() * mipSize.y());
-    assert(m_buffers[level].size() >= numBytes);
+    assert(buffers[level].size() >= numBytes);
   }
+
+  return TextureLoadedState{std::move(buffers)};
+}
+
+auto uploadTexture(
+  const GLenum format,
+  const TextureMask mask,
+  const std::vector<TextureBuffer>& buffers,
+  const size_t width,
+  const size_t height)
+{
+  const auto compressed = isCompressedFormat(format);
+
+  auto textureId = GLuint(0);
+  glAssert(glGenTextures(1, &textureId));
+
+  glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
+  glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
+  glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
+  glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
+  glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
+  glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
+
+  glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
+  glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
+  glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
+
+  if (mask == TextureMask::On)
+  {
+    // masked textures don't work well with automatic mipmaps, so we force
+    // GL_NEAREST filtering and don't generate any
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  }
+  else if (buffers.size() == 1)
+  {
+    // generate mipmaps if we don't have any
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
+  }
+  else
+  {
+    glAssert(
+      glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, GLint(buffers.size() - 1)));
+  }
+
+  // Upload only the first mipmap for masked textures.
+  const auto mipmapsToUpload = (mask == TextureMask::On) ? 1u : buffers.size();
+
+  for (size_t j = 0; j < mipmapsToUpload; ++j)
+  {
+    const auto mipSize = sizeAtMipLevel(width, height, j);
+
+    const auto* data = reinterpret_cast<const GLvoid*>(buffers[j].data());
+    if (compressed)
+    {
+      const auto dataSize = GLsizei(buffers[j].size());
+
+      glAssert(glCompressedTexImage2D(
+        GL_TEXTURE_2D,
+        GLint(j),
+        format,
+        GLsizei(mipSize.x()),
+        GLsizei(mipSize.y()),
+        0,
+        dataSize,
+        data));
+    }
+    else
+    {
+      glAssert(glTexImage2D(
+        GL_TEXTURE_2D,
+        GLint(j),
+        GL_RGBA,
+        GLsizei(mipSize.x()),
+        GLsizei(mipSize.y()),
+        0,
+        format,
+        GL_UNSIGNED_BYTE,
+        data));
+    }
+  }
+
+  return textureId;
+}
+
+void dropTexture(GLuint textureId)
+{
+  glAssert(glDeleteTextures(1, &textureId));
+}
+
+} // namespace
+
+std::ostream& operator<<(std::ostream& lhs, const TextureMask& rhs)
+{
+  switch (rhs)
+  {
+  case TextureMask::On:
+    lhs << "On";
+    break;
+  case TextureMask::Off:
+    lhs << "Off";
+    break;
+    switchDefault();
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const EmbeddedDefaults& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
+}
+
+kdl_reflect_impl(NoEmbeddedDefaults);
+kdl_reflect_impl(Q2EmbeddedDefaults);
+
+kdl_reflect_impl(TextureLoadedState);
+kdl_reflect_impl(TextureReadyState);
+kdl_reflect_impl(TextureDroppedState);
+
+kdl_reflect_impl(Texture);
+
+Texture::Texture(
+  const size_t width,
+  const size_t height,
+  const Color averageColor,
+  const GLenum format,
+  const TextureMask mask,
+  EmbeddedDefaults embeddedDefaults,
+  std::vector<TextureBuffer> buffers)
+  : m_width{width}
+  , m_height{height}
+  , m_averageColor{averageColor}
+  , m_format{format}
+  , m_mask{mask}
+  , m_embeddedDefaults{std::move(embeddedDefaults)}
+  , m_state{makeTextureLoadedState(m_width, m_height, m_format, std::move(buffers))}
+{
+  assert(m_width > 0);
+  assert(m_height > 0);
 }
 
 Texture::Texture(
-  std::string name,
   const size_t width,
   const size_t height,
+  const Color averageColor,
   const GLenum format,
-  const TextureType type,
-  GameData gameData)
-  : m_name{std::move(name)}
-  , m_width{width}
-  , m_height{height}
-  , m_averageColor(Color(0.0f, 0.0f, 0.0f, 1.0f))
-  , m_usageCount{0u}
-  , m_overridden{false}
-  , m_format{format}
-  , m_type{type}
-  , m_culling{TextureCulling::Default}
-  , m_blendFunc{TextureBlendFunc::Enable::UseDefault, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA}
-  , m_textureId{0}
-  , m_gameData{std::move(gameData)}
+  const TextureMask mask,
+  EmbeddedDefaults embeddedDefaults,
+  TextureBuffer buffer)
+  : Texture{
+    width,
+    height,
+    averageColor,
+    format,
+    mask,
+    std::move(embeddedDefaults),
+    kdl::vec_from(std::move(buffer))}
 {
 }
 
-Texture::~Texture() = default;
-
-Texture::Texture(Texture&& other)
-  : m_name{std::move(other.m_name)}
-  , m_absolutePath{std::move(other.m_absolutePath)}
-  , m_relativePath{std::move(other.m_relativePath)}
-  , m_width{std::move(other.m_width)}
-  , m_height{std::move(other.m_height)}
-  , m_averageColor{std::move(other.m_averageColor)}
-  , m_usageCount{static_cast<size_t>(other.m_usageCount)}
-  , m_overridden{std::move(other.m_overridden)}
-  , m_format{std::move(other.m_format)}
-  , m_type{std::move(other.m_type)}
-  , m_surfaceParms{std::move(other.m_surfaceParms)}
-  , m_culling{std::move(other.m_culling)}
-  , m_blendFunc{std::move(other.m_blendFunc)}
-  , m_textureId{std::move(other.m_textureId)}
-  , m_buffers{std::move(other.m_buffers)}
-  , m_gameData{std::move(other.m_gameData)}
+Texture::Texture(size_t width, size_t height)
+  : Texture{
+    width,
+    height,
+    Color{0, 0, 0, 0},
+    GL_RGBA,
+    TextureMask::Off,
+    NoEmbeddedDefaults{},
+    std::vector<TextureBuffer>{}}
 {
-}
-
-Texture& Texture::operator=(Texture&& other)
-{
-  m_name = std::move(other.m_name);
-  m_absolutePath = std::move(other.m_absolutePath);
-  m_relativePath = std::move(other.m_relativePath);
-  m_width = std::move(other.m_width);
-  m_height = std::move(other.m_height);
-  m_averageColor = std::move(other.m_averageColor);
-  m_usageCount = static_cast<size_t>(other.m_usageCount);
-  m_overridden = std::move(other.m_overridden);
-  m_format = std::move(other.m_format);
-  m_type = std::move(other.m_type);
-  m_surfaceParms = std::move(other.m_surfaceParms);
-  m_culling = std::move(other.m_culling);
-  m_blendFunc = std::move(other.m_blendFunc);
-  m_textureId = std::move(other.m_textureId);
-  m_buffers = std::move(other.m_buffers);
-  m_gameData = std::move(other.m_gameData);
-  return *this;
-}
-
-TextureType Texture::selectTextureType(const bool masked)
-{
-  return masked ? TextureType::Masked : TextureType::Opaque;
-}
-
-const std::string& Texture::name() const
-{
-  return m_name;
-}
-
-const std::filesystem::path& Texture::absolutePath() const
-{
-  return m_absolutePath;
-}
-
-void Texture::setAbsolutePath(std::filesystem::path absolutePath)
-{
-  m_absolutePath = std::move(absolutePath);
-}
-
-const std::filesystem::path& Texture::relativePath() const
-{
-  return m_relativePath;
-}
-
-void Texture::setRelativePath(std::filesystem::path relativePath)
-{
-  m_relativePath = std::move(relativePath);
 }
 
 size_t Texture::width() const
@@ -285,263 +238,14 @@ size_t Texture::height() const
   return m_height;
 }
 
+vm::vec2f Texture::sizef() const
+{
+  return vm::vec2f(float(m_width), float(m_height));
+}
+
 const Color& Texture::averageColor() const
 {
   return m_averageColor;
-}
-
-bool Texture::masked() const
-{
-  return m_type == TextureType::Masked;
-}
-
-void Texture::setOpaque()
-{
-  m_type = TextureType::Opaque;
-}
-
-const std::set<std::string>& Texture::surfaceParms() const
-{
-  return m_surfaceParms;
-}
-
-void Texture::setSurfaceParms(std::set<std::string> surfaceParms)
-{
-  m_surfaceParms = std::move(surfaceParms);
-}
-
-TextureCulling Texture::culling() const
-{
-  return m_culling;
-}
-
-void Texture::setCulling(const TextureCulling culling)
-{
-  m_culling = culling;
-}
-
-void Texture::setBlendFunc(const GLenum srcFactor, const GLenum destFactor)
-{
-  m_blendFunc.enable = TextureBlendFunc::Enable::UseFactors;
-  m_blendFunc.srcFactor = srcFactor;
-  m_blendFunc.destFactor = destFactor;
-}
-
-void Texture::disableBlend()
-{
-  m_blendFunc.enable = TextureBlendFunc::Enable::DisableBlend;
-}
-
-const GameData& Texture::gameData() const
-{
-  return m_gameData;
-}
-
-size_t Texture::usageCount() const
-{
-  return static_cast<size_t>(m_usageCount);
-}
-
-void Texture::incUsageCount()
-{
-  ++m_usageCount;
-}
-
-void Texture::decUsageCount()
-{
-  const size_t previous = m_usageCount--;
-  assert(previous > 0);
-  unused(previous);
-}
-
-bool Texture::overridden() const
-{
-  return m_overridden;
-}
-
-void Texture::setOverridden(const bool overridden)
-{
-  m_overridden = overridden;
-}
-
-bool Texture::isPrepared() const
-{
-  return m_textureId != 0;
-}
-
-void Texture::prepare(const GLuint textureId, const int minFilter, const int magFilter)
-{
-  assert(textureId > 0);
-  assert(m_textureId == 0);
-
-  if (!m_buffers.empty())
-  {
-    const auto compressed = isCompressedFormat(m_format);
-
-    glAssert(glPixelStorei(GL_UNPACK_SWAP_BYTES, false));
-    glAssert(glPixelStorei(GL_UNPACK_LSB_FIRST, false));
-    glAssert(glPixelStorei(GL_UNPACK_ROW_LENGTH, 0));
-    glAssert(glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0));
-    glAssert(glPixelStorei(GL_UNPACK_SKIP_ROWS, 0));
-    glAssert(glPixelStorei(GL_UNPACK_ALIGNMENT, 1));
-
-    glAssert(glBindTexture(GL_TEXTURE_2D, textureId));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT));
-    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT));
-
-    if (m_type == TextureType::Masked)
-    {
-      // masked textures don't work well with automatic mipmaps, so we force
-      // GL_NEAREST filtering and don't generate any
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_FALSE));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    }
-    else if (m_buffers.size() == 1)
-    {
-      // generate mipmaps if we don't have any
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP, GL_TRUE));
-    }
-    else
-    {
-      glAssert(glTexParameteri(
-        GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, static_cast<GLint>(m_buffers.size() - 1)));
-    }
-
-    // Upload only the first mipmap for masked textures.
-    const auto mipmapsToUpload = (m_type == TextureType::Masked) ? 1u : m_buffers.size();
-
-    for (size_t j = 0; j < mipmapsToUpload; ++j)
-    {
-      const auto mipSize = sizeAtMipLevel(m_width, m_height, j);
-
-      const auto* data = reinterpret_cast<const GLvoid*>(m_buffers[j].data());
-      if (compressed)
-      {
-        const auto dataSize = static_cast<GLsizei>(m_buffers[j].size());
-
-        glAssert(glCompressedTexImage2D(
-          GL_TEXTURE_2D,
-          static_cast<GLint>(j),
-          m_format,
-          static_cast<GLsizei>(mipSize.x()),
-          static_cast<GLsizei>(mipSize.y()),
-          0,
-          dataSize,
-          data));
-      }
-      else
-      {
-        glAssert(glTexImage2D(
-          GL_TEXTURE_2D,
-          static_cast<GLint>(j),
-          GL_RGBA,
-          static_cast<GLsizei>(mipSize.x()),
-          static_cast<GLsizei>(mipSize.y()),
-          0,
-          m_format,
-          GL_UNSIGNED_BYTE,
-          data));
-      }
-    }
-
-    m_buffers.clear();
-    m_textureId = textureId;
-  }
-}
-
-void Texture::setMode(const int minFilter, const int magFilter)
-{
-  if (isPrepared())
-  {
-    activate();
-    if (m_type == TextureType::Masked)
-    {
-      // Force GL_NEAREST filtering for masked textures.
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
-    }
-    else
-    {
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
-      glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
-    }
-    deactivate();
-  }
-}
-
-void Texture::activate() const
-{
-  if (isPrepared())
-  {
-    glAssert(glBindTexture(GL_TEXTURE_2D, m_textureId));
-
-    switch (m_culling)
-    {
-    case Assets::TextureCulling::None:
-      glAssert(glDisable(GL_CULL_FACE));
-      break;
-    case Assets::TextureCulling::Front:
-      glAssert(glCullFace(GL_FRONT));
-      break;
-    case Assets::TextureCulling::Both:
-      glAssert(glCullFace(GL_FRONT_AND_BACK));
-      break;
-    case Assets::TextureCulling::Default:
-    case Assets::TextureCulling::Back:
-      break;
-    }
-
-    if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault)
-    {
-      glAssert(glPushAttrib(GL_COLOR_BUFFER_BIT));
-      if (m_blendFunc.enable == TextureBlendFunc::Enable::UseFactors)
-      {
-        glAssert(glBlendFunc(m_blendFunc.srcFactor, m_blendFunc.destFactor));
-      }
-      else
-      {
-        assert(m_blendFunc.enable == TextureBlendFunc::Enable::DisableBlend);
-        glAssert(glDisable(GL_BLEND));
-      }
-    }
-  }
-}
-
-void Texture::deactivate() const
-{
-  if (isPrepared())
-  {
-    if (m_blendFunc.enable != TextureBlendFunc::Enable::UseDefault)
-    {
-      glAssert(glPopAttrib());
-    }
-
-    switch (m_culling)
-    {
-    case Assets::TextureCulling::None:
-      glAssert(glEnable(GL_CULL_FACE));
-      break;
-    case Assets::TextureCulling::Front:
-      glAssert(glCullFace(GL_BACK));
-      break;
-    case Assets::TextureCulling::Both:
-      glAssert(glCullFace(GL_BACK));
-      break;
-    case Assets::TextureCulling::Default:
-    case Assets::TextureCulling::Back:
-      break;
-    }
-
-    glAssert(glBindTexture(GL_TEXTURE_2D, 0));
-  }
-}
-
-const Texture::BufferList& Texture::buffersIfUnprepared() const
-{
-  return m_buffers;
 }
 
 GLenum Texture::format() const
@@ -549,9 +253,116 @@ GLenum Texture::format() const
   return m_format;
 }
 
-TextureType Texture::type() const
+TextureMask Texture::mask() const
 {
-  return m_type;
+  return m_mask;
+}
+
+void Texture::setMask(const TextureMask mask)
+{
+  m_mask = mask;
+}
+
+const EmbeddedDefaults& Texture::embeddedDefaults() const
+{
+  return m_embeddedDefaults;
+}
+
+bool Texture::isReady() const
+{
+  return std::holds_alternative<TextureReadyState>(m_state);
+}
+
+bool Texture::activate(const int minFilter, const int magFilter) const
+{
+  return std::visit(
+    kdl::overload(
+      [](const TextureLoadedState&) { return false; },
+      [&](const TextureReadyState& readyState) {
+        glAssert(glBindTexture(GL_TEXTURE_2D, readyState.textureId));
+        setFilterMode(minFilter, magFilter);
+        return true;
+      },
+      [](const TextureDroppedState&) { return false; }),
+    m_state);
+}
+
+bool Texture::deactivate() const
+{
+  if (isReady())
+  {
+    glAssert(glBindTexture(GL_TEXTURE_2D, 0));
+    return true;
+  }
+
+  return false;
+}
+
+void Texture::upload(const bool glContextAvailable)
+{
+  m_state = std::visit(
+    kdl::overload(
+      [&](const TextureLoadedState& textureLoadedState) -> TextureState {
+        const auto textureId =
+          glContextAvailable ? uploadTexture(
+            m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
+                             : 0;
+        return TextureReadyState{textureId};
+      },
+      [](TextureReadyState textureReadyState) -> TextureState {
+        return textureReadyState;
+      },
+      [](TextureDroppedState textureDroppedState) -> TextureState {
+        return textureDroppedState;
+      }),
+    std::move(m_state));
+}
+
+void Texture::drop(const bool glContextAvailable)
+{
+  m_state = std::visit(
+    kdl::overload(
+      [&](const TextureLoadedState&) { return TextureDroppedState{}; },
+      [&](const TextureReadyState& textureReadyState) {
+        if (glContextAvailable)
+        {
+          dropTexture(textureReadyState.textureId);
+        }
+        return TextureDroppedState{};
+      },
+      [](TextureDroppedState textureDroppedState) { return textureDroppedState; }),
+    std::move(m_state));
+}
+
+const std::vector<TextureBuffer>& Texture::buffersIfLoaded() const
+{
+  static const auto empty = std::vector<TextureBuffer>{};
+  return std::visit(
+    kdl::overload(
+      [](const TextureLoadedState& state) -> const std::vector<TextureBuffer>& {
+        return state.buffers;
+      },
+      [](const TextureReadyState&) -> const std::vector<TextureBuffer>& { return empty; },
+      [](const TextureDroppedState&) -> const std::vector<TextureBuffer>& {
+        return empty;
+      }),
+    m_state);
+}
+
+
+void Texture::setFilterMode(const int minFilter, const int magFilter) const
+{
+  if (m_mask == TextureMask::On)
+  {
+    // Force GL_NEAREST filtering for masked textures.
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST));
+  }
+  else
+  {
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, minFilter));
+    glAssert(glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, magFilter));
+  }
 }
 
 } // namespace TrenchBroom::Assets

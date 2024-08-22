@@ -33,16 +33,16 @@
 #include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
+#include "Uuid.h"
 
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/mat.h>
-#include <vecmath/mat_io.h>
+#include "vm/mat.h"
+#include "vm/mat_io.h"
 
 #include <cassert>
 #include <optional>
@@ -52,19 +52,16 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 MapReader::MapReader(
   std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
-  Model::EntityPropertyConfig entityPropertyConfig,
-  std::vector<std::string> linkedGroupsToKeep)
-  : StandardMapParser(std::move(str), sourceMapFormat, targetMapFormat)
+  Model::EntityPropertyConfig entityPropertyConfig)
+  : StandardMapParser{std::move(str), sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
-  , m_linkedGroupsToKeep{std::move(linkedGroupsToKeep)}
 {
 }
 
@@ -137,11 +134,12 @@ void MapReader::onStandardBrushFace(
   ParserStatus& status)
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
-    .transform([&](auto face) {
-      face.setFilePosition(line, 1u);
-      onBrushFace(std::move(face), status);
-    })
-    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+    | kdl::transform([&](auto face) {
+        face.setFilePosition(line, 1u);
+        onBrushFace(std::move(face), status);
+      })
+    | kdl::transform_error(
+      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onValveBrushFace(
@@ -151,17 +149,18 @@ void MapReader::onValveBrushFace(
   const vm::vec3& point2,
   const vm::vec3& point3,
   const Model::BrushFaceAttributes& attribs,
-  const vm::vec3& texAxisX,
-  const vm::vec3& texAxisY,
+  const vm::vec3& uAxis,
+  const vm::vec3& vAxis,
   ParserStatus& status)
 {
   Model::BrushFace::createFromValve(
-    point1, point2, point3, attribs, texAxisX, texAxisY, targetMapFormat)
-    .transform([&](Model::BrushFace&& face) {
-      face.setFilePosition(line, 1u);
-      onBrushFace(std::move(face), status);
-    })
-    .transform_error([&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+    point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
+    | kdl::transform([&](Model::BrushFace&& face) {
+        face.setFilePosition(line, 1u);
+        onBrushFace(std::move(face), status);
+      })
+    | kdl::transform_error(
+      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
 }
 
 void MapReader::onPatch(
@@ -171,14 +170,14 @@ void MapReader::onPatch(
   const size_t rowCount,
   const size_t columnCount,
   std::vector<vm::vec<FloatType, 5>> controlPoints,
-  std::string textureName,
+  std::string materialName,
   ParserStatus&)
 {
   m_objectInfos.emplace_back(PatchInfo{
     rowCount,
     columnCount,
     std::move(controlPoints),
-    std::move(textureName),
+    std::move(materialName),
     startLine,
     lineCount,
     m_currentEntityInfo});
@@ -256,7 +255,6 @@ struct NodeError
   size_t line;
   std::string msg;
 };
-} // namespace
 
 /** This is the result returned from functions that create nodes. */
 using CreateNodeResult = Result<NodeInfo, NodeError>;
@@ -266,7 +264,7 @@ using CreateNodeResult = Result<NodeInfo, NodeError>;
  * if present. In case of a malformed ID, an issue is added to the given vector of node
  * issues and an empty optional is returned.
  */
-static std::optional<ContainerInfo> extractContainerInfo(
+std::optional<ContainerInfo> extractContainerInfo(
   const std::vector<Model::EntityProperty>& properties,
   std::vector<NodeIssue>& nodeIssues)
 {
@@ -304,12 +302,12 @@ static std::optional<ContainerInfo> extractContainerInfo(
  * Creates a world node for the given entity info and configures its default layer
  * according to the information in the entity attributes.
  */
-static CreateNodeResult createWorldNode(
+CreateNodeResult createWorldNode(
   MapReader::EntityInfo entityInfo,
   const Model::EntityPropertyConfig& entityPropertyConfig,
   const Model::MapFormat mapFormat)
 {
-  auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+  auto entity = Model::Entity{std::move(entityInfo.properties)};
   auto worldNode =
     std::make_unique<Model::WorldNode>(entityPropertyConfig, Model::Entity{}, mapFormat);
   worldNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
@@ -323,7 +321,7 @@ static CreateNodeResult createWorldNode(
     {
       defaultLayer.setColor(*color);
     }
-    entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::LayerColor);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerColor);
   }
   if (
     const auto* omitFromExportStr =
@@ -333,8 +331,7 @@ static CreateNodeResult createWorldNode(
     {
       defaultLayer.setOmitFromExport(true);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
   defaultLayerNode->setLayer(std::move(defaultLayer));
 
@@ -344,8 +341,7 @@ static CreateNodeResult createWorldNode(
     {
       defaultLayerNode->setLockState(Model::LockState::Locked);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
   if (const auto* hiddenStr = entity.property(Model::EntityPropertyKeys::LayerHidden))
   {
@@ -353,8 +349,7 @@ static CreateNodeResult createWorldNode(
     {
       defaultLayerNode->setVisibilityState(Model::VisibilityState::Hidden);
     }
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::LayerOmitFromExport);
+    entity.removeProperty(Model::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   worldNode->setEntity(std::move(entity));
@@ -370,7 +365,7 @@ static CreateNodeResult createWorldNode(
  * Creates a layer node for the given entity info. Returns an error if the entity
  * attributes contain missing or invalid information.
  */
-static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
+CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
 {
   const auto& properties = entityInfo.properties;
 
@@ -444,7 +439,7 @@ static CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
  * Creates a group node for the given entity info. Returns an error if the entity
  * attributes contain missing or invalid information.
  */
-static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
+CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 {
   const auto& name = findEntityPropertyOrDefault(
     entityInfo.properties, Model::EntityPropertyKeys::GroupName);
@@ -468,28 +463,37 @@ static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
       kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id")};
   }
 
-  auto group = Model::Group{name};
+  auto transformation = std::optional<vm::mat4x4d>{};
   auto nodeIssues = std::vector<NodeIssue>{};
 
-  const auto& linkedGroupId = findEntityPropertyOrDefault(
-    entityInfo.properties, Model::EntityPropertyKeys::LinkedGroupId);
-  if (!linkedGroupId.empty())
+  const auto linkId =
+    findEntityPropertyOrDefault(entityInfo.properties, Model::EntityPropertyKeys::LinkId);
+  if (!linkId.empty())
   {
     const auto& transformationStr = findEntityPropertyOrDefault(
       entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
-    if (const auto transformation = vm::parse<FloatType, 4u, 4u>(transformationStr))
+    if (!transformationStr.empty())
     {
-      group.setLinkedGroupId(linkedGroupId);
-      group.setTransformation(*transformation);
+      transformation = vm::parse<FloatType, 4u, 4u>(transformationStr);
+      if (!transformation)
+      {
+        nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
+      }
     }
-    else
-    {
-      nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
-    }
+  }
+
+  auto group = Model::Group{name};
+  if (transformation)
+  {
+    group.setTransformation(*transformation);
   }
 
   auto groupNode = std::make_unique<Model::GroupNode>(std::move(group));
   groupNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+  if (!linkId.empty())
+  {
+    groupNode->setLinkId(linkId);
+  }
 
   const auto groupId = static_cast<Model::IdType>(*rawId);
   groupNode->setPersistentId(groupId);
@@ -506,27 +510,24 @@ static CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
 /**
  * Creates an entity node for the given entity info.
  */
-static CreateNodeResult createEntityNode(
-  const Model::EntityPropertyConfig& entityPropertyConfig,
-  MapReader::EntityInfo entityInfo)
+CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
 {
-  auto entity = Model::Entity{entityPropertyConfig, std::move(entityInfo.properties)};
+  auto entity = Model::Entity{std::move(entityInfo.properties)};
   if (
     const auto* protectedPropertiesStr =
       entity.property(Model::EntityPropertyKeys::ProtectedEntityProperties))
   {
     auto protectedProperties = kdl::str_split(*protectedPropertiesStr, ";");
     entity.setProtectedProperties(std::move(protectedProperties));
-    entity.removeProperty(
-      entityPropertyConfig, Model::EntityPropertyKeys::ProtectedEntityProperties);
+    entity.removeProperty(Model::EntityPropertyKeys::ProtectedEntityProperties);
   }
 
   auto nodeIssues = std::vector<NodeIssue>{};
   auto containerInfo = extractContainerInfo(entity.properties(), nodeIssues);
 
   // strip container properties
-  entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Layer);
-  entity.removeProperty(entityPropertyConfig, Model::EntityPropertyKeys::Group);
+  entity.removeProperty(Model::EntityPropertyKeys::Layer);
+  entity.removeProperty(Model::EntityPropertyKeys::Group);
 
   auto entityNode = std::make_unique<Model::EntityNode>(std::move(entity));
   entityNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
@@ -540,7 +541,7 @@ static CreateNodeResult createEntityNode(
  *
  * Returns an error if the node could not be created.
  */
-static CreateNodeResult createNodeFromEntityInfo(
+CreateNodeResult createNodeFromEntityInfo(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   MapReader::EntityInfo entityInfo,
   const Model::MapFormat mapFormat)
@@ -559,42 +560,43 @@ static CreateNodeResult createNodeFromEntityInfo(
   {
     return createGroupNode(entityInfo);
   }
-  return createEntityNode(entityPropertyConfig, std::move(entityInfo));
+  return createEntityNode(std::move(entityInfo));
 }
 
 /**
  * Creates a brush node from the given brush info. Returns an error if the brush could not
  * be created.
  */
-static CreateNodeResult createBrushNode(
+CreateNodeResult createBrushNode(
   MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
-    .transform([&](auto brush) {
-      auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
-      brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
+         | kdl::transform([&](auto brush) {
+             auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
+             brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
 
-      auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
-                                              : std::optional<ParentInfo>{};
-      return NodeInfo{
-        std::move(brushNode), std::move(parentInfo), {} // issues
-      };
-    })
-    .or_else([&](auto e) {
-      return CreateNodeResult{NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
-    });
+             auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
+                                                     : std::optional<ParentInfo>{};
+             return NodeInfo{
+               std::move(brushNode), std::move(parentInfo), {} // issues
+             };
+           })
+         | kdl::or_else([&](auto e) {
+             return CreateNodeResult{
+               NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
+           });
 }
 
 /**
  * Creates a patch node from the given patch info.
  */
-static CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
+CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
 {
   auto patchNode = std::make_unique<Model::PatchNode>(Model::BezierPatch{
     patchInfo.rowCount,
     patchInfo.columnCount,
     std::move(patchInfo.controlPoints),
-    std::move(patchInfo.textureName)});
+    std::move(patchInfo.materialName)});
   patchNode->setFilePosition(patchInfo.startLine, patchInfo.lineCount);
 
   auto parentInfo = patchInfo.parentIndex ? ParentInfo{*patchInfo.parentIndex}
@@ -611,7 +613,7 @@ static CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
  * create. We need the indices to remain correct because we use them to refer to parent
  * nodes later.
  */
-static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
+std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   std::vector<MapReader::ObjectInfo> objectInfos,
   const vm::bbox3& worldBounds,
@@ -644,18 +646,18 @@ static std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
       assert(createNodeResult.has_value());
 
       return std::move(*createNodeResult)
-        .transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
-          return std::move(nodeInfo);
-        })
-        .transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
-          status.error(e.line, e.msg);
-          return std::nullopt;
-        })
-        .value();
+             | kdl::transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+                 return std::move(nodeInfo);
+               })
+             | kdl::transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
+                 status.error(e.line, e.msg);
+                 return std::nullopt;
+               })
+             | kdl::value();
     });
 }
 
-static void validateDuplicateLayersAndGroups(
+void validateDuplicateLayersAndGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   auto layerIds = std::unordered_set<Model::IdType>{};
@@ -696,72 +698,19 @@ static void validateDuplicateLayersAndGroups(
   }
 }
 
-static void unlinkGroup(Model::GroupNode& groupNode)
+void unlinkGroup(Model::GroupNode& groupNode, const bool resetLinkId)
 {
   auto newGroup = groupNode.group();
-  newGroup.resetLinkedGroupId();
   newGroup.setTransformation(vm::mat4x4::identity());
   groupNode.setGroup(std::move(newGroup));
-}
 
-static void validateOrphanedLinkedGroups(
-  std::vector<std::optional<NodeInfo>>& nodeInfos,
-  const std::vector<std::string> linkedGroupsToKeep,
-  ParserStatus& status)
-{
-  auto linkedGroupCounts = std::unordered_map<std::string, size_t>{};
-  for (const auto& linkedGroupId : linkedGroupsToKeep)
+  if (resetLinkId)
   {
-    linkedGroupCounts[linkedGroupId] = 1;
-  }
-
-  for (const auto& nodeInfo : nodeInfos)
-  {
-    if (nodeInfo)
-    {
-      nodeInfo->node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [&](const Model::GroupNode* groupNode) {
-          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-          {
-            linkedGroupCounts[*linkedGroupId]++;
-          }
-        },
-        [](const Model::EntityNode*) {},
-        [](const Model::BrushNode*) {},
-        [](const Model::PatchNode*) {}));
-    }
-  }
-
-  for (auto& nodeInfo : nodeInfos)
-  {
-    if (nodeInfo)
-    {
-      nodeInfo->node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [&](Model::GroupNode* groupNode) {
-          if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-          {
-            if (linkedGroupCounts[*linkedGroupId] == 1)
-            {
-              status.error(
-                groupNode->lineNumber(),
-                kdl::str_to_string(
-                  "Unlinking orphaned linked group with ID '", *linkedGroupId, "'"));
-              unlinkGroup(*groupNode);
-            }
-          }
-        },
-        [](const Model::EntityNode*) {},
-        [](const Model::BrushNode*) {},
-        [](const Model::PatchNode*) {}));
-    }
+    groupNode.setLinkId(generateUuid());
   }
 }
 
-static void logValidationIssues(
+void logValidationIssues(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   for (auto& nodeInfo : nodeInfos)
@@ -798,17 +747,16 @@ static void logValidationIssues(
   }
 }
 
-static bool isRecursiveLinkedGroup(
-  const std::string& nestedLinkedGroupId, Model::Node* parentNode)
+bool isRecursiveLinkedGroup(const std::string& nestedLinkId, Model::Node* parentNode)
 {
   if (auto* parentGroupNode = dynamic_cast<Model::GroupNode*>(parentNode))
   {
-    return nestedLinkedGroupId == parentGroupNode->group().linkedGroupId();
+    return nestedLinkId == parentGroupNode->linkId();
   }
   return false;
 }
 
-static void validateRecursiveLinkedGroups(
+void validateRecursiveLinkedGroups(
   std::vector<std::optional<NodeInfo>>& nodeInfos,
   const std::unordered_map<Model::Node*, Model::Node*>& nodeToParentMap,
   ParserStatus& status)
@@ -819,25 +767,23 @@ static void validateRecursiveLinkedGroups(
     {
       if (auto* groupNode = dynamic_cast<Model::GroupNode*>(nodeInfo->node.get()))
       {
-        if (const auto groupNodeLinkedGroupId = groupNode->group().linkedGroupId())
+        const auto groupNodeLinkId = groupNode->linkId();
+        auto iParent = nodeToParentMap.find(groupNode);
+        while (iParent != nodeToParentMap.end())
         {
-          auto iParent = nodeToParentMap.find(groupNode);
-          while (iParent != nodeToParentMap.end())
+          if (isRecursiveLinkedGroup(groupNodeLinkId, iParent->second))
           {
-            if (isRecursiveLinkedGroup(*groupNodeLinkedGroupId, iParent->second))
-            {
-              status.error(
-                groupNode->lineNumber(),
-                kdl::str_to_string(
-                  "Unlinking recursive linked group with ID '",
-                  *groupNode->persistentId(),
-                  "'"));
+            status.error(
+              groupNode->lineNumber(),
+              kdl::str_to_string(
+                "Unlinking recursive linked group with ID '",
+                *groupNode->persistentId(),
+                "'"));
 
-              unlinkGroup(*groupNode);
-              break;
-            }
-            iParent = nodeToParentMap.find(iParent->second);
+            unlinkGroup(*groupNode, true);
+            break;
           }
+          iParent = nodeToParentMap.find(iParent->second);
         }
       }
     }
@@ -852,7 +798,7 @@ static void validateRecursiveLinkedGroups(
  * Not every node comes with parent information, so the returned map does not contain
  * entries for each of the given nodes.
  */
-static std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
+std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
   std::vector<std::optional<NodeInfo>>& nodeInfos, ParserStatus& status)
 {
   auto layerIdMap = std::unordered_map<Model::IdType, Model::LayerNode*>{};
@@ -945,6 +891,7 @@ static std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
   }
   return nodeToParentMap;
 }
+} // namespace
 
 /**
  * Creates nodes from the recorded object infos and resolves parent / child relationships.
@@ -1002,7 +949,6 @@ void MapReader::createNodes(ParserStatus& status)
   const auto nodeToParentMap = buildNodeToParentMap(nodeInfos, status);
 
   validateRecursiveLinkedGroups(nodeInfos, nodeToParentMap, status);
-  validateOrphanedLinkedGroups(nodeInfos, m_linkedGroupsToKeep, status);
 
   logValidationIssues(nodeInfos, status);
 
@@ -1041,5 +987,5 @@ void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
   brush.faces.push_back(std::move(face));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

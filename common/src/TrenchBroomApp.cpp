@@ -64,9 +64,9 @@
 #include <QTimer>
 #include <QUrl>
 
-#include <kdl/path_utils.h>
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
+#include "kdl/path_utils.h"
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
 
 #include <fmt/format.h>
 
@@ -81,9 +81,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 
 namespace
@@ -334,7 +332,7 @@ void TrenchBroomApp::loadStyle()
   }
 }
 
-const std::vector<std::filesystem::path>& TrenchBroomApp::recentDocuments() const
+std::vector<std::filesystem::path> TrenchBroomApp::recentDocuments() const
 {
   return m_recentDocuments->recentDocuments();
 }
@@ -366,40 +364,40 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   try
   {
     auto& gameFactory = Model::GameFactory::instance();
-    return checkFileExists()
-      .or_else([&](const auto& e) {
-        m_recentDocuments->removePath(path);
-        return Result<void>{e};
-      })
-      .and_then([&]() { return gameFactory.detectGame(path); })
-      .and_then([&](const auto& gameNameAndMapFormat) {
-        auto [gameName, mapFormat] = gameNameAndMapFormat;
+    return checkFileExists() | kdl::or_else([&](const auto& e) {
+             m_recentDocuments->removePath(path);
+             return Result<void>{e};
+           })
+           | kdl::and_then([&]() { return gameFactory.detectGame(path); })
+           | kdl::and_then([&](const auto& gameNameAndMapFormat) {
+               auto [gameName, mapFormat] = gameNameAndMapFormat;
 
-        if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
-        {
-          if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-          {
-            return Result<bool>{false};
-          }
-        }
+               if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
+               {
+                 if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
+                 {
+                   return Result<bool>{false};
+                 }
+               }
 
-        frame = m_frameManager->newFrame();
+               frame = m_frameManager->newFrame();
 
-        auto game = gameFactory.createGame(gameName, frame->logger());
-        ensure(game.get() != nullptr, "game is null");
+               auto game = gameFactory.createGame(gameName, frame->logger());
+               ensure(game.get() != nullptr, "game is null");
 
-        closeWelcomeWindow();
-        return frame->openDocument(game, mapFormat, path);
-      })
-      .transform_error([&](const auto& e) {
-        if (frame)
-        {
-          frame->close();
-        }
-        QMessageBox::critical(nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
-        return false;
-      })
-      .value();
+               closeWelcomeWindow();
+               return frame->openDocument(game, mapFormat, path);
+             })
+           | kdl::transform_error([&](const auto& e) {
+               if (frame)
+               {
+                 frame->close();
+               }
+               QMessageBox::critical(
+                 nullptr, "TrenchBroom", e.msg.c_str(), QMessageBox::Ok);
+               return false;
+             })
+           | kdl::value();
   }
   catch (const Exception& e)
   {
@@ -438,22 +436,21 @@ bool TrenchBroomApp::initializeGameFactory()
     IO::SystemPaths::userDataDirectory() / "games",
   };
   auto& gameFactory = Model::GameFactory::instance();
-  return gameFactory.initialize(gamePathConfig)
-    .transform([](auto errors) {
-      if (!errors.empty())
-      {
-        const auto msg = fmt::format(
-          R"(Some game configurations could not be loaded. The following errors occurred:
+  return gameFactory.initialize(gamePathConfig) | kdl::transform([](auto errors) {
+           if (!errors.empty())
+           {
+             const auto msg = fmt::format(
+               R"(Some game configurations could not be loaded. The following errors occurred:
 
 {})",
-          kdl::str_join(errors, "\n\n"));
+               kdl::str_join(errors, "\n\n"));
 
-        QMessageBox::critical(
-          nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
-      }
-    })
-    .if_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
-    .is_success();
+             QMessageBox::critical(
+               nullptr, "TrenchBroom", QString::fromStdString(msg), QMessageBox::Ok);
+           }
+         })
+         | kdl::if_error([](auto e) { qCritical() << QString::fromStdString(e.msg); })
+         | kdl::is_success();
 }
 
 bool TrenchBroomApp::newDocument()
@@ -475,14 +472,13 @@ bool TrenchBroomApp::newDocument()
     ensure(game.get() != nullptr, "game is null");
 
     closeWelcomeWindow();
-    return frame->newDocument(game, mapFormat)
-      .transform_error([&](auto e) {
-        frame->close();
+    return frame->newDocument(game, mapFormat) | kdl::transform_error([&](auto e) {
+             frame->close();
 
-        QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
-        return false;
-      })
-      .value();
+             QMessageBox::critical(nullptr, "", QString::fromStdString(e.msg));
+             return false;
+           })
+           | kdl::value();
   }
   catch (const Exception& e)
   {
@@ -599,21 +595,16 @@ bool TrenchBroomApp::event(QEvent* event)
 
 void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
 {
+  const auto filesToOpen =
+    useSDI() && !fileNames.empty() ? QStringList{fileNames.front()} : fileNames;
+
   auto anyDocumentOpened = false;
-  if (useSDI())
+  for (const auto& fileName : filesToOpen)
   {
-    if (fileNames.length() > 0)
+    const auto path = IO::pathFromQString(fileName);
+    if (!path.empty() && openDocument(path))
     {
-      const auto path = IO::pathFromQString(fileNames.at(0));
-      anyDocumentOpened = !path.empty() && openDocument(path);
-    }
-  }
-  else
-  {
-    for (const auto& fileName : fileNames)
-    {
-      const auto path = IO::pathFromQString(fileName);
-      anyDocumentOpened = anyDocumentOpened | (!path.empty() && openDocument(path));
+      anyDocumentOpened = true;
     }
   }
 
@@ -728,48 +719,45 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::createDirectory(basePath.parent_path())
-    .transform([&](auto) {
-      const auto reportPath = kdl::path_add_extension(basePath, ".txt");
-      auto logPath = kdl::path_add_extension(basePath, ".log");
-      auto mapPath = kdl::path_add_extension(basePath, ".map");
+  IO::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
+    const auto reportPath = kdl::path_add_extension(basePath, ".txt");
+    auto logPath = kdl::path_add_extension(basePath, ".log");
+    auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-      IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
-        stream << report;
-        std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
-      }).transform_error([](const auto& e) {
-        std::cerr << "could not write crash log: " << e.msg << std::endl;
-      });
-
-      // save the map
-      auto doc = topDocument();
-      if (doc.get())
-      {
-        doc->saveDocumentTo(mapPath);
-        std::cerr << "wrote map to " << mapPath.string() << std::endl;
-      }
-      else
-      {
-        mapPath = std::filesystem::path{};
-      }
-
-      // Copy the log file
-      if (!QFile::copy(
-            IO::pathAsQString(IO::SystemPaths::logFilePath()),
-            IO::pathAsQString(logPath)))
-      {
-        logPath = std::filesystem::path{};
-      }
-
-      if (crashReportGuiEnabled)
-      {
-        auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
-        dialog.exec();
-      }
-    })
-    .transform_error([](const auto& e) {
-      std::cerr << "could not create crash folder: " << e.msg << std::endl;
+    IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
+      stream << report;
+      std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
+    }) | kdl::transform_error([](const auto& e) {
+      std::cerr << "could not write crash log: " << e.msg << std::endl;
     });
+
+    // save the map
+    auto doc = topDocument();
+    if (doc.get() && doc->game())
+    {
+      doc->saveDocumentTo(mapPath);
+      std::cerr << "wrote map to " << mapPath.string() << std::endl;
+    }
+    else
+    {
+      mapPath = std::filesystem::path{};
+    }
+
+    // Copy the log file
+    if (!QFile::copy(
+          IO::pathAsQString(IO::SystemPaths::logFilePath()), IO::pathAsQString(logPath)))
+    {
+      logPath = std::filesystem::path{};
+    }
+
+    if (crashReportGuiEnabled)
+    {
+      auto dialog = CrashDialog{reason, reportPath, mapPath, logPath};
+      dialog.exec();
+    }
+  }) | kdl::transform_error([](const auto& e) {
+    std::cerr << "could not create crash folder: " << e.msg << std::endl;
+  });
 
   // write the crash log to stderr
   std::cerr << "crash log:" << std::endl;
@@ -799,5 +787,5 @@ static void CrashHandler(int /* signum */)
 }
 #endif
 
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

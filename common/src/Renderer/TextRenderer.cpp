@@ -31,9 +31,9 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextureFont.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {
@@ -250,9 +250,9 @@ void TextRenderer::addEntry(
   for (size_t i = 0; i < stringVertices.size() / 2; ++i)
   {
     const vm::vec2f& position2 = stringVertices[2 * i];
-    const vm::vec2f& texCoords = stringVertices[2 * i + 1];
+    const vm::vec2f& uvCoords = stringVertices[2 * i + 1];
     textVertices.emplace_back(
-      vm::vec3f(position2 + offset.xy(), -offset.z()), texCoords, textColor);
+      vm::vec3f(position2 + offset.xy(), -offset.z()), uvCoords, textColor);
   }
 
   const std::vector<vm::vec2f> rect =

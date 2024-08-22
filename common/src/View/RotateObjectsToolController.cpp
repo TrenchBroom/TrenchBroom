@@ -38,11 +38,11 @@
 #include "View/RotateObjectsTool.h"
 #include "View/ToolController.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/quat.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vm/intersection.h"
+#include "vm/mat_ext.h"
+#include "vm/quat.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <functional>
 #include <memory>
@@ -284,29 +284,30 @@ private:
     // handle center and the rotation axis.
     const auto center = m_tool.rotationCenter();
     const auto axis = m_tool.rotationAxis(area);
-    const auto distance =
-      vm::intersect_ray_plane(inputState.pickRay(), vm::plane3{center, axis});
-    if (vm::is_nan(distance))
+
+    if (
+      const auto distance =
+        vm::intersect_ray_plane(inputState.pickRay(), vm::plane3{center, axis}))
     {
-      return nullptr;
+      const auto initialHandlePosition =
+        vm::point_at_distance(inputState.pickRay(), *distance);
+      auto renderHighlight = [this](
+                               const auto& inputState_,
+                               auto& renderContext,
+                               auto& renderBatch,
+                               const auto area_) {
+        doRenderHighlight(inputState_, renderContext, renderBatch, area_);
+      };
+
+      m_tool.beginRotation();
+      return createHandleDragTracker(
+        RotateObjectsDragDelegate{m_tool, area, std::move(renderHighlight)},
+        inputState,
+        initialHandlePosition,
+        initialHandlePosition);
     }
 
-    const auto initialHandlePosition =
-      vm::point_at_distance(inputState.pickRay(), distance);
-    auto renderHighlight = [this](
-                             const auto& inputState_,
-                             auto& renderContext,
-                             auto& renderBatch,
-                             const auto area_) {
-      doRenderHighlight(inputState_, renderContext, renderBatch, area_);
-    };
-
-    m_tool.beginRotation();
-    return createHandleDragTracker(
-      RotateObjectsDragDelegate{m_tool, area, std::move(renderHighlight)},
-      inputState,
-      initialHandlePosition,
-      initialHandlePosition);
+    return nullptr;
   }
 
   void render(

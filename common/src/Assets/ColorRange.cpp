@@ -19,7 +19,7 @@
 
 #include "ColorRange.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
 namespace TrenchBroom
 {

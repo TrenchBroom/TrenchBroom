@@ -31,9 +31,7 @@ class QComboBox;
 class QPushButton;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class GameListBox;
 
@@ -49,10 +47,10 @@ private:
 
 protected:
   DialogType m_dialogType;
-  GameListBox* m_gameListBox;
-  QComboBox* m_mapFormatComboBox;
-  QPushButton* m_openPreferencesButton;
-  QPushButton* m_okButton;
+  GameListBox* m_gameListBox = nullptr;
+  QComboBox* m_mapFormatComboBox = nullptr;
+  QPushButton* m_openPreferencesButton = nullptr;
+  QPushButton* m_okButton = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -78,9 +76,8 @@ protected:
     QWidget* parent = nullptr);
 
   void createGui(const QString& title, const QString& infoText);
-  QWidget* createInfoPanel(
-    QWidget* parent, const QString& title, const QString& infoText);
-  QWidget* createSelectionPanel(QWidget* parent);
+  QWidget* createInfoPanel(const QString& title, const QString& infoText);
+  QWidget* createSelectionPanel();
 
 private:
   void updateMapFormats(const std::string& gameName);
@@ -88,5 +85,5 @@ private:
   void connectObservers();
   void preferenceDidChange(const std::filesystem::path& path);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

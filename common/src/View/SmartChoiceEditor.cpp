@@ -31,7 +31,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/set_temp.h>
+#include "kdl/set_temp.h"
 
 #include <cassert>
 
@@ -125,7 +125,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
         document()->encoding(), option.value() + " : " + option.description()));
     }
 
-    const auto value = Model::selectPRopertyValue(propertyKey(), nodes);
+    const auto value = Model::selectPropertyValue(propertyKey(), nodes);
     m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
   }
 }

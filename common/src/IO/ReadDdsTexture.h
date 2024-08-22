@@ -20,17 +20,17 @@
 
 #pragma once
 
-#include "IO/TextureUtils.h"
-#include "Renderer/GL.h"
 #include "Result.h"
 
-#include <string>
+namespace TrenchBroom::Assets
+{
+class Texture;
+}
 
 namespace TrenchBroom::IO
 {
 class Reader;
 
-Result<Assets::Texture, ReadTextureError> readDdsTexture(
-  std::string name, Reader& reader);
+Result<Assets::Texture> readDdsTexture(Reader& reader);
 
 } // namespace TrenchBroom::IO

@@ -29,32 +29,48 @@ class QPixmap;
 namespace TrenchBroom
 {
 class Logger;
-
-namespace Assets
-{
-class Texture;
 }
 
-namespace IO
+namespace TrenchBroom::Assets
+{
+class Material;
+class Texture;
+} // namespace TrenchBroom::Assets
+
+namespace TrenchBroom::IO
 {
 class FileSystem;
 
+static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empty.png"};
+
 /**
- * Loads a default texture file from the given file system. If the default texture cannot
- * be found or opened, an empty texture is returned.
+ * Loads a default texture from the given file system. If the default texture cannot be
+ * found or opened, an empty texture is returned.
  *
  * @param fs the file system used to locate the texture file
  * @param name the name of the texture to be returned
  * @return the default texture
  */
-Assets::Texture loadDefaultTexture(
-  const FileSystem& fs, const std::string& name, Logger& logger);
+Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
+
+/**
+ * Loads a default material from the given file system. If the default material cannot be
+ * found or opened, an empty material is returned.
+ *
+ * @param fs the file system used to locate the material file
+ * @param name the name of the material to be returned
+ * @return the default material
+ */
+Assets::Material loadDefaultMaterial(
+  const FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);
+
+QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
 
 /**
  * Loads an SVG image into a QIcon
  */
 QIcon loadSVGIcon(const std::filesystem::path& imagePath);
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -35,19 +35,19 @@
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/line_io.h>
-#include <vecmath/plane_io.h>
-#include <vecmath/vec_io.h>
+#include "vm/distance.h"
+#include "vm/line_io.h"
+#include "vm/plane_io.h"
+#include "vm/vec_io.h"
 
 #include <limits>
 #include <map>
@@ -128,10 +128,6 @@ std::optional<EdgeInfo> getEdgeInfo(
 
   const auto segment = edge->segment();
   const auto dist = vm::distance(pickRay, segment);
-  if (vm::is_nan(dist.distance))
-  {
-    return std::nullopt;
-  }
 
   const auto leftFaceIndex = edge->firstFace()->payload();
   const auto rightFaceIndex = edge->secondFace()->payload();
@@ -395,7 +391,7 @@ bool splitBrushesOutward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "up" along its normal.
@@ -411,53 +407,52 @@ bool splitBrushesOutward(
   auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
   auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-  return kdl::fold_results(
-           kdl::vec_transform(
-             dragState.initialDragHandles,
-             [&](const auto& dragHandle) {
-               auto* brushNode = dragHandle.faceHandle.node();
+  return kdl::vec_transform(
+           dragState.initialDragHandles,
+           [&](const auto& dragHandle) {
+             auto* brushNode = dragHandle.faceHandle.node();
 
-               const auto& oldBrush = dragHandle.brushAtDragStart;
-               const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
-               const auto newDragFaceNormal = dragHandle.faceNormal();
+             const auto& oldBrush = dragHandle.brushAtDragStart;
+             const auto dragFaceIndex = dragHandle.faceHandle.faceIndex();
+             const auto newDragFaceNormal = dragHandle.faceNormal();
 
-               auto newBrush = oldBrush;
-               return newBrush
-                 .moveBoundary(worldBounds, dragFaceIndex, delta, lockTextures)
-                 .and_then([&]() {
-                   auto clipFace = oldBrush.face(dragFaceIndex);
-                   clipFace.invert();
-                   return newBrush.clip(worldBounds, std::move(clipFace));
-                 })
-                 .transform([&]() {
-                   auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
-                   newNodes[brushNode->parent()].push_back(newBrushNode);
+             auto newBrush = oldBrush;
+             return newBrush.moveBoundary(
+                      worldBounds, dragFaceIndex, delta, lockAlignment)
+                    | kdl::and_then([&]() {
+                        auto clipFace = oldBrush.face(dragFaceIndex);
+                        clipFace.invert();
+                        return newBrush.clip(worldBounds, std::move(clipFace));
+                      })
+                    | kdl::transform([&]() {
+                        auto* newBrushNode = new Model::BrushNode(std::move(newBrush));
+                        newNodes[brushNode->parent()].push_back(newBrushNode);
 
-                   // Look up the new face index of the new drag handle
-                   if (
-                     const auto newDragFaceIndex =
-                       newBrushNode->brush().findFace(newDragFaceNormal))
-                   {
-                     newDragFaces.push_back(
-                       Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
-                   }
-                 });
-             }))
-    .transform([&]() {
-      // Apply the changes calculated above
-      document.rollbackTransaction();
+                        // Look up the new face index of the new drag handle
+                        if (
+                          const auto newDragFaceIndex =
+                            newBrushNode->brush().findFace(newDragFaceNormal))
+                        {
+                          newDragFaces.push_back(
+                            Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+                        }
+                      });
+           })
+         | kdl::fold() | kdl::transform([&]() {
+             // Apply the changes calculated above
+             document.rollbackTransaction();
 
-      document.deselectAll();
-      const auto addedNodes = document.addNodes(newNodes);
-      document.selectNodes(addedNodes);
-      dragState.currentDragFaces = std::move(newDragFaces);
-      dragState.totalDelta = delta;
-    })
-    .transform_error([&](auto e) {
-      document.error() << "Could not extrude brush: " << e;
-      kdl::map_clear_and_delete(newNodes);
-    })
-    .is_success();
+             document.deselectAll();
+             const auto addedNodes = document.addNodes(newNodes);
+             document.selectNodes(addedNodes);
+             dragState.currentDragFaces = std::move(newDragFaces);
+             dragState.totalDelta = delta;
+           })
+         | kdl::transform_error([&](auto e) {
+             document.error() << "Could not extrude brush: " << e;
+             kdl::map_clear_and_delete(newNodes);
+           })
+         | kdl::is_success();
 }
 
 /**
@@ -475,7 +470,7 @@ bool splitBrushesInward(
   MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
-  const bool lockTextures = pref(Preferences::TextureLock);
+  const bool lockAlignment = pref(Preferences::AlignmentLock);
 
   // First ensure that the drag can be applied at all. For this, check whether each drag
   // handle is moved "down" along its normal.
@@ -505,7 +500,7 @@ bool splitBrushesInward(
 
     auto clipFace = frontBrush.face(dragHandle.faceHandle.faceIndex());
 
-    if (clipFace.transform(vm::translation_matrix(delta), lockTextures).is_error())
+    if (clipFace.transform(vm::translation_matrix(delta), lockAlignment).is_error())
     {
       document.error() << "Could not extrude inwards: Error transforming face";
       kdl::map_clear_and_delete(newNodes);
@@ -534,7 +529,7 @@ bool splitBrushesInward(
       // Look up the new face index of the new drag handle
       if (const auto newDragFaceIndex = newBrushNode->brush().findFace(clipFace.normal()))
       {
-        newDragFaces.push_back(Model::BrushFaceHandle(newBrushNode, *newDragFaceIndex));
+        newDragFaces.emplace_back(newBrushNode, *newDragFaceIndex);
       }
     }
   }
@@ -551,7 +546,7 @@ bool splitBrushesInward(
   // Add the newly split off brushes and select them (keeping the original brushes
   // selected).
   // FIXME: deal with linked group update failure (needed for #3647)
-  const auto addedNodes = document.addNodes(std::move(newNodes));
+  const auto addedNodes = document.addNodes(newNodes);
   document.selectNodes(addedNodes);
 
   dragState.currentDragFaces = std::move(newDragFaces);

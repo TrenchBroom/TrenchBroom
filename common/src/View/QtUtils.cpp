@@ -112,7 +112,7 @@ static QString fileDialogDirToString(const FileDialogDir dir)
   {
   case FileDialogDir::Map:
     return "Map";
-  case FileDialogDir::TextureCollection:
+  case FileDialogDir::MaterialCollection:
     return "TextureCollection";
   case FileDialogDir::CompileTool:
     return "CompileTool";

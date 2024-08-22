@@ -23,8 +23,8 @@
 #include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
-#include <kdl/result.h>
-#include <kdl/result_io.h>
+#include "kdl/result.h"
+#include "kdl/result_io.h"
 
 #include <filesystem>
 
@@ -125,6 +125,33 @@ TEST_CASE("TestFileSystem")
         "some_dir/some_dir_file_2",
         "root_file_1",
         "root_file_2",
+      }});
+
+    CHECK(
+      fs.find("", TraversalMode{0})
+      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+        "some_dir",
+        "root_file_1",
+        "root_file_2",
+      }});
+
+    CHECK(
+      fs.find("", TraversalMode{1})
+      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+        "some_dir",
+        "some_dir/nested_dir",
+        "some_dir/some_dir_file_1",
+        "some_dir/some_dir_file_2",
+        "root_file_1",
+        "root_file_2",
+      }});
+
+    CHECK(
+      fs.find("some_dir", TraversalMode{0})
+      == Result<std::vector<std::filesystem::path>>{std::vector<std::filesystem::path>{
+        "some_dir/nested_dir",
+        "some_dir/some_dir_file_1",
+        "some_dir/some_dir_file_2",
       }});
   }
 

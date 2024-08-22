@@ -19,11 +19,12 @@
 
 #pragma once
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/reflection_decl.h"
+#include "kdl/vector_set.h"
 
 #include <functional>
 #include <iosfwd>
@@ -32,9 +33,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
@@ -42,49 +41,7 @@ class ChangeBrushFaceAttributesRequest;
 class Game;
 class MapFacade;
 
-class MatchVisitor : public ConstTagVisitor
-{
-private:
-  bool m_matches;
-
-public:
-  MatchVisitor();
-
-  bool matches() const;
-
-protected:
-  void setMatches();
-};
-
-class BrushFaceMatchVisitor : public MatchVisitor
-{
-private:
-  std::function<bool(const BrushFace&)> m_matcher;
-
-public:
-  explicit BrushFaceMatchVisitor(std::function<bool(const BrushFace&)> matcher)
-    : m_matcher(std::move(matcher))
-  {
-  }
-
-  void visit(const BrushFace& face) override;
-};
-
-class BrushMatchVisitor : public MatchVisitor
-{
-private:
-  std::function<bool(const BrushNode&)> m_matcher;
-
-public:
-  explicit BrushMatchVisitor(std::function<bool(const BrushNode&)> matcher)
-    : m_matcher(std::move(matcher))
-  {
-  }
-
-  void visit(const BrushNode& brush) override;
-};
-
-class TextureTagMatcher : public TagMatcher
+class MaterialTagMatcher : public TagMatcher
 {
 public:
   void enable(TagMatcherCallback& callback, MapFacade& facade) const override;
@@ -92,39 +49,39 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesTexture(const Assets::Texture* texture) const = 0;
+  virtual bool matchesMaterial(const Assets::Material* material) const = 0;
 };
 
-class TextureNameTagMatcher : public TextureTagMatcher
+class MaterialNameTagMatcher : public MaterialTagMatcher
 {
 private:
   std::string m_pattern;
 
 public:
-  explicit TextureNameTagMatcher(const std::string& pattern);
+  explicit MaterialNameTagMatcher(std::string pattern);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Texture* texture) const override;
-  bool matchesTextureName(std::string_view textureName) const;
+  bool matchesMaterial(const Assets::Material* material) const override;
+  bool matchesMaterialName(std::string_view materialName) const;
 };
 
-class SurfaceParmTagMatcher : public TextureTagMatcher
+class SurfaceParmTagMatcher : public MaterialTagMatcher
 {
 private:
   kdl::vector_set<std::string> m_parameters;
 
 public:
-  explicit SurfaceParmTagMatcher(const std::string& parameter);
-  explicit SurfaceParmTagMatcher(const kdl::vector_set<std::string>& parameters);
+  explicit SurfaceParmTagMatcher(std::string parameter);
+  explicit SurfaceParmTagMatcher(kdl::vector_set<std::string> parameters);
   std::unique_ptr<TagMatcher> clone() const override;
   bool matches(const Taggable& taggable) const override;
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesTexture(const Assets::Texture* texture) const override;
+  bool matchesMaterial(const Assets::Material* material) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher
@@ -177,12 +134,12 @@ class EntityClassNameTagMatcher : public TagMatcher
 private:
   std::string m_pattern;
   /**
-   * The texture to set when this tag is enabled.
+   * The material to set when this tag is enabled.
    */
-  std::string m_texture;
+  std::string m_material;
 
 public:
-  EntityClassNameTagMatcher(const std::string& pattern, const std::string& texture);
+  EntityClassNameTagMatcher(std::string pattern, std::string material);
   std::unique_ptr<TagMatcher> clone() const override;
 
 public:
@@ -196,5 +153,5 @@ public:
 private:
   bool matchesClassname(const std::string& classname) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

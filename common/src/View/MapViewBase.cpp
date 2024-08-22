@@ -73,38 +73,33 @@
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/util.h>
+#include "vm/polygon.h"
+#include "vm/util.h"
 
 #include <sstream>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
 MapViewBase::MapViewBase(
-  Logger* logger,
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& renderer,
-  GLContextManager& contextManager)
+  GLContextManager& contextManager,
+  Logger* logger)
   : RenderView{contextManager}
-  , m_logger{logger}
   , m_document{std::move(document)}
   , m_toolBox{toolBox}
-  , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_renderer{renderer}
-  , m_compass{nullptr}
-  , m_portalFileRenderer{nullptr}
-  , m_isCurrent{false}
+  , m_logger{logger}
+  , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
 {
   setToolBox(toolBox);
@@ -169,8 +164,8 @@ void MapViewBase::connectObservers()
     document->commandUndoneNotifier.connect(this, &MapViewBase::commandUndone);
   m_notifierConnection +=
     document->selectionDidChangeNotifier.connect(this, &MapViewBase::selectionDidChange);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
-    this, &MapViewBase::textureCollectionsDidChange);
+  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
+    this, &MapViewBase::materialCollectionsDidChange);
   m_notifierConnection += document->entityDefinitionsDidChangeNotifier.connect(
     this, &MapViewBase::entityDefinitionsDidChange);
   m_notifierConnection +=
@@ -248,7 +243,7 @@ void MapViewBase::selectionDidChange(const Selection&)
   updateActionStatesDelayed();
 }
 
-void MapViewBase::textureCollectionsDidChange()
+void MapViewBase::materialCollectionsDidChange()
 {
   update();
 }
@@ -390,7 +385,7 @@ void MapViewBase::moveRotationCenter(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   m_toolBox.moveRotationCenter(delta);
   update();
 }
@@ -399,7 +394,7 @@ void MapViewBase::moveVertices(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   m_toolBox.moveVertices(delta);
 }
 
@@ -407,7 +402,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * static_cast<FloatType>(grid.actualSize());
+  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
   document->translateObjects(delta);
 }
 
@@ -436,22 +431,20 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasSelectedNodes())
+  if (document->hasSelectedNodes())
   {
-    return;
+    const auto axis = rotationAxis(axisSpec, clockwise);
+    const auto angle = m_toolBox.rotateObjectsToolActive()
+                         ? vm::abs(m_toolBox.rotateToolAngle())
+                         : vm::C::half_pi();
+
+    const auto& grid = document->grid();
+    const auto center = m_toolBox.rotateObjectsToolActive()
+                          ? m_toolBox.rotateToolCenter()
+                          : grid.referencePoint(document->selectionBounds());
+
+    document->rotateObjects(center, axis, angle);
   }
-
-  const auto axis = rotationAxis(axisSpec, clockwise);
-  const auto angle = m_toolBox.rotateObjectsToolActive()
-                       ? vm::abs(m_toolBox.rotateToolAngle())
-                       : vm::C::half_pi();
-
-  const auto& grid = document->grid();
-  const auto center = m_toolBox.rotateObjectsToolActive()
-                        ? m_toolBox.rotateToolCenter()
-                        : grid.referencePoint(document->selectionBounds());
-
-  document->rotateObjects(center, axis, angle);
 }
 
 vm::vec3 MapViewBase::rotationAxis(
@@ -501,30 +494,29 @@ bool MapViewBase::canFlipObjects() const
   return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
 }
 
-void MapViewBase::moveTextures(
-  const vm::direction direction, const TextureActionMode mode)
+void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    const auto offset = moveTextureOffset(direction, mode);
-    document->moveTextures(camera().up(), camera().right(), offset);
+    const auto offset = moveUVOffset(direction, mode);
+    document->translateUV(camera().up(), camera().right(), offset);
   }
 }
 
-vm::vec2f MapViewBase::moveTextureOffset(
-  const vm::direction direction, const TextureActionMode mode) const
+vm::vec2f MapViewBase::moveUVOffset(
+  const vm::direction direction, const UVActionMode mode) const
 {
   switch (direction)
   {
   case vm::direction::up:
-    return vm::vec2f{0.0f, moveTextureDistance(mode)};
+    return vm::vec2f{0.0f, moveUVDistance(mode)};
   case vm::direction::down:
-    return vm::vec2f{0.0f, -moveTextureDistance(mode)};
+    return vm::vec2f{0.0f, -moveUVDistance(mode)};
   case vm::direction::left:
-    return vm::vec2f{-moveTextureDistance(mode), 0.0f};
+    return vm::vec2f{-moveUVDistance(mode), 0.0f};
   case vm::direction::right:
-    return vm::vec2f{moveTextureDistance(mode), 0.0f};
+    return vm::vec2f{moveUVDistance(mode), 0.0f};
   case vm::direction::forward:
   case vm::direction::backward:
     return vm::vec2f{};
@@ -532,35 +524,34 @@ vm::vec2f MapViewBase::moveTextureOffset(
   }
 }
 
-float MapViewBase::moveTextureDistance(const TextureActionMode mode) const
+float MapViewBase::moveUVDistance(const UVActionMode mode) const
 {
   const auto& grid = kdl::mem_lock(m_document)->grid();
   const auto gridSize = static_cast<float>(grid.actualSize());
 
   switch (mode)
   {
-  case TextureActionMode::Fine:
+  case UVActionMode::Fine:
     return 1.0f;
-  case TextureActionMode::Coarse:
+  case UVActionMode::Coarse:
     return 2.0f * gridSize;
-  case TextureActionMode::Normal:
+  case UVActionMode::Normal:
     return gridSize;
     switchDefault();
   }
 }
 
-void MapViewBase::rotateTextures(const bool clockwise, const TextureActionMode mode)
+void MapViewBase::rotateUV(const bool clockwise, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    const auto angle = rotateTextureAngle(clockwise, mode);
-    document->rotateTextures(angle);
+    const auto angle = rotateUVAngle(clockwise, mode);
+    document->rotateUV(angle);
   }
 }
 
-float MapViewBase::rotateTextureAngle(
-  const bool clockwise, const TextureActionMode mode) const
+float MapViewBase::rotateUVAngle(const bool clockwise, const UVActionMode mode) const
 {
   const auto& grid = kdl::mem_lock(m_document)->grid();
   const auto gridAngle = static_cast<float>(vm::to_degrees(grid.angle()));
@@ -568,43 +559,43 @@ float MapViewBase::rotateTextureAngle(
 
   switch (mode)
   {
-  case TextureActionMode::Fine:
+  case UVActionMode::Fine:
     angle = 1.0f;
     break;
-  case TextureActionMode::Coarse:
+  case UVActionMode::Coarse:
     angle = 90.0f;
     break;
-  case TextureActionMode::Normal:
+  case UVActionMode::Normal:
     angle = gridAngle;
     break;
   }
   return clockwise ? angle : -angle;
 }
 
-void MapViewBase::flipTextures(const vm::direction direction)
+void MapViewBase::flipUV(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedBrushFaces())
   {
-    document->flipTextures(camera().up(), camera().right(), direction);
+    document->flipUV(camera().up(), camera().right(), direction);
   }
 }
 
-void MapViewBase::resetTextures()
+void MapViewBase::resetUV()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
-  request.resetAll(document->game()->defaultFaceAttribs());
+  request.resetAll(document->game()->config().faceAttribsConfig.defaults);
   document->setFaceAttributes(request);
 }
 
-void MapViewBase::resetTexturesToWorld()
+void MapViewBase::resetUVToWorld()
 {
   auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
-  request.resetAllToParaxial(document->game()->defaultFaceAttribs());
+  request.resetAllToParaxial(document->game()->config().faceAttribsConfig.defaults);
   document->setFaceAttributes(request);
 }
 
@@ -633,23 +624,17 @@ void MapViewBase::resetCameraZoom()
 
 void MapViewBase::cancel()
 {
-  if (doCancel())
+  if (!doCancel() && !ToolBoxConnector::cancel())
   {
-    return;
-  }
-  if (ToolBoxConnector::cancel())
-  {
-    return;
-  }
-
-  auto document = kdl::mem_lock(m_document);
-  if (document->hasSelection())
-  {
-    document->deselectAll();
-  }
-  else if (document->currentGroup() != nullptr)
-  {
-    document->closeGroup();
+    auto document = kdl::mem_lock(m_document);
+    if (document->hasSelection())
+    {
+      document->deselectAll();
+    }
+    else if (document->currentGroup())
+    {
+      document->closeGroup();
+    }
   }
 }
 
@@ -776,7 +761,8 @@ void MapViewBase::makeStructural()
   {
     reparentNodes(toReparent, document->parentForNodes(toReparent), false);
   }
-  bool anyTagDisabled = false;
+
+  auto anyTagDisabled = false;
   auto callback = EnableDisableTagCallback{};
   for (auto* brush : document->selectedNodes().brushes())
   {
@@ -793,10 +779,11 @@ void MapViewBase::makeStructural()
   if (!anyTagDisabled && toReparent.empty())
   {
     transaction.cancel();
-    return;
   }
-
-  transaction.commit();
+  else
+  {
+    transaction.commit();
+  }
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(
@@ -857,12 +844,12 @@ void MapViewBase::toggleShowBrushes()
   togglePref(Preferences::ShowBrushes);
 }
 
-void MapViewBase::showTextures()
+void MapViewBase::showMaterials()
 {
   setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeTextured());
 }
 
-void MapViewBase::hideTextures()
+void MapViewBase::hideMaterials()
 {
   setPref(Preferences::FaceRenderMode, Preferences::faceRenderModeFlat());
 }
@@ -1016,7 +1003,9 @@ void MapViewBase::doRender()
 
   auto renderContext =
     Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
-  renderContext.setShowTextures(
+  renderContext.setFilterMode(
+    pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+  renderContext.setShowMaterials(
     pref(Preferences::FaceRenderMode) == Preferences::faceRenderModeTextured());
   renderContext.setShowFaces(
     pref(Preferences::FaceRenderMode) != Preferences::faceRenderModeSkip());
@@ -1055,6 +1044,11 @@ void MapViewBase::doRender()
   renderFPS(renderContext, renderBatch);
 
   renderBatch.render(renderContext);
+
+  if (document->needsResourceProcessing())
+  {
+    update();
+  }
 }
 
 void MapViewBase::setupGL(Renderer::RenderContext& context)
@@ -1114,7 +1108,7 @@ void MapViewBase::renderPointFile(
 void MapViewBase::renderPortalFile(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
-  if (m_portalFileRenderer == nullptr)
+  if (!m_portalFileRenderer)
   {
     validatePortalFileRenderer(renderContext);
     assert(m_portalFileRenderer != nullptr);
@@ -1134,7 +1128,7 @@ void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&)
 
   auto document = kdl::mem_lock(m_document);
   auto* portalFile = document->portalFile();
-  if (portalFile != nullptr)
+  if (portalFile)
   {
     for (const auto& poly : portalFile->portals())
     {
@@ -1259,7 +1253,7 @@ void MapViewBase::showPopupMenuLater()
 
   // Layer operations
 
-  const auto selectedObjectLayers = Model::findContainingLayersUserSorted(nodes);
+  const auto selectedObjectLayers = Model::collectContainingLayersUserSorted(nodes);
 
   auto* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
   for (auto* layerNode : document->world()->allLayersUserSorted())
@@ -1348,12 +1342,12 @@ void MapViewBase::showPopupMenuLater()
   const auto faceHandle = Model::hitToFaceHandle(hit);
   if (faceHandle)
   {
-    const auto* texture = faceHandle->face().texture();
+    const auto* material = faceHandle->face().material();
     menu.addAction(
-      tr("Reveal %1 in Texture Browser")
-        .arg(QString::fromStdString(faceHandle->face().attributes().textureName())),
+      tr("Reveal %1 in Material Browser")
+        .arg(QString::fromStdString(faceHandle->face().attributes().materialName())),
       mapFrame,
-      [=] { mapFrame->revealTexture(texture); });
+      [=] { mapFrame->revealMaterial(material); });
 
     menu.addSeparator();
   }
@@ -1736,5 +1730,5 @@ bool MapViewBase::doBeforePopupMenu()
   return true;
 }
 void MapViewBase::doAfterPopupMenu() {}
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

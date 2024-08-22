@@ -38,12 +38,13 @@
 #include "View/HandleDragTracker.h"
 #include "View/MapDocument.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/optional_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>
@@ -171,16 +172,13 @@ public:
 
     const auto& pickRay = inputState.pickRay();
     const auto defaultPos = m_tool.defaultClipPointPos();
-    const auto distance =
-      vm::intersect_ray_plane(pickRay, vm::plane3(defaultPos, viewDir));
-    if (vm::is_nan(distance))
-    {
-      return std::nullopt;
-    }
-
-    const auto hitPoint = vm::point_at_distance(pickRay, distance);
-    const auto position = m_tool.grid().snap(hitPoint);
-    return {{position, hitPoint}};
+    return kdl::optional_transform(
+      vm::intersect_ray_plane(pickRay, vm::plane3{defaultPos, viewDir}),
+      [&](const auto distance) {
+        const auto hitPoint = vm::point_at_distance(pickRay, distance);
+        const auto position = m_tool.grid().snap(hitPoint);
+        return std::tuple{position, hitPoint};
+      });
   }
 };
 
@@ -324,7 +322,7 @@ private:
   bool m_secondPointSet{false};
 
 public:
-  AddClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit AddClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
@@ -456,7 +454,7 @@ private:
   PartDelegateBase& m_delegate;
 
 public:
-  MoveClipPointDragDelegate(PartDelegateBase& delegate)
+  explicit MoveClipPointDragDelegate(PartDelegateBase& delegate)
     : m_delegate{delegate}
   {
   }
@@ -595,18 +593,18 @@ ClipToolController2D::ClipToolController2D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate2D>(tool)));
 }
 
 ClipToolController3D::ClipToolController3D(ClipTool& tool)
   : ClipToolControllerBase{tool}
 {
   addController(
-    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
-  addController(
     std::make_unique<MoveClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
+  addController(
+    std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
 } // namespace View
 } // namespace TrenchBroom

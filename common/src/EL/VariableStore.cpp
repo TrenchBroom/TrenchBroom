@@ -22,8 +22,8 @@
 #include "EL/ELExceptions.h"
 #include "EL/Value.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/string_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/string_utils.h"
 
 #include <algorithm>
 #include <ostream>

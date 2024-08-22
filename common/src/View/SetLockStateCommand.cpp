@@ -29,7 +29,7 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 #include <string>
 

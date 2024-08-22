@@ -26,17 +26,17 @@
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
 #include "IO/ZipFileSystem.h"
-#include "Matchers.h"
 #include "TestUtils.h"
 
 #include <filesystem>
 
+#include "CatchUtils/Matchers.h"
+
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 const auto cr8_czg_03_contents = std::vector<unsigned char>{
   0x63, 0x72, 0x38, 0x5F, 0x63, 0x7A, 0x67, 0x5F, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00,
   0x00, 0x00, 0x40, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00,
@@ -878,11 +878,34 @@ TEST_CASE("Hierarchical ImageFileSystems")
         "pics/tag1.pcx",
         "bear.cfg",
       }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{0}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "pics",
+        "bear.cfg",
+      }));
+
+    CHECK_THAT(
+      fs->find("", TraversalMode{1}),
+      MatchesPathsResult({
+        "amnet.cfg",
+        "textures",
+        "textures/e1u3",
+        "textures/e1u2",
+        "textures/e1u1",
+        "pics",
+        "pics/tag2.pcx",
+        "pics/tag1.pcx",
+        "bear.cfg",
+      }));
   }
 
   SECTION("openFile")
   {
-    const auto amnet_cfg = fs->openFile("amnet.cfg").value();
+    const auto amnet_cfg = fs->openFile("amnet.cfg") | kdl::value();
 
     auto reader = amnet_cfg->reader();
     CHECK(reader.readString(reader.size()) == R"(//
@@ -954,7 +977,7 @@ TEST_CASE("Flat ImageFileSystems")
 
   SECTION("openFile")
   {
-    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D").value();
+    const auto cr8_czg_3_d = fs->openFile("cr8_czg_3.D") | kdl::value();
 
     auto reader = cr8_czg_3_d->reader();
     auto contents = std::vector<unsigned char>(reader.size());
@@ -962,5 +985,33 @@ TEST_CASE("Flat ImageFileSystems")
     CHECK(contents == cr8_czg_03_contents);
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+TEST_CASE("WadFileSystem")
+{
+  SECTION("Wad files can be replaced while wad file system exists")
+  {
+    const auto wadPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
+    const auto copyPath =
+      std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg_2.wad";
+
+    REQUIRE_FALSE(std::filesystem::is_regular_file(copyPath));
+    REQUIRE_NOTHROW(std::filesystem::copy(wadPath, copyPath));
+    REQUIRE(std::filesystem::is_regular_file(copyPath));
+
+    {
+      const auto fs = openFS<WadFileSystem>(copyPath);
+
+      auto errorCode = std::error_code{};
+      CHECK(std::filesystem::remove(copyPath, errorCode));
+      CHECK(errorCode == std::error_code{});
+    }
+
+    if (std::filesystem::is_regular_file(copyPath))
+    {
+      REQUIRE(std::filesystem::remove(copyPath));
+    }
+  }
+}
+
+} // namespace TrenchBroom::IO

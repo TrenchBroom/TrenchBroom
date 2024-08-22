@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
 namespace TrenchBroom
 {

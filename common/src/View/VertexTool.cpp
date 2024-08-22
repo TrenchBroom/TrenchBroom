@@ -28,9 +28,9 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 
-#include <kdl/string_format.h>
+#include "kdl/string_format.h"
 
-#include <vecmath/polygon.h>
+#include "vm/polygon.h"
 
 #include <cassert>
 #include <tuple>

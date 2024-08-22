@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "View/InputEvent.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 #include <array>
 #include <chrono>

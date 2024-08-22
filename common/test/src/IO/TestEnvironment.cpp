@@ -27,10 +27,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
   : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
   , m_dir{m_sandboxPath / dir}
@@ -72,6 +71,19 @@ void TestEnvironment::createFile(
   stream << contents;
 }
 
+void TestEnvironment::createSymLink(
+  const std::filesystem::path& target, const std::filesystem::path& link)
+{
+  if (std::filesystem::is_directory(m_dir / target))
+  {
+    std::filesystem::create_directory_symlink(m_dir / target, m_dir / link);
+  }
+  else
+  {
+    std::filesystem::create_symlink(m_dir / target, m_dir / link);
+  }
+}
+
 static bool deleteDirectoryAbsolute(const std::filesystem::path& absolutePath)
 {
   return std::filesystem::remove_all(absolutePath);
@@ -92,11 +104,22 @@ bool TestEnvironment::fileExists(const std::filesystem::path& path) const
   return std::filesystem::is_regular_file(m_dir / path);
 }
 
+std::vector<std::filesystem::path> TestEnvironment::directoryContents(
+  const std::filesystem::path& path) const
+{
+  auto result = std::vector<std::filesystem::path>{};
+  for (const auto& entry : std::filesystem::directory_iterator{m_dir / path})
+  {
+    result.push_back(entry.path().lexically_relative(m_dir));
+  }
+  std::sort(result.begin(), result.end());
+  return result;
+}
+
 std::string TestEnvironment::loadFile(const std::filesystem::path& path) const
 {
   auto stream = std::ifstream{m_dir / path, std::ios::in};
   return std::string{std::istreambuf_iterator<char>{stream}, {}};
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

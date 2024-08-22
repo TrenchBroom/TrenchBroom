@@ -35,10 +35,10 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 #include <cassert>
 #include <vector>
@@ -200,10 +200,7 @@ vm::mat4x4f Compass::cameraRotationMatrix(const Camera& camera) const
   rotation[1] = vm::vec4f(camera.direction());
   rotation[2] = vm::vec4f(camera.up());
 
-  const auto [invertible, inverseRotation] = invert(rotation);
-  assert(invertible);
-  unused(invertible);
-  return inverseRotation;
+  return *invert(rotation);
 }
 
 void Compass::renderBackground(RenderContext& renderContext)

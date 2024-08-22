@@ -18,28 +18,27 @@
  */
 
 #include "Assets/EntityModel.h"
+#include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "IO/DiskIO.h"
-#include "IO/EntityModelLoader.h"
-#include "IO/GameConfigParser.h"
+#include "Assets/TextureResource.h"
+#include "IO/LoadEntityModel.h"
+#include "Model/Game.h"
 #include "Model/GameConfig.h"
-#include "Model/GameImpl.h"
 #include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/TexturedIndexRangeRenderer.h"
+#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
+#include "vm/approx.h"
+#include "vm/bbox.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
 
 #include <filesystem>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 TEST_CASE("BSP model intersection test")
 {
@@ -47,14 +46,17 @@ TEST_CASE("BSP model intersection test")
   auto [game, gameConfig] = Model::loadGame("Quake");
 
   const auto path = std::filesystem::path{"cube.bsp"};
+  const auto loadMaterial = [](auto) -> Assets::Material {
+    throw std::runtime_error{"should not be called"};
+  };
 
-  std::unique_ptr<Assets::EntityModel> model = game->initializeModel(path, logger);
-  game->loadFrame(path, 0, *model, logger);
+  auto model = IO::loadEntityModelSync(
+    game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
 
-  Assets::EntityModelFrame* frame = model->frames().at(0);
+  auto& frame = model.value().data()->frames().at(0);
 
   const auto box = vm::bbox3f(vm::vec3f::fill(-32), vm::vec3f::fill(32));
-  CHECK(box == frame->bounds());
+  CHECK(box == frame.bounds());
 
   // test some hitting rays
   for (int x = -45; x <= 45; x += 15)
@@ -72,24 +74,24 @@ TEST_CASE("BSP model intersection test")
         const auto endPoint = vm::vec3f::zero();
         const auto ray = vm::ray3f(startPoint, vm::normalize(endPoint - startPoint));
 
-        const float treeDist = frame->intersect(ray);
-        const float expected = vm::intersect_ray_bbox(ray, box);
+        const auto treeDist = frame.intersect(ray);
+        const auto expected = vm::intersect_ray_bbox(ray, box);
 
-        CHECK(expected == Approx(treeDist));
+        CHECK(expected == vm::optional_approx(treeDist));
       }
     }
   }
 
   // test a missing ray
   const auto missRay = vm::ray3f(vm::vec3f(0, -33, -33), vm::vec3f::pos_y());
-  CHECK(vm::is_nan(frame->intersect(missRay)));
-  CHECK(vm::is_nan(vm::intersect_ray_bbox(missRay, box)));
+  CHECK(frame.intersect(missRay) == std::nullopt);
+  CHECK(vm::intersect_ray_bbox(missRay, box) == std::nullopt);
 }
 
-static Texture makeDummyTexture(const std::string& name)
+static Material makeDummyMaterial(std::string name)
 {
-  return Texture{
-    name, 1, 1, Color::zero(), TextureBuffer{4}, GL_RGBA, TextureType::Opaque};
+  auto textureResource = createTextureResource(Texture{1, 1});
+  return Material{std::move(name), std::move(textureResource)};
 }
 
 static Renderer::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
@@ -110,40 +112,39 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   // default to a skin index of 0 if the provided index is not
   // present for the surface.
 
-  auto model = EntityModel{"test", PitchType::Normal, Orientation::Oriented};
-  model.addFrame();
-  auto& frame = model.loadFrame(0, "test", vm::bbox3f{0, 8});
+  auto modelData =
+    EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+  auto& frame = modelData.addFrame("test", vm::bbox3f{0, 8});
 
   // Prepare the first surface - it will only have one skin
-  auto& surface1 = model.addSurface("surface 1");
+  auto& surface1 = modelData.addSurface("surface 1", 1);
 
-  auto textures1 = std::vector<Texture>{};
-  textures1.push_back(makeDummyTexture("skin1"));
-  surface1.setSkins(std::move(textures1));
+  auto materials1 = std::vector<Material>{};
+  materials1.push_back(makeDummyMaterial("skin1"));
+  surface1.setSkins(std::move(materials1));
 
   auto builder1 = makeDummyBuilder();
-  surface1.addIndexedMesh(frame, builder1.vertices(), builder1.indices());
+  surface1.addMesh(frame, builder1.vertices(), builder1.indices());
 
   // The second surface will have two skins
-  auto& surface2 = model.addSurface("surface 2");
+  auto& surface2 = modelData.addSurface("surface 2", 1);
 
-  auto textures2 = std::vector<Texture>{};
-  textures2.push_back(makeDummyTexture("skin2a"));
-  textures2.push_back(makeDummyTexture("skin2b"));
-  surface2.setSkins(std::move(textures2));
+  auto materials2 = std::vector<Material>{};
+  materials2.push_back(makeDummyMaterial("skin2a"));
+  materials2.push_back(makeDummyMaterial("skin2b"));
+  surface2.setSkins(std::move(materials2));
 
   auto builder2 = makeDummyBuilder();
-  surface2.addIndexedMesh(frame, builder2.vertices(), builder2.indices());
+  surface2.addMesh(frame, builder2.vertices(), builder2.indices());
 
   // even though the model has 2 skins, we should get a valid renderer even if we request
   // to use skin 3
-  const auto renderer0 = model.buildRenderer(0, 0);
-  const auto renderer1 = model.buildRenderer(1, 0);
-  const auto renderer2 = model.buildRenderer(2, 0);
+  const auto renderer0 = modelData.buildRenderer(0, 0);
+  const auto renderer1 = modelData.buildRenderer(1, 0);
+  const auto renderer2 = modelData.buildRenderer(2, 0);
 
   CHECK(renderer0 != nullptr);
   CHECK(renderer1 != nullptr);
   CHECK(renderer2 != nullptr);
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

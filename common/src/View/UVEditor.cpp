@@ -33,12 +33,11 @@
 #include "View/UVView.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 UVEditor::UVEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
@@ -58,69 +57,48 @@ void UVEditor::updateButtons()
   auto document = kdl::mem_lock(m_document);
   const bool enabled = !document->allSelectedBrushFaces().empty();
 
-  m_resetTextureButton->setEnabled(enabled);
-  m_resetTextureToWorldButton->setEnabled(enabled);
-  m_flipTextureHButton->setEnabled(enabled);
-  m_flipTextureVButton->setEnabled(enabled);
-  m_rotateTextureCCWButton->setEnabled(enabled);
-  m_rotateTextureCWButton->setEnabled(enabled);
+  m_resetUVButton->setEnabled(enabled);
+  m_resetUVToWorldButton->setEnabled(enabled);
+  m_flipUAxisButton->setEnabled(enabled);
+  m_flipVAxisButton->setEnabled(enabled);
+  m_rotateUVCCWButton->setEnabled(enabled);
+  m_rotateUVCWButton->setEnabled(enabled);
 }
 
 void UVEditor::createGui(GLContextManager& contextManager)
 {
   m_uvView = new UVView{m_document, contextManager};
 
-  m_resetTextureButton =
-    createBitmapButton("ResetTexture.svg", tr("Reset texture alignment"), this);
-  m_resetTextureToWorldButton = createBitmapButton(
-    "ResetTextureToWorld.svg", tr("Reset texture alignment to world aligned"), this);
-  m_flipTextureHButton =
-    createBitmapButton("FlipTextureH.svg", tr("Flip texture X axis"), this);
-  m_flipTextureVButton =
-    createBitmapButton("FlipTextureV.svg", tr("Flip texture Y axis"), this);
-  m_rotateTextureCCWButton = createBitmapButton(
-    "RotateTextureCCW.svg", tr("Rotate texture 90° counter-clockwise"), this);
-  m_rotateTextureCWButton =
-    createBitmapButton("RotateTextureCW.svg", tr("Rotate texture 90° clockwise"), this);
+  m_resetUVButton = createBitmapButton("ResetUV.svg", tr("Reset UV alignment"), this);
+  m_resetUVToWorldButton = createBitmapButton(
+    "ResetUVToWorld.svg", tr("Reset UV alignment to world aligned"), this);
+  m_flipUAxisButton = createBitmapButton("FlipUAxis.svg", tr("Flip U axis"), this);
+  m_flipVAxisButton = createBitmapButton("FlipVAxis.svg", tr("Flip V axis"), this);
+  m_rotateUVCCWButton =
+    createBitmapButton("RotateUVCCW.svg", tr("Rotate UV 90° counter-clockwise"), this);
+  m_rotateUVCWButton =
+    createBitmapButton("RotateUVCW.svg", tr("Rotate UV 90° clockwise"), this);
 
+  connect(m_resetUVButton, &QAbstractButton::clicked, this, &UVEditor::resetUVClicked);
   connect(
-    m_resetTextureButton,
+    m_resetUVToWorldButton,
     &QAbstractButton::clicked,
     this,
-    &UVEditor::resetTextureClicked);
+    &UVEditor::resetUVToWorldClicked);
+  connect(m_flipUAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVHClicked);
+  connect(m_flipVAxisButton, &QAbstractButton::clicked, this, &UVEditor::flipUVVClicked);
   connect(
-    m_resetTextureToWorldButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::resetTextureToWorldClicked);
+    m_rotateUVCCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCCWClicked);
   connect(
-    m_flipTextureHButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::flipTextureHClicked);
-  connect(
-    m_flipTextureVButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::flipTextureVClicked);
-  connect(
-    m_rotateTextureCCWButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::rotateTextureCCWClicked);
-  connect(
-    m_rotateTextureCWButton,
-    &QAbstractButton::clicked,
-    this,
-    &UVEditor::rotateTextureCWClicked);
+    m_rotateUVCWButton, &QAbstractButton::clicked, this, &UVEditor::rotateUVCWClicked);
 
-  auto* gridLabel = new QLabel("Grid ");
+  auto* gridLabel = new QLabel{"Grid "};
   makeEmphasized(gridLabel);
-  m_xSubDivisionEditor = new QSpinBox();
+  m_xSubDivisionEditor = new QSpinBox{};
   m_xSubDivisionEditor->setRange(1, 16);
   m_xSubDivisionEditor->setValue(1);
 
-  m_ySubDivisionEditor = new QSpinBox();
+  m_ySubDivisionEditor = new QSpinBox{};
   m_ySubDivisionEditor->setRange(1, 16);
   m_ySubDivisionEditor->setValue(1);
 
@@ -135,26 +113,26 @@ void UVEditor::createGui(GLContextManager& contextManager)
     this,
     &UVEditor::subDivisionChanged);
 
-  auto* bottomLayout = new QHBoxLayout();
+  auto* bottomLayout = new QHBoxLayout{};
   bottomLayout->setContentsMargins(
     LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
   bottomLayout->setSpacing(LayoutConstants::NarrowHMargin);
-  bottomLayout->addWidget(m_resetTextureButton);
-  bottomLayout->addWidget(m_resetTextureToWorldButton);
-  bottomLayout->addWidget(m_flipTextureHButton);
-  bottomLayout->addWidget(m_flipTextureVButton);
-  bottomLayout->addWidget(m_rotateTextureCCWButton);
-  bottomLayout->addWidget(m_rotateTextureCWButton);
+  bottomLayout->addWidget(m_resetUVButton);
+  bottomLayout->addWidget(m_resetUVToWorldButton);
+  bottomLayout->addWidget(m_flipUAxisButton);
+  bottomLayout->addWidget(m_flipVAxisButton);
+  bottomLayout->addWidget(m_rotateUVCCWButton);
+  bottomLayout->addWidget(m_rotateUVCWButton);
   bottomLayout->addStretch();
   bottomLayout->addWidget(gridLabel);
-  bottomLayout->addWidget(new QLabel("X:"));
+  bottomLayout->addWidget(new QLabel{"X:"});
   bottomLayout->addWidget(m_xSubDivisionEditor);
   bottomLayout->addSpacing(
     LayoutConstants::MediumHMargin - LayoutConstants::NarrowHMargin);
-  bottomLayout->addWidget(new QLabel("Y:"));
+  bottomLayout->addWidget(new QLabel{"Y:"});
   bottomLayout->addWidget(m_ySubDivisionEditor);
 
-  auto* outerLayout = new QVBoxLayout();
+  auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(LayoutConstants::NarrowVMargin);
   outerLayout->addWidget(m_uvView, 1);
@@ -176,54 +154,53 @@ void UVEditor::connectObservers()
     document->selectionDidChangeNotifier.connect(this, &UVEditor::selectionDidChange);
 }
 
-void UVEditor::resetTextureClicked()
+void UVEditor::resetUVClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
-  request.resetAll(document->game()->defaultFaceAttribs());
   document->setFaceAttributes(request);
 }
 
-void UVEditor::resetTextureToWorldClicked()
+void UVEditor::resetUVToWorldClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
-  request.resetAllToParaxial(document->game()->defaultFaceAttribs());
+  request.resetAllToParaxial(document->game()->config().faceAttribsConfig.defaults);
   document->setFaceAttributes(request);
 }
 
-void UVEditor::flipTextureHClicked()
+void UVEditor::flipUVHClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulXScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
   document->setFaceAttributes(request);
 }
 
-void UVEditor::flipTextureVClicked()
+void UVEditor::flipUVVClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.mulYScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
   document->setFaceAttributes(request);
 }
 
-void UVEditor::rotateTextureCCWClicked()
+void UVEditor::rotateUVCCWClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(90.0f);
 
   auto document = kdl::mem_lock(m_document);
   document->setFaceAttributes(request);
 }
 
-void UVEditor::rotateTextureCWClicked()
+void UVEditor::rotateUVCWClicked()
 {
-  Model::ChangeBrushFaceAttributesRequest request;
+  auto request = Model::ChangeBrushFaceAttributesRequest{};
   request.addRotation(-90.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -236,5 +213,5 @@ void UVEditor::subDivisionChanged()
   const int y = m_ySubDivisionEditor->value();
   m_uvView->setSubDivisions(vm::vec2i(x, y));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

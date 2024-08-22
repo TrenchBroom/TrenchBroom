@@ -32,21 +32,19 @@ class QCheckBox;
 class QWidget;
 class QButtonGroup;
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 class EntityDefinitionManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EditorContext;
 class SmartTag;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class PopupButton;
@@ -55,13 +53,11 @@ class EntityDefinitionCheckBoxList : public QWidget
 {
   Q_OBJECT
 private:
-  using CheckBoxList = std::vector<QCheckBox*>;
-
   Assets::EntityDefinitionManager& m_entityDefinitionManager;
   Model::EditorContext& m_editorContext;
 
-  CheckBoxList m_groupCheckBoxes;
-  CheckBoxList m_defCheckBoxes;
+  std::vector<QCheckBox*> m_groupCheckBoxes;
+  std::vector<QCheckBox*> m_defCheckBoxes;
 
 public:
   EntityDefinitionCheckBoxList(
@@ -89,28 +85,28 @@ private:
 
   std::weak_ptr<MapDocument> m_document;
 
-  QCheckBox* m_showEntityClassnamesCheckBox;
+  QCheckBox* m_showEntityClassnamesCheckBox = nullptr;
 
-  QCheckBox* m_showGroupBoundsCheckBox;
-  QCheckBox* m_showBrushEntityBoundsCheckBox;
-  QCheckBox* m_showPointEntityBoundsCheckBox;
+  QCheckBox* m_showGroupBoundsCheckBox = nullptr;
+  QCheckBox* m_showBrushEntityBoundsCheckBox = nullptr;
+  QCheckBox* m_showPointEntityBoundsCheckBox = nullptr;
 
-  QCheckBox* m_showPointEntitiesCheckBox;
-  QCheckBox* m_showPointEntityModelsCheckBox;
+  QCheckBox* m_showPointEntitiesCheckBox = nullptr;
+  QCheckBox* m_showPointEntityModelsCheckBox = nullptr;
 
-  EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList;
+  EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList = nullptr;
 
-  QCheckBox* m_showBrushesCheckBox;
+  QCheckBox* m_showBrushesCheckBox = nullptr;
   std::vector<std::pair<Model::TagType::Type, QCheckBox*>> m_tagCheckBoxes;
 
-  QButtonGroup* m_renderModeRadioGroup;
-  QCheckBox* m_shadeFacesCheckBox;
-  QCheckBox* m_showFogCheckBox;
-  QCheckBox* m_showEdgesCheckBox;
+  QButtonGroup* m_renderModeRadioGroup = nullptr;
+  QCheckBox* m_shadeFacesCheckBox = nullptr;
+  QCheckBox* m_showFogCheckBox = nullptr;
+  QCheckBox* m_showEdgesCheckBox = nullptr;
 
-  QButtonGroup* m_entityLinkRadioGroup;
+  QButtonGroup* m_entityLinkRadioGroup = nullptr;
 
-  QCheckBox* m_showSoftBoundsCheckBox;
+  QCheckBox* m_showSoftBoundsCheckBox = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -163,12 +159,12 @@ class ViewPopupEditor : public QWidget
 {
   Q_OBJECT
 private:
-  PopupButton* m_button;
-  ViewEditor* m_editor;
+  PopupButton* m_button = nullptr;
+  ViewEditor* m_editor = nullptr;
 
 public:
   explicit ViewPopupEditor(
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

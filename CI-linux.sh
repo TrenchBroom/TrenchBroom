@@ -18,8 +18,8 @@ cmake --build . --config Release || exit 1
 
 BUILD_DIR=$(pwd)
 
-cd "$BUILD_DIR/lib/vecmath/test"
-./vecmath-test || exit 1
+cd "$BUILD_DIR/lib/vm/test"
+./vm-test || exit 1
 
 cd "$BUILD_DIR/lib/kdl/test"
 ./kdl-test || exit 1
@@ -34,7 +34,6 @@ if [[ $TB_DEBUG_BUILD != "true" ]] ; then
 else
     echo "Skipping common-benmchark because this is a debug build"
 fi
-
 
 cd "$BUILD_DIR"
 

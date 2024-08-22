@@ -24,7 +24,7 @@
 #include "IO/PathMatcher.h"
 #include "Result.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <filesystem>
 #include <fstream>
@@ -33,10 +33,10 @@
 
 namespace TrenchBroom::IO
 {
-enum class TraversalMode;
 class CFile;
 class File;
 enum class PathInfo;
+struct TraversalMode;
 
 namespace Disk
 {
@@ -48,7 +48,7 @@ PathInfo pathInfo(const std::filesystem::path& path);
 
 Result<std::vector<std::filesystem::path>> find(
   const std::filesystem::path& path,
-  TraversalMode traversalMode,
+  const TraversalMode& traversalMode,
   const PathMatcher& pathMatcher = matchAnyPath);
 
 Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path);
@@ -71,11 +71,12 @@ auto withStream(
     {
       if constexpr (std::is_same_v<typename FnResultType::value_type, void>)
       {
-        return function(stream).and_then([]() { return ResultType{}; });
+        return function(stream) | kdl::and_then([]() { return ResultType{}; });
       }
       else
       {
-        return function(stream).and_then([](auto x) { return ResultType{std::move(x)}; });
+        return function(stream)
+               | kdl::and_then([](auto x) { return ResultType{std::move(x)}; });
       }
     }
     else if constexpr (std::is_same_v<typename ResultType::value_type, void>)

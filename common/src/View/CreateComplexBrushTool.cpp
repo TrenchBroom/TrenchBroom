@@ -29,8 +29,8 @@
 #include "PreferenceManager.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/result.h>
+#include "kdl/memory_utils.h"
+#include "kdl/result.h"
 
 namespace TrenchBroom
 {
@@ -57,14 +57,14 @@ void CreateComplexBrushTool::update(const Model::Polyhedron3& polyhedron)
     const Model::BrushBuilder builder(
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->defaultFaceAttribs());
+      game->config().faceAttribsConfig.defaults);
 
-    builder.createBrush(*m_polyhedron, document->currentTextureName())
-      .transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
-      .transform_error([&](auto e) {
-        updateBrush(nullptr);
-        document->error() << "Could not update brush: " << e.msg;
-      });
+    builder.createBrush(*m_polyhedron, document->currentMaterialName())
+      | kdl::transform([&](auto b) { updateBrush(new Model::BrushNode(std::move(b))); })
+      | kdl::transform_error([&](auto e) {
+          updateBrush(nullptr);
+          document->error() << "Could not update brush: " << e.msg;
+        });
   }
   else
   {

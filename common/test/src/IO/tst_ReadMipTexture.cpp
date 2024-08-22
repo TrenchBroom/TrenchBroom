@@ -17,20 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Material.h"
+#include "Assets/MaterialCollection.h"
 #include "Assets/Palette.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureCollection.h"
 #include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
+#include "IO/MaterialUtils.h"
 #include "IO/ReadMipTexture.h"
-#include "IO/TextureUtils.h"
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 #include "TestLogger.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <filesystem>
 #include <string>
@@ -72,21 +72,21 @@ TEST_CASE("readIdMipTexture")
 
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  auto paletteFile = fs.openFile("fixture/test/palette.lmp").value();
-  const auto palette = Assets::loadPalette(*paletteFile, palettePath).value();
+  auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
+  const auto palette = Assets::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   auto logger = NullLogger{};
 
   const auto wadPath =
     std::filesystem::current_path() / "fixture/test/IO/Wad/cr8_czg.wad";
-  auto wadFS = WadFileSystem{Disk::openFile(wadPath).value()};
+  auto wadFS = WadFileSystem{Disk::openFile(wadPath) | kdl::value()};
   REQUIRE(wadFS.reload().is_success());
 
-  const auto file = wadFS.openFile(textureName + ".D").value();
+  const auto file = wadFS.openFile(textureName + ".D") | kdl::value();
   auto reader = file->reader().buffer();
-  const auto texture = readIdMipTexture(textureName, reader, palette).value();
+  const auto texture =
+    readIdMipTexture(reader, palette, Assets::TextureMask::Off) | kdl::value();
 
-  CHECK(texture.name() == textureName);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
 }
@@ -107,16 +107,15 @@ TEST_CASE("readHlMipTexture")
   auto logger = TestLogger{};
 
   const auto wadPath = std::filesystem::current_path() / "fixture/test/IO/HL/hl.wad";
-  auto wadFS = WadFileSystem{Disk::openFile(wadPath).value()};
+  auto wadFS = WadFileSystem{Disk::openFile(wadPath) | kdl::value()};
   REQUIRE(wadFS.reload().is_success());
 
-  const auto file = wadFS.openFile(textureName + ".C").value();
+  const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
   auto reader = file->reader().buffer();
-  const auto texture = readHlMipTexture(textureName, reader).value();
+  const auto texture = readHlMipTexture(reader, Assets::TextureMask::Off) | kdl::value();
 
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);
-  CHECK(texture.name() == textureName);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
 }

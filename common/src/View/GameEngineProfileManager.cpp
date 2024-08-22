@@ -30,7 +30,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <filesystem>
 

@@ -25,24 +25,23 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
-Interpolator::Interpolator(const std::string& str)
-  : ELParser(ELParser::Mode::Lenient, str)
+
+Interpolator::Interpolator(const std::string_view str)
+  : ELParser{ELParser::Mode::Lenient, str}
 {
 }
 
 std::string Interpolator::interpolate(const EvaluationContext& context)
 {
-  std::stringstream result;
+  auto result = std::stringstream{};
   while (!m_tokenizer.eof())
   {
     m_tokenizer.appendUntil("${", result);
     if (!m_tokenizer.eof())
     {
-      Expression expression = parse();
+      const auto expression = parse();
       result
         << expression.evaluate(context).convertTo(EL::ValueType::String).stringValue();
       expect(IO::ELToken::CBrace, m_tokenizer.nextToken());
@@ -52,10 +51,10 @@ std::string Interpolator::interpolate(const EvaluationContext& context)
   return result.str();
 }
 
-std::string interpolate(const std::string& str, const EvaluationContext& context)
+std::string interpolate(const std::string_view str, const EvaluationContext& context)
 {
-  Interpolator interpolator(str);
+  auto interpolator = Interpolator{str};
   return interpolator.interpolate(context);
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

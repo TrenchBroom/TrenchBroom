@@ -21,8 +21,8 @@
 
 #include "FloatType.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_format.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_format.h"
 
 namespace TrenchBroom
 {

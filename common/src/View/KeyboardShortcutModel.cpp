@@ -28,7 +28,7 @@
 #include "View/Actions.h"
 #include "View/MapDocument.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
 #include <functional>
 #include <set>

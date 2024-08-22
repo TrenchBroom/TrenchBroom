@@ -21,21 +21,29 @@
 
 #include "FloatType.h"
 
-namespace TrenchBroom
+#include <string>
+
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class GroupNode;
 class LayerNode;
 class Node;
+enum class SetLinkId;
 
 class Object
 {
 protected:
+  std::string m_linkId;
+
   Object();
 
 public:
   virtual ~Object();
+
+  const std::string& linkId() const;
+  void setLinkId(std::string linkId);
+  void cloneLinkId(const Object& original, SetLinkId linkIdPolicy);
 
   Node* container();
   const Node* container() const;
@@ -54,5 +62,5 @@ private: // subclassing interface
   virtual LayerNode* doGetContainingLayer() = 0;
   virtual GroupNode* doGetContainingGroup() = 0;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

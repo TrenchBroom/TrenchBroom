@@ -24,31 +24,30 @@
 #include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
 
-#include <kdl/vector_set.h>
+#include "kdl/vector_set.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h> // enable Catch2 to print vm::vec on test failures
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/mat_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h" // enable Catch2 to print vm::vec on test failures
 
 #include <filesystem>
 #include <memory>
 #include <sstream>
 #include <string>
 
-#include "Catch2.h"
-
 namespace TrenchBroom
 {
 namespace Assets
 {
+class Material;
 class Texture;
-}
+} // namespace Assets
 
-bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
+bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
-bool UVListsEqual(
+bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
 namespace IO
@@ -57,9 +56,10 @@ namespace IO
 template <typename FS>
 auto openFS(const std::filesystem::path& path)
 {
-  return Disk::openFile(path)
-    .and_then([](auto file) { return createImageFileSystem<FS>(std::move(file)); })
-    .value();
+  return Disk::openFile(path) | kdl::and_then([](auto file) {
+           return createImageFileSystem<FS>(std::move(file));
+         })
+         | kdl::value();
 }
 
 std::string readTextFile(const std::filesystem::path& path);
@@ -80,53 +80,53 @@ BrushFace createParaxial(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2,
-  const std::string& textureName = "");
+  const std::string& materialName = "");
 
 std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
 std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3,
   const vm::vec3d& v4);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brush,
   const std::vector<vm::vec3d>& vertices);
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::polygon3d& vertices);
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3,
   const vm::vec3d& v4);
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const std::vector<vm::vec3d>& vertices);
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
 void transformNode(
@@ -144,11 +144,11 @@ const Model::BrushFace* findFaceByPoints(
   const vm::vec3& point0,
   const vm::vec3& point1,
   const vm::vec3& point2);
-void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel);
-void checkBrushTexCoordSystem(
-  const Model::BrushNode* brushNode, const bool expectParallel);
+void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
+void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
 
-void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId);
+void setLinkId(Node& node, std::string linkId);
+
 } // namespace Model
 
 namespace View
@@ -195,88 +195,16 @@ void checkColor(
   int a,
   ColorMatch match = ColorMatch::Exact);
 
-class GlobMatcher : public Catch::MatcherBase<std::string>
-{
-private:
-  std::string m_glob;
+int getComponentOfPixel(
+  const Assets::Material& material, std::size_t x, std::size_t y, Component component);
+void checkColor(
+  const Assets::Material& material,
+  std::size_t x,
+  std::size_t y,
+  int r,
+  int g,
+  int b,
+  int a,
+  ColorMatch match = ColorMatch::Exact);
 
-public:
-  explicit GlobMatcher(const std::string& glob);
-  bool match(const std::string& value) const override;
-  std::string describe() const override;
-};
-
-GlobMatcher MatchesGlob(const std::string& glob);
-
-/**
- * Catch2 matcher that compares two `std::vector`s of `vm::vec<T,S>`s,
- * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with an
- * epsilon.
- */
-template <typename T, std::size_t S>
-class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>
-{
-private:
-  std::vector<vm::vec<T, S>> m_expected;
-  T m_epsilon;
-
-public:
-  explicit UnorderedApproxVecMatcher(
-    const std::vector<vm::vec<T, S>>& expected, const T epsilon)
-    : m_expected(expected)
-    , m_epsilon(epsilon)
-  {
-  }
-
-  bool match(const std::vector<vm::vec<T, S>>& actual) const override
-  {
-    if (actual.size() != m_expected.size())
-    {
-      return false;
-    }
-
-    for (auto& actualElement : actual)
-    {
-      bool foundMatch = false;
-
-      for (size_t i = 0; i < m_expected.size(); ++i)
-      {
-        if (vm::is_equal(m_expected[i], actualElement, m_epsilon))
-        {
-          foundMatch = true;
-          break;
-        }
-      }
-
-      if (!foundMatch)
-      {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  std::string describe() const override
-  {
-    std::stringstream ss;
-    ss << "approximatetly unordered matches vecs (";
-    for (size_t i = 0; i < m_expected.size(); ++i)
-    {
-      ss << m_expected[i];
-      if (i + 1 < m_expected.size())
-      {
-        ss << ", ";
-      }
-    }
-    ss << ") with epsilon " << m_epsilon;
-    return ss.str();
-  }
-};
-
-template <typename T, std::size_t S>
-UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
-  const std::vector<vm::vec<T, S>>& actual, const T epsilon)
-{
-  return UnorderedApproxVecMatcher(actual, epsilon);
-}
 } // namespace TrenchBroom

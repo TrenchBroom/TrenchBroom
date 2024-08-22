@@ -18,11 +18,11 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include <kdl/transform_range.h>
+#include "kdl/transform_range.h"
 
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {

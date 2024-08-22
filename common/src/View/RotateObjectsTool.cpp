@@ -26,10 +26,10 @@
 #include "View/RotateObjectsToolPage.h"
 #include "View/TransactionScope.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/scalar.h>
+#include "vm/scalar.h"
 
 namespace TrenchBroom
 {

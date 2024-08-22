@@ -23,10 +23,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 enum class MapFormat
 {
   /**
@@ -99,6 +98,6 @@ std::string formatName(MapFormat format);
  * @return the preferred format, then the other compatible formats
  */
 std::vector<MapFormat> compatibleFormats(MapFormat format);
-bool isParallelTexCoordSystem(MapFormat format);
-} // namespace Model
-} // namespace TrenchBroom
+bool isParallelUVCoordSystem(MapFormat format);
+
+} // namespace TrenchBroom::Model

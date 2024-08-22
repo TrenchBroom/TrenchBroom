@@ -68,9 +68,9 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
-#include <kdl/set_temp.h>
+#include "kdl/set_temp.h"
 
-#include <vecmath/util.h>
+#include "vm/util.h"
 
 #include <memory>
 
@@ -84,7 +84,7 @@ MapView3D::MapView3D(
   Renderer::MapRenderer& renderer,
   GLContextManager& contextManager,
   Logger* logger)
-  : MapViewBase(logger, std::move(document), toolBox, renderer, contextManager)
+  : MapViewBase(std::move(document), toolBox, renderer, contextManager, logger)
   , m_camera(std::make_unique<Renderer::PerspectiveCamera>())
   , m_flyModeHelper(std::make_unique<FlyModeHelper>(*m_camera))
   , m_ignoreCameraChangeEvents(false)
@@ -354,10 +354,9 @@ static float computeCameraOffset(
     const auto ray = vm::ray3f(camera.position(), -camera.direction());
     const auto newPlane =
       vm::plane3f(vm::vec3f(point) + 64.0f * plane.normal, plane.normal);
-    const auto dist = vm::intersect_ray_plane(ray, newPlane);
-    if (!vm::is_nan(dist) && dist > 0.0f)
+    if (const auto dist = vm::intersect_ray_plane(ray, newPlane); dist && *dist > 0.0f)
     {
-      offset = std::max(offset, dist);
+      offset = std::max(offset, *dist);
     }
   };
 

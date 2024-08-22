@@ -37,10 +37,10 @@
 #include "View/QtUtils.h"
 #include "ViewUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <set>
@@ -404,7 +404,7 @@ bool LayerEditor::canHideAllLayers() const
 void LayerEditor::onLockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
   document->lock(nodes);
 }
 
@@ -419,7 +419,7 @@ bool LayerEditor::canLockAllLayers() const
 void LayerEditor::onUnlockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
   document->resetLock(nodes);
 }
 
@@ -489,11 +489,11 @@ void LayerEditor::createGui()
   connect(m_addLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onAddLayer);
   connect(
     m_removeLayerButton, &QAbstractButton::pressed, this, &LayerEditor::onRemoveLayer);
-  connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [=]() {
+  connect(m_moveLayerUpButton, &QAbstractButton::pressed, this, [&]() {
     Model::LayerNode* layer = m_layerList->selectedLayer();
     moveLayer(layer, -1);
   });
-  connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [=]() {
+  connect(m_moveLayerDownButton, &QAbstractButton::pressed, this, [&]() {
     Model::LayerNode* layer = m_layerList->selectedLayer();
     moveLayer(layer, 1);
   });

@@ -19,12 +19,12 @@
 
 #include "octree.h"
 
-#include <kdl/string_utils.h>
+#include "kdl/string_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include "Catch2.h"
 
@@ -686,7 +686,10 @@ TEST_CASE("octree.find_containers")
 {
   auto tree = octree<double, int>{32.0};
 
-  SECTION("empty tree") { CHECK(tree.find_containers({0, 0, 0}).empty()); }
+  SECTION("empty tree")
+  {
+    CHECK(tree.find_containers({0, 0, 0}).empty());
+  }
 
   SECTION("single node")
   {

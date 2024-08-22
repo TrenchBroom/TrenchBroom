@@ -28,8 +28,8 @@
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_impl.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_impl.h"
 
 #include <algorithm>
 #include <vector>

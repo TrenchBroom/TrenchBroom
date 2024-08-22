@@ -62,10 +62,10 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
 
-#include <vecmath/util.h>
+#include "vm/util.h"
 
 #include <memory>
 #include <vector>
@@ -81,7 +81,7 @@ MapView2D::MapView2D(
   GLContextManager& contextManager,
   ViewPlane viewPlane,
   Logger* logger)
-  : MapViewBase(logger, document, toolBox, renderer, contextManager)
+  : MapViewBase(document, toolBox, renderer, contextManager, logger)
   , m_camera(std::make_unique<Renderer::OrthographicCamera>())
 {
   connectObservers();
@@ -206,15 +206,7 @@ vm::vec3 MapView2D::doGetPasteObjectsDelta(
                         : referenceBounds.max;
   const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
-  const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);
-  if (vm::is_nan(distance))
-  {
-    return vm::vec3::zero();
-  }
-  else
-  {
-    return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
-  }
+  return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
 }
 
 bool MapView2D::doCanSelectTall()
@@ -369,15 +361,7 @@ vm::vec3 MapView2D::doComputePointEntityPosition(const vm::bbox3& bounds) const
                           : referenceBounds.max;
     const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
 
-    const auto distance = vm::intersect_ray_plane(pickRay, dragPlane);
-    if (vm::is_nan(distance))
-    {
-      return vm::vec3::zero();
-    }
-    else
-    {
-      return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
-    }
+    return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
   }
 }
 

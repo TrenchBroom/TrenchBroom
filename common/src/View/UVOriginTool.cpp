@@ -19,7 +19,7 @@
 
 #include "UVOriginTool.h"
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Hit.h"
@@ -42,19 +42,274 @@
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
-#include <vecmath/distance.h>
-#include <vecmath/intersection.h>
-#include <vecmath/line.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "kdl/optional_utils.h"
+
+#include "vm/distance.h"
+#include "vm/intersection.h"
+#include "vm/line.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+namespace
 {
+
+std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
+{
+  const auto toWorld =
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+
+  const auto origin = vm::vec3{helper.originInFaceCoords()};
+  const auto linePoint = toWorld * origin;
+  return {
+    vm::line3{
+      linePoint, vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - linePoint)},
+    vm::line3{linePoint, (toWorld * (origin + vm::vec3::pos_x()) - linePoint)},
+  };
+}
+
+vm::vec2f getSelector(const InputState& inputState)
+{
+  using namespace Model::HitFilters;
+
+  const auto& xHandleHit =
+    inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
+  const auto& yHandleHit =
+    inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
+
+  return vm::vec2f{
+    xHandleHit.isMatch() ? 1.0f : 0.0f, yHandleHit.isMatch() ? 1.0f : 0.0f};
+}
+
+vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
+{
+  const auto& boundary = helper.face()->boundary();
+  return *kdl::optional_transform(
+    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
+      const auto hitPoint = vm::point_at_distance(ray, distance);
+      const auto transform =
+        helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+      return vm::vec2f{transform * hitPoint};
+    });
+}
+
+vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
+{
+  assert(helper.valid());
+
+  if (vm::is_zero(delta, vm::Cf::almost_zero()))
+  {
+    return delta;
+  }
+
+  // The delta is given in non-translated and non-scaled UV coordinates because that's how
+  // the origin is stored. We have to convert to translated and scaled UV coordinates to
+  // do our snapping because that's how the helper computes the distance to the UV grid.
+  // Finally, we will convert the distance back to non-translated and non-scaled UV
+  // coordinates and snap the delta to the distance.
+
+  const auto w2fTransform =
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto w2tTransform = helper.face()->toUVCoordSystemMatrix(
+    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+  const auto f2wTransform =
+    helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+  const auto t2wTransform = helper.face()->fromUVCoordSystemMatrix(
+    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
+  const auto f2tTransform = w2tTransform * f2wTransform;
+  const auto t2fTransform = w2fTransform * t2wTransform;
+
+  const auto newOriginInFaceCoords = helper.originInFaceCoords() + delta;
+  const auto newOriginInUVCoords =
+    vm::vec2f{f2tTransform * vm::vec3{newOriginInFaceCoords}};
+
+  // now snap to the vertices
+  // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of
+  // the vertices instead, we must snap to the edges!
+  auto distanceInUVCoords = vm::vec2f::max();
+  for (const Model::BrushVertex* vertex : helper.face()->vertices())
+  {
+    distanceInUVCoords = vm::abs_min(
+      distanceInUVCoords,
+      vm::vec2f{w2tTransform * vertex->position()} - newOriginInUVCoords);
+  }
+
+  // and to the UV grid
+  const auto* material = helper.face()->material();
+  if (material != nullptr)
+  {
+    distanceInUVCoords = vm::abs_min(
+      distanceInUVCoords,
+      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInUVCoords}));
+  }
+
+  // finally snap to the face center
+  const auto faceCenter = vm::vec2f{w2tTransform * helper.face()->boundsCenter()};
+  distanceInUVCoords = vm::abs_min(distanceInUVCoords, faceCenter - newOriginInUVCoords);
+
+  // now we have a distance in the scaled and translated UV coordinate system so we
+  // transform the new position plus distance back to the unscaled and untranslated UV
+  // coordinate system and take the actual distance
+  const auto distanceInFaceCoords =
+    newOriginInFaceCoords
+    - vm::vec2f{t2fTransform * vm::vec3{newOriginInUVCoords + distanceInUVCoords}};
+  return helper.snapDelta(delta, -distanceInFaceCoords);
+}
+
+using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
+
+std::vector<EdgeVertex> getHandleVertices(
+  const UVViewHelper& helper, const vm::vec2b& highlightHandle)
+{
+  const auto xColor =
+    highlightHandle.x() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+  const auto yColor =
+    highlightHandle.y() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
+
+  vm::vec3 x1, x2, y1, y2;
+  helper.computeOriginHandleVertices(x1, x2, y1, y2);
+
+  return {
+    EdgeVertex{vm::vec3f{x1}, xColor},
+    EdgeVertex{vm::vec3f{x2}, xColor},
+    EdgeVertex{vm::vec3f{y1}, yColor},
+    EdgeVertex{vm::vec3f{y2}, yColor}};
+}
+
+void renderLineHandles(
+  const UVViewHelper& helper,
+  const vm::vec2b& highlightHandles,
+  Renderer::RenderBatch& renderBatch)
+{
+  auto edgeRenderer = Renderer::DirectEdgeRenderer{
+    Renderer::VertexArray::move(getHandleVertices(helper, highlightHandles)),
+    Renderer::PrimType::Lines};
+  edgeRenderer.renderOnTop(renderBatch, 0.5f);
+}
+
+class RenderOrigin : public Renderer::DirectRenderable
+{
+private:
+  const UVViewHelper& m_helper;
+  bool m_highlight;
+  Renderer::Circle m_originHandle;
+
+public:
+  RenderOrigin(const UVViewHelper& helper, const float originRadius, const bool highlight)
+    : m_helper{helper}
+    , m_highlight{highlight}
+    , m_originHandle{makeCircle(m_helper, originRadius, 16, true)}
+  {
+  }
+
+private:
+  static Renderer::Circle makeCircle(
+    const UVViewHelper& helper,
+    const float radius,
+    const size_t segments,
+    const bool fill)
+  {
+    const float zoom = helper.cameraZoom();
+    return Renderer::Circle{radius / zoom, segments, fill};
+  }
+
+private:
+  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  {
+    m_originHandle.prepare(vboManager);
+  }
+
+  void doRender(Renderer::RenderContext& renderContext) override
+  {
+    const auto fromFace =
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+
+    const auto& boundary = m_helper.face()->boundary();
+    const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
+    const auto fromPlane = vm::invert(toPlane);
+    const auto originPosition(
+      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
+
+    const auto& handleColor = pref(Preferences::HandleColor);
+    const auto& highlightColor = pref(Preferences::SelectedHandleColor);
+
+    const auto toWorldTransform = Renderer::MultiplyModelMatrix{
+      renderContext.transformation(), vm::mat4x4f{*fromPlane}};
+    const auto translation = vm::translation_matrix(vm::vec3{originPosition});
+    const auto centerTransform = Renderer::MultiplyModelMatrix{
+      renderContext.transformation(), vm::mat4x4f{translation}};
+
+    auto shader = Renderer::ActiveShader{
+      renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
+    shader.set("Color", m_highlight ? highlightColor : handleColor);
+    m_originHandle.render();
+  }
+};
+
+void renderOriginHandle(
+  const UVViewHelper& helper, const bool highlight, Renderer::RenderBatch& renderBatch)
+{
+  renderBatch.addOneShot(
+    new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
+}
+
+class UVOriginDragTracker : public DragTracker
+{
+private:
+  UVViewHelper& m_helper;
+  vm::vec2f m_selector;
+  vm::vec2f m_lastPoint;
+
+public:
+  UVOriginDragTracker(UVViewHelper& helper, const InputState& inputState)
+    : m_helper{helper}
+    , m_selector{getSelector(inputState)}
+    , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
+  {
+  }
+
+  bool drag(const InputState& inputState) override
+  {
+    const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
+
+    const auto delta = curPoint - m_lastPoint;
+
+    const auto snapped = snapDelta(m_helper, delta * m_selector);
+    if (vm::is_zero(snapped, vm::Cf::almost_zero()))
+    {
+      return true;
+    }
+    else
+    {
+      m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
+      m_lastPoint = m_lastPoint + snapped;
+
+      return true;
+    }
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+
+  void render(
+    const InputState&,
+    Renderer::RenderContext&,
+    Renderer::RenderBatch& renderBatch) const override
+  {
+    const auto highlightHandles = vm::vec2b{m_selector.x() > 0.0, m_selector.y() > 0.0};
+
+    renderLineHandles(m_helper, highlightHandles, renderBatch);
+    renderOriginHandle(m_helper, true, renderBatch);
+  }
+};
+
+} // namespace
+
 const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
 const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
 const FloatType UVOriginTool::MaxPickDistance = 5.0;
@@ -77,28 +332,14 @@ const Tool& UVOriginTool::tool() const
   return *this;
 }
 
-static std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
-{
-  const auto toWorld =
-    helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-
-  const auto origin = vm::vec3{helper.originInFaceCoords()};
-  const auto linePoint = toWorld * origin;
-  return {
-    vm::line3{
-      linePoint, vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - linePoint)},
-    vm::line3{linePoint, (toWorld * (origin + vm::vec3::pos_x()) - linePoint)},
-  };
-}
-
 void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickResult)
 {
   if (m_helper.valid())
   {
     const auto [xHandle, yHandle] = computeOriginHandles(m_helper);
 
-    const auto fromTex = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
+    const auto fromTex =
+      m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
     const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
 
     const auto& pickRay = inputState.pickRay();
@@ -139,247 +380,6 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
     }
   }
 }
-
-static vm::vec2f getSelector(const InputState& inputState)
-{
-  using namespace Model::HitFilters;
-
-  const auto& xHandleHit =
-    inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
-  const auto& yHandleHit =
-    inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
-
-  return vm::vec2f{
-    xHandleHit.isMatch() ? 1.0f : 0.0f, yHandleHit.isMatch() ? 1.0f : 0.0f};
-}
-
-static vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
-{
-  const auto& boundary = helper.face()->boundary();
-  const auto distance = vm::intersect_ray_plane(ray, boundary);
-  const auto hitPoint = vm::point_at_distance(ray, distance);
-
-  const auto transform =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  return vm::vec2f{transform * hitPoint};
-}
-
-static vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
-{
-  assert(helper.valid());
-
-  if (vm::is_zero(delta, vm::Cf::almost_zero()))
-  {
-    return delta;
-  }
-
-  // The delta is given in non-translated and non-scaled texture coordinates because
-  // that's how the origin is stored. We have to convert to translated and scaled texture
-  // coordinates to do our snapping because that's how the helper computes the distance to
-  // the texture grid. Finally, we will convert the distance back to non-translated and
-  // non-scaled texture coordinates and snap the delta to the distance.
-
-  const auto w2fTransform =
-    helper.face()->toTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  const auto w2tTransform = helper.face()->toTexCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
-  const auto f2wTransform =
-    helper.face()->fromTexCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-  const auto t2wTransform = helper.face()->fromTexCoordSystemMatrix(
-    helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
-  const auto f2tTransform = w2tTransform * f2wTransform;
-  const auto t2fTransform = w2fTransform * t2wTransform;
-
-  const auto newOriginInFaceCoords = helper.originInFaceCoords() + delta;
-  const auto newOriginInTexCoords =
-    vm::vec2f{f2tTransform * vm::vec3{newOriginInFaceCoords}};
-
-  // now snap to the vertices
-  // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of
-  // the vertices instead, we must snap to the edges!
-  auto distanceInTexCoords = vm::vec2f::max();
-  for (const Model::BrushVertex* vertex : helper.face()->vertices())
-  {
-    distanceInTexCoords = vm::abs_min(
-      distanceInTexCoords,
-      vm::vec2f{w2tTransform * vertex->position()} - newOriginInTexCoords);
-  }
-
-  // and to the texture grid
-  const auto* texture = helper.face()->texture();
-  if (texture != nullptr)
-  {
-    distanceInTexCoords = vm::abs_min(
-      distanceInTexCoords,
-      helper.computeDistanceFromTextureGrid(vm::vec3{newOriginInTexCoords}));
-  }
-
-  // finally snap to the face center
-  const auto faceCenter = vm::vec2f{w2tTransform * helper.face()->boundsCenter()};
-  distanceInTexCoords =
-    vm::abs_min(distanceInTexCoords, faceCenter - newOriginInTexCoords);
-
-  // now we have a distance in the scaled and translated texture coordinate system
-  // so we transform the new position plus distance back to the unscaled and untranslated
-  // texture coordinate system and take the actual distance
-  const auto distanceInFaceCoords =
-    newOriginInFaceCoords
-    - vm::vec2f{t2fTransform * vm::vec3{newOriginInTexCoords + distanceInTexCoords}};
-  return helper.snapDelta(delta, -distanceInFaceCoords);
-}
-
-using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
-
-static std::vector<EdgeVertex> getHandleVertices(
-  const UVViewHelper& helper, const vm::vec2b& highlightHandle)
-{
-  const auto xColor =
-    highlightHandle.x() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
-  const auto yColor =
-    highlightHandle.y() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
-
-  vm::vec3 x1, x2, y1, y2;
-  helper.computeOriginHandleVertices(x1, x2, y1, y2);
-
-  return {
-    EdgeVertex{vm::vec3f{x1}, xColor},
-    EdgeVertex{vm::vec3f{x2}, xColor},
-    EdgeVertex{vm::vec3f{y1}, yColor},
-    EdgeVertex{vm::vec3f{y2}, yColor}};
-}
-
-static void renderLineHandles(
-  const UVViewHelper& helper,
-  const vm::vec2b& highlightHandles,
-  Renderer::RenderBatch& renderBatch)
-{
-  auto edgeRenderer = Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(getHandleVertices(helper, highlightHandles)),
-    Renderer::PrimType::Lines};
-  edgeRenderer.renderOnTop(renderBatch, 0.5f);
-}
-
-namespace
-{
-class RenderOrigin : public Renderer::DirectRenderable
-{
-private:
-  const UVViewHelper& m_helper;
-  bool m_highlight;
-  Renderer::Circle m_originHandle;
-
-public:
-  RenderOrigin(const UVViewHelper& helper, const float originRadius, const bool highlight)
-    : m_helper{helper}
-    , m_highlight{highlight}
-    , m_originHandle{makeCircle(m_helper, originRadius, 16, true)}
-  {
-  }
-
-private:
-  static Renderer::Circle makeCircle(
-    const UVViewHelper& helper,
-    const float radius,
-    const size_t segments,
-    const bool fill)
-  {
-    const float zoom = helper.cameraZoom();
-    return Renderer::Circle{radius / zoom, segments, fill};
-  }
-
-private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override
-  {
-    m_originHandle.prepare(vboManager);
-  }
-
-  void doRender(Renderer::RenderContext& renderContext) override
-  {
-    const auto fromFace = m_helper.face()->fromTexCoordSystemMatrix(
-      vm::vec2f::zero(), vm::vec2f::one(), true);
-
-    const auto& boundary = m_helper.face()->boundary();
-    const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
-    const auto [invertible, fromPlane] = vm::invert(toPlane);
-    const auto originPosition(
-      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
-    assert(invertible);
-    unused(invertible);
-
-    const auto& handleColor = pref(Preferences::HandleColor);
-    const auto& highlightColor = pref(Preferences::SelectedHandleColor);
-
-    const auto toWorldTransform = Renderer::MultiplyModelMatrix{
-      renderContext.transformation(), vm::mat4x4f{fromPlane}};
-    const auto translation = vm::translation_matrix(vm::vec3{originPosition});
-    const auto centerTransform = Renderer::MultiplyModelMatrix{
-      renderContext.transformation(), vm::mat4x4f{translation}};
-
-    auto shader = Renderer::ActiveShader{
-      renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
-    shader.set("Color", m_highlight ? highlightColor : handleColor);
-    m_originHandle.render();
-  }
-};
-} // namespace
-
-static void renderOriginHandle(
-  const UVViewHelper& helper, const bool highlight, Renderer::RenderBatch& renderBatch)
-{
-  renderBatch.addOneShot(
-    new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
-}
-
-namespace
-{
-class UVOriginDragTracker : public DragTracker
-{
-private:
-  UVViewHelper& m_helper;
-  vm::vec2f m_selector;
-  vm::vec2f m_lastPoint;
-
-public:
-  UVOriginDragTracker(UVViewHelper& helper, const InputState& inputState)
-    : m_helper{helper}
-    , m_selector{getSelector(inputState)}
-    , m_lastPoint{computeHitPoint(m_helper, inputState.pickRay())}
-  {
-  }
-
-  bool drag(const InputState& inputState)
-  {
-    const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
-
-    const auto delta = curPoint - m_lastPoint;
-
-    const auto snapped = snapDelta(m_helper, delta * m_selector);
-    if (vm::is_zero(snapped, vm::Cf::almost_zero()))
-    {
-      return true;
-    }
-    else
-    {
-      m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
-      m_lastPoint = m_lastPoint + snapped;
-
-      return true;
-    }
-  }
-
-  void end(const InputState&) {}
-  void cancel() {}
-
-  void render(
-    const InputState&, Renderer::RenderContext&, Renderer::RenderBatch& renderBatch) const
-  {
-    const auto highlightHandles = vm::vec2b{m_selector.x() > 0.0, m_selector.y() > 0.0};
-
-    renderLineHandles(m_helper, highlightHandles, renderBatch);
-    renderOriginHandle(m_helper, true, renderBatch);
-  }
-};
-} // namespace
 
 std::unique_ptr<DragTracker> UVOriginTool::acceptMouseDrag(const InputState& inputState)
 {
@@ -432,5 +432,5 @@ bool UVOriginTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

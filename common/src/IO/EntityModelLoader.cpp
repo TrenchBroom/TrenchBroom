@@ -19,27 +19,9 @@
 
 #include "EntityModelLoader.h"
 
-#include "Assets/EntityModel.h"
+namespace TrenchBroom::IO
+{
 
-namespace TrenchBroom
-{
-namespace IO
-{
 EntityModelLoader::~EntityModelLoader() = default;
 
-std::unique_ptr<Assets::EntityModel> EntityModelLoader::initializeModel(
-  const std::filesystem::path& path, Logger& logger) const
-{
-  return doInitializeModel(path, logger);
-}
-
-void EntityModelLoader::loadFrame(
-  const std::filesystem::path& path,
-  const size_t frameIndex,
-  Assets::EntityModel& model,
-  Logger& logger) const
-{
-  return doLoadFrame(path, frameIndex, model, logger);
-}
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

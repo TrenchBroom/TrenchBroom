@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
+#include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Color.h"
 #include "Model/BrushFace.h"
@@ -45,20 +46,19 @@
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/string_format.h>
-#include <kdl/string_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 FaceAttribsEditor::FaceAttribsEditor(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
@@ -342,10 +342,10 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 {
   m_uvEditor = new UVEditor{m_document, contextManager};
 
-  auto* textureNameLabel = new QLabel{"Texture"};
-  makeEmphasized(textureNameLabel);
-  m_textureName = new QLabel{"none"};
-  m_textureName->setTextInteractionFlags(Qt::TextSelectableByMouse);
+  auto* materialNameLabel = new QLabel{"Material"};
+  makeEmphasized(materialNameLabel);
+  m_materialName = new QLabel{"none"};
+  m_materialName->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
   auto* textureSizeLabel = new QLabel{"Size"};
   makeEmphasized(textureSizeLabel);
@@ -393,7 +393,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   m_surfaceValueEditor->setIncrements(1.0, 10.0, 100.0);
   m_surfaceValueEditor->setDigits(0, 6);
   m_surfaceValueUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset surface value"));
+    createBitmapButton("ResetUV.svg", tr("Unset surface value"));
   m_surfaceValueEditorLayout =
     createUnsetButtonLayout(m_surfaceValueEditor, m_surfaceValueUnsetButton);
 
@@ -401,7 +401,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   makeEmphasized(m_surfaceFlagsLabel);
   m_surfaceFlagsEditor = new FlagsPopupEditor{2, this};
   m_surfaceFlagsUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset surface flags"));
+    createBitmapButton("ResetUV.svg", tr("Unset surface flags"));
   m_surfaceFlagsEditorLayout =
     createUnsetButtonLayout(m_surfaceFlagsEditor, m_surfaceFlagsUnsetButton);
 
@@ -409,14 +409,14 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   makeEmphasized(m_contentFlagsLabel);
   m_contentFlagsEditor = new FlagsPopupEditor{2, this};
   m_contentFlagsUnsetButton =
-    createBitmapButton("ResetTexture.svg", tr("Unset content flags"));
+    createBitmapButton("ResetUV.svg", tr("Unset content flags"));
   m_contentFlagsEditorLayout =
     createUnsetButtonLayout(m_contentFlagsEditor, m_contentFlagsUnsetButton);
 
   m_colorLabel = new QLabel{"Color"};
   makeEmphasized(m_colorLabel);
   m_colorEditor = new QLineEdit{};
-  m_colorUnsetButton = createBitmapButton("ResetTexture.svg", tr("Unset color"));
+  m_colorUnsetButton = createBitmapButton("ResetUV.svg", tr("Unset color"));
   m_colorEditorLayout = createUnsetButtonLayout(m_colorEditor, m_colorUnsetButton);
 
   const Qt::Alignment LabelFlags = Qt::AlignVCenter | Qt::AlignRight;
@@ -434,8 +434,8 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
   int r = 0;
   int c = 0;
 
-  faceAttribsLayout->addWidget(textureNameLabel, r, c++, LabelFlags);
-  faceAttribsLayout->addWidget(m_textureName, r, c++, ValueFlags);
+  faceAttribsLayout->addWidget(materialNameLabel, r, c++, LabelFlags);
+  faceAttribsLayout->addWidget(m_materialName, r, c++, ValueFlags);
   faceAttribsLayout->addWidget(textureSizeLabel, r, c++, LabelFlags);
   faceAttribsLayout->addWidget(m_textureSize, r, c++, ValueFlags);
   ++r;
@@ -574,8 +574,8 @@ void FaceAttribsEditor::connectObservers()
     this, &FaceAttribsEditor::brushFacesDidChange);
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
     this, &FaceAttribsEditor::selectionDidChange);
-  m_notifierConnection += document->textureCollectionsDidChangeNotifier.connect(
-    this, &FaceAttribsEditor::textureCollectionsDidChange);
+  m_notifierConnection += document->materialCollectionsDidChangeNotifier.connect(
+    this, &FaceAttribsEditor::materialCollectionsDidChange);
   m_notifierConnection += document->grid().gridDidChangeNotifier.connect(
     this, &FaceAttribsEditor::updateIncrements);
 }
@@ -605,7 +605,7 @@ void FaceAttribsEditor::selectionDidChange(const Selection&)
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::textureCollectionsDidChange()
+void FaceAttribsEditor::materialCollectionsDidChange()
 {
   updateControls();
 }
@@ -678,7 +678,7 @@ void FaceAttribsEditor::updateControls()
   const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
   if (!faceHandles.empty())
   {
-    auto textureMulti = false;
+    auto materialMulti = false;
     auto xOffsetMulti = false;
     auto yOffsetMulti = false;
     auto rotationMulti = false;
@@ -688,7 +688,7 @@ void FaceAttribsEditor::updateControls()
     auto colorValueMulti = false;
 
     const auto& firstFace = faceHandles[0].face();
-    const auto& textureName = firstFace.attributes().textureName();
+    const auto& materialName = firstFace.attributes().materialName();
     const auto xOffset = firstFace.attributes().xOffset();
     const auto yOffset = firstFace.attributes().yOffset();
     const auto rotation = firstFace.attributes().rotation();
@@ -708,7 +708,7 @@ void FaceAttribsEditor::updateControls()
     for (size_t i = 1; i < faceHandles.size(); i++)
     {
       const auto& face = faceHandles[i].face();
-      textureMulti |= (textureName != face.attributes().textureName());
+      materialMulti |= (materialName != face.attributes().materialName());
       xOffsetMulti |= (xOffset != face.attributes().xOffset());
       yOffsetMulti |= (yOffset != face.attributes().yOffset());
       rotationMulti |= (rotation != face.attributes().rotation());
@@ -740,36 +740,36 @@ void FaceAttribsEditor::updateControls()
     m_contentFlagsEditor->setEnabled(true);
     m_colorEditor->setEnabled(true);
 
-    if (textureMulti)
+    if (materialMulti)
     {
-      m_textureName->setText("multi");
-      m_textureName->setEnabled(false);
+      m_materialName->setText("multi");
+      m_materialName->setEnabled(false);
       m_textureSize->setText("multi");
       m_textureSize->setEnabled(false);
     }
     else
     {
-      if (textureName == Model::BrushFaceAttributes::NoTextureName)
+      if (materialName == Model::BrushFaceAttributes::NoMaterialName)
       {
-        m_textureName->setText("none");
-        m_textureName->setEnabled(false);
+        m_materialName->setText("none");
+        m_materialName->setEnabled(false);
         m_textureSize->setText("");
         m_textureSize->setEnabled(false);
       }
       else
       {
-        if (const auto* texture = firstFace.texture())
+        if (const auto* texture = getTexture(firstFace.material()))
         {
-          m_textureName->setText(QString::fromStdString(textureName));
+          m_materialName->setText(QString::fromStdString(materialName));
           m_textureSize->setText(
             QStringLiteral("%1 * %2").arg(texture->width()).arg(texture->height()));
-          m_textureName->setEnabled(true);
+          m_materialName->setEnabled(true);
           m_textureSize->setEnabled(true);
         }
         else
         {
-          m_textureName->setText(QString::fromStdString(textureName) + " (not found)");
-          m_textureName->setEnabled(false);
+          m_materialName->setText(QString::fromStdString(materialName) + " (not found)");
+          m_materialName->setEnabled(false);
           m_textureSize->setEnabled(false);
         }
       }
@@ -815,7 +815,6 @@ void FaceAttribsEditor::updateControls()
     disableAndSetPlaceholder(m_rotationEditor, "n/a");
     disableAndSetPlaceholder(m_surfaceValueEditor, "n/a");
 
-    // m_textureView->setTexture(nullptr);
     m_surfaceFlagsEditor->setEnabled(false);
     m_contentFlagsEditor->setEnabled(false);
     m_colorEditor->setText("");
@@ -838,14 +837,14 @@ bool FaceAttribsEditor::hasSurfaceFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->surfaceFlags().flags.empty();
+  return !game->config().faceAttribsConfig.surfaceFlags.flags.empty();
 }
 
 bool FaceAttribsEditor::hasContentFlags() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  return !game->contentFlags().flags.empty();
+  return !game->config().faceAttribsConfig.contentFlags.flags.empty();
 }
 
 void FaceAttribsEditor::showSurfaceFlagsEditor()
@@ -919,7 +918,7 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getSurfaceFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& surfaceFlags = game->surfaceFlags();
+  const auto& surfaceFlags = game->config().faceAttribsConfig.surfaceFlags;
   return getFlags(surfaceFlags.flags);
 }
 
@@ -928,8 +927,8 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
-  const auto& contentFlags = game->contentFlags();
+  const auto& contentFlags = game->config().faceAttribsConfig.contentFlags;
   return getFlags(contentFlags.flags);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

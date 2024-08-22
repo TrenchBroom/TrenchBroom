@@ -27,10 +27,10 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
@@ -58,14 +58,13 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
     {},
     Assets::ModelDefinition{modelExpression},
     {}};
-  const auto propertyConfig = EntityPropertyConfig{};
 
   auto entity = Entity{};
-  entity.setDefinition(propertyConfig, &definition);
+  entity.setDefinition(&definition);
 
   // throws because 'a & 2' cannot be evaluated -- we must catch the exception in
   // Entity::updateCachedProperties
-  CHECK_NOTHROW(entity.addOrUpdateProperty(propertyConfig, "spawnflags", "a"));
+  CHECK_NOTHROW(entity.addOrUpdateProperty("spawnflags", "a"));
 }
 } // namespace Model
 } // namespace TrenchBroom

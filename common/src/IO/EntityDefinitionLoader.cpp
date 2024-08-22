@@ -19,17 +19,9 @@
 
 #include "EntityDefinitionLoader.h"
 
-#include "Error.h"
-
-#include <kdl/result.h>
-
 namespace TrenchBroom::IO
 {
-EntityDefinitionLoader::~EntityDefinitionLoader() {}
 
-Result<std::vector<Assets::EntityDefinition*>> EntityDefinitionLoader::
-  loadEntityDefinitions(ParserStatus& status, const std::filesystem::path& path) const
-{
-  return doLoadEntityDefinitions(status, path);
-}
+EntityDefinitionLoader::~EntityDefinitionLoader() = default;
+
 } // namespace TrenchBroom::IO

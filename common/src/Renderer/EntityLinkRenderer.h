@@ -26,24 +26,23 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 class EntityLinkRenderer : public LinkRenderer
 {
   std::weak_ptr<View::MapDocument> m_document;
 
-  Color m_defaultColor;
-  Color m_selectedColor;
+  Color m_defaultColor = {0.5f, 1.0f, 0.5f, 1.0f};
+  Color m_selectedColor = {1.0f, 0.0f, 0.0f, 1.0f};
 
 public:
-  EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
 
   void setDefaultColor(const Color& color);
   void setSelectedColor(const Color& color);
@@ -53,5 +52,5 @@ private:
 
   deleteCopy(EntityLinkRenderer);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

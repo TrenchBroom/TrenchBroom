@@ -20,8 +20,8 @@
 
 #pragma once
 
-#include "set_adapter.h"
-#include "vector_set_forward.h"
+#include "kdl/set_adapter.h"
+#include "kdl/vector_set_forward.h"
 
 #include <cassert>
 #include <functional> // for std::less

@@ -37,10 +37,10 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <vector>
 
@@ -295,8 +295,8 @@ void IssueBrowserView::itemRightClicked(const QPoint& pos)
     for (const auto* quickFix : quickFixes)
     {
       quickFixMenu->addAction(
-        QString::fromStdString(quickFix->description()), this, [=]() {
-          this->applyQuickFix(*quickFix);
+        QString::fromStdString(quickFix->description()), this, [&]() {
+          applyQuickFix(*quickFix);
         });
     }
 

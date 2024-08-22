@@ -133,7 +133,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
         {
           CHECK(!entityNode->hidden());
 
-          AND_THEN("The top level node is hidden") { CHECK(nodeToHide->hidden()); }
+          AND_THEN("The top level node is hidden")
+          {
+            CHECK(nodeToHide->hidden());
+          }
 
           AND_THEN("Any selected child node is visible and selected")
           {

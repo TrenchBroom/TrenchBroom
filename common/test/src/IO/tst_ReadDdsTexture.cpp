@@ -18,6 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
@@ -26,38 +27,40 @@
 #include "IO/ReadDdsTexture.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-static Assets::Texture loadTexture(const std::string& name)
+
+Assets::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
 
-  const auto file = diskFS.openFile(name).value();
+  const auto file = diskFS.openFile(name) | kdl::value();
   auto reader = file->reader().buffer();
-  return readDdsTexture(name, reader).value();
+  return readDdsTexture(reader) | kdl::value();
 }
 
-static void assertTexture(
+void assertTexture(
   const std::string& name, const size_t width, const size_t height, const GLenum format)
 {
   const auto texture = loadTexture(name);
 
-  CHECK(texture.name() == name);
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.type() == Assets::TextureType::Opaque);
+  CHECK(texture.mask() == Assets::TextureMask::Off);
 }
+
+} // namespace
 
 TEST_CASE("ReadDdsTextureTest.testLoadDds")
 {
@@ -67,5 +70,5 @@ TEST_CASE("ReadDdsTextureTest.testLoadDds")
   assertTexture("dds_bc2.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT3_EXT);
   assertTexture("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

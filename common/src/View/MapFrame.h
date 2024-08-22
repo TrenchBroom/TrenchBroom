@@ -48,20 +48,21 @@ class QToolBar;
 namespace TrenchBroom
 {
 class Logger;
-
-namespace Assets
-{
-class Texture;
 }
 
-namespace Model
+namespace TrenchBroom::Assets
+{
+class Material;
+}
+
+namespace TrenchBroom::Model
 {
 class Game;
 class GroupNode;
 class LayerNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class Autosaver;
@@ -83,31 +84,32 @@ class MapFrame : public QMainWindow
 {
   Q_OBJECT
 private:
-  FrameManager* m_frameManager;
+  FrameManager& m_frameManager;
   std::shared_ptr<MapDocument> m_document;
 
   std::chrono::time_point<std::chrono::system_clock> m_lastInputTime;
   std::unique_ptr<Autosaver> m_autosaver;
-  QTimer* m_autosaveTimer;
+  QTimer* m_autosaveTimer = nullptr;
+  QTimer* m_processResourcesTimer = nullptr;
 
-  QToolBar* m_toolBar;
+  QToolBar* m_toolBar = nullptr;
 
-  QSplitter* m_hSplitter;
-  QSplitter* m_vSplitter;
+  QSplitter* m_hSplitter = nullptr;
+  QSplitter* m_vSplitter = nullptr;
 
   std::unique_ptr<GLContextManager> m_contextManager;
-  SwitchableMapViewContainer* m_mapView;
+  SwitchableMapViewContainer* m_mapView = nullptr;
   /**
    * Last focused MapViewBase. It's a QPointer to handle changing from e.g. a 2-pane map
    * view to 1-pane.
    */
   QPointer<MapViewBase> m_currentMapView;
-  InfoPanel* m_infoPanel;
-  Console* m_console;
-  Inspector* m_inspector;
+  InfoPanel* m_infoPanel = nullptr;
+  Console* m_console = nullptr;
+  Inspector* m_inspector = nullptr;
 
-  QComboBox* m_gridChoice;
-  QLabel* m_statusBarLabel;
+  QComboBox* m_gridChoice = nullptr;
+  QLabel* m_statusBarLabel = nullptr;
 
   QPointer<QDialog> m_compilationDialog;
   QPointer<ObjExportDialog> m_objExportDialog;
@@ -124,12 +126,12 @@ private: // special menu entries
   QAction* m_redoAction;
 
 private:
-  SignalDelayer* m_updateTitleSignalDelayer;
-  SignalDelayer* m_updateActionStateSignalDelayer;
-  SignalDelayer* m_updateStatusBarSignalDelayer;
+  SignalDelayer* m_updateTitleSignalDelayer = nullptr;
+  SignalDelayer* m_updateActionStateSignalDelayer = nullptr;
+  SignalDelayer* m_updateStatusBarSignalDelayer = nullptr;
 
 public:
-  MapFrame(FrameManager* frameManager, std::shared_ptr<MapDocument> document);
+  MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document);
   ~MapFrame() override;
 
   void positionOnScreen(QWidget* reference);
@@ -224,7 +226,7 @@ public:
   bool canReloadPortalFile() const;
   bool canUnloadPointFile() const;
 
-  void reloadTextureCollections();
+  void reloadMaterialCollections();
   void reloadEntityDefinitions();
   void closeDocument();
 
@@ -332,9 +334,9 @@ public:
   void snapVerticesToGrid();
   bool canSnapVertices() const;
 
-  void replaceTexture();
+  void replaceMaterial();
 
-  void toggleTextureLock();
+  void toggleAlignmentLock();
   void toggleUVLock();
 
   void toggleShowGrid();
@@ -388,10 +390,10 @@ public:
 
   void showLaunchEngineDialog();
 
-  bool canRevealTexture() const;
-  void revealTexture();
+  bool canRevealMaterial() const;
+  void revealMaterial();
 
-  void revealTexture(const Assets::Texture* texture);
+  void revealMaterial(const Assets::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();
@@ -423,14 +425,15 @@ public: // event filter (suppress autosave for user input events)
 
 private:
   void triggerAutosave();
+  void triggerProcessResources();
 };
 
 class DebugPaletteWindow : public QDialog
 {
   Q_OBJECT
 public:
-  DebugPaletteWindow(QWidget* parent = nullptr);
-  virtual ~DebugPaletteWindow();
+  explicit DebugPaletteWindow(QWidget* parent = nullptr);
+  ~DebugPaletteWindow() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

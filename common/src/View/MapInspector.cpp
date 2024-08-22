@@ -37,9 +37,9 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/vec_io.h>
+#include "vm/vec_io.h"
 
 #include <optional>
 #include <utility>
@@ -297,14 +297,12 @@ void MapPropertiesEditor::createGui()
 
       if (checked)
       {
-        const std::optional<vm::bbox3> parsed = parseLineEdits();
         // Only commit the change to the document right now if both text fields can be
         // parsed. Otherwise, it will be committed below in textEditingFinished once both
         // text fields have a valid value entered.
-        if (parsed.has_value())
+        if (const auto parsed = parseLineEdits())
         {
-          document->setSoftMapBounds(
-            {Model::Game::SoftMapBoundsType::Map, parsed.value()});
+          document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, *parsed});
         }
       }
     });
@@ -320,10 +318,9 @@ void MapPropertiesEditor::createGui()
     }
     auto document = kdl::mem_lock(m_document);
 
-    const std::optional<vm::bbox3> parsed = parseLineEdits();
-    if (parsed.has_value())
+    if (const auto parsed = parseLineEdits())
     {
-      document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, parsed.value()});
+      document->setSoftMapBounds({Model::Game::SoftMapBoundsType::Map, *parsed});
     }
   };
   connect(
@@ -412,7 +409,7 @@ void MapPropertiesEditor::updateGui()
     return;
   }
 
-  const std::optional<vm::bbox3> gameBounds = game->softMapBounds();
+  const std::optional<vm::bbox3> gameBounds = game->config().softMapBounds;
   m_softBoundsFromGameMinLabel->setText(formatVec(gameBounds, false));
   m_softBoundsFromGameMaxLabel->setText(formatVec(gameBounds, true));
 

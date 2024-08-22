@@ -41,8 +41,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
 
 namespace TrenchBroom::View
 {
@@ -600,10 +600,11 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
       }),
     task);
 
-  connect(renderer, &QWidget::customContextMenuRequested, this, [=](const QPoint& pos) {
-    emit this->taskContextMenuRequested(
-      renderer->mapToGlobal(pos), m_profile->tasks[index]);
-  });
+  connect(
+    renderer, &QWidget::customContextMenuRequested, this, [&, index](const QPoint& pos) {
+      emit this->taskContextMenuRequested(
+        renderer->mapToGlobal(pos), m_profile->tasks[index]);
+    });
 
   return renderer;
 }

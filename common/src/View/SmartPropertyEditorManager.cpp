@@ -34,9 +34,9 @@
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartWadEditor.h"
 
-#include <kdl/functional.h>
-#include <kdl/memory_utils.h>
-#include <kdl/string_compare.h>
+#include "kdl/functional.h"
+#include "kdl/memory_utils.h"
+#include "kdl/string_compare.h"
 
 namespace TrenchBroom::View
 {
@@ -136,7 +136,8 @@ void SmartPropertyEditorManager::createEditors()
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
     [&](const auto& propertyKey, const auto& nodes) {
-      return propertyKey == kdl::mem_lock(m_document)->game()->wadProperty()
+      return propertyKey
+               == kdl::mem_lock(m_document)->game()->config().materialConfig.property
              && nodes.size() == 1
              && nodes.front()->entity().classname()
                   == Model::EntityPropertyValues::WorldspawnClassname;

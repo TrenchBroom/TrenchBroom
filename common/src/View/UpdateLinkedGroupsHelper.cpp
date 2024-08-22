@@ -21,14 +21,16 @@
 
 #include "Error.h"
 #include "Model/GroupNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
+#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <cassert>
@@ -37,21 +39,25 @@
 
 namespace TrenchBroom::View
 {
+namespace
+{
+
+// Order groups so that descendants will be updated before their ancestors
+auto compareByAncestry(const Model::GroupNode* lhs, const Model::GroupNode* rhs)
+{
+  return rhs->isAncestorOf(lhs);
+}
+
+} // namespace
+
 bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups)
 {
-  const auto linkedGroupIds =
-    kdl::vec_sort(kdl::vec_transform(changedLinkedGroups, [](const auto* groupNode) {
-      return groupNode->group().linkedGroupId();
-    }));
+  const auto linkedGroupIds = kdl::vec_sort(kdl::vec_transform(
+    changedLinkedGroups, [](const auto* groupNode) { return groupNode->linkId(); }));
 
   return std::adjacent_find(std::begin(linkedGroupIds), std::end(linkedGroupIds))
          == std::end(linkedGroupIds);
 }
-
-// Order groups so that descendants will be updated before their ancestors
-const auto compareByAncestry = [](const auto* lhs, const auto* rhs) {
-  return rhs->isAncestorOf(lhs);
-};
 
 UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
   ChangedLinkedGroups changedLinkedGroups)
@@ -64,8 +70,8 @@ UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
   MapDocumentCommandFacade& document)
 {
-  return computeLinkedGroupUpdates(document).transform(
-    [&]() { doApplyOrUndoLinkedGroupUpdates(document); });
+  return computeLinkedGroupUpdates(document)
+         | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(document); });
 }
 
 void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(MapDocumentCommandFacade& document)
@@ -114,9 +120,10 @@ Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
     kdl::overload(
       [&](const ChangedLinkedGroups& changedLinkedGroups) {
         return computeLinkedGroupUpdates(changedLinkedGroups, document)
-          .transform([&](auto&& linkedGroupUpdates) {
-            m_state = std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
-          });
+               | kdl::transform([&](auto&& linkedGroupUpdates) {
+                   m_state =
+                     std::forward<decltype(linkedGroupUpdates)>(linkedGroupUpdates);
+                 });
       },
       [](const LinkedGroupUpdates&) -> Result<void> { return kdl::void_success; }),
     m_state);
@@ -132,21 +139,20 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   }
 
   const auto& worldBounds = document.worldBounds();
-  return kdl::fold_results(
-           kdl::vec_transform(
-             changedLinkedGroups,
-             [&](const auto* groupNode) {
-               const auto groupNodesToUpdate = kdl::vec_erase(
-                 Model::findLinkedGroups(
-                   *document.world(), *groupNode->group().linkedGroupId()),
-                 groupNode);
+  return kdl::vec_transform(
+           changedLinkedGroups,
+           [&](const auto* groupNode) {
+             const auto groupNodesToUpdate = kdl::vec_erase(
+               Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
+               groupNode);
 
-               return Model::updateLinkedGroups(
-                 *groupNode, groupNodesToUpdate, worldBounds);
-             }))
-    .and_then([&](auto&& nestedUpdateLists) -> Result<LinkedGroupUpdates> {
-      return kdl::vec_flatten(std::move(nestedUpdateLists));
-    });
+             return Model::updateLinkedGroups(
+               *groupNode, groupNodesToUpdate, worldBounds);
+           })
+         | kdl::fold()
+         | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
+             return kdl::vec_flatten(std::move(nestedUpdateLists));
+           });
 }
 
 void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(

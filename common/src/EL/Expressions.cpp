@@ -24,9 +24,9 @@
 #include "Ensure.h"
 #include "Macros.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/map_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/map_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <cmath>

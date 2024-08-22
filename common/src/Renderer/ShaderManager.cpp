@@ -24,9 +24,9 @@
 #include "IO/SystemPaths.h"
 #include "Renderer/ShaderConfig.h"
 
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
 
 #include <cassert>
 #include <filesystem>
@@ -37,13 +37,13 @@ namespace TrenchBroom::Renderer
 
 Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 {
-  return createProgram(config).and_then([&](auto program) -> Result<void> {
-    if (!m_programs.emplace(config.name(), std::move(program)).second)
-    {
-      return Error{"Shader program '" + config.name() + "' already loaded"};
-    }
-    return kdl::void_success;
-  });
+  return createProgram(config) | kdl::and_then([&](auto program) -> Result<void> {
+           if (!m_programs.emplace(config.name(), std::move(program)).second)
+           {
+             return Error{"Shader program '" + config.name() + "' already loaded"};
+           }
+           return kdl::void_success;
+         });
 }
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
@@ -65,31 +65,29 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
 
 Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
-  return createShaderProgram(config.name())
-    .and_then([&](auto program) {
-      return kdl::fold_results(
-               kdl::vec_transform(
-                 config.vertexShaders(),
-                 [&](const auto& path) {
-                   return loadShader(path, GL_VERTEX_SHADER).transform([&](auto shader) {
-                     program.attach(shader.get());
-                   });
-                 }))
-        .transform([&]() { return std::move(program); });
-    })
-    .and_then([&](auto program) {
-      return kdl::fold_results(
-               kdl::vec_transform(
-                 config.fragmentShaders(),
-                 [&](const auto& path) {
-                   return loadShader(path, GL_FRAGMENT_SHADER)
-                     .transform([&](auto shader) { program.attach(shader.get()); });
-                 }))
-        .transform([&]() { return std::move(program); });
-    })
-    .and_then([&](auto program) {
-      return program.link().transform([&]() { return std::move(program); });
-    });
+  return createShaderProgram(config.name()) | kdl::and_then([&](auto program) {
+           return kdl::vec_transform(
+                    config.vertexShaders(),
+                    [&](const auto& path) {
+                      return loadShader(path, GL_VERTEX_SHADER)
+                             | kdl::transform(
+                               [&](auto shader) { program.attach(shader.get()); });
+                    })
+                  | kdl::fold() | kdl::transform([&]() { return std::move(program); });
+         })
+         | kdl::and_then([&](auto program) {
+             return kdl::vec_transform(
+                      config.fragmentShaders(),
+                      [&](const auto& path) {
+                        return loadShader(path, GL_FRAGMENT_SHADER)
+                               | kdl::transform(
+                                 [&](auto shader) { program.attach(shader.get()); });
+                      })
+                    | kdl::fold() | kdl::transform([&]() { return std::move(program); });
+           })
+         | kdl::and_then([&](auto program) {
+             return program.link() | kdl::transform([&]() { return std::move(program); });
+           });
 }
 
 Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
@@ -104,14 +102,14 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   const auto shaderPath =
     IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
 
-  return Renderer::loadShader(shaderPath, type).transform([&](auto shader) {
-    const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
+  return Renderer::loadShader(shaderPath, type) | kdl::transform([&](auto shader) {
+           const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));
 
-    assert(inserted);
-    unused(inserted);
+           assert(inserted);
+           unused(inserted);
 
-    return std::ref(insertIt->second);
-  });
+           return std::ref(insertIt->second);
+         });
 }
 
 } // namespace TrenchBroom::Renderer

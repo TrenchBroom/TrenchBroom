@@ -18,8 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#ifndef KDL_PARALLEL_H
-#define KDL_PARALLEL_H
+#pragma once
 
 #include "kdl/vector_utils.h"
 
@@ -121,5 +120,3 @@ auto vec_parallel_transform(std::vector<T> input, L&& transform)
   return vec_transform(std::move(result), [](ResultType&& x) { return std::move(*x); });
 }
 } // namespace kdl
-
-#endif // KDL_PARALLEL_H

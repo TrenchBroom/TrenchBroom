@@ -22,9 +22,9 @@
 #include "Ensure.h"
 #include "Polyhedron.h"
 
-#include <kdl/binary_relation.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/binary_relation.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <limits>
 #include <map>

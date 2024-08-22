@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/Material.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
@@ -26,7 +27,7 @@
 #include "TestLogger.h"
 #include "TestUtils.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <filesystem>
 #include <memory>
@@ -40,14 +41,13 @@ namespace IO
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{std::filesystem::current_path()};
-  const auto file = fs.openFile("fixture/test/IO/M8/test.m8").value();
+  const auto file = fs.openFile("fixture/test/IO/M8/test.m8") | kdl::value();
 
   auto reader = file->reader().buffer();
-  auto texture = readM8Texture("test", reader).value();
+  auto texture = readM8Texture(reader) | kdl::value();
 
-  CHECK("test" == texture.name());
-  CHECK(64 == texture.width());
-  CHECK(64 == texture.height());
+  CHECK(texture.width() == 64);
+  CHECK(texture.height() == 64);
 
   for (size_t y = 0; y < 64; ++y)
   {

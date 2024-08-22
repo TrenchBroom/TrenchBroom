@@ -31,30 +31,31 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "Model/TexCoordSystem.h"
+#include "Model/UVCoordSystem.h"
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/polygon.h>
-#include <vecmath/segment.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_ext.h>
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_ext.h"
 
 #include <algorithm> // for std::remove
 #include <iterator>
@@ -76,11 +77,6 @@ BrushNode::BrushNode(Brush brush)
 }
 
 BrushNode::~BrushNode() = default;
-
-BrushNode* BrushNode::clone(const vm::bbox3& worldBounds) const
-{
-  return static_cast<BrushNode*>(Node::clone(worldBounds));
-}
 
 const EntityNodeBase* BrushNode::entity() const
 {
@@ -150,9 +146,9 @@ void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager)
   m_brush.face(faceIndex).updateTags(tagManager);
 }
 
-void BrushNode::setFaceTexture(const size_t faceIndex, Assets::Texture* texture)
+void BrushNode::setFaceMaterial(const size_t faceIndex, Assets::Material* material)
 {
-  m_brush.face(faceIndex).setTexture(texture);
+  m_brush.face(faceIndex).setMaterial(material);
 
   invalidateIssues();
   invalidateVertexCache();
@@ -191,10 +187,10 @@ static bool faceIntersectsEdge(
   const BrushFace& face, const vm::vec3& p0, const vm::vec3& p1)
 {
   const auto ray = vm::ray3{p0, p1 - p0}; // not normalized
-  if (const auto dist = face.intersectWithRay(ray); !vm::is_nan(dist))
+  if (const auto dist = face.intersectWithRay(ray))
   {
     // dist is scaled by inverse of vm::length(p1 - p0)
-    return dist >= 0.0 && dist <= 1.0;
+    return *dist >= 0.0 && *dist <= 1.0;
   }
   return false;
 }
@@ -318,11 +314,13 @@ FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const
   return result;
 }
 
-Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* BrushNode::doClone(
+  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto* result = new BrushNode(m_brush);
-  cloneAttributes(result);
-  return result;
+  auto result = std::make_unique<BrushNode>(m_brush);
+  result->cloneLinkId(*this, setLinkIds);
+  cloneAttributes(result.get());
+  return result.release();
 }
 
 bool BrushNode::doCanAddChild(const Node* /* child */) const
@@ -387,15 +385,14 @@ void BrushNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
 std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(
   const vm::ray3& ray) const
 {
-  if (!vm::is_nan(vm::intersect_ray_bbox(ray, logicalBounds())))
+  if (vm::intersect_ray_bbox(ray, logicalBounds()))
   {
     for (size_t i = 0u; i < m_brush.faceCount(); ++i)
     {
       const auto& face = m_brush.face(i);
-      const auto distance = face.intersectWithRay(ray);
-      if (!vm::is_nan(distance))
+      if (const auto distance = face.intersectWithRay(ray))
       {
-        return std::make_tuple(distance, i);
+        return std::tuple{*distance, i};
       }
     }
   }

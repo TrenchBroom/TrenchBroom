@@ -22,24 +22,23 @@
 #include "Assets/AssetReference.h"
 #include "FloatType.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
+
 class BezierPatch
 {
 public:
@@ -51,15 +50,23 @@ private:
   std::vector<Point> m_controlPoints;
   vm::bbox3 m_bounds;
 
-  std::string m_textureName;
-  Assets::AssetReference<Assets::Texture> m_textureReference;
+  std::string m_materialName;
+  Assets::AssetReference<Assets::Material> m_materialReference;
+
+  kdl_reflect_decl(
+    BezierPatch,
+    m_pointRowCount,
+    m_pointColumnCount,
+    m_bounds,
+    m_controlPoints,
+    m_materialName);
 
 public:
   BezierPatch(
     size_t pointRowCount,
     size_t pointColumnCount,
     std::vector<Point> controlPoints,
-    std::string textureName);
+    std::string materialName);
   ~BezierPatch();
 
   BezierPatch(const BezierPatch& other);
@@ -68,6 +75,7 @@ public:
   BezierPatch& operator=(const BezierPatch& other);
   BezierPatch& operator=(BezierPatch&& other) noexcept;
 
+public: // control points:
   size_t pointRowCount() const;
   size_t pointColumnCount() const;
 
@@ -83,24 +91,15 @@ public:
 
   const vm::bbox3& bounds() const;
 
-  const std::string& textureName() const;
-  void setTextureName(std::string textureName);
+  const std::string& materialName() const;
+  void setMaterialName(std::string materialName);
 
-  const Assets::Texture* texture() const;
-  bool setTexture(Assets::Texture* texture);
+  const Assets::Material* material() const;
+  bool setMaterial(Assets::Material* material);
 
   void transform(const vm::mat4x4& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
-
-  kdl_reflect_decl(
-    BezierPatch,
-    m_pointRowCount,
-    m_pointColumnCount,
-    m_bounds,
-    m_controlPoints,
-    m_textureName);
 };
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

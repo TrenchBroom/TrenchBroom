@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include <kdl/compact_trie_forward.h>
+#include "kdl/compact_trie_forward.h"
 
 #include <memory>
 #include <set>

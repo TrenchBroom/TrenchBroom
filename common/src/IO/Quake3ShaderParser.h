@@ -24,15 +24,13 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Quake3Shader;
 class Quake3ShaderStage;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -87,5 +85,5 @@ private:
 private:
   TokenNameMap tokenNames() const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

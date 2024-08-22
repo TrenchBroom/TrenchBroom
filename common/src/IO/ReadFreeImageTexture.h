@@ -20,16 +20,16 @@
 #pragma once
 
 #include "Color.h"
-#include "IO/TextureUtils.h"
 #include "Renderer/GL.h"
 #include "Result.h"
 
-#include <string>
+#include <string_view>
 
 namespace TrenchBroom::Assets
 {
+class Texture;
 class TextureBuffer;
-}
+} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::IO
 {
@@ -38,10 +38,10 @@ class Reader;
 
 Color getAverageColor(const Assets::TextureBuffer& buffer, GLenum format);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTextureFromMemory(
-  std::string name, const uint8_t* begin, size_t size);
+Result<Assets::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
 
-Result<Assets::Texture, ReadTextureError> readFreeImageTexture(
-  std::string name, Reader& reader);
+Result<Assets::Texture> readFreeImageTexture(Reader& reader);
+
+bool isSupportedFreeImageExtension(std::string_view extension);
 
 } // namespace TrenchBroom::IO

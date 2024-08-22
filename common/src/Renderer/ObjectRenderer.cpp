@@ -21,7 +21,7 @@
 
 #include "Model/GroupNode.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 namespace TrenchBroom
 {
@@ -47,6 +47,19 @@ void ObjectRenderer::removeNode(Model::Node* node)
     [&](Model::EntityNode* entity) { m_entityRenderer.removeEntity(entity); },
     [&](Model::BrushNode* brush) { m_brushRenderer.removeBrush(brush); },
     [&](Model::PatchNode* patch) { m_patchRenderer.removePatch(patch); }));
+}
+
+void ObjectRenderer::invalidateMaterials(
+  const std::vector<const Assets::Material*>& materials)
+{
+  m_brushRenderer.invalidateMaterials(materials);
+  m_patchRenderer.invalidate();
+}
+
+void ObjectRenderer::invalidateEntityModels(
+  const std::vector<const Assets::EntityModel*>& entityModels)
+{
+  m_entityRenderer.invalidateEntityModels(entityModels);
 }
 
 void ObjectRenderer::invalidateNode(Model::Node* node)

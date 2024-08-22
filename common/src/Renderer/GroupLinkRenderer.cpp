@@ -22,12 +22,14 @@
 #include "Model/EditorContext.h"
 #include "Model/Group.h"
 #include "Model/GroupNode.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
+#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 namespace TrenchBroom
 {
@@ -48,36 +50,27 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
   auto document = kdl::mem_lock(m_document);
   auto links = std::vector<LineVertex>{};
 
-  const auto& editorContext = document->editorContext();
-  const auto* groupNode = editorContext.currentGroup();
-
   const auto selectedGroupNodes = document->selectedNodes().groups();
-  if (selectedGroupNodes.size() == 1u)
-  {
-    const auto* selectedGroupNode = selectedGroupNodes.front();
-    if (selectedGroupNode->group().linkedGroupId().has_value())
-    {
-      groupNode = selectedGroupNode;
-    }
-  }
 
-  if (groupNode != nullptr)
-  {
-    if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-    {
-      const auto linkedGroupNodes =
-        Model::findLinkedGroups(*document->world(), *linkedGroupId);
+  const auto& editorContext = document->editorContext();
+  const auto* groupNode = selectedGroupNodes.size() == 1 ? selectedGroupNodes.front()
+                                                         : editorContext.currentGroup();
 
-      const auto linkColor = pref(Preferences::LinkedGroupColor);
-      const auto sourcePosition = getLinkAnchorPosition(*groupNode);
-      for (const auto* linkedGroupNode : linkedGroupNodes)
+  if (groupNode)
+  {
+    const auto& linkId = groupNode->linkId();
+    const auto linkedGroupNodes =
+      Model::collectGroupsWithLinkId({document->world()}, linkId);
+
+    const auto linkColor = pref(Preferences::LinkedGroupColor);
+    const auto sourcePosition = getLinkAnchorPosition(*groupNode);
+    for (const auto* linkedGroupNode : linkedGroupNodes)
+    {
+      if (linkedGroupNode != groupNode && editorContext.visible(linkedGroupNode))
       {
-        if (linkedGroupNode != groupNode && editorContext.visible(linkedGroupNode))
-        {
-          const auto targetPosition = getLinkAnchorPosition(*linkedGroupNode);
-          links.emplace_back(sourcePosition, linkColor);
-          links.emplace_back(targetPosition, linkColor);
-        }
+        const auto targetPosition = getLinkAnchorPosition(*linkedGroupNode);
+        links.emplace_back(sourcePosition, linkColor);
+        links.emplace_back(targetPosition, linkColor);
       }
     }
   }

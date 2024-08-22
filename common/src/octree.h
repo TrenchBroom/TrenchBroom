@@ -22,16 +22,16 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_decl.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
-#include <vecmath/scalar.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
+#include "vm/scalar.h"
 
 #include <algorithm>
 #include <cassert>
@@ -136,6 +136,12 @@ public:
   {
     detail::node_address address;
     std::vector<U> data;
+
+    leaf_node(detail::node_address i_address, std::vector<U> i_data)
+      : address{std::move(i_address)}
+      , data{std::move(i_data)}
+    {
+    }
 
     leaf_node(const leaf_node&) = delete;
     leaf_node(leaf_node&&) noexcept = default;
@@ -542,8 +548,7 @@ public:
         },
         [&](const auto& node) {
           const auto bounds = get_address(node).to_bounds(m_min_size);
-          return bounds.contains(ray.origin)
-                 || !vm::is_nan(vm::intersect_ray_bbox(ray, bounds));
+          return bounds.contains(ray.origin) || vm::intersect_ray_bbox(ray, bounds);
         });
     }
   }

@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <exception>

@@ -26,7 +26,7 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
-#include <vecmath/scalar.h>
+#include "vm/scalar.h"
 
 namespace TrenchBroom
 {

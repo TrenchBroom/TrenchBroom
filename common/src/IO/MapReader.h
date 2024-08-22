@@ -27,19 +27,17 @@
 #include "Model/EntityProperties.h"
 #include "Model/IdType.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
 
 #include <optional>
 #include <string_view>
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class EntityNode;
@@ -50,10 +48,11 @@ class LayerNode;
 enum class MapFormat;
 class Node;
 class WorldNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
+
 class ParserStatus;
 
 /**
@@ -61,7 +60,7 @@ class ParserStatus;
  *
  *  - WorldReader (loading a whole .map)
  *  - NodeReader (reading part of a map, for pasting into an existing map)
- *  - BrushFaceReader (reading faces when copy/pasting texture alignment)
+ *  - BrushFaceReader (reading faces when copy/pasting UV alignment)
  *
  * The flow of control is:
  *
@@ -96,7 +95,7 @@ public: // only public so that helper methods can see these declarations
     size_t rowCount;
     size_t columnCount;
     std::vector<Model::BezierPatch::Point> controlPoints;
-    std::string textureName;
+    std::string materialName;
     size_t startLine;
     size_t lineCount;
     std::optional<size_t> parentIndex;
@@ -106,7 +105,6 @@ public: // only public so that helper methods can see these declarations
 
 private:
   Model::EntityPropertyConfig m_entityPropertyConfig;
-  std::vector<std::string> m_linkedGroupsToKeep;
   vm::bbox3 m_worldBounds;
 
 private: // data populated in response to MapParser callbacks
@@ -122,15 +120,13 @@ protected:
    * @param sourceMapFormat the expected format of the given string
    * @param targetMapFormat the format to convert the created objects to
    * @param entityPropertyConfig the entity property config to use
-   * @param linkedGroupsToKeep the IDs of linked groups which should not be unlinked even
    * if orphaned
    */
   MapReader(
     std::string_view str,
     Model::MapFormat sourceMapFormat,
     Model::MapFormat targetMapFormat,
-    Model::EntityPropertyConfig entityPropertyConfig,
-    std::vector<std::string> linkedGroupsToKeep);
+    Model::EntityPropertyConfig entityPropertyConfig);
 
   /**
    * Attempts to parse as one or more entities.
@@ -174,8 +170,8 @@ protected: // implement MapParser interface
     const vm::vec3& point2,
     const vm::vec3& point3,
     const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis,
     ParserStatus& status) override;
   void onPatch(
     size_t startLine,
@@ -184,7 +180,7 @@ protected: // implement MapParser interface
     size_t rowCount,
     size_t columnCount,
     std::vector<vm::vec<FloatType, 5>> controlPoints,
-    std::string textureName,
+    std::string materialName,
     ParserStatus& status) override;
 
 private: // helper methods
@@ -222,5 +218,5 @@ private: // subclassing interface - these will be called in the order that nodes
    */
   virtual void onBrushFace(Model::BrushFace face, ParserStatus& status);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

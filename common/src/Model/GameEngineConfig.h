@@ -21,7 +21,7 @@
 
 #include "Model/GameEngineProfile.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <string>
 #include <vector>

@@ -20,13 +20,40 @@
 #include "Object.h"
 
 #include "Model/GroupNode.h"
+#include "Uuid.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+
+Object::Object()
+  : m_linkId{generateUuid()}
 {
-Object::Object() {}
-Object::~Object() {}
+}
+
+Object::~Object() = default;
+
+const std::string& Object::linkId() const
+{
+  return m_linkId;
+}
+
+void Object::setLinkId(std::string linkId)
+{
+  m_linkId = std::move(linkId);
+}
+
+void Object::cloneLinkId(const Object& original, const SetLinkId linkIdPolicy)
+{
+  switch (linkIdPolicy)
+  {
+  case SetLinkId::keep:
+    setLinkId(original.linkId());
+    break;
+  case SetLinkId::generate:
+    setLinkId(generateUuid());
+    break;
+  }
+}
 
 Node* Object::container()
 {
@@ -68,5 +95,5 @@ bool Object::containingGroupOpened() const
   const auto* group = containingGroup();
   return group == nullptr || group->opened();
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

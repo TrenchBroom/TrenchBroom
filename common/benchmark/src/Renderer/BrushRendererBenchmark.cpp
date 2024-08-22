@@ -18,6 +18,7 @@
  */
 
 #include "../../test/src/Catch2.h"
+#include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "BenchmarkUtils.h"
 #include "Error.h"
@@ -30,7 +31,7 @@
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <algorithm>
 #include <chrono>
@@ -43,35 +44,37 @@ namespace TrenchBroom
 namespace Renderer
 {
 static constexpr size_t NumBrushes = 64'000;
-static constexpr size_t NumTextures = 256;
+static constexpr size_t NumMaterials = 256;
 
 /**
  * Both returned vectors need to be freed with VecUtils::clearAndDelete
  */
-static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Texture*>>
+static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Material*>>
 makeBrushes()
 {
-  // make textures
-  std::vector<Assets::Texture*> textures;
-  for (size_t i = 0; i < NumTextures; ++i)
+  // make materials
+  std::vector<Assets::Material*> materials;
+  for (size_t i = 0; i < NumMaterials; ++i)
   {
-    const auto textureName = "texture " + std::to_string(i);
-    textures.push_back(new Assets::Texture(textureName, 64, 64));
+    auto materialName = "material " + std::to_string(i);
+    auto textureResource = createTextureResource(Assets::Texture{64, 64});
+    materials.push_back(
+      new Assets::Material(std::move(materialName), std::move(textureResource)));
   }
 
-  // make brushes, cycling through the textures for each face
+  // make brushes, cycling through the materials for each face
   const vm::bbox3 worldBounds(4096.0);
 
   Model::BrushBuilder builder(Model::MapFormat::Standard, worldBounds);
 
   std::vector<Model::BrushNode*> result;
-  size_t currentTextureIndex = 0;
+  size_t currentMaterialIndex = 0;
   for (size_t i = 0; i < NumBrushes; ++i)
   {
-    Model::Brush brush = builder.createCube(64.0, "").value();
+    Model::Brush brush = builder.createCube(64.0, "") | kdl::value();
     for (Model::BrushFace& face : brush.faces())
     {
-      face.setTexture(textures.at((currentTextureIndex++) % NumTextures));
+      face.setMaterial(materials.at((currentMaterialIndex++) % NumMaterials));
     }
     Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
     result.push_back(brushNode);
@@ -89,14 +92,12 @@ makeBrushes()
   tempRenderer.validate();
   tempRenderer.clear();
 
-  return {result, textures};
+  return {result, materials};
 }
 
 TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
 {
-  auto brushesTextures = makeBrushes();
-  std::vector<Model::BrushNode*> brushes = brushesTextures.first;
-  std::vector<Assets::Texture*> textures = brushesTextures.second;
+  auto [brushes, materials] = makeBrushes();
 
   BrushRenderer r;
 
@@ -152,7 +153,7 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
     "validate remaining brushes");
 
   kdl::vec_clear_and_delete(brushes);
-  kdl::vec_clear_and_delete(textures);
+  kdl::vec_clear_and_delete(materials);
 }
 } // namespace Renderer
 } // namespace TrenchBroom

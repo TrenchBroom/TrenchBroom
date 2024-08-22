@@ -21,7 +21,7 @@
 
 #include "EL/Expression.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
 #include <optional>
 #include <string>
@@ -37,6 +37,7 @@ extern const std::string Classname;
 extern const std::string Origin;
 extern const std::string Wad;
 extern const std::string Mods;
+extern const std::string EnabledMaterialCollections;
 extern const std::string Spawnflags;
 extern const std::string EntityDefinitions;
 extern const std::string Angle;
@@ -59,7 +60,7 @@ extern const std::string GroupId;
 extern const std::string GroupName;
 extern const std::string Group;
 extern const std::string GroupTransformation;
-extern const std::string LinkedGroupId;
+extern const std::string LinkId;
 extern const std::string Message;
 extern const std::string ValveVersion;
 extern const std::string SoftMapBounds;

@@ -43,8 +43,7 @@ static void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex)
   layerNode.setLayer(layer);
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable")
 {
   Model::LayerNode* defaultLayerNode = document->world()->defaultLayer();
   setLayerSortIndex(*defaultLayerNode, 555);
@@ -69,8 +68,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer")
   CHECK(layerNode->name() == "test1");
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLayer", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLayer")
 {
   // delete default brush
   document->selectAllNodes();
@@ -98,8 +96,7 @@ TEST_CASE_METHOD(
   CHECK(document->currentLayer() == layerNode2);
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer")
 {
   // delete default brush
   document->selectAllNodes();
@@ -127,8 +124,7 @@ TEST_CASE_METHOD(
   CHECK(document->currentLayer() == layerNode2);
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisible", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisible")
 {
   // delete default brush
   document->selectAllNodes();
@@ -250,8 +246,7 @@ TEST_CASE_METHOD(
   CHECK(brush2->visible());
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnlocked", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnlocked")
 {
   // delete default brush
   document->selectAllNodes();
@@ -384,8 +379,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer")
   }
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.moveSelectionToLayer", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 {
   // delete default brush
   document->selectAllNodes();
@@ -513,8 +507,7 @@ TEST_CASE_METHOD(
   }
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation", "[LayerNodesTest]")
+TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation")
 {
   // delete default brush
   document->selectAllNodes();

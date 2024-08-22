@@ -25,9 +25,9 @@
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/quat.h>
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
+#include "vm/quat.h" // IWYU pragma: keep
 
 #include <optional>
 #include <string>
@@ -41,28 +41,28 @@ class Logger;
 namespace TrenchBroom::Assets
 {
 class EntityDefinition;
-class EntityDefinitionManager;
 enum class EntityDefinitionSortOrder;
-class EntityModelManager;
 enum class Orientation;
 class PointEntityDefinition;
+class ResourceId;
 } // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Renderer
 {
 class FontDescriptor;
-class TexturedRenderer;
+class MaterialRenderer;
 class Transformation;
 } // namespace TrenchBroom::Renderer
 
 namespace TrenchBroom::View
 {
+class MapDocument;
 
 using EntityGroupData = std::string;
 
 struct EntityCellData
 {
-  using EntityRenderer = Renderer::TexturedRenderer;
+  using EntityRenderer = Renderer::MaterialRenderer;
   const Assets::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
   Assets::Orientation modelOrientation;
@@ -75,19 +75,17 @@ class EntityBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using EntityRenderer = Renderer::TexturedRenderer;
+  using EntityRenderer = Renderer::MaterialRenderer;
 
-  using TextVertex = Renderer::GLVertexTypes::P2T2C4::Vertex;
+  using TextVertex = Renderer::GLVertexTypes::P2UV2C4::Vertex;
   using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
   static constexpr auto CameraDirection = vm::vec3f::neg_x();
   static constexpr auto CameraUp = vm::vec3f::pos_z();
 
-  Assets::EntityDefinitionManager& m_entityDefinitionManager;
-  Assets::EntityModelManager& m_entityModelManager;
+  std::weak_ptr<MapDocument> m_document;
   std::optional<EL::Expression> m_defaultScaleModelExpression;
-  Logger& m_logger;
   vm::quatf m_rotation;
 
   bool m_group = false;
@@ -101,9 +99,7 @@ public:
   EntityBrowserView(
     QScrollBar* scrollBar,
     GLContextManager& contextManager,
-    Assets::EntityDefinitionManager& entityDefinitionManager,
-    Assets::EntityModelManager& entityModelManager,
-    Logger& logger);
+    std::weak_ptr<MapDocument> document);
   ~EntityBrowserView() override;
 
 public:
@@ -121,6 +117,8 @@ private:
 
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
+
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,
@@ -141,11 +139,6 @@ private:
   class MeshFunc;
   void renderModels(
     Layout& layout, float y, float height, Renderer::Transformation& transformation);
-
-  void renderNames(Layout& layout, float y, float height, const vm::mat4x4f& projection);
-  void renderGroupTitleBackgrounds(Layout& layout, float y, float height);
-  void renderStrings(Layout& layout, float y, float height);
-  StringMap collectStringVertices(Layout& layout, float y, float height);
 
   vm::mat4x4f itemTransformation(
     const Cell& cell, float y, float height, bool applyModelScale) const;

@@ -31,11 +31,6 @@ namespace TrenchBroom
 class Logger;
 }
 
-namespace TrenchBroom::IO
-{
-class Quake3ShaderFileSystem;
-} // namespace TrenchBroom::IO
-
 namespace TrenchBroom::Model
 {
 struct GameConfig;
@@ -43,7 +38,6 @@ struct GameConfig;
 class GameFileSystem : public IO::VirtualFileSystem
 {
 private:
-  IO::Quake3ShaderFileSystem* m_shaderFS = nullptr;
   std::vector<IO::VirtualMountPointId> m_wadMountPoints;
 
 public:
@@ -52,7 +46,6 @@ public:
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
-  Result<void> reloadShaders();
   void reloadWads(
     const std::filesystem::path& rootPath,
     const std::vector<std::filesystem::path>& wadSearchPaths,
@@ -66,7 +59,6 @@ private:
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
-  void addShaderFileSystem(const GameConfig& config, Logger& logger);
   void addFileSystemPath(const std::filesystem::path& path, Logger& logger);
   void addFileSystemPackages(
     const GameConfig& config, const std::filesystem::path& searchPath, Logger& logger);

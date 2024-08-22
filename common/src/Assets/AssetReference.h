@@ -17,16 +17,14 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <kdl/reflection_impl.h>
-
+#include <iostream>
 #include <utility>
 
 #pragma once
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 template <typename T>
 class AssetReference
 {
@@ -35,27 +33,27 @@ private:
 
 public:
   explicit AssetReference(T* asset = nullptr)
-    : m_asset(asset)
+    : m_asset{asset}
   {
-    if (m_asset != nullptr)
+    if (m_asset)
     {
       m_asset->incUsageCount();
     }
   }
 
   AssetReference(const AssetReference& other) noexcept
-    : AssetReference(other.m_asset)
+    : AssetReference{other.m_asset}
   {
   }
 
   AssetReference(AssetReference&& other) noexcept
-    : m_asset(std::exchange(other.m_asset, nullptr))
+    : m_asset{std::exchange(other.m_asset, nullptr)}
   {
   }
 
   ~AssetReference()
   {
-    if (m_asset != nullptr)
+    if (m_asset)
     {
       m_asset->decUsageCount();
     }
@@ -78,7 +76,30 @@ public:
 
   const T* get() const { return m_asset; }
 
-  kdl_reflect_inline(AssetReference<T>, m_asset);
+  friend bool operator==(const AssetReference<T>& lhs, const AssetReference<T>& rhs)
+  {
+    return lhs.m_asset == rhs.m_asset;
+  }
+
+  friend bool operator!=(const AssetReference<T>& lhs, const AssetReference<T>& rhs)
+  {
+    return !(lhs == rhs);
+  }
+
+  friend std::ostream& operator<<(std::ostream& lhs, const AssetReference<T>& rhs)
+  {
+    lhs << "AssetReference<T>{m_asset: ";
+    if (rhs.m_asset)
+    {
+      lhs << rhs.m_asset;
+    }
+    else
+    {
+      lhs << "null";
+    }
+    lhs << "}";
+    return lhs;
+  }
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

@@ -29,9 +29,9 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/Vbo.h"
 
+#include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
-#include <kdl/result.h>
 
 #include <sstream>
 #include <string>
@@ -85,34 +85,35 @@ bool GLContextManager::initialize()
     GLRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
     GLVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-    kdl::fold_results(kdl::vec_transform(
-                        std::vector<Renderer::ShaderConfig>{
-                          Grid2DShader,
-                          VaryingPCShader,
-                          VaryingPUniformCShader,
-                          MiniMapEdgeShader,
-                          EntityModelShader,
-                          FaceShader,
-                          PatchShader,
-                          EdgeShader,
-                          ColoredTextShader,
-                          TextBackgroundShader,
-                          TextureBrowserShader,
-                          TextureBrowserBorderShader,
-                          HandleShader,
-                          ColoredHandleShader,
-                          CompassShader,
-                          CompassOutlineShader,
-                          CompassBackgroundShader,
-                          LinkLineShader,
-                          LinkArrowShader,
-                          TriangleShader,
-                          UVViewShader,
-                        },
-                        [&](const auto& shaderConfig) {
-                          return m_shaderManager->loadProgram(shaderConfig);
-                        }))
-      .transform_error([&](const auto& e) { throw RenderException{e.msg}; });
+    kdl::vec_transform(
+      std::vector<Renderer::ShaderConfig>{
+        Grid2DShader,
+        VaryingPCShader,
+        VaryingPUniformCShader,
+        MiniMapEdgeShader,
+        EntityModelShader,
+        FaceShader,
+        PatchShader,
+        EdgeShader,
+        ColoredTextShader,
+        TextBackgroundShader,
+        MaterialBrowserShader,
+        MaterialBrowserBorderShader,
+        HandleShader,
+        ColoredHandleShader,
+        CompassShader,
+        CompassOutlineShader,
+        CompassBackgroundShader,
+        LinkLineShader,
+        LinkArrowShader,
+        TriangleShader,
+        UVViewShader,
+      },
+      [&](const auto& shaderConfig) {
+        return m_shaderManager->loadProgram(shaderConfig);
+      })
+      | kdl::fold()
+      | kdl::transform_error([&](const auto& e) { throw RenderException{e.msg}; });
 
     return true;
   }

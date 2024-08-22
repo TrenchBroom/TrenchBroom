@@ -53,15 +53,13 @@ public:
     std::string_view str,
     Model::MapFormat sourceMapFormat,
     Model::MapFormat targetMapFormat,
-    const Model::EntityPropertyConfig& entityPropertyConfig,
-    std::vector<std::string> linkedGroupsToKeep);
+    const Model::EntityPropertyConfig& entityPropertyConfig);
 
   static std::vector<Model::Node*> read(
     const std::string& str,
     Model::MapFormat preferredMapFormat,
     const vm::bbox3& worldBounds,
     const Model::EntityPropertyConfig& entityPropertyConfig,
-    const std::vector<std::string>& linkedGroupsToKeep,
     ParserStatus& status);
 
 private:
@@ -71,7 +69,6 @@ private:
     const std::string& str,
     const vm::bbox3& worldBounds,
     const Model::EntityPropertyConfig& entityPropertyConfig,
-    const std::vector<std::string>& linkedGroupsToKeep,
     ParserStatus& status);
 
 private: // implement MapReader interface

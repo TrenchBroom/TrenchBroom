@@ -23,11 +23,11 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
-#include <kdl/invoke.h>
-#include <kdl/vector_set.h>
+#include "kdl/invoke.h"
+#include "kdl/vector_set.h"
 
-#include <vecmath/plane.h>
-#include <vecmath/vec.h>
+#include "vm/plane.h"
+#include "vm/vec.h"
 
 #include <string>
 #include <vector>
@@ -454,9 +454,9 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -471,9 +471,9 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -498,13 +498,13 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  const auto [texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
-  attribs.setXOffset(xOffset);
-  attribs.setYOffset(yOffset);
+  auto attribs = Model::BrushFaceAttributes(materialName);
+  attribs.setXOffset(uOffset);
+  attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
@@ -519,7 +519,7 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
+  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
@@ -527,9 +527,9 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -552,9 +552,9 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -584,18 +584,18 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   const auto line = m_tokenizer.line();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
-  const auto [texX, xOffset, texY, yOffset] = parseValveTextureAxes(status);
+  const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(textureName);
-  attribs.setXOffset(xOffset);
-  attribs.setYOffset(yOffset);
+  auto attribs = Model::BrushFaceAttributes(materialName);
+  attribs.setXOffset(uOffset);
+  attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, texX, texY, status);
+  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
@@ -606,13 +606,13 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
 
   expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
-  /* const auto [texX, texY] = */ parsePrimitiveTextureAxes(status);
+  /* const auto [uAxis, vAxis] = */ parsePrimitiveUVAxes(status);
   expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-  const auto textureName = parseTextureName(status);
+  const auto materialName = parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = Model::BrushFaceAttributes(textureName);
+  auto attribs = Model::BrushFaceAttributes(materialName);
 
   // Quake 2 extra info is optional
   if (!check(
@@ -625,7 +625,7 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   }
 
   // TODO 2427: create a brush face
-  // brushFace(line, p1, p2, p3, attribs, texX, texY, status);
+  // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
@@ -634,7 +634,7 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   expect(PatchId, token);
   expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
 
-  auto textureName = parseTextureName(status);
+  auto materialName = parseMaterialName(status);
   expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
 
   /*
@@ -700,7 +700,7 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
     rowCount,
     columnCount,
     std::move(controlPoints),
-    std::move(textureName),
+    std::move(materialName),
     status);
 }
 
@@ -717,37 +717,37 @@ std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(
   return std::make_tuple(p1, p2, p3);
 }
 
-std::string StandardMapParser::parseTextureName(ParserStatus& /* status */)
+std::string StandardMapParser::parseMaterialName(ParserStatus& /* status */)
 {
-  const auto [textureName, wasQuoted] =
+  const auto [materialName, wasQuoted] =
     m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
-  return wasQuoted ? kdl::str_unescape(textureName, "\"\\") : std::string(textureName);
+  return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string(materialName);
 }
 
-std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveTextureAxes(
+std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveUVAxes(
   ParserStatus& /* status */)
 {
   const auto firstAxis =
     parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
-  const auto texS = firstAxis.xyz();
-  const auto xOffset = static_cast<float>(firstAxis.w());
+  const auto uAxis = firstAxis.xyz();
+  const auto uOffset = static_cast<float>(firstAxis.w());
 
   const auto secondAxis =
     parseFloatVector<4>(QuakeMapToken::OBracket, QuakeMapToken::CBracket);
-  const auto texT = secondAxis.xyz();
-  const auto yOffset = static_cast<float>(secondAxis.w());
+  const auto vAxis = secondAxis.xyz();
+  const auto vOffset = static_cast<float>(secondAxis.w());
 
-  return std::make_tuple(texS, xOffset, texT, yOffset);
+  return std::make_tuple(uAxis, uOffset, vAxis, vOffset);
 }
 
-std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveTextureAxes(
+std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveUVAxes(
   ParserStatus& /* status */)
 {
-  const auto texX =
+  const auto uAxis =
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
-  const auto texY =
+  const auto vAxis =
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
-  return std::make_tuple(texX, texY);
+  return std::make_tuple(uAxis, vAxis);
 }
 
 float StandardMapParser::parseFloat()

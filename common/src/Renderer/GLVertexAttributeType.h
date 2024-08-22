@@ -24,7 +24,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/ShaderProgram.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {
@@ -194,13 +194,13 @@ public:
 };
 
 /**
- * Vertex texture coordinate (0) attribute types.
+ * Vertex UV coordinate (0) attribute types.
  *
  * @tparam D the vertex component type
  * @tparam S the number of components
  */
 template <GLenum D, size_t S>
-class GLVertexAttributeTexCoord0
+class GLVertexAttributeUVCoord0
 {
 public:
   using ComponentType = typename GLType<D>::Type;
@@ -229,8 +229,8 @@ public:
   }
 
   // Non-instantiable
-  GLVertexAttributeTexCoord0() = delete;
-  deleteCopyAndMove(GLVertexAttributeTexCoord0);
+  GLVertexAttributeUVCoord0() = delete;
+  deleteCopyAndMove(GLVertexAttributeUVCoord0);
 };
 
 namespace GLVertexAttributeTypes
@@ -238,7 +238,7 @@ namespace GLVertexAttributeTypes
 using P2 = GLVertexAttributePosition<GL_FLOAT, 2>;
 using P3 = GLVertexAttributePosition<GL_FLOAT, 3>;
 using N = GLVertexAttributeNormal<GL_FLOAT, 3>;
-using T02 = GLVertexAttributeTexCoord0<GL_FLOAT, 2>;
+using UV02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
 using C4 = GLVertexAttributeColor<GL_FLOAT, 4>;
 } // namespace GLVertexAttributeTypes
 } // namespace Renderer

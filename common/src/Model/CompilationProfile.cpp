@@ -19,7 +19,7 @@
 
 #include "CompilationProfile.h"
 
-#include <kdl/reflection_impl.h>
+#include "kdl/reflection_impl.h"
 
 namespace TrenchBroom
 {

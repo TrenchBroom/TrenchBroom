@@ -25,8 +25,8 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
-#include <kdl/overload.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <ostream>

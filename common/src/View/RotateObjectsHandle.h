@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "Model/HitType.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 namespace TrenchBroom
 {

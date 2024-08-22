@@ -26,7 +26,6 @@
 #include "IO/File.h"
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
-#include "IO/Quake3ShaderFileSystem.h"
 #include "IO/SystemPaths.h"
 #include "IO/TraversalMode.h"
 #include "IO/WadFileSystem.h"
@@ -35,8 +34,8 @@
 #include "Model/GameConfig.h"
 
 #include "kdl/result_fold.h"
-#include <kdl/string_compare.h>
-#include <kdl/vector_utils.h>
+#include "kdl/string_compare.h"
+#include "kdl/vector_utils.h"
 
 #include <memory>
 
@@ -50,20 +49,13 @@ void GameFileSystem::initialize(
   Logger& logger)
 {
   unmountAll();
-  m_shaderFS = nullptr;
 
   addDefaultAssetPaths(config, logger);
 
   if (!gamePath.empty() && IO::Disk::pathInfo(gamePath) == IO::PathInfo::Directory)
   {
     addGameFileSystems(config, gamePath, additionalSearchPaths, logger);
-    addShaderFileSystem(config, logger);
   }
-}
-
-Result<void> GameFileSystem::reloadShaders()
-{
-  return m_shaderFS ? m_shaderFS->reload() : Result<void>{};
 }
 
 void GameFileSystem::reloadWads(
@@ -129,27 +121,27 @@ Result<std::unique_ptr<IO::FileSystem>> createImageFileSystem(
 {
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
   {
-    return IO::Disk::openFile(path)
-      .and_then([](auto file) {
-        return IO::createImageFileSystem<IO::IdPakFileSystem>(std::move(file));
-      })
-      .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
+    return IO::Disk::openFile(path) | kdl::and_then([](auto file) {
+             return IO::createImageFileSystem<IO::IdPakFileSystem>(std::move(file));
+           })
+           | kdl::transform(
+             [](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
   {
-    return IO::Disk::openFile(path)
-      .and_then([](auto file) {
-        return IO::createImageFileSystem<IO::DkPakFileSystem>(std::move(file));
-      })
-      .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
+    return IO::Disk::openFile(path) | kdl::and_then([](auto file) {
+             return IO::createImageFileSystem<IO::DkPakFileSystem>(std::move(file));
+           })
+           | kdl::transform(
+             [](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   else if (kdl::ci::str_is_equal(packageFormat, "zip"))
   {
-    return IO::Disk::openFile(path)
-      .and_then([](auto file) {
-        return IO::createImageFileSystem<IO::ZipFileSystem>(std::move(file));
-      })
-      .transform([](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
+    return IO::Disk::openFile(path) | kdl::and_then([](auto file) {
+             return IO::createImageFileSystem<IO::ZipFileSystem>(std::move(file));
+           })
+           | kdl::transform(
+             [](auto fs) { return std::unique_ptr<IO::FileSystem>{std::move(fs)}; });
   }
   return Error{"Unknown package format: " + packageFormat};
 }
@@ -167,48 +159,30 @@ void GameFileSystem::addFileSystemPackages(
   if (IO::Disk::pathInfo(searchPath) == IO::PathInfo::Directory)
   {
     const auto diskFS = IO::DiskFileSystem{searchPath};
-    diskFS
-      .find(
-        std::filesystem::path{},
-        IO::TraversalMode::Flat,
-        IO::makeExtensionPathMatcher(packageExtensions))
-      .and_then([&](auto packagePaths) {
-        return kdl::fold_results(
-          kdl::vec_transform(std::move(packagePaths), [&](auto packagePath) {
-            return diskFS.makeAbsolute(packagePath)
-              .and_then([&](const auto& absPackagePath) {
-                return createImageFileSystem(packageFormat, absPackagePath);
-              })
-              .transform([&](auto fs) {
-                logger.info() << "Adding file system package " << packagePath;
-                mount("", std::move(fs));
-              });
-          }));
-      })
-      .transform_error([&](auto e) {
-        logger.error() << "Could not add file system packages: " << e.msg;
-      });
-  }
-}
-
-void GameFileSystem::addShaderFileSystem(const GameConfig& config, Logger& logger)
-{
-  // To support Quake 3 shaders, we add a shader file system that loads the shaders
-  // and makes them available as virtual files.
-  const auto& textureConfig = config.textureConfig;
-  if (!textureConfig.shaderSearchPath.empty())
-  {
-    logger.info() << "Adding shader file system";
-    auto shaderSearchPath = textureConfig.shaderSearchPath;
-    auto textureSearchPaths =
-      std::vector<std::filesystem::path>{textureConfig.root, "models"};
-
-    auto shaderFs =
-      IO::createImageFileSystem<IO::Quake3ShaderFileSystem>(
-        *this, std::move(shaderSearchPath), std::move(textureSearchPaths), logger)
-        .value();
-    m_shaderFS = shaderFs.get();
-    mount(std::filesystem::path{}, std::move(shaderFs));
+    diskFS.find(
+      std::filesystem::path{},
+      IO::TraversalMode::Flat,
+      IO::makeExtensionPathMatcher(packageExtensions))
+      | kdl::and_then([&](auto packagePaths) {
+          return kdl::vec_transform(
+                   std::move(packagePaths),
+                   [&](auto packagePath) {
+                     return diskFS.makeAbsolute(packagePath)
+                            | kdl::and_then([&](const auto& absPackagePath) {
+                                return createImageFileSystem(
+                                  packageFormat, absPackagePath);
+                              })
+                            | kdl::transform([&](auto fs) {
+                                logger.info()
+                                  << "Adding file system package " << packagePath;
+                                mount("", std::move(fs));
+                              });
+                   })
+                 | kdl::fold();
+        })
+      | kdl::transform_error([&](auto e) {
+          logger.error() << "Could not add file system packages: " << e.msg;
+        });
   }
 }
 
@@ -220,17 +194,14 @@ void GameFileSystem::mountWads(
 {
   for (const auto& wadPath : wadPaths)
   {
-    const auto mountPath = rootPath / wadPath.filename();
     const auto resolvedWadPath = IO::Disk::resolvePath(wadSearchPaths, wadPath);
-    IO::Disk::openFile(resolvedWadPath)
-      .and_then([](auto file) {
-        return IO::createImageFileSystem<IO::WadFileSystem>(std::move(file));
-      })
-      .transform(
-        [&](auto fs) { m_wadMountPoints.push_back(mount(mountPath, std::move(fs))); })
-      .transform_error([&](auto e) {
-        logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;
-      });
+    IO::Disk::openFile(resolvedWadPath) | kdl::and_then([](auto file) {
+      return IO::createImageFileSystem<IO::WadFileSystem>(std::move(file));
+    }) | kdl::transform([&](auto fs) {
+      m_wadMountPoints.push_back(mount(rootPath, std::move(fs)));
+    }) | kdl::transform_error([&](auto e) {
+      logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;
+    });
   }
 }
 

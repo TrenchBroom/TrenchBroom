@@ -42,17 +42,17 @@
 #include "View/TransactionScope.h"
 #include "View/VertexHandleManager.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <cassert>
 #include <map>
@@ -335,26 +335,26 @@ public: // csg convex merge
     const auto builder = Model::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
-      game->defaultFaceAttribs()};
-    builder.createBrush(polyhedron, document->currentTextureName())
-      .transform([&](auto b) {
-        for (const auto* selectedBrushNode : document->selectedNodes().brushes())
-        {
-          b.cloneFaceAttributesFrom(selectedBrushNode->brush());
-        }
+      game->config().faceAttribsConfig.defaults};
+    builder.createBrush(polyhedron, document->currentMaterialName())
+      | kdl::transform([&](auto b) {
+          for (const auto* selectedBrushNode : document->selectedNodes().brushes())
+          {
+            b.cloneFaceAttributesFrom(selectedBrushNode->brush());
+          }
 
-        auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
-        auto transaction = Transaction{document, "CSG Convex Merge"};
-        deselectAll();
-        if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}})
-              .empty())
-        {
-          transaction.cancel();
-          return;
-        }
-        transaction.commit();
-      })
-      .transform_error(
+          auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
+          auto transaction = Transaction{document, "CSG Convex Merge"};
+          deselectAll();
+          if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}})
+                .empty())
+          {
+            transaction.cancel();
+            return;
+          }
+          transaction.commit();
+        })
+      | kdl::transform_error(
         [&](auto e) { document->error() << "Could not create brush: " << e.msg; });
   }
 
@@ -438,7 +438,7 @@ public: // rendering
     const Color& color) const
   {
     renderService.setForegroundColor(color);
-    renderService.renderHandles(kdl::vec_element_cast<typename HH::float_type>(handles));
+    renderService.renderHandles(kdl::vec_static_cast<typename HH::float_type>(handles));
   }
 
   template <typename HH>

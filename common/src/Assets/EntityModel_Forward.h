@@ -21,22 +21,12 @@
 
 #include "Renderer/GLVertexType.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
-{
-class IndexRangeMap;
-class TexturedIndexRangeMap;
-} // namespace Renderer
-
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModel;
+class EntityModelData;
 class EntityModelLoadedFrame;
 class EntityModelSurface;
 
-using EntityModelVertex = Renderer::GLVertexTypes::P3T2::Vertex;
-using EntityModelIndices = Renderer::IndexRangeMap;
-using EntityModelTexturedIndices = Renderer::TexturedIndexRangeMap;
-} // namespace Assets
-} // namespace TrenchBroom
+using EntityModelVertex = Renderer::GLVertexTypes::P3UV2::Vertex;
+} // namespace TrenchBroom::Assets

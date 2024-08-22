@@ -24,7 +24,7 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 
-#include <kdl/result.h>
+#include "kdl/result.h"
 
 #include <string>
 
@@ -41,7 +41,7 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 {
 }
 
-UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() {}
+UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
   MapDocumentCommandFacade* document)
@@ -54,19 +54,19 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
   }
 
   return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
-    .transform([&]() {
-      setModificationCount(document);
-      return std::move(commandResult);
-    })
-    .transform_error([&](auto e) {
-      doPerformUndo(document);
-      if (document)
-      {
-        document->error() << e.msg;
-      }
-      return std::make_unique<CommandResult>(false);
-    })
-    .value();
+         | kdl::transform([&]() {
+             setModificationCount(document);
+             return std::move(commandResult);
+           })
+         | kdl::transform_error([&](auto e) {
+             doPerformUndo(document);
+             if (document)
+             {
+               document->error() << e.msg;
+             }
+             return std::make_unique<CommandResult>(false);
+           })
+         | kdl::value();
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(

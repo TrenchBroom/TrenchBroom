@@ -21,7 +21,7 @@
 
 #include "Model/BrushFace.h"
 
-#include <kdl/overload.h>
+#include "kdl/overload.h"
 
 namespace TrenchBroom
 {
@@ -39,7 +39,7 @@ NodeContents::NodeContents(
       [](Brush& brush) {
         for (auto& face : brush.faces())
         {
-          face.setTexture(nullptr);
+          face.setMaterial(nullptr);
         }
       },
       [](BezierPatch&) {}),

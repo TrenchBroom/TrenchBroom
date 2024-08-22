@@ -44,12 +44,12 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <iterator>
@@ -77,6 +77,7 @@ static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string&
       || key == Model::EntityPropertyKeys::Mods
       || key == Model::EntityPropertyKeys::EntityDefinitions
       || key == Model::EntityPropertyKeys::Wad
+      || key == Model::EntityPropertyKeys::EnabledMaterialCollections
       || key == Model::EntityPropertyKeys::SoftMapBounds
       || key == Model::EntityPropertyKeys::LayerColor
       || key == Model::EntityPropertyKeys::LayerLocked
@@ -112,7 +113,7 @@ static bool isPropertyValueMutable(const Model::Entity& entity, const std::strin
 static bool isPropertyProtectable(
   const Model::EntityNodeBase& entityNode, const std::string& key)
 {
-  return Model::findContainingLinkedGroup(entityNode) != nullptr
+  return Model::findContainingGroup(&entityNode)
          && key != Model::EntityPropertyKeys::Origin;
 }
 
@@ -313,7 +314,7 @@ PropertyRow PropertyRow::rowForEntityNodes(
     std::next(nodes.begin()),
     nodes.end(),
     PropertyRow{key, nodes.front()},
-    [](PropertyRow& lhs, const Model::EntityNodeBase* rhs) {
+    [](PropertyRow lhs, const Model::EntityNodeBase* rhs) {
       lhs.merge(rhs);
       return lhs;
     });
@@ -724,20 +725,9 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 static bool computeShouldShowProtectedProperties(
   const std::vector<Model::EntityNodeBase*>& entityNodes)
 {
-  if (entityNodes.empty())
-  {
-    return false;
-  }
-
-  for (const auto* entityNode : entityNodes)
-  {
-    if (Model::findContainingLinkedGroup(*entityNode) == nullptr)
-    {
-      return false;
-    }
-  }
-
-  return true;
+  return !entityNodes.empty() && kdl::all_of(entityNodes, [](const auto* entityNode) {
+    return Model::findContainingGroup(entityNode);
+  });
 }
 
 void EntityPropertyModel::updateFromMapDocument()

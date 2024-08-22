@@ -25,7 +25,7 @@
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 
@@ -35,7 +35,7 @@ namespace IO
 {
 BrushFaceReader::BrushFaceReader(
   const std::string& str, const Model::MapFormat sourceAndTargetMapFormat)
-  : MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}, {})
+  : MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {})
 {
 }
 

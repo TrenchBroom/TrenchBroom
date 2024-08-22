@@ -34,9 +34,9 @@
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-#include <vecmath/polygon.h>
+#include "vm/polygon.h"
 
 #include <cassert>
 

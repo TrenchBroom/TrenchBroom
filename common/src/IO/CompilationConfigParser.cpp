@@ -26,7 +26,7 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
 #include <string>
 

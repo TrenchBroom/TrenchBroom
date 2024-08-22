@@ -23,11 +23,11 @@
 #include "Model/CompareHits.h"
 #include "Model/Hit.h"
 
-#include <kdl/vector_utils.h>
+#include "kdl/vector_utils.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
+#include "vm/scalar.h"
+#include "vm/util.h"
+#include "vm/vec.h"
 
 #include <algorithm>
 #include <cassert>

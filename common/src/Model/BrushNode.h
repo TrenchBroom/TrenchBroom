@@ -28,9 +28,9 @@
 #include "Model/Object.h"
 #include "Model/TagType.h"
 
-#include <kdl/result_forward.h>
+#include "kdl/result_forward.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <memory>
 #include <optional>
@@ -41,7 +41,7 @@ namespace TrenchBroom
 {
 namespace Assets
 {
-class Texture;
+class Material;
 }
 
 namespace Renderer
@@ -77,8 +77,6 @@ public:
   ~BrushNode() override;
 
 public:
-  BrushNode* clone(const vm::bbox3& worldBounds) const;
-
   EntityNodeBase* entity();
   const EntityNodeBase* entity() const;
 
@@ -91,7 +89,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceTexture(size_t faceIndex, Assets::Texture* texture);
+  void setFaceMaterial(size_t faceIndex, Assets::Material* material);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;
@@ -107,7 +105,7 @@ private: // implement Node interface
 
   FloatType doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;

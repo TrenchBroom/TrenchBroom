@@ -22,10 +22,12 @@
 #include "FloatType.h"
 #include "Notifier.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/mat.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
+
+#include <optional>
 
 namespace TrenchBroom
 {
@@ -177,11 +179,11 @@ public:
     const Color& color) const;
   float pickFrustum(float size, const vm::ray3f& ray) const;
 
-  FloatType pickPointHandle(
+  std::optional<FloatType> pickPointHandle(
     const vm::ray3& pickRay,
     const vm::vec3& handlePosition,
     FloatType handleRadius) const;
-  FloatType pickLineSegmentHandle(
+  std::optional<FloatType> pickLineSegmentHandle(
     const vm::ray3& pickRay,
     const vm::segment3& handlePosition,
     FloatType handleRadius) const;

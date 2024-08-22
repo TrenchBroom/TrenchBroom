@@ -24,9 +24,7 @@
 
 #include <filesystem>
 #include <fstream>
-#include <string>
-
-class QString;
+#include <string_view>
 
 namespace TrenchBroom
 {
@@ -42,8 +40,7 @@ public:
   static FileLogger& instance();
 
 private:
-  void doLog(LogLevel level, const std::string& message) override;
-  void doLog(LogLevel level, const QString& message) override;
+  void doLog(LogLevel level, std::string_view message) override;
 
   deleteCopyAndMove(FileLogger);
 };

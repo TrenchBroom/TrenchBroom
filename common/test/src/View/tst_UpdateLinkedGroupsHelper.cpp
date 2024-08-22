@@ -31,32 +31,31 @@
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsHelper.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/mat_io.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/mat_io.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-TEST_CASE("UpdateLinkedGroupsHelperTest.checkLinkedGroupsToUpdate")
+
+TEST_CASE("checkLinkedGroupsToUpdate")
 {
   auto groupNode1 = Model::GroupNode{Model::Group{"test"}};
   auto linkedGroupNode = Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(groupNode1, "asdf");
-  setLinkedGroupId(linkedGroupNode, "asdf");
+  setLinkId(groupNode1, "asdf");
+  setLinkId(linkedGroupNode, "asdf");
 
   auto groupNode2 = Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(groupNode2, "fdsa");
+  setLinkId(groupNode2, "fdsa");
 
   CHECK(checkLinkedGroupsToUpdate({}));
   CHECK(checkLinkedGroupsToUpdate({&groupNode1}));
@@ -69,7 +68,7 @@ class UpdateLinkedGroupsHelperTest : public MapDocumentTest
 {
 };
 
-TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.ownership")
+TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 {
   class TestNode : public Model::EntityNode
   {
@@ -88,14 +87,14 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.own
   };
 
   auto* groupNode = new Model::GroupNode{Model::Group{""}};
-  setLinkedGroupId(*groupNode, "asdf");
+  setLinkId(*groupNode, "asdf");
 
   bool deleted = false;
   auto* entityNode = new TestNode{Model::Entity{}, deleted};
   groupNode->addChild(entityNode);
 
-  auto* linkedNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedNode}}});
 
@@ -130,17 +129,16 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.own
   document.reset();
 }
 
-TEST_CASE_METHOD(
-  UpdateLinkedGroupsHelperTest, "UpdateLinkedGroupsHelperTest.applyLinkedGroupUpdates")
+TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 {
   auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
-  setLinkedGroupId(*groupNode, "asdf");
+  setLinkId(*groupNode, "asdf");
 
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
 
-  auto* linkedGroupNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedGroupNode = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
 
   REQUIRE(linkedGroupNode->children().size() == 1u);
   auto* linkedBrushNode =
@@ -270,16 +268,15 @@ static Model::GroupNode* findGroupByName(Model::Node& node, const std::string& n
 }
 
 TEST_CASE_METHOD(
-  UpdateLinkedGroupsHelperTest,
-  "UpdateLinkedGroupsHelperTest.applyLinkedGroupUpdatesWithNestedLinkedGroups")
+  UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdatesWithNestedLinkedGroups")
 {
   document->deselectAll();
 
   auto* outerGroupNode = new Model::GroupNode{Model::Group{"outerGroupNode"}};
-  setLinkedGroupId(*outerGroupNode, "outerGroupNode");
+  setLinkId(*outerGroupNode, "outerGroupNode");
 
   auto* innerGroupNode = new Model::GroupNode{Model::Group{"innerGroupNode"}};
-  setLinkedGroupId(*innerGroupNode, "innerGroupNode");
+  setLinkId(*innerGroupNode, "innerGroupNode");
 
   auto* brushNode = createBrushNode();
   innerGroupNode->addChild(brushNode);
@@ -290,29 +287,23 @@ TEST_CASE_METHOD(
   // create a linked group of the inner group node so that cloning the outer group node
   // will create a linked clone of the inner group node
   auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
-    innerGroupNode->cloneRecursively(document->worldBounds()));
+    innerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
-  REQUIRE(
-    linkedInnerGroupNode->group().linkedGroupId()
-    == innerGroupNode->group().linkedGroupId());
+  REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
   auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(
-    outerGroupNode->cloneRecursively(document->worldBounds()));
+    outerGroupNode->cloneRecursively(document->worldBounds(), Model::SetLinkId::keep));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
-  REQUIRE(
-    linkedOuterGroupNode->group().linkedGroupId()
-    == outerGroupNode->group().linkedGroupId());
+  REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
   auto* nestedLinkedInnerGroupNode =
     static_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
   setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
-  REQUIRE(
-    nestedLinkedInnerGroupNode->group().linkedGroupId()
-    == innerGroupNode->group().linkedGroupId());
+  REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   /*
   world
@@ -575,5 +566,5 @@ TEST_CASE_METHOD(
     newNestedLinkedBrushNode->physicalBounds()
     == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -19,22 +19,21 @@
 
 #pragma once
 
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vm/forward.h"
+#include "vm/util.h"
 
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-class Texture;
+class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
-vm::vec3f gridColorForTexture(const Assets::Texture* texture);
+
+vm::vec3f gridColorForMaterial(const Assets::Material* material);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
@@ -46,19 +45,25 @@ void coordinateSystemVerticesY(
 void coordinateSystemVerticesZ(
   const vm::bbox3f& bounds, vm::vec3f& start, vm::vec3f& end);
 
-class TextureRenderFunc
+class MaterialRenderFunc
 {
 public:
-  virtual ~TextureRenderFunc();
-  virtual void before(const Assets::Texture* texture);
-  virtual void after(const Assets::Texture* texture);
+  virtual ~MaterialRenderFunc();
+  virtual void before(const Assets::Material* material);
+  virtual void after(const Assets::Material* material);
 };
 
-class DefaultTextureRenderFunc : public TextureRenderFunc
+class DefaultMaterialRenderFunc : public MaterialRenderFunc
 {
+private:
+  int m_minFilter;
+  int m_magFilter;
+
 public:
-  void before(const Assets::Texture* texture) override;
-  void after(const Assets::Texture* texture) override;
+  DefaultMaterialRenderFunc(int minFilter, int magFilter);
+
+  void before(const Assets::Material* material) override;
+  void after(const Assets::Material* material) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);
@@ -83,13 +88,11 @@ struct VertsAndNormals
 {
   std::vector<vm::vec3f> vertices;
   std::vector<vm::vec3f> normals;
-
-  explicit VertsAndNormals(size_t vertexCount);
 };
 
 std::vector<vm::vec3f> sphere3D(float radius, size_t iterations);
 VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder3D(float radius, float length, size_t segments);
 VertsAndNormals cone3D(float radius, float length, size_t segments);
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

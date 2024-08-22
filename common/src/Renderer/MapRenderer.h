@@ -30,24 +30,30 @@
 namespace TrenchBroom
 {
 class Color;
+}
 
-namespace View
+namespace TrenchBroom::Assets
+{
+class ResourceId;
+}
+
+namespace TrenchBroom::View
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
 class Selection;
-} // namespace View
+} // namespace TrenchBroom::View
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class EntityDecalRenderer;
 class EntityLinkRenderer;
@@ -86,17 +92,6 @@ public:
 
   deleteCopyAndMove(MapRenderer);
 
-private:
-  static std::unique_ptr<ObjectRenderer> createDefaultRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  static std::unique_ptr<ObjectRenderer> createSelectionRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  static std::unique_ptr<ObjectRenderer> createLockRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  static std::unique_ptr<EntityDecalRenderer> createEntityDecalRenderer(
-    std::weak_ptr<View::MapDocument> document);
-  void clear();
-
 public: // color config
   void overrideSelectionColors(const Color& color, float mix);
   void restoreSelectionColors();
@@ -105,7 +100,7 @@ public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 
 private:
-  void commitPendingChanges();
+  void clear();
   void setupGL(RenderBatch& renderBatch);
   void renderDefaultOpaque(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderDefaultTransparent(RenderContext& renderContext, RenderBatch& renderBatch);
@@ -155,7 +150,9 @@ private: // notification
 
   void selectionDidChange(const View::Selection& selection);
 
-  void textureCollectionsWillChange();
+  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resourceIds);
+
+  void materialCollectionsWillChange();
   void entityDefinitionsDidChange();
   void modsDidChange();
 
@@ -163,5 +160,5 @@ private: // notification
 
   void preferenceDidChange(const std::filesystem::path& path);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

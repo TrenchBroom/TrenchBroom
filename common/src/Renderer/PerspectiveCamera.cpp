@@ -29,11 +29,11 @@
 #include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/vec.h"
 
 #include <limits>
 #include <vector>
@@ -203,11 +203,11 @@ float PerspectiveCamera::doPickFrustum(const float size, const vm::ray3f& ray) c
   auto minDistance = std::numeric_limits<float>::max();
   for (size_t i = 0; i < 4; ++i)
   {
-    const auto distance =
-      vm::intersect_ray_triangle(ray, position(), verts[i], verts[vm::succ(i, 4)]);
-    if (!vm::is_nan(distance))
+    if (
+      const auto distance =
+        vm::intersect_ray_triangle(ray, position(), verts[i], verts[vm::succ(i, 4)]))
     {
-      minDistance = vm::min(distance, minDistance);
+      minDistance = vm::min(*distance, minDistance);
     }
   }
   return minDistance;

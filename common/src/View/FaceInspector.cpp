@@ -19,24 +19,27 @@
 
 #include "FaceInspector.h"
 
+#include <QLabel>
 #include <QVBoxLayout>
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
+#include "Model/Game.h"
+#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
-#include "View/CollapsibleTitledPanel.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
+#include "View/MaterialBrowser.h"
+#include "View/MaterialCollectionEditor.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
-#include "View/TextureBrowser.h"
-#include "View/TitledPanel.h"
+#include "View/SwitchableTitledPanel.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
 #include <vector>
 
@@ -47,7 +50,8 @@ FaceInspector::FaceInspector(
   : TabBookPage{parent}
   , m_document{std::move(document)}
 {
-  createGui(m_document, contextManager);
+  createGui(contextManager);
+  connectObservers();
 }
 
 FaceInspector::~FaceInspector()
@@ -60,20 +64,19 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealTexture(const Assets::Texture* texture)
+void FaceInspector::revealMaterial(const Assets::Material* material)
 {
-  m_textureBrowser->revealTexture(texture);
-  m_textureBrowser->setSelectedTexture(texture);
+  m_materialBrowser->revealMaterial(material);
+  m_materialBrowser->setSelectedMaterial(material);
 }
 
-void FaceInspector::createGui(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+void FaceInspector::createGui(GLContextManager& contextManager)
 {
   m_splitter = new Splitter{Qt::Vertical};
   m_splitter->setObjectName("FaceInspector_Splitter");
 
-  m_splitter->addWidget(createFaceAttribsEditor(m_splitter, document, contextManager));
-  m_splitter->addWidget(createTextureBrowser(m_splitter, document, contextManager));
+  m_splitter->addWidget(createFaceAttribsEditor(contextManager));
+  m_splitter->addWidget(createMaterialBrowser(contextManager));
 
   // when the window resizes, the browser should get extra space
   m_splitter->setStretchFactor(0, 0);
@@ -86,70 +89,120 @@ void FaceInspector::createGui(
   setLayout(layout);
 
   connect(
-    m_textureBrowser,
-    &TextureBrowser::textureSelected,
+    m_materialBrowser,
+    &MaterialBrowser::materialSelected,
     this,
-    &FaceInspector::textureSelected);
+    &FaceInspector::materialSelected);
 
   restoreWindowState(m_splitter);
 }
 
-QWidget* FaceInspector::createFaceAttribsEditor(
-  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+QWidget* FaceInspector::createFaceAttribsEditor(GLContextManager& contextManager)
 {
-  m_faceAttribsEditor =
-    new FaceAttribsEditor{std::move(document), contextManager, parent};
+  m_faceAttribsEditor = new FaceAttribsEditor{m_document, contextManager};
   return m_faceAttribsEditor;
 }
 
-QWidget* FaceInspector::createTextureBrowser(
-  QWidget* parent, std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
+QWidget* FaceInspector::createMaterialBrowser(GLContextManager& contextManager)
 {
-  auto* panel = new TitledPanel{tr("Texture Browser"), parent};
-  m_textureBrowser = new TextureBrowser{std::move(document), contextManager};
+  auto* panel =
+    new SwitchableTitledPanel{tr("Material Browser"), {{tr("Browser"), tr("Settings")}}};
 
-  auto* layout = new QVBoxLayout{};
-  layout->setContentsMargins(0, 0, 0, 0);
-  layout->setSpacing(0);
-  layout->addWidget(m_textureBrowser, 1);
-  panel->getPanel()->setLayout(layout);
+  m_materialBrowser = new MaterialBrowser{m_document, contextManager};
+
+  auto* materialBrowserLayout = new QVBoxLayout{};
+  materialBrowserLayout->setContentsMargins(0, 0, 0, 0);
+  materialBrowserLayout->addWidget(m_materialBrowser, 1);
+  panel->getPanel(0)->setLayout(materialBrowserLayout);
+
+  auto* materialCollectionEditor = new MaterialCollectionEditor{m_document};
+  m_materialBrowserInfo = createMaterialBrowserInfo();
+
+  auto* materialCollectionEditorLayout = new QVBoxLayout{};
+  materialCollectionEditorLayout->setContentsMargins(0, 0, 0, 0);
+  materialCollectionEditorLayout->setSpacing(0);
+  materialCollectionEditorLayout->addWidget(materialCollectionEditor, 1);
+  materialCollectionEditorLayout->addWidget(m_materialBrowserInfo, 0);
+
+  panel->getPanel(1)->setLayout(materialCollectionEditorLayout);
 
   return panel;
 }
 
-static bool allFacesHaveTexture(
-  const std::vector<Model::BrushFaceHandle>& faceHandles, const Assets::Texture* texture)
+QWidget* FaceInspector::createMaterialBrowserInfo()
 {
-  return std::all_of(faceHandles.begin(), faceHandles.end(), [&](const auto& faceHandle) {
-    return faceHandle.face().texture() == texture;
-  });
+  auto* label = new QLabel{tr(
+    R"(To manage wad files, select the "wad" property of the worldspawn entity to reveal a wad file manager below the entity property table.)")};
+
+  label->setWordWrap(true);
+  makeInfo(label);
+
+  auto* labelLayout = new QVBoxLayout{};
+  labelLayout->setContentsMargins(
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin,
+    LayoutConstants::WideHMargin,
+    LayoutConstants::WideVMargin);
+  labelLayout->addWidget(label);
+
+  auto* panelLayout = new QVBoxLayout{};
+  panelLayout->setContentsMargins(0, 0, 0, 0);
+  panelLayout->setSpacing(0);
+  panelLayout->addWidget(new BorderLine{}, 0);
+  panelLayout->addLayout(labelLayout);
+
+  auto* panel = new QWidget{};
+  panel->setLayout(panelLayout);
+  return panel;
 }
 
-void FaceInspector::textureSelected(const Assets::Texture* texture)
+void FaceInspector::materialSelected(const Assets::Material* material)
 {
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->allSelectedBrushFaces();
 
-  if (texture)
+  if (material)
   {
     if (!faces.empty())
     {
-      const auto textureNameToSet = !allFacesHaveTexture(faces, texture)
-                                      ? texture->name()
-                                      : Model::BrushFaceAttributes::NoTextureName;
+      const auto allFacesHaveMaterial =
+        std::all_of(faces.begin(), faces.end(), [&](const auto& faceHandle) {
+          return faceHandle.face().material() == material;
+        });
 
-      document->setCurrentTextureName(textureNameToSet);
+      const auto materialNameToSet = !allFacesHaveMaterial
+                                       ? material->name()
+                                       : Model::BrushFaceAttributes::NoMaterialName;
+
+      document->setCurrentMaterialName(materialNameToSet);
       auto request = Model::ChangeBrushFaceAttributesRequest{};
-      request.setTextureName(textureNameToSet);
+      request.setMaterialName(materialNameToSet);
       document->setFaceAttributes(request);
     }
     else
     {
-      document->setCurrentTextureName(
-        document->currentTextureName() != texture->name()
-          ? texture->name()
-          : Model::BrushFaceAttributes::NoTextureName);
+      document->setCurrentMaterialName(
+        document->currentMaterialName() != material->name()
+          ? material->name()
+          : Model::BrushFaceAttributes::NoMaterialName);
     }
   }
 }
+
+void FaceInspector::connectObservers()
+{
+  auto document = kdl::mem_lock(m_document);
+  m_notifierConnection += document->documentWasNewedNotifier.connect(
+    this, &FaceInspector::documentWasNewedOrOpened);
+  m_notifierConnection += document->documentWasLoadedNotifier.connect(
+    this, &FaceInspector::documentWasNewedOrOpened);
+}
+
+void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
+{
+  const auto& game = *document->game();
+  const auto& gameConfig = Model::GameFactory::instance().gameConfig(game.config().name);
+  m_materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
+}
+
 } // namespace TrenchBroom::View

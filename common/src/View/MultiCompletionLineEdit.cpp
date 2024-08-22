@@ -43,9 +43,9 @@ MultiCompletionLineEdit::MultiCompletionLineEdit(const QString& contents, QWidge
   auto* shortcut = new QShortcut(
     QKeySequence(
 #ifdef __APPLE__
-      Qt::META
+      +Qt::META
 #else
-      Qt::CTRL
+      +Qt::CTRL
 #endif
       + Qt::Key_Space),
     this);

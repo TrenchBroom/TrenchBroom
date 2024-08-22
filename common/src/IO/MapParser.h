@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/MapFormat.h"
 
-#include <vecmath/forward.h>
+#include "vm/forward.h"
 
 #include <cassert>
 #include <map>
@@ -67,8 +67,8 @@ protected: // subclassing interface for users of the parser
     const vm::vec3& point2,
     const vm::vec3& point3,
     const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& texAxisX,
-    const vm::vec3& texAxisY,
+    const vm::vec3& uAxis,
+    const vm::vec3& vAxis,
     ParserStatus& status) = 0;
   virtual void onPatch(
     size_t startLine,
@@ -77,7 +77,7 @@ protected: // subclassing interface for users of the parser
     size_t rowCount,
     size_t columnCount,
     std::vector<vm::vec<FloatType, 5>> controlPoints,
-    std::string textureName,
+    std::string materialName,
     ParserStatus& status) = 0;
 };
 } // namespace IO

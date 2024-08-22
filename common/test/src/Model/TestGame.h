@@ -45,104 +45,82 @@ namespace TrenchBroom::Model
 class TestGame : public Game
 {
 private:
-  mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
-  std::vector<SmartTag> m_smartTags;
-  Model::BrushFaceAttributes m_defaultFaceAttributes;
-  std::vector<CompilationTool> m_compilationTools;
+  GameConfig m_config = {"Test", {}, {}, false, {}, {}, {}, {}, {}, {}, {}, {}};
   std::unique_ptr<IO::VirtualFileSystem> m_fs;
+  mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
 public:
   TestGame();
   ~TestGame() override;
 
-public:
-  void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
-  void setSmartTags(std::vector<SmartTag> smartTags);
-  void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
+  const GameConfig& config() const override;
+  const IO::FileSystem& gameFileSystem() const override;
 
-private:
-  const std::string& doGameName() const override;
-  std::filesystem::path doGamePath() const override;
-  void doSetGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
-  std::optional<vm::bbox3> doSoftMapBounds() const override;
-  Game::SoftMapBounds doExtractSoftMapBounds(const Entity& entity) const override;
-  void doSetAdditionalSearchPaths(
+  std::filesystem::path gamePath() const override;
+  void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
+  Game::SoftMapBounds extractSoftMapBounds(const Entity& entity) const override;
+  void setAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
-  PathErrors doCheckAdditionalSearchPaths(
+  PathErrors checkAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  const CompilationConfig& doCompilationConfig() override;
-  size_t doMaxPropertyLength() const override;
-
-  const std::vector<SmartTag>& doSmartTags() const override;
-
-  Result<std::unique_ptr<WorldNode>> doNewMap(
+  Result<std::unique_ptr<WorldNode>> newMap(
     MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
-  Result<std::unique_ptr<WorldNode>> doLoadMap(
+  Result<std::unique_ptr<WorldNode>> loadMap(
     MapFormat format,
     const vm::bbox3& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  Result<void> doWriteMap(
+  Result<void> writeMap(
     WorldNode& world, const std::filesystem::path& path) const override;
-  Result<void> doExportMap(
+  Result<void> exportMap(
     WorldNode& world, const IO::ExportOptions& options) const override;
 
-  std::vector<Node*> doParseNodes(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
-    const std::vector<std::string>& linkedGroupsToKeep,
-    Logger& logger) const override;
-  std::vector<BrushFace> doParseBrushFaces(
+  std::vector<Node*> parseNodes(
     const std::string& str,
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
     Logger& logger) const override;
-  void doWriteNodesToStream(
+  std::vector<BrushFace> parseBrushFaces(
+    const std::string& str,
+    MapFormat mapFormat,
+    const vm::bbox3& worldBounds,
+    Logger& logger) const override;
+  void writeNodesToStream(
     WorldNode& world,
     const std::vector<Node*>& nodes,
     std::ostream& stream) const override;
-  void doWriteBrushFacesToStream(
+  void writeBrushFacesToStream(
     WorldNode& world,
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void doLoadTextureCollections(Assets::TextureManager& textureManager) const override;
+  void loadMaterialCollections(
+    Assets::MaterialManager& materialManager,
+    const Assets::CreateTextureResource& createResource) const override;
 
-  const std::optional<std::string>& doGetWadProperty() const override;
-  void doReloadWads(
+  void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
     Logger& logger) override;
-  Result<void> doReloadShaders() override;
 
-  bool doIsEntityDefinitionFile(const std::filesystem::path& path) const override;
-  std::vector<Assets::EntityDefinitionFileSpec> doAllEntityDefinitionFiles()
-    const override;
-  Assets::EntityDefinitionFileSpec doExtractEntityDefinitionFile(
+  bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
+  std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
+  Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const override;
-  std::filesystem::path doFindEntityDefinitionFile(
+  std::filesystem::path findEntityDefinitionFile(
     const Assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
-  Result<std::vector<std::string>> doAvailableMods() const override;
-  std::vector<std::string> doExtractEnabledMods(const Entity& entity) const override;
-  std::string doDefaultMod() const override;
+  Result<std::vector<std::string>> availableMods() const override;
+  std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
+  std::string defaultMod() const override;
 
-  const FlagsConfig& doSurfaceFlags() const override;
-  const FlagsConfig& doContentFlags() const override;
-  const BrushFaceAttributes& doDefaultFaceAttribs() const override;
-  const std::vector<CompilationTool>& doCompilationTools() const override;
-
-  Result<std::vector<Assets::EntityDefinition*>> doLoadEntityDefinitions(
+  Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> loadEntityDefinitions(
     IO::ParserStatus& status, const std::filesystem::path& path) const override;
-  std::unique_ptr<Assets::EntityModel> doInitializeModel(
-    const std::filesystem::path& path, Logger& logger) const override;
-  void doLoadFrame(
-    const std::filesystem::path& path,
-    size_t frameIndex,
-    Assets::EntityModel& model,
-    Logger& logger) const override;
+
+  void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
+  void setSmartTags(std::vector<SmartTag> smartTags);
+  void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
 };
 } // namespace TrenchBroom::Model

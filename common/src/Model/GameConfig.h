@@ -27,9 +27,9 @@
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
+#include "vm/bbox.h"
 
 #include <filesystem>
 #include <optional>
@@ -38,9 +38,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct MapFormatConfig
 {
@@ -66,18 +64,18 @@ struct FileSystemConfig
   kdl_reflect_decl(FileSystemConfig, searchPath, packageFormat);
 };
 
-struct TextureConfig
+struct MaterialConfig
 {
   std::filesystem::path root;
   std::vector<std::string> extensions;
   std::filesystem::path palette;
   std::optional<std::string> property;
   std::filesystem::path shaderSearchPath;
-  // Glob patterns used to match texture names for exclusion
+  // Glob patterns used to match material names for exclusion
   std::vector<std::string> excludes;
 
   kdl_reflect_decl(
-    TextureConfig, root, extensions, palette, property, shaderSearchPath, excludes);
+    MaterialConfig, root, extensions, palette, property, shaderSearchPath, excludes);
 };
 
 struct EntityConfig
@@ -115,7 +113,7 @@ struct FaceAttribsConfig
 {
   FlagsConfig surfaceFlags;
   FlagsConfig contentFlags;
-  BrushFaceAttributes defaults{BrushFaceAttributes::NoTextureName};
+  BrushFaceAttributes defaults{BrushFaceAttributes::NoMaterialName};
 
   kdl_reflect_decl(FaceAttribsConfig, surfaceFlags, contentFlags);
 };
@@ -136,7 +134,7 @@ struct GameConfig
   bool experimental;
   std::vector<MapFormatConfig> fileFormats;
   FileSystemConfig fileSystemConfig;
-  TextureConfig textureConfig;
+  MaterialConfig materialConfig;
   EntityConfig entityConfig;
   FaceAttribsConfig faceAttribsConfig;
   std::vector<SmartTag> smartTags;
@@ -158,7 +156,7 @@ struct GameConfig
     experimental,
     fileFormats,
     fileSystemConfig,
-    textureConfig,
+    materialConfig,
     entityConfig,
     faceAttribsConfig,
     smartTags,
@@ -173,5 +171,4 @@ struct GameConfig
   std::filesystem::path findInitialMap(const std::string& formatName) const;
   std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

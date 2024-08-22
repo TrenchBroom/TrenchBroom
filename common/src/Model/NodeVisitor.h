@@ -21,10 +21,9 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class BrushNode;
 class EntityNode;
 class GroupNode;
@@ -33,6 +32,11 @@ class Node;
 class PatchNode;
 class WorldNode;
 
+#ifdef _MSC_VER
+// silence apurious "C4702: unreachable code" warnings
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
 class NodeVisitor
 {
 protected:
@@ -113,15 +117,7 @@ public:
   R&& result() { return std::move(m_result).value(); }
 
 protected:
-#ifdef _MSC_VER
-// silence a spurious "C4702: unreachable code" warning
-#pragma warning(push)
-#pragma warning(disable : 4702)
-#endif
   void setResult(R&& result) { m_result = std::move(result); }
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif
 };
 
 class NodeLambdaVisitorNoResult
@@ -141,8 +137,8 @@ private:
   const L& m_lambda;
 
 public:
-  NodeLambdaVisitor(const L& lambda)
-    : m_lambda(lambda)
+  explicit NodeLambdaVisitor(const L& lambda)
+    : m_lambda{lambda}
   {
   }
 
@@ -207,8 +203,8 @@ private:
   const L& m_lambda;
 
 public:
-  ConstNodeLambdaVisitor(const L& lambda)
-    : m_lambda(lambda)
+  explicit ConstNodeLambdaVisitor(const L& lambda)
+    : m_lambda{lambda}
   {
   }
 
@@ -238,6 +234,10 @@ private:
       !(invokableWithNode && invokableWithLambdaAndNode),
       "Visitor implements both lambda and non-lambda overloads for the given node type");
 
+    static_assert(
+      !(!invokableWithNode && !invokableWithLambdaAndNode),
+      "Visitor must take node by const pointer");
+
     if constexpr (invokableWithLambdaAndNode)
     {
       if constexpr (NodeLambdaHasResult_v<L>)
@@ -262,5 +262,8 @@ private:
     }
   }
 };
-} // namespace Model
-} // namespace TrenchBroom
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+} // namespace TrenchBroom::Model

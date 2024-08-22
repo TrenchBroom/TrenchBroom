@@ -8,15 +8,19 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionGroup.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.cpp
+        ${COMMON_SOURCE_DIR}/Assets/EntityModelDataResource.cpp
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/Material.cpp
+        ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.cpp
+        ${COMMON_SOURCE_DIR}/Assets/MaterialManager.cpp
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.cpp
+        ${COMMON_SOURCE_DIR}/Assets/ModelSpecification.cpp
         ${COMMON_SOURCE_DIR}/Assets/Palette.cpp
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.cpp
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.cpp
         ${COMMON_SOURCE_DIR}/Assets/Texture.cpp
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/Assets/TextureCollection.cpp
-        ${COMMON_SOURCE_DIR}/Assets/TextureManager.cpp
+        ${COMMON_SOURCE_DIR}/Assets/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/EL/EvaluationContext.cpp
@@ -30,24 +34,23 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
-        ${COMMON_SOURCE_DIR}/IO/AseParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/AssimpParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/AseLoader.cpp
+        ${COMMON_SOURCE_DIR}/IO/AssimpLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.cpp
+        ${COMMON_SOURCE_DIR}/IO/BspLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.cpp
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.cpp
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.cpp
         ${COMMON_SOURCE_DIR}/IO/DefParser.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/DiskIO.cpp
-        ${COMMON_SOURCE_DIR}/IO/DkmParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/DkmLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ELParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.cpp
-        ${COMMON_SOURCE_DIR}/IO/EntityModelParser.cpp
         ${COMMON_SOURCE_DIR}/IO/EntParser.cpp
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.cpp
         ${COMMON_SOURCE_DIR}/IO/FgdParser.cpp
@@ -60,16 +63,19 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.cpp
-        ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/ImageSpriteLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadEntityModel.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollections.cpp
+        ${COMMON_SOURCE_DIR}/IO/LoadShaders.cpp
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/MapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/MapReader.cpp
-        ${COMMON_SOURCE_DIR}/IO/Md2Parser.cpp
-        ${COMMON_SOURCE_DIR}/IO/Md3Parser.cpp
-        ${COMMON_SOURCE_DIR}/IO/MdlParser.cpp
-        ${COMMON_SOURCE_DIR}/IO/MdxParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/MaterialUtils.cpp
+        ${COMMON_SOURCE_DIR}/IO/Md2Loader.cpp
+        ${COMMON_SOURCE_DIR}/IO/Md3Loader.cpp
+        ${COMMON_SOURCE_DIR}/IO/MdlLoader.cpp
+        ${COMMON_SOURCE_DIR}/IO/MdxLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeReader.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.cpp
@@ -78,28 +84,26 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/IO/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/IO/PathMatcher.cpp
         ${COMMON_SOURCE_DIR}/IO/PathQt.cpp
-        ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/Reader.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.cpp
-        ${COMMON_SOURCE_DIR}/IO/ReadQuake3ShaderTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.cpp
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.cpp
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.cpp
-        ${COMMON_SOURCE_DIR}/IO/SprParser.cpp
+        ${COMMON_SOURCE_DIR}/IO/SprLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.cpp
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.cpp
-        ${COMMON_SOURCE_DIR}/IO/TextureUtils.cpp
         ${COMMON_SOURCE_DIR}/IO/TraversalMode.cpp
         ${COMMON_SOURCE_DIR}/IO/VirtualFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WadFileSystem.cpp
         ${COMMON_SOURCE_DIR}/IO/WorldReader.cpp
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.cpp
         ${COMMON_SOURCE_DIR}/Logger.cpp
+        ${COMMON_SOURCE_DIR}/LoggerCache.cpp
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.cpp
         ${COMMON_SOURCE_DIR}/Model/Brush.cpp
         ${COMMON_SOURCE_DIR}/Model/BrushBuilder.cpp
@@ -140,12 +144,13 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/HitAdapter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitFilter.cpp
         ${COMMON_SOURCE_DIR}/Model/HitType.cpp
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.cpp
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Issue.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.cpp
         ${COMMON_SOURCE_DIR}/Model/IssueType.cpp
         ${COMMON_SOURCE_DIR}/Model/Layer.cpp
         ${COMMON_SOURCE_DIR}/Model/LayerNode.cpp
+        ${COMMON_SOURCE_DIR}/Model/LinkedGroupUtils.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/LongPropertyKeyValidator.cpp
@@ -163,8 +168,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.cpp
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.cpp
         ${COMMON_SOURCE_DIR}/Model/Object.cpp
-        ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.cpp
-        ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/ParallelUVCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/ParaxialUVCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/PatchNode.cpp
         ${COMMON_SOURCE_DIR}/Model/PickResult.cpp
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.cpp
@@ -180,7 +185,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Model/TagManager.cpp
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.cpp
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.cpp
-        ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.cpp
+        ${COMMON_SOURCE_DIR}/Model/UVCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/Model/Validator.cpp
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.cpp
         ${COMMON_SOURCE_DIR}/Model/WorldBoundsValidator.cpp
@@ -203,8 +208,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.cpp
@@ -226,6 +231,11 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.cpp
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.cpp
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.cpp
@@ -249,11 +259,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.cpp
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.cpp
@@ -283,6 +288,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CellView.cpp
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.cpp
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.cpp
+        ${COMMON_SOURCE_DIR}/View/ClickableTitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/ClipTool.cpp
         ${COMMON_SOURCE_DIR}/View/ClipToolController.cpp
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.cpp
@@ -387,6 +393,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/MapViewBase.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.cpp
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowser.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.cpp
+        ${COMMON_SOURCE_DIR}/View/MaterialCollectionEditor.cpp
         ${COMMON_SOURCE_DIR}/View/ModEditor.cpp
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.cpp
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.cpp
@@ -408,7 +417,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/RenderView.cpp
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/View/RepeatStack.cpp
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.cpp
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.cpp
@@ -421,6 +430,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/SelectionTool.cpp
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.cpp
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.cpp
+        ${COMMON_SOURCE_DIR}/View/SetLinkIdsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.cpp
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.cpp
@@ -438,11 +448,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/Splitter.cpp
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.cpp
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.cpp
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.cpp
         ${COMMON_SOURCE_DIR}/View/TabBar.cpp
         ${COMMON_SOURCE_DIR}/View/TabBook.cpp
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureBrowser.cpp
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/TitleBar.cpp
         ${COMMON_SOURCE_DIR}/View/TitledPanel.cpp
@@ -481,6 +490,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/AssetReference.h
         ${COMMON_SOURCE_DIR}/Assets/AssetUtils.h
         ${COMMON_SOURCE_DIR}/Assets/ColorRange.h
+        ${COMMON_SOURCE_DIR}/Assets/CreateResource.h
         ${COMMON_SOURCE_DIR}/Assets/DecalDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionFileSpec.h
@@ -488,15 +498,20 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Assets/EntityDefinitionManager.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModel.h
+        ${COMMON_SOURCE_DIR}/Assets/EntityModelDataResource.h
         ${COMMON_SOURCE_DIR}/Assets/EntityModelManager.h
+        ${COMMON_SOURCE_DIR}/Assets/Material.h
+        ${COMMON_SOURCE_DIR}/Assets/MaterialCollection.h
+        ${COMMON_SOURCE_DIR}/Assets/MaterialManager.h
         ${COMMON_SOURCE_DIR}/Assets/ModelDefinition.h
+        ${COMMON_SOURCE_DIR}/Assets/ModelSpecification.h
         ${COMMON_SOURCE_DIR}/Assets/Palette.h
         ${COMMON_SOURCE_DIR}/Assets/PropertyDefinition.h
         ${COMMON_SOURCE_DIR}/Assets/Quake3Shader.h
+        ${COMMON_SOURCE_DIR}/Assets/Resource.h
         ${COMMON_SOURCE_DIR}/Assets/Texture.h
         ${COMMON_SOURCE_DIR}/Assets/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/Assets/TextureCollection.h
-        ${COMMON_SOURCE_DIR}/Assets/TextureManager.h
+        ${COMMON_SOURCE_DIR}/Assets/TextureResource.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/EL/EL_Forward.h
         ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
@@ -512,24 +527,23 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FloatType.h
-        ${COMMON_SOURCE_DIR}/IO/AseParser.h
-        ${COMMON_SOURCE_DIR}/IO/AssimpParser.h
+        ${COMMON_SOURCE_DIR}/IO/AseLoader.h
+        ${COMMON_SOURCE_DIR}/IO/AssimpLoader.h
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h
-        ${COMMON_SOURCE_DIR}/IO/Bsp29Parser.h
+        ${COMMON_SOURCE_DIR}/IO/BspLoader.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigParser.h
         ${COMMON_SOURCE_DIR}/IO/CompilationConfigWriter.h
         ${COMMON_SOURCE_DIR}/IO/ConfigParserBase.h
         ${COMMON_SOURCE_DIR}/IO/DefParser.h
         ${COMMON_SOURCE_DIR}/IO/DiskFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/DiskIO.h
-        ${COMMON_SOURCE_DIR}/IO/DkmParser.h
+        ${COMMON_SOURCE_DIR}/IO/DkmLoader.h
         ${COMMON_SOURCE_DIR}/IO/DkPakFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ELParser.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionClassInfo.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionLoader.h
         ${COMMON_SOURCE_DIR}/IO/EntityDefinitionParser.h
         ${COMMON_SOURCE_DIR}/IO/EntityModelLoader.h
-        ${COMMON_SOURCE_DIR}/IO/EntityModelParser.h
         ${COMMON_SOURCE_DIR}/IO/EntParser.h
         ${COMMON_SOURCE_DIR}/IO/ExportOptions.h
         ${COMMON_SOURCE_DIR}/IO/FgdParser.h
@@ -542,16 +556,19 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ImageFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoader.h
         ${COMMON_SOURCE_DIR}/IO/ImageLoaderImpl.h
-        ${COMMON_SOURCE_DIR}/IO/ImageSpriteParser.h
+        ${COMMON_SOURCE_DIR}/IO/ImageSpriteLoader.h
         ${COMMON_SOURCE_DIR}/IO/LegacyModelDefinitionParser.h
-        ${COMMON_SOURCE_DIR}/IO/LoadTextureCollection.h
+        ${COMMON_SOURCE_DIR}/IO/LoadEntityModel.h
+        ${COMMON_SOURCE_DIR}/IO/LoadMaterialCollections.h
+        ${COMMON_SOURCE_DIR}/IO/LoadShaders.h
         ${COMMON_SOURCE_DIR}/IO/MapFileSerializer.h
         ${COMMON_SOURCE_DIR}/IO/MapParser.h
         ${COMMON_SOURCE_DIR}/IO/MapReader.h
-        ${COMMON_SOURCE_DIR}/IO/Md2Parser.h
-        ${COMMON_SOURCE_DIR}/IO/Md3Parser.h
-        ${COMMON_SOURCE_DIR}/IO/MdlParser.h
-        ${COMMON_SOURCE_DIR}/IO/MdxParser.h
+        ${COMMON_SOURCE_DIR}/IO/MaterialUtils.h
+        ${COMMON_SOURCE_DIR}/IO/Md2Loader.h
+        ${COMMON_SOURCE_DIR}/IO/Md3Loader.h
+        ${COMMON_SOURCE_DIR}/IO/MdlLoader.h
+        ${COMMON_SOURCE_DIR}/IO/MdxLoader.h
         ${COMMON_SOURCE_DIR}/IO/NodeReader.h
         ${COMMON_SOURCE_DIR}/IO/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/IO/NodeWriter.h
@@ -561,7 +578,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/PathInfo.h
         ${COMMON_SOURCE_DIR}/IO/PathMatcher.h
         ${COMMON_SOURCE_DIR}/IO/PathQt.h
-        ${COMMON_SOURCE_DIR}/IO/Quake3ShaderFileSystem.h
         ${COMMON_SOURCE_DIR}/IO/Quake3ShaderParser.h
         ${COMMON_SOURCE_DIR}/IO/ReadDdsTexture.h
         ${COMMON_SOURCE_DIR}/IO/Reader.h
@@ -569,15 +585,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/ReadFreeImageTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadM8Texture.h
         ${COMMON_SOURCE_DIR}/IO/ReadMipTexture.h
-        ${COMMON_SOURCE_DIR}/IO/ReadQuake3ShaderTexture.h
         ${COMMON_SOURCE_DIR}/IO/ReadWalTexture.h
         ${COMMON_SOURCE_DIR}/IO/ResourceUtils.h
         ${COMMON_SOURCE_DIR}/IO/SimpleParserStatus.h
         ${COMMON_SOURCE_DIR}/IO/SkinLoader.h
-        ${COMMON_SOURCE_DIR}/IO/SprParser.h
+        ${COMMON_SOURCE_DIR}/IO/SprLoader.h
         ${COMMON_SOURCE_DIR}/IO/StandardMapParser.h
         ${COMMON_SOURCE_DIR}/IO/SystemPaths.h
-        ${COMMON_SOURCE_DIR}/IO/TextureUtils.h
         ${COMMON_SOURCE_DIR}/IO/Token.h
         ${COMMON_SOURCE_DIR}/IO/Tokenizer.h
         ${COMMON_SOURCE_DIR}/IO/TraversalMode.h
@@ -586,6 +600,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/IO/WorldReader.h
         ${COMMON_SOURCE_DIR}/IO/ZipFileSystem.h
         ${COMMON_SOURCE_DIR}/Logger.h
+        ${COMMON_SOURCE_DIR}/LoggerCache.h
         ${COMMON_SOURCE_DIR}/Macros.h
         ${COMMON_SOURCE_DIR}/Model/BezierPatch.h
         ${COMMON_SOURCE_DIR}/Model/Brush.h
@@ -629,12 +644,13 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/HitFilter.h
         ${COMMON_SOURCE_DIR}/Model/HitType.h
         ${COMMON_SOURCE_DIR}/Model/IdType.h
-        ${COMMON_SOURCE_DIR}/Model/InvalidTextureScaleValidator.h
+        ${COMMON_SOURCE_DIR}/Model/InvalidUVScaleValidator.h
         ${COMMON_SOURCE_DIR}/Model/Issue.h
         ${COMMON_SOURCE_DIR}/Model/IssueQuickFix.h
         ${COMMON_SOURCE_DIR}/Model/IssueType.h
         ${COMMON_SOURCE_DIR}/Model/Layer.h
         ${COMMON_SOURCE_DIR}/Model/LayerNode.h
+        ${COMMON_SOURCE_DIR}/Model/LinkedGroupUtils.h
         ${COMMON_SOURCE_DIR}/Model/LinkSourceValidator.h
         ${COMMON_SOURCE_DIR}/Model/LinkTargetValidator.h
         ${COMMON_SOURCE_DIR}/Model/LockState.cpp
@@ -651,11 +667,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Node.h
         ${COMMON_SOURCE_DIR}/Model/NodeCollection.h
         ${COMMON_SOURCE_DIR}/Model/NodeContents.h
+        ${COMMON_SOURCE_DIR}/Model/NodeQueries.h
         ${COMMON_SOURCE_DIR}/Model/NodeVisitor.h
         ${COMMON_SOURCE_DIR}/Model/NonIntegerVerticesValidator.h
         ${COMMON_SOURCE_DIR}/Model/Object.h
-        ${COMMON_SOURCE_DIR}/Model/ParallelTexCoordSystem.h
-        ${COMMON_SOURCE_DIR}/Model/ParaxialTexCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/ParallelUVCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/ParaxialUVCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/PatchNode.h
         ${COMMON_SOURCE_DIR}/Model/PickResult.h
         ${COMMON_SOURCE_DIR}/Model/PointEntityWithBrushesValidator.h
@@ -689,7 +706,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/TagMatcher.h
         ${COMMON_SOURCE_DIR}/Model/TagType.h
         ${COMMON_SOURCE_DIR}/Model/TagVisitor.h
-        ${COMMON_SOURCE_DIR}/Model/TexCoordSystem.h
+        ${COMMON_SOURCE_DIR}/Model/UVCoordSystem.h
         ${COMMON_SOURCE_DIR}/Model/Validator.h
         ${COMMON_SOURCE_DIR}/Model/ValidatorRegistry.h
         ${COMMON_SOURCE_DIR}/Model/VisibilityState.cpp
@@ -715,8 +732,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/Compass2D.h
         ${COMMON_SOURCE_DIR}/Renderer/Compass3D.h
         ${COMMON_SOURCE_DIR}/Renderer/EdgeRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityDecalRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/EntityLinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityModelRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/EntityRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/FaceRenderer.h
@@ -743,6 +760,12 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/IndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/LinkRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/MapRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexArrayRenderer.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMap.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeMapBuilder.h
+        ${COMMON_SOURCE_DIR}/Renderer/MaterialIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/ObjectRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/OrthographicCamera.h
         ${COMMON_SOURCE_DIR}/Renderer/PatchRenderer.h
@@ -766,12 +789,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Renderer/SpikeGuideRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextAnchor.h
         ${COMMON_SOURCE_DIR}/Renderer/TextRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexArrayRenderer.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMap.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeMapBuilder.h
-        ${COMMON_SOURCE_DIR}/Renderer/TexturedIndexRangeRenderer.h
         ${COMMON_SOURCE_DIR}/Renderer/TextureFont.h
         ${COMMON_SOURCE_DIR}/Renderer/Transformation.h
         ${COMMON_SOURCE_DIR}/Renderer/TriangleRenderer.h
@@ -803,6 +820,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CellView.h
         ${COMMON_SOURCE_DIR}/View/ChoosePathTypeDialog.h
         ${COMMON_SOURCE_DIR}/View/ClickableLabel.h
+        ${COMMON_SOURCE_DIR}/View/ClickableTitleBar.h
         ${COMMON_SOURCE_DIR}/View/ClipTool.h
         ${COMMON_SOURCE_DIR}/View/ClipToolController.h
         ${COMMON_SOURCE_DIR}/View/CollapsibleTitledPanel.h
@@ -907,6 +925,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/MapViewContainer.h
         ${COMMON_SOURCE_DIR}/View/MapViewLayout.h
         ${COMMON_SOURCE_DIR}/View/MapViewToolBox.h
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowser.h
+        ${COMMON_SOURCE_DIR}/View/MaterialBrowserView.h
+        ${COMMON_SOURCE_DIR}/View/MaterialCollectionEditor.h
         ${COMMON_SOURCE_DIR}/View/ModEditor.h
         ${COMMON_SOURCE_DIR}/View/MousePreferencePane.h
         ${COMMON_SOURCE_DIR}/View/MoveHandleDragTracker.h
@@ -929,7 +950,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/RenderView.h
         ${COMMON_SOURCE_DIR}/View/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/View/RepeatStack.h
-        ${COMMON_SOURCE_DIR}/View/ReplaceTextureDialog.h
+        ${COMMON_SOURCE_DIR}/View/ReplaceMaterialDialog.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsHandle.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsTool.h
         ${COMMON_SOURCE_DIR}/View/RotateObjectsToolController.h
@@ -942,6 +963,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/SelectionTool.h
         ${COMMON_SOURCE_DIR}/View/SetBrushFaceAttributesTool.h
         ${COMMON_SOURCE_DIR}/View/SetCurrentLayerCommand.h
+        ${COMMON_SOURCE_DIR}/View/SetLinkIdsCommand.h
         ${COMMON_SOURCE_DIR}/View/SetLockStateCommand.h
         ${COMMON_SOURCE_DIR}/View/SetVisibilityCommand.h
         ${COMMON_SOURCE_DIR}/View/ShearObjectsTool.h
@@ -959,11 +981,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/Splitter.h
         ${COMMON_SOURCE_DIR}/View/SwapNodeContentsCommand.h
         ${COMMON_SOURCE_DIR}/View/SwitchableMapViewContainer.h
+        ${COMMON_SOURCE_DIR}/View/SwitchableTitledPanel.h
         ${COMMON_SOURCE_DIR}/View/TabBar.h
         ${COMMON_SOURCE_DIR}/View/TabBook.h
         ${COMMON_SOURCE_DIR}/View/TextOutputAdapter.h
-        ${COMMON_SOURCE_DIR}/View/TextureBrowser.h
-        ${COMMON_SOURCE_DIR}/View/TextureBrowserView.h
         ${COMMON_SOURCE_DIR}/View/ThreePaneMapView.h
         ${COMMON_SOURCE_DIR}/View/TitleBar.h
         ${COMMON_SOURCE_DIR}/View/TitledPanel.h
@@ -1004,7 +1025,7 @@ set(COMMON_HEADER
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vecmath GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt assimp::assimp)
+target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vm GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt5::Widgets Qt5::Svg fmt::fmt assimp::assimp)
 
 # use precompiled headers on CMake 3.16 or later
 if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
@@ -1014,6 +1035,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <any>
             <array>
             <cassert>
+            <chrono>
             <cstddef>
             <cstdio>
             <cstdlib>
@@ -1030,6 +1052,7 @@ if (NOT TB_SUPPRESS_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")
             <memory>
             <optional>
             <ostream>
+            <ranges>
             <set>
             <string>
             <tuple>

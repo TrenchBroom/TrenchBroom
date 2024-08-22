@@ -27,9 +27,9 @@
 #include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
-#include <kdl/set_temp.h>
-#include <kdl/string_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/set_temp.h"
+#include "kdl/string_utils.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 

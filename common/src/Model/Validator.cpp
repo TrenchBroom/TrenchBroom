@@ -24,8 +24,8 @@
 #include "Model/IssueQuickFix.h"
 #include "Model/WorldNode.h"
 
-#include <kdl/overload.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <string>

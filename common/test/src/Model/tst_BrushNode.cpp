@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Texture.h"
+#include "Assets/Material.h"
 #include "Exceptions.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
@@ -36,17 +36,17 @@
 #include "Model/PickResult.h"
 #include "TestUtils.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/approx.h>
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/polygon.h>
-#include <vecmath/ray.h>
-#include <vecmath/segment.h>
-#include <vecmath/vec.h>
+#include "vm/approx.h"
+#include "vm/bbox.h"
+#include "vm/bbox_io.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <string>
@@ -63,7 +63,8 @@ TEST_CASE("BrushNodeTest.entity")
   const auto worldBounds = vm::bbox3{4096.0};
 
   auto* brushNode = new BrushNode{
-    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure").value()};
+    BrushBuilder{MapFormat::Quake3, worldBounds}.createCube(64.0, "testure")
+    | kdl::value()};
   auto entityNode = EntityNode{Entity{}};
 
   CHECK(brushNode->entity() == nullptr);
@@ -100,7 +101,7 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
   CHECK(!brush.hasSelectedFaces());
 
@@ -162,7 +163,8 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces")
     brush.selectFace(1u);
     REQUIRE(brush.hasSelectedFaces());
 
-    auto clone = std::unique_ptr<BrushNode>(brush.clone(worldBounds));
+    auto clone = std::unique_ptr<BrushNode>(
+      static_cast<BrushNode*>(brush.clone(worldBounds, SetLinkId::generate)));
     CHECK(!clone->hasSelectedFaces());
   }
 }
@@ -171,18 +173,18 @@ TEST_CASE("BrushNodeTest.containsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
-  auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+  auto patchNode = PatchNode{BezierPatch{3, 5, {
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-  }, "some_texture"}};
+  }, "some_material"}};
   // clang-format on
 
   CHECK_FALSE(brushNode.contains(&patchNode));
@@ -198,19 +200,19 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto builder = Model::BrushBuilder{MapFormat::Quake3, worldBounds};
+  auto builder = BrushBuilder{MapFormat::Quake3, worldBounds};
 
-  auto brushNode = Model::BrushNode{builder.createCube(64.0, "some_texture").value()};
+  auto brushNode = BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   transformNode(
     brushNode, vm::rotation_matrix(0.0, 0.0, vm::to_radians(45.0)), worldBounds);
 
   // a half cylinder that, at this position, just sticks out of the brush
   // clang-format off
-  auto patchNode = Model::PatchNode{Model::BezierPatch{3, 5, {
+  auto patchNode = PatchNode{BezierPatch{3, 5, {
     { {32, 0,  16}, {32, 32,  16}, {0, 32,  16}, {-32,32,  16}, {-32, 0,  16},
       {32, 0,   0}, {32, 32,   0}, {0, 32,   0}, {-32,32,   0}, {-32, 0,   0},
       {32, 0, -16}, {32, 32, -16}, {0, 32, -16}, {-32,32, -16}, {-32, 0, -16}, }
-  }, "some_texture"}};
+  }, "some_material"}};
   // clang-format on
 
   CHECK(brushNode.intersects(&patchNode));
@@ -241,11 +243,10 @@ TEST_CASE("BrushNodeTest.intersectsPatchNode")
 
   SECTION("Brush does not contain any grid points, but patch intersects")
   {
-    auto thinBrushNode = Model::BrushNode{
-      builder
-        .createCuboid(
-          vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_texture")
-        .value()};
+    auto thinBrushNode = BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{vm::vec3d{1, -64, -64}, vm::vec3d{2, 64, 64}}, "some_material")
+      | kdl::value()};
     for (const auto& point : patchNode.grid().points)
     {
       REQUIRE_FALSE(thinBrushNode.brush().containsPoint(point.position));
@@ -283,7 +284,7 @@ TEST_CASE("BrushNodeTest.pick")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
   PickResult hits1;
   brush.pick(editorContext, vm::ray3(vm::vec3(8.0, -8.0, 8.0), vm::vec3::pos_y()), hits1);
@@ -326,9 +327,10 @@ TEST_CASE("BrushNodeTest.clone")
         createParaxial(
           vm::vec3(0.0, 0.0, 0.0), vm::vec3(1.0, 0.0, 0.0), vm::vec3(0.0, 1.0, 0.0)),
       })
-      .value());
+    | kdl::value());
 
-  BrushNode* clone = original.clone(worldBounds);
+  auto clone = std::unique_ptr<BrushNode>{
+    static_cast<BrushNode*>(original.clone(worldBounds, SetLinkId::generate))};
 
   CHECK(clone->brush().faceCount() == original.brush().faceCount());
   for (const auto& originalFace : original.brush().faces())
@@ -339,8 +341,6 @@ TEST_CASE("BrushNodeTest.clone")
     const auto& cloneFace = clone->brush().face(*cloneFaceIndex);
     CHECK(cloneFace == originalFace);
   }
-
-  delete clone;
 }
 } // namespace Model
 } // namespace TrenchBroom

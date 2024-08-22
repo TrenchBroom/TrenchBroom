@@ -24,45 +24,37 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityPropertiesVariableStore.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
 #include "Model/Validator.h"
 
-#include <kdl/overload.h>
-#include <kdl/result.h>
-#include <kdl/string_utils.h>
+#include "kdl/overload.h"
+#include "kdl/result.h"
+#include "kdl/string_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/intersection.h>
-#include <vecmath/mat.h>
-#include <vecmath/mat_ext.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/intersection.h"
+#include "vm/mat.h"
+#include "vm/mat_ext.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 const HitType::Type EntityNode::EntityHitType = HitType::freeType();
-const vm::bbox3 EntityNode::DefaultBounds(8.0);
+const vm::bbox3 EntityNode::DefaultBounds = vm::bbox3{8.0};
 
 EntityNode::EntityNode(Entity entity)
-  : EntityNodeBase(std::move(entity))
-  , Object()
-{
-}
-
-EntityNode::EntityNode(
-  const Model::EntityPropertyConfig& entityPropertyConfig,
-  std::initializer_list<EntityProperty> properties)
-  : EntityNode{Entity{entityPropertyConfig, std::move(properties)}}
+  : EntityNodeBase{std::move(entity)}
 {
 }
 
@@ -72,9 +64,9 @@ const vm::bbox3& EntityNode::modelBounds() const
   return m_cachedBounds->modelBounds;
 }
 
-void EntityNode::setModelFrame(const Assets::EntityModelFrame* modelFrame)
+void EntityNode::setModel(const Assets::EntityModel* model)
 {
-  m_entity.setModel(entityPropertyConfig(), modelFrame);
+  m_entity.setModel(model);
   nodePhysicalBoundsDidChange();
 }
 
@@ -92,7 +84,7 @@ const vm::bbox3& EntityNode::doGetPhysicalBounds() const
 
 FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
 {
-  const vm::vec3 size = physicalBounds().size();
+  const auto size = physicalBounds().size();
   switch (axis)
   {
   case vm::axis::x:
@@ -106,11 +98,13 @@ FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* EntityNode::doClone(
+  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
 {
-  auto* entity = new EntityNode{m_entity};
-  cloneAttributes(entity);
-  return entity;
+  auto result = std::make_unique<EntityNode>(m_entity);
+  result->cloneLinkId(*this, setLinkIds);
+  cloneAttributes(result.get());
+  return result.release();
 }
 
 bool EntityNode::doCanAddChild(const Node* child) const
@@ -141,13 +135,13 @@ bool EntityNode::doShouldAddToSpacialIndex() const
 
 void EntityNode::doChildWasAdded(Node* /* node */)
 {
-  m_entity.setPointEntity(entityPropertyConfig(), !hasChildren());
+  m_entity.setPointEntity(!hasChildren());
   nodePhysicalBoundsDidChange();
 }
 
 void EntityNode::doChildWasRemoved(Node* /* node */)
 {
-  m_entity.setPointEntity(entityPropertyConfig(), !hasChildren());
+  m_entity.setPointEntity(!hasChildren());
   nodePhysicalBoundsDidChange();
 }
 
@@ -172,37 +166,34 @@ void EntityNode::doPick(
 {
   if (!hasChildren() && editorContext.visible(this))
   {
-    const vm::bbox3& myBounds = logicalBounds();
+    const auto& myBounds = logicalBounds();
     if (!myBounds.contains(ray.origin))
     {
-      const FloatType distance = vm::intersect_ray_bbox(ray, myBounds);
-      if (!vm::is_nan(distance))
+      if (const auto distance = vm::intersect_ray_bbox(ray, myBounds))
       {
-        const vm::vec3 hitPoint = vm::point_at_distance(ray, distance);
-        pickResult.addHit(Hit(EntityHitType, distance, hitPoint, this));
+        const auto hitPoint = vm::point_at_distance(ray, *distance);
+        pickResult.addHit(Hit(EntityHitType, *distance, hitPoint, this));
         return;
       }
     }
 
     // only if the bbox hit test failed do we hit test the model
-    if (m_entity.model() != nullptr)
+    if (const auto* modelFrame = m_entity.modelFrame())
     {
       // we transform the ray into the model's space
-      const auto transform = m_entity.modelTransformation();
-      const auto [invertible, inverse] = vm::invert(transform);
-      if (invertible)
+      const auto defaultModelScaleExpression =
+        entityPropertyConfig().defaultModelScaleExpression;
+      const auto transform = m_entity.modelTransformation(defaultModelScaleExpression);
+      if (const auto inverse = vm::invert(transform))
       {
-        const auto transformedRay = vm::ray3f(ray.transform(inverse));
-        const auto distance = m_entity.model()->intersect(transformedRay);
-        if (!vm::is_nan(distance))
+        const auto transformedRay = vm::ray3f{ray.transform(*inverse)};
+        if (const auto distance = modelFrame->intersect(transformedRay))
         {
           // transform back to world space
           const auto transformedHitPoint =
-            vm::vec3(point_at_distance(transformedRay, distance));
+            vm::vec3{point_at_distance(transformedRay, *distance)};
           const auto hitPoint = transform * transformedHitPoint;
-          pickResult.addHit(
-            Hit(EntityHitType, static_cast<FloatType>(distance), hitPoint, this));
-          return;
+          pickResult.addHit(Hit{EntityHitType, FloatType(*distance), hitPoint, this});
         }
       }
     }
@@ -214,12 +205,16 @@ void EntityNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>
   if (hasChildren())
   {
     for (Node* child : Node::children())
+    {
       child->findNodesContaining(point, result);
+    }
   }
   else
   {
     if (logicalBounds().contains(point))
+    {
       result.push_back(this);
+    }
   }
 }
 
@@ -290,15 +285,19 @@ void EntityNode::validateBounds() const
 
   m_cachedBounds = CachedBounds{};
 
-  const bool hasModel = m_entity.model() != nullptr;
+  const auto hasModel = m_entity.modelFrame() != nullptr;
+  const auto& defaultModelScaleExpression =
+    entityPropertyConfig().defaultModelScaleExpression;
   if (hasModel)
   {
     m_cachedBounds->modelBounds =
-      vm::bbox3(m_entity.model()->bounds()).transform(m_entity.modelTransformation());
+      vm::bbox3(m_entity.modelFrame()->bounds())
+        .transform(m_entity.modelTransformation(defaultModelScaleExpression));
   }
   else
   {
-    m_cachedBounds->modelBounds = DefaultBounds.transform(m_entity.modelTransformation());
+    m_cachedBounds->modelBounds =
+      DefaultBounds.transform(m_entity.modelTransformation(defaultModelScaleExpression));
   }
 
   if (hasChildren())
@@ -334,5 +333,5 @@ void EntityNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

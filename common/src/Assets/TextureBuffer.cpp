@@ -21,27 +21,23 @@
 
 #include "Ensure.h"
 
-#include <vecmath/vec.h>
+#include "vm/vec.h"
 
 #include <FreeImage.h>
-#include <algorithm> // for std::max
+#include <algorithm>
+#include <iostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-TextureBuffer::TextureBuffer()
-  : m_buffer()
-  , m_size(0)
-{
-}
+
+TextureBuffer::TextureBuffer() = default;
 
 /**
  * Note, buffer is created defult-initialized (i.e., uninitialized) on purpose.
  */
 TextureBuffer::TextureBuffer(const size_t size)
-  : m_buffer(new unsigned char[size])
-  , m_size(size)
+  : m_buffer{new unsigned char[size]}
+  , m_size{size}
 {
 }
 
@@ -60,6 +56,12 @@ size_t TextureBuffer::size() const
   return m_size;
 }
 
+std::ostream& operator<<(std::ostream& lhs, const TextureBuffer& rhs)
+{
+  lhs << "TextureBuffer{" << rhs.size() << " bytes}";
+  return lhs;
+}
+
 vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t level)
 {
   assert(width > 0);
@@ -67,8 +69,8 @@ vm::vec2s sizeAtMipLevel(const size_t width, const size_t height, const size_t l
 
   // from Issues 6 in:
   // https://www.khronos.org/registry/OpenGL/extensions/ARB/ARB_texture_non_power_of_two.txt
-  return vm::vec2s(
-    std::max(size_t(1), width >> level), std::max(size_t(1), height >> level));
+  return vm::vec2s{
+    std::max(size_t(1), width >> level), std::max(size_t(1), height >> level)};
 }
 
 bool isCompressedFormat(const GLenum format)
@@ -113,9 +115,9 @@ void setMipBufferSize(
   const size_t height,
   const GLenum format)
 {
-  const bool compressed = isCompressedFormat(format);
-  const size_t bytesPerPixel = compressed ? 0U : bytesPerPixelForFormat(format);
-  const size_t blockSize = compressed ? blockSizeForFormat(format) : 0U;
+  const auto compressed = isCompressedFormat(format);
+  const auto bytesPerPixel = compressed ? 0U : bytesPerPixelForFormat(format);
+  const auto blockSize = compressed ? blockSizeForFormat(format) : 0U;
 
   buffers.resize(mipLevels);
   for (size_t level = 0u; level < buffers.size(); ++level)
@@ -125,42 +127,41 @@ void setMipBufferSize(
                             blockSize * std::max(size_t(1), mipSize.x() / 4)
                             * std::max(size_t(1), mipSize.y() / 4))
                                      : (bytesPerPixel * mipSize.x() * mipSize.y());
-    buffers[level] = TextureBuffer(numBytes);
+    buffers[level] = TextureBuffer{numBytes};
   }
 }
 
 void resizeMips(
   TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize)
 {
-  if (oldSize == newSize)
-    return;
-
-  for (size_t i = 0; i < buffers.size(); ++i)
+  if (oldSize != newSize)
   {
-    const auto div = size_t(1) << i;
-    const auto oldWidth = static_cast<int>(oldSize.x() / div);
-    const auto oldHeight = static_cast<int>(oldSize.y() / div);
-    const auto oldPitch = oldWidth * 3;
-    auto* oldPtr = buffers[i].data();
+    for (size_t i = 0; i < buffers.size(); ++i)
+    {
+      const auto div = size_t(1) << i;
+      const auto oldWidth = int(oldSize.x() / div);
+      const auto oldHeight = int(oldSize.y() / div);
+      const auto oldPitch = oldWidth * 3;
+      auto* oldPtr = buffers[i].data();
 
-    auto* oldBitmap = FreeImage_ConvertFromRawBits(
-      oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-    ensure(oldBitmap != nullptr, "oldBitmap is null");
+      auto* oldBitmap = FreeImage_ConvertFromRawBits(
+        oldPtr, oldWidth, oldHeight, oldPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
+      ensure(oldBitmap != nullptr, "oldBitmap is null");
 
-    const auto newWidth = static_cast<int>(newSize.x() / div);
-    const auto newHeight = static_cast<int>(newSize.y() / div);
-    const auto newPitch = newWidth * 3;
-    auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
-    ensure(newBitmap != nullptr, "newBitmap is null");
+      const auto newWidth = int(newSize.x() / div);
+      const auto newHeight = int(newSize.y() / div);
+      const auto newPitch = newWidth * 3;
+      auto* newBitmap = FreeImage_Rescale(oldBitmap, newWidth, newHeight, FILTER_BICUBIC);
+      ensure(newBitmap != nullptr, "newBitmap is null");
 
-    buffers[i] = TextureBuffer(3 * newSize.x() * newSize.y());
-    auto* newPtr = buffers[i].data();
+      buffers[i] = TextureBuffer{3 * newSize.x() * newSize.y()};
+      auto* newPtr = buffers[i].data();
 
-    FreeImage_ConvertToRawBits(
-      newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
-    FreeImage_Unload(oldBitmap);
-    FreeImage_Unload(newBitmap);
+      FreeImage_ConvertToRawBits(
+        newPtr, newBitmap, newPitch, 24, 0xFF0000, 0x00FF00, 0x0000FF, true);
+      FreeImage_Unload(oldBitmap);
+      FreeImage_Unload(newBitmap);
+    }
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

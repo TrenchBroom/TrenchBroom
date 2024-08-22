@@ -27,15 +27,13 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct EntityPropertyConfig;
 class WorldNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -52,7 +50,7 @@ public:
  */
 class WorldReader : public MapReader
 {
-  std::unique_ptr<Model::WorldNode> m_world;
+  std::unique_ptr<Model::WorldNode> m_worldNode;
 
 public:
   WorldReader(
@@ -81,9 +79,6 @@ public:
     const Model::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
-private:
-  void sanitizeLayerSortIndicies(ParserStatus& status);
-
 private: // implement MapReader interface
   Model::Node* onWorldNode(
     std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
@@ -93,5 +88,5 @@ private: // implement MapReader interface
     std::unique_ptr<Model::Node> node,
     ParserStatus& status) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

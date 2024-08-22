@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "collection_utils.h"
+#include "kdl/collection_utils.h"
 
 // Note: all except <cassert> are included by <vector> anyway, so there's no point in
 // splitting this up further
@@ -34,6 +34,50 @@
 
 namespace kdl
 {
+namespace detail
+{
+template <typename = void, typename... C>
+struct has_std_size : std::false_type
+{
+};
+
+template <typename C>
+struct has_std_size<std::void_t<decltype(std::size(std::declval<C>()))>, C>
+  : std::true_type
+{
+};
+
+template <typename C>
+inline constexpr bool has_std_size_v = has_std_size<void, C>::value;
+
+template <typename = void, typename... C>
+struct has_size_member : std::false_type
+{
+};
+
+template <typename C>
+struct has_size_member<std::void_t<decltype(std::declval<C>().size())>, C>
+  : std::true_type
+{
+};
+
+template <typename C>
+inline constexpr bool has_size_member_v = has_size_member<void, C>::value;
+} // namespace detail
+
+template <typename V, typename C>
+void vec_reserve_to(V& v, const C& c)
+{
+  if constexpr (detail::has_std_size_v<C>)
+  {
+    v.reserve(std::size_t(std::size(c)));
+  }
+  else if constexpr (detail::has_size_member_v<C>)
+  {
+    v.reserve(std::size_t(c.size()));
+  }
+}
+
 template <typename T, typename... Rest>
 std::vector<T> vec_from(T t, Rest... rest)
 {
@@ -132,7 +176,7 @@ T vec_pop_front(std::vector<T>& v)
  * @return a vector containing the elements of a, but with O as the element type
  */
 template <typename O, typename T, typename A>
-std::vector<O> vec_element_cast(std::vector<T, A> v)
+std::vector<O*> vec_dynamic_cast(std::vector<T*, A> v)
 {
   if constexpr (std::is_same_v<T, O>)
   {
@@ -140,11 +184,46 @@ std::vector<O> vec_element_cast(std::vector<T, A> v)
   }
   else
   {
-    std::vector<O> result;
+    auto result = std::vector<O*>{};
     result.reserve(v.size());
-    for (const auto& e : v)
+    for (auto& e : v)
     {
-      result.push_back(O(e));
+      if (auto o = dynamic_cast<O*>(e))
+      {
+        result.push_back(std::move(o));
+      }
+    }
+    return result;
+  }
+}
+
+/**
+ * Returns a vector containing elements of type O, each of which is constructed by passing
+ * the corresponding element of v to the constructor of o, e.g. result.push_back(O(e)),
+ * where result is the resulting vector, and e is an element from v.
+ *
+ * Precondition: O must be constructible with an argument of type T
+ *
+ * @tparam O the type of the result vector elements
+ * @tparam T the type of the vector elements
+ * @tparam A the vector's allocator type
+ * @param v the vector to cast
+ * @return a vector containing the elements of a, but with O as the element type
+ */
+template <typename O, typename T, typename A>
+std::vector<O> vec_static_cast(std::vector<T, A> v)
+{
+  if constexpr (std::is_same_v<T, O>)
+  {
+    return v;
+  }
+  else
+  {
+    auto result = std::vector<O>{};
+    result.reserve(v.size());
+    for (auto& e : v)
+    {
+      result.push_back(static_cast<O>(e));
     }
     return result;
   }
@@ -240,25 +319,25 @@ bool vec_contains(const std::vector<T, A>& v, const X& x)
 namespace detail
 {
 template <typename T, typename A>
-void vec_append(std::vector<T, A>&)
+void vec_concat(std::vector<T, A>&)
 {
 }
 
 template <typename T, typename A, typename Arg>
-void vec_append(std::vector<T, A>& v1, const Arg& arg)
+void vec_concat(std::vector<T, A>& v1, const Arg& arg)
 {
   v1.insert(std::end(v1), std::begin(arg), std::end(arg));
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
+void vec_concat(std::vector<T, A>& v1, const Arg& arg, Rest&&... rest)
 {
-  vec_append(v1, arg);
-  vec_append(v1, std::forward<Rest>(rest)...);
+  vec_concat(v1, arg);
+  vec_concat(v1, std::forward<Rest>(rest)...);
 }
 
 template <typename T, typename A, typename Arg>
-void vec_append(std::vector<T, A>& v1, Arg&& arg)
+void vec_concat(std::vector<T, A>& v1, Arg&& arg)
 {
   for (auto& x : arg)
   {
@@ -267,10 +346,10 @@ void vec_append(std::vector<T, A>& v1, Arg&& arg)
 }
 
 template <typename T, typename A, typename Arg, typename... Rest>
-void vec_append(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
+void vec_concat(std::vector<T, A>& v1, Arg&& arg, Rest&&... rest)
 {
-  vec_append(v1, std::forward<Arg>(arg));
-  vec_append(v1, std::forward<Rest>(rest)...);
+  vec_concat(v1, std::forward<Arg>(arg));
+  vec_concat(v1, std::forward<Rest>(rest)...);
 }
 } // namespace detail
 
@@ -289,7 +368,25 @@ template <typename T, typename A, typename... Args>
 std::vector<T, A> vec_concat(std::vector<T, A> v, Args... args)
 {
   v.reserve(kdl::col_total_size(v, args...));
-  detail::vec_append(v, std::move(args)...);
+  detail::vec_concat(v, std::move(args)...);
+  return v;
+}
+
+/**
+ * Appends the given elements. Each element must be a type convertible to T and it is
+ * perfectly forwarded to std::vector<T, A>::push_back.
+ *
+ * @tparam T the element type
+ * @tparam A the allocator type
+ * @tparam Args parameter pack containing the elements to append to v
+ * @param v the first vector to append to
+ * @param args the elements to append
+ */
+template <typename T, typename A, typename... Args>
+auto vec_push_back(std::vector<T, A> v, Args... args)
+{
+  v.reserve(v.size() + sizeof...(args));
+  (..., v.push_back(std::forward<Args>(args)));
   return v;
 }
 
@@ -573,12 +670,12 @@ std::vector<T, A> vec_sort_and_remove_duplicates(
 template <
   typename Range,
   typename Predicate,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Predicate, const T&>>* = nullptr>
 auto vec_filter(Range range, Predicate&& predicate)
 {
   auto result = std::vector<T>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (auto& x : range)
   {
@@ -609,13 +706,13 @@ auto vec_filter(Range range, Predicate&& predicate)
 template <
   typename Range,
   typename Predicate,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Predicate, const T&, std::size_t>>* =
     nullptr>
 auto vec_filter(Range range, Predicate&& predicate)
 {
   auto result = std::vector<T>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -646,18 +743,28 @@ auto vec_filter(Range range, Predicate&& predicate)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, const T&>>* = nullptr>
 auto vec_transform(const Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<const T&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
-  for (const auto& x : range)
+  if constexpr (std::is_reference_v<decltype(*range.begin())>)
   {
-    result.push_back(transform(x));
+    for (const auto& x : range)
+    {
+      result.push_back(transform(x));
+    }
+  }
+  else
+  {
+    for (auto x : range)
+    {
+      result.push_back(transform(x));
+    }
   }
 
   return result;
@@ -683,7 +790,7 @@ auto vec_transform(const Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, const T&, std::size_t>>* =
     nullptr>
 auto vec_transform(const Range& range, Transform&& transform)
@@ -692,7 +799,7 @@ auto vec_transform(const Range& range, Transform&& transform)
     decltype(transform(std::declval<const T&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -719,17 +826,28 @@ auto vec_transform(const Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&>>* = nullptr>
 auto vec_transform(Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
-  for (auto& x : range)
+  vec_reserve_to(result, range);
+
+  if constexpr (std::is_reference_v<decltype(*range.begin())>)
   {
-    result.push_back(transform(x));
+    for (auto& x : range)
+    {
+      result.push_back(transform(x));
+    }
+  }
+  else
+  {
+    for (auto x : range)
+    {
+      result.push_back(transform(x));
+    }
   }
 
   return result;
@@ -755,14 +873,14 @@ auto vec_transform(Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&, std::size_t>>* = nullptr>
 auto vec_transform(Range& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -789,14 +907,15 @@ auto vec_transform(Range& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&&>>* = nullptr>
 auto vec_transform(Range&& range, Transform&& transform)
 {
   using ResultType = decltype(transform(std::declval<T&&>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
+
   for (auto&& x : range)
   {
     result.push_back(transform(std::move(x)));
@@ -825,7 +944,7 @@ auto vec_transform(Range&& range, Transform&& transform)
 template <
   typename Range,
   typename Transform,
-  typename T = typename Range::value_type,
+  typename T = std::decay_t<decltype(*std::declval<Range>().begin())>,
   typename std::enable_if_t<std::is_invocable_v<Transform, T&&, std::size_t>>* = nullptr>
 auto vec_transform(Range&& range, Transform&& transform)
 {
@@ -833,7 +952,7 @@ auto vec_transform(Range&& range, Transform&& transform)
     decltype(transform(std::declval<T&&>(), std::declval<std::size_t>()));
 
   auto result = std::vector<ResultType>{};
-  result.reserve(std::size_t(std::size(range)));
+  vec_reserve_to(result, range);
 
   for (std::size_t i = 0u; i < std::size(range); ++i)
   {
@@ -880,9 +999,8 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec)
  * Returns a vector containing those values from s1 which are not also in s2. Values from
  * s1 and s2 are compared using the common comparator from both sets.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The values from s1 which are not also in s2 are added to the returned vector in the
@@ -890,21 +1008,22 @@ auto vec_flatten(std::vector<std::vector<T, A1>, A2> vec)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set difference of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_difference(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_difference(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = std::common_type_t<T1, T2>;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size());
@@ -914,7 +1033,7 @@ auto set_difference(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 
@@ -923,9 +1042,8 @@ auto set_difference(const S1& s1, const S2& s2)
  * values from s1 and s2 is a duplicate if the values are equivalent according to the
  * common comparator of s1 and s2.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The order of the values in the returned vector complies with the common comparator of
@@ -933,21 +1051,22 @@ auto set_difference(const S1& s1, const S2& s2)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_union(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_union(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = typename std::common_type<T1, T2>::type;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -957,16 +1076,15 @@ auto set_union(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 
 /**
  * Returns a vector containing all values from s1 and s2 which are present in both sets.
  *
- * Expects that both S1 and S2 declare the types of their values with ::value_type and the
- * comparator used to compare the values with ::value_compare. Additionally, the type of
- * value_compare must be identical in both sets.
+ * Expects that both S1 and S2 declare the types of their values with ::value_type and
+ * and that S1 and S2 are sorted and unique according to comparator C.
  *
  * The value type of the returned vector is the common type of S1 and S2's member types.
  * The order of the values in the returned vector complies with the common comparator of
@@ -974,21 +1092,22 @@ auto set_union(const S1& s1, const S2& s2)
  *
  * @tparam S1 the type of the first set
  * @tparam S2 the type of the second set
+ * @tparam C the type of the comparator to use
  * @param s1 the first set
  * @param s2 the second set
+ * @param c the comparator to use
  * @return a vector containing the set union of s1 and s2.
  */
-template <typename S1, typename S2>
-auto set_intersection(const S1& s1, const S2& s2)
+template <
+  typename S1,
+  typename S2,
+  typename C =
+    std::less<std::common_type_t<typename S1::value_type, typename S2::value_type>>>
+auto set_intersection(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using C1 = typename S1::value_compare;
-  using C2 = typename S2::value_compare;
-  static_assert(std::is_same<C1, C2>::value, "incompatible comparators");
-
   using T = typename std::common_type<T1, T2>::type;
-  using C = C1;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -998,7 +1117,7 @@ auto set_intersection(const S1& s1, const S2& s2)
     std::begin(s2),
     std::end(s2),
     std::back_inserter(result),
-    C());
+    c);
   return result;
 }
 

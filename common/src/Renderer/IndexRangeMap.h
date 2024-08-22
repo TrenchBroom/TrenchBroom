@@ -22,7 +22,7 @@
 #include "Renderer/GL.h"
 #include "Renderer/PrimType.h"
 
-#include <kdl/enum_array.h>
+#include "kdl/enum_array.h"
 
 #include <functional>
 #include <memory>

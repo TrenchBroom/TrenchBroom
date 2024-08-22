@@ -36,10 +36,10 @@
 #include "View/PickRequest.h"
 #include "View/SelectionTool.h"
 
-#include <kdl/result.h>
-#include <kdl/vector_utils.h>
+#include "kdl/result.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/ray.h>
+#include "vm/ray.h"
 
 #include "Catch2.h"
 
@@ -51,14 +51,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 {
   const auto* world = document->world();
   auto builder = Model::BrushBuilder{
-    world->mapFormat(), document->worldBounds(), document->game()->defaultFaceAttribs()};
+    world->mapFormat(),
+    document->worldBounds(),
+    document->game()->config().faceAttribsConfig.defaults};
 
   auto tool = SelectionTool{document};
 
   GIVEN("A group node")
   {
-    auto* brushNode = new Model::BrushNode{builder.createCube(32.0, "some_face").value()};
-    auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
+    auto* brushNode =
+      new Model::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
+    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
     auto* groupNode = new Model::GroupNode(Model::Group{"some_group"});
 
     document->addNodes({{document->parentForNodes(), {groupNode}}});
@@ -114,22 +117,21 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
   GIVEN("A brush node and an entity node")
   {
-    auto brush = builder
-                   .createCube(
-                     32.0,
-                     "left_face",
-                     "right_face",
-                     "front_face",
-                     "back_face",
-                     "top_face",
-                     "bottom_face")
-                   .value();
+    auto brush = builder.createCube(
+                   32.0,
+                   "left_face",
+                   "right_face",
+                   "front_face",
+                   "back_face",
+                   "top_face",
+                   "bottom_face")
+                 | kdl::value();
     auto* brushNode = new Model::BrushNode{std::move(brush)};
 
-    const auto topFaceIndex = brushNode->brush().findFace("top_face").value();
-    const auto frontFaceIndex = brushNode->brush().findFace("front_face").value();
+    const auto topFaceIndex = *brushNode->brush().findFace("top_face");
+    const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
 
-    auto* entityNode = new Model::EntityNode{{}, {{"origin", "64 0 0"}}};
+    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
 
     document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
 

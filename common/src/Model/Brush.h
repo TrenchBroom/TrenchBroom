@@ -24,7 +24,9 @@
 #include "Model/BrushGeometry.h"
 #include "Result.h"
 
-#include <vecmath/forward.h>
+#include "kdl/reflection_decl.h"
+
+#include "vm/forward.h"
 
 #include <memory>
 #include <optional>
@@ -56,21 +58,23 @@ private:
   std::vector<BrushFace> m_faces;
   std::unique_ptr<BrushGeometry> m_geometry;
 
+  kdl_reflect_decl(Brush, m_faces);
+
 public:
   Brush();
 
   Brush(const Brush& other);
   Brush(Brush&& other) noexcept;
-  Brush& operator=(Brush other) noexcept;
 
-  friend void swap(Brush& lhs, Brush& rhs) noexcept;
+  Brush& operator=(const Brush& other);
+  Brush& operator=(Brush&& other) noexcept;
 
   ~Brush();
 
   static Result<Brush> create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
 
 private:
-  Brush(std::vector<BrushFace> faces);
+  explicit Brush(std::vector<BrushFace> faces);
 
   Result<void> updateGeometryFromFaces(const vm::bbox3& worldBounds);
 
@@ -78,7 +82,7 @@ public:
   const vm::bbox3& bounds() const;
 
 public: // face management:
-  std::optional<size_t> findFace(const std::string& textureName) const;
+  std::optional<size_t> findFace(const std::string& materialName) const;
   std::optional<size_t> findFace(const vm::vec3& normal) const;
   std::optional<size_t> findFace(const vm::plane3& boundary) const;
   std::optional<size_t> findFace(
@@ -113,7 +117,7 @@ public: // move face along normal
    * @param worldBounds the world bounds
    * @param faceIndex the index of the face to translate
    * @param delta the vector by which to translate the face
-   * @param lockTexture whether textures should be locked
+   * @param lockMaterial whether material alignment should be locked
    *
    * @return a void result or an error
    */
@@ -121,7 +125,7 @@ public: // move face along normal
     const vm::bbox3& worldBounds,
     size_t faceIndex,
     const vm::vec3& delta,
-    bool lockTexture);
+    bool lockMaterial);
 
   /**
    * Moves all faces by `delta` units along their normals; negative values shrink the
@@ -129,11 +133,11 @@ public: // move face along normal
    *
    * @param worldBounds the world bounds
    * @param delta the distance by which to move the faces
-   * @param lockTexture whether textures should be locked
+   * @param lockMaterial whether material alignment should be locked
    *
    * @return a void result or an error
    */
-  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockTexture);
+  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockMaterial);
 
 public:
   // geometry access
@@ -231,7 +235,7 @@ private:
     const vm::bbox3& worldBounds,
     const std::vector<vm::vec3>& vertexPositions,
     const vm::vec3& delta,
-    bool lockTexture);
+    bool lockMaterial);
   /**
    * Tries to find 3 vertices in `left` and `right` that are related according to the
    * PolyhedronMatcher, and generates an affine transform for them which can then be used
@@ -240,10 +244,9 @@ private:
    * @param matcher a polyhedron matcher which is used to identify related vertices
    * @param left the face of the left polyhedron
    * @param right the face of the right polyhedron
-   * @return {true, transform} if a transform could be found, otherwise {false,
-   * unspecified}
+   * @return the transformation matrix or nullopt if it cannot be found
    */
-  static std::tuple<bool, vm::mat4x4> findTransformForUVLock(
+  static std::optional<vm::mat4x4> findTransformForUVLock(
     const PolyhedronMatcher<BrushGeometry>& matcher,
     BrushFaceGeometry* left,
     BrushFaceGeometry* right);
@@ -293,12 +296,12 @@ public:
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const std::vector<const Brush*>& subtrahends) const;
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const Brush& subtrahend) const;
 
   /**
@@ -319,11 +322,11 @@ public:
    *
    * @param worldBounds the world bounds
    * @param transformation the transformation to apply
-   * @param lockTextures whether textures should be locked
+   * @param lockMaterials whether material alignment should be locked
    * @return a void result or an error if the operation fails
    */
   Result<void> transform(
-    const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockTextures);
+    const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockMaterials);
 
 public:
   bool contains(const vm::bbox3& bounds) const;
@@ -334,24 +337,24 @@ public:
 private:
   /**
    * Final step of CSG subtraction; takes the geometry that is the result of the
-   * subtraction, and turns it into a Brush by copying texturing from `this` (for
+   * subtraction, and turns it into a Brush by copying materials from `this` (for
    * un-clipped faces) or the brushes in `subtrahends` (for clipped faces).
    *
    * @param mapFormat the map format
    * @param worldBounds the world bounds
-   * @param defaultTextureName default texture name
+   * @param defaultMaterialName default material name
    * @param geometry the geometry for the newly created brush
-   * @param subtrahends used as a source of texture alignment only
+   * @param subtrahends used as a source of material alignment only
    * @return the newly created brush
    */
   Result<Brush> createBrush(
     MapFormat mapFormat,
     const vm::bbox3& worldBounds,
-    const std::string& defaultTextureName,
+    const std::string& defaultMaterialName,
     const BrushGeometry& geometry,
     const std::vector<const Brush*>& subtrahends) const;
 
-public: // texture format conversion
+public: // UV format conversion
   Brush convertToParaxial() const;
   Brush convertToParallel() const;
 

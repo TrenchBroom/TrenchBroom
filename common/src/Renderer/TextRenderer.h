@@ -25,8 +25,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-#include <vecmath/forward.h>
-#include <vecmath/vec.h>
+#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <vector>
 
@@ -77,7 +77,7 @@ private:
     EntryCollection();
   };
 
-  using TextVertex = GLVertexTypes::P3T2C4::Vertex;
+  using TextVertex = GLVertexTypes::P3UV2C4::Vertex;
   using RectVertex = GLVertexTypes::P3C4::Vertex;
 
   FontDescriptor m_fontDescriptor;

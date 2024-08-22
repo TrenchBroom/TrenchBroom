@@ -77,7 +77,7 @@ public:
 enum class FileDialogDir
 {
   Map,
-  TextureCollection,
+  MaterialCollection,
   CompileTool,
   Engine,
   EntityDefinition,

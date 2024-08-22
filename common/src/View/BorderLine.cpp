@@ -21,12 +21,11 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* parent)
-  : QFrame(parent)
+  : QFrame{parent}
 {
   setObjectName("borderLine");
   setContentsMargins(0, 0, 0, 0);
@@ -49,5 +48,5 @@ BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* 
 #endif
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

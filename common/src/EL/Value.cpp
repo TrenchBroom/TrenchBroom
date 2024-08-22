@@ -21,13 +21,13 @@
 
 #include "EL/ELExceptions.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/map_utils.h>
-#include <kdl/overload.h>
-#include <kdl/string_compare.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/map_utils.h"
+#include "kdl/overload.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <cmath>

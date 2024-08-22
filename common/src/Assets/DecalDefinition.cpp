@@ -25,11 +25,11 @@
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
-#include <kdl/reflection_impl.h>
-#include <kdl/string_compare.h>
+#include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
 
-#include <vecmath/scalar.h>
-#include <vecmath/vec_io.h>
+#include "vm/scalar.h"
+#include "vm/vec_io.h"
 
 namespace TrenchBroom
 {
@@ -38,7 +38,7 @@ namespace Assets
 
 namespace
 {
-std::string textureName(const EL::Value& value)
+std::string materialName(const EL::Value& value)
 {
   using namespace std::string_literals;
   return value.type() == EL::ValueType::String ? value.stringValue() : ""s;
@@ -49,9 +49,9 @@ DecalSpecification convertToDecal(const EL::Value& value)
   switch (value.type())
   {
   case EL::ValueType::Map:
-    return {textureName(value[DecalSpecificationKeys::Texture])};
+    return {materialName(value[DecalSpecificationKeys::Material])};
   case EL::ValueType::String:
-    return {textureName(value)};
+    return {materialName(value)};
   case EL::ValueType::Boolean:
   case EL::ValueType::Number:
   case EL::ValueType::Array:

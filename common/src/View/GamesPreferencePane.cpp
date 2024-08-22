@@ -113,21 +113,19 @@ void GamesPreferencePane::showUserConfigDirClicked()
   auto& gameFactory = Model::GameFactory::instance();
   auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
-  IO::Disk::createDirectory(path)
-    .transform([&](auto) {
-      const auto url = QUrl::fromLocalFile(IO::pathAsQString(path));
-      QDesktopServices::openUrl(url);
-    })
-    .transform_error([&](auto e) {
-      if (m_document)
-      {
-        m_document->error() << e.msg;
-      }
-      else
-      {
-        FileLogger::instance().error() << e.msg;
-      }
-    });
+  IO::Disk::createDirectory(path) | kdl::transform([&](auto) {
+    const auto url = QUrl::fromLocalFile(IO::pathAsQString(path));
+    QDesktopServices::openUrl(url);
+  }) | kdl::transform_error([&](auto e) {
+    if (m_document)
+    {
+      m_document->error() << e.msg;
+    }
+    else
+    {
+      FileLogger::instance().error() << e.msg;
+    }
+  });
 }
 
 bool GamesPreferencePane::doCanResetToDefaults()
@@ -255,13 +253,13 @@ void GamePreferencePane::createGui()
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [=]() {
+    connect(edit, &QLineEdit::editingFinished, this, [&, toolName]() {
       Model::GameFactory::instance().setCompilationToolPath(
         m_gameName, toolName, IO::pathFromQString(edit->text()));
     });
 
     auto* browseButton = new QPushButton("...");
-    connect(browseButton, &QPushButton::clicked, this, [=]() {
+    connect(browseButton, &QPushButton::clicked, this, [&, toolName]() {
       const QString pathStr = QFileDialog::getOpenFileName(
         this,
         tr("%1 Path").arg(QString::fromStdString(toolName)),

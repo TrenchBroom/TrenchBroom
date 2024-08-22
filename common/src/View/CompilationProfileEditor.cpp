@@ -36,8 +36,8 @@
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
 
-#include <kdl/memory_utils.h>
-#include <kdl/vector_utils.h>
+#include "kdl/memory_utils.h"
+#include "kdl/vector_utils.h"
 
 namespace TrenchBroom
 {
@@ -136,12 +136,12 @@ Variables are allowed.)");
 
       auto menu = QMenu{this};
       auto* moveUpAction =
-        menu.addAction(tr("Move Up"), this, [=]() { moveTaskUp(index); });
+        menu.addAction(tr("Move Up"), this, [this, index]() { moveTaskUp(index); });
       auto* moveDownAction =
-        menu.addAction(tr("Move Down"), this, [=]() { moveTaskDown(index); });
+        menu.addAction(tr("Move Down"), this, [this, index]() { moveTaskDown(index); });
       menu.addSeparator();
-      menu.addAction(tr("Duplicate"), this, [=]() { duplicateTask(index); });
-      menu.addAction(tr("Remove"), this, [=]() { removeTask(index); });
+      menu.addAction(tr("Duplicate"), this, [this, index]() { duplicateTask(index); });
+      menu.addAction(tr("Remove"), this, [this, index]() { removeTask(index); });
 
       moveUpAction->setEnabled(index > 0);
       moveDownAction->setEnabled(

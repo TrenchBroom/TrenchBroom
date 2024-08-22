@@ -25,8 +25,10 @@
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
+#include "Assets/Material.h"
+#include "Assets/MaterialManager.h"
+#include "Assets/ResourceManager.h"
 #include "Assets/Texture.h"
-#include "Assets/TextureManager.h"
 #include "EL/ELExceptions.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -55,10 +57,11 @@
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "Model/GroupNode.h"
-#include "Model/InvalidTextureScaleValidator.h"
+#include "Model/InvalidUVScaleValidator.h"
 #include "Model/LayerNode.h"
 #include "Model/LinkSourceValidator.h"
 #include "Model/LinkTargetValidator.h"
+#include "Model/LinkedGroupUtils.h"
 #include "Model/LockState.h"
 #include "Model/LongPropertyKeyValidator.h"
 #include "Model/LongPropertyValueValidator.h"
@@ -69,6 +72,7 @@
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
+#include "Model/NodeQueries.h"
 #include "Model/NonIntegerVerticesValidator.h"
 #include "Model/PatchNode.h"
 #include "Model/PointEntityWithBrushesValidator.h"
@@ -95,6 +99,7 @@
 #include "View/RepeatStack.h"
 #include "View/SelectionCommand.h"
 #include "View/SetCurrentLayerCommand.h"
+#include "View/SetLinkIdsCommand.h"
 #include "View/SetLockStateCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SwapNodeContentsCommand.h"
@@ -103,21 +108,22 @@
 #include "View/UpdateLinkedGroupsHelper.h"
 #include "View/ViewEffectsService.h"
 
-#include <kdl/collection_utils.h>
-#include <kdl/map_utils.h>
-#include <kdl/memory_utils.h>
-#include <kdl/overload.h>
-#include <kdl/parallel.h>
-#include <kdl/result.h>
-#include <kdl/result_fold.h>
-#include <kdl/string_format.h>
-#include <kdl/vector_set.h>
-#include <kdl/vector_utils.h>
+#include "kdl/collection_utils.h"
+#include "kdl/grouped_range.h"
+#include "kdl/map_utils.h"
+#include "kdl/memory_utils.h"
+#include "kdl/overload.h"
+#include "kdl/parallel.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/string_format.h"
+#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/util.h>
-#include <vecmath/vec.h>
-#include <vecmath/vec_io.h>
+#include "vm/polygon.h"
+#include "vm/util.h"
+#include "vm/vec.h"
+#include "vm/vec_io.h"
 
 #include <algorithm>
 #include <cassert>
@@ -132,60 +138,76 @@
 
 namespace TrenchBroom::View
 {
+
+namespace
+{
+
 template <typename T>
-static auto findLinkedGroupsRecursively(
-  Model::WorldNode& worldNode, const std::vector<T*>& nodes, const bool includeGivenNodes)
+auto collectContainingGroups(const std::vector<T*>& nodes)
 {
   auto result = std::vector<Model::GroupNode*>{};
-
-  const auto addGroupNode = [&](Model::GroupNode* groupNode) {
-    while (groupNode)
-    {
-      if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-      {
-        if (Model::findLinkedGroups(worldNode, *linkedGroupId).size() > 1u)
-        {
-          result.emplace_back(groupNode);
-          return;
-        }
-      }
-      groupNode = groupNode->containingGroup();
-    }
-  };
-
   Model::Node::visitAll(
     nodes,
     kdl::overload(
       [](const Model::WorldNode*) {},
       [](const Model::LayerNode*) {},
       [&](Model::GroupNode* groupNode) {
-        if (includeGivenNodes)
+        if (auto* containingGroupNode = groupNode->containingGroup())
         {
-          addGroupNode(groupNode);
-        }
-        else
-        {
-          addGroupNode(groupNode->containingGroup());
+          result.push_back(containingGroupNode);
         }
       },
-      [&](Model::EntityNode* entityNode) { addGroupNode(entityNode->containingGroup()); },
-      [&](Model::BrushNode* brushNode) { addGroupNode(brushNode->containingGroup()); },
-      [&](Model::PatchNode* patchNode) { addGroupNode(patchNode->containingGroup()); }));
+      [&](Model::EntityNode* entityNode) {
+        if (auto* containingGroupNode = entityNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](Model::BrushNode* brushNode) {
+        if (auto* containingGroupNode = brushNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      },
+      [&](Model::PatchNode* patchNode) {
+        if (auto* containingGroupNode = patchNode->containingGroup())
+        {
+          result.push_back(containingGroupNode);
+        }
+      }));
 
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-template <typename T>
-static auto findContainingLinkedGroups(
-  Model::WorldNode& worldNode, const std::vector<T*>& nodes)
+std::vector<Model::GroupNode*> collectGroupsOrContainers(
+  const std::vector<Model::Node*>& nodes)
 {
-  return findLinkedGroupsRecursively(worldNode, nodes, false);
-}
-
-template <typename T>
-static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T*>& nodes)
-{
-  return findLinkedGroupsRecursively(worldNode, nodes, true);
+  auto result = std::vector<Model::GroupNode*>{};
+  Model::Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](const Model::WorldNode*) {},
+      [](const Model::LayerNode*) {},
+      [&](Model::GroupNode* groupNode) { result.push_back(groupNode); },
+      [&](Model::EntityNode* entityNode) {
+        if (auto* containingGroup = entityNode->containingGroup())
+        {
+          result.push_back(containingGroup);
+        }
+      },
+      [&](Model::BrushNode* brushNode) {
+        if (auto* containingGroup = brushNode->containingGroup())
+        {
+          result.push_back(containingGroup);
+        }
+      },
+      [&](Model::PatchNode* patchNode) {
+        if (auto* containingGroup = patchNode->containingGroup())
+        {
+          result.push_back(containingGroup);
+        }
+      }));
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 /**
@@ -204,7 +226,7 @@ static auto findAllLinkedGroups(Model::WorldNode& worldNode, const std::vector<T
  * succeeded for every given node, or an empty optional otherwise.
  */
 template <typename N, typename L>
-static std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>>
+std::optional<std::vector<std::pair<Model::Node*, Model::NodeContents>>>
 applyToNodeContents(const std::vector<N*>& nodes, L lambda)
 {
   using NodeContentType = std::
@@ -263,7 +285,7 @@ applyToNodeContents(const std::vector<N*>& nodes, L lambda)
  * original nodes remain unmodified.
  */
 template <typename N, typename L>
-static bool applyAndSwap(
+bool applyAndSwap(
   MapDocument& document,
   const std::string& commandName,
   const std::vector<N*>& nodes,
@@ -305,7 +327,7 @@ static bool applyAndSwap(
  * nodes remain unmodified.
  */
 template <typename L>
-static bool applyAndSwap(
+bool applyAndSwap(
   MapDocument& document,
   const std::string& commandName,
   const std::vector<Model::BrushFaceHandle>& faces,
@@ -341,8 +363,7 @@ static bool applyAndSwap(
       newNodes.emplace_back(brushNode, Model::NodeContents(std::move(brush)));
     }
 
-    auto changedLinkedGroups = findContainingLinkedGroups(
-      *document.world(),
+    auto changedLinkedGroups = collectContainingGroups(
       kdl::vec_transform(newNodes, [](const auto& p) { return p.first; }));
     document.swapNodeContents(
       commandName, std::move(newNodes), std::move(changedLinkedGroups));
@@ -350,6 +371,7 @@ static bool applyAndSwap(
 
   return success;
 }
+} // namespace
 
 const vm::bbox3 MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
@@ -357,11 +379,17 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 MapDocument::MapDocument()
   : m_worldBounds(DefaultWorldBounds)
   , m_world(nullptr)
+  , m_resourceManager(std::make_unique<Assets::ResourceManager>())
   , m_entityDefinitionManager(std::make_unique<Assets::EntityDefinitionManager>())
   , m_entityModelManager(std::make_unique<Assets::EntityModelManager>(
-      pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
-  , m_textureManager(std::make_unique<Assets::TextureManager>(
-      pref(Preferences::TextureMagFilter), pref(Preferences::TextureMinFilter), logger()))
+      [&](auto resourceLoader) {
+        auto resource =
+          std::make_shared<Assets::EntityModelDataResource>(std::move(resourceLoader));
+        m_resourceManager->addResource(resource);
+        return resource;
+      },
+      logger()))
+  , m_materialManager(std::make_unique<Assets::MaterialManager>(logger()))
   , m_tagManager(std::make_unique<Model::TagManager>())
   , m_editorContext(std::make_unique<Model::EditorContext>())
   , m_grid(std::make_unique<Grid>(4))
@@ -369,7 +397,7 @@ MapDocument::MapDocument()
   , m_lastSaveModificationCount(0)
   , m_modificationCount(0)
   , m_currentLayer(nullptr)
-  , m_currentTextureName(Model::BrushFaceAttributes::NoTextureName)
+  , m_currentMaterialName(Model::BrushFaceAttributes::NoMaterialName)
   , m_lastSelectionBounds(0.0, 32.0)
   , m_selectionBoundsValid(true)
   , m_viewEffectsService(nullptr)
@@ -515,9 +543,9 @@ Assets::EntityModelManager& MapDocument::entityModelManager()
   return *m_entityModelManager;
 }
 
-Assets::TextureManager& MapDocument::textureManager()
+Assets::MaterialManager& MapDocument::materialManager()
 {
-  return *m_textureManager;
+  return *m_materialManager;
 }
 
 Grid& MapDocument::grid() const
@@ -569,16 +597,16 @@ Result<void> MapDocument::newDocument(
   doClearCommandProcessor();
   clearDocument();
 
-  return createWorld(mapFormat, worldBounds, game).transform([&]() {
-    loadAssets();
-    registerValidators();
-    registerSmartTags();
-    createTagActions();
+  return createWorld(mapFormat, worldBounds, game) | kdl::transform([&]() {
+           loadAssets();
+           registerValidators();
+           registerSmartTags();
+           createTagActions();
 
-    clearModificationCount();
+           clearModificationCount();
 
-    documentWasNewedNotifier(this);
-  });
+           documentWasNewedNotifier(this);
+         });
 }
 
 Result<void> MapDocument::loadDocument(
@@ -593,14 +621,14 @@ Result<void> MapDocument::loadDocument(
   doClearCommandProcessor();
   clearDocument();
 
-  return loadWorld(mapFormat, worldBounds, game, path).transform([&]() {
-    loadAssets();
-    registerValidators();
-    registerSmartTags();
-    createTagActions();
+  return loadWorld(mapFormat, worldBounds, game, path) | kdl::transform([&]() {
+           loadAssets();
+           registerValidators();
+           registerSmartTags();
+           createTagActions();
 
-    documentWasLoadedNotifier(this);
-  });
+           documentWasLoadedNotifier(this);
+         });
 }
 
 void MapDocument::saveDocument()
@@ -617,7 +645,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
-  m_game->writeMap(*m_world, path).transform_error([&](const auto& e) {
+  m_game->writeMap(*m_world, path) | kdl::transform_error([&](const auto& e) {
     error() << "Could not save document: " << e.msg;
   });
 }
@@ -673,44 +701,11 @@ std::string MapDocument::serializeSelectedBrushFaces()
   return stream.str();
 }
 
-template <typename O>
-static void getLinkedGroupIdsRecursively(const std::vector<Model::Node*>& nodes, O out)
-{
-  Model::Node::visitAll(
-    nodes,
-    kdl::overload(
-      [](auto&& thisLambda, const Model::WorldNode* worldNode) {
-        worldNode->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, const Model::LayerNode* layerNode) {
-        layerNode->visitChildren(thisLambda);
-      },
-      [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-        if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
-        {
-          out++ = *linkedGroupId;
-        }
-        groupNode->visitChildren(thisLambda);
-      },
-      [](const Model::EntityNode*) {},
-      [](const Model::BrushNode*) {},
-      [](const Model::PatchNode*) {}));
-}
-
-static auto getLinkedGroupIdsRecursively(const std::vector<Model::Node*>& nodes)
-{
-  auto linkedGroupIds = std::vector<std::string>{};
-  getLinkedGroupIdsRecursively(nodes, std::back_inserter(linkedGroupIds));
-  return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
-}
-
 PasteType MapDocument::paste(const std::string& str)
 {
-  const auto linkedGroupIds = getLinkedGroupIdsRecursively({m_world.get()});
-
   // Try parsing as entities, then as brushes, in all compatible formats
-  const std::vector<Model::Node*> nodes = m_game->parseNodes(
-    str, m_world->mapFormat(), m_worldBounds, linkedGroupIds, logger());
+  const std::vector<Model::Node*> nodes =
+    m_game->parseNodes(str, m_world->mapFormat(), m_worldBounds, logger());
   if (!nodes.empty())
   {
     if (pasteNodes(nodes))
@@ -737,36 +732,15 @@ PasteType MapDocument::paste(const std::string& str)
   return PasteType::Failed;
 }
 
-static std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
+namespace
 {
-  auto result = std::vector<Model::IdType>{};
-  root.accept(kdl::overload(
-    [](auto&& thisLambda, const Model::WorldNode* worldNode) {
-      worldNode->visitChildren(thisLambda);
-    },
-    [](auto&& thisLambda, const Model::LayerNode* layerNode) {
-      layerNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
-      if (const auto persistentId = groupNode->persistentId())
-      {
-        result.push_back(*persistentId);
-      }
-      groupNode->visitChildren(thisLambda);
-    },
-    [](const Model::EntityNode*) {},
-    [](const Model::BrushNode*) {},
-    [](const Model::PatchNode*) {}));
-  return result;
-}
 
-bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
+auto extractNodesToPaste(const std::vector<Model::Node*>& nodes, Model::Node* parent)
 {
   auto nodesToDetach = std::vector<Model::Node*>{};
   auto nodesToDelete = std::vector<Model::Node*>{};
   auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
 
-  auto* parent = parentForNodes();
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
@@ -815,8 +789,37 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
   }
   kdl::vec_clear_and_delete(nodesToDelete);
 
-  // Clean up persistent IDs of any groups being pasted
-  auto persistentGroupIds = kdl::vector_set(allPersistentGroupIds(*m_world.get()));
+  return nodesToAdd;
+}
+
+std::vector<Model::IdType> allPersistentGroupIds(const Model::Node& root)
+{
+  auto result = std::vector<Model::IdType>{};
+  root.accept(kdl::overload(
+    [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
+    },
+    [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, const Model::GroupNode* groupNode) {
+      if (const auto persistentId = groupNode->persistentId())
+      {
+        result.push_back(*persistentId);
+      }
+      groupNode->visitChildren(thisLambda);
+    },
+    [](const Model::EntityNode*) {},
+    [](const Model::BrushNode*) {},
+    [](const Model::PatchNode*) {}));
+  return result;
+}
+
+void fixRedundantPersistentIds(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd,
+  const std::vector<Model::IdType>& existingPersistentGroupIds)
+{
+  auto persistentGroupIds = kdl::vector_set{existingPersistentGroupIds};
   for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     for (auto* node : nodesToAddToParent)
@@ -833,8 +836,7 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
           {
             if (!persistentGroupIds.insert(*persistentGroupId).second)
             {
-              // a group with this ID is already in the map or being pasted, so reset the
-              // ID
+              // a group with this ID is already in the map or being pasted
               groupNode->resetPersistentId();
             }
           }
@@ -845,8 +847,11 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         [](Model::PatchNode*) {}));
     }
   }
+}
 
-  // unlink any recursive linked groups
+void fixRecursiveLinkedGroups(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd, Logger& logger)
+{
   for (auto& [newParent, nodesToAddToParent] : nodesToAdd)
   {
     const auto linkedGroupIds =
@@ -861,17 +866,16 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
           layerNode->visitChildren(thisLambda);
         },
         [&](auto&& thisLambda, Model::GroupNode* groupNode) {
-          if (const auto& linkedGroupId = groupNode->group().linkedGroupId())
+          const auto& linkId = groupNode->linkId();
+          if (std::binary_search(linkedGroupIds.begin(), linkedGroupIds.end(), linkId))
           {
-            if (std::binary_search(
-                  linkedGroupIds.begin(), linkedGroupIds.end(), *linkedGroupId))
-            {
-              warn() << "Unlinking recursive linked group with ID '" << *linkedGroupId
-                     << "'";
-              auto group = groupNode->group();
-              group.resetLinkedGroupId();
-              groupNode->setGroup(std::move(group));
-            }
+            logger.warn() << "Unlinking recursive linked group with ID '" << linkId
+                          << "'";
+
+            auto group = groupNode->group();
+            group.setTransformation(vm::mat4x4d::identity());
+            groupNode->setGroup(std::move(group));
+            groupNode->setLinkId(generateUuid());
           }
           groupNode->visitChildren(thisLambda);
         },
@@ -880,7 +884,52 @@ bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
         [](Model::PatchNode*) {}));
     }
   }
+}
 
+void copyAndSetLinkIds(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd,
+  Model::WorldNode& worldNode,
+  Logger& logger)
+{
+  const auto groupsToAdd = kdl::vec_sort(
+    Model::collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
+    Model::compareGroupNodesByLinkId);
+
+  const auto groupsByLinkId = kdl::make_grouped_range(
+    groupsToAdd,
+    [](const auto* lhs, const auto* rhs) { return lhs->linkId() == rhs->linkId(); });
+
+  for (const auto& linkedGroupsToAdd : groupsByLinkId)
+  {
+    const auto& linkId = linkedGroupsToAdd.front()->linkId();
+    const auto existingLinkedNodes = Model::collectNodesWithLinkId({&worldNode}, linkId);
+
+    if (!existingLinkedNodes.empty())
+    {
+      if (
+        auto* existingLinkedGroup =
+          dynamic_cast<Model::GroupNode*>(existingLinkedNodes.front()))
+      {
+        const auto errors = Model::copyAndSetLinkIds(
+          *existingLinkedGroup,
+          std::vector(linkedGroupsToAdd.begin(), linkedGroupsToAdd.end()));
+        for (const auto& error : errors)
+        {
+          logger.warn() << "Could not paste linked groups: " + error.msg;
+        }
+      }
+    }
+  }
+}
+
+} // namespace
+
+bool MapDocument::pasteNodes(const std::vector<Model::Node*>& nodes)
+{
+  const auto nodesToAdd = extractNodesToPaste(nodes, parentForNodes());
+  fixRedundantPersistentIds(nodesToAdd, allPersistentGroupIds(*m_world.get()));
+  fixRecursiveLinkedGroups(nodesToAdd, *this);
+  copyAndSetLinkIds(nodesToAdd, *m_world, *this);
 
   auto transaction = Transaction{*this, "Paste Nodes"};
 
@@ -916,12 +965,12 @@ void MapDocument::loadPointFile(std::filesystem::path path)
   }
 
   IO::Disk::withInputStream(path, [&](auto& stream) {
-    return Model::loadPointFile(stream).transform([&](auto trace) {
-      info() << "Loaded point file " << path;
-      m_pointFile = PointFile{std::move(trace), std::move(path)};
-      pointFileWasLoadedNotifier();
-    });
-  }).transform_error([&](auto e) {
+    return Model::loadPointFile(stream) | kdl::transform([&](auto trace) {
+             info() << "Loaded point file " << path;
+             m_pointFile = PointFile{std::move(trace), std::move(path)};
+             pointFileWasLoadedNotifier();
+           });
+  }) | kdl::transform_error([&](auto e) {
     error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_pointFile = {};
   });
@@ -970,12 +1019,12 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
 
 
   IO::Disk::withInputStream(path, [&](auto& stream) {
-    return Model::loadPortalFile(stream).transform([&](auto portalFile) {
-      info() << "Loaded portal file " << path;
-      m_portalFile = {std::move(portalFile), std::move(path)};
-      portalFileWasLoadedNotifier();
-    });
-  }).transform_error([&](auto e) {
+    return Model::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
+             info() << "Loaded portal file " << path;
+             m_portalFile = {std::move(portalFile), std::move(path)};
+             portalFileWasLoadedNotifier();
+           });
+  }) | kdl::transform_error([&](auto e) {
     error() << "Couldn't load portal file " << path << ": " << e.msg;
     m_portalFile = std::nullopt;
   });
@@ -1034,29 +1083,32 @@ std::vector<Model::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
                    : std::vector<Model::EntityNodeBase*>{};
   }
 
-  std::vector<Model::EntityNodeBase*> nodes;
-  const auto addEntity = [&](auto* entity) {
-    ensure(entity != nullptr, "entity is null");
-    nodes.push_back(entity);
-  };
-
+  auto result = std::vector<Model::EntityNodeBase*>{};
   for (auto* node : m_selectedNodes)
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, Model::WorldNode* world) {
-        nodes.push_back(world);
+        result.push_back(world);
         world->visitChildren(thisLambda);
       },
       [&](
         auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
       [&](
         auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-      [&](Model::EntityNode* entity) { addEntity(entity); },
-      [&](Model::BrushNode* brush) { addEntity(brush->entity()); },
-      [&](Model::PatchNode* patch) { addEntity(patch->entity()); }));
+      [&](Model::EntityNode* entity) { result.push_back(entity); },
+      [&](Model::BrushNode* brush) { result.push_back(brush->entity()); },
+      [&](Model::PatchNode* patch) { result.push_back(patch->entity()); }));
   }
 
-  return kdl::vec_sort_and_remove_duplicates(std::move(nodes));
+  result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+
+  // Don't select worldspawn together with any other entities
+  return result.size() == 1
+           ? result
+           : kdl::vec_filter(std::move(result), [](const auto* entityNode) {
+               return entityNode->entity().classname()
+                      != Model::EntityPropertyValues::WorldspawnClassname;
+             });
 }
 
 std::vector<Model::BrushNode*> MapDocument::allSelectedBrushNodes() const
@@ -1162,17 +1214,17 @@ const vm::bbox3& MapDocument::selectionBounds() const
   return m_selectionBounds;
 }
 
-const std::string& MapDocument::currentTextureName() const
+const std::string& MapDocument::currentMaterialName() const
 {
-  return m_currentTextureName;
+  return m_currentMaterialName;
 }
 
-void MapDocument::setCurrentTextureName(const std::string& currentTextureName)
+void MapDocument::setCurrentMaterialName(const std::string& currentMaterialName)
 {
-  if (m_currentTextureName != currentTextureName)
+  if (m_currentMaterialName != currentMaterialName)
   {
-    m_currentTextureName = currentTextureName;
-    currentTextureNameDidChangeNotifier(m_currentTextureName);
+    m_currentMaterialName = currentMaterialName;
+    currentMaterialNameDidChangeNotifier(m_currentMaterialName);
   }
 }
 
@@ -1368,7 +1420,7 @@ void MapDocument::selectBrushFaces(const std::vector<Model::BrushFaceHandle>& ha
   executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
-    setCurrentTextureName(handles.back().face().attributes().textureName());
+    setCurrentMaterialName(handles.back().face().attributes().materialName());
   }
 }
 
@@ -1378,14 +1430,14 @@ void MapDocument::convertToFaceSelection()
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void MapDocument::selectFacesWithTexture(const Assets::Texture* texture)
+void MapDocument::selectFacesWithMaterial(const Assets::Material* material)
 {
   const auto faces = kdl::vec_filter(
     Model::collectSelectableBrushFaces(
       std::vector<Model::Node*>{m_world.get()}, *m_editorContext),
-    [&](const auto& faceHandle) { return faceHandle.face().texture() == texture; });
+    [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
 
-  auto transaction = Transaction{*this, "Select Faces with Texture"};
+  auto transaction = Transaction{*this, "Select Faces with Material"};
   deselectAll();
   selectBrushFaces(faces);
   transaction.commit();
@@ -1408,42 +1460,42 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
 
   const auto brushBuilder = Model::BrushBuilder{world()->mapFormat(), worldBounds()};
 
-  kdl::fold_results(
-    kdl::vec_transform(
-      selectionBrushNodes,
-      [&](const auto* selectionBrushNode) {
-        const auto& selectionBrush = selectionBrushNode->brush();
+  kdl::vec_transform(
+    selectionBrushNodes,
+    [&](const auto* selectionBrushNode) {
+      const auto& selectionBrush = selectionBrushNode->brush();
 
-        auto tallVertices = std::vector<vm::vec3>{};
-        tallVertices.reserve(2 * selectionBrush.vertexCount());
+      auto tallVertices = std::vector<vm::vec3>{};
+      tallVertices.reserve(2 * selectionBrush.vertexCount());
 
-        for (const auto* vertex : selectionBrush.vertices())
-        {
-          tallVertices.push_back(minPlane.project_point(vertex->position()));
-          tallVertices.push_back(maxPlane.project_point(vertex->position()));
-        }
+      for (const auto* vertex : selectionBrush.vertices())
+      {
+        tallVertices.push_back(minPlane.project_point(vertex->position()));
+        tallVertices.push_back(maxPlane.project_point(vertex->position()));
+      }
 
-        return brushBuilder
-          .createBrush(tallVertices, Model::BrushFaceAttributes::NoTextureName)
-          .transform([](auto brush) {
-            return std::make_unique<Model::BrushNode>(std::move(brush));
-          });
-      }))
-    .transform([&](const auto& tallBrushes) {
-      // delete the original selection brushes before searching for the objects to select
-      auto transaction = Transaction{*this, "Select Tall"};
-      deleteObjects();
-
-      const auto nodesToSelect = kdl::vec_filter(
-        Model::collectContainedNodes(
-          {world()},
-          kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })),
-        [&](const auto* node) { return editorContext().selectable(node); });
-      selectNodes(nodesToSelect);
-
-      transaction.commit();
+      return brushBuilder.createBrush(
+               tallVertices, Model::BrushFaceAttributes::NoMaterialName)
+             | kdl::transform([](auto brush) {
+                 return std::make_unique<Model::BrushNode>(std::move(brush));
+               });
     })
-    .transform_error(
+    | kdl::fold() | kdl::transform([&](const auto& tallBrushes) {
+        // delete the original selection brushes before searching for the objects to
+        // select
+        auto transaction = Transaction{*this, "Select Tall"};
+        deleteObjects();
+
+        const auto nodesToSelect = kdl::vec_filter(
+          Model::collectContainedNodes(
+            {world()},
+            kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })),
+          [&](const auto* node) { return editorContext().selectable(node); });
+        selectNodes(nodesToSelect);
+
+        transaction.commit();
+      })
+    | kdl::transform_error(
       [&](auto e) { logger().error() << "Could not create selection brush: " << e.msg; });
 }
 
@@ -1517,9 +1569,10 @@ std::vector<Model::Node*> MapDocument::addNodes(
     transaction.cancel();
     return {};
   }
-  setHasPendingChanges(findAllLinkedGroups(*m_world, kdl::map_keys(nodes)), true);
 
-  const auto addedNodes = collectChildren(nodes);
+  setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(nodes)), true);
+
+  const auto addedNodes = kdl::vec_flatten(kdl::map_values(nodes));
   ensureVisible(addedNodes);
   ensureUnlocked(addedNodes);
   if (!transaction.commit())
@@ -1528,18 +1581,6 @@ std::vector<Model::Node*> MapDocument::addNodes(
   }
 
   return addedNodes;
-}
-
-static std::vector<std::string> getLinkedGroupIdsRecursively(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& parentChildrenMap)
-{
-  auto linkedGroupIds = std::vector<std::string>{};
-  for (const auto& [parent, children] : parentChildrenMap)
-  {
-    getLinkedGroupIdsRecursively(children, std::back_inserter(linkedGroupIds));
-  }
-
-  return kdl::vec_sort_and_remove_duplicates(std::move(linkedGroupIds));
 }
 
 /**
@@ -1551,48 +1592,17 @@ static std::vector<std::string> getLinkedGroupIdsRecursively(
 void MapDocument::removeNodes(const std::vector<Model::Node*>& nodes)
 {
   auto removableNodes = parentChildrenMap(removeImplicitelyRemovedNodes(nodes));
-  auto linkedGroupIdsOfRemovedGroups = std::vector<std::string>{};
-  const auto changedLinkedGroups =
-    findAllLinkedGroups(*m_world, kdl::map_keys(removableNodes));
 
   auto transaction = Transaction{*this};
   while (!removableNodes.empty())
   {
-    linkedGroupIdsOfRemovedGroups = kdl::vec_concat(
-      std::move(linkedGroupIdsOfRemovedGroups),
-      getLinkedGroupIdsRecursively(removableNodes));
+    setHasPendingChanges(collectGroupsOrContainers(kdl::map_keys(removableNodes)), true);
 
     closeRemovedGroups(removableNodes);
     executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
     removableNodes = collectRemovableParents(removableNodes);
   }
-  setHasPendingChanges(changedLinkedGroups, true);
-
-  auto singletonLinkSetsAfterRemoval = std::vector<Model::GroupNode*>{};
-  for (const auto& linkedGroupId : linkedGroupIdsOfRemovedGroups)
-  {
-    const auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId);
-    if (linkedGroups.size() == 1u)
-    {
-      singletonLinkSetsAfterRemoval.push_back(linkedGroups.front());
-    }
-  }
-
-  applyAndSwap(
-    *this,
-    "Reset Linked Group ID",
-    singletonLinkSetsAfterRemoval,
-    findContainingLinkedGroups(*m_world, singletonLinkSetsAfterRemoval),
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.resetLinkedGroupId();
-        return true;
-      },
-      [](Model::Entity&) { return true; },
-      [](Model::Brush&) { return true; },
-      [](Model::BezierPatch&) { return true; }));
 
   assertResult(transaction.commit());
 }
@@ -1664,6 +1674,46 @@ void MapDocument::closeRemovedGroups(
   }
 }
 
+namespace
+{
+auto setLinkIdsForReparentingNodes(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToReparent)
+{
+  auto result = std::vector<std::tuple<Model::Node*, std::string>>{};
+  for (const auto& [newParent, nodes] : nodesToReparent)
+  {
+    Model::Node::visitAll(
+      nodes,
+      kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [](const Model::GroupNode*) {
+          // group nodes can keep their ID because they should remain in their link set
+        },
+        [&, newParent = newParent](auto&& thisLambda, Model::EntityNode* entityNode) {
+          if (newParent->isAncestorOf(entityNode->parent()))
+          {
+            result.emplace_back(entityNode, generateUuid());
+            entityNode->visitChildren(thisLambda);
+          }
+        },
+        [&, newParent = newParent](Model::BrushNode* brushNode) {
+          if (newParent->isAncestorOf(brushNode->parent()))
+          {
+            result.emplace_back(brushNode, generateUuid());
+          }
+        },
+        [&, newParent = newParent](Model::PatchNode* patchNode) {
+          if (newParent->isAncestorOf(patchNode->parent()))
+          {
+            result.emplace_back(patchNode, generateUuid());
+          }
+        }));
+  }
+  return result;
+}
+} // namespace
+
 bool MapDocument::reparentNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToAdd)
 {
@@ -1672,14 +1722,11 @@ bool MapDocument::reparentNodes(
     return false;
   }
 
-  auto nodesToRemove = std::map<Model::Node*, std::vector<Model::Node*>>{};
-  for (const auto& [newParent, children] : nodesToAdd)
-  {
-    nodesToRemove = kdl::map_merge(nodesToRemove, Model::parentChildrenMap(children));
-  }
+  const auto nodesToRemove =
+    parentChildrenMap(kdl::vec_flatten(kdl::map_values(nodesToAdd)));
 
-  const auto changedLinkedGroups = findAllLinkedGroups(
-    *m_world, kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
+  const auto changedLinkedGroups = collectGroupsOrContainers(
+    kdl::vec_concat(kdl::map_keys(nodesToAdd), kdl::map_keys(nodesToRemove)));
 
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
@@ -1698,13 +1745,17 @@ bool MapDocument::reparentNodes(
   {
     auto* newParentLayer = Model::findContainingLayer(newParent);
 
-    const auto nodesToDowngrade = kdl::vec_filter(
-      Model::collectNodes(nodes),
-      [&](auto* node) { return Model::findContainingLayer(node) != newParentLayer; });
+    const auto nodesToDowngrade = Model::collectNodesAndDescendants(
+      nodes,
+      [&](Model::Object* node) { return node->containingLayer() != newParentLayer; });
 
     downgradeUnlockedToInherit(nodesToDowngrade);
     downgradeShownToInherit(nodesToDowngrade);
   }
+
+  // Reset link IDs of nodes being reparented, but don't recurse into nested groups
+  executeAndStore(std::make_unique<SetLinkIdsCommand>(
+    "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
   const auto result =
     executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
@@ -1719,6 +1770,9 @@ bool MapDocument::reparentNodes(
   auto removableNodes = collectRemovableParents(nodesToRemove);
   while (!removableNodes.empty())
   {
+    setHasPendingChanges(
+      collectContainingGroups(kdl::vec_flatten(kdl::map_values(removableNodes))), true);
+
     closeRemovedGroups(removableNodes);
     executeAndStore(AddRemoveNodesCommand::remove(removableNodes));
 
@@ -1774,17 +1828,23 @@ void MapDocument::duplicateObjects()
   auto nodesToSelect = std::vector<Model::Node*>{};
   auto newParentMap = std::map<Model::Node*, Model::Node*>{};
 
-  for (Model::Node* original : selectedNodes().nodes())
+  for (auto* original : selectedNodes().nodes())
   {
-    Model::Node* suggestedParent = parentForNodes(std::vector<Model::Node*>{original});
-    Model::Node* clone = original->cloneRecursively(m_worldBounds);
+    auto* suggestedParent = parentForNodes({original});
+
+    const auto isLinkedGroup =
+      dynamic_cast<const Model::GroupNode*>(original) != nullptr
+      && Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
+    const auto setLinkIds =
+      isLinkedGroup ? Model::SetLinkId::keep : Model::SetLinkId::generate;
+    auto* clone = original->cloneRecursively(m_worldBounds, setLinkIds);
 
     if (shouldCloneParentWhenCloningNode(original))
     {
       // e.g. original is a brush in a brush entity, so we need to clone the entity
       // (parent) see if the parent was already cloned and if not, clone it and store it
-      Model::Node* parent = original->parent();
-      Model::Node* newParent = nullptr;
+      auto* parent = original->parent();
+      auto* newParent = static_cast<Model::Node*>(nullptr);
       const auto it = newParentMap.find(parent);
       if (it != std::end(newParentMap))
       {
@@ -1794,7 +1854,7 @@ void MapDocument::duplicateObjects()
       else
       {
         // parent was not cloned yet
-        newParent = parent->clone(m_worldBounds);
+        newParent = parent->clone(m_worldBounds, setLinkIds);
         newParentMap.insert({parent, newParent});
         nodesToAdd[suggestedParent].push_back(newParent);
       }
@@ -1832,7 +1892,7 @@ void MapDocument::duplicateObjects()
   {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([=]() { this->duplicateObjects(); });
+  m_repeatStack->push([&]() { duplicateObjects(); });
 }
 
 Model::EntityNode* MapDocument::createPointEntity(
@@ -1840,17 +1900,13 @@ Model::EntityNode* MapDocument::createPointEntity(
 {
   ensure(definition != nullptr, "definition is null");
 
-  auto entity = Model::Entity{
-    m_world->entityPropertyConfig(),
-    {{Model::EntityPropertyKeys::Classname, definition->name()}}};
+  auto entity =
+    Model::Entity{{{Model::EntityPropertyKeys::Classname, definition->name()}}};
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
     Model::setDefaultProperties(
-      m_world->entityPropertyConfig(),
-      *definition,
-      entity,
-      Model::SetDefaultPropertyMode::SetAll);
+      *definition, entity, Model::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
@@ -1896,23 +1952,17 @@ Model::EntityNode* MapDocument::createBrushEntity(
       ? brushes.front()->entity()->entity()
       : Model::Entity{};
 
-  entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(),
-    Model::EntityPropertyKeys::Classname,
-    definition->name());
+  entity.addOrUpdateProperty(Model::EntityPropertyKeys::Classname, definition->name());
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
     Model::setDefaultProperties(
-      m_world->entityPropertyConfig(),
-      *definition,
-      entity,
-      Model::SetDefaultPropertyMode::SetAll);
+      *definition, entity, Model::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new Model::EntityNode{std::move(entity)};
 
-  const auto nodes = kdl::vec_element_cast<Model::Node*>(brushes);
+  const auto nodes = kdl::vec_static_cast<Model::Node*>(brushes);
 
   auto transaction = Transaction{*this, "Create " + definition->name()};
   deselectAll();
@@ -2141,27 +2191,9 @@ Model::GroupNode* MapDocument::createLinkedDuplicate()
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = m_selectedNodes.groups().front();
-  if (!groupNode->group().linkedGroupId())
-  {
-    applyAndSwap(
-      *this,
-      "Set Linked Group ID",
-      m_selectedNodes.groups(),
-      findContainingLinkedGroups(*m_world, m_selectedNodes.groups()),
-      kdl::overload(
-        [](Model::Layer&) { return true; },
-        [&](Model::Group& group) {
-          group.setLinkedGroupId(generateUuid());
-          return true;
-        },
-        [](Model::Entity&) { return true; },
-        [](Model::Brush&) { return true; },
-        [](Model::BezierPatch&) { return true; }));
-  }
-
-  auto* groupNodeClone =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
-  auto* suggestedParent = parentForNodes(std::vector<Model::Node*>{groupNode});
+  auto* groupNodeClone = static_cast<Model::GroupNode*>(
+    groupNode->cloneRecursively(m_worldBounds, Model::SetLinkId::keep));
+  auto* suggestedParent = parentForNodes({groupNode});
   if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
   {
     transaction.cancel();
@@ -2188,22 +2220,12 @@ void MapDocument::selectLinkedGroups()
     return;
   }
 
-  const auto linkedGroupIdsToSelect =
-    kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-      kdl::vec_filter(
-        m_selectedNodes.groups(),
-        [](const auto* g) { return g->group().linkedGroupId().has_value(); }),
-      [](const auto* g) { return *g->group().linkedGroupId(); }));
-
-  auto groupNodesToSelect = std::vector<Model::Node*>{};
-  for (const auto& linkedGroupId : linkedGroupIdsToSelect)
-  {
-    groupNodesToSelect = kdl::vec_concat(
-      std::move(groupNodesToSelect),
-      Model::findLinkedGroups(*m_world.get(), linkedGroupId));
-  }
-
-  groupNodesToSelect = kdl::vec_sort_and_remove_duplicates(std::move(groupNodesToSelect));
+  const auto linkIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
+  const auto groupNodesToSelect =
+    kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
+      return Model::collectNodesWithLinkId({m_world.get()}, linkId);
+    }));
 
   auto transaction = Transaction{*this, "Select Linked Groups"};
   deselectAll();
@@ -2218,52 +2240,51 @@ bool MapDocument::canSelectLinkedGroups() const
     return false;
   }
 
-  for (const auto* groupNode : m_selectedNodes.groups())
-  {
-    if (!groupNode->group().linkedGroupId())
-    {
-      return false;
-    }
-  }
+  const auto allLinkIds = kdl::vec_sort(kdl::vec_transform(
+    Model::collectGroups({m_world.get()}),
+    [](const auto& groupNode) { return groupNode->linkId(); }));
 
-  return true;
+  return kdl::all_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
+    const auto [iBegin, iEnd] =
+      std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
+    return std::distance(iBegin, iEnd) > 1;
+  });
 }
 
 void MapDocument::linkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 {
-  const auto newLinkedGroupId = generateUuid();
-  applyAndSwap(
-    *this,
-    "Set Linked Group ID",
-    groupNodes,
-    findContainingLinkedGroups(*m_world, groupNodes),
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.setLinkedGroupId(newLinkedGroupId);
-        return true;
-      },
-      [](Model::Entity&) { return true; },
-      [](Model::Brush&) { return true; },
-      [](Model::BezierPatch&) { return true; }));
+  if (groupNodes.size() > 1)
+  {
+    const auto& sourceGroupNode = *groupNodes.front();
+    const auto targetGroupNodes =
+      kdl::vec_slice_suffix(groupNodes, groupNodes.size() - 1);
+    Model::copyAndReturnLinkIds(sourceGroupNode, targetGroupNodes)
+      | kdl::transform([&](auto linkIds) {
+          auto linkIdVector = kdl::vec_transform(
+            std::move(linkIds), [](auto pair) -> std::tuple<Model::Node*, std::string> {
+              return {std::move(pair)};
+            });
+
+          executeAndStore(
+            std::make_unique<SetLinkIdsCommand>("Set Link ID", std::move(linkIdVector)));
+        })
+      | kdl::transform_error(
+        [&](auto e) { error() << "Could not link groups: " << e.msg; });
+    ;
+  }
 }
 
 void MapDocument::unlinkGroups(const std::vector<Model::GroupNode*>& groupNodes)
 {
-  applyAndSwap(
-    *this,
-    "Reset Linked Group ID",
-    groupNodes,
-    findContainingLinkedGroups(*m_world, groupNodes),
-    kdl::overload(
-      [](Model::Layer&) { return true; },
-      [&](Model::Group& group) {
-        group.resetLinkedGroupId();
-        return true;
-      },
-      [](Model::Entity&) { return true; },
-      [](Model::Brush&) { return true; },
-      [](Model::BezierPatch&) { return true; }));
+  const auto nodesToUnlink = Model::collectNodesAndDescendants(groupNodes);
+
+  auto linkIds = kdl::vec_transform(
+    nodesToUnlink, [](auto* node) -> std::tuple<Model::Node*, std::string> {
+      return {node, generateUuid()};
+    });
+
+  executeAndStore(
+    std::make_unique<SetLinkIdsCommand>("Reset Link ID", std::move(linkIds)));
 }
 
 void MapDocument::separateLinkedGroups()
@@ -2275,24 +2296,14 @@ void MapDocument::separateLinkedGroups()
 
 bool MapDocument::canSeparateLinkedGroups() const
 {
-  const auto& selectedGroupNodes = m_selectedNodes.groups();
-  return std::any_of(
-    std::begin(selectedGroupNodes),
-    std::end(selectedGroupNodes),
-    [&](const auto* groupNode) {
-      if (const auto linkedGroupId = groupNode->group().linkedGroupId())
-      {
-        const auto linkedGroups = Model::findLinkedGroups(*m_world, *linkedGroupId);
-        return linkedGroups.size() > 1u
-               && std::any_of(
-                 std::begin(linkedGroups),
-                 std::end(linkedGroups),
-                 [](const auto* linkedGroupNode) {
-                   return !linkedGroupNode->selected();
-                 });
-      }
-      return false;
-    });
+  return kdl::any_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
+    const auto linkedGroups =
+      Model::collectNodesWithLinkId({m_world.get()}, groupNode->linkId());
+    return linkedGroups.size() > 1u
+           && kdl::any_of(linkedGroups, [](const auto* linkedGroupNode) {
+                return !linkedGroupNode->selected();
+              });
+  });
 }
 
 bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) const
@@ -2302,7 +2313,7 @@ bool MapDocument::canUpdateLinkedGroups(const std::vector<Model::Node*>& nodes) 
     return false;
   }
 
-  const auto changedLinkedGroups = findContainingLinkedGroups(*m_world, nodes);
+  const auto changedLinkedGroups = collectContainingGroups(nodes);
   return checkLinkedGroupsToUpdate(changedLinkedGroups);
 }
 
@@ -2315,8 +2326,7 @@ void MapDocument::setHasPendingChanges(
   }
 }
 
-static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(
-  Model::Node& node)
+static std::vector<Model::GroupNode*> collectGroupsWithPendingChanges(Model::Node& node)
 {
   auto result = std::vector<Model::GroupNode*>{};
 
@@ -2328,15 +2338,11 @@ static std::vector<Model::GroupNode*> collectLinkedGroupsWithPendingChanges(
       layerNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, Model::GroupNode* groupNode) {
-      if (
-        groupNode->hasPendingChanges() && groupNode->group().linkedGroupId().has_value())
+      if (groupNode->hasPendingChanges())
       {
         result.push_back(groupNode);
       }
-      else
-      {
-        groupNode->visitChildren(thisLambda);
-      }
+      groupNode->visitChildren(thisLambda);
     },
     [](const Model::EntityNode*) {},
     [](const Model::BrushNode*) {},
@@ -2349,8 +2355,7 @@ bool MapDocument::updateLinkedGroups()
 {
   if (isCurrentDocumentStateObservable())
   {
-    if (const auto allChangedLinkedGroups =
-          collectLinkedGroupsWithPendingChanges(*m_world);
+    if (const auto allChangedLinkedGroups = collectGroupsWithPendingChanges(*m_world);
         !allChangedLinkedGroups.empty())
     {
       setHasPendingChanges(allChangedLinkedGroups, false);
@@ -2366,21 +2371,15 @@ bool MapDocument::updateLinkedGroups()
 
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 {
-  const auto selectedGroupsWithLinkGroupIds = kdl::vec_filter(
-    m_selectedNodes.groups(),
-    [](const auto& g) { return g->group().linkedGroupId() != std::nullopt; });
-  auto selectedLinkedGroupIds = kdl::vec_transform(
-    selectedGroupsWithLinkGroupIds,
-    [](const auto& g) { return *g->group().linkedGroupId(); });
-  selectedLinkedGroupIds =
-    kdl::vec_sort_and_remove_duplicates(std::move(selectedLinkedGroupIds));
+  const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
 
   auto groupsToUnlink = std::vector<Model::GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<Model::GroupNode*>>{};
 
-  for (const auto& linkedGroupId : selectedLinkedGroupIds)
+  for (const auto& linkedGroupId : selectedLinkIds)
   {
-    auto linkedGroups = Model::findLinkedGroups(*m_world, linkedGroupId);
+    auto linkedGroups = Model::collectGroupsWithLinkId({m_world.get()}, linkedGroupId);
 
     // partition the linked groups into selected and unselected ones
     const auto it = std::partition(
@@ -2390,34 +2389,18 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 
     auto selectedLinkedGroups =
       std::vector<Model::GroupNode*>(std::begin(linkedGroups), it);
-    auto unselectedLinkedGroups =
-      std::vector<Model::GroupNode*>(it, std::end(linkedGroups));
 
     assert(!selectedLinkedGroups.empty());
-    if (!unselectedLinkedGroups.empty())
+    if (linkedGroups.size() - selectedLinkedGroups.size() > 0)
     {
-      if (selectedLinkedGroups.size() == 1u)
+      if (relinkGroups)
       {
-        // unset the linked group ID later
-        groupsToUnlink.push_back(selectedLinkedGroups.front());
+        groupsToRelink.push_back(selectedLinkedGroups);
       }
-      else if (relinkGroups)
-      {
-        groupsToRelink.push_back(std::move(selectedLinkedGroups));
-      }
-      else
-      {
-        groupsToUnlink =
-          kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
-      }
-
-      if (unselectedLinkedGroups.size() == 1u)
-      {
-        // unset the linked group ID later
-        groupsToUnlink.push_back(unselectedLinkedGroups.front());
-      }
+      groupsToUnlink =
+        kdl::vec_concat(std::move(groupsToUnlink), std::move(selectedLinkedGroups));
     }
-    else if (!relinkGroups)
+    else if (selectedLinkedGroups.size() > 1 && !relinkGroups)
     {
       // all members of a link group are being separated, and we don't want to relink
       // them, so we need to reset their linked group IDs
@@ -2698,7 +2681,7 @@ void MapDocument::setOmitLayerFromExport(
 void MapDocument::selectAllInLayers(const std::vector<Model::LayerNode*>& layers)
 {
   const auto nodes = Model::collectSelectableNodes(
-    kdl::vec_element_cast<Model::Node*>(layers), editorContext());
+    kdl::vec_static_cast<Model::Node*>(layers), editorContext());
 
   deselectAll();
   selectNodes(nodes);
@@ -2736,8 +2719,7 @@ void MapDocument::show(const std::vector<Model::Node*>& nodes)
 
 void MapDocument::showAll()
 {
-  resetVisibility(
-    Model::collectDescendants(kdl::vec_element_cast<Model::Node*>(m_world->allLayers())));
+  resetVisibility(Model::collectDescendants(m_world->allLayers()));
 }
 
 void MapDocument::ensureVisible(const std::vector<Model::Node*>& nodes)
@@ -2844,8 +2826,8 @@ bool MapDocument::swapNodeContents(
   const std::string& commandName,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap)
 {
-  auto changedLinkedGroups = findContainingLinkedGroups(
-    *m_world, kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
+  auto changedLinkedGroups = collectContainingGroups(
+    kdl::vec_transform(nodesToSwap, [](const auto& p) { return p.first; }));
 
   return swapNodeContents(
     commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
@@ -2903,7 +2885,10 @@ bool MapDocument::transformObjects(
 
   using TransformResult = Result<std::pair<Model::Node*, Model::NodeContents>>;
 
-  const bool lockTexturesPref = pref(Preferences::TextureLock);
+  const auto alignmentLock = pref(Preferences::AlignmentLock);
+  const auto updateAngleProperty =
+    m_world->entityPropertyConfig().updateAnglePropertyAfterTransform;
+
   auto transformResults = kdl::vec_parallel_transform(
     nodesToTransform, [&](Model::Node* node) -> TransformResult {
       return node->accept(kdl::overload(
@@ -2920,18 +2905,20 @@ bool MapDocument::transformObjects(
         },
         [&](Model::EntityNode* entityNode) -> TransformResult {
           auto entity = entityNode->entity();
-          entity.transform(m_world->entityPropertyConfig(), transformation);
+          entity.transform(transformation, updateAngleProperty);
           return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
         },
         [&](Model::BrushNode* brushNode) -> TransformResult {
-          const bool lockTextures =
-            lockTexturesPref || (Model::findContainingLinkedGroup(*brushNode) != nullptr);
+          const bool lockAlignment =
+            alignmentLock
+            || Model::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1;
 
           auto brush = brushNode->brush();
-          return brush.transform(m_worldBounds, transformation, lockTextures)
-            .and_then([&]() -> TransformResult {
-              return std::make_pair(brushNode, Model::NodeContents{std::move(brush)});
-            });
+          return brush.transform(m_worldBounds, transformation, lockAlignment)
+                 | kdl::and_then([&]() -> TransformResult {
+                     return std::make_pair(
+                       brushNode, Model::NodeContents{std::move(brush)});
+                   });
         },
         [&](Model::PatchNode* patchNode) -> TransformResult {
           auto patch = patchNode->patch();
@@ -2940,21 +2927,22 @@ bool MapDocument::transformObjects(
         }));
     });
 
-  return kdl::fold_results(std::move(transformResults))
-    .and_then([&](auto nodesToUpdate) -> Result<bool> {
-      const auto success = swapNodeContents(
-        commandName,
-        std::move(nodesToUpdate),
-        findContainingLinkedGroups(*m_world, m_selectedNodes.nodes()));
+  return std::move(transformResults) | kdl::fold()
+         | kdl::and_then([&](auto nodesToUpdate) -> Result<bool> {
+             const auto success = swapNodeContents(
+               commandName,
+               std::move(nodesToUpdate),
+               collectContainingGroups(m_selectedNodes.nodes()));
 
-      if (success)
-      {
-        m_repeatStack->push(
-          [=]() { this->transformObjects(commandName, transformation); });
-      }
-      return success;
-    })
-    .value_or(false);
+             if (success)
+             {
+               m_repeatStack->push([&, commandName, transformation]() {
+                 transformObjects(commandName, transformation);
+               });
+             }
+             return success;
+           })
+         | kdl::value_or(false);
 }
 
 bool MapDocument::translateObjects(const vm::vec3& delta)
@@ -3003,29 +2991,29 @@ bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis)
 bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
 {
   const auto builder = Model::BrushBuilder{
-    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
+    m_world->mapFormat(), m_worldBounds, m_game->config().faceAttribsConfig.defaults};
 
-  return builder.createBrush(points, currentTextureName())
-    .and_then([&](auto b) -> Result<void> {
-      auto* brushNode = new Model::BrushNode{std::move(b)};
+  return builder.createBrush(points, currentMaterialName())
+         | kdl::and_then([&](auto b) -> Result<void> {
+             auto* brushNode = new Model::BrushNode{std::move(b)};
 
-      auto transaction = Transaction{*this, "Create Brush"};
-      deselectAll();
-      if (addNodes({{parentForNodes(), {brushNode}}}).empty())
-      {
-        transaction.cancel();
-        return Error{"Could not add brush to document"};
-      }
-      selectNodes({brushNode});
-      if (!transaction.commit())
-      {
-        return Error{"Could not add brush to document"};
-      }
+             auto transaction = Transaction{*this, "Create Brush"};
+             deselectAll();
+             if (addNodes({{parentForNodes(), {brushNode}}}).empty())
+             {
+               transaction.cancel();
+               return Error{"Could not add brush to document"};
+             }
+             selectNodes({brushNode});
+             if (!transaction.commit())
+             {
+               return Error{"Could not add brush to document"};
+             }
 
-      return kdl::void_success;
-    })
-    .if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
-    .is_success();
+             return kdl::void_success;
+           })
+         | kdl::if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
+         | kdl::is_success();
 }
 
 bool MapDocument::csgConvexMerge()
@@ -3065,47 +3053,47 @@ bool MapDocument::csgConvexMerge()
   }
 
   const auto builder = Model::BrushBuilder{
-    m_world->mapFormat(), m_worldBounds, m_game->defaultFaceAttribs()};
-  return builder.createBrush(polyhedron, currentTextureName())
-    .transform([&](auto b) {
-      b.cloneFaceAttributesFrom(kdl::vec_transform(
-        selectedNodes().brushes(),
-        [](const auto* brushNode) { return &brushNode->brush(); }));
+    m_world->mapFormat(), m_worldBounds, m_game->config().faceAttribsConfig.defaults};
+  return builder.createBrush(polyhedron, currentMaterialName())
+         | kdl::transform([&](auto b) {
+             b.cloneFaceAttributesFrom(kdl::vec_transform(
+               selectedNodes().brushes(),
+               [](const auto* brushNode) { return &brushNode->brush(); }));
 
-      // The nodelist is either empty or contains only brushes.
-      const auto toRemove = selectedNodes().nodes();
+             // The nodelist is either empty or contains only brushes.
+             const auto toRemove = selectedNodes().nodes();
 
-      // We could be merging brushes that have different parents; use the parent of the
-      // first brush.
-      auto* parentNode = static_cast<Model::Node*>(nullptr);
-      if (!selectedNodes().brushes().empty())
-      {
-        parentNode = selectedNodes().brushes().front()->parent();
-      }
-      else if (!selectedBrushFaces().empty())
-      {
-        parentNode = selectedBrushFaces().front().node()->parent();
-      }
-      else
-      {
-        parentNode = parentForNodes();
-      }
+             // We could be merging brushes that have different parents; use the parent of
+             // the first brush.
+             auto* parentNode = static_cast<Model::Node*>(nullptr);
+             if (!selectedNodes().brushes().empty())
+             {
+               parentNode = selectedNodes().brushes().front()->parent();
+             }
+             else if (!selectedBrushFaces().empty())
+             {
+               parentNode = selectedBrushFaces().front().node()->parent();
+             }
+             else
+             {
+               parentNode = parentForNodes();
+             }
 
-      auto* brushNode = new Model::BrushNode{std::move(b)};
+             auto* brushNode = new Model::BrushNode{std::move(b)};
 
-      auto transaction = Transaction{*this, "CSG Convex Merge"};
-      deselectAll();
-      if (addNodes({{parentNode, {brushNode}}}).empty())
-      {
-        transaction.cancel();
-        return;
-      }
-      removeNodes(toRemove);
-      selectNodes({brushNode});
-      transaction.commit();
-    })
-    .if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
-    .is_success();
+             auto transaction = Transaction{*this, "CSG Convex Merge"};
+             deselectAll();
+             if (addNodes({{parentNode, {brushNode}}}).empty())
+             {
+               transaction.cancel();
+               return;
+             }
+             removeNodes(toRemove);
+             selectNodes({brushNode});
+             transaction.commit();
+           })
+         | kdl::if_error([&](auto e) { error() << "Could not create brush: " << e.msg; })
+         | kdl::is_success();
 }
 
 bool MapDocument::csgSubtract()
@@ -3128,45 +3116,44 @@ bool MapDocument::csgSubtract()
   auto toRemove =
     std::vector<Model::Node*>{std::begin(subtrahendNodes), std::end(subtrahendNodes)};
 
-  return kdl::fold_results(
-           kdl::vec_transform(
-             minuendNodes,
-             [&](auto* minuendNode) {
-               const auto& minuend = minuendNode->brush();
-               auto currentSubtractionResults = minuend.subtract(
-                 m_world->mapFormat(), m_worldBounds, currentTextureName(), subtrahends);
+  return kdl::vec_transform(
+           minuendNodes,
+           [&](auto* minuendNode) {
+             const auto& minuend = minuendNode->brush();
+             auto currentSubtractionResults = minuend.subtract(
+               m_world->mapFormat(), m_worldBounds, currentMaterialName(), subtrahends);
 
-               return kdl::fold_results(kdl::vec_filter(
-                                          std::move(currentSubtractionResults),
-                                          [](const auto r) { return r.is_success(); }))
-                 .transform([&](auto currentBrushes) {
-                   if (!currentBrushes.empty())
-                   {
-                     auto resultNodes = kdl::vec_transform(
-                       std::move(currentBrushes),
-                       [&](auto b) { return new Model::BrushNode{std::move(b)}; });
-                     auto& toAddForParent = toAdd[minuendNode->parent()];
-                     toAddForParent =
-                       kdl::vec_concat(std::move(toAddForParent), std::move(resultNodes));
-                   }
+             return kdl::vec_filter(
+                      std::move(currentSubtractionResults),
+                      [](const auto r) { return r | kdl::is_success(); })
+                    | kdl::fold() | kdl::transform([&](auto currentBrushes) {
+                        if (!currentBrushes.empty())
+                        {
+                          auto resultNodes = kdl::vec_transform(
+                            std::move(currentBrushes),
+                            [&](auto b) { return new Model::BrushNode{std::move(b)}; });
+                          auto& toAddForParent = toAdd[minuendNode->parent()];
+                          toAddForParent = kdl::vec_concat(
+                            std::move(toAddForParent), std::move(resultNodes));
+                        }
 
-                   toRemove.push_back(minuendNode);
-                 });
-             }))
-    .transform([&]() {
-      deselectAll();
-      const auto added = addNodes(toAdd);
-      removeNodes(toRemove);
-      selectNodes(added);
+                        toRemove.push_back(minuendNode);
+                      });
+           })
+         | kdl::fold() | kdl::transform([&]() {
+             deselectAll();
+             const auto added = addNodes(toAdd);
+             removeNodes(toRemove);
+             selectNodes(added);
 
-      return transaction.commit();
-    })
-    .transform_error([&](const auto& e) {
-      error() << "Could not subtract brushes: " << e;
-      transaction.cancel();
-      return false;
-    })
-    .value();
+             return transaction.commit();
+           })
+         | kdl::transform_error([&](const auto& e) {
+             error() << "Could not subtract brushes: " << e;
+             transaction.cancel();
+             return false;
+           })
+         | kdl::value();
 }
 
 bool MapDocument::csgIntersect()
@@ -3186,10 +3173,10 @@ bool MapDocument::csgIntersect()
   {
     auto* brushNode = *it;
     const auto& brush = brushNode->brush();
-    valid =
-      intersection.intersect(m_worldBounds, brush)
-        .if_error([&](auto e) { error() << "Could not intersect brushes: " << e.msg; })
-        .is_success();
+    valid = intersection.intersect(m_worldBounds, brush) | kdl::if_error([&](auto e) {
+              error() << "Could not intersect brushes: " << e.msg;
+            })
+            | kdl::is_success();
   }
 
   const auto toRemove = std::vector<Model::Node*>{std::begin(brushes), std::end(brushes)};
@@ -3234,25 +3221,27 @@ bool MapDocument::csgHollow()
 
     auto shrunkenBrush = originalBrush;
     shrunkenBrush.expand(m_worldBounds, -FloatType(m_grid->actualSize()), true)
-      .and_then([&]() {
-        didHollowAnything = true;
+      | kdl::and_then([&]() {
+          didHollowAnything = true;
 
-        return kdl::fold_results(originalBrush.subtract(
-                                   m_world->mapFormat(),
-                                   m_worldBounds,
-                                   currentTextureName(),
-                                   shrunkenBrush))
-          .transform([&](auto fragments) {
-            auto fragmentNodes = kdl::vec_transform(std::move(fragments), [](auto&& b) {
-              return new Model::BrushNode{std::forward<decltype(b)>(b)};
-            });
+          return originalBrush.subtract(
+                   m_world->mapFormat(),
+                   m_worldBounds,
+                   currentMaterialName(),
+                   shrunkenBrush)
+                 | kdl::fold() | kdl::transform([&](auto fragments) {
+                     auto fragmentNodes =
+                       kdl::vec_transform(std::move(fragments), [](auto&& b) {
+                         return new Model::BrushNode{std::forward<decltype(b)>(b)};
+                       });
 
-            auto& toAddForParent = toAdd[brushNode->parent()];
-            toAddForParent = kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
-            toRemove.push_back(brushNode);
-          });
-      })
-      .transform_error(
+                     auto& toAddForParent = toAdd[brushNode->parent()];
+                     toAddForParent =
+                       kdl::vec_concat(std::move(toAddForParent), fragmentNodes);
+                     toRemove.push_back(brushNode);
+                   });
+        })
+      | kdl::transform_error(
         [&](const auto& e) { error() << "Could not hollow brush: " << e; });
   }
 
@@ -3277,54 +3266,56 @@ bool MapDocument::csgHollow()
 
 bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
 {
-  return kdl::fold_results(
-           kdl::vec_transform(
-             m_selectedNodes.brushes(),
-             [&](const Model::BrushNode* originalBrush) {
-               auto clippedBrush = originalBrush->brush();
-               return Model::BrushFace::create(
-                        p1,
-                        p2,
-                        p3,
-                        Model::BrushFaceAttributes{currentTextureName()},
-                        m_world->mapFormat())
-                 .and_then([&](Model::BrushFace&& clipFace) {
-                   return clippedBrush.clip(m_worldBounds, std::move(clipFace));
-                 })
-                 .and_then([&]() -> Result<std::pair<Model::Node*, Model::Brush>> {
-                   return std::make_pair(
-                     originalBrush->parent(), std::move(clippedBrush));
-                 });
-             }))
-    .and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
-      auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
-      const auto toRemove =
-        kdl::vec_element_cast<Model::Node*>(m_selectedNodes.brushes());
+  return kdl::vec_transform(
+           m_selectedNodes.brushes(),
+           [&](const Model::BrushNode* originalBrush) {
+             auto clippedBrush = originalBrush->brush();
+             return Model::BrushFace::create(
+                      p1,
+                      p2,
+                      p3,
+                      Model::BrushFaceAttributes{currentMaterialName()},
+                      m_world->mapFormat())
+                    | kdl::and_then([&](Model::BrushFace&& clipFace) {
+                        return clippedBrush.clip(m_worldBounds, std::move(clipFace));
+                      })
+                    | kdl::and_then(
+                      [&]() -> Result<std::pair<Model::Node*, Model::Brush>> {
+                        return std::make_pair(
+                          originalBrush->parent(), std::move(clippedBrush));
+                      });
+           })
+         | kdl::fold()
+         | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
+             auto toAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
+             const auto toRemove =
+               kdl::vec_static_cast<Model::Node*>(m_selectedNodes.brushes());
 
-      for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
-      {
-        toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
-      }
+             for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
+             {
+               toAdd[parentNode].push_back(new Model::BrushNode{std::move(clippedBrush)});
+             }
 
-      auto transaction = Transaction{*this, "Clip Brushes"};
-      deselectAll();
-      removeNodes(toRemove);
+             auto transaction = Transaction{*this, "Clip Brushes"};
+             deselectAll();
+             removeNodes(toRemove);
 
-      const auto addedNodes = addNodes(toAdd);
-      if (addedNodes.empty())
-      {
-        transaction.cancel();
-        return Error{"Could not replace brushes in document"};
-      }
-      selectNodes(addedNodes);
-      if (!transaction.commit())
-      {
-        return Error{"Could not replace brushes in document"};
-      }
-      return kdl::void_success;
-    })
-    .if_error([&](const auto& e) { error() << "Could not clip brushes: " << e; })
-    .is_success();
+             const auto addedNodes = addNodes(toAdd);
+             if (addedNodes.empty())
+             {
+               transaction.cancel();
+               return Error{"Could not replace brushes in document"};
+             }
+             selectNodes(addedNodes);
+             if (!transaction.commit())
+             {
+               return Error{"Could not replace brushes in document"};
+             }
+             return kdl::void_success;
+           })
+         | kdl::if_error(
+           [&](const auto& e) { error() << "Could not clip brushes: " << e; })
+         | kdl::is_success();
 }
 
 bool MapDocument::setProperty(
@@ -3335,13 +3326,12 @@ bool MapDocument::setProperty(
     *this,
     "Set Property",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), key, value, defaultToProtected);
+        entity.addOrUpdateProperty(key, value, defaultToProtected);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3355,12 +3345,12 @@ bool MapDocument::renameProperty(const std::string& oldKey, const std::string& n
     *this,
     "Rename Property",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.renameProperty(m_world->entityPropertyConfig(), oldKey, newKey);
+        entity.renameProperty(oldKey, newKey);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3374,12 +3364,12 @@ bool MapDocument::removeProperty(const std::string& key)
     *this,
     "Remove Property",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
-        entity.removeProperty(m_world->entityPropertyConfig(), key);
+        entity.removeProperty(key);
         return true;
       },
       [](Model::Brush&) { return true; },
@@ -3394,17 +3384,14 @@ bool MapDocument::convertEntityColorRange(
     *this,
     "Convert Color",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
         if (const auto* oldValue = entity.property(key))
         {
-          entity.addOrUpdateProperty(
-            m_world->entityPropertyConfig(),
-            key,
-            Model::convertEntityColor(*oldValue, range));
+          entity.addOrUpdateProperty(key, Model::convertEntityColor(*oldValue, range));
         }
         return true;
       },
@@ -3420,7 +3407,7 @@ bool MapDocument::updateSpawnflag(
     *this,
     setFlag ? "Set Spawnflag" : "Unset Spawnflag",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
@@ -3430,8 +3417,7 @@ bool MapDocument::updateSpawnflag(
         const int flagValue = (1 << flagIndex);
 
         intValue = setFlag ? intValue | flagValue : intValue & ~flagValue;
-        entity.addOrUpdateProperty(
-          m_world->entityPropertyConfig(), key, kdl::str_to_string(intValue));
+        entity.addOrUpdateProperty(key, kdl::str_to_string(intValue));
 
         return true;
       },
@@ -3439,28 +3425,22 @@ bool MapDocument::updateSpawnflag(
       [](Model::BezierPatch&) { return true; }));
 }
 
+namespace
+{
 /**
  * Search the given linked groups for an entity node at the given node path, and return
  * its unprotected value for the given property key.
  */
-static std::optional<std::string> findUnprotectedPropertyValue(
-  const std::string& key,
-  const Model::NodePath& nodePath,
-  const std::vector<Model::GroupNode*> linkedGroups)
+std::optional<std::string> findUnprotectedPropertyValue(
+  const std::string& key, const std::vector<Model::EntityNodeBase*>& linkedEntities)
 {
-  for (const auto* linkedGroup : linkedGroups)
+  for (const auto* entityNode : linkedEntities)
   {
-    if (const auto* node = linkedGroup->resolvePath(nodePath))
+    if (!kdl::vec_contains(entityNode->entity().protectedProperties(), key))
     {
-      if (const auto* entityNode = dynamic_cast<const Model::EntityNode*>(node))
+      if (const auto* value = entityNode->entity().property(key))
       {
-        if (!kdl::vec_contains(entityNode->entity().protectedProperties(), key))
-        {
-          if (const auto* value = entityNode->entity().property(key))
-          {
-            return *value;
-          }
-        }
+        return *value;
       }
     }
   }
@@ -3472,28 +3452,23 @@ static std::optional<std::string> findUnprotectedPropertyValue(
  * of the given entity nodes. This value is used to restore the original value when a
  * property is set from protected to unprotected.
  */
-static std::optional<std::string> findUnprotectedPropertyValue(
+std::optional<std::string> findUnprotectedPropertyValue(
   const std::string& key,
   const Model::EntityNodeBase& entityNode,
   Model::WorldNode& worldNode)
 {
-  if (const auto* containingLinkedGroup = Model::findContainingLinkedGroup(entityNode))
+  const auto linkedNodes = Model::collectLinkedNodes({&worldNode}, entityNode);
+  if (linkedNodes.size() > 1)
   {
-    if (const auto linkedGroupId = containingLinkedGroup->group().linkedGroupId())
+    if (const auto value = findUnprotectedPropertyValue(key, linkedNodes))
     {
-      const auto linkedGroups = Model::findLinkedGroups(worldNode, *linkedGroupId);
-      const auto pathFromContainingLinkedGroup =
-        entityNode.pathFrom(*containingLinkedGroup);
-      if (
-        const auto newValue =
-          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups))
-      {
-        return newValue;
-      }
+      return value;
     }
   }
+
   return std::nullopt;
 }
+} // namespace
 
 bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
 {
@@ -3514,7 +3489,7 @@ bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
         const auto newValue =
           findUnprotectedPropertyValue(key, *entityNode, *m_world.get()))
       {
-        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
+        entity.addOrUpdateProperty(key, *newValue);
       }
 
       protectedProperties = kdl::vec_erase(std::move(protectedProperties), key);
@@ -3524,9 +3499,7 @@ bool MapDocument::setProtectedProperty(const std::string& key, const bool value)
   }
 
   return swapNodeContents(
-    "Set Protected Property",
-    nodesToUpdate,
-    findContainingLinkedGroups(*m_world, entityNodes));
+    "Set Protected Property", nodesToUpdate, collectContainingGroups(entityNodes));
 }
 
 bool MapDocument::clearProtectedProperties()
@@ -3541,30 +3514,18 @@ bool MapDocument::clearProtectedProperties()
       continue;
     }
 
-    const auto* containingLinkedGroup = Model::findContainingLinkedGroup(*entityNode);
-    if (containingLinkedGroup == nullptr)
+    const auto linkedEntities = Model::collectLinkedNodes({m_world.get()}, *entityNode);
+    if (linkedEntities.size() <= 1)
     {
       continue;
     }
-
-    const auto& linkedGroupId = containingLinkedGroup->group().linkedGroupId();
-    if (!linkedGroupId.has_value())
-    {
-      continue;
-    }
-
-    const auto linkedGroups = Model::findLinkedGroups(*m_world.get(), *linkedGroupId);
-    const auto pathFromContainingLinkedGroup =
-      entityNode->pathFrom(*containingLinkedGroup);
 
     auto entity = entityNode->entity();
     for (const auto& key : entity.protectedProperties())
     {
-      if (
-        const auto newValue =
-          findUnprotectedPropertyValue(key, pathFromContainingLinkedGroup, linkedGroups))
+      if (const auto newValue = findUnprotectedPropertyValue(key, linkedEntities))
       {
-        entity.addOrUpdateProperty(m_world->entityPropertyConfig(), key, *newValue);
+        entity.addOrUpdateProperty(key, *newValue);
       }
     }
 
@@ -3573,9 +3534,7 @@ bool MapDocument::clearProtectedProperties()
   }
 
   return swapNodeContents(
-    "Clear Protected Properties",
-    nodesToUpdate,
-    findContainingLinkedGroups(*m_world, entityNodes));
+    "Clear Protected Properties", nodesToUpdate, collectContainingGroups(entityNodes));
 }
 
 bool MapDocument::canClearProtectedProperties() const
@@ -3588,7 +3547,7 @@ bool MapDocument::canClearProtectedProperties() const
     return false;
   }
 
-  return canUpdateLinkedGroups(kdl::vec_element_cast<Model::Node*>(entityNodes));
+  return canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(entityNodes));
 }
 
 void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)
@@ -3598,15 +3557,14 @@ void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)
     *this,
     "Reset Default Properties",
     entityNodes,
-    findContainingLinkedGroups(*m_world, entityNodes),
+    collectContainingGroups(entityNodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
       [&](Model::Entity& entity) {
         if (const auto* definition = entity.definition())
         {
-          Model::setDefaultProperties(
-            m_world->entityPropertyConfig(), *definition, entity, mode);
+          Model::setDefaultProperties(*definition, entity, mode);
         }
         return true;
       },
@@ -3622,7 +3580,7 @@ bool MapDocument::extrudeBrushes(
     *this,
     "Resize Brushes",
     nodes,
-    findContainingLinkedGroups(*m_world, nodes),
+    collectContainingGroups(nodes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
@@ -3635,14 +3593,14 @@ bool MapDocument::extrudeBrushes(
           return true;
         }
 
-        return brush
-          .moveBoundary(m_worldBounds, *faceIndex, delta, pref(Preferences::TextureLock))
-          .transform([&]() { return m_worldBounds.contains(brush.bounds()); })
-          .transform_error([&](auto e) {
-            error() << "Could not resize brush: " << e.msg;
-            return false;
-          })
-          .value();
+        return brush.moveBoundary(
+                 m_worldBounds, *faceIndex, delta, pref(Preferences::AlignmentLock))
+               | kdl::transform([&]() { return m_worldBounds.contains(brush.bounds()); })
+               | kdl::transform_error([&](auto e) {
+                   error() << "Could not resize brush: " << e.msg;
+                   return false;
+                 })
+               | kdl::value();
       },
       [](Model::BezierPatch&) { return true; }));
 }
@@ -3672,49 +3630,49 @@ bool MapDocument::setFaceAttributes(
     });
 }
 
-bool MapDocument::copyTexCoordSystemFromFace(
-  const Model::TexCoordSystemSnapshot& coordSystemSnapshot,
+bool MapDocument::copyUVFromFace(
+  const Model::UVCoordSystemSnapshot& coordSystemSnapshot,
   const Model::BrushFaceAttributes& attribs,
   const vm::plane3& sourceFacePlane,
   const Model::WrapStyle wrapStyle)
 {
   return applyAndSwap(
-    *this, "Copy Texture Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.copyTexCoordSystemFromFace(
+    *this, "Copy UV Alignment", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.copyUVCoordSystemFromFace(
         coordSystemSnapshot, attribs, sourceFacePlane, wrapStyle);
       return true;
     });
 }
 
-bool MapDocument::moveTextures(
+bool MapDocument::translateUV(
   const vm::vec3f& cameraUp, const vm::vec3f& cameraRight, const vm::vec2f& delta)
 {
   return applyAndSwap(
-    *this, "Move Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.moveTexture(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+    *this, "Move UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.moveUV(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
       return true;
     });
 }
 
-bool MapDocument::rotateTextures(const float angle)
+bool MapDocument::rotateUV(const float angle)
 {
   return applyAndSwap(
-    *this, "Rotate Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.rotateTexture(angle);
+    *this, "Rotate UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.rotateUV(angle);
       return true;
     });
 }
 
-bool MapDocument::shearTextures(const vm::vec2f& factors)
+bool MapDocument::shearUV(const vm::vec2f& factors)
 {
   return applyAndSwap(
-    *this, "Shear Textures", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.shearTexture(factors);
+    *this, "Shear UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
+      face.shearUV(factors);
       return true;
     });
 }
 
-bool MapDocument::flipTextures(
+bool MapDocument::flipUV(
   const vm::vec3f& cameraUp,
   const vm::vec3f& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
@@ -3724,11 +3682,10 @@ bool MapDocument::flipTextures(
      || cameraRelativeFlipDirection == vm::direction::right);
   return applyAndSwap(
     *this,
-    isHFlip ? "Flip Textures Horizontally" : "Flip Textures Vertically",
+    isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     m_selectedBrushFaces,
     [&](Model::BrushFace& face) {
-      face.flipTexture(
-        vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+      face.flipUV(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
       return true;
     });
 }
@@ -3743,7 +3700,7 @@ bool MapDocument::snapVertices(const FloatType snapTo)
     *this,
     "Snap Brush Vertices",
     allSelectedBrushes,
-    findContainingLinkedGroups(*m_world, allSelectedBrushes),
+    collectContainingGroups(allSelectedBrushes),
     kdl::overload(
       [](Model::Layer&) { return true; },
       [](Model::Group&) { return true; },
@@ -3752,11 +3709,11 @@ bool MapDocument::snapVertices(const FloatType snapTo)
         if (originalBrush.canSnapVertices(m_worldBounds, snapTo))
         {
           originalBrush.snapVertices(m_worldBounds, snapTo, pref(Preferences::UVLock))
-            .transform([&]() { succeededBrushCount += 1; })
-            .transform_error([&](auto e) {
-              error() << "Could not snap vertices: " << e.msg;
-              failedBrushCount += 1;
-            });
+            | kdl::transform([&]() { succeededBrushCount += 1; })
+            | kdl::transform_error([&](auto e) {
+                error() << "Could not snap vertices: " << e.msg;
+                failedBrushCount += 1;
+              });
         }
         else
         {
@@ -3813,16 +3770,17 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
           return false;
         }
 
-        return brush
-          .moveVertices(m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
-          .transform([&]() {
-            auto newPositions = brush.findClosestVertexPositions(verticesToMove + delta);
-            newVertexPositions =
-              kdl::vec_concat(std::move(newVertexPositions), std::move(newPositions));
-          })
-          .if_error(
-            [&](auto e) { error() << "Could not move brush vertices: " << e.msg; })
-          .is_success();
+        return brush.moveVertices(
+                 m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+               | kdl::transform([&]() {
+                   auto newPositions =
+                     brush.findClosestVertexPositions(verticesToMove + delta);
+                   newVertexPositions = kdl::vec_concat(
+                     std::move(newVertexPositions), std::move(newPositions));
+                 })
+               | kdl::if_error(
+                 [&](auto e) { error() << "Could not move brush vertices: " << e.msg; })
+               | kdl::is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3834,8 +3792,8 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
       kdl::str_plural(vertexPositions.size(), "Move Brush Vertex", "Move Brush Vertices");
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups = findContainingLinkedGroups(
-      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+    const auto changedLinkedGroups = collectContainingGroups(
+      kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
@@ -3892,16 +3850,18 @@ bool MapDocument::moveEdges(
           return false;
         }
 
-        return brush
-          .moveEdges(m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
-          .transform([&]() {
-            auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
-              edgesToMove, [&](const auto& edge) { return edge.translate(delta); }));
-            newEdgePositions =
-              kdl::vec_concat(std::move(newEdgePositions), std::move(newPositions));
-          })
-          .if_error([&](auto e) { error() << "Could not move brush edges: " << e.msg; })
-          .is_success();
+        return brush.moveEdges(
+                 m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+               | kdl::transform([&]() {
+                   auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
+                     edgesToMove,
+                     [&](const auto& edge) { return edge.translate(delta); }));
+                   newEdgePositions = kdl::vec_concat(
+                     std::move(newEdgePositions), std::move(newPositions));
+                 })
+               | kdl::if_error(
+                 [&](auto e) { error() << "Could not move brush edges: " << e.msg; })
+               | kdl::is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3913,8 +3873,8 @@ bool MapDocument::moveEdges(
       kdl::str_plural(edgePositions.size(), "Move Brush Edge", "Move Brush Edges");
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups = findContainingLinkedGroups(
-      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+    const auto changedLinkedGroups = collectContainingGroups(
+      kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushEdgeCommand>(
       commandName,
@@ -3958,16 +3918,18 @@ bool MapDocument::moveFaces(
           return false;
         }
 
-        return brush
-          .moveFaces(m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
-          .transform([&]() {
-            auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
-              facesToMove, [&](const auto& face) { return face.translate(delta); }));
-            newFacePositions =
-              kdl::vec_concat(std::move(newFacePositions), std::move(newPositions));
-          })
-          .if_error([&](auto e) { error() << "Could not move brush faces: " << e.msg; })
-          .is_success();
+        return brush.moveFaces(
+                 m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+               | kdl::transform([&]() {
+                   auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
+                     facesToMove,
+                     [&](const auto& face) { return face.translate(delta); }));
+                   newFacePositions = kdl::vec_concat(
+                     std::move(newFacePositions), std::move(newPositions));
+                 })
+               | kdl::if_error(
+                 [&](auto e) { error() << "Could not move brush faces: " << e.msg; })
+               | kdl::is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -3979,8 +3941,8 @@ bool MapDocument::moveFaces(
       kdl::str_plural(facePositions.size(), "Move Brush Face", "Move Brush Faces");
     auto transaction = Transaction{*this, commandName};
 
-    auto changedLinkedGroups = findContainingLinkedGroups(
-      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+    auto changedLinkedGroups = collectContainingGroups(
+      kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushFaceCommand>(
       commandName,
@@ -4016,8 +3978,9 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
         }
 
         return brush.addVertex(m_worldBounds, vertexPosition)
-          .if_error([&](auto e) { error() << "Could not add brush vertex: " << e.msg; })
-          .is_success();
+               | kdl::if_error(
+                 [&](auto e) { error() << "Could not add brush vertex: " << e.msg; })
+               | kdl::is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4026,8 +3989,8 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
     const auto commandName = "Add Brush Vertex";
     auto transaction = Transaction{*this, commandName};
 
-    const auto changedLinkedGroups = findContainingLinkedGroups(
-      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+    const auto changedLinkedGroups = collectContainingGroups(
+      kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
@@ -4071,9 +4034,9 @@ bool MapDocument::removeVertices(
         }
 
         return brush.removeVertices(m_worldBounds, verticesToRemove)
-          .if_error(
-            [&](auto e) { error() << "Could not remove brush vertices: " << e.msg; })
-          .is_success();
+               | kdl::if_error(
+                 [&](auto e) { error() << "Could not remove brush vertices: " << e.msg; })
+               | kdl::is_success();
       },
       [](Model::BezierPatch&) { return true; }));
 
@@ -4081,8 +4044,8 @@ bool MapDocument::removeVertices(
   {
     auto transaction = Transaction{*this, commandName};
 
-    auto changedLinkedGroups = findContainingLinkedGroups(
-      *m_world, kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
+    auto changedLinkedGroups = collectContainingGroups(
+      kdl::vec_transform(*newNodes, [](const auto& p) { return p.first; }));
 
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
@@ -4187,6 +4150,8 @@ const std::string& MapDocument::redoCommandName() const
 void MapDocument::undoCommand()
 {
   doUndoCommand();
+  updateLinkedGroups();
+
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
   // stack
   m_repeatStack->clear();
@@ -4195,6 +4160,10 @@ void MapDocument::undoCommand()
 void MapDocument::redoCommand()
 {
   doRedoCommand();
+  updateLinkedGroups();
+
+  // Undo/redo in the repeat system is not supported for now, so just clear the repeat
+  // stack
   m_repeatStack->clear();
 }
 
@@ -4233,7 +4202,7 @@ bool MapDocument::commitTransaction()
 
   if (!updateLinkedGroups())
   {
-    rollbackTransaction();
+    cancelTransaction();
     return false;
   }
 
@@ -4262,9 +4231,46 @@ std::unique_ptr<CommandResult> MapDocument::executeAndStore(
   return doExecuteAndStore(std::move(command));
 }
 
-void MapDocument::commitPendingAssets()
+void MapDocument::processResourcesSync(const Assets::ProcessContext& processContext)
 {
-  m_textureManager->commitChanges();
+  auto allProcessedResourceIds = std::vector<Assets::ResourceId>{};
+  while (m_resourceManager->needsProcessing())
+  {
+    auto processedResourceIds = m_resourceManager->process(
+      [](auto task) {
+        auto promise = std::promise<std::unique_ptr<Assets::TaskResult>>{};
+        promise.set_value(task());
+        return promise.get_future();
+      },
+      processContext);
+
+    allProcessedResourceIds = kdl::vec_concat(
+      std::move(allProcessedResourceIds), std::move(processedResourceIds));
+  }
+
+  if (!allProcessedResourceIds.empty())
+  {
+    resourcesWereProcessedNotifier.notify(
+      kdl::vec_sort_and_remove_duplicates(std::move(allProcessedResourceIds)));
+  }
+}
+
+void MapDocument::processResourcesAsync(const Assets::ProcessContext& processContext)
+{
+  const auto processedResourceIds = m_resourceManager->process(
+    [](auto task) { return std::async(std::move(task)); },
+    processContext,
+    std::chrono::milliseconds{20});
+
+  if (!processedResourceIds.empty())
+  {
+    resourcesWereProcessedNotifier.notify(processedResourceIds);
+  }
+}
+
+bool MapDocument::needsResourceProcessing()
+{
+  return m_resourceManager->needsProcessing();
 }
 
 void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
@@ -4290,15 +4296,17 @@ Result<void> MapDocument::createWorld(
   const vm::bbox3& worldBounds,
   std::shared_ptr<Model::Game> game)
 {
-  return game->newMap(mapFormat, m_worldBounds, logger()).transform([&](auto world) {
-    m_worldBounds = worldBounds;
-    m_game = game;
-    m_world = std::move(world);
-    performSetCurrentLayer(m_world->defaultLayer());
+  return game->newMap(mapFormat, m_worldBounds, logger())
+         | kdl::transform([&](auto world) {
+             m_worldBounds = worldBounds;
+             m_game = game;
+             m_world = std::move(world);
+             m_entityModelManager->setGame(game.get());
+             performSetCurrentLayer(m_world->defaultLayer());
 
-    updateGameSearchPaths();
-    setPath(std::filesystem::path(DefaultDocumentName));
-  });
+             updateGameSearchPaths();
+             setPath(std::filesystem::path(DefaultDocumentName));
+           });
 }
 
 Result<void> MapDocument::loadWorld(
@@ -4308,15 +4316,16 @@ Result<void> MapDocument::loadWorld(
   const std::filesystem::path& path)
 {
   return game->loadMap(mapFormat, m_worldBounds, path, logger())
-    .transform([&](auto world) {
-      m_worldBounds = worldBounds;
-      m_game = game;
-      m_world = std::move(world);
-      performSetCurrentLayer(m_world->defaultLayer());
+         | kdl::transform([&](auto world) {
+             m_worldBounds = worldBounds;
+             m_game = game;
+             m_world = std::move(world);
+             m_entityModelManager->setGame(game.get());
+             performSetCurrentLayer(m_world->defaultLayer());
 
-      updateGameSearchPaths();
-      setPath(path);
-    });
+             updateGameSearchPaths();
+             setPath(path);
+           });
 }
 
 void MapDocument::clearWorld()
@@ -4349,32 +4358,28 @@ void MapDocument::setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec
   const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
 
   auto entity = m_world->entity();
-  entity.addOrUpdateProperty(
-    m_world->entityPropertyConfig(),
-    Model::EntityPropertyKeys::EntityDefinitions,
-    formatted);
+  entity.addOrUpdateProperty(Model::EntityPropertyKeys::EntityDefinitions, formatted);
   swapNodeContents(
     "Set Entity Definitions", {{world(), Model::NodeContents(std::move(entity))}}, {});
 }
 
 void MapDocument::setEntityDefinitions(
-  const std::vector<Assets::EntityDefinition*>& definitions)
+  std::vector<std::unique_ptr<Assets::EntityDefinition>> definitions)
 {
-  m_entityDefinitionManager->setDefinitions(definitions);
+  m_entityDefinitionManager->setDefinitions(std::move(definitions));
 }
 
-void MapDocument::reloadTextureCollections()
+void MapDocument::reloadMaterialCollections()
 {
   const auto nodes = std::vector<Model::Node*>{m_world.get()};
   NotifyBeforeAndAfter notifyNodes(
     nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-  NotifyBeforeAndAfter notifyTextureCollections(
-    textureCollectionsWillChangeNotifier, textureCollectionsDidChangeNotifier);
+  NotifyBeforeAndAfter notifyMaterialCollections(
+    materialCollectionsWillChangeNotifier, materialCollectionsDidChangeNotifier);
 
-  info("Reloading texture collections");
-  reloadTextures();
-  setTextures();
-  initializeAllNodeTags(this);
+  info("Reloading material collections");
+  unloadMaterials();
+  // materialCollectionsDidChange will load the collections again
 }
 
 void MapDocument::reloadEntityDefinitions()
@@ -4388,20 +4393,85 @@ void MapDocument::reloadEntityDefinitions()
   info("Reloading entity definitions");
 }
 
+std::vector<std::filesystem::path> MapDocument::enabledMaterialCollections() const
+{
+  if (m_world)
+  {
+    if (
+      const auto* materialCollectionStr =
+        m_world->entity().property(Model::EntityPropertyKeys::EnabledMaterialCollections))
+    {
+      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+        kdl::str_split(*materialCollectionStr, ";"),
+        [](const auto& str) { return std::filesystem::path{str}; }));
+    }
+
+    // If the map uses wad files, always enable all of them by default
+    if (m_world->entity().property(Model::EntityPropertyKeys::Wad))
+    {
+      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+        m_materialManager->collections(),
+        [](const auto& collection) { return collection.path(); }));
+    }
+
+    // Otherwise, enable all material collections with used materials in them
+    auto result = std::vector<std::filesystem::path>{};
+    for (const auto& collection : m_materialManager->collections())
+    {
+      if (kdl::any_of(collection.materials(), [](const auto& material) {
+            return material.usageCount() > 0;
+          }))
+      {
+        result.push_back(collection.path());
+      }
+    }
+    return kdl::vec_sort_and_remove_duplicates(result);
+  }
+  return {};
+}
+
+std::vector<std::filesystem::path> MapDocument::disabledMaterialCollections() const
+{
+  if (m_world)
+  {
+    auto materialCollections = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
+      m_materialManager->collections(),
+      [](const auto& collection) { return collection.path(); }));
+
+    return kdl::set_difference(materialCollections, enabledMaterialCollections());
+  }
+  return {};
+}
+
+void MapDocument::setEnabledMaterialCollections(
+  const std::vector<std::filesystem::path>& enabledMaterialCollections)
+{
+  const auto enabledMaterialCollectionStr = kdl::str_join(
+    kdl::vec_transform(
+      kdl::vec_sort_and_remove_duplicates(enabledMaterialCollections),
+      [](const auto& path) { return path.string(); }),
+    ";");
+
+  auto transaction = Transaction{*this, "Set enabled material collections"};
+  const auto success = setProperty(
+    Model::EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
+  transaction.finish(success);
+}
+
 void MapDocument::loadAssets()
 {
   loadEntityDefinitions();
   setEntityDefinitions();
   loadEntityModels();
-  loadTextures();
-  setTextures();
+  loadMaterials();
+  setMaterials();
 }
 
 void MapDocument::unloadAssets()
 {
   unloadEntityDefinitions();
   unloadEntityModels();
-  unloadTextures();
+  unloadMaterials();
 }
 
 void MapDocument::loadEntityDefinitions()
@@ -4411,22 +4481,22 @@ void MapDocument::loadEntityDefinitions()
   auto status = IO::SimpleParserStatus{logger()};
 
   m_entityDefinitionManager->loadDefinitions(path, *m_game, status)
-    .transform([&]() {
-      info("Loaded entity definition file " + path.filename().string());
-      createEntityDefinitionActions();
-    })
-    .transform_error([&](auto e) {
-      if (spec.builtin())
-      {
-        error() << "Could not load builtin entity definition file '" << spec.path()
-                << "': " << e.msg;
-      }
-      else
-      {
-        error() << "Could not load external entity definition file '" << spec.path()
-                << "': " << e.msg;
-      }
-    });
+    | kdl::transform([&]() {
+        info("Loaded entity definition file " + path.filename().string());
+        createEntityDefinitionActions();
+      })
+    | kdl::transform_error([&](auto e) {
+        if (spec.builtin())
+        {
+          error() << "Could not load builtin entity definition file '" << spec.path()
+                  << "': " << e.msg;
+        }
+        else
+        {
+          error() << "Could not load external entity definition file '" << spec.path()
+                  << "': " << e.msg;
+        }
+      });
 }
 
 void MapDocument::unloadEntityDefinitions()
@@ -4438,25 +4508,21 @@ void MapDocument::unloadEntityDefinitions()
 
 void MapDocument::loadEntityModels()
 {
-  m_entityModelManager->setLoader(m_game.get());
   setEntityModels();
 }
 
 void MapDocument::unloadEntityModels()
 {
   clearEntityModels();
-  m_entityModelManager->setLoader(nullptr);
 }
 
-void MapDocument::reloadTextures()
+void MapDocument::reloadMaterials()
 {
-  unloadTextures();
-  m_game->reloadShaders().transform_error(
-    [&](auto e) { error() << "Failed to reload shaders: " << e.msg; });
-  loadTextures();
+  unloadMaterials();
+  loadMaterials();
 }
 
-void MapDocument::loadTextures()
+void MapDocument::loadMaterials()
 {
   try
   {
@@ -4467,7 +4533,12 @@ void MapDocument::loadTextures()
         [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadTextureCollections(*m_textureManager);
+    m_game->loadMaterialCollections(*m_materialManager, [&](auto resourceLoader) {
+      auto resource =
+        std::make_shared<Assets::TextureResource>(std::move(resourceLoader));
+      m_resourceManager->addResource(resource);
+      return resource;
+    });
   }
   catch (const Exception& e)
   {
@@ -4475,13 +4546,13 @@ void MapDocument::loadTextures()
   }
 }
 
-void MapDocument::unloadTextures()
+void MapDocument::unloadMaterials()
 {
-  unsetTextures();
-  m_textureManager->clear();
+  unsetMaterials();
+  m_materialManager->clear();
 }
 
-static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
+static auto makeSetMaterialsVisitor(Assets::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4495,17 +4566,17 @@ static auto makeSetTexturesVisitor(Assets::TextureManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const Model::BrushFace& face = brush.face(i);
-        Assets::Texture* texture = manager.texture(face.attributes().textureName());
-        brushNode->setFaceTexture(i, texture);
+        Assets::Material* material = manager.material(face.attributes().materialName());
+        brushNode->setFaceMaterial(i, material);
       }
     },
     [&](Model::PatchNode* patchNode) {
-      auto* texture = manager.texture(patchNode->patch().textureName());
-      patchNode->setTexture(texture);
+      auto* material = manager.material(patchNode->patch().materialName());
+      patchNode->setMaterial(material);
     });
 }
 
-static auto makeUnsetTexturesVisitor()
+static auto makeUnsetMaterialsVisitor()
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4518,46 +4589,46 @@ static auto makeUnsetTexturesVisitor()
       const Model::Brush& brush = brushNode->brush();
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
-        brushNode->setFaceTexture(i, nullptr);
+        brushNode->setFaceMaterial(i, nullptr);
       }
     },
-    [](Model::PatchNode* patchNode) { patchNode->setTexture(nullptr); });
+    [](Model::PatchNode* patchNode) { patchNode->setMaterial(nullptr); });
 }
 
-void MapDocument::setTextures()
+void MapDocument::setMaterials()
 {
-  m_world->accept(makeSetTexturesVisitor(*m_textureManager));
-  textureUsageCountsDidChangeNotifier();
+  m_world->accept(makeSetMaterialsVisitor(*m_materialManager));
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::Node*>& nodes)
+void MapDocument::setMaterials(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeSetTexturesVisitor(*m_textureManager));
-  textureUsageCountsDidChangeNotifier();
+  Model::Node::visitAll(nodes, makeSetMaterialsVisitor(*m_materialManager));
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::setTextures(const std::vector<Model::BrushFaceHandle>& faceHandles)
+void MapDocument::setMaterials(const std::vector<Model::BrushFaceHandle>& faceHandles)
 {
   for (const auto& faceHandle : faceHandles)
   {
     Model::BrushNode* node = faceHandle.node();
     const Model::BrushFace& face = faceHandle.face();
-    Assets::Texture* texture = m_textureManager->texture(face.attributes().textureName());
-    node->setFaceTexture(faceHandle.faceIndex(), texture);
+    auto* material = m_materialManager->material(face.attributes().materialName());
+    node->setFaceMaterial(faceHandle.faceIndex(), material);
   }
-  textureUsageCountsDidChangeNotifier();
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures()
+void MapDocument::unsetMaterials()
 {
-  m_world->accept(makeUnsetTexturesVisitor());
-  textureUsageCountsDidChangeNotifier();
+  m_world->accept(makeUnsetMaterialsVisitor());
+  materialUsageCountsDidChangeNotifier();
 }
 
-void MapDocument::unsetTextures(const std::vector<Model::Node*>& nodes)
+void MapDocument::unsetMaterials(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeUnsetTexturesVisitor());
-  textureUsageCountsDidChangeNotifier();
+  Model::Node::visitAll(nodes, makeUnsetMaterialsVisitor());
+  materialUsageCountsDidChangeNotifier();
 }
 
 static auto makeSetEntityDefinitionsVisitor(Assets::EntityDefinitionManager& manager)
@@ -4631,7 +4702,7 @@ void MapDocument::clearEntityModels()
 }
 
 static auto makeSetEntityModelsVisitor(
-  Logger& logger, Assets::EntityModelManager& manager)
+  Assets::EntityModelManager& manager, Logger& logger)
 {
   return kdl::overload(
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4642,8 +4713,8 @@ static auto makeSetEntityModelsVisitor(
         logger, entityNode->entity().classname(), [&]() {
           return entityNode->entity().modelSpecification();
         });
-      const auto* frame = manager.frame(modelSpec);
-      entityNode->setModelFrame(frame);
+      const auto* model = manager.model(modelSpec.path);
+      entityNode->setModel(model);
     },
     [](Model::BrushNode*) {},
     [](Model::PatchNode*) {});
@@ -4655,19 +4726,19 @@ static auto makeUnsetEntityModelsVisitor()
     [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
     [](auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-    [](Model::EntityNode* entity) { entity->setModelFrame(nullptr); },
+    [](Model::EntityNode* entity) { entity->setModel(nullptr); },
     [](Model::BrushNode*) {},
     [](Model::PatchNode*) {});
 }
 
 void MapDocument::setEntityModels()
 {
-  m_world->accept(makeSetEntityModelsVisitor(*this, *m_entityModelManager));
+  m_world->accept(makeSetEntityModelsVisitor(*m_entityModelManager, *this));
 }
 
 void MapDocument::setEntityModels(const std::vector<Model::Node*>& nodes)
 {
-  Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*this, *m_entityModelManager));
+  Model::Node::visitAll(nodes, makeSetEntityModelsVisitor(*m_entityModelManager, *this));
 }
 
 void MapDocument::unsetEntityModels()
@@ -4716,14 +4787,12 @@ void MapDocument::setMods(const std::vector<std::string>& mods)
   auto entity = m_world->entity();
   if (mods.empty())
   {
-    entity.removeProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods);
+    entity.removeProperty(Model::EntityPropertyKeys::Mods);
   }
   else
   {
     const std::string newValue = kdl::str_join(mods, ";");
-    entity.addOrUpdateProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::Mods, newValue);
+    entity.addOrUpdateProperty(Model::EntityPropertyKeys::Mods, newValue);
   }
   swapNodeContents(
     "Set Enabled Mods", {{world(), Model::NodeContents(std::move(entity))}}, {});
@@ -4748,22 +4817,19 @@ void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds)
       // Set the worldspawn key EntityPropertyKeys::SoftMaxMapSize's value to the empty
       // string to indicate that we are overriding the Game's bounds with unlimited.
       entity.addOrUpdateProperty(
-        m_world->entityPropertyConfig(),
         Model::EntityPropertyKeys::SoftMapBounds,
         Model::EntityPropertyValues::NoSoftMapBounds);
     }
     else
     {
       entity.addOrUpdateProperty(
-        m_world->entityPropertyConfig(),
         Model::EntityPropertyKeys::SoftMapBounds,
         IO::serializeSoftMapBoundsString(*bounds.bounds));
     }
     break;
   case Model::Game::SoftMapBoundsType::Game:
     // Unset the map's setting
-    entity.removeProperty(
-      m_world->entityPropertyConfig(), Model::EntityPropertyKeys::SoftMapBounds);
+    entity.removeProperty(Model::EntityPropertyKeys::SoftMapBounds);
     break;
     switchDefault();
   }
@@ -4806,15 +4872,15 @@ void MapDocument::registerValidators()
     std::make_unique<Model::SoftMapBoundsValidator>(m_game, *m_world));
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyKeyValidator>());
   m_world->registerValidator(std::make_unique<Model::EmptyPropertyValueValidator>());
-  m_world->registerValidator(
-    std::make_unique<Model::LongPropertyKeyValidator>(m_game->maxPropertyLength()));
-  m_world->registerValidator(
-    std::make_unique<Model::LongPropertyValueValidator>(m_game->maxPropertyLength()));
+  m_world->registerValidator(std::make_unique<Model::LongPropertyKeyValidator>(
+    m_game->config().maxPropertyLength));
+  m_world->registerValidator(std::make_unique<Model::LongPropertyValueValidator>(
+    m_game->config().maxPropertyLength));
   m_world->registerValidator(
     std::make_unique<Model::PropertyKeyWithDoubleQuotationMarksValidator>());
   m_world->registerValidator(
     std::make_unique<Model::PropertyValueWithDoubleQuotationMarksValidator>());
-  m_world->registerValidator(std::make_unique<Model::InvalidTextureScaleValidator>());
+  m_world->registerValidator(std::make_unique<Model::InvalidUVScaleValidator>());
 }
 
 void MapDocument::registerSmartTags()
@@ -4822,7 +4888,7 @@ void MapDocument::registerSmartTags()
   ensure(m_game.get() != nullptr, "game is null");
 
   m_tagManager->clearSmartTags();
-  m_tagManager->registerSmartTags(m_game->smartTags());
+  m_tagManager->registerSmartTags(m_game->config().smartTags);
 }
 
 const std::vector<Model::SmartTag>& MapDocument::smartTags() const
@@ -4991,10 +5057,10 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
-  m_notifierConnection += textureCollectionsWillChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsWillChange);
-  m_notifierConnection += textureCollectionsDidChangeNotifier.connect(
-    this, &MapDocument::textureCollectionsDidChange);
+  m_notifierConnection += materialCollectionsWillChangeNotifier.connect(
+    this, &MapDocument::materialCollectionsWillChange);
+  m_notifierConnection += materialCollectionsDidChangeNotifier.connect(
+    this, &MapDocument::materialCollectionsDidChange);
 
   m_notifierConnection += entityDefinitionsWillChangeNotifier.connect(
     this, &MapDocument::entityDefinitionsWillChange);
@@ -5034,19 +5100,18 @@ void MapDocument::connectObservers()
     brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
-  m_notifierConnection +=
-    textureCollectionsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
 }
 
-void MapDocument::textureCollectionsWillChange()
+void MapDocument::materialCollectionsWillChange()
 {
-  unsetTextures();
+  unsetMaterials();
 }
 
-void MapDocument::textureCollectionsDidChange()
+void MapDocument::materialCollectionsDidChange()
 {
-  loadTextures();
-  setTextures();
+  loadMaterials();
+  setMaterials();
+  updateAllFaceTags();
 }
 
 void MapDocument::entityDefinitionsWillChange()
@@ -5081,23 +5146,14 @@ void MapDocument::preferenceDidChange(const std::filesystem::path& path)
   if (isGamePathPreference(path))
   {
     const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->gameName());
+    const std::filesystem::path newGamePath = gameFactory.gamePath(m_game->config().name);
     m_game->setGamePath(newGamePath, logger());
 
     clearEntityModels();
     setEntityModels();
 
-    reloadTextures();
-    setTextures();
-  }
-  else if (
-    path == Preferences::TextureMinFilter.path()
-    || path == Preferences::TextureMagFilter.path())
-  {
-    m_entityModelManager->setTextureMode(
-      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
-    m_textureManager->setTextureMode(
-      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+    reloadMaterials();
+    setMaterials();
   }
 }
 
@@ -5133,19 +5189,37 @@ Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name
 
 Transaction::Transaction(MapDocument& document, std::string name)
   : m_document{document}
+  , m_name{std::move(name)}
   , m_state{State::Running}
 {
-  begin(std::move(name));
+  begin();
 }
 
 Transaction::~Transaction()
 {
-  assert(m_state != State::Running);
+  if (m_state == State::Running)
+  {
+    m_document.error() << "Cancelling unfinished transaction with name '" << m_name
+                       << "' - please report this on github!";
+    cancel();
+  }
 }
 
 Transaction::State Transaction::state() const
 {
   return m_state;
+}
+
+void Transaction::finish(const bool commit)
+{
+  if (commit)
+  {
+    this->commit();
+  }
+  else
+  {
+    cancel();
+  }
 }
 
 bool Transaction::commit()
@@ -5174,8 +5248,8 @@ void Transaction::cancel()
   m_state = State::Cancelled;
 }
 
-void Transaction::begin(std::string name)
+void Transaction::begin()
 {
-  m_document.startTransaction(std::move(name), TransactionScope::Oneshot);
+  m_document.startTransaction(m_name, TransactionScope::Oneshot);
 }
 } // namespace TrenchBroom::View

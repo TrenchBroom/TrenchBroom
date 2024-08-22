@@ -21,33 +21,34 @@
 
 #include "FloatType.h"
 #include "Model/IssueType.h"
+#include "Model/LockState.h"
 #include "Model/NodeVisitor.h"
 #include "Model/Tag.h"
+#include "Model/VisibilityState.h"
 
-#include <kdl/reflection_decl.h>
+#include "kdl/reflection_decl.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/util.h>
+#include "vm/bbox.h"
+#include "vm/forward.h"
+#include "vm/util.h"
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class EditorContext;
 class EntityNodeBase;
 struct EntityPropertyConfig;
 class ConstNodeVisitor;
 class Issue;
-enum class LockState;
 class NodeVisitor;
 class PickResult;
 class Validator;
-enum class VisibilityState;
+class Object;
 
 struct NodePath
 {
@@ -56,27 +57,33 @@ struct NodePath
   kdl_reflect_decl(NodePath, indices);
 };
 
+enum class SetLinkId
+{
+  generate,
+  keep,
+};
+
 class Node : public Taggable
 {
 private:
-  Node* m_parent;
+  Node* m_parent = nullptr;
   std::vector<Node*> m_children;
-  size_t m_descendantCount;
-  bool m_selected;
+  size_t m_descendantCount = 0;
+  bool m_selected = false;
 
-  size_t m_childSelectionCount;
-  size_t m_descendantSelectionCount;
+  size_t m_childSelectionCount = 0;
+  size_t m_descendantSelectionCount = 0;
 
-  VisibilityState m_visibilityState;
-  LockState m_lockState;
-  bool m_lockedByOtherSelection;
+  VisibilityState m_visibilityState = VisibilityState::Inherited;
+  LockState m_lockState = LockState::Inherited;
+  bool m_lockedByOtherSelection = false;
 
-  mutable size_t m_lineNumber;
-  mutable size_t m_lineCount;
+  mutable size_t m_lineNumber = 0;
+  mutable size_t m_lineCount = 0;
 
   mutable std::vector<std::unique_ptr<Issue>> m_issues;
-  mutable bool m_issuesValid;
-  IssueType m_hiddenIssues;
+  mutable bool m_issuesValid = false;
+  IssueType m_hiddenIssues = 0;
 
 protected:
   Node();
@@ -129,37 +136,32 @@ public: // getters
   FloatType projectedArea(vm::axis::type axis) const;
 
 public: // cloning and snapshots
-  Node* clone(const vm::bbox3& worldBounds) const;
-  Node* cloneRecursively(const vm::bbox3& worldBounds) const;
+  Node* clone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
+  Node* cloneRecursively(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
 
 protected:
   void cloneAttributes(Node* node) const;
 
   static std::vector<Node*> clone(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes, SetLinkId setLinkIds);
   static std::vector<Node*> cloneRecursively(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes, SetLinkId setLinkIds);
 
   template <typename I, typename O>
-  static void clone(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void clone(
+    const vm::bbox3& worldBounds, const SetLinkId setLinkIds, I cur, I end, O result)
   {
-    while (cur != end)
-    {
-      const Node* node = *cur;
-      result++ = node->clone(worldBounds);
-      ++cur;
-    }
+    std::for_each(
+      cur, end, [&](auto* node) { result++ = node->clone(worldBounds, setLinkIds); });
   }
 
   template <typename I, typename O>
-  static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void cloneRecursively(
+    const vm::bbox3& worldBounds, const SetLinkId setLinkIds, I cur, I end, O result)
   {
-    while (cur != end)
-    {
-      const Node* node = *cur;
-      result++ = node->cloneRecursively(worldBounds);
-      ++cur;
-    }
+    std::for_each(cur, end, [&](auto* node) {
+      result++ = node->cloneRecursively(worldBounds, setLinkIds);
+    });
   }
 
 public: // tree management
@@ -189,13 +191,10 @@ public:
   {
     m_children.reserve(m_children.size() + count);
     size_t descendantCountDelta = 0;
-    while (cur != end)
-    {
-      Node* child = *cur;
+    std::for_each(cur, end, [&](auto* child) {
       doAddChild(child);
       descendantCountDelta += child->descendantCount() + 1;
-      ++cur;
-    }
+    });
     incDescendantCount(descendantCountDelta);
   }
 
@@ -208,13 +207,10 @@ public:
   void removeChildren(I cur, I end)
   {
     size_t descendantCountDelta = 0;
-    while (cur != end)
-    {
-      Node* child = *cur;
+    std::for_each(cur, end, [&](auto* child) {
       doRemoveChild(child);
       descendantCountDelta += child->descendantCount() + 1;
-      ++cur;
-    }
+    });
     decDescendantCount(descendantCountDelta);
   }
 
@@ -226,23 +222,14 @@ public:
   template <typename I>
   bool canAddChildren(I cur, I end) const
   {
-    while (cur != end)
-    {
-      if (!canAddChild(*cur++))
-        return false;
-    }
-    return true;
+    return std::all_of(cur, end, [&](const auto* child) { return canAddChild(child); });
   }
 
   template <typename I>
   bool canRemoveChildren(I cur, I end) const
   {
-    while (cur != end)
-    {
-      if (!canRemoveChild(*cur++))
-        return false;
-    }
-    return true;
+    return std::all_of(
+      cur, end, [&](const auto* child) { return canRemoveChild(child); });
   }
 
 private:
@@ -482,10 +469,10 @@ public: // visitors
   /**
    * Visit every node in the given vector with the given lambda.
    */
-  template <typename N, typename L>
-  static void visitAll(const std::vector<N*>& nodes, const L& lambda)
+  template <typename R, typename L>
+  static void visitAll(const R& nodes, const L& lambda)
   {
-    for (auto* node : nodes)
+    for (auto& node : nodes)
     {
       node->accept(lambda);
     }
@@ -533,8 +520,9 @@ private: // subclassing interface
 
   virtual FloatType doGetProjectedArea(vm::axis::type axis) const = 0;
 
-  virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
-  virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
+  virtual Node* doClone(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const = 0;
+  virtual Node* doCloneRecursively(
+    const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
 
   virtual bool doCanAddChild(const Node* child) const = 0;
   virtual bool doCanRemoveChild(const Node* child) const = 0;
@@ -592,5 +580,5 @@ private: // subclassing interface
   virtual void doRemoveFromIndex(
     EntityNodeBase* node, const std::string& key, const std::string& value);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

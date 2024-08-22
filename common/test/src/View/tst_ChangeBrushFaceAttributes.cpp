@@ -35,10 +35,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.resetAttributesOfValve220Face")
 {
@@ -46,8 +45,8 @@ TEST_CASE_METHOD(
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   const size_t faceIndex = 0u;
-  const auto initialX = brushNode->brush().face(faceIndex).textureXAxis();
-  const auto initialY = brushNode->brush().face(faceIndex).textureYAxis();
+  const auto initialX = brushNode->brush().face(faceIndex).uAxis();
+  const auto initialY = brushNode->brush().face(faceIndex).vAxis();
 
   document->selectBrushFaces({{brushNode, faceIndex}});
 
@@ -61,7 +60,7 @@ TEST_CASE_METHOD(
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
   auto defaultFaceAttrs =
-    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoTextureName};
+    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName};
   defaultFaceAttrs.setXScale(0.5f);
   defaultFaceAttrs.setYScale(2.0f);
   game->setDefaultFaceAttributes(defaultFaceAttrs);
@@ -81,8 +80,8 @@ TEST_CASE_METHOD(
     brushNode->brush().face(faceIndex).attributes().yScale()
     == defaultFaceAttrs.yScale());
 
-  CHECK(brushNode->brush().face(faceIndex).textureXAxis() == initialX);
-  CHECK(brushNode->brush().face(faceIndex).textureYAxis() == initialY);
+  CHECK(brushNode->brush().face(faceIndex).uAxis() == initialX);
+  CHECK(brushNode->brush().face(faceIndex).vAxis() == initialY);
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
@@ -92,37 +91,37 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
 
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "original");
+    REQUIRE(face.attributes().materialName() == "original");
   }
 
   document->selectNodes({brushNode});
 
-  auto setTexture1 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture1.setTextureName("texture1");
-  document->setFaceAttributes(setTexture1);
+  auto setMaterial1 = Model::ChangeBrushFaceAttributesRequest{};
+  setMaterial1.setMaterialName("material1");
+  document->setFaceAttributes(setMaterial1);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "texture1");
+    REQUIRE(face.attributes().materialName() == "material1");
   }
 
-  auto setTexture2 = Model::ChangeBrushFaceAttributesRequest{};
-  setTexture2.setTextureName("texture2");
-  document->setFaceAttributes(setTexture2);
+  auto setMaterial2 = Model::ChangeBrushFaceAttributesRequest{};
+  setMaterial2.setMaterialName("material2");
+  document->setFaceAttributes(setMaterial2);
   for (const auto& face : brushNode->brush().faces())
   {
-    REQUIRE(face.attributes().textureName() == "texture2");
+    REQUIRE(face.attributes().materialName() == "material2");
   }
 
   document->undoCommand();
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.attributes().textureName() == "original");
+    CHECK(face.attributes().materialName() == "original");
   }
 
   document->redoCommand();
   for (const auto& face : brushNode->brush().faces())
   {
-    CHECK(face.attributes().textureName() == "texture2");
+    CHECK(face.attributes().materialName() == "material2");
   }
 }
 
@@ -139,7 +138,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->selectBrushFaces({{brushNode, firstFaceIndex}});
 
   auto setFirstFace = Model::ChangeBrushFaceAttributesRequest{};
-  setFirstFace.setTextureName("first");
+  setFirstFace.setMaterialName("first");
   setFirstFace.setXOffset(32.0f);
   setFirstFace.setYOffset(64.0f);
   setFirstFace.setRotation(90.0f);
@@ -153,7 +152,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 
   {
     const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
-    CHECK(firstAttrs.textureName() == "first");
+    CHECK(firstAttrs.materialName() == "first");
     CHECK(firstAttrs.xOffset() == 32.0f);
     CHECK(firstAttrs.yOffset() == 64.0f);
     CHECK(firstAttrs.rotation() == 90.0f);
@@ -169,7 +168,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
 
   auto setSecondFace = Model::ChangeBrushFaceAttributesRequest{};
-  setSecondFace.setTextureName("second");
+  setSecondFace.setMaterialName("second");
   setSecondFace.setXOffset(16.0f);
   setSecondFace.setYOffset(48.0f);
   setSecondFace.setRotation(45.0f);
@@ -183,7 +182,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 
   {
     const auto& secondAttrs = brushNode->brush().face(secondFaceIndex).attributes();
-    CHECK(secondAttrs.textureName() == "second");
+    CHECK(secondAttrs.materialName() == "second");
     CHECK(secondAttrs.xOffset() == 16.0f);
     CHECK(secondAttrs.yOffset() == 48.0f);
     CHECK(secondAttrs.rotation() == 45.0f);
@@ -230,7 +229,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   {
     const auto& firstAttrs = brushNode->brush().face(firstFaceIndex).attributes();
     const auto& newThirdAttrs = brushNode->brush().face(thirdFaceIndex).attributes();
-    CHECK(newThirdAttrs.textureName() == firstAttrs.textureName());
+    CHECK(newThirdAttrs.materialName() == firstAttrs.materialName());
     CHECK(newThirdAttrs.xOffset() == firstAttrs.xOffset());
     CHECK(newThirdAttrs.yOffset() == firstAttrs.yOffset());
     CHECK(newThirdAttrs.rotation() == firstAttrs.rotation());
@@ -244,7 +243,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 }
 
 TEST_CASE_METHOD(
-  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setTextureKeepsSurfaceFlagsUnset")
+  ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setMaterialKeepsSurfaceFlagsUnset")
 {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -253,10 +252,10 @@ TEST_CASE_METHOD(
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 
   auto request = Model::ChangeBrushFaceAttributesRequest{};
-  request.setTextureName("something_else");
+  request.setMaterialName("something_else");
   document->setFaceAttributes(request);
 
-  CHECK(brushNode->brush().face(0).attributes().textureName() == "something_else");
+  CHECK(brushNode->brush().face(0).attributes().materialName() == "something_else");
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 }
 
@@ -300,7 +299,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
       // contents
       CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
       CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == WaterFlag);
-      CHECK(lavabrush->brush().face(0).attributes().textureName() == "watertest");
+      CHECK(lavabrush->brush().face(0).attributes().materialName() == "watertest");
     }
   }
 
@@ -317,5 +316,5 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
     CHECK(lavabrush->brush().face(0).resolvedSurfaceContents() == (WaterFlag | LavaFlag));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

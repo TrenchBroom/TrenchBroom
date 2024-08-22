@@ -32,57 +32,53 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace ELToken
 {
 using Type = uint64_t;
-static const Type Name = Type(1) << 1;
-static const Type String = Type(1) << 2;
-static const Type Number = Type(1) << 3;
-static const Type Boolean = Type(1) << 4;
-static const Type OBracket = Type(1) << 5;
-static const Type CBracket = Type(1) << 6;
-static const Type OBrace = Type(1) << 7;
-static const Type CBrace = Type(1) << 8;
-static const Type OParen = Type(1) << 9;
-static const Type CParen = Type(1) << 10;
-static const Type Addition = Type(1) << 11;
-static const Type Subtraction = Type(1) << 12;
-static const Type Multiplication = Type(1) << 13;
-static const Type Division = Type(1) << 14;
-static const Type Colon = Type(1) << 16;
-static const Type Modulus = Type(1) << 15;
-static const Type Comma = Type(1) << 17;
-static const Type Range = Type(1) << 18;
-static const Type LogicalNegation = Type(1) << 19;
-static const Type LogicalAnd = Type(1) << 20;
-static const Type LogicalOr = Type(1) << 21;
-static const Type Less = Type(1) << 22;
-static const Type LessOrEqual = Type(1) << 23;
-static const Type Equal = Type(1) << 24;
-static const Type NotEqual = Type(1) << 25;
-static const Type GreaterOrEqual = Type(1) << 26;
-static const Type Greater = Type(1) << 27;
-static const Type Case = Type(1) << 28;
-static const Type BitwiseNegation = Type(1) << 29;
-static const Type BitwiseAnd = Type(1) << 30;
-static const Type BitwiseXOr = Type(1) << 31;
-static const Type BitwiseOr = Type(1) << 32;
-static const Type BitwiseShiftLeft = Type(1) << 33;
-static const Type BitwiseShiftRight = Type(1) << 34;
-static const Type DoubleOBrace = Type(1) << 35;
-static const Type DoubleCBrace = Type(1) << 36;
-static const Type Null = Type(1) << 37;
-static const Type Eof = Type(1) << 38;
-static const Type Literal = String | Number | Boolean | Null;
-static const Type UnaryOperator =
-  Addition | Subtraction | LogicalNegation | BitwiseNegation;
-static const Type SimpleTerm =
-  Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
-static const Type CompoundTerm =
+constexpr auto Name = Type{1} << 1;
+constexpr auto String = Type{1} << 2;
+constexpr auto Number = Type{1} << 3;
+constexpr auto Boolean = Type{1} << 4;
+constexpr auto OBracket = Type{1} << 5;
+constexpr auto CBracket = Type{1} << 6;
+constexpr auto OBrace = Type{1} << 7;
+constexpr auto CBrace = Type{1} << 8;
+constexpr auto OParen = Type{1} << 9;
+constexpr auto CParen = Type{1} << 10;
+constexpr auto Addition = Type{1} << 11;
+constexpr auto Subtraction = Type{1} << 12;
+constexpr auto Multiplication = Type{1} << 13;
+constexpr auto Division = Type{1} << 14;
+constexpr auto Colon = Type{1} << 16;
+constexpr auto Modulus = Type{1} << 15;
+constexpr auto Comma = Type{1} << 17;
+constexpr auto Range = Type{1} << 18;
+constexpr auto LogicalNegation = Type{1} << 19;
+constexpr auto LogicalAnd = Type{1} << 20;
+constexpr auto LogicalOr = Type{1} << 21;
+constexpr auto Less = Type{1} << 22;
+constexpr auto LessOrEqual = Type{1} << 23;
+constexpr auto Equal = Type{1} << 24;
+constexpr auto NotEqual = Type{1} << 25;
+constexpr auto GreaterOrEqual = Type{1} << 26;
+constexpr auto Greater = Type{1} << 27;
+constexpr auto Case = Type{1} << 28;
+constexpr auto BitwiseNegation = Type{1} << 29;
+constexpr auto BitwiseAnd = Type{1} << 30;
+constexpr auto BitwiseXOr = Type{1} << 31;
+constexpr auto BitwiseOr = Type{1} << 32;
+constexpr auto BitwiseShiftLeft = Type{1} << 33;
+constexpr auto BitwiseShiftRight = Type{1} << 34;
+constexpr auto DoubleOBrace = Type{1} << 35;
+constexpr auto DoubleCBrace = Type{1} << 36;
+constexpr auto Null = Type{1} << 37;
+constexpr auto Eof = Type{1} << 38;
+constexpr auto Literal = String | Number | Boolean | Null;
+constexpr auto UnaryOperator = Addition | Subtraction | LogicalNegation | BitwiseNegation;
+constexpr auto SimpleTerm = Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
+constexpr auto CompoundTerm =
   Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr
   | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd
   | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
@@ -148,5 +144,5 @@ private:
 private:
   TokenNameMap tokenNames() const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

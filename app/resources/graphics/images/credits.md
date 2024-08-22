@@ -3,4 +3,4 @@
 - ColorPreferences.svg (was solid/palette.svg)
 - OmitFromExport_off.svg (was regular/circle.svg)
 - OmitFromExport_on.svg (was regular/times-circle.svg)
-- ResetTextureToWorld.svg (was solid/globe.svg)
+- ResetUVToWorld.svg (was solid/globe.svg)

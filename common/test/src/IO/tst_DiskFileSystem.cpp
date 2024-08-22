@@ -29,12 +29,13 @@
 #include "IO/TestEnvironment.h"
 #include "IO/TraversalMode.h"
 #include "Macros.h"
-#include "Matchers.h"
 
 #include "kdl/regex_utils.h"
 
 #include <algorithm>
 #include <filesystem>
+
+#include "CatchUtils/Matchers.h"
 
 #include "Catch2.h"
 
@@ -207,8 +208,8 @@ TEST_CASE("DiskFileSystemTest")
       == Result<std::shared_ptr<File>>{Error{"'anotherDir' not found"}});
 
     const auto checkOpenFile = [&](const auto& path) {
-      const auto file = fs.openFile(path).value();
-      const auto expected = Disk::openFile(env.dir() / path).value();
+      const auto file = fs.openFile(path) | kdl::value();
+      const auto expected = Disk::openFile(env.dir() / path) | kdl::value();
       CHECK(
         file->reader().readString(file->size())
         == expected->reader().readString(expected->size()));
