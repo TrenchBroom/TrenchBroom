@@ -121,4 +121,11 @@ Result<void> WritableDiskFileSystem::doMoveFile(
   return makeAbsolute(sourcePath).join(makeAbsolute(destPath))
          | kdl::and_then(Disk::moveFile);
 }
+
+Result<void> WritableDiskFileSystem::doRenameDirectory(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
+{
+  return makeAbsolute(sourcePath).join(makeAbsolute(destPath))
+         | kdl::and_then(Disk::renameDirectory);
+}
 } // namespace TrenchBroom::IO

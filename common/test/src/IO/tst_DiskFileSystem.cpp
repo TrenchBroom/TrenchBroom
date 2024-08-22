@@ -363,6 +363,32 @@ TEST_CASE("WritableDiskFileSystemTest")
     CHECK(fs.pathInfo("dir1/test2.map") == PathInfo::File);
   }
 
+  SECTION("renameDirectory")
+  {
+    const auto env = makeTestEnvironment();
+    auto fs = WritableDiskFileSystem{env.dir()};
+
+#if defined _WIN32
+    CHECK(
+      fs.renameDirectory("c:\\hopefully_nothing_here", "dest")
+      == Result<void>{Error{"'c:\\hopefully_nothing_here' is absolute"}});
+    CHECK(
+      fs.renameDirectory("test", "C:\\dest")
+      == Result<void>{Error{"'C:\\dest' is absolute"}});
+#else
+    CHECK(
+      fs.renameDirectory("/hopefully_nothing_here", "dir1/newDir")
+      == Result<void>{Error{"'/hopefully_nothing_here' is absolute"}});
+    CHECK(
+      fs.renameDirectory("anotherDir", "/dir1/newDir")
+      == Result<void>{Error{"'/dir1/newDir' is absolute"}});
+#endif
+
+    CHECK(fs.renameDirectory("anotherDir", "dir1/newDir") == Result<void>{});
+    CHECK(fs.pathInfo("anotherDir") == PathInfo::Unknown);
+    CHECK(fs.pathInfo("dir1/newDir") == PathInfo::Directory);
+  }
+
   SECTION("copyFile")
   {
     const auto env = makeTestEnvironment();

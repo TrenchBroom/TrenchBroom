@@ -146,4 +146,19 @@ Result<void> WritableFileSystem::moveFile(
   }
   return doMoveFile(sourcePath, destPath);
 }
+
+Result<void> WritableFileSystem::renameDirectory(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
+{
+  if (sourcePath.is_absolute())
+  {
+    return Error{"'" + sourcePath.string() + "' is absolute"};
+  }
+  if (destPath.is_absolute())
+  {
+    return Error{"'" + destPath.string() + "' is absolute"};
+  }
+  return doRenameDirectory(sourcePath, destPath);
+}
+
 } // namespace TrenchBroom::IO

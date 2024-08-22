@@ -355,4 +355,10 @@ Result<void> WritableVirtualFileSystem::doMoveFile(
   return m_writableFs.moveFile(sourcePath, destPath);
 }
 
+Result<void> WritableVirtualFileSystem::doRenameDirectory(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
+{
+  return m_writableFs.renameDirectory(sourcePath, destPath);
+}
+
 } // namespace TrenchBroom::IO
