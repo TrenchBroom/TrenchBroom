@@ -104,6 +104,9 @@ private:
   Result<void> doMoveFile(
     const std::filesystem::path& sourcePath,
     const std::filesystem::path& destPath) override;
+  Result<void> doRenameDirectory(
+    const std::filesystem::path& sourcePath,
+    const std::filesystem::path& destPath) override;
 };
 
 } // namespace TrenchBroom::IO

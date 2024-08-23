@@ -17,59 +17,69 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 
+#include "kdl/vector_utils.h"
+
+#include <fmt/format.h>
+
 #include <filesystem>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Model
 {
 
-static const auto gamesPath = std::filesystem::path{"games"};
-static const auto userPath = std::filesystem::path{"user"};
-
 namespace
 {
-void setupTestEnvironment(IO::TestEnvironment& env)
+const auto gamesPath = std::filesystem::path{"games"};
+const auto userPath = std::filesystem::path{"user"};
+
+void writeGameConfig(
+  IO::TestEnvironment& env, const std::string& gameDirectory, const std::string& gameName)
 {
-  env.createDirectory(gamesPath);
-  env.createDirectory(gamesPath / "Quake");
-  env.createFile(gamesPath / "Quake/GameConfig.cfg", R"({
+  env.createDirectory(gamesPath / gameDirectory);
+  env.createFile(
+    gamesPath / gameDirectory / "GameConfig.cfg",
+    fmt::format(
+      R"({{
     "version": 9,
-    "name": "Quake",
+    "name": "{}",
     "icon": "Icon.png",
     "fileformats": [
-        { "format": "Valve" }
+        {{ "format": "Valve" }}
     ],
-    "filesystem": {
+    "filesystem": {{
         "searchpath": "id1",
-        "packageformat": { "extension": "pak", "format": "idpak" }
-    },
-    "materials": {
+        "packageformat": {{ "extension": "pak", "format": "idpak" }}
+    }},
+    "materials": {{
         "root": "textures",
         "extensions": [".D"],
         "palette": "gfx/palette.lmp",
         "attribute": "wad"
-    },
-    "entities": {
+    }},
+    "entities": {{
         "definitions": [],
         "defaultcolor": "0.6 0.6 0.6 1.0",
         "modelformats": [ "mdl" ]
-    },
-    "tags": {
+    }},
+    "tags": {{
         "brush": [],
         "brushface": []
-    }
-})");
+    }}
+}})",
+      gameName));
+}
 
-  env.createDirectory(userPath);
-  env.createDirectory(userPath / "Quake");
-  env.createFile(userPath / "Quake/CompilationProfiles.cfg", R"({
+void writeCompilationProfile(IO::TestEnvironment& env, const std::string& directory)
+{
+  env.createDirectory(userPath / directory);
+  env.createFile(userPath / directory / "CompilationProfiles.cfg", R"({
     "profiles": [
         {
             "name": "Full Compile",
@@ -84,8 +94,12 @@ void setupTestEnvironment(IO::TestEnvironment& env)
     ],
     "version": 1
 })");
+}
 
-  env.createFile(userPath / "Quake/GameEngineProfiles.cfg", R"({
+void writeGameEngineProfile(IO::TestEnvironment& env, const std::string& directory)
+{
+  env.createDirectory(userPath / directory);
+  env.createFile(userPath / directory / "GameEngineProfiles.cfg", R"({
     "profiles": [
         {
             "name": "QuakeSpasm",
@@ -95,84 +109,51 @@ void setupTestEnvironment(IO::TestEnvironment& env)
     ],
     "version": 1
 })");
+}
+
+void setupTestEnvironment(IO::TestEnvironment& env)
+{
+  env.createDirectory(gamesPath);
+  env.createDirectory(userPath);
+
+  writeGameConfig(env, "Quake", "Quake");
+  writeCompilationProfile(env, "Quake");
+  writeGameEngineProfile(env, "Quake");
 
   // This config will fail to parse and should be ignored
   env.createDirectory(gamesPath / "Quake 2");
-  env.createFile(gamesPath / "Quake 2/GameConfig.cfg", R"({
+  env.createFile(gamesPath / "Quake 2" / "GameConfig.cfg", R"({
     asdf
 })");
 
-  env.createDirectory(gamesPath);
   env.createDirectory(gamesPath / "Quake 3");
-  env.createFile(gamesPath / "Quake 3/GameConfig.cfg", R"({
-    "version": 9,
-    "name": "Quake 3",
-    "icon": "Icon.png",
-    "fileformats": [
-        { "format": "Quake"
-    }
-    ],
-    "filesystem": {
-        "searchpath": "baseq3",
-        "packageformat": { "extension": "pk3", "format": "zip" }
-    },
-    "materials": {
-        "root": "textures",
-        "extensions": [ "" ],
-        "shaderSearchPath": "scripts"
-    },
-    "entities": {
-        "definitions": [],
-        "defaultcolor": "0.6 0.6 0.6 1.0",
-        "modelformats": [ "md3" ]
-    },
-    "tags":
-    {
-      "brush" : [], "brushface" : []
-    }
-})");
+  writeGameConfig(env, "Quake 3", "Quake 3");
 
-  env.createDirectory(userPath);
+  // This config will fail to parse and should be ignored
   env.createDirectory(userPath / "Quake 3");
-
-  // This config will fail to parse and should be ignored
-  env.createFile(userPath / "Quake 3/CompilationProfiles.cfg", R"({
+  env.createFile(userPath / "Quake 3" / "CompilationProfiles.cfg", R"({
     asdf
 })");
 
   // This config will fail to parse and should be ignored
-  env.createFile(userPath / "Quake 3/GameEngineProfiles.cfg", R"({
+  env.createFile(userPath / "Quake 3" / "GameEngineProfiles.cfg", R"({
     asdf
 })");
 
-  env.createDirectory(gamesPath / "Daikatana");
-  env.createFile(gamesPath / "Daikatana/GameConfig.cfg", R"({
-    "version": 9,
-    "name": "Daikatana",
-    "icon": "Icon.png",
-    "fileformats": [
-        { "format": "Valve" }
-    ],
-    "filesystem": {
-        "searchpath": "id1",
-        "packageformat": { "extension": "pak", "format": "idpak" }
-    },
-    "materials": {
-        "root": "textures",
-        "extensions": [".D"],
-        "palette": "gfx/palette.lmp",
-        "attribute": "wad"
-    },
-    "entities": {
-        "definitions": [],
-        "defaultcolor": "0.6 0.6 0.6 1.0",
-        "modelformats": [ "mdl" ]
-    },
-    "tags": {
-        "brush": [],
-        "brushface": []
-    }
-})");
+  writeGameConfig(env, "Daikatana", "Daikatana");
+
+  // Successful migration
+  writeGameConfig(env, "Migrate1", "Migrate 1");
+  writeCompilationProfile(env, "Migrate 1");
+
+  // Already migrated
+  writeGameConfig(env, "Migrate2", "Migrate 2");
+  writeCompilationProfile(env, "Migrate2");
+
+  // Migration blocked
+  writeGameConfig(env, "Migrate3", "Migrate 3");
+  writeCompilationProfile(env, "Migrate 3");
+  writeGameEngineProfile(env, "Migrate3");
 }
 } // namespace
 
@@ -192,6 +173,9 @@ TEST_CASE("GameFactory")
       gameFactory.gameList()
       == std::vector<std::string>{
         "Daikatana",
+        "Migrate 1",
+        "Migrate 2",
+        "Migrate 3",
         "Quake",
         "Quake 3",
       });
@@ -205,6 +189,20 @@ TEST_CASE("GameFactory")
     CHECK(quake3Config.name == "Quake 3");
     CHECK(quake3Config.compilationConfig.profiles.empty());
     CHECK(quake3Config.gameEngineConfig.profiles.empty());
+
+    const auto& quake4Config = gameFactory.gameConfig("Migrate 1");
+    CHECK(quake4Config.name == "Migrate 1");
+    CHECK(quake4Config.compilationConfig.profiles.size() == 1);
+    CHECK(quake4Config.gameEngineConfig.profiles.empty());
+
+    CHECK(!env.directoryExists(userPath / "Migrate 1"));
+    CHECK(env.fileExists(userPath / "Migrate1" / "CompilationProfiles.cfg"));
+
+    CHECK(!env.directoryExists(userPath / "Migrate 2"));
+    CHECK(env.fileExists(userPath / "Migrate2" / "CompilationProfiles.cfg"));
+
+    CHECK(env.fileExists(userPath / "Migrate 3" / "CompilationProfiles.cfg"));
+    CHECK(env.fileExists(userPath / "Migrate3" / "GameEngineProfiles.cfg"));
   }
 
   SECTION("saveCompilationConfig")
@@ -212,13 +210,7 @@ TEST_CASE("GameFactory")
     REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
               .is_success());
 
-    REQUIRE(
-      gameFactory.gameList()
-      == std::vector<std::string>{
-        "Daikatana",
-        "Quake",
-        "Quake 3",
-      });
+    REQUIRE(kdl::vec_contains(gameFactory.gameList(), "Daikatana"));
 
     auto logger = NullLogger{};
     gameFactory.saveCompilationConfig("Daikatana", {{{"name", "workDir", {}}}}, logger);
@@ -230,13 +222,7 @@ TEST_CASE("GameFactory")
     REQUIRE(gameFactory.initialize({{env.dir() / gamesPath}, env.dir() / userPath})
               .is_success());
 
-    REQUIRE(
-      gameFactory.gameList()
-      == std::vector<std::string>{
-        "Daikatana",
-        "Quake",
-        "Quake 3",
-      });
+    REQUIRE(kdl::vec_contains(gameFactory.gameList(), "Daikatana"));
 
     auto logger = NullLogger{};
     gameFactory.saveGameEngineConfig(
@@ -275,6 +261,6 @@ TEST_CASE("GameFactory")
 }
 })") == std::pair{"Quake"s, MapFormat::Quake2});
   }
-} // namespace
+}
 
 } // namespace TrenchBroom::Model

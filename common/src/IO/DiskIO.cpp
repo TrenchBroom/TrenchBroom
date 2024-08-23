@@ -251,6 +251,36 @@ Result<void> moveFile(
   return kdl::void_success;
 }
 
+Result<void> renameDirectory(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath)
+{
+  const auto fixedSourcePath = fixPath(sourcePath);
+  if (pathInfo(fixedSourcePath) == PathInfo::File)
+  {
+    return Error{
+      "Failed to rename '" + fixedSourcePath.string() + "': path denotes a file"};
+  }
+
+  auto fixedDestPath = fixPath(destPath);
+  if (pathInfo(fixedDestPath) != PathInfo::Unknown)
+  {
+    return Error{
+      "Failed to rename '" + fixedSourcePath.string() + "' to '" + fixedDestPath.string()
+      + "': target path already exists"};
+  }
+
+  auto error = std::error_code{};
+  std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
+  if (error)
+  {
+    return Error{
+      "Failed to rename '" + fixedSourcePath.string() + "' to '" + fixedDestPath.string()
+      + "': " + error.message()};
+  }
+
+  return kdl::void_success;
+}
+
 std::filesystem::path resolvePath(
   const std::vector<std::filesystem::path>& searchPaths,
   const std::filesystem::path& path)

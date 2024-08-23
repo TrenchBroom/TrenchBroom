@@ -132,6 +132,9 @@ Result<void> copyFile(
 Result<void> moveFile(
   const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
+Result<void> renameDirectory(
+  const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
+
 std::filesystem::path resolvePath(
   const std::vector<std::filesystem::path>& searchPaths,
   const std::filesystem::path& path);

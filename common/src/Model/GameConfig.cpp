@@ -95,6 +95,11 @@ kdl_reflect_impl(CompilationTool);
 
 kdl_reflect_impl(GameConfig);
 
+std::filesystem::path GameConfig::configFileFolder() const
+{
+  return path.parent_path().filename();
+}
+
 std::filesystem::path GameConfig::findInitialMap(const std::string& formatName) const
 {
   for (const auto& format : fileFormats)

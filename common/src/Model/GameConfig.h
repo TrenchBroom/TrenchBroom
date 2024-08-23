@@ -168,6 +168,9 @@ struct GameConfig
     gameEngineConfigParseFailed,
     maxPropertyLength);
 
+  /** Returns a folder name to use for user configuration files. */
+  std::filesystem::path configFileFolder() const;
+
   std::filesystem::path findInitialMap(const std::string& formatName) const;
   std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };

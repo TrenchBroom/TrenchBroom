@@ -89,6 +89,8 @@ public:
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
   Result<void> moveFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
+  Result<void> renameDirectory(
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath);
 
 private:
   virtual Result<void> doCreateFile(
@@ -98,6 +100,8 @@ private:
   virtual Result<void> doCopyFile(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
   virtual Result<void> doMoveFile(
+    const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
+  virtual Result<void> doRenameDirectory(
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 
