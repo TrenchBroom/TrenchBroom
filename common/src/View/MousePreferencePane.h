@@ -47,6 +47,7 @@ private:
   QCheckBox* m_invertPanVAxisCheckBox = nullptr;
   SliderWithLabel* m_moveSpeedSlider = nullptr;
   QCheckBox* m_invertMouseWheelCheckBox = nullptr;
+  QCheckBox* m_trackpadModeCheckBox = nullptr;
   QCheckBox* m_enableAltMoveCheckBox = nullptr;
   QCheckBox* m_invertAltMoveAxisCheckBox = nullptr;
   QCheckBox* m_moveInCursorDirCheckBox = nullptr;
@@ -89,6 +90,7 @@ private slots:
 
   void moveSpeedChanged(int value);
   void invertMouseWheelChanged(int state);
+  void trackpadModeChanged(int state);
   void enableAltMoveChanged(int state);
   void invertAltMoveAxisChanged(int state);
   void moveInCursorDirChanged(int state);

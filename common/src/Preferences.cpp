@@ -223,6 +223,7 @@ Preference<float> CameraPanSpeed("Controls/Camera/Pan speed", 0.5f);
 Preference<bool> CameraPanInvertH("Controls/Camera/Invert horizontal pan", false);
 Preference<bool> CameraPanInvertV("Controls/Camera/Invert vertical pan", false);
 Preference<bool> CameraMouseWheelInvert("Controls/Camera/Invert mouse wheel", false);
+Preference<bool> CameraTrackpadMode("Controls/Camera/Trackpad mode", false);
 Preference<float> CameraMoveSpeed("Controls/Camera/Move speed", 0.3f);
 Preference<bool> CameraEnableAltMove("Controls/Camera/Use alt to move", false);
 Preference<bool> CameraAltMoveInvert(
@@ -402,6 +403,7 @@ const std::vector<PreferenceBase*>& staticPreferences()
     &CameraPanInvertH,
     &CameraPanInvertV,
     &CameraMouseWheelInvert,
+    &CameraTrackpadMode,
     &CameraMoveSpeed,
     &CameraEnableAltMove,
     &CameraAltMoveInvert,

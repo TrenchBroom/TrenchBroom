@@ -60,6 +60,7 @@ void MousePreferencePane::createGui()
   m_moveSpeedSlider = new SliderWithLabel{1, 100};
   m_moveSpeedSlider->setMaximumWidth(400);
   m_invertMouseWheelCheckBox = new QCheckBox{"Invert mouse wheel"};
+  m_trackpadModeCheckBox = new QCheckBox{"Optimize for trackpad input"};
   m_enableAltMoveCheckBox = new QCheckBox{"Alt + middle mouse drag to move camera"};
   m_invertAltMoveAxisCheckBox = new QCheckBox{"Invert Z axis in Alt + middle mouse drag"};
   m_moveInCursorDirCheckBox = new QCheckBox{"Move camera towards cursor"};
@@ -119,6 +120,7 @@ void MousePreferencePane::createGui()
   layout->addSection("Mouse Move");
   layout->addRow("Sensitivity", m_moveSpeedSlider);
   layout->addRow("", m_invertMouseWheelCheckBox);
+  layout->addRow("", m_trackpadModeCheckBox);
   layout->addRow("", m_enableAltMoveCheckBox);
   layout->addRow("", m_invertAltMoveAxisCheckBox);
   layout->addRow("", m_moveInCursorDirCheckBox);
@@ -195,6 +197,11 @@ void MousePreferencePane::bindEvents()
     this,
     &MousePreferencePane::invertMouseWheelChanged);
   connect(
+    m_trackpadModeCheckBox,
+    &QCheckBox::stateChanged,
+    this,
+    &MousePreferencePane::trackpadModeChanged);
+  connect(
     m_enableAltMoveCheckBox,
     &QCheckBox::stateChanged,
     this,
@@ -266,6 +273,7 @@ void MousePreferencePane::doResetToDefaults()
 
   prefs.resetToDefault(Preferences::CameraMoveSpeed);
   prefs.resetToDefault(Preferences::CameraMouseWheelInvert);
+  prefs.resetToDefault(Preferences::CameraTrackpadMode);
   prefs.resetToDefault(Preferences::CameraEnableAltMove);
   prefs.resetToDefault(Preferences::CameraAltMoveInvert);
   prefs.resetToDefault(Preferences::CameraMoveInCursorDir);
@@ -292,6 +300,7 @@ void MousePreferencePane::doUpdateControls()
 
   m_moveSpeedSlider->setRatio(pref(Preferences::CameraMoveSpeed));
   m_invertMouseWheelCheckBox->setChecked(pref(Preferences::CameraMouseWheelInvert));
+  m_trackpadModeCheckBox->setChecked(pref(Preferences::CameraTrackpadMode));
   m_enableAltMoveCheckBox->setChecked(pref(Preferences::CameraEnableAltMove));
   m_invertAltMoveAxisCheckBox->setChecked(pref(Preferences::CameraAltMoveInvert));
   m_moveInCursorDirCheckBox->setChecked(pref(Preferences::CameraMoveInCursorDir));
@@ -368,6 +377,13 @@ void MousePreferencePane::invertMouseWheelChanged(const int state)
   const auto value = (state == Qt::Checked);
   auto& prefs = PreferenceManager::instance();
   prefs.set(Preferences::CameraMouseWheelInvert, value);
+}
+
+void MousePreferencePane::trackpadModeChanged(const int state)
+{
+  const auto value = (state == Qt::Checked);
+  auto& prefs = PreferenceManager::instance();
+  prefs.set(Preferences::CameraTrackpadMode, value);
 }
 
 void MousePreferencePane::enableAltMoveChanged(const int state)
