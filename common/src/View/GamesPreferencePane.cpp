@@ -176,7 +176,7 @@ void GamePreferencePane::createGui()
   m_gamePathText = new QLineEdit{};
   m_gamePathText->setPlaceholderText(tr("Click on the button to change..."));
   connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
-    updateGamePath(this->m_gamePathText->text());
+    updateGamePath(m_gamePathText->text());
   });
 
   auto* validDirectoryIcon = new QAction{m_gamePathText};
@@ -242,13 +242,13 @@ void GamePreferencePane::createGui()
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
-    connect(edit, &QLineEdit::editingFinished, this, [&, toolName]() {
+    connect(edit, &QLineEdit::editingFinished, this, [this, toolName, edit]() {
       Model::GameFactory::instance().setCompilationToolPath(
         m_gameName, toolName, IO::pathFromQString(edit->text()));
     });
 
     auto* browseButton = new QPushButton{"..."};
-    connect(browseButton, &QPushButton::clicked, this, [&, toolName]() {
+    connect(browseButton, &QPushButton::clicked, this, [this, toolName, edit]() {
       const auto pathStr = QFileDialog::getOpenFileName(
         this,
         tr("%1 Path").arg(QString::fromStdString(toolName)),
