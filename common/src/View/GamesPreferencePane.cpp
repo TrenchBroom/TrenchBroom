@@ -31,15 +31,12 @@
 #include <QToolButton>
 #include <QWidget>
 
-#include "Exceptions.h"
 #include "FileLogger.h"
 #include "IO/DiskIO.h"
 #include "IO/PathQt.h"
 #include "IO/ResourceUtils.h"
-#include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
-#include "PreferenceManager.h"
 #include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/GameEngineDialog.h"
@@ -48,17 +45,11 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
-  : PreferencePane(parent)
+  : PreferencePane{parent}
   , m_document{document}
-  , m_gameListBox(nullptr)
-  , m_stackedWidget(nullptr)
-  , m_defaultPage(nullptr)
-  , m_currentGamePage(nullptr)
 {
   createGui();
   updateControls();
@@ -67,14 +58,14 @@ GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
 
 void GamesPreferencePane::createGui()
 {
-  m_gameListBox = new GameListBox();
+  m_gameListBox = new GameListBox{};
   m_gameListBox->selectGame(0);
   m_gameListBox->setMaximumWidth(220);
   m_gameListBox->setMinimumHeight(300);
 
   m_defaultPage = createDefaultPage(tr("Select a game."));
 
-  m_stackedWidget = new QStackedWidget();
+  m_stackedWidget = new QStackedWidget{};
   m_stackedWidget->addWidget(m_defaultPage);
 
   auto* showUserConfigDirButton =
@@ -87,13 +78,13 @@ void GamesPreferencePane::createGui()
 
   auto* buttonLayout = createMiniToolBarLayoutRightAligned(showUserConfigDirButton);
 
-  auto* glbLayout = new QVBoxLayout();
+  auto* glbLayout = new QVBoxLayout{};
   glbLayout->addWidget(m_gameListBox);
   glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
   glbLayout->addLayout(buttonLayout);
 
-  auto* layout = new QHBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QHBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   layout->setSpacing(0);
   setLayout(layout);
 
@@ -139,12 +130,12 @@ void GamesPreferencePane::doUpdateControls()
 {
   m_gameListBox->updateGameInfos();
 
-  const std::string desiredGame = m_gameListBox->selectedGameName();
+  const auto desiredGame = m_gameListBox->selectedGameName();
   if (desiredGame.empty())
   {
     m_stackedWidget->setCurrentWidget(m_defaultPage);
   }
-  else if (m_currentGamePage != nullptr && m_currentGamePage->gameName() == desiredGame)
+  else if (m_currentGamePage && m_currentGamePage->gameName() == desiredGame)
   {
     // refresh the current page
     m_currentGamePage->updateControls();
@@ -153,7 +144,7 @@ void GamesPreferencePane::doUpdateControls()
   {
     // build a new current page
     delete m_currentGamePage;
-    m_currentGamePage = new GamePreferencePane(desiredGame);
+    m_currentGamePage = new GamePreferencePane{desiredGame};
 
     m_stackedWidget->addWidget(m_currentGamePage);
     m_stackedWidget->setCurrentWidget(m_currentGamePage);
@@ -173,34 +164,32 @@ bool GamesPreferencePane::doValidate()
 
 // GamePreferencePane
 
-GamePreferencePane::GamePreferencePane(const std::string& gameName, QWidget* parent)
-  : QWidget(parent)
-  , m_gameName(gameName)
-  , m_gamePathText(nullptr)
-  , m_chooseGamePathButton(nullptr)
+GamePreferencePane::GamePreferencePane(std::string gameName, QWidget* parent)
+  : QWidget{parent}
+  , m_gameName{std::move(gameName)}
 {
   createGui();
 }
 
 void GamePreferencePane::createGui()
 {
-  m_gamePathText = new QLineEdit();
+  m_gamePathText = new QLineEdit{};
   m_gamePathText->setPlaceholderText(tr("Click on the button to change..."));
   connect(m_gamePathText, &QLineEdit::editingFinished, this, [this]() {
     updateGamePath(this->m_gamePathText->text());
   });
 
-  auto* validDirectoryIcon = new QAction(m_gamePathText);
+  auto* validDirectoryIcon = new QAction{m_gamePathText};
   m_gamePathText->addAction(validDirectoryIcon, QLineEdit::TrailingPosition);
   connect(
     m_gamePathText,
     &QLineEdit::textChanged,
     this,
     [validDirectoryIcon](const QString& text) {
-      if (text.isEmpty() || QDir(text).exists())
+      if (text.isEmpty() || QDir{text}.exists())
       {
         validDirectoryIcon->setToolTip("");
-        validDirectoryIcon->setIcon(QIcon());
+        validDirectoryIcon->setIcon(QIcon{});
       }
       else
       {
@@ -209,27 +198,27 @@ void GamePreferencePane::createGui()
       }
     });
 
-  auto* chooseGamePathButton = new QPushButton(tr("..."));
+  auto* chooseGamePathButton = new QPushButton{tr("...")};
   connect(
     chooseGamePathButton,
     &QPushButton::clicked,
     this,
     &GamePreferencePane::chooseGamePathClicked);
 
-  auto* configureEnginesButton = new QPushButton(tr("Configure engines..."));
+  auto* configureEnginesButton = new QPushButton{tr("Configure engines...")};
   connect(
     configureEnginesButton,
     &QPushButton::clicked,
     this,
     &GamePreferencePane::configureEnginesClicked);
 
-  auto* gamePathLayout = new QHBoxLayout();
-  gamePathLayout->setContentsMargins(QMargins());
+  auto* gamePathLayout = new QHBoxLayout{};
+  gamePathLayout->setContentsMargins(QMargins{});
   gamePathLayout->setSpacing(LayoutConstants::MediumHMargin);
   gamePathLayout->addWidget(m_gamePathText, 1);
   gamePathLayout->addWidget(chooseGamePathButton);
 
-  auto* layout = new FormWithSectionsLayout();
+  auto* layout = new FormWithSectionsLayout{};
   layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
   layout->setVerticalSpacing(2);
   layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
@@ -245,8 +234,8 @@ void GamePreferencePane::createGui()
 
   for (auto& tool : gameConfig.compilationTools)
   {
-    const std::string toolName = tool.name;
-    auto* edit = new QLineEdit();
+    const auto toolName = tool.name;
+    auto* edit = new QLineEdit{};
     edit->setText(
       IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
     if (tool.description)
@@ -258,26 +247,25 @@ void GamePreferencePane::createGui()
         m_gameName, toolName, IO::pathFromQString(edit->text()));
     });
 
-    auto* browseButton = new QPushButton("...");
+    auto* browseButton = new QPushButton{"..."};
     connect(browseButton, &QPushButton::clicked, this, [&, toolName]() {
-      const QString pathStr = QFileDialog::getOpenFileName(
+      const auto pathStr = QFileDialog::getOpenFileName(
         this,
         tr("%1 Path").arg(QString::fromStdString(toolName)),
         fileDialogDefaultDirectory(FileDialogDir::CompileTool));
-      if (pathStr.isEmpty())
+      if (!pathStr.isEmpty())
       {
-        return;
-      }
-      edit->setText(pathStr);
-      if (Model::GameFactory::instance().setCompilationToolPath(
-            m_gameName, toolName, IO::pathFromQString(pathStr)))
-      {
-        emit requestUpdate();
+        edit->setText(pathStr);
+        if (Model::GameFactory::instance().setCompilationToolPath(
+              m_gameName, toolName, IO::pathFromQString(pathStr)))
+        {
+          emit requestUpdate();
+        }
       }
     });
 
-    auto* rowLayout = new QHBoxLayout();
-    rowLayout->setContentsMargins(QMargins());
+    auto* rowLayout = new QHBoxLayout{};
+    rowLayout->setContentsMargins(QMargins{});
     rowLayout->setSpacing(LayoutConstants::MediumHMargin);
     rowLayout->addWidget(edit, 1);
     rowLayout->addWidget(browseButton);
@@ -292,7 +280,7 @@ void GamePreferencePane::createGui()
 
 void GamePreferencePane::chooseGamePathClicked()
 {
-  const QString pathStr = QFileDialog::getExistingDirectory(
+  const auto pathStr = QFileDialog::getExistingDirectory(
     this, tr("Game Path"), fileDialogDefaultDirectory(FileDialogDir::GamePath));
   if (!pathStr.isEmpty())
   {
@@ -314,7 +302,7 @@ void GamePreferencePane::updateGamePath(const QString& str)
 
 void GamePreferencePane::configureEnginesClicked()
 {
-  GameEngineDialog dialog(m_gameName, this);
+  auto dialog = GameEngineDialog{m_gameName, this};
   dialog.exec();
 }
 
@@ -328,7 +316,7 @@ void GamePreferencePane::updateControls()
   auto& gameFactory = Model::GameFactory::instance();
 
   // Refresh tool paths from preferences
-  for (auto& [toolName, toolPathEditor] : m_toolPathEditors)
+  for (const auto& [toolName, toolPathEditor] : m_toolPathEditors)
   {
     toolPathEditor->setText(
       IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
@@ -338,5 +326,5 @@ void GamePreferencePane::updateControls()
   const auto gamePath = gameFactory.gamePath(m_gameName);
   m_gamePathText->setText(IO::pathAsQString(gamePath));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
