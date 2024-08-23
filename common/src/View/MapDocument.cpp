@@ -80,6 +80,7 @@
 #include "Model/Polyhedron3.h"
 #include "Model/PropertyKeyWithDoubleQuotationMarksValidator.h"
 #include "Model/PropertyValueWithDoubleQuotationMarksValidator.h"
+#include "Model/PushSelection.h"
 #include "Model/SoftMapBoundsValidator.h"
 #include "Model/TagManager.h"
 #include "Model/VisibilityState.h"
@@ -4452,6 +4453,10 @@ void MapDocument::setEnabledMaterialCollections(
     ";");
 
   auto transaction = Transaction{*this, "Set enabled material collections"};
+
+  const auto pushSelection = Model::PushSelection{this};
+  deselectAll();
+
   const auto success = setProperty(
     Model::EntityPropertyKeys::EnabledMaterialCollections, enabledMaterialCollectionStr);
   transaction.finish(success);
