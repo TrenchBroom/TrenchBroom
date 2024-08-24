@@ -29,6 +29,19 @@ namespace TrenchBroom
 {
 namespace View
 {
+
+static void zoom(
+  Renderer::OrthographicCamera& camera, const vm::vec2f& mousePos, const float factor)
+{
+  const auto oldWorldPos = camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+
+  camera.zoom(factor);
+
+  const auto newWorldPos = camera.unproject(mousePos.x(), mousePos.y(), 0.0f);
+  const auto delta = newWorldPos - oldWorldPos;
+  camera.moveBy(-delta);
+}
+
 UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
@@ -48,8 +61,7 @@ const Tool& UVCameraTool::tool() const
 
 void UVCameraTool::mouseScroll(const InputState& inputState)
 {
-  const auto oldWorldPos =
-    m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
+  const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
 
   // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only
   // care about scrollY().
@@ -58,7 +70,7 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
   {
     if (m_camera.zoom() < 10.0f)
     {
-      m_camera.zoom(1.1f);
+      zoom(m_camera, mousePos, 1.1f);
     }
   }
 
@@ -66,14 +78,9 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
   {
     if (m_camera.zoom() > 0.1f)
     {
-      m_camera.zoom(1.0f / 1.1f);
+      zoom(m_camera, mousePos, 1.0f / 1.1f);
     }
   }
-
-  const auto newWorldPos =
-    m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
-  const auto delta = oldWorldPos - newWorldPos;
-  m_camera.moveBy(delta);
 }
 
 namespace
