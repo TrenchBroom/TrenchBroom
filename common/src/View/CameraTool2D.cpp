@@ -32,6 +32,23 @@ namespace TrenchBroom
 {
 namespace View
 {
+
+static float adjustSpeedToZoom(
+  const Renderer::OrthographicCamera& camera, const float speed)
+{
+  return speed / vm::max(0.001f, camera.zoom());
+}
+
+static float moveSpeed(const Renderer::OrthographicCamera& camera, const bool altMode)
+{
+  float speed = pref(Preferences::CameraMoveSpeed) * 40.0f;
+  if (altMode && pref(Preferences::CameraAltMoveInvert))
+  {
+    speed *= -1.0f;
+  }
+  return adjustSpeedToZoom(camera, speed);
+}
+
 CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
@@ -70,17 +87,41 @@ static void zoom(
 
 void CameraTool2D::mouseScroll(const InputState& inputState)
 {
-  if (shouldZoom(inputState))
+  if (pref(Preferences::CameraTrackpadMode))
   {
-    if (inputState.scrollY() != 0.0f)
+    const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+
+    if (inputState.pinchAmount() != 0.0f)
     {
-      const float speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-      const float factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+      const auto zoomFactor = 1.0f + inputState.pinchAmount() * factor;
       const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
 
-      if (factor > 0.0f)
+      if (zoomFactor > 0.0f)
       {
-        zoom(m_camera, mousePos, factor);
+        zoom(m_camera, mousePos, zoomFactor);
+      }
+    }
+    else
+    {
+      const auto delta = -m_camera.right() * factor * inputState.scrollX()
+                         + m_camera.up() * factor * inputState.scrollY();
+      m_camera.moveBy(delta * moveSpeed(m_camera, false));
+    }
+  }
+  else
+  {
+    if (shouldZoom(inputState))
+    {
+      if (inputState.scrollY() != 0.0f)
+      {
+        const auto speed = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+        const auto factor = 1.0f + inputState.scrollY() / 50.0f * speed;
+        const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
+
+        if (factor > 0.0f)
+        {
+          zoom(m_camera, mousePos, factor);
+        }
       }
     }
   }
