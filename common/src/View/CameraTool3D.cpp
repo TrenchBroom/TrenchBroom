@@ -154,28 +154,64 @@ void CameraTool3D::mouseScroll(const InputState& inputState)
 {
   const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
   const bool zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
-  const float scrollDist =
-#ifdef __APPLE__
-    inputState.modifierKeysPressed(ModifierKeys::MKShift) ? inputState.scrollX()
-                                                          : inputState.scrollY();
-#else
-    inputState.scrollY();
-#endif
 
-  if (shouldMove(inputState))
+  if (pref(Preferences::CameraTrackpadMode))
   {
-    if (zoom)
+    const auto orbit = inputState.modifierKeysPressed(ModifierKeys::MKAlt)
+                       || inputState.rotateAmount() != 0.0f;
+
+    const auto moveDirection = pref(Preferences::CameraMoveInCursorDir)
+                                 ? vm::vec3f{inputState.pickRay().direction}
+                                 : m_camera.direction();
+
+    if (orbit)
     {
-      const float zoomFactor = 1.0f + scrollDist / 50.0f * factor;
+      m_camera.orbit(
+        vm::vec3f{m_camera.defaultPoint(inputState.pickRay())},
+        -inputState.scrollX() * factor * 0.1f + vm::to_radians(inputState.rotateAmount()),
+        -inputState.scrollY() * factor * 0.1f);
+    }
+    else if (zoom)
+    {
+      const auto zoomFactor = 1.0f - inputState.pinchAmount() * factor;
       m_camera.zoom(zoomFactor);
+
+      const auto delta = moveDirection * factor * inputState.scrollY();
+      m_camera.moveBy(delta * moveSpeed(m_camera, false));
     }
     else
     {
-      const auto moveDirection = pref(Preferences::CameraMoveInCursorDir)
-                                   ? vm::vec3f{inputState.pickRay().direction}
-                                   : m_camera.direction();
-      const float distance = scrollDist * moveSpeed(m_camera, false);
-      m_camera.moveBy(factor * distance * moveDirection);
+      const auto delta = -m_camera.right() * factor * inputState.scrollX()
+                         + m_camera.up() * factor * inputState.scrollY()
+                         + moveDirection * factor * inputState.pinchAmount() * 30.0f;
+      m_camera.moveBy(delta * moveSpeed(m_camera, false));
+    }
+  }
+  else
+  {
+    const auto scrollDist =
+#ifdef __APPLE__
+      inputState.modifierKeysPressed(ModifierKeys::MKShift) ? inputState.scrollX()
+                                                            : inputState.scrollY();
+#else
+      inputState.scrollY();
+#endif
+
+    if (shouldMove(inputState))
+    {
+      if (zoom)
+      {
+        const auto zoomFactor = 1.0f + scrollDist / 50.0f * factor;
+        m_camera.zoom(zoomFactor);
+      }
+      else
+      {
+        const auto moveDirection = pref(Preferences::CameraMoveInCursorDir)
+                                     ? vm::vec3f{inputState.pickRay().direction}
+                                     : m_camera.direction();
+        const auto distance = scrollDist * moveSpeed(m_camera, false);
+        m_camera.moveBy(factor * distance * moveDirection);
+      }
     }
   }
 }
