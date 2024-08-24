@@ -90,10 +90,12 @@ void CameraTool2D::mouseScroll(const InputState& inputState)
   if (pref(Preferences::CameraTrackpadMode))
   {
     const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+    const auto shouldZoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
 
-    if (inputState.pinchAmount() != 0.0f)
+    if (inputState.pinchAmount() != 0.0f || shouldZoom)
     {
-      const auto zoomFactor = 1.0f + inputState.pinchAmount() * factor;
+      const auto zoomFactor =
+        1.0f + inputState.pinchAmount() * factor + inputState.scrollY() / 50.0f * factor;
       const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
 
       if (zoomFactor > 0.0f)
