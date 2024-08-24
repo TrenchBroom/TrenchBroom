@@ -70,6 +70,8 @@ private:
   float m_mouseDY;
   float m_scrollX;
   float m_scrollY;
+  float m_pinchAmount;
+  float m_rotateAmount;
 
   bool m_anyToolDragging;
   PickRequest m_pickRequest;
@@ -111,6 +113,14 @@ public:
    * Number of "lines" to scroll vertically.
    */
   float scrollY() const;
+  /**
+   * Pinch gesture change amount.
+   */
+  float pinchAmount() const;
+  /**
+   * Rotate gesture change amount. (In degrees)
+   */
+  float rotateAmount() const;
 
   void setModifierKeys(const ModifierKeyState keys);
   void clearModifierKeys();
@@ -120,6 +130,8 @@ public:
   void mouseMove(
     const float mouseX, const float mouseY, const float mouseDX, const float mouseDY);
   void scroll(const float scrollX, const float scrollY);
+  void pinch(const float pinchAmount);
+  void rotate(const float rotateAmount);
 
   bool anyToolDragging() const;
   void setAnyToolDragging(bool anyToolDragging);

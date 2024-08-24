@@ -185,6 +185,22 @@ void RenderView::wheelEvent(QWheelEvent* event)
   update();
 }
 
+bool RenderView::event(QEvent* event)
+{
+  // Unfortunately, QWidget doesn't define a specialized handler for QNativeGestureEvent,
+  // so we must override the main event handler to handle it.
+  if (event->type() == QEvent::NativeGesture)
+  {
+    const auto gestureEvent = static_cast<QNativeGestureEvent*>(event);
+    m_eventRecorder.recordEvent(*gestureEvent);
+    update();
+    return true;
+  }
+
+  // Let the base class handle all other events normally
+  return QOpenGLWidget::event(event);
+}
+
 void RenderView::paintGL()
 {
   if (TrenchBroom::View::isReportingCrash())

@@ -315,10 +315,26 @@ void ToolBoxConnector::processScroll(const MouseEvent& event)
   if (event.wheelAxis == MouseEvent::WheelAxis::Horizontal)
   {
     m_inputState.scroll(event.scrollDistance, 0.0f);
+    m_inputState.pinch(0.0f);
+    m_inputState.rotate(0.0f);
   }
   else if (event.wheelAxis == MouseEvent::WheelAxis::Vertical)
   {
     m_inputState.scroll(0.0f, event.scrollDistance);
+    m_inputState.pinch(0.0f);
+    m_inputState.rotate(0.0f);
+  }
+  else if (event.wheelAxis == MouseEvent::WheelAxis::Pinch)
+  {
+    m_inputState.scroll(0.0f, 0.0f);
+    m_inputState.pinch(event.scrollDistance);
+    m_inputState.rotate(0.0f);
+  }
+  else if (event.wheelAxis == MouseEvent::WheelAxis::Rotate)
+  {
+    m_inputState.scroll(0.0f, 0.0f);
+    m_inputState.pinch(0.0f);
+    m_inputState.rotate(event.scrollDistance);
   }
   m_toolBox->mouseScroll(m_toolChain, m_inputState);
 

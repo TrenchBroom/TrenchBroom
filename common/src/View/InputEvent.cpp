@@ -193,6 +193,12 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs)
   case MouseEvent::WheelAxis::Vertical:
     lhs << "Vertical";
     break;
+  case MouseEvent::WheelAxis::Pinch:
+    lhs << "Pinch";
+    break;
+  case MouseEvent::WheelAxis::Rotate:
+    lhs << "Rotate";
+    break;
   }
   return lhs;
 }
@@ -419,6 +425,34 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
       posX,
       posY,
       static_cast<float>(scrollDistance.y())));
+  }
+}
+
+void InputEventRecorder::recordEvent(const QNativeGestureEvent& qtEvent)
+{
+  const auto pos = qtEvent.pos();
+  const auto posX = static_cast<float>(pos.x());
+  const auto posY = static_cast<float>(pos.y());
+
+  if (qtEvent.gestureType() == Qt::NativeGestureType::ZoomNativeGesture)
+  {
+    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
+      MouseEvent::Type::Scroll,
+      MouseEvent::Button::None,
+      MouseEvent::WheelAxis::Pinch,
+      posX,
+      posY,
+      static_cast<float>(qtEvent.value())));
+  }
+  else if (qtEvent.gestureType() == Qt::NativeGestureType::RotateNativeGesture)
+  {
+    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
+      MouseEvent::Type::Scroll,
+      MouseEvent::Button::None,
+      MouseEvent::WheelAxis::Rotate,
+      posX,
+      posY,
+      static_cast<float>(qtEvent.value())));
   }
 }
 

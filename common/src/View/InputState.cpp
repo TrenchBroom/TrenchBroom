@@ -41,6 +41,8 @@ InputState::InputState()
   , m_mouseDY(0.0f)
   , m_scrollX(0.0f)
   , m_scrollY(0.0f)
+  , m_pinchAmount(0.0f)
+  , m_rotateAmount(0.0f)
   , m_anyToolDragging(false)
 {
   const QPoint mouseState = QCursor::pos();
@@ -166,6 +168,16 @@ float InputState::scrollY() const
   return m_scrollY;
 }
 
+float InputState::pinchAmount() const
+{
+  return m_pinchAmount;
+}
+
+float InputState::rotateAmount() const
+{
+  return m_rotateAmount;
+}
+
 void InputState::setModifierKeys(const ModifierKeyState keys)
 {
   m_modifierKeys = keys;
@@ -204,6 +216,16 @@ void InputState::scroll(const float scrollX, const float scrollY)
 {
   m_scrollX = scrollX;
   m_scrollY = scrollY;
+}
+
+void InputState::pinch(const float pinchAmount)
+{
+  m_pinchAmount = pinchAmount;
+}
+
+void InputState::rotate(const float rotateAmount)
+{
+  m_rotateAmount = rotateAmount;
 }
 
 bool InputState::anyToolDragging() const

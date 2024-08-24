@@ -20,6 +20,7 @@
 #pragma once
 
 #include <QKeyEvent>
+#include <QNativeGestureEvent>
 
 #include "kdl/reflection_decl.h"
 
@@ -180,7 +181,9 @@ public:
   {
     None,
     Vertical,
-    Horizontal
+    Horizontal,
+    Pinch,
+    Rotate
   };
 
 public:
@@ -361,6 +364,13 @@ public:
   static QPointF scrollLinesForEvent(const QWheelEvent& event);
 
   void recordEvent(const QWheelEvent& event);
+
+  /**
+   * Records the given native gesture event
+   *
+   * @param event the event to record
+   */
+  void recordEvent(const QNativeGestureEvent& event);
 
   /**
    * Processes all recorded events using the given event processor.
