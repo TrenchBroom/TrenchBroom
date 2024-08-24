@@ -19,6 +19,8 @@
 
 #include "UVCameraTool.h"
 
+#include "PreferenceManager.h"
+#include "Preferences.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/DragTracker.h"
 #include "View/InputState.h"
@@ -29,6 +31,22 @@ namespace TrenchBroom
 {
 namespace View
 {
+
+static float adjustSpeedToZoom(
+  const Renderer::OrthographicCamera& camera, const float speed)
+{
+  return speed / vm::max(0.001f, camera.zoom());
+}
+
+static float moveSpeed(const Renderer::OrthographicCamera& camera, const bool altMode)
+{
+  float speed = pref(Preferences::CameraMoveSpeed) * 40.0f;
+  if (altMode && pref(Preferences::CameraAltMoveInvert))
+  {
+    speed *= -1.0f;
+  }
+  return adjustSpeedToZoom(camera, speed);
+}
 
 static void zoom(
   Renderer::OrthographicCamera& camera, const vm::vec2f& mousePos, const float factor)
@@ -63,22 +81,45 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
 {
   const auto mousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
 
-  // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only
-  // care about scrollY().
-
-  if (inputState.scrollY() > 0)
+  if (pref(Preferences::CameraTrackpadMode))
   {
-    if (m_camera.zoom() < 10.0f)
+    const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+
+    if (inputState.pinchAmount() != 0.0f)
     {
-      zoom(m_camera, mousePos, 1.1f);
+      const auto zoomFactor = 1.0f + inputState.pinchAmount() * factor;
+
+      if (zoomFactor > 0.0f)
+      {
+        zoom(m_camera, mousePos, zoomFactor);
+      }
+    }
+    else
+    {
+      const auto delta = -m_camera.right() * factor * inputState.scrollX()
+                         + m_camera.up() * factor * inputState.scrollY();
+      m_camera.moveBy(delta * moveSpeed(m_camera, false));
     }
   }
-
-  if (inputState.scrollY() < 0)
+  else
   {
-    if (m_camera.zoom() > 0.1f)
+    // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only
+    // care about scrollY().
+
+    if (inputState.scrollY() > 0)
     {
-      zoom(m_camera, mousePos, 1.0f / 1.1f);
+      if (m_camera.zoom() < 10.0f)
+      {
+        zoom(m_camera, mousePos, 1.1f);
+      }
+    }
+
+    if (inputState.scrollY() < 0)
+    {
+      if (m_camera.zoom() > 0.1f)
+      {
+        zoom(m_camera, mousePos, 1.0f / 1.1f);
+      }
     }
   }
 }
