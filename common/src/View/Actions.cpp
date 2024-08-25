@@ -996,7 +996,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset camera zoom"},
     QObject::tr("Reset Camera Zoom"),
     ActionContext::View3D | ActionContext::AnyOrNoTool | ActionContext::AnyOrNoSelection,
-    QKeySequence(+Qt::SHIFT + Qt::Key_Escape),
+    QKeySequence(+Qt::CTRL + Qt::SHIFT + Qt::Key_Z),
     [](ActionExecutionContext& context) { context.view()->resetCameraZoom(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -1506,7 +1506,7 @@ void ActionManager::createEditMenu()
   toolMenu.addItem(createMenuAction(
     std::filesystem::path{"Controls/Map view/Deactivate current tool"},
     QObject::tr("Deactivate Current Tool"),
-    +Qt::CTRL + Qt::Key_Escape,
+    +Qt::SHIFT + Qt::Key_Escape,
     [](ActionExecutionContext& context) { context.view()->deactivateTool(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); },
     [](ActionExecutionContext& context) {
