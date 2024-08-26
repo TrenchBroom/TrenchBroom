@@ -354,8 +354,11 @@ void TrenchBroomApp::updateRecentDocument(const std::filesystem::path& path)
 
 bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
 {
+  const auto absPath =
+    path.is_absolute() ? path : std::filesystem::absolute(path).lexically_normal();
+
   const auto checkFileExists = [&]() {
-    return IO::Disk::pathInfo(path) == IO::PathInfo::File
+    return IO::Disk::pathInfo(absPath) == IO::PathInfo::File
              ? Result<void>{}
              : Result<void>{Error{"'" + path.string() + "' not found"}};
   };
@@ -365,10 +368,10 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   {
     auto& gameFactory = Model::GameFactory::instance();
     return checkFileExists() | kdl::or_else([&](const auto& e) {
-             m_recentDocuments->removePath(path);
+             m_recentDocuments->removePath(absPath);
              return Result<void>{e};
            })
-           | kdl::and_then([&]() { return gameFactory.detectGame(path); })
+           | kdl::and_then([&]() { return gameFactory.detectGame(absPath); })
            | kdl::and_then([&](const auto& gameNameAndMapFormat) {
                auto [gameName, mapFormat] = gameNameAndMapFormat;
 
@@ -386,7 +389,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
                ensure(game.get() != nullptr, "game is null");
 
                closeWelcomeWindow();
-               return frame->openDocument(game, mapFormat, path);
+               return frame->openDocument(game, mapFormat, absPath);
              })
            | kdl::transform_error([&](const auto& e) {
                if (frame)
