@@ -59,9 +59,6 @@ void EntityInspector::createGui(
   m_splitter->setStretchFactor(0, 0);
   m_splitter->setStretchFactor(1, 1);
 
-  m_attributeEditor->setMinimumSize(100, 150);
-  m_entityBrowser->setMinimumSize(100, 150);
-
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
