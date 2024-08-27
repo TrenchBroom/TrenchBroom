@@ -38,7 +38,7 @@
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
 
@@ -258,7 +258,7 @@ void renderOriginHandle(
     new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
 }
 
-class UVOriginDragTracker : public DragTracker
+class UVOriginDragTracker : public GestureTracker
 {
 private:
   UVViewHelper& m_helper;
@@ -381,7 +381,8 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
   }
 }
 
-std::unique_ptr<DragTracker> UVOriginTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVOriginTool::acceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace Model::HitFilters;
 

@@ -29,7 +29,7 @@ class RenderContext;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class ExtrudeTool;
 
 class ExtrudeToolController : public ToolController
@@ -53,7 +53,7 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void render(
     const InputState& inputState,

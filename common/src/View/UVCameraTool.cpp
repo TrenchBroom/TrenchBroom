@@ -20,7 +20,7 @@
 #include "UVCameraTool.h"
 
 #include "Renderer/OrthographicCamera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "vm/vec.h"
@@ -78,7 +78,7 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
 
 namespace
 {
-class UVCameraToolDragTracker : public DragTracker
+class UVCameraToolDragTracker : public GestureTracker
 {
 private:
   Renderer::Camera& m_camera;
@@ -107,7 +107,8 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> UVCameraTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVCameraTool::acceptMouseDrag(
+  const InputState& inputState)
 {
   if (
     !inputState.mouseButtonsPressed(MouseButtons::Right)

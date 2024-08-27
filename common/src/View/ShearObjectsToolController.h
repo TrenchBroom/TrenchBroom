@@ -33,7 +33,7 @@ class RenderContext;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class MapDocument;
 class ShearObjectsTool;
 
@@ -62,7 +62,7 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;

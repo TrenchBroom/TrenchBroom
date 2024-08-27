@@ -32,10 +32,10 @@ class InputState;
 /**
  * Defines the protocol for handling mouse dragging in the tool system.
  */
-class DragTracker
+class GestureTracker
 {
 public:
-  virtual ~DragTracker();
+  virtual ~GestureTracker();
 
   /**
    * Called when a modifier key is pressed or released. The given input state represents
@@ -49,18 +49,18 @@ public:
   virtual void mouseScroll(const InputState& inputState);
 
   /**
-   * Called when a drag took place. This does not always have to correspond to a mouse
-   * movement; sometimes these events are synthesized.
+   * Called when a gesture is updated. Sometimes these events are synthesized.
    */
   virtual bool update(const InputState& inputState) = 0;
 
   /**
-   * Called once at the end of a successful drag. Not called if the drag is cancelled.
+   * Called once at the end of a successful gesture. Not called if the gesture is
+   * cancelled.
    */
   virtual void end(const InputState& inputState) = 0;
 
   /**
-   * Called once at the end of a canceled drag.
+   * Called once at the end of a canceled gesture.
    */
   virtual void cancel() = 0;
 

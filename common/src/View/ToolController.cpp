@@ -20,8 +20,8 @@
 #include "ToolController.h"
 
 #include "Ensure.h"
-#include "View/DragTracker.h"
 #include "View/DropTracker.h"
+#include "View/GestureTracker.h"
 #include "View/Tool.h"
 
 namespace TrenchBroom::View
@@ -50,7 +50,7 @@ bool ToolController::mouseDoubleClick(const InputState&)
 void ToolController::mouseMove(const InputState&) {}
 void ToolController::mouseScroll(const InputState&) {}
 
-std::unique_ptr<DragTracker> ToolController::acceptMouseDrag(const InputState&)
+std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(const InputState&)
 {
   return nullptr;
 }
@@ -135,7 +135,7 @@ void ToolControllerGroup::mouseScroll(const InputState& inputState)
   m_chain.mouseScroll(inputState);
 }
 
-std::unique_ptr<DragTracker> ToolControllerGroup::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ToolControllerGroup::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!doShouldHandleMouseDrag(inputState))

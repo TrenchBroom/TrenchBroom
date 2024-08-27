@@ -35,7 +35,7 @@ class RenderContext;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class DropTracker;
 class InputState;
 class ToolController;
@@ -63,7 +63,7 @@ public:
   void mouseScroll(const InputState& inputState);
   void mouseMove(const InputState& inputState);
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
 
   bool shouldAcceptDrop(const InputState& inputState, const std::string& payload) const;
   std::unique_ptr<DropTracker> dragEnter(

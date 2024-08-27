@@ -156,7 +156,7 @@ private:
   Tool& tool() override { return m_tool; }
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
@@ -251,7 +251,7 @@ private:
   Tool& tool() override { return m_tool; }
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 

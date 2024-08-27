@@ -37,7 +37,7 @@ class RenderContext;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class UVViewHelper;
 
 class UVOriginTool : public ToolController, public Tool
@@ -61,7 +61,7 @@ private:
 
   void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void render(
     const InputState& inputState,

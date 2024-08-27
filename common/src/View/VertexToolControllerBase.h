@@ -214,7 +214,7 @@ protected:
       return m_tool.select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
     }
 
-    std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+    std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
     {
       if (
         !inputState.mouseButtonsPressed(MouseButtons::Left)
@@ -402,7 +402,7 @@ protected:
 
     const Tool& tool() const override { return m_tool; }
 
-    std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+    std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
     {
       if (!shouldStartMove(inputState))
       {

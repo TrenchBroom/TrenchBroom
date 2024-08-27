@@ -26,7 +26,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/PerspectiveCamera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "vm/forward.h"
@@ -191,7 +191,7 @@ void CameraTool3D::mouseUp(const InputState& inputState)
 
 namespace
 {
-class OrbitDragTracker : public DragTracker
+class OrbitDragTracker : public GestureTracker
 {
 private:
   Renderer::PerspectiveCamera& m_camera;
@@ -232,7 +232,7 @@ public:
   void cancel() override {}
 };
 
-class LookDragTracker : public DragTracker
+class LookDragTracker : public GestureTracker
 {
 private:
   Renderer::PerspectiveCamera& m_camera;
@@ -276,7 +276,7 @@ public:
   void cancel() override {}
 };
 
-class PanDragTracker : public DragTracker
+class PanDragTracker : public GestureTracker
 {
 private:
   Renderer::PerspectiveCamera& m_camera;
@@ -318,7 +318,8 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> CameraTool3D::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace Model::HitFilters;
 

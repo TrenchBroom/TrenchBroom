@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/HitFilter.h"
 #include "Renderer/Camera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "kdl/reflection_decl.h"
@@ -242,7 +242,7 @@ struct HandleDragTrackerDelegate
  * horizontally and vertically.
  */
 template <typename Delegate>
-class HandleDragTracker : public DragTracker
+class HandleDragTracker : public GestureTracker
 {
 private:
   enum class IdenticalPositionPolicy
