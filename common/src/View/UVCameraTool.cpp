@@ -89,7 +89,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState)
+  bool update(const InputState& inputState)
   {
     const auto oldX = inputState.mouseX() - inputState.mouseDX();
     const auto oldY = inputState.mouseY() - inputState.mouseDY();

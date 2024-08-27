@@ -220,7 +220,7 @@ public:
     }
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
     const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
@@ -264,7 +264,7 @@ public:
     }
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
     const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
@@ -287,7 +287,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const bool altMove = pref(Preferences::CameraEnableAltMove);
     auto delta = vm::vec3f{};

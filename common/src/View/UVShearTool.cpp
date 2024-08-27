@@ -87,7 +87,7 @@ public:
     m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto currentHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
     if (!currentHit)

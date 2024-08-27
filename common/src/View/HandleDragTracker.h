@@ -326,7 +326,7 @@ public:
    * Returns true to indicate succes. If this function returns false, the drag ends and
    * end() is called.
    */
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     return drag(inputState, IdenticalPositionPolicy::SkipDrag);
   }

@@ -193,7 +193,7 @@ public:
     document.startTransaction("Scale UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto curPoint = getHitPoint(m_helper, inputState.pickRay());
     if (!curPoint)

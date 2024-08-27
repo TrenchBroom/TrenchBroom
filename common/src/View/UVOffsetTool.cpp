@@ -99,7 +99,7 @@ public:
     m_document.startTransaction("Move UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     assert(m_helper.valid());
 

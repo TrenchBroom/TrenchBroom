@@ -175,7 +175,7 @@ void ToolBox::startMouseDrag(ToolChain& chain, const InputState& inputState)
 bool ToolBox::mouseDrag(const InputState& inputState)
 {
   assert(enabled() && dragging());
-  return m_dragTracker->drag(inputState);
+  return m_dragTracker->update(inputState);
 }
 
 void ToolBox::endMouseDrag(const InputState& inputState)
