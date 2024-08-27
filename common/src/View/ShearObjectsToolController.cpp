@@ -217,7 +217,7 @@ static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   return {centerForBBoxSide(bounds, side), hit.hitPoint()};
 }
 
-std::unique_ptr<DragTracker> ShearObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;

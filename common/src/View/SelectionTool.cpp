@@ -31,7 +31,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -467,7 +467,7 @@ void SelectionTool::mouseScroll(const InputState& inputState)
 
 namespace
 {
-class PaintSelectionDragTracker : public DragTracker
+class PaintSelectionDragTracker : public GestureTracker
 {
 private:
   std::shared_ptr<MapDocument> m_document;
@@ -519,7 +519,8 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> SelectionTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
+  const InputState& inputState)
 {
   using namespace Model::HitFilters;
 

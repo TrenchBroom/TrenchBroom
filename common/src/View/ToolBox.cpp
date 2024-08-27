@@ -22,8 +22,8 @@
 #include <QDateTime>
 #include <QDebug>
 
-#include "View/DragTracker.h"
 #include "View/DropTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/Tool.h"
 #include "View/ToolChain.h"
@@ -110,9 +110,9 @@ void ToolBox::modifierKeyChange(ToolChain& chain, const InputState& inputState)
   if (m_enabled)
   {
     chain.modifierKeyChange(inputState);
-    if (m_dragTracker)
+    if (m_gestureTracker)
     {
-      m_dragTracker->modifierKeyChange(inputState);
+      m_gestureTracker->modifierKeyChange(inputState);
     }
   }
 }
@@ -161,44 +161,44 @@ void ToolBox::mouseMove(ToolChain& chain, const InputState& inputState) const
 
 bool ToolBox::dragging() const
 {
-  return m_dragTracker != nullptr;
+  return m_gestureTracker != nullptr;
 }
 
 void ToolBox::startMouseDrag(ToolChain& chain, const InputState& inputState)
 {
   if (m_enabled)
   {
-    m_dragTracker = chain.acceptMouseDrag(inputState);
+    m_gestureTracker = chain.acceptMouseDrag(inputState);
   }
 }
 
 bool ToolBox::mouseDrag(const InputState& inputState)
 {
   assert(enabled() && dragging());
-  return m_dragTracker->update(inputState);
+  return m_gestureTracker->update(inputState);
 }
 
 void ToolBox::endMouseDrag(const InputState& inputState)
 {
   assert(enabled() && dragging());
-  m_dragTracker->end(inputState);
-  m_dragTracker = nullptr;
+  m_gestureTracker->end(inputState);
+  m_gestureTracker = nullptr;
 }
 
 void ToolBox::cancelMouseDrag()
 {
   assert(dragging());
-  m_dragTracker->cancel();
-  m_dragTracker = nullptr;
+  m_gestureTracker->cancel();
+  m_gestureTracker = nullptr;
 }
 
 void ToolBox::mouseScroll(ToolChain& chain, const InputState& inputState)
 {
   if (m_enabled)
   {
-    if (m_dragTracker)
+    if (m_gestureTracker)
     {
-      m_dragTracker->mouseScroll(inputState);
+      m_gestureTracker->mouseScroll(inputState);
     }
     else
     {
@@ -289,9 +289,9 @@ void ToolBox::setRenderOptions(
   ToolChain& chain, const InputState& inputState, Renderer::RenderContext& renderContext)
 {
   chain.setRenderOptions(inputState, renderContext);
-  if (m_dragTracker)
+  if (m_gestureTracker)
   {
-    m_dragTracker->setRenderOptions(inputState, renderContext);
+    m_gestureTracker->setRenderOptions(inputState, renderContext);
   }
 }
 
@@ -302,9 +302,9 @@ void ToolBox::renderTools(
   Renderer::RenderBatch& renderBatch)
 {
   chain.render(inputState, renderContext, renderBatch);
-  if (m_dragTracker)
+  if (m_gestureTracker)
   {
-    m_dragTracker->render(inputState, renderContext, renderBatch);
+    m_gestureTracker->render(inputState, renderContext, renderBatch);
   }
 }
 

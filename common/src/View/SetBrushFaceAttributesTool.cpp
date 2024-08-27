@@ -31,7 +31,7 @@
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/UVCoordSystem.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -296,7 +296,7 @@ void transferFaceAttributes(
   transaction.commit();
 }
 
-class SetBrushFaceAttributesDragTracker : public DragTracker
+class SetBrushFaceAttributesDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -359,7 +359,7 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!applies(inputState))

@@ -31,7 +31,7 @@ class PerspectiveCamera;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 
 class CameraTool3D : public ToolController, public Tool
 {
@@ -48,7 +48,7 @@ private:
   void mouseScroll(const InputState& inputState) override;
   void mouseUp(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };

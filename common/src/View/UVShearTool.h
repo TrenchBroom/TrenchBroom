@@ -28,7 +28,7 @@
 namespace TrenchBroom::View
 {
 
-class DragTracker;
+class GestureTracker;
 class MapDocument;
 class UVViewHelper;
 
@@ -51,7 +51,7 @@ private:
 
   void pick(const InputState& inputState, Model::PickResult& pickResult) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };

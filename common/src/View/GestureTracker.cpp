@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DragTracker.h"
+#include "GestureTracker.h"
 
 #include "View/InputState.h"
 
@@ -26,15 +26,17 @@
 namespace TrenchBroom::View
 {
 
-DragTracker::~DragTracker() = default;
+GestureTracker::~GestureTracker() = default;
 
-void DragTracker::modifierKeyChange(const InputState&) {}
+void GestureTracker::modifierKeyChange(const InputState&) {}
 
-void DragTracker::mouseScroll(const InputState&) {}
+void GestureTracker::mouseScroll(const InputState&) {}
 
-void DragTracker::setRenderOptions(const InputState&, Renderer::RenderContext&) const {}
+void GestureTracker::setRenderOptions(const InputState&, Renderer::RenderContext&) const
+{
+}
 
-void DragTracker::render(
+void GestureTracker::render(
   const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) const
 {
 }

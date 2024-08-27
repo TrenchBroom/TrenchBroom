@@ -22,7 +22,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/OrthographicCamera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "vm/forward.h"
@@ -86,7 +86,7 @@ void CameraTool2D::mouseScroll(const InputState& inputState)
 
 namespace
 {
-class PanDragTracker : public DragTracker
+class PanDragTracker : public GestureTracker
 {
 private:
   Renderer::OrthographicCamera& m_camera;
@@ -116,7 +116,7 @@ public:
   void cancel() override {}
 };
 
-class ZoomDragTracker : public DragTracker
+class ZoomDragTracker : public GestureTracker
 {
 private:
   Renderer::OrthographicCamera& m_camera;
@@ -157,7 +157,8 @@ static bool shouldDragZoom(const InputState& inputState)
     && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
 }
 
-std::unique_ptr<DragTracker> CameraTool2D::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> CameraTool2D::acceptMouseDrag(
+  const InputState& inputState)
 {
   if (shouldPan(inputState))
   {

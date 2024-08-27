@@ -47,7 +47,7 @@ class RenderContext;
 namespace TrenchBroom::View
 {
 
-class DragTracker;
+class GestureTracker;
 class DropTracker;
 class InputState;
 class Tool;
@@ -58,7 +58,7 @@ class ToolBox : public QObject
 {
   Q_OBJECT
 private:
-  std::unique_ptr<DragTracker> m_dragTracker;
+  std::unique_ptr<GestureTracker> m_gestureTracker;
   std::unique_ptr<DropTracker> m_dropTracker;
   Tool* m_modalTool = nullptr;
 

@@ -24,7 +24,7 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -57,7 +57,7 @@ std::optional<vm::vec2f> getHit(
     });
 }
 
-class UVShearDragTracker : public DragTracker
+class UVShearDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -171,7 +171,7 @@ void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResu
   }
 }
 
-std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
 {
   using namespace Model::HitFilters;
 

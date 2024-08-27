@@ -31,8 +31,8 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/VertexArray.h"
-#include "View/DragTracker.h"
 #include "View/ExtrudeTool.h"
+#include "View/GestureTracker.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
@@ -384,7 +384,7 @@ auto createMoveDragTracker(
 }
 } // namespace
 
-std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;

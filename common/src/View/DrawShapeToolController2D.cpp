@@ -205,7 +205,7 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> DrawShapeToolController2D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))

@@ -243,7 +243,7 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> DrawShapeToolController3D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;

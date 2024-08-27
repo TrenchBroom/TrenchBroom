@@ -20,8 +20,8 @@
 #include "ToolChain.h"
 
 #include "Ensure.h"
-#include "View/DragTracker.h"
 #include "View/DropTracker.h"
+#include "View/GestureTracker.h"
 #include "View/ToolController.h"
 
 #include <cassert>
@@ -156,7 +156,7 @@ void ToolChain::mouseMove(const InputState& inputState)
   }
 }
 
-std::unique_ptr<DragTracker> ToolChain::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> ToolChain::acceptMouseDrag(const InputState& inputState)
 {
   assert(checkInvariant());
   if (chainEndsHere())
@@ -165,9 +165,9 @@ std::unique_ptr<DragTracker> ToolChain::acceptMouseDrag(const InputState& inputS
   }
   if (m_tool->toolActive())
   {
-    if (auto dragTracker = m_tool->acceptMouseDrag(inputState))
+    if (auto gestureTracker = m_tool->acceptMouseDrag(inputState))
     {
-      return dragTracker;
+      return gestureTracker;
     }
   }
   return m_suffix->acceptMouseDrag(inputState);

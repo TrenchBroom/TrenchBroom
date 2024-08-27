@@ -23,7 +23,7 @@
 #include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/MoveObjectsTool.h"
 
@@ -102,7 +102,7 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> MoveObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
