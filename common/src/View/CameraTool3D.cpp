@@ -19,12 +19,9 @@
 
 #include "CameraTool3D.h"
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
-#include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -38,43 +35,43 @@
 #include "vm/scalar.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 static bool shouldMove(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBNone)
-    && inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare));
+    inputState.mouseButtonsPressed(MouseButtons::None)
+    && inputState.checkModifierKeys(
+      ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare));
 }
 
 static bool shouldLook(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBRight)
-    && inputState.modifierKeysPressed(ModifierKeys::MKNone));
+    inputState.mouseButtonsPressed(MouseButtons::Right)
+    && inputState.modifierKeysPressed(ModifierKeys::None));
 }
 
 static bool shouldPan(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBMiddle)
-    && (inputState.modifierKeysPressed(ModifierKeys::MKNone) || inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
+    inputState.mouseButtonsPressed(MouseButtons::Middle)
+    && (inputState.modifierKeysPressed(ModifierKeys::None) || inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
 }
 
 static bool shouldOrbit(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBRight)
+    inputState.mouseButtonsPressed(MouseButtons::Right)
     && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
 }
 
 static bool shouldAdjustFlySpeed(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBRight)
-    && inputState.checkModifierKeys(MK_No, MK_No, MK_No));
+    inputState.mouseButtonsPressed(MouseButtons::Right)
+    && inputState.checkModifierKeys(
+      ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::No));
 }
 
 static float adjustSpeedToZoom(
@@ -153,11 +150,11 @@ const Tool& CameraTool3D::tool() const
 void CameraTool3D::mouseScroll(const InputState& inputState)
 {
   const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-  const bool zoom = inputState.modifierKeysPressed(ModifierKeys::MKShift);
+  const bool zoom = inputState.modifierKeysPressed(ModifierKeys::Shift);
   const float scrollDist =
 #ifdef __APPLE__
-    inputState.modifierKeysPressed(ModifierKeys::MKShift) ? inputState.scrollX()
-                                                          : inputState.scrollY();
+    inputState.modifierKeysPressed(ModifierKeys::Shift) ? inputState.scrollX()
+                                                        : inputState.scrollY();
 #else
     inputState.scrollY();
 #endif
@@ -182,7 +179,7 @@ void CameraTool3D::mouseScroll(const InputState& inputState)
 
 void CameraTool3D::mouseUp(const InputState& inputState)
 {
-  if (inputState.mouseButtonsPressed(MouseButtons::MBRight))
+  if (inputState.mouseButtonsPressed(MouseButtons::Right))
   {
     auto& prefs = PreferenceManager::instance();
     if (!prefs.saveInstantly())
@@ -241,7 +238,7 @@ private:
   Renderer::PerspectiveCamera& m_camera;
 
 public:
-  LookDragTracker(Renderer::PerspectiveCamera& camera)
+  explicit LookDragTracker(Renderer::PerspectiveCamera& camera)
     : m_camera{camera}
   {
   }
@@ -285,7 +282,7 @@ private:
   Renderer::PerspectiveCamera& m_camera;
 
 public:
-  PanDragTracker(Renderer::PerspectiveCamera& camera)
+  explicit PanDragTracker(Renderer::PerspectiveCamera& camera)
     : m_camera{camera}
   {
   }
@@ -351,5 +348,4 @@ bool CameraTool3D::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

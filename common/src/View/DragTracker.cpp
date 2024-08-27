@@ -19,17 +19,13 @@
 
 #include "DragTracker.h"
 
-#include "FloatType.h"
 #include "View/InputState.h"
-
-#include "vm/vec.h"
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 DragTracker::~DragTracker() = default;
 
 void DragTracker::modifierKeyChange(const InputState&) {}
@@ -42,5 +38,5 @@ void DragTracker::render(
   const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) const
 {
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

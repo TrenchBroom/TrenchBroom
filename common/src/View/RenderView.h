@@ -25,7 +25,6 @@
 #include <QOpenGLWidget>
 
 #include "Color.h"
-#include "Renderer/GL.h"
 #include "View/InputEvent.h"
 
 #include <string>
@@ -34,16 +33,14 @@
 #undef Status
 #undef CursorShape
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class GLContextManager;
 
@@ -57,10 +54,10 @@ private:
 
 private: // FPS counter
   // stats since the last counter update
-  int m_framesRendered;
-  int m_maxFrameTimeMsecs;
+  int m_framesRendered = 0;
+  int m_maxFrameTimeMsecs = 0;
   // other
-  int64_t m_lastFPSCounterUpdate;
+  int64_t m_lastFPSCounterUpdate = 0;
   QElapsedTimer m_timeSinceLastFrame;
 
 protected:
@@ -110,5 +107,5 @@ private:
   virtual bool doShouldRenderFocusIndicator() const = 0;
   virtual void doRender() = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

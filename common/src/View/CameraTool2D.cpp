@@ -28,9 +28,7 @@
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera)
   : ToolController{}
@@ -52,8 +50,8 @@ const Tool& CameraTool2D::tool() const
 static bool shouldZoom(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBNone)
-    && inputState.modifierKeysPressed(ModifierKeys::MKNone));
+    inputState.mouseButtonsPressed(MouseButtons::None)
+    && inputState.modifierKeysPressed(ModifierKeys::None));
 }
 
 static void zoom(
@@ -147,15 +145,15 @@ public:
 static bool shouldPan(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBRight)
-    || (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) && !pref(Preferences::CameraEnableAltMove)));
+    inputState.mouseButtonsPressed(MouseButtons::Right)
+    || (inputState.mouseButtonsPressed(MouseButtons::Middle) && !pref(Preferences::CameraEnableAltMove)));
 }
 
 static bool shouldDragZoom(const InputState& inputState)
 {
   return (
     pref(Preferences::CameraEnableAltMove)
-    && inputState.mouseButtonsPressed(MouseButtons::MBMiddle)
+    && inputState.mouseButtonsPressed(MouseButtons::Middle)
     && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
 }
 
@@ -180,5 +178,4 @@ bool CameraTool2D::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

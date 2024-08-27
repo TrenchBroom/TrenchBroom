@@ -19,17 +19,14 @@
 
 #include "ExtrudeToolController.h"
 
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/BrushGeometry.h"
-#include "Model/BrushNode.h"
-#include "Model/HitAdapter.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
+#include "Renderer/EdgeRenderer.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
@@ -41,8 +38,6 @@
 #include "View/InputState.h"
 
 #include "vm/distance.h"
-#include "vm/intersection.h"
-#include "vm/line.h"
 #include "vm/plane.h"
 #include "vm/scalar.h"
 
@@ -96,8 +91,7 @@ void ExtrudeToolController::mouseMove(const InputState& inputState)
 
 namespace
 {
-Renderer::DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<Model::BrushFaceHandle>& dragHandles)
+auto buildEdgeRenderer(const std::vector<Model::BrushFaceHandle>& dragHandles)
 {
   using Vertex = Renderer::GLVertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
@@ -116,8 +110,7 @@ Renderer::DirectEdgeRenderer buildEdgeRenderer(
     Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
 }
 
-Renderer::DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<ExtrudeDragHandle>& dragHandles)
+auto buildEdgeRenderer(const std::vector<ExtrudeDragHandle>& dragHandles)
 {
   return buildEdgeRenderer(
     kdl::vec_transform(dragHandles, [](const auto& h) { return h.faceHandle; }));
@@ -402,7 +395,7 @@ std::unique_ptr<DragTracker> ExtrudeToolController::acceptMouseDrag(
   }
   // NOTE: We check for MBLeft here rather than in handleInput because we want the
   // yellow highlight to render as a preview when Shift is down, before you press MBLeft.
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
@@ -468,9 +461,9 @@ Model::Hit ExtrudeToolController2D::doPick(
 bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const
 {
   return (
-    inputState.modifierKeysPressed(ModifierKeys::MKShift)
-    || inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd)
-    || inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKAlt));
+    inputState.modifierKeysPressed(ModifierKeys::Shift)
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd)
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKAlt));
 }
 
 ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
@@ -487,7 +480,7 @@ Model::Hit ExtrudeToolController3D::doPick(
 bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const
 {
   return (
-    inputState.modifierKeysPressed(ModifierKeys::MKShift)
-    || inputState.modifierKeysPressed(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd));
+    inputState.modifierKeysPressed(ModifierKeys::Shift)
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd));
 }
 } // namespace TrenchBroom::View

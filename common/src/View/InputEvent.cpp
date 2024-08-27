@@ -26,9 +26,7 @@
 #include <iostream>
 #include <string_view>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 InputEvent::~InputEvent() = default;
 
@@ -48,7 +46,7 @@ bool InputEvent::collateWith(const CancelEvent& /* event */)
 }
 
 KeyEvent::KeyEvent(const Type i_type)
-  : type(i_type)
+  : type{i_type}
 {
 }
 
@@ -67,7 +65,7 @@ std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs)
     lhs << "KeyEvent { type=Down }";
     break;
   case KeyEvent::Type::Up:
-    lhs << "KeyEVent { type=Up }";
+    lhs << "KeyEvent { type=Up }";
     break;
   }
   return lhs;
@@ -80,12 +78,12 @@ MouseEvent::MouseEvent(
   const float i_posX,
   const float i_posY,
   const float i_scrollDistance)
-  : type(i_type)
-  , button(i_button)
-  , wheelAxis(i_wheelAxis)
-  , posX(i_posX)
-  , posY(i_posY)
-  , scrollDistance(i_scrollDistance)
+  : type{i_type}
+  , button{i_button}
+  , wheelAxis{i_wheelAxis}
+  , posX{i_posX}
+  , posY{i_posY}
+  , scrollDistance{i_scrollDistance}
 {
 }
 
@@ -209,25 +207,11 @@ void InputEventQueue::processEvents(InputEventProcessor& processor)
   // Swap out the queue before processing it, because if processing an event blocks (e.g.
   // a popup menu), then stale events maybe processed again.
 
-  EventQueue copy;
-  using std::swap;
-  swap(copy, m_eventQueue);
-
-  for (const auto& event : copy)
+  auto eventQueue = std::exchange(m_eventQueue, EventQueue{});
+  for (const auto& event : eventQueue)
   {
     event->processWith(processor);
   }
-}
-
-InputEventRecorder::InputEventRecorder()
-  : m_dragging(false)
-  , m_anyMouseButtonDown(false)
-  , m_lastClickX(0.0f)
-  , m_lastClickY(0.0f)
-  , m_lastClickTime(std::chrono::high_resolution_clock::now())
-  , m_nextMouseUpIsRMB(false)
-  , m_nextMouseUpIsDblClick(false)
-{
 }
 
 void InputEventRecorder::recordEvent(const QKeyEvent& qEvent)
@@ -366,14 +350,14 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
 
 QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent& qtEvent)
 {
-  // TODO: support pixel scrolling via qtEvent.pixelDelta()?
-  const int linesPerStep = QApplication::wheelScrollLines();
-  const QPointF angleDelta = QPointF(qtEvent.angleDelta()); // in eighths-of-degrees
-  constexpr float EighthsOfDegreesPerStep =
-    120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+  // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+  constexpr auto EighthsOfDegreesPerStep = 120.0f;
 
-  const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
-  return lines;
+  // TODO: support pixel scrolling via qtEvent.pixelDelta()?
+  const auto linesPerStep = QApplication::wheelScrollLines();
+  const auto angleDelta = QPointF{qtEvent.angleDelta()}; // in eighths-of-degrees
+
+  return (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
 }
 
 void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
@@ -384,7 +368,7 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
   const auto posY = static_cast<float>(qtEvent.y());
 
   // Number of "lines" to scroll
-  QPointF scrollDistance = scrollLinesForEvent(qtEvent);
+  auto scrollDistance = scrollLinesForEvent(qtEvent);
 
   // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on
   // all OS'es and doesn't give any way of knowing. see:
@@ -397,7 +381,7 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 #endif
   if (swapXY)
   {
-    scrollDistance = QPointF(scrollDistance.y(), scrollDistance.x());
+    scrollDistance = QPointF{scrollDistance.y(), scrollDistance.x()};
   }
 
   if (scrollDistance.x() != 0.0f)
@@ -429,7 +413,8 @@ void InputEventRecorder::processEvents(InputEventProcessor& processor)
 
 bool InputEventRecorder::isDrag(const float posX, const float posY) const
 {
-  static const auto MinDragDistance = 2.0f;
+  constexpr auto MinDragDistance = 2.0f;
+
   return std::abs(posX - m_lastClickX) > MinDragDistance
          || std::abs(posY - m_lastClickY) > MinDragDistance;
 }
@@ -441,14 +426,11 @@ KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent& qEvent)
   {
     return KeyEvent::Type::Down;
   }
-  else if (qEventType == QEvent::KeyRelease)
+  if (qEventType == QEvent::KeyRelease)
   {
     return KeyEvent::Type::Up;
   }
-  else
-  {
-    throw std::runtime_error("Unexpected qEvent type");
-  }
+  throw std::runtime_error("Unexpected qEvent type");
 }
 
 MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent& qEvent)
@@ -457,22 +439,19 @@ MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent& qEvent)
   {
     return MouseEvent::Type::Down;
   }
-  else if (qEvent.type() == QEvent::MouseButtonRelease)
+  if (qEvent.type() == QEvent::MouseButtonRelease)
   {
     return MouseEvent::Type::Up;
   }
-  else if (qEvent.type() == QEvent::MouseButtonDblClick)
+  if (qEvent.type() == QEvent::MouseButtonDblClick)
   {
     return MouseEvent::Type::DoubleClick;
   }
-  else if (qEvent.type() == QEvent::MouseMove)
+  if (qEvent.type() == QEvent::MouseMove)
   {
     return MouseEvent::Type::Motion;
   }
-  else
-  {
-    throw std::runtime_error("Unexpected qEvent type");
-  }
+  throw std::runtime_error("Unexpected qEvent type");
 }
 
 MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent)
@@ -481,28 +460,25 @@ MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent)
   {
     return MouseEvent::Button::Left;
   }
-  else if (qEvent.button() == Qt::MiddleButton)
+  if (qEvent.button() == Qt::MiddleButton)
   {
     return MouseEvent::Button::Middle;
   }
-  else if (qEvent.button() == Qt::RightButton)
+  if (qEvent.button() == Qt::RightButton)
   {
     return MouseEvent::Button::Right;
   }
-  else if (qEvent.button() == Qt::XButton1)
+  if (qEvent.button() == Qt::XButton1)
   {
     return MouseEvent::Button::Aux1;
   }
-  else if (qEvent.button() == Qt::XButton2)
+  if (qEvent.button() == Qt::XButton2)
   {
     return MouseEvent::Button::Aux2;
   }
-  else
-  {
-    return MouseEvent::Button::None;
-  }
+  return MouseEvent::Button::None;
 }
 
 InputEventProcessor::~InputEventProcessor() = default;
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

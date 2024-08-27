@@ -37,9 +37,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 enum class SnapMode
 {
@@ -216,7 +214,7 @@ public:
    * MoveHandleDragTrackerDelegate and is used to implement the actual effects and refine
    * the behavior of this delegate.
    */
-  MoveHandleDragDelegate(Delegate delegate)
+  explicit MoveHandleDragDelegate(Delegate delegate)
     : m_delegate{std::move(delegate)}
   {
   }
@@ -418,12 +416,12 @@ private:
   {
     const Renderer::Camera& camera = inputState.camera();
     return camera.perspectiveProjection()
-           && inputState.checkModifierKey(MK_Yes, ModifierKeys::MKAlt);
+           && inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::MKAlt);
   }
 
   static bool isConstrictedMove(const InputState& inputState, const DragState& dragState)
   {
-    if (inputState.checkModifierKey(MK_Yes, ModifierKeys::MKShift))
+    if (inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::Shift))
     {
       const auto delta =
         dragState.currentHandlePosition - dragState.initialHandlePosition;
@@ -435,7 +433,7 @@ private:
 
   static SnapMode snapMode(const InputState& inputState)
   {
-    return inputState.checkModifierKey(MK_Yes, ModifierKeys::MKCtrlCmd)
+    return inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::MKCtrlCmd)
              ? SnapMode::Absolute
              : SnapMode::Relative;
   }
@@ -510,5 +508,4 @@ createMoveHandleDragTracker(
  * Returns a relative or an absolute handle snapper according to the given snap mode.
  */
 DragHandleSnapper makeDragHandleSnapperFromSnapMode(const Grid& grid, SnapMode snapMode);
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

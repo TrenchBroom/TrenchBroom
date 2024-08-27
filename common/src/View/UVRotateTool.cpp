@@ -359,9 +359,9 @@ std::unique_ptr<DragTracker> UVRotateTool::acceptMouseDrag(const InputState& inp
   assert(m_helper.valid());
 
   if (
-    !(inputState.modifierKeysPressed(ModifierKeys::MKNone)
+    !(inputState.modifierKeysPressed(ModifierKeys::None)
       || inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

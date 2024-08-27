@@ -26,23 +26,21 @@
 
 #include "vm/approx.h"
 #include "vm/line.h"
-#include "vm/line_io.h"
+#include "vm/line_io.h" // IWYU pragma: keep
 #include "vm/plane.h"
-#include "vm/plane_io.h"
+#include "vm/plane_io.h" // IWYU pragma: keep
 #include "vm/ray.h"
-#include "vm/ray_io.h"
+#include "vm/ray_io.h" // IWYU pragma: keep
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <tuple>
 #include <vector>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 struct TestDelegateData
 {
@@ -60,7 +58,7 @@ struct TestDelegateData
 
   std::vector<DragState> mouseScrollArguments;
 
-  TestDelegateData(HandlePositionProposer i_initialGetHandlePositionToReturn)
+  explicit TestDelegateData(HandlePositionProposer i_initialGetHandlePositionToReturn)
     : initialGetHandlePositionToReturn{std::move(i_initialGetHandlePositionToReturn)}
   {
   }
@@ -70,7 +68,7 @@ struct TestDelegate : public HandleDragTrackerDelegate
 {
   TestDelegateData& data;
 
-  TestDelegate(TestDelegateData& i_data)
+  explicit TestDelegate(TestDelegateData& i_data)
     : data{i_data}
   {
   }
@@ -78,37 +76,39 @@ struct TestDelegate : public HandleDragTrackerDelegate
   HandlePositionProposer start(
     const InputState&,
     const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset)
+    const vm::vec3& handleOffset) override
   {
     data.initializeArguments.emplace_back(initialHandlePosition, handleOffset);
     return data.initialGetHandlePositionToReturn;
   }
 
   DragStatus drag(
-    const InputState&, const DragState& dragState, const vm::vec3& proposedHandlePosition)
+    const InputState&,
+    const DragState& dragState,
+    const vm::vec3& proposedHandlePosition) override
   {
     data.dragArguments.emplace_back(dragState, proposedHandlePosition);
     return data.dragStatusToReturn;
   }
 
-  void end(const InputState&, const DragState& dragState)
+  void end(const InputState&, const DragState& dragState) override
   {
     data.endArguments.emplace_back(dragState);
   }
 
-  void cancel(const DragState& dragState)
+  void cancel(const DragState& dragState) override
   {
     data.cancelArguments.emplace_back(dragState);
   }
 
   std::optional<UpdateDragConfig> modifierKeyChange(
-    const InputState&, const DragState& dragState)
+    const InputState&, const DragState& dragState) override
   {
     data.modifierKeyChangeArguments.emplace_back(dragState);
     return data.updateDragConfigToReturn;
   }
 
-  void mouseScroll(const InputState&, const DragState& dragState)
+  void mouseScroll(const InputState&, const DragState& dragState) override
   {
     data.mouseScrollArguments.emplace_back(dragState);
   }
@@ -741,5 +741,4 @@ TEST_CASE("makeCircleHandleSnapper")
       proposedHandlePosition)
     == vm::approx{radius * expectedHandlePosition});
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

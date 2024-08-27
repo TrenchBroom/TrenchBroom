@@ -156,7 +156,7 @@ void ToolChain::mouseMove(const InputState& inputState)
   }
 }
 
-std::unique_ptr<DragTracker> ToolChain::startMouseDrag(const InputState& inputState)
+std::unique_ptr<DragTracker> ToolChain::acceptMouseDrag(const InputState& inputState)
 {
   assert(checkInvariant());
   if (chainEndsHere())
@@ -170,7 +170,7 @@ std::unique_ptr<DragTracker> ToolChain::startMouseDrag(const InputState& inputSt
       return dragTracker;
     }
   }
-  return m_suffix->startMouseDrag(inputState);
+  return m_suffix->acceptMouseDrag(inputState);
 }
 
 bool ToolChain::shouldAcceptDrop(
