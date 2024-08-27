@@ -137,7 +137,7 @@ public:
       makeCircleHandleSnapper(m_tool.grid(), m_tool.angle(), center, axis, radius));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

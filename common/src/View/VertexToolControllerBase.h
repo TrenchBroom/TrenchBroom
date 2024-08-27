@@ -145,7 +145,7 @@ protected:
         makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
     }
 
-    DragStatus drag(
+    DragStatus update(
       const InputState&,
       const DragState&,
       const vm::vec3& proposedHandlePosition) override

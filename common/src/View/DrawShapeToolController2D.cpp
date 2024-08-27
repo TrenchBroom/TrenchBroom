@@ -89,7 +89,7 @@ public:
       makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

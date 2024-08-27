@@ -82,7 +82,7 @@ struct TestDelegate : public HandleDragTrackerDelegate
     return data.initialGetHandlePositionToReturn;
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
