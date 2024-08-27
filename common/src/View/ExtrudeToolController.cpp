@@ -235,7 +235,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -330,7 +330,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
     return makeHandlePositionProposer(std::move(picker), std::move(snapper));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

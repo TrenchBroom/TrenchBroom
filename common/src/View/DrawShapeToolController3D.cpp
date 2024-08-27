@@ -122,7 +122,7 @@ public:
       ResetInitialHandlePosition::Keep};
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

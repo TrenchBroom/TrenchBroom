@@ -97,7 +97,7 @@ public:
       makeIdentityHandleSnapper());
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -212,7 +212,7 @@ public:
       makeRelativeLineHandleSnapper(m_tool.grid(), line));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

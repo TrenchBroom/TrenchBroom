@@ -244,9 +244,9 @@ public:
   }
 
   /**
-   * Forwards to the delegate's drag() function.
+   * Forwards to the delegate's move() function.
    */
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override

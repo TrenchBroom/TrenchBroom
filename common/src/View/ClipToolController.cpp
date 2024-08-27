@@ -333,7 +333,7 @@ public:
       inputState, initialHandlePosition, handleOffset);
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState&,
     const vm::vec3& proposedHandlePosition) override
@@ -465,7 +465,7 @@ public:
       inputState, initialHandlePosition, handleOffset);
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState&,
     const vm::vec3& proposedHandlePosition) override
