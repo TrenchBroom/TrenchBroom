@@ -273,7 +273,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
 

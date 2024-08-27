@@ -152,7 +152,7 @@ TEST_CASE("RestrictedDragTracker.constructor")
         "handle "
         "position")
       {
-        tracker.drag(InputState{});
+        tracker.update(InputState{});
 
         CHECK(
           data.dragArguments
@@ -183,7 +183,7 @@ TEST_CASE("RestrictedDragTracker.drag")
     WHEN("drag is called for the first time after the drag started")
     {
       handlePositionToReturn = vm::vec3{2, 2, 2};
-      REQUIRE(tracker.drag(InputState{}));
+      REQUIRE(tracker.update(InputState{}));
 
       THEN("drag got the initial and the next handle positions")
       {
@@ -197,7 +197,7 @@ TEST_CASE("RestrictedDragTracker.drag")
         AND_WHEN("drag is called again")
         {
           handlePositionToReturn = vm::vec3{3, 3, 3};
-          REQUIRE(tracker.drag(InputState{}));
+          REQUIRE(tracker.update(InputState{}));
 
           THEN("drag got the last and the next handle positions")
           {
@@ -218,7 +218,7 @@ TEST_CASE("RestrictedDragTracker.drag")
     {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       data.dragStatusToReturn = DragStatus::Deny;
-      REQUIRE(tracker.drag(InputState{}));
+      REQUIRE(tracker.update(InputState{}));
 
       THEN("drag got the initial and the next handle positions")
       {
@@ -232,7 +232,7 @@ TEST_CASE("RestrictedDragTracker.drag")
         AND_WHEN("drag is called again")
         {
           handlePositionToReturn = vm::vec3{3, 3, 3};
-          REQUIRE(tracker.drag(InputState{}));
+          REQUIRE(tracker.update(InputState{}));
 
           THEN("drag got the initial handle position for the last handle position again")
           {
@@ -253,7 +253,7 @@ TEST_CASE("RestrictedDragTracker.drag")
     {
       handlePositionToReturn = vm::vec3{2, 2, 2};
       data.dragStatusToReturn = DragStatus::End;
-      const auto dragResult = tracker.drag(InputState{});
+      const auto dragResult = tracker.update(InputState{});
 
       THEN("the drag tracker returns false")
       {
@@ -287,7 +287,7 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations")
     WHEN("drag is called for the first time")
     {
       handlePositionToReturn = vm::vec3{2, 2, 2};
-      REQUIRE(tracker.drag(InputState{}));
+      REQUIRE(tracker.update(InputState{}));
 
       THEN("getHandlePosition is called with the expected arguments")
       {
@@ -312,7 +312,7 @@ TEST_CASE("RestrictedDragTracker.handlePositionComputations")
       AND_WHEN("drag is called again")
       {
         handlePositionToReturn = vm::vec3{3, 3, 3};
-        REQUIRE(tracker.drag(InputState{}));
+        REQUIRE(tracker.update(InputState{}));
 
         THEN("getHandlePosition is called with the expected arguments")
         {
@@ -364,7 +364,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-    tracker.drag(InputState{});
+    tracker.update(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);
 
     WHEN("A modifier key change is notified")
@@ -380,7 +380,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
 
         AND_THEN("The next call to drag uses the initial drag config")
         {
-          tracker.drag(InputState{});
+          tracker.update(InputState{});
           CHECK(initialGetHandlePositionArguments.size() == 2);
         }
       }
@@ -416,7 +416,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
 
-    tracker.drag(InputState{});
+    tracker.update(InputState{});
     REQUIRE(initialGetHandlePositionArguments.size() == 1);
     REQUIRE(
       data.dragArguments
@@ -456,7 +456,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
         AND_WHEN("drag is called again")
         {
           otherHitPositionToReturn = vm::vec3{4, 4, 4};
-          tracker.drag(InputState{});
+          tracker.update(InputState{});
 
           AND_THEN("The other handle position is passed")
           {

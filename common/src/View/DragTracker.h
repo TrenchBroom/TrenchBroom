@@ -52,7 +52,7 @@ public:
    * Called when a drag took place. This does not always have to correspond to a mouse
    * movement; sometimes these events are synthesized.
    */
-  virtual bool drag(const InputState& inputState) = 0;
+  virtual bool update(const InputState& inputState) = 0;
 
   /**
    * Called once at the end of a successful drag. Not called if the drag is cancelled.

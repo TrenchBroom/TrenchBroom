@@ -99,7 +99,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto currentMousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
     const auto lastWorldPos =
@@ -129,7 +129,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto speed = pref(Preferences::CameraAltMoveInvert) ? 1.0f : -1.0f;
     const auto factor = 1.0f + static_cast<float>(inputState.mouseDY()) / 100.0f * speed;
