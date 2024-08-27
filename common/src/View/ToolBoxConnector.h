@@ -26,21 +26,19 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class PickRequest;
 class ToolController;
@@ -50,14 +48,14 @@ class ToolChain;
 class ToolBoxConnector : public InputEventProcessor
 {
 private:
-  ToolBox* m_toolBox;
-  ToolChain* m_toolChain;
+  ToolBox* m_toolBox = nullptr;
+  std::unique_ptr<ToolChain> m_toolChain;
 
   InputState m_inputState;
 
-  float m_lastMouseX;
-  float m_lastMouseY;
-  bool m_ignoreNextDrag;
+  float m_lastMouseX = 0.0f;
+  float m_lastMouseY = 0.0f;
+  bool m_ignoreNextDrag = false;
 
 public:
   ToolBoxConnector();
@@ -127,5 +125,5 @@ private:
 
   deleteCopyAndMove(ToolBoxConnector);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

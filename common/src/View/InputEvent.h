@@ -30,9 +30,7 @@
 // Undefine this symbol since it interferes somehow with our enums.
 #undef None
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class CancelEvent;
 class InputEventProcessor;
@@ -312,38 +310,34 @@ private:
   /**
    * Indicates whether or not a mouse drag is taking place.
    */
-  bool m_dragging;
+  bool m_dragging = false;
   /**
    Indicates that we received a mouse down event, cleared on mouse up.
    */
-  bool m_anyMouseButtonDown;
+  bool m_anyMouseButtonDown = false;
   /**
    * The X position of the last mouse down event.
    */
-  float m_lastClickX;
+  float m_lastClickX = 0.0f;
   /**
    * The Y position of the last mouse down event.
    */
-  float m_lastClickY;
+  float m_lastClickY = 0.0f;
   /**
    * The time at which the last mouse down event was recorded.
    */
-  std::chrono::time_point<std::chrono::high_resolution_clock> m_lastClickTime;
+  std::chrono::time_point<std::chrono::high_resolution_clock> m_lastClickTime =
+    std::chrono::high_resolution_clock::now();
   /**
    * Used in implementing the macOS behaviour where Ctrl+Click is RMB.
    */
-  bool m_nextMouseUpIsRMB;
+  bool m_nextMouseUpIsRMB = false;
   /**
    * Used to suppress a click event for the mouse up event that follows a double click.
    */
-  bool m_nextMouseUpIsDblClick;
+  bool m_nextMouseUpIsDblClick = false;
 
 public:
-  /**
-   * Creates a new event handler.
-   */
-  InputEventRecorder();
-
   /**
    * Records the given key event.
    *
@@ -435,5 +429,4 @@ public:
    */
   virtual void processEvent(const CancelEvent& event) = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

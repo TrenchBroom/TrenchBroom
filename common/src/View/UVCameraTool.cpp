@@ -110,8 +110,8 @@ public:
 std::unique_ptr<DragTracker> UVCameraTool::acceptMouseDrag(const InputState& inputState)
 {
   if (
-    !inputState.mouseButtonsPressed(MouseButtons::MBRight)
-    && !inputState.mouseButtonsPressed(MouseButtons::MBMiddle))
+    !inputState.mouseButtonsPressed(MouseButtons::Right)
+    && !inputState.mouseButtonsPressed(MouseButtons::Middle))
   {
     return nullptr;
   }

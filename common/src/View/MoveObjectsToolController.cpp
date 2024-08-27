@@ -108,7 +108,7 @@ std::unique_ptr<DragTracker> MoveObjectsToolController::acceptMouseDrag(
   using namespace Model::HitFilters;
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::MKNone)
+    !inputState.modifierKeysPressed(ModifierKeys::None)
     && !inputState.modifierKeysPressed(ModifierKeys::MKAlt)
     && !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)
     && !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))

@@ -35,9 +35,7 @@
 #include <optional>
 #include <type_traits>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 
@@ -527,5 +525,4 @@ HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid);
  */
 HandlePositionProposer makeHandlePositionProposer(
   DragHandlePicker pickHandlePosition, DragHandleSnapper snapHandlePosition);
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

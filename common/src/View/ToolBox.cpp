@@ -46,15 +46,15 @@ void ToolBox::addTool(Tool& tool)
 }
 
 void ToolBox::pick(
-  ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult)
+  ToolChain& chain, const InputState& inputState, Model::PickResult& pickResult)
 {
-  chain->pick(inputState, pickResult);
+  chain.pick(inputState, pickResult);
 }
 
 bool ToolBox::dragEnter(
-  ToolChain* chain, const InputState& inputState, const std::string& text)
+  ToolChain& chain, const InputState& inputState, const std::string& text)
 {
-  if (!m_enabled || !chain->shouldAcceptDrop(inputState, text))
+  if (!m_enabled || !chain.shouldAcceptDrop(inputState, text))
   {
     return false;
   }
@@ -65,12 +65,12 @@ bool ToolBox::dragEnter(
   }
 
   deactivateAllTools();
-  m_dropTracker = chain->dragEnter(inputState, text);
+  m_dropTracker = chain.dragEnter(inputState, text);
   return m_dropTracker != nullptr;
 }
 
 bool ToolBox::dragMove(
-  ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */)
+  ToolChain& /* chain */, const InputState& inputState, const std::string& /* text */)
 {
   if (!m_enabled || !m_dropTracker)
   {
@@ -81,7 +81,7 @@ bool ToolBox::dragMove(
   return true;
 }
 
-void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState)
+void ToolBox::dragLeave(ToolChain& /* chain */, const InputState& inputState)
 {
   if (!m_enabled || !m_dropTracker)
   {
@@ -93,7 +93,7 @@ void ToolBox::dragLeave(ToolChain* /* chain */, const InputState& inputState)
 }
 
 bool ToolBox::dragDrop(
-  ToolChain* /* chain */, const InputState& inputState, const std::string& /* text */)
+  ToolChain& /* chain */, const InputState& inputState, const std::string& /* text */)
 {
   if (!m_enabled || !m_dropTracker)
   {
@@ -105,11 +105,11 @@ bool ToolBox::dragDrop(
   return result;
 }
 
-void ToolBox::modifierKeyChange(ToolChain* chain, const InputState& inputState)
+void ToolBox::modifierKeyChange(ToolChain& chain, const InputState& inputState)
 {
   if (m_enabled)
   {
-    chain->modifierKeyChange(inputState);
+    chain.modifierKeyChange(inputState);
     if (m_dragTracker)
     {
       m_dragTracker->modifierKeyChange(inputState);
@@ -117,45 +117,45 @@ void ToolBox::modifierKeyChange(ToolChain* chain, const InputState& inputState)
   }
 }
 
-void ToolBox::mouseDown(ToolChain* chain, const InputState& inputState) const
+void ToolBox::mouseDown(ToolChain& chain, const InputState& inputState) const
 {
   if (m_enabled)
   {
-    chain->mouseDown(inputState);
+    chain.mouseDown(inputState);
   }
 }
 
-void ToolBox::mouseUp(ToolChain* chain, const InputState& inputState) const
+void ToolBox::mouseUp(ToolChain& chain, const InputState& inputState) const
 {
   if (m_enabled)
   {
-    chain->mouseUp(inputState);
+    chain.mouseUp(inputState);
   }
 }
 
-bool ToolBox::mouseClick(ToolChain* chain, const InputState& inputState) const
+bool ToolBox::mouseClick(ToolChain& chain, const InputState& inputState) const
 {
   if (m_enabled)
   {
-    return chain->mouseClick(inputState);
+    return chain.mouseClick(inputState);
   }
 
   return false;
 }
 
-void ToolBox::mouseDoubleClick(ToolChain* chain, const InputState& inputState) const
+void ToolBox::mouseDoubleClick(ToolChain& chain, const InputState& inputState) const
 {
   if (m_enabled)
   {
-    chain->mouseDoubleClick(inputState);
+    chain.mouseDoubleClick(inputState);
   }
 }
 
-void ToolBox::mouseMove(ToolChain* chain, const InputState& inputState) const
+void ToolBox::mouseMove(ToolChain& chain, const InputState& inputState) const
 {
   if (m_enabled)
   {
-    chain->mouseMove(inputState);
+    chain.mouseMove(inputState);
   }
 }
 
@@ -164,11 +164,11 @@ bool ToolBox::dragging() const
   return m_dragTracker != nullptr;
 }
 
-void ToolBox::startMouseDrag(ToolChain* chain, const InputState& inputState)
+void ToolBox::startMouseDrag(ToolChain& chain, const InputState& inputState)
 {
   if (m_enabled)
   {
-    m_dragTracker = chain->startMouseDrag(inputState);
+    m_dragTracker = chain.acceptMouseDrag(inputState);
   }
 }
 
@@ -192,7 +192,7 @@ void ToolBox::cancelMouseDrag()
   m_dragTracker = nullptr;
 }
 
-void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState)
+void ToolBox::mouseScroll(ToolChain& chain, const InputState& inputState)
 {
   if (m_enabled)
   {
@@ -202,12 +202,12 @@ void ToolBox::mouseScroll(ToolChain* chain, const InputState& inputState)
     }
     else
     {
-      chain->mouseScroll(inputState);
+      chain.mouseScroll(inputState);
     }
   }
 }
 
-bool ToolBox::cancel(ToolChain* chain)
+bool ToolBox::cancel(ToolChain& chain)
 {
   if (dragging())
   {
@@ -215,7 +215,7 @@ bool ToolBox::cancel(ToolChain* chain)
     return true;
   }
 
-  if (chain->cancel())
+  if (chain.cancel())
   {
     return true;
   }
@@ -286,9 +286,9 @@ void ToolBox::disable()
 }
 
 void ToolBox::setRenderOptions(
-  ToolChain* chain, const InputState& inputState, Renderer::RenderContext& renderContext)
+  ToolChain& chain, const InputState& inputState, Renderer::RenderContext& renderContext)
 {
-  chain->setRenderOptions(inputState, renderContext);
+  chain.setRenderOptions(inputState, renderContext);
   if (m_dragTracker)
   {
     m_dragTracker->setRenderOptions(inputState, renderContext);
@@ -296,12 +296,12 @@ void ToolBox::setRenderOptions(
 }
 
 void ToolBox::renderTools(
-  ToolChain* chain,
+  ToolChain& chain,
   const InputState& inputState,
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch)
 {
-  chain->render(inputState, renderContext, renderBatch);
+  chain.render(inputState, renderContext, renderBatch);
   if (m_dragTracker)
   {
     m_dragTracker->render(inputState, renderContext, renderBatch);

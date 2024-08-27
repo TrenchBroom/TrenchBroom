@@ -179,7 +179,7 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::MKAlt)
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

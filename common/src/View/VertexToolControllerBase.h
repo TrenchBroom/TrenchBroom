@@ -198,8 +198,9 @@ protected:
     bool mouseClick(const InputState& inputState) override
     {
       if (
-        !inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-        || !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
+        !inputState.mouseButtonsPressed(MouseButtons::Left)
+        || !inputState.checkModifierKeys(
+          ModifierKeyPressed::DontCare, ModifierKeyPressed::No, ModifierKeyPressed::No))
       {
         return false;
       }
@@ -216,8 +217,9 @@ protected:
     std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
     {
       if (
-        !inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-        || !inputState.checkModifierKeys(MK_DontCare, MK_No, MK_No))
+        !inputState.mouseButtonsPressed(MouseButtons::Left)
+        || !inputState.checkModifierKeys(
+          ModifierKeyPressed::DontCare, ModifierKeyPressed::No, ModifierKeyPressed::No))
       {
         return nullptr;
       }
@@ -267,7 +269,7 @@ protected:
           const auto handle = m_tool.getHandlePosition(hit);
           m_tool.renderHighlight(renderContext, renderBatch, handle);
 
-          if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+          if (inputState.mouseButtonsPressed(MouseButtons::Left))
           {
             m_tool.renderGuide(renderContext, renderBatch, handle);
           }
@@ -430,8 +432,8 @@ protected:
     // Overridden in vertex tool controller to handle special cases for vertex moving.
     virtual bool shouldStartMove(const InputState& inputState) const
     {
-      return inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-             (inputState.modifierKeysPressed(ModifierKeys::MKNone)     // horizontal movement
+      return inputState.mouseButtonsPressed(MouseButtons::Left) &&
+             (inputState.modifierKeysPressed(ModifierKeys::None)     // horizontal movement
               || inputState.modifierKeysPressed(ModifierKeys::MKAlt)); // vertical movement
     }
   };

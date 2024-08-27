@@ -23,16 +23,14 @@
 #include "View/ToolController.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class OrthographicCamera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class DragTracker;
 
@@ -55,5 +53,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

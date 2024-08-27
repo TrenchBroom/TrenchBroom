@@ -43,10 +43,9 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /**
  * Implements the Group picking logic: if `node` is inside a (possibly nested chain of)
  * closed group(s), the outermost closed group is returned. Otherwise, `node` itself is
@@ -120,7 +119,7 @@ std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::H
 
 static bool isFaceClick(const InputState& inputState)
 {
-  return inputState.modifierKeysDown(ModifierKeys::MKShift);
+  return inputState.modifierKeysDown(ModifierKeys::Shift);
 }
 
 static bool isMultiClick(const InputState& inputState)
@@ -143,11 +142,14 @@ static std::vector<Model::Node*> collectSelectableChildren(
 static bool handleClick(
   const InputState& inputState, const Model::EditorContext& editorContext)
 {
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return false;
   }
-  if (!inputState.checkModifierKeys(MK_DontCare, MK_No, MK_DontCare))
+  if (!inputState.checkModifierKeys(
+        ModifierKeyPressed::DontCare,
+        ModifierKeyPressed::No,
+        ModifierKeyPressed::DontCare))
   {
     return false;
   }
@@ -451,11 +453,13 @@ void SelectionTool::mouseScroll(const InputState& inputState)
 {
   const auto document = kdl::mem_lock(m_document);
 
-  if (inputState.checkModifierKeys(MK_Yes, MK_Yes, MK_No))
+  if (inputState.checkModifierKeys(
+        ModifierKeyPressed::Yes, ModifierKeyPressed::Yes, ModifierKeyPressed::No))
   {
     adjustGrid(inputState, document->grid());
   }
-  else if (inputState.checkModifierKeys(MK_Yes, MK_No, MK_No))
+  else if (inputState.checkModifierKeys(
+             ModifierKeyPressed::Yes, ModifierKeyPressed::No, ModifierKeyPressed::No))
   {
     drillSelection(inputState, *document);
   }
@@ -469,7 +473,7 @@ private:
   std::shared_ptr<MapDocument> m_document;
 
 public:
-  PaintSelectionDragTracker(std::shared_ptr<MapDocument> document)
+  explicit PaintSelectionDragTracker(std::shared_ptr<MapDocument> document)
     : m_document{std::move(document)}
   {
   }
@@ -603,5 +607,5 @@ bool SelectionTool::cancel()
   // closing the current group is handled in MapViewBase
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

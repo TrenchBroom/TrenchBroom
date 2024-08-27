@@ -155,8 +155,8 @@ std::unique_ptr<DragTracker> UVOffsetTool::acceptMouseDrag(const InputState& inp
   assert(m_helper.valid());
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::MKNone)
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    !inputState.modifierKeysPressed(ModifierKeys::None)
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

@@ -194,7 +194,7 @@ static auto makeInputState(
   const vm::vec3& rayOrigin,
   const vm::vec3& rayDirection,
   Renderer::Camera& camera,
-  ModifierKeyState modifierKeys = ModifierKeys::MKNone)
+  ModifierKeyState modifierKeys = ModifierKeys::None)
 {
   auto inputState = InputState{};
   inputState.setPickRequest(
@@ -370,7 +370,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     WHEN("The shift modifier is pressed before the handle is moved")
     {
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker still has a default hit finder")
       {
@@ -393,7 +393,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
         == DragState{initialHandlePosition, vm::vec3{16, 80, 0}, handleOffset});
 
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker still has a default hit finder")
       {
@@ -414,7 +414,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
         == DragState{initialHandlePosition, vm::vec3{16, 96, 0}, handleOffset});
 
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker has a constricted hit finder")
       {

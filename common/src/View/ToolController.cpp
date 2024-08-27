@@ -20,17 +20,9 @@
 #include "ToolController.h"
 
 #include "Ensure.h"
-#include "FloatType.h"
-#include "Model/HitType.h"
 #include "View/DragTracker.h"
 #include "View/DropTracker.h"
-#include "View/Grid.h"
 #include "View/Tool.h"
-
-#include "vm/distance.h"
-#include "vm/intersection.h"
-#include "vm/line.h"
-#include "vm/vec.h"
 
 namespace TrenchBroom::View
 {
@@ -151,7 +143,7 @@ std::unique_ptr<DragTracker> ToolControllerGroup::acceptMouseDrag(
     return nullptr;
   }
 
-  return m_chain.startMouseDrag(inputState);
+  return m_chain.acceptMouseDrag(inputState);
 }
 
 std::unique_ptr<DropTracker> ToolControllerGroup::acceptDrop(

@@ -19,15 +19,8 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "Model/HitFilter.h"
-#include "Model/HitType.h"
 #include "ToolChain.h"
 #include "View/InputState.h"
-
-#include "vm/line.h"
-#include "vm/plane.h"
-#include "vm/vec.h"
 
 #include <memory>
 #include <string>

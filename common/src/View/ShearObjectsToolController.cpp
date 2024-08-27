@@ -36,13 +36,13 @@
 
 #include "kdl/memory_utils.h"
 
+#include "vm/line.h"
+#include "vm/plane.h"
 #include "vm/polygon.h"
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 ShearObjectsToolController::ShearObjectsToolController(
   ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
@@ -80,11 +80,11 @@ static HandlePositionProposer makeHandlePositionProposer(
   const vm::bbox3& bboxAtDragStart,
   const vm::vec3& handleOffset)
 {
-  const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+  const auto vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
   const auto& camera = inputState.camera();
 
-  const BBoxSide side = dragStartHit.target<BBoxSide>();
-  const vm::vec3 sideCenter = centerForBBoxSide(bboxAtDragStart, side);
+  const auto side = dragStartHit.target<BBoxSide>();
+  const auto sideCenter = centerForBBoxSide(bboxAtDragStart, side);
 
   if (camera.perspectiveProjection())
   {
@@ -131,7 +131,7 @@ private:
   ShearObjectsTool& m_tool;
 
 public:
-  ShearObjectsDragDelegate(ShearObjectsTool& tool)
+  explicit ShearObjectsDragDelegate(ShearObjectsTool& tool)
     : m_tool{tool}
   {
   }
@@ -165,7 +165,7 @@ public:
     }
 
     // Can't do vertical restraint on these
-    const BBoxSide side = m_tool.dragStartHit().target<BBoxSide>();
+    const auto side = m_tool.dragStartHit().target<BBoxSide>();
     if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z())
     {
       return std::nullopt;
@@ -208,12 +208,12 @@ public:
 } // namespace
 
 static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3& bounds, const Model::Hit& hit)
+  const vm::bbox3& bounds, const auto& hit)
 {
   assert(hit.isMatch());
   assert(hit.hasType(ShearObjectsTool::ShearToolSideHitType));
 
-  const BBoxSide side = hit.target<BBoxSide>();
+  const auto side = hit.template target<BBoxSide>();
   return {centerForBBoxSide(bounds, side), hit.hitPoint()};
 }
 
@@ -224,11 +224,11 @@ std::unique_ptr<DragTracker> ShearObjectsToolController::acceptMouseDrag(
 
   const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
-  if (!(inputState.modifierKeysPressed(ModifierKeys::MKNone) || vertical))
+  if (!(inputState.modifierKeysPressed(ModifierKeys::None) || vertical))
   {
     return nullptr;
   }
@@ -239,7 +239,7 @@ std::unique_ptr<DragTracker> ShearObjectsToolController::acceptMouseDrag(
 
   auto document = kdl::mem_lock(m_document);
 
-  const Model::Hit& hit =
+  const auto& hit =
     inputState.pickResult().first(type(ShearObjectsTool::ShearToolSideHitType));
   if (!hit.isMatch())
   {
@@ -333,5 +333,4 @@ void ShearObjectsToolController3D::doPick(
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

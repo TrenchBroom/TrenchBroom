@@ -83,30 +83,30 @@ protected:
 
 public: // picking
   void pick(
-    ToolChain* chain, const InputState& inputState, Model::PickResult& pickResult);
+    ToolChain& chain, const InputState& inputState, Model::PickResult& pickResult);
 
 public: // event handling
-  bool dragEnter(ToolChain* chain, const InputState& inputState, const std::string& text);
-  bool dragMove(ToolChain* chain, const InputState& inputState, const std::string& text);
-  void dragLeave(ToolChain* chain, const InputState& inputState);
-  bool dragDrop(ToolChain* chain, const InputState& inputState, const std::string& text);
+  bool dragEnter(ToolChain& chain, const InputState& inputState, const std::string& text);
+  bool dragMove(ToolChain& chain, const InputState& inputState, const std::string& text);
+  void dragLeave(ToolChain& chain, const InputState& inputState);
+  bool dragDrop(ToolChain& chain, const InputState& inputState, const std::string& text);
 
-  void modifierKeyChange(ToolChain* chain, const InputState& inputState);
-  void mouseDown(ToolChain* chain, const InputState& inputState) const;
-  void mouseUp(ToolChain* chain, const InputState& inputState) const;
-  bool mouseClick(ToolChain* chain, const InputState& inputState) const;
-  void mouseDoubleClick(ToolChain* chain, const InputState& inputState) const;
-  void mouseMove(ToolChain* chain, const InputState& inputState) const;
+  void modifierKeyChange(ToolChain& chain, const InputState& inputState);
+  void mouseDown(ToolChain& chain, const InputState& inputState) const;
+  void mouseUp(ToolChain& chain, const InputState& inputState) const;
+  bool mouseClick(ToolChain& chain, const InputState& inputState) const;
+  void mouseDoubleClick(ToolChain& chain, const InputState& inputState) const;
+  void mouseMove(ToolChain& chain, const InputState& inputState) const;
 
   bool dragging() const;
-  void startMouseDrag(ToolChain* chain, const InputState& inputState);
+  void startMouseDrag(ToolChain& chain, const InputState& inputState);
   bool mouseDrag(const InputState& inputState);
   void endMouseDrag(const InputState& inputState);
   void cancelMouseDrag();
 
-  void mouseScroll(ToolChain* chain, const InputState& inputState);
+  void mouseScroll(ToolChain& chain, const InputState& inputState);
 
-  bool cancel(ToolChain* chain);
+  bool cancel(ToolChain& chain);
 
 public: // tool management
   /**
@@ -129,11 +129,11 @@ public: // tool management
 
 public: // rendering
   void setRenderOptions(
-    ToolChain* chain,
+    ToolChain& chain,
     const InputState& inputState,
     Renderer::RenderContext& renderContext);
   void renderTools(
-    ToolChain* chain,
+    ToolChain& chain,
     const InputState& inputState,
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch);

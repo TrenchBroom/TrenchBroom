@@ -88,9 +88,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I click once")
       {
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("The group gets selected")
         {
@@ -101,9 +101,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I double click")
       {
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("The group is opened")
         {
@@ -156,10 +156,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I shift click once")
       {
-        inputState.setModifierKeys(ModifierKeys::MKShift);
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.setModifierKeys(ModifierKeys::Shift);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("The top face get selected")
         {
@@ -171,10 +171,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         AND_WHEN("I shift click on the selected face again")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The top face remains selected")
           {
@@ -187,10 +187,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         AND_WHEN("I shift+ctrl click on the selected face again")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The top face gets deselected")
           {
@@ -202,9 +202,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I click once")
       {
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("The brush gets selected")
         {
@@ -214,9 +214,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         AND_WHEN("I click on the selected brushagain")
         {
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush remains selected")
           {
@@ -228,9 +228,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         AND_WHEN("I ctrl click on the selected brush again")
         {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush gets deselected")
           {
@@ -242,10 +242,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I shift double click")
       {
-        inputState.setModifierKeys(ModifierKeys::MKShift);
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.setModifierKeys(ModifierKeys::Shift);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("All brush faces are selected")
         {
@@ -256,9 +256,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       WHEN("I double click")
       {
-        inputState.mouseDown(MouseButtons::MBLeft);
+        inputState.mouseDown(MouseButtons::Left);
         tool.mouseDoubleClick(inputState);
-        inputState.mouseUp(MouseButtons::MBLeft);
+        inputState.mouseUp(MouseButtons::Left);
 
         THEN("All nodes are selected")
         {
@@ -274,10 +274,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The top face get selected")
           {
@@ -290,10 +290,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift+ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("Both the front and the top faces are selected")
           {
@@ -307,9 +307,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I click once")
         {
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush gets selected")
           {
@@ -321,9 +321,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         WHEN("I ctrl click once")
         {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush gets selected")
           {
@@ -339,10 +339,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The top face get selected")
           {
@@ -355,10 +355,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift+ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The top face get selected")
           {
@@ -371,9 +371,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I click once")
         {
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush gets selected")
           {
@@ -385,9 +385,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         WHEN("I ctrl click once")
         {
           inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("The brush and entity both get selected")
           {
@@ -417,10 +417,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKShift);
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.setModifierKeys(ModifierKeys::Shift);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("Nothing happens")
           {
@@ -431,9 +431,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I click once")
         {
-          inputState.mouseDown(MouseButtons::MBLeft);
+          inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
-          inputState.mouseUp(MouseButtons::MBLeft);
+          inputState.mouseUp(MouseButtons::Left);
 
           THEN("Nothing happens")
           {

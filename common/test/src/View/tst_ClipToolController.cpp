@@ -114,9 +114,9 @@ TEST_CASE_METHOD(
   updatePickState(inputState, camera, *document);
   REQUIRE(inputState.pickResult().size() == 1u);
 
-  inputState.mouseDown(MouseButtons::MBLeft);
+  inputState.mouseDown(MouseButtons::Left);
   CHECK(controller.mouseClick(inputState));
-  inputState.mouseUp(MouseButtons::MBLeft);
+  inputState.mouseUp(MouseButtons::Left);
 
   CHECK_FALSE(tool.canClip());
   CHECK(tool.canAddPoint(clipPoint2));
@@ -127,9 +127,9 @@ TEST_CASE_METHOD(
   updatePickState(inputState, camera, *document);
   REQUIRE(inputState.pickResult().size() == 1u);
 
-  inputState.mouseDown(MouseButtons::MBLeft);
+  inputState.mouseDown(MouseButtons::Left);
   CHECK(controller.mouseClick(inputState));
-  inputState.mouseUp(MouseButtons::MBLeft);
+  inputState.mouseUp(MouseButtons::Left);
 
   CHECK(tool.canClip());
 
