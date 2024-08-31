@@ -173,6 +173,23 @@ std::unique_ptr<GestureTracker> ToolChain::acceptMouseDrag(const InputState& inp
   return m_suffix->acceptMouseDrag(inputState);
 }
 
+std::unique_ptr<GestureTracker> ToolChain::acceptGesture(const InputState& inputState)
+{
+  assert(checkInvariant());
+  if (chainEndsHere())
+  {
+    return nullptr;
+  }
+  if (m_tool->toolActive())
+  {
+    if (auto gestureTracker = m_tool->acceptGesture(inputState))
+    {
+      return gestureTracker;
+    }
+  }
+  return m_suffix->acceptGesture(inputState);
+}
+
 bool ToolChain::shouldAcceptDrop(
   const InputState& inputState, const std::string& payload) const
 {

@@ -55,6 +55,11 @@ std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(const InputState
   return nullptr;
 }
 
+std::unique_ptr<GestureTracker> ToolController::acceptGesture(const InputState&)
+{
+  return nullptr;
+}
+
 bool ToolController::shouldAcceptDrop(const InputState&, const std::string&) const
 {
   return false;

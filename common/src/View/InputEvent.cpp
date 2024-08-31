@@ -40,6 +40,11 @@ bool InputEvent::collateWith(const MouseEvent& /* event */)
   return false;
 }
 
+bool InputEvent::collateWith(const GestureEvent& /* event */)
+{
+  return false;
+}
+
 bool InputEvent::collateWith(const CancelEvent& /* event */)
 {
   return false;
@@ -195,7 +200,62 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs)
   return lhs;
 }
 
+GestureEvent::GestureEvent(
+  const Type i_type, const float i_posX, const float i_posY, const float i_value)
+  : type{i_type}
+  , posX{i_posX}
+  , posY{i_posY}
+  , value{i_value}
+{
+}
+
+bool GestureEvent::collateWith(const GestureEvent& event)
+{
+  if (
+    (type == Type::Pan && event.type == Type::Pan)
+    || (type == Type::Zoom && event.type == Type::Zoom)
+    || (type == Type::Rotate && event.type == Type::Rotate))
+  {
+    posX = event.posX;
+    posY = event.posY;
+    value = event.value;
+    return true;
+  }
+
+  return false;
+}
+
+kdl_reflect_impl(GestureEvent);
+
+std::ostream& operator<<(std::ostream& lhs, const GestureEvent::Type& rhs)
+{
+  switch (rhs)
+  {
+  case GestureEvent::Type::Start:
+    lhs << "Begin";
+    break;
+  case GestureEvent::Type::End:
+    lhs << "End";
+    break;
+  case GestureEvent::Type::Pan:
+    lhs << "Pan";
+    break;
+  case GestureEvent::Type::Zoom:
+    lhs << "Zoom";
+    break;
+  case GestureEvent::Type::Rotate:
+    lhs << "Rotate";
+    break;
+  }
+  return lhs;
+}
+
 void CancelEvent::processWith(InputEventProcessor& processor) const
+{
+  processor.processEvent(*this);
+}
+
+void GestureEvent::processWith(InputEventProcessor& processor) const
 {
   processor.processEvent(*this);
 }
@@ -403,6 +463,40 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
       posX,
       posY,
       static_cast<float>(scrollDistance.y())));
+  }
+}
+
+namespace
+{
+std::optional<GestureEvent::Type> getGestureType(
+  const Qt::NativeGestureType qtGestureType)
+{
+  switch (qtGestureType)
+  {
+  case Qt::BeginNativeGesture:
+    return GestureEvent::Type::Start;
+  case Qt::EndNativeGesture:
+    return GestureEvent::Type::End;
+  case Qt::PanNativeGesture:
+    return GestureEvent::Type::Pan;
+  case Qt::ZoomNativeGesture:
+    return GestureEvent::Type::Zoom;
+  case Qt::RotateNativeGesture:
+    return GestureEvent::Type::Rotate;
+  default:
+    return std::nullopt;
+  }
+}
+} // namespace
+
+void InputEventRecorder::recordEvent(const QNativeGestureEvent& qEvent)
+{
+  if (const auto type = getGestureType(qEvent.gestureType()))
+  {
+    const auto posX = float(qEvent.localPos().x());
+    const auto posY = float(qEvent.localPos().y());
+    const auto value = float(qEvent.value());
+    m_queue.enqueueEvent(std::make_unique<GestureEvent>(*type, posX, posY, value));
   }
 }
 

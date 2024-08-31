@@ -170,12 +170,47 @@ TEST_CASE("MouseEvent")
   }
 }
 
+TEST_CASE("GestureEvent")
+{
+  SECTION("collateWith")
+  {
+    using Type = GestureEvent::Type;
+    const auto lhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+    const auto rhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    const auto expected = std::array<std::array<bool, 3>, 3>{{
+      // Pan  Zoom Rotate
+      {true, false, false}, // Pan
+      {false, true, false}, // Zoom
+      {false, false, true}, // Rotate
+    }};
+
+    auto lhs = GestureEvent{lhsType, 0, 0, 0.0f};
+    const auto rhs = GestureEvent{rhsType, 0, 0, 0.0f};
+    CHECK(lhs.collateWith(rhs) == expected[size_t(lhsType) - 2][size_t(rhsType) - 2]);
+  }
+
+  SECTION("value collation")
+  {
+    using Type = GestureEvent::Type;
+    const auto type = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    auto lhs = GestureEvent{type, 1, 2, 3.0f};
+    const auto rhs = GestureEvent{type, 4, 5, 6.0f};
+
+    REQUIRE(lhs.collateWith(rhs));
+    CHECK(lhs.posX == 4);
+    CHECK(lhs.posY == 5);
+    CHECK(lhs.value == 6);
+  }
+}
+
 namespace
 {
 class TestEventProcessor : public InputEventProcessor
 {
 private:
-  using Event = std::variant<KeyEvent, MouseEvent, CancelEvent>;
+  using Event = std::variant<KeyEvent, MouseEvent, GestureEvent, CancelEvent>;
   std::list<Event> m_expectedEvents;
 
 public:
@@ -208,6 +243,22 @@ public:
           CHECK(exp.posX == act.posX);
           CHECK(exp.posY == act.posY);
           CHECK(exp.scrollDistance == Approx(act.scrollDistance));
+        },
+        [&](const auto&) { CHECK(false); }),
+      m_expectedEvents.front());
+    m_expectedEvents.pop_front();
+  }
+
+  void processEvent(const GestureEvent& act) override
+  {
+    CHECK_FALSE(m_expectedEvents.empty());
+    std::visit(
+      kdl::overload(
+        [&](const GestureEvent& exp) {
+          CHECK(exp.type == act.type);
+          CHECK(exp.posX == act.posX);
+          CHECK(exp.posY == act.posY);
+          CHECK(exp.value == Approx(act.value));
         },
         [&](const auto&) { CHECK(false); }),
       m_expectedEvents.front());

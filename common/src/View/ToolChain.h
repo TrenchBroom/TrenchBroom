@@ -64,6 +64,7 @@ public:
   void mouseMove(const InputState& inputState);
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
+  std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState);
 
   bool shouldAcceptDrop(const InputState& inputState, const std::string& payload) const;
   std::unique_ptr<DropTracker> dragEnter(

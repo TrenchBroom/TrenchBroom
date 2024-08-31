@@ -240,6 +240,29 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
 }
 
+void ToolBoxConnector::processEvent(const GestureEvent& event)
+{
+  switch (event.type)
+  {
+  case GestureEvent::Type::Start:
+    processGestureStart(event);
+    break;
+  case GestureEvent::Type::End:
+    processGestureEnd(event);
+    break;
+  case GestureEvent::Type::Pan:
+    processGesturePan(event);
+    break;
+  case GestureEvent::Type::Zoom:
+    processGestureZoom(event);
+    break;
+  case GestureEvent::Type::Rotate:
+    processGestureRotate(event);
+    break;
+    switchDefault();
+  }
+}
+
 void ToolBoxConnector::processEvent(const CancelEvent&)
 {
   cancelDrag();
@@ -365,6 +388,36 @@ void ToolBoxConnector::mouseMoved(const float x, const float y)
   m_inputState.mouseMove(x, y, dx, dy);
   m_lastMouseX = x;
   m_lastMouseY = y;
+}
+
+void ToolBoxConnector::processGestureStart(const GestureEvent&)
+{
+  m_inputState.startGesture();
+  m_toolBox->startGesture(*m_toolChain, m_inputState);
+}
+
+void ToolBoxConnector::processGestureEnd(const GestureEvent&)
+{
+  m_toolBox->endGesture(m_inputState);
+  m_inputState.endGesture();
+}
+
+void ToolBoxConnector::processGesturePan(const GestureEvent& event)
+{
+  m_inputState.gesturePan(event.posX, event.posY);
+  m_toolBox->gesturePan(m_inputState);
+}
+
+void ToolBoxConnector::processGestureZoom(const GestureEvent& event)
+{
+  m_inputState.gestureZoom(event.value);
+  m_toolBox->gestureZoom(m_inputState);
+}
+
+void ToolBoxConnector::processGestureRotate(const GestureEvent& event)
+{
+  m_inputState.gestureRotate(event.value);
+  m_toolBox->gestureRotate(m_inputState);
 }
 
 bool ToolBoxConnector::cancelDrag()

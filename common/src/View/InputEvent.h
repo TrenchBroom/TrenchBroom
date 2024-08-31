@@ -33,6 +33,7 @@
 namespace TrenchBroom::View
 {
 class CancelEvent;
+class GestureEvent;
 class InputEventProcessor;
 class KeyEvent;
 class MouseEvent;
@@ -60,6 +61,14 @@ public:
    * @return true if this event was collated with the given event and false otherwise
    */
   virtual bool collateWith(const MouseEvent& event);
+
+  /**
+   * Collate this event with the given gesture event.
+   *
+   * @param event the event to collate with
+   * @return true if this event was collated with the given event and false otherwise
+   */
+  virtual bool collateWith(const GestureEvent& event);
 
   /**
    * Collate this event with the given cancellation event.
@@ -236,6 +245,70 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs);
 std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs);
 
 /**
+ * A gesture event. Supports several gesture types such as pan, zoom, and rotate.
+ */
+class GestureEvent : public InputEvent
+{
+public:
+  enum class Type
+  {
+    /**
+     * A gesture was started.
+     */
+    Start,
+    /**
+     * A gesture has ended.
+     */
+    End,
+    /**
+     * A panning gesture update.
+     */
+    Pan,
+    /**
+     * A zoom gesture update.
+     */
+    Zoom,
+    /**
+     * A rotate gesture update.
+     */
+    Rotate,
+  };
+
+  Type type;
+
+  /** Cursor position in Points, relative to top left of widget. */
+  float posX;
+  float posY;
+  float value;
+
+  /**
+   * Creates a new gesture event with the given parameters.
+   */
+  GestureEvent(Type type, float posX, float posY, float value);
+
+  /**
+   * Collates this gesture event with the given gesture event. Only successive Pan,
+   * Zoom and Rotate events are collated.
+   *
+   * @param event the gesture event to collate with
+   * @return true if this event was collated with the given gesture event and false
+   * otherwise
+   */
+  bool collateWith(const GestureEvent& event) override;
+
+  /**
+   * Process this gesture event using the given event processor.
+   *
+   * @param processor the event processor
+   */
+  void processWith(InputEventProcessor& processor) const override;
+
+  kdl_reflect_decl(GestureEvent, type, posX, posY, value);
+};
+
+std::ostream& operator<<(std::ostream& lhs, const GestureEvent::Type& rhs);
+
+/**
  * Event to signal that a mouse drag was cancelled by the windowing system, e.g. when the
  * window lost focus.
  */
@@ -357,6 +430,13 @@ public:
   void recordEvent(const QWheelEvent& event);
 
   /**
+   * Records the given native gesture event.
+   *
+   * @param event the event to record
+   */
+  void recordEvent(const QNativeGestureEvent& event);
+
+  /**
    * Processes all recorded events using the given event processor.
    *
    * @param processor the event processor
@@ -421,6 +501,13 @@ public:
    * @param event the event to process
    */
   virtual void processEvent(const MouseEvent& event) = 0;
+
+  /**
+   * Process a gesture event.
+   *
+   * @param event the event to process
+   */
+  virtual void processEvent(const GestureEvent& event) = 0;
 
   /**
    * Process a cancellation event.

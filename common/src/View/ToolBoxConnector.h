@@ -24,6 +24,7 @@
 #include "View/InputState.h"
 
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace TrenchBroom::Model
@@ -99,6 +100,7 @@ private:
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
   void processEvent(const MouseEvent& event) override;
+  void processEvent(const GestureEvent& event) override;
   void processEvent(const CancelEvent& event) override;
 
 private:
@@ -114,6 +116,12 @@ private:
 
   MouseButtonState mouseButton(const MouseEvent& event);
   void mouseMoved(float x, float y);
+
+  void processGestureStart(const GestureEvent& event);
+  void processGestureEnd(const GestureEvent& event);
+  void processGesturePan(const GestureEvent& event);
+  void processGestureZoom(const GestureEvent& event);
+  void processGestureRotate(const GestureEvent& event);
 
 public:
   bool cancelDrag();

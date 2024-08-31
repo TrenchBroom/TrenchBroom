@@ -1176,6 +1176,11 @@ void MapViewBase::processEvent(const MouseEvent& event)
   ToolBoxConnector::processEvent(event);
 }
 
+void MapViewBase::processEvent(const GestureEvent& event)
+{
+  ToolBoxConnector::processEvent(event);
+}
+
 void MapViewBase::processEvent(const CancelEvent& event)
 {
   ToolBoxConnector::processEvent(event);
