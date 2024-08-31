@@ -156,6 +156,40 @@ float InputState::scrollY() const
   return m_scrollY;
 }
 
+bool InputState::gestureActive() const
+{
+  return m_gestureActive;
+}
+
+float InputState::gesturePanX() const
+{
+  return m_gesturePanX;
+}
+
+float InputState::gesturePanY() const
+{
+  return m_gesturePanY;
+}
+
+float InputState::gesturePanDX() const
+{
+  return m_gesturePanDX;
+}
+float InputState::gesturePanDY() const
+{
+  return m_gesturePanDY;
+}
+
+float InputState::gestureZoomValue() const
+{
+  return m_gestureZoomValue;
+}
+
+float InputState::gestureRotateValue() const
+{
+  return m_gestureRotateValue;
+}
+
 void InputState::setModifierKeys(const ModifierKeyState keys)
 {
   m_modifierKeys = keys;
@@ -194,6 +228,38 @@ void InputState::scroll(const float scrollX, const float scrollY)
 {
   m_scrollX = scrollX;
   m_scrollY = scrollY;
+}
+
+void InputState::startGesture()
+{
+  m_gestureActive = true;
+}
+
+void InputState::gesturePan(const float x, const float y, const float dx, const float dy)
+{
+  m_gesturePanX = x;
+  m_gesturePanY = y;
+  m_gesturePanDX = dx;
+  m_gesturePanDY = dy;
+}
+
+void InputState::gestureZoom(const float value)
+{
+  m_gestureZoomValue = value;
+}
+
+void InputState::gestureRotate(const float value)
+{
+  m_gestureRotateValue = value;
+}
+
+void InputState::endGesture()
+{
+  m_gestureActive = false;
+  m_gesturePanX = 0.0f;
+  m_gesturePanY = 0.0f;
+  m_gestureZoomValue = 0.0f;
+  m_gestureRotateValue = 0.0f;
 }
 
 bool InputState::anyToolDragging() const

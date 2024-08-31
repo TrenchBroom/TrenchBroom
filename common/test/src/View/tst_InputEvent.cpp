@@ -168,9 +168,44 @@ TEST_CASE("MouseEvent")
   }
 }
 
+TEST_CASE("GestureEvent")
+{
+  SECTION("collateWith")
+  {
+    using Type = GestureEvent::Type;
+    const auto lhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+    const auto rhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    const auto expected = std::array<std::array<bool, 3>, 3>{{
+      // Pan  Zoom Rotate
+      {true, false, false}, // Pan
+      {false, true, false}, // Zoom
+      {false, false, true}, // Rotate
+    }};
+
+    auto lhs = GestureEvent{lhsType, 0, 0, 0.0f};
+    const auto rhs = GestureEvent{rhsType, 0, 0, 0.0f};
+    CHECK(lhs.collateWith(rhs) == expected[size_t(lhsType) - 2][size_t(rhsType) - 2]);
+  }
+
+  SECTION("value collation")
+  {
+    using Type = GestureEvent::Type;
+    const auto type = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    auto lhs = GestureEvent{type, 1, 2, 3.0f};
+    const auto rhs = GestureEvent{type, 4, 5, 6.0f};
+
+    REQUIRE(lhs.collateWith(rhs));
+    CHECK(lhs.posX == 4);
+    CHECK(lhs.posY == 5);
+    CHECK(lhs.value == 6);
+  }
+}
+
 namespace
 {
-using Event = std::variant<KeyEvent, MouseEvent, CancelEvent>;
+using Event = std::variant<KeyEvent, MouseEvent, GestureEvent, CancelEvent>;
 
 [[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const Event& rhs)
 {
@@ -189,6 +224,8 @@ public:
   void processEvent(const KeyEvent& event) override { m_events.emplace_back(event); }
 
   void processEvent(const MouseEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const GestureEvent& event) override { m_events.emplace_back(event); }
 
   void processEvent(const CancelEvent& event) override { m_events.emplace_back(event); }
 };

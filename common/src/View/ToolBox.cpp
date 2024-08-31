@@ -207,6 +207,53 @@ void ToolBox::mouseScroll(ToolChain& chain, const InputState& inputState)
   }
 }
 
+void ToolBox::startGesture(ToolChain& chain, const InputState& inputState)
+{
+  assert(!m_gestureTracker);
+
+  if (m_enabled)
+  {
+    m_gestureTracker = chain.acceptGesture(inputState);
+  }
+}
+
+void ToolBox::gesturePan(const InputState& inputState)
+{
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
+}
+
+void ToolBox::gestureZoom(const InputState& inputState)
+{
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
+}
+
+void ToolBox::gestureRotate(const InputState& inputState)
+{
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
+}
+
+void ToolBox::endGesture(const InputState& inputState)
+{
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->end(inputState);
+    m_gestureTracker = nullptr;
+  }
+}
+
 bool ToolBox::cancel(ToolChain& chain)
 {
   if (dragging())

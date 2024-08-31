@@ -56,6 +56,13 @@ static const MouseButtonState Right = 1 << 1;
 static const MouseButtonState Middle = 1 << 2;
 } // namespace MouseButtons
 
+enum class GestureType
+{
+  Pan,
+  Zoom,
+  Rotate,
+};
+
 class InputState
 {
 private:
@@ -68,6 +75,14 @@ private:
   float m_mouseDY = 0.0f;
   float m_scrollX = 0.0f;
   float m_scrollY = 0.0f;
+
+  bool m_gestureActive = false;
+  float m_gesturePanX = 0.0;
+  float m_gesturePanY = 0.0;
+  float m_gesturePanDX = 0.0;
+  float m_gesturePanDY = 0.0;
+  float m_gestureZoomValue = 0.0f;
+  float m_gestureRotateValue = 0.0f;
 
   bool m_anyToolDragging = false;
   PickRequest m_pickRequest;
@@ -110,6 +125,14 @@ public:
    */
   float scrollY() const;
 
+  bool gestureActive() const;
+  float gesturePanX() const;
+  float gesturePanY() const;
+  float gesturePanDX() const;
+  float gesturePanDY() const;
+  float gestureZoomValue() const;
+  float gestureRotateValue() const;
+
   void setModifierKeys(ModifierKeyState keys);
   void clearModifierKeys();
   void mouseDown(MouseButtonState button);
@@ -117,6 +140,12 @@ public:
   void clearMouseButtons();
   void mouseMove(float mouseX, float mouseY, float mouseDX, float mouseDY);
   void scroll(float scrollX, float scrollY);
+
+  void startGesture();
+  void gesturePan(float x, float y, float dx, float dy);
+  void gestureZoom(float value);
+  void gestureRotate(float value);
+  void endGesture();
 
   bool anyToolDragging() const;
   void setAnyToolDragging(bool anyToolDragging);

@@ -120,6 +120,7 @@ private:
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
   void processEvent(const MouseEvent& event) override;
+  void processEvent(const GestureEvent& event) override;
   void processEvent(const CancelEvent& event) override;
 
 private:

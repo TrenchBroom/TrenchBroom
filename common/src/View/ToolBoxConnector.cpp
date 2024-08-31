@@ -240,6 +240,29 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
 }
 
+void ToolBoxConnector::processEvent(const GestureEvent& event)
+{
+  switch (event.type)
+  {
+  case GestureEvent::Type::Start:
+    processGestureStart(event);
+    break;
+  case GestureEvent::Type::End:
+    processGestureEnd(event);
+    break;
+  case GestureEvent::Type::Pan:
+    processGesturePan(event);
+    break;
+  case GestureEvent::Type::Zoom:
+    processGestureZoom(event);
+    break;
+  case GestureEvent::Type::Rotate:
+    processGestureRotate(event);
+    break;
+    switchDefault();
+  }
+}
+
 void ToolBoxConnector::processEvent(const CancelEvent&)
 {
   cancelDrag();
@@ -360,11 +383,47 @@ MouseButtonState ToolBoxConnector::mouseButton(const MouseEvent& event)
 
 void ToolBoxConnector::mouseMoved(const float x, const float y)
 {
-  const auto dx = x - m_lastMouseX;
-  const auto dy = y - m_lastMouseY;
+  const auto dx = x - m_lastMousePos.x();
+  const auto dy = y - m_lastMousePos.y();
   m_inputState.mouseMove(x, y, dx, dy);
-  m_lastMouseX = x;
-  m_lastMouseY = y;
+  m_lastMousePos = {x, y};
+}
+
+void ToolBoxConnector::processGestureStart(const GestureEvent&)
+{
+  m_inputState.startGesture();
+  m_toolBox->startGesture(*m_toolChain, m_inputState);
+}
+
+void ToolBoxConnector::processGestureEnd(const GestureEvent&)
+{
+  m_toolBox->endGesture(m_inputState);
+  m_inputState.endGesture();
+
+  m_lastGesturePanPos = std::nullopt;
+}
+
+void ToolBoxConnector::processGesturePan(const GestureEvent& event)
+{
+  const auto pos = vm::vec2f{event.posX, event.posY};
+  const auto delta = pos - m_lastGesturePanPos.value_or(pos);
+
+  m_inputState.gesturePan(pos.x(), pos.y(), delta.x(), delta.y());
+  m_toolBox->gesturePan(m_inputState);
+
+  m_lastGesturePanPos = pos;
+}
+
+void ToolBoxConnector::processGestureZoom(const GestureEvent& event)
+{
+  m_inputState.gestureZoom(event.value);
+  m_toolBox->gestureZoom(m_inputState);
+}
+
+void ToolBoxConnector::processGestureRotate(const GestureEvent& event)
+{
+  m_inputState.gestureRotate(event.value);
+  m_toolBox->gestureRotate(m_inputState);
 }
 
 bool ToolBoxConnector::cancelDrag()

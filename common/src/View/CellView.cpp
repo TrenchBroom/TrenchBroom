@@ -565,6 +565,7 @@ QString CellView::tooltip(const Cell&)
 
 void CellView::processEvent(const KeyEvent& /* event */) {}
 void CellView::processEvent(const MouseEvent& /* event */) {}
+void CellView::processEvent(const GestureEvent& /* event */) {}
 void CellView::processEvent(const CancelEvent& /* event */) {}
 
 } // namespace TrenchBroom::View

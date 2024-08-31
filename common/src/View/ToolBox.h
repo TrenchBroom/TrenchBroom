@@ -106,6 +106,12 @@ public: // event handling
 
   void mouseScroll(ToolChain& chain, const InputState& inputState);
 
+  void startGesture(ToolChain& chain, const InputState& inputState);
+  void gesturePan(const InputState& inputState);
+  void gestureZoom(const InputState& inputState);
+  void gestureRotate(const InputState& inputState);
+  void endGesture(const InputState& inputState);
+
   bool cancel(ToolChain& chain);
 
 public: // tool management
