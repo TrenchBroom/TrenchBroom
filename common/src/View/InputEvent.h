@@ -37,6 +37,7 @@ class GestureEvent;
 class InputEventProcessor;
 class KeyEvent;
 class MouseEvent;
+class ScrollEvent;
 
 /**
  * Superclass for all input events. Provides protocols for event collation and processing.
@@ -61,6 +62,14 @@ public:
    * @return true if this event was collated with the given event and false otherwise
    */
   virtual bool collateWith(const MouseEvent& event);
+
+  /**
+   * Collate this event with the given scroll event.
+   *
+   * @param event the event to collate with
+   * @return true if this event was collated with the given event and false otherwise
+   */
+  virtual bool collateWith(const ScrollEvent& event);
 
   /**
    * Collate this event with the given gesture event.
@@ -158,10 +167,6 @@ public:
      */
     Motion,
     /**
-     * The mouse wheel was scrolled.
-     */
-    Scroll,
-    /**
      * A mouse drag was started.
      */
     DragStart,
@@ -183,22 +188,14 @@ public:
     Aux1,
     Aux2
   };
-  enum class WheelAxis
-  {
-    None,
-    Vertical,
-    Horizontal
-  };
 
 public:
   Type type;
   Button button;
-  WheelAxis wheelAxis;
 
   /** Cursor position in Points, relative to top left of widget. */
   float posX;
   float posY;
-  float scrollDistance;
 
 public:
   /**
@@ -209,15 +206,8 @@ public:
    * @param wheelAxis the wheel axies that was scrolled, if any
    * @param posX the current X position of the mouse pointer
    * @param posY the current Y position of the mouse pointer
-   * @param scrollDistance the distance by which the mouse wheel was scrolled, in lines
    */
-  MouseEvent(
-    Type type,
-    Button button,
-    WheelAxis wheelAxis,
-    float posX,
-    float posY,
-    float scrollDistance);
+  MouseEvent(Type type, Button button, float posX, float posY);
 
 public:
   /**
@@ -237,12 +227,47 @@ public:
    */
   void processWith(InputEventProcessor& processor) const override;
 
-  kdl_reflect_decl(MouseEvent, type, button, wheelAxis, posX, posY, scrollDistance);
+  kdl_reflect_decl(MouseEvent, type, button, posX, posY);
 };
 
 std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Type& rhs);
 std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs);
-std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs);
+
+class ScrollEvent : public InputEvent
+{
+public:
+  enum class Axis
+  {
+    Vertical,
+    Horizontal,
+  };
+
+  Axis axis;
+  float distance;
+
+  ScrollEvent(Axis axis, float distance);
+
+  /**
+   * Collates this scroll event with the given scroll event. Only successive Pan,
+   * Zoom and Rotate events are collated.
+   *
+   * @param event the scroll event to collate with
+   * @return true if this event was collated with the given scroll event and false
+   * otherwise
+   */
+  bool collateWith(const ScrollEvent& event) override;
+
+  /**
+   * Process this scroll event using the given event processor.
+   *
+   * @param processor the event processor
+   */
+  void processWith(InputEventProcessor& processor) const override;
+
+  kdl_reflect_decl(ScrollEvent, axis, distance);
+};
+
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Axis& rhs);
 
 /**
  * A gesture event. Supports several gesture types such as pan, zoom, and rotate.
@@ -508,6 +533,13 @@ public:
    * @param event the event to process
    */
   virtual void processEvent(const GestureEvent& event) = 0;
+
+  /**
+   * Process a scroll event.
+   *
+   * @param event the event to process
+   */
+  virtual void processEvent(const ScrollEvent& event) = 0;
 
   /**
    * Process a cancellation event.

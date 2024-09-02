@@ -223,9 +223,6 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
   case MouseEvent::Type::Motion:
     processMouseMotion(event);
     break;
-  case MouseEvent::Type::Scroll:
-    processScroll(event);
-    break;
   case MouseEvent::Type::DragStart:
     processDragStart(event);
     break;
@@ -238,6 +235,22 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
     switchDefault();
   }
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
+}
+
+void ToolBoxConnector::processEvent(const ScrollEvent& event)
+{
+  updateModifierKeys();
+  if (event.axis == ScrollEvent::Axis::Horizontal)
+  {
+    m_inputState.scroll(event.distance, 0.0f);
+  }
+  else if (event.axis == ScrollEvent::Axis::Vertical)
+  {
+    m_inputState.scroll(0.0f, event.distance);
+  }
+  m_toolBox->mouseScroll(*m_toolChain, m_inputState);
+
+  updatePickResult();
 }
 
 void ToolBoxConnector::processEvent(const GestureEvent& event)
@@ -315,22 +328,6 @@ void ToolBoxConnector::processMouseMotion(const MouseEvent& event)
   mouseMoved(event.posX, event.posY);
   updatePickResult();
   m_toolBox->mouseMove(*m_toolChain, m_inputState);
-}
-
-void ToolBoxConnector::processScroll(const MouseEvent& event)
-{
-  updateModifierKeys();
-  if (event.wheelAxis == MouseEvent::WheelAxis::Horizontal)
-  {
-    m_inputState.scroll(event.scrollDistance, 0.0f);
-  }
-  else if (event.wheelAxis == MouseEvent::WheelAxis::Vertical)
-  {
-    m_inputState.scroll(0.0f, event.scrollDistance);
-  }
-  m_toolBox->mouseScroll(*m_toolChain, m_inputState);
-
-  updatePickResult();
 }
 
 void ToolBoxConnector::processDragStart(const MouseEvent& event)

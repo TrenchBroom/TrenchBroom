@@ -54,17 +54,16 @@ TEST_CASE("MouseEvent")
   {
     SECTION("can collate")
     {
-      constexpr std::array<std::array<bool, 9>, 9> expectedResult = {{
-        // Down   Up     Click  DClick Motion Scroll DragSt Drag   DragEnd
-        {false, false, false, false, false, false, false, false, false}, // Down
-        {false, false, false, false, false, false, false, false, false}, // Up
-        {false, false, false, false, false, false, false, false, false}, // Click
-        {false, false, false, false, false, false, false, false, false}, // DClick
-        {false, false, false, false, true, false, false, false, false},  // Motion
-        {false, false, false, false, false, true, false, false, false},  // Scroll
-        {false, false, false, false, false, false, false, false, false}, // DragStart
-        {false, false, false, false, false, false, false, true, false},  // Drag
-        {false, false, false, false, false, false, false, false, false}, // DragEnd
+      constexpr std::array<std::array<bool, 8>, 8> expectedResult = {{
+        // Down   Up   Click  DClick Motion DragSt Drag   DragEnd
+        {false, false, false, false, false, false, false, false}, // Down
+        {false, false, false, false, false, false, false, false}, // Up
+        {false, false, false, false, false, false, false, false}, // Click
+        {false, false, false, false, false, false, false, false}, // DClick
+        {false, false, false, false, true, false, false, false},  // Motion
+        {false, false, false, false, false, false, false, false}, // DragStart
+        {false, false, false, false, false, false, true, false},  // Drag
+        {false, false, false, false, false, false, false, false}, // DragEnd
       }};
 
       using Type = MouseEvent::Type;
@@ -74,7 +73,6 @@ TEST_CASE("MouseEvent")
         Type::Click,
         Type::DoubleClick,
         Type::Motion,
-        Type::Scroll,
         Type::DragStart,
         Type::Drag,
         Type::DragEnd);
@@ -84,35 +82,21 @@ TEST_CASE("MouseEvent")
         Type::Click,
         Type::DoubleClick,
         Type::Motion,
-        Type::Scroll,
         Type::DragStart,
         Type::Drag,
         Type::DragEnd);
 
-      auto lhs = MouseEvent{
-        lhsType, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f};
-      const auto rhs = MouseEvent{
-        rhsType, MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f};
+      auto lhs = MouseEvent{lhsType, MouseEvent::Button::None, 0, 0};
+      const auto rhs = MouseEvent{rhsType, MouseEvent::Button::None, 0, 0};
 
       CHECK(lhs.collateWith(rhs) == expectedResult[size_t(lhsType)][size_t(rhsType)]);
     }
 
     SECTION("motion collation")
     {
-      auto lhs = MouseEvent{
-        MouseEvent::Type::Motion,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::None,
-        2,
-        3,
-        0.0f};
-      const auto rhs = MouseEvent{
-        MouseEvent::Type::Motion,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::None,
-        5,
-        5,
-        0.0f};
+      auto lhs = MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 2, 3};
+      const auto rhs =
+        MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 5, 5};
       CHECK(lhs.collateWith(rhs));
       CHECK(lhs.posX == 5);
       CHECK(lhs.posY == 5);
@@ -120,52 +104,41 @@ TEST_CASE("MouseEvent")
 
     SECTION("drag collation")
     {
-      auto lhs = MouseEvent{
-        MouseEvent::Type::Drag,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::None,
-        2,
-        3,
-        0.0f};
-      const auto rhs = MouseEvent{
-        MouseEvent::Type::Drag,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::None,
-        5,
-        5,
-        0.0f};
+      auto lhs = MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::None, 2, 3};
+      const auto rhs = MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::None, 5, 5};
       CHECK(lhs.collateWith(rhs));
       CHECK(lhs.posX == 5);
       CHECK(lhs.posY == 5);
     }
+  }
+}
 
-    SECTION("horizontal wheel collation")
-    {
-      using Axis = MouseEvent::WheelAxis;
-      const auto lhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
-      const auto rhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
+TEST_CASE("ScrollEvent")
+{
+  SECTION("collateWith")
+  {
+    using Axis = ScrollEvent::Axis;
+    const auto lhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
+    const auto rhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
 
-      // clang-format off
+    // clang-format off
       const auto expectedScrollDistances = std::array<std::array<std::optional<float>, 2>, 2>{{
         // H           V
         {-2.0f,        std::nullopt}, // H
         {std::nullopt, -2.0f},        // V
       }};
-      // clang-format on
+    // clang-format on
 
-      const auto expectedScrollDistance =
-        expectedScrollDistances[size_t(lhsWheelAxis) - 1][size_t(rhsWheelAxis) - 1];
+    const auto expectedScrollDistance =
+      expectedScrollDistances[size_t(lhsWheelAxis) - 1][size_t(rhsWheelAxis) - 1];
 
-      auto lhs = MouseEvent{
-        MouseEvent::Type::Scroll, MouseEvent::Button::None, lhsWheelAxis, 0, 0, 3.0f};
-      const auto rhs = MouseEvent{
-        MouseEvent::Type::Scroll, MouseEvent::Button::None, rhsWheelAxis, 0, 0, -5.0f};
+    auto lhs = ScrollEvent{lhsWheelAxis, 3.0f};
+    const auto rhs = ScrollEvent{rhsWheelAxis, -5.0f};
 
-      CHECK(lhs.collateWith(rhs) == expectedScrollDistance.has_value());
-      if (expectedScrollDistance)
-      {
-        CHECK(lhs.scrollDistance == expectedScrollDistance);
-      }
+    CHECK(lhs.collateWith(rhs) == expectedScrollDistance.has_value());
+    if (expectedScrollDistance)
+    {
+      CHECK(lhs.distance == expectedScrollDistance);
     }
   }
 }
@@ -210,7 +183,8 @@ namespace
 class TestEventProcessor : public InputEventProcessor
 {
 private:
-  using Event = std::variant<KeyEvent, MouseEvent, GestureEvent, CancelEvent>;
+  using Event =
+    std::variant<KeyEvent, MouseEvent, ScrollEvent, GestureEvent, CancelEvent>;
   std::list<Event> m_expectedEvents;
 
 public:
@@ -239,10 +213,23 @@ public:
         [&](const MouseEvent& exp) {
           CHECK(exp.type == act.type);
           CHECK(exp.button == act.button);
-          CHECK(exp.wheelAxis == act.wheelAxis);
           CHECK(exp.posX == act.posX);
           CHECK(exp.posY == act.posY);
-          CHECK(exp.scrollDistance == Approx(act.scrollDistance));
+        },
+        [&](const auto&) { CHECK(false); }),
+      m_expectedEvents.front());
+    m_expectedEvents.pop_front();
+  }
+
+
+  void processEvent(const ScrollEvent& act) override
+  {
+    CHECK_FALSE(m_expectedEvents.empty());
+    std::visit(
+      kdl::overload(
+        [&](const ScrollEvent& exp) {
+          CHECK(exp.axis == act.axis);
+          CHECK(exp.distance == Approx(act.distance));
         },
         [&](const auto&) { CHECK(false); }),
       m_expectedEvents.front());
@@ -331,27 +318,9 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5});
   }
 
   SECTION("recordLeftDoubleClick")
@@ -391,48 +360,12 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DoubleClick,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::DoubleClick, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5});
   }
 
   SECTION("recordCtrlLeftClick")
@@ -456,27 +389,9 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Right, 2, 5},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Right, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Right, 2, 5});
   }
 
   SECTION("recordRightClick")
@@ -500,27 +415,9 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Right,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Right, 2, 5},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Right, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Right, 2, 5});
   }
 
   SECTION("recordMotionWithCollation")
@@ -532,14 +429,7 @@ TEST_CASE("InputEventRecorder")
       QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::NoButton, Qt::NoButton, nullptr});
 
     checkEventQueue(
-      r,
-      MouseEvent{
-        MouseEvent::Type::Motion,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::None,
-        12,
-        8,
-        0.0f});
+      r, MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 12, 8});
   }
 
   SECTION("recordHScrollWithCollation")
@@ -557,15 +447,7 @@ TEST_CASE("InputEventRecorder")
     r.recordEvent(qWheel1);
     r.recordEvent(qWheel2);
 
-    checkEventQueue(
-      r,
-      MouseEvent{
-        MouseEvent::Type::Scroll,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::Horizontal,
-        0,
-        0,
-        expectedScrollLines});
+    checkEventQueue(r, ScrollEvent{ScrollEvent::Axis::Horizontal, expectedScrollLines});
   }
 
   SECTION("recordVScrollWithCollation")
@@ -583,15 +465,7 @@ TEST_CASE("InputEventRecorder")
     r.recordEvent(qWheel1);
     r.recordEvent(qWheel2);
 
-    checkEventQueue(
-      r,
-      MouseEvent{
-        MouseEvent::Type::Scroll,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::Vertical,
-        0,
-        0,
-        expectedScrollLines});
+    checkEventQueue(r, ScrollEvent{ScrollEvent::Axis::Vertical, expectedScrollLines});
   }
 
   SECTION("recordDiagonalScroll")
@@ -613,27 +487,9 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Scroll,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::Horizontal,
-        0,
-        0,
-        float(expectedScrollLines1.x())},
-      MouseEvent{
-        MouseEvent::Type::Scroll,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::Vertical,
-        0,
-        0,
-        float(expectedScrollLines1.y())},
-      MouseEvent{
-        MouseEvent::Type::Scroll,
-        MouseEvent::Button::None,
-        MouseEvent::WheelAxis::Horizontal,
-        0,
-        0,
-        float(expectedScrollLines2.x())});
+      ScrollEvent{ScrollEvent::Axis::Horizontal, float(expectedScrollLines1.x())},
+      ScrollEvent{ScrollEvent::Axis::Vertical, float(expectedScrollLines1.y())},
+      ScrollEvent{ScrollEvent::Axis::Horizontal, float(expectedScrollLines2.x())});
   }
 
   SECTION("recordLeftClickWithQuickSmallMotion")
@@ -660,34 +516,10 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Motion,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        4,
-        3,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        4,
-        3,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::Left, 4, 3},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 4, 3});
   }
 
   SECTION("recordLeftClickWithSlowSmallMotion")
@@ -715,34 +547,10 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Motion,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        4,
-        3,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Click,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        4,
-        3,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::Left, 4, 3},
+      MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 4, 3});
   }
 
   SECTION("recordLeftClickWithAccidentalDrag")
@@ -769,35 +577,11 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DragStart,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Drag,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        6,
-        3,
-        0.0f},
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 6, 3},
       CancelEvent(),
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        6,
-        3,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 6, 3});
   }
 
   SECTION("recordLeftDrag")
@@ -825,41 +609,11 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DragStart,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Drag,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        6,
-        3,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DragEnd,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        6,
-        3,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        6,
-        3,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 6, 3},
+      MouseEvent{MouseEvent::Type::DragEnd, MouseEvent::Button::Left, 6, 3},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 6, 3});
   }
 
   SECTION("recordLeftDragWithCollation")
@@ -889,41 +643,11 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      MouseEvent{
-        MouseEvent::Type::Down,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DragStart,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        2,
-        5,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Drag,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        12,
-        8,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::DragEnd,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        12,
-        8,
-        0.0f},
-      MouseEvent{
-        MouseEvent::Type::Up,
-        MouseEvent::Button::Left,
-        MouseEvent::WheelAxis::None,
-        12,
-        8,
-        0.0f});
+      MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+      MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 12, 8},
+      MouseEvent{MouseEvent::Type::DragEnd, MouseEvent::Button::Left, 12, 8},
+      MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 12, 8});
   }
 }
 

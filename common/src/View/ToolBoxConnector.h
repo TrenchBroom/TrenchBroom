@@ -100,6 +100,7 @@ private:
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
   void processEvent(const MouseEvent& event) override;
+  void processEvent(const ScrollEvent& event) override;
   void processEvent(const GestureEvent& event) override;
   void processEvent(const CancelEvent& event) override;
 
@@ -109,7 +110,6 @@ private:
   void processMouseClick(const MouseEvent& event);
   void processMouseDoubleClick(const MouseEvent& event);
   void processMouseMotion(const MouseEvent& event);
-  void processScroll(const MouseEvent& event);
   void processDragStart(const MouseEvent& event);
   void processDrag(const MouseEvent& event);
   void processDragEnd(const MouseEvent& event);

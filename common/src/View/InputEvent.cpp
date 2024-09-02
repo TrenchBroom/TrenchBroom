@@ -40,6 +40,11 @@ bool InputEvent::collateWith(const MouseEvent& /* event */)
   return false;
 }
 
+bool InputEvent::collateWith(const ScrollEvent& /* event */)
+{
+  return false;
+}
+
 bool InputEvent::collateWith(const GestureEvent& /* event */)
 {
   return false;
@@ -77,18 +82,11 @@ std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs)
 }
 
 MouseEvent::MouseEvent(
-  const Type i_type,
-  const Button i_button,
-  const WheelAxis i_wheelAxis,
-  const float i_posX,
-  const float i_posY,
-  const float i_scrollDistance)
+  const Type i_type, const Button i_button, const float i_posX, const float i_posY)
   : type{i_type}
   , button{i_button}
-  , wheelAxis{i_wheelAxis}
   , posX{i_posX}
   , posY{i_posY}
-  , scrollDistance{i_scrollDistance}
 {
 }
 
@@ -101,15 +99,6 @@ bool MouseEvent::collateWith(const MouseEvent& event)
     posX = event.posX;
     posY = event.posY;
     return true;
-  }
-
-  if (type == Type::Scroll && event.type == Type::Scroll)
-  {
-    if (wheelAxis == event.wheelAxis)
-    {
-      scrollDistance += event.scrollDistance;
-      return true;
-    }
   }
 
   return false;
@@ -140,9 +129,6 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Type& rhs)
     break;
   case MouseEvent::Type::Motion:
     lhs << "Motion";
-    break;
-  case MouseEvent::Type::Scroll:
-    lhs << "Scroll";
     break;
   case MouseEvent::Type::DragStart:
     lhs << "DragStart";
@@ -183,17 +169,38 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs)
   return lhs;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs)
+ScrollEvent::ScrollEvent(const Axis i_axis, const float i_distance)
+  : axis{i_axis}
+  , distance{i_distance}
+{
+}
+
+bool ScrollEvent::collateWith(const ScrollEvent& event)
+{
+  if (axis == event.axis)
+  {
+    distance += event.distance;
+    return true;
+  }
+
+  return false;
+}
+
+void ScrollEvent::processWith(InputEventProcessor& processor) const
+{
+  processor.processEvent(*this);
+}
+
+kdl_reflect_impl(ScrollEvent);
+
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Axis& rhs)
 {
   switch (rhs)
   {
-  case MouseEvent::WheelAxis::None:
-    lhs << "None";
-    break;
-  case MouseEvent::WheelAxis::Horizontal:
+  case ScrollEvent::Axis::Horizontal:
     lhs << "Horizontal";
     break;
-  case MouseEvent::WheelAxis::Vertical:
+  case ScrollEvent::Axis::Vertical:
     lhs << "Vertical";
     break;
   }
@@ -286,9 +293,6 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
   const auto posX = static_cast<float>(qEvent.localPos().x());
   const auto posY = static_cast<float>(qEvent.localPos().y());
 
-  const auto wheelAxis = MouseEvent::WheelAxis::None;
-  const float scrollDistance = 0.0f;
-
   if (type == MouseEvent::Type::Down)
   {
     // macOS: apply Ctrl+click = right click emulation
@@ -304,8 +308,8 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
     m_lastClickY = posY;
     m_lastClickTime = std::chrono::high_resolution_clock::now();
     m_anyMouseButtonDown = true;
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(
+      std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, posX, posY));
   }
   else if (type == MouseEvent::Type::Up)
   {
@@ -335,18 +339,13 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
         if (!isDrag(posX, posY))
         {
           m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-            MouseEvent::Type::Click,
-            button,
-            wheelAxis,
-            m_lastClickX,
-            m_lastClickY,
-            scrollDistance));
+            MouseEvent::Type::Click, button, m_lastClickX, m_lastClickY));
         }
       }
       else
       {
-        m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-          MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
+        m_queue.enqueueEvent(
+          std::make_unique<MouseEvent>(MouseEvent::Type::DragEnd, button, posX, posY));
         m_dragging = false;
       }
     }
@@ -354,17 +353,12 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
     {
       // Synthesize a click event
       m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Click,
-        button,
-        wheelAxis,
-        m_lastClickX,
-        m_lastClickY,
-        scrollDistance));
+        MouseEvent::Type::Click, button, m_lastClickX, m_lastClickY));
     }
     m_anyMouseButtonDown = false;
     m_nextMouseUpIsDblClick = false;
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Up, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(
+      std::make_unique<MouseEvent>(MouseEvent::Type::Up, button, posX, posY));
   }
   else if (type == MouseEvent::Type::Motion)
   {
@@ -373,38 +367,32 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
       if (isDrag(posX, posY))
       {
         m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-          MouseEvent::Type::DragStart,
-          button,
-          wheelAxis,
-          m_lastClickX,
-          m_lastClickY,
-          scrollDistance));
+          MouseEvent::Type::DragStart, button, m_lastClickX, m_lastClickY));
         m_dragging = true;
       }
     }
     if (m_dragging)
     {
-      m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Drag, button, wheelAxis, posX, posY, scrollDistance));
+      m_queue.enqueueEvent(
+        std::make_unique<MouseEvent>(MouseEvent::Type::Drag, button, posX, posY));
     }
     else
     {
-      m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Motion, button, wheelAxis, posX, posY, scrollDistance));
+      m_queue.enqueueEvent(
+        std::make_unique<MouseEvent>(MouseEvent::Type::Motion, button, posX, posY));
     }
   }
   else if (type == MouseEvent::Type::DoubleClick)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::DoubleClick, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(
+      std::make_unique<MouseEvent>(MouseEvent::Type::Down, button, posX, posY));
+    m_queue.enqueueEvent(
+      std::make_unique<MouseEvent>(MouseEvent::Type::DoubleClick, button, posX, posY));
     m_nextMouseUpIsDblClick = true;
   }
   else
   {
-    m_queue.enqueueEvent(
-      std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(std::make_unique<MouseEvent>(type, button, posX, posY));
   }
 }
 
@@ -422,11 +410,6 @@ QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent& qtEvent)
 
 void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 {
-  // These are the mouse X and Y position, not the wheel delta, in points relative to top
-  // left of widget.
-  const auto posX = static_cast<float>(qtEvent.x());
-  const auto posY = static_cast<float>(qtEvent.y());
-
   // Number of "lines" to scroll
   auto scrollDistance = scrollLinesForEvent(qtEvent);
 
@@ -446,23 +429,13 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 
   if (scrollDistance.x() != 0.0f)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      posX,
-      posY,
-      static_cast<float>(scrollDistance.x())));
+    m_queue.enqueueEvent(std::make_unique<ScrollEvent>(
+      ScrollEvent::Axis::Horizontal, static_cast<float>(scrollDistance.x())));
   }
   if (scrollDistance.y() != 0.0f)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      posX,
-      posY,
-      static_cast<float>(scrollDistance.y())));
+    m_queue.enqueueEvent(std::make_unique<ScrollEvent>(
+      ScrollEvent::Axis::Vertical, static_cast<float>(scrollDistance.y())));
   }
 }
 
