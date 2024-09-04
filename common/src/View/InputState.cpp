@@ -146,6 +146,11 @@ float InputState::mouseDY() const
   return m_mouseDY;
 }
 
+ScrollSource InputState::scrollSource() const
+{
+  return m_scrollSource;
+}
+
 float InputState::scrollX() const
 {
   return m_scrollX;
@@ -224,8 +229,10 @@ void InputState::mouseMove(
   m_mouseDY = mouseDY;
 }
 
-void InputState::scroll(const float scrollX, const float scrollY)
+void InputState::scroll(
+  const ScrollSource scrollSource, const float scrollX, const float scrollY)
 {
+  m_scrollSource = scrollSource;
   m_scrollX = scrollX;
   m_scrollY = scrollY;
 }

@@ -171,15 +171,16 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs)
   return lhs;
 }
 
-ScrollEvent::ScrollEvent(const Axis i_axis, const float i_distance)
-  : axis{i_axis}
+ScrollEvent::ScrollEvent(const Source i_source, const Axis i_axis, const float i_distance)
+  : source{i_source}
+  , axis{i_axis}
   , distance{i_distance}
 {
 }
 
 bool ScrollEvent::collateWith(const ScrollEvent& event)
 {
-  if (axis == event.axis)
+  if (source == event.source && axis == event.axis)
   {
     distance += event.distance;
     return true;
@@ -194,6 +195,20 @@ void ScrollEvent::processWith(InputEventProcessor& processor) const
 }
 
 kdl_reflect_impl(ScrollEvent);
+
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Source& rhs)
+{
+  switch (rhs)
+  {
+  case ScrollEvent::Source::Mouse:
+    lhs << "Mouse";
+    break;
+  case ScrollEvent::Source::Trackpad:
+    lhs << "Trackpad";
+    break;
+  }
+  return lhs;
+}
 
 std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Axis& rhs)
 {
@@ -412,6 +427,10 @@ QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent& qtEvent)
 
 void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 {
+  const auto source = qtEvent.source() == Qt::MouseEventNotSynthesized
+                        ? ScrollEvent::Source::Mouse
+                        : ScrollEvent::Source::Trackpad;
+
   // Number of "lines" to scroll
   auto scrollDistance = scrollLinesForEvent(qtEvent);
 
@@ -432,12 +451,12 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
   if (scrollDistance.x() != 0.0f)
   {
     m_queue.enqueueEvent(std::make_unique<ScrollEvent>(
-      ScrollEvent::Axis::Horizontal, static_cast<float>(scrollDistance.x())));
+      source, ScrollEvent::Axis::Horizontal, static_cast<float>(scrollDistance.x())));
   }
   if (scrollDistance.y() != 0.0f)
   {
     m_queue.enqueueEvent(std::make_unique<ScrollEvent>(
-      ScrollEvent::Axis::Vertical, static_cast<float>(scrollDistance.y())));
+      source, ScrollEvent::Axis::Vertical, static_cast<float>(scrollDistance.y())));
   }
 }
 
