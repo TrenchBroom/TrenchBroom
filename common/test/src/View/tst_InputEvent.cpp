@@ -35,19 +35,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 namespace TrenchBroom::View
 {
 
-TEST_CASE("KeyEvent")
-{
-  SECTION("collateWith")
-  {
-    const auto lhsType = GENERATE(KeyEvent::Type::Down, KeyEvent::Type::Up);
-    const auto rhsType = GENERATE(KeyEvent::Type::Down, KeyEvent::Type::Up);
-
-    auto lhs = KeyEvent{lhsType};
-    const auto rhs = KeyEvent{rhsType};
-    CHECK_FALSE(lhs.collateWith(rhs));
-  }
-}
-
 TEST_CASE("MouseEvent")
 {
   SECTION("collateWith")
