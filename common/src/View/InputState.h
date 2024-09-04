@@ -56,6 +56,12 @@ static const MouseButtonState Right = 1 << 1;
 static const MouseButtonState Middle = 1 << 2;
 } // namespace MouseButtons
 
+enum class ScrollSource
+{
+  Mouse,
+  Trackpad,
+};
+
 enum class GestureType
 {
   Pan,
@@ -73,6 +79,8 @@ private:
   float m_mouseY = 0.0f;
   float m_mouseDX = 0.0f;
   float m_mouseDY = 0.0f;
+
+  ScrollSource m_scrollSource = ScrollSource::Mouse;
   float m_scrollX = 0.0f;
   float m_scrollY = 0.0f;
 
@@ -114,6 +122,8 @@ public:
   float mouseDX() const;
   float mouseDY() const;
 
+  ScrollSource scrollSource() const;
+
   /**
    * Number of "lines" to scroll horizontally.
    */
@@ -135,7 +145,7 @@ public:
   void mouseUp(MouseButtonState button);
   void clearMouseButtons();
   void mouseMove(float mouseX, float mouseY, float mouseDX, float mouseDY);
-  void scroll(float scrollX, float scrollY);
+  void scroll(ScrollSource scrollSource, float scrollX, float scrollY);
 
   void startGesture();
   void gesturePan(float x, float y);

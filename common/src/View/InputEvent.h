@@ -236,16 +236,23 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs);
 class ScrollEvent : public InputEvent
 {
 public:
+  enum class Source
+  {
+    Mouse,
+    Trackpad,
+  };
+
   enum class Axis
   {
     Vertical,
     Horizontal,
   };
 
+  Source source;
   Axis axis;
   float distance;
 
-  ScrollEvent(Axis axis, float distance);
+  ScrollEvent(Source source, Axis axis, float distance);
 
   /**
    * Collates this scroll event with the given scroll event. Only successive Pan,
@@ -264,9 +271,10 @@ public:
    */
   void processWith(InputEventProcessor& processor) const override;
 
-  kdl_reflect_decl(ScrollEvent, axis, distance);
+  kdl_reflect_decl(ScrollEvent, source, axis, distance);
 };
 
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Source& rhs);
 std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Axis& rhs);
 
 /**

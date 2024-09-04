@@ -117,23 +117,19 @@ TEST_CASE("ScrollEvent")
 {
   SECTION("collateWith")
   {
+    using Source = ScrollEvent::Source;
+    const auto lhsSource = GENERATE(Source::Mouse, Source::Trackpad);
+    const auto rhsSource = GENERATE(Source::Mouse, Source::Trackpad);
+
     using Axis = ScrollEvent::Axis;
     const auto lhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
     const auto rhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
 
-    // clang-format off
-      const auto expectedScrollDistances = std::array<std::array<std::optional<float>, 2>, 2>{{
-        // H           V
-        {-2.0f,        std::nullopt}, // H
-        {std::nullopt, -2.0f},        // V
-      }};
-    // clang-format on
+    const auto canCollate = lhsSource == rhsSource && lhsWheelAxis == rhsWheelAxis;
+    const auto expectedScrollDistance = canCollate ? std::optional{-2.0f} : std::nullopt;
 
-    const auto expectedScrollDistance =
-      expectedScrollDistances[size_t(lhsWheelAxis) - 1][size_t(rhsWheelAxis) - 1];
-
-    auto lhs = ScrollEvent{lhsWheelAxis, 3.0f};
-    const auto rhs = ScrollEvent{rhsWheelAxis, -5.0f};
+    auto lhs = ScrollEvent{lhsSource, lhsWheelAxis, 3.0f};
+    const auto rhs = ScrollEvent{rhsSource, rhsWheelAxis, -5.0f};
 
     CHECK(lhs.collateWith(rhs) == expectedScrollDistance.has_value());
     if (expectedScrollDistance)
@@ -447,7 +443,13 @@ TEST_CASE("InputEventRecorder")
     r.recordEvent(qWheel1);
     r.recordEvent(qWheel2);
 
-    checkEventQueue(r, ScrollEvent{ScrollEvent::Axis::Horizontal, expectedScrollLines});
+    checkEventQueue(
+      r,
+      ScrollEvent{
+        ScrollEvent::Source::Mouse,
+        ScrollEvent::Axis::Horizontal,
+        expectedScrollLines,
+      });
   }
 
   SECTION("recordVScrollWithCollation")
@@ -465,7 +467,13 @@ TEST_CASE("InputEventRecorder")
     r.recordEvent(qWheel1);
     r.recordEvent(qWheel2);
 
-    checkEventQueue(r, ScrollEvent{ScrollEvent::Axis::Vertical, expectedScrollLines});
+    checkEventQueue(
+      r,
+      ScrollEvent{
+        ScrollEvent::Source::Mouse,
+        ScrollEvent::Axis::Vertical,
+        expectedScrollLines,
+      });
   }
 
   SECTION("recordDiagonalScroll")
@@ -487,9 +495,21 @@ TEST_CASE("InputEventRecorder")
 
     checkEventQueue(
       r,
-      ScrollEvent{ScrollEvent::Axis::Horizontal, float(expectedScrollLines1.x())},
-      ScrollEvent{ScrollEvent::Axis::Vertical, float(expectedScrollLines1.y())},
-      ScrollEvent{ScrollEvent::Axis::Horizontal, float(expectedScrollLines2.x())});
+      ScrollEvent{
+        ScrollEvent::Source::Mouse,
+        ScrollEvent::Axis::Horizontal,
+        float(expectedScrollLines1.x()),
+      },
+      ScrollEvent{
+        ScrollEvent::Source::Mouse,
+        ScrollEvent::Axis::Vertical,
+        float(expectedScrollLines1.y()),
+      },
+      ScrollEvent{
+        ScrollEvent::Source::Mouse,
+        ScrollEvent::Axis::Horizontal,
+        float(expectedScrollLines2.x()),
+      });
   }
 
   SECTION("recordLeftClickWithQuickSmallMotion")

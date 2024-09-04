@@ -237,16 +237,34 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
 }
 
+namespace
+{
+
+auto getScrollSource(const ScrollEvent& event)
+{
+  switch (event.source)
+  {
+  case ScrollEvent::Source::Mouse:
+    return ScrollSource::Mouse;
+  case ScrollEvent::Source::Trackpad:
+    return ScrollSource::Trackpad;
+    switchDefault();
+  }
+}
+
+} // namespace
+
 void ToolBoxConnector::processEvent(const ScrollEvent& event)
 {
   updateModifierKeys();
+  const auto scrollSource = getScrollSource(event);
   if (event.axis == ScrollEvent::Axis::Horizontal)
   {
-    m_inputState.scroll(event.distance, 0.0f);
+    m_inputState.scroll(scrollSource, event.distance, 0.0f);
   }
   else if (event.axis == ScrollEvent::Axis::Vertical)
   {
-    m_inputState.scroll(0.0f, event.distance);
+    m_inputState.scroll(scrollSource, 0.0f, event.distance);
   }
   m_toolBox->mouseScroll(*m_toolChain, m_inputState);
 
