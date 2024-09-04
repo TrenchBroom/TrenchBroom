@@ -23,6 +23,7 @@
 #include "vm/util.h"
 #include "vm/vec.h"
 
+#include <array>
 #include <map>
 #include <utility>
 #include <vector>

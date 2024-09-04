@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <optional>
 #include <ostream>
 #include <unordered_map>
