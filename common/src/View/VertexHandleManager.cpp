@@ -104,13 +104,15 @@ void EdgeHandleManager::pickGridHandle(
     {
       const auto pointHandle =
         grid.snap(vm::point_at_distance(pickRay, *edgeDist), position);
-      if (
-        const auto pointDist = camera.pickPointHandle(
-          pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
-      {
-        const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-        pickResult.addHit(Model::Hit(
-          HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
+      if (!vm::is_nan(pointHandle)){
+        if (
+            const auto pointDist = camera.pickPointHandle(
+                                                          pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
+          {
+            const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
+            pickResult.addHit(Model::Hit(
+                                         HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
+          }
       }
     }
   }
