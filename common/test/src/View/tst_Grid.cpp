@@ -159,8 +159,8 @@ TEST_CASE("GridTest.snapOnEdge")
   CHECK(
     Grid{2}.snap(vm::vec3{10.0, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
   CHECK(Grid{2}.snap(vm::vec3{7.5, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
-  CHECK(vm::is_nan(Grid{2}.snap(vm::vec3{20.0, 0.0, 0.0}, E)));
-  CHECK(vm::is_nan(Grid{2}.snap(vm::vec3{-10.0, 0.0, 0.0}, E)));
+  CHECK(Grid{2}.snap(vm::vec3{20.0, 0.0, 0.0}, E) == std::nullopt);
+  CHECK(Grid{2}.snap(vm::vec3{-10.0, 0.0, 0.0}, E) == std::nullopt);
 }
 
 TEST_CASE("GridTest.snapOnQuad")
