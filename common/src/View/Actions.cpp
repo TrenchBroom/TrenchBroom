@@ -997,7 +997,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset camera zoom"},
     QObject::tr("Reset Camera Zoom"),
     ActionContext::View3D | ActionContext::AnyOrNoTool | ActionContext::AnyOrNoSelection,
-    QKeySequence(+Qt::CTRL + Qt::SHIFT + Qt::Key_Z),
+    QKeySequence(+Qt::CTRL + Qt::ALT + Qt::Key_Z),
     [](ActionExecutionContext& context) { context.view()->resetCameraZoom(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
