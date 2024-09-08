@@ -112,6 +112,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/tst_StackWalker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/MapDocumentTest.h"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ActionContext.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/View/tst_Actions.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_AddNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_Autosaver.cpp"
         "${COMMON_TEST_SOURCE_DIR}/View/tst_ChangeBrushFaceAttributes.cpp"

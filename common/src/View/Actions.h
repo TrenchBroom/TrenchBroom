@@ -498,5 +498,8 @@ private:
     return it->second.get();
   }
 };
+
+std::vector<size_t> findConflicts(const std::vector<const Action*>& actions);
+
 } // namespace View
 } // namespace TrenchBroom

@@ -37,6 +37,7 @@
 #include "vm/util.h"
 
 #include <cassert>
+#include <map>
 #include <set>
 #include <string>
 
@@ -996,7 +997,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset camera zoom"},
     QObject::tr("Reset Camera Zoom"),
     ActionContext::View3D | ActionContext::AnyOrNoTool | ActionContext::AnyOrNoSelection,
-    QKeySequence(+Qt::CTRL + Qt::SHIFT + Qt::Key_Z),
+    QKeySequence(+Qt::CTRL + Qt::ALT + Qt::Key_Z),
     [](ActionExecutionContext& context) { context.view()->resetCameraZoom(); },
     [](ActionExecutionContext& context) { return context.hasDocument(); });
   createAction(
@@ -2030,5 +2031,53 @@ const Action* ActionManager::existingAction(
   ensure(it != m_actions.end(), "couldn't find action");
   return it->second.get();
 }
+
+namespace
+{
+
+struct ActionConflictCmp
+{
+  bool operator()(const Action* lhs, const Action* rhs) const
+  {
+    if (actionContextMatches(lhs->actionContext(), rhs->actionContext()))
+    {
+      // if the two have the same sequence, they would be in conflict, so we compare the
+      // sequences
+      const auto lhsKeySequence = lhs->keySequence();
+      const auto rhsKeySequence = rhs->keySequence();
+      return lhsKeySequence < rhsKeySequence;
+    }
+    // otherwise, we just compare by the action context
+    return lhs->actionContext() < rhs->actionContext();
+  }
+};
+
+} // namespace
+
+std::vector<size_t> findConflicts(const std::vector<const Action*>& actions)
+{
+  auto entries = std::map<const Action*, size_t, ActionConflictCmp>{};
+  auto conflicts = std::vector<size_t>{};
+
+  for (size_t i = 0; i < actions.size(); ++i)
+  {
+    const auto& action = *actions[i];
+    const auto keySequence = action.keySequence();
+    if (keySequence.count() > 0)
+    {
+      const auto [it, noConflict] = entries.emplace(&action, i);
+      if (!noConflict)
+      {
+        // found a duplicate, so there are conflicts
+        const auto otherIndex = it->second;
+        conflicts.emplace_back(otherIndex);
+        conflicts.emplace_back(i);
+      }
+    }
+  }
+
+  return conflicts;
+}
+
 } // namespace View
 } // namespace TrenchBroom

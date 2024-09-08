@@ -26,9 +26,7 @@
 
 class QObject;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Action;
 class MapDocument;
@@ -44,8 +42,6 @@ private:
      */
     const std::filesystem::path displayPath;
     const Action& action;
-
-    ActionInfo(const std::filesystem::path& i_displayPath, const Action& i_action);
   };
 
   MapDocument* m_document;
@@ -86,5 +82,4 @@ private:
 
   bool checkIndex(const QModelIndex& index) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

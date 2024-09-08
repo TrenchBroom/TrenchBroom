@@ -33,29 +33,19 @@
 #include <iostream>
 #include <tuple>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+namespace
 {
-static QString escapeString(const QString& str)
+QString escapeString(const QString& str)
 {
-  if (str == "'")
-  {
-    return "\\'";
-  }
-  else if (str == "\\")
-  {
-    return "\\\\";
-  }
-  else
-  {
-    return str;
-  }
+  return str == "'" ? "\\'" : str == "\\" ? "\\\\" : str;
 }
 
-static void printKeys(QTextStream& out)
+void printKeys(QTextStream& out)
 {
-  const auto keyStrings = KeyStrings();
+  const auto keyStrings = KeyStrings{};
 
   out << "const keys = {\n";
   for (const auto& [portable, native] : keyStrings)
@@ -65,9 +55,9 @@ static void printKeys(QTextStream& out)
   out << "};\n";
 }
 
-static QString toString(const QStringList& path, const QString& suffix)
+QString toString(const QStringList& path, const QString& suffix)
 {
-  QString result;
+  auto result = QString{};
   result += "[";
   for (const auto& component : path)
   {
@@ -78,7 +68,7 @@ static QString toString(const QStringList& path, const QString& suffix)
   return result;
 }
 
-static QString toString(const QKeySequence& keySequence)
+QString toString(const QKeySequence& keySequence)
 {
   static const std::array<std::tuple<int, QString>, 4> Modifiers = {
     std::make_tuple(static_cast<int>(Qt::CTRL), QString::fromLatin1("Ctrl")),
@@ -87,16 +77,15 @@ static QString toString(const QKeySequence& keySequence)
     std::make_tuple(static_cast<int>(Qt::META), QString::fromLatin1("Meta")),
   };
 
-  QString result;
+  auto result = QString{};
   result += "{ ";
 
   if (keySequence.count() > 0)
   {
-    const int keyWithModifier = keySequence[0];
-    const int key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
+    const auto keyWithModifier = keySequence[0];
+    const auto key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
 
-    const QString keyPortableText =
-      QKeySequence(key).toString(QKeySequence::PortableText);
+    const auto keyPortableText = QKeySequence{key}.toString(QKeySequence::PortableText);
 
     result += "key: '" + escapeString(keyPortableText) + "', ";
     result += "modifiers: [";
@@ -124,8 +113,8 @@ private:
   QStringList m_path;
 
 public:
-  PrintMenuVisitor(QTextStream& out)
-    : m_out(out)
+  explicit PrintMenuVisitor(QTextStream& out)
+    : m_out{out}
   {
   }
 
@@ -146,26 +135,25 @@ public:
   }
 };
 
-static void printMenuShortcuts(QTextStream& out)
+void printMenuShortcuts(QTextStream& out)
 {
   out << "const menu = {\n";
 
   const auto& actionManager = ActionManager::instance();
-  PrintMenuVisitor visitor(out);
+  auto visitor = PrintMenuVisitor{out};
   actionManager.visitMainMenu(visitor);
 
   out << "};\n";
 }
 
-static void printActionShortcuts(QTextStream& out)
+void printActionShortcuts(QTextStream& out)
 {
   out << "const actions = {\n";
 
-  auto printPref =
-    [&out](const std::filesystem::path& prefPath, const QKeySequence& keySequence) {
-      out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
-      out << toString(keySequence) << ",\n";
-    };
+  auto printPref = [&out](const auto& prefPath, const auto& keySequence) {
+    out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
+    out << toString(keySequence) << ",\n";
+  };
 
   class ToolbarVisitor : public MenuVisitor
   {
@@ -178,32 +166,33 @@ static void printActionShortcuts(QTextStream& out)
 
     void visit(const MenuActionItem& item) override
     {
-      const Action* tAction = &item.action();
+      const auto* tAction = &item.action();
       toolbarActions.push_back(tAction);
     }
   };
 
   const auto& actionManager = ActionManager::instance();
-  ToolbarVisitor visitor;
+  auto visitor = ToolbarVisitor{};
   actionManager.visitToolBarActions(visitor);
-  for (const Action* action : visitor.toolbarActions)
+  for (const auto* action : visitor.toolbarActions)
   {
     printPref(action->preferencePath(), action->keySequence());
   }
-  actionManager.visitMapViewActions([&printPref](const auto& action) {
+  actionManager.visitMapViewActions([&](const auto& action) {
     printPref(action.preferencePath(), action.keySequence());
   });
 
   // some keys are just Preferences (e.g. WASD)
-  for (Preference<QKeySequence>* keyPref : Preferences::keyPreferences())
+  for (auto* keyPref : Preferences::keyPreferences())
   {
     printPref(keyPref->path(), keyPref->defaultValue());
   }
 
   out << "};\n";
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace
+} // namespace TrenchBroom::View
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -223,9 +212,9 @@ int main(int argc, char* argv[])
   // TB, so we can't have shortcuts randomly activating.
   qt_set_sequence_auto_mnemonic(false);
 
-  const auto path = QString(argv[1]);
-  auto file = QFile(path);
-  const auto fileInfo = QFileInfo(file.fileName());
+  const auto path = QString{argv[1]};
+  auto file = QFile{path};
+  const auto fileInfo = QFileInfo{file.fileName()};
   const auto absPath = fileInfo.absoluteFilePath().toStdString();
 
   if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
@@ -234,13 +223,13 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  QTextStream out(&file);
+  auto out = QTextStream{&file};
   out.setCodec("UTF-8");
 
   TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
 
   // QKeySequence requires that an application instance is created!
-  QApplication app(argc, argv);
+  auto app = QApplication{argc, argv};
   app.setApplicationName("TrenchBroom");
   // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
   // which would cause preferences to move from where they were with wx
@@ -254,12 +243,5 @@ int main(int argc, char* argv[])
   TrenchBroom::PreferenceManager::destroyInstance();
 
   out.flush();
-  if (out.status() == QTextStream::Ok)
-  {
-    return 0;
-  }
-  else
-  {
-    return 1;
-  }
+  return out.status() == QTextStream::Ok ? 0 : 1;
 }
