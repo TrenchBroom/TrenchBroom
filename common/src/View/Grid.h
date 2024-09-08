@@ -31,6 +31,7 @@
 #include "vm/vec.h"
 
 #include <array>
+#include <optional>
 
 // FIXME: should this be moved to Model?
 namespace TrenchBroom::Model
@@ -89,7 +90,7 @@ public:
   template <typename T>
   T snapAngle(const T a, const T snapAngle) const
   {
-    return snap() ? snapAngle * vm::round(a / snapAngle) : a;
+    return snap() && snapAngle != T(0) ? snapAngle * vm::round(a / snapAngle) : a;
   }
 
 public: // Snap scalars.
@@ -368,7 +369,8 @@ public:
   }
 
   template <typename T>
-  vm::vec<T, 3> snap(const vm::vec<T, 3>& p, const vm::segment<T, 3> edge) const
+  std::optional<vm::vec<T, 3>> snap(
+    const vm::vec<T, 3>& p, const vm::segment<T, 3> edge) const
   {
     const auto v = edge.end() - edge.start();
     const auto len = length(v);
@@ -379,11 +381,11 @@ public:
     const auto snapped = snap(p, vm::line<T, 3>(orig, dir));
     const auto dist = vm::dot(dir, snapped - orig);
 
-    return dist >= 0.0 && dist <= len ? snapped : vm::vec<T, 3>::nan();
+    return dist >= 0.0 && dist <= len ? std::optional{snapped} : std::nullopt;
   }
 
   template <typename T>
-  vm::vec<T, 3> snap(
+  std::optional<vm::vec<T, 3>> snap(
     const vm::vec<T, 3>& p,
     const vm::polygon<T, 3>& polygon,
     const vm::vec<T, 3>& normal) const
@@ -391,13 +393,13 @@ public:
     ensure(polygon.vertexCount() >= 3, "polygon has too few vertices");
 
     const auto plane = vm::plane<T, 3>{polygon.vertices().front(), normal};
-    auto ps = snap(p, plane);
-    auto err = vm::squared_length(p - ps);
+    auto ps = std::optional{snap(p, plane)};
+    auto err = vm::squared_length(p - *ps);
 
     if (!vm::polygon_contains_point(
-          ps, plane.normal, std::begin(polygon), std::end(polygon)))
+          *ps, plane.normal, std::begin(polygon), std::end(polygon)))
     {
-      ps = vm::vec<T, 3>::nan();
+      ps = std::nullopt;
       err = std::numeric_limits<T>::max();
     }
 
@@ -407,14 +409,13 @@ public:
 
     while (cur != end)
     {
-      const auto cand = snap(p, vm::segment<T, 3>{*last, *cur});
-      if (!vm::is_nan(cand))
+      if (const auto cand = snap(p, vm::segment<T, 3>{*last, *cur}))
       {
-        const auto cerr = vm::squared_length(p - cand);
+        const auto cerr = vm::squared_length(p - *cand);
         if (cerr < err)
         {
-          err = cerr;
           ps = cand;
+          err = cerr;
         }
       }
 
