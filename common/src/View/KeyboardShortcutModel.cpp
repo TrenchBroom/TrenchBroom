@@ -26,9 +26,12 @@
 #include "View/Actions.h"
 #include "View/MapDocument.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <functional>
+#include <ranges>
 #include <set>
 
 namespace TrenchBroom::View
@@ -181,8 +184,8 @@ public:
 
   void visit(const MenuActionItem& item) override
   {
-    m_actions.emplace_back(
-      m_currentPath / IO::pathFromQString(item.label()), item.action());
+    m_actions.push_back(
+      ActionInfo{m_currentPath / IO::pathFromQString(item.label()), item.action()});
   }
 };
 
@@ -197,7 +200,8 @@ void KeyboardShortcutModel::initializeViewActions()
 {
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMapViewActions([this](const Action& action) {
-    m_actions.emplace_back("Map View" / IO::pathFromQString(action.label()), action);
+    m_actions.push_back(
+      ActionInfo{"Map View" / IO::pathFromQString(action.label()), action});
   });
 }
 
@@ -205,7 +209,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   assert(m_document);
   m_document->visitTagActions([this](const Action& action) {
-    m_actions.emplace_back("Tags" / IO::pathFromQString(action.label()), action);
+    m_actions.push_back(ActionInfo{"Tags" / IO::pathFromQString(action.label()), action});
   });
 }
 
@@ -213,56 +217,23 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
   assert(m_document);
   m_document->visitEntityDefinitionActions([this](const Action& action) {
-    m_actions.emplace_back(
-      "Entity Definitions" / IO::pathFromQString(action.label()), action);
+    m_actions.push_back(
+      ActionInfo{"Entity Definitions" / IO::pathFromQString(action.label()), action});
   });
 }
 
 void KeyboardShortcutModel::updateConflicts()
 {
-  using ConflictEntry = std::pair<std::reference_wrapper<const ActionInfo>, int>;
-  const auto cmp = [](const ConflictEntry& lhs, const ConflictEntry& rhs) {
-    const auto& lhsAction = lhs.first.get().action;
-    const auto& rhsAction = rhs.first.get().action;
-    if (actionContextMatches(lhsAction.actionContext(), rhsAction.actionContext()))
-    {
-      // if the two have the same sequence, they would be in conflict, so we compare the
-      // sequences
-      const auto lhsKeySequence = lhsAction.keySequence();
-      const auto rhsKeySequence = rhsAction.keySequence();
-      return lhsKeySequence < rhsKeySequence;
-    }
-    else
-    {
-      // otherwise, we just compare by the action context
-      return lhsAction.actionContext() < rhsAction.actionContext();
-    }
-  };
-  auto entrySet = std::set<ConflictEntry, decltype(cmp)>{cmp};
+  const auto allActions =
+    m_actions
+    | std::views::transform([](const auto& actionInfo) { return &actionInfo.action; })
+    | kdl::to_vector;
 
-  m_conflicts.clear();
-  auto conflictSet = kdl::wrap_set(m_conflicts);
-
-  for (int row = 0; row < totalActionCount(); ++row)
+  m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
+  for (const auto& row : m_conflicts)
   {
-    const auto& actionInfo = this->actionInfo(row);
-    const auto keySequence = actionInfo.action.keySequence();
-    if (keySequence.count() > 0)
-    {
-      auto [it, noConflict] = entrySet.insert(std::make_pair(std::cref(actionInfo), row));
-      if (!noConflict)
-      {
-        // found a duplicate, so there are conflicts
-        const auto otherRow = it->second;
-        conflictSet.insert(row);
-        conflictSet.insert(otherRow);
-
-        const auto index = createIndex(row, 0);
-        const auto otherIndex = createIndex(otherRow, 0);
-        emit dataChanged(index, index, {Qt::DisplayRole});
-        emit dataChanged(otherIndex, otherIndex, {Qt::DisplayRole});
-      }
-    }
+    const auto index = createIndex(row, 0);
+    emit dataChanged(index, index, {Qt::DisplayRole});
   }
 }
 
