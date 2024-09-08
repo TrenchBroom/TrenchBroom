@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "mdl/TagAttribute.h"
 #include "mdl/TagType.h"
 
 #include "kdl/vector_set.h"
@@ -34,44 +35,6 @@ namespace tb::mdl
 class ConstTagVisitor;
 class TagManager;
 class TagVisitor;
-
-/**
- * This class represents an attribute of a tag. A tag can have multiple attributes, but
- * the names must be unique.
- */
-class TagAttribute
-{
-public:
-  using AttributeType = unsigned long;
-
-private:
-  AttributeType m_type;
-  std::string m_name;
-
-public:
-  /**
-   * Creates a new tag attribute with the given type and name.
-   *
-   * @param type the attribute type
-   * @param name the attribute name
-   */
-  explicit TagAttribute(AttributeType type, std::string name);
-
-  /**
-   * Returns the type of this attribute.
-   */
-  AttributeType type() const;
-
-  /**
-   * Returns the name of this tag attribute.
-   */
-  const std::string& name() const;
-
-  friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
-  friend bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs);
-  friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const TagAttribute& attr);
-};
 
 /**
  * Tags can be attached to any class that implement the Taggable interface. Each tag has a

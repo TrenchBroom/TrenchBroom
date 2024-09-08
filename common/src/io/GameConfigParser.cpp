@@ -150,7 +150,7 @@ std::vector<mdl::TagAttribute> parseTagAttributes(
     const auto& entry = value[i];
     const auto& name = entry.stringValue();
 
-    if (name == mdl::TagAttributes::Transparency.name())
+    if (name == mdl::TagAttributes::Transparency.name)
     {
       result.push_back(mdl::TagAttributes::Transparency);
     }
