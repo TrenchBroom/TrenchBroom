@@ -32,32 +32,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-GameEngineConfigParser::GameEngineConfigParser(
-  std::string_view str, std::filesystem::path path)
-  : ConfigParserBase{std::move(str), std::move(path)}
+
+Model::GameEngineProfile parseProfile(const EL::Value& value)
 {
+  expectStructure(
+    value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
+
+  return {
+    value["name"].stringValue(),
+    std::filesystem::path{value["path"].stringValue()},
+    value["parameters"].stringValue()};
 }
 
-Model::GameEngineConfig GameEngineConfigParser::parse()
-{
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
-  expectType(root, EL::ValueType::Map);
-
-  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
-
-  const auto version = root["version"].numberValue();
-  unused(version);
-  assert(version == 1.0);
-
-  return {parseProfiles(root["profiles"])};
-}
-
-std::vector<Model::GameEngineProfile> GameEngineConfigParser::parseProfiles(
-  const EL::Value& value) const
+std::vector<Model::GameEngineProfile> parseProfiles(const EL::Value& value)
 {
   auto result = std::vector<Model::GameEngineProfile>{};
   result.reserve(value.length());
@@ -69,16 +60,26 @@ std::vector<Model::GameEngineProfile> GameEngineConfigParser::parseProfiles(
   return result;
 }
 
-Model::GameEngineProfile GameEngineConfigParser::parseProfile(
-  const EL::Value& value) const
-{
-  expectStructure(
-    value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
+} // namespace
 
-  return {
-    value["name"].stringValue(),
-    std::filesystem::path{value["path"].stringValue()},
-    value["parameters"].stringValue()};
+GameEngineConfigParser::GameEngineConfigParser(
+  const std::string_view str, std::filesystem::path path)
+  : ConfigParserBase{str, std::move(path)}
+{
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+Model::GameEngineConfig GameEngineConfigParser::parse()
+{
+  const auto root = parseConfigFile().evaluate(EL::EvaluationContext{});
+  expectType(root, EL::ValueType::Map);
+
+  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+
+  const auto version = root["version"].numberValue();
+  unused(version);
+  assert(version == 1.0);
+
+  return {parseProfiles(root["profiles"])};
+}
+
+} // namespace TrenchBroom::IO

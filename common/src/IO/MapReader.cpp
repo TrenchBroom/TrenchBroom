@@ -19,7 +19,7 @@
 
 #include "MapReader.h"
 
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -44,6 +44,9 @@
 #include "vm/mat.h"
 #include "vm/mat_io.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <cassert>
 #include <optional>
 #include <ostream>
@@ -56,11 +59,11 @@ namespace TrenchBroom::IO
 {
 
 MapReader::MapReader(
-  std::string_view str,
+  const std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   Model::EntityPropertyConfig entityPropertyConfig)
-  : StandardMapParser{std::move(str), sourceMapFormat, targetMapFormat}
+  : StandardMapParser{str, sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
 {
 }
@@ -139,7 +142,7 @@ void MapReader::onStandardBrushFace(
         onBrushFace(std::move(face), status);
       })
     | kdl::transform_error(
-      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+      [&](auto e) { status.error(line, fmt::format("Skipping face: {}", e.msg)); });
 }
 
 void MapReader::onValveBrushFace(
@@ -160,7 +163,7 @@ void MapReader::onValveBrushFace(
         onBrushFace(std::move(face), status);
       })
     | kdl::transform_error(
-      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+      [&](auto e) { status.error(line, fmt::format("Skipping face: {}", e.msg)); });
 }
 
 void MapReader::onPatch(
@@ -388,7 +391,7 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   {
     return NodeError{
       entityInfo.startLine,
-      kdl::str_to_string("Skipping layer entity: '", idStr, "' is not a valid id")};
+      fmt::format("Skipping layer entity: '{}' is not a valid id", idStr)};
   }
 
   auto layer = Model::Layer{name};
@@ -460,7 +463,7 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
   {
     return NodeError{
       entityInfo.startLine,
-      kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id")};
+      fmt::format("Skipping group entity: '{}' is not a valid id", idStr)};
   }
 
   auto transformation = std::optional<vm::mat4x4d>{};
@@ -675,8 +678,7 @@ void validateDuplicateLayersAndGroups(
           {
             status.error(
               layerNode->lineNumber(),
-              kdl::str_to_string(
-                "Skipping duplicate layer with ID '", persistentId, "'"));
+              fmt::format("Skipping duplicate layer with ID '{}'", persistentId));
             nodeInfo.reset();
           }
         },
@@ -686,8 +688,7 @@ void validateDuplicateLayersAndGroups(
           {
             status.error(
               groupNode->lineNumber(),
-              kdl::str_to_string(
-                "Skipping duplicate group with ID '", persistentId, "'"));
+              fmt::format("Skipping duplicate group with ID '{}'", persistentId));
             nodeInfo.reset();
           }
         },
@@ -725,20 +726,17 @@ void logValidationIssues(
             [&](const MalformedTransformationIssue& m) {
               status.warn(
                 nodeInfo->node->lineNumber(),
-                kdl::str_to_string(
-                  "Not linking group: malformed transformation '",
-                  m.transformationStr,
-                  "'"));
+                fmt::format(
+                  "Not linking group: malformed transformation '{}'",
+                  m.transformationStr));
             },
             [&](const InvalidContainerId& c) {
               status.warn(
                 nodeInfo->node->lineNumber(),
-                kdl::str_to_string(
-                  "Adding object to default layer: Invalid ",
-                  c.type,
-                  " ID '",
-                  c.idStr,
-                  "'"));
+                fmt::format(
+                  "Adding object to default layer: Invalid {} ID '{}'",
+                  fmt::streamed(c.type),
+                  c.idStr));
             }),
           issue);
       }
@@ -775,10 +773,9 @@ void validateRecursiveLinkedGroups(
           {
             status.error(
               groupNode->lineNumber(),
-              kdl::str_to_string(
-                "Unlinking recursive linked group with ID '",
-                *groupNode->persistentId(),
-                "'"));
+              fmt::format(
+                "Unlinking recursive linked group with ID '{}'",
+                *groupNode->persistentId()));
 
             unlinkGroup(*groupNode, true);
             break;
@@ -870,19 +867,17 @@ std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
               {
                 status.warn(
                   nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Entity references missing layer '",
-                    containerInfo.id,
-                    "', adding to default layer"));
+                  fmt::format(
+                    "Entity references missing layer '{}', adding to default layer",
+                    containerInfo.id));
               }
               else
               {
                 status.warn(
                   nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Entity references missing group '",
-                    containerInfo.id,
-                    "', adding to default layer"));
+                  fmt::format(
+                    "Entity references missing group '{}', adding to default layer",
+                    containerInfo.id));
               }
             }
           }),

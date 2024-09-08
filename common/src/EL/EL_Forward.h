@@ -19,9 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom
-{
-namespace EL
+namespace TrenchBroom::EL
 {
 class Value;
 enum class ValueType;
@@ -31,5 +29,4 @@ class Expression;
 class EvaluationContext;
 
 class VariableStore;
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

@@ -19,15 +19,9 @@
 
 #include "MapParser.h"
 
-#include "Exceptions.h"
-#include "Model/EntityProperties.h"
-
-#include <list>
-
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 MapParser::~MapParser() = default;
-}
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

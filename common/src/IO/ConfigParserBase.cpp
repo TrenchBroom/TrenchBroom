@@ -24,10 +24,13 @@
 #include "EL/Value.h"
 #include "Exceptions.h"
 
+#include <fmt/format.h>
+
 #include <string>
 
 namespace TrenchBroom::IO
 {
+
 ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::path path)
   : m_parser{ELParser::Mode::Strict, str}
   , m_path{std::move(path)}
@@ -48,8 +51,10 @@ void expectType(const EL::Value& value, const EL::ValueType type)
     throw ParserException{
       value.line(),
       value.column(),
-      "Expected value of type '" + EL::typeName(type) + "', but got type '"
-        + value.typeName() + "'"};
+      fmt::format(
+        "Expected value of type '{}', but got type '{}'",
+        EL::typeName(type),
+        value.typeName())};
   }
 }
 
@@ -85,8 +90,9 @@ void expectMapEntry(
   if (it == std::end(map))
   {
     throw ParserException{
-      value.line(), value.column(), "Expected map entry '" + key + "'"};
+      value.line(), value.column(), fmt::format("Expected map entry '{}'", key)};
   }
   expectType(it->second, type);
 }
+
 } // namespace TrenchBroom::IO

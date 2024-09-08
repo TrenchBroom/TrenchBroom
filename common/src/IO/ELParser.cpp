@@ -24,6 +24,8 @@
 
 #include "kdl/string_format.h"
 
+#include <fmt/format.h>
+
 #include <optional>
 #include <sstream>
 #include <string>
@@ -164,7 +166,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
         advance();
         return Token{ELToken::BitwiseShiftLeft, c, c + 2, offset(c), line, column};
       }
-      return Token(ELToken::Less, c, c + 1, offset(c), line, column);
+      return Token{ELToken::Less, c, c + 1, offset(c), line, column};
     case '>':
       advance();
       if (curChar() == '=')
@@ -198,7 +200,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
     case '\r':
       discardWhile(Whitespace());
       break;
-    default: {
+    default:
       switch (curChar())
       {
       case '.':
@@ -219,38 +221,38 @@ ELTokenizer::Token ELTokenizer::emitToken()
         break;
       }
 
-      const char* e;
-      if ((e = readDecimal(NumberDelim())) != nullptr)
+      if (const auto* e = readDecimal(NumberDelim()))
       {
         if (!eof() && curChar() == '.' && lookAhead() != '.')
         {
           throw ParserException{
-            line, column, "Unexpected character: " + std::string{c, 1}};
+            line, column, fmt::format("Unexpected character: '{}'", *c)};
         }
         return Token{ELToken::Number, c, e, offset(c), line, column};
       }
 
-      if ((e = readInteger(IntegerDelim())) != nullptr)
+      if (const auto* e = readInteger(IntegerDelim()))
       {
         return Token{ELToken::Number, c, e, offset(c), line, column};
       }
 
-      if ((e = discard("true")) != nullptr)
+      if (const auto* e = discard("true"))
       {
         return Token{ELToken::Boolean, c, e, offset(c), line, column};
       }
-      if ((e = discard("false")) != nullptr)
+      if (const auto* e = discard("false"))
       {
         return Token{ELToken::Boolean, c, e, offset(c), line, column};
       }
 
-      if ((e = discard("null")) != nullptr)
+      if (const auto* e = discard("null"))
       {
         return Token{ELToken::Null, c, e, offset(c), line, column};
       }
 
       if (isLetter(*c) || *c == '_')
       {
+        const char* e = nullptr;
         do
         {
           advance();
@@ -260,8 +262,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
         return Token{ELToken::Name, c, e, offset(c), line, column};
       }
 
-      throw ParserException{line, column, "Unexpected character: " + std::string{c, 1}};
-    }
+      throw ParserException{line, column, fmt::format("Unexpected character: '{}'", *c)};
     }
   }
   return Token{ELToken::Eof, nullptr, nullptr, length(), line(), column()};
@@ -581,7 +582,9 @@ EL::Expression ELParser::parseUnaryOperator()
       EL::UnaryExpression{op, parseSimpleTermOrSwitch()}, token.line(), token.column()};
   }
   throw ParserException{
-    token.line(), token.column(), "Unhandled unary operator: " + tokenName(token.type())};
+    token.line(),
+    token.column(),
+    fmt::format("Unhandled unary operator: {}", tokenName(token.type()))};
 }
 
 EL::Expression ELParser::parseSwitch()
@@ -656,7 +659,7 @@ EL::Expression ELParser::parseCompoundTerm(EL::Expression lhs)
       throw ParserException{
         token.line(),
         token.column(),
-        "Unhandled binary operator: " + tokenName(token.type())};
+        fmt::format("Unhandled binary operator: {}", tokenName(token.type()))};
     }
   }
 

@@ -29,15 +29,13 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityProperty;
 class BrushFaceAttributes;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -80,5 +78,5 @@ protected: // subclassing interface for users of the parser
     std::string materialName,
     ParserStatus& status) = 0;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

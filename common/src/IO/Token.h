@@ -24,31 +24,22 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 template <typename Type>
 class TokenTemplate
 {
 private:
-  Type m_type;
-  const char* m_begin;
-  const char* m_end;
-  size_t m_position;
-  size_t m_line;
-  size_t m_column;
+  Type m_type = 0;
+  const char* m_begin = nullptr;
+  const char* m_end = nullptr;
+  size_t m_position = 0;
+  size_t m_line = 0;
+  size_t m_column = 0;
 
 public:
-  TokenTemplate()
-    : m_type(0)
-    , m_begin(nullptr)
-    , m_end(nullptr)
-    , m_position(0)
-    , m_line(0)
-    , m_column(0)
-  {
-  }
+  TokenTemplate() = default;
 
   TokenTemplate(
     const Type type,
@@ -57,12 +48,12 @@ public:
     const size_t position,
     const size_t line,
     const size_t column)
-    : m_type(type)
-    , m_begin(begin)
-    , m_end(end)
-    , m_position(position)
-    , m_line(line)
-    , m_column(column)
+    : m_type{type}
+    , m_begin{begin}
+    , m_end{end}
+    , m_position{position}
+    , m_line{line}
+    , m_column{column}
   {
     assert(end >= begin);
   }
@@ -97,5 +88,5 @@ public:
     return static_cast<T>(kdl::str_to_long(std::string(m_begin, m_end)).value_or(0l));
   }
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

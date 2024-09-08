@@ -28,10 +28,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 class ExpressionImpl
 {
 public:
@@ -66,7 +65,7 @@ private:
   Value m_value;
 
 public:
-  LiteralExpression(Value value);
+  explicit LiteralExpression(Value value);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -84,7 +83,7 @@ private:
   std::string m_variableName;
 
 public:
-  VariableExpression(std::string variableName);
+  explicit VariableExpression(std::string variableName);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -102,7 +101,7 @@ private:
   std::vector<Expression> m_elements;
 
 public:
-  ArrayExpression(std::vector<Expression> elements);
+  explicit ArrayExpression(std::vector<Expression> elements);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -120,7 +119,7 @@ private:
   std::map<std::string, Expression> m_elements;
 
 public:
-  MapExpression(std::map<std::string, Expression> elements);
+  explicit MapExpression(std::map<std::string, Expression> elements);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -242,7 +241,7 @@ private:
   std::vector<Expression> m_cases;
 
 public:
-  SwitchExpression(std::vector<Expression> cases);
+  explicit SwitchExpression(std::vector<Expression> cases);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -253,5 +252,5 @@ public:
 private:
   void appendToStream(std::ostream& str) const override;
 };
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

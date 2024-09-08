@@ -21,7 +21,6 @@
 
 #include "EL/ELExceptions.h"
 
-#include "kdl/collection_utils.h"
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/string_compare.h"
@@ -35,10 +34,9 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 NullType::NullType() = default;
 const NullType NullType::Value = NullType{};
 
@@ -877,27 +875,25 @@ void Value::appendToStream(
     *m_value);
 }
 
-static size_t computeIndex(const long index, const size_t indexableSize)
+namespace
 {
-  const long size = static_cast<long>(indexableSize);
-  if ((index >= 0 && index < size) || (index < 0 && index >= -size))
-  {
-    return static_cast<size_t>((size + index % size) % size);
-  }
-  else
-  {
-    return static_cast<size_t>(size);
-  }
+
+size_t computeIndex(const long index, const size_t indexableSize)
+{
+  const auto size = static_cast<long>(indexableSize);
+  return (index >= 0 && index < size) || (index < 0 && index >= -size)
+           ? static_cast<size_t>((size + index % size) % size)
+           : static_cast<size_t>(size);
 }
 
-static size_t computeIndex(const Value& indexValue, const size_t indexableSize)
+size_t computeIndex(const Value& indexValue, const size_t indexableSize)
 {
   return computeIndex(
     static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
     indexableSize);
 }
 
-static void computeIndexArray(
+void computeIndexArray(
   const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
 {
   switch (indexValue.type())
@@ -931,13 +927,14 @@ static void computeIndexArray(
   }
 }
 
-static std::vector<size_t> computeIndexArray(
-  const Value& indexValue, const size_t indexableSize)
+std::vector<size_t> computeIndexArray(const Value& indexValue, const size_t indexableSize)
 {
   auto result = std::vector<size_t>{};
   computeIndexArray(indexValue, indexableSize, result);
   return result;
 }
+
+} // namespace
 
 bool Value::contains(const Value& indexValue) const
 {
@@ -1317,5 +1314,5 @@ std::ostream& operator<<(std::ostream& lhs, const Value& rhs)
   rhs.appendToStream(lhs);
   return lhs;
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

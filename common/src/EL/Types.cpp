@@ -23,10 +23,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 std::string typeName(const ValueType type)
 {
   switch (type)
@@ -54,21 +53,35 @@ std::string typeName(const ValueType type)
 ValueType typeForName(const std::string& type)
 {
   if (type == "Boolean")
+  {
     return ValueType::Boolean;
+  }
   if (type == "String")
+  {
     return ValueType::String;
+  }
   if (type == "Number")
+  {
     return ValueType::Number;
+  }
   if (type == "Array")
+  {
     return ValueType::Array;
+  }
   if (type == "Map")
+  {
     return ValueType::Map;
+  }
   if (type == "Range")
+  {
     return ValueType::Range;
+  }
   if (type == "Undefined")
+  {
     return ValueType::Undefined;
+  }
+
   assert(false);
   return ValueType::Null;
 }
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

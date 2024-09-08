@@ -26,14 +26,8 @@
 #include "EL/VariableStore.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/string_compare.h"
 
-#include "vm/scalar.h"
-#include "vm/vec_io.h"
-
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
 namespace
@@ -104,5 +98,4 @@ DecalSpecification DecalDefinition::defaultDecalSpecification() const
 
 kdl_reflect_impl(DecalDefinition);
 
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

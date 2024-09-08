@@ -27,9 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace EntityPropertyKeys
 {
@@ -137,5 +135,4 @@ const std::string& findEntityPropertyOrDefault(
   const std::string& key,
   const std::string& defaultValue = EntityPropertyValues::DefaultValue);
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

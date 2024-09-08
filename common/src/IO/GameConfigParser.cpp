@@ -69,9 +69,10 @@ void checkVersion(const EL::Value& version)
     throw ParserException{
       version.line(),
       version.column(),
-      " Unsupported game configuration version "
-        + version.convertTo(EL::ValueType::String).stringValue()
-        + "; valid versions are: " + kdl::str_join(validVsns, ", ")};
+      fmt::format(
+        "Unsupported game configuration version {}; valid versions are: {}",
+        version.convertTo(EL::ValueType::String).stringValue(),
+        kdl::str_join(validVsns, ", "))};
   }
 }
 
@@ -129,7 +130,7 @@ std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value)
     throw ParserException{
       value.line(),
       value.column(),
-      "Can't parse soft map bounds '" + value.asString() + "'"};
+      fmt::format("Can't parse soft map bounds '{}'", value.asString())};
   }
   return bounds;
 }
@@ -155,7 +156,7 @@ std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& value)
     else
     {
       throw ParserException{
-        entry.line(), entry.column(), "Unexpected tag attribute '" + name + "'"};
+        entry.line(), entry.column(), fmt::format("Unexpected tag attribute '{}'", name)};
     }
   }
 
@@ -182,7 +183,7 @@ void checkTagName(const EL::Value& nameValue, const std::vector<Model::SmartTag>
     if (tag.name() == name)
     {
       throw ParserException{
-        nameValue.line(), nameValue.column(), "Duplicate tag '" + name + "'"};
+        nameValue.line(), nameValue.column(), fmt::format("Duplicate tag '{}'", name)};
     }
   }
 }
@@ -268,7 +269,9 @@ void parseFaceTags(
     else
     {
       throw ParserException{
-        entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'"};
+        entry.line(),
+        entry.column(),
+        fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
@@ -304,7 +307,9 @@ void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result
     else
     {
       throw ParserException{
-        entry.line(), entry.column(), "Unexpected smart tag match type '" + match + "'"};
+        entry.line(),
+        entry.column(),
+        fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
@@ -611,7 +616,8 @@ Model::GameConfig GameConfigParser::parse()
 {
   using Model::GameConfig;
 
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
+  const auto evaluationContext = EL::EvaluationContext{};
+  const auto root = parseConfigFile().evaluate(evaluationContext);
   expectType(root, EL::ValueType::Map);
 
   const auto& version = root["version"];

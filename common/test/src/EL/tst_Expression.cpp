@@ -25,20 +25,17 @@
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
-#include "kdl/overload.h"
-
 #include <cmath>
 #include <map>
 #include <string>
 #include <variant>
 #include <vector>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 using V = Value;
 
 static Value evaluate(const std::string& expression, const MapType& variables = {})
@@ -746,5 +743,5 @@ TEST_CASE("ExpressionTest.testOptimize")
 
   CHECK(IO::ELParser::parseStrict(expression).optimize() == expectedExpression);
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

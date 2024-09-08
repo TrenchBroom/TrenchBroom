@@ -66,10 +66,10 @@ static std::filesystem::path path(const EL::Value& value)
 {
   if (value.type() != EL::ValueType::String)
   {
-    return std::filesystem::path();
+    return {};
   }
-  const std::string& path = value.stringValue();
-  return std::filesystem::path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+  const auto& path = value.stringValue();
+  return kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path;
 }
 
 static size_t index(const EL::Value& value)
@@ -78,7 +78,7 @@ static size_t index(const EL::Value& value)
   {
     return 0;
   }
-  const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
+  const auto intValue = value.convertTo(EL::ValueType::Number).integerValue();
   return static_cast<size_t>(vm::max(0l, intValue));
 }
 

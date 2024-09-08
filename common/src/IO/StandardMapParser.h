@@ -33,9 +33,7 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -61,7 +59,7 @@ class QuakeMapTokenizer : public Tokenizer<QuakeMapToken::Type>
 {
 private:
   static const std::string& NumberDelim();
-  bool m_skipEol;
+  bool m_skipEol = true;
 
 public:
   explicit QuakeMapTokenizer(std::string_view str);
@@ -156,5 +154,5 @@ private:
 private: // implement Parser interface
   TokenNameMap tokenNames() const override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -28,71 +28,76 @@
 
 #include "kdl/vector_utils.h"
 
+#include <fmt/format.h>
+
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-CompilationConfigParser::CompilationConfigParser(
-  const std::string_view str, std::filesystem::path path)
-  : ConfigParserBase{str, std::move(path)}
-{
-}
 
-Model::CompilationConfig CompilationConfigParser::parse()
-{
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
-  expectType(root, EL::ValueType::Map);
-
-  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
-
-  const auto version = root["version"].numberValue();
-  unused(version);
-  assert(version == 1.0);
-
-  return Model::CompilationConfig{parseProfiles(root["profiles"])};
-}
-
-std::vector<Model::CompilationProfile> CompilationConfigParser::parseProfiles(
-  const EL::Value& value) const
-{
-  auto result = std::vector<Model::CompilationProfile>{};
-  result.reserve(value.length());
-
-  for (size_t i = 0; i < value.length(); ++i)
-  {
-    result.push_back(parseProfile(value[i]));
-  }
-  return result;
-}
-
-Model::CompilationProfile CompilationConfigParser::parseProfile(
-  const EL::Value& value) const
+Model::CompilationExportMap parseExportTask(const EL::Value& value)
 {
   expectStructure(
-    value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
+    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  return {enabled, value["target"].stringValue()};
+}
+
+Model::CompilationCopyFiles parseCopyTask(const EL::Value& value)
+{
+  expectStructure(
+    value,
+    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
+    "'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
+}
+
+Model::CompilationRenameFile parseRenameTask(const EL::Value& value)
+{
+  expectStructure(
+    value,
+    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
+    "'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
+}
+
+Model::CompilationDeleteFiles parseDeleteTask(const EL::Value& value)
+{
+  expectStructure(
+    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  return {enabled, value["target"].stringValue()};
+}
+
+Model::CompilationRunTool parseToolTask(const EL::Value& value)
+{
+  expectStructure(
+    value,
+    "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
+    "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
+
+  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  const auto treatNonZeroResultCodeAsError =
+    value.contains("treatNonZeroResultCodeAsError")
+      ? value["treatNonZeroResultCodeAsError"].booleanValue()
+      : false;
 
   return {
-    value["name"].stringValue(),
-    value["workdir"].stringValue(),
-    parseTasks(value["tasks"])};
+    enabled,
+    value["tool"].stringValue(),
+    value["parameters"].stringValue(),
+    treatNonZeroResultCodeAsError};
 }
 
-std::vector<Model::CompilationTask> CompilationConfigParser::parseTasks(
-  const EL::Value& value) const
-{
-  auto result = std::vector<Model::CompilationTask>{};
-  result.reserve(value.length());
-
-  for (size_t i = 0; i < value.length(); ++i)
-  {
-    result.push_back(parseTask(value[i]));
-  }
-  return result;
-}
-
-Model::CompilationTask CompilationConfigParser::parseTask(const EL::Value& value) const
+Model::CompilationTask parseTask(const EL::Value& value)
 {
   expectMapEntry(value, "type", EL::ValueType::String);
   const auto typeName = value["type"].stringValue();
@@ -118,72 +123,64 @@ Model::CompilationTask CompilationConfigParser::parseTask(const EL::Value& value
     return parseToolTask(value);
   }
 
-  throw ParserException{"Unknown compilation task type '" + typeName + "'"};
+  throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
-Model::CompilationExportMap CompilationConfigParser::parseExportTask(
-  const EL::Value& value) const
+std::vector<Model::CompilationTask> parseTasks(const EL::Value& value)
 {
-  expectStructure(
-    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+  auto result = std::vector<Model::CompilationTask>{};
+  result.reserve(value.length());
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["target"].stringValue()};
+  for (size_t i = 0; i < value.length(); ++i)
+  {
+    result.push_back(parseTask(value[i]));
+  }
+  return result;
 }
 
-Model::CompilationCopyFiles CompilationConfigParser::parseCopyTask(
-  const EL::Value& value) const
+Model::CompilationProfile parseProfile(const EL::Value& value)
 {
   expectStructure(
-    value,
-    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
-    "'Boolean' } ]");
-
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
-}
-
-Model::CompilationRenameFile CompilationConfigParser::parseRenameTask(
-  const EL::Value& value) const
-{
-  expectStructure(
-    value,
-    "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
-    "'Boolean' } ]");
-
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
-}
-
-Model::CompilationDeleteFiles CompilationConfigParser::parseDeleteTask(
-  const EL::Value& value) const
-{
-  expectStructure(
-    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
-
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["target"].stringValue()};
-}
-
-Model::CompilationRunTool CompilationConfigParser::parseToolTask(
-  const EL::Value& value) const
-{
-  expectStructure(
-    value,
-    "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
-    "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
-
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  const auto treatNonZeroResultCodeAsError =
-    value.contains("treatNonZeroResultCodeAsError")
-      ? value["treatNonZeroResultCodeAsError"].booleanValue()
-      : false;
+    value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
   return {
-    enabled,
-    value["tool"].stringValue(),
-    value["parameters"].stringValue(),
-    treatNonZeroResultCodeAsError};
+    value["name"].stringValue(),
+    value["workdir"].stringValue(),
+    parseTasks(value["tasks"])};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+std::vector<Model::CompilationProfile> parseProfiles(const EL::Value& value)
+{
+  auto result = std::vector<Model::CompilationProfile>{};
+  result.reserve(value.length());
+
+  for (size_t i = 0; i < value.length(); ++i)
+  {
+    result.push_back(parseProfile(value[i]));
+  }
+  return result;
+}
+
+} // namespace
+
+CompilationConfigParser::CompilationConfigParser(
+  const std::string_view str, std::filesystem::path path)
+  : ConfigParserBase{str, std::move(path)}
+{
+}
+
+Model::CompilationConfig CompilationConfigParser::parse()
+{
+  const auto root = parseConfigFile().evaluate(EL::EvaluationContext{});
+  expectType(root, EL::ValueType::Map);
+
+  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+
+  const auto version = root["version"].numberValue();
+  unused(version);
+  assert(version == 1.0);
+
+  return Model::CompilationConfig{parseProfiles(root["profiles"])};
+}
+
+} // namespace TrenchBroom::IO

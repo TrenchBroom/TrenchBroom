@@ -19,21 +19,18 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
 #include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
 
 #include <filesystem>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class GameEngineConfigParser : public ConfigParserBase
 {
 public:
@@ -41,11 +38,7 @@ public:
 
   Model::GameEngineConfig parse();
 
-private:
-  std::vector<Model::GameEngineProfile> parseProfiles(const EL::Value& value) const;
-  Model::GameEngineProfile parseProfile(const EL::Value& value) const;
-
   deleteCopyAndMove(GameEngineConfigParser);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

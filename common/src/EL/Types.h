@@ -25,10 +25,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 using BooleanType = bool;
 using StringType = std::string;
 using NumberType = double;
@@ -51,5 +50,5 @@ enum class ValueType
 
 std::string typeName(ValueType type);
 ValueType typeForName(const std::string& type);
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

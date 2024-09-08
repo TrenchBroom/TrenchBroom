@@ -26,13 +26,11 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-ParserStatus::ParserStatus(Logger& logger, const std::string& prefix)
-  : m_logger(logger)
-  , m_prefix(prefix)
+ParserStatus::ParserStatus(Logger& logger, std::string prefix)
+  : m_logger{logger}
+  , m_prefix{std::move(prefix)}
 {
 }
 
@@ -132,7 +130,7 @@ void ParserStatus::log(
 std::string ParserStatus::buildMessage(
   const size_t line, const size_t column, const std::string& str) const
 {
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
@@ -148,7 +146,7 @@ void ParserStatus::log(const LogLevel level, const size_t line, const std::strin
 
 std::string ParserStatus::buildMessage(const size_t line, const std::string& str) const
 {
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
@@ -164,7 +162,7 @@ void ParserStatus::log(const LogLevel level, const std::string& str)
 
 std::string ParserStatus::buildMessage(const std::string& str) const
 {
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
@@ -177,5 +175,5 @@ void ParserStatus::doLog(const LogLevel level, const std::string& str)
 {
   m_logger.log(level, str);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

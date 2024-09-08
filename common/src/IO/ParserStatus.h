@@ -25,8 +25,9 @@ namespace TrenchBroom
 {
 class Logger;
 enum class LogLevel;
+} // namespace TrenchBroom
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus
 {
@@ -35,7 +36,7 @@ private:
   std::string m_prefix;
 
 protected:
-  explicit ParserStatus(Logger& logger, const std::string& prefix);
+  ParserStatus(Logger& logger, std::string prefix);
 
 public:
   virtual ~ParserStatus();
@@ -75,5 +76,5 @@ private:
   virtual void doProgress(double progress) = 0;
   virtual void doLog(LogLevel level, const std::string& str);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

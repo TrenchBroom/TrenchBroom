@@ -21,15 +21,13 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/Expressions.h"
-#include "Ensure.h"
 #include "Macros.h"
 
 #include <sstream>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 Expression::Expression(
   std::unique_ptr<ExpressionImpl> expression, const size_t line, const size_t column)
   : m_expression{std::move(expression)}
@@ -168,7 +166,7 @@ void Expression::rebalanceByPrecedence()
     {
       // push this operator into the right subtree, rotating the right node up, and
       // rebalancing the right subtree again
-      Expression leftExpression =
+      auto leftExpression =
         std::move(dynamic_cast<BinaryExpression*>(m_expression.get())->m_leftOperand);
 
       assert(
@@ -187,7 +185,7 @@ void Expression::rebalanceByPrecedence()
     {
       // push this operator into the left subtree, rotating the left node up, and
       // rebalancing the left subtree again
-      Expression rightExpression =
+      auto rightExpression =
         std::move(dynamic_cast<BinaryExpression*>(m_expression.get())->m_rightOperand);
 
       assert(
@@ -209,5 +207,5 @@ size_t Expression::precedence() const
 {
   return m_expression->precedence();
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

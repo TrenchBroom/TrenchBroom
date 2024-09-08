@@ -25,11 +25,8 @@
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
-#include "Model/IdType.h"
 
-#include "kdl/result.h"
-
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
 
 #include <optional>

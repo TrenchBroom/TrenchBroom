@@ -22,7 +22,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expressions.h"
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"

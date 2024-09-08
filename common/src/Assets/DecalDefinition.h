@@ -23,8 +23,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/vec.h"
-
 #include <iosfwd>
 
 namespace TrenchBroom::Assets

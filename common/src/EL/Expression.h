@@ -20,15 +20,12 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
-#include "Macros.h"
 
 #include <iosfwd>
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace EL
+namespace TrenchBroom::EL
 {
 class ExpressionImpl;
 
@@ -78,5 +75,5 @@ private:
   void rebalanceByPrecedence();
   size_t precedence() const;
 };
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

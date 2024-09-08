@@ -19,18 +19,14 @@
 
 #include "EntityProperties.h"
 
-#include "Assets/EntityDefinition.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/string_compare.h"
-#include "kdl/vector_set.h"
 
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace EntityPropertyKeys
 {
@@ -218,5 +214,4 @@ const std::string& findEntityPropertyOrDefault(
   return it != std::end(properties) ? it->value() : defaultValue;
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

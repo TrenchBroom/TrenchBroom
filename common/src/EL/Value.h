@@ -30,10 +30,9 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 class NullType
 {
 private:
@@ -143,5 +142,5 @@ public:
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
 };
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL
