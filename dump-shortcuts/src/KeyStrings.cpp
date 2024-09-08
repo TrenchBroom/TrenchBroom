@@ -23,9 +23,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 KeyStrings::KeyStrings()
 {
@@ -250,27 +248,27 @@ KeyStrings::const_iterator KeyStrings::end() const
 
 void KeyStrings::putKey(const Qt::Key key)
 {
-  const auto keySequence = QKeySequence(key);
+  const auto keySequence = QKeySequence{key};
 
-  m_keys.push_back(std::make_pair(
+  m_keys.emplace_back(
     keySequence.toString(QKeySequence::PortableText),
-    keySequence.toString(QKeySequence::NativeText)));
+    keySequence.toString(QKeySequence::NativeText));
 }
 
 void KeyStrings::putModifier(int key)
 {
-  const auto keySequence = QKeySequence(key);
+  const auto keySequence = QKeySequence{key};
 
   // QKeySequence doesn't totally support being given just a modifier
   // but it does seem to handle the key codes like Qt::SHIFT, which
   // it turns into native text as "Shift+" or the Shift symbol on macOS,
   // and portable text as "Shift+".
 
-  QString portableLabel = keySequence.toString(QKeySequence::PortableText);
+  auto portableLabel = keySequence.toString(QKeySequence::PortableText);
   assert(portableLabel.endsWith("+")); // This will be something like "Ctrl+"
   portableLabel.chop(1);               // Remove last character
 
-  QString nativeLabel = keySequence.toString(QKeySequence::NativeText);
+  auto nativeLabel = keySequence.toString(QKeySequence::NativeText);
   if (nativeLabel.endsWith("+"))
   {
     // On Linux we get nativeLabel as something like "Ctrl+"
@@ -278,7 +276,7 @@ void KeyStrings::putModifier(int key)
     nativeLabel.chop(1); // Remove last character
   }
 
-  m_keys.push_back(std::make_pair(portableLabel, nativeLabel));
+  m_keys.emplace_back(portableLabel, nativeLabel);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
