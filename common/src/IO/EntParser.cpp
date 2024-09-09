@@ -19,12 +19,12 @@
 
 #include "EntParser.h"
 
-#include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expressions.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
+#include "FileLocation.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
@@ -75,7 +75,7 @@ void warn(
   const auto str = fmt::format("{}: {}", msg, getName(element));
   if (element.GetLineNum() > 0)
   {
-    status.warn(static_cast<size_t>(element.GetLineNum()), str);
+    status.warn(FileLocation{static_cast<size_t>(element.GetLineNum() - 1)}, str);
   }
   else
   {
@@ -579,7 +579,7 @@ void parsePropertyDefinitions(
           classInfo.propertyDefinitions, std::move(propertyDefinition)))
     {
       const auto line = static_cast<size_t>(element.GetLineNum());
-      status.warn(line, 0, "Skipping duplicate entity property definition");
+      status.warn(FileLocation{line}, "Skipping duplicate entity property definition");
     }
   }
 }
@@ -613,7 +613,7 @@ Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
   catch (const EL::EvaluationError& evaluationError)
   {
     const auto line = static_cast<size_t>(element.GetLineNum());
-    throw ParserException{line, evaluationError.what()};
+    throw ParserException{FileLocation{line}, evaluationError.what()};
   }
 }
 
@@ -624,8 +624,7 @@ EntityDefinitionClassInfo parsePointClassInfo(
 {
   auto classInfo = EntityDefinitionClassInfo{};
   classInfo.type = EntityDefinitionClassType::PointClass;
-  classInfo.line = static_cast<size_t>(element.GetLineNum());
-  classInfo.column = 0;
+  classInfo.location = FileLocation{static_cast<size_t>(element.GetLineNum())};
   classInfo.name = parseString(element, "name");
   classInfo.description = getText(element);
   classInfo.color = parseColor(element, "color");
@@ -643,8 +642,7 @@ EntityDefinitionClassInfo parseBrushClassInfo(
 {
   auto classInfo = EntityDefinitionClassInfo{};
   classInfo.type = EntityDefinitionClassType::BrushClass;
-  classInfo.line = static_cast<size_t>(element.GetLineNum());
-  classInfo.column = 0;
+  classInfo.location = FileLocation{static_cast<size_t>(element.GetLineNum())};
   classInfo.name = parseString(element, "name");
   classInfo.description = getText(element);
   classInfo.color = parseColor(element, "color");
@@ -699,7 +697,8 @@ std::vector<EntityDefinitionClassInfo> parseClassInfosFromDocument(
                 propertyDeclarations, std::move(propertyDeclaration)))
           {
             const auto line = static_cast<size_t>(currentElement->GetLineNum());
-            status.warn(line, 0, "Skipping duplicate entity property declaration");
+            status.warn(
+              FileLocation{line}, "Skipping duplicate entity property declaration");
           }
         }
       }
@@ -729,8 +728,8 @@ std::vector<EntityDefinitionClassInfo> EntParser::parseClassInfos(ParserStatus& 
       // we allow empty documents
       return {};
     }
-    const auto lineNum = static_cast<size_t>(doc.ErrorLineNum());
-    throw ParserException{lineNum, doc.ErrorStr()};
+    const auto line = static_cast<size_t>(doc.ErrorLineNum());
+    throw ParserException{FileLocation{line}, doc.ErrorStr()};
   }
 
   return parseClassInfosFromDocument(doc, status);

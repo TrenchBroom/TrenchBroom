@@ -19,6 +19,7 @@
 
 #include "StandardMapParser.h"
 
+#include "FileLocation.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
@@ -55,6 +56,7 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
   {
     const auto startLine = line();
     const auto startColumn = column();
+    const auto startLocation = location();
     const auto* c = curPos();
     switch (*c)
     {
@@ -139,8 +141,7 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
         return Token{QuakeMapToken::String, c, e, offset(c), startLine, startColumn};
       }
 
-      throw ParserException{
-        startLine, startColumn, fmt::format("Unexpected character: {}", *c)};
+      throw ParserException{startLocation, fmt::format("Unexpected character: {}", *c)};
     }
   }
   return Token{QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column()};
@@ -217,7 +218,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
   auto properties = std::vector<Model::EntityProperty>();
   auto propertyKeys = EntityPropertyKeys();
 
-  const auto startLine = token.line();
+  const auto startLocation = token.location();
 
   token = m_tokenizer.peekToken();
   while (token.type() != QuakeMapToken::Eof)
@@ -233,7 +234,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
     case QuakeMapToken::OBrace:
       if (!beginEntityCalled)
       {
-        onBeginEntity(startLine, std::move(properties), status);
+        onBeginEntity(startLocation, std::move(properties), status);
         beginEntityCalled = true;
       }
       parseBrushOrBrushPrimitiveOrPatch(status);
@@ -242,9 +243,9 @@ void StandardMapParser::parseEntity(ParserStatus& status)
       m_tokenizer.nextToken();
       if (!beginEntityCalled)
       {
-        onBeginEntity(startLine, properties, status);
+        onBeginEntity(startLocation, properties, status);
       }
-      onEndEntity(startLine, token.line() - startLine, status);
+      onEndEntity(token.location(), status);
       return;
     default:
       expect(
@@ -266,8 +267,7 @@ void StandardMapParser::parseEntityProperty(
   assert(token.type() == QuakeMapToken::String);
   const auto name = token.data();
 
-  const auto line = token.line();
-  const auto column = token.column();
+  const auto location = token.location();
 
   expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
   const auto value = token.data();
@@ -279,8 +279,7 @@ void StandardMapParser::parseEntityProperty(
   }
   else
   {
-    status.warn(
-      line, column, fmt::format("Ignoring duplicate entity property '{}'", name));
+    status.warn(location, fmt::format("Ignoring duplicate entity property '{}'", name));
   }
 }
 
@@ -296,7 +295,7 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     return;
   }
 
-  const auto startLine = token.line();
+  const auto startLocation = token.location();
 
   token = m_tokenizer.peekToken();
   if (m_sourceMapFormat == Model::MapFormat::Quake3)
@@ -308,16 +307,16 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
       expect({BrushPrimitiveId, PatchId}, token);
       if (token.data() == BrushPrimitiveId)
       {
-        parseBrushPrimitive(status, startLine);
+        parseBrushPrimitive(status, startLocation);
       }
       else
       {
-        parsePatch(status, startLine);
+        parsePatch(status, startLocation);
       }
     }
     else
     {
-      parseBrush(status, startLine, false);
+      parseBrush(status, startLocation, false);
     }
   }
   else if (
@@ -329,34 +328,35 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     if (token.hasType(QuakeMapToken::String))
     {
       expect(PatchId, token);
-      parsePatch(status, startLine);
+      parsePatch(status, startLocation);
     }
     else
     {
-      parseBrush(status, startLine, false);
+      parseBrush(status, startLocation, false);
     }
   }
   else
   {
     expect(QuakeMapToken::OParenthesis, token);
-    parseBrush(status, startLine, false);
+    parseBrush(status, startLocation, false);
   }
 
   // consume final closing brace
   expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
 }
 
-void StandardMapParser::parseBrushPrimitive(ParserStatus& status, const size_t startLine)
+void StandardMapParser::parseBrushPrimitive(
+  ParserStatus& status, const FileLocation& startLocation)
 {
   auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
   expect(BrushPrimitiveId, token);
   expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
-  parseBrush(status, startLine, true);
+  parseBrush(status, startLocation, true);
   expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
 }
 
 void StandardMapParser::parseBrush(
-  ParserStatus& status, const size_t startLine, const bool primitive)
+  ParserStatus& status, const FileLocation& startLocation, const bool primitive)
 {
   auto beginBrushCalled = false;
 
@@ -372,7 +372,7 @@ void StandardMapParser::parseBrush(
       // TODO 2427: handle brush primitives
       if (!beginBrushCalled && !primitive)
       {
-        onBeginBrush(startLine, status);
+        onBeginBrush(startLocation, status);
         beginBrushCalled = true;
       }
       parseFace(status, primitive);
@@ -383,13 +383,13 @@ void StandardMapParser::parseBrush(
       {
         if (!beginBrushCalled)
         {
-          onBeginBrush(startLine, status);
+          onBeginBrush(startLocation, status);
         }
-        onEndBrush(startLine, token.line() - startLine, status);
+        onEndBrush(token.location(), status);
       }
       else
       {
-        status.warn(startLine, "Skipping brush primitive: currently not supported");
+        status.warn(startLocation, "Skipping brush primitive: currently not supported");
       }
       return;
     default: {
@@ -444,7 +444,7 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
 
 void StandardMapParser::parseQuakeFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -456,12 +456,12 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseQuake2Face(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -483,12 +483,12 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -512,12 +512,13 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -537,12 +538,12 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
     m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -569,12 +570,12 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
     }
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
@@ -588,7 +589,8 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
@@ -621,7 +623,8 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
-void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
+void StandardMapParser::parsePatch(
+  ParserStatus& status, const FileLocation& startLocation)
 {
   auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
   expect(PatchId, token);
@@ -646,7 +649,7 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   int rowCountInt = token.toInteger<int>();
   if (rowCountInt < 3 || rowCountInt % 2 != 1)
   {
-    status.warn(token.line(), token.column(), "Invalid patch height, assuming 3");
+    status.warn(token.location(), "Invalid patch height, assuming 3");
     rowCountInt = 3;
   }
 
@@ -654,7 +657,7 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   int columnCountInt = token.toInteger<int>();
   if (columnCountInt < 3 || columnCountInt % 2 != 1)
   {
-    status.warn(token.line(), token.column(), "Invalid patch width, assuming 3");
+    status.warn(token.location(), "Invalid patch width, assuming 3");
     columnCountInt = 3;
   }
 
@@ -684,11 +687,9 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
   token = expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
-  const auto lineCount = token.line() - startLine;
-
   onPatch(
-    startLine,
-    lineCount,
+    startLocation,
+    token.location(),
     m_targetMapFormat,
     rowCount,
     columnCount,

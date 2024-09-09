@@ -59,8 +59,7 @@ protected:
   {
     if (!check(typeMask, token))
     {
-      throw ParserException{
-        token.line(), token.column(), expectString(tokenName(typeMask), token)};
+      throw ParserException{token.location(), expectString(tokenName(typeMask), token)};
     }
     return token;
   }
@@ -79,7 +78,7 @@ protected:
     ParserStatus& /* status */, const std::string& typeName, const Token& token) const
   {
     const auto msg = expectString(typeName, token);
-    throw ParserException{token.line(), token.column(), msg};
+    throw ParserException{token.location(), msg};
   }
 
   void expect(const std::string& expected, const Token& token) const
@@ -87,8 +86,7 @@ protected:
     if (token.data() != expected)
     {
       throw ParserException{
-        token.line(),
-        token.column(),
+        token.location(),
         fmt::format("Expected string '{}', but got '{}'", expected, token.data())};
     }
   }
@@ -103,8 +101,7 @@ protected:
       }
     }
     throw ParserException{
-      token.line(),
-      token.column(),
+      token.location(),
       fmt::format(
         "Expected string '{}', but got '{}'",
         kdl::str_join(expected, "', '", "', or '", "' or '"),

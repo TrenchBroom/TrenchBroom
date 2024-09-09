@@ -21,6 +21,7 @@
 
 #include "EL/Expressions.h"
 #include "EL/Value.h"
+#include "FileLocation.h"
 
 #include "kdl/string_format.h"
 
@@ -226,7 +227,7 @@ ELTokenizer::Token ELTokenizer::emitToken()
         if (!eof() && curChar() == '.' && lookAhead() != '.')
         {
           throw ParserException{
-            line, column, fmt::format("Unexpected character: '{}'", *c)};
+            FileLocation{line, column}, fmt::format("Unexpected character: '{}'", *c)};
         }
         return Token{ELToken::Number, c, e, offset(c), line, column};
       }
@@ -262,7 +263,8 @@ ELTokenizer::Token ELTokenizer::emitToken()
         return Token{ELToken::Name, c, e, offset(c), line, column};
       }
 
-      throw ParserException{line, column, fmt::format("Unexpected character: '{}'", *c)};
+      throw ParserException{
+        FileLocation{line, column}, fmt::format("Unexpected character: '{}'", *c)};
     }
   }
   return Token{ELToken::Eof, nullptr, nullptr, length(), line(), column()};
@@ -582,8 +584,7 @@ EL::Expression ELParser::parseUnaryOperator()
       EL::UnaryExpression{op, parseSimpleTermOrSwitch()}, token.line(), token.column()};
   }
   throw ParserException{
-    token.line(),
-    token.column(),
+    token.location(),
     fmt::format("Unhandled unary operator: {}", tokenName(token.type()))};
 }
 
@@ -657,8 +658,7 @@ EL::Expression ELParser::parseCompoundTerm(EL::Expression lhs)
     else
     {
       throw ParserException{
-        token.line(),
-        token.column(),
+        token.location(),
         fmt::format("Unhandled binary operator: {}", tokenName(token.type()))};
     }
   }

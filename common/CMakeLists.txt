@@ -33,6 +33,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Ensure.cpp
         ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
+        ${COMMON_SOURCE_DIR}/FileLocation.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
         ${COMMON_SOURCE_DIR}/IO/AseLoader.cpp
         ${COMMON_SOURCE_DIR}/IO/AssimpLoader.cpp
@@ -528,6 +529,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Error.h
         ${COMMON_SOURCE_DIR}/Exceptions.h
+        ${COMMON_SOURCE_DIR}/FileLocation.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
         ${COMMON_SOURCE_DIR}/FloatType.h
         ${COMMON_SOURCE_DIR}/IO/AseLoader.h

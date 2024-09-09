@@ -43,6 +43,7 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
   {
     const auto startLine = line();
     const auto startColumn = column();
+    const auto startLocation = location();
     const auto* c = curPos();
     switch (*c)
     {
@@ -75,8 +76,7 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
         return Token{
           Quake3ShaderToken::Variable, c, e, offset(c), startLine, startColumn};
       }
-      throw ParserException{
-        startLine, startColumn, "Unexpected character: " + std::string{c, 1}};
+      throw ParserException{startLocation, "Unexpected character: " + std::string{c, 1}};
     case '/':
       if (lookAhead() == '/')
       {
@@ -112,8 +112,7 @@ Tokenizer<unsigned int>::Token Quake3ShaderTokenizer::emitToken()
         return Token{Quake3ShaderToken::String, c, e, offset(c), startLine, startColumn};
       }
 
-      throw ParserException{
-        startLine, startColumn, "Unexpected character: " + std::string{c, 1}};
+      throw ParserException{startLocation, "Unexpected character: " + std::string{c, 1}};
     }
   }
   return Token{Quake3ShaderToken::Eof, nullptr, nullptr, length(), line(), column()};
@@ -255,17 +254,16 @@ void Quake3ShaderParser::parseStageEntry(
   }
   else if (kdl::ci::str_is_equal(key, "blendFunc"))
   {
-    const auto line = token.line();
-
     token = expect(Quake3ShaderToken::String, m_tokenizer.nextToken());
     const auto param1 = token.data();
-    const auto param1Column = token.column();
+    const auto param1Location = token.location();
 
     if (m_tokenizer.peekToken().hasType(Quake3ShaderToken::String))
     {
       token = m_tokenizer.nextToken();
       const auto param2 = token.data();
-      const auto param2Column = token.column();
+      const auto param2Location = token.location();
+
       stage.blendFunc.srcFactor = kdl::str_to_upper(param1);
       stage.blendFunc.destFactor = kdl::str_to_upper(param2);
 
@@ -273,14 +271,13 @@ void Quake3ShaderParser::parseStageEntry(
       if (!stage.blendFunc.validateSrcFactor())
       {
         valid = false;
-        status.warn(
-          line, param1Column, "Unknown blendFunc source factor '" + param1 + "'");
+        status.warn(param1Location, "Unknown blendFunc source factor '" + param1 + "'");
       }
       if (!stage.blendFunc.validateDestFactor())
       {
         valid = false;
         status.warn(
-          line, param2Column, "Unknown blendFunc destination factor '" + param2 + "'");
+          param2Location, "Unknown blendFunc destination factor '" + param2 + "'");
       }
       if (!valid)
       {
@@ -307,7 +304,7 @@ void Quake3ShaderParser::parseStageEntry(
       }
       else
       {
-        status.warn(line, param1Column, "Unknown blendFunc name '" + param1 + "'");
+        status.warn(param1Location, "Unknown blendFunc name '" + param1 + "'");
       }
     }
   }

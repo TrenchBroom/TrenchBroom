@@ -21,6 +21,7 @@
 
 #include "EL/Expression.h"
 #include "EL/Types.h"
+#include "FileLocation.h"
 
 // FIXME: try to remove some of these headers
 #include <iosfwd>
@@ -103,6 +104,7 @@ public:
 
   const std::optional<Expression>& expression() const;
 
+  FileLocation location() const;
   size_t line() const;
   size_t column() const;
 

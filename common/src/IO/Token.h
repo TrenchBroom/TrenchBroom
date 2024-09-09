@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "FileLocation.h"
+
 #include "kdl/string_utils.h"
 
 #include <cassert>
@@ -75,6 +77,8 @@ public:
   size_t line() const { return m_line; }
 
   size_t column() const { return m_column; }
+
+  FileLocation location() const { return FileLocation{m_line, m_column}; }
 
   template <typename T>
   T toFloat() const

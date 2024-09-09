@@ -22,6 +22,7 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Error.h"
+#include "FileLocation.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Renderer/MaterialIndexRangeMap.h"
@@ -113,7 +114,8 @@ Tokenizer<unsigned int>::Token AseTokenizer::emitToken()
         }
       }
       throw ParserException{
-        startLine, startColumn, "Unexpected character: '" + std::string(c, 1) + "'"};
+        FileLocation{startLine, startColumn},
+        "Unexpected character: '" + std::string(c, 1) + "'"};
     }
     }
   }
@@ -507,7 +509,7 @@ void AseLoader::parseGeomObjectMeshTFace(
   if (index >= faces.size())
   {
     throw ParserException(
-      token.line(), token.column(), "Invalid face index " + std::to_string(index));
+      token.location(), "Invalid face index " + std::to_string(index));
   }
 
   for (size_t i = 0; i < 3; ++i)
@@ -599,8 +601,7 @@ void AseLoader::expectArgumentName(const std::string& expected)
   if (actual != expected)
   {
     throw ParserException{
-      token.line(),
-      token.column(),
+      token.location(),
       "Expected argument name '" + expected + "', but got '" + actual + "'"};
   }
 }
@@ -612,8 +613,7 @@ void AseLoader::expectSizeArgument(const size_t expected)
   if (actual != expected)
   {
     throw ParserException{
-      token.line(),
-      token.column(),
+      token.location(),
       "Expected value '" + std::to_string(expected) + "', but got '"
         + std::to_string(actual) + "'"};
   }
@@ -626,9 +626,7 @@ size_t AseLoader::parseSizeArgument()
   if (i < 0)
   {
     throw ParserException{
-      token.line(),
-      token.column(),
-      "Expected positive integer, but got '" + token.data() + "'"};
+      token.location(), "Expected positive integer, but got '" + token.data() + "'"};
   }
   else
   {

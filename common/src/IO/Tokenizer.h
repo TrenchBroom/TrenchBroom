@@ -180,6 +180,8 @@ public:
 
   size_t column() const { return m_state.column; }
 
+  FileLocation location() const { return {line(), column()}; }
+
 public:
   void reset()
   {

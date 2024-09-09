@@ -33,6 +33,11 @@
 #include <tuple>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct FileLocation;
+}
+
 namespace TrenchBroom::IO
 {
 class ParserStatus;
@@ -116,8 +121,9 @@ private:
     ParserStatus& status);
 
   void parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status);
-  void parseBrushPrimitive(ParserStatus& status, size_t startLine);
-  void parseBrush(ParserStatus& status, size_t startLine, bool primitive);
+  void parseBrushPrimitive(ParserStatus& status, const FileLocation& startLocation);
+  void parseBrush(
+    ParserStatus& status, const FileLocation& startLocation, bool primitive);
 
   void parseFace(ParserStatus& status, bool primitive);
   void parseQuakeFace(ParserStatus& status);
@@ -128,7 +134,7 @@ private:
   void parseValveFace(ParserStatus& status);
   void parsePrimitiveFace(ParserStatus& status);
 
-  void parsePatch(ParserStatus& status, size_t startLine);
+  void parsePatch(ParserStatus& status, const FileLocation& startLocation);
 
   std::tuple<vm::vec3, vm::vec3, vm::vec3> parseFacePoints(ParserStatus& status);
   std::string parseMaterialName(ParserStatus& status);

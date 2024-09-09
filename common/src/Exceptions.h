@@ -20,10 +20,13 @@
 #pragma once
 
 #include <exception>
+#include <optional>
 #include <string>
 
 namespace TrenchBroom
 {
+struct FileLocation;
+
 class Exception : public std::exception
 {
 protected:
@@ -40,12 +43,8 @@ class ParserException : public Exception
 {
 public:
   using Exception::Exception;
-  ParserException(size_t line, size_t column, const std::string& str = "");
-  explicit ParserException(size_t line, const std::string& str = "");
-
-private:
-  static std::string buildMessage(size_t line, size_t column, const std::string& str);
-  static std::string buildMessage(size_t line, const std::string& str);
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
 };
 
 class VboException : public Exception

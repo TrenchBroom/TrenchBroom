@@ -49,8 +49,7 @@ void expectType(const EL::Value& value, const EL::ValueType type)
   if (value.type() != type)
   {
     throw ParserException{
-      value.line(),
-      value.column(),
+      value.location(),
       fmt::format(
         "Expected value of type '{}', but got type '{}'",
         EL::typeName(type),
@@ -89,8 +88,7 @@ void expectMapEntry(
   const auto it = map.find(key);
   if (it == std::end(map))
   {
-    throw ParserException{
-      value.line(), value.column(), fmt::format("Expected map entry '{}'", key)};
+    throw ParserException{value.location(), fmt::format("Expected map entry '{}'", key)};
   }
   expectType(it->second, type);
 }

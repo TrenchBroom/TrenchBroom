@@ -23,6 +23,7 @@
 
 namespace TrenchBroom
 {
+struct FileLocation;
 class Logger;
 enum class LogLevel;
 } // namespace TrenchBroom
@@ -44,17 +45,11 @@ public:
 public:
   void progress(double progress);
 
-  void debug(size_t line, size_t column, const std::string& str);
-  void info(size_t line, size_t column, const std::string& str);
-  void warn(size_t line, size_t column, const std::string& str);
-  void error(size_t line, size_t column, const std::string& str);
-  [[noreturn]] void errorAndThrow(size_t line, size_t column, const std::string& str);
-
-  void debug(size_t line, const std::string& str);
-  void info(size_t line, const std::string& str);
-  void warn(size_t line, const std::string& str);
-  void error(size_t line, const std::string& str);
-  [[noreturn]] void errorAndThrow(size_t line, const std::string& str);
+  void debug(const FileLocation& location, const std::string& str);
+  void info(const FileLocation& location, const std::string& str);
+  void warn(const FileLocation& location, const std::string& str);
+  void error(const FileLocation& location, const std::string& str);
+  [[noreturn]] void errorAndThrow(const FileLocation& location, const std::string& str);
 
   void debug(const std::string& str);
   void info(const std::string& str);
@@ -63,11 +58,8 @@ public:
   [[noreturn]] void errorAndThrow(const std::string& str);
 
 private:
-  void log(LogLevel level, size_t line, size_t column, const std::string& str);
-  std::string buildMessage(size_t line, size_t column, const std::string& str) const;
-
-  void log(LogLevel level, size_t line, const std::string& str);
-  std::string buildMessage(size_t line, const std::string& str) const;
+  void log(LogLevel level, const FileLocation& location, const std::string& str);
+  std::string buildMessage(const FileLocation& location, const std::string& str) const;
 
   void log(LogLevel level, const std::string& str);
   std::string buildMessage(const std::string& str) const;

@@ -48,6 +48,7 @@ LegacyModelDefinitionTokenizer::Token LegacyModelDefinitionTokenizer::emitToken(
   {
     const auto startLine = line();
     const auto startColumn = column();
+    const auto startLocation = location();
     const auto* c = curPos();
     switch (*c)
     {
@@ -80,8 +81,7 @@ LegacyModelDefinitionTokenizer::Token LegacyModelDefinitionTokenizer::emitToken(
       {
         return Token{MdlToken::Word, c, e, offset(c), startLine, startColumn};
       }
-      throw ParserException{
-        startLine, startColumn, fmt::format("Unexpected character: {}", *c)};
+      throw ParserException{startLocation, fmt::format("Unexpected character: {}", *c)};
     }
     }
   }
@@ -281,8 +281,8 @@ EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(
       {
         const auto msg =
           fmt::format("Expected 'skinKey' or 'frameKey', but found '{}'", token.data());
-        status.error(token.line(), token.column(), msg);
-        throw ParserException{token.line(), token.column(), msg};
+        status.error(token.location(), msg);
+        throw ParserException{token.location(), msg};
       }
     } while (
       expect(
@@ -301,10 +301,12 @@ EL::Expression LegacyModelDefinitionParser::parseNamedValue(
 
   const auto line = token.line();
   const auto column = token.column();
+  const auto location = token.location();
+
   if (!kdl::ci::str_is_equal(name, token.data()))
   {
     throw ParserException{
-      line, column, fmt::format("Expected '{}', but got '{}'", name, token.data())};
+      location, fmt::format("Expected '{}', but got '{}'", name, token.data())};
   }
 
   expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());

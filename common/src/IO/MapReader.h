@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "FileLocation.h"
 #include "FloatType.h"
 #include "IO/StandardMapParser.h"
 #include "Model/BezierPatch.h"
@@ -75,15 +76,15 @@ public: // only public so that helper methods can see these declarations
   struct EntityInfo
   {
     std::vector<Model::EntityProperty> properties;
-    size_t startLine;
-    size_t lineCount;
+    FileLocation startLocation;
+    std::optional<FileLocation> endLocation;
   };
 
   struct BrushInfo
   {
     std::vector<Model::BrushFace> faces;
-    size_t startLine;
-    size_t lineCount;
+    FileLocation startLocation;
+    std::optional<FileLocation> endLocation;
     std::optional<size_t> parentIndex;
   };
 
@@ -93,8 +94,8 @@ public: // only public so that helper methods can see these declarations
     size_t columnCount;
     std::vector<Model::BezierPatch::Point> controlPoints;
     std::string materialName;
-    size_t startLine;
-    size_t lineCount;
+    FileLocation startLocation;
+    std::optional<FileLocation> endLocation;
     std::optional<size_t> parentIndex;
   };
 
@@ -146,14 +147,14 @@ protected:
 
 protected: // implement MapParser interface
   void onBeginEntity(
-    size_t line,
+    const FileLocation& location,
     std::vector<Model::EntityProperty> properties,
     ParserStatus& status) override;
-  void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) override;
-  void onBeginBrush(size_t line, ParserStatus& status) override;
-  void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) override;
+  void onEndEntity(const FileLocation& endLocation, ParserStatus& status) override;
+  void onBeginBrush(const FileLocation& location, ParserStatus& status) override;
+  void onEndBrush(const FileLocation& endLocation, ParserStatus& status) override;
   void onStandardBrushFace(
-    size_t line,
+    const FileLocation& location,
     Model::MapFormat targetMapFormat,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -161,7 +162,7 @@ protected: // implement MapParser interface
     const Model::BrushFaceAttributes& attribs,
     ParserStatus& status) override;
   void onValveBrushFace(
-    size_t line,
+    const FileLocation& location,
     Model::MapFormat targetMapFormat,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -171,8 +172,8 @@ protected: // implement MapParser interface
     const vm::vec3& vAxis,
     ParserStatus& status) override;
   void onPatch(
-    size_t startLine,
-    size_t lineCount,
+    const FileLocation& startLocation,
+    const FileLocation& endLocation,
     Model::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,

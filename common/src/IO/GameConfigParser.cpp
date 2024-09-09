@@ -21,7 +21,6 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
-#include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "Exceptions.h"
 #include "FloatType.h"
@@ -67,8 +66,7 @@ void checkVersion(const EL::Value& version)
   if (!isValidVersion)
   {
     throw ParserException{
-      version.line(),
-      version.column(),
+      version.location(),
       fmt::format(
         "Unsupported game configuration version {}; valid versions are: {}",
         version.convertTo(EL::ValueType::String).stringValue(),
@@ -128,8 +126,7 @@ std::optional<vm::bbox3> parseSoftMapBounds(const EL::Value& value)
   {
     // If a bounds is provided in the config, it must be valid
     throw ParserException{
-      value.line(),
-      value.column(),
+      value.location(),
       fmt::format("Can't parse soft map bounds '{}'", value.asString())};
   }
   return bounds;
@@ -156,7 +153,7 @@ std::vector<Model::TagAttribute> parseTagAttributes(const EL::Value& value)
     else
     {
       throw ParserException{
-        entry.line(), entry.column(), fmt::format("Unexpected tag attribute '{}'", name)};
+        entry.location(), fmt::format("Unexpected tag attribute '{}'", name)};
     }
   }
 
@@ -183,7 +180,7 @@ void checkTagName(const EL::Value& nameValue, const std::vector<Model::SmartTag>
     if (tag.name() == name)
     {
       throw ParserException{
-        nameValue.line(), nameValue.column(), fmt::format("Duplicate tag '{}'", name)};
+        nameValue.location(), fmt::format("Duplicate tag '{}'", name)};
     }
   }
 }
@@ -269,9 +266,7 @@ void parseFaceTags(
     else
     {
       throw ParserException{
-        entry.line(),
-        entry.column(),
-        fmt::format("Unexpected smart tag match type '{}'", match)};
+        entry.location(), fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
@@ -307,9 +302,7 @@ void parseBrushTags(const EL::Value& value, std::vector<Model::SmartTag>& result
     else
     {
       throw ParserException{
-        entry.line(),
-        entry.column(),
-        fmt::format("Unexpected smart tag match type '{}'", match)};
+        entry.location(), fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
@@ -526,8 +519,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(const EL::Value& value)
     };
   }
   throw ParserException{
-    value.line(),
-    value.column(),
+    value.location(),
     "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'"};
 }
 
