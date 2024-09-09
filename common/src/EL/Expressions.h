@@ -20,6 +20,7 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
+#include "EL/Expression.h"
 #include "EL/Value.h"
 
 #include <iosfwd>
@@ -31,12 +32,22 @@
 namespace TrenchBroom::EL
 {
 
+class LiteralExpression;
+class VariableExpression;
+class ArrayExpression;
+class MapExpression;
+class UnaryExpression;
+class BinaryExpression;
+class SubscriptExpression;
+class SwitchExpression;
+
 class ExpressionImpl
 {
 public:
   virtual ~ExpressionImpl();
 
-  virtual Value evaluate(const EvaluationContext& context) const = 0;
+  virtual Value evaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const = 0;
   virtual std::unique_ptr<ExpressionImpl> optimize() const = 0;
 
   virtual size_t precedence() const;
@@ -67,7 +78,7 @@ private:
 public:
   explicit LiteralExpression(Value value);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -85,7 +96,7 @@ private:
 public:
   explicit VariableExpression(std::string variableName);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -103,7 +114,7 @@ private:
 public:
   explicit ArrayExpression(std::vector<Expression> elements);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -121,7 +132,7 @@ private:
 public:
   explicit MapExpression(std::map<std::string, Expression> elements);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -149,7 +160,7 @@ private:
 public:
   UnaryExpression(UnaryOperator i_operator, Expression operand);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -201,7 +212,7 @@ public:
   static Expression createAutoRangeWithLeftOperand(
     Expression leftOperand, FileLocation location);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   size_t precedence() const override;
@@ -225,7 +236,7 @@ private:
 public:
   SubscriptExpression(Expression leftOperand, Expression rightOperand);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;
@@ -243,7 +254,7 @@ private:
 public:
   explicit SwitchExpression(std::vector<Expression> cases);
 
-  Value evaluate(const EvaluationContext& context) const override;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
 
   bool operator==(const ExpressionImpl& rhs) const override;

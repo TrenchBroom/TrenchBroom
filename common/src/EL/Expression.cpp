@@ -20,6 +20,7 @@
 #include "Expression.h"
 
 #include "EL/EvaluationContext.h"
+#include "EL/EvaluationTrace.h"
 #include "EL/Expressions.h"
 #include "Macros.h"
 
@@ -86,9 +87,19 @@ Expression::Expression(SwitchExpression expression, std::optional<FileLocation> 
 {
 }
 
-Value Expression::evaluate(const EvaluationContext& context) const
+Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace* trace) const
 {
-  return Value{m_expression->evaluate(context), *this};
+  auto value = Value{m_expression->evaluate(context, trace), m_location};
+  if (trace)
+  {
+    trace->addTrace(value, *this);
+  }
+  return value;
+}
+
+Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace& trace) const
+{
+  return evaluate(context, &trace);
 }
 
 Expression Expression::optimize() const

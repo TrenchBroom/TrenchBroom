@@ -99,7 +99,7 @@ LiteralExpression::LiteralExpression(Value value)
 {
 }
 
-Value LiteralExpression::evaluate(const EvaluationContext&) const
+Value LiteralExpression::evaluate(const EvaluationContext&, EvaluationTrace*) const
 {
   return m_value;
 }
@@ -129,7 +129,8 @@ VariableExpression::VariableExpression(std::string variableName)
 {
 }
 
-Value VariableExpression::evaluate(const EvaluationContext& context) const
+Value VariableExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace*) const
 {
   return context.variableValue(m_variableName);
 }
@@ -159,13 +160,14 @@ ArrayExpression::ArrayExpression(std::vector<Expression> elements)
 {
 }
 
-Value ArrayExpression::evaluate(const EvaluationContext& context) const
+Value ArrayExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
   auto array = ArrayType{};
   array.reserve(m_elements.size());
   for (const auto& element : m_elements)
   {
-    auto value = element.evaluate(context);
+    auto value = element.evaluate(context, trace);
     if (value.hasType(ValueType::Range))
     {
       const auto& range = value.rangeValue();
@@ -174,7 +176,7 @@ Value ArrayExpression::evaluate(const EvaluationContext& context) const
         array.reserve(array.size() + range.size() - 1u);
         for (size_t i = 0u; i < range.size(); ++i)
         {
-          array.emplace_back(range[i], value.expression());
+          array.emplace_back(range[i], value.location());
         }
       }
     }
@@ -242,12 +244,13 @@ MapExpression::MapExpression(std::map<std::string, Expression> elements)
 {
 }
 
-Value MapExpression::evaluate(const EvaluationContext& context) const
+Value MapExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
   auto map = MapType{};
   for (const auto& [key, expression] : m_elements)
   {
-    map.emplace(key, expression.evaluate(context));
+    map.emplace(key, expression.evaluate(context, trace));
   }
 
   return Value{std::move(map)};
@@ -430,16 +433,18 @@ Value evaluateUnaryExpression(const UnaryOperator& operator_, const Value& opera
 
 } // namespace
 
-Value UnaryExpression::evaluate(const EvaluationContext& context) const
+Value UnaryExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
-  return evaluateUnaryExpression(m_operator, m_operand.evaluate(context));
+  return evaluateUnaryExpression(m_operator, m_operand.evaluate(context, trace));
 }
 
 std::unique_ptr<ExpressionImpl> UnaryExpression::optimize() const
 {
+  const auto evaluationContext = EvaluationContext{};
   auto optimizedOperand = m_operand.optimize();
-  if (auto value = evaluateUnaryExpression(
-        m_operator, optimizedOperand.evaluate(EvaluationContext{}));
+  if (auto value =
+        evaluateUnaryExpression(m_operator, optimizedOperand.evaluate(evaluationContext));
       value != Value::Undefined)
   {
     return std::make_unique<LiteralExpression>(std::move(value));
@@ -1154,12 +1159,13 @@ Value evaluateBinaryExpression(
 
 } // namespace
 
-Value BinaryExpression::evaluate(const EvaluationContext& context) const
+Value BinaryExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
   return evaluateBinaryExpression(
     m_operator,
-    [&] { return m_leftOperand.evaluate(context); },
-    [&] { return m_rightOperand.evaluate(context); });
+    [&] { return m_leftOperand.evaluate(context, trace); },
+    [&] { return m_rightOperand.evaluate(context, trace); });
 }
 
 std::unique_ptr<ExpressionImpl> BinaryExpression::optimize() const
@@ -1323,14 +1329,15 @@ SubscriptExpression::SubscriptExpression(Expression leftOperand, Expression righ
 {
 }
 
-Value SubscriptExpression::evaluate(const EvaluationContext& context) const
+Value SubscriptExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
-  const auto leftValue = m_leftOperand.evaluate(context);
+  const auto leftValue = m_leftOperand.evaluate(context, trace);
 
   auto stack = EvaluationStack{context};
   stack.declareVariable(AutoRangeParameterName(), Value(leftValue.length() - 1u));
 
-  const auto rightValue = m_rightOperand.evaluate(stack);
+  const auto rightValue = m_rightOperand.evaluate(stack, trace);
   return leftValue[rightValue];
 }
 
@@ -1339,7 +1346,7 @@ std::unique_ptr<ExpressionImpl> SubscriptExpression::optimize() const
   auto optimizedLeftOperand = m_leftOperand.optimize();
   auto optimizedRightOperand = m_rightOperand.optimize();
 
-  auto evaluationContext = EvaluationContext{};
+  const auto evaluationContext = EvaluationContext{};
   if (auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
       leftValue != Value::Undefined)
   {
@@ -1380,11 +1387,12 @@ SwitchExpression::SwitchExpression(std::vector<Expression> cases)
 {
 }
 
-Value SwitchExpression::evaluate(const EvaluationContext& context) const
+Value SwitchExpression::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
   for (const auto& case_ : m_cases)
   {
-    if (auto result = case_.evaluate(context); result != Value::Undefined)
+    if (auto result = case_.evaluate(context, trace); result != Value::Undefined)
     {
       return result;
     }
@@ -1399,9 +1407,10 @@ std::unique_ptr<ExpressionImpl> SwitchExpression::optimize() const
     return std::make_unique<SwitchExpression>(m_cases);
   }
 
+  const auto evaluationContext = EvaluationContext{};
   auto optimizedExpressions = kdl::vec_transform(
     m_cases, [](const auto& expression) { return expression.optimize(); });
-  if (auto firstValue = optimizedExpressions.front().evaluate(EvaluationContext{});
+  if (auto firstValue = optimizedExpressions.front().evaluate(evaluationContext);
       firstValue != Value::Undefined)
   {
     return std::make_unique<LiteralExpression>(std::move(firstValue));

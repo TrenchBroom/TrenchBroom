@@ -51,81 +51,81 @@ Value::Value()
 {
 }
 
-Value::Value(const BooleanType value, std::optional<Expression> expression)
+Value::Value(const BooleanType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(StringType value, std::optional<Expression> expression)
+Value::Value(StringType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const char* value, std::optional<Expression> expression)
+Value::Value(const char* value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(StringType(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const NumberType value, std::optional<Expression> expression)
+Value::Value(const NumberType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const int value, std::optional<Expression> expression)
+Value::Value(const int value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const long value, std::optional<Expression> expression)
+Value::Value(const long value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const size_t value, std::optional<Expression> expression)
+Value::Value(const size_t value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(ArrayType value, std::optional<Expression> expression)
+Value::Value(ArrayType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(MapType value, std::optional<Expression> expression)
+Value::Value(MapType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(RangeType value, std::optional<Expression> expression)
+Value::Value(RangeType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(NullType value, std::optional<Expression> expression)
+Value::Value(NullType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(UndefinedType value, std::optional<Expression> expression)
+Value::Value(UndefinedType value, std::optional<FileLocation> location)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
-Value::Value(Value value, std::optional<Expression> expression)
+Value::Value(Value value, std::optional<FileLocation> location)
   : m_value{std::move(value.m_value)}
-  , m_expression{std::move(expression)}
+  , m_location{std::move(location)}
 {
 }
 
@@ -159,15 +159,9 @@ std::string Value::describe() const
   return asString(false);
 }
 
-const std::optional<Expression>& Value::expression() const
-{
-  return m_expression;
-}
-
 const std::optional<FileLocation>& Value::location() const
 {
-  static const auto NoLocation = std::optional<FileLocation>{};
-  return m_expression ? m_expression->location() : NoLocation;
+  return m_location;
 }
 
 const BooleanType& Value::booleanValue() const
@@ -562,9 +556,9 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Boolean:
           return *this;
         case ValueType::String:
-          return Value{b ? "true" : "false", m_expression};
+          return Value{b ? "true" : "false", m_location};
         case ValueType::Number:
-          return Value{b ? 1.0 : 0.0, m_expression};
+          return Value{b ? 1.0 : 0.0, m_location};
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -579,13 +573,13 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty(), m_expression};
+          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty(), m_location};
         case ValueType::String:
           return *this;
         case ValueType::Number: {
           if (kdl::str_is_blank(s))
           {
-            return Value{0.0, m_expression};
+            return Value{0.0, m_location};
           }
           const char* begin = s.c_str();
           char* end;
@@ -594,7 +588,7 @@ Value Value::convertTo(const ValueType toType) const
           {
             throw ConversionError{describe(), type(), toType};
           }
-          return Value{value, m_expression};
+          return Value{value, m_location};
         }
         case ValueType::Array:
         case ValueType::Map:
@@ -610,9 +604,9 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{n != 0.0, m_expression};
+          return Value{n != 0.0, m_location};
         case ValueType::String:
-          return Value{describe(), m_expression};
+          return Value{describe(), m_location};
         case ValueType::Number:
           return *this;
         case ValueType::Array:
@@ -680,17 +674,17 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{false, m_expression};
+          return Value{false, m_location};
         case ValueType::Null:
           return *this;
         case ValueType::Number:
-          return Value{0.0, m_expression};
+          return Value{0.0, m_location};
         case ValueType::String:
-          return Value{"", m_expression};
+          return Value{"", m_location};
         case ValueType::Array:
-          return Value{ArrayType{0}, m_expression};
+          return Value{ArrayType{0}, m_location};
         case ValueType::Map:
-          return Value{MapType{}, m_expression};
+          return Value{MapType{}, m_location};
         case ValueType::Range:
         case ValueType::Undefined:
           break;
@@ -1086,7 +1080,7 @@ Value Value::operator[](const Value& indexValue) const
       {
         result << str[index];
       }
-      return Value{result.str(), m_expression};
+      return Value{result.str(), m_location};
     }
     case ValueType::Array:
     case ValueType::Range: {
@@ -1101,7 +1095,7 @@ Value Value::operator[](const Value& indexValue) const
           result << str[index];
         }
       }
-      return Value{result.str(), m_expression};
+      return Value{result.str(), m_location};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1138,7 +1132,7 @@ Value Value::operator[](const Value& indexValue) const
         }
         result.push_back(array[index]);
       }
-      return Value{std::move(result), m_expression};
+      return Value{std::move(result), m_location};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1178,7 +1172,7 @@ Value Value::operator[](const Value& indexValue) const
           result.insert(std::make_pair(key, it->second));
         }
       }
-      return Value{std::move(result), m_expression};
+      return Value{std::move(result), m_location};
     }
     case ValueType::Boolean:
     case ValueType::Number:
@@ -1275,29 +1269,31 @@ Value Value::operator[](const char* key) const
 
 bool operator==(const Value& lhs, const Value& rhs)
 {
-  return std::visit(
-    kdl::overload(
-      [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
-        return lhsBool == rhsBool;
-      },
-      [](const StringType& lhsString, const StringType& rhsString) {
-        return lhsString == rhsString;
-      },
-      [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
-        return lhsNumber == rhsNumber;
-      },
-      [](const ArrayType& lhsArray, const ArrayType& rhsArray) {
-        return lhsArray == rhsArray;
-      },
-      [](const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
-      [](const RangeType& lhsRange, const RangeType& rhsRange) {
-        return lhsRange == rhsRange;
-      },
-      [](const NullType&, const NullType&) { return true; },
-      [](const UndefinedType&, const UndefinedType&) { return true; },
-      [](const auto&, const auto&) { return false; }),
-    *lhs.m_value,
-    *rhs.m_value);
+  return lhs.m_value == rhs.m_value
+         || std::visit(
+           kdl::overload(
+             [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
+               return lhsBool == rhsBool;
+             },
+             [](const StringType& lhsString, const StringType& rhsString) {
+               return lhsString == rhsString;
+             },
+             [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
+               return lhsNumber == rhsNumber;
+             },
+             [](const ArrayType& lhsArray, const ArrayType& rhsArray) {
+               return lhsArray == rhsArray;
+             },
+             [](
+               const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
+             [](const RangeType& lhsRange, const RangeType& rhsRange) {
+               return lhsRange == rhsRange;
+             },
+             [](const NullType&, const NullType&) { return true; },
+             [](const UndefinedType&, const UndefinedType&) { return true; },
+             [](const auto&, const auto&) { return false; }),
+           *lhs.m_value,
+           *rhs.m_value);
 }
 
 bool operator!=(const Value& lhs, const Value& rhs)

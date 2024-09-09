@@ -474,7 +474,8 @@ Model::FaceAttribsConfig parseFaceAttribsConfig(const EL::Value& value)
   };
 }
 
-Model::EntityConfig parseEntityConfig(const EL::Value& value)
+Model::EntityConfig parseEntityConfig(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
     value,
@@ -489,7 +490,7 @@ Model::EntityConfig parseEntityConfig(const EL::Value& value)
       value["definitions"].asStringList(),
       [](const auto& str) { return std::filesystem::path{str}; }),
     Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
-    value["scale"].expression(),
+    trace.getExpression(value["scale"]),
     value["setDefaultProperties"].booleanValue(),
   };
 }
@@ -609,7 +610,9 @@ Model::GameConfig GameConfigParser::parse()
   using Model::GameConfig;
 
   const auto evaluationContext = EL::EvaluationContext{};
-  const auto root = parseConfigFile().evaluate(evaluationContext);
+  auto trace = EL::EvaluationTrace{};
+
+  const auto root = parseConfigFile().evaluate(evaluationContext, trace);
   expectType(root, EL::ValueType::Map);
 
   const auto& version = root["version"];
@@ -626,7 +629,7 @@ Model::GameConfig GameConfigParser::parse()
   auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"]);
   auto fileSystemConfig = parseFileSystemConfig(root["filesystem"]);
   auto materialConfig = parseMaterialConfig(root["materials"]);
-  auto entityConfig = parseEntityConfig(root["entities"]);
+  auto entityConfig = parseEntityConfig(root["entities"], trace);
   auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"]);
   auto tags = parseTags(root["tags"], faceAttribsConfig);
   auto softMapBounds = parseSoftMapBounds(root["softMapBounds"]);

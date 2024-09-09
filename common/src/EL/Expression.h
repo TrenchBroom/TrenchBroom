@@ -20,6 +20,7 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
+#include "EL/Value.h"
 #include "FileLocation.h"
 
 #include <iosfwd>
@@ -41,6 +42,8 @@ class UnaryExpression;
 class BinaryExpression;
 class SubscriptExpression;
 class SwitchExpression;
+
+class EvaluationTrace;
 
 class Expression
 {
@@ -70,7 +73,9 @@ public:
   explicit Expression(
     SwitchExpression expression, std::optional<FileLocation> location = std::nullopt);
 
-  Value evaluate(const EvaluationContext& context) const;
+  Value evaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
   Expression optimize() const;
 
   const std::optional<FileLocation>& location() const;
