@@ -29,72 +29,60 @@ namespace TrenchBroom::EL
 {
 
 Expression::Expression(
-  std::unique_ptr<ExpressionImpl> expression, const size_t line, const size_t column)
+  std::unique_ptr<ExpressionImpl> expression, std::optional<FileLocation> location)
   : m_expression{std::move(expression)}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(
-  LiteralExpression expression, const size_t line, const size_t column)
+Expression::Expression(LiteralExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<LiteralExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
 Expression::Expression(
-  VariableExpression expression, const size_t line, const size_t column)
+  VariableExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<VariableExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(ArrayExpression expression, const size_t line, const size_t column)
+Expression::Expression(ArrayExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<ArrayExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(MapExpression expression, const size_t line, const size_t column)
+Expression::Expression(MapExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<MapExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(UnaryExpression expression, const size_t line, const size_t column)
+Expression::Expression(UnaryExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<UnaryExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(
-  BinaryExpression expression, const size_t line, const size_t column)
+Expression::Expression(BinaryExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<BinaryExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
   rebalanceByPrecedence();
 }
 
 Expression::Expression(
-  SubscriptExpression expression, const size_t line, const size_t column)
+  SubscriptExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<SubscriptExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(
-  SwitchExpression expression, const size_t line, const size_t column)
+Expression::Expression(SwitchExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<SwitchExpression>(std::move(expression))}
-  , m_line{line}
-  , m_column{column}
+  , m_location{std::move(location)}
 {
 }
 
@@ -105,17 +93,12 @@ Value Expression::evaluate(const EvaluationContext& context) const
 
 Expression Expression::optimize() const
 {
-  return Expression{m_expression->optimize(), m_line, m_column};
+  return Expression{m_expression->optimize(), m_location};
 }
 
-size_t Expression::line() const
+const std::optional<FileLocation>& Expression::location() const
 {
-  return m_line;
-}
-
-size_t Expression::column() const
-{
-  return m_column;
+  return m_location;
 }
 
 std::string Expression::asString() const

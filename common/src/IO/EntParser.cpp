@@ -606,8 +606,7 @@ Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
       EL::LiteralExpression{EL::Value{EL::MapType{{
         {Assets::ModelSpecificationKeys::Path, EL::Value{model}},
       }}}},
-      lineNum,
-      0};
+      FileLocation{lineNum}};
     return Assets::ModelDefinition{std::move(expression)};
   }
   catch (const EL::EvaluationError& evaluationError)

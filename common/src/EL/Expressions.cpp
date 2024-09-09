@@ -490,27 +490,25 @@ BinaryExpression::BinaryExpression(
 }
 
 Expression BinaryExpression::createAutoRangeWithRightOperand(
-  Expression rightOperand, const size_t line, const size_t column)
+  Expression rightOperand, FileLocation location)
 {
   auto leftOperand = Expression{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, line, column};
+    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
   return Expression{
     BinaryExpression{
       BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
-    line,
-    column};
+    std::move(location)};
 }
 
 Expression BinaryExpression::createAutoRangeWithLeftOperand(
-  Expression leftOperand, const size_t line, const size_t column)
+  Expression leftOperand, FileLocation location)
 {
   auto rightOperand = Expression{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, line, column};
+    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
   return Expression{
     BinaryExpression{
       BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
-    line,
-    column};
+    std::move(location)};
 }
 
 namespace

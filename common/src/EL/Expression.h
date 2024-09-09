@@ -20,9 +20,11 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
+#include "FileLocation.h"
 
 #include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
 
 namespace TrenchBroom::EL
@@ -44,26 +46,34 @@ class Expression
 {
 private:
   std::shared_ptr<ExpressionImpl> m_expression;
-  size_t m_line;
-  size_t m_column;
+  std::optional<FileLocation> m_location;
 
-  Expression(std::unique_ptr<ExpressionImpl> expression, size_t line, size_t column);
+  explicit Expression(
+    std::unique_ptr<ExpressionImpl> expression,
+    std::optional<FileLocation> location = std::nullopt);
 
 public:
-  Expression(LiteralExpression expression, size_t line, size_t column);
-  Expression(VariableExpression expression, size_t line, size_t column);
-  Expression(ArrayExpression expression, size_t line, size_t column);
-  Expression(MapExpression expression, size_t line, size_t column);
-  Expression(UnaryExpression expression, size_t line, size_t column);
-  Expression(BinaryExpression expression, size_t line, size_t column);
-  Expression(SubscriptExpression expression, size_t line, size_t column);
-  Expression(SwitchExpression expression, size_t line, size_t column);
+  explicit Expression(
+    LiteralExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    VariableExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    ArrayExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    MapExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    UnaryExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    BinaryExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    SubscriptExpression expression, std::optional<FileLocation> location = std::nullopt);
+  explicit Expression(
+    SwitchExpression expression, std::optional<FileLocation> location = std::nullopt);
 
   Value evaluate(const EvaluationContext& context) const;
   Expression optimize() const;
 
-  size_t line() const;
-  size_t column() const;
+  const std::optional<FileLocation>& location() const;
 
   std::string asString() const;
 

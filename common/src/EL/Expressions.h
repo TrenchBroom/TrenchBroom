@@ -197,9 +197,9 @@ public:
   BinaryExpression(
     BinaryOperator i_operator, Expression leftOperand, Expression rightOperand);
   static Expression createAutoRangeWithRightOperand(
-    Expression rightOperand, size_t line, size_t column);
+    Expression rightOperand, FileLocation location);
   static Expression createAutoRangeWithLeftOperand(
-    Expression leftOperand, size_t line, size_t column);
+    Expression leftOperand, FileLocation location);
 
   Value evaluate(const EvaluationContext& context) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;

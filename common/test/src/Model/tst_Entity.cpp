@@ -62,17 +62,15 @@ TEST_CASE("EntityTest")
         vm::bbox3{32.0},
         "",
         {},
-        Assets::ModelDefinition{
-          {EL::MapExpression{{{"scale", {EL::VariableExpression{"modelscale"}, 0, 0}}}},
-           0,
-           0}},
+        Assets::ModelDefinition{EL::Expression{EL::MapExpression{
+          {{"scale", EL::Expression{EL::VariableExpression{"modelscale"}}}}}}},
         {}};
 
       auto entity = Entity{};
       entity.setDefinition(&definition);
 
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
@@ -158,13 +156,13 @@ TEST_CASE("EntityTest")
         vm::bbox3{32.0},
         "",
         {},
-        Assets::ModelDefinition{{EL::MapExpression{{}}, 0, 0}},
+        Assets::ModelDefinition{EL::Expression{EL::MapExpression{{}}}},
         {}};
 
       auto entity = Entity{};
 
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
@@ -235,14 +233,14 @@ TEST_CASE("EntityTest")
       vm::bbox3{32.0},
       "",
       {},
-      Assets::ModelDefinition{{EL::MapExpression{{}}, 0, 0}},
+      Assets::ModelDefinition{EL::Expression{EL::MapExpression{{}}}},
       {}};
 
     auto entity = Entity{};
     entity.setDefinition(&definition);
 
     const auto defaultModelScaleExpression =
-      EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+      EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
     REQUIRE(
       entity.modelTransformation(defaultModelScaleExpression)
@@ -286,14 +284,12 @@ TEST_CASE("EntityTest")
     {
       entity.setDefinition(&definition);
       REQUIRE(
-        entity.modelTransformation(
-          EL::Expression{EL::LiteralExpression{EL::Value{1.0}}, 0, 0})
+        entity.modelTransformation(EL::Expression{EL::LiteralExpression{EL::Value{1.0}}})
         == vm::scaling_matrix(vm::vec3{1, 1, 1}));
 
       entity.addOrUpdateProperty("something", "else");
       CHECK(
-        entity.modelTransformation(
-          EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0})
+        entity.modelTransformation(EL::Expression{EL::LiteralExpression{EL::Value{2.0}}})
         == vm::scaling_matrix(vm::vec3{2, 2, 2}));
     }
   }
@@ -307,10 +303,8 @@ TEST_CASE("EntityTest")
       vm::bbox3{32.0},
       "",
       {},
-      Assets::ModelDefinition{
-        {EL::MapExpression{{{"scale", {EL::VariableExpression{"modelscale"}, 0, 0}}}},
-         0,
-         0}},
+      Assets::ModelDefinition{EL::Expression{EL::MapExpression{
+        {{"scale", EL::Expression{EL::VariableExpression{"modelscale"}}}}}}},
       {}};
 
     auto entity = Entity{};
@@ -354,7 +348,7 @@ TEST_CASE("EntityTest")
     SECTION("Updates cached model transformation")
     {
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       entity.setDefinition(&definition);
       entity.addOrUpdateProperty("something", "1 2 3");
@@ -383,10 +377,8 @@ TEST_CASE("EntityTest")
       vm::bbox3{32.0},
       "",
       {},
-      Assets::ModelDefinition{
-        {EL::MapExpression{{{"scale", {EL::VariableExpression{"modelscale"}, 0, 0}}}},
-         0,
-         0}},
+      Assets::ModelDefinition{EL::Expression{EL::MapExpression{
+        {{"scale", EL::Expression{EL::VariableExpression{"modelscale"}}}}}}},
       {}};
 
     auto entity = Entity{};
@@ -425,7 +417,7 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("modelscale", "1 2 3");
 
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
@@ -606,10 +598,8 @@ TEST_CASE("EntityTest")
       vm::bbox3{32.0},
       "",
       {},
-      Assets::ModelDefinition{
-        {EL::MapExpression{{{"scale", {EL::VariableExpression{"modelscale"}, 0, 0}}}},
-         0,
-         0}},
+      Assets::ModelDefinition{EL::Expression{EL::MapExpression{
+        {{"scale", EL::Expression{EL::VariableExpression{"modelscale"}}}}}}},
       {}};
 
     auto entity = Entity{};
@@ -631,7 +621,7 @@ TEST_CASE("EntityTest")
       entity.setDefinition(&definition);
 
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
@@ -728,7 +718,7 @@ TEST_CASE("EntityTest")
       entity.setClassname("some_class");
 
       const auto defaultModelScaleExpression =
-        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}, 0, 0};
+        EL::Expression{EL::LiteralExpression{EL::Value{2.0}}};
 
       entity.setDefinition(&otherDefinition);
       REQUIRE(

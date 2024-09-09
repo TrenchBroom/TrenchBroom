@@ -164,19 +164,10 @@ const std::optional<Expression>& Value::expression() const
   return m_expression;
 }
 
-FileLocation Value::location() const
+const std::optional<FileLocation>& Value::location() const
 {
-  return FileLocation{line(), column()};
-}
-
-size_t Value::line() const
-{
-  return m_expression ? m_expression->line() : 0u;
-}
-
-size_t Value::column() const
-{
-  return m_expression ? m_expression->column() : 0u;
+  static const auto NoLocation = std::optional<FileLocation>{};
+  return m_expression ? m_expression->location() : NoLocation;
 }
 
 const BooleanType& Value::booleanValue() const

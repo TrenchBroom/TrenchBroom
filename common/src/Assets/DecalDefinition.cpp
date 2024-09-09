@@ -62,12 +62,12 @@ DecalSpecification convertToDecal(const EL::Value& value)
 kdl_reflect_impl(DecalSpecification);
 
 DecalDefinition::DecalDefinition()
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}}
 {
 }
 
-DecalDefinition::DecalDefinition(const size_t line, const size_t column)
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, line, column}
+DecalDefinition::DecalDefinition(const FileLocation& location)
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, location}
 {
 }
 
@@ -78,11 +78,10 @@ DecalDefinition::DecalDefinition(EL::Expression expression)
 
 void DecalDefinition::append(const DecalDefinition& other)
 {
-  const auto line = m_expression.line();
-  const auto column = m_expression.column();
+  const auto location = m_expression.location();
 
   auto cases = std::vector<EL::Expression>{std::move(m_expression), other.m_expression};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
+  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 DecalSpecification DecalDefinition::decalSpecification(

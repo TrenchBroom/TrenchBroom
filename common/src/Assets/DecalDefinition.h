@@ -25,6 +25,11 @@
 
 #include <iosfwd>
 
+namespace TrenchBroom
+{
+struct FileLocation;
+}
+
 namespace TrenchBroom::Assets
 {
 
@@ -47,7 +52,7 @@ private:
 
 public:
   DecalDefinition();
-  DecalDefinition(size_t line, size_t column);
+  explicit DecalDefinition(const FileLocation& location);
   explicit DecalDefinition(EL::Expression expression);
 
   void append(const DecalDefinition& other);

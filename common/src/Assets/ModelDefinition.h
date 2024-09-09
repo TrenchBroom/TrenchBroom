@@ -31,6 +31,11 @@
 #include <iosfwd>
 #include <optional>
 
+namespace TrenchBroom
+{
+struct FileLocation;
+}
+
 namespace TrenchBroom::Assets
 {
 
@@ -49,7 +54,7 @@ private:
 
 public:
   ModelDefinition();
-  ModelDefinition(size_t line, size_t column);
+  explicit ModelDefinition(const FileLocation& location);
 
   explicit ModelDefinition(EL::Expression expression);
 

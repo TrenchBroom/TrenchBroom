@@ -789,14 +789,14 @@ TEST_CASE("ExpressionTest.testOptimize")
   // clang-format off
   const auto
   [expression,        expectedExpression] = GENERATE(values<T>({
-  {"3 + 7",           Expression{LiteralExpression{Value{10}}, 0, 0}},
-  {"[1, 2, 3]",       Expression{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}, 0, 0}},
+  {"3 + 7",           Expression{LiteralExpression{Value{10}}}},
+  {"[1, 2, 3]",       Expression{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}}},
   {"[1 + 2, 2, a]",   Expression{ArrayExpression{{
-                          Expression{LiteralExpression{Value{3}}, 0, 0}, 
-                          Expression{LiteralExpression{Value{2}}, 0, 0}, 
-                          Expression{VariableExpression{"a"}, 0, 0}}
-                      }, 0, 0}},
-  {"{a:1, b:2, c:3}", Expression{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}, 0, 0}},
+                          Expression{LiteralExpression{Value{3}}}, 
+                          Expression{LiteralExpression{Value{2}}}, 
+                          Expression{VariableExpression{"a"}}}
+                      }}},
+  {"{a:1, b:2, c:3}", Expression{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}}},
   }));
   // clang-format on
 

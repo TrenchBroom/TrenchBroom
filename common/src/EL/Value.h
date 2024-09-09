@@ -21,7 +21,6 @@
 
 #include "EL/Expression.h"
 #include "EL/Types.h"
-#include "FileLocation.h"
 
 // FIXME: try to remove some of these headers
 #include <iosfwd>
@@ -30,6 +29,11 @@
 #include <string>
 #include <variant>
 #include <vector>
+
+namespace TrenchBroom
+{
+struct FileLocation;
+}
 
 namespace TrenchBroom::EL
 {
@@ -104,9 +108,7 @@ public:
 
   const std::optional<Expression>& expression() const;
 
-  FileLocation location() const;
-  size_t line() const;
-  size_t column() const;
+  const std::optional<FileLocation>& location() const;
 
   const BooleanType& booleanValue() const;
   const StringType& stringValue() const;

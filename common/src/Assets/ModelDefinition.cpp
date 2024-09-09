@@ -39,12 +39,12 @@ namespace TrenchBroom::Assets
 {
 
 ModelDefinition::ModelDefinition()
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}}
 {
 }
 
-ModelDefinition::ModelDefinition(const size_t line, const size_t column)
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, line, column}
+ModelDefinition::ModelDefinition(const FileLocation& location)
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, location}
 {
 }
 
@@ -55,11 +55,10 @@ ModelDefinition::ModelDefinition(EL::Expression expression)
 
 void ModelDefinition::append(ModelDefinition other)
 {
-  const size_t line = m_expression.line();
-  const size_t column = m_expression.column();
+  const auto location = m_expression.location();
 
   auto cases = std::vector{std::move(m_expression), std::move(other.m_expression)};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
+  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 static std::filesystem::path path(const EL::Value& value)

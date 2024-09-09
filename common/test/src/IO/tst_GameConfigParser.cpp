@@ -744,14 +744,11 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
       Model::EntityConfig{
         {{"Extras.ent"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
-        EL::Expression{
-          EL::ArrayExpression{{
-            // the line numbers are not checked
-            EL::Expression{EL::VariableExpression{"modelscale"}, 0, 0},
-            EL::Expression{EL::VariableExpression{"modelscale_vec"}, 0, 0},
-          }},
-          0,
-          0},
+        EL::Expression{EL::ArrayExpression{{
+          // the line numbers are not checked
+          EL::Expression{EL::VariableExpression{"modelscale"}},
+          EL::Expression{EL::VariableExpression{"modelscale_vec"}},
+        }}},
         false},
       Model::FaceAttribsConfig{
         {{{"light",

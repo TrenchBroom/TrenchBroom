@@ -868,7 +868,7 @@ TEST_CASE("NodeTest.entityPropertyConfig")
   };
 
   const auto config =
-    EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+    EntityPropertyConfig{{EL::Expression{EL::LiteralExpression{EL::Value{2.0}}}}};
   auto root = std::make_unique<RootNode>(config);
   REQUIRE(root->entityPropertyConfig() == config);
 

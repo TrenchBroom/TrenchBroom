@@ -107,14 +107,12 @@ EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status)
 EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status)
 {
   auto token = m_tokenizer.peekToken();
-  const auto startLine = token.line();
-  const auto startColumn = token.column();
+  const auto startLocation = token.location();
 
   expect(status, MdlToken::String | MdlToken::Word | MdlToken::CParenthesis, token);
   if (token.hasType(MdlToken::CParenthesis))
   {
-    return EL::Expression{
-      EL::LiteralExpression{EL::Value::Undefined}, token.line(), token.column()};
+    return EL::Expression{EL::LiteralExpression{EL::Value::Undefined}, token.location()};
   }
 
   auto modelExpressions = std::vector<EL::Expression>{};
@@ -140,8 +138,7 @@ EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& s
 
   // The legacy model expressions are evaluated back to front.
   std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
-  return EL::Expression{
-    EL::SwitchExpression{std::move(modelExpressions)}, startLine, startColumn};
+  return EL::Expression{EL::SwitchExpression{std::move(modelExpressions)}, startLocation};
 }
 
 EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
@@ -149,8 +146,7 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
 {
   auto token = m_tokenizer.nextToken();
   expect(status, MdlToken::String, token);
-  const auto startLine = token.line();
-  const auto startColumn = token.column();
+  const auto startLocation = token.location();
 
   auto map = EL::MapType{};
   map[Assets::ModelSpecificationKeys::Path] = EL::Value(token.data());
@@ -189,18 +185,17 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
     }
   }
 
-  auto modelExpression = EL::Expression{
-    EL::LiteralExpression{EL::Value{std::move(map)}}, startLine, startColumn};
+  auto modelExpression =
+    EL::Expression{EL::LiteralExpression{EL::Value{std::move(map)}}, startLocation};
 
   if (token.hasType(MdlToken::Word))
   {
     token = m_tokenizer.nextToken();
 
     auto attributeKey = token.data();
-    const auto line = token.line();
-    const auto column = token.column();
+    const auto location = token.location();
     auto keyExpression =
-      EL::Expression{EL::VariableExpression{std::move(attributeKey)}, line, column};
+      EL::Expression{EL::VariableExpression{std::move(attributeKey)}, location};
 
     expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
 
@@ -209,41 +204,35 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
     {
       auto attributeValue = token.data();
       auto valueExpression = EL::Expression{
-        EL::LiteralExpression{EL::Value{std::move(attributeValue)}},
-        token.line(),
-        token.column()};
+        EL::LiteralExpression{EL::Value{std::move(attributeValue)}}, token.location()};
       auto premiseExpression = EL::Expression{
         EL::BinaryExpression{
           EL::BinaryOperator::Equal,
           std::move(keyExpression),
           std::move(valueExpression)},
-        line,
-        column};
+        location};
 
       return EL::Expression{
         EL::BinaryExpression{
           EL::BinaryOperator::Case,
           std::move(premiseExpression),
           std::move(modelExpression)},
-        startLine,
-        startColumn};
+        startLocation};
     }
     const auto flagValue = token.toInteger<int>();
-    auto valueExpression = EL::Expression{
-      EL::LiteralExpression{EL::Value{flagValue}}, token.line(), token.column()};
+    auto valueExpression =
+      EL::Expression{EL::LiteralExpression{EL::Value{flagValue}}, token.location()};
     auto premiseExpression = EL::Expression{
       EL::BinaryExpression{
         EL::BinaryOperator::Equal, std::move(keyExpression), std::move(valueExpression)},
-      line,
-      column};
+      location};
 
     return EL::Expression{
       EL::BinaryExpression{
         EL::BinaryOperator::Case,
         std::move(premiseExpression),
         std::move(modelExpression)},
-      startLine,
-      startColumn};
+      startLocation};
   }
 
   return modelExpression;
@@ -253,8 +242,7 @@ EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(
   ParserStatus& status)
 {
   auto token = m_tokenizer.peekToken();
-  const auto line = token.line();
-  const auto column = token.column();
+  const auto location = token.location();
 
   auto map = std::map<std::string, EL::Expression>{
     {Assets::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
@@ -290,7 +278,7 @@ EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(
         .hasType(MdlToken::Word));
   }
 
-  return EL::Expression{EL::MapExpression{std::move(map)}, line, column};
+  return EL::Expression{EL::MapExpression{std::move(map)}, location};
 }
 
 EL::Expression LegacyModelDefinitionParser::parseNamedValue(
@@ -299,10 +287,7 @@ EL::Expression LegacyModelDefinitionParser::parseNamedValue(
   auto token = Token{};
   expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
 
-  const auto line = token.line();
-  const auto column = token.column();
   const auto location = token.location();
-
   if (!kdl::ci::str_is_equal(name, token.data()))
   {
     throw ParserException{
@@ -312,7 +297,7 @@ EL::Expression LegacyModelDefinitionParser::parseNamedValue(
   expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
   expect(status, MdlToken::String, token = m_tokenizer.nextToken());
 
-  return EL::Expression{EL::VariableExpression{token.data()}, line, column};
+  return EL::Expression{EL::VariableExpression{token.data()}, location};
 }
 
 LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenNames() const
