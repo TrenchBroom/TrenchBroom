@@ -22,7 +22,7 @@
 namespace TrenchBroom::EL
 {
 
-std::optional<Expression> EvaluationTrace::getExpression(const Value& value) const
+std::optional<ExpressionNode> EvaluationTrace::getExpression(const Value& value) const
 {
   auto it = m_data.find(value);
   return it != m_data.end() ? std::optional{it->second} : std::nullopt;
@@ -37,7 +37,7 @@ std::optional<FileLocation> EvaluationTrace::getLocation(const Value& value) con
   return std::nullopt;
 }
 
-void EvaluationTrace::addTrace(const Value& value, const Expression& expression)
+void EvaluationTrace::addTrace(const Value& value, const ExpressionNode& expression)
 {
   m_data.emplace(value, expression);
 }

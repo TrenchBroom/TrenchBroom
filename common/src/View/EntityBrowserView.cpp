@@ -85,7 +85,7 @@ EntityBrowserView::~EntityBrowserView()
 }
 
 void EntityBrowserView::setDefaultModelScaleExpression(
-  std::optional<EL::Expression> defaultScaleExpression)
+  std::optional<EL::ExpressionNode> defaultScaleExpression)
 {
   m_defaultScaleModelExpression = std::move(defaultScaleExpression);
 }

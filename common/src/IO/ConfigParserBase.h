@@ -48,7 +48,7 @@ public:
   virtual ~ConfigParserBase();
 
 protected:
-  EL::Expression parseConfigFile();
+  EL::ExpressionNode parseConfigFile();
 };
 
 void expectType(

@@ -155,7 +155,7 @@ void VariableExpression::appendToStream(std::ostream& str) const
   str << m_variableName;
 }
 
-ArrayExpression::ArrayExpression(std::vector<Expression> elements)
+ArrayExpression::ArrayExpression(std::vector<ExpressionNode> elements)
   : m_elements{std::move(elements)}
 {
 }
@@ -239,7 +239,7 @@ void ArrayExpression::appendToStream(std::ostream& str) const
   str << " ]";
 }
 
-MapExpression::MapExpression(std::map<std::string, Expression> elements)
+MapExpression::MapExpression(std::map<std::string, ExpressionNode> elements)
   : m_elements{std::move(elements)}
 {
 }
@@ -258,7 +258,7 @@ Value MapExpression::evaluate(
 
 std::unique_ptr<ExpressionImpl> MapExpression::optimize() const
 {
-  auto optimizedExpressions = std::map<std::string, Expression>{};
+  auto optimizedExpressions = std::map<std::string, ExpressionNode>{};
   for (const auto& [key, expression] : m_elements)
   {
     optimizedExpressions.emplace(key, expression.optimize());
@@ -308,7 +308,7 @@ void MapExpression::appendToStream(std::ostream& str) const
   str << " }";
 }
 
-UnaryExpression::UnaryExpression(const UnaryOperator i_operator, Expression operand)
+UnaryExpression::UnaryExpression(const UnaryOperator i_operator, ExpressionNode operand)
   : m_operator{i_operator}
   , m_operand{std::move(operand)}
 {
@@ -487,30 +487,32 @@ void UnaryExpression::appendToStream(std::ostream& str) const
 }
 
 BinaryExpression::BinaryExpression(
-  const BinaryOperator i_operator, Expression leftOperand, Expression rightOperand)
+  const BinaryOperator i_operator,
+  ExpressionNode leftOperand,
+  ExpressionNode rightOperand)
   : m_operator{i_operator}
   , m_leftOperand{std::move(leftOperand)}
   , m_rightOperand{std::move(rightOperand)}
 {
 }
 
-Expression BinaryExpression::createAutoRangeWithRightOperand(
-  Expression rightOperand, FileLocation location)
+ExpressionNode BinaryExpression::createAutoRangeWithRightOperand(
+  ExpressionNode rightOperand, FileLocation location)
 {
-  auto leftOperand = Expression{
+  auto leftOperand = ExpressionNode{
     VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return Expression{
+  return ExpressionNode{
     BinaryExpression{
       BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
     std::move(location)};
 }
 
-Expression BinaryExpression::createAutoRangeWithLeftOperand(
-  Expression leftOperand, FileLocation location)
+ExpressionNode BinaryExpression::createAutoRangeWithLeftOperand(
+  ExpressionNode leftOperand, FileLocation location)
 {
-  auto rightOperand = Expression{
+  auto rightOperand = ExpressionNode{
     VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return Expression{
+  return ExpressionNode{
     BinaryExpression{
       BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
     std::move(location)};
@@ -1170,8 +1172,8 @@ Value BinaryExpression::evaluate(
 
 std::unique_ptr<ExpressionImpl> BinaryExpression::optimize() const
 {
-  auto optimizedLeftOperand = std::optional<Expression>{};
-  auto optimizedRightOperand = std::optional<Expression>{};
+  auto optimizedLeftOperand = std::optional<ExpressionNode>{};
+  auto optimizedRightOperand = std::optional<ExpressionNode>{};
 
   const auto evaluationContext = EvaluationContext{};
 
@@ -1323,7 +1325,8 @@ const std::string& SubscriptExpression::AutoRangeParameterName()
   return Name;
 }
 
-SubscriptExpression::SubscriptExpression(Expression leftOperand, Expression rightOperand)
+SubscriptExpression::SubscriptExpression(
+  ExpressionNode leftOperand, ExpressionNode rightOperand)
   : m_leftOperand{std::move(leftOperand)}
   , m_rightOperand{std::move(rightOperand)}
 {
@@ -1382,7 +1385,7 @@ void SubscriptExpression::appendToStream(std::ostream& str) const
   str << m_leftOperand << "[" << m_rightOperand << "]";
 }
 
-SwitchExpression::SwitchExpression(std::vector<Expression> cases)
+SwitchExpression::SwitchExpression(std::vector<ExpressionNode> cases)
   : m_cases{std::move(cases)}
 {
 }

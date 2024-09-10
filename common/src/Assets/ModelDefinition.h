@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Assets/ModelSpecification.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
@@ -50,13 +50,13 @@ constexpr auto Scale = "scale";
 class ModelDefinition
 {
 private:
-  EL::Expression m_expression;
+  EL::ExpressionNode m_expression;
 
 public:
   ModelDefinition();
   explicit ModelDefinition(const FileLocation& location);
 
-  explicit ModelDefinition(EL::Expression expression);
+  explicit ModelDefinition(EL::ExpressionNode expression);
 
   void append(ModelDefinition other);
 
@@ -90,7 +90,7 @@ public:
    */
   vm::vec3 scale(
     const EL::VariableStore& variableStore,
-    const std::optional<EL::Expression>& defaultScaleExpression) const;
+    const std::optional<EL::ExpressionNode>& defaultScaleExpression) const;
 
   kdl_reflect_decl(ModelDefinition, m_expression);
 };
@@ -102,6 +102,6 @@ public:
 vm::vec3 safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression);
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression);
 
 } // namespace TrenchBroom::Assets

@@ -45,46 +45,46 @@ class SwitchExpression;
 
 class EvaluationTrace;
 
-class Expression
+class ExpressionNode
 {
 private:
   std::shared_ptr<ExpressionImpl> m_expression;
   std::optional<FileLocation> m_location;
 
-  explicit Expression(
+  explicit ExpressionNode(
     std::unique_ptr<ExpressionImpl> expression,
     std::optional<FileLocation> location = std::nullopt);
 
 public:
-  explicit Expression(
+  explicit ExpressionNode(
     LiteralExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     VariableExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     ArrayExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     MapExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     UnaryExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     BinaryExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     SubscriptExpression expression, std::optional<FileLocation> location = std::nullopt);
-  explicit Expression(
+  explicit ExpressionNode(
     SwitchExpression expression, std::optional<FileLocation> location = std::nullopt);
 
   Value evaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
   Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
-  Expression optimize() const;
+  ExpressionNode optimize() const;
 
   const std::optional<FileLocation>& location() const;
 
   std::string asString() const;
 
-  friend bool operator==(const Expression& lhs, const Expression& rhs);
-  friend bool operator!=(const Expression& lhs, const Expression& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const Expression& exp);
+  friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
 
 private:
   void rebalanceByPrecedence();

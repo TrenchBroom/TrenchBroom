@@ -99,12 +99,12 @@ TokenizerState LegacyModelDefinitionParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-EL::Expression LegacyModelDefinitionParser::parse(ParserStatus& status)
+EL::ExpressionNode LegacyModelDefinitionParser::parse(ParserStatus& status)
 {
   return parseModelDefinition(status);
 }
 
-EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status)
+EL::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status)
 {
   auto token = m_tokenizer.peekToken();
   const auto startLocation = token.location();
@@ -112,10 +112,11 @@ EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& s
   expect(status, MdlToken::String | MdlToken::Word | MdlToken::CParenthesis, token);
   if (token.hasType(MdlToken::CParenthesis))
   {
-    return EL::Expression{EL::LiteralExpression{EL::Value::Undefined}, token.location()};
+    return EL::ExpressionNode{
+      EL::LiteralExpression{EL::Value::Undefined}, token.location()};
   }
 
-  auto modelExpressions = std::vector<EL::Expression>{};
+  auto modelExpressions = std::vector<EL::ExpressionNode>{};
   do
   {
     expect(status, MdlToken::String | MdlToken::Word, token = m_tokenizer.peekToken());
@@ -138,10 +139,11 @@ EL::Expression LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& s
 
   // The legacy model expressions are evaluated back to front.
   std::reverse(std::begin(modelExpressions), std::end(modelExpressions));
-  return EL::Expression{EL::SwitchExpression{std::move(modelExpressions)}, startLocation};
+  return EL::ExpressionNode{
+    EL::SwitchExpression{std::move(modelExpressions)}, startLocation};
 }
 
-EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
+EL::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
   ParserStatus& status)
 {
   auto token = m_tokenizer.nextToken();
@@ -186,7 +188,7 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
   }
 
   auto modelExpression =
-    EL::Expression{EL::LiteralExpression{EL::Value{std::move(map)}}, startLocation};
+    EL::ExpressionNode{EL::LiteralExpression{EL::Value{std::move(map)}}, startLocation};
 
   if (token.hasType(MdlToken::Word))
   {
@@ -195,7 +197,7 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
     auto attributeKey = token.data();
     const auto location = token.location();
     auto keyExpression =
-      EL::Expression{EL::VariableExpression{std::move(attributeKey)}, location};
+      EL::ExpressionNode{EL::VariableExpression{std::move(attributeKey)}, location};
 
     expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
 
@@ -203,16 +205,16 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
     if (token.hasType(MdlToken::String))
     {
       auto attributeValue = token.data();
-      auto valueExpression = EL::Expression{
+      auto valueExpression = EL::ExpressionNode{
         EL::LiteralExpression{EL::Value{std::move(attributeValue)}}, token.location()};
-      auto premiseExpression = EL::Expression{
+      auto premiseExpression = EL::ExpressionNode{
         EL::BinaryExpression{
           EL::BinaryOperator::Equal,
           std::move(keyExpression),
           std::move(valueExpression)},
         location};
 
-      return EL::Expression{
+      return EL::ExpressionNode{
         EL::BinaryExpression{
           EL::BinaryOperator::Case,
           std::move(premiseExpression),
@@ -221,13 +223,13 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
     }
     const auto flagValue = token.toInteger<int>();
     auto valueExpression =
-      EL::Expression{EL::LiteralExpression{EL::Value{flagValue}}, token.location()};
-    auto premiseExpression = EL::Expression{
+      EL::ExpressionNode{EL::LiteralExpression{EL::Value{flagValue}}, token.location()};
+    auto premiseExpression = EL::ExpressionNode{
       EL::BinaryExpression{
         EL::BinaryOperator::Equal, std::move(keyExpression), std::move(valueExpression)},
       location};
 
-    return EL::Expression{
+    return EL::ExpressionNode{
       EL::BinaryExpression{
         EL::BinaryOperator::Case,
         std::move(premiseExpression),
@@ -238,13 +240,13 @@ EL::Expression LegacyModelDefinitionParser::parseStaticModelDefinition(
   return modelExpression;
 }
 
-EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(
+EL::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
   ParserStatus& status)
 {
   auto token = m_tokenizer.peekToken();
   const auto location = token.location();
 
-  auto map = std::map<std::string, EL::Expression>{
+  auto map = std::map<std::string, EL::ExpressionNode>{
     {Assets::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
   };
 
@@ -278,10 +280,10 @@ EL::Expression LegacyModelDefinitionParser::parseDynamicModelDefinition(
         .hasType(MdlToken::Word));
   }
 
-  return EL::Expression{EL::MapExpression{std::move(map)}, location};
+  return EL::ExpressionNode{EL::MapExpression{std::move(map)}, location};
 }
 
-EL::Expression LegacyModelDefinitionParser::parseNamedValue(
+EL::ExpressionNode LegacyModelDefinitionParser::parseNamedValue(
   ParserStatus& status, const std::string& name)
 {
   auto token = Token{};
@@ -297,7 +299,7 @@ EL::Expression LegacyModelDefinitionParser::parseNamedValue(
   expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
   expect(status, MdlToken::String, token = m_tokenizer.nextToken());
 
-  return EL::Expression{EL::VariableExpression{token.data()}, location};
+  return EL::ExpressionNode{EL::VariableExpression{token.data()}, location};
 }
 
 LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenNames() const

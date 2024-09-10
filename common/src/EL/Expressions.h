@@ -20,7 +20,7 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
 
 #include <iosfwd>
@@ -109,10 +109,10 @@ private:
 class ArrayExpression : public ExpressionImpl
 {
 private:
-  std::vector<Expression> m_elements;
+  std::vector<ExpressionNode> m_elements;
 
 public:
-  explicit ArrayExpression(std::vector<Expression> elements);
+  explicit ArrayExpression(std::vector<ExpressionNode> elements);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -127,10 +127,10 @@ private:
 class MapExpression : public ExpressionImpl
 {
 private:
-  std::map<std::string, Expression> m_elements;
+  std::map<std::string, ExpressionNode> m_elements;
 
 public:
-  explicit MapExpression(std::map<std::string, Expression> elements);
+  explicit MapExpression(std::map<std::string, ExpressionNode> elements);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -155,10 +155,10 @@ class UnaryExpression : public ExpressionImpl
 {
 private:
   UnaryOperator m_operator;
-  Expression m_operand;
+  ExpressionNode m_operand;
 
 public:
-  UnaryExpression(UnaryOperator i_operator, Expression operand);
+  UnaryExpression(UnaryOperator i_operator, ExpressionNode operand);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -197,20 +197,20 @@ enum class BinaryOperator
 class BinaryExpression : public ExpressionImpl
 {
 public:
-  friend class Expression;
+  friend class ExpressionNode;
 
 private:
   BinaryOperator m_operator;
-  Expression m_leftOperand;
-  Expression m_rightOperand;
+  ExpressionNode m_leftOperand;
+  ExpressionNode m_rightOperand;
 
 public:
   BinaryExpression(
-    BinaryOperator i_operator, Expression leftOperand, Expression rightOperand);
-  static Expression createAutoRangeWithRightOperand(
-    Expression rightOperand, FileLocation location);
-  static Expression createAutoRangeWithLeftOperand(
-    Expression leftOperand, FileLocation location);
+    BinaryOperator i_operator, ExpressionNode leftOperand, ExpressionNode rightOperand);
+  static ExpressionNode createAutoRangeWithRightOperand(
+    ExpressionNode rightOperand, FileLocation location);
+  static ExpressionNode createAutoRangeWithLeftOperand(
+    ExpressionNode leftOperand, FileLocation location);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -230,11 +230,11 @@ public:
   static const std::string& AutoRangeParameterName();
 
 private:
-  Expression m_leftOperand;
-  Expression m_rightOperand;
+  ExpressionNode m_leftOperand;
+  ExpressionNode m_rightOperand;
 
 public:
-  SubscriptExpression(Expression leftOperand, Expression rightOperand);
+  SubscriptExpression(ExpressionNode leftOperand, ExpressionNode rightOperand);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;
@@ -249,10 +249,10 @@ private:
 class SwitchExpression : public ExpressionImpl
 {
 private:
-  std::vector<Expression> m_cases;
+  std::vector<ExpressionNode> m_cases;
 
 public:
-  explicit SwitchExpression(std::vector<Expression> cases);
+  explicit SwitchExpression(std::vector<ExpressionNode> cases);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
   std::unique_ptr<ExpressionImpl> optimize() const override;

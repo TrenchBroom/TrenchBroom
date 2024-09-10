@@ -62,13 +62,13 @@ public:
   TokenizerState tokenizerState() const;
 
 public:
-  EL::Expression parse(ParserStatus& status);
+  EL::ExpressionNode parse(ParserStatus& status);
 
 private:
-  EL::Expression parseModelDefinition(ParserStatus& status);
-  EL::Expression parseStaticModelDefinition(ParserStatus& status);
-  EL::Expression parseDynamicModelDefinition(ParserStatus& status);
-  EL::Expression parseNamedValue(ParserStatus& status, const std::string& name);
+  EL::ExpressionNode parseModelDefinition(ParserStatus& status);
+  EL::ExpressionNode parseStaticModelDefinition(ParserStatus& status);
+  EL::ExpressionNode parseDynamicModelDefinition(ParserStatus& status);
+  EL::ExpressionNode parseNamedValue(ParserStatus& status, const std::string& name);
 
 private:
   TokenNameMap tokenNames() const override;

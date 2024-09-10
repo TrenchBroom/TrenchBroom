@@ -18,7 +18,7 @@
  */
 
 #include "Assets/ModelDefinition.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
@@ -144,9 +144,10 @@ TEST_CASE("ModelDefinitionTest.scale")
   }};
 
   const auto defaultScaleExpression =
-    globalScaleExpressionStr ? std::optional<EL::Expression>{IO::ELParser::parseStrict(
-      *globalScaleExpressionStr)}
-                             : std::nullopt;
+    globalScaleExpressionStr
+      ? std::optional<EL::ExpressionNode>{IO::ELParser::parseStrict(
+        *globalScaleExpressionStr)}
+      : std::nullopt;
 
   CHECK(modelDefinition.scale(variables, defaultScaleExpression) == expectedScale);
 }

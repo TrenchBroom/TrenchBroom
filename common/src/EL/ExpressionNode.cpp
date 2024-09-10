@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Expression.h"
+#include "ExpressionNode.h"
 
 #include "EL/EvaluationContext.h"
 #include "EL/EvaluationTrace.h"
@@ -29,65 +29,72 @@
 namespace TrenchBroom::EL
 {
 
-Expression::Expression(
+ExpressionNode::ExpressionNode(
   std::unique_ptr<ExpressionImpl> expression, std::optional<FileLocation> location)
   : m_expression{std::move(expression)}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(LiteralExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  LiteralExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<LiteralExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(
+ExpressionNode::ExpressionNode(
   VariableExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<VariableExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(ArrayExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  ArrayExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<ArrayExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(MapExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  MapExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<MapExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(UnaryExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  UnaryExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<UnaryExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(BinaryExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  BinaryExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<BinaryExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
   rebalanceByPrecedence();
 }
 
-Expression::Expression(
+ExpressionNode::ExpressionNode(
   SubscriptExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<SubscriptExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Expression::Expression(SwitchExpression expression, std::optional<FileLocation> location)
+ExpressionNode::ExpressionNode(
+  SwitchExpression expression, std::optional<FileLocation> location)
   : m_expression{std::make_shared<SwitchExpression>(std::move(expression))}
   , m_location{std::move(location)}
 {
 }
 
-Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace* trace) const
+Value ExpressionNode::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
 {
   auto value = m_expression->evaluate(context, trace);
   if (trace)
@@ -97,45 +104,46 @@ Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace* tr
   return value;
 }
 
-Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace& trace) const
+Value ExpressionNode::evaluate(
+  const EvaluationContext& context, EvaluationTrace& trace) const
 {
   return evaluate(context, &trace);
 }
 
-Expression Expression::optimize() const
+ExpressionNode ExpressionNode::optimize() const
 {
-  return Expression{m_expression->optimize(), m_location};
+  return ExpressionNode{m_expression->optimize(), m_location};
 }
 
-const std::optional<FileLocation>& Expression::location() const
+const std::optional<FileLocation>& ExpressionNode::location() const
 {
   return m_location;
 }
 
-std::string Expression::asString() const
+std::string ExpressionNode::asString() const
 {
   auto str = std::stringstream{};
   str << *this;
   return str.str();
 }
 
-bool operator==(const Expression& lhs, const Expression& rhs)
+bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs)
 {
   return *lhs.m_expression == *rhs.m_expression;
 }
 
-bool operator!=(const Expression& lhs, const Expression& rhs)
+bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
 {
   return !(lhs == rhs);
 }
 
-std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
+std::ostream& operator<<(std::ostream& lhs, const ExpressionNode& rhs)
 {
   lhs << *rhs.m_expression;
   return lhs;
 }
 
-void Expression::rebalanceByPrecedence()
+void ExpressionNode::rebalanceByPrecedence()
 {
   /*
    * The expression tree has a similar invariant to a heap: For any given node, its
@@ -197,7 +205,7 @@ void Expression::rebalanceByPrecedence()
   }
 }
 
-size_t Expression::precedence() const
+size_t ExpressionNode::precedence() const
 {
   return m_expression->precedence();
 }

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "Error.h"
@@ -868,7 +868,7 @@ TEST_CASE("NodeTest.entityPropertyConfig")
   };
 
   const auto config =
-    EntityPropertyConfig{{EL::Expression{EL::LiteralExpression{EL::Value{2.0}}}}};
+    EntityPropertyConfig{{EL::ExpressionNode{EL::LiteralExpression{EL::Value{2.0}}}}};
   auto root = std::make_unique<RootNode>(config);
   REQUIRE(root->entityPropertyConfig() == config);
 

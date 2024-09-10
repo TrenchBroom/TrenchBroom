@@ -21,7 +21,7 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/EvaluationTrace.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
 #include "Exceptions.h"
 
@@ -40,7 +40,7 @@ ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::
 
 ConfigParserBase::~ConfigParserBase() = default;
 
-EL::Expression ConfigParserBase::parseConfigFile()
+EL::ExpressionNode ConfigParserBase::parseConfigFile()
 {
   return m_parser.parse();
 }

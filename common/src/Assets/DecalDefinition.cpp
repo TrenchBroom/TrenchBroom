@@ -71,7 +71,7 @@ DecalDefinition::DecalDefinition(const FileLocation& location)
 {
 }
 
-DecalDefinition::DecalDefinition(EL::Expression expression)
+DecalDefinition::DecalDefinition(EL::ExpressionNode expression)
   : m_expression{std::move(expression)}
 {
 }
@@ -80,8 +80,9 @@ void DecalDefinition::append(const DecalDefinition& other)
 {
   const auto location = m_expression.location();
 
-  auto cases = std::vector<EL::Expression>{std::move(m_expression), other.m_expression};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, location};
+  auto cases =
+    std::vector<EL::ExpressionNode>{std::move(m_expression), other.m_expression};
+  m_expression = EL::ExpressionNode{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 DecalSpecification DecalDefinition::decalSpecification(

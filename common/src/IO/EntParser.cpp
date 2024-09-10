@@ -602,7 +602,7 @@ Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
   catch (const ParserException&)
   {
     const auto lineNum = static_cast<size_t>(element.GetLineNum());
-    auto expression = EL::Expression{
+    auto expression = EL::ExpressionNode{
       EL::LiteralExpression{EL::Value{EL::MapType{{
         {Assets::ModelSpecificationKeys::Path, EL::Value{model}},
       }}}},

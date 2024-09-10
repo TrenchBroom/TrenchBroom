@@ -20,7 +20,7 @@
 #include "Assets/EntityDefinition.h"
 #include "Color.h"
 #include "EL/ELExceptions.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Expressions.h"
 #include "FloatType.h"
 #include "IO/ELParser.h"

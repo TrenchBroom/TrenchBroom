@@ -19,7 +19,7 @@
 
 #include "Interpolator.h"
 
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
 
 #include <sstream>

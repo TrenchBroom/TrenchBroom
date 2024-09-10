@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -48,12 +48,12 @@ struct DecalSpecification
 class DecalDefinition
 {
 private:
-  EL::Expression m_expression;
+  EL::ExpressionNode m_expression;
 
 public:
   DecalDefinition();
   explicit DecalDefinition(const FileLocation& location);
-  explicit DecalDefinition(EL::Expression expression);
+  explicit DecalDefinition(EL::ExpressionNode expression);
 
   void append(const DecalDefinition& other);
 

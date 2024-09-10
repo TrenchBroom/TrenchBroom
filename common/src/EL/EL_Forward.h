@@ -24,7 +24,7 @@ namespace TrenchBroom::EL
 class Value;
 enum class ValueType;
 
-class Expression;
+class ExpressionNode;
 
 class EvaluationContext;
 

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
 #include "FileLocation.h"
 
@@ -32,13 +32,13 @@ namespace TrenchBroom::EL
 class EvaluationTrace
 {
 private:
-  std::unordered_map<Value, Expression> m_data;
+  std::unordered_map<Value, ExpressionNode> m_data;
 
 public:
-  std::optional<Expression> getExpression(const Value& value) const;
+  std::optional<ExpressionNode> getExpression(const Value& value) const;
   std::optional<FileLocation> getLocation(const Value& value) const;
 
-  void addTrace(const Value& value, const Expression& expression);
+  void addTrace(const Value& value, const ExpressionNode& expression);
 };
 
 } // namespace TrenchBroom::EL

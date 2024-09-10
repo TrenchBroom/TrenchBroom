@@ -464,10 +464,10 @@ Assets::ModelDefinition FgdParser::parseModel(
     m_tokenizer.skipToken();
 
     auto defaultModel = EL::MapExpression{{
-      {"path", EL::Expression{EL::VariableExpression{"model"}, location}},
-      {"scale", EL::Expression{EL::VariableExpression{"scale"}, location}},
+      {"path", EL::ExpressionNode{EL::VariableExpression{"model"}, location}},
+      {"scale", EL::ExpressionNode{EL::VariableExpression{"scale"}, location}},
     }};
-    auto defaultExp = EL::Expression{std::move(defaultModel), location};
+    auto defaultExp = EL::ExpressionNode{std::move(defaultModel), location};
     return Assets::ModelDefinition{std::move(defaultExp)};
   }
 
@@ -533,8 +533,8 @@ Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
   {
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
     auto defaultDecal = EL::MapExpression{
-      {{"texture", EL::Expression{EL::VariableExpression{"texture"}, location}}}};
-    auto defaultExp = EL::Expression{std::move(defaultDecal), location};
+      {{"texture", EL::ExpressionNode{EL::VariableExpression{"texture"}, location}}}};
+    auto defaultExp = EL::ExpressionNode{std::move(defaultDecal), location};
     return Assets::DecalDefinition{std::move(defaultExp)};
   }
 

@@ -19,7 +19,7 @@
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
 #include "IO/ELParser.h"
 

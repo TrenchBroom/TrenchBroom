@@ -19,7 +19,7 @@
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
@@ -784,19 +784,19 @@ TEST_CASE("ExpressionTest.testOperatorPrecedence")
 
 TEST_CASE("ExpressionTest.testOptimize")
 {
-  using T = std::tuple<std::string, Expression>;
+  using T = std::tuple<std::string, ExpressionNode>;
 
   // clang-format off
   const auto
   [expression,        expectedExpression] = GENERATE(values<T>({
-  {"3 + 7",           Expression{LiteralExpression{Value{10}}}},
-  {"[1, 2, 3]",       Expression{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}}},
-  {"[1 + 2, 2, a]",   Expression{ArrayExpression{{
-                          Expression{LiteralExpression{Value{3}}}, 
-                          Expression{LiteralExpression{Value{2}}}, 
-                          Expression{VariableExpression{"a"}}}
+  {"3 + 7",           ExpressionNode{LiteralExpression{Value{10}}}},
+  {"[1, 2, 3]",       ExpressionNode{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}}},
+  {"[1 + 2, 2, a]",   ExpressionNode{ArrayExpression{{
+                          ExpressionNode{LiteralExpression{Value{3}}}, 
+                          ExpressionNode{LiteralExpression{Value{2}}}, 
+                          ExpressionNode{VariableExpression{"a"}}}
                       }}},
-  {"{a:1, b:2, c:3}", Expression{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}}},
+  {"{a:1, b:2, c:3}", ExpressionNode{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}}},
   }));
   // clang-format on
 

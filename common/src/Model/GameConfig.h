@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "EL/Expression.h"
+#include "EL/ExpressionNode.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
@@ -83,7 +83,7 @@ struct EntityConfig
 {
   std::vector<std::filesystem::path> defFilePaths;
   Color defaultColor;
-  std::optional<EL::Expression> scaleExpression;
+  std::optional<EL::ExpressionNode> scaleExpression;
   bool setDefaultProperties;
 
   kdl_reflect_decl(

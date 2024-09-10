@@ -48,7 +48,7 @@ ModelDefinition::ModelDefinition(const FileLocation& location)
 {
 }
 
-ModelDefinition::ModelDefinition(EL::Expression expression)
+ModelDefinition::ModelDefinition(EL::ExpressionNode expression)
   : m_expression{std::move(expression)}
 {
 }
@@ -58,7 +58,7 @@ void ModelDefinition::append(ModelDefinition other)
   const auto location = m_expression.location();
 
   auto cases = std::vector{std::move(m_expression), std::move(other.m_expression)};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, location};
+  m_expression = EL::ExpressionNode{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 static std::filesystem::path path(const EL::Value& value)
@@ -169,7 +169,7 @@ static std::optional<vm::vec3> convertToScale(const EL::Value& value)
 
 vm::vec3 ModelDefinition::scale(
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression) const
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression) const
 {
   const auto context = EL::EvaluationContext{variableStore};
   const auto value = m_expression.evaluate(context);
@@ -207,7 +207,7 @@ kdl_reflect_impl(ModelDefinition);
 vm::vec3 safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression)
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression)
 {
   try
   {
