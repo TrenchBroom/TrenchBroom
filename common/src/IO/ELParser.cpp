@@ -19,7 +19,7 @@
 
 #include "ELParser.h"
 
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Value.h"
 #include "FileLocation.h"
 

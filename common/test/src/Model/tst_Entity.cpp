@@ -19,7 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "FloatType.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"

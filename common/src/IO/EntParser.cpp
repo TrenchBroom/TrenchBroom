@@ -21,7 +21,7 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "FileLocation.h"

@@ -21,7 +21,7 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/EvaluationTrace.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "Macros.h"
 
 #include <sstream>
@@ -30,7 +30,7 @@ namespace TrenchBroom::EL
 {
 
 ExpressionNode::ExpressionNode(
-  std::unique_ptr<ExpressionImpl> expression, std::optional<FileLocation> location)
+  std::unique_ptr<Expression> expression, std::optional<FileLocation> location)
   : m_expression{std::move(expression)}
   , m_location{std::move(location)}
 {

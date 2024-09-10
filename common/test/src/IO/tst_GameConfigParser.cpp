@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EL/Expression.h"
 #include "EL/ExpressionNode.h"
-#include "EL/Expressions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"

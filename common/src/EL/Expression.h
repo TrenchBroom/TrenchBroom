@@ -41,19 +41,19 @@ class BinaryExpression;
 class SubscriptExpression;
 class SwitchExpression;
 
-class ExpressionImpl
+class Expression
 {
 public:
-  virtual ~ExpressionImpl();
+  virtual ~Expression();
 
   virtual Value evaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const = 0;
-  virtual std::unique_ptr<ExpressionImpl> optimize() const = 0;
+  virtual std::unique_ptr<Expression> optimize() const = 0;
 
   virtual size_t precedence() const;
 
-  virtual bool operator==(const ExpressionImpl& rhs) const = 0;
-  bool operator!=(const ExpressionImpl& rhs) const;
+  virtual bool operator==(const Expression& rhs) const = 0;
+  bool operator!=(const Expression& rhs) const;
 
   virtual bool operator==(const LiteralExpression& rhs) const;
   virtual bool operator==(const VariableExpression& rhs) const;
@@ -64,13 +64,13 @@ public:
   virtual bool operator==(const SubscriptExpression& rhs) const;
   virtual bool operator==(const SwitchExpression& rhs) const;
 
-  friend std::ostream& operator<<(std::ostream& lhs, const ExpressionImpl& rhs);
+  friend std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
 
 private:
   virtual void appendToStream(std::ostream& str) const = 0;
 };
 
-class LiteralExpression : public ExpressionImpl
+class LiteralExpression : public Expression
 {
 private:
   Value m_value;
@@ -79,16 +79,16 @@ public:
   explicit LiteralExpression(Value value);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const LiteralExpression& rhs) const override;
 
 private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class VariableExpression : public ExpressionImpl
+class VariableExpression : public Expression
 {
 private:
   std::string m_variableName;
@@ -97,16 +97,16 @@ public:
   explicit VariableExpression(std::string variableName);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const VariableExpression& rhs) const override;
 
 private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class ArrayExpression : public ExpressionImpl
+class ArrayExpression : public Expression
 {
 private:
   std::vector<ExpressionNode> m_elements;
@@ -115,16 +115,16 @@ public:
   explicit ArrayExpression(std::vector<ExpressionNode> elements);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const ArrayExpression& rhs) const override;
 
 private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class MapExpression : public ExpressionImpl
+class MapExpression : public Expression
 {
 private:
   std::map<std::string, ExpressionNode> m_elements;
@@ -133,9 +133,9 @@ public:
   explicit MapExpression(std::map<std::string, ExpressionNode> elements);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const MapExpression& rhs) const override;
 
 private:
@@ -151,7 +151,7 @@ enum class UnaryOperator
   Group
 };
 
-class UnaryExpression : public ExpressionImpl
+class UnaryExpression : public Expression
 {
 private:
   UnaryOperator m_operator;
@@ -161,9 +161,9 @@ public:
   UnaryExpression(UnaryOperator i_operator, ExpressionNode operand);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const UnaryExpression& rhs) const override;
 
 private:
@@ -194,7 +194,7 @@ enum class BinaryOperator
   Case,
 };
 
-class BinaryExpression : public ExpressionImpl
+class BinaryExpression : public Expression
 {
 public:
   friend class ExpressionNode;
@@ -213,18 +213,18 @@ public:
     ExpressionNode leftOperand, FileLocation location);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
   size_t precedence() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const BinaryExpression& rhs) const override;
 
 private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class SubscriptExpression : public ExpressionImpl
+class SubscriptExpression : public Expression
 {
 public:
   static const std::string& AutoRangeParameterName();
@@ -237,16 +237,16 @@ public:
   SubscriptExpression(ExpressionNode leftOperand, ExpressionNode rightOperand);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const SubscriptExpression& rhs) const override;
 
 private:
   void appendToStream(std::ostream& str) const override;
 };
 
-class SwitchExpression : public ExpressionImpl
+class SwitchExpression : public Expression
 {
 private:
   std::vector<ExpressionNode> m_cases;
@@ -255,9 +255,9 @@ public:
   explicit SwitchExpression(std::vector<ExpressionNode> cases);
 
   Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<ExpressionImpl> optimize() const override;
+  std::unique_ptr<Expression> optimize() const override;
 
-  bool operator==(const ExpressionImpl& rhs) const override;
+  bool operator==(const Expression& rhs) const override;
   bool operator==(const SwitchExpression& rhs) const override;
 
 private:

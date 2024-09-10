@@ -30,7 +30,7 @@
 
 namespace TrenchBroom::EL
 {
-class ExpressionImpl;
+class Expression;
 
 class LiteralExpression;
 class VariableExpression;
@@ -48,11 +48,11 @@ class EvaluationTrace;
 class ExpressionNode
 {
 private:
-  std::shared_ptr<ExpressionImpl> m_expression;
+  std::shared_ptr<Expression> m_expression;
   std::optional<FileLocation> m_location;
 
   explicit ExpressionNode(
-    std::unique_ptr<ExpressionImpl> expression,
+    std::unique_ptr<Expression> expression,
     std::optional<FileLocation> location = std::nullopt);
 
 public:

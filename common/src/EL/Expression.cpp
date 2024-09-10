@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Expressions.h"
+#include "Expression.h"
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
@@ -36,59 +36,59 @@
 
 namespace TrenchBroom::EL
 {
-ExpressionImpl::~ExpressionImpl() = default;
+Expression::~Expression() = default;
 
-size_t ExpressionImpl::precedence() const
+size_t Expression::precedence() const
 {
   return 13u;
 }
 
-bool ExpressionImpl::operator!=(const ExpressionImpl& rhs) const
+bool Expression::operator!=(const Expression& rhs) const
 {
   return !(*this == rhs);
 }
 
-bool ExpressionImpl::operator==(const LiteralExpression&) const
+bool Expression::operator==(const LiteralExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const VariableExpression&) const
+bool Expression::operator==(const VariableExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const ArrayExpression&) const
+bool Expression::operator==(const ArrayExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const MapExpression&) const
+bool Expression::operator==(const MapExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const UnaryExpression&) const
+bool Expression::operator==(const UnaryExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const BinaryExpression&) const
+bool Expression::operator==(const BinaryExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const SubscriptExpression&) const
+bool Expression::operator==(const SubscriptExpression&) const
 {
   return false;
 }
 
-bool ExpressionImpl::operator==(const SwitchExpression&) const
+bool Expression::operator==(const SwitchExpression&) const
 {
   return false;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const ExpressionImpl& rhs)
+std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
 {
   rhs.appendToStream(lhs);
   return lhs;
@@ -104,12 +104,12 @@ Value LiteralExpression::evaluate(const EvaluationContext&, EvaluationTrace*) co
   return m_value;
 }
 
-std::unique_ptr<ExpressionImpl> LiteralExpression::optimize() const
+std::unique_ptr<Expression> LiteralExpression::optimize() const
 {
   return std::make_unique<LiteralExpression>(m_value);
 }
 
-bool LiteralExpression::operator==(const ExpressionImpl& rhs) const
+bool LiteralExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -135,12 +135,12 @@ Value VariableExpression::evaluate(
   return context.variableValue(m_variableName);
 }
 
-std::unique_ptr<ExpressionImpl> VariableExpression::optimize() const
+std::unique_ptr<Expression> VariableExpression::optimize() const
 {
   return std::make_unique<VariableExpression>(m_variableName);
 }
 
-bool VariableExpression::operator==(const ExpressionImpl& rhs) const
+bool VariableExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -189,7 +189,7 @@ Value ArrayExpression::evaluate(
   return Value{std::move(array)};
 }
 
-std::unique_ptr<ExpressionImpl> ArrayExpression::optimize() const
+std::unique_ptr<Expression> ArrayExpression::optimize() const
 {
   auto optimizedExpressions = kdl::vec_transform(
     m_elements, [](const auto& expression) { return expression.optimize(); });
@@ -213,7 +213,7 @@ std::unique_ptr<ExpressionImpl> ArrayExpression::optimize() const
   return std::make_unique<LiteralExpression>(Value{std::move(values)});
 }
 
-bool ArrayExpression::operator==(const ExpressionImpl& rhs) const
+bool ArrayExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -256,7 +256,7 @@ Value MapExpression::evaluate(
   return Value{std::move(map)};
 }
 
-std::unique_ptr<ExpressionImpl> MapExpression::optimize() const
+std::unique_ptr<Expression> MapExpression::optimize() const
 {
   auto optimizedExpressions = std::map<std::string, ExpressionNode>{};
   for (const auto& [key, expression] : m_elements)
@@ -282,7 +282,7 @@ std::unique_ptr<ExpressionImpl> MapExpression::optimize() const
   return std::make_unique<LiteralExpression>(Value{std::move(values)});
 }
 
-bool MapExpression::operator==(const ExpressionImpl& rhs) const
+bool MapExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -439,7 +439,7 @@ Value UnaryExpression::evaluate(
   return evaluateUnaryExpression(m_operator, m_operand.evaluate(context, trace));
 }
 
-std::unique_ptr<ExpressionImpl> UnaryExpression::optimize() const
+std::unique_ptr<Expression> UnaryExpression::optimize() const
 {
   const auto evaluationContext = EvaluationContext{};
   auto optimizedOperand = m_operand.optimize();
@@ -453,7 +453,7 @@ std::unique_ptr<ExpressionImpl> UnaryExpression::optimize() const
   return std::make_unique<UnaryExpression>(m_operator, std::move(optimizedOperand));
 }
 
-bool UnaryExpression::operator==(const ExpressionImpl& rhs) const
+bool UnaryExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -1170,7 +1170,7 @@ Value BinaryExpression::evaluate(
     [&] { return m_rightOperand.evaluate(context, trace); });
 }
 
-std::unique_ptr<ExpressionImpl> BinaryExpression::optimize() const
+std::unique_ptr<Expression> BinaryExpression::optimize() const
 {
   auto optimizedLeftOperand = std::optional<ExpressionNode>{};
   auto optimizedRightOperand = std::optional<ExpressionNode>{};
@@ -1240,7 +1240,7 @@ size_t BinaryExpression::precedence() const
   };
 }
 
-bool BinaryExpression::operator==(const ExpressionImpl& rhs) const
+bool BinaryExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -1344,7 +1344,7 @@ Value SubscriptExpression::evaluate(
   return leftValue[rightValue];
 }
 
-std::unique_ptr<ExpressionImpl> SubscriptExpression::optimize() const
+std::unique_ptr<Expression> SubscriptExpression::optimize() const
 {
   auto optimizedLeftOperand = m_leftOperand.optimize();
   auto optimizedRightOperand = m_rightOperand.optimize();
@@ -1370,7 +1370,7 @@ std::unique_ptr<ExpressionImpl> SubscriptExpression::optimize() const
     std::move(optimizedLeftOperand), std::move(optimizedRightOperand));
 }
 
-bool SubscriptExpression::operator==(const ExpressionImpl& rhs) const
+bool SubscriptExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }
@@ -1403,7 +1403,7 @@ Value SwitchExpression::evaluate(
   return Value::Undefined;
 }
 
-std::unique_ptr<ExpressionImpl> SwitchExpression::optimize() const
+std::unique_ptr<Expression> SwitchExpression::optimize() const
 {
   if (m_cases.empty())
   {
@@ -1422,7 +1422,7 @@ std::unique_ptr<ExpressionImpl> SwitchExpression::optimize() const
   return std::make_unique<SwitchExpression>(std::move(optimizedExpressions));
 }
 
-bool SwitchExpression::operator==(const ExpressionImpl& rhs) const
+bool SwitchExpression::operator==(const Expression& rhs) const
 {
   return rhs == *this;
 }

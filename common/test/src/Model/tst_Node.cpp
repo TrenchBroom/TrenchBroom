@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "EL/Expression.h"
 #include "EL/ExpressionNode.h"
-#include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "Error.h"
 #include "Exceptions.h"

@@ -20,7 +20,7 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "Assets/ModelDefinition.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Value.h"
 #include "IO/ParserStatus.h"
 

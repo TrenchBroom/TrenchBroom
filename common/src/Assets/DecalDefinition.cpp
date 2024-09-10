@@ -20,7 +20,7 @@
 #include "DecalDefinition.h"
 
 #include "EL/EvaluationContext.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"

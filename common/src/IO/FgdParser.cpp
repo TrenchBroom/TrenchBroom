@@ -21,7 +21,7 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "Error.h" // IWYU pragma: keep
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
