@@ -20,7 +20,6 @@
 #pragma once
 
 #include "EL/Types.h"
-#include "FileLocation.h"
 
 // FIXME: try to remove some of these headers
 #include <iosfwd>
@@ -69,7 +68,6 @@ private:
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
-  std::optional<FileLocation> m_location;
 
 public:
   static const Value Null;
@@ -77,21 +75,18 @@ public:
 
   Value();
 
-  explicit Value(BooleanType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(StringType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(const char* value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(NumberType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(int value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(long value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(size_t value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(ArrayType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(MapType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(RangeType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(NullType value, std::optional<FileLocation> location = std::nullopt);
-  explicit Value(
-    UndefinedType value, std::optional<FileLocation> location = std::nullopt);
-
-  Value(Value value, std::optional<FileLocation> location);
+  explicit Value(BooleanType value);
+  explicit Value(StringType value);
+  explicit Value(const char* value);
+  explicit Value(NumberType value);
+  explicit Value(int value);
+  explicit Value(long value);
+  explicit Value(size_t value);
+  explicit Value(ArrayType value);
+  explicit Value(MapType value);
+  explicit Value(RangeType value);
+  explicit Value(NullType value);
+  explicit Value(UndefinedType value);
 
   ValueType type() const;
 
@@ -105,8 +100,6 @@ public:
 
   std::string typeName() const;
   std::string describe() const;
-
-  const std::optional<FileLocation>& location() const;
 
   const BooleanType& booleanValue() const;
   const StringType& stringValue() const;

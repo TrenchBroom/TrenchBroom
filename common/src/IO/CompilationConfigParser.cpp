@@ -20,6 +20,7 @@
 #include "CompilationConfigParser.h"
 
 #include "EL/EvaluationContext.h"
+#include "EL/EvaluationTrace.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Model/CompilationConfig.h"
@@ -37,19 +38,22 @@ namespace TrenchBroom::IO
 namespace
 {
 
-Model::CompilationExportMap parseExportTask(const EL::Value& value)
+Model::CompilationExportMap parseExportTask(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
-    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+    value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
   return {enabled, value["target"].stringValue()};
 }
 
-Model::CompilationCopyFiles parseCopyTask(const EL::Value& value)
+Model::CompilationCopyFiles parseCopyTask(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
     value,
+    trace,
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
@@ -57,10 +61,12 @@ Model::CompilationCopyFiles parseCopyTask(const EL::Value& value)
   return {enabled, value["source"].stringValue(), value["target"].stringValue()};
 }
 
-Model::CompilationRenameFile parseRenameTask(const EL::Value& value)
+Model::CompilationRenameFile parseRenameTask(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
     value,
+    trace,
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
@@ -68,19 +74,22 @@ Model::CompilationRenameFile parseRenameTask(const EL::Value& value)
   return {enabled, value["source"].stringValue(), value["target"].stringValue()};
 }
 
-Model::CompilationDeleteFiles parseDeleteTask(const EL::Value& value)
+Model::CompilationDeleteFiles parseDeleteTask(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
-    value, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+    value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
   return {enabled, value["target"].stringValue()};
 }
 
-Model::CompilationRunTool parseToolTask(const EL::Value& value)
+Model::CompilationRunTool parseToolTask(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
     value,
+    trace,
     "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
     "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
 
@@ -97,66 +106,69 @@ Model::CompilationRunTool parseToolTask(const EL::Value& value)
     treatNonZeroResultCodeAsError};
 }
 
-Model::CompilationTask parseTask(const EL::Value& value)
+Model::CompilationTask parseTask(const EL::Value& value, const EL::EvaluationTrace& trace)
 {
-  expectMapEntry(value, "type", EL::ValueType::String);
+  expectMapEntry(value, trace, "type", EL::ValueType::String);
   const auto typeName = value["type"].stringValue();
 
   if (typeName == "export")
   {
-    return parseExportTask(value);
+    return parseExportTask(value, trace);
   }
   if (typeName == "copy")
   {
-    return parseCopyTask(value);
+    return parseCopyTask(value, trace);
   }
   if (typeName == "rename")
   {
-    return parseRenameTask(value);
+    return parseRenameTask(value, trace);
   }
   if (typeName == "delete")
   {
-    return parseDeleteTask(value);
+    return parseDeleteTask(value, trace);
   }
   if (typeName == "tool")
   {
-    return parseToolTask(value);
+    return parseToolTask(value, trace);
   }
 
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
-std::vector<Model::CompilationTask> parseTasks(const EL::Value& value)
+std::vector<Model::CompilationTask> parseTasks(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::CompilationTask>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseTask(value[i]));
+    result.push_back(parseTask(value[i], trace));
   }
   return result;
 }
 
-Model::CompilationProfile parseProfile(const EL::Value& value)
+Model::CompilationProfile parseProfile(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
-    value, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
+    value, trace, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
   return {
     value["name"].stringValue(),
     value["workdir"].stringValue(),
-    parseTasks(value["tasks"])};
+    parseTasks(value["tasks"], trace)};
 }
 
-std::vector<Model::CompilationProfile> parseProfiles(const EL::Value& value)
+std::vector<Model::CompilationProfile> parseProfiles(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::CompilationProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value[i]));
+    result.push_back(parseProfile(value[i], trace));
   }
   return result;
 }
@@ -171,16 +183,19 @@ CompilationConfigParser::CompilationConfigParser(
 
 Model::CompilationConfig CompilationConfigParser::parse()
 {
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext{});
-  expectType(root, EL::ValueType::Map);
+  const auto context = EL::EvaluationContext{};
+  auto trace = EL::EvaluationTrace{};
 
-  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+  const auto root = parseConfigFile().evaluate(context, trace);
+  expectType(root, trace, EL::ValueType::Map);
+
+  expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
   const auto version = root["version"].numberValue();
   unused(version);
   assert(version == 1.0);
 
-  return Model::CompilationConfig{parseProfiles(root["profiles"])};
+  return Model::CompilationConfig{parseProfiles(root["profiles"], trace)};
 }
 
 } // namespace TrenchBroom::IO

@@ -25,6 +25,11 @@
 #include <filesystem>
 #include <string>
 
+namespace TrenchBroom::EL
+{
+class EvaluationTrace;
+}
+
 namespace TrenchBroom::IO
 {
 
@@ -46,7 +51,13 @@ protected:
   EL::Expression parseConfigFile();
 };
 
-void expectType(const EL::Value& value, EL::ValueType type);
-void expectStructure(const EL::Value& value, const std::string& structure);
-void expectMapEntry(const EL::Value& value, const std::string& key, EL::ValueType type);
+void expectType(
+  const EL::Value& value, const EL::EvaluationTrace& trace, EL::ValueType type);
+void expectStructure(
+  const EL::Value& value, const EL::EvaluationTrace& trace, const std::string& structure);
+void expectMapEntry(
+  const EL::Value& value,
+  const EL::EvaluationTrace& trace,
+  const std::string& key,
+  EL::ValueType type);
 } // namespace TrenchBroom::IO

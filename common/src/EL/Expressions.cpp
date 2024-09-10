@@ -176,7 +176,7 @@ Value ArrayExpression::evaluate(
         array.reserve(array.size() + range.size() - 1u);
         for (size_t i = 0u; i < range.size(); ++i)
         {
-          array.emplace_back(range[i], value.location());
+          array.emplace_back(range[i]);
         }
       }
     }

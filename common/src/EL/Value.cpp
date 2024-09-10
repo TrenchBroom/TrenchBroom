@@ -51,81 +51,63 @@ Value::Value()
 {
 }
 
-Value::Value(const BooleanType value, std::optional<FileLocation> location)
+Value::Value(const BooleanType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(StringType value, std::optional<FileLocation> location)
+Value::Value(StringType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const char* value, std::optional<FileLocation> location)
+Value::Value(const char* value)
   : m_value{std::make_shared<VariantType>(StringType(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const NumberType value, std::optional<FileLocation> location)
+Value::Value(const NumberType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const int value, std::optional<FileLocation> location)
+Value::Value(const int value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const long value, std::optional<FileLocation> location)
+Value::Value(const long value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(const size_t value, std::optional<FileLocation> location)
+Value::Value(const size_t value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(ArrayType value, std::optional<FileLocation> location)
+Value::Value(ArrayType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(MapType value, std::optional<FileLocation> location)
+Value::Value(MapType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(RangeType value, std::optional<FileLocation> location)
+Value::Value(RangeType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(NullType value, std::optional<FileLocation> location)
+Value::Value(NullType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_location{std::move(location)}
 {
 }
 
-Value::Value(UndefinedType value, std::optional<FileLocation> location)
+Value::Value(UndefinedType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_location{std::move(location)}
-{
-}
-
-Value::Value(Value value, std::optional<FileLocation> location)
-  : m_value{std::move(value.m_value)}
-  , m_location{std::move(location)}
 {
 }
 
@@ -157,11 +139,6 @@ std::string Value::typeName() const
 std::string Value::describe() const
 {
   return asString(false);
-}
-
-const std::optional<FileLocation>& Value::location() const
-{
-  return m_location;
 }
 
 const BooleanType& Value::booleanValue() const
@@ -556,9 +533,9 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Boolean:
           return *this;
         case ValueType::String:
-          return Value{b ? "true" : "false", m_location};
+          return Value{b ? "true" : "false"};
         case ValueType::Number:
-          return Value{b ? 1.0 : 0.0, m_location};
+          return Value{b ? 1.0 : 0.0};
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -573,13 +550,13 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty(), m_location};
+          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()};
         case ValueType::String:
           return *this;
         case ValueType::Number: {
           if (kdl::str_is_blank(s))
           {
-            return Value{0.0, m_location};
+            return Value{0.0};
           }
           const char* begin = s.c_str();
           char* end;
@@ -588,7 +565,7 @@ Value Value::convertTo(const ValueType toType) const
           {
             throw ConversionError{describe(), type(), toType};
           }
-          return Value{value, m_location};
+          return Value{value};
         }
         case ValueType::Array:
         case ValueType::Map:
@@ -604,9 +581,9 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{n != 0.0, m_location};
+          return Value{n != 0.0};
         case ValueType::String:
-          return Value{describe(), m_location};
+          return Value{describe()};
         case ValueType::Number:
           return *this;
         case ValueType::Array:
@@ -674,17 +651,17 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{false, m_location};
+          return Value{false};
         case ValueType::Null:
           return *this;
         case ValueType::Number:
-          return Value{0.0, m_location};
+          return Value{0.0};
         case ValueType::String:
-          return Value{"", m_location};
+          return Value{""};
         case ValueType::Array:
-          return Value{ArrayType{0}, m_location};
+          return Value{ArrayType{0}};
         case ValueType::Map:
-          return Value{MapType{}, m_location};
+          return Value{MapType{}};
         case ValueType::Range:
         case ValueType::Undefined:
           break;
@@ -1080,7 +1057,7 @@ Value Value::operator[](const Value& indexValue) const
       {
         result << str[index];
       }
-      return Value{result.str(), m_location};
+      return Value{result.str()};
     }
     case ValueType::Array:
     case ValueType::Range: {
@@ -1095,7 +1072,7 @@ Value Value::operator[](const Value& indexValue) const
           result << str[index];
         }
       }
-      return Value{result.str(), m_location};
+      return Value{result.str()};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1132,7 +1109,7 @@ Value Value::operator[](const Value& indexValue) const
         }
         result.push_back(array[index]);
       }
-      return Value{std::move(result), m_location};
+      return Value{std::move(result)};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1172,7 +1149,7 @@ Value Value::operator[](const Value& indexValue) const
           result.insert(std::make_pair(key, it->second));
         }
       }
-      return Value{std::move(result), m_location};
+      return Value{std::move(result)};
     }
     case ValueType::Boolean:
     case ValueType::Number:

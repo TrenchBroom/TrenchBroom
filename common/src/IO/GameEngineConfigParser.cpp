@@ -20,6 +20,7 @@
 #include "GameEngineConfigParser.h"
 
 #include "EL/EvaluationContext.h"
+#include "EL/EvaluationTrace.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Macros.h"
@@ -37,10 +38,11 @@ namespace TrenchBroom::IO
 namespace
 {
 
-Model::GameEngineProfile parseProfile(const EL::Value& value)
+Model::GameEngineProfile parseProfile(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
-    value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
+    value, trace, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
   return {
     value["name"].stringValue(),
@@ -48,14 +50,15 @@ Model::GameEngineProfile parseProfile(const EL::Value& value)
     value["parameters"].stringValue()};
 }
 
-std::vector<Model::GameEngineProfile> parseProfiles(const EL::Value& value)
+std::vector<Model::GameEngineProfile> parseProfiles(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::GameEngineProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value[i]));
+    result.push_back(parseProfile(value[i], trace));
   }
   return result;
 }
@@ -70,16 +73,19 @@ GameEngineConfigParser::GameEngineConfigParser(
 
 Model::GameEngineConfig GameEngineConfigParser::parse()
 {
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext{});
-  expectType(root, EL::ValueType::Map);
+  const auto context = EL::EvaluationContext{};
+  auto trace = EL::EvaluationTrace{};
 
-  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+  const auto root = parseConfigFile().evaluate(context, trace);
+  expectType(root, trace, EL::ValueType::Map);
+
+  expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
   const auto version = root["version"].numberValue();
   unused(version);
   assert(version == 1.0);
 
-  return {parseProfiles(root["profiles"])};
+  return {parseProfiles(root["profiles"], trace)};
 }
 
 } // namespace TrenchBroom::IO

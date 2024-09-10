@@ -89,7 +89,7 @@ Expression::Expression(SwitchExpression expression, std::optional<FileLocation> 
 
 Value Expression::evaluate(const EvaluationContext& context, EvaluationTrace* trace) const
 {
-  auto value = Value{m_expression->evaluate(context, trace), m_location};
+  auto value = m_expression->evaluate(context, trace);
   if (trace)
   {
     trace->addTrace(value, *this);
