@@ -18,7 +18,7 @@
  */
 
 #include "Assets/ModelDefinition.h"
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 

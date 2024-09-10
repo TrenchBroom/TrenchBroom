@@ -27,6 +27,7 @@ enum class ValueType;
 class ExpressionNode;
 
 class EvaluationContext;
+class EvaluationTrace;
 
 class VariableStore;
 } // namespace TrenchBroom::EL

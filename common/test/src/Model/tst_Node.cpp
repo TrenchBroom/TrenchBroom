@@ -18,7 +18,7 @@
  */
 
 #include "EL/Expression.h"
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h" // IWYU pragma: keep
 #include "EL/Value.h"
 #include "Error.h"
 #include "Exceptions.h"

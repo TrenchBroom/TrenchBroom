@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Assets/ModelSpecification.h"
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "FloatType.h"
 
 #include "kdl/reflection_decl.h"

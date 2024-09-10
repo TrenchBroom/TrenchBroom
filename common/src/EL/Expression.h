@@ -20,129 +20,115 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
-#include "EL/ExpressionNode.h"
 #include "EL/Value.h"
+#include "FileLocation.h"
 
-#include <iosfwd>
-#include <map>
 #include <memory>
+#include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom::EL
 {
 
-class LiteralExpression;
-class VariableExpression;
-class ArrayExpression;
-class MapExpression;
-class UnaryExpression;
-class BinaryExpression;
-class SubscriptExpression;
-class SwitchExpression;
+struct LiteralExpression;
+struct VariableExpression;
+struct ArrayExpression;
+struct MapExpression;
+struct UnaryExpression;
+struct BinaryExpression;
+struct SubscriptExpression;
+struct SwitchExpression;
 
-class Expression
-{
-public:
-  virtual ~Expression();
+using Expression = std::variant<
+  LiteralExpression,
+  VariableExpression,
+  ArrayExpression,
+  MapExpression,
+  UnaryExpression,
+  BinaryExpression,
+  SubscriptExpression,
+  SwitchExpression>;
 
-  virtual Value evaluate(
-    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const = 0;
-  virtual std::unique_ptr<Expression> optimize() const = 0;
+std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
 
-  virtual size_t precedence() const;
-
-  virtual bool operator==(const Expression& rhs) const = 0;
-  bool operator!=(const Expression& rhs) const;
-
-  virtual bool operator==(const LiteralExpression& rhs) const;
-  virtual bool operator==(const VariableExpression& rhs) const;
-  virtual bool operator==(const ArrayExpression& rhs) const;
-  virtual bool operator==(const MapExpression& rhs) const;
-  virtual bool operator==(const UnaryExpression& rhs) const;
-  virtual bool operator==(const BinaryExpression& rhs) const;
-  virtual bool operator==(const SubscriptExpression& rhs) const;
-  virtual bool operator==(const SwitchExpression& rhs) const;
-
-  friend std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
-
-private:
-  virtual void appendToStream(std::ostream& str) const = 0;
-};
-
-class LiteralExpression : public Expression
+class ExpressionNode
 {
 private:
-  Value m_value;
+  std::shared_ptr<Expression> m_expression;
+  std::optional<FileLocation> m_location;
+
+  explicit ExpressionNode(
+    std::shared_ptr<Expression> expression,
+    std::optional<FileLocation> location = std::nullopt);
 
 public:
-  explicit LiteralExpression(Value value);
+  explicit ExpressionNode(
+    Expression&& expression, std::optional<FileLocation> location = std::nullopt);
 
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
+  Value evaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+  ExpressionNode optimize() const;
 
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const LiteralExpression& rhs) const override;
+  const std::optional<FileLocation>& location() const;
+
+  std::string asString() const;
+
+  friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
 
 private:
-  void appendToStream(std::ostream& str) const override;
+  void rebalanceByPrecedence();
 };
 
-class VariableExpression : public Expression
+struct LiteralExpression
 {
-private:
-  std::string m_variableName;
-
-public:
-  explicit VariableExpression(std::string variableName);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const VariableExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  Value value;
 };
 
-class ArrayExpression : public Expression
+bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs);
+bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs);
+
+
+struct VariableExpression
 {
-private:
-  std::vector<ExpressionNode> m_elements;
-
-public:
-  explicit ArrayExpression(std::vector<ExpressionNode> elements);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const ArrayExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  std::string variableName;
 };
 
-class MapExpression : public Expression
+bool operator==(const VariableExpression& lhs, const VariableExpression& rhs);
+bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs);
+
+
+struct ArrayExpression
 {
-private:
-  std::map<std::string, ExpressionNode> m_elements;
-
-public:
-  explicit MapExpression(std::map<std::string, ExpressionNode> elements);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const MapExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  std::vector<ExpressionNode> elements;
 };
 
-enum class UnaryOperator
+bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs);
+bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs);
+
+
+struct MapExpression
+{
+  std::map<std::string, ExpressionNode> elements;
+};
+
+bool operator==(const MapExpression& lhs, const MapExpression& rhs);
+bool operator!=(const MapExpression& lhs, const MapExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs);
+
+
+enum class UnaryOperation
 {
   Plus,
   Minus,
@@ -151,26 +137,19 @@ enum class UnaryOperator
   Group
 };
 
-class UnaryExpression : public Expression
+struct UnaryExpression
 {
-private:
-  UnaryOperator m_operator;
-  ExpressionNode m_operand;
-
-public:
-  UnaryExpression(UnaryOperator i_operator, ExpressionNode operand);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const UnaryExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  UnaryOperation operation;
+  ExpressionNode operand;
 };
 
-enum class BinaryOperator
+bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs);
+bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs);
+
+
+enum class BinaryOperation
 {
   Addition,
   Subtraction,
@@ -194,74 +173,46 @@ enum class BinaryOperator
   Case,
 };
 
-class BinaryExpression : public Expression
+struct BinaryExpression
 {
-public:
-  friend class ExpressionNode;
+  BinaryOperation operation;
+  ExpressionNode leftOperand;
+  ExpressionNode rightOperand;
 
-private:
-  BinaryOperator m_operator;
-  ExpressionNode m_leftOperand;
-  ExpressionNode m_rightOperand;
-
-public:
-  BinaryExpression(
-    BinaryOperator i_operator, ExpressionNode leftOperand, ExpressionNode rightOperand);
   static ExpressionNode createAutoRangeWithRightOperand(
     ExpressionNode rightOperand, FileLocation location);
   static ExpressionNode createAutoRangeWithLeftOperand(
     ExpressionNode leftOperand, FileLocation location);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  size_t precedence() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const BinaryExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
 };
 
-class SubscriptExpression : public Expression
+bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs);
+bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs);
+
+
+struct SubscriptExpression
 {
-public:
   static const std::string& AutoRangeParameterName();
 
-private:
-  ExpressionNode m_leftOperand;
-  ExpressionNode m_rightOperand;
-
-public:
-  SubscriptExpression(ExpressionNode leftOperand, ExpressionNode rightOperand);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const SubscriptExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  ExpressionNode leftOperand;
+  ExpressionNode rightOperand;
 };
 
-class SwitchExpression : public Expression
+bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
+bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs);
+
+
+struct SwitchExpression
 {
-private:
-  std::vector<ExpressionNode> m_cases;
-
-public:
-  explicit SwitchExpression(std::vector<ExpressionNode> cases);
-
-  Value evaluate(const EvaluationContext& context, EvaluationTrace* trace) const override;
-  std::unique_ptr<Expression> optimize() const override;
-
-  bool operator==(const Expression& rhs) const override;
-  bool operator==(const SwitchExpression& rhs) const override;
-
-private:
-  void appendToStream(std::ostream& str) const override;
+  std::vector<ExpressionNode> cases;
 };
+
+bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs);
+bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs);
 
 } // namespace TrenchBroom::EL

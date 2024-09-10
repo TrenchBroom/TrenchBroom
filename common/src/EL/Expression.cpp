@@ -21,151 +21,47 @@
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
-#include "Macros.h"
+#include "EL/EvaluationTrace.h"
+#include "Value.h"
 
-#include "kdl/collection_utils.h"
 #include "kdl/map_utils.h"
+#include "kdl/overload.h"
+#include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 
-#include <algorithm>
-#include <cmath>
+#include <ranges>
 #include <sstream>
-#include <string>
 
 namespace TrenchBroom::EL
 {
-Expression::~Expression() = default;
-
-size_t Expression::precedence() const
+namespace
 {
-  return 13u;
+
+Value evaluate(
+  const LiteralExpression& expression, const EvaluationContext&, EvaluationTrace*)
+{
+  return expression.value;
 }
 
-bool Expression::operator!=(const Expression& rhs) const
+Value evaluate(
+  const VariableExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace*)
 {
-  return !(*this == rhs);
+  return context.variableValue(expression.variableName);
 }
 
-bool Expression::operator==(const LiteralExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const VariableExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const ArrayExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const MapExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const UnaryExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const BinaryExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const SubscriptExpression&) const
-{
-  return false;
-}
-
-bool Expression::operator==(const SwitchExpression&) const
-{
-  return false;
-}
-
-std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
-{
-  rhs.appendToStream(lhs);
-  return lhs;
-}
-
-LiteralExpression::LiteralExpression(Value value)
-  : m_value{std::move(value)}
-{
-}
-
-Value LiteralExpression::evaluate(const EvaluationContext&, EvaluationTrace*) const
-{
-  return m_value;
-}
-
-std::unique_ptr<Expression> LiteralExpression::optimize() const
-{
-  return std::make_unique<LiteralExpression>(m_value);
-}
-
-bool LiteralExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool LiteralExpression::operator==(const LiteralExpression& rhs) const
-{
-  return m_value == rhs.m_value;
-}
-
-void LiteralExpression::appendToStream(std::ostream& str) const
-{
-  str << m_value;
-}
-
-VariableExpression::VariableExpression(std::string variableName)
-  : m_variableName{std::move(variableName)}
-{
-}
-
-Value VariableExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace*) const
-{
-  return context.variableValue(m_variableName);
-}
-
-std::unique_ptr<Expression> VariableExpression::optimize() const
-{
-  return std::make_unique<VariableExpression>(m_variableName);
-}
-
-bool VariableExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool VariableExpression::operator==(const VariableExpression& rhs) const
-{
-  return m_variableName == rhs.m_variableName;
-}
-
-void VariableExpression::appendToStream(std::ostream& str) const
-{
-  str << m_variableName;
-}
-
-ArrayExpression::ArrayExpression(std::vector<ExpressionNode> elements)
-  : m_elements{std::move(elements)}
-{
-}
-
-Value ArrayExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value evaluate(
+  const ArrayExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
   auto array = ArrayType{};
-  array.reserve(m_elements.size());
-  for (const auto& element : m_elements)
+  array.reserve(expression.elements.size());
+
+  for (const auto& element : expression.elements)
   {
     auto value = element.evaluate(context, trace);
     if (value.hasType(ValueType::Range))
@@ -189,133 +85,20 @@ Value ArrayExpression::evaluate(
   return Value{std::move(array)};
 }
 
-std::unique_ptr<Expression> ArrayExpression::optimize() const
-{
-  auto optimizedExpressions = kdl::vec_transform(
-    m_elements, [](const auto& expression) { return expression.optimize(); });
-
-  auto values = ArrayType{};
-  values.reserve(m_elements.size());
-
-  const auto evaluationContext = EvaluationContext{};
-  for (const auto& expression : optimizedExpressions)
-  {
-    if (auto value = expression.evaluate(evaluationContext); value != Value::Undefined)
-    {
-      values.push_back(std::move(value));
-    }
-    else
-    {
-      return std::make_unique<ArrayExpression>(std::move(optimizedExpressions));
-    }
-  }
-
-  return std::make_unique<LiteralExpression>(Value{std::move(values)});
-}
-
-bool ArrayExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool ArrayExpression::operator==(const ArrayExpression& rhs) const
-{
-  return m_elements == rhs.m_elements;
-}
-
-void ArrayExpression::appendToStream(std::ostream& str) const
-{
-  str << "[ ";
-  size_t i = 0u;
-  for (const auto& expression : m_elements)
-  {
-    str << expression;
-    if (i < m_elements.size() - 1u)
-    {
-      str << ", ";
-    }
-    ++i;
-  }
-  str << " ]";
-}
-
-MapExpression::MapExpression(std::map<std::string, ExpressionNode> elements)
-  : m_elements{std::move(elements)}
-{
-}
-
-Value MapExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value evaluate(
+  const MapExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
   auto map = MapType{};
-  for (const auto& [key, expression] : m_elements)
+  for (const auto& [key, element] : expression.elements)
   {
-    map.emplace(key, expression.evaluate(context, trace));
+    map.emplace(key, element.evaluate(context, trace));
   }
 
   return Value{std::move(map)};
 }
 
-std::unique_ptr<Expression> MapExpression::optimize() const
-{
-  auto optimizedExpressions = std::map<std::string, ExpressionNode>{};
-  for (const auto& [key, expression] : m_elements)
-  {
-    optimizedExpressions.emplace(key, expression.optimize());
-  }
-
-  auto values = MapType{};
-
-  const auto evaluationContext = EvaluationContext{};
-  for (const auto& [key, expression] : optimizedExpressions)
-  {
-    if (auto value = expression.evaluate(evaluationContext); value != Value::Undefined)
-    {
-      values.emplace(key, std::move(value));
-    }
-    else
-    {
-      return std::make_unique<MapExpression>(std::move(optimizedExpressions));
-    }
-  }
-
-  return std::make_unique<LiteralExpression>(Value{std::move(values)});
-}
-
-bool MapExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool MapExpression::operator==(const MapExpression& rhs) const
-{
-  return m_elements == rhs.m_elements;
-}
-
-void MapExpression::appendToStream(std::ostream& str) const
-{
-  str << "{ ";
-  size_t i = 0u;
-  for (const auto& [key, expression] : m_elements)
-  {
-    str << "\"" << key << "\": " << expression;
-    if (i < m_elements.size() - 1u)
-    {
-      str << ", ";
-    }
-    ++i;
-  }
-  str << " }";
-}
-
-UnaryExpression::UnaryExpression(const UnaryOperator i_operator, ExpressionNode operand)
-  : m_operator{i_operator}
-  , m_operand{std::move(operand)}
-{
-}
-
-namespace
-{
 Value evaluateUnaryPlus(const Value& v)
 {
   switch (v.type())
@@ -408,7 +191,7 @@ Value evaluateBitwiseNegation(const Value& v)
     v.typeName())};
 }
 
-Value evaluateUnaryExpression(const UnaryOperator& operator_, const Value& operand)
+Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& operand)
 {
   if (operand == Value::Undefined)
   {
@@ -417,109 +200,28 @@ Value evaluateUnaryExpression(const UnaryOperator& operator_, const Value& opera
 
   switch (operator_)
   {
-  case UnaryOperator::Plus:
+  case UnaryOperation::Plus:
     return evaluateUnaryPlus(operand);
-  case UnaryOperator::Minus:
+  case UnaryOperation::Minus:
     return evaluateUnaryMinus(operand);
-  case UnaryOperator::LogicalNegation:
+  case UnaryOperation::LogicalNegation:
     return evaluateLogicalNegation(operand);
-  case UnaryOperator::BitwiseNegation:
+  case UnaryOperation::BitwiseNegation:
     return evaluateBitwiseNegation(operand);
-  case UnaryOperator::Group:
+  case UnaryOperation::Group:
     return Value{operand};
     switchDefault();
   }
 }
 
-} // namespace
-
-Value UnaryExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value evaluate(
+  const UnaryExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
-  return evaluateUnaryExpression(m_operator, m_operand.evaluate(context, trace));
+  return evaluateUnaryExpression(
+    expression.operation, expression.operand.evaluate(context, trace));
 }
-
-std::unique_ptr<Expression> UnaryExpression::optimize() const
-{
-  const auto evaluationContext = EvaluationContext{};
-  auto optimizedOperand = m_operand.optimize();
-  if (auto value =
-        evaluateUnaryExpression(m_operator, optimizedOperand.evaluate(evaluationContext));
-      value != Value::Undefined)
-  {
-    return std::make_unique<LiteralExpression>(std::move(value));
-  }
-
-  return std::make_unique<UnaryExpression>(m_operator, std::move(optimizedOperand));
-}
-
-bool UnaryExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool UnaryExpression::operator==(const UnaryExpression& rhs) const
-{
-  return m_operator == rhs.m_operator && m_operand == rhs.m_operand;
-}
-
-void UnaryExpression::appendToStream(std::ostream& str) const
-{
-  switch (m_operator)
-  {
-  case UnaryOperator::Plus:
-    str << "+" << m_operand;
-    break;
-  case UnaryOperator::Minus:
-    str << "-" << m_operand;
-    break;
-  case UnaryOperator::LogicalNegation:
-    str << "!" << m_operand;
-    break;
-  case UnaryOperator::BitwiseNegation:
-    str << "~" << m_operand;
-    break;
-  case UnaryOperator::Group:
-    str << "( " << m_operand << " )";
-    break;
-    switchDefault();
-  }
-}
-
-BinaryExpression::BinaryExpression(
-  const BinaryOperator i_operator,
-  ExpressionNode leftOperand,
-  ExpressionNode rightOperand)
-  : m_operator{i_operator}
-  , m_leftOperand{std::move(leftOperand)}
-  , m_rightOperand{std::move(rightOperand)}
-{
-}
-
-ExpressionNode BinaryExpression::createAutoRangeWithRightOperand(
-  ExpressionNode rightOperand, FileLocation location)
-{
-  auto leftOperand = ExpressionNode{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return ExpressionNode{
-    BinaryExpression{
-      BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
-    std::move(location)};
-}
-
-ExpressionNode BinaryExpression::createAutoRangeWithLeftOperand(
-  ExpressionNode leftOperand, FileLocation location)
-{
-  auto rightOperand = ExpressionNode{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return ExpressionNode{
-    BinaryExpression{
-      BinaryOperator::Range, std::move(leftOperand), std::move(rightOperand)},
-    std::move(location)};
-}
-
-namespace
-{
 
 template <typename Eval>
 std::optional<Value> tryEvaluateAlgebraicOperator(
@@ -1109,291 +811,88 @@ Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRh
 
 template <typename EvalualateLhs, typename EvaluateRhs>
 Value evaluateBinaryExpression(
-  const BinaryOperator operator_,
+  const BinaryOperation operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs)
 {
   switch (operator_)
   {
-  case BinaryOperator::Addition:
+  case BinaryOperation::Addition:
     return evaluateAddition(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::Subtraction:
+  case BinaryOperation::Subtraction:
     return evaluateSubtraction(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::Multiplication:
+  case BinaryOperation::Multiplication:
     return evaluateMultiplication(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::Division:
+  case BinaryOperation::Division:
     return evaluateDivision(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::Modulus:
+  case BinaryOperation::Modulus:
     return evaluateModulus(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::LogicalAnd:
+  case BinaryOperation::LogicalAnd:
     return evaluateLogicalAnd(evaluateLhs, evaluateRhs);
-  case BinaryOperator::LogicalOr:
+  case BinaryOperation::LogicalOr:
     return evaluateLogicalOr(evaluateLhs, evaluateRhs);
-  case BinaryOperator::BitwiseAnd:
+  case BinaryOperation::BitwiseAnd:
     return evaluateBitwiseAnd(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::BitwiseXOr:
+  case BinaryOperation::BitwiseXOr:
     return evaluateBitwiseXOr(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::BitwiseOr:
+  case BinaryOperation::BitwiseOr:
     return evaluateBitwiseOr(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::BitwiseShiftLeft:
+  case BinaryOperation::BitwiseShiftLeft:
     return evaluateBitwiseShiftLeft(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::BitwiseShiftRight:
+  case BinaryOperation::BitwiseShiftRight:
     return evaluateBitwiseShiftRight(evaluateLhs(), evaluateRhs());
-  case BinaryOperator::Less:
+  case BinaryOperation::Less:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) < 0};
-  case BinaryOperator::LessOrEqual:
+  case BinaryOperation::LessOrEqual:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) <= 0};
-  case BinaryOperator::Greater:
+  case BinaryOperation::Greater:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) > 0};
-  case BinaryOperator::GreaterOrEqual:
+  case BinaryOperation::GreaterOrEqual:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) >= 0};
-  case BinaryOperator::Equal:
+  case BinaryOperation::Equal:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) == 0};
-  case BinaryOperator::NotEqual:
+  case BinaryOperation::NotEqual:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) != 0};
-  case BinaryOperator::Range:
+  case BinaryOperation::Range:
     return Value{evaluateRange(evaluateLhs(), evaluateRhs())};
-  case BinaryOperator::Case:
+  case BinaryOperation::Case:
     return evaluateCase(evaluateLhs, evaluateRhs);
     switchDefault();
   };
 }
 
-} // namespace
-
-Value BinaryExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value evaluate(
+  const BinaryExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
   return evaluateBinaryExpression(
-    m_operator,
-    [&] { return m_leftOperand.evaluate(context, trace); },
-    [&] { return m_rightOperand.evaluate(context, trace); });
+    expression.operation,
+    [&] { return expression.leftOperand.evaluate(context, trace); },
+    [&] { return expression.rightOperand.evaluate(context, trace); });
 }
 
-std::unique_ptr<Expression> BinaryExpression::optimize() const
+Value evaluate(
+  const SubscriptExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
-  auto optimizedLeftOperand = std::optional<ExpressionNode>{};
-  auto optimizedRightOperand = std::optional<ExpressionNode>{};
-
-  const auto evaluationContext = EvaluationContext{};
-
-  const auto evaluateLeftOperand = [&] {
-    optimizedLeftOperand = m_leftOperand.optimize();
-    return optimizedLeftOperand->evaluate(evaluationContext);
-  };
-
-  const auto evaluateRightOperand = [&] {
-    optimizedRightOperand = m_rightOperand.optimize();
-    return optimizedRightOperand->evaluate(evaluationContext);
-  };
-
-  if (auto value =
-        evaluateBinaryExpression(m_operator, evaluateLeftOperand, evaluateRightOperand);
-      value != Value::Undefined)
-  {
-    return std::make_unique<LiteralExpression>(std::move(value));
-  }
-
-  return std::make_unique<BinaryExpression>(
-    m_operator,
-    std::move(optimizedLeftOperand).value_or(m_leftOperand.optimize()),
-    std::move(optimizedRightOperand).value_or(m_rightOperand.optimize()));
-}
-
-size_t BinaryExpression::precedence() const
-{
-  switch (m_operator)
-  {
-  case BinaryOperator::Multiplication:
-  case BinaryOperator::Division:
-  case BinaryOperator::Modulus:
-    return 12;
-  case BinaryOperator::Addition:
-  case BinaryOperator::Subtraction:
-    return 11;
-  case BinaryOperator::BitwiseShiftLeft:
-  case BinaryOperator::BitwiseShiftRight:
-    return 10;
-  case BinaryOperator::Less:
-  case BinaryOperator::LessOrEqual:
-  case BinaryOperator::Greater:
-  case BinaryOperator::GreaterOrEqual:
-    return 9;
-  case BinaryOperator::Equal:
-  case BinaryOperator::NotEqual:
-    return 8;
-  case BinaryOperator::BitwiseAnd:
-    return 7;
-  case BinaryOperator::BitwiseXOr:
-    return 6;
-  case BinaryOperator::BitwiseOr:
-    return 5;
-  case BinaryOperator::LogicalAnd:
-    return 4;
-  case BinaryOperator::LogicalOr:
-    return 3;
-  case BinaryOperator::Range:
-    return 2;
-  case BinaryOperator::Case:
-    return 1;
-    switchDefault();
-  };
-}
-
-bool BinaryExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool BinaryExpression::operator==(const BinaryExpression& rhs) const
-{
-  return m_operator == rhs.m_operator && m_leftOperand == rhs.m_leftOperand
-         && m_rightOperand == rhs.m_rightOperand;
-}
-
-void BinaryExpression::appendToStream(std::ostream& str) const
-{
-  switch (m_operator)
-  {
-  case BinaryOperator::Addition:
-    str << m_leftOperand << " + " << m_rightOperand;
-    break;
-  case BinaryOperator::Subtraction:
-    str << m_leftOperand << " - " << m_rightOperand;
-    break;
-  case BinaryOperator::Multiplication:
-    str << m_leftOperand << " * " << m_rightOperand;
-    break;
-  case BinaryOperator::Division:
-    str << m_leftOperand << " / " << m_rightOperand;
-    break;
-  case BinaryOperator::Modulus:
-    str << m_leftOperand << " % " << m_rightOperand;
-    break;
-  case BinaryOperator::LogicalAnd:
-    str << m_leftOperand << " && " << m_rightOperand;
-    break;
-  case BinaryOperator::LogicalOr:
-    str << m_leftOperand << " || " << m_rightOperand;
-    break;
-  case BinaryOperator::BitwiseAnd:
-    str << m_leftOperand << " & " << m_rightOperand;
-    break;
-  case BinaryOperator::BitwiseXOr:
-    str << m_leftOperand << " ^ " << m_rightOperand;
-    break;
-  case BinaryOperator::BitwiseOr:
-    str << m_leftOperand << " | " << m_rightOperand;
-    break;
-  case BinaryOperator::BitwiseShiftLeft:
-    str << m_leftOperand << " << " << m_rightOperand;
-    break;
-  case BinaryOperator::BitwiseShiftRight:
-    str << m_leftOperand << " >> " << m_rightOperand;
-    break;
-  case BinaryOperator::Less:
-    str << m_leftOperand << " < " << m_rightOperand;
-    break;
-  case BinaryOperator::LessOrEqual:
-    str << m_leftOperand << " <= " << m_rightOperand;
-    break;
-  case BinaryOperator::Greater:
-    str << m_leftOperand << " > " << m_rightOperand;
-    break;
-  case BinaryOperator::GreaterOrEqual:
-    str << m_leftOperand << " >= " << m_rightOperand;
-    break;
-  case BinaryOperator::Equal:
-    str << m_leftOperand << " == " << m_rightOperand;
-    break;
-  case BinaryOperator::NotEqual:
-    str << m_leftOperand << " != " << m_rightOperand;
-    break;
-  case BinaryOperator::Range:
-    str << m_leftOperand << ".." << m_rightOperand;
-    break;
-  case BinaryOperator::Case:
-    str << m_leftOperand << " -> " << m_rightOperand;
-    break;
-    switchDefault();
-  };
-}
-
-const std::string& SubscriptExpression::AutoRangeParameterName()
-{
-  static const std::string Name = "__AutoRangeParameter";
-  return Name;
-}
-
-SubscriptExpression::SubscriptExpression(
-  ExpressionNode leftOperand, ExpressionNode rightOperand)
-  : m_leftOperand{std::move(leftOperand)}
-  , m_rightOperand{std::move(rightOperand)}
-{
-}
-
-Value SubscriptExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
-{
-  const auto leftValue = m_leftOperand.evaluate(context, trace);
+  const auto leftValue = expression.leftOperand.evaluate(context, trace);
 
   auto stack = EvaluationStack{context};
-  stack.declareVariable(AutoRangeParameterName(), Value(leftValue.length() - 1u));
+  stack.declareVariable(
+    SubscriptExpression::AutoRangeParameterName(), Value(leftValue.length() - 1u));
 
-  const auto rightValue = m_rightOperand.evaluate(stack, trace);
+  const auto rightValue = expression.rightOperand.evaluate(stack, trace);
   return leftValue[rightValue];
 }
 
-std::unique_ptr<Expression> SubscriptExpression::optimize() const
+Value evaluate(
+  const SwitchExpression& expression,
+  const EvaluationContext& context,
+  EvaluationTrace* trace)
 {
-  auto optimizedLeftOperand = m_leftOperand.optimize();
-  auto optimizedRightOperand = m_rightOperand.optimize();
-
-  const auto evaluationContext = EvaluationContext{};
-  if (auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
-      leftValue != Value::Undefined)
-  {
-    auto stack = EvaluationStack{evaluationContext};
-    stack.declareVariable(AutoRangeParameterName(), Value(leftValue.length() - 1u));
-
-    if (auto rightValue = optimizedRightOperand.evaluate(stack);
-        rightValue != Value::Undefined)
-    {
-      if (auto value = leftValue[rightValue]; value != Value::Undefined)
-      {
-        return std::make_unique<LiteralExpression>(std::move(value));
-      }
-    }
-  }
-
-  return std::make_unique<SubscriptExpression>(
-    std::move(optimizedLeftOperand), std::move(optimizedRightOperand));
-}
-
-bool SubscriptExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool SubscriptExpression::operator==(const SubscriptExpression& rhs) const
-{
-  return m_leftOperand == rhs.m_leftOperand && m_rightOperand == rhs.m_rightOperand;
-}
-
-void SubscriptExpression::appendToStream(std::ostream& str) const
-{
-  str << m_leftOperand << "[" << m_rightOperand << "]";
-}
-
-SwitchExpression::SwitchExpression(std::vector<ExpressionNode> cases)
-  : m_cases{std::move(cases)}
-{
-}
-
-Value SwitchExpression::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
-{
-  for (const auto& case_ : m_cases)
+  for (const auto& case_ : expression.cases)
   {
     if (auto result = case_.evaluate(context, trace); result != Value::Undefined)
     {
@@ -1403,49 +902,639 @@ Value SwitchExpression::evaluate(
   return Value::Undefined;
 }
 
-std::unique_ptr<Expression> SwitchExpression::optimize() const
+Value evaluateExpression(
+  const Expression& expression, const EvaluationContext& context, EvaluationTrace* trace)
 {
-  if (m_cases.empty())
+  return std::visit(
+    [&](const auto& x) { return evaluate(x, context, trace); }, expression);
+}
+
+
+Expression optimize(const LiteralExpression& expression)
+{
+  return LiteralExpression{expression.value};
+}
+
+Expression optimize(const VariableExpression& expression)
+{
+  return VariableExpression{expression.variableName};
+}
+
+Expression optimize(const ArrayExpression& expression)
+{
+  auto optimizedExpressions =
+    expression.elements
+    | std::views::transform([](const auto& x) { return x.optimize(); });
+
+  auto values = ArrayType{};
+  values.reserve(expression.elements.size());
+
+  const auto evaluationContext = EvaluationContext{};
+  for (const auto& optimizedExpression : optimizedExpressions)
   {
-    return std::make_unique<SwitchExpression>(m_cases);
+    if (auto value = optimizedExpression.evaluate(evaluationContext);
+        value != Value::Undefined)
+    {
+      values.push_back(std::move(value));
+    }
+    else
+    {
+      return ArrayExpression{
+        std::move(optimizedExpressions) | kdl::to<std::vector<ExpressionNode>>()};
+    }
+  }
+
+  return LiteralExpression{Value{std::move(values)}};
+}
+
+Expression optimize(const MapExpression& expression)
+{
+  auto optimizedExpressions =
+    expression.elements | std::views::transform([](const auto& entry) {
+      return std::pair{entry.first, entry.second.optimize()};
+    });
+
+  auto values = MapType{};
+
+  const auto evaluationContext = EvaluationContext{};
+  for (const auto& [key, element] : optimizedExpressions)
+  {
+    if (auto value = element.evaluate(evaluationContext); value != Value::Undefined)
+    {
+      values.emplace(key, std::move(value));
+    }
+    else
+    {
+      return MapExpression{
+        std::move(optimizedExpressions)
+        | kdl::to<std::map<std::string, ExpressionNode>>()};
+    }
+  }
+
+  return LiteralExpression{Value{std::move(values)}};
+}
+
+Expression optimize(const UnaryExpression& expression)
+{
+  const auto evaluationContext = EvaluationContext{};
+  auto optimizedOperand = expression.operand.optimize();
+  if (auto value = evaluateUnaryExpression(
+        expression.operation, optimizedOperand.evaluate(evaluationContext));
+      value != Value::Undefined)
+  {
+    return LiteralExpression{std::move(value)};
+  }
+
+  return UnaryExpression{expression.operation, std::move(optimizedOperand)};
+}
+
+Expression optimize(const BinaryExpression& expression)
+{
+  auto optimizedLeftOperand = std::optional<ExpressionNode>{};
+  auto optimizedRightOperand = std::optional<ExpressionNode>{};
+
+  const auto evaluationContext = EvaluationContext{};
+
+  const auto evaluateLeftOperand = [&] {
+    optimizedLeftOperand = expression.leftOperand.optimize();
+    return optimizedLeftOperand->evaluate(evaluationContext);
+  };
+
+  const auto evaluateRightOperand = [&] {
+    optimizedRightOperand = expression.rightOperand.optimize();
+    return optimizedRightOperand->evaluate(evaluationContext);
+  };
+
+  if (auto value = evaluateBinaryExpression(
+        expression.operation, evaluateLeftOperand, evaluateRightOperand);
+      value != Value::Undefined)
+  {
+    return LiteralExpression{std::move(value)};
+  }
+
+  return BinaryExpression{
+    expression.operation,
+    std::move(optimizedLeftOperand).value_or(expression.leftOperand.optimize()),
+    std::move(optimizedRightOperand).value_or(expression.rightOperand.optimize())};
+}
+
+Expression optimize(const SubscriptExpression& expression)
+{
+  auto optimizedLeftOperand = expression.leftOperand.optimize();
+  auto optimizedRightOperand = expression.rightOperand.optimize();
+
+  const auto evaluationContext = EvaluationContext{};
+  if (auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
+      leftValue != Value::Undefined)
+  {
+    auto stack = EvaluationStack{evaluationContext};
+    stack.declareVariable(
+      SubscriptExpression::AutoRangeParameterName(), Value(leftValue.length() - 1u));
+
+    if (auto rightValue = optimizedRightOperand.evaluate(stack);
+        rightValue != Value::Undefined)
+    {
+      if (auto value = leftValue[rightValue]; value != Value::Undefined)
+      {
+        return LiteralExpression{std::move(value)};
+      }
+    }
+  }
+
+  return SubscriptExpression{
+    std::move(optimizedLeftOperand), std::move(optimizedRightOperand)};
+}
+
+Expression optimize(const SwitchExpression& expression)
+{
+  if (expression.cases.empty())
+  {
+    return SwitchExpression{expression.cases};
   }
 
   const auto evaluationContext = EvaluationContext{};
-  auto optimizedExpressions = kdl::vec_transform(
-    m_cases, [](const auto& expression) { return expression.optimize(); });
-  if (auto firstValue = optimizedExpressions.front().evaluate(evaluationContext);
+  auto firstOptimizedExpression = expression.cases.front().optimize();
+  if (auto firstValue = firstOptimizedExpression.evaluate(evaluationContext);
       firstValue != Value::Undefined)
   {
-    return std::make_unique<LiteralExpression>(std::move(firstValue));
+    return LiteralExpression{std::move(firstValue)};
   }
 
-  return std::make_unique<SwitchExpression>(std::move(optimizedExpressions));
-}
-
-bool SwitchExpression::operator==(const Expression& rhs) const
-{
-  return rhs == *this;
-}
-
-bool SwitchExpression::operator==(const SwitchExpression& rhs) const
-{
-  return m_cases == rhs.m_cases;
-}
-
-void SwitchExpression::appendToStream(std::ostream& str) const
-{
-  str << "{{ ";
-  size_t i = 0u;
-  for (const auto& case_ : m_cases)
+  auto optimizedExpressions =
+    std::vector<ExpressionNode>{std::move(firstOptimizedExpression)};
+  for (size_t i = 1u; i < expression.cases.size(); ++i)
   {
-    str << case_;
-    if (i < m_cases.size() - 1u)
+    optimizedExpressions.push_back(expression.cases[i].optimize());
+  }
+
+  return SwitchExpression{std::move(optimizedExpressions)};
+}
+
+Expression optimizeExpression(const Expression& expression)
+{
+  return std::visit([](const auto& x) { return optimize(x); }, expression);
+}
+
+
+size_t precedence(const BinaryOperation operation)
+{
+  switch (operation)
+  {
+  case BinaryOperation::Multiplication:
+  case BinaryOperation::Division:
+  case BinaryOperation::Modulus:
+    return 12;
+  case BinaryOperation::Addition:
+  case BinaryOperation::Subtraction:
+    return 11;
+  case BinaryOperation::BitwiseShiftLeft:
+  case BinaryOperation::BitwiseShiftRight:
+    return 10;
+  case BinaryOperation::Less:
+  case BinaryOperation::LessOrEqual:
+  case BinaryOperation::Greater:
+  case BinaryOperation::GreaterOrEqual:
+    return 9;
+  case BinaryOperation::Equal:
+  case BinaryOperation::NotEqual:
+    return 8;
+  case BinaryOperation::BitwiseAnd:
+    return 7;
+  case BinaryOperation::BitwiseXOr:
+    return 6;
+  case BinaryOperation::BitwiseOr:
+    return 5;
+  case BinaryOperation::LogicalAnd:
+    return 4;
+  case BinaryOperation::LogicalOr:
+    return 3;
+  case BinaryOperation::Range:
+    return 2;
+  case BinaryOperation::Case:
+    return 1;
+    switchDefault();
+  };
+}
+
+size_t precedence(const Expression& expression)
+{
+  return std::visit(
+    kdl::overload(
+      [](const BinaryExpression& binaryExpression) {
+        return precedence(binaryExpression.operation);
+      },
+      [](const auto&) { return size_t(13); }),
+    expression);
+}
+
+} // namespace
+
+std::ostream& operator<<(std::ostream& lhs, const Expression& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
+}
+
+ExpressionNode::ExpressionNode(
+  std::shared_ptr<Expression> expression, std::optional<FileLocation> location)
+  : m_expression{std::move(expression)}
+  , m_location{std::move(location)}
+{
+}
+
+ExpressionNode::ExpressionNode(
+  Expression&& expression, std::optional<FileLocation> location)
+  : m_expression{std::make_shared<Expression>(std::move(expression))}
+  , m_location{std::move(location)}
+{
+  rebalanceByPrecedence();
+}
+
+Value ExpressionNode::evaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
+{
+  auto value = evaluateExpression(*m_expression, context, trace);
+  if (trace)
+  {
+    trace->addTrace(value, *this);
+  }
+  return value;
+}
+
+Value ExpressionNode::evaluate(
+  const EvaluationContext& context, EvaluationTrace& trace) const
+{
+  return evaluate(context, &trace);
+}
+
+ExpressionNode ExpressionNode::optimize() const
+{
+  return ExpressionNode{
+    std::make_shared<Expression>(optimizeExpression(*m_expression)), m_location};
+}
+
+const std::optional<FileLocation>& ExpressionNode::location() const
+{
+  return m_location;
+}
+
+std::string ExpressionNode::asString() const
+{
+  auto str = std::stringstream{};
+  str << *this;
+  return str.str();
+}
+
+bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs)
+{
+  return *lhs.m_expression == *rhs.m_expression;
+}
+
+bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ExpressionNode& rhs)
+{
+  lhs << *rhs.m_expression;
+  return lhs;
+}
+
+void ExpressionNode::rebalanceByPrecedence()
+{
+  /*
+   * The expression tree has a similar invariant to a heap: For any given node, its
+   * precedence must be less than or equal to the precedences of its children. This
+   * guarantees that evaluating the tree in a depth first traversal yields correct results
+   * because the nodes with the highest precedence are evaluated before the nodes with
+   * lower precedence.
+   */
+
+  std::visit(
+    kdl::overload(
+      [&](BinaryExpression& binaryExpression) {
+        const auto myPrecedence = precedence(*m_expression);
+        const auto leftPrecedence =
+          precedence(*binaryExpression.leftOperand.m_expression);
+        const auto rightPrecedence =
+          precedence(*binaryExpression.rightOperand.m_expression);
+
+        if (myPrecedence > std::min(leftPrecedence, rightPrecedence))
+        {
+          if (leftPrecedence < rightPrecedence)
+          {
+            // push this operator into the right subtree, rotating the right node up, and
+            // rebalancing the right subtree again
+            auto leftExpressionNode = std::move(binaryExpression.leftOperand);
+            auto& leftBinaryExpression =
+              std::get<BinaryExpression>(*leftExpressionNode.m_expression);
+
+            binaryExpression.leftOperand = std::move(leftBinaryExpression.rightOperand);
+            leftBinaryExpression.rightOperand = std::move(*this);
+            *this = std::move(leftExpressionNode);
+
+            binaryExpression.rightOperand.rebalanceByPrecedence();
+          }
+          else
+          {
+            // push this operator into the left subtree, rotating the left node up, and
+            // rebalancing the left subtree again
+            auto rightExpressionNode = std::move(binaryExpression.rightOperand);
+            auto& rightBinaryExpression =
+              std::get<BinaryExpression>(*rightExpressionNode.m_expression);
+
+            binaryExpression.rightOperand = std::move(rightBinaryExpression.leftOperand);
+            rightBinaryExpression.leftOperand = std::move(*this);
+            *this = std::move(rightExpressionNode);
+
+            binaryExpression.leftOperand.rebalanceByPrecedence();
+          }
+        }
+      },
+      [](auto&) {}),
+    *m_expression);
+}
+
+
+bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs)
+{
+  return lhs.value == rhs.value;
+}
+
+bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs)
+{
+  return lhs << rhs.value;
+}
+
+
+bool operator==(const VariableExpression& lhs, const VariableExpression& rhs)
+{
+  return lhs.variableName == rhs.variableName;
+}
+
+bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs)
+{
+  return lhs << rhs.variableName;
+}
+
+
+bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs)
+{
+  return lhs.elements == rhs.elements;
+}
+
+bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs)
+{
+  lhs << "[ ";
+  for (size_t i = 0; i < rhs.elements.size(); ++i)
+  {
+    lhs << rhs.elements[i];
+    if (i < rhs.elements.size() - 1)
     {
-      str << ", ";
+      lhs << ", ";
+    }
+  }
+  lhs << " ]";
+
+  return lhs;
+}
+
+
+bool operator==(const MapExpression& lhs, const MapExpression& rhs)
+{
+  return lhs.elements == rhs.elements;
+}
+
+bool operator!=(const MapExpression& lhs, const MapExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs)
+{
+  lhs << "{ ";
+  size_t i = 0u;
+  for (const auto& [key, expression] : rhs.elements)
+  {
+    lhs << "\"" << key << "\": " << expression;
+    if (i < rhs.elements.size() - 1u)
+    {
+      lhs << ", ";
     }
     ++i;
   }
-  str << " }}";
+  lhs << " }";
+
+  return lhs;
+}
+
+
+bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs)
+{
+  return lhs.operation == rhs.operation && lhs.operand == rhs.operand;
+}
+
+bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs)
+{
+  switch (rhs.operation)
+  {
+  case UnaryOperation::Plus:
+    lhs << "+" << rhs.operand;
+    break;
+  case UnaryOperation::Minus:
+    lhs << "-" << rhs.operand;
+    break;
+  case UnaryOperation::LogicalNegation:
+    lhs << "!" << rhs.operand;
+    break;
+  case UnaryOperation::BitwiseNegation:
+    lhs << "~" << rhs.operand;
+    break;
+  case UnaryOperation::Group:
+    lhs << "( " << rhs.operand << " )";
+    break;
+    switchDefault();
+  }
+
+  return lhs;
+}
+
+
+ExpressionNode BinaryExpression::createAutoRangeWithRightOperand(
+  ExpressionNode rightOperand, FileLocation location)
+{
+  auto leftOperand = ExpressionNode{
+    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
+  return ExpressionNode{
+    BinaryExpression{
+      BinaryOperation::Range, std::move(leftOperand), std::move(rightOperand)},
+    std::move(location)};
+}
+
+ExpressionNode BinaryExpression::createAutoRangeWithLeftOperand(
+  ExpressionNode leftOperand, FileLocation location)
+{
+  auto rightOperand = ExpressionNode{
+    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
+  return ExpressionNode{
+    BinaryExpression{
+      BinaryOperation::Range, std::move(leftOperand), std::move(rightOperand)},
+    std::move(location)};
+}
+
+
+bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs)
+{
+  return lhs.operation == rhs.operation && lhs.leftOperand == rhs.leftOperand
+         && lhs.rightOperand == rhs.rightOperand;
+}
+
+bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
+{
+  switch (rhs.operation)
+  {
+  case BinaryOperation::Addition:
+    lhs << rhs.leftOperand << " + " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Subtraction:
+    lhs << rhs.leftOperand << " - " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Multiplication:
+    lhs << rhs.leftOperand << " * " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Division:
+    lhs << rhs.leftOperand << " / " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Modulus:
+    lhs << rhs.leftOperand << " % " << rhs.rightOperand;
+    break;
+  case BinaryOperation::LogicalAnd:
+    lhs << rhs.leftOperand << " && " << rhs.rightOperand;
+    break;
+  case BinaryOperation::LogicalOr:
+    lhs << rhs.leftOperand << " || " << rhs.rightOperand;
+    break;
+  case BinaryOperation::BitwiseAnd:
+    lhs << rhs.leftOperand << " & " << rhs.rightOperand;
+    break;
+  case BinaryOperation::BitwiseXOr:
+    lhs << rhs.leftOperand << " ^ " << rhs.rightOperand;
+    break;
+  case BinaryOperation::BitwiseOr:
+    lhs << rhs.leftOperand << " | " << rhs.rightOperand;
+    break;
+  case BinaryOperation::BitwiseShiftLeft:
+    lhs << rhs.leftOperand << " << " << rhs.rightOperand;
+    break;
+  case BinaryOperation::BitwiseShiftRight:
+    lhs << rhs.leftOperand << " >> " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Less:
+    lhs << rhs.leftOperand << " < " << rhs.rightOperand;
+    break;
+  case BinaryOperation::LessOrEqual:
+    lhs << rhs.leftOperand << " <= " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Greater:
+    lhs << rhs.leftOperand << " > " << rhs.rightOperand;
+    break;
+  case BinaryOperation::GreaterOrEqual:
+    lhs << rhs.leftOperand << " >= " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Equal:
+    lhs << rhs.leftOperand << " == " << rhs.rightOperand;
+    break;
+  case BinaryOperation::NotEqual:
+    lhs << rhs.leftOperand << " != " << rhs.rightOperand;
+    break;
+  case BinaryOperation::Range:
+    lhs << rhs.leftOperand << ".." << rhs.rightOperand;
+    break;
+  case BinaryOperation::Case:
+    lhs << rhs.leftOperand << " -> " << rhs.rightOperand;
+    break;
+    switchDefault();
+  };
+
+  return lhs;
+}
+
+
+const std::string& SubscriptExpression::AutoRangeParameterName()
+{
+  static const std::string Name = "__AutoRangeParameter";
+  return Name;
+}
+
+
+bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
+{
+  return lhs.leftOperand == rhs.leftOperand && lhs.rightOperand == rhs.rightOperand;
+}
+
+bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs)
+{
+  return lhs << rhs.leftOperand << "[" << rhs.rightOperand << "]";
+}
+
+
+bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs)
+{
+  return lhs.cases == rhs.cases;
+}
+
+bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs)
+{
+  return !(lhs == rhs);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs)
+{
+  lhs << "{{ ";
+  size_t i = 0u;
+  for (const auto& case_ : rhs.cases)
+  {
+    lhs << case_;
+    if (i < rhs.cases.size() - 1u)
+    {
+      lhs << ", ";
+    }
+    ++i;
+  }
+  lhs << " }}";
+
+  return lhs;
 }
 
 } // namespace TrenchBroom::EL

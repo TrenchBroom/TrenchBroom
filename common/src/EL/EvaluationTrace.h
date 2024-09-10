@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "EL/Value.h"
 #include "FileLocation.h"
 

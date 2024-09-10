@@ -25,11 +25,6 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::EL
-{
-class EvaluationTrace;
-}
-
 namespace TrenchBroom::IO
 {
 

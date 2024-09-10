@@ -319,7 +319,7 @@ EL::ExpressionNode ELParser::parseGroupedTerm()
   expect(ELToken::CParen, m_tokenizer.nextToken());
 
   auto lhs = EL::ExpressionNode{
-    EL::UnaryExpression{EL::UnaryOperator::Group, std::move(expression)},
+    EL::UnaryExpression{EL::UnaryOperation::Group, std::move(expression)},
     token.location()};
   if (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
   {
@@ -488,7 +488,7 @@ EL::ExpressionNode ELParser::parseExpressionOrRange()
     auto token = m_tokenizer.nextToken();
     expression = EL::ExpressionNode{
       EL::BinaryExpression{
-        EL::BinaryOperator::Range, std::move(expression), parseExpression()},
+        EL::BinaryOperation::Range, std::move(expression), parseExpression()},
       token.location()};
   }
 
@@ -514,7 +514,7 @@ EL::ExpressionNode ELParser::parseExpressionOrAnyRange()
       {
         expression = EL::ExpressionNode{
           EL::BinaryExpression{
-            EL::BinaryOperator::Range, std::move(*expression), parseExpression()},
+            EL::BinaryOperation::Range, std::move(*expression), parseExpression()},
           token.location()};
       }
       else
@@ -559,11 +559,11 @@ EL::ExpressionNode ELParser::parseMap()
 
 EL::ExpressionNode ELParser::parseUnaryOperator()
 {
-  static const auto TokenMap = std::unordered_map<ELToken::Type, EL::UnaryOperator>{
-    {ELToken::Addition, EL::UnaryOperator::Plus},
-    {ELToken::Subtraction, EL::UnaryOperator::Minus},
-    {ELToken::LogicalNegation, EL::UnaryOperator::LogicalNegation},
-    {ELToken::BitwiseNegation, EL::UnaryOperator::BitwiseNegation},
+  static const auto TokenMap = std::unordered_map<ELToken::Type, EL::UnaryOperation>{
+    {ELToken::Addition, EL::UnaryOperation::Plus},
+    {ELToken::Subtraction, EL::UnaryOperation::Minus},
+    {ELToken::LogicalNegation, EL::UnaryOperation::LogicalNegation},
+    {ELToken::BitwiseNegation, EL::UnaryOperation::BitwiseNegation},
   };
 
   auto token = m_tokenizer.nextToken();
@@ -609,27 +609,27 @@ EL::ExpressionNode ELParser::parseSwitch()
 
 EL::ExpressionNode ELParser::parseCompoundTerm(EL::ExpressionNode lhs)
 {
-  static const auto TokenMap = std::unordered_map<ELToken::Type, EL::BinaryOperator>{
-    {ELToken::Addition, EL::BinaryOperator::Addition},
-    {ELToken::Subtraction, EL::BinaryOperator::Subtraction},
-    {ELToken::Multiplication, EL::BinaryOperator::Multiplication},
-    {ELToken::Division, EL::BinaryOperator::Division},
-    {ELToken::Modulus, EL::BinaryOperator::Modulus},
-    {ELToken::LogicalAnd, EL::BinaryOperator::LogicalAnd},
-    {ELToken::LogicalOr, EL::BinaryOperator::LogicalOr},
-    {ELToken::BitwiseAnd, EL::BinaryOperator::BitwiseAnd},
-    {ELToken::BitwiseXOr, EL::BinaryOperator::BitwiseXOr},
-    {ELToken::BitwiseOr, EL::BinaryOperator::BitwiseOr},
-    {ELToken::BitwiseShiftLeft, EL::BinaryOperator::BitwiseShiftLeft},
-    {ELToken::BitwiseShiftRight, EL::BinaryOperator::BitwiseShiftRight},
-    {ELToken::Less, EL::BinaryOperator::Less},
-    {ELToken::LessOrEqual, EL::BinaryOperator::LessOrEqual},
-    {ELToken::Greater, EL::BinaryOperator::Greater},
-    {ELToken::GreaterOrEqual, EL::BinaryOperator::GreaterOrEqual},
-    {ELToken::Equal, EL::BinaryOperator::Equal},
-    {ELToken::NotEqual, EL::BinaryOperator::NotEqual},
-    {ELToken::Range, EL::BinaryOperator::Range},
-    {ELToken::Case, EL::BinaryOperator::Case},
+  static const auto TokenMap = std::unordered_map<ELToken::Type, EL::BinaryOperation>{
+    {ELToken::Addition, EL::BinaryOperation::Addition},
+    {ELToken::Subtraction, EL::BinaryOperation::Subtraction},
+    {ELToken::Multiplication, EL::BinaryOperation::Multiplication},
+    {ELToken::Division, EL::BinaryOperation::Division},
+    {ELToken::Modulus, EL::BinaryOperation::Modulus},
+    {ELToken::LogicalAnd, EL::BinaryOperation::LogicalAnd},
+    {ELToken::LogicalOr, EL::BinaryOperation::LogicalOr},
+    {ELToken::BitwiseAnd, EL::BinaryOperation::BitwiseAnd},
+    {ELToken::BitwiseXOr, EL::BinaryOperation::BitwiseXOr},
+    {ELToken::BitwiseOr, EL::BinaryOperation::BitwiseOr},
+    {ELToken::BitwiseShiftLeft, EL::BinaryOperation::BitwiseShiftLeft},
+    {ELToken::BitwiseShiftRight, EL::BinaryOperation::BitwiseShiftRight},
+    {ELToken::Less, EL::BinaryOperation::Less},
+    {ELToken::LessOrEqual, EL::BinaryOperation::LessOrEqual},
+    {ELToken::Greater, EL::BinaryOperation::Greater},
+    {ELToken::GreaterOrEqual, EL::BinaryOperation::GreaterOrEqual},
+    {ELToken::Equal, EL::BinaryOperation::Equal},
+    {ELToken::NotEqual, EL::BinaryOperation::NotEqual},
+    {ELToken::Range, EL::BinaryOperation::Range},
+    {ELToken::Case, EL::BinaryOperation::Case},
   };
 
   while (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))

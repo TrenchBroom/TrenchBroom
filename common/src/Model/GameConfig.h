@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Color.h"
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"

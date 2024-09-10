@@ -18,7 +18,6 @@
  */
 
 #include "EL/Expression.h"
-#include "EL/ExpressionNode.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/GameConfigParser.h"

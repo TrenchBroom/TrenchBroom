@@ -21,7 +21,7 @@
 
 #include "EL/EvaluationContext.h"
 #include "EL/EvaluationTrace.h"
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Macros.h"
 #include "Model/GameEngineConfig.h"

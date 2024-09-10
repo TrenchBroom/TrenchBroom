@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/ExpressionNode.h"
+#include "EL/Expression.h"
 #include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"

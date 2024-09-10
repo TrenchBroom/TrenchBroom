@@ -21,7 +21,6 @@
 #include "Color.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expression.h"
-#include "EL/ExpressionNode.h"
 #include "FloatType.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"

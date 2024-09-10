@@ -209,14 +209,14 @@ EL::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
         EL::LiteralExpression{EL::Value{std::move(attributeValue)}}, token.location()};
       auto premiseExpression = EL::ExpressionNode{
         EL::BinaryExpression{
-          EL::BinaryOperator::Equal,
+          EL::BinaryOperation::Equal,
           std::move(keyExpression),
           std::move(valueExpression)},
         location};
 
       return EL::ExpressionNode{
         EL::BinaryExpression{
-          EL::BinaryOperator::Case,
+          EL::BinaryOperation::Case,
           std::move(premiseExpression),
           std::move(modelExpression)},
         startLocation};
@@ -226,12 +226,12 @@ EL::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
       EL::ExpressionNode{EL::LiteralExpression{EL::Value{flagValue}}, token.location()};
     auto premiseExpression = EL::ExpressionNode{
       EL::BinaryExpression{
-        EL::BinaryOperator::Equal, std::move(keyExpression), std::move(valueExpression)},
+        EL::BinaryOperation::Equal, std::move(keyExpression), std::move(valueExpression)},
       location};
 
     return EL::ExpressionNode{
       EL::BinaryExpression{
-        EL::BinaryOperator::Case,
+        EL::BinaryOperation::Case,
         std::move(premiseExpression),
         std::move(modelExpression)},
       startLocation};
