@@ -72,19 +72,11 @@ static std::shared_ptr<Assets::PropertyDefinition> mergeAttributes(
 
       if (baseclassFlag != nullptr && classFlag == nullptr)
       {
-        result->addOption(
-          baseclassFlag->value(),
-          baseclassFlag->shortDescription(),
-          baseclassFlag->longDescription(),
-          baseclassFlag->isDefault());
+        result->addOption(baseclassFlag);
       }
       else if (classFlag != nullptr)
       {
-        result->addOption(
-          classFlag->value(),
-          classFlag->shortDescription(),
-          classFlag->longDescription(),
-          classFlag->isDefault());
+        result->addOption(classFlag);
       }
     }
 

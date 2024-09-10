@@ -21,6 +21,7 @@ target_link_libraries(kdl INTERFACE Threads::Threads)
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
     "${KDL_INCLUDE_DIR}/kdl/bitset.h"
+    "${KDL_INCLUDE_DIR}/kdl/ct_map.h"
     "${KDL_INCLUDE_DIR}/kdl/collection_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
