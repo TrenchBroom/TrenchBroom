@@ -24,6 +24,8 @@
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
+#include <fmt/ostream.h>
+
 #include <cmath>
 #include <map>
 #include <string>
@@ -802,6 +804,74 @@ TEST_CASE("ExpressionTest.testOptimize")
   CAPTURE(expression);
 
   CHECK(IO::ELParser::parseStrict(expression).optimize() == expectedExpression);
+}
+
+namespace
+{
+std::vector<std::string> preorderVisit(const std::string& str)
+{
+  auto result = std::vector<std::string>{};
+
+  IO::ELParser::parseStrict(str).accept(kdl::overload(
+    [&](const LiteralExpression& literalExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
+    },
+    [&](const VariableExpression& variableExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(variableExpression)));
+    },
+    [&](const auto& thisLambda, const ArrayExpression& arrayExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(arrayExpression)));
+      for (const auto& element : arrayExpression.elements)
+      {
+        element.accept(thisLambda);
+      }
+    },
+    [&](const auto& thisLambda, const MapExpression& mapExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(mapExpression)));
+      for (const auto& [key, element] : mapExpression.elements)
+      {
+        element.accept(thisLambda);
+      }
+    },
+    [&](const auto& thisLambda, const UnaryExpression& unaryExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(unaryExpression)));
+      unaryExpression.operand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const BinaryExpression& binaryExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(binaryExpression)));
+      binaryExpression.leftOperand.accept(thisLambda);
+      binaryExpression.rightOperand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const SubscriptExpression& subscriptExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(subscriptExpression)));
+      subscriptExpression.leftOperand.accept(thisLambda);
+      subscriptExpression.rightOperand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
+      for (const auto& caseExpression : switchExpression.cases)
+      {
+        caseExpression.accept(thisLambda);
+      }
+    }));
+  return result;
+}
+} // namespace
+
+TEST_CASE("ExpressionTest.accept")
+{
+  CHECK(preorderVisit("1") == std::vector<std::string>{"1"});
+  CHECK(preorderVisit("a") == std::vector<std::string>{"a"});
+  CHECK(preorderVisit("[1, 2]") == std::vector<std::string>{"[ 1, 2 ]", "1", "2"});
+  CHECK(
+    preorderVisit("{x:1, y:2}")
+    == std::vector<std::string>{R"({ "x": 1, "y": 2 })", "1", "2"});
+  CHECK(preorderVisit("+1") == std::vector<std::string>{"+1", "1"});
+  CHECK(preorderVisit("1 + 2") == std::vector<std::string>{"1 + 2", "1", "2"});
+  CHECK(preorderVisit("x[1]") == std::vector<std::string>{"x[1]", "x", "1"});
+  CHECK(
+    preorderVisit("{{ x -> 1 }}")
+    == std::vector<std::string>{"{{ x -> 1 }}", "x -> 1", "x", "1"});
 }
 
 } // namespace TrenchBroom::EL

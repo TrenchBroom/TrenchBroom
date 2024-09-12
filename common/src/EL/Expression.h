@@ -53,6 +53,24 @@ using Expression = std::variant<
 
 std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
 
+template <typename Visitor, typename Enable = void>
+struct VisitorResultType
+{
+  using type = std::invoke_result_t<Visitor, const Visitor&, const LiteralExpression&>;
+};
+
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<std::is_invocable_v<Visitor, const LiteralExpression&>>>
+{
+  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
+};
+
+template <typename Visitor>
+using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
+
+
 class ExpressionNode
 {
 private:
@@ -66,6 +84,9 @@ private:
 public:
   explicit ExpressionNode(
     Expression&& expression, std::optional<FileLocation> location = std::nullopt);
+
+  template <typename Visitor>
+  VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
 
   Value evaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
@@ -209,5 +230,22 @@ bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs);
 bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs);
+
+template <typename Visitor>
+VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) const
+{
+  return std::visit(
+    [&](const auto& x) {
+      if constexpr (std::is_invocable_v<Visitor, decltype(x)>)
+      {
+        return visitor(x);
+      }
+      else
+      {
+        return visitor(visitor, x);
+      }
+    },
+    *m_expression);
+}
 
 } // namespace TrenchBroom::EL
