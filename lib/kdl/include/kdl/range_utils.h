@@ -26,6 +26,30 @@ namespace kdl
 {
 namespace detail
 {
+template <typename R>
+auto get_begin(const R& range)
+{
+  return range.begin();
+}
+
+template <typename R>
+auto get_end(const R& range)
+{
+  return range.end();
+}
+
+template <typename R>
+auto get_begin(R&& range)
+{
+  return std::make_move_iterator(range.begin());
+}
+
+template <typename R>
+auto get_end(R&& range)
+{
+  return std::make_move_iterator(range.end());
+}
+
 // Type acts as a tag to find the correct operator| overload
 template <typename C>
 struct to_helper
@@ -37,7 +61,7 @@ template <typename Container, std::ranges::range R>
 requires std::convertible_to < std::ranges::range_value_t<R>,
 typename Container::value_type > Container operator|(R&& r, to_helper<Container>)
 {
-  return Container{r.begin(), r.end()};
+  return Container{get_begin(r), get_end(r)};
 }
 
 } // namespace detail
@@ -47,23 +71,5 @@ requires(!std::ranges::view<Container>) auto to()
 {
   return detail::to_helper<Container>{};
 }
-
-namespace detail
-{
-// Type acts as a tag to find the correct operator| overload
-struct to_vector_helper
-{
-};
-
-// This actually does the work
-template <std::ranges::range R>
-auto operator|(R&& r, to_vector_helper)
-{
-  return std::vector(r.begin(), r.end());
-}
-
-} // namespace detail
-
-constexpr auto to_vector = detail::to_vector_helper{};
 
 } // namespace kdl

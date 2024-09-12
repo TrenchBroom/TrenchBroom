@@ -180,7 +180,7 @@ const std::vector<const EntityModel*> EntityModelManager::
   const auto toPointer = [](const auto& model) { return &model; };
 
   return m_models | views::values | views::filter(filterByResourceId)
-         | views::transform(toPointer) | kdl::to_vector;
+         | views::transform(toPointer) | kdl::to<std::vector<const EntityModel*>>();
 }
 
 const EntityModel* EntityModelManager::safeGetModel(

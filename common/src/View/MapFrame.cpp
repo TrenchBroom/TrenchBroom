@@ -2188,7 +2188,7 @@ void MapFrame::debugCreateCube()
   {
     const auto size = str.toDouble();
     const auto bounds = vm::bbox3{size / 2.0};
-    const auto positions = bounds.vertices() | kdl::to_vector;
+    const auto positions = bounds.vertices() | kdl::to<std::vector<vm::vec3>>();
     m_document->createBrush(positions);
   }
 }

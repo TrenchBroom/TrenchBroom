@@ -132,7 +132,8 @@ protected:
     const auto filterByType = std::views::filter(
       [&typeMask](const auto& pair) { return (typeMask & pair.first) != 0; });
 
-    const auto names = m_tokenNames | filterByType | std::views::values | kdl::to_vector;
+    const auto names = m_tokenNames | filterByType | std::views::values
+                       | kdl::to<std::vector<std::string>>();
     return names.empty()       ? "unknown token type"
            : names.size() == 1 ? names[0]
                                : kdl::str_join(names, ", ", ", or ", " or ");
