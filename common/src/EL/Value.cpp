@@ -361,7 +361,7 @@ size_t Value::length() const
       [](const NumberType&) -> size_t { return 1u; },
       [](const ArrayType& a) -> size_t { return a.size(); },
       [](const MapType& m) -> size_t { return m.size(); },
-      [](const RangeType& r) -> size_t { return r.size(); },
+      [](const RangeType&) -> size_t { return 2u; },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     *m_value);
@@ -827,14 +827,12 @@ void Value::appendToStream(
       },
       [&](const RangeType& r) {
         str << "[";
-        for (size_t i = 0; i < r.size(); ++i)
-        {
-          str << r[i];
-          if (i < r.size() - 1)
-          {
-            str << ", ";
-          }
-        }
+        std::visit(
+          kdl::overload(
+            [&](const LeftBoundedRange& lbr) { str << lbr.first << ".."; },
+            [&](const RightBoundedRange& rbr) { str << ".." << rbr.last; },
+            [&](const BoundedRange& br) { str << br.first << ".." << br.last; }),
+          r);
         str << "]";
       },
       [&](const NullType&) { str << "null"; },
@@ -861,6 +859,31 @@ size_t computeIndex(const Value& indexValue, const size_t indexableSize)
 }
 
 void computeIndexArray(
+  const LeftBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const RightBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const BoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length());
+  range.forEach([&](const auto i) { result.push_back(computeIndex(i, indexableSize)); });
+}
+
+void computeIndexArray(
   const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
 {
   switch (indexValue.type())
@@ -875,12 +898,9 @@ void computeIndexArray(
     break;
   }
   case ValueType::Range: {
-    const RangeType& range = indexValue.rangeValue();
-    result.reserve(result.size() + range.size());
-    for (size_t i = 0; i < range.size(); ++i)
-    {
-      result.push_back(computeIndex(range[i], indexableSize));
-    }
+    std::visit(
+      [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
+      indexValue.rangeValue());
     break;
   }
   case ValueType::Boolean:

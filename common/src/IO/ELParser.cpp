@@ -468,7 +468,7 @@ EL::ExpressionNode ELParser::parseArray()
   {
     do
     {
-      elements.push_back(parseExpressionOrRange());
+      elements.push_back(parseExpressionOrBoundedRange());
     } while (expect(ELToken::Comma | ELToken::CBracket, m_tokenizer.nextToken())
                .hasType(ELToken::Comma));
   }
@@ -480,7 +480,7 @@ EL::ExpressionNode ELParser::parseArray()
   return EL::ExpressionNode{EL::ArrayExpression{std::move(elements)}, location};
 }
 
-EL::ExpressionNode ELParser::parseExpressionOrRange()
+EL::ExpressionNode ELParser::parseExpressionOrBoundedRange()
 {
   auto expression = parseExpression();
   if (m_tokenizer.peekToken().hasType(ELToken::Range))
@@ -488,7 +488,7 @@ EL::ExpressionNode ELParser::parseExpressionOrRange()
     auto token = m_tokenizer.nextToken();
     expression = EL::ExpressionNode{
       EL::BinaryExpression{
-        EL::BinaryOperation::Range, std::move(expression), parseExpression()},
+        EL::BinaryOperation::BoundedRange, std::move(expression), parseExpression()},
       token.location()};
   }
 
@@ -501,8 +501,9 @@ EL::ExpressionNode ELParser::parseExpressionOrAnyRange()
   if (m_tokenizer.peekToken().hasType(ELToken::Range))
   {
     auto token = m_tokenizer.nextToken();
-    expression = EL::BinaryExpression::createAutoRangeWithRightOperand(
-      parseExpression(), token.location());
+    expression = EL::ExpressionNode{
+      EL::UnaryExpression{EL::UnaryOperation::RightBoundedRange, parseExpression()},
+      token.location()};
   }
   else
   {
@@ -514,13 +515,15 @@ EL::ExpressionNode ELParser::parseExpressionOrAnyRange()
       {
         expression = EL::ExpressionNode{
           EL::BinaryExpression{
-            EL::BinaryOperation::Range, std::move(*expression), parseExpression()},
+            EL::BinaryOperation::BoundedRange, std::move(*expression), parseExpression()},
           token.location()};
       }
       else
       {
-        expression = EL::BinaryExpression::createAutoRangeWithLeftOperand(
-          std::move(*expression), token.location());
+        expression = EL::ExpressionNode{
+          EL::UnaryExpression{
+            EL::UnaryOperation::LeftBoundedRange, std::move(*expression)},
+          token.location()};
       }
     }
   }
@@ -628,7 +631,7 @@ EL::ExpressionNode ELParser::parseCompoundTerm(EL::ExpressionNode lhs)
     {ELToken::GreaterOrEqual, EL::BinaryOperation::GreaterOrEqual},
     {ELToken::Equal, EL::BinaryOperation::Equal},
     {ELToken::NotEqual, EL::BinaryOperation::NotEqual},
-    {ELToken::Range, EL::BinaryOperation::Range},
+    {ELToken::Range, EL::BinaryOperation::BoundedRange},
     {ELToken::Case, EL::BinaryOperation::Case},
   };
 

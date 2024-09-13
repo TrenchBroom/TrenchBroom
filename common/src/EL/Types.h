@@ -21,12 +21,86 @@
 
 #include "EL/EL_Forward.h"
 
+#include "kdl/reflection_decl.h"
+
+#include <iosfwd>
 #include <map>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace TrenchBroom::EL
 {
+
+namespace detail
+{
+size_t length(long first, long last);
+
+template <typename F>
+void forEach(const long first, const long last, const F& f)
+{
+  if (first <= last)
+  {
+    for (auto i = first; i <= last; ++i)
+    {
+      f(i);
+    }
+  }
+  else
+  {
+    for (auto i = first; i >= last; --i)
+    {
+      f(i);
+    }
+  }
+}
+} // namespace detail
+
+struct LeftBoundedRange
+{
+  long first;
+
+  size_t length(size_t indexableSize) const;
+
+  template <typename F>
+  void forEach(const F& f, const size_t indexableSize) const
+  {
+    detail::forEach(first, static_cast<long>(indexableSize) - 1, f);
+  }
+
+  kdl_reflect_decl(LeftBoundedRange, first);
+};
+
+struct RightBoundedRange
+{
+  long last;
+
+  size_t length(size_t indexableSize) const;
+
+  template <typename F>
+  void forEach(const F& f, const size_t indexableSize) const
+  {
+    detail::forEach(static_cast<long>(indexableSize) - 1, last, f);
+  }
+
+  kdl_reflect_decl(RightBoundedRange, last);
+};
+
+struct BoundedRange
+{
+  long first;
+  long last;
+
+  size_t length() const;
+
+  template <typename F>
+  void forEach(const F& f) const
+  {
+    detail::forEach(first, last, f);
+  }
+
+  kdl_reflect_decl(BoundedRange, first, last);
+};
 
 using BooleanType = bool;
 using StringType = std::string;
@@ -34,7 +108,9 @@ using NumberType = double;
 using IntegerType = long;
 using ArrayType = std::vector<Value>;
 using MapType = std::map<std::string, Value>;
-using RangeType = std::vector<long>;
+using RangeType = std::variant<LeftBoundedRange, RightBoundedRange, BoundedRange>;
+
+std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs);
 
 enum class ValueType
 {

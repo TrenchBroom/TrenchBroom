@@ -134,7 +134,7 @@ private:
   EL::ExpressionNode parseVariable();
   EL::ExpressionNode parseLiteral();
   EL::ExpressionNode parseArray();
-  EL::ExpressionNode parseExpressionOrRange();
+  EL::ExpressionNode parseExpressionOrBoundedRange();
   EL::ExpressionNode parseExpressionOrAnyRange();
   EL::ExpressionNode parseMap();
   EL::ExpressionNode parseUnaryOperator();

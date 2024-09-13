@@ -134,7 +134,9 @@ enum class UnaryOperation
   Minus,
   LogicalNegation,
   BitwiseNegation,
-  Group
+  Group,
+  LeftBoundedRange,
+  RightBoundedRange,
 };
 
 struct UnaryExpression
@@ -169,7 +171,7 @@ enum class BinaryOperation
   GreaterOrEqual,
   Equal,
   NotEqual,
-  Range,
+  BoundedRange,
   Case,
 };
 
@@ -178,11 +180,6 @@ struct BinaryExpression
   BinaryOperation operation;
   ExpressionNode leftOperand;
   ExpressionNode rightOperand;
-
-  static ExpressionNode createAutoRangeWithRightOperand(
-    ExpressionNode rightOperand, FileLocation location);
-  static ExpressionNode createAutoRangeWithLeftOperand(
-    ExpressionNode leftOperand, FileLocation location);
 };
 
 bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs);
@@ -193,8 +190,6 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs);
 
 struct SubscriptExpression
 {
-  static const std::string& AutoRangeParameterName();
-
   ExpressionNode leftOperand;
   ExpressionNode rightOperand;
 };

@@ -66,15 +66,9 @@ Value evaluate(
     auto value = element.evaluate(context, trace);
     if (value.hasType(ValueType::Range))
     {
-      const auto& range = value.rangeValue();
-      if (!range.empty())
-      {
-        array.reserve(array.size() + range.size() - 1u);
-        for (size_t i = 0u; i < range.size(); ++i)
-        {
-          array.emplace_back(range[i]);
-        }
-      }
+      const auto& range = std::get<BoundedRange>(value.rangeValue());
+      array.reserve(array.size() + range.length());
+      range.forEach([&](const auto& i) { array.emplace_back(i); });
     }
     else
     {
@@ -191,6 +185,18 @@ Value evaluateBitwiseNegation(const Value& v)
     v.typeName())};
 }
 
+Value evaluateLeftBoundedRange(const Value& v)
+{
+  const auto first = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+  return Value{LeftBoundedRange{first}};
+}
+
+Value evaluateRightBoundedRange(const Value& v)
+{
+  const auto last = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+  return Value{RightBoundedRange{last}};
+}
+
 Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& operand)
 {
   if (operand == Value::Undefined)
@@ -210,6 +216,10 @@ Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& oper
     return evaluateBitwiseNegation(operand);
   case UnaryOperation::Group:
     return Value{operand};
+  case UnaryOperation::LeftBoundedRange:
+    return evaluateLeftBoundedRange(operand);
+  case UnaryOperation::RightBoundedRange:
+    return evaluateRightBoundedRange(operand);
     switchDefault();
   }
 }
@@ -726,8 +736,6 @@ int evaluateCompare(const Value& lhs, const Value& rhs)
     case ValueType::Range:
       switch (rhs.type())
       {
-      case ValueType::Range:
-        return kdl::col_lexicographical_compare(lhs.rangeValue(), rhs.rangeValue());
       case ValueType::Null:
       case ValueType::Undefined:
         return 1;
@@ -736,13 +744,14 @@ int evaluateCompare(const Value& lhs, const Value& rhs)
       case ValueType::String:
       case ValueType::Array:
       case ValueType::Map:
+      case ValueType::Range:
         break;
       }
       break;
     }
 
     throw EvaluationError{fmt::format(
-      "Cannot apply compare '{}' of type '{}' to '{}' of type '{}'",
+      "Cannot compare '{}' of type '{}' to '{}' of type '{}'",
       lhs.describe(),
       typeName(lhs.type()),
       rhs.describe(),
@@ -760,7 +769,7 @@ int evaluateCompare(const Value& lhs, const Value& rhs)
   }
 }
 
-Value evaluateRange(const Value& lhs, const Value& rhs)
+Value evaluateBoundedRange(const Value& lhs, const Value& rhs)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -770,28 +779,7 @@ Value evaluateRange(const Value& lhs, const Value& rhs)
   const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
   const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
 
-  auto range = RangeType{};
-  if (from <= to)
-  {
-    range.reserve(static_cast<size_t>(to - from + 1));
-    for (long i = from; i <= to; ++i)
-    {
-      assert(range.capacity() > range.size());
-      range.push_back(i);
-    }
-  }
-  else if (to < from)
-  {
-    range.reserve(static_cast<size_t>(from - to + 1));
-    for (long i = from; i >= to; --i)
-    {
-      assert(range.capacity() > range.size());
-      range.push_back(i);
-    }
-  }
-  assert(range.capacity() == range.size());
-
-  return Value{range};
+  return Value{BoundedRange{from, to}};
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
@@ -853,8 +841,8 @@ Value evaluateBinaryExpression(
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) == 0};
   case BinaryOperation::NotEqual:
     return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) != 0};
-  case BinaryOperation::Range:
-    return Value{evaluateRange(evaluateLhs(), evaluateRhs())};
+  case BinaryOperation::BoundedRange:
+    return Value{evaluateBoundedRange(evaluateLhs(), evaluateRhs())};
   case BinaryOperation::Case:
     return evaluateCase(evaluateLhs, evaluateRhs);
     switchDefault();
@@ -878,12 +866,7 @@ Value evaluate(
   EvaluationTrace* trace)
 {
   const auto leftValue = expression.leftOperand.evaluate(context, trace);
-
-  auto stack = EvaluationStack{context};
-  stack.declareVariable(
-    SubscriptExpression::AutoRangeParameterName(), Value(leftValue.length() - 1u));
-
-  const auto rightValue = expression.rightOperand.evaluate(stack, trace);
+  const auto rightValue = expression.rightOperand.evaluate(context, trace);
   return leftValue[rightValue];
 }
 
@@ -1027,11 +1010,7 @@ Expression optimize(const SubscriptExpression& expression)
   if (auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
       leftValue != Value::Undefined)
   {
-    auto stack = EvaluationStack{evaluationContext};
-    stack.declareVariable(
-      SubscriptExpression::AutoRangeParameterName(), Value(leftValue.length() - 1u));
-
-    if (auto rightValue = optimizedRightOperand.evaluate(stack);
+    if (auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
         rightValue != Value::Undefined)
     {
       if (auto value = leftValue[rightValue]; value != Value::Undefined)
@@ -1108,7 +1087,7 @@ size_t precedence(const BinaryOperation operation)
     return 4;
   case BinaryOperation::LogicalOr:
     return 3;
-  case BinaryOperation::Range:
+  case BinaryOperation::BoundedRange:
     return 2;
   case BinaryOperation::Case:
     return 1;
@@ -1374,33 +1353,16 @@ std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs)
   case UnaryOperation::Group:
     lhs << "( " << rhs.operand << " )";
     break;
+  case UnaryOperation::LeftBoundedRange:
+    lhs << rhs.operand << "..";
+    break;
+  case UnaryOperation::RightBoundedRange:
+    lhs << ".." << rhs.operand;
+    break;
     switchDefault();
   }
 
   return lhs;
-}
-
-
-ExpressionNode BinaryExpression::createAutoRangeWithRightOperand(
-  ExpressionNode rightOperand, FileLocation location)
-{
-  auto leftOperand = ExpressionNode{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return ExpressionNode{
-    BinaryExpression{
-      BinaryOperation::Range, std::move(leftOperand), std::move(rightOperand)},
-    std::move(location)};
-}
-
-ExpressionNode BinaryExpression::createAutoRangeWithLeftOperand(
-  ExpressionNode leftOperand, FileLocation location)
-{
-  auto rightOperand = ExpressionNode{
-    VariableExpression{SubscriptExpression::AutoRangeParameterName()}, location};
-  return ExpressionNode{
-    BinaryExpression{
-      BinaryOperation::Range, std::move(leftOperand), std::move(rightOperand)},
-    std::move(location)};
 }
 
 
@@ -1473,7 +1435,7 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
   case BinaryOperation::NotEqual:
     lhs << rhs.leftOperand << " != " << rhs.rightOperand;
     break;
-  case BinaryOperation::Range:
+  case BinaryOperation::BoundedRange:
     lhs << rhs.leftOperand << ".." << rhs.rightOperand;
     break;
   case BinaryOperation::Case:
@@ -1483,13 +1445,6 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
   };
 
   return lhs;
-}
-
-
-const std::string& SubscriptExpression::AutoRangeParameterName()
-{
-  static const std::string Name = "__AutoRangeParameter";
-  return Name;
 }
 
 
