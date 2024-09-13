@@ -56,15 +56,42 @@ std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
 template <typename Visitor, typename Enable = void>
 struct VisitorResultType
 {
+  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
+};
+
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<std::is_invocable_v<
+    Visitor,
+    const Visitor&,
+    const LiteralExpression&,
+    const ExpressionNode&>>>
+{
+  using type = std::invoke_result_t<
+    Visitor,
+    const Visitor&,
+    const LiteralExpression&,
+    const ExpressionNode&>;
+};
+
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<
+    std::is_invocable_v<Visitor, const Visitor&, const LiteralExpression&>>>
+{
   using type = std::invoke_result_t<Visitor, const Visitor&, const LiteralExpression&>;
 };
 
 template <typename Visitor>
 struct VisitorResultType<
   Visitor,
-  typename std::enable_if_t<std::is_invocable_v<Visitor, const LiteralExpression&>>>
+  typename std::enable_if_t<
+    std::is_invocable_v<Visitor, const LiteralExpression&, const ExpressionNode&>>>
 {
-  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
+  using type =
+    std::invoke_result_t<Visitor, const LiteralExpression&, const ExpressionNode&>;
 };
 
 template <typename Visitor>
@@ -236,13 +263,22 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
 {
   return std::visit(
     [&](const auto& x) {
-      if constexpr (std::is_invocable_v<Visitor, decltype(x)>)
+      if constexpr (
+        std::is_invocable_v<Visitor, const Visitor&, decltype(x), const ExpressionNode&>)
       {
-        return visitor(x);
+        return visitor(visitor, x, *this);
+      }
+      else if constexpr (std::is_invocable_v<Visitor, const Visitor&, decltype(x)>)
+      {
+        return visitor(visitor, x);
+      }
+      else if constexpr (std::is_invocable_v<Visitor, decltype(x), const ExpressionNode&>)
+      {
+        return visitor(x, *this);
       }
       else
       {
-        return visitor(visitor, x);
+        return visitor(x);
       }
     },
     *m_expression);

@@ -39,31 +39,32 @@ namespace TrenchBroom::EL
 namespace
 {
 
+template <typename Evaluator>
 Value evaluate(
-  const LiteralExpression& expression, const EvaluationContext&, EvaluationTrace*)
+  const Evaluator&, const LiteralExpression& expression, const EvaluationContext&)
 {
   return expression.value;
 }
 
+template <typename Evaluator>
 Value evaluate(
+  const Evaluator&,
   const VariableExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace*)
+  const EvaluationContext& context)
 {
   return context.variableValue(expression.variableName);
 }
 
+template <typename Evaluator>
 Value evaluate(
-  const ArrayExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const Evaluator& evaluator, const ArrayExpression& expression, const EvaluationContext&)
 {
   auto array = ArrayType{};
   array.reserve(expression.elements.size());
 
   for (const auto& element : expression.elements)
   {
-    auto value = element.evaluate(context, trace);
+    auto value = element.accept(evaluator);
     if (value.hasType(ValueType::Range))
     {
       const auto& range = std::get<BoundedRange>(value.rangeValue());
@@ -79,15 +80,14 @@ Value evaluate(
   return Value{std::move(array)};
 }
 
+template <typename Evaluator>
 Value evaluate(
-  const MapExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const Evaluator& evaluator, const MapExpression& expression, const EvaluationContext&)
 {
   auto map = MapType{};
   for (const auto& [key, element] : expression.elements)
   {
-    map.emplace(key, element.evaluate(context, trace));
+    map.emplace(key, element.accept(evaluator));
   }
 
   return Value{std::move(map)};
@@ -224,13 +224,12 @@ Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& oper
   }
 }
 
+template <typename Evaluator>
 Value evaluate(
-  const UnaryExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const Evaluator& evaluator, const UnaryExpression& expression, const EvaluationContext&)
 {
   return evaluateUnaryExpression(
-    expression.operation, expression.operand.evaluate(context, trace));
+    expression.operation, expression.operand.accept(evaluator));
 }
 
 template <typename Eval>
@@ -849,47 +848,43 @@ Value evaluateBinaryExpression(
   };
 }
 
+template <typename Evaluator>
 Value evaluate(
+  const Evaluator& evaluator,
   const BinaryExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const EvaluationContext&)
 {
   return evaluateBinaryExpression(
     expression.operation,
-    [&] { return expression.leftOperand.evaluate(context, trace); },
-    [&] { return expression.rightOperand.evaluate(context, trace); });
+    [&] { return expression.leftOperand.accept(evaluator); },
+    [&] { return expression.rightOperand.accept(evaluator); });
 }
 
+template <typename Evaluator>
 Value evaluate(
+  const Evaluator& evaluator,
   const SubscriptExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const EvaluationContext&)
 {
-  const auto leftValue = expression.leftOperand.evaluate(context, trace);
-  const auto rightValue = expression.rightOperand.evaluate(context, trace);
+  const auto leftValue = expression.leftOperand.accept(evaluator);
+  const auto rightValue = expression.rightOperand.accept(evaluator);
   return leftValue[rightValue];
 }
 
+template <typename Evaluator>
 Value evaluate(
+  const Evaluator& evaluator,
   const SwitchExpression& expression,
-  const EvaluationContext& context,
-  EvaluationTrace* trace)
+  const EvaluationContext&)
 {
   for (const auto& case_ : expression.cases)
   {
-    if (auto result = case_.evaluate(context, trace); result != Value::Undefined)
+    if (auto result = case_.accept(evaluator); result != Value::Undefined)
     {
       return result;
     }
   }
   return Value::Undefined;
-}
-
-Value evaluateExpression(
-  const Expression& expression, const EvaluationContext& context, EvaluationTrace* trace)
-{
-  return std::visit(
-    [&](const auto& x) { return evaluate(x, context, trace); }, expression);
 }
 
 
@@ -1132,12 +1127,15 @@ ExpressionNode::ExpressionNode(
 Value ExpressionNode::evaluate(
   const EvaluationContext& context, EvaluationTrace* trace) const
 {
-  auto value = evaluateExpression(*m_expression, context, trace);
-  if (trace)
-  {
-    trace->addTrace(value, *this);
-  }
-  return value;
+  return accept(
+    [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
+      auto value = EL::evaluate(evaluator, expression, context);
+      if (trace)
+      {
+        trace->addTrace(value, containingNode);
+      }
+      return value;
+    });
 }
 
 Value ExpressionNode::evaluate(
