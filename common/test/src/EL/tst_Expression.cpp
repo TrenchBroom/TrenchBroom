@@ -661,9 +661,70 @@ TEST_CASE("ExpressionTest.testOperators")
   {"{k1:1} == {k1:1, k2:2}", Value{false}},
   {"{k1:1} == {k1:2, k2:2}", Value{false}},
 
+  // Case
   {"true -> 'asdf'",  Value{"asdf"}},
   {"false -> 'asdf'", Value::Undefined},
   {"false -> x[-1]",  Value::Undefined},
+  }));
+  // clang-format on
+
+  CAPTURE(expression);
+
+  if (std::holds_alternative<Value>(expectedValueOrError))
+  {
+    const auto expectedValue = std::get<Value>(expectedValueOrError);
+    CHECK(evaluate(expression) == expectedValue);
+  }
+  else
+  {
+    CHECK_THROWS_AS(evaluate(expression), EvaluationError);
+  }
+}
+
+TEST_CASE("ExpressionTest.testSubscript")
+{
+  using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
+
+  // clang-format off
+  const auto
+  [expression,           expectedValueOrError] = GENERATE(values<T>({
+  // Positive indices
+  {"'asdf'[0, 1]",                     Value{"as"}},
+  {"'asdf'[0, 1, 2]",                  Value{"asd"}},
+  {"'asdf'[1, 2]",                     Value{"sd"}},
+  {"'asdf'[1, 2, 7]",                  Value{"sd"}},
+  {"'asdf'[3, 2, 1, 0]",               Value{"fdsa"}},
+
+  // Negative indices
+  {"'asdf'[0, -1]",                    Value{"af"}},
+  {"'asdf'[-4, -3, -2, -1]",           Value{"asdf"}},
+
+  // Range
+  {"'asdf'[0..1]",                     Value{"as"}},
+  {"'asdf'[1..2]",                     Value{"sd"}},
+  {"'asdf'[0..5]",                     Value{"asdf"}},
+  {"'asdf'[3..0]",                     Value{"fdsa"}},
+  {"'asdf'[3..1]",                     Value{"fds"}},
+  {"'asdf'[3..2]",                     Value{"fd"}},
+  {"'asdf'[3..3]",                     Value{"f"}},
+  {"'asdf'[3..4]",                     Value{"f"}},
+  {"'asdf'[0..]",                      Value{"asdf"}},
+  {"'asdf'[1..]",                      Value{"sdf"}},
+  {"'asdf'[..0]",                      Value{"fdsa"}},
+  {"'asdf'[..1]",                      Value{"fds"}},
+  {"'asdf'[..2]",                      Value{"fd"}},
+  {"'asdf'[..3]",                      Value{"f"}},
+  {"'asdf'[..4]",                      Value{"f"}},
+  {"'asdf'[..5]",                      Value{"f"}},
+  {"'asdf'[-4..-1]",                   Value{"asdf"}},
+  {"'asdf'[-4..0]",                    Value{"asdfa"}},
+  {"'asdf'[-4..1]",                    Value{"asdfas"}},
+  {"'asdf'[-4..4]",                    Value{"asdfasdf"}},
+  {"'asdf'[-4..]",                     Value{"asdfasdf"}},
+  {"'asdf'[..-4]",                     Value{"fdsafdsa"}},
+
+  // Mixed
+  {"'asdfxyz'[0, 1..3, 3..1, -1..-3]", Value{"asdffdszyx"}},
   }));
   // clang-format on
 
