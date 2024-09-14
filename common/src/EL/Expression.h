@@ -118,6 +118,11 @@ public:
   Value evaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
   Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+
+  Value tryEvaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
+  Value tryEvaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+
   ExpressionNode optimize() const;
 
   const std::optional<FileLocation>& location() const;

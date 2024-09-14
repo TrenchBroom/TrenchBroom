@@ -45,6 +45,12 @@ static Value evaluate(const std::string& expression, const MapType& variables = 
   return IO::ELParser::parseStrict(expression).evaluate(context);
 }
 
+static Value tryEvaluate(const std::string& expression, const MapType& variables = {})
+{
+  const auto context = EvaluationContext{VariableTable{variables}};
+  return IO::ELParser::parseStrict(expression).evaluate(context);
+}
+
 TEST_CASE("ExpressionTest.testValueLiterals")
 {
   using T = std::tuple<std::string, Value>;
@@ -781,6 +787,28 @@ TEST_CASE("ExpressionTest.testOperatorPrecedence")
   CAPTURE(expression);
 
   CHECK(evaluate(expression) == expectedValue);
+}
+
+TEST_CASE("ExpressionTest.tryEvaluate")
+{
+  using T = std::tuple<std::string, MapType, Value>;
+
+  // clang-format off
+  const auto 
+  [expression,           variables,           expectedValue] = GENERATE(values<T>({
+  {"1",                  {},                  Value{1.0}},
+  {"a",                  {{"a", Value{2.0}}}, Value{2.0}},
+  {"1 + a",              {{"a", Value{2.0}}}, Value{3.0}},
+  {"a",                  {},                  Value::Undefined},
+  {"1 + a",              {},                  Value::Undefined},
+  {"[a, 1, 2]",          {},                  Value{ArrayType{Value::Undefined, Value{1.0}, Value{2.0}}}},
+  {"{a: 1, b: x, c: 3}", {},                  Value{MapType{{"a", Value{1.0}}, {"b", Value::Undefined}, {"c", Value{3.0}},}}},
+  }));
+  // clang-format on
+
+  CAPTURE(expression);
+
+  CHECK(tryEvaluate(expression, variables) == expectedValue);
 }
 
 TEST_CASE("ExpressionTest.testOptimize")

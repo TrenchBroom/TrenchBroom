@@ -1144,6 +1144,33 @@ Value ExpressionNode::evaluate(
   return evaluate(context, &trace);
 }
 
+Value ExpressionNode::tryEvaluate(
+  const EvaluationContext& context, EvaluationTrace* trace) const
+{
+  return accept(
+    [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
+      try
+      {
+        auto value = EL::evaluate(evaluator, expression, context);
+        if (trace)
+        {
+          trace->addTrace(value, containingNode);
+        }
+        return value;
+      }
+      catch (const EvaluationError&)
+      {
+        return Value::Undefined;
+      }
+    });
+}
+
+Value ExpressionNode::tryEvaluate(
+  const EvaluationContext& context, EvaluationTrace& trace) const
+{
+  return tryEvaluate(context, &trace);
+}
+
 ExpressionNode ExpressionNode::optimize() const
 {
   return ExpressionNode{
