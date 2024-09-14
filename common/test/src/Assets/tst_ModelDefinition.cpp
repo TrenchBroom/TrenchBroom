@@ -106,6 +106,11 @@ TEST_CASE("ModelDefinitionTest.defaultModelSpecification")
 
   {R"({path: model, skin: skin, frame: frame})",          {}},
   
+  {R"({ path: 123, skin: 1, frame: 2 })",                 {"", 1, 2}},
+  {R"({ 
+      path: "maps/b_shell0.bsp", 
+      scale : radius * 64 })", 
+                                                          {"maps/b_shell0.bsp", 0, 0}},
   }));
   // clang-format on
 

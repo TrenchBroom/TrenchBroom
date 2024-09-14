@@ -113,7 +113,8 @@ ModelSpecification ModelDefinition::modelSpecification(
 
 ModelSpecification ModelDefinition::defaultModelSpecification() const
 {
-  return modelSpecification(EL::NullVariableStore{});
+  const auto context = EL::EvaluationContext{};
+  return convertToModel(m_expression.tryEvaluate(context));
 }
 
 static std::optional<vm::vec3> scaleValue(const EL::Value& value)
