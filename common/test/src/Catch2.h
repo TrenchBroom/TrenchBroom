@@ -27,15 +27,15 @@
 // Include this header instead of <catch2/catch.hpp> to ensure that vm
 // stream operators work consistently.
 
-#include "kdl/result_io.h"
+#include "kdl/result_io.h" // IWYU pragma: export
 
-#include "vm/bbox_io.h"
-#include "vm/forward.h"
-#include "vm/line_io.h"
-#include "vm/mat_io.h"
-#include "vm/plane_io.h"
-#include "vm/ray_io.h"
-#include "vm/vec_io.h"
+#include "vm/bbox_io.h"  // IWYU pragma: export
+#include "vm/forward.h"  // IWYU pragma: export
+#include "vm/line_io.h"  // IWYU pragma: export
+#include "vm/mat_io.h"   // IWYU pragma: export
+#include "vm/plane_io.h" // IWYU pragma: export
+#include "vm/ray_io.h"   // IWYU pragma: export
+#include "vm/vec_io.h"   // IWYU pragma: export
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
 #include <catch2/catch.hpp>

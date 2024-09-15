@@ -23,7 +23,7 @@
 
 #include <vector>
 
-#include "catch2.h" // IWYU pragma: keep
+#include "catch2.h"
 
 namespace kdl
 {

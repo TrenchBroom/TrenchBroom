@@ -24,7 +24,7 @@
 #include "IO/DiskFileSystem.h"
 #include "Logger.h"
 
-#include "Catch2.h" // IWYU pragma: keep
+#include "Catch2.h"
 
 namespace TrenchBroom::IO
 {

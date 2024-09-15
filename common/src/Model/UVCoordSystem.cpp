@@ -88,74 +88,45 @@ void UVCoordSystem::translate(
   size_t uIndex = 0;
   size_t vIndex = 0;
 
-  // we prefer to use the texture axis which is closer to the XY plane for horizontal
-  // movement
-  if (vm::abs(transformedUAxis.z()) < vm::abs(transformedVAxis.z()))
+  // Select the texture axis closest to the right view axies for horizontal movement
+  if (
+    vm::abs(vm::dot(transformedUAxis, right)) > vm::abs(vm::dot(transformedVAxis, right)))
   {
     horizontalAxis = transformedUAxis;
     verticalAxis = transformedVAxis;
     uIndex = 0;
     vIndex = 1;
   }
-  else if (vm::abs(transformedVAxis.z()) < vm::abs(transformedUAxis.z()))
+  else if (
+    vm::abs(vm::dot(transformedUAxis, right)) > vm::abs(vm::dot(transformedVAxis, right)))
   {
     horizontalAxis = transformedVAxis;
     verticalAxis = transformedUAxis;
     uIndex = 1;
     vIndex = 0;
   }
+  else if (
+    vm::abs(vm::dot(transformedUAxis, up)) > vm::abs(vm::dot(transformedVAxis, up)))
+  {
+    horizontalAxis = transformedVAxis;
+    verticalAxis = transformedUAxis;
+    uIndex = 1;
+    vIndex = 0;
+  }
+  else if (
+    vm::abs(vm::dot(transformedUAxis, up)) > vm::abs(vm::dot(transformedVAxis, up)))
+  {
+    horizontalAxis = transformedUAxis;
+    verticalAxis = transformedVAxis;
+    uIndex = 0;
+    vIndex = 1;
+  }
   else
   {
-    // both texture axes have the same absolute angle towards the XY plane, prefer the one
-    // that is closer to the right view axis for horizontal movement
-
-    if (
-      vm::abs(vm::dot(right, transformedUAxis))
-      > vm::abs(vm::dot(right, transformedVAxis)))
-    {
-      // the right view axis is closer to the X texture axis
-      horizontalAxis = transformedUAxis;
-      verticalAxis = transformedVAxis;
-      uIndex = 0;
-      vIndex = 1;
-    }
-    else if (
-      vm::abs(vm::dot(right, transformedVAxis))
-      > vm::abs(vm::dot(right, transformedUAxis)))
-    {
-      // the right view axis is closer to the Y texture axis
-      horizontalAxis = transformedVAxis;
-      verticalAxis = transformedUAxis;
-      uIndex = 1;
-      vIndex = 0;
-    }
-    else
-    {
-      // the right axis is as close to the X texture axis as to the Y texture axis
-      // test the up axis
-      if (vm::abs(dot(up, transformedVAxis)) > vm::abs(dot(up, transformedUAxis)))
-      {
-        // the up view axis is closer to the Y texture axis
-        horizontalAxis = transformedUAxis;
-        verticalAxis = transformedVAxis;
-        uIndex = 0;
-        vIndex = 1;
-      }
-      else if (vm::abs(dot(up, transformedUAxis)) > vm::abs(dot(up, transformedVAxis)))
-      {
-        // the up view axis is closer to the X texture axis
-        horizontalAxis = transformedVAxis;
-        verticalAxis = transformedUAxis;
-        uIndex = 1;
-        vIndex = 0;
-      }
-      else
-      {
-        // this is just bad, better to do nothing
-        return;
-      }
-    }
+    // if we cannot make a choice, we better do nothing
+    return;
   }
+
 
   auto actualOffset = vm::vec2f{};
   if (vm::dot(right, horizontalAxis) >= 0.0)
