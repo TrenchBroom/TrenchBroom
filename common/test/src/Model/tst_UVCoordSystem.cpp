@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ParallelUVCoordSystem.h"
@@ -27,9 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 // Disable a clang warning when using ASSERT_DEATH
 #ifdef __clang__
@@ -57,5 +54,4 @@ TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
