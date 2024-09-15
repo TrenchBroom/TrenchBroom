@@ -375,7 +375,7 @@ public:
     const auto rotateValue = inputState.gestureRotateValue();
     if (rotateValue != 0.0f && !m_isZoomDominant)
     {
-      const float hAngle = vm::to_radians(rotateValue);
+      const auto hAngle = vm::to_radians(rotateValue);
       m_camera.orbit(m_orbitCenter, hAngle, 0.0);
 
       m_rotateAcc += rotateValue;
