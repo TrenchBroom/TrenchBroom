@@ -31,6 +31,11 @@
 #include <string>
 #include <vector>
 
+namespace TrenchBroom
+{
+struct FileLocation;
+};
+
 namespace TrenchBroom::Assets
 {
 class DecalDefinition;
@@ -128,8 +133,7 @@ private:
     ParserStatus& status,
     std::string propertyKey,
     const std::string& typeName,
-    size_t line,
-    size_t column);
+    const FileLocation& location);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   std::unique_ptr<Assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(

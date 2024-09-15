@@ -19,20 +19,15 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
 #include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 
 #include <filesystem>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 class CompilationConfigParser : public ConfigParserBase
@@ -42,18 +37,7 @@ public:
 
   Model::CompilationConfig parse();
 
-private:
-  std::vector<Model::CompilationProfile> parseProfiles(const EL::Value& value) const;
-  Model::CompilationProfile parseProfile(const EL::Value& value) const;
-  std::vector<Model::CompilationTask> parseTasks(const EL::Value& value) const;
-  Model::CompilationTask parseTask(const EL::Value& value) const;
-  Model::CompilationExportMap parseExportTask(const EL::Value& value) const;
-  Model::CompilationCopyFiles parseCopyTask(const EL::Value& value) const;
-  Model::CompilationRenameFile parseRenameTask(const EL::Value& value) const;
-  Model::CompilationDeleteFiles parseDeleteTask(const EL::Value& value) const;
-  Model::CompilationRunTool parseToolTask(const EL::Value& value) const;
-
   deleteCopyAndMove(CompilationConfigParser);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

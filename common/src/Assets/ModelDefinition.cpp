@@ -21,7 +21,7 @@
 
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
@@ -39,37 +39,36 @@ namespace TrenchBroom::Assets
 {
 
 ModelDefinition::ModelDefinition()
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}}
 {
 }
 
-ModelDefinition::ModelDefinition(const size_t line, const size_t column)
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, line, column}
+ModelDefinition::ModelDefinition(const FileLocation& location)
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, location}
 {
 }
 
-ModelDefinition::ModelDefinition(EL::Expression expression)
+ModelDefinition::ModelDefinition(EL::ExpressionNode expression)
   : m_expression{std::move(expression)}
 {
 }
 
 void ModelDefinition::append(ModelDefinition other)
 {
-  const size_t line = m_expression.line();
-  const size_t column = m_expression.column();
+  const auto location = m_expression.location();
 
   auto cases = std::vector{std::move(m_expression), std::move(other.m_expression)};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
+  m_expression = EL::ExpressionNode{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 static std::filesystem::path path(const EL::Value& value)
 {
   if (value.type() != EL::ValueType::String)
   {
-    return std::filesystem::path();
+    return {};
   }
-  const std::string& path = value.stringValue();
-  return std::filesystem::path{kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path};
+  const auto& path = value.stringValue();
+  return kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path;
 }
 
 static size_t index(const EL::Value& value)
@@ -78,7 +77,7 @@ static size_t index(const EL::Value& value)
   {
     return 0;
   }
-  const EL::IntegerType intValue = value.convertTo(EL::ValueType::Number).integerValue();
+  const auto intValue = value.convertTo(EL::ValueType::Number).integerValue();
   return static_cast<size_t>(vm::max(0l, intValue));
 }
 
@@ -114,7 +113,8 @@ ModelSpecification ModelDefinition::modelSpecification(
 
 ModelSpecification ModelDefinition::defaultModelSpecification() const
 {
-  return modelSpecification(EL::NullVariableStore{});
+  const auto context = EL::EvaluationContext{};
+  return convertToModel(m_expression.tryEvaluate(context));
 }
 
 static std::optional<vm::vec3> scaleValue(const EL::Value& value)
@@ -170,7 +170,7 @@ static std::optional<vm::vec3> convertToScale(const EL::Value& value)
 
 vm::vec3 ModelDefinition::scale(
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression) const
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression) const
 {
   const auto context = EL::EvaluationContext{variableStore};
   const auto value = m_expression.evaluate(context);
@@ -208,7 +208,7 @@ kdl_reflect_impl(ModelDefinition);
 vm::vec3 safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression)
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression)
 {
   try
   {

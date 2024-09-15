@@ -21,7 +21,6 @@
 
 #include "EL/ELExceptions.h"
 
-#include "kdl/collection_utils.h"
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/string_compare.h"
@@ -35,10 +34,9 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 NullType::NullType() = default;
 const NullType NullType::Value = NullType{};
 
@@ -53,81 +51,63 @@ Value::Value()
 {
 }
 
-Value::Value(const BooleanType value, std::optional<Expression> expression)
+Value::Value(const BooleanType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(StringType value, std::optional<Expression> expression)
+Value::Value(StringType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(const char* value, std::optional<Expression> expression)
+Value::Value(const char* value)
   : m_value{std::make_shared<VariantType>(StringType(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(const NumberType value, std::optional<Expression> expression)
+Value::Value(const NumberType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(const int value, std::optional<Expression> expression)
+Value::Value(const int value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(const long value, std::optional<Expression> expression)
+Value::Value(const long value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(const size_t value, std::optional<Expression> expression)
+Value::Value(const size_t value)
   : m_value{std::make_shared<VariantType>(static_cast<NumberType>(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(ArrayType value, std::optional<Expression> expression)
+Value::Value(ArrayType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(MapType value, std::optional<Expression> expression)
+Value::Value(MapType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(RangeType value, std::optional<Expression> expression)
+Value::Value(RangeType value)
   : m_value{std::make_shared<VariantType>(std::move(value))}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(NullType value, std::optional<Expression> expression)
+Value::Value(NullType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
 {
 }
 
-Value::Value(UndefinedType value, std::optional<Expression> expression)
+Value::Value(UndefinedType value)
   : m_value{std::make_shared<VariantType>(value)}
-  , m_expression{std::move(expression)}
-{
-}
-
-Value::Value(Value value, std::optional<Expression> expression)
-  : m_value{std::move(value.m_value)}
-  , m_expression{std::move(expression)}
 {
 }
 
@@ -159,21 +139,6 @@ std::string Value::typeName() const
 std::string Value::describe() const
 {
   return asString(false);
-}
-
-const std::optional<Expression>& Value::expression() const
-{
-  return m_expression;
-}
-
-size_t Value::line() const
-{
-  return m_expression ? m_expression->line() : 0u;
-}
-
-size_t Value::column() const
-{
-  return m_expression ? m_expression->column() : 0u;
 }
 
 const BooleanType& Value::booleanValue() const
@@ -396,7 +361,7 @@ size_t Value::length() const
       [](const NumberType&) -> size_t { return 1u; },
       [](const ArrayType& a) -> size_t { return a.size(); },
       [](const MapType& m) -> size_t { return m.size(); },
-      [](const RangeType& r) -> size_t { return r.size(); },
+      [](const RangeType&) -> size_t { return 2u; },
       [](const NullType&) -> size_t { return 0u; },
       [](const UndefinedType&) -> size_t { return 0u; }),
     *m_value);
@@ -568,9 +533,9 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Boolean:
           return *this;
         case ValueType::String:
-          return Value{b ? "true" : "false", m_expression};
+          return Value{b ? "true" : "false"};
         case ValueType::Number:
-          return Value{b ? 1.0 : 0.0, m_expression};
+          return Value{b ? 1.0 : 0.0};
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -585,13 +550,13 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty(), m_expression};
+          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()};
         case ValueType::String:
           return *this;
         case ValueType::Number: {
           if (kdl::str_is_blank(s))
           {
-            return Value{0.0, m_expression};
+            return Value{0.0};
           }
           const char* begin = s.c_str();
           char* end;
@@ -600,7 +565,7 @@ Value Value::convertTo(const ValueType toType) const
           {
             throw ConversionError{describe(), type(), toType};
           }
-          return Value{value, m_expression};
+          return Value{value};
         }
         case ValueType::Array:
         case ValueType::Map:
@@ -616,9 +581,9 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{n != 0.0, m_expression};
+          return Value{n != 0.0};
         case ValueType::String:
-          return Value{describe(), m_expression};
+          return Value{describe()};
         case ValueType::Number:
           return *this;
         case ValueType::Array:
@@ -686,17 +651,17 @@ Value Value::convertTo(const ValueType toType) const
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{false, m_expression};
+          return Value{false};
         case ValueType::Null:
           return *this;
         case ValueType::Number:
-          return Value{0.0, m_expression};
+          return Value{0.0};
         case ValueType::String:
-          return Value{"", m_expression};
+          return Value{""};
         case ValueType::Array:
-          return Value{ArrayType{0}, m_expression};
+          return Value{ArrayType{0}};
         case ValueType::Map:
-          return Value{MapType{}, m_expression};
+          return Value{MapType{}};
         case ValueType::Range:
         case ValueType::Undefined:
           break;
@@ -862,14 +827,12 @@ void Value::appendToStream(
       },
       [&](const RangeType& r) {
         str << "[";
-        for (size_t i = 0; i < r.size(); ++i)
-        {
-          str << r[i];
-          if (i < r.size() - 1)
-          {
-            str << ", ";
-          }
-        }
+        std::visit(
+          kdl::overload(
+            [&](const LeftBoundedRange& lbr) { str << lbr.first << ".."; },
+            [&](const RightBoundedRange& rbr) { str << ".." << rbr.last; },
+            [&](const BoundedRange& br) { str << br.first << ".." << br.last; }),
+          r);
         str << "]";
       },
       [&](const NullType&) { str << "null"; },
@@ -877,27 +840,50 @@ void Value::appendToStream(
     *m_value);
 }
 
-static size_t computeIndex(const long index, const size_t indexableSize)
+namespace
 {
-  const long size = static_cast<long>(indexableSize);
-  if ((index >= 0 && index < size) || (index < 0 && index >= -size))
-  {
-    return static_cast<size_t>((size + index % size) % size);
-  }
-  else
-  {
-    return static_cast<size_t>(size);
-  }
+
+size_t computeIndex(const long index, const size_t indexableSize)
+{
+  const auto size = static_cast<long>(indexableSize);
+  return (index >= 0 && index < size) || (index < 0 && index >= -size)
+           ? static_cast<size_t>((size + index % size) % size)
+           : static_cast<size_t>(size);
 }
 
-static size_t computeIndex(const Value& indexValue, const size_t indexableSize)
+size_t computeIndex(const Value& indexValue, const size_t indexableSize)
 {
   return computeIndex(
     static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
     indexableSize);
 }
 
-static void computeIndexArray(
+void computeIndexArray(
+  const LeftBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const RightBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const BoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length());
+  range.forEach([&](const auto i) { result.push_back(computeIndex(i, indexableSize)); });
+}
+
+void computeIndexArray(
   const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
 {
   switch (indexValue.type())
@@ -912,12 +898,9 @@ static void computeIndexArray(
     break;
   }
   case ValueType::Range: {
-    const RangeType& range = indexValue.rangeValue();
-    result.reserve(result.size() + range.size());
-    for (size_t i = 0; i < range.size(); ++i)
-    {
-      result.push_back(computeIndex(range[i], indexableSize));
-    }
+    std::visit(
+      [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
+      indexValue.rangeValue());
     break;
   }
   case ValueType::Boolean:
@@ -931,13 +914,14 @@ static void computeIndexArray(
   }
 }
 
-static std::vector<size_t> computeIndexArray(
-  const Value& indexValue, const size_t indexableSize)
+std::vector<size_t> computeIndexArray(const Value& indexValue, const size_t indexableSize)
 {
   auto result = std::vector<size_t>{};
   computeIndexArray(indexValue, indexableSize, result);
   return result;
 }
+
+} // namespace
 
 bool Value::contains(const Value& indexValue) const
 {
@@ -1093,7 +1077,7 @@ Value Value::operator[](const Value& indexValue) const
       {
         result << str[index];
       }
-      return Value{result.str(), m_expression};
+      return Value{result.str()};
     }
     case ValueType::Array:
     case ValueType::Range: {
@@ -1108,7 +1092,7 @@ Value Value::operator[](const Value& indexValue) const
           result << str[index];
         }
       }
-      return Value{result.str(), m_expression};
+      return Value{result.str()};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1145,7 +1129,7 @@ Value Value::operator[](const Value& indexValue) const
         }
         result.push_back(array[index]);
       }
-      return Value{std::move(result), m_expression};
+      return Value{std::move(result)};
     }
     case ValueType::String:
     case ValueType::Map:
@@ -1185,7 +1169,7 @@ Value Value::operator[](const Value& indexValue) const
           result.insert(std::make_pair(key, it->second));
         }
       }
-      return Value{std::move(result), m_expression};
+      return Value{std::move(result)};
     }
     case ValueType::Boolean:
     case ValueType::Number:
@@ -1282,29 +1266,31 @@ Value Value::operator[](const char* key) const
 
 bool operator==(const Value& lhs, const Value& rhs)
 {
-  return std::visit(
-    kdl::overload(
-      [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
-        return lhsBool == rhsBool;
-      },
-      [](const StringType& lhsString, const StringType& rhsString) {
-        return lhsString == rhsString;
-      },
-      [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
-        return lhsNumber == rhsNumber;
-      },
-      [](const ArrayType& lhsArray, const ArrayType& rhsArray) {
-        return lhsArray == rhsArray;
-      },
-      [](const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
-      [](const RangeType& lhsRange, const RangeType& rhsRange) {
-        return lhsRange == rhsRange;
-      },
-      [](const NullType&, const NullType&) { return true; },
-      [](const UndefinedType&, const UndefinedType&) { return true; },
-      [](const auto&, const auto&) { return false; }),
-    *lhs.m_value,
-    *rhs.m_value);
+  return lhs.m_value == rhs.m_value
+         || std::visit(
+           kdl::overload(
+             [](const BooleanType& lhsBool, const BooleanType& rhsBool) {
+               return lhsBool == rhsBool;
+             },
+             [](const StringType& lhsString, const StringType& rhsString) {
+               return lhsString == rhsString;
+             },
+             [](const NumberType& lhsNumber, const NumberType& rhsNumber) {
+               return lhsNumber == rhsNumber;
+             },
+             [](const ArrayType& lhsArray, const ArrayType& rhsArray) {
+               return lhsArray == rhsArray;
+             },
+             [](
+               const MapType& lhsMap, const MapType& rhsMap) { return lhsMap == rhsMap; },
+             [](const RangeType& lhsRange, const RangeType& rhsRange) {
+               return lhsRange == rhsRange;
+             },
+             [](const NullType&, const NullType&) { return true; },
+             [](const UndefinedType&, const UndefinedType&) { return true; },
+             [](const auto&, const auto&) { return false; }),
+           *lhs.m_value,
+           *rhs.m_value);
 }
 
 bool operator!=(const Value& lhs, const Value& rhs)
@@ -1317,5 +1303,5 @@ std::ostream& operator<<(std::ostream& lhs, const Value& rhs)
   rhs.appendToStream(lhs);
   return lhs;
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

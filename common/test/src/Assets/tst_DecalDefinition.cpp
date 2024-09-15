@@ -18,6 +18,7 @@
  */
 
 #include "Assets/DecalDefinition.h"
+#include "EL/Expression.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 

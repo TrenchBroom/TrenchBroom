@@ -154,7 +154,7 @@ public: // property management
   const Assets::EntityModelFrame* modelFrame() const;
   Assets::ModelSpecification modelSpecification() const;
   const vm::mat4x4& modelTransformation(
-    const std::optional<EL::Expression>& defaultModelScaleExpression) const;
+    const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const;
 
   Assets::DecalSpecification decalSpecification() const;
 

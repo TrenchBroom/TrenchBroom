@@ -23,9 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace EL
+namespace TrenchBroom::EL
 {
 class Value;
 enum class ValueType;
@@ -74,5 +72,4 @@ public:
   IndexOutOfBoundsError(const Value& indexableValue, size_t index);
   IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
 };
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

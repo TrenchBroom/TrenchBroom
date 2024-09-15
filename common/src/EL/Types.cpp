@@ -21,12 +21,47 @@
 
 #include "Macros.h"
 
+#include "kdl/reflection_impl.h"
+
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
+
+kdl_reflect_impl(LeftBoundedRange);
+kdl_reflect_impl(RightBoundedRange);
+kdl_reflect_impl(BoundedRange);
+
+namespace detail
 {
+size_t length(const long first, const long last)
+{
+  return first <= last ? static_cast<size_t>(last - first + 1)
+                       : static_cast<size_t>(first - last + 1);
+}
+} // namespace detail
+
+size_t LeftBoundedRange::length(const size_t indexableSize) const
+{
+  return detail::length(first, std::max(static_cast<long>(indexableSize) - 1, 0l));
+}
+
+size_t RightBoundedRange::length(const size_t indexableSize) const
+{
+  return detail::length(std::max(static_cast<long>(indexableSize) - 1, 0l), last);
+}
+
+size_t BoundedRange::length() const
+{
+  return detail::length(first, last);
+}
+
+std::ostream& operator<<(std::ostream& lhs, const RangeType& rhs)
+{
+  std::visit([&lhs](const auto& value) { lhs << value; }, rhs);
+  return lhs;
+}
+
 std::string typeName(const ValueType type)
 {
   switch (type)
@@ -54,21 +89,35 @@ std::string typeName(const ValueType type)
 ValueType typeForName(const std::string& type)
 {
   if (type == "Boolean")
+  {
     return ValueType::Boolean;
+  }
   if (type == "String")
+  {
     return ValueType::String;
+  }
   if (type == "Number")
+  {
     return ValueType::Number;
+  }
   if (type == "Array")
+  {
     return ValueType::Array;
+  }
   if (type == "Map")
+  {
     return ValueType::Map;
+  }
   if (type == "Range")
+  {
     return ValueType::Range;
+  }
   if (type == "Undefined")
+  {
     return ValueType::Undefined;
+  }
+
   assert(false);
   return ValueType::Null;
 }
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

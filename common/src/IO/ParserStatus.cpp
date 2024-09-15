@@ -20,19 +20,18 @@
 #include "ParserStatus.h"
 
 #include "Exceptions.h"
+#include "FileLocation.h"
 #include "Logger.h"
 
 #include <cassert>
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-ParserStatus::ParserStatus(Logger& logger, const std::string& prefix)
-  : m_logger(logger)
-  , m_prefix(prefix)
+ParserStatus::ParserStatus(Logger& logger, std::string prefix)
+  : m_logger{logger}
+  , m_prefix{std::move(prefix)}
 {
 }
 
@@ -44,57 +43,30 @@ void ParserStatus::progress(const double progress)
   doProgress(progress);
 }
 
-void ParserStatus::debug(const size_t line, const size_t column, const std::string& str)
+void ParserStatus::debug(const FileLocation& location, const std::string& str)
 {
-  log(LogLevel::Debug, line, column, str);
+  log(LogLevel::Debug, location, str);
 }
 
-void ParserStatus::info(const size_t line, const size_t column, const std::string& str)
+void ParserStatus::info(const FileLocation& location, const std::string& str)
 {
-  log(LogLevel::Info, line, column, str);
+  log(LogLevel::Info, location, str);
 }
 
-void ParserStatus::warn(const size_t line, const size_t column, const std::string& str)
+void ParserStatus::warn(const FileLocation& location, const std::string& str)
 {
-  log(LogLevel::Warn, line, column, str);
+  log(LogLevel::Warn, location, str);
 }
 
-void ParserStatus::error(const size_t line, const size_t column, const std::string& str)
+void ParserStatus::error(const FileLocation& location, const std::string& str)
 {
-  log(LogLevel::Error, line, column, str);
+  log(LogLevel::Error, location, str);
 }
 
-void ParserStatus::errorAndThrow(
-  const size_t line, const size_t column, const std::string& str)
+void ParserStatus::errorAndThrow(const FileLocation& location, const std::string& str)
 {
-  error(line, column, str);
-  throw ParserException(buildMessage(line, column, str));
-}
-
-void ParserStatus::debug(const size_t line, const std::string& str)
-{
-  log(LogLevel::Debug, line, str);
-}
-
-void ParserStatus::info(const size_t line, const std::string& str)
-{
-  log(LogLevel::Info, line, str);
-}
-
-void ParserStatus::warn(const size_t line, const std::string& str)
-{
-  log(LogLevel::Warn, line, str);
-}
-
-void ParserStatus::error(const size_t line, const std::string& str)
-{
-  log(LogLevel::Error, line, str);
-}
-
-void ParserStatus::errorAndThrow(size_t line, const std::string& str)
-{
-  error(line, str);
-  throw ParserException(buildMessage(line, str));
+  error(location, str);
+  throw ParserException(buildMessage(location, str));
 }
 
 void ParserStatus::debug(const std::string& str)
@@ -124,36 +96,20 @@ void ParserStatus::errorAndThrow(const std::string& str)
 }
 
 void ParserStatus::log(
-  const LogLevel level, const size_t line, const size_t column, const std::string& str)
+  const LogLevel level, const FileLocation& location, const std::string& str)
 {
-  doLog(level, buildMessage(line, column, str));
+  doLog(level, buildMessage(location, str));
 }
 
 std::string ParserStatus::buildMessage(
-  const size_t line, const size_t column, const std::string& str) const
+  const FileLocation& location, const std::string& str) const
 {
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
   }
-  msg << str << " (line " << line << ", column " << column << ")";
-  return msg.str();
-}
-
-void ParserStatus::log(const LogLevel level, const size_t line, const std::string& str)
-{
-  doLog(level, buildMessage(line, str));
-}
-
-std::string ParserStatus::buildMessage(const size_t line, const std::string& str) const
-{
-  std::stringstream msg;
-  if (!m_prefix.empty())
-  {
-    msg << m_prefix << ": ";
-  }
-  msg << str << " (line " << line << ")";
+  msg << str << " (at " << location << ")";
   return msg.str();
 }
 
@@ -164,12 +120,12 @@ void ParserStatus::log(const LogLevel level, const std::string& str)
 
 std::string ParserStatus::buildMessage(const std::string& str) const
 {
-  std::stringstream msg;
+  auto msg = std::stringstream{};
   if (!m_prefix.empty())
   {
     msg << m_prefix << ": ";
   }
-  msg << str << " (unknown position)";
+  msg << str << " (unknown location)";
   return msg.str();
 }
 
@@ -177,5 +133,5 @@ void ParserStatus::doLog(const LogLevel level, const std::string& str)
 {
   m_logger.log(level, str);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -255,7 +255,7 @@ Result<Brush> BrushBuilder::createCylinder(
   const auto cylinder = makeUnitCylinder(numSides, radiusMode);
   const auto vertices =
     cylinder | std::views::transform([&](const auto& v) { return transform * v; })
-    | kdl::to_vector;
+    | kdl::to<std::vector<vm::vec3>>();
 
   return createBrush(vertices, textureName);
 }
@@ -270,7 +270,7 @@ auto makeHollowCylinderOuterCircle(
   return unitCircle
          | std::views::transform(
            [t = vm::scaling_matrix(size / 2.0)](const auto& v) { return t * v; })
-         | kdl::to_vector;
+         | kdl::to<std::vector<vm::vec2>>();
 }
 
 Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
@@ -292,7 +292,7 @@ Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
       const auto offsetDir = vm::vec2{-l.direction.y(), l.direction.x()};
       return vm::line2{l.point + offsetDir * thickness, l.direction};
     })
-    | kdl::to_vector;
+    | kdl::to<std::vector<vm::line2>>();
 
   auto innerCircle = std::vector<vm::vec2>{};
   innerCircle.reserve(numSides);
@@ -374,7 +374,7 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
         const auto transformedBrushVertices =
           fragmentVertices
           | std::views::transform([&](const auto& v) { return transform * v; })
-          | kdl::to_vector;
+          | kdl::to<std::vector<vm::vec3>>();
 
         brushes.push_back(createBrush(transformedBrushVertices, textureName));
       }
@@ -415,7 +415,7 @@ Result<Brush> BrushBuilder::createCone(
   const auto cone = makeUnitCone(numSides, radiusMode);
   const auto vertices =
     cone | std::views::transform([&](const auto& v) { return transform * v; })
-    | kdl::to_vector;
+    | kdl::to<std::vector<vm::vec3>>();
 
   return createBrush(vertices, textureName);
 }
@@ -432,7 +432,7 @@ auto makeRing(const FloatType angle, const size_t numSides, const RadiusMode rad
            [&, t = vm::scaling_matrix(vm::vec2{r, r})](const auto& v) {
              return vm::vec3{t * v, z};
            })
-         | kdl::to_vector;
+         | kdl::to<std::vector<vm::vec3>>();
 }
 
 } // namespace

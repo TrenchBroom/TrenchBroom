@@ -20,6 +20,7 @@
 #include "GameEngineConfigParser.h"
 
 #include "EL/EvaluationContext.h"
+#include "EL/EvaluationTrace.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Macros.h"
@@ -32,53 +33,59 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-GameEngineConfigParser::GameEngineConfigParser(
-  std::string_view str, std::filesystem::path path)
-  : ConfigParserBase{std::move(str), std::move(path)}
-{
-}
 
-Model::GameEngineConfig GameEngineConfigParser::parse()
-{
-  const auto root = parseConfigFile().evaluate(EL::EvaluationContext());
-  expectType(root, EL::ValueType::Map);
-
-  expectStructure(root, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
-
-  const auto version = root["version"].numberValue();
-  unused(version);
-  assert(version == 1.0);
-
-  return {parseProfiles(root["profiles"])};
-}
-
-std::vector<Model::GameEngineProfile> GameEngineConfigParser::parseProfiles(
-  const EL::Value& value) const
-{
-  auto result = std::vector<Model::GameEngineProfile>{};
-  result.reserve(value.length());
-
-  for (size_t i = 0; i < value.length(); ++i)
-  {
-    result.push_back(parseProfile(value[i]));
-  }
-  return result;
-}
-
-Model::GameEngineProfile GameEngineConfigParser::parseProfile(
-  const EL::Value& value) const
+Model::GameEngineProfile parseProfile(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   expectStructure(
-    value, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
+    value, trace, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
   return {
     value["name"].stringValue(),
     std::filesystem::path{value["path"].stringValue()},
     value["parameters"].stringValue()};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+std::vector<Model::GameEngineProfile> parseProfiles(
+  const EL::Value& value, const EL::EvaluationTrace& trace)
+{
+  auto result = std::vector<Model::GameEngineProfile>{};
+  result.reserve(value.length());
+
+  for (size_t i = 0; i < value.length(); ++i)
+  {
+    result.push_back(parseProfile(value[i], trace));
+  }
+  return result;
+}
+
+} // namespace
+
+GameEngineConfigParser::GameEngineConfigParser(
+  const std::string_view str, std::filesystem::path path)
+  : ConfigParserBase{str, std::move(path)}
+{
+}
+
+Model::GameEngineConfig GameEngineConfigParser::parse()
+{
+  const auto context = EL::EvaluationContext{};
+  auto trace = EL::EvaluationTrace{};
+
+  const auto root = parseConfigFile().evaluate(context, trace);
+  expectType(root, trace, EL::ValueType::Map);
+
+  expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+
+  const auto version = root["version"].numberValue();
+  unused(version);
+  assert(version == 1.0);
+
+  return {parseProfiles(root["profiles"], trace)};
+}
+
+} // namespace TrenchBroom::IO

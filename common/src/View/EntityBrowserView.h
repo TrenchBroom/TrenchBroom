@@ -85,7 +85,7 @@ private:
   static constexpr auto CameraUp = vm::vec3f::pos_z();
 
   std::weak_ptr<MapDocument> m_document;
-  std::optional<EL::Expression> m_defaultScaleModelExpression;
+  std::optional<EL::ExpressionNode> m_defaultScaleModelExpression;
   vm::quatf m_rotation;
 
   bool m_group = false;
@@ -104,7 +104,7 @@ public:
 
 public:
   void setDefaultModelScaleExpression(
-    std::optional<EL::Expression> defaultModelScaleExpression);
+    std::optional<EL::ExpressionNode> defaultModelScaleExpression);
 
   void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
   void setGroup(bool group);

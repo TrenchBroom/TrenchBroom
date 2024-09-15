@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,26 +19,25 @@
 
 #pragma once
 
-#include "IO/ConfigParserBase.h"
-#include "Macros.h"
-#include "Model/GameEngineConfig.h"
+#include <iosfwd>
+#include <optional>
 
-#include <filesystem>
-#include <memory>
-#include <string>
-#include <vector>
-
-namespace TrenchBroom::IO
+namespace TrenchBroom
 {
 
-class GameEngineConfigParser : public ConfigParserBase
+struct FileLocation
 {
-public:
-  GameEngineConfigParser(std::string_view str, std::filesystem::path path);
-
-  Model::GameEngineConfig parse();
-
-  deleteCopyAndMove(GameEngineConfigParser);
+  size_t line = 0;
+  std::optional<size_t> column = std::nullopt;
 };
 
-} // namespace TrenchBroom::IO
+bool operator==(const FileLocation& lhs, const FileLocation& rhs);
+bool operator!=(const FileLocation& lhs, const FileLocation& rhs);
+bool operator<(const FileLocation& lhs, const FileLocation& rhs);
+bool operator<=(const FileLocation& lhs, const FileLocation& rhs);
+bool operator>(const FileLocation& lhs, const FileLocation& rhs);
+bool operator>=(const FileLocation& lhs, const FileLocation& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs);
+
+} // namespace TrenchBroom

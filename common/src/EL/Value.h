@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "EL/Expression.h"
 #include "EL/Types.h"
 
 // FIXME: try to remove some of these headers
@@ -32,8 +31,12 @@
 
 namespace TrenchBroom
 {
-namespace EL
+struct FileLocation;
+}
+
+namespace TrenchBroom::EL
 {
+
 class NullType
 {
 private:
@@ -65,7 +68,6 @@ private:
     NullType,
     UndefinedType>;
   std::shared_ptr<VariantType> m_value;
-  std::optional<Expression> m_expression;
 
 public:
   static const Value Null;
@@ -73,21 +75,18 @@ public:
 
   Value();
 
-  explicit Value(BooleanType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(StringType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(const char* value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(NumberType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(int value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(long value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(size_t value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(ArrayType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(MapType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(RangeType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(NullType value, std::optional<Expression> expression = std::nullopt);
-  explicit Value(
-    UndefinedType value, std::optional<Expression> expression = std::nullopt);
-
-  Value(Value value, std::optional<Expression> expression);
+  explicit Value(BooleanType value);
+  explicit Value(StringType value);
+  explicit Value(const char* value);
+  explicit Value(NumberType value);
+  explicit Value(int value);
+  explicit Value(long value);
+  explicit Value(size_t value);
+  explicit Value(ArrayType value);
+  explicit Value(MapType value);
+  explicit Value(RangeType value);
+  explicit Value(NullType value);
+  explicit Value(UndefinedType value);
 
   ValueType type() const;
 
@@ -101,11 +100,6 @@ public:
 
   std::string typeName() const;
   std::string describe() const;
-
-  const std::optional<Expression>& expression() const;
-
-  size_t line() const;
-  size_t column() const;
 
   const BooleanType& booleanValue() const;
   const StringType& stringValue() const;
@@ -142,6 +136,19 @@ public:
   friend bool operator!=(const Value& lhs, const Value& rhs);
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
+
+  friend struct std::hash<TrenchBroom::EL::Value>;
 };
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL
+
+
+template <>
+struct std::hash<TrenchBroom::EL::Value>
+{
+  std::size_t operator()(const TrenchBroom::EL::Value& value) const noexcept
+  {
+    return std::hash<std::shared_ptr<TrenchBroom::EL::Value::VariantType>>{}(
+      value.m_value);
+  }
+};

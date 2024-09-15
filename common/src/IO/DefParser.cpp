@@ -23,6 +23,7 @@
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
 #include "Exceptions.h"
+#include "FileLocation.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/LegacyModelDefinitionParser.h"
@@ -30,7 +31,6 @@
 #include "Model/EntityProperties.h"
 
 #include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 
@@ -150,7 +150,7 @@ DefTokenizer::Token DefTokenizer::emitToken()
         return Token{DefToken::Word, c, e, offset(c), startLine, startColumn};
       }
       throw ParserException{
-        startLine, startColumn, fmt::format("Unexpected character: {}", c)};
+        FileLocation{startLine, startColumn}, fmt::format("Unexpected character: {}", c)};
     }
   }
   return Token{DefToken::Eof, nullptr, nullptr, length(), line(), column()};
@@ -219,8 +219,7 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
 
   auto classInfo = EntityDefinitionClassInfo{};
   classInfo.type = EntityDefinitionClassType::BaseClass;
-  classInfo.line = token.line();
-  classInfo.column = token.column();
+  classInfo.location = token.location();
 
   token = expect(status, DefToken::Word, m_tokenizer.nextToken());
   classInfo.name = token.data();
@@ -250,9 +249,7 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
       if (!addPropertyDefinition(classInfo.propertyDefinitions, parseSpawnflags(status)))
       {
         status.warn(
-          token.line(),
-          token.column(),
-          "Skipping duplicate spawnflags property definition");
+          token.location(), "Skipping duplicate spawnflags property definition");
       }
     }
   }
@@ -308,9 +305,7 @@ bool DefParser::parseProperty(ParserStatus& status, EntityDefinitionClassInfo& c
     return false;
   }
 
-  const auto line = token.line();
-  const auto column = token.column();
-
+  const auto location = token.location();
   const auto typeName = token.data();
   if (typeName == "default")
   {
@@ -328,8 +323,7 @@ bool DefParser::parseProperty(ParserStatus& status, EntityDefinitionClassInfo& c
     if (!addPropertyDefinition(classInfo.propertyDefinitions, propertyDefinition))
     {
       status.warn(
-        line,
-        column,
+        location,
         fmt::format(
           "Skipping duplicate property definition: {}", propertyDefinition->key()));
     }
@@ -401,6 +395,7 @@ Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
   const auto snapshot = m_tokenizer.snapshot();
   const auto line = m_tokenizer.line();
   const auto column = m_tokenizer.column();
+  const auto location = m_tokenizer.location();
 
   try
   {
@@ -430,8 +425,7 @@ Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
 
       expression.optimize();
       status.warn(
-        line,
-        column,
+        location,
         fmt::format(
           "Legacy model expressions are deprecated, replace with '{}'",
           expression.asString()));
@@ -445,8 +439,7 @@ Assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
   }
   catch (const EL::EvaluationError& evaluationError)
   {
-    throw ParserException{
-      m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
+    throw ParserException{location, evaluationError.what()};
   }
 }
 

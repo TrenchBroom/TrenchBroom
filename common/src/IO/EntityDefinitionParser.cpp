@@ -201,9 +201,7 @@ static void inheritFromAndRecurse(
   if (!visited.insert(superClass.name).second)
   {
     status.error(
-      inheritingClass.line,
-      inheritingClass.column,
-      "Entity definition class hierarchy contains a cycle");
+      inheritingClass.location, "Entity definition class hierarchy contains a cycle");
     return;
   }
 
@@ -297,8 +295,7 @@ static void findSuperClassesAndInheritFrom(
     if (nextSuperClass == nullptr)
     {
       status.error(
-        classWithSuperClasses.line,
-        classWithSuperClasses.column,
+        classWithSuperClasses.location,
         "No matching super class found for '" + nextSuperClassName + "'");
     }
     else
@@ -361,17 +358,11 @@ static std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
 
     if (classMask & seenMask)
     {
-      status.warn(
-        classInfo.line,
-        classInfo.column,
-        "Duplicate class info '" + classInfo.name + "'");
+      status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
     }
     else if ((seenMask & baseClassMask) || (seenMask != 0 && (classMask & baseClassMask)))
     {
-      status.warn(
-        classInfo.line,
-        classInfo.column,
-        "Redundant class info '" + classInfo.name + "'");
+      status.warn(classInfo.location, "Redundant class info '" + classInfo.name + "'");
     }
     else
     {

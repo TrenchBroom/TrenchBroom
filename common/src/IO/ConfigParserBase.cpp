@@ -20,14 +20,18 @@
 #include "ConfigParserBase.h"
 
 #include "EL/EvaluationContext.h"
+#include "EL/EvaluationTrace.h"
 #include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Exceptions.h"
+
+#include <fmt/format.h>
 
 #include <string>
 
 namespace TrenchBroom::IO
 {
+
 ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::path path)
   : m_parser{ELParser::Mode::Strict, str}
   , m_path{std::move(path)}
@@ -36,24 +40,27 @@ ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::
 
 ConfigParserBase::~ConfigParserBase() = default;
 
-EL::Expression ConfigParserBase::parseConfigFile()
+EL::ExpressionNode ConfigParserBase::parseConfigFile()
 {
   return m_parser.parse();
 }
 
-void expectType(const EL::Value& value, const EL::ValueType type)
+void expectType(
+  const EL::Value& value, const EL::EvaluationTrace& trace, const EL::ValueType type)
 {
   if (value.type() != type)
   {
     throw ParserException{
-      value.line(),
-      value.column(),
-      "Expected value of type '" + EL::typeName(type) + "', but got type '"
-        + value.typeName() + "'"};
+      *trace.getLocation(value),
+      fmt::format(
+        "Expected value of type '{}', but got type '{}'",
+        EL::typeName(type),
+        value.typeName())};
   }
 }
 
-void expectStructure(const EL::Value& value, const std::string& structure)
+void expectStructure(
+  const EL::Value& value, const EL::EvaluationTrace& trace, const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
   const auto expected = parser.parse().evaluate(EL::EvaluationContext());
@@ -72,21 +79,25 @@ void expectStructure(const EL::Value& value, const std::string& structure)
     if (typeName != "*")
     {
       const auto type = EL::typeForName(typeName);
-      expectMapEntry(value, key, type);
+      expectMapEntry(value, trace, key, type);
     }
   }
 }
 
 void expectMapEntry(
-  const EL::Value& value, const std::string& key, const EL::ValueType type)
+  const EL::Value& value,
+  const EL::EvaluationTrace& trace,
+  const std::string& key,
+  const EL::ValueType type)
 {
   const auto& map = value.mapValue();
   const auto it = map.find(key);
   if (it == std::end(map))
   {
     throw ParserException{
-      value.line(), value.column(), "Expected map entry '" + key + "'"};
+      *trace.getLocation(value), fmt::format("Expected map entry '{}'", key)};
   }
-  expectType(it->second, type);
+  expectType(it->second, trace, type);
 }
+
 } // namespace TrenchBroom::IO

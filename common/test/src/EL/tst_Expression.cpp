@@ -20,12 +20,11 @@
 #include "EL/ELExceptions.h"
 #include "EL/EvaluationContext.h"
 #include "EL/Expression.h"
-#include "EL/Expressions.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
-#include "kdl/overload.h"
+#include <fmt/ostream.h>
 
 #include <cmath>
 #include <map>
@@ -33,15 +32,20 @@
 #include <variant>
 #include <vector>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 using V = Value;
 
 static Value evaluate(const std::string& expression, const MapType& variables = {})
+{
+  const auto context = EvaluationContext{VariableTable{variables}};
+  return IO::ELParser::parseStrict(expression).evaluate(context);
+}
+
+static Value tryEvaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
   return IO::ELParser::parseStrict(expression).evaluate(context);
@@ -664,9 +668,70 @@ TEST_CASE("ExpressionTest.testOperators")
   {"{k1:1} == {k1:1, k2:2}", Value{false}},
   {"{k1:1} == {k1:2, k2:2}", Value{false}},
 
+  // Case
   {"true -> 'asdf'",  Value{"asdf"}},
   {"false -> 'asdf'", Value::Undefined},
   {"false -> x[-1]",  Value::Undefined},
+  }));
+  // clang-format on
+
+  CAPTURE(expression);
+
+  if (std::holds_alternative<Value>(expectedValueOrError))
+  {
+    const auto expectedValue = std::get<Value>(expectedValueOrError);
+    CHECK(evaluate(expression) == expectedValue);
+  }
+  else
+  {
+    CHECK_THROWS_AS(evaluate(expression), EvaluationError);
+  }
+}
+
+TEST_CASE("ExpressionTest.testSubscript")
+{
+  using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
+
+  // clang-format off
+  const auto
+  [expression,           expectedValueOrError] = GENERATE(values<T>({
+  // Positive indices
+  {"'asdf'[0, 1]",                     Value{"as"}},
+  {"'asdf'[0, 1, 2]",                  Value{"asd"}},
+  {"'asdf'[1, 2]",                     Value{"sd"}},
+  {"'asdf'[1, 2, 7]",                  Value{"sd"}},
+  {"'asdf'[3, 2, 1, 0]",               Value{"fdsa"}},
+
+  // Negative indices
+  {"'asdf'[0, -1]",                    Value{"af"}},
+  {"'asdf'[-4, -3, -2, -1]",           Value{"asdf"}},
+
+  // Range
+  {"'asdf'[0..1]",                     Value{"as"}},
+  {"'asdf'[1..2]",                     Value{"sd"}},
+  {"'asdf'[0..5]",                     Value{"asdf"}},
+  {"'asdf'[3..0]",                     Value{"fdsa"}},
+  {"'asdf'[3..1]",                     Value{"fds"}},
+  {"'asdf'[3..2]",                     Value{"fd"}},
+  {"'asdf'[3..3]",                     Value{"f"}},
+  {"'asdf'[3..4]",                     Value{"f"}},
+  {"'asdf'[0..]",                      Value{"asdf"}},
+  {"'asdf'[1..]",                      Value{"sdf"}},
+  {"'asdf'[..0]",                      Value{"fdsa"}},
+  {"'asdf'[..1]",                      Value{"fds"}},
+  {"'asdf'[..2]",                      Value{"fd"}},
+  {"'asdf'[..3]",                      Value{"f"}},
+  {"'asdf'[..4]",                      Value{"f"}},
+  {"'asdf'[..5]",                      Value{"f"}},
+  {"'asdf'[-4..-1]",                   Value{"asdf"}},
+  {"'asdf'[-4..0]",                    Value{"asdfa"}},
+  {"'asdf'[-4..1]",                    Value{"asdfas"}},
+  {"'asdf'[-4..4]",                    Value{"asdfasdf"}},
+  {"'asdf'[-4..]",                     Value{"asdfasdf"}},
+  {"'asdf'[..-4]",                     Value{"fdsafdsa"}},
+
+  // Mixed
+  {"'asdfxyz'[0, 1..3, 3..1, -1..-3]", Value{"asdffdszyx"}},
   }));
   // clang-format on
 
@@ -724,21 +789,43 @@ TEST_CASE("ExpressionTest.testOperatorPrecedence")
   CHECK(evaluate(expression) == expectedValue);
 }
 
+TEST_CASE("ExpressionTest.tryEvaluate")
+{
+  using T = std::tuple<std::string, MapType, Value>;
+
+  // clang-format off
+  const auto 
+  [expression,           variables,           expectedValue] = GENERATE(values<T>({
+  {"1",                  {},                  Value{1.0}},
+  {"a",                  {{"a", Value{2.0}}}, Value{2.0}},
+  {"1 + a",              {{"a", Value{2.0}}}, Value{3.0}},
+  {"a",                  {},                  Value::Undefined},
+  {"1 + a",              {},                  Value::Undefined},
+  {"[a, 1, 2]",          {},                  Value{ArrayType{Value::Undefined, Value{1.0}, Value{2.0}}}},
+  {"{a: 1, b: x, c: 3}", {},                  Value{MapType{{"a", Value{1.0}}, {"b", Value::Undefined}, {"c", Value{3.0}},}}},
+  }));
+  // clang-format on
+
+  CAPTURE(expression);
+
+  CHECK(tryEvaluate(expression, variables) == expectedValue);
+}
+
 TEST_CASE("ExpressionTest.testOptimize")
 {
-  using T = std::tuple<std::string, Expression>;
+  using T = std::tuple<std::string, ExpressionNode>;
 
   // clang-format off
   const auto
   [expression,        expectedExpression] = GENERATE(values<T>({
-  {"3 + 7",           Expression{LiteralExpression{Value{10}}, 0, 0}},
-  {"[1, 2, 3]",       Expression{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}, 0, 0}},
-  {"[1 + 2, 2, a]",   Expression{ArrayExpression{{
-                          Expression{LiteralExpression{Value{3}}, 0, 0}, 
-                          Expression{LiteralExpression{Value{2}}, 0, 0}, 
-                          Expression{VariableExpression{"a"}, 0, 0}}
-                      }, 0, 0}},
-  {"{a:1, b:2, c:3}", Expression{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}, 0, 0}},
+  {"3 + 7",           ExpressionNode{LiteralExpression{Value{10}}}},
+  {"[1, 2, 3]",       ExpressionNode{LiteralExpression{Value{ArrayType{Value{1}, Value{2}, Value{3}}}}}},
+  {"[1 + 2, 2, a]",   ExpressionNode{ArrayExpression{{
+                          ExpressionNode{LiteralExpression{Value{3}}}, 
+                          ExpressionNode{LiteralExpression{Value{2}}}, 
+                          ExpressionNode{VariableExpression{"a"}}}
+                      }}},
+  {"{a:1, b:2, c:3}", ExpressionNode{LiteralExpression{Value{MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}}}}}},
   }));
   // clang-format on
 
@@ -746,5 +833,73 @@ TEST_CASE("ExpressionTest.testOptimize")
 
   CHECK(IO::ELParser::parseStrict(expression).optimize() == expectedExpression);
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+namespace
+{
+std::vector<std::string> preorderVisit(const std::string& str)
+{
+  auto result = std::vector<std::string>{};
+
+  IO::ELParser::parseStrict(str).accept(kdl::overload(
+    [&](const LiteralExpression& literalExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
+    },
+    [&](const VariableExpression& variableExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(variableExpression)));
+    },
+    [&](const auto& thisLambda, const ArrayExpression& arrayExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(arrayExpression)));
+      for (const auto& element : arrayExpression.elements)
+      {
+        element.accept(thisLambda);
+      }
+    },
+    [&](const auto& thisLambda, const MapExpression& mapExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(mapExpression)));
+      for (const auto& [key, element] : mapExpression.elements)
+      {
+        element.accept(thisLambda);
+      }
+    },
+    [&](const auto& thisLambda, const UnaryExpression& unaryExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(unaryExpression)));
+      unaryExpression.operand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const BinaryExpression& binaryExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(binaryExpression)));
+      binaryExpression.leftOperand.accept(thisLambda);
+      binaryExpression.rightOperand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const SubscriptExpression& subscriptExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(subscriptExpression)));
+      subscriptExpression.leftOperand.accept(thisLambda);
+      subscriptExpression.rightOperand.accept(thisLambda);
+    },
+    [&](const auto& thisLambda, const SwitchExpression& switchExpression) {
+      result.push_back(fmt::format("{}", fmt::streamed(switchExpression)));
+      for (const auto& caseExpression : switchExpression.cases)
+      {
+        caseExpression.accept(thisLambda);
+      }
+    }));
+  return result;
+}
+} // namespace
+
+TEST_CASE("ExpressionTest.accept")
+{
+  CHECK(preorderVisit("1") == std::vector<std::string>{"1"});
+  CHECK(preorderVisit("a") == std::vector<std::string>{"a"});
+  CHECK(preorderVisit("[1, 2]") == std::vector<std::string>{"[ 1, 2 ]", "1", "2"});
+  CHECK(
+    preorderVisit("{x:1, y:2}")
+    == std::vector<std::string>{R"({ "x": 1, "y": 2 })", "1", "2"});
+  CHECK(preorderVisit("+1") == std::vector<std::string>{"+1", "1"});
+  CHECK(preorderVisit("1 + 2") == std::vector<std::string>{"1 + 2", "1", "2"});
+  CHECK(preorderVisit("x[1]") == std::vector<std::string>{"x[1]", "x", "1"});
+  CHECK(
+    preorderVisit("{{ x -> 1 }}")
+    == std::vector<std::string>{"{{ x -> 1 }}", "x -> 1", "x", "1"});
+}
+
+} // namespace TrenchBroom::EL

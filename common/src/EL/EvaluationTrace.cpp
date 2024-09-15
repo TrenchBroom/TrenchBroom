@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,28 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
+#include "EvaluationTrace.h"
 
-#include "IO/ConfigParserBase.h"
-#include "Macros.h"
-#include "Model/GameEngineConfig.h"
-
-#include <filesystem>
-#include <memory>
-#include <string>
-#include <vector>
-
-namespace TrenchBroom::IO
+namespace TrenchBroom::EL
 {
 
-class GameEngineConfigParser : public ConfigParserBase
+std::optional<ExpressionNode> EvaluationTrace::getExpression(const Value& value) const
 {
-public:
-  GameEngineConfigParser(std::string_view str, std::filesystem::path path);
+  auto it = m_data.find(value);
+  return it != m_data.end() ? std::optional{it->second} : std::nullopt;
+}
 
-  Model::GameEngineConfig parse();
+std::optional<FileLocation> EvaluationTrace::getLocation(const Value& value) const
+{
+  if (const auto expression = getExpression(value))
+  {
+    return expression->location();
+  }
+  return std::nullopt;
+}
 
-  deleteCopyAndMove(GameEngineConfigParser);
-};
+void EvaluationTrace::addTrace(const Value& value, const ExpressionNode& expression)
+{
+  m_data.emplace(value, expression);
+}
 
-} // namespace TrenchBroom::IO
+} // namespace TrenchBroom::EL

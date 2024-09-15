@@ -18,7 +18,7 @@
  */
 
 #include "EL/Expression.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h" // IWYU pragma: keep
 #include "EL/Value.h"
 #include "Error.h"
 #include "Exceptions.h"
@@ -868,7 +868,7 @@ TEST_CASE("NodeTest.entityPropertyConfig")
   };
 
   const auto config =
-    EntityPropertyConfig{{{EL::LiteralExpression{EL::Value{2.0}}, 0, 0}}};
+    EntityPropertyConfig{{EL::ExpressionNode{EL::LiteralExpression{EL::Value{2.0}}}}};
   auto root = std::make_unique<RootNode>(config);
   REQUIRE(root->entityPropertyConfig() == config);
 

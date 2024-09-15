@@ -24,17 +24,16 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 EvaluationContext::EvaluationContext()
-  : m_store(std::make_unique<VariableTable>())
+  : m_store{std::make_unique<VariableTable>()}
 {
 }
 
 EvaluationContext::EvaluationContext(const VariableStore& store)
-  : m_store(store.clone())
+  : m_store{store.clone()}
 {
 }
 
@@ -51,21 +50,13 @@ void EvaluationContext::declareVariable(const std::string& name, const Value& va
 }
 
 EvaluationStack::EvaluationStack(const EvaluationContext& next)
-  : m_next(next)
+  : m_next{next}
 {
 }
 
 Value EvaluationStack::variableValue(const std::string& name) const
 {
-  const Value& value = EvaluationContext::variableValue(name);
-  if (value != Value::Undefined)
-  {
-    return value;
-  }
-  else
-  {
-    return m_next.variableValue(name);
-  }
+  const auto& value = EvaluationContext::variableValue(name);
+  return value != Value::Undefined ? value : m_next.variableValue(name);
 }
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

@@ -31,13 +31,16 @@
 
 namespace TrenchBroom
 {
-namespace Model
+struct FileLocation;
+}
+
+namespace TrenchBroom::Model
 {
 class EntityProperty;
 class BrushFaceAttributes;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -48,12 +51,14 @@ public:
 
 protected: // subclassing interface for users of the parser
   virtual void onBeginEntity(
-    size_t line, std::vector<Model::EntityProperty> properties, ParserStatus& status) = 0;
-  virtual void onEndEntity(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
-  virtual void onBeginBrush(size_t line, ParserStatus& status) = 0;
-  virtual void onEndBrush(size_t startLine, size_t lineCount, ParserStatus& status) = 0;
+    const FileLocation& startLocation,
+    std::vector<Model::EntityProperty> properties,
+    ParserStatus& status) = 0;
+  virtual void onEndEntity(const FileLocation& endLocation, ParserStatus& status) = 0;
+  virtual void onBeginBrush(const FileLocation& location, ParserStatus& status) = 0;
+  virtual void onEndBrush(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onStandardBrushFace(
-    size_t line,
+    const FileLocation& location,
     Model::MapFormat targetMapFormat,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -61,7 +66,7 @@ protected: // subclassing interface for users of the parser
     const Model::BrushFaceAttributes& attribs,
     ParserStatus& status) = 0;
   virtual void onValveBrushFace(
-    size_t line,
+    const FileLocation& location,
     Model::MapFormat targetMapFormat,
     const vm::vec3& point1,
     const vm::vec3& point2,
@@ -71,8 +76,8 @@ protected: // subclassing interface for users of the parser
     const vm::vec3& vAxis,
     ParserStatus& status) = 0;
   virtual void onPatch(
-    size_t startLine,
-    size_t lineCount,
+    const FileLocation& startLocation,
+    const FileLocation& endLocation,
     Model::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,
@@ -80,5 +85,5 @@ protected: // subclassing interface for users of the parser
     std::string materialName,
     ParserStatus& status) = 0;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

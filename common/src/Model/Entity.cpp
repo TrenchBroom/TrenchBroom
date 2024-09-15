@@ -199,7 +199,7 @@ Assets::ModelSpecification Entity::modelSpecification() const
 }
 
 const vm::mat4x4& Entity::modelTransformation(
-  const std::optional<EL::Expression>& defaultModelScaleExpression) const
+  const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const
 {
   if (!m_cachedModelTransformation)
   {

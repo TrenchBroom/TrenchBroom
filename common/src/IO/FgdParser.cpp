@@ -21,8 +21,8 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
-#include "EL/Expressions.h"
-#include "Error.h"
+#include "EL/Expression.h"
+#include "Error.h" // IWYU pragma: keep
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
@@ -139,7 +139,8 @@ FgdTokenizer::Token FgdTokenizer::emitToken()
       if (e == nullptr)
       {
         throw ParserException{
-          startLine, startColumn, fmt::format("Unexpected character: '{}'", c)};
+          FileLocation{startLine, startColumn},
+          fmt::format("Unexpected character: '{}'", c)};
       }
       else
       {
@@ -294,8 +295,8 @@ std::optional<EntityDefinitionClassInfo> FgdParser::parseClassInfo(ParserStatus&
   }
 
   const auto msg = fmt::format("Unknown entity definition class '{}'", classname);
-  status.error(token.line(), token.column(), msg);
-  throw ParserException{token.line(), token.column(), msg};
+  status.error(token.location(), msg);
+  throw ParserException{token.location(), msg};
 }
 
 EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status)
@@ -303,22 +304,17 @@ EntityDefinitionClassInfo FgdParser::parseSolidClassInfo(ParserStatus& status)
   const auto classInfo = parseClassInfo(status, EntityDefinitionClassType::BrushClass);
   if (classInfo.size)
   {
-    status.warn(
-      classInfo.line, classInfo.column, "Solid entity definition must not have a size");
+    status.warn(classInfo.location, "Solid entity definition must not have a size");
   }
   if (classInfo.modelDefinition)
   {
     status.warn(
-      classInfo.line,
-      classInfo.column,
-      "Solid entity definition must not have model definitions");
+      classInfo.location, "Solid entity definition must not have model definitions");
   }
   if (classInfo.decalDefinition)
   {
     status.warn(
-      classInfo.line,
-      classInfo.column,
-      "Solid entity definition must not have decal definitions");
+      classInfo.location, "Solid entity definition must not have decal definitions");
   }
   return classInfo;
 }
@@ -341,8 +337,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
 
   auto classInfo = EntityDefinitionClassInfo{};
   classInfo.type = classType;
-  classInfo.line = token.line();
-  classInfo.column = token.column();
+  classInfo.location = token.location();
 
   while (token.type() == FgdToken::Word)
   {
@@ -351,7 +346,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
     {
       if (!classInfo.superClasses.empty())
       {
-        status.warn(token.line(), token.column(), "Found multiple base properties");
+        status.warn(token.location(), "Found multiple base properties");
       }
       classInfo.superClasses = parseSuperClasses(status);
     }
@@ -359,7 +354,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
     {
       if (classInfo.color)
       {
-        status.warn(token.line(), token.column(), "Found multiple color properties");
+        status.warn(token.location(), "Found multiple color properties");
       }
       classInfo.color = parseColor(status);
     }
@@ -367,7 +362,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
     {
       if (classInfo.size)
       {
-        status.warn(token.line(), token.column(), "Found multiple size properties");
+        status.warn(token.location(), "Found multiple size properties");
       }
       classInfo.size = parseSize(status);
     }
@@ -380,7 +375,7 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
     {
       if (classInfo.modelDefinition)
       {
-        status.warn(token.line(), token.column(), "Found multiple model properties");
+        status.warn(token.location(), "Found multiple model properties");
       }
       classInfo.modelDefinition =
         parseModel(status, kdl::ci::str_is_equal(typeName, "sprite"));
@@ -389,15 +384,14 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
     {
       if (classInfo.decalDefinition)
       {
-        status.warn(token.line(), token.column(), "Found multiple decal properties");
+        status.warn(token.location(), "Found multiple decal properties");
       }
       classInfo.decalDefinition = parseDecal(status);
     }
     else
     {
       status.warn(
-        token.line(),
-        token.column(),
+        token.location(),
         fmt::format("Unknown entity definition header properties '{}'", typeName));
       skipClassProperty(status);
     }
@@ -463,16 +457,17 @@ Assets::ModelDefinition FgdParser::parseModel(
 
   const auto line = m_tokenizer.line();
   const auto column = m_tokenizer.column();
+  const auto location = m_tokenizer.location();
 
   if (allowEmptyExpression && m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
   {
     m_tokenizer.skipToken();
 
     auto defaultModel = EL::MapExpression{{
-      {"path", {EL::VariableExpression{"model"}, line, column}},
-      {"scale", {EL::VariableExpression{"scale"}, line, column}},
+      {"path", EL::ExpressionNode{EL::VariableExpression{"model"}, location}},
+      {"scale", EL::ExpressionNode{EL::VariableExpression{"scale"}, location}},
     }};
-    auto defaultExp = EL::Expression{std::move(defaultModel), line, column};
+    auto defaultExp = EL::ExpressionNode{std::move(defaultModel), location};
     return Assets::ModelDefinition{std::move(defaultExp)};
   }
 
@@ -505,8 +500,7 @@ Assets::ModelDefinition FgdParser::parseModel(
 
       expression.optimize();
       status.warn(
-        line,
-        column,
+        location,
         fmt::format(
           "Legacy model expressions are deprecated, replace with '{}'",
           expression.asString()));
@@ -520,8 +514,7 @@ Assets::ModelDefinition FgdParser::parseModel(
   }
   catch (const EL::EvaluationError& evaluationError)
   {
-    throw ParserException{
-      m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
+    throw ParserException{location, evaluationError.what()};
   }
 }
 
@@ -532,15 +525,16 @@ Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
   const auto snapshot = m_tokenizer.snapshot();
   const auto line = m_tokenizer.line();
   const auto column = m_tokenizer.column();
+  const auto location = m_tokenizer.location();
 
   // Accept "decal()" and give it a default expression of `{ texture: texture }`
   const auto token = m_tokenizer.peekToken();
   if (token.hasType(FgdToken::CParenthesis))
   {
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
-    auto defaultDecal =
-      EL::MapExpression{{{"texture", {EL::VariableExpression{"texture"}, line, column}}}};
-    auto defaultExp = EL::Expression{std::move(defaultDecal), line, column};
+    auto defaultDecal = EL::MapExpression{
+      {{"texture", EL::ExpressionNode{EL::VariableExpression{"texture"}, location}}}};
+    auto defaultExp = EL::ExpressionNode{std::move(defaultDecal), location};
     return Assets::DecalDefinition{std::move(defaultExp)};
   }
 
@@ -564,8 +558,7 @@ Assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
   }
   catch (const EL::EvaluationError& evaluationError)
   {
-    throw ParserException{
-      m_tokenizer.line(), m_tokenizer.column(), evaluationError.what()};
+    throw ParserException{location, evaluationError.what()};
   }
 }
 
@@ -609,8 +602,7 @@ std::vector<std::shared_ptr<Assets::PropertyDefinition>> FgdParser::
   while (token.type() != FgdToken::CBracket)
   {
     const auto propertyKey = token.data();
-    const auto line = token.line();
-    const auto column = token.column();
+    const auto location = token.location();
 
     expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
     token = expect(status, FgdToken::Word, m_tokenizer.nextToken());
@@ -618,12 +610,11 @@ std::vector<std::shared_ptr<Assets::PropertyDefinition>> FgdParser::
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
 
     auto propertyDefinition =
-      parsePropertyDefinition(status, propertyKey, typeName, line, column);
+      parsePropertyDefinition(status, propertyKey, typeName, location);
     if (!addPropertyDefinition(propertyDefinitions, std::move(propertyDefinition)))
     {
       status.warn(
-        line,
-        column,
+        location,
         fmt::format("Skipping duplicate property definition: '{}'", propertyKey));
     }
 
@@ -637,8 +628,7 @@ std::unique_ptr<Assets::PropertyDefinition> FgdParser::parsePropertyDefinition(
   ParserStatus& status,
   std::string propertyKey,
   const std::string& typeName,
-  const size_t line,
-  const size_t column)
+  const FileLocation& location)
 {
   if (kdl::ci::str_is_equal(typeName, "target_source"))
   {
@@ -670,8 +660,7 @@ std::unique_ptr<Assets::PropertyDefinition> FgdParser::parsePropertyDefinition(
   }
 
   status.debug(
-    line,
-    column,
+    location,
     fmt::format(
       "Unknown property definition type '{}' for property '{}'", typeName, propertyKey));
   return parseUnknownPropertyDefinition(status, std::move(propertyKey));
@@ -902,8 +891,7 @@ std::optional<std::string> FgdParser::parseDefaultStringValue(ParserStatus& stat
     if (token.type() == FgdToken::Integer || token.type() == FgdToken::Decimal)
     {
       token = m_tokenizer.nextToken();
-      status.warn(
-        token.line(), token.column(), "Found numeric default value for string property");
+      status.warn(token.location(), "Found numeric default value for string property");
       return token.data();
     }
   }
@@ -928,8 +916,7 @@ std::optional<int> FgdParser::parseDefaultIntegerValue(ParserStatus& status)
     if (token.type() == FgdToken::Decimal)
     { // be graceful for DaZ
       token = m_tokenizer.nextToken();
-      status.warn(
-        token.line(), token.column(), "Found float default value for integer property");
+      status.warn(token.location(), "Found float default value for integer property");
       return static_cast<int>(token.toFloat<float>());
     }
   }
@@ -953,9 +940,7 @@ std::optional<float> FgdParser::parseDefaultFloatValue(ParserStatus& status)
       if (token.type() != FgdToken::String)
       {
         status.warn(
-          token.line(),
-          token.column(),
-          fmt::format("Unquoted float default value {}", token.data()));
+          token.location(), fmt::format("Unquoted float default value {}", token.data()));
       }
       return token.toFloat<float>();
     }
@@ -1071,7 +1056,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
   if (!m_fs)
   {
     status.error(
-      m_tokenizer.line(),
+      m_tokenizer.location(),
       kdl::str_to_string("Cannot include file without host file path"));
     return {};
   }
@@ -1082,18 +1067,18 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
     }};
 
   status.debug(
-    m_tokenizer.line(), fmt::format("Parsing included file '{}'", path.string()));
+    m_tokenizer.location(), fmt::format("Parsing included file '{}'", path.string()));
 
   const auto filePath = currentRoot() / path;
   return m_fs->openFile(filePath) | kdl::transform([&](auto file) {
            status.debug(
-             m_tokenizer.line(),
+             m_tokenizer.location(),
              fmt::format("Resolved '{}' to '{}'", path.string(), filePath.string()));
 
            if (isRecursiveInclude(filePath))
            {
              status.error(
-               m_tokenizer.line(),
+               m_tokenizer.location(),
                fmt::format(
                  "Skipping recursively included file: {} ({})",
                  path.string(),
@@ -1108,7 +1093,7 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
          })
          | kdl::transform_error([&](auto e) {
              status.error(
-               m_tokenizer.line(),
+               m_tokenizer.location(),
                fmt::format("Failed to parse included file: {}", e.msg));
              return std::vector<EntityDefinitionClassInfo>{};
            })

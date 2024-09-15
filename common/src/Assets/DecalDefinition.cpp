@@ -20,20 +20,14 @@
 #include "DecalDefinition.h"
 
 #include "EL/EvaluationContext.h"
-#include "EL/Expressions.h"
+#include "EL/Expression.h"
 #include "EL/Types.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/string_compare.h"
 
-#include "vm/scalar.h"
-#include "vm/vec_io.h"
-
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
 namespace
@@ -68,27 +62,27 @@ DecalSpecification convertToDecal(const EL::Value& value)
 kdl_reflect_impl(DecalSpecification);
 
 DecalDefinition::DecalDefinition()
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, 0, 0}
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}}
 {
 }
 
-DecalDefinition::DecalDefinition(const size_t line, const size_t column)
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, line, column}
+DecalDefinition::DecalDefinition(const FileLocation& location)
+  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, location}
 {
 }
 
-DecalDefinition::DecalDefinition(EL::Expression expression)
+DecalDefinition::DecalDefinition(EL::ExpressionNode expression)
   : m_expression{std::move(expression)}
 {
 }
 
 void DecalDefinition::append(const DecalDefinition& other)
 {
-  const auto line = m_expression.line();
-  const auto column = m_expression.column();
+  const auto location = m_expression.location();
 
-  auto cases = std::vector<EL::Expression>{std::move(m_expression), other.m_expression};
-  m_expression = EL::Expression{EL::SwitchExpression{std::move(cases)}, line, column};
+  auto cases =
+    std::vector<EL::ExpressionNode>{std::move(m_expression), other.m_expression};
+  m_expression = EL::ExpressionNode{EL::SwitchExpression{std::move(cases)}, location};
 }
 
 DecalSpecification DecalDefinition::decalSpecification(
@@ -104,5 +98,4 @@ DecalSpecification DecalDefinition::defaultDecalSpecification() const
 
 kdl_reflect_impl(DecalDefinition);
 
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

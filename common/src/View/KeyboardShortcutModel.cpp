@@ -227,7 +227,7 @@ void KeyboardShortcutModel::updateConflicts()
   const auto allActions =
     m_actions
     | std::views::transform([](const auto& actionInfo) { return &actionInfo.action; })
-    | kdl::to_vector;
+    | kdl::to<std::vector<const Action*>>();
 
   m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
   for (const auto& row : m_conflicts)

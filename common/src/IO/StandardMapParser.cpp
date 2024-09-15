@@ -19,32 +19,29 @@
 
 #include "StandardMapParser.h"
 
+#include "FileLocation.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
-#include "kdl/invoke.h"
 #include "kdl/vector_set.h"
 
-#include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 const std::string& QuakeMapTokenizer::NumberDelim()
 {
   static const std::string numberDelim(Whitespace() + ")");
   return numberDelim;
 }
 
-QuakeMapTokenizer::QuakeMapTokenizer(std::string_view str)
-  : Tokenizer(std::move(str), "\"", '\\')
-  , m_skipEol(true)
+QuakeMapTokenizer::QuakeMapTokenizer(const std::string_view str)
+  : Tokenizer{str, "\"", '\\'}
 {
 }
 
@@ -57,8 +54,9 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
 {
   while (!eof())
   {
-    auto startLine = line();
-    auto startColumn = column();
+    const auto startLine = line();
+    const auto startColumn = column();
+    const auto startLocation = location();
     const auto* c = curPos();
     switch (*c)
     {
@@ -70,8 +68,8 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
         if (curChar() == '/' && lookAhead(1) == ' ')
         {
           advance();
-          return Token(
-            QuakeMapToken::Comment, c, c + 3, offset(c), startLine, startColumn);
+          return Token{
+            QuakeMapToken::Comment, c, c + 3, offset(c), startLine, startColumn};
         }
         discardUntil("\n\r");
       }
@@ -84,29 +82,29 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
       break;
     case '{':
       advance();
-      return Token(QuakeMapToken::OBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{QuakeMapToken::OBrace, c, c + 1, offset(c), startLine, startColumn};
     case '}':
       advance();
-      return Token(QuakeMapToken::CBrace, c, c + 1, offset(c), startLine, startColumn);
+      return Token{QuakeMapToken::CBrace, c, c + 1, offset(c), startLine, startColumn};
     case '(':
       advance();
-      return Token(
-        QuakeMapToken::OParenthesis, c, c + 1, offset(c), startLine, startColumn);
+      return Token{
+        QuakeMapToken::OParenthesis, c, c + 1, offset(c), startLine, startColumn};
     case ')':
       advance();
-      return Token(
-        QuakeMapToken::CParenthesis, c, c + 1, offset(c), startLine, startColumn);
+      return Token{
+        QuakeMapToken::CParenthesis, c, c + 1, offset(c), startLine, startColumn};
     case '[':
       advance();
-      return Token(QuakeMapToken::OBracket, c, c + 1, offset(c), startLine, startColumn);
+      return Token{QuakeMapToken::OBracket, c, c + 1, offset(c), startLine, startColumn};
     case ']':
       advance();
-      return Token(QuakeMapToken::CBracket, c, c + 1, offset(c), startLine, startColumn);
+      return Token{QuakeMapToken::CBracket, c, c + 1, offset(c), startLine, startColumn};
     case '"': { // quoted string
       advance();
       c = curPos();
       const auto* e = readQuotedString('"', "\n}");
-      return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
+      return Token{QuakeMapToken::String, c, e, offset(c), startLine, startColumn};
     }
     case '\r':
       if (lookAhead() == '\n')
@@ -120,50 +118,45 @@ QuakeMapTokenizer::Token QuakeMapTokenizer::emitToken()
       if (!m_skipEol)
       {
         advance();
-        return Token(QuakeMapToken::Eol, c, c + 1, offset(c), startLine, startColumn);
+        return Token{QuakeMapToken::Eol, c, c + 1, offset(c), startLine, startColumn};
       }
       switchFallthrough();
     case ' ':
     case '\t':
       discardWhile(Whitespace());
       break;
-    default: { // whitespace, integer, decimal or word
-      const auto* e = readInteger(NumberDelim());
-      if (e != nullptr)
+    default: // whitespace, integer, decimal or word
+      if (const auto* e = readInteger(NumberDelim()))
       {
-        return Token(QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn);
+        return Token{QuakeMapToken::Integer, c, e, offset(c), startLine, startColumn};
       }
 
-      e = readDecimal(NumberDelim());
-      if (e != nullptr)
+      if (const auto e = readDecimal(NumberDelim()))
       {
-        return Token(QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn);
+        return Token{QuakeMapToken::Decimal, c, e, offset(c), startLine, startColumn};
       }
 
-      e = readUntil(Whitespace());
-      if (e == nullptr)
+      if (const auto e = readUntil(Whitespace()))
       {
-        throw ParserException(
-          startLine, startColumn, "Unexpected character: " + std::string(c, 1));
+        return Token{QuakeMapToken::String, c, e, offset(c), startLine, startColumn};
       }
 
-      return Token(QuakeMapToken::String, c, e, offset(c), startLine, startColumn);
-    }
+      throw ParserException{startLocation, fmt::format("Unexpected character: {}", *c)};
     }
   }
-  return Token(QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column());
+  return Token{QuakeMapToken::Eof, nullptr, nullptr, length(), line(), column()};
 }
 
 const std::string StandardMapParser::BrushPrimitiveId = "brushDef";
 const std::string StandardMapParser::PatchId = "patchDef2";
 
 StandardMapParser::StandardMapParser(
-  std::string_view str,
+  const std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat)
-  : m_tokenizer(QuakeMapTokenizer(std::move(str)))
-  , m_sourceMapFormat(sourceMapFormat)
-  , m_targetMapFormat(targetMapFormat)
+  : m_tokenizer{str}
+  , m_sourceMapFormat{sourceMapFormat}
+  , m_targetMapFormat{targetMapFormat}
 {
   assert(m_sourceMapFormat != Model::MapFormat::Unknown);
   assert(targetMapFormat != Model::MapFormat::Unknown);
@@ -212,7 +205,7 @@ void StandardMapParser::reset()
 
 void StandardMapParser::parseEntity(ParserStatus& status)
 {
-  Token token = m_tokenizer.nextToken();
+  auto token = m_tokenizer.nextToken();
   if (token.type() == QuakeMapToken::Eof)
   {
     return;
@@ -225,7 +218,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
   auto properties = std::vector<Model::EntityProperty>();
   auto propertyKeys = EntityPropertyKeys();
 
-  const auto startLine = token.line();
+  const auto startLocation = token.location();
 
   token = m_tokenizer.peekToken();
   while (token.type() != QuakeMapToken::Eof)
@@ -241,7 +234,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
     case QuakeMapToken::OBrace:
       if (!beginEntityCalled)
       {
-        onBeginEntity(startLine, std::move(properties), status);
+        onBeginEntity(startLocation, std::move(properties), status);
         beginEntityCalled = true;
       }
       parseBrushOrBrushPrimitiveOrPatch(status);
@@ -250,9 +243,9 @@ void StandardMapParser::parseEntity(ParserStatus& status)
       m_tokenizer.nextToken();
       if (!beginEntityCalled)
       {
-        onBeginEntity(startLine, properties, status);
+        onBeginEntity(startLocation, properties, status);
       }
-      onEndEntity(startLine, token.line() - startLine, status);
+      onEndEntity(token.location(), status);
       return;
     default:
       expect(
@@ -274,20 +267,19 @@ void StandardMapParser::parseEntityProperty(
   assert(token.type() == QuakeMapToken::String);
   const auto name = token.data();
 
-  const auto line = token.line();
-  const auto column = token.column();
+  const auto location = token.location();
 
   expect(QuakeMapToken::String, token = m_tokenizer.nextToken());
   const auto value = token.data();
 
   if (keys.count(name) == 0)
   {
-    properties.push_back(Model::EntityProperty(name, value));
+    properties.emplace_back(name, value);
     keys.insert(name);
   }
   else
   {
-    status.warn(line, column, "Ignoring duplicate entity property '" + name + "'");
+    status.warn(location, fmt::format("Ignoring duplicate entity property '{}'", name));
   }
 }
 
@@ -303,7 +295,7 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     return;
   }
 
-  const auto startLine = token.line();
+  const auto startLocation = token.location();
 
   token = m_tokenizer.peekToken();
   if (m_sourceMapFormat == Model::MapFormat::Quake3)
@@ -312,19 +304,19 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
     if (token.hasType(QuakeMapToken::String))
     {
-      expect(std::vector<std::string>({BrushPrimitiveId, PatchId}), token);
+      expect({BrushPrimitiveId, PatchId}, token);
       if (token.data() == BrushPrimitiveId)
       {
-        parseBrushPrimitive(status, startLine);
+        parseBrushPrimitive(status, startLocation);
       }
       else
       {
-        parsePatch(status, startLine);
+        parsePatch(status, startLocation);
       }
     }
     else
     {
-      parseBrush(status, startLine, false);
+      parseBrush(status, startLocation, false);
     }
   }
   else if (
@@ -336,34 +328,35 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     if (token.hasType(QuakeMapToken::String))
     {
       expect(PatchId, token);
-      parsePatch(status, startLine);
+      parsePatch(status, startLocation);
     }
     else
     {
-      parseBrush(status, startLine, false);
+      parseBrush(status, startLocation, false);
     }
   }
   else
   {
     expect(QuakeMapToken::OParenthesis, token);
-    parseBrush(status, startLine, false);
+    parseBrush(status, startLocation, false);
   }
 
   // consume final closing brace
   expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
 }
 
-void StandardMapParser::parseBrushPrimitive(ParserStatus& status, const size_t startLine)
+void StandardMapParser::parseBrushPrimitive(
+  ParserStatus& status, const FileLocation& startLocation)
 {
   auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
   expect(BrushPrimitiveId, token);
   expect(QuakeMapToken::OBrace, m_tokenizer.nextToken());
-  parseBrush(status, startLine, true);
+  parseBrush(status, startLocation, true);
   expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
 }
 
 void StandardMapParser::parseBrush(
-  ParserStatus& status, const size_t startLine, const bool primitive)
+  ParserStatus& status, const FileLocation& startLocation, const bool primitive)
 {
   auto beginBrushCalled = false;
 
@@ -379,7 +372,7 @@ void StandardMapParser::parseBrush(
       // TODO 2427: handle brush primitives
       if (!beginBrushCalled && !primitive)
       {
-        onBeginBrush(startLine, status);
+        onBeginBrush(startLocation, status);
         beginBrushCalled = true;
       }
       parseFace(status, primitive);
@@ -390,13 +383,13 @@ void StandardMapParser::parseBrush(
       {
         if (!beginBrushCalled)
         {
-          onBeginBrush(startLine, status);
+          onBeginBrush(startLocation, status);
         }
-        onEndBrush(startLine, token.line() - startLine, status);
+        onEndBrush(token.location(), status);
       }
       else
       {
-        status.warn(startLine, "Skipping brush primitive: currently not supported");
+        status.warn(startLocation, "Skipping brush primitive: currently not supported");
       }
       return;
     default: {
@@ -451,29 +444,29 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
 
 void StandardMapParser::parseQuakeFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseQuake2Face(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -490,19 +483,19 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
@@ -519,17 +512,18 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
     attribs.setSurfaceValue(parseFloat());
   }
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parseHexen2Face(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -544,17 +538,17 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
     m_tokenizer.nextToken(); // noone seems to know what the extra value does in Hexen 2
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -572,30 +566,31 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
     if (check(QuakeMapToken::Integer, m_tokenizer.peekToken()))
     {
       // red, green, blue
-      attribs.setColor(Color(parseInteger(), parseInteger(), parseInteger()));
+      attribs.setColor(Color{parseInteger(), parseInteger(), parseInteger()});
     }
   }
 
-  onStandardBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, status);
+  onStandardBrushFace(location, m_targetMapFormat, p1, p2, p3, attribs, status);
 }
 
 void StandardMapParser::parseValveFace(ParserStatus& status)
 {
-  const auto line = m_tokenizer.line();
+  const auto location = m_tokenizer.location();
 
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
   attribs.setXScale(parseFloat());
   attribs.setYScale(parseFloat());
 
-  onValveBrushFace(line, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
+  onValveBrushFace(
+    location, m_targetMapFormat, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
 void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
@@ -612,7 +607,7 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   const auto materialName = parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = Model::BrushFaceAttributes(materialName);
+  auto attribs = Model::BrushFaceAttributes{materialName};
 
   // Quake 2 extra info is optional
   if (!check(
@@ -628,7 +623,8 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   // brushFace(line, p1, p2, p3, attribs, uAxis, vAxis, status);
 }
 
-void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
+void StandardMapParser::parsePatch(
+  ParserStatus& status, const FileLocation& startLocation)
 {
   auto token = expect(QuakeMapToken::String, m_tokenizer.nextToken());
   expect(PatchId, token);
@@ -653,7 +649,7 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   int rowCountInt = token.toInteger<int>();
   if (rowCountInt < 3 || rowCountInt % 2 != 1)
   {
-    status.warn(token.line(), token.column(), "Invalid patch height, assuming 3");
+    status.warn(token.location(), "Invalid patch height, assuming 3");
     rowCountInt = 3;
   }
 
@@ -661,12 +657,12 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   int columnCountInt = token.toInteger<int>();
   if (columnCountInt < 3 || columnCountInt % 2 != 1)
   {
-    status.warn(token.line(), token.column(), "Invalid patch width, assuming 3");
+    status.warn(token.location(), "Invalid patch width, assuming 3");
     columnCountInt = 3;
   }
 
-  size_t rowCount = static_cast<size_t>(rowCountInt);
-  size_t columnCount = static_cast<size_t>(columnCountInt);
+  const auto rowCount = static_cast<size_t>(rowCountInt);
+  const auto columnCount = static_cast<size_t>(columnCountInt);
 
   expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
   expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
@@ -691,11 +687,9 @@ void StandardMapParser::parsePatch(ParserStatus& status, const size_t startLine)
   expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
   token = expect(QuakeMapToken::CBrace, m_tokenizer.nextToken());
-  const size_t lineCount = token.line() - startLine;
-
   onPatch(
-    startLine,
-    lineCount,
+    startLocation,
+    token.location(),
     m_targetMapFormat,
     rowCount,
     columnCount,
@@ -714,14 +708,14 @@ std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(
   const auto p3 =
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
 
-  return std::make_tuple(p1, p2, p3);
+  return {p1, p2, p3};
 }
 
 std::string StandardMapParser::parseMaterialName(ParserStatus& /* status */)
 {
   const auto [materialName, wasQuoted] =
     m_tokenizer.readAnyString(QuakeMapTokenizer::Whitespace());
-  return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string(materialName);
+  return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string{materialName};
 }
 
 std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveUVAxes(
@@ -737,7 +731,7 @@ std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveUVAxes
   const auto vAxis = secondAxis.xyz();
   const auto vOffset = static_cast<float>(secondAxis.w());
 
-  return std::make_tuple(uAxis, uOffset, vAxis, vOffset);
+  return {uAxis, uOffset, vAxis, vOffset};
 }
 
 std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveUVAxes(
@@ -747,7 +741,7 @@ std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveUVAxes(
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
   const auto vAxis =
     correct(parseFloatVector(QuakeMapToken::OParenthesis, QuakeMapToken::CParenthesis));
-  return std::make_tuple(uAxis, vAxis);
+  return {uAxis, vAxis};
 }
 
 float StandardMapParser::parseFloat()
@@ -764,19 +758,19 @@ StandardMapParser::TokenNameMap StandardMapParser::tokenNames() const
 {
   using namespace QuakeMapToken;
 
-  TokenNameMap names;
-  names[Integer] = "integer";
-  names[Decimal] = "decimal";
-  names[String] = "string";
-  names[OParenthesis] = "'('";
-  names[CParenthesis] = "')'";
-  names[OBrace] = "'{'";
-  names[CBrace] = "'}'";
-  names[OBracket] = "'['";
-  names[CBracket] = "']'";
-  names[Comment] = "comment";
-  names[Eof] = "end of file";
-  return names;
+  return {
+    {Integer, "integer"},
+    {Decimal, "decimal"},
+    {String, "string"},
+    {OParenthesis, "'('"},
+    {CParenthesis, "')'"},
+    {OBrace, "'{'"},
+    {CBrace, "'}'"},
+    {OBracket, "'['"},
+    {CBracket, "']'"},
+    {Comment, "comment"},
+    {Eof, "end of file"},
+  };
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

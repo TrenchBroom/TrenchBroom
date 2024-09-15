@@ -22,11 +22,12 @@
 #include "Assets/DecalDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
+#include "FileLocation.h"
 #include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <iosfwd>
 #include <memory>
@@ -55,8 +56,7 @@ std::ostream& operator<<(std::ostream& str, EntityDefinitionClassType type);
 struct EntityDefinitionClassInfo
 {
   EntityDefinitionClassType type;
-  size_t line;
-  size_t column;
+  FileLocation location;
   std::string name;
 
   std::optional<std::string> description;
@@ -71,8 +71,7 @@ struct EntityDefinitionClassInfo
   kdl_reflect_decl(
     EntityDefinitionClassInfo,
     type,
-    line,
-    column,
+    location,
     name,
     description,
     color,

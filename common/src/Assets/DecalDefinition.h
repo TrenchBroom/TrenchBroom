@@ -23,9 +23,12 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/vec.h"
-
 #include <iosfwd>
+
+namespace TrenchBroom
+{
+struct FileLocation;
+}
 
 namespace TrenchBroom::Assets
 {
@@ -45,12 +48,12 @@ struct DecalSpecification
 class DecalDefinition
 {
 private:
-  EL::Expression m_expression;
+  EL::ExpressionNode m_expression;
 
 public:
   DecalDefinition();
-  DecalDefinition(size_t line, size_t column);
-  explicit DecalDefinition(EL::Expression expression);
+  explicit DecalDefinition(const FileLocation& location);
+  explicit DecalDefinition(EL::ExpressionNode expression);
 
   void append(const DecalDefinition& other);
 

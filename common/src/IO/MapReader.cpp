@@ -19,7 +19,8 @@
 
 #include "MapReader.h"
 
-#include "Error.h"
+#include "Error.h" // IWYU pragma: keep
+#include "FileLocation.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -44,6 +45,9 @@
 #include "vm/mat.h"
 #include "vm/mat_io.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <cassert>
 #include <optional>
 #include <ostream>
@@ -55,12 +59,25 @@
 namespace TrenchBroom::IO
 {
 
+namespace
+{
+
+template <typename T>
+auto getFilePosition(const T& info)
+{
+  const auto startLine = info.startLocation.line;
+  const auto lineCount = info.endLocation->line - startLine;
+  return std::tuple{startLine, lineCount};
+}
+
+} // namespace
+
 MapReader::MapReader(
-  std::string_view str,
+  const std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   Model::EntityPropertyConfig entityPropertyConfig)
-  : StandardMapParser{std::move(str), sourceMapFormat, targetMapFormat}
+  : StandardMapParser{str, sourceMapFormat, targetMapFormat}
   , m_entityPropertyConfig{std::move(entityPropertyConfig)}
 {
 }
@@ -88,44 +105,40 @@ void MapReader::readBrushFaces(const vm::bbox3& worldBounds, ParserStatus& statu
 // implement MapParser interface
 
 void MapReader::onBeginEntity(
-  const size_t /* line */,
+  const FileLocation& location,
   std::vector<Model::EntityProperty> properties,
   ParserStatus& /* status */)
 {
   m_currentEntityInfo = m_objectInfos.size();
-  m_objectInfos.emplace_back(EntityInfo{std::move(properties), 0, 0});
+  m_objectInfos.emplace_back(EntityInfo{std::move(properties), location, std::nullopt});
 }
 
-void MapReader::onEndEntity(
-  const size_t startLine, const size_t lineCount, ParserStatus& /* status */)
+void MapReader::onEndEntity(const FileLocation& endLocation, ParserStatus& /* status */)
 {
   assert(m_currentEntityInfo != std::nullopt);
   assert(std::holds_alternative<EntityInfo>(m_objectInfos[*m_currentEntityInfo]));
 
   auto& entity = std::get<EntityInfo>(m_objectInfos[*m_currentEntityInfo]);
-  entity.startLine = startLine;
-  entity.lineCount = lineCount;
+  entity.endLocation = endLocation;
 
   m_currentEntityInfo = std::nullopt;
 }
 
-void MapReader::onBeginBrush(const size_t /* line */, ParserStatus& /* status */)
+void MapReader::onBeginBrush(const FileLocation& location, ParserStatus& /* status */)
 {
-  m_objectInfos.emplace_back(BrushInfo{{}, 0, 0, m_currentEntityInfo});
+  m_objectInfos.emplace_back(BrushInfo{{}, location, std::nullopt, m_currentEntityInfo});
 }
 
-void MapReader::onEndBrush(
-  const size_t startLine, const size_t lineCount, ParserStatus& /* status */)
+void MapReader::onEndBrush(const FileLocation& endLocation, ParserStatus& /* status */)
 {
   assert(std::holds_alternative<BrushInfo>(m_objectInfos.back()));
 
   auto& brush = std::get<BrushInfo>(m_objectInfos.back());
-  brush.startLine = startLine;
-  brush.lineCount = lineCount;
+  brush.endLocation = endLocation;
 }
 
 void MapReader::onStandardBrushFace(
-  const size_t line,
+  const FileLocation& location,
   const Model::MapFormat targetMapFormat,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -135,15 +148,15 @@ void MapReader::onStandardBrushFace(
 {
   Model::BrushFace::createFromStandard(point1, point2, point3, attribs, targetMapFormat)
     | kdl::transform([&](auto face) {
-        face.setFilePosition(line, 1u);
+        face.setFilePosition(location.line, location.column.value_or(1));
         onBrushFace(std::move(face), status);
       })
     | kdl::transform_error(
-      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+      [&](auto e) { status.error(location, fmt::format("Skipping face: {}", e.msg)); });
 }
 
 void MapReader::onValveBrushFace(
-  const size_t line,
+  const FileLocation& location,
   const Model::MapFormat targetMapFormat,
   const vm::vec3& point1,
   const vm::vec3& point2,
@@ -156,16 +169,16 @@ void MapReader::onValveBrushFace(
   Model::BrushFace::createFromValve(
     point1, point2, point3, attribs, uAxis, vAxis, targetMapFormat)
     | kdl::transform([&](Model::BrushFace&& face) {
-        face.setFilePosition(line, 1u);
+        face.setFilePosition(location.line, location.column.value_or(1));
         onBrushFace(std::move(face), status);
       })
     | kdl::transform_error(
-      [&](auto e) { status.error(line, "Skipping face: " + e.msg); });
+      [&](auto e) { status.error(location, fmt::format("Skipping face: {}", e.msg)); });
 }
 
 void MapReader::onPatch(
-  const size_t startLine,
-  const size_t lineCount,
+  const FileLocation& startLocation,
+  const FileLocation& endLocation,
   Model::MapFormat,
   const size_t rowCount,
   const size_t columnCount,
@@ -178,8 +191,8 @@ void MapReader::onPatch(
     columnCount,
     std::move(controlPoints),
     std::move(materialName),
-    startLine,
-    lineCount,
+    startLocation,
+    endLocation,
     m_currentEntityInfo});
 }
 
@@ -252,7 +265,7 @@ struct NodeInfo
  * creation. */
 struct NodeError
 {
-  size_t line;
+  FileLocation location;
   std::string msg;
 };
 
@@ -310,7 +323,9 @@ CreateNodeResult createWorldNode(
   auto entity = Model::Entity{std::move(entityInfo.properties)};
   auto worldNode =
     std::make_unique<Model::WorldNode>(entityPropertyConfig, Model::Entity{}, mapFormat);
-  worldNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+
+  const auto [startLine, lineCount] = getFilePosition(entityInfo);
+  worldNode->setFilePosition(startLine, lineCount);
 
   // handle default layer attributes, which are stored in worldspawn
   auto* defaultLayerNode = worldNode->defaultLayer();
@@ -373,22 +388,22 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
     findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerName);
   if (kdl::str_is_blank(name))
   {
-    return NodeError{entityInfo.startLine, "Skipping layer entity: missing name"};
+    return NodeError{entityInfo.startLocation, "Skipping layer entity: missing name"};
   }
 
   const auto& idStr =
     findEntityPropertyOrDefault(properties, Model::EntityPropertyKeys::LayerId);
   if (kdl::str_is_blank(idStr))
   {
-    return NodeError{entityInfo.startLine, "Skipping layer entity: missing id"};
+    return NodeError{entityInfo.startLocation, "Skipping layer entity: missing id"};
   }
 
   const auto rawId = kdl::str_to_size(idStr);
   if (!rawId || *rawId <= 0u)
   {
     return NodeError{
-      entityInfo.startLine,
-      kdl::str_to_string("Skipping layer entity: '", idStr, "' is not a valid id")};
+      entityInfo.startLocation,
+      fmt::format("Skipping layer entity: '{}' is not a valid id", idStr)};
   }
 
   auto layer = Model::Layer{name};
@@ -409,7 +424,8 @@ CreateNodeResult createLayerNode(const MapReader::EntityInfo& entityInfo)
   }
 
   auto layerNode = std::make_unique<Model::LayerNode>(std::move(layer));
-  layerNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+  const auto [startLine, lineCount] = getFilePosition(entityInfo);
+  layerNode->setFilePosition(startLine, lineCount);
 
   const auto layerId = static_cast<Model::IdType>(*rawId);
   layerNode->setPersistentId(layerId);
@@ -445,22 +461,22 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
     entityInfo.properties, Model::EntityPropertyKeys::GroupName);
   if (kdl::str_is_blank(name))
   {
-    return NodeError{entityInfo.startLine, "Skipping group entity: missing name"};
+    return NodeError{entityInfo.startLocation, "Skipping group entity: missing name"};
   }
 
   const auto& idStr = findEntityPropertyOrDefault(
     entityInfo.properties, Model::EntityPropertyKeys::GroupId);
   if (kdl::str_is_blank(idStr))
   {
-    return NodeError{entityInfo.startLine, "Skipping group entity: missing id"};
+    return NodeError{entityInfo.startLocation, "Skipping group entity: missing id"};
   }
 
   const auto rawId = kdl::str_to_size(idStr);
   if (!rawId || *rawId <= 0)
   {
     return NodeError{
-      entityInfo.startLine,
-      kdl::str_to_string("Skipping group entity: '", idStr, "' is not a valid id")};
+      entityInfo.startLocation,
+      fmt::format("Skipping group entity: '{}' is not a valid id", idStr)};
   }
 
   auto transformation = std::optional<vm::mat4x4d>{};
@@ -489,7 +505,8 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
   }
 
   auto groupNode = std::make_unique<Model::GroupNode>(std::move(group));
-  groupNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+  const auto [startLine, lineCount] = getFilePosition(entityInfo);
+  groupNode->setFilePosition(startLine, lineCount);
   if (!linkId.empty())
   {
     groupNode->setLinkId(linkId);
@@ -530,7 +547,8 @@ CreateNodeResult createEntityNode(MapReader::EntityInfo entityInfo)
   entity.removeProperty(Model::EntityPropertyKeys::Group);
 
   auto entityNode = std::make_unique<Model::EntityNode>(std::move(entity));
-  entityNode->setFilePosition(entityInfo.startLine, entityInfo.lineCount);
+  const auto [startLine, lineCount] = getFilePosition(entityInfo);
+  entityNode->setFilePosition(startLine, lineCount);
 
   return NodeInfo{std::move(entityNode), std::move(containerInfo), std::move(nodeIssues)};
 }
@@ -573,7 +591,8 @@ CreateNodeResult createBrushNode(
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
          | kdl::transform([&](auto brush) {
              auto brushNode = std::make_unique<Model::BrushNode>(std::move(brush));
-             brushNode->setFilePosition(brushInfo.startLine, brushInfo.lineCount);
+             const auto [startLine, lineCount] = getFilePosition(brushInfo);
+             brushNode->setFilePosition(startLine, lineCount);
 
              auto parentInfo = brushInfo.parentIndex ? ParentInfo{*brushInfo.parentIndex}
                                                      : std::optional<ParentInfo>{};
@@ -583,7 +602,7 @@ CreateNodeResult createBrushNode(
            })
          | kdl::or_else([&](auto e) {
              return CreateNodeResult{
-               NodeError{brushInfo.startLine, kdl::str_to_string(e)}};
+               NodeError{brushInfo.startLocation, kdl::str_to_string(e)}};
            });
 }
 
@@ -597,7 +616,8 @@ CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
     patchInfo.columnCount,
     std::move(patchInfo.controlPoints),
     std::move(patchInfo.materialName)});
-  patchNode->setFilePosition(patchInfo.startLine, patchInfo.lineCount);
+  const auto [startLine, lineCount] = getFilePosition(patchInfo);
+  patchNode->setFilePosition(startLine, lineCount);
 
   auto parentInfo = patchInfo.parentIndex ? ParentInfo{*patchInfo.parentIndex}
                                           : std::optional<ParentInfo>{};
@@ -650,7 +670,7 @@ std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
                  return std::move(nodeInfo);
                })
              | kdl::transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
-                 status.error(e.line, e.msg);
+                 status.error(e.location, e.msg);
                  return std::nullopt;
                })
              | kdl::value();
@@ -674,9 +694,8 @@ void validateDuplicateLayersAndGroups(
           if (!layerIds.emplace(persistentId).second)
           {
             status.error(
-              layerNode->lineNumber(),
-              kdl::str_to_string(
-                "Skipping duplicate layer with ID '", persistentId, "'"));
+              FileLocation{layerNode->lineNumber()},
+              fmt::format("Skipping duplicate layer with ID '{}'", persistentId));
             nodeInfo.reset();
           }
         },
@@ -685,9 +704,8 @@ void validateDuplicateLayersAndGroups(
           if (!groupIds.emplace(persistentId).second)
           {
             status.error(
-              groupNode->lineNumber(),
-              kdl::str_to_string(
-                "Skipping duplicate group with ID '", persistentId, "'"));
+              FileLocation{groupNode->lineNumber()},
+              fmt::format("Skipping duplicate group with ID '{}'", persistentId));
             nodeInfo.reset();
           }
         },
@@ -724,21 +742,18 @@ void logValidationIssues(
           kdl::overload(
             [&](const MalformedTransformationIssue& m) {
               status.warn(
-                nodeInfo->node->lineNumber(),
-                kdl::str_to_string(
-                  "Not linking group: malformed transformation '",
-                  m.transformationStr,
-                  "'"));
+                FileLocation{nodeInfo->node->lineNumber()},
+                fmt::format(
+                  "Not linking group: malformed transformation '{}'",
+                  m.transformationStr));
             },
             [&](const InvalidContainerId& c) {
               status.warn(
-                nodeInfo->node->lineNumber(),
-                kdl::str_to_string(
-                  "Adding object to default layer: Invalid ",
-                  c.type,
-                  " ID '",
-                  c.idStr,
-                  "'"));
+                FileLocation{nodeInfo->node->lineNumber()},
+                fmt::format(
+                  "Adding object to default layer: Invalid {} ID '{}'",
+                  fmt::streamed(c.type),
+                  c.idStr));
             }),
           issue);
       }
@@ -774,11 +789,10 @@ void validateRecursiveLinkedGroups(
           if (isRecursiveLinkedGroup(groupNodeLinkId, iParent->second))
           {
             status.error(
-              groupNode->lineNumber(),
-              kdl::str_to_string(
-                "Unlinking recursive linked group with ID '",
-                *groupNode->persistentId(),
-                "'"));
+              FileLocation{groupNode->lineNumber()},
+              fmt::format(
+                "Unlinking recursive linked group with ID '{}'",
+                *groupNode->persistentId()));
 
             unlinkGroup(*groupNode, true);
             break;
@@ -869,20 +883,18 @@ std::unordered_map<Model::Node*, Model::Node*> buildNodeToParentMap(
               if (containerInfo.type == ContainerType::Layer)
               {
                 status.warn(
-                  nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Entity references missing layer '",
-                    containerInfo.id,
-                    "', adding to default layer"));
+                  FileLocation{nodeInfo->node->lineNumber()},
+                  fmt::format(
+                    "Entity references missing layer '{}', adding to default layer",
+                    containerInfo.id));
               }
               else
               {
                 status.warn(
-                  nodeInfo->node->lineNumber(),
-                  kdl::str_to_string(
-                    "Entity references missing group '",
-                    containerInfo.id,
-                    "', adding to default layer"));
+                  FileLocation{nodeInfo->node->lineNumber()},
+                  fmt::format(
+                    "Entity references missing group '{}', adding to default layer",
+                    containerInfo.id));
               }
             }
           }),

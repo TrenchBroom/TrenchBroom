@@ -29,7 +29,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <filesystem>
 #include <optional>
@@ -40,6 +40,7 @@
 
 namespace TrenchBroom::Model
 {
+
 struct MapFormatConfig
 {
   std::string format;
@@ -82,7 +83,7 @@ struct EntityConfig
 {
   std::vector<std::filesystem::path> defFilePaths;
   Color defaultColor;
-  std::optional<EL::Expression> scaleExpression;
+  std::optional<EL::ExpressionNode> scaleExpression;
   bool setDefaultProperties;
 
   kdl_reflect_decl(
@@ -174,4 +175,5 @@ struct GameConfig
   std::filesystem::path findInitialMap(const std::string& formatName) const;
   std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };
+
 } // namespace TrenchBroom::Model

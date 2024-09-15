@@ -19,6 +19,8 @@
 
 #include "Exceptions.h"
 
+#include "FileLocation.h"
+
 #include <sstream>
 
 namespace TrenchBroom
@@ -35,38 +37,36 @@ const char* Exception::what() const noexcept
   return m_msg.c_str();
 }
 
+namespace
+{
+std::string buildMessage(
+  const std::optional<FileLocation>& location, const std::string& str)
+{
+  auto msg = std::stringstream();
+
+  msg << "At ";
+  if (location)
+  {
+    msg << *location;
+  }
+  else
+  {
+    msg << "unknown location";
+  }
+
+  msg << ":";
+  if (!str.empty())
+  {
+    msg << " " << str;
+  }
+  return msg.str();
+}
+} // namespace
+
 ParserException::ParserException(
-  const size_t line, const size_t column, const std::string& str)
-  : Exception(buildMessage(line, column, str))
+  const std::optional<FileLocation>& location, const std::string& str)
+  : Exception(buildMessage(location, str))
 {
-}
-
-ParserException::ParserException(const size_t line, const std::string& str)
-  : Exception(buildMessage(line, str))
-{
-}
-
-std::string ParserException::buildMessage(
-  const size_t line, const size_t column, const std::string& str)
-{
-  auto msg = std::stringstream();
-  msg << "At line " << line << ", column " << column << ":";
-  if (!str.empty())
-  {
-    msg << " " << str;
-  }
-  return msg.str();
-}
-
-std::string ParserException::buildMessage(const size_t line, const std::string& str)
-{
-  auto msg = std::stringstream();
-  msg << "At line " << line << ":";
-  if (!str.empty())
-  {
-    msg << " " << str;
-  }
-  return msg.str();
 }
 
 } // namespace TrenchBroom

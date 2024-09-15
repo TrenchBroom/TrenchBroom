@@ -52,7 +52,8 @@ auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
 auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& faces)
 {
   return Brush::create(
-           vm::bbox3{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
+           vm::bbox3{8192.0},
+           faces | std::views::transform(makeFace) | kdl::to<std::vector<BrushFace>>())
          | kdl::value();
 };
 } // namespace

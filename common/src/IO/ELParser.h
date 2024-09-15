@@ -118,28 +118,28 @@ public:
   ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
 
-  static EL::Expression parseStrict(const std::string& str);
-  static EL::Expression parseLenient(const std::string& str);
+  static EL::ExpressionNode parseStrict(const std::string& str);
+  static EL::ExpressionNode parseLenient(const std::string& str);
 
-  EL::Expression parse();
+  EL::ExpressionNode parse();
 
 private:
-  EL::Expression parseExpression();
-  EL::Expression parseGroupedTerm();
-  EL::Expression parseTerm();
-  EL::Expression parseSimpleTermOrSwitch();
-  EL::Expression parseSimpleTermOrSubscript();
-  EL::Expression parseSimpleTerm();
-  EL::Expression parseSubscript(EL::Expression lhs);
-  EL::Expression parseVariable();
-  EL::Expression parseLiteral();
-  EL::Expression parseArray();
-  EL::Expression parseExpressionOrRange();
-  EL::Expression parseExpressionOrAnyRange();
-  EL::Expression parseMap();
-  EL::Expression parseUnaryOperator();
-  EL::Expression parseSwitch();
-  EL::Expression parseCompoundTerm(EL::Expression lhs);
+  EL::ExpressionNode parseExpression();
+  EL::ExpressionNode parseGroupedTerm();
+  EL::ExpressionNode parseTerm();
+  EL::ExpressionNode parseSimpleTermOrSwitch();
+  EL::ExpressionNode parseSimpleTermOrSubscript();
+  EL::ExpressionNode parseSimpleTerm();
+  EL::ExpressionNode parseSubscript(EL::ExpressionNode lhs);
+  EL::ExpressionNode parseVariable();
+  EL::ExpressionNode parseLiteral();
+  EL::ExpressionNode parseArray();
+  EL::ExpressionNode parseExpressionOrBoundedRange();
+  EL::ExpressionNode parseExpressionOrAnyRange();
+  EL::ExpressionNode parseMap();
+  EL::ExpressionNode parseUnaryOperator();
+  EL::ExpressionNode parseSwitch();
+  EL::ExpressionNode parseCompoundTerm(EL::ExpressionNode lhs);
 
 private:
   TokenNameMap tokenNames() const override;

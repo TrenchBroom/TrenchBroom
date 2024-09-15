@@ -31,6 +31,11 @@
 #include <iosfwd>
 #include <optional>
 
+namespace TrenchBroom
+{
+struct FileLocation;
+}
+
 namespace TrenchBroom::Assets
 {
 
@@ -45,13 +50,13 @@ constexpr auto Scale = "scale";
 class ModelDefinition
 {
 private:
-  EL::Expression m_expression;
+  EL::ExpressionNode m_expression;
 
 public:
   ModelDefinition();
-  ModelDefinition(size_t line, size_t column);
+  explicit ModelDefinition(const FileLocation& location);
 
-  explicit ModelDefinition(EL::Expression expression);
+  explicit ModelDefinition(EL::ExpressionNode expression);
 
   void append(ModelDefinition other);
 
@@ -85,7 +90,7 @@ public:
    */
   vm::vec3 scale(
     const EL::VariableStore& variableStore,
-    const std::optional<EL::Expression>& defaultScaleExpression) const;
+    const std::optional<EL::ExpressionNode>& defaultScaleExpression) const;
 
   kdl_reflect_decl(ModelDefinition, m_expression);
 };
@@ -97,6 +102,6 @@ public:
 vm::vec3 safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
-  const std::optional<EL::Expression>& defaultScaleExpression);
+  const std::optional<EL::ExpressionNode>& defaultScaleExpression);
 
 } // namespace TrenchBroom::Assets

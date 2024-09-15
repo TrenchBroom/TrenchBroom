@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2021 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,63 +20,273 @@
 #pragma once
 
 #include "EL/EL_Forward.h"
-#include "Macros.h"
+#include "EL/Value.h"
+#include "FileLocation.h"
 
-#include <iosfwd>
 #include <memory>
+#include <optional>
 #include <string>
+#include <variant>
+#include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
+
+struct LiteralExpression;
+struct VariableExpression;
+struct ArrayExpression;
+struct MapExpression;
+struct UnaryExpression;
+struct BinaryExpression;
+struct SubscriptExpression;
+struct SwitchExpression;
+
+using Expression = std::variant<
+  LiteralExpression,
+  VariableExpression,
+  ArrayExpression,
+  MapExpression,
+  UnaryExpression,
+  BinaryExpression,
+  SubscriptExpression,
+  SwitchExpression>;
+
+std::ostream& operator<<(std::ostream& lhs, const Expression& rhs);
+
+template <typename Visitor, typename Enable = void>
+struct VisitorResultType
 {
-class ExpressionImpl;
+  using type = std::invoke_result_t<Visitor, const LiteralExpression&>;
+};
 
-class LiteralExpression;
-class VariableExpression;
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<std::is_invocable_v<
+    Visitor,
+    const Visitor&,
+    const LiteralExpression&,
+    const ExpressionNode&>>>
+{
+  using type = std::invoke_result_t<
+    Visitor,
+    const Visitor&,
+    const LiteralExpression&,
+    const ExpressionNode&>;
+};
 
-class ArrayExpression;
-class MapExpression;
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<
+    std::is_invocable_v<Visitor, const Visitor&, const LiteralExpression&>>>
+{
+  using type = std::invoke_result_t<Visitor, const Visitor&, const LiteralExpression&>;
+};
 
-class UnaryExpression;
-class BinaryExpression;
-class SubscriptExpression;
-class SwitchExpression;
+template <typename Visitor>
+struct VisitorResultType<
+  Visitor,
+  typename std::enable_if_t<
+    std::is_invocable_v<Visitor, const LiteralExpression&, const ExpressionNode&>>>
+{
+  using type =
+    std::invoke_result_t<Visitor, const LiteralExpression&, const ExpressionNode&>;
+};
 
-class Expression
+template <typename Visitor>
+using VisitorResultType_t = typename VisitorResultType<Visitor>::type;
+
+
+class ExpressionNode
 {
 private:
-  std::shared_ptr<ExpressionImpl> m_expression;
-  size_t m_line;
-  size_t m_column;
+  std::shared_ptr<Expression> m_expression;
+  std::optional<FileLocation> m_location;
 
-  Expression(std::unique_ptr<ExpressionImpl> expression, size_t line, size_t column);
+  explicit ExpressionNode(
+    std::shared_ptr<Expression> expression,
+    std::optional<FileLocation> location = std::nullopt);
 
 public:
-  Expression(LiteralExpression expression, size_t line, size_t column);
-  Expression(VariableExpression expression, size_t line, size_t column);
-  Expression(ArrayExpression expression, size_t line, size_t column);
-  Expression(MapExpression expression, size_t line, size_t column);
-  Expression(UnaryExpression expression, size_t line, size_t column);
-  Expression(BinaryExpression expression, size_t line, size_t column);
-  Expression(SubscriptExpression expression, size_t line, size_t column);
-  Expression(SwitchExpression expression, size_t line, size_t column);
+  explicit ExpressionNode(
+    Expression&& expression, std::optional<FileLocation> location = std::nullopt);
 
-  Value evaluate(const EvaluationContext& context) const;
-  Expression optimize() const;
+  template <typename Visitor>
+  VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
 
-  size_t line() const;
-  size_t column() const;
+  Value evaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
+  Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+
+  Value tryEvaluate(
+    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
+  Value tryEvaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+
+  ExpressionNode optimize() const;
+
+  const std::optional<FileLocation>& location() const;
 
   std::string asString() const;
 
-  friend bool operator==(const Expression& lhs, const Expression& rhs);
-  friend bool operator!=(const Expression& lhs, const Expression& rhs);
-  friend std::ostream& operator<<(std::ostream& str, const Expression& exp);
+  friend bool operator==(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend bool operator!=(const ExpressionNode& lhs, const ExpressionNode& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const ExpressionNode& exp);
 
 private:
   void rebalanceByPrecedence();
-  size_t precedence() const;
 };
-} // namespace EL
-} // namespace TrenchBroom
+
+struct LiteralExpression
+{
+  Value value;
+};
+
+bool operator==(const LiteralExpression& lhs, const LiteralExpression& rhs);
+bool operator!=(const LiteralExpression& lhs, const LiteralExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const LiteralExpression& rhs);
+
+
+struct VariableExpression
+{
+  std::string variableName;
+};
+
+bool operator==(const VariableExpression& lhs, const VariableExpression& rhs);
+bool operator!=(const VariableExpression& lhs, const VariableExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const VariableExpression& rhs);
+
+
+struct ArrayExpression
+{
+  std::vector<ExpressionNode> elements;
+};
+
+bool operator==(const ArrayExpression& lhs, const ArrayExpression& rhs);
+bool operator!=(const ArrayExpression& lhs, const ArrayExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const ArrayExpression& rhs);
+
+
+struct MapExpression
+{
+  std::map<std::string, ExpressionNode> elements;
+};
+
+bool operator==(const MapExpression& lhs, const MapExpression& rhs);
+bool operator!=(const MapExpression& lhs, const MapExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const MapExpression& rhs);
+
+
+enum class UnaryOperation
+{
+  Plus,
+  Minus,
+  LogicalNegation,
+  BitwiseNegation,
+  Group,
+  LeftBoundedRange,
+  RightBoundedRange,
+};
+
+struct UnaryExpression
+{
+  UnaryOperation operation;
+  ExpressionNode operand;
+};
+
+bool operator==(const UnaryExpression& lhs, const UnaryExpression& rhs);
+bool operator!=(const UnaryExpression& lhs, const UnaryExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const UnaryExpression& rhs);
+
+
+enum class BinaryOperation
+{
+  Addition,
+  Subtraction,
+  Multiplication,
+  Division,
+  Modulus,
+  LogicalAnd,
+  LogicalOr,
+  BitwiseAnd,
+  BitwiseXOr,
+  BitwiseOr,
+  BitwiseShiftLeft,
+  BitwiseShiftRight,
+  Less,
+  LessOrEqual,
+  Greater,
+  GreaterOrEqual,
+  Equal,
+  NotEqual,
+  BoundedRange,
+  Case,
+};
+
+struct BinaryExpression
+{
+  BinaryOperation operation;
+  ExpressionNode leftOperand;
+  ExpressionNode rightOperand;
+};
+
+bool operator==(const BinaryExpression& lhs, const BinaryExpression& rhs);
+bool operator!=(const BinaryExpression& lhs, const BinaryExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs);
+
+
+struct SubscriptExpression
+{
+  ExpressionNode leftOperand;
+  ExpressionNode rightOperand;
+};
+
+bool operator==(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
+bool operator!=(const SubscriptExpression& lhs, const SubscriptExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const SubscriptExpression& rhs);
+
+
+struct SwitchExpression
+{
+  std::vector<ExpressionNode> cases;
+};
+
+bool operator==(const SwitchExpression& lhs, const SwitchExpression& rhs);
+bool operator!=(const SwitchExpression& lhs, const SwitchExpression& rhs);
+
+std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs);
+
+template <typename Visitor>
+VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) const
+{
+  return std::visit(
+    [&](const auto& x) {
+      if constexpr (
+        std::is_invocable_v<Visitor, const Visitor&, decltype(x), const ExpressionNode&>)
+      {
+        return visitor(visitor, x, *this);
+      }
+      else if constexpr (std::is_invocable_v<Visitor, const Visitor&, decltype(x)>)
+      {
+        return visitor(visitor, x);
+      }
+      else if constexpr (std::is_invocable_v<Visitor, decltype(x), const ExpressionNode&>)
+      {
+        return visitor(x, *this);
+      }
+      else
+      {
+        return visitor(x);
+      }
+    },
+    *m_expression);
+}
+
+} // namespace TrenchBroom::EL

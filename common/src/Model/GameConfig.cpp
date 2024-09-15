@@ -20,23 +20,18 @@
 #include "GameConfig.h"
 
 #include "Ensure.h"
-#include "IO/DiskFileSystem.h"
 
-#include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/string_utils.h"
 
-#include "vm/bbox_io.h"
-#include "vm/vec_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/vec_io.h"  // IWYU pragma: keep
 
 #include <cassert>
 #include <ostream>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 kdl_reflect_impl(MapFormatConfig);
@@ -124,5 +119,4 @@ std::filesystem::path GameConfig::findConfigFile(
 {
   return path.parent_path() / filePath;
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

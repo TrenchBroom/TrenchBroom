@@ -27,9 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace EntityPropertyKeys
 {
@@ -83,7 +81,7 @@ extern const std::string LayerOmitFromExportValue;
 
 struct EntityPropertyConfig
 {
-  std::optional<EL::Expression> defaultModelScaleExpression;
+  std::optional<EL::ExpressionNode> defaultModelScaleExpression;
   bool setDefaultProperties{false};
   bool updateAnglePropertyAfterTransform{true};
 
@@ -137,5 +135,4 @@ const std::string& findEntityPropertyOrDefault(
   const std::string& key,
   const std::string& defaultValue = EntityPropertyValues::DefaultValue);
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model
