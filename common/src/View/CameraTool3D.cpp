@@ -316,6 +316,52 @@ public:
   void end(const InputState&) override {}
   void cancel() override {}
 };
+
+class OrbitGestureTracker : public GestureTracker
+{
+private:
+  Renderer::PerspectiveCamera& m_camera;
+  vm::vec3f m_orbitCenter;
+
+public:
+  OrbitGestureTracker(Renderer::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
+    : m_camera{camera}
+    , m_orbitCenter{orbitCenter}
+  {
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    const auto zoomValue = inputState.gestureZoomValue();
+    if (zoomValue != 0.0f)
+    {
+      if (inputState.modifierKeysPressed(ModifierKeys::Shift))
+      {
+        m_camera.zoom(1.0f - zoomValue);
+      }
+      else
+      {
+        const auto moveDirection = pref(Preferences::CameraMoveInCursorDir)
+                                     ? vm::vec3f{inputState.pickRay().direction}
+                                     : m_camera.direction();
+        const auto distance = 50.0f * zoomValue * moveSpeed(m_camera, false);
+        m_camera.moveBy(distance * moveDirection);
+      }
+    }
+
+    const auto rotateValue = inputState.gestureRotateValue();
+    if (rotateValue != 0.0f)
+    {
+      const float hAngle = vm::to_radians(rotateValue);
+      m_camera.orbit(m_orbitCenter, hAngle, 0.0);
+    }
+    return true;
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+};
+
 } // namespace
 
 std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
@@ -343,6 +389,17 @@ std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
   }
 
   return nullptr;
+}
+
+std::unique_ptr<GestureTracker> CameraTool3D::acceptGesture(const InputState& inputState)
+{
+  using namespace Model::HitFilters;
+
+  const auto& hit =
+    inputState.pickResult().first(type(Model::nodeHitType()) && minDistance(3.0));
+  const auto orbitCenter = vm::vec3f{
+    hit.isMatch() ? hit.hitPoint() : m_camera.defaultPoint(inputState.pickRay())};
+  return std::make_unique<OrbitGestureTracker>(m_camera, orbitCenter);
 }
 
 bool CameraTool3D::cancel()

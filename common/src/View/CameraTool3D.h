@@ -49,6 +49,7 @@ private:
   void mouseUp(const InputState& inputState) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState) override;
 
   bool cancel() override;
 };
