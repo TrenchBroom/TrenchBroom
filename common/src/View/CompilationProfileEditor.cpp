@@ -136,12 +136,12 @@ Variables are allowed.)");
 
       auto menu = QMenu{this};
       auto* moveUpAction =
-        menu.addAction(tr("Move Up"), this, [this, index]() { moveTaskUp(index); });
+        menu.addAction(tr("Move Up"), this, [&, index]() { moveTaskUp(index); });
       auto* moveDownAction =
-        menu.addAction(tr("Move Down"), this, [this, index]() { moveTaskDown(index); });
+        menu.addAction(tr("Move Down"), this, [&, index]() { moveTaskDown(index); });
       menu.addSeparator();
-      menu.addAction(tr("Duplicate"), this, [this, index]() { duplicateTask(index); });
-      menu.addAction(tr("Remove"), this, [this, index]() { removeTask(index); });
+      menu.addAction(tr("Duplicate"), this, [&, index]() { duplicateTask(index); });
+      menu.addAction(tr("Remove"), this, [&, index]() { removeTask(index); });
 
       moveUpAction->setEnabled(index > 0);
       moveDownAction->setEnabled(
