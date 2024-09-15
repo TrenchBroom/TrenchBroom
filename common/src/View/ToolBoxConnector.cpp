@@ -398,11 +398,10 @@ MouseButtonState ToolBoxConnector::mouseButton(const MouseEvent& event)
 
 void ToolBoxConnector::mouseMoved(const float x, const float y)
 {
-  const auto dx = x - m_lastMouseX;
-  const auto dy = y - m_lastMouseY;
+  const auto dx = x - m_lastMousePos.x();
+  const auto dy = y - m_lastMousePos.y();
   m_inputState.mouseMove(x, y, dx, dy);
-  m_lastMouseX = x;
-  m_lastMouseY = y;
+  m_lastMousePos = {x, y};
 }
 
 void ToolBoxConnector::processGestureStart(const GestureEvent&)
@@ -415,24 +414,39 @@ void ToolBoxConnector::processGestureEnd(const GestureEvent&)
 {
   m_toolBox->endGesture(m_inputState);
   m_inputState.endGesture();
+
+  m_lastGesturePanPos = std::nullopt;
+  m_lastGestureZoomValue = std::nullopt;
+  m_lastGestureRotateValue = std::nullopt;
 }
 
 void ToolBoxConnector::processGesturePan(const GestureEvent& event)
 {
-  m_inputState.gesturePan(event.posX, event.posY);
+  const auto pos = vm::vec2f{event.posX, event.posY};
+  const auto delta = pos - m_lastGesturePanPos.value_or(pos);
+
+  m_inputState.gesturePan(pos.x(), pos.y(), delta.x(), delta.y());
   m_toolBox->gesturePan(m_inputState);
+
+  m_lastGesturePanPos = pos;
 }
 
 void ToolBoxConnector::processGestureZoom(const GestureEvent& event)
 {
-  m_inputState.gestureZoom(event.value);
+  const auto delta = event.value - m_lastGestureZoomValue.value_or(event.value);
+  m_inputState.gestureZoom(event.value, delta);
   m_toolBox->gestureZoom(m_inputState);
+
+  m_lastGestureZoomValue = event.value;
 }
 
 void ToolBoxConnector::processGestureRotate(const GestureEvent& event)
 {
-  m_inputState.gestureRotate(event.value);
+  const auto delta = event.value - m_lastGestureRotateValue.value_or(event.value);
+  m_inputState.gestureRotate(event.value, delta);
   m_toolBox->gestureRotate(m_inputState);
+
+  m_lastGestureRotateValue = event.value;
 }
 
 bool ToolBoxConnector::cancelDrag()

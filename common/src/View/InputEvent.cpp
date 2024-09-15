@@ -21,6 +21,8 @@
 
 #include <QApplication>
 
+#include "Ensure.h"
+
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
@@ -452,6 +454,25 @@ void InputEventRecorder::recordEvent(const QNativeGestureEvent& qEvent)
 {
   if (const auto type = getGestureType(qEvent.gestureType()))
   {
+    if (*type == GestureEvent::Type::Start)
+    {
+      ++m_activeGestures;
+      if (m_activeGestures > 1)
+      {
+        return;
+      }
+    }
+    else if (*type == GestureEvent::Type::End)
+    {
+      ensure(m_activeGestures > 0, "a gesture is active");
+
+      --m_activeGestures;
+      if (m_activeGestures > 0)
+      {
+        return;
+      }
+    }
+
     const auto posX = float(qEvent.localPos().x());
     const auto posY = float(qEvent.localPos().y());
     const auto value = float(qEvent.value());

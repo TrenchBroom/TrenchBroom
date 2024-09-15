@@ -176,14 +176,33 @@ float InputState::gesturePanY() const
   return m_gesturePanY;
 }
 
+float InputState::gesturePanDX() const
+{
+  return m_gesturePanDX;
+}
+float InputState::gesturePanDY() const
+{
+  return m_gesturePanDY;
+}
+
 float InputState::gestureZoomValue() const
 {
   return m_gestureZoomValue;
 }
 
+float InputState::gestureZoomDValue() const
+{
+  return m_gestureZoomDValue;
+}
+
 float InputState::gestureRotateValue() const
 {
   return m_gestureRotateValue;
+}
+
+float InputState::gestureRotateDValue() const
+{
+  return m_gestureRotateDValue;
 }
 
 void InputState::setModifierKeys(const ModifierKeyState keys)
@@ -233,19 +252,24 @@ void InputState::startGesture()
   m_gestureActive = true;
 }
 
-void InputState::gesturePan(const float x, const float y)
+void InputState::gesturePan(const float x, const float y, const float dx, const float dy)
 {
   m_gesturePanX = x;
   m_gesturePanY = y;
-}
-void InputState::gestureZoom(const float value)
-{
-  m_gestureZoomValue = value;
+  m_gesturePanDX = dx;
+  m_gesturePanDY = dy;
 }
 
-void InputState::gestureRotate(const float value)
+void InputState::gestureZoom(const float value, const float delta)
+{
+  m_gestureZoomValue = value;
+  m_gestureZoomDValue = delta;
+}
+
+void InputState::gestureRotate(const float value, const float delta)
 {
   m_gestureRotateValue = value;
+  m_gestureRotateDValue = delta;
 }
 
 void InputState::endGesture()

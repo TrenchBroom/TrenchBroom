@@ -23,6 +23,8 @@
 #include "View/InputEvent.h"
 #include "View/InputState.h"
 
+#include <vm/vec.h>
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -54,9 +56,12 @@ private:
 
   InputState m_inputState;
 
-  float m_lastMouseX = 0.0f;
-  float m_lastMouseY = 0.0f;
+  vm::vec2f m_lastMousePos = {0.0f, 0.0f};
   bool m_ignoreNextDrag = false;
+
+  std::optional<vm::vec2f> m_lastGesturePanPos;
+  std::optional<float> m_lastGestureZoomValue;
+  std::optional<float> m_lastGestureRotateValue;
 
 public:
   ToolBoxConnector();

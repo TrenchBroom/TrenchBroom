@@ -342,6 +342,11 @@ private:
    * Used to suppress a click event for the mouse up event that follows a double click.
    */
   bool m_nextMouseUpIsDblClick = false;
+  /**
+   * The number of active gestures. Used to send start / end events when the first gesture
+   * starts and the last gesture ends.
+   */
+  size_t m_activeGestures = 0;
 
 public:
   /**

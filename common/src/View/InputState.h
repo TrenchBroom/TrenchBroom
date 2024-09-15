@@ -87,8 +87,12 @@ private:
   bool m_gestureActive = false;
   float m_gesturePanX = 0.0;
   float m_gesturePanY = 0.0;
+  float m_gesturePanDX = 0.0;
+  float m_gesturePanDY = 0.0;
   float m_gestureZoomValue = 0.0f;
+  float m_gestureZoomDValue = 0.0f;
   float m_gestureRotateValue = 0.0f;
+  float m_gestureRotateDValue = 0.0f;
 
   bool m_anyToolDragging = false;
   PickRequest m_pickRequest;
@@ -136,8 +140,12 @@ public:
   bool gestureActive() const;
   float gesturePanX() const;
   float gesturePanY() const;
+  float gesturePanDX() const;
+  float gesturePanDY() const;
   float gestureZoomValue() const;
+  float gestureZoomDValue() const;
   float gestureRotateValue() const;
+  float gestureRotateDValue() const;
 
   void setModifierKeys(ModifierKeyState keys);
   void clearModifierKeys();
@@ -148,9 +156,9 @@ public:
   void scroll(ScrollSource scrollSource, float scrollX, float scrollY);
 
   void startGesture();
-  void gesturePan(float x, float y);
-  void gestureZoom(float value);
-  void gestureRotate(float value);
+  void gesturePan(float x, float y, float dx, float dy);
+  void gestureZoom(float value, float delta);
+  void gestureRotate(float value, float delta);
   void endGesture();
 
   bool anyToolDragging() const;
