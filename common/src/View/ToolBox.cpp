@@ -219,20 +219,29 @@ void ToolBox::startGesture(ToolChain& chain, const InputState& inputState)
 
 void ToolBox::gesturePan(const InputState& inputState)
 {
-  assert(enabled() && m_gestureTracker);
-  m_gestureTracker->update(inputState);
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
 }
 
 void ToolBox::gestureZoom(const InputState& inputState)
 {
-  assert(enabled() && m_gestureTracker);
-  m_gestureTracker->update(inputState);
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
 }
 
 void ToolBox::gestureRotate(const InputState& inputState)
 {
-  assert(enabled() && m_gestureTracker);
-  m_gestureTracker->update(inputState);
+  assert(enabled());
+  if (m_gestureTracker)
+  {
+    m_gestureTracker->update(inputState);
+  }
 }
 
 void ToolBox::endGesture(const InputState& inputState)
