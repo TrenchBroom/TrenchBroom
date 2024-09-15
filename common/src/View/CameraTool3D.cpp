@@ -323,17 +323,34 @@ private:
   Renderer::PerspectiveCamera& m_camera;
   vm::vec3f m_orbitCenter;
 
+  // The first gesture to reach one of these thresholds will be considered
+  // to be "dominant" and suppress the other gesture
+  static constexpr float RotateDominanceThreshold = 10.0f; // degrees
+  static constexpr float ZoomDominanceThreshold = 0.1f;
+
+  // Accumulated gesture values
+  float m_zoomAcc;
+  float m_rotateAcc;
+
+  // Dominant flags
+  bool m_isZoomDominant;
+  bool m_isRotateDominant;
+
 public:
   OrbitGestureTracker(Renderer::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
     : m_camera{camera}
     , m_orbitCenter{orbitCenter}
   {
+    m_zoomAcc = 0.0f;
+    m_rotateAcc = 0.0f;
+    m_isZoomDominant = false;
+    m_isRotateDominant = false;
   }
 
   bool update(const InputState& inputState) override
   {
     const auto zoomValue = inputState.gestureZoomValue();
-    if (zoomValue != 0.0f)
+    if (zoomValue != 0.0f && !m_isRotateDominant)
     {
       if (inputState.modifierKeysPressed(ModifierKeys::Shift))
       {
@@ -347,13 +364,25 @@ public:
         const auto distance = 50.0f * zoomValue * moveSpeed(m_camera, false);
         m_camera.moveBy(distance * moveDirection);
       }
+
+      m_zoomAcc += zoomValue;
+      if (abs(m_zoomAcc) > ZoomDominanceThreshold)
+      {
+        m_isZoomDominant = true;
+      }
     }
 
     const auto rotateValue = inputState.gestureRotateValue();
-    if (rotateValue != 0.0f)
+    if (rotateValue != 0.0f && !m_isZoomDominant)
     {
       const float hAngle = vm::to_radians(rotateValue);
       m_camera.orbit(m_orbitCenter, hAngle, 0.0);
+
+      m_rotateAcc += rotateValue;
+      if (abs(m_rotateAcc) > RotateDominanceThreshold)
+      {
+        m_isRotateDominant = true;
+      }
     }
     return true;
   }
