@@ -32,7 +32,7 @@
 
 #include "CatchUtils/Matchers.h"
 
-#include "Catch2.h" // IWYU pragma: keep
+#include "Catch2.h"
 
 namespace TrenchBroom::Model
 {

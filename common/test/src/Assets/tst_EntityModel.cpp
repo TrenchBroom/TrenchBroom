@@ -36,7 +36,7 @@
 
 #include <filesystem>
 
-#include "Catch2.h" // IWYU pragma: keep
+#include "Catch2.h"
 
 namespace TrenchBroom::Assets
 {

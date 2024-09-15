@@ -29,4 +29,4 @@
 // stream operators work consistently.
 
 #define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
-#include <catch2/catch.hpp>
+#include <catch2/catch.hpp> // IWYU pragma: export
