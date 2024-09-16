@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
-
 #include <string>
 
 namespace TrenchBroom::Model

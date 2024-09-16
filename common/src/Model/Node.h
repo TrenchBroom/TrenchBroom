@@ -28,7 +28,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h"
 #include "vm/forward.h"
 #include "vm/util.h"
 
