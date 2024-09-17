@@ -657,6 +657,21 @@ void setLinkIds(
   });
 }
 
+void resetLinkIds(GroupNode& rootNode)
+{
+  rootNode.setLinkId(generateUuid());
+  rootNode.visitChildren(kdl::overload(
+    [](const WorldNode*) {},
+    [](const LayerNode*) {},
+    [](const GroupNode*) {},
+    [](auto&& thisLambda, EntityNode* entityNode) {
+      entityNode->setLinkId(generateUuid());
+      entityNode->visitChildren(thisLambda);
+    },
+    [](BrushNode* brushNode) { brushNode->setLinkId(generateUuid()); },
+    [](PatchNode* patchNode) { patchNode->setLinkId(generateUuid()); }));
+}
+
 } // namespace
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
@@ -679,6 +694,14 @@ std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
     }
   }
   return errors;
+}
+
+void resetLinkIds(const std::vector<GroupNode*>& groupNodes)
+{
+  for (auto* groupNode : groupNodes)
+  {
+    resetLinkIds(*groupNode);
+  }
 }
 
 Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(

@@ -338,8 +338,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup")
   CHECK(light->parent() == groupNode);
 }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedLinkedGroupId")
+TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedLinkIds")
 {
   auto* brushNode = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -363,6 +362,26 @@ TEST_CASE_METHOD(
 
   document->deselectAll();
 
+  SECTION("Pasting one linked brush")
+  {
+    document->deselectAll();
+    document->openGroup(groupNode);
+
+    document->selectNodes({brushNode});
+    const auto data = document->serializeSelectedNodes();
+
+    document->deselectAll();
+
+    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(groupNode->childCount() == 2);
+
+    const auto* pastedBrushNode =
+      dynamic_cast<Model::BrushNode*>(groupNode->children().back());
+    REQUIRE(pastedBrushNode);
+
+    CHECK(pastedBrushNode->linkId() != originalBrushLinkId);
+  }
+
   SECTION("Pasting one linked group")
   {
     document->selectNodes({linkedGroup});
@@ -385,7 +404,28 @@ TEST_CASE_METHOD(
       CHECK(pastedGroupNode->linkId() == originalGroupLinkId);
     }
 
-    SECTION("Pasting duplicate linked group ID")
+    SECTION("If only one linked group exists")
+    {
+      document->selectNodes({linkedGroup});
+      document->deleteObjects();
+
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->world()->defaultLayer()->childCount() == 2);
+
+      const auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
+        document->world()->defaultLayer()->children().back());
+      REQUIRE(pastedGroupNode);
+
+      CHECK(pastedGroupNode->linkId() != originalGroupLinkId);
+
+      const auto* pastedBrushNode =
+        dynamic_cast<Model::BrushNode*>(pastedGroupNode->children().front());
+      REQUIRE(pastedBrushNode);
+
+      CHECK(pastedBrushNode->linkId() != originalBrushLinkId);
+    }
+
+    SECTION("If more than one linked group exists")
     {
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);
@@ -443,31 +483,69 @@ TEST_CASE_METHOD(
 
     document->deselectAll();
 
-    CHECK(document->paste(data) == PasteType::Node);
-    CHECK(document->world()->defaultLayer()->childCount() == 4);
+    SECTION("If only one original group exists")
+    {
+      document->selectNodes({linkedGroup});
+      document->deleteObjects();
 
-    const auto* pastedGroupNode1 =
-      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
-    REQUIRE(pastedGroupNode1);
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->world()->defaultLayer()->childCount() == 3);
 
-    const auto* pastedGroupNode2 =
-      dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
-    REQUIRE(pastedGroupNode2);
+      const auto* pastedGroupNode1 =
+        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[1]);
+      REQUIRE(pastedGroupNode1);
 
-    CHECK(pastedGroupNode1->linkId() == originalGroupLinkId);
-    CHECK(pastedGroupNode2->linkId() == originalGroupLinkId);
+      const auto* pastedGroupNode2 =
+        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
+      REQUIRE(pastedGroupNode2);
 
-    const auto* pastedBrushNode1 =
-      dynamic_cast<Model::BrushNode*>(pastedGroupNode1->children().front());
-    REQUIRE(pastedBrushNode1);
+      CHECK(pastedGroupNode1->linkId() != originalGroupLinkId);
+      CHECK(pastedGroupNode2->linkId() != originalGroupLinkId);
+      CHECK(pastedGroupNode1->linkId() == pastedGroupNode2->linkId());
 
-    CHECK(pastedBrushNode1->linkId() == originalBrushLinkId);
+      const auto* pastedBrushNode1 =
+        dynamic_cast<Model::BrushNode*>(pastedGroupNode1->children().front());
+      REQUIRE(pastedBrushNode1);
 
-    const auto* pastedBrushNode2 =
-      dynamic_cast<Model::BrushNode*>(pastedGroupNode2->children().front());
-    REQUIRE(pastedBrushNode2);
+      CHECK(pastedBrushNode1->linkId() != originalBrushLinkId);
 
-    CHECK(pastedBrushNode2->linkId() == originalBrushLinkId);
+      const auto* pastedBrushNode2 =
+        dynamic_cast<Model::BrushNode*>(pastedGroupNode2->children().front());
+      REQUIRE(pastedBrushNode2);
+
+      CHECK(pastedBrushNode2->linkId() != originalBrushLinkId);
+
+      CHECK(pastedBrushNode1->linkId() == pastedBrushNode2->linkId());
+    }
+
+    SECTION("If both original groups exist")
+    {
+      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->world()->defaultLayer()->childCount() == 4);
+
+      const auto* pastedGroupNode1 =
+        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
+      REQUIRE(pastedGroupNode1);
+
+      const auto* pastedGroupNode2 =
+        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
+      REQUIRE(pastedGroupNode2);
+
+      CHECK(pastedGroupNode1->linkId() == originalGroupLinkId);
+      CHECK(pastedGroupNode2->linkId() == originalGroupLinkId);
+
+      const auto* pastedBrushNode1 =
+        dynamic_cast<Model::BrushNode*>(pastedGroupNode1->children().front());
+      REQUIRE(pastedBrushNode1);
+
+      CHECK(pastedBrushNode1->linkId() == originalBrushLinkId);
+
+      const auto* pastedBrushNode2 =
+        dynamic_cast<Model::BrushNode*>(pastedGroupNode2->children().front());
+      REQUIRE(pastedBrushNode2);
+
+      CHECK(pastedBrushNode2->linkId() == originalBrushLinkId);
+    }
   }
 }
 

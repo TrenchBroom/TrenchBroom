@@ -139,6 +139,11 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
 
+/**
+ * Reset the link IDs of the given group nodes and all contained nodes except contained
+ * group nodes.
+ */
+void resetLinkIds(const std::vector<GroupNode*>& groupNodes);
 
 Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);

@@ -1026,4 +1026,89 @@ TEST_CASE("initializeLinkIds")
   }
 }
 
+TEST_CASE("resetLinkIds")
+{
+  const auto worldBounds = vm::bbox3{8192.0};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+
+  auto* outerGroupNode = new GroupNode{Group{"outer"}};
+  auto* outerEntityNode = new EntityNode{Entity{}};
+  auto* outerBrushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto* innerPatchNode = createPatchNode();
+  auto* innerEntityNode = new EntityNode{Entity{}};
+
+  innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
+  outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
+
+  auto* linkedOuterGroupNode =
+    dynamic_cast<GroupNode*>(outerGroupNode->cloneRecursively(worldBounds));
+  REQUIRE(linkedOuterGroupNode != nullptr);
+
+  auto* linkedOuterEntityNode =
+    dynamic_cast<EntityNode*>(linkedOuterGroupNode->children().at(0));
+  REQUIRE(linkedOuterEntityNode != nullptr);
+
+  auto* linkedOuterBrushNode =
+    dynamic_cast<BrushNode*>(linkedOuterGroupNode->children().at(1));
+  REQUIRE(linkedOuterBrushNode != nullptr);
+
+  auto* linkedInnerGroupNode =
+    dynamic_cast<GroupNode*>(linkedOuterGroupNode->children().at(2));
+  REQUIRE(linkedInnerGroupNode != nullptr);
+
+  auto* linkedInnerPatchNode =
+    dynamic_cast<PatchNode*>(linkedInnerGroupNode->children().at(0));
+  REQUIRE(linkedInnerPatchNode != nullptr);
+
+  auto* linkedInnerEntityNode =
+    dynamic_cast<EntityNode*>(linkedInnerGroupNode->children().at(1));
+  REQUIRE(linkedInnerGroupNode != nullptr);
+
+  REQUIRE(outerGroupNode->linkId() == linkedOuterGroupNode->linkId());
+  REQUIRE(outerEntityNode->linkId() == linkedOuterEntityNode->linkId());
+  REQUIRE(outerBrushNode->linkId() == linkedOuterBrushNode->linkId());
+  REQUIRE(innerGroupNode->linkId() == linkedInnerGroupNode->linkId());
+  REQUIRE(innerPatchNode->linkId() == linkedInnerPatchNode->linkId());
+  REQUIRE(innerEntityNode->linkId() == linkedInnerEntityNode->linkId());
+
+  SECTION("Reset link IDs of only outer group")
+  {
+    resetLinkIds({linkedOuterGroupNode});
+
+    CHECK(outerGroupNode->linkId() != linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() != linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() != linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() == linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() == linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() == linkedInnerEntityNode->linkId());
+  }
+
+  SECTION("Reset link IDs of only inner group")
+  {
+    resetLinkIds({linkedInnerGroupNode});
+
+    CHECK(outerGroupNode->linkId() == linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() == linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() == linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() != linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() != linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() != linkedInnerEntityNode->linkId());
+  }
+
+  SECTION("Reset link IDs of outer and inner groups")
+  {
+    resetLinkIds({linkedOuterGroupNode, linkedInnerGroupNode});
+
+    CHECK(outerGroupNode->linkId() != linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() != linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() != linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() != linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() != linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() != linkedInnerEntityNode->linkId());
+  }
+}
+
 } // namespace TrenchBroom::Model

@@ -893,6 +893,7 @@ void copyAndSetLinkIds(
   Model::WorldNode& worldNode,
   Logger& logger)
 {
+  // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
     Model::collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
     Model::compareGroupNodesByLinkId);
@@ -906,8 +907,22 @@ void copyAndSetLinkIds(
     const auto& linkId = linkedGroupsToAdd.front()->linkId();
     const auto existingLinkedNodes = Model::collectNodesWithLinkId({&worldNode}, linkId);
 
-    if (!existingLinkedNodes.empty())
+    if (existingLinkedNodes.size() == 1)
     {
+      // Unlink the added nodes because we don't want to create linked duplicates
+      Model::resetLinkIds({linkedGroupsToAdd.front()});
+
+      if (std::next(linkedGroupsToAdd.begin()) != linkedGroupsToAdd.end())
+      {
+        // But keep the added linked groups mutually linked
+        Model::copyAndSetLinkIds(
+          *linkedGroupsToAdd.front(),
+          std::vector(std::next(linkedGroupsToAdd.begin()), linkedGroupsToAdd.end()));
+      }
+    }
+    else if (existingLinkedNodes.size() > 1)
+    {
+      // Keep the pasted nodes linked to their originals, but validate the structure
       if (
         auto* existingLinkedGroup =
           dynamic_cast<Model::GroupNode*>(existingLinkedNodes.front()))
