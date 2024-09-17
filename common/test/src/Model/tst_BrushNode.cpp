@@ -163,8 +163,8 @@ TEST_CASE("BrushNodeTest.hasSelectedFaces")
     brush.selectFace(1u);
     REQUIRE(brush.hasSelectedFaces());
 
-    auto clone = std::unique_ptr<BrushNode>(
-      static_cast<BrushNode*>(brush.clone(worldBounds, SetLinkId::generate)));
+    auto clone =
+      std::unique_ptr<BrushNode>(static_cast<BrushNode*>(brush.clone(worldBounds)));
     CHECK(!clone->hasSelectedFaces());
   }
 }
@@ -329,8 +329,8 @@ TEST_CASE("BrushNodeTest.clone")
       })
     | kdl::value());
 
-  auto clone = std::unique_ptr<BrushNode>{
-    static_cast<BrushNode*>(original.clone(worldBounds, SetLinkId::generate))};
+  auto clone =
+    std::unique_ptr<BrushNode>{static_cast<BrushNode*>(original.clone(worldBounds))};
 
   CHECK(clone->brush().faceCount() == original.brush().faceCount());
   for (const auto& originalFace : original.brush().faces())

@@ -278,8 +278,7 @@ FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<FloatType>(0);
 }
 
-Node* WorldNode::doClone(
-  const vm::bbox3& /* worldBounds */, const SetLinkId /* setLinkIds */) const
+Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const
 {
   auto result =
     std::make_unique<WorldNode>(entityPropertyConfig(), entity(), mapFormat());
@@ -287,15 +286,14 @@ Node* WorldNode::doClone(
   return result.release();
 }
 
-Node* WorldNode::doCloneRecursively(
-  const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
+Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const
 {
   const auto& myChildren = children();
   assert(myChildren[0] == m_defaultLayer);
 
-  auto* worldNode = static_cast<WorldNode*>(clone(worldBounds, setLinkIds));
+  auto* worldNode = static_cast<WorldNode*>(clone(worldBounds));
   worldNode->defaultLayer()->addChildren(
-    cloneRecursively(worldBounds, m_defaultLayer->children(), setLinkIds));
+    cloneRecursively(worldBounds, m_defaultLayer->children()));
 
   if (myChildren.size() > 1)
   {
@@ -303,7 +301,6 @@ Node* WorldNode::doCloneRecursively(
     childClones.reserve(myChildren.size() - 1);
     cloneRecursively(
       worldBounds,
-      setLinkIds,
       std::next(std::begin(myChildren)),
       std::end(myChildren),
       std::back_inserter(childClones));

@@ -27,7 +27,6 @@ namespace TrenchBroom::Model
 class GroupNode;
 class LayerNode;
 class Node;
-enum class SetLinkId;
 
 class Object
 {
@@ -41,7 +40,7 @@ public:
 
   const std::string& linkId() const;
   void setLinkId(std::string linkId);
-  void cloneLinkId(const Object& original, SetLinkId linkIdPolicy);
+  void cloneLinkId(Object& object) const;
 
   Node* container();
   const Node* container() const;

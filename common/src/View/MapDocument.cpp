@@ -1842,6 +1842,26 @@ bool shouldCloneParentWhenCloningNode(const Model::Node* node)
     [](const Model::PatchNode*) { return false; }));
 }
 
+void resetLinkIdsOfNonGroupedNodes(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+{
+  for (const auto& [parent, children] : nodes)
+  {
+    Model::Node::visitAll(
+      children,
+      kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [](const Model::GroupNode*) {},
+        [](auto&& thisLambda, Model::EntityNode* entityNode) {
+          entityNode->setLinkId(generateUuid());
+          entityNode->visitChildren(thisLambda);
+        },
+        [](Model::BrushNode* brushNode) { brushNode->setLinkId(generateUuid()); },
+        [](Model::PatchNode* patchNode) { patchNode->setLinkId(generateUuid()); }));
+  }
+}
+
 } // namespace
 
 void MapDocument::duplicateObjects()
@@ -1853,21 +1873,15 @@ void MapDocument::duplicateObjects()
   for (auto* original : selectedNodes().nodes())
   {
     auto* suggestedParent = parentForNodes({original});
-
-    const auto isLinkedGroup =
-      dynamic_cast<const Model::GroupNode*>(original) != nullptr
-      && Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
-    const auto setLinkIds =
-      isLinkedGroup ? Model::SetLinkId::keep : Model::SetLinkId::generate;
-    auto* clone = original->cloneRecursively(m_worldBounds, setLinkIds);
+    auto* clone = original->cloneRecursively(m_worldBounds);
 
     if (shouldCloneParentWhenCloningNode(original))
     {
       // e.g. original is a brush in a brush entity, so we need to clone the entity
       // (parent) see if the parent was already cloned and if not, clone it and store it
-      auto* parent = original->parent();
+      auto* originalParent = original->parent();
       auto* newParent = static_cast<Model::Node*>(nullptr);
-      const auto it = newParentMap.find(parent);
+      const auto it = newParentMap.find(originalParent);
       if (it != std::end(newParentMap))
       {
         // parent was already cloned
@@ -1876,8 +1890,8 @@ void MapDocument::duplicateObjects()
       else
       {
         // parent was not cloned yet
-        newParent = parent->clone(m_worldBounds, setLinkIds);
-        newParentMap.insert({parent, newParent});
+        newParent = originalParent->clone(m_worldBounds);
+        newParentMap.insert({originalParent, newParent});
         nodesToAdd[suggestedParent].push_back(newParent);
       }
 
@@ -1892,6 +1906,9 @@ void MapDocument::duplicateObjects()
 
     nodesToSelect.push_back(clone);
   }
+
+  resetLinkIdsOfNonGroupedNodes(nodesToAdd);
+  copyAndSetLinkIds(nodesToAdd, *m_world, *this);
 
   {
     auto transaction = Transaction{*this, "Duplicate Objects"};
@@ -2213,8 +2230,8 @@ Model::GroupNode* MapDocument::createLinkedDuplicate()
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = m_selectedNodes.groups().front();
-  auto* groupNodeClone = static_cast<Model::GroupNode*>(
-    groupNode->cloneRecursively(m_worldBounds, Model::SetLinkId::keep));
+  auto* groupNodeClone =
+    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
   auto* suggestedParent = parentForNodes({groupNode});
   if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
   {

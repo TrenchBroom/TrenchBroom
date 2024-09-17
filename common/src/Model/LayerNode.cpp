@@ -112,7 +112,7 @@ FloatType LayerNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<FloatType>(0);
 }
 
-Node* LayerNode::doClone(const vm::bbox3&, const SetLinkId /* setLinkIds */) const
+Node* LayerNode::doClone(const vm::bbox3&) const
 {
   auto result = std::make_unique<LayerNode>(m_layer);
   cloneAttributes(*result);
