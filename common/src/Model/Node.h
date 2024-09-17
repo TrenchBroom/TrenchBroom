@@ -139,7 +139,7 @@ public: // cloning and snapshots
   Node* cloneRecursively(const vm::bbox3& worldBounds, SetLinkId setLinkIds) const;
 
 protected:
-  void cloneAttributes(Node* node) const;
+  void cloneAttributes(Node& node) const;
 
   static std::vector<Node*> clone(
     const vm::bbox3& worldBounds, const std::vector<Node*>& nodes, SetLinkId setLinkIds);

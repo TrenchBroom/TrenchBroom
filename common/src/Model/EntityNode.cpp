@@ -103,7 +103,7 @@ Node* EntityNode::doClone(
 {
   auto result = std::make_unique<EntityNode>(m_entity);
   result->cloneLinkId(*this, setLinkIds);
-  cloneAttributes(result.get());
+  cloneAttributes(*result);
   return result.release();
 }
 

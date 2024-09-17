@@ -188,7 +188,7 @@ Node* GroupNode::doClone(
 {
   auto result = std::make_unique<GroupNode>(m_group);
   result->cloneLinkId(*this, setLinkIds);
-  cloneAttributes(result.get());
+  cloneAttributes(*result);
   return result.release();
 }
 

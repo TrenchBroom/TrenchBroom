@@ -114,9 +114,9 @@ FloatType LayerNode::doGetProjectedArea(const vm::axis::type) const
 
 Node* LayerNode::doClone(const vm::bbox3&, const SetLinkId /* setLinkIds */) const
 {
-  auto* layerNode = new LayerNode{m_layer};
-  cloneAttributes(layerNode);
-  return layerNode;
+  auto result = std::make_unique<LayerNode>(m_layer);
+  cloneAttributes(*result);
+  return result.release();
 }
 
 bool LayerNode::doCanAddChild(const Node* child) const

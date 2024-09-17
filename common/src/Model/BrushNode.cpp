@@ -319,7 +319,7 @@ Node* BrushNode::doClone(
 {
   auto result = std::make_unique<BrushNode>(m_brush);
   result->cloneLinkId(*this, setLinkIds);
-  cloneAttributes(result.get());
+  cloneAttributes(*result);
   return result.release();
 }
 

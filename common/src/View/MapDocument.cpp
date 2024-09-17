@@ -1806,13 +1806,16 @@ void MapDocument::deleteObjects()
   assertResult(transaction.commit());
 }
 
+namespace
+{
+
 /**
  * Returns whether, for UI reasons, duplicating the given node should also cause its
  * parent to be duplicated.
  *
  * Applies when duplicating a brush inside a brush entity.
  */
-static bool shouldCloneParentWhenCloningNode(const Model::Node* node)
+bool shouldCloneParentWhenCloningNode(const Model::Node* node)
 {
   return node->parent()->accept(kdl::overload(
     [](const Model::WorldNode*) { return false; },
@@ -1822,6 +1825,8 @@ static bool shouldCloneParentWhenCloningNode(const Model::Node* node)
     [](const Model::BrushNode*) { return false; },
     [](const Model::PatchNode*) { return false; }));
 }
+
+} // namespace
 
 void MapDocument::duplicateObjects()
 {

@@ -120,10 +120,10 @@ Node* Node::cloneRecursively(
   return doCloneRecursively(worldBounds, setLinkIds);
 }
 
-void Node::cloneAttributes(Node* node) const
+void Node::cloneAttributes(Node& node) const
 {
-  node->setVisibilityState(m_visibilityState);
-  node->setLockState(m_lockState);
+  node.setVisibilityState(m_visibilityState);
+  node.setLockState(m_lockState);
 }
 
 std::vector<Node*> Node::clone(

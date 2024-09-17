@@ -281,10 +281,10 @@ FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const
 Node* WorldNode::doClone(
   const vm::bbox3& /* worldBounds */, const SetLinkId /* setLinkIds */) const
 {
-  auto worldNode =
+  auto result =
     std::make_unique<WorldNode>(entityPropertyConfig(), entity(), mapFormat());
-  cloneAttributes(worldNode.get());
-  return worldNode.release();
+  cloneAttributes(*result);
+  return result.release();
 }
 
 Node* WorldNode::doCloneRecursively(
