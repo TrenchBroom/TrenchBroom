@@ -19,7 +19,7 @@
 */
 
 #include "kdl/product_iterator.h"
-#include "kdl/std_io.h"
+#include "kdl/std_io.h" // IWYU pragma: keep
 
 #include <vector>
 
@@ -35,7 +35,7 @@ TEST_CASE("product_iterator")
   SECTION("with a single range")
   {
     using T = std::tuple<std::vector<int>, std::vector<std::tuple<int>>>;
-    const auto& [range, expected] = GENERATE(values<T>({
+    const auto [range, expected] = GENERATE(values<T>({
       {{}, {}},
       {{1}, {{1}}},
       {{1, 2}, {{1}, {2}}},
@@ -52,7 +52,7 @@ TEST_CASE("product_iterator")
       std::tuple<std::vector<int>, std::vector<char>, std::vector<std::tuple<int, char>>>;
 
     // clang-format off
-    const auto& 
+    const auto 
     [range1,    range2,     expected] = GENERATE(values<T>({
     {{},        {},         {}},
     {{},        {'a'},      {}},
@@ -84,7 +84,7 @@ TEST_CASE("product_iterator")
       std::vector<std::tuple<int, char, X>>>;
 
     // clang-format off
-    const auto& 
+    const auto
     [range1, range2,     range3,       expected] = GENERATE(values<T>({
     {{},     {},         {},           {}},
     {{},     {'a'},      {},           {}},
