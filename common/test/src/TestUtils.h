@@ -23,6 +23,7 @@
 #include "IO/DiskIO.h"
 #include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
+#include "Model/Node.h"
 
 #include "kdl/vector_set.h"
 
@@ -148,6 +149,42 @@ void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
 void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
 
 void setLinkId(Node& node, std::string linkId);
+
+template <typename Child>
+auto findFirstChildOfType(const std::vector<Node*>& children)
+{
+  return std::find_if(children.begin(), children.end(), [](const auto* child) {
+    return dynamic_cast<const Child*>(child) != nullptr;
+  });
+}
+
+template <typename Child>
+Child* getFirstChildOfType(std::vector<Node*>& children)
+{
+  if (const auto it = findFirstChildOfType<Child>(children); it != children.end())
+  {
+    auto* child = static_cast<Child*>(*it);
+    children.erase(it);
+    return child;
+  }
+  throw std::runtime_error{"Missing child"};
+}
+
+template <typename... Children>
+std::tuple<Children*...> getChildrenAs(const Node& node)
+{
+  // take a copy
+  auto children = node.children();
+  return std::tuple<Children*...>{getFirstChildOfType<Children>(children)...};
+}
+
+template <typename Child>
+Child* getChildAs(const Node& node)
+{
+  // take a copy
+  auto children = node.children();
+  return getFirstChildOfType<Child>(children);
+}
 
 } // namespace Model
 
