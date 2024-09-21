@@ -117,6 +117,7 @@
 #include "kdl/parallel.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/stable_remove_duplicates.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -2016,7 +2017,7 @@ static std::vector<Model::Node*> collectGroupableNodes(
       [&](Model::EntityNode* entity) { result.push_back(entity); },
       [&](auto&& thisLambda, Model::BrushNode* brush) { addNode(thisLambda, brush); },
       [&](auto&& thisLambda, Model::PatchNode* patch) { addNode(thisLambda, patch); }));
-  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+  return kdl::col_stable_remove_duplicates(std::move(result));
 }
 
 Model::GroupNode* MapDocument::groupSelection(const std::string& name)
