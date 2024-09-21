@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2020-2020 Eric Wasylishen
+ Copyright (C) 2020 Eric Wasylishen
 
  This file is part of TrenchBroom.
 
