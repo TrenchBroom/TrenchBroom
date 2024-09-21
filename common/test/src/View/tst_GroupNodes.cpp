@@ -19,6 +19,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Error.h"
+#include "Macros.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -222,225 +223,234 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.renameGroup")
   CHECK(groupNode->name() == "abc");
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInGroup")
+TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
-  auto* brushNode = createBrushNode();
-  entityNode->addChild(brushNode);
-
-  document->addNodes({{document->parentForNodes(), {entityNode}}});
-  document->selectNodes({entityNode});
-
-  auto* groupNode = document->groupSelection("test");
-  REQUIRE(groupNode != nullptr);
-
-  SECTION("If the group is not linked")
+  enum class Mode
   {
+    CopyPaste,
+    Duplicate,
+  };
+
+  const auto mode = GENERATE(Mode::CopyPaste, Mode::Duplicate);
+
+  const auto duplicateOrCopyPaste = [&]() {
+    switch (mode)
+    {
+    case Mode::CopyPaste:
+      REQUIRE(document->paste(document->serializeSelectedNodes()) == PasteType::Node);
+      break;
+    case Mode::Duplicate:
+      document->duplicateObjects();
+      break;
+      switchDefault();
+    }
+  };
+
+  CAPTURE(mode);
+
+  SECTION("duplicateNodeInGroup")
+  {
+    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+    auto* brushNode = createBrushNode();
+    entityNode->addChild(brushNode);
+
+    document->addNodes({{document->parentForNodes(), {entityNode}}});
+    document->selectNodes({entityNode});
+
+    auto* groupNode = document->groupSelection("test");
+    REQUIRE(groupNode != nullptr);
+
+    SECTION("If the group is not linked")
+    {
+      document->openGroup(groupNode);
+
+      document->selectNodes({brushNode});
+      duplicateOrCopyPaste();
+
+      const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+      CHECK(brushNodeCopy->linkId() != brushNode->linkId());
+
+      const auto* entityNodeCopy =
+        dynamic_cast<const Model::EntityNode*>(brushNodeCopy->entity());
+      REQUIRE(entityNodeCopy != nullptr);
+      CHECK(entityNodeCopy->linkId() != entityNode->linkId());
+    }
+
+    SECTION("If the group is linked")
+    {
+      const auto* linkedGroupNode = document->createLinkedDuplicate();
+      REQUIRE(linkedGroupNode != nullptr);
+      REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+
+      document->deselectAll();
+      document->selectNodes({groupNode});
+      document->openGroup(groupNode);
+
+      document->selectNodes({entityNode});
+      duplicateOrCopyPaste();
+
+      const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+      CHECK(brushNodeCopy->linkId() != brushNode->linkId());
+
+      const auto* entityNodeCopy =
+        dynamic_cast<const Model::EntityNode*>(brushNodeCopy->entity());
+      REQUIRE(entityNodeCopy != nullptr);
+      CHECK(entityNodeCopy->linkId() != entityNode->linkId());
+    }
+  }
+
+  SECTION("duplicateLinkedGroup")
+  {
+    auto* brushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+    document->selectNodes({brushNode});
+
+    auto* groupNode = document->groupSelection("test");
+    REQUIRE(groupNode != nullptr);
+
+    auto* linkedGroupNode = document->createLinkedDuplicate();
+    REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
+
+    duplicateOrCopyPaste();
+
+    auto* groupNodeCopy = document->selectedNodes().groups().at(0u);
+    CHECK(groupNodeCopy->linkId() == groupNode->linkId());
+  }
+
+  SECTION("duplicateNodeInLinkedGroup")
+  {
+    auto* brushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+    document->selectNodes({brushNode});
+
+    auto* groupNode = document->groupSelection("test");
+    REQUIRE(groupNode != nullptr);
+
+    auto* linkedGroupNode = document->createLinkedDuplicate();
+    REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
+
     document->openGroup(groupNode);
 
     document->selectNodes({brushNode});
-    document->duplicateObjects();
+    duplicateOrCopyPaste();
 
-    const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+    auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
     CHECK(brushNodeCopy->linkId() != brushNode->linkId());
-
-    const auto* entityNodeCopy =
-      dynamic_cast<const Model::EntityNode*>(brushNodeCopy->entity());
-    REQUIRE(entityNodeCopy != nullptr);
-    CHECK(entityNodeCopy->linkId() != entityNode->linkId());
   }
 
-  SECTION("If the group is linked")
+  SECTION("duplicateGroupInLinkedGroup")
   {
-    const auto* linkedGroupNode = document->createLinkedDuplicate();
-    REQUIRE(linkedGroupNode != nullptr);
-    REQUIRE_THAT(*linkedGroupNode, Model::MatchesNode(*groupNode));
+    auto* brushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+    document->selectNodes({brushNode});
+
+    auto* innerGroupNode = document->groupSelection("inner");
+    REQUIRE(innerGroupNode != nullptr);
+
+    auto* outerGroupNode = document->groupSelection("outer");
+    REQUIRE(outerGroupNode != nullptr);
+
+    auto* linkedOuterGroupNode = document->createLinkedDuplicate();
+    REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
+
+    const auto linkedInnerGroupNode = getChildAs<Model::GroupNode>(*linkedOuterGroupNode);
+    REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
+
+    document->openGroup(outerGroupNode);
+
+    document->selectNodes({innerGroupNode});
+    duplicateOrCopyPaste();
+
+    auto* innerGroupNodeCopy = document->selectedNodes().groups().at(0u);
+    CHECK(innerGroupNodeCopy->linkId() == innerGroupNode->linkId());
+  }
+
+  SECTION("duplicateGroupWithNestedGroup")
+  {
+    auto* innerBrushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {innerBrushNode}}});
+    document->selectNodes({innerBrushNode});
+
+    auto* groupNode = document->groupSelection("test");
+    REQUIRE(groupNode != nullptr);
+
+    auto* outerBrushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {outerBrushNode}}});
 
     document->deselectAll();
-    document->selectNodes({groupNode});
-    document->openGroup(groupNode);
+    document->selectNodes({groupNode, outerBrushNode});
+    auto* outerGroupNode = document->groupSelection("outer");
 
-    document->selectNodes({entityNode});
-    document->duplicateObjects();
+    document->deselectAll();
+    document->selectNodes({outerGroupNode});
 
-    const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
-    CHECK(brushNodeCopy->linkId() != brushNode->linkId());
+    duplicateOrCopyPaste();
 
-    const auto* entityNodeCopy =
-      dynamic_cast<const Model::EntityNode*>(brushNodeCopy->entity());
-    REQUIRE(entityNodeCopy != nullptr);
-    CHECK(entityNodeCopy->linkId() != entityNode->linkId());
+    const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0u);
+    const auto [groupNodeCopy, outerBrushNodeCopy] =
+      getChildrenAs<Model::GroupNode, Model::BrushNode>(*outerGroupNodeCopy);
+
+    CHECK(groupNodeCopy->linkId() != groupNode->linkId());
+    CHECK(outerBrushNodeCopy->linkId() != outerBrushNode->linkId());
   }
-}
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateLinkedGroup")
-{
-  auto* brushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->selectNodes({brushNode});
+  SECTION("duplicateGroupWithNestedLinkedGroups")
+  {
+    /*
+    outerGroupNode // this node is duplicated
+      innerGroupNode
+        innerBrushNode
+      linkedInnerGroupNode
+        linkedInnerBrushNode
+      outerBrushNode
+    */
 
-  auto* groupNode = document->groupSelection("test");
-  REQUIRE(groupNode != nullptr);
+    auto* innerBrushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {innerBrushNode}}});
+    document->selectNodes({innerBrushNode});
 
-  auto* linkedGroupNode = document->createLinkedDuplicate();
-  REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
+    auto* innerGroupNode = document->groupSelection("inner");
+    REQUIRE(innerGroupNode != nullptr);
 
-  document->duplicateObjects();
+    document->deselectAll();
+    document->selectNodes({innerGroupNode});
 
-  auto* groupNodeCopy = document->selectedNodes().groups().at(0u);
-  CHECK(groupNodeCopy->linkId() == groupNode->linkId());
-}
+    auto* linkedInnerGroupNode = document->createLinkedDuplicate();
+    REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateNodeInLinkedGroup")
-{
-  auto* brushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->selectNodes({brushNode});
+    const auto linkedInnerBrushNode = getChildAs<Model::BrushNode>(*linkedInnerGroupNode);
 
-  auto* groupNode = document->groupSelection("test");
-  REQUIRE(groupNode != nullptr);
+    auto* outerBrushNode = createBrushNode();
+    document->addNodes({{document->parentForNodes(), {outerBrushNode}}});
 
-  auto* linkedGroupNode = document->createLinkedDuplicate();
-  REQUIRE(linkedGroupNode->linkId() == groupNode->linkId());
+    document->deselectAll();
+    document->selectNodes({innerGroupNode, linkedInnerGroupNode, outerBrushNode});
+    auto* outerGroupNode = document->groupSelection("outer");
 
-  document->openGroup(groupNode);
+    document->deselectAll();
+    document->selectNodes({outerGroupNode});
 
-  document->selectNodes({brushNode});
-  document->duplicateObjects();
+    duplicateOrCopyPaste();
 
-  auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
-  CHECK(brushNodeCopy->linkId() != brushNode->linkId());
-}
+    const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0);
+    REQUIRE(outerGroupNodeCopy != nullptr);
+    REQUIRE(outerGroupNodeCopy->childCount() == 3u);
 
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateGroupInLinkedGroup")
-{
-  auto* brushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {brushNode}}});
-  document->selectNodes({brushNode});
+    const auto [innerGroupNodeCopy, linkedInnerGroupNodeCopy, outerBrushNodeCopy] =
+      getChildrenAs<Model::GroupNode, Model::GroupNode, Model::BrushNode>(
+        *outerGroupNodeCopy);
 
-  auto* innerGroupNode = document->groupSelection("inner");
-  REQUIRE(innerGroupNode != nullptr);
+    const auto innerBrushNodeCopy = getChildAs<Model::BrushNode>(*innerGroupNodeCopy);
 
-  auto* outerGroupNode = document->groupSelection("outer");
-  REQUIRE(outerGroupNode != nullptr);
+    const auto linkedInnerBrushNodeCopy =
+      getChildAs<Model::BrushNode>(*linkedInnerGroupNodeCopy);
 
-  auto* linkedOuterGroupNode = document->createLinkedDuplicate();
-  REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
-
-  auto* linkedInnerGroupNode =
-    dynamic_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
-  REQUIRE(linkedInnerGroupNode != nullptr);
-  REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
-
-  document->openGroup(outerGroupNode);
-
-  document->selectNodes({innerGroupNode});
-  document->duplicateObjects();
-
-  auto* innerGroupNodeCopy = document->selectedNodes().groups().at(0u);
-  CHECK(innerGroupNodeCopy->linkId() == innerGroupNode->linkId());
-}
-
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateGroupWithNestedGroup")
-{
-  auto* innerBrushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {innerBrushNode}}});
-  document->selectNodes({innerBrushNode});
-
-  auto* groupNode = document->groupSelection("test");
-  REQUIRE(groupNode != nullptr);
-
-  auto* outerBrushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {outerBrushNode}}});
-
-  document->deselectAll();
-  document->selectNodes({groupNode, outerBrushNode});
-  auto* outerGroupNode = document->groupSelection("outer");
-
-  document->deselectAll();
-  document->selectNodes({outerGroupNode});
-
-  document->duplicateObjects();
-
-  const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0u);
-  const auto* groupNodeCopy =
-    dynamic_cast<Model::GroupNode*>(outerGroupNodeCopy->children().at(0));
-  const auto* outerBrushNodeCopy =
-    dynamic_cast<Model::BrushNode*>(outerGroupNodeCopy->children().at(1));
-
-  CHECK(groupNodeCopy->linkId() != groupNode->linkId());
-  CHECK(outerBrushNodeCopy->linkId() != outerBrushNode->linkId());
-}
-
-TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateGroupWithNestedLinkedGroups")
-{
-  /*
-  outerGroupNode // this node is duplicated
-    innerGroupNode
-      innerBrushNode
-    linkedInnerGroupNode
-      linkedInnerBrushNode
-    outerBrushNode
-  */
-
-  auto* innerBrushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {innerBrushNode}}});
-  document->selectNodes({innerBrushNode});
-
-  auto* innerGroupNode = document->groupSelection("inner");
-  REQUIRE(innerGroupNode != nullptr);
-
-  document->deselectAll();
-  document->selectNodes({innerGroupNode});
-
-  auto* linkedInnerGroupNode = document->createLinkedDuplicate();
-  REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
-
-  const auto* linkedInnerBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedInnerGroupNode->children().at(0));
-  REQUIRE(linkedInnerBrushNode != nullptr);
-
-  auto* outerBrushNode = createBrushNode();
-  document->addNodes({{document->parentForNodes(), {outerBrushNode}}});
-
-  document->deselectAll();
-  document->selectNodes({innerGroupNode, linkedInnerGroupNode, outerBrushNode});
-  auto* outerGroupNode = document->groupSelection("outer");
-
-  document->deselectAll();
-  document->selectNodes({outerGroupNode});
-
-  document->duplicateObjects();
-
-  const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0);
-  REQUIRE(outerGroupNodeCopy != nullptr);
-  REQUIRE(outerGroupNodeCopy->childCount() == 3u);
-
-  const auto* innerGroupNodeCopy =
-    dynamic_cast<Model::GroupNode*>(outerGroupNodeCopy->children().at(0));
-  REQUIRE(innerGroupNodeCopy != nullptr);
-
-  const auto* innerBrushNodeCopy =
-    dynamic_cast<Model::BrushNode*>(innerGroupNodeCopy->children().at(0));
-  REQUIRE(innerBrushNodeCopy != nullptr);
-
-  const auto* linkedInnerGroupNodeCopy =
-    dynamic_cast<Model::GroupNode*>(outerGroupNodeCopy->children().at(1));
-  REQUIRE(linkedInnerGroupNodeCopy != nullptr);
-
-  const auto* linkedInnerBrushNodeCopy =
-    dynamic_cast<Model::BrushNode*>(linkedInnerGroupNodeCopy->children().at(0));
-  REQUIRE(linkedInnerBrushNodeCopy != nullptr);
-
-  const auto* outerBrushNodeCopy =
-    dynamic_cast<Model::BrushNode*>(outerGroupNodeCopy->children().at(2));
-  REQUIRE(outerBrushNodeCopy != nullptr);
-
-  CHECK(innerGroupNodeCopy->linkId() == innerGroupNode->linkId());
-  CHECK(linkedInnerGroupNodeCopy->linkId() == linkedInnerGroupNode->linkId());
-  CHECK(innerBrushNodeCopy->linkId() == innerBrushNode->linkId());
-  CHECK(linkedInnerBrushNodeCopy->linkId() == linkedInnerBrushNode->linkId());
-  CHECK(outerBrushNodeCopy->linkId() != outerBrushNode->linkId());
+    CHECK(innerGroupNodeCopy->linkId() == innerGroupNode->linkId());
+    CHECK(linkedInnerGroupNodeCopy->linkId() == linkedInnerGroupNode->linkId());
+    CHECK(innerBrushNodeCopy->linkId() == innerBrushNode->linkId());
+    CHECK(linkedInnerBrushNodeCopy->linkId() == linkedInnerBrushNode->linkId());
+    CHECK(outerBrushNodeCopy->linkId() != outerBrushNode->linkId());
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupInnerGroup")
