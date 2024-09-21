@@ -2910,9 +2910,10 @@ bool MapDocument::transformObjects(
           return std::make_pair(entityNode, Model::NodeContents{std::move(entity)});
         },
         [&](Model::BrushNode* brushNode) -> TransformResult {
+          const auto* containingGroup = brushNode->containingGroup();
           const bool lockAlignment =
             alignmentLock
-            || Model::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1;
+            || (containingGroup && containingGroup->closed() && Model::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1);
 
           auto brush = brushNode->brush();
           return brush.transform(m_worldBounds, transformation, lockAlignment)
