@@ -56,6 +56,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/set_adapter.h"
     "${KDL_INCLUDE_DIR}/kdl/set_temp.h"
     "${KDL_INCLUDE_DIR}/kdl/skip_iterator.h"
+    "${KDL_INCLUDE_DIR}/kdl/stable_remove_duplicates.h"
     "${KDL_INCLUDE_DIR}/kdl/std_io.h"
     "${KDL_INCLUDE_DIR}/kdl/string_compare_detail.h"
     "${KDL_INCLUDE_DIR}/kdl/string_compare.h"
