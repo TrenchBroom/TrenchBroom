@@ -33,8 +33,6 @@
 #include "vm/scalar.h"
 #include "vm/vec_io.h"
 
-#include <ostream>
-
 namespace TrenchBroom::Assets
 {
 

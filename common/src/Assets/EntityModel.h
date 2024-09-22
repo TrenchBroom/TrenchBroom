@@ -25,7 +25,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
 
 #include <memory>

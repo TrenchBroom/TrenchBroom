@@ -23,9 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 const std::string Quake3ShaderStage::BlendFunc::One = "GL_ONE";
 const std::string Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
@@ -46,7 +44,7 @@ const std::string Quake3ShaderStage::BlendFunc::SrcAlphaSaturate =
 
 bool Quake3ShaderStage::BlendFunc::enable() const
 {
-  return srcFactor != "" && destFactor != "";
+  return !srcFactor.empty() && !destFactor.empty();
 }
 
 bool Quake3ShaderStage::BlendFunc::validateSrcFactor() const
@@ -55,42 +53,39 @@ bool Quake3ShaderStage::BlendFunc::validateSrcFactor() const
   {
     return true;
   }
-  else if (srcFactor == Zero)
+  if (srcFactor == Zero)
   {
     return true;
   }
-  else if (srcFactor == DestColor)
+  if (srcFactor == DestColor)
   {
     return true;
   }
-  else if (srcFactor == OneMinusDestColor)
+  if (srcFactor == OneMinusDestColor)
   {
     return true;
   }
-  else if (srcFactor == SrcAlpha)
+  if (srcFactor == SrcAlpha)
   {
     return true;
   }
-  else if (srcFactor == DestAlpha)
+  if (srcFactor == DestAlpha)
   {
     return true;
   }
-  else if (srcFactor == OneMinusSrcAlpha)
+  if (srcFactor == OneMinusSrcAlpha)
   {
     return true;
   }
-  else if (srcFactor == OneMinusDestAlpha)
+  if (srcFactor == OneMinusDestAlpha)
   {
     return true;
   }
-  else if (srcFactor == SrcAlphaSaturate)
+  if (srcFactor == SrcAlphaSaturate)
   {
     return true;
   }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 bool Quake3ShaderStage::BlendFunc::validateDestFactor() const
@@ -99,38 +94,35 @@ bool Quake3ShaderStage::BlendFunc::validateDestFactor() const
   {
     return true;
   }
-  else if (destFactor == Zero)
+  if (destFactor == Zero)
   {
     return true;
   }
-  else if (destFactor == SrcColor)
+  if (destFactor == SrcColor)
   {
     return true;
   }
-  else if (destFactor == OneMinusSrcColor)
+  if (destFactor == OneMinusSrcColor)
   {
     return true;
   }
-  else if (destFactor == SrcAlpha)
+  if (destFactor == SrcAlpha)
   {
     return true;
   }
-  else if (destFactor == DestAlpha)
+  if (destFactor == DestAlpha)
   {
     return true;
   }
-  else if (destFactor == OneMinusSrcAlpha)
+  if (destFactor == OneMinusSrcAlpha)
   {
     return true;
   }
-  else if (destFactor == OneMinusDestAlpha)
+  if (destFactor == OneMinusDestAlpha)
   {
     return true;
   }
-  else
-  {
-    return false;
-  }
+  return false;
 }
 
 void Quake3ShaderStage::BlendFunc::reset()
@@ -166,5 +158,4 @@ std::ostream& operator<<(std::ostream& lhs, const Quake3Shader::Culling rhs)
   return lhs;
 }
 
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

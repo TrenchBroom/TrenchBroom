@@ -34,20 +34,21 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNode;
 class Game;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MaterialRenderer;
 class VboManager;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModelFrame;
 enum class Orientation;
@@ -100,5 +101,5 @@ public:
 private:
   void prepareRenderers(Renderer::VboManager& vboManager);
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

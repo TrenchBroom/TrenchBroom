@@ -20,11 +20,8 @@
 #include "EntityModelManager.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Assets/Palette.h"
 #include "Assets/Quake3Shader.h"
 #include "Assets/Resource.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/LoadEntityModel.h"
 #include "IO/LoadMaterialCollections.h"

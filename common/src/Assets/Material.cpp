@@ -19,15 +19,11 @@
 
 #include "Material.h"
 
-#include "Assets/Resource.h"
 #include "Assets/Texture.h"
 #include "Macros.h"
 
 #include "kdl/reflection_impl.h"
 
-#include "vm/vec_io.h"
-
-#include <algorithm> // for std::max
 #include <cassert>
 #include <ostream>
 

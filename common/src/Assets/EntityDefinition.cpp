@@ -32,9 +32,8 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+
+namespace TrenchBroom::Assets
 {
 EntityDefinition::~EntityDefinition() {}
 
@@ -234,5 +233,5 @@ EntityDefinitionType BrushEntityDefinition::type() const
 {
   return EntityDefinitionType::BrushEntity;
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

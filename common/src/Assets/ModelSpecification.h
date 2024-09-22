@@ -28,7 +28,7 @@ namespace TrenchBroom::Assets
 
 struct ModelSpecification
 {
-  std::filesystem::path path = {};
+  std::filesystem::path path;
   size_t skinIndex = 0;
   size_t frameIndex = 0;
 

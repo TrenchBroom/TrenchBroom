@@ -22,11 +22,9 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Ensure.h"
-#include "Error.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
-#include "Model/EntityProperties.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -36,6 +34,7 @@
 
 namespace TrenchBroom::Assets
 {
+
 EntityDefinitionManager::~EntityDefinitionManager()
 {
   clear();

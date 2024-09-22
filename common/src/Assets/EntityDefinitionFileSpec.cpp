@@ -24,15 +24,11 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom
+
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-EntityDefinitionFileSpec::EntityDefinitionFileSpec()
-  : m_type(Type::Unset)
-  , m_path("")
-{
-}
+
+EntityDefinitionFileSpec::EntityDefinitionFileSpec() = default;
 
 EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
 {
@@ -56,18 +52,18 @@ EntityDefinitionFileSpec EntityDefinitionFileSpec::parse(const std::string& str)
 EntityDefinitionFileSpec EntityDefinitionFileSpec::builtin(
   const std::filesystem::path& path)
 {
-  return EntityDefinitionFileSpec(Type::Builtin, path);
+  return {Type::Builtin, path};
 }
 
 EntityDefinitionFileSpec EntityDefinitionFileSpec::external(
   const std::filesystem::path& path)
 {
-  return EntityDefinitionFileSpec(Type::External, path);
+  return {Type::External, path};
 }
 
 EntityDefinitionFileSpec EntityDefinitionFileSpec::unset()
 {
-  return EntityDefinitionFileSpec();
+  return {};
 }
 
 bool operator<(const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs)
@@ -117,20 +113,17 @@ const std::filesystem::path& EntityDefinitionFileSpec::path() const
 
 std::string EntityDefinitionFileSpec::asString() const
 {
-  if (!valid())
-    return "";
-  if (builtin())
-    return "builtin:" + m_path.string();
-  return "external:" + m_path.string();
+  return !valid()    ? ""
+         : builtin() ? "builtin:" + m_path.string()
+                     : "external:" + m_path.string();
 }
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec(
-  const Type type, const std::filesystem::path& path)
-  : m_type(type)
-  , m_path(path)
+  const Type type, std::filesystem::path path)
+  : m_type{type}
+  , m_path{std::move(path)}
 {
   assert(valid());
-  assert(!path.empty());
+  assert(!m_path.empty());
 }
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

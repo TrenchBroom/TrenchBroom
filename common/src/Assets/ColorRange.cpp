@@ -21,21 +21,15 @@
 
 #include "kdl/string_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
-ColorRange::Type detectColorRange(const std::vector<std::string>& components);
-
-ColorRange::Type detectColorRange(const std::string& str)
-{
-  return detectColorRange(kdl::str_split(str, " "));
-}
 
 ColorRange::Type detectColorRange(const std::vector<std::string>& components)
 {
   if (components.size() != 3)
+  {
     return ColorRange::Unset;
+  }
 
   auto range = ColorRange::Byte;
   auto leq1 = true;
@@ -59,5 +53,10 @@ ColorRange::Type detectColorRange(const std::vector<std::string>& components)
 
   return range;
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+ColorRange::Type detectColorRange(const std::string& str)
+{
+  return detectColorRange(kdl::str_split(str, " "));
+}
+
+} // namespace TrenchBroom::Assets

@@ -22,9 +22,6 @@
 #include "Assets/Material.h"
 #include "Assets/MaterialCollection.h"
 #include "Assets/Resource.h"
-#include "Assets/Texture.h"
-#include "Error.h"
-#include "Exceptions.h"
 #include "IO/LoadMaterialCollections.h"
 #include "Logger.h"
 
@@ -34,8 +31,6 @@
 #include "kdl/vector_utils.h"
 
 #include <algorithm>
-#include <chrono>
-#include <iterator>
 #include <string>
 #include <unordered_set>
 #include <vector>

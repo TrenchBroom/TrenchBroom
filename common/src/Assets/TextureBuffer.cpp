@@ -164,4 +164,5 @@ void resizeMips(
     }
   }
 }
+
 } // namespace TrenchBroom::Assets

@@ -26,10 +26,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 class Quake3ShaderStage
 {
 public:
@@ -76,12 +75,12 @@ public:
   };
 
 public:
-  std::filesystem::path shaderPath = {};
-  std::filesystem::path editorImage = {};
-  std::filesystem::path lightImage = {};
+  std::filesystem::path shaderPath;
+  std::filesystem::path editorImage;
+  std::filesystem::path lightImage;
   Culling culling = Culling::Front;
-  std::set<std::string> surfaceParms = {};
-  std::vector<Quake3ShaderStage> stages = {};
+  std::set<std::string> surfaceParms;
+  std::vector<Quake3ShaderStage> stages;
 
 public:
   Quake3ShaderStage& addStage();
@@ -92,5 +91,4 @@ public:
 
 std::ostream& operator<<(std::ostream& lhs, Quake3Shader::Culling rhs);
 
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

@@ -21,7 +21,6 @@
 
 #include "Assets/TextureBuffer.h"
 #include "Ensure.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/ImageLoader.h"
@@ -29,7 +28,6 @@
 #include "Macros.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/result.h"
 #include "kdl/string_format.h"
 
 #include <cstring>

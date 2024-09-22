@@ -25,10 +25,9 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 class EntityDefinitionFileSpec
 {
 private:
@@ -39,7 +38,7 @@ private:
     Unset
   };
 
-  Type m_type;
+  Type m_type = Type::Unset;
   std::filesystem::path m_path;
 
 public:
@@ -66,10 +65,11 @@ public:
   std::string asString() const;
 
 private:
-  EntityDefinitionFileSpec(Type type, const std::filesystem::path& path);
+  EntityDefinitionFileSpec(Type type, std::filesystem::path path);
 };
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets
+
 
 // Allow storing this class in a QVariant
 Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionFileSpec)

@@ -24,16 +24,15 @@
 #include "Color.h"
 #include "FloatType.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+
+namespace TrenchBroom::Assets
 {
 class PropertyDefinition;
 class FlagsPropertyDefinition;
@@ -132,5 +131,4 @@ public:
     std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
   EntityDefinitionType type() const override;
 };
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

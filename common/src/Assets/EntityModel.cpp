@@ -27,7 +27,6 @@
 #include "Renderer/PrimType.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/forward.h"
@@ -35,7 +34,7 @@
 
 #include <fmt/format.h>
 
-#include <ranges>
+#include <algorithm>
 #include <string>
 
 namespace TrenchBroom::Assets

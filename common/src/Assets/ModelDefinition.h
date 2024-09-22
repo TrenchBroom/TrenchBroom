@@ -27,8 +27,6 @@
 
 #include "vm/vec.h" // IWYU pragma: keep
 
-#include <filesystem>
-#include <iosfwd>
 #include <optional>
 
 namespace TrenchBroom

@@ -19,16 +19,15 @@
 
 #pragma once
 
-#include "Assets/ModelDefinition.h"
+#include "Assets/ModelSpecification.h"
 #include "EL/ELExceptions.h"
 #include "Logger.h"
 
 #include <string_view>
 
-namespace TrenchBroom
+namespace TrenchBroom::Assets
 {
-namespace Assets
-{
+
 /**
  * Evaluates the given lambda and returns the resulting model specification. If an EL
  * exception is thrown by the given lambda, it is caught and an error message is logged
@@ -53,8 +52,8 @@ ModelSpecification safeGetModelSpecification(
   {
     logger.error() << "Could not get entity model for entity '" << classname
                    << "': " << e.what();
-    return ModelSpecification();
+    return ModelSpecification{};
   }
 }
-} // namespace Assets
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Assets

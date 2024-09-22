@@ -161,5 +161,4 @@ private:
   void setFilterMode(int minFilter, int magFilter) const;
 };
 
-
 } // namespace TrenchBroom::Assets

@@ -20,14 +20,13 @@
 #pragma once
 
 #include "Assets/CreateResource.h"
+#include "Assets/Resource.h"
+#include "Assets/Texture.h"
 
 #include <memory>
 
 namespace TrenchBroom::Assets
 {
-template <typename T>
-class Resource;
-class Texture;
 
 using TextureResource = Resource<Texture>;
 using CreateTextureResource = CreateResource<Texture>;
