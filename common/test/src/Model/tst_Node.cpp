@@ -129,7 +129,7 @@ private:
   }
 
 private: // implement Node interface
-  Node* doClone(const vm::bbox3& /* worldBounds */, const SetLinkId) const override
+  Node* doClone(const vm::bbox3& /* worldBounds */) const override
   {
     return new MockNode{};
   }
@@ -206,7 +206,7 @@ private: // implement Node interface
 class TestNode : public Node
 {
 private: // implement Node interface
-  Node* doClone(const vm::bbox3& /* worldBounds */, const SetLinkId) const override
+  Node* doClone(const vm::bbox3& /* worldBounds */) const override
   {
     return new TestNode{};
   }

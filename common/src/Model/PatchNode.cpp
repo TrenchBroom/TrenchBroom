@@ -385,10 +385,10 @@ FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* PatchNode::doClone(const vm::bbox3&, const SetLinkId setLinkIds) const
+Node* PatchNode::doClone(const vm::bbox3&) const
 {
   auto result = std::make_unique<PatchNode>(m_patch);
-  result->cloneLinkId(*this, setLinkIds);
+  cloneLinkId(*result);
   return result.release();
 }
 

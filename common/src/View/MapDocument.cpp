@@ -117,6 +117,7 @@
 #include "kdl/parallel.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/stable_remove_duplicates.h"
 #include "kdl/string_format.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -892,6 +893,7 @@ void copyAndSetLinkIds(
   Model::WorldNode& worldNode,
   Logger& logger)
 {
+  // Recursively collect all groups to add
   const auto groupsToAdd = kdl::vec_sort(
     Model::collectGroups(kdl::vec_flatten(kdl::map_values(nodesToAdd))),
     Model::compareGroupNodesByLinkId);
@@ -905,8 +907,22 @@ void copyAndSetLinkIds(
     const auto& linkId = linkedGroupsToAdd.front()->linkId();
     const auto existingLinkedNodes = Model::collectNodesWithLinkId({&worldNode}, linkId);
 
-    if (!existingLinkedNodes.empty())
+    if (existingLinkedNodes.size() == 1)
     {
+      // Unlink the added nodes because we don't want to create linked duplicates
+      Model::resetLinkIds({linkedGroupsToAdd.front()});
+
+      if (std::next(linkedGroupsToAdd.begin()) != linkedGroupsToAdd.end())
+      {
+        // But keep the added linked groups mutually linked
+        Model::copyAndSetLinkIds(
+          *linkedGroupsToAdd.front(),
+          std::vector(std::next(linkedGroupsToAdd.begin()), linkedGroupsToAdd.end()));
+      }
+    }
+    else if (existingLinkedNodes.size() > 1)
+    {
+      // Keep the pasted nodes linked to their originals, but validate the structure
       if (
         auto* existingLinkedGroup =
           dynamic_cast<Model::GroupNode*>(existingLinkedNodes.front()))
@@ -1806,13 +1822,16 @@ void MapDocument::deleteObjects()
   assertResult(transaction.commit());
 }
 
+namespace
+{
+
 /**
  * Returns whether, for UI reasons, duplicating the given node should also cause its
  * parent to be duplicated.
  *
  * Applies when duplicating a brush inside a brush entity.
  */
-static bool shouldCloneParentWhenCloningNode(const Model::Node* node)
+bool shouldCloneParentWhenCloningNode(const Model::Node* node)
 {
   return node->parent()->accept(kdl::overload(
     [](const Model::WorldNode*) { return false; },
@@ -1823,6 +1842,28 @@ static bool shouldCloneParentWhenCloningNode(const Model::Node* node)
     [](const Model::PatchNode*) { return false; }));
 }
 
+void resetLinkIdsOfNonGroupedNodes(
+  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+{
+  for (const auto& [parent, children] : nodes)
+  {
+    Model::Node::visitAll(
+      children,
+      kdl::overload(
+        [](const Model::WorldNode*) {},
+        [](const Model::LayerNode*) {},
+        [](const Model::GroupNode*) {},
+        [](auto&& thisLambda, Model::EntityNode* entityNode) {
+          entityNode->setLinkId(generateUuid());
+          entityNode->visitChildren(thisLambda);
+        },
+        [](Model::BrushNode* brushNode) { brushNode->setLinkId(generateUuid()); },
+        [](Model::PatchNode* patchNode) { patchNode->setLinkId(generateUuid()); }));
+  }
+}
+
+} // namespace
+
 void MapDocument::duplicateObjects()
 {
   auto nodesToAdd = std::map<Model::Node*, std::vector<Model::Node*>>{};
@@ -1832,21 +1873,15 @@ void MapDocument::duplicateObjects()
   for (auto* original : selectedNodes().nodes())
   {
     auto* suggestedParent = parentForNodes({original});
-
-    const auto isLinkedGroup =
-      dynamic_cast<const Model::GroupNode*>(original) != nullptr
-      && Model::collectLinkedNodes({m_world.get()}, *original).size() > 1;
-    const auto setLinkIds =
-      isLinkedGroup ? Model::SetLinkId::keep : Model::SetLinkId::generate;
-    auto* clone = original->cloneRecursively(m_worldBounds, setLinkIds);
+    auto* clone = original->cloneRecursively(m_worldBounds);
 
     if (shouldCloneParentWhenCloningNode(original))
     {
       // e.g. original is a brush in a brush entity, so we need to clone the entity
       // (parent) see if the parent was already cloned and if not, clone it and store it
-      auto* parent = original->parent();
+      auto* originalParent = original->parent();
       auto* newParent = static_cast<Model::Node*>(nullptr);
-      const auto it = newParentMap.find(parent);
+      const auto it = newParentMap.find(originalParent);
       if (it != std::end(newParentMap))
       {
         // parent was already cloned
@@ -1855,8 +1890,8 @@ void MapDocument::duplicateObjects()
       else
       {
         // parent was not cloned yet
-        newParent = parent->clone(m_worldBounds, setLinkIds);
-        newParentMap.insert({parent, newParent});
+        newParent = originalParent->clone(m_worldBounds);
+        newParentMap.insert({originalParent, newParent});
         nodesToAdd[suggestedParent].push_back(newParent);
       }
 
@@ -1871,6 +1906,9 @@ void MapDocument::duplicateObjects()
 
     nodesToSelect.push_back(clone);
   }
+
+  resetLinkIdsOfNonGroupedNodes(nodesToAdd);
+  copyAndSetLinkIds(nodesToAdd, *m_world, *this);
 
   {
     auto transaction = Transaction{*this, "Duplicate Objects"};
@@ -2011,7 +2049,7 @@ static std::vector<Model::Node*> collectGroupableNodes(
       [&](Model::EntityNode* entity) { result.push_back(entity); },
       [&](auto&& thisLambda, Model::BrushNode* brush) { addNode(thisLambda, brush); },
       [&](auto&& thisLambda, Model::PatchNode* patch) { addNode(thisLambda, patch); }));
-  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+  return kdl::col_stable_remove_duplicates(std::move(result));
 }
 
 Model::GroupNode* MapDocument::groupSelection(const std::string& name)
@@ -2192,8 +2230,8 @@ Model::GroupNode* MapDocument::createLinkedDuplicate()
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
   auto* groupNode = m_selectedNodes.groups().front();
-  auto* groupNodeClone = static_cast<Model::GroupNode*>(
-    groupNode->cloneRecursively(m_worldBounds, Model::SetLinkId::keep));
+  auto* groupNodeClone =
+    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
   auto* suggestedParent = parentForNodes({groupNode});
   if (addNodes({{suggestedParent, {groupNodeClone}}}).empty())
   {

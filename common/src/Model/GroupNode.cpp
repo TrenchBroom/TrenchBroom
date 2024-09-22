@@ -183,12 +183,11 @@ FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const
   return static_cast<FloatType>(0);
 }
 
-Node* GroupNode::doClone(
-  const vm::bbox3& /* worldBounds */, const SetLinkId setLinkIds) const
+Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const
 {
   auto result = std::make_unique<GroupNode>(m_group);
-  result->cloneLinkId(*this, setLinkIds);
-  cloneAttributes(result.get());
+  cloneLinkId(*result);
+  cloneAttributes(*result);
   return result.release();
 }
 

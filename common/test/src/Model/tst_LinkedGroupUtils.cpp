@@ -64,13 +64,13 @@ TEST_CASE("collectLinkedGroups")
   setLinkId(*groupNode1, "group1");
   setLinkId(*groupNode2, "group2");
 
-  auto* linkedGroupNode1_1 = static_cast<Model::GroupNode*>(
-    groupNode1->cloneRecursively(worldBounds, SetLinkId::keep));
+  auto* linkedGroupNode1_1 =
+    static_cast<Model::GroupNode*>(groupNode1->cloneRecursively(worldBounds));
 
-  auto* linkedGroupNode2_1 = static_cast<Model::GroupNode*>(
-    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
-  auto* linkedGroupNode2_2 = static_cast<Model::GroupNode*>(
-    groupNode2->cloneRecursively(worldBounds, SetLinkId::keep));
+  auto* linkedGroupNode2_1 =
+    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
+  auto* linkedGroupNode2_2 =
+    static_cast<Model::GroupNode*>(groupNode2->cloneRecursively(worldBounds));
 
   worldNode.defaultLayer()->addChild(groupNode1);
   worldNode.defaultLayer()->addChild(groupNode2);
@@ -125,7 +125,7 @@ TEST_CASE("GroupNode.updateLinkedGroups")
   SECTION("Update a single target group")
   {
     auto groupNodeClone = std::unique_ptr<GroupNode>{
-      static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+      static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
     REQUIRE(
       groupNodeClone->group().transformation()
       == vm::translation_matrix(vm::vec3{1, 0, 0}));
@@ -173,8 +173,8 @@ TEST_CASE("GroupNode.updateNestedLinkedGroups")
   auto* innerGroupEntityNode = new EntityNode{Entity{}};
   innerGroupNode->addChild(innerGroupEntityNode);
 
-  auto innerGroupNodeClone = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
-    innerGroupNode->cloneRecursively(worldBounds, SetLinkId::keep))};
+  auto innerGroupNodeClone = std::unique_ptr<GroupNode>{
+    static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds))};
   REQUIRE(innerGroupNodeClone->group().transformation() == vm::mat4x4{});
 
   transformNode(
@@ -273,8 +273,8 @@ TEST_CASE("GroupNode.updateLinkedGroupsRecursively")
      +-innerGroupEntityNode
   */
 
-  auto outerGroupNodeClone = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
-    outerGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+  auto outerGroupNodeClone = std::unique_ptr<GroupNode>{
+    static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds))};
   REQUIRE(outerGroupNodeClone->group().transformation() == vm::mat4x4{});
   REQUIRE(outerGroupNodeClone->childCount() == 1u);
 
@@ -327,7 +327,7 @@ TEST_CASE("GroupNode.updateLinkedGroupsExceedsWorldBounds")
   groupNode.addChild(entityNode);
 
   auto groupNodeClone = std::unique_ptr<GroupNode>{
-    static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+    static_cast<GroupNode*>(groupNode.cloneRecursively(worldBounds))};
 
   transformNode(
     *groupNodeClone, vm::translation_matrix(vm::vec3{8192 - 8, 0, 0}), worldBounds);
@@ -359,12 +359,12 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveNestedGroupNames")
   auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
   outerGroupNode.addChild(innerGroupNode);
 
-  auto innerGroupNodeClone = std::unique_ptr<GroupNode>(static_cast<GroupNode*>(
-    innerGroupNode->cloneRecursively(worldBounds, SetLinkId::keep)));
+  auto innerGroupNodeClone = std::unique_ptr<GroupNode>(
+    static_cast<GroupNode*>(innerGroupNode->cloneRecursively(worldBounds)));
   setGroupName(*innerGroupNodeClone, "innerGroupNodeClone");
 
-  auto outerGroupNodeClone = std::unique_ptr<GroupNode>(static_cast<GroupNode*>(
-    outerGroupNode.cloneRecursively(worldBounds, SetLinkId::keep)));
+  auto outerGroupNodeClone = std::unique_ptr<GroupNode>(
+    static_cast<GroupNode*>(outerGroupNode.cloneRecursively(worldBounds)));
   setGroupName(*outerGroupNodeClone, "outerGroupNodeClone");
 
   auto* innerGroupNodeNestedClone =
@@ -406,8 +406,8 @@ TEST_CASE("GroupNode.updateLinkedGroupsAndPreserveEntityProperties")
   auto* sourceEntityNode = new EntityNode{Entity{}};
   sourceGroupNode.addChild(sourceEntityNode);
 
-  auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
-    sourceGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+  auto targetGroupNode = std::unique_ptr<GroupNode>{
+    static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
 
   auto* targetEntityNode = static_cast<EntityNode*>(targetGroupNode->children().front());
   REQUIRE_THAT(
@@ -557,8 +557,8 @@ TEST_CASE("GroupNode.preserveEntityPropertiesWorksWithStructuralChanges")
 
   sourceGroupNode.addChildren({sourceBrushNode, sourceEntityNode});
 
-  auto targetGroupNode = std::unique_ptr<GroupNode>{static_cast<GroupNode*>(
-    sourceGroupNode.cloneRecursively(worldBounds, SetLinkId::keep))};
+  auto targetGroupNode = std::unique_ptr<GroupNode>{
+    static_cast<GroupNode*>(sourceGroupNode.cloneRecursively(worldBounds))};
 
   auto* targetEntityNode = dynamic_cast<EntityNode*>(targetGroupNode->children().back());
   REQUIRE(targetEntityNode != nullptr);
@@ -1023,6 +1023,91 @@ TEST_CASE("initializeLinkIds")
           {linkedInnerPatchNode},
         }));
     }
+  }
+}
+
+TEST_CASE("resetLinkIds")
+{
+  const auto worldBounds = vm::bbox3{8192.0};
+  auto brushBuilder = BrushBuilder{MapFormat::Quake3, worldBounds};
+
+  auto* outerGroupNode = new GroupNode{Group{"outer"}};
+  auto* outerEntityNode = new EntityNode{Entity{}};
+  auto* outerBrushNode =
+    new BrushNode{brushBuilder.createCube(64.0, "material") | kdl::value()};
+
+  auto* innerGroupNode = new GroupNode{Group{"inner"}};
+  auto* innerPatchNode = createPatchNode();
+  auto* innerEntityNode = new EntityNode{Entity{}};
+
+  innerGroupNode->addChildren({innerPatchNode, innerEntityNode});
+  outerGroupNode->addChildren({outerEntityNode, outerBrushNode, innerGroupNode});
+
+  auto* linkedOuterGroupNode =
+    dynamic_cast<GroupNode*>(outerGroupNode->cloneRecursively(worldBounds));
+  REQUIRE(linkedOuterGroupNode != nullptr);
+
+  auto* linkedOuterEntityNode =
+    dynamic_cast<EntityNode*>(linkedOuterGroupNode->children().at(0));
+  REQUIRE(linkedOuterEntityNode != nullptr);
+
+  auto* linkedOuterBrushNode =
+    dynamic_cast<BrushNode*>(linkedOuterGroupNode->children().at(1));
+  REQUIRE(linkedOuterBrushNode != nullptr);
+
+  auto* linkedInnerGroupNode =
+    dynamic_cast<GroupNode*>(linkedOuterGroupNode->children().at(2));
+  REQUIRE(linkedInnerGroupNode != nullptr);
+
+  auto* linkedInnerPatchNode =
+    dynamic_cast<PatchNode*>(linkedInnerGroupNode->children().at(0));
+  REQUIRE(linkedInnerPatchNode != nullptr);
+
+  auto* linkedInnerEntityNode =
+    dynamic_cast<EntityNode*>(linkedInnerGroupNode->children().at(1));
+  REQUIRE(linkedInnerGroupNode != nullptr);
+
+  REQUIRE(outerGroupNode->linkId() == linkedOuterGroupNode->linkId());
+  REQUIRE(outerEntityNode->linkId() == linkedOuterEntityNode->linkId());
+  REQUIRE(outerBrushNode->linkId() == linkedOuterBrushNode->linkId());
+  REQUIRE(innerGroupNode->linkId() == linkedInnerGroupNode->linkId());
+  REQUIRE(innerPatchNode->linkId() == linkedInnerPatchNode->linkId());
+  REQUIRE(innerEntityNode->linkId() == linkedInnerEntityNode->linkId());
+
+  SECTION("Reset link IDs of only outer group")
+  {
+    resetLinkIds({linkedOuterGroupNode});
+
+    CHECK(outerGroupNode->linkId() != linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() != linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() != linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() == linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() == linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() == linkedInnerEntityNode->linkId());
+  }
+
+  SECTION("Reset link IDs of only inner group")
+  {
+    resetLinkIds({linkedInnerGroupNode});
+
+    CHECK(outerGroupNode->linkId() == linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() == linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() == linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() != linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() != linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() != linkedInnerEntityNode->linkId());
+  }
+
+  SECTION("Reset link IDs of outer and inner groups")
+  {
+    resetLinkIds({linkedOuterGroupNode, linkedInnerGroupNode});
+
+    CHECK(outerGroupNode->linkId() != linkedOuterGroupNode->linkId());
+    CHECK(outerEntityNode->linkId() != linkedOuterEntityNode->linkId());
+    CHECK(outerBrushNode->linkId() != linkedOuterBrushNode->linkId());
+    CHECK(innerGroupNode->linkId() != linkedInnerGroupNode->linkId());
+    CHECK(innerPatchNode->linkId() != linkedInnerPatchNode->linkId());
+    CHECK(innerEntityNode->linkId() != linkedInnerEntityNode->linkId());
   }
 }
 

@@ -42,17 +42,9 @@ void Object::setLinkId(std::string linkId)
   m_linkId = std::move(linkId);
 }
 
-void Object::cloneLinkId(const Object& original, const SetLinkId linkIdPolicy)
+void Object::cloneLinkId(Object& object) const
 {
-  switch (linkIdPolicy)
-  {
-  case SetLinkId::keep:
-    setLinkId(original.linkId());
-    break;
-  case SetLinkId::generate:
-    setLinkId(generateUuid());
-    break;
-  }
+  object.setLinkId(linkId());
 }
 
 Node* Object::container()

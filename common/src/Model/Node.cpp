@@ -109,52 +109,38 @@ FloatType Node::projectedArea(const vm::axis::type axis) const
   return doGetProjectedArea(axis);
 }
 
-Node* Node::clone(const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
+Node* Node::clone(const vm::bbox3& worldBounds) const
 {
-  return doClone(worldBounds, setLinkIds);
+  return doClone(worldBounds);
 }
 
-Node* Node::cloneRecursively(
-  const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
+Node* Node::cloneRecursively(const vm::bbox3& worldBounds) const
 {
-  return doCloneRecursively(worldBounds, setLinkIds);
+  return doCloneRecursively(worldBounds);
 }
 
-void Node::cloneAttributes(Node* node) const
+void Node::cloneAttributes(Node& node) const
 {
-  node->setVisibilityState(m_visibilityState);
-  node->setLockState(m_lockState);
+  node.setVisibilityState(m_visibilityState);
+  node.setLockState(m_lockState);
 }
 
 std::vector<Node*> Node::clone(
-  const vm::bbox3& worldBounds,
-  const std::vector<Node*>& nodes,
-  const SetLinkId setLinkIds)
+  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
-  clone(
-    worldBounds,
-    setLinkIds,
-    std::begin(nodes),
-    std::end(nodes),
-    std::back_inserter(clones));
+  clone(worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
   return clones;
 }
 
 std::vector<Node*> Node::cloneRecursively(
-  const vm::bbox3& worldBounds,
-  const std::vector<Node*>& nodes,
-  const SetLinkId setLinkIds)
+  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
   cloneRecursively(
-    worldBounds,
-    setLinkIds,
-    std::begin(nodes),
-    std::end(nodes),
-    std::back_inserter(clones));
+    worldBounds, std::begin(nodes), std::end(nodes), std::back_inserter(clones));
   return clones;
 }
 
@@ -895,11 +881,10 @@ void Node::removeFromIndex(
   doRemoveFromIndex(node, key, value);
 }
 
-Node* Node::doCloneRecursively(
-  const vm::bbox3& worldBounds, const SetLinkId setLinkIds) const
+Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const
 {
-  auto* clone = Node::clone(worldBounds, setLinkIds);
-  clone->addChildren(Node::cloneRecursively(worldBounds, children(), setLinkIds));
+  auto* clone = Node::clone(worldBounds);
+  clone->addChildren(Node::cloneRecursively(worldBounds, children()));
   return clone;
 }
 

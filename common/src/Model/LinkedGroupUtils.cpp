@@ -500,6 +500,12 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
 namespace
 {
 
+enum class GroupRecursionMode
+{
+  Shallow,
+  Deep,
+};
+
 template <typename N1, typename N2>
 Result<N1*> tryCast(N2& targetNode)
 {
@@ -510,58 +516,78 @@ Result<N1*> tryCast(N2& targetNode)
 
 template <typename SourceNode, typename TargetNode, typename F>
 Result<void> visitNodesPerPosition(
-  const SourceNode& sourceNode, TargetNode& targetNode, const F& f)
+  const SourceNode& sourceNode,
+  TargetNode& targetNode,
+  const F& f,
+  const GroupRecursionMode recursionMode,
+  const size_t depth = 0)
 {
   return sourceNode.accept(kdl::overload(
-           [&](const WorldNode* sourceWorldNode) {
-             return tryCast<WorldNode>(targetNode)
-                    | kdl::and_then([&](WorldNode* targetWorldNode) {
-                        return f(*sourceWorldNode, *targetWorldNode);
-                      });
-           },
-           [&](const LayerNode* sourceLayerNode) {
-             return tryCast<LayerNode>(targetNode)
-                    | kdl::and_then([&](LayerNode* targetLayerNode) {
-                        return f(*sourceLayerNode, *targetLayerNode);
-                      });
-           },
-           [&](const GroupNode* sourceGroupNode) {
-             return tryCast<GroupNode>(targetNode)
-                    | kdl::and_then([&](GroupNode* targetGroupNode) {
-                        return f(*sourceGroupNode, *targetGroupNode);
-                      });
-           },
-           [&](const EntityNode* sourceEntityNode) {
-             return tryCast<EntityNode>(targetNode)
-                    | kdl::and_then([&](EntityNode* targetEntityNode) {
-                        return f(*sourceEntityNode, *targetEntityNode);
-                      });
-           },
-           [&](const BrushNode* sourceBrushNode) {
-             return tryCast<BrushNode>(targetNode)
-                    | kdl::and_then([&](BrushNode* targetBrushNode) {
-                        return f(*sourceBrushNode, *targetBrushNode);
-                      });
-           },
-           [&](const PatchNode* sourcePatchNode) {
-             return tryCast<PatchNode>(targetNode)
-                    | kdl::and_then([&](PatchNode* targetPatchNode) {
-                        return f(*sourcePatchNode, *targetPatchNode);
-                      });
-           }))
-         | kdl::and_then([&](const auto& recurse) {
-             if (recurse)
-             {
-               return visitChildrenPerPosition(sourceNode, targetNode, f);
-             }
-
-             return Result<void>{};
-           });
+    [&](const WorldNode* sourceWorldNode) {
+      return tryCast<WorldNode>(targetNode)
+             | kdl::transform(
+               [&](WorldNode* targetWorldNode) { f(*sourceWorldNode, *targetWorldNode); })
+             | kdl::and_then([&]() {
+                 return visitChildrenPerPosition(
+                   sourceNode, targetNode, f, recursionMode, depth);
+               });
+      ;
+    },
+    [&](const LayerNode* sourceLayerNode) {
+      return tryCast<LayerNode>(targetNode)
+             | kdl::transform(
+               [&](LayerNode* targetLayerNode) { f(*sourceLayerNode, *targetLayerNode); })
+             | kdl::and_then([&]() {
+                 return visitChildrenPerPosition(
+                   sourceNode, targetNode, f, recursionMode, depth);
+               });
+      ;
+    },
+    [&](const GroupNode* sourceGroupNode) {
+      return depth == 0 || recursionMode == GroupRecursionMode::Deep
+               ? tryCast<GroupNode>(targetNode)
+                   | kdl::transform([&](GroupNode* targetGroupNode) {
+                       f(*sourceGroupNode, *targetGroupNode);
+                     })
+                   | kdl::and_then([&]() {
+                       return visitChildrenPerPosition(
+                         sourceNode, targetNode, f, recursionMode, depth + 1);
+                     })
+               : Result<void>{};
+      ;
+    },
+    [&](const EntityNode* sourceEntityNode) {
+      return tryCast<EntityNode>(targetNode)
+             | kdl::transform([&](EntityNode* targetEntityNode) {
+                 f(*sourceEntityNode, *targetEntityNode);
+               })
+             | kdl::and_then([&]() {
+                 return visitChildrenPerPosition(
+                   sourceNode, targetNode, f, recursionMode, depth);
+               });
+      ;
+    },
+    [&](const BrushNode* sourceBrushNode) {
+      return tryCast<BrushNode>(targetNode)
+             | kdl::transform([&](BrushNode* targetBrushNode) {
+                 f(*sourceBrushNode, *targetBrushNode);
+               });
+    },
+    [&](const PatchNode* sourcePatchNode) {
+      return tryCast<PatchNode>(targetNode)
+             | kdl::transform([&](PatchNode* targetPatchNode) {
+                 f(*sourcePatchNode, *targetPatchNode);
+               });
+    }));
 }
 
 template <typename SourceNode, typename TargetNode, typename F>
 Result<void> visitChildrenPerPosition(
-  SourceNode& sourceNode, TargetNode& targetNode, const F& f)
+  SourceNode& sourceNode,
+  TargetNode& targetNode,
+  const F& f,
+  const GroupRecursionMode recursionMode,
+  const size_t depth)
 {
   if (sourceNode.childCount() != targetNode.childCount())
   {
@@ -572,7 +598,8 @@ Result<void> visitChildrenPerPosition(
            kdl::make_zip_range(sourceNode.children(), targetNode.children()),
            [&](auto childPair) {
              auto& [sourceChild, targetChild] = childPair;
-             return visitNodesPerPosition(*sourceChild, *targetChild, f);
+             return visitNodesPerPosition(
+               *sourceChild, *targetChild, f, recursionMode, depth);
            })
          | kdl::fold;
 }
@@ -580,47 +607,49 @@ Result<void> visitChildrenPerPosition(
 Result<void> copyLinkIds(
   const GroupNode& sourceRootNode,
   GroupNode& targetRootNode,
+  const GroupRecursionMode recursionMode,
   std::unordered_map<Node*, std::string>& linkIds)
 {
   return visitNodesPerPosition(
     sourceRootNode,
     targetRootNode,
     kdl::overload(
-      [&](const WorldNode&, const WorldNode&) { return Result<bool>{true}; },
-      [&](const LayerNode&, const LayerNode&) { return Result<bool>{true}; },
+      [&](const WorldNode&, const WorldNode&) {},
+      [&](const LayerNode&, const LayerNode&) {},
       [&](const GroupNode& sourceGroupNode, GroupNode& targetGroupNode) {
         linkIds[&targetGroupNode] = sourceGroupNode.linkId();
-        return Result<bool>{true};
       },
       [&](const EntityNode& sourceEntityNode, EntityNode& targetEntityNode) {
         linkIds[&targetEntityNode] = sourceEntityNode.linkId();
-        return Result<bool>{true};
       },
       [&](const BrushNode& sourceBrushNode, BrushNode& targetBrushNode) {
         linkIds[&targetBrushNode] = sourceBrushNode.linkId();
-        return Result<bool>{false};
       },
       [&](const PatchNode& sourcePatchNode, PatchNode& targetPatchNode) {
         linkIds[&targetPatchNode] = sourcePatchNode.linkId();
-        return Result<bool>{false};
-      }));
+      }),
+    recursionMode);
 }
 
 template <typename R>
 Result<std::unordered_map<Node*, std::string>> copyLinkIds(
-  const GroupNode& sourceGroupNode, const R& targetGroupNodes)
+  const GroupNode& sourceGroupNode,
+  const R& targetGroupNodes,
+  const GroupRecursionMode recursionMode)
 {
   auto linkIds = std::unordered_map<Node*, std::string>{};
   return kdl::vec_transform(
            targetGroupNodes,
            [&](auto* targetGroupNode) {
-             return copyLinkIds(sourceGroupNode, *targetGroupNode, linkIds);
+             return copyLinkIds(
+               sourceGroupNode, *targetGroupNode, recursionMode, linkIds);
            })
          | kdl::fold | kdl::transform([&]() { return std::move(linkIds); });
 }
 
 template <typename R>
-Result<std::unordered_map<Node*, std::string>> copyLinkIds(const R& groupNodes)
+Result<std::unordered_map<Node*, std::string>> copyLinkIds(
+  const R& groupNodes, const GroupRecursionMode recursionMode)
 {
   if (groupNodes.empty())
   {
@@ -628,7 +657,9 @@ Result<std::unordered_map<Node*, std::string>> copyLinkIds(const R& groupNodes)
   }
 
   return copyLinkIds(
-    *groupNodes.front(), kdl::range{std::next(groupNodes.begin()), groupNodes.end()});
+    *groupNodes.front(),
+    kdl::range{std::next(groupNodes.begin()), groupNodes.end()},
+    recursionMode);
 }
 
 template <typename R>
@@ -657,6 +688,21 @@ void setLinkIds(
   });
 }
 
+void resetLinkIds(GroupNode& rootNode)
+{
+  rootNode.setLinkId(generateUuid());
+  rootNode.visitChildren(kdl::overload(
+    [](const WorldNode*) {},
+    [](const LayerNode*) {},
+    [](const GroupNode*) {},
+    [](auto&& thisLambda, EntityNode* entityNode) {
+      entityNode->setLinkId(generateUuid());
+      entityNode->visitChildren(thisLambda);
+    },
+    [](BrushNode* brushNode) { brushNode->setLinkId(generateUuid()); },
+    [](PatchNode* patchNode) { patchNode->setLinkId(generateUuid()); }));
+}
+
 } // namespace
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
@@ -675,23 +721,37 @@ std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes)
       groupNodesWithId.begin() != groupNodesWithId.end()
       && std::next(groupNodesWithId.begin()) != groupNodesWithId.end())
     {
-      setLinkIds(copyLinkIds(groupNodesWithId), groupNodesWithId, errors);
+      setLinkIds(
+        copyLinkIds(groupNodesWithId, GroupRecursionMode::Deep),
+        groupNodesWithId,
+        errors);
     }
   }
   return errors;
 }
 
+void resetLinkIds(const std::vector<GroupNode*>& groupNodes)
+{
+  for (auto* groupNode : groupNodes)
+  {
+    resetLinkIds(*groupNode);
+  }
+}
+
 Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes)
 {
-  return copyLinkIds(sourceGroupNode, targetGroupNodes);
+  return copyLinkIds(sourceGroupNode, targetGroupNodes, Model::GroupRecursionMode::Deep);
 }
 
 std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes)
 {
   auto errors = std::vector<Error>{};
-  setLinkIds(copyLinkIds(sourceGroupNode, targetGroupNodes), targetGroupNodes, errors);
+  setLinkIds(
+    copyLinkIds(sourceGroupNode, targetGroupNodes, Model::GroupRecursionMode::Shallow),
+    targetGroupNodes,
+    errors);
   return errors;
 }
 

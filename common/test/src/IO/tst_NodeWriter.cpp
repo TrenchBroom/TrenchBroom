@@ -920,8 +920,8 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
     *groupNode, vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)), worldBounds);
   worldNode.defaultLayer()->addChild(groupNode);
 
-  auto* groupNodeClone = static_cast<Model::GroupNode*>(
-    groupNode->cloneRecursively(worldBounds, Model::SetLinkId::keep));
+  auto* groupNodeClone =
+    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
   Model::transformNode(
     *groupNodeClone, vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)), worldBounds);
 

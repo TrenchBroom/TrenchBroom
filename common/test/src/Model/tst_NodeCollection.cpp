@@ -179,7 +179,7 @@ TEST_CASE("NodeCollection.has")
 
       SECTION("adding already nested brush")
       {
-        node->addChild(brushNode.clone(worldBounds, SetLinkId::generate));
+        node->addChild(brushNode.clone(worldBounds));
 
         nodeCollection.addNode(node);
         CHECK_FALSE(nodeCollection.hasBrushes());
@@ -192,7 +192,7 @@ TEST_CASE("NodeCollection.has")
         REQUIRE_FALSE(nodeCollection.hasBrushes());
         REQUIRE_FALSE(nodeCollection.hasOnlyBrushes());
 
-        node->addChild(brushNode.clone(worldBounds, SetLinkId::generate));
+        node->addChild(brushNode.clone(worldBounds));
         CHECK_FALSE(nodeCollection.hasBrushes());
         CHECK_FALSE(nodeCollection.hasOnlyBrushes());
       }
