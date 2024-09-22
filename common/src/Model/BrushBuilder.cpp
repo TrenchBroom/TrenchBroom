@@ -20,10 +20,9 @@
 #include "BrushBuilder.h"
 
 #include "Ensure.h"
-#include "Error.h" // IWYU pragma: keep
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Renderer/RenderUtils.h"
 
 #include "kdl/range_utils.h"
@@ -510,12 +509,12 @@ Result<Brush> BrushBuilder::createUVSphere(
 Result<Brush> BrushBuilder::createIcoSphere(
   const vm::bbox3& bounds, const size_t iterations, const std::string& textureName) const
 {
-  const auto [sphereVertices, sphereIndices] =
+  const auto [sphereVertices_, sphereIndices] =
     Renderer::sphereMesh<FloatType>(iterations);
 
   return sphereIndices
          | std::views::transform(
-           [sphereVertices = sphereVertices, &textureName, this](const auto& face) {
+           [sphereVertices = sphereVertices_, &textureName, this](const auto& face) {
              const auto& p1 = sphereVertices[face[0]];
              const auto& p2 = sphereVertices[face[1]];
              const auto& p3 = sphereVertices[face[2]];

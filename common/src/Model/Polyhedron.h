@@ -38,9 +38,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
@@ -91,7 +89,7 @@ private:
   /**
    * A half edge that originates at this vertex.
    */
-  HalfEdge* m_leaving;
+  HalfEdge* m_leaving = nullptr;
 
   /**
    * The kdl::intrusive_circular_link member required to put vertices in an
@@ -183,7 +181,7 @@ public:
    * @param epsilon an epsilon value
    */
   void correctPosition(
-    const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
+    std::size_t decimals = 0, T epsilon = vm::constants<T>::correct_epsilon());
 };
 
 /* ====================== Implementation in Polyhedron_Edge.h ====================== */
@@ -237,12 +235,12 @@ private:
   /**
    * The first half edge.
    */
-  HalfEdge* m_first;
+  HalfEdge* m_first = nullptr;
 
   /**
    * The second half edge.
    */
-  HalfEdge* m_second;
+  HalfEdge* m_second = nullptr;
 
   /**
    * The kdl::intrusive_circular_link member required to put vertices in an
@@ -257,7 +255,7 @@ private:
    * @param first the first half edge, must not be null
    * @param second the second half edge, may be null
    */
-  Polyhedron_Edge(HalfEdge* first, HalfEdge* second = nullptr);
+  explicit Polyhedron_Edge(HalfEdge* first, HalfEdge* second = nullptr);
 
 public:
   /**
@@ -549,17 +547,17 @@ private:
   /**
    * The origin vertex of this half edge.
    */
-  Vertex* m_origin;
+  Vertex* m_origin = nullptr;
 
   /**
    * The edge to which this half edge belongs.
    */
-  Edge* m_edge;
+  Edge* m_edge = nullptr;
 
   /**
    * The face whose boundary this half edge belongs to.
    */
-  Face* m_face;
+  Face* m_face = nullptr;
 
   /**
    * The kdl::intrusive_circular_link member required to put half edges in an
@@ -574,7 +572,7 @@ private:
    *
    * @param origin the origin vertex, must not be null
    */
-  Polyhedron_HalfEdge(Vertex* origin);
+  explicit Polyhedron_HalfEdge(Vertex* origin);
 
 public:
   /**
@@ -849,7 +847,7 @@ public:
    * Returns the number of vertices of this face. This is identical to the size of its
    * boundary.
    */
-  size_t vertexCount() const;
+  std::size_t vertexCount() const;
 
   /**
    * Returns the half edge of this face's boundary whose origin's position is equal to the
@@ -1069,7 +1067,7 @@ private:
    * @param face the face to set for the given range of half edges
    * @return the number of half edges in the given range
    */
-  size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
+  std::size_t countAndSetFace(HalfEdge* from, HalfEdge* to, Face* face);
 
   /**
    * Counts number of half edges in the range [from, to] and sets their face to null.
@@ -1078,7 +1076,7 @@ private:
    * @param to the last half edge to count (inclusive)
    * @return the number of half edges in the given range
    */
-  size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
+  std::size_t countAndUnsetFace(HalfEdge* from, HalfEdge* to);
 
   /**
    * Counts the number of vertices which are shared between this face and the given face.
@@ -1088,7 +1086,7 @@ private:
    * this face
    * @return the number of shared vertices
    */
-  size_t countSharedVertices(const Face* other) const;
+  std::size_t countSharedVertices(const Face* other) const;
 
   /**
    * The result of intersecting a polyhedron face with a ray.
@@ -1279,7 +1277,7 @@ public: // Accessors
   /**
    * Returns the number of vertices of this polyhedron.
    */
-  size_t vertexCount() const;
+  std::size_t vertexCount() const;
 
   /**
    * Returns the vertices of this polyhedron as a reference to the containing circular
@@ -1295,7 +1293,7 @@ public: // Accessors
   /**
    * Returns the number of edges of this polyhedron.
    */
-  size_t edgeCount() const;
+  std::size_t edgeCount() const;
 
   /**
    * Returns the edges of this polyhedron as a reference to the containing circular list.
@@ -1319,7 +1317,7 @@ public: // Accessors
   /**
    * Returns the number of faces of this polyhedron.
    */
-  size_t faceCount() const;
+  std::size_t faceCount() const;
 
   /**
    * Returns the faces of this polyhedron as a reference to the containing circular list.
@@ -1567,7 +1565,7 @@ public: // Vertex correction and edge healing
    * @param epsilon an epsilon value
    */
   void correctVertexPositions(
-    const size_t decimals = 0, const T epsilon = vm::constants<T>::correct_epsilon());
+    std::size_t decimals = 0, T epsilon = vm::constants<T>::correct_epsilon());
 
   /**
    * Heals short edges by removing all edges shorter than the given minimum length. If
@@ -1579,7 +1577,7 @@ public: // Vertex correction and edge healing
    * removed
    * @return true if this polyhedron is a convex volume afterwards
    */
-  bool healEdges(const T minLength = MinEdgeLength);
+  bool healEdges(T minLength = MinEdgeLength);
 
 private:
   /**
@@ -2044,12 +2042,12 @@ public: // Clipping
     /**
      * Creates a successful clip result with the given newly created face.
      */
-    ClipResult(Face* face);
+    explicit ClipResult(Face* face);
 
     /**
      * Creates a failed clip result with the given reason.
      */
-    ClipResult(FailureReason reason);
+    explicit ClipResult(FailureReason reason);
 
     /**
      * Indicates whether clipping this polyhedron had any effect.
@@ -2269,8 +2267,6 @@ public: // Subtraction
   std::vector<Polyhedron> subtract(const Polyhedron& subtrahend) const;
 
 private:
-  class Subtract;
-
   /* ====================== Implementation in Polyhedron_Queries.h ======================
    */
 public: // geometrical queries
@@ -2371,8 +2367,7 @@ private: // invariants and checks
   bool checkNoDegenerateFaces() const;
   bool checkVertexLeavingEdges() const;
   bool checkEdges() const;
-  bool checkEdgeLengths(const T minLength = MinEdgeLength) const;
+  bool checkEdgeLengths(T minLength = MinEdgeLength) const;
   bool checkLeavingEdges(const Vertex* v) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

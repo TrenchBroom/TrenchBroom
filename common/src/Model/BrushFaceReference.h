@@ -23,7 +23,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Result.h"
 
-#include "vm/plane.h"
+#include "vm/plane.h" // IWYU pragma: keep
 
 #include <vector>
 

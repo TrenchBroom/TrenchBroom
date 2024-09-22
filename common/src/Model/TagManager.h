@@ -25,10 +25,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 /**
  * Manages the tags used in a document and updates smart tags on taggable objects.
  */
@@ -117,5 +116,5 @@ public:
 private:
   size_t freeTagIndex();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

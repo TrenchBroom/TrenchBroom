@@ -22,14 +22,13 @@
 #include "FloatType.h"
 #include "Model/Validator.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class WorldBoundsValidator : public Validator
 {
 private:
@@ -46,5 +45,5 @@ private:
   void doValidate(
     PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

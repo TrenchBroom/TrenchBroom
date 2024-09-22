@@ -20,7 +20,6 @@
 #include "LinkedGroupUtils.h"
 
 #include "Ensure.h"
-#include "Error.h"
 #include "Model/ModelUtils.h"
 #include "Model/Node.h"
 #include "Model/NodeContents.h"
@@ -155,8 +154,8 @@ SelectionResult nodeSelectionWithLinkedGroupConstraints(
     if (!areAncestorGroupsHandled)
     {
       // for each `group` in `linkedGroupsContainingNode`,
-      // implicitly lock other groups in the link set of `groupNode`, but keep `groupNode`
-      // itself unlocked.
+      // implicitly lock other groups in the link set of `groupNode`, but keep
+      // `groupNode` itself unlocked.
       for (auto* groupNode : containingGroupNodes)
       {
         // find the others and add them to the lock list
@@ -674,7 +673,7 @@ void setLinkIds(
       node->accept(kdl::overload(
         [](const WorldNode*) {},
         [](const LayerNode*) {},
-        [&linkId = linkId](Object* object) { object->setLinkId(std::move(linkId)); }));
+        [&](Object* object) { object->setLinkId(std::move(linkId)); }));
     }
   }) | kdl::transform_error([&](auto e) {
     for (auto* linkedGroupNode : groups)

@@ -21,12 +21,9 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 kdl_reflect_impl(GameEngineProfile);
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

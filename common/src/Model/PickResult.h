@@ -28,12 +28,9 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class CompareHits;
-class HitQuery;
 
 class PickResult
 {
@@ -43,7 +40,7 @@ private:
   class CompareWrapper;
 
 public:
-  PickResult(std::shared_ptr<CompareHits> compare);
+  explicit PickResult(std::shared_ptr<CompareHits> compare);
   PickResult();
 
   defineCopyAndMove(PickResult);
@@ -64,5 +61,5 @@ public:
 
   void clear();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

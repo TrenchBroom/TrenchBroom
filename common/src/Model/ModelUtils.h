@@ -22,10 +22,9 @@
 #include "FloatType.h"
 #include "Model/HitType.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <map>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom::Model

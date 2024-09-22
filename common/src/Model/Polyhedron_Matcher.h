@@ -20,19 +20,16 @@
 #pragma once
 
 #include "Ensure.h"
-#include "Polyhedron.h"
+#include "Polyhedron.h" // IWYU pragma: keep
 
 #include "kdl/binary_relation.h"
 #include "kdl/vector_set.h"
-#include "kdl/vector_utils.h"
 
 #include <limits>
 #include <map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 /**
  * This template is used to match the faces of two polyhedra. The two polyhedra are
@@ -84,24 +81,24 @@ private:
 
 public:
   PolyhedronMatcher(const P& left, const P& right)
-    : m_left(left)
-    , m_right(right)
-    , m_vertexRelation(buildVertexRelation(m_left, m_right))
+    : m_left{left}
+    , m_right{right}
+    , m_vertexRelation{buildVertexRelation(m_left, m_right)}
   {
   }
 
   PolyhedronMatcher(
     const P& left, const P& right, const std::vector<V>& vertices, const V& delta)
-    : m_left(left)
-    , m_right(right)
-    , m_vertexRelation(buildVertexRelation(m_left, m_right, vertices, delta))
+    : m_left{left}
+    , m_right{right}
+    , m_vertexRelation{buildVertexRelation(m_left, m_right, vertices, delta)}
   {
   }
 
   PolyhedronMatcher(const P& left, const P& right, const VMap& vertexMap)
-    : m_left(left)
-    , m_right(right)
-    , m_vertexRelation(buildVertexRelation(m_left, m_right, vertexMap))
+    : m_left{left}
+    , m_right{right}
+    , m_vertexRelation{buildVertexRelation(m_left, m_right, vertexMap)}
   {
   }
 
@@ -147,13 +144,13 @@ private:
 
     // Among all matching faces, select one such its normal is the most similar to the
     // given face's normal.
-    auto it = std::begin(matchingFaces);
+    auto it = matchingFaces.begin();
 
     auto* result = *it++;
-    auto bestDot = dot(rightFace->normal(), result->normal());
+    auto bestDot = vm::dot(rightFace->normal(), result->normal());
 
     // exit early if we find a face with an identical normal
-    while (it != std::end(matchingFaces) && bestDot < 1.0)
+    while (it != matchingFaces.end() && bestDot < 1.0)
     {
       auto* currentFace = *it;
       const auto currentDot = dot(rightFace->normal(), currentFace->normal());
@@ -177,8 +174,8 @@ private:
    */
   MatchingFaces findMatchingLeftFaces(Face* rightFace) const
   {
-    MatchingFaces result;
-    size_t bestMatchScore = 0;
+    auto result = MatchingFaces{};
+    std::size_t bestMatchScore = 0;
 
     auto* firstLeftFace = m_left.faces().front();
     auto* currentLeftFace = firstLeftFace;
@@ -253,20 +250,20 @@ private:
    * @param rightFace a face of the right polyhedron
    * @return the matching score
    */
-  size_t computeMatchScore(Face* leftFace, Face* rightFace) const
+  std::size_t computeMatchScore(Face* leftFace, Face* rightFace) const
   {
     if (
       leftFace->vertexCount() == rightFace->vertexCount()
       && leftFace->hasVertexPositions(rightFace->vertexPositions()))
     {
-      return std::numeric_limits<size_t>::max();
+      return std::numeric_limits<std::size_t>::max();
     }
 
-    size_t result = 0;
+    std::size_t result = 0;
     visitMatchingVertexPairs(
-      leftFace,
-      rightFace,
-      [&result](Vertex* /* leftVertex */, Vertex* /* rightVertex */) { ++result; });
+      leftFace, rightFace, [&result](auto* /* leftVertex */, auto* /* rightVertex */) {
+        ++result;
+      });
     return result;
   }
 
@@ -285,7 +282,7 @@ private:
    */
   static VertexRelation buildVertexRelation(const P& left, const P& right)
   {
-    VertexRelation result;
+    auto result = VertexRelation{};
 
     auto* firstLeftVertex = left.vertices().front();
     auto* currentLeftVertex = firstLeftVertex;
@@ -293,7 +290,7 @@ private:
     {
       const auto& position = currentLeftVertex->position();
       auto* currentRightVertex = right.findVertexByPosition(position);
-      if (currentRightVertex != nullptr)
+      if (currentRightVertex)
       {
         result.insert(currentLeftVertex, currentRightVertex);
       }
@@ -322,7 +319,7 @@ private:
   static VertexRelation buildVertexRelation(
     const P& left, const P& right, const std::vector<V>& vertices, const V& delta)
   {
-    VMap vertexMap;
+    auto vertexMap = VMap{};
     const auto vertexSet = kdl::vector_set<V>::create(vertices);
 
     auto* firstVertex = left.vertices().front();
@@ -337,13 +334,13 @@ private:
       {
         if (right.hasVertex(position))
         {
-          vertexMap.insert(std::make_pair(position, position));
+          vertexMap.emplace(position, position);
         }
       }
       else
       {
         assert(right.hasVertex(position + delta));
-        vertexMap.insert(std::make_pair(position, position + delta));
+        vertexMap.emplace(position, position + delta);
       }
       currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
@@ -363,7 +360,7 @@ private:
   static VertexRelation buildVertexRelation(
     const P& left, const P& right, const VMap& vertexMap)
   {
-    VertexRelation result;
+    auto result = VertexRelation{};
 
     for (const auto& [leftPosition, rightPosition] : vertexMap)
     {
@@ -420,7 +417,7 @@ private:
     const auto addedVertices = findAddedVertices(right, initialRelation);
 
     auto result = initialRelation;
-    size_t previousSize;
+    std::size_t previousSize;
     do
     {
       previousSize = result.size();
@@ -463,7 +460,7 @@ private:
     const auto removedVertices = findRemovedVertices(left, initialRelation);
 
     auto result = initialRelation;
-    size_t previousSize;
+    std::size_t previousSize;
     do
     {
       previousSize = result.size();
@@ -495,7 +492,7 @@ private:
    */
   static VertexSet findAddedVertices(const P& right, const VertexRelation& vertexRelation)
   {
-    VertexSet result;
+    auto result = VertexSet{};
 
     const auto& rightVertices = right.vertices();
     auto* firstVertex = rightVertices.front();
@@ -503,7 +500,9 @@ private:
     do
     {
       if (vertexRelation.count_left(currentVertex) == 0)
+      {
         result.insert(currentVertex);
+      }
       currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
 
@@ -522,7 +521,7 @@ private:
   static VertexSet findRemovedVertices(
     const P& left, const VertexRelation& vertexRelation)
   {
-    VertexSet result;
+    auto result = VertexSet{};
 
     const auto& leftVertices = left.vertices();
     auto* firstVertex = leftVertices.front();
@@ -530,12 +529,14 @@ private:
     do
     {
       if (vertexRelation.count_right(currentVertex) == 0)
+      {
         result.insert(currentVertex);
+      }
       currentVertex = currentVertex->next();
     } while (currentVertex != firstVertex);
 
     return result;
   }
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

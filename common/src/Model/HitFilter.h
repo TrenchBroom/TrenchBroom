@@ -24,9 +24,7 @@
 
 #include <functional>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Hit;
 
@@ -46,5 +44,5 @@ HitFilter minDistance(FloatType minDistance);
 HitFilter operator&&(HitFilter lhs, HitFilter rhs);
 HitFilter operator||(HitFilter lhs, HitFilter rhs);
 HitFilter operator!(HitFilter filter);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

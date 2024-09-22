@@ -19,15 +19,17 @@
 
 #pragma once
 
-namespace TrenchBroom
-{
-namespace Model
+#include <utility>
+
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class BrushNode;
+} // namespace TrenchBroom::Model
 
-namespace BrushFacePredicates
+namespace TrenchBroom::Model::BrushFacePredicates
 {
+
 struct True
 {
   bool operator()(const Model::BrushNode* brush, const BrushFace& face) const;
@@ -45,8 +47,8 @@ private:
   P m_p;
 
 public:
-  explicit Not(const P& p)
-    : m_p(p)
+  explicit Not(P p)
+    : m_p{std::move(p)}
   {
   }
 
@@ -64,9 +66,9 @@ private:
   P2 m_p2;
 
 public:
-  And(const P1& p1, const P2& p2)
-    : m_p1(p1)
-    , m_p2(p2)
+  And(P1 p1, P2 p2)
+    : m_p1{std::move(p1)}
+    , m_p2{std::move(p2)}
   {
   }
 
@@ -84,9 +86,9 @@ private:
   P2 m_p2;
 
 public:
-  Or(const P1& p1, const P2& p2)
-    : m_p1(p1)
-    , m_p2(p2)
+  Or(P1 p1, P2 p2)
+    : m_p1{std::move(p1)}
+    , m_p2{std::move(p2)}
   {
   }
 
@@ -95,6 +97,5 @@ public:
     return m_p1(brush, face) || m_p2(brush, face);
   }
 };
-} // namespace BrushFacePredicates
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model::BrushFacePredicates

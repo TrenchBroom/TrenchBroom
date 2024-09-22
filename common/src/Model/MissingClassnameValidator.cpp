@@ -19,23 +19,19 @@
 
 #include "MissingClassnameValidator.h"
 
-#include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
 
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 } // namespace
 
 MissingClassnameValidator::MissingClassnameValidator()
@@ -53,5 +49,5 @@ void MissingClassnameValidator::doValidate(
       std::make_unique<Issue>(Type, entityNode, "Entity has no classname property"));
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

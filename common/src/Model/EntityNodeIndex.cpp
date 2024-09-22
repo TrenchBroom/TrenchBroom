@@ -32,46 +32,45 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+
+EntityNodeIndexQuery EntityNodeIndexQuery::exact(std::string pattern)
 {
-EntityNodeIndexQuery EntityNodeIndexQuery::exact(const std::string& pattern)
-{
-  return EntityNodeIndexQuery(Type_Exact, pattern);
+  return EntityNodeIndexQuery{Type::Exact, std::move(pattern)};
 }
 
-EntityNodeIndexQuery EntityNodeIndexQuery::prefix(const std::string& pattern)
+EntityNodeIndexQuery EntityNodeIndexQuery::prefix(std::string pattern)
 {
-  return EntityNodeIndexQuery(Type_Prefix, pattern);
+  return EntityNodeIndexQuery{Type::Prefix, std::move(pattern)};
 }
 
-EntityNodeIndexQuery EntityNodeIndexQuery::numbered(const std::string& pattern)
+EntityNodeIndexQuery EntityNodeIndexQuery::numbered(std::string pattern)
 {
-  return EntityNodeIndexQuery(Type_Numbered, pattern);
+  return EntityNodeIndexQuery{Type::Numbered, std::move(pattern)};
 }
 
 EntityNodeIndexQuery EntityNodeIndexQuery::any()
 {
-  return EntityNodeIndexQuery(Type_Any);
+  return EntityNodeIndexQuery{Type::Any};
 }
 
 std::set<EntityNodeBase*> EntityNodeIndexQuery::execute(
   const EntityNodeStringIndex& index) const
 {
-  std::set<EntityNodeBase*> result;
+  auto result = std::set<EntityNodeBase*>{};
   switch (m_type)
   {
-  case Type_Exact:
+  case Type::Exact:
     index.find_matches(m_pattern, std::inserter(result, std::end(result)));
     break;
-  case Type_Prefix:
+  case Type::Prefix:
     index.find_matches(m_pattern + "*", std::inserter(result, std::end(result)));
     break;
-  case Type_Numbered:
+  case Type::Numbered:
     index.find_matches(m_pattern + "%*", std::inserter(result, std::end(result)));
     break;
-  case Type_Any:
+  case Type::Any:
     break;
     switchDefault();
   }
@@ -83,13 +82,13 @@ bool EntityNodeIndexQuery::execute(
 {
   switch (m_type)
   {
-  case Type_Exact:
+  case Type::Exact:
     return node->entity().hasProperty(m_pattern, value);
-  case Type_Prefix:
+  case Type::Prefix:
     return node->entity().hasPropertyWithPrefix(m_pattern, value);
-  case Type_Numbered:
+  case Type::Numbered:
     return node->entity().hasNumberedProperty(m_pattern, value);
-  case Type_Any:
+  case Type::Any:
     return true;
     switchDefault();
   }
@@ -101,27 +100,27 @@ std::vector<Model::EntityProperty> EntityNodeIndexQuery::execute(
   const auto& entity = node->entity();
   switch (m_type)
   {
-  case Type_Exact:
+  case Type::Exact:
     return entity.propertiesWithKey(m_pattern);
-  case Type_Prefix:
+  case Type::Prefix:
     return entity.propertiesWithPrefix(m_pattern);
-  case Type_Numbered:
+  case Type::Numbered:
     return entity.numberedProperties(m_pattern);
-  case Type_Any:
+  case Type::Any:
     return entity.properties();
     switchDefault();
   }
 }
 
-EntityNodeIndexQuery::EntityNodeIndexQuery(const Type type, const std::string& pattern)
-  : m_type(type)
-  , m_pattern(pattern)
+EntityNodeIndexQuery::EntityNodeIndexQuery(const Type type, std::string pattern)
+  : m_type{type}
+  , m_pattern{std::move(pattern)}
 {
 }
 
 EntityNodeIndex::EntityNodeIndex()
-  : m_keyIndex(std::make_unique<EntityNodeStringIndex>())
-  , m_valueIndex(std::make_unique<EntityNodeStringIndex>())
+  : m_keyIndex{std::make_unique<EntityNodeStringIndex>()}
+  , m_valueIndex{std::make_unique<EntityNodeStringIndex>()}
 {
 }
 
@@ -129,14 +128,18 @@ EntityNodeIndex::~EntityNodeIndex() = default;
 
 void EntityNodeIndex::addEntityNode(EntityNodeBase* node)
 {
-  for (const EntityProperty& property : node->entity().properties())
+  for (const auto& property : node->entity().properties())
+  {
     addProperty(node, property.key(), property.value());
+  }
 }
 
 void EntityNodeIndex::removeEntityNode(EntityNodeBase* node)
 {
-  for (const EntityProperty& property : node->entity().properties())
+  for (const auto& property : node->entity().properties())
+  {
     removeProperty(node, property.key(), property.value());
+  }
 }
 
 void EntityNodeIndex::addProperty(
@@ -157,7 +160,7 @@ std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodes(
   const EntityNodeIndexQuery& keyQuery, const std::string& value) const
 {
   // first, find Nodes which have `value` as the value for any key
-  std::vector<EntityNodeBase*> result;
+  auto result = std::vector<EntityNodeBase*>{};
   m_valueIndex->find_matches(value, std::back_inserter(result));
   if (result.empty())
   {
@@ -165,24 +168,13 @@ std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodes(
   }
 
   result = kdl::vec_sort_and_remove_duplicates(std::move(result));
-
-  // next, remove results from the result set that don't match `keyQuery`
-  auto it = std::begin(result);
-  while (it != std::end(result))
-  {
-    const EntityNodeBase* node = *it;
-    if (!keyQuery.execute(node, value))
-      it = result.erase(it);
-    else
-      ++it;
-  }
-
+  std::erase_if(result, [&](const auto* node) { return !keyQuery.execute(node, value); });
   return result;
 }
 
 std::vector<std::string> EntityNodeIndex::allKeys() const
 {
-  std::vector<std::string> result;
+  auto result = std::vector<std::string>{};
   m_keyIndex->get_keys(std::back_inserter(result));
   return result;
 }
@@ -190,9 +182,9 @@ std::vector<std::string> EntityNodeIndex::allKeys() const
 std::vector<std::string> EntityNodeIndex::allValuesForKeys(
   const EntityNodeIndexQuery& keyQuery) const
 {
-  std::vector<std::string> result;
+  auto result = std::vector<std::string>{};
 
-  const std::set<EntityNodeBase*> nameResult = keyQuery.execute(*m_keyIndex);
+  const auto nameResult = keyQuery.execute(*m_keyIndex);
   for (const auto node : nameResult)
   {
     const auto matchingProperties = keyQuery.execute(node);
@@ -204,5 +196,5 @@ std::vector<std::string> EntityNodeIndex::allValuesForKeys(
 
   return result;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

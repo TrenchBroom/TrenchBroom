@@ -20,8 +20,6 @@
 #include "UVCoordSystem.h"
 
 #include "Model/BrushFace.h"
-#include "Model/ParallelUVCoordSystem.h"
-#include "Model/ParaxialUVCoordSystem.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"

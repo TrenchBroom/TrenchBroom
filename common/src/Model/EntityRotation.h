@@ -23,8 +23,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
-
 #include <iosfwd>
 #include <optional>
 #include <string>

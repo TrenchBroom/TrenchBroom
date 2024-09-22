@@ -19,8 +19,6 @@
 
 #include "Brush.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -32,13 +30,11 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/intersection.h"
-#include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/polygon.h"
+#include "vm/ray.h" // IWYU pragma: keep
 #include "vm/segment.h"
 #include "vm/util.h"
 #include "vm/vec.h"
@@ -304,8 +300,8 @@ static const BrushFace* findBestMatchingFace(
       });
   }
 
-  // No coplanar faces. Return the one with the smallest "face center off reference plane"
-  // distance.
+  // No coplanar faces. Return the one with the smallest "face center off reference
+  // plane" distance.
   const auto faceCenterOffPlaneDist = [&](const BrushFace* candidate) -> FloatType {
     return vm::abs(face.boundary().point_distance(candidate->center()));
   };
@@ -453,17 +449,17 @@ std::vector<vm::segment3> Brush::findClosestEdgePositions(
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
-  std::vector<vm::segment3> result;
+  auto result = std::vector<vm::segment3>{};
   result.reserve(positions.size());
 
   for (const auto& edgePosition : positions)
   {
-    const auto* newEdge = m_geometry->findClosestEdge(
-      edgePosition.start(), edgePosition.end(), CloseVertexEpsilon);
-    if (newEdge != nullptr)
+    if (
+      const auto* newEdge = m_geometry->findClosestEdge(
+        edgePosition.start(), edgePosition.end(), CloseVertexEpsilon))
     {
-      result.push_back(vm::segment3(
-        newEdge->firstVertex()->position(), newEdge->secondVertex()->position()));
+      result.emplace_back(
+        newEdge->firstVertex()->position(), newEdge->secondVertex()->position());
     }
   }
 
@@ -475,16 +471,16 @@ std::vector<vm::polygon3> Brush::findClosestFacePositions(
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
-  std::vector<vm::polygon3> result;
+  auto result = std::vector<vm::polygon3>{};
   result.reserve(positions.size());
 
   for (const auto& facePosition : positions)
   {
-    const auto* newFace =
-      m_geometry->findClosestFace(facePosition.vertices(), CloseVertexEpsilon);
-    if (newFace != nullptr)
+    if (
+      const auto* newFace =
+        m_geometry->findClosestFace(facePosition.vertices(), CloseVertexEpsilon))
     {
-      result.push_back(vm::polygon3(newFace->vertexPositions()));
+      result.emplace_back(newFace->vertexPositions());
     }
   }
 
@@ -771,20 +767,20 @@ Result<void> Brush::moveFaces(
 }
 
 Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g)
-  : success(s)
-  , geometry(std::make_unique<BrushGeometry>(std::move(g)))
+  : success{s}
+  , geometry{std::make_unique<BrushGeometry>(std::move(g))}
 {
 }
 
 Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove()
 {
-  return CanMoveVerticesResult(false, BrushGeometry());
+  return {false, BrushGeometry{}};
 }
 
 Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(
   BrushGeometry&& result)
 {
-  return CanMoveVerticesResult(true, std::move(result));
+  return {true, std::move(result)};
 }
 
 /*
@@ -811,9 +807,10 @@ Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(
  ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a
  polyhedron. no     - This case is always forbidden. invert - This case is handled by
  swapping the remaining and the moving fragments and inverting the delta. This takes us
- from a cell at (column, row) to the cell at (row, column). check  - Check whether any of
- the moved vertices would travel through the remaining fragment, or vice versa if inverted
- case. Also check whether the brush would become invalid, i.e., not a polyhedron.
+ from a cell at (column, row) to the cell at (row, column). check  - Check whether any
+ of the moved vertices would travel through the remaining fragment, or vice versa if
+ inverted case. Also check whether the brush would become invalid, i.e., not a
+ polyhedron.
 
  If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
 
@@ -1008,8 +1005,8 @@ std::optional<vm::mat4x4> Brush::findTransformForUVLock(
     });
 
   // If 3 or more are unmoving, give up.
-  // (Picture a square with one corner being moved, we can't possibly lock the UV's of all
-  // 4 corners.)
+  // (Picture a square with one corner being moved, we can't possibly lock the UV's of
+  // all 4 corners.)
   if (unmovedVerts.size() >= 3)
   {
     return std::nullopt;
@@ -1024,8 +1021,8 @@ std::optional<vm::mat4x4> Brush::findTransformForUVLock(
   }
   // TODO: When there are multiple choices of moving verts (unmovedVerts.size() +
   // movedVerts.size() > 3) we should sort them somehow. This can be seen if you select
-  // and move 3/5 verts of a pentagon; which of the 3 moving verts currently gets UV lock
-  // is arbitrary.
+  // and move 3/5 verts of a pentagon; which of the 3 moving verts currently gets UV
+  // lock is arbitrary.
   referenceVerts = kdl::vec_concat(std::move(referenceVerts), movedVerts);
 
   if (referenceVerts.size() < 3)

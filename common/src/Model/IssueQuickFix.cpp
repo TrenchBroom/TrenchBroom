@@ -27,10 +27,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 IssueQuickFix::IssueQuickFix(std::string description, MultiIssueFix fix)
   : m_description{std::move(description)}
   , m_fix{std::move(fix)}
@@ -130,5 +129,5 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
             }
           }};
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

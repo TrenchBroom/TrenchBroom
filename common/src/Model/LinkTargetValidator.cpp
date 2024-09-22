@@ -19,24 +19,18 @@
 
 #include "LinkTargetValidator.h"
 
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
-#include "Model/MapFacade.h"
-#include "Model/PushSelection.h"
 
-#include <map>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 
 void validateInternal(
   EntityNodeBase& entityNode,
@@ -68,5 +62,4 @@ void LinkTargetValidator::doValidate(
   validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

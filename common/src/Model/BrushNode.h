@@ -28,28 +28,22 @@
 #include "Model/Object.h"
 #include "Model/TagType.h"
 
-#include "kdl/result_forward.h"
-
-#include "vm/forward.h"
-
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class BrushRendererBrushCache;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class GroupNode;
@@ -177,5 +171,5 @@ private:
 
 bool operator==(const BrushNode& lhs, const BrushNode& rhs);
 bool operator!=(const BrushNode& lhs, const BrushNode& rhs);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

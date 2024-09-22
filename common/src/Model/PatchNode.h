@@ -26,10 +26,8 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h"
-#include "vm/vec.h"
-
-#include <optional>
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/vec.h"  // IWYU pragma: keep
 
 namespace TrenchBroom::Assets
 {

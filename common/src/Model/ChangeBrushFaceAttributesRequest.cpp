@@ -20,14 +20,12 @@
 #include "ChangeBrushFaceAttributesRequest.h"
 
 #include "Macros.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 
 #include <cassert>
 #include <string>
-#include <vector>
 
 namespace TrenchBroom::Model
 {

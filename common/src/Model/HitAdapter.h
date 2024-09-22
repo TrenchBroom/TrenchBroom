@@ -19,19 +19,16 @@
 
 #pragma once
 
+#include "Model/BrushFaceHandle.h"
+
 #include <optional>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-class BrushFaceHandle;
-class EntityNode;
 class Hit;
 class Node;
-class Object;
 
 Node* hitToNode(const Hit& hit);
 std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

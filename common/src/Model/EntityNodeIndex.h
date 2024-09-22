@@ -26,9 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 class EntityProperty;
@@ -38,22 +36,22 @@ using EntityNodeStringIndex = kdl::compact_trie<EntityNodeBase*>;
 class EntityNodeIndexQuery
 {
 public:
-  typedef enum
+  enum class Type
   {
-    Type_Exact,
-    Type_Prefix,
-    Type_Numbered,
-    Type_Any
-  } Type;
+    Exact,
+    Prefix,
+    Numbered,
+    Any
+  };
 
 private:
   Type m_type;
   std::string m_pattern;
 
 public:
-  static EntityNodeIndexQuery exact(const std::string& pattern);
-  static EntityNodeIndexQuery prefix(const std::string& pattern);
-  static EntityNodeIndexQuery numbered(const std::string& pattern);
+  static EntityNodeIndexQuery exact(std::string pattern);
+  static EntityNodeIndexQuery prefix(std::string pattern);
+  static EntityNodeIndexQuery numbered(std::string pattern);
   static EntityNodeIndexQuery any();
 
   std::set<EntityNodeBase*> execute(const EntityNodeStringIndex& index) const;
@@ -61,7 +59,7 @@ public:
   std::vector<Model::EntityProperty> execute(const EntityNodeBase* node) const;
 
 private:
-  explicit EntityNodeIndexQuery(Type type, const std::string& pattern = "");
+  explicit EntityNodeIndexQuery(Type type, std::string pattern = "");
 };
 
 class EntityNodeIndex
@@ -87,5 +85,5 @@ public:
   std::vector<std::string> allKeys() const;
   std::vector<std::string> allValuesForKeys(const EntityNodeIndexQuery& keyQuery) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

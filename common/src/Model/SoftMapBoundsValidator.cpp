@@ -30,16 +30,17 @@
 
 #include "kdl/memory_utils.h"
 
+#include "vm/bbox.h"
+
 #include <optional>
 #include <string>
+#include <utility>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 
 void validateInternal(
   const std::shared_ptr<Game>& game,
@@ -60,7 +61,7 @@ void validateInternal(
 SoftMapBoundsValidator::SoftMapBoundsValidator(
   std::weak_ptr<Game> game, const WorldNode& world)
   : Validator(Type, "Objects out of soft map bounds")
-  , m_game{game}
+  , m_game{std::move(game)}
   , m_world{world}
 {
   addQuickFix(makeDeleteNodesQuickFix());
@@ -83,5 +84,5 @@ void SoftMapBoundsValidator::doValidate(
 {
   validateInternal(kdl::mem_lock(m_game), m_world, patchNode, issues);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

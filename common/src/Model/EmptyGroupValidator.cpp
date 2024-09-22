@@ -19,8 +19,6 @@
 
 #include "EmptyGroupValidator.h"
 
-#include "Assets/EntityDefinition.h"
-#include "Ensure.h"
 #include "Model/GroupNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
@@ -28,13 +26,11 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 } // namespace
 
 EmptyGroupValidator::EmptyGroupValidator()
@@ -52,5 +48,5 @@ void EmptyGroupValidator::doValidate(
       Type, groupNode, "Group '" + groupNode.name() + "' is empty"));
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

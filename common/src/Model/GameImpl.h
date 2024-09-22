@@ -26,7 +26,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -34,11 +33,6 @@ namespace TrenchBroom
 {
 class Logger;
 } // namespace TrenchBroom
-
-namespace TrenchBroom::Assets
-{
-class Palette;
-} // namespace TrenchBroom::Assets
 
 namespace TrenchBroom::Model
 {
@@ -142,4 +136,5 @@ private:
   std::string readLongAttribute(
     const EntityNodeBase& node, const std::string& baseName) const;
 };
+
 } // namespace TrenchBroom::Model

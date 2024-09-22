@@ -19,17 +19,12 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Validator.h"
-
-#include "vm/bbox.h"
 
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class WorldNode;
 class Game;
@@ -52,5 +47,4 @@ private:
   void doValidate(
     PatchNode& patchNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

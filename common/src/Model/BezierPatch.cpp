@@ -24,9 +24,9 @@
 
 #include "kdl/reflection_impl.h"
 
-#include "vm/bbox_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/bezier_surface.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>
 

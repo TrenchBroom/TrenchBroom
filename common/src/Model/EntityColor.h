@@ -26,13 +26,10 @@ namespace TrenchBroom
 {
 class Color;
 
-namespace Assets
-{
-namespace ColorRange
+namespace Assets::ColorRange
 {
 using Type = int;
 }
-} // namespace Assets
 
 namespace Model
 {

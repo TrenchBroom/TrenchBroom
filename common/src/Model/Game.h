@@ -27,15 +27,13 @@
 #include "Model/MapFormat.h"
 #include "Result.h"
 
-#include "vm/bbox.h"
-#include "vm/forward.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <filesystem>
 #include <map>
 #include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace TrenchBroom

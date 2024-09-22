@@ -21,10 +21,9 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 enum class VisibilityState
 {
   Inherited = 1,
@@ -33,5 +32,5 @@ enum class VisibilityState
 };
 
 std::ostream& operator<<(std::ostream& str, VisibilityState state);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

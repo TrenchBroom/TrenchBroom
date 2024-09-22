@@ -25,16 +25,15 @@
 #include "Model/Layer.h"
 #include "Model/Node.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <optional>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class LayerNode : public Node
 {
 private:
@@ -42,7 +41,7 @@ private:
 
   mutable vm::bbox3 m_logicalBounds;
   mutable vm::bbox3 m_physicalBounds;
-  mutable bool m_boundsValid;
+  mutable bool m_boundsValid = false;
 
   /**
    * The ID used to serialize layer nodes (see MapReader and NodeSerializer). This is set
@@ -101,5 +100,5 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(LayerNode);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

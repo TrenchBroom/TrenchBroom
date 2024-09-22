@@ -23,45 +23,17 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+namespace detail
 {
-template <typename T, typename FP, typename VP>
-Polyhedron<T, FP, VP> Polyhedron<T, FP, VP>::intersect(Polyhedron other) const
-{
-  if (!polyhedron() || !other.polyhedron())
-  {
-    return Polyhedron();
-  }
-
-  for (const Face* currentFace : m_faces)
-  {
-    const vm::plane<T, 3>& plane = currentFace->plane();
-    const ClipResult result = other.clip(plane);
-    if (result.empty())
-    {
-      return Polyhedron();
-    }
-  }
-
-  return other;
-}
 
 template <typename T, typename FP, typename VP>
-std::vector<Polyhedron<T, FP, VP>> Polyhedron<T, FP, VP>::subtract(
-  const Polyhedron& subtrahend) const
-{
-  Subtract subtract(*this, subtrahend);
-  return subtract.result();
-}
-
-template <typename T, typename FP, typename VP>
-class Polyhedron<T, FP, VP>::Subtract
+class Subtract
 {
 private:
-  const Polyhedron& m_minuend;
-  Polyhedron m_subtrahend;
+  const Polyhedron<T, FP, VP>& m_minuend;
+  Polyhedron<T, FP, VP> m_subtrahend;
 
   using Fragments = std::vector<Polyhedron<T, FP, VP>>;
   Fragments m_fragments;
@@ -69,9 +41,9 @@ private:
   using PlaneList = std::vector<vm::plane<T, 3>>;
 
 public:
-  Subtract(const Polyhedron& minuend, const Polyhedron& subtrahend)
-    : m_minuend(minuend)
-    , m_subtrahend(subtrahend)
+  Subtract(const Polyhedron<T, FP, VP>& minuend, Polyhedron<T, FP, VP> subtrahend)
+    : m_minuend{minuend}
+    , m_subtrahend{std::move(subtrahend)}
   {
     if (clipSubtrahend())
     {
@@ -97,9 +69,9 @@ private:
    */
   bool clipSubtrahend()
   {
-    for (const Face* face : m_minuend.faces())
+    for (const auto* face : m_minuend.faces())
     {
-      const ClipResult result = m_subtrahend.clip(face->plane());
+      const auto result = m_subtrahend.clip(face->plane());
       if (result.empty())
       {
         return false;
@@ -111,10 +83,10 @@ private:
 
   void subtract()
   {
-    const PlaneList planes = sortPlanes(findSubtrahendPlanes());
+    const auto planes = sortPlanes(findSubtrahendPlanes());
 
     assert(m_fragments.empty());
-    doSubtract(Fragments{m_minuend}, std::begin(planes), std::end(planes));
+    doSubtract(Fragments{m_minuend}, planes.begin(), planes.end());
   }
 
   /**
@@ -122,7 +94,7 @@ private:
    */
   PlaneList findSubtrahendPlanes() const
   {
-    PlaneList result;
+    auto result = PlaneList{};
     result.reserve(m_subtrahend.faceCount());
 
     for (const auto* face : m_subtrahend.faces())
@@ -135,19 +107,19 @@ private:
 
   static PlaneList sortPlanes(PlaneList planes)
   {
-    auto it = std::begin(planes);
+    auto it = planes.begin();
     it = sortPlanes(
       it,
-      std::end(planes),
-      {vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_y(), vm::vec<T, 3>::pos_z()});
+      planes.end(),
+      {vm::vec<T, 3>{1, 0, 0}, vm::vec<T, 3>{0, 1, 0}, vm::vec<T, 3>{0, 0, 1}});
     it = sortPlanes(
       it,
-      std::end(planes),
-      {vm::vec<T, 3>::pos_y(), vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_z()});
+      planes.end(),
+      {vm::vec<T, 3>{0, 1, 0}, vm::vec<T, 3>{1, 0, 0}, vm::vec<T, 3>{0, 0, 1}});
     sortPlanes(
       it,
-      std::end(planes),
-      {vm::vec<T, 3>::pos_z(), vm::vec<T, 3>::pos_x(), vm::vec<T, 3>::pos_y()});
+      planes.end(),
+      {vm::vec<T, 3>{0, 0, 1}, vm::vec<T, 3>{1, 0, 0}, vm::vec<T, 3>{0, 1, 0}});
 
     return planes;
   }
@@ -184,18 +156,18 @@ private:
     assert(begin != end);
     assert(!axes.empty());
 
-    vm::vec<T, 3> axis = axes.front();
+    auto axis = axes.front();
     auto bestIt = end;
     for (auto it = begin; it != end; ++it)
     {
       auto newBestIt = selectPlane(it, bestIt, end, axis);
 
       // Resolve ambiguities if necessary.
-      for (auto axIt = std::next(std::begin(axes)), axEnd = std::end(axes);
+      for (auto axIt = std::next(axes.begin()), axEnd = axes.end();
            newBestIt == end && axIt != axEnd;
            ++axIt)
       {
-        const vm::vec<T, 3>& altAxis = *axIt;
+        const auto& altAxis = *axIt;
         newBestIt = selectPlane(it, bestIt, end, altAxis);
         if (newBestIt != end)
         {
@@ -214,7 +186,7 @@ private:
       return end;
     }
 
-    if (vm::abs(dot(bestIt->normal, axis)) < 0.5)
+    if (vm::abs(vm::dot(bestIt->normal, axis)) < 0.5)
     {
       return begin;
     }
@@ -226,8 +198,8 @@ private:
     bestIt = end;
     for (auto it = begin; it != end; ++it)
     {
-      const T bestDot = bestIt != end ? dot(bestIt->normal, axis) : 0.0;
-      const T curDot = dot(it->normal, axis);
+      const auto bestDot = bestIt != end ? vm::dot(bestIt->normal, axis) : 0.0;
+      const auto curDot = vm::dot(it->normal, axis);
 
       if (curDot > bestDot)
       {
@@ -263,7 +235,7 @@ private:
     typename PlaneList::iterator end,
     const vm::vec<T, 3>& axis)
   {
-    const T curDot = vm::dot(curIt->normal, axis);
+    const auto curDot = vm::dot(curIt->normal, axis);
     if (curDot == 0.0)
     {
       return bestIt;
@@ -273,12 +245,12 @@ private:
       return curIt;
     }
 
-    const T bestDot = bestIt != end ? vm::dot(bestIt->normal, axis) : 0.0;
+    const auto bestDot = bestIt != end ? vm::dot(bestIt->normal, axis) : 0.0;
     if (vm::abs(curDot) > vm::abs(bestDot))
     {
       return curIt;
     }
-    else if (vm::abs(curDot) < vm::abs(bestDot))
+    if (vm::abs(curDot) < vm::abs(bestDot))
     {
       return bestIt; // implies bestIt != end
     }
@@ -316,12 +288,12 @@ private:
 
     // clip the list of minutendFragments into a list of those in front of the
     // currentPlane, and those behind
-    Fragments backFragments;
+    auto backFragments = Fragments{};
 
-    for (const Polyhedron& fragment : fragments)
+    for (const auto& fragment : fragments)
     {
       // the front fragments go directly into the result set.
-      Polyhedron<T, FP, VP> fragmentInFront = fragment;
+      auto fragmentInFront = fragment;
       const auto frontClipResult = fragmentInFront.clip(curPlaneInv);
 
       if (!frontClipResult.empty())
@@ -330,7 +302,7 @@ private:
       }
 
       // back fragments need to be clipped by the rest of the subtrahend planes
-      Polyhedron<T, FP, VP> fragmentBehind = fragment;
+      auto fragmentBehind = fragment;
       const auto backClipResult = fragmentBehind.clip(curPlane);
       if (!backClipResult.empty())
       {
@@ -342,5 +314,36 @@ private:
     doSubtract(backFragments, std::next(curPlaneIt), endPlaneIt);
   }
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace detail
+
+template <typename T, typename FP, typename VP>
+Polyhedron<T, FP, VP> Polyhedron<T, FP, VP>::intersect(Polyhedron other) const
+{
+  if (!polyhedron() || !other.polyhedron())
+  {
+    return Polyhedron{};
+  }
+
+  for (const auto* currentFace : m_faces)
+  {
+    const auto& plane = currentFace->plane();
+    const auto result = other.clip(plane);
+    if (result.empty())
+    {
+      return Polyhedron{};
+    }
+  }
+
+  return other;
+}
+
+template <typename T, typename FP, typename VP>
+std::vector<Polyhedron<T, FP, VP>> Polyhedron<T, FP, VP>::subtract(
+  const Polyhedron& subtrahend) const
+{
+  auto subtract = detail::Subtract{*this, subtrahend};
+  return subtract.result();
+}
+
+} // namespace TrenchBroom::Model

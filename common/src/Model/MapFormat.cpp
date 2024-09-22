@@ -33,42 +33,39 @@ MapFormat formatFromName(const std::string& formatName)
   {
     return MapFormat::Standard;
   }
-  else if (formatName == "Quake2")
+  if (formatName == "Quake2")
   {
     return MapFormat::Quake2;
   }
-  else if (formatName == "Quake2 (Valve)")
+  if (formatName == "Quake2 (Valve)")
   {
     return MapFormat::Quake2_Valve;
   }
-  else if (formatName == "Valve")
+  if (formatName == "Valve")
   {
     return MapFormat::Valve;
   }
-  else if (formatName == "Hexen2")
+  if (formatName == "Hexen2")
   {
     return MapFormat::Hexen2;
   }
-  else if (formatName == "Daikatana")
+  if (formatName == "Daikatana")
   {
     return MapFormat::Daikatana;
   }
-  else if (formatName == "Quake3 (legacy)")
+  if (formatName == "Quake3 (legacy)")
   {
     return MapFormat::Quake3_Legacy;
   }
-  else if (formatName == "Quake3 (Valve)")
+  if (formatName == "Quake3 (Valve)")
   {
     return MapFormat::Quake3_Valve;
   }
-  else if (formatName == "Quake3")
+  if (formatName == "Quake3")
   {
     return MapFormat::Quake3;
   }
-  else
-  {
-    return MapFormat::Unknown;
-  }
+  return MapFormat::Unknown;
 }
 
 std::ostream& operator<<(std::ostream& lhs, const MapFormat rhs)

@@ -28,7 +28,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/util.h"
 
 #include <algorithm>

@@ -20,15 +20,13 @@
 #pragma once
 
 #include "FloatType.h"
-#include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Forward.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 using Polyhedron3 =
   Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+
 }
-} // namespace TrenchBroom

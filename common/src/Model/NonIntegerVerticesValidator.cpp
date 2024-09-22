@@ -19,33 +19,29 @@
 
 #include "NonIntegerVerticesValidator.h"
 
-#include "Model/BrushGeometry.h"
+#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 
 IssueQuickFix makeSnapVerticesQuickFix()
 {
-  return {"Snap Vertices", [](MapFacade& facade, const std::vector<const Issue*>&) {
-            facade.snapVertices(1);
-          }};
+  return {"Snap Vertices", [](auto& facade, const auto&) { facade.snapVertices(1); }};
 }
 } // namespace
 
 NonIntegerVerticesValidator::NonIntegerVerticesValidator()
-  : Validator(Type, "Non-integer vertices")
+  : Validator{Type, "Non-integer vertices"}
 {
   addQuickFix(makeSnapVerticesQuickFix());
 }
@@ -62,5 +58,5 @@ void NonIntegerVerticesValidator::doValidate(
       std::make_unique<Issue>(Type, brushNode, "Brush has non-integer vertices"));
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

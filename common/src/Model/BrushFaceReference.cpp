@@ -19,21 +19,19 @@
 
 #include "BrushFaceReference.h"
 
-#include "Error.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
-#include "kdl/result.h"
+#include "kdl/range_utils.h"
 #include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
-
-#include "vm/plane_io.h"
 
 #include <cassert>
+#include <ranges>
 
 namespace TrenchBroom::Model
 {
+
 BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face)
   : m_node{node}
   , m_facePlane{face.boundary()}
@@ -52,16 +50,17 @@ Result<BrushFaceHandle> BrushFaceReference::resolve() const
 
 std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& handles)
 {
-  return kdl::vec_transform(handles, [](const auto& handle) {
-    return BrushFaceReference(handle.node(), handle.face());
-  });
+  return handles | std::views::transform([](const auto& handle) {
+           return BrushFaceReference{handle.node(), handle.face()};
+         })
+         | kdl::to<std::vector<BrushFaceReference>>();
 }
 
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
   const std::vector<BrushFaceReference>& faceRefs)
 {
-  return kdl::vec_transform(
-           faceRefs, [](const auto& faceRef) { return faceRef.resolve(); })
-         | kdl::fold;
+  return faceRefs
+         | std::views::transform([](const auto& faceRef) { return faceRef.resolve(); })
+         | kdl::to<std::vector<Result<BrushFaceHandle>>>() | kdl::fold;
 }
 } // namespace TrenchBroom::Model

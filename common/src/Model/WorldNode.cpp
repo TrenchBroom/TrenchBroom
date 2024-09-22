@@ -33,19 +33,17 @@
 #include "octree.h"
 
 #include "kdl/overload.h"
-#include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/bbox_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
 
 #include <sstream>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 WorldNode::WorldNode(
   EntityPropertyConfig entityPropertyConfig, Entity entity, const MapFormat mapFormat)
   : m_entityPropertyConfig{std::move(entityPropertyConfig)}
@@ -525,5 +523,5 @@ void WorldNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

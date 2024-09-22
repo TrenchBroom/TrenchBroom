@@ -20,17 +20,14 @@
 #include "PointTrace.h"
 
 #include "Ensure.h"
-#include "Error.h"
-#include "IO/DiskIO.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/result.h"
-#include "kdl/string_utils.h"
 
 #include "vm/distance.h"
 #include "vm/ray.h"
 #include "vm/vec_io.h"
 
+#include <algorithm>
 #include <cassert>
 #include <istream>
 
@@ -39,7 +36,6 @@ namespace TrenchBroom::Model
 
 PointTrace::PointTrace(std::vector<vm::vec3f> points)
   : m_points{std::move(points)}
-  , m_current{0}
 {
   ensure(!m_points.empty(), "Point trace is not empty");
 }
@@ -66,18 +62,10 @@ const vm::vec3f& PointTrace::currentPoint() const
 
 const vm::vec3f PointTrace::currentDirection() const
 {
-  if (m_points.size() <= 1)
-  {
-    return vm::vec3f::pos_x();
-  }
-  else if (m_current >= m_points.size() - 1)
-  {
-    return vm::normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2]);
-  }
-  else
-  {
-    return vm::normalize(m_points[m_current + 1] - m_points[m_current]);
-  }
+  return m_points.size() <= 1 ? vm::vec3f::pos_x()
+         : m_current >= m_points.size() - 1
+           ? vm::normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2])
+           : vm::normalize(m_points[m_current + 1] - m_points[m_current]);
 }
 
 void PointTrace::advance()

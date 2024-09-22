@@ -24,7 +24,7 @@
 #include "kdl/reflection_decl.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <iosfwd>
 #include <vector>
@@ -35,7 +35,7 @@ class PointTrace
 {
 private:
   std::vector<vm::vec3f> m_points;
-  size_t m_current;
+  size_t m_current = 0;
 
 public:
   explicit PointTrace(std::vector<vm::vec3f> points);
@@ -54,4 +54,5 @@ public:
 };
 
 Result<PointTrace> loadPointFile(std::istream& stream);
+
 } // namespace TrenchBroom::Model

@@ -28,13 +28,11 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 
 void validateInternal(
   const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues)
@@ -71,5 +69,5 @@ void WorldBoundsValidator::doValidate(
 {
   validateInternal(m_bounds, patchNode, issues);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

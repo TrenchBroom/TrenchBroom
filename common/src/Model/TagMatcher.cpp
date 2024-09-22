@@ -28,14 +28,11 @@
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Entity.h"
 #include "Model/Game.h"
-#include "Model/GameConfig.h"
-#include "Model/GroupNode.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
-#include "Model/WorldNode.h"
+#include "Model/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/string_compare.h"
-#include "kdl/string_utils.h"
 #include "kdl/struct_io.h"
 #include "kdl/vector_utils.h"
 

@@ -24,9 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class IssueQuickFix;
 class Validator;
@@ -42,8 +40,8 @@ public:
   std::vector<const Validator*> registeredValidators() const;
   std::vector<const IssueQuickFix*> quickFixes(IssueType issueTypes) const;
 
-  void registerValidator(const std::unique_ptr<Validator> validator);
+  void registerValidator(std::unique_ptr<Validator> validator);
   void unregisterAllValidators();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -19,10 +19,8 @@
 
 #include "ParallelUVCoordSystem.h"
 
-#include "Assets/Material.h"
 #include "Ensure.h"
 #include "FloatType.h"
-#include "Macros.h"
 #include "Model/BrushFace.h"
 #include "Model/ParaxialUVCoordSystem.h"
 

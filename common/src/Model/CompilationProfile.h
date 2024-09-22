@@ -25,10 +25,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 struct CompilationProfile
 {
   std::string name;
@@ -37,5 +36,5 @@ struct CompilationProfile
 
   kdl_reflect_decl(CompilationProfile, name, workDirSpec, tasks);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -21,23 +21,21 @@
 
 #include "Assets/AssetReference.h"
 #include "FloatType.h"
-#include "Macros.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
-#include "Model/Tag.h" // BrushFace inherits from Taggable
+#include "Model/Tag.h"
 #include "Result.h"
 
 #include "kdl/reflection_decl.h"
 #include "kdl/transform_range.h"
 
-#include "vm/plane.h"
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/util.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <array>
 #include <memory>
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace TrenchBroom::Assets
@@ -95,14 +93,14 @@ private:
 
   Assets::AssetReference<Assets::Material> m_materialReference;
   std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
-  BrushFaceGeometry* m_geometry;
+  BrushFaceGeometry* m_geometry = nullptr;
 
-  mutable size_t m_lineNumber;
-  mutable size_t m_lineCount;
-  bool m_selected;
+  mutable size_t m_lineNumber = 0;
+  mutable size_t m_lineCount = 0;
+  bool m_selected = false;
 
   // brush renderer
-  mutable bool m_markedToRenderFace;
+  mutable bool m_markedToRenderFace = false;
 
 public:
   BrushFace(const BrushFace& other);
@@ -111,7 +109,7 @@ public:
 
   friend void swap(BrushFace& lhs, BrushFace& rhs) noexcept;
 
-  ~BrushFace();
+  ~BrushFace() override;
 
   kdl_reflect_decl(BrushFace, m_points, m_boundary, m_attributes, m_materialReference);
 
@@ -175,7 +173,7 @@ public:
   BrushFace(
     const BrushFace::Points& points,
     const vm::plane3& boundary,
-    const BrushFaceAttributes& attributes,
+    BrushFaceAttributes attributes,
     std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   static void sortFaces(std::vector<BrushFace>& faces);

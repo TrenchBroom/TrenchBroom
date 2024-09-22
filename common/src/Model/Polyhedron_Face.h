@@ -34,10 +34,9 @@
 
 #include <unordered_set>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_Face<T, FP, VP>>& Polyhedron_GetFaceLink<
   T,
@@ -59,19 +58,19 @@ const kdl::intrusive_circular_link<Polyhedron_Face<T, FP, VP>>& Polyhedron_GetFa
 template <typename T, typename FP, typename VP>
 Polyhedron_Face<T, FP, VP>::Polyhedron_Face(
   HalfEdgeList&& boundary, const vm::plane<T, 3>& plane)
-  : m_boundary(std::move(boundary))
-  , m_plane(plane)
-  , m_payload(FP::defaultValue())
+  : m_boundary{std::move(boundary)}
+  , m_plane{plane}
+  , m_payload{FP::defaultValue()}
   ,
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
 // okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
-  m_link(this)
+  m_link{this}
 #pragma warning(pop)
 #else
-  m_link(this)
+  m_link{this}
 #endif
 {
   assert(m_boundary.size() >= 3);
@@ -128,7 +127,7 @@ void Polyhedron_Face<T, FP, VP>::setPayload(typename FP::Type payload)
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron_Face<T, FP, VP>::vertexCount() const
+std::size_t Polyhedron_Face<T, FP, VP>::vertexCount() const
 {
   return m_boundary.size();
 }
@@ -137,7 +136,7 @@ template <typename T, typename FP, typename VP>
 const typename Polyhedron_Face<T, FP, VP>::HalfEdge* Polyhedron_Face<T, FP, VP>::
   findHalfEdge(const vm::vec<T, 3>& origin, const T epsilon) const
 {
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
     if (vm::is_equal(halfEdge->origin()->position(), origin, epsilon))
     {
@@ -151,21 +150,18 @@ template <typename T, typename FP, typename VP>
 const typename Polyhedron_Face<T, FP, VP>::Edge* Polyhedron_Face<T, FP, VP>::findEdge(
   const vm::vec<T, 3>& first, const vm::vec<T, 3>& second, const T epsilon) const
 {
-  const HalfEdge* halfEdge = findHalfEdge(first, epsilon);
-  if (halfEdge == nullptr)
+  if (const auto* halfEdge = findHalfEdge(first, epsilon))
   {
-    return nullptr;
-  }
+    if (vm::is_equal(halfEdge->destination()->position(), second, epsilon))
+    {
+      return halfEdge->edge();
+    }
 
-  if (vm::is_equal(halfEdge->destination()->position(), second, epsilon))
-  {
-    return halfEdge->edge();
-  }
-
-  halfEdge = halfEdge->previous();
-  if (vm::is_equal(halfEdge->origin()->position(), second, epsilon))
-  {
-    return halfEdge->edge();
+    halfEdge = halfEdge->previous();
+    if (vm::is_equal(halfEdge->origin()->position(), second, epsilon))
+    {
+      return halfEdge->edge();
+    }
   }
 
   return nullptr;
@@ -174,14 +170,14 @@ const typename Polyhedron_Face<T, FP, VP>::Edge* Polyhedron_Face<T, FP, VP>::fin
 template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Face<T, FP, VP>::origin() const
 {
-  const HalfEdge* edge = m_boundary.front();
+  const auto* edge = m_boundary.front();
   return edge->origin()->position();
 }
 
 template <typename T, typename FP, typename VP>
 std::vector<vm::vec<T, 3>> Polyhedron_Face<T, FP, VP>::vertexPositions() const
 {
-  std::vector<vm::vec<T, 3>> result;
+  auto result = std::vector<vm::vec<T, 3>>{};
   result.reserve(vertexCount());
   for (const auto* halfEdge : m_boundary)
   {
@@ -194,7 +190,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron_Face<T, FP, VP>::hasVertexPosition(
   const vm::vec<T, 3>& position, const T epsilon) const
 {
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
     if (vm::is_equal(halfEdge->origin()->position(), position, epsilon))
     {
@@ -213,7 +209,7 @@ bool Polyhedron_Face<T, FP, VP>::hasVertexPositions(
     return false;
   }
 
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
     if (halfEdge->hasOrigins(positions, epsilon))
     {
@@ -233,13 +229,13 @@ T Polyhedron_Face<T, FP, VP>::distanceTo(
     return maxDistance;
   }
 
-  T closestDistance = maxDistance;
+  auto closestDistance = maxDistance;
 
   // Find the boundary edge with the origin closest to the first position.
   const HalfEdge* startEdge = nullptr;
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
-    const T currentDistance =
+    const auto currentDistance =
       vm::distance(halfEdge->origin()->position(), positions.front());
     if (currentDistance < closestDistance)
     {
@@ -249,14 +245,14 @@ T Polyhedron_Face<T, FP, VP>::distanceTo(
   }
 
   // No vertex is within maxDistance of the first of the given positions.
-  if (startEdge == nullptr)
+  if (!startEdge)
   {
     return maxDistance;
   }
 
   // now find the maximum distance of all points
-  const HalfEdge* firstEdge = startEdge;
-  const HalfEdge* currentEdge = firstEdge->next();
+  const auto* firstEdge = startEdge;
+  const auto* currentEdge = firstEdge->next();
   auto posIt = std::next(std::begin(positions));
   do
   {
@@ -273,7 +269,7 @@ T Polyhedron_Face<T, FP, VP>::distanceTo(
 template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Face<T, FP, VP>::normal() const
 {
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
     const auto& p1 = halfEdge->origin()->position();
     const auto& p2 = halfEdge->next()->origin()->position();
@@ -285,13 +281,13 @@ vm::vec<T, 3> Polyhedron_Face<T, FP, VP>::normal() const
     }
   }
 
-  return vm::vec<T, 3>::zero();
+  return vm::vec<T, 3>{0, 0, 0};
 }
 
 template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Face<T, FP, VP>::center() const
 {
-  return vm::average(std::begin(m_boundary), std::end(m_boundary), [](const HalfEdge* e) {
+  return vm::average(m_boundary.begin(), m_boundary.end(), [](const auto* e) {
     return e->origin()->position();
   });
 }
@@ -320,18 +316,9 @@ vm::plane_status Polyhedron_Face<T, FP, VP>::pointStatus(
 {
   const auto norm = normal();
   const auto distance = vm::dot(point - origin(), norm);
-  if (distance > epsilon)
-  {
-    return vm::plane_status::above;
-  }
-  else if (distance < -epsilon)
-  {
-    return vm::plane_status::below;
-  }
-  else
-  {
-    return vm::plane_status::inside;
-  }
+  return distance > epsilon    ? vm::plane_status::above
+         : distance < -epsilon ? vm::plane_status::below
+                               : vm::plane_status::inside;
 }
 
 template <typename T, typename FP, typename VP>
@@ -340,19 +327,20 @@ bool Polyhedron_Face<T, FP, VP>::coplanar(const Face* other, const T epsilon) co
   assert(other != nullptr);
 
   // Test if the normals are colinear by checking their enclosed angle.
-  if (1.0 - dot(normal(), other->normal()) >= vm::constants<T>::colinear_epsilon())
+  if (T(1) - vm::dot(normal(), other->normal()) >= vm::constants<T>::colinear_epsilon())
   {
     return false;
   }
 
-  const vm::plane<T, 3> myPlane(m_boundary.front()->origin()->position(), normal());
+  const auto myPlane =
+    vm::plane<T, 3>{m_boundary.front()->origin()->position(), normal()};
   if (!other->verticesOnPlane(myPlane, epsilon))
   {
     return false;
   }
 
-  const vm::plane<T, 3> otherPlane(
-    other->boundary().front()->origin()->position(), other->normal());
+  const auto otherPlane =
+    vm::plane<T, 3>{other->boundary().front()->origin()->position(), other->normal()};
   return verticesOnPlane(otherPlane, epsilon);
 }
 
@@ -360,7 +348,7 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron_Face<T, FP, VP>::verticesOnPlane(
   const vm::plane<T, 3>& plane, const T epsilon) const
 {
-  for (const HalfEdge* halfEdge : m_boundary)
+  for (const auto* halfEdge : m_boundary)
   {
     const auto* vertex = halfEdge->origin();
     if (plane.point_status(vertex->position(), epsilon) != vm::plane_status::inside)
@@ -375,8 +363,8 @@ bool Polyhedron_Face<T, FP, VP>::verticesOnPlane(
 template <typename T, typename FP, typename VP>
 T Polyhedron_Face<T, FP, VP>::maximumVertexDistance(const vm::plane<T, 3>& plane) const
 {
-  T maximumDistance = static_cast<T>(0);
-  for (const HalfEdge* halfEdge : m_boundary)
+  auto maximumDistance = T(0);
+  for (const auto* halfEdge : m_boundary)
   {
     const auto* vertex = halfEdge->origin();
     maximumDistance = vm::max(plane.point_distance(vertex->position()), maximumDistance);
@@ -444,10 +432,10 @@ typename Polyhedron_Face<T, FP, VP>::HalfEdgeList Polyhedron_Face<T, FP, VP>::
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron_Face<T, FP, VP>::countAndSetFace(
+std::size_t Polyhedron_Face<T, FP, VP>::countAndSetFace(
   HalfEdge* from, HalfEdge* to, Face* face)
 {
-  size_t count = 0u;
+  std::size_t count = 0u;
   auto* cur = from;
   do
   {
@@ -459,9 +447,9 @@ size_t Polyhedron_Face<T, FP, VP>::countAndSetFace(
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron_Face<T, FP, VP>::countAndUnsetFace(HalfEdge* from, HalfEdge* to)
+std::size_t Polyhedron_Face<T, FP, VP>::countAndUnsetFace(HalfEdge* from, HalfEdge* to)
 {
-  size_t count = 0u;
+  std::size_t count = 0u;
   auto* cur = from;
   do
   {
@@ -473,7 +461,7 @@ size_t Polyhedron_Face<T, FP, VP>::countAndUnsetFace(HalfEdge* from, HalfEdge* t
 }
 
 template <typename T, typename FP, typename VP>
-size_t Polyhedron_Face<T, FP, VP>::countSharedVertices(const Face* other) const
+std::size_t Polyhedron_Face<T, FP, VP>::countSharedVertices(const Face* other) const
 {
   assert(other != nullptr);
   assert(other != this);
@@ -510,8 +498,8 @@ private:
   T m_distance;
 
   RayIntersection(const Type type, const T distance)
-    : m_type(type)
-    , m_distance(distance)
+    : m_type{type}
+    , m_distance{distance}
   {
     assert(!vm::is_nan(m_distance));
   }
@@ -538,8 +526,8 @@ template <typename T, typename FP, typename VP>
 typename std::optional<typename Polyhedron_Face<T, FP, VP>::RayIntersection>
 Polyhedron_Face<T, FP, VP>::intersectWithRay(const vm::ray<T, 3>& ray) const
 {
-  const vm::plane<T, 3> plane(origin(), normal());
-  const auto cos = dot(plane.normal, ray.direction);
+  const auto plane = vm::plane<T, 3>{origin(), normal()};
+  const auto cos = vm::dot(plane.normal, ray.direction);
 
   if (vm::is_zero(cos, vm::constants<T>::almost_zero()))
   {
@@ -547,13 +535,13 @@ Polyhedron_Face<T, FP, VP>::intersectWithRay(const vm::ray<T, 3>& ray) const
   }
 
   const auto distance = vm::intersect_ray_polygon(
-    ray, plane, std::begin(m_boundary), std::end(m_boundary), [](const HalfEdge* e) {
+    ray, plane, m_boundary.begin(), m_boundary.end(), [](const HalfEdge* e) {
       return e->origin()->position();
     });
 
   return kdl::optional_transform(distance, [&](const auto d) {
-    return cos < 0.0 ? RayIntersection::Front(d) : RayIntersection::Back(d);
+    return cos < T(0) ? RayIntersection::Front(d) : RayIntersection::Back(d);
   });
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

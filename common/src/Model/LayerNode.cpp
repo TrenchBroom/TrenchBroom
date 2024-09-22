@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
-#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
@@ -31,20 +30,15 @@
 #include "Model/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/string_utils.h"
 
 #include <algorithm>
-#include <limits>
-#include <stdexcept>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 LayerNode::LayerNode(Layer layer)
-  : m_layer(layer)
-  , m_boundsValid(false)
+  : m_layer{std::move(layer)}
 {
 }
 
@@ -159,8 +153,10 @@ void LayerNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResu
 
 void LayerNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
 {
-  for (Node* child : Node::children())
+  for (auto* child : Node::children())
+  {
     child->findNodesContaining(point, result);
+  }
 }
 
 void LayerNode::doAccept(NodeVisitor& visitor)
@@ -180,8 +176,8 @@ void LayerNode::invalidateBounds()
 
 void LayerNode::validateBounds() const
 {
-  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
-  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
+  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3{0.0});
+  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3{0.0});
   m_boundsValid = true;
 }
 
@@ -194,5 +190,5 @@ void LayerNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

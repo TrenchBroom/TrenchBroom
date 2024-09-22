@@ -24,10 +24,9 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 struct GameEngineProfile
 {
   std::string name;
@@ -36,5 +35,5 @@ struct GameEngineProfile
 
   kdl_reflect_decl(GameEngineProfile, name, path, parameterSpec);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

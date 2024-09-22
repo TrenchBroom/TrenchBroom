@@ -21,11 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/EntityModel.h"
 #include "Assets/MaterialManager.h"
-#include "Assets/Palette.h"
-#include "Ensure.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DefParser.h"
@@ -34,7 +30,7 @@
 #include "IO/EntParser.h"
 #include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/GameConfigParser.h"
 #include "IO/LoadEntityModel.h"
 #include "IO/NodeReader.h"
@@ -46,7 +42,6 @@
 #include "IO/TraversalMode.h"
 #include "IO/WorldReader.h"
 #include "Logger.h"
-#include "Macros.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -59,13 +54,9 @@
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
-#include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/vec_io.h"
-
-#include <fstream>
 #include <string>
 #include <vector>
 

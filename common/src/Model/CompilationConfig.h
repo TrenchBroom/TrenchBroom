@@ -23,15 +23,14 @@
 
 #include "kdl/reflection_decl.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 struct CompilationConfig
 {
   std::vector<CompilationProfile> profiles;
 
   kdl_reflect_decl(CompilationConfig, profiles);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

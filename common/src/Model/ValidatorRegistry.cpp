@@ -26,10 +26,9 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 ValidatorRegistry::~ValidatorRegistry() = default;
 
 std::vector<const Validator*> ValidatorRegistry::registeredValidators() const
@@ -64,5 +63,5 @@ void ValidatorRegistry::unregisterAllValidators()
 {
   m_validators.clear();
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -19,53 +19,34 @@
 
 #include "BrushNode.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/BrushGeometry.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
-#include "Model/UVCoordSystem.h"
 #include "Model/Validator.h"
 #include "Model/WorldNode.h"
-#include "Polyhedron.h"
-#include "Polyhedron_Matcher.h"
 #include "Renderer/BrushRendererBrushCache.h"
 
 #include "kdl/overload.h"
-#include "kdl/result.h"
-#include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/intersection.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-#include "vm/vec_ext.h"
 
-#include <algorithm> // for std::remove
-#include <iterator>
-#include <set>
+#include <algorithm>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
@@ -509,5 +490,5 @@ bool operator!=(const BrushNode& lhs, const BrushNode& rhs)
 {
   return !(lhs == rhs);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

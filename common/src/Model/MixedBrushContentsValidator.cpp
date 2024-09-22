@@ -27,13 +27,11 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 } // namespace
 
 MixedBrushContentsValidator::MixedBrushContentsValidator()
@@ -62,5 +60,5 @@ void MixedBrushContentsValidator::doValidate(
     ++it;
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

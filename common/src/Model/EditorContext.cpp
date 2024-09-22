@@ -21,7 +21,6 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Ensure.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -34,10 +33,9 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 EditorContext::EditorContext()
 {
   reset();
@@ -67,20 +65,19 @@ void EditorContext::setHiddenTags(const TagType::Type hiddenTags)
 
 bool EditorContext::entityDefinitionHidden(const Model::EntityNodeBase* entityNode) const
 {
-  return entityNode != nullptr
-         && entityDefinitionHidden(entityNode->entity().definition());
+  return entityNode && entityDefinitionHidden(entityNode->entity().definition());
 }
 
 bool EditorContext::entityDefinitionHidden(
   const Assets::EntityDefinition* definition) const
 {
-  return definition != nullptr && m_hiddenEntityDefinitions[definition->index()];
+  return definition && m_hiddenEntityDefinitions[definition->index()];
 }
 
 void EditorContext::setEntityDefinitionHidden(
   const Assets::EntityDefinition* definition, const bool hidden)
 {
-  if (definition != nullptr && entityDefinitionHidden(definition) != hidden)
+  if (definition && entityDefinitionHidden(definition) != hidden)
   {
     m_hiddenEntityDefinitions[definition->index()] = hidden;
     editorContextDidChangeNotifier();
@@ -108,10 +105,10 @@ Model::GroupNode* EditorContext::currentGroup() const
 
 void EditorContext::pushGroup(Model::GroupNode* groupNode)
 {
-  ensure(groupNode != nullptr, "group is null");
-  assert(m_currentGroup == nullptr || groupNode->containingGroup() == m_currentGroup);
+  ensure(groupNode, "group is null");
+  assert(!m_currentGroup || groupNode->containingGroup() == m_currentGroup);
 
-  if (m_currentGroup != nullptr)
+  if (m_currentGroup)
   {
     m_currentGroup->close();
   }
@@ -121,10 +118,11 @@ void EditorContext::pushGroup(Model::GroupNode* groupNode)
 
 void EditorContext::popGroup()
 {
-  ensure(m_currentGroup != nullptr, "currentGroup is null");
+  ensure(m_currentGroup, "currentGroup is null");
+
   m_currentGroup->close();
   m_currentGroup = m_currentGroup->containingGroup();
-  if (m_currentGroup != nullptr)
+  if (m_currentGroup)
   {
     m_currentGroup->open();
   }
@@ -133,12 +131,12 @@ void EditorContext::popGroup()
 bool EditorContext::visible(const Model::Node* node) const
 {
   return node->accept(kdl::overload(
-    [&](const WorldNode* world) { return visible(world); },
-    [&](const LayerNode* layer) { return visible(layer); },
-    [&](const GroupNode* group) { return visible(group); },
-    [&](const EntityNode* entity) { return visible(entity); },
-    [&](const BrushNode* brush) { return visible(brush); },
-    [&](const PatchNode* patch) { return visible(patch); }));
+    [&](const WorldNode* worldNode) { return visible(worldNode); },
+    [&](const LayerNode* layerNode) { return visible(layerNode); },
+    [&](const GroupNode* groupNode) { return visible(groupNode); },
+    [&](const EntityNode* entityNode) { return visible(entityNode); },
+    [&](const BrushNode* brushNode) { return visible(brushNode); },
+    [&](const PatchNode* patchNode) { return visible(patchNode); }));
 }
 
 bool EditorContext::visible(const Model::WorldNode* worldNode) const
@@ -173,11 +171,7 @@ bool EditorContext::visible(const Model::EntityNode* entityNode) const
 
   if (!entityNode->entity().pointEntity())
   {
-    if (!anyChildVisible(entityNode))
-    {
-      return false;
-    }
-    return true;
+    return anyChildVisible(entityNode);
   }
 
   if (!entityNode->visible())
@@ -252,9 +246,8 @@ bool EditorContext::visible(const Model::PatchNode* patchNode) const
 bool EditorContext::anyChildVisible(const Model::Node* node) const
 {
   const auto& children = node->children();
-  return std::any_of(std::begin(children), std::end(children), [this](const Node* child) {
-    return visible(child);
-  });
+  return std::ranges::any_of(
+    children, [this](const Node* child) { return visible(child); });
 }
 
 bool EditorContext::editable(const Model::Node* node) const
@@ -271,12 +264,12 @@ bool EditorContext::editable(
 bool EditorContext::selectable(const Model::Node* node) const
 {
   return node->accept(kdl::overload(
-    [&](const WorldNode* world) { return selectable(world); },
-    [&](const LayerNode* layer) { return selectable(layer); },
-    [&](const GroupNode* group) { return selectable(group); },
-    [&](const EntityNode* entity) { return selectable(entity); },
-    [&](const BrushNode* brush) { return selectable(brush); },
-    [&](const PatchNode* patch) { return selectable(patch); }));
+    [&](const WorldNode* worldNode) { return selectable(worldNode); },
+    [&](const LayerNode* layerNode) { return selectable(layerNode); },
+    [&](const GroupNode* groupNode) { return selectable(groupNode); },
+    [&](const EntityNode* entityNode) { return selectable(entityNode); },
+    [&](const BrushNode* brushNode) { return selectable(brushNode); },
+    [&](const PatchNode* patchNode) { return selectable(patchNode); }));
 }
 
 bool EditorContext::selectable(const Model::WorldNode*) const
@@ -326,5 +319,5 @@ bool EditorContext::inOpenGroup(const Model::Object* object) const
 {
   return object->containingGroupOpened();
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

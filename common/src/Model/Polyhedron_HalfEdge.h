@@ -21,9 +21,7 @@
 
 #include "Polyhedron.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_HalfEdge<T, FP, VP>>& Polyhedron_GetHalfEdgeLink<
@@ -44,19 +42,17 @@ Polyhedron_GetHalfEdgeLink<T, FP, VP>::operator()(
 
 template <typename T, typename FP, typename VP>
 Polyhedron_HalfEdge<T, FP, VP>::Polyhedron_HalfEdge(Vertex* origin)
-  : m_origin(origin)
-  , m_edge(nullptr)
-  , m_face(nullptr)
+  : m_origin{origin}
   ,
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
 // okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
-  m_link(this)
+  m_link{this}
 #pragma warning(pop)
 #else
-  m_link(this)
+  m_link{this}
 #endif
 {
   assert(m_origin != nullptr);
@@ -132,8 +128,8 @@ template <typename T, typename FP, typename VP>
 bool Polyhedron_HalfEdge<T, FP, VP>::hasOrigins(
   const std::vector<vm::vec<T, 3>>& origins, const T epsilon) const
 {
-  const HalfEdge* edge = this;
-  for (const vm::vec<T, 3>& origin : origins)
+  const auto* edge = this;
+  for (const auto& origin : origins)
   {
     if (!vm::is_equal(edge->origin()->position(), origin, epsilon))
     {
@@ -149,7 +145,7 @@ vm::plane_status Polyhedron_HalfEdge<T, FP, VP>::pointStatus(
   const vm::vec<T, 3>& normal, const vm::vec<T, 3>& point, const T epsilon) const
 {
   const auto planeNormal = vm::normalize(vm::cross(vm::normalize(vector()), normal));
-  const auto plane = vm::plane<T, 3>(origin()->position(), planeNormal);
+  const auto plane = vm::plane<T, 3>{origin()->position(), planeNormal};
   return plane.point_status(point, epsilon);
 }
 
@@ -210,5 +206,5 @@ void Polyhedron_HalfEdge<T, FP, VP>::setAsLeaving()
 {
   m_origin->setLeaving(this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

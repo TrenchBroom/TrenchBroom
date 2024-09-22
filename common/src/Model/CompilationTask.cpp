@@ -21,9 +21,9 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom
-{
-namespace Model
+#include <ostream>
+
+namespace TrenchBroom::Model
 {
 
 kdl_reflect_impl(CompilationExportMap);
@@ -42,5 +42,4 @@ std::ostream& operator<<(std::ostream& lhs, const CompilationTask& rhs)
   return lhs;
 }
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

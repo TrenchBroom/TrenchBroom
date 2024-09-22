@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityPropertiesVariableStore.h"
-#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
@@ -32,17 +31,13 @@
 #include "Model/Validator.h"
 
 #include "kdl/overload.h"
-#include "kdl/result.h"
-#include "kdl/string_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/mat.h"
-#include "vm/mat_ext.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <optional>
 #include <vector>

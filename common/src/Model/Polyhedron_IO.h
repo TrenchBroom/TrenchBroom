@@ -21,13 +21,9 @@
 
 #include "Polyhedron.h"
 
-#include "kdl/intrusive_circular_list.h"
-
 #include <ostream>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 /**
  * Appends a textual representation of the given vertices' position to the given stream.
@@ -45,7 +41,7 @@ std::ostream& operator<<(std::ostream& stream, const Polyhedron_Vertex<T, FP, VP
 template <typename T, typename FP, typename VP>
 std::ostream& operator<<(std::ostream& stream, const Polyhedron_Edge<T, FP, VP>& edge)
 {
-  if (edge.firstEdge() != nullptr)
+  if (edge.firstEdge())
   {
     stream << *edge.firstEdge()->origin();
   }
@@ -54,7 +50,7 @@ std::ostream& operator<<(std::ostream& stream, const Polyhedron_Edge<T, FP, VP>&
     stream << "NULL";
   }
   stream << " <--> ";
-  if (edge.secondEdge() != nullptr)
+  if (edge.secondEdge())
   {
     stream << *edge.secondEdge()->origin();
   }
@@ -72,7 +68,7 @@ template <typename T, typename FP, typename VP>
 std::ostream& operator<<(std::ostream& stream, const Polyhedron_HalfEdge<T, FP, VP>& edge)
 {
   stream << *edge.origin() << " --> ";
-  if (edge.destination() != nullptr)
+  if (edge.destination())
   {
     stream << *edge.destination();
   }
@@ -89,11 +85,11 @@ std::ostream& operator<<(std::ostream& stream, const Polyhedron_HalfEdge<T, FP, 
 template <typename T, typename FP, typename VP>
 std::ostream& operator<<(std::ostream& stream, const Polyhedron_Face<T, FP, VP>& face)
 {
-  for (const Polyhedron_HalfEdge<T, FP, VP>* edge : face.boundary())
+  for (const auto* edge : face.boundary())
   {
     stream << *edge << "\n";
   }
   return stream;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

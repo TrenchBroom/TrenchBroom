@@ -31,14 +31,12 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/bbox.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
 #include <algorithm>
-
 
 namespace TrenchBroom::Model
 {

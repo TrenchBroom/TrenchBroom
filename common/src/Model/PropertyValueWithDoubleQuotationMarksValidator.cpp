@@ -19,9 +19,8 @@
 
 #include "PropertyValueWithDoubleQuotationMarksValidator.h"
 
-#include "Model/BrushNode.h"
 #include "Model/Entity.h"
-#include "Model/EntityNode.h"
+#include "Model/EntityNodeBase.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 
@@ -30,13 +29,11 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 } // namespace
 
 PropertyValueWithDoubleQuotationMarksValidator::
@@ -69,5 +66,5 @@ void PropertyValueWithDoubleQuotationMarksValidator::doValidate(
     }
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

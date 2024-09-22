@@ -22,8 +22,6 @@
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
-#include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelUVCoordSystem.h"
@@ -33,24 +31,22 @@
 #include "Model/UVCoordSystem.h"
 #include "Polyhedron.h"
 
-#include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
-#include "kdl/string_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/plane.h"
-#include "vm/plane_io.h"
+#include "vm/plane_io.h" // IWYU pragma: keep
 #include "vm/polygon.h"
 #include "vm/scalar.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <sstream>
 #include <string>
+#include <utility>
 
 namespace TrenchBroom::Model
 {
@@ -67,32 +63,32 @@ const BrushEdge* BrushFace::TransformHalfEdgeToEdge::operator()(
 }
 
 BrushFace::BrushFace(const BrushFace& other)
-  : Taggable(other)
-  , m_points(other.m_points)
-  , m_boundary(other.m_boundary)
-  , m_attributes(other.m_attributes)
-  , m_materialReference(other.m_materialReference)
-  , m_uvCoordSystem(other.m_uvCoordSystem ? other.m_uvCoordSystem->clone() : nullptr)
-  , m_geometry(nullptr)
-  , m_lineNumber(other.m_lineNumber)
-  , m_lineCount(other.m_lineCount)
-  , m_selected(other.m_selected)
-  , m_markedToRenderFace(false)
+  : Taggable{other}
+  , m_points{other.m_points}
+  , m_boundary{other.m_boundary}
+  , m_attributes{other.m_attributes}
+  , m_materialReference{other.m_materialReference}
+  , m_uvCoordSystem{other.m_uvCoordSystem ? other.m_uvCoordSystem->clone() : nullptr}
+  , m_lineNumber{other.m_lineNumber}
+  , m_lineCount{other.m_lineCount}
+  , m_selected{other.m_selected}
 {
 }
 
 BrushFace::BrushFace(BrushFace&& other) noexcept
-  : Taggable(other)
-  , m_points(std::move(other.m_points))
-  , m_boundary(std::move(other.m_boundary))
-  , m_attributes(std::move(other.m_attributes))
-  , m_materialReference(std::move(other.m_materialReference))
-  , m_uvCoordSystem(std::move(other.m_uvCoordSystem))
-  , m_geometry(other.m_geometry)
-  , m_lineNumber(other.m_lineNumber)
-  , m_lineCount(other.m_lineCount)
-  , m_selected(other.m_selected)
-  , m_markedToRenderFace(false)
+  : Taggable{std::move(other)}
+  /* We need to disable these warnings because the previous move is safe */
+  // NOLINTBEGIN(bugprone-use-after-move)
+  , m_points{std::move(other.m_points)}
+  , m_boundary{std::move(other.m_boundary)}
+  , m_attributes{std::move(other.m_attributes)}
+  , m_materialReference{std::move(other.m_materialReference)}
+  , m_uvCoordSystem{std::move(other.m_uvCoordSystem)}
+  , m_geometry{other.m_geometry}
+  , m_lineNumber{other.m_lineNumber}
+  , m_lineCount{other.m_lineCount}
+  , m_selected{other.m_selected}
+// NOLINTEND(bugprone-use-after-move)
 {
 }
 
@@ -132,17 +128,19 @@ Result<BrushFace> BrushFace::create(
 {
   return Model::isParallelUVCoordSystem(mapFormat)
            ? BrushFace::create(
-             point0,
-             point1,
-             point2,
-             attributes,
-             std::make_unique<ParallelUVCoordSystem>(point0, point1, point2, attributes))
+               point0,
+               point1,
+               point2,
+               attributes,
+               std::make_unique<ParallelUVCoordSystem>(
+                 point0, point1, point2, attributes))
            : BrushFace::create(
-             point0,
-             point1,
-             point2,
-             attributes,
-             std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes));
+               point0,
+               point1,
+               point2,
+               attributes,
+               std::make_unique<ParaxialUVCoordSystem>(
+                 point0, point1, point2, attributes));
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
@@ -222,17 +220,12 @@ Result<BrushFace> BrushFace::create(
 BrushFace::BrushFace(
   const BrushFace::Points& points,
   const vm::plane3& boundary,
-  const BrushFaceAttributes& attributes,
+  BrushFaceAttributes attributes,
   std::unique_ptr<UVCoordSystem> uvCoordSystem)
-  : m_points(points)
-  , m_boundary(boundary)
-  , m_attributes(attributes)
-  , m_uvCoordSystem(std::move(uvCoordSystem))
-  , m_geometry(nullptr)
-  , m_lineNumber(0)
-  , m_lineCount(0)
-  , m_selected(false)
-  , m_markedToRenderFace(false)
+  : m_points{points}
+  , m_boundary{boundary}
+  , m_attributes{std::move(attributes)}
+  , m_uvCoordSystem{std::move(uvCoordSystem)}
 {
   ensure(m_uvCoordSystem != nullptr, "uvCoordSystem is null");
 }
@@ -240,9 +233,9 @@ BrushFace::BrushFace(
 void BrushFace::sortFaces(std::vector<BrushFace>& faces)
 {
   // Originally, the idea to sort faces came from TxQBSP, but the sorting used there was
-  // not entirely clear to me. But it is still desirable to have a deterministic order in
-  // which the faces are added to the brush, so I chose to just sort the faces by their
-  // normals.
+  // not entirely clear to me. But it is still desirable to have a deterministic order
+  // in which the faces are added to the brush, so I chose to just sort the faces by
+  // their normals.
 
   std::sort(std::begin(faces), std::end(faces), [](const auto& lhs, const auto& rhs) {
     const auto& lhsBoundary = lhs.boundary();
@@ -612,9 +605,9 @@ void BrushFace::flipUV(
   const FloatType vAxisCosAngle = vm::max(
     vm::dot(texVAxisInWorld, cameraRight), vm::dot(-texVAxisInWorld, cameraRight));
 
-  // If this is true, it means the V axis is closer to the camera's right vector than the
-  // U axis is (i.e. we're looking at the material sideways), so we should map "camera
-  // relative horizontal" to "material space Y".
+  // If this is true, it means the V axis is closer to the camera's right vector than
+  // the U axis is (i.e. we're looking at the material sideways), so we should map
+  // "camera relative horizontal" to "material space Y".
   const bool cameraRightCloserToV = (vAxisCosAngle > uAxisCosAngle);
 
   bool flipUAxis =
@@ -693,8 +686,8 @@ Result<void> BrushFace::updatePointsFromVertices()
              {
                const auto refPoint = project_point(*seam, center());
 
-               // Get the UV coordinates at the refPoint using the old face's attribs and
-               // UV coordinage system
+               // Get the UV coordinates at the refPoint using the old face's attribs
+               // and UV coordinage system
                const auto desriedCoords =
                  m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
 
@@ -838,11 +831,11 @@ std::optional<FloatType> BrushFace::intersectWithRay(const vm::ray3& ray) const
 
   const auto cos = vm::dot(m_boundary.normal, ray.direction);
   return cos < FloatType(0) ? vm::intersect_ray_polygon(
-           ray,
-           m_boundary,
-           m_geometry->boundary().begin(),
-           m_geometry->boundary().end(),
-           BrushGeometry::GetVertexPosition())
+                                ray,
+                                m_boundary,
+                                m_geometry->boundary().begin(),
+                                m_geometry->boundary().end(),
+                                BrushGeometry::GetVertexPosition())
                             : std::nullopt;
 }
 

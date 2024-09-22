@@ -27,7 +27,6 @@
 #include "vm/vec_io.h"  // IWYU pragma: keep
 
 #include <cassert>
-#include <ostream>
 #include <string>
 #include <vector>
 
@@ -119,4 +118,5 @@ std::filesystem::path GameConfig::findConfigFile(
 {
   return path.parent_path() / filePath;
 }
+
 } // namespace TrenchBroom::Model

@@ -19,16 +19,13 @@
 
 #pragma once
 
-#include "Macros.h"
-
 #include "kdl/reflection_decl.h"
 
+#include <iosfwd>
 #include <string>
 #include <variant>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationExportMap
 {
@@ -84,5 +81,4 @@ using CompilationTask = std::variant<
 
 std::ostream& operator<<(std::ostream& lhs, const CompilationTask& rhs);
 
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

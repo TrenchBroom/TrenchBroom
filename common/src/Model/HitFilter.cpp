@@ -19,18 +19,13 @@
 
 #include "HitFilter.h"
 
-#include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
-#include "vm/scalar.h"
-
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace HitFilters
 {
@@ -85,23 +80,23 @@ HitFilter minDistance(const FloatType minDistance)
 }
 } // namespace HitFilters
 
-HitFilter operator&&(HitFilter lhs, HitFilter rhs)
+HitFilter operator&&(HitFilter lhs_, HitFilter rhs_)
 {
-  return [lhs = std::move(lhs), rhs = std::move(rhs)](const Hit& hit) {
+  return [lhs = std::move(lhs_), rhs = std::move(rhs_)](const Hit& hit) {
     return lhs(hit) && rhs(hit);
   };
 }
 
-HitFilter operator||(HitFilter lhs, HitFilter rhs)
+HitFilter operator||(HitFilter lhs_, HitFilter rhs_)
 {
-  return [lhs = std::move(lhs), rhs = std::move(rhs)](const Hit& hit) {
+  return [lhs = std::move(lhs_), rhs = std::move(rhs_)](const Hit& hit) {
     return lhs(hit) || rhs(hit);
   };
 }
 
-HitFilter operator!(HitFilter filter)
+HitFilter operator!(HitFilter filter_)
 {
-  return [filter = std::move(filter)](const Hit& hit) { return !filter(hit); };
+  return [filter = std::move(filter_)](const Hit& hit) { return !filter(hit); };
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

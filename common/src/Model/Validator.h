@@ -26,9 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 class BrushNode;
@@ -57,7 +55,7 @@ public:
   void validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues) const;
 
 protected:
-  Validator(IssueType type, const std::string& description);
+  Validator(IssueType type, std::string description);
   void addQuickFix(IssueQuickFix quickFix);
 
 private:
@@ -76,5 +74,5 @@ private:
   virtual void doValidate(
     EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

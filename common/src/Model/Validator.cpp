@@ -19,7 +19,6 @@
 
 #include "Validator.h"
 
-#include "Ensure.h"
 #include "Model/EntityNode.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/WorldNode.h"
@@ -30,10 +29,9 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 Validator::~Validator() = default;
 
 IssueType Validator::type() const
@@ -64,9 +62,9 @@ void Validator::validate(Node& node, std::vector<std::unique_ptr<Issue>>& issues
     [&](PatchNode* patchNode) { doValidate(*patchNode, issues); }));
 }
 
-Validator::Validator(const IssueType type, const std::string& description)
+Validator::Validator(const IssueType type, std::string description)
   : m_type{type}
-  , m_description{description}
+  , m_description{std::move(description)}
 {
 }
 
@@ -90,5 +88,5 @@ void Validator::doValidate(
 void Validator::doValidate(BrushNode&, std::vector<std::unique_ptr<Issue>>&) const {}
 void Validator::doValidate(PatchNode&, std::vector<std::unique_ptr<Issue>>&) const {}
 void Validator::doValidate(EntityNodeBase&, std::vector<std::unique_ptr<Issue>>&) const {}
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

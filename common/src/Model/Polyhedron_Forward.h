@@ -21,10 +21,9 @@
 
 #include "kdl/intrusive_circular_list_forward.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 template <typename T, typename FP, typename VP>
 class Polyhedron;
 template <typename T, typename FP, typename VP>
@@ -62,5 +61,5 @@ using Polyhedron_HalfEdgeList = kdl::intrusive_circular_list<
 template <typename T, typename FP, typename VP>
 using Polyhedron_FaceList = kdl::
   intrusive_circular_list<Polyhedron_Face<T, FP, VP>, Polyhedron_GetFaceLink<T, FP, VP>>;
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

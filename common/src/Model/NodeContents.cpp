@@ -23,10 +23,9 @@
 
 #include "kdl/overload.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 NodeContents::NodeContents(
   std::variant<Layer, Group, Entity, Brush, BezierPatch> contents)
   : m_contents(std::move(contents))
@@ -55,5 +54,5 @@ std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get()
 {
   return m_contents;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

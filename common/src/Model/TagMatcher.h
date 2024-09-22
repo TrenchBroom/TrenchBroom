@@ -23,7 +23,6 @@
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
 
-#include "kdl/reflection_decl.h"
 #include "kdl/vector_set.h"
 
 #include <functional>

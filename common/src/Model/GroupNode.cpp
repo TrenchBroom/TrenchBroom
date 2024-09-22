@@ -19,17 +19,12 @@
 
 #include "GroupNode.h"
 
-#include "Ensure.h"
-#include "Error.h"
 #include "FloatType.h"
-#include "Model/Brush.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
-#include "Model/NodeContents.h"
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
@@ -37,17 +32,9 @@
 #include "Model/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/parallel.h"
-#include "kdl/result.h"
-#include "kdl/result_fold.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/ray.h"
-
-#include <functional>
 #include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom::Model

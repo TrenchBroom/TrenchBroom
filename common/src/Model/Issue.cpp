@@ -19,7 +19,6 @@
 
 #include "Model/Issue.h"
 
-#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -30,14 +29,12 @@
 #include "Model/PatchNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/vector_utils.h"
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 Issue::Issue(const IssueType type, Node& node, std::string description)
   : m_seqId{nextSeqId()}
   , m_type{type}
@@ -166,5 +163,5 @@ const std::string& EntityPropertyIssue::propertyValue() const
   const auto* value = entityNode.entity().property(propertyKey());
   return value ? *value : NoValue;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

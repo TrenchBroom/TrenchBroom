@@ -21,7 +21,6 @@
 
 #include "Model/TagManager.h"
 
-#include "kdl/string_utils.h"
 #include "kdl/struct_io.h"
 
 #include <cassert>
@@ -29,13 +28,12 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-TagAttribute::TagAttribute(const AttributeType type, const std::string& name)
-  : m_type(type)
-  , m_name(name)
+
+TagAttribute::TagAttribute(const AttributeType type, std::string name)
+  : m_type{type}
+  , m_name{std::move(name)}
 {
 }
 
@@ -71,16 +69,15 @@ std::ostream& operator<<(std::ostream& str, const TagAttribute& attr)
   return str;
 }
 
-Tag::Tag(
-  const size_t index, const std::string& name, std::vector<TagAttribute> attributes)
-  : m_index(index)
-  , m_name(name)
-  , m_attributes(std::move(attributes))
+Tag::Tag(const size_t index, std::string name, std::vector<TagAttribute> attributes)
+  : m_index{index}
+  , m_name{std::move(name)}
+  , m_attributes{std::move(attributes)}
 {
 }
 
-Tag::Tag(const std::string& name, std::vector<TagAttribute> attributes)
-  : Tag(0, name, std::move(attributes))
+Tag::Tag(std::string name, std::vector<TagAttribute> attributes)
+  : Tag{0, std::move(name), std::move(attributes)}
 {
 }
 
@@ -170,11 +167,7 @@ bool operator<(const TagReference& lhs, const TagReference& rhs)
   return *(lhs.m_tag) < *(rhs.m_tag);
 }
 
-Taggable::Taggable()
-  : m_tagMask(0)
-  , m_attributeMask(0)
-{
-}
+Taggable::Taggable() = default;
 
 void swap(Taggable& lhs, Taggable& rhs) noexcept
 {
@@ -208,11 +201,7 @@ TagType::Type Taggable::tagMask() const
 
 bool Taggable::addTag(const Tag& tag)
 {
-  if (hasTag(tag))
-  {
-    return false;
-  }
-  else
+  if (!hasTag(tag))
   {
     m_tagMask |= tag.type();
     m_tags.emplace(tag);
@@ -220,6 +209,7 @@ bool Taggable::addTag(const Tag& tag)
     updateAttributeMask();
     return true;
   }
+  return false;
 }
 
 bool Taggable::removeTag(const Tag& tag)
@@ -314,11 +304,11 @@ std::ostream& operator<<(std::ostream& str, const TagMatcher& matcher)
 }
 
 SmartTag::SmartTag(
-  const std::string& name,
+  std::string name,
   std::vector<TagAttribute> attributes,
   std::unique_ptr<TagMatcher> matcher)
-  : Tag(name, std::move(attributes))
-  , m_matcher(std::move(matcher))
+  : Tag{std::move(name), std::move(attributes)}
+  , m_matcher{std::move(matcher)}
 {
 }
 
@@ -384,5 +374,4 @@ void SmartTag::appendToStream(std::ostream& str) const
                           << "m_index" << m_index << "m_name" << m_name << "m_attributes"
                           << m_attributes << "m_matcher" << *m_matcher;
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

@@ -20,16 +20,13 @@
 #pragma once
 
 #include "FloatType.h"
-#include "Macros.h"
 #include "Model/HitType.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <any>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Hit
 {
@@ -80,5 +77,4 @@ Hit selectClosest(const Hit& first, const Hits&... rest)
 {
   return selectClosest(first, selectClosest(rest...));
 }
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

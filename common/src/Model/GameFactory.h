@@ -173,4 +173,5 @@ private:
   void writeGameEngineConfig(
     GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
+
 } // namespace TrenchBroom::Model

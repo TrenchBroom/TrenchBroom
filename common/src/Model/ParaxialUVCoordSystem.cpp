@@ -19,7 +19,6 @@
 
 #include "ParaxialUVCoordSystem.h"
 
-#include "Assets/Material.h"
 #include "Ensure.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
@@ -33,7 +32,6 @@
 #include <cassert>
 #include <cmath>
 #include <optional>
-#include <utility>
 
 namespace TrenchBroom::Model
 {
@@ -541,7 +539,7 @@ std::unique_ptr<UVCoordSystem> ParaxialUVCoordSystem::clone() const
 
 std::unique_ptr<UVCoordSystemSnapshot> ParaxialUVCoordSystem::takeSnapshot() const
 {
-  return std::unique_ptr<UVCoordSystemSnapshot>();
+  return nullptr;
 }
 
 void ParaxialUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& /* snapshot */)

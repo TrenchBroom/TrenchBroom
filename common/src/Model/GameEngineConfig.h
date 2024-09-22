@@ -23,18 +23,16 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 struct GameEngineConfig
 {
   std::vector<GameEngineProfile> profiles;
 
   kdl_reflect_decl(GameEngineConfig, profiles);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

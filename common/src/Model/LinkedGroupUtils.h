@@ -22,14 +22,13 @@
 #include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
+#include "Model/EntityNode.h" // IWYU pragma: keep
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
 #include "Model/NodeVisitor.h"
-#include "Model/PatchNode.h"
+#include "Model/PatchNode.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "Result.h"
-#include "Uuid.h"
 
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"

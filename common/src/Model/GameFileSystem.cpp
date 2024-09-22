@@ -19,11 +19,10 @@
 
 #include "GameFileSystem.h"
 
-#include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/SystemPaths.h"

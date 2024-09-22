@@ -23,7 +23,7 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/mat.h"
+#include "vm/mat.h" // IWYU pragma: keep
 
 #include <string>
 

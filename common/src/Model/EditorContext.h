@@ -24,14 +24,12 @@
 
 #include "kdl/bitset.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 class BrushNode;
@@ -110,5 +108,5 @@ private:
   EditorContext(const EditorContext&);
   EditorContext& operator=(const EditorContext&);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

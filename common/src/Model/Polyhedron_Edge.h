@@ -28,10 +28,9 @@
 #include "vm/segment.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_Edge<T, FP, VP>>& Polyhedron_GetEdgeLink<
   T,
@@ -52,8 +51,8 @@ const kdl::intrusive_circular_link<Polyhedron_Edge<T, FP, VP>>& Polyhedron_GetEd
 
 template <typename T, typename FP, typename VP>
 Polyhedron_Edge<T, FP, VP>::Polyhedron_Edge(HalfEdge* first, HalfEdge* second)
-  : m_first(first)
-  , m_second(second)
+  : m_first{first}
+  , m_second{second}
   ,
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
@@ -68,7 +67,7 @@ Polyhedron_Edge<T, FP, VP>::Polyhedron_Edge(HalfEdge* first, HalfEdge* second)
 {
   assert(m_first != nullptr);
   m_first->setEdge(this);
-  if (m_second != nullptr)
+  if (m_second)
   {
     m_second->setEdge(this);
   }
@@ -87,14 +86,7 @@ typename Polyhedron_Edge<T, FP, VP>::Vertex* Polyhedron_Edge<T, FP, VP>::secondV
   const
 {
   assert(m_first != nullptr);
-  if (m_second != nullptr)
-  {
-    return m_second->origin();
-  }
-  else
-  {
-    return m_first->next()->origin();
-  }
+  return m_second ? m_second->origin() : m_first->next()->origin();
 }
 
 template <typename T, typename FP, typename VP>
@@ -119,14 +111,7 @@ typename Polyhedron_Edge<T, FP, VP>::HalfEdge* Polyhedron_Edge<T, FP, VP>::twin(
 {
   assert(halfEdge != nullptr);
   assert(halfEdge == m_first || halfEdge == m_second);
-  if (halfEdge == m_first)
-  {
-    return m_second;
-  }
-  else
-  {
-    return m_first;
-  }
+  return halfEdge == m_first ? m_second : m_first;
 }
 
 template <typename T, typename FP, typename VP>
@@ -146,8 +131,7 @@ template <typename T, typename FP, typename VP>
 vm::vec<T, 3> Polyhedron_Edge<T, FP, VP>::center() const
 {
   assert(fullySpecified());
-  return (m_first->origin()->position() + m_second->origin()->position())
-         / static_cast<T>(2.0);
+  return (m_first->origin()->position() + m_second->origin()->position()) / T(2);
 }
 
 template <typename T, typename FP, typename VP>
@@ -193,10 +177,10 @@ template <typename T, typename FP, typename VP>
 T Polyhedron_Edge<T, FP, VP>::distanceTo(
   const vm::vec<T, 3>& position1, const vm::vec<T, 3>& position2) const
 {
-  const T pos1Distance = vm::min(
+  const auto pos1Distance = vm::min(
     vm::squared_distance(firstVertex()->position(), position1),
     vm::squared_distance(secondVertex()->position(), position1));
-  const T pos2Distance = vm::min(
+  const auto pos2Distance = vm::min(
     vm::squared_distance(firstVertex()->position(), position2),
     vm::squared_distance(secondVertex()->position(), position2));
   return vm::max(pos1Distance, pos2Distance);
@@ -226,17 +210,16 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
   const vm::plane<T, 3>& plane, const T epsilon)
 {
   unused(epsilon);
-  assert(epsilon >= static_cast<T>(0));
+  assert(epsilon >= T(0));
 
   // Assumes that the start and the end vertex of this edge are on opposite sides of
   // the given plane (precondition).
-  // Ts.
 
   const vm::vec<T, 3>& startPos = firstVertex()->position();
   const vm::vec<T, 3>& endPos = secondVertex()->position();
 
-  const T startDist = plane.point_distance(startPos);
-  const T endDist = plane.point_distance(endPos);
+  const auto startDist = plane.point_distance(startPos);
+  const auto endDist = plane.point_distance(endPos);
 
   // Check what's implied by the precondition:
   assert(vm::abs(startDist) > epsilon);
@@ -244,14 +227,14 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::split(
   assert(vm::sign(startDist) != vm::sign(endDist));
   assert(startDist != endDist); // implied by the above
 
-  const T dot = startDist / (startDist - endDist);
+  const auto dot = startDist / (startDist - endDist);
 
   // 1. startDist and endDist have opposite signs, therefore dot cannot be negative
   // 2. |startDist - endDist| > 0 (due to precondition), therefore dot > 0
   // 3. |x-y| > x if x and y have different signs, therefore x / (x-y) < 1
-  assert(dot > T(0.0) && dot < T(1.0));
+  assert(dot > T(0) && dot < T(1));
 
-  const vm::vec<T, 3> position = startPos + dot * (endPos - startPos);
+  const auto position = startPos + dot * (endPos - startPos);
   return insertVertex(position);
 }
 
@@ -282,15 +265,15 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
 
   // create new vertices and new half edges originating from it
   // the caller is responsible for storing the newly created vertex!
-  Vertex* newVertex = new Vertex(position);
-  HalfEdge* newFirstEdge = new HalfEdge(newVertex);
-  HalfEdge* oldFirstEdge = firstEdge();
-  HalfEdge* newSecondEdge = new HalfEdge(newVertex);
-  HalfEdge* oldSecondEdge = secondEdge();
+  auto* newVertex = new Vertex{position};
+  auto* newFirstEdge = new HalfEdge{newVertex};
+  auto* oldFirstEdge = firstEdge();
+  auto* newSecondEdge = new HalfEdge{newVertex};
+  auto* oldSecondEdge = secondEdge();
 
   // insert the new half edges into the corresponding faces
-  firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList({newFirstEdge}));
-  secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList({newSecondEdge}));
+  firstFace()->insertIntoBoundaryAfter(oldFirstEdge, HalfEdgeList{newFirstEdge});
+  secondFace()->insertIntoBoundaryAfter(oldSecondEdge, HalfEdgeList{newSecondEdge});
 
   // make old1st the leaving edge of its origin vertex
   setFirstAsLeaving();
@@ -301,7 +284,7 @@ Polyhedron_Edge<T, FP, VP>* Polyhedron_Edge<T, FP, VP>::insertVertex(
   // and replace it with new2nd
   setSecondEdge(newSecondEdge);
 
-  return new Edge(newFirstEdge, oldSecondEdge);
+  return new Edge{newFirstEdge, oldSecondEdge};
 }
 
 template <typename T, typename FP, typename VP>
@@ -357,5 +340,5 @@ void Polyhedron_Edge<T, FP, VP>::setSecondEdge(HalfEdge* second)
   m_second = second;
   m_second->setEdge(this);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

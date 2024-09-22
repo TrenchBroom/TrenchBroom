@@ -24,9 +24,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class EntityNode;
@@ -91,5 +89,5 @@ public:
 
   void clear();
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

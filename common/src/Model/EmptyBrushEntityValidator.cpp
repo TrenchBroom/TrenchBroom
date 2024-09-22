@@ -20,8 +20,6 @@
 #include "EmptyBrushEntityValidator.h"
 
 #include "Assets/EntityDefinition.h"
-#include "Ensure.h"
-#include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
@@ -30,13 +28,11 @@
 
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 } // namespace
 
 EmptyBrushEntityValidator::EmptyBrushEntityValidator()
@@ -58,5 +54,5 @@ void EmptyBrushEntityValidator::doValidate(
       "Entity '" + entityNode.name() + "' does not contain any brushes"));
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

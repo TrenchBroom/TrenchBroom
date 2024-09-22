@@ -23,10 +23,9 @@
 
 #include <iostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 std::ostream& operator<<(std::ostream& str, const VisibilityState state)
 {
   switch (state)
@@ -44,5 +43,5 @@ std::ostream& operator<<(std::ostream& str, const VisibilityState state)
   }
   return str;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

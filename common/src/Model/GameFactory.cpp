@@ -19,13 +19,12 @@
 
 #include "GameFactory.h"
 
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"
@@ -42,7 +41,6 @@
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <string>

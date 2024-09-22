@@ -23,10 +23,9 @@
 
 #include "kdl/intrusive_circular_list.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_Vertex<T, FP, VP>>& Polyhedron_GetVertexLink<
   T,
@@ -46,22 +45,21 @@ Polyhedron_GetVertexLink<T, FP, VP>::operator()(
 
 template <typename T, typename FP, typename VP>
 Polyhedron_Vertex<T, FP, VP>::Polyhedron_Vertex(const vm::vec<T, 3>& position)
-  : m_position(position)
-  , m_leaving(nullptr)
+  : m_position{position}
   ,
 #ifdef _MSC_VER
 // MSVC throws a warning because we're passing this to the FaceLink constructor, but it's
 // okay because we just store the pointer there.
 #pragma warning(push)
 #pragma warning(disable : 4355)
-  m_link(this)
+  m_link{this}
   ,
 #pragma warning(pop)
 #else
-  m_link(this)
+  m_link{this}
   ,
 #endif
-  m_payload(VP::defaultValue())
+  m_payload{VP::defaultValue()}
 {
 }
 
@@ -129,11 +127,13 @@ bool Polyhedron_Vertex<T, FP, VP>::incident(const Face* face) const
   assert(face != nullptr);
   assert(m_leaving != nullptr);
 
-  HalfEdge* curEdge = m_leaving;
+  auto* curEdge = m_leaving;
   do
   {
     if (curEdge->face() == face)
+    {
       return true;
+    }
     curEdge = curEdge->nextIncident();
   } while (curEdge != m_leaving);
   return false;
@@ -144,5 +144,5 @@ void Polyhedron_Vertex<T, FP, VP>::correctPosition(const size_t decimals, const 
 {
   m_position = vm::correct(m_position, decimals, epsilon);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

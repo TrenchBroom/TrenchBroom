@@ -20,10 +20,8 @@
 #pragma once
 
 #include "IO/VirtualFileSystem.h"
-#include "Result.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 namespace TrenchBroom

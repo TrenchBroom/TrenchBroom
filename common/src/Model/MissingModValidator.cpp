@@ -37,13 +37,11 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 namespace
 {
-static const auto Type = freeIssueType();
+const auto Type = freeIssueType();
 
 class MissingModIssue : public Issue
 {
@@ -69,7 +67,7 @@ std::vector<std::string> removeMissingMods(
     {
       const auto* modIssue = static_cast<const MissingModIssue*>(issue);
       const auto& missingMod = modIssue->mod();
-      mods = kdl::vec_erase(std::move(mods), missingMod);
+      std::erase(mods, missingMod);
     }
   }
   return mods;
@@ -131,5 +129,5 @@ void MissingModValidator::doValidate(
 
   m_lastMods = std::move(mods);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

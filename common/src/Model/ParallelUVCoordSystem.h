@@ -23,8 +23,7 @@
 #include "Macros.h"
 #include "Model/UVCoordSystem.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 #include <tuple>

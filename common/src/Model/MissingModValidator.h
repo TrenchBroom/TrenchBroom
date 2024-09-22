@@ -25,9 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Game;
 
@@ -43,5 +41,5 @@ private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)
     const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

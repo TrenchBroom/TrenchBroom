@@ -24,9 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class BrushNode;
@@ -96,5 +94,5 @@ public:
   const std::string& propertyKey() const;
   const std::string& propertyValue() const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

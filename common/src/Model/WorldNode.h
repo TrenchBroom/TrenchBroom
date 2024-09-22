@@ -26,19 +26,13 @@
 #include "Model/IdType.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
-
-#include "kdl/result_forward.h"
+#include "octree.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-template <typename T, typename U>
-class octree;
-
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeIndex;
 class IssueQuickFix;
@@ -194,5 +188,5 @@ private: // implement Taggable interface
 private:
   deleteCopyAndMove(WorldNode);
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

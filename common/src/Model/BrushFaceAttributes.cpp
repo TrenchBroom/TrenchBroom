@@ -19,12 +19,9 @@
 
 #include "BrushFaceAttributes.h"
 
-#include "Assets/Material.h"
-
 #include "kdl/reflection_impl.h"
 
-#include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <string>
 

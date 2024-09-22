@@ -21,25 +21,24 @@
 // order of includes is important
 #include "FloatType.h"
 #include "Polyhedron.h"
-#include "Polyhedron_Misc.h"
-#include "Polyhedron_Vertex.h"
-#include "Polyhedron_Edge.h"
-#include "Polyhedron_HalfEdge.h"
-#include "Polyhedron_Face.h"
-#include "Polyhedron_ConvexHull.h"
-#include "Polyhedron_Clip.h"
-#include "Polyhedron_CSG.h"
-#include "Polyhedron_Queries.h"
+#include "Polyhedron_Misc.h" // IWYU pragma: keep
+#include "Polyhedron_Vertex.h" // IWYU pragma: keep
+#include "Polyhedron_Edge.h" // IWYU pragma: keep
+#include "Polyhedron_HalfEdge.h" // IWYU pragma: keep
+#include "Polyhedron_Face.h" // IWYU pragma: keep
+#include "Polyhedron_ConvexHull.h" // IWYU pragma: keep
+#include "Polyhedron_Clip.h" // IWYU pragma: keep
+#include "Polyhedron_CSG.h" // IWYU pragma: keep
+#include "Polyhedron_Queries.h" // IWYU pragma: keep
 #include "Polyhedron_Checks.h"
 
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 // clang-format on
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 template struct Polyhedron_GetVertexLink<
   FloatType,
   DefaultPolyhedronPayload,
@@ -93,5 +92,5 @@ template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
 
 template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

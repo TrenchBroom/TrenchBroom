@@ -23,17 +23,14 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
 #include "vm/util.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-CompareHits::~CompareHits() {}
+CompareHits::~CompareHits() = default;
 
 int CompareHits::compare(const Hit& lhs, const Hit& rhs) const
 {
@@ -51,44 +48,34 @@ CombineCompareHits::CombineCompareHits(
 
 int CombineCompareHits::doCompare(const Hit& lhs, const Hit& rhs) const
 {
-  const int firstResult = m_first->compare(lhs, rhs);
-  if (firstResult == 0)
-    return m_second->compare(lhs, rhs);
-  return firstResult;
+  const auto firstResult = m_first->compare(lhs, rhs);
+  return firstResult != 0 ? firstResult : m_second->compare(lhs, rhs);
 }
 
 int CompareHitsByType::doCompare(const Hit& lhs, const Hit& rhs) const
 {
-  if (lhs.type() == BrushNode::BrushHitType)
-    return -1;
-  if (rhs.type() == BrushNode::BrushHitType)
-    return 1;
-  return 0;
+  return lhs.type() == BrushNode::BrushHitType   ? -1
+         : rhs.type() == BrushNode::BrushHitType ? 1
+                                                 : 0;
 }
 
 int CompareHitsByDistance::doCompare(const Hit& lhs, const Hit& rhs) const
 {
-  if (lhs.distance() < rhs.distance())
-    return -1;
-  if (lhs.distance() > rhs.distance())
-    return 1;
-  return 0;
+  return lhs.distance() < rhs.distance() ? -1 : lhs.distance() > rhs.distance() ? 1 : 0;
 }
 
 CompareHitsBySize::CompareHitsBySize(const vm::axis::type axis)
-  : m_axis(axis)
+  : m_axis{axis}
 {
 }
 
 int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const
 {
-  const FloatType lhsSize = getSize(lhs);
-  const FloatType rhsSize = getSize(rhs);
-  if (lhsSize < rhsSize)
-    return -1;
-  if (lhsSize > rhsSize)
-    return 1;
-  return m_compareByDistance.compare(lhs, rhs);
+  const auto lhsSize = getSize(lhs);
+  const auto rhsSize = getSize(rhs);
+  return lhsSize < rhsSize   ? -1
+         : lhsSize > rhsSize ? 1
+                             : m_compareByDistance.compare(lhs, rhs);
 }
 
 FloatType CompareHitsBySize::getSize(const Hit& hit) const
@@ -97,14 +84,11 @@ FloatType CompareHitsBySize::getSize(const Hit& hit) const
   {
     return faceHandle->face().projectedArea(m_axis);
   }
-  else if (const auto* node = hitToNode(hit))
+  if (const auto* node = hitToNode(hit))
   {
     return node->projectedArea(m_axis);
   }
-  else
-  {
-    return 0.0;
-  }
+  return 0.0;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

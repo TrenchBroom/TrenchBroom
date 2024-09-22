@@ -23,12 +23,9 @@
 
 #include <cstddef>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model::HitType
 {
-namespace Model
-{
-namespace HitType
-{
+
 Type freeType()
 {
   static const std::size_t Bits = (sizeof(Type) * 8);
@@ -37,6 +34,5 @@ Type freeType()
   ensure(currentShift <= Bits, "No more hit types");
   return Type(1) << currentShift++;
 }
-} // namespace HitType
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model::HitType

@@ -33,9 +33,7 @@
 
 #include <filesystem>
 #include <optional>
-#include <set>
 #include <string>
-#include <variant>
 #include <vector>
 
 namespace TrenchBroom::Model

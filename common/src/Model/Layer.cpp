@@ -21,7 +21,7 @@
 
 #include "kdl/reflection_impl.h"
 
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Model
 {

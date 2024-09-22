@@ -24,10 +24,9 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 extern template class Polyhedron_Vertex<
   FloatType,
   DefaultPolyhedronPayload,
@@ -60,5 +59,5 @@ extern template class Polyhedron<
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
 extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

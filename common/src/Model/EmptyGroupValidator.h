@@ -21,12 +21,14 @@
 
 #include "Model/Validator.h"
 
+#include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+class GroupNode;
+class Issue;
+
 class EmptyGroupValidator : public Validator
 {
 public:
@@ -36,5 +38,5 @@ private:
   void doValidate(
     GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

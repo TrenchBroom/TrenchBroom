@@ -23,14 +23,12 @@
 #include "Model/Tag.h"
 #include "Model/TagType.h"
 
-#include <algorithm>
 #include <stdexcept>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 bool TagManager::TagCmp::operator()(const SmartTag& lhs, const SmartTag& rhs) const
 {
   return lhs.name() < rhs.name();
@@ -132,5 +130,5 @@ size_t TagManager::freeTagIndex()
   ensure(index <= Bits, "no more tag types");
   return index;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

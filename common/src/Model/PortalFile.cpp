@@ -19,7 +19,6 @@
 
 #include "PortalFile.h"
 
-#include "Error.h"
 #include "IO/DiskIO.h"
 
 #include "kdl/result.h"
@@ -27,8 +26,8 @@
 #include "kdl/string_utils.h"
 
 #include "vm/forward.h"
-#include "vm/polygon.h"
-#include "vm/vec.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/vec.h"     // IWYU pragma: keep
 
 #include <string>
 

@@ -25,10 +25,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entity)
   : m_entity{entity}
 {
@@ -66,5 +65,5 @@ void EntityPropertiesVariableStore::assign(
 {
   throw EL::EvaluationError{"Changing properties directly is unsafe"};
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

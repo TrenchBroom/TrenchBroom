@@ -20,12 +20,10 @@
 #include "ModelUtils.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/EditorContext.h"
 #include "Model/NodeQueries.h"
-#include "Polyhedron.h"
 
 #include "kdl/vector_utils.h"
 

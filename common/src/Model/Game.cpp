@@ -19,24 +19,14 @@
 
 #include "Game.h"
 
-#include "Assets/EntityDefinitionFileSpec.h"
-#include "Error.h"
-#include "IO/ExportOptions.h"
-#include "Model/BrushFace.h"
 #include "Model/GameFactory.h"
-#include "Model/WorldNode.h"
-
-#include "kdl/result.h"
-
-#include <string>
-#include <vector>
 
 namespace TrenchBroom::Model
 {
 
 bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
 {
-  const GameFactory& gameFactory = GameFactory::instance();
+  const auto& gameFactory = GameFactory::instance();
   return gameFactory.isGamePathPreference(config().name, prefPath);
 }
 

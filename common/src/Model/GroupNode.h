@@ -25,14 +25,11 @@
 #include "Model/IdType.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Result.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
-#include <memory>
 #include <optional>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace TrenchBroom::Model

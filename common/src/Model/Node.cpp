@@ -28,11 +28,8 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/bbox.h"
-
 #include <cassert>
 #include <iterator>
-#include <ostream>
 #include <string>
 #include <vector>
 

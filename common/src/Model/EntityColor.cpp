@@ -21,9 +21,13 @@
 
 #include "Assets/ColorRange.h"
 #include "Color.h"
-#include "Model/EntityNode.h"
+#include "Model/BrushNode.h"
+#include "Model/EntityNode.h" // IWYU pragma: keep
 #include "Model/EntityNodeBase.h"
-#include "Model/WorldNode.h"
+#include "Model/GroupNode.h"
+#include "Model/LayerNode.h"
+#include "Model/PatchNode.h"
+#include "Model/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/overload.h"
 #include "kdl/string_utils.h"
@@ -33,10 +37,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 Assets::ColorRange::Type detectColorRange(
   const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes)
 {
@@ -93,7 +96,7 @@ Color parseEntityColor(const std::string& str)
     b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
   }
 
-  return Color(r, g, b);
+  return {r, g, b};
 }
 
 std::string entityColorAsString(
@@ -111,5 +114,5 @@ std::string entityColorAsString(
   }
   return result.str();
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

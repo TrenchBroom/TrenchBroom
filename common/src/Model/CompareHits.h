@@ -25,9 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Hit;
 
@@ -74,11 +72,11 @@ private:
   CompareHitsByDistance m_compareByDistance;
 
 public:
-  CompareHitsBySize(vm::axis::type axis);
+  explicit CompareHitsBySize(vm::axis::type axis);
 
 private:
   int doCompare(const Hit& lhs, const Hit& rhs) const override;
   FloatType getSize(const Hit& hit) const;
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

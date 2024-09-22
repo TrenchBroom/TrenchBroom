@@ -26,7 +26,6 @@
 #include "Model/GroupNode.h"
 #include "Model/Hit.h"
 #include "Model/LayerNode.h"
-#include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/PickResult.h"
 #include "Model/TagVisitor.h"
@@ -36,12 +35,11 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/zip_iterator.h"
 
-#include "vm/bbox_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/intersection.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>
-#include <ostream>
 #include <string>
 
 namespace TrenchBroom::Model

@@ -21,10 +21,9 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 enum class LockState
 {
   Inherited = 1,
@@ -33,5 +32,5 @@ enum class LockState
 };
 
 std::ostream& operator<<(std::ostream& str, LockState state);
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -26,15 +26,13 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex)
-  : m_node(node)
-  , m_faceIndex(faceIndex)
+  : m_node{node}
+  , m_faceIndex{faceIndex}
 {
-  assert(m_node != nullptr);
+  ensure(m_node != nullptr, "node must not be null");
   ensure(m_faceIndex < m_node->brush().faceCount(), "face index must be valid");
 }
 
@@ -70,5 +68,5 @@ std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode)
   }
   return result;
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

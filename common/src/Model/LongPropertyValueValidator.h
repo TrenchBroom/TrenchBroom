@@ -23,9 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class LongPropertyValueValidator : public Validator
 {
@@ -33,11 +31,10 @@ private:
   size_t m_maxLength;
 
 public:
-  LongPropertyValueValidator(size_t maxLength);
+  explicit LongPropertyValueValidator(size_t maxLength);
 
 private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)
     const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

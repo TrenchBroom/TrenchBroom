@@ -20,13 +20,10 @@
 #pragma once
 
 #include "FloatType.h"
-#include "Macros.h"
 #include "Model/BrushGeometry.h"
 #include "Result.h"
 
 #include "kdl/reflection_decl.h"
-
-#include "vm/forward.h"
 
 #include <memory>
 #include <optional>

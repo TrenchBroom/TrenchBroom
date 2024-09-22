@@ -29,9 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class ConstTagVisitor;
 class TagManager;
@@ -57,7 +55,7 @@ public:
    * @param type the attribute type
    * @param name the attribute name
    */
-  explicit TagAttribute(AttributeType type, const std::string& name);
+  explicit TagAttribute(AttributeType type, std::string name);
 
   /**
    * Returns the type of this attribute.
@@ -96,7 +94,7 @@ protected:
    * @param name the tag's name
    * @param attributes the tag's attributes
    */
-  Tag(size_t index, const std::string& name, std::vector<TagAttribute> attributes);
+  Tag(size_t index, std::string name, std::vector<TagAttribute> attributes);
 
 public:
   /**
@@ -106,7 +104,7 @@ public:
    * @param name the tag's name
    * @param attributes the tag's attributes
    */
-  Tag(const std::string& name, std::vector<TagAttribute> attributes);
+  Tag(std::string name, std::vector<TagAttribute> attributes);
 
   virtual ~Tag();
 
@@ -187,9 +185,9 @@ public:
 class Taggable
 {
 private:
-  TagType::Type m_tagMask;
+  TagType::Type m_tagMask = 0;
   kdl::vector_set<TagReference> m_tags;
-  TagAttribute::AttributeType m_attributeMask;
+  TagAttribute::AttributeType m_attributeMask = 0;
 
 public:
   /**
@@ -390,7 +388,7 @@ public:
    * @param matcher the matcher that decides whether to apply this tag to a given taggable
    */
   SmartTag(
-    const std::string& name,
+    std::string name,
     std::vector<TagAttribute> attributes,
     std::unique_ptr<TagMatcher> matcher);
 
@@ -449,5 +447,4 @@ public:
 
   void appendToStream(std::ostream& str) const override;
 };
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

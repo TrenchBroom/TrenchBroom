@@ -25,9 +25,7 @@
 #include <limits>
 #include <optional>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 
@@ -42,5 +40,5 @@ struct BrushFacePayload
   using Type = std::optional<size_t>;
   static Type defaultValue() { return std::nullopt; }
 };
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model
