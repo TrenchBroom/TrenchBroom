@@ -19,21 +19,18 @@
 
 #pragma once
 
+#include "Assets/Material.h"
+#include "Assets/Palette.h"
+
 #include <filesystem>
-#include <memory>
 #include <optional>
 
 namespace TrenchBroom
 {
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
-{
-class Material;
-class Palette;
-} // namespace Assets
-
-namespace IO
+namespace TrenchBroom::IO
 {
 class FileSystem;
 
@@ -46,5 +43,4 @@ Assets::Material loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger);
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

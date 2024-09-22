@@ -35,21 +35,19 @@
 #include "kdl/overload.h"
 #include "kdl/parallel.h"
 #include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 
-#include <iterator> // for std::ostreambuf_iterator
+#include <iterator>
 #include <memory>
 #include <sstream>
 #include <utility>
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class QuakeFileSerializer : public MapFileSerializer
 {
 public:
@@ -335,8 +333,10 @@ void MapFileSerializer::doBeginFile(const std::vector<const Model::Node*>& rootN
       [](auto&& thisLambda, const Model::EntityNode* entity) {
         entity->visitChildren(thisLambda);
       },
-      [&](const Model::BrushNode* brush) { nodesToSerialize.push_back(brush); },
-      [&](const Model::PatchNode* patchNode) { nodesToSerialize.push_back(patchNode); }));
+      [&](const Model::BrushNode* brush) { nodesToSerialize.emplace_back(brush); },
+      [&](const Model::PatchNode* patchNode) {
+        nodesToSerialize.emplace_back(patchNode);
+      }));
 
   // serialize brushes to strings in parallel
   using Entry = std::pair<const Model::Node*, PrecomputedString>;
@@ -515,5 +515,5 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(
 
   return PrecomputedString{stream.str(), lineCount};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -32,8 +32,8 @@
 namespace TrenchBroom::IO
 {
 
-Quake3ShaderTokenizer::Quake3ShaderTokenizer(std::string_view str)
-  : Tokenizer{std::move(str), "", '\\'}
+Quake3ShaderTokenizer::Quake3ShaderTokenizer(const std::string_view str)
+  : Tokenizer{str, "", '\\'}
 {
 }
 

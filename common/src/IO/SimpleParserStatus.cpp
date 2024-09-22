@@ -21,15 +21,14 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-SimpleParserStatus::SimpleParserStatus(Logger& logger, const std::string& prefix)
-  : ParserStatus(logger, prefix)
+
+SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
+  : ParserStatus{logger, std::move(prefix)}
 {
 }
 
 void SimpleParserStatus::doProgress(const double /* progress */) {}
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

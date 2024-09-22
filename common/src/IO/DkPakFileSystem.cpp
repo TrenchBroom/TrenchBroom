@@ -19,8 +19,6 @@
 
 #include "DkPakFileSystem.h"
 
-#include "Error.h"
-#include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/ReaderException.h"
 
@@ -84,8 +82,8 @@ Result<std::unique_ptr<char[]>> decompress(
         // this references previously uncompressed data
         // read one byte to get _offset_
         // read (x-190) bytes from the already uncompressed and written output data,
-        // starting at (offset+2) bytes before the current write position (and add them to
-        // output, of course)
+        // starting at (offset+2) bytes before the current write position (and add them
+        // to output, of course)
         const auto len = static_cast<size_t>(x) - 190;
         const auto offset = reader.readSize<unsigned char>();
         auto* from = curTarget - (offset + 2);
@@ -132,13 +130,13 @@ Result<void> DkPakFileSystem::doReadDirectory()
       const auto entrySize = compressed ? compressedSize : uncompressedSize;
 
       const auto entryPath = std::filesystem::path(kdl::str_to_lower(entryName));
-      auto entryFile = std::make_shared<FileView>(m_file, entryAddress, entrySize);
+      auto entryFile_ = std::make_shared<FileView>(m_file, entryAddress, entrySize);
 
       if (compressed)
       {
         addFile(
           entryPath,
-          [entryFile = std::move(entryFile),
+          [entryFile = std::move(entryFile_),
            uncompressedSize]() -> Result<std::shared_ptr<File>> {
             return decompress(entryFile, uncompressedSize)
                    | kdl::transform([&](auto data) {
@@ -150,7 +148,7 @@ Result<void> DkPakFileSystem::doReadDirectory()
       }
       else
       {
-        addFile(entryPath, [entryFile = std::move(entryFile)]() { return entryFile; });
+        addFile(entryPath, [entryFile = std::move(entryFile_)]() { return entryFile; });
       }
     }
     return kdl::void_success;

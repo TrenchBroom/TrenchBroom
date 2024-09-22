@@ -19,8 +19,6 @@
 
 #include "ZipFileSystem.h"
 
-#include "Error.h"
-#include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 
 #include "kdl/result.h"

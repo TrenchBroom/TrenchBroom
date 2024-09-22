@@ -22,8 +22,6 @@
 #include "IO/ImageFileSystem.h"
 #include "Result.h"
 
-#include <filesystem>
-
 namespace TrenchBroom::IO
 {
 class FileSystem;

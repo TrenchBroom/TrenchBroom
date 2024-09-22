@@ -37,11 +37,12 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-static void doWriteNodes(
+
+void doWriteNodes(
   NodeSerializer& serializer,
   const std::vector<Model::Node*>& nodes,
   const Model::Node* parent = nullptr)
@@ -84,16 +85,17 @@ static void doWriteNodes(
   }
 }
 
+} // namespace
+
 NodeWriter::NodeWriter(const Model::WorldNode& world, std::ostream& stream)
-  : m_world(world)
-  , m_serializer(MapFileSerializer::create(m_world.mapFormat(), stream))
+  : NodeWriter{world, MapFileSerializer::create(world.mapFormat(), stream)}
 {
 }
 
 NodeWriter::NodeWriter(
   const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
-  : m_world(world)
-  , m_serializer(std::move(serializer))
+  : m_world{world}
+  , m_serializer{std::move(serializer)}
 {
 }
 
@@ -202,5 +204,5 @@ void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace>& faces)
   m_serializer->brushFaces(faces);
   m_serializer->endFile();
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

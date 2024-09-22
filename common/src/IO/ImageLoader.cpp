@@ -21,17 +21,16 @@
 
 #include "IO/ImageLoaderImpl.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 ImageLoader::ImageLoader(const Format format, const std::filesystem::path& path)
-  : m_impl(new ImageLoaderImpl(format, path))
+  : m_impl{std::make_unique<ImageLoaderImpl>(format, path)}
 {
 }
 
 ImageLoader::ImageLoader(const Format format, const char* begin, const char* end)
-  : m_impl(new ImageLoaderImpl(format, begin, end))
+  : m_impl{std::make_unique<ImageLoaderImpl>(format, begin, end)}
 {
 }
 
@@ -96,5 +95,5 @@ std::vector<unsigned char> ImageLoader::loadPixels(const PixelFormat format) con
 {
   return m_impl->loadPixels(format);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -32,22 +32,14 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include "vm/vec_io.h" // for Color stream output operator
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
-NodeSerializer::NodeSerializer()
-  : m_entityNo(0)
-  , m_brushNo(0)
-  , m_exporting(false)
-{
-}
 
 NodeSerializer::~NodeSerializer() = default;
 
@@ -274,14 +266,12 @@ std::vector<Model::EntityProperty> NodeSerializer::parentProperties(
   node->accept(kdl::overload(
     [](const Model::WorldNode*) {},
     [&](const Model::LayerNode* layerNode) {
-      properties.push_back(Model::EntityProperty(
-        Model::EntityPropertyKeys::Layer,
-        kdl::str_to_string(*layerNode->persistentId())));
+      properties.emplace_back(
+        Model::EntityPropertyKeys::Layer, kdl::str_to_string(*layerNode->persistentId()));
     },
     [&](const Model::GroupNode* groupNode) {
-      properties.push_back(Model::EntityProperty(
-        Model::EntityPropertyKeys::Group,
-        kdl::str_to_string(*groupNode->persistentId())));
+      properties.emplace_back(
+        Model::EntityPropertyKeys::Group, kdl::str_to_string(*groupNode->persistentId()));
     },
     [](const Model::EntityNode*) {},
     [](const Model::BrushNode*) {},
@@ -294,38 +284,35 @@ std::vector<Model::EntityProperty> NodeSerializer::layerProperties(
   const Model::LayerNode* layerNode)
 {
   std::vector<Model::EntityProperty> result = {
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::LayerClassname),
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeLayer),
-    Model::EntityProperty(Model::EntityPropertyKeys::LayerName, layerNode->name()),
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())),
+    {Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::LayerClassname},
+    {Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeLayer},
+    {Model::EntityPropertyKeys::LayerName, layerNode->name()},
+    {Model::EntityPropertyKeys::LayerId, kdl::str_to_string(*layerNode->persistentId())},
   };
 
   const auto& layer = layerNode->layer();
   if (layer.hasSortIndex())
   {
-    result.push_back(Model::EntityProperty(
-      Model::EntityPropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex())));
+    result.emplace_back(
+      Model::EntityPropertyKeys::LayerSortIndex, kdl::str_to_string(layer.sortIndex()));
   }
   if (layerNode->lockState() == Model::LockState::Locked)
   {
-    result.push_back(Model::EntityProperty(
+    result.emplace_back(
       Model::EntityPropertyKeys::LayerLocked,
-      Model::EntityPropertyValues::LayerLockedValue));
+      Model::EntityPropertyValues::LayerLockedValue);
   }
   if (layerNode->hidden())
   {
-    result.push_back(Model::EntityProperty(
+    result.emplace_back(
       Model::EntityPropertyKeys::LayerHidden,
-      Model::EntityPropertyValues::LayerHiddenValue));
+      Model::EntityPropertyValues::LayerHiddenValue);
   }
   if (layer.omitFromExport())
   {
-    result.push_back(Model::EntityProperty(
+    result.emplace_back(
       Model::EntityPropertyKeys::LayerOmitFromExport,
-      Model::EntityPropertyValues::LayerOmitFromExportValue));
+      Model::EntityPropertyValues::LayerOmitFromExportValue);
   }
   return result;
 }
@@ -334,13 +321,10 @@ std::vector<Model::EntityProperty> NodeSerializer::groupProperties(
   const Model::GroupNode* groupNode)
 {
   auto result = std::vector<Model::EntityProperty>{
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::GroupClassname),
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeGroup),
-    Model::EntityProperty(Model::EntityPropertyKeys::GroupName, groupNode->name()),
-    Model::EntityProperty(
-      Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())),
+    {Model::EntityPropertyKeys::Classname, Model::EntityPropertyValues::GroupClassname},
+    {Model::EntityPropertyKeys::GroupType, Model::EntityPropertyValues::GroupTypeGroup},
+    {Model::EntityPropertyKeys::GroupName, groupNode->name()},
+    {Model::EntityPropertyKeys::GroupId, kdl::str_to_string(*groupNode->persistentId())},
   };
 
   const auto& linkId = groupNode->linkId();
@@ -391,5 +375,5 @@ std::string NodeSerializer::escapeEntityProperties(const std::string& str) const
   }
   return kdl::str_escape_if_necessary(str, "\"");
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

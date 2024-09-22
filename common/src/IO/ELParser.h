@@ -23,12 +23,7 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#ifdef _MSC_VER
 #include <cstdint>
-#elif defined __GNUC__
-#include <stdint.h>
-#endif
-
 #include <iosfwd>
 #include <string>
 

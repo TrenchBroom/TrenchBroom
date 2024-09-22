@@ -32,7 +32,6 @@
 namespace TrenchBroom::IO
 {
 
-
 /**
  * Abstract base class for a reader source.
  */

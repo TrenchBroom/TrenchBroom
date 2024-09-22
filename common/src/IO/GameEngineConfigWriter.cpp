@@ -27,14 +27,13 @@
 
 #include <ostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 GameEngineConfigWriter::GameEngineConfigWriter(
   const Model::GameEngineConfig& config, std::ostream& stream)
-  : m_config(config)
-  , m_stream(stream)
+  : m_config{config}
+  , m_stream{stream}
 {
   assert(!m_stream.bad());
 }
@@ -63,5 +62,5 @@ EL::Value GameEngineConfigWriter::writeProfile(
     {"parameters", EL::Value{profile.parameterSpec}},
   }};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

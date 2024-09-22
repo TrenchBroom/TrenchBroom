@@ -23,10 +23,9 @@
 #include "Exceptions.h"
 #include "Macros.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 InitFreeImage::InitFreeImage()
 {
   FreeImage_Initialise(true);
@@ -44,14 +43,13 @@ void InitFreeImage::initialize()
 
 ImageLoaderImpl::ImageLoaderImpl(
   const ImageLoader::Format format, const std::filesystem::path& path)
-  : m_stream(nullptr)
-  , m_bitmap(nullptr)
 {
   InitFreeImage::initialize();
-  const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
+
+  const auto fifFormat = translateFormat(format);
   if (fifFormat == FIF_UNKNOWN)
   {
-    throw FileFormatException("Unknown image format");
+    throw FileFormatException{"Unknown image format"};
   }
 
   m_bitmap = FreeImage_Load(fifFormat, path.string().c_str());
@@ -59,32 +57,31 @@ ImageLoaderImpl::ImageLoaderImpl(
 
 ImageLoaderImpl::ImageLoaderImpl(
   const ImageLoader::Format format, const char* begin, const char* end)
-  : m_stream(nullptr)
-  , m_bitmap(nullptr)
 {
   InitFreeImage::initialize();
-  const FREE_IMAGE_FORMAT fifFormat = translateFormat(format);
+
+  const auto fifFormat = translateFormat(format);
   if (fifFormat == FIF_UNKNOWN)
   {
-    throw FileFormatException("Unknown image format");
+    throw FileFormatException{"Unknown image format"};
   }
 
   // this is supremely evil, but FreeImage guarantees that it will not modify wrapped
   // memory
-  BYTE* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
-  DWORD length = static_cast<DWORD>(end - begin);
+  auto* address = reinterpret_cast<BYTE*>(const_cast<char*>(begin));
+  auto length = DWORD(end - begin);
   m_stream = FreeImage_OpenMemory(address, length);
   m_bitmap = FreeImage_LoadFromMemory(fifFormat, m_stream);
 }
 
 ImageLoaderImpl::~ImageLoaderImpl()
 {
-  if (m_bitmap != nullptr)
+  if (m_bitmap)
   {
     FreeImage_Unload(m_bitmap);
     m_bitmap = nullptr;
   }
-  if (m_stream != nullptr)
+  if (m_stream)
   {
     FreeImage_CloseMemory(m_stream);
     m_stream = nullptr;
@@ -93,32 +90,32 @@ ImageLoaderImpl::~ImageLoaderImpl()
 
 size_t ImageLoaderImpl::paletteSize() const
 {
-  return static_cast<size_t>(FreeImage_GetColorsUsed(m_bitmap));
+  return size_t(FreeImage_GetColorsUsed(m_bitmap));
 }
 
 size_t ImageLoaderImpl::bitsPerPixel() const
 {
-  return static_cast<size_t>(FreeImage_GetBPP(m_bitmap));
+  return size_t(FreeImage_GetBPP(m_bitmap));
 }
 
 size_t ImageLoaderImpl::width() const
 {
-  return static_cast<size_t>(FreeImage_GetWidth(m_bitmap));
+  return size_t(FreeImage_GetWidth(m_bitmap));
 }
 
 size_t ImageLoaderImpl::height() const
 {
-  return static_cast<size_t>(FreeImage_GetHeight(m_bitmap));
+  return size_t(FreeImage_GetHeight(m_bitmap));
 }
 
 size_t ImageLoaderImpl::byteWidth() const
 {
-  return static_cast<size_t>(FreeImage_GetLine(m_bitmap));
+  return size_t(FreeImage_GetLine(m_bitmap));
 }
 
 size_t ImageLoaderImpl::scanWidth() const
 {
-  return static_cast<size_t>(FreeImage_GetPitch(m_bitmap));
+  return size_t(FreeImage_GetPitch(m_bitmap));
 }
 
 bool ImageLoaderImpl::hasPalette() const
@@ -139,8 +136,8 @@ bool ImageLoaderImpl::hasPixels() const
 std::vector<unsigned char> ImageLoaderImpl::loadPalette() const
 {
   assert(hasPalette());
-  const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
-  if (pal == nullptr)
+  const auto* pal = FreeImage_GetPalette(m_bitmap);
+  if (!pal)
   {
     return {};
   }
@@ -179,24 +176,17 @@ std::vector<unsigned char> ImageLoaderImpl::loadPixels(
   const ImageLoader::PixelFormat format) const
 {
   assert(hasPixels());
-  const size_t pSize = pixelSize(format);
-  if (hasIndices())
-  {
-    return loadIndexedPixels(pSize);
-  }
-  else
-  {
-    return loadPixels(pSize);
-  }
+  const auto pSize = pixelSize(format);
+  return hasIndices() ? loadIndexedPixels(pSize) : loadPixels(pSize);
 }
 
 std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize) const
 {
   assert(pSize == 3);
-  const RGBQUAD* pal = FreeImage_GetPalette(m_bitmap);
+  const auto* pal = FreeImage_GetPalette(m_bitmap);
   ensure(pal != nullptr, "pal is null");
 
-  std::vector<unsigned char> result(width() * height() * pSize);
+  auto result = std::vector<unsigned char>(width() * height() * pSize);
   for (unsigned y = 0; y < height(); ++y)
   {
     for (unsigned x = 0; x < width(); ++x)
@@ -205,7 +195,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
       assertResult(FreeImage_GetPixelIndex(m_bitmap, x, y, &paletteIndex) == TRUE);
       assert(paletteIndex < paletteSize());
 
-      const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+      const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
       result[pixelIndex + 0] = static_cast<unsigned char>(pal[paletteIndex].rgbRed);
       result[pixelIndex + 1] = static_cast<unsigned char>(pal[paletteIndex].rgbGreen);
       result[pixelIndex + 2] = static_cast<unsigned char>(pal[paletteIndex].rgbBlue);
@@ -216,7 +206,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadIndexedPixels(const size_t pSize
 
 std::vector<unsigned char> ImageLoaderImpl::loadPixels(const size_t pSize) const
 {
-  std::vector<unsigned char> result(width() * height() * pSize);
+  auto result = std::vector<unsigned char>(width() * height() * pSize);
   for (unsigned y = 0; y < height(); ++y)
   {
     for (unsigned x = 0; x < width(); ++x)
@@ -224,7 +214,7 @@ std::vector<unsigned char> ImageLoaderImpl::loadPixels(const size_t pSize) const
       RGBQUAD pixel;
       assertResult(FreeImage_GetPixelColor(m_bitmap, x, y, &pixel) == TRUE);
 
-      const size_t pixelIndex = ((height() - y - 1) * width() + x) * pSize;
+      const auto pixelIndex = ((height() - y - 1) * width() + x) * pSize;
       result[pixelIndex + 0] = static_cast<unsigned char>(pixel.rgbRed);
       result[pixelIndex + 1] = static_cast<unsigned char>(pixel.rgbGreen);
       result[pixelIndex + 2] = static_cast<unsigned char>(pixel.rgbBlue);
@@ -261,5 +251,5 @@ size_t ImageLoaderImpl::pixelSize(const ImageLoader::PixelFormat format)
     switchDefault();
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

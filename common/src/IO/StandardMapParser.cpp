@@ -24,8 +24,6 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
-#include "kdl/vector_set.h"
-
 #include "vm/vec.h"
 
 #include <string>
@@ -234,7 +232,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
     case QuakeMapToken::OBrace:
       if (!beginEntityCalled)
       {
-        onBeginEntity(startLocation, std::move(properties), status);
+        onBeginEntity(startLocation, properties, status);
         beginEntityCalled = true;
       }
       parseBrushOrBrushPrimitiveOrPatch(status);

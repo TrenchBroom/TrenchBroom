@@ -19,13 +19,13 @@
 
 #pragma once
 
+#include "Assets/Palette.h"
 #include "Result.h"
 
 #include <optional>
 
 namespace TrenchBroom::Assets
 {
-class Palette;
 class Texture;
 } // namespace TrenchBroom::Assets
 

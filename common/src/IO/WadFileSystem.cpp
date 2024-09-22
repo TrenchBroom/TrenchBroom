@@ -19,7 +19,6 @@
 
 #include "WadFileSystem.h"
 
-#include "Error.h"
 #include "IO/File.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
@@ -115,9 +114,9 @@ Result<void> WadFileSystem::doReadDirectory()
       }
 
       const auto path = std::filesystem::path{entryName + "." + entryType};
-      auto file = std::static_pointer_cast<File>(
+      auto file_ = std::static_pointer_cast<File>(
         std::make_shared<FileView>(m_file, entryAddress, entrySize));
-      addFile(path, [file = std::move(file)]() -> Result<std::shared_ptr<File>> {
+      addFile(path, [file = std::move(file_)]() -> Result<std::shared_ptr<File>> {
         return file;
       });
     }

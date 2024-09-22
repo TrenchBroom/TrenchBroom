@@ -27,8 +27,6 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 
-#include "kdl/vector_utils.h"
-
 #include <unordered_map>
 #include <unordered_set>
 

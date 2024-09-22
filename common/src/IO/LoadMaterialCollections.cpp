@@ -24,8 +24,7 @@
 #include "Assets/Quake3Shader.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
-#include "Error.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"
@@ -54,8 +53,6 @@
 
 #include <fmt/format.h>
 
-#include <ostream>
-#include <ranges>
 #include <string>
 #include <vector>
 
@@ -194,8 +191,8 @@ Result<Assets::Material> loadShaderMaterial(
   const Model::MaterialConfig& materialConfig,
   const Assets::CreateTextureResource& createResource)
 {
-  return findShaderTexture(shader, fs, materialConfig) | kdl::transform([&](auto path) {
-           return [&, path = std::move(path)]() {
+  return findShaderTexture(shader, fs, materialConfig) | kdl::transform([&](auto path_) {
+           return [&, path = std::move(path_)]() {
              return fs.openFile(path) | kdl::and_then([&](auto file) {
                       auto reader = file->reader().buffer();
                       return readFreeImageTexture(reader).transform([](auto texture) {

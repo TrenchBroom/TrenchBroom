@@ -21,27 +21,18 @@
 
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/TextureResource.h"
-#include "Ensure.h"
-#include "Error.h"
-#include "Exceptions.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/MaterialUtils.h"
-#include "IO/PathInfo.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "IO/ReadWalTexture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
+#include "Result.h"
 
-#include "kdl/path_utils.h"
-#include "kdl/result.h"
+#include "kdl/string_format.h"
 
-#include <string>
-
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 Assets::Material loadSkin(
@@ -79,5 +70,4 @@ Assets::Material loadSkin(
          | kdl::value();
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

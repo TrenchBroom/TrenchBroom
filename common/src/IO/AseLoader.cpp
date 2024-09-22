@@ -20,17 +20,15 @@
 #include "AseLoader.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Error.h"
 #include "FileLocation.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Renderer/MaterialIndexRangeMap.h"
 #include "Renderer/MaterialIndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
+#include "Result.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/result.h"
 #include "kdl/string_format.h"
 
 #include "vm/forward.h"
@@ -40,6 +38,7 @@
 
 namespace TrenchBroom::IO
 {
+
 AseTokenizer::AseTokenizer(const std::string_view str)
   : Tokenizer{str, "", 0}
 {
@@ -767,8 +766,8 @@ std::filesystem::path AseLoader::fixMaterialPath(std::filesystem::path path) con
 {
   if (!path.is_absolute())
   {
-    // usually the paths appear to be relative to the map file, but this will just yield a
-    // valid path if we kick off the ".." parts
+    // usually the paths appear to be relative to the map file, but this will just yield
+    // a valid path if we kick off the ".." parts
     while (!path.empty() && kdl::path_front(path) == "..")
     {
       path = kdl::path_pop_front(path);
@@ -776,4 +775,5 @@ std::filesystem::path AseLoader::fixMaterialPath(std::filesystem::path path) con
   }
   return path;
 }
+
 } // namespace TrenchBroom::IO

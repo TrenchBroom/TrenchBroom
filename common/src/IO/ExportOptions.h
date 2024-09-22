@@ -25,10 +25,9 @@
 #include <filesystem>
 #include <variant>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 struct MapExportOptions
 {
   std::filesystem::path exportPath;
@@ -55,5 +54,5 @@ struct ObjExportOptions
 using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
 
 std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs);
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

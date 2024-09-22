@@ -22,7 +22,6 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "Error.h"
 #include "IO/File.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
@@ -32,14 +31,12 @@
 
 #include "kdl/result.h"
 
-#include "vm/bbox.h"
 #include "vm/vec.h"
 
 #include <vector>
 
 namespace TrenchBroom::IO
 {
-
 namespace
 {
 
@@ -131,4 +128,5 @@ Result<Assets::EntityModelData> ImageSpriteLoader::load(Logger& logger)
     return Error{e.what()};
   }
 }
+
 } // namespace TrenchBroom::IO

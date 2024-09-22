@@ -19,8 +19,6 @@
 
 #include "TraversalMode.h"
 
-#include "Ensure.h"
-
 #include "kdl/reflection_impl.h"
 
 namespace TrenchBroom::IO

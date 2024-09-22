@@ -22,13 +22,11 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
-#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 
 #include "kdl/result.h"
 
-#include <iostream>
 #include <string>
 
 namespace TrenchBroom::IO

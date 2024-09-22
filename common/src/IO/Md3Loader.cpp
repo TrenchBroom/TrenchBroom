@@ -21,7 +21,6 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
-#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Logger.h"

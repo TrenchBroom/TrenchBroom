@@ -19,25 +19,21 @@
 
 #include "ImageFileSystem.h"
 
-#include "Ensure.h"
-#include "Error.h"
-#include "IO/DiskFileSystem.h"
 #include "IO/File.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
-#include "kdl/result.h"
 
 #include <cassert>
 #include <memory>
 
 namespace TrenchBroom::IO
 {
-
 namespace
 {
+
 const std::filesystem::path& getName(const ImageEntry& entry)
 {
   return std::visit(
@@ -283,4 +279,5 @@ Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
     },
     Result<std::shared_ptr<File>>{Error{"'" + path.string() + "' not found"}});
 }
+
 } // namespace TrenchBroom::IO

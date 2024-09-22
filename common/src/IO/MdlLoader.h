@@ -21,12 +21,8 @@
 
 #include "IO/EntityModelLoader.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
-
 #include <filesystem>
 #include <string>
-#include <vector>
 
 namespace TrenchBroom::Assets
 {

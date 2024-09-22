@@ -35,14 +35,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class PropertyDefinition;
 }
 
-namespace IO
+namespace TrenchBroom::IO
 {
 enum class EntityDefinitionClassType
 {
@@ -86,5 +84,4 @@ bool addPropertyDefinition(
   std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDefinitions,
   std::shared_ptr<Assets::PropertyDefinition> propertyDefinition);
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

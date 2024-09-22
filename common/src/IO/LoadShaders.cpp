@@ -20,8 +20,8 @@
 #include "LoadShaders.h"
 
 #include "Assets/Quake3Shader.h"
-#include "Error.h" // IWYU pragma: keep
-#include "IO/File.h"
+#include "Error.h"   // IWYU pragma: keep
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/Quake3ShaderParser.h"
@@ -31,15 +31,12 @@
 #include "Model/GameConfig.h"
 
 #include "kdl/parallel.h"
-#include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 
-#include <ranges>
-#include <string>
 #include <vector>
 
 namespace TrenchBroom::IO

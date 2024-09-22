@@ -25,9 +25,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 class InitFreeImage
@@ -43,12 +41,12 @@ public:
 class ImageLoaderImpl
 {
 private:
-  FIMEMORY* m_stream;
-  FIBITMAP* m_bitmap;
+  FIMEMORY* m_stream = nullptr;
+  FIBITMAP* m_bitmap = nullptr;
 
 public:
-  ImageLoaderImpl(const ImageLoader::Format format, const std::filesystem::path& path);
-  ImageLoaderImpl(const ImageLoader::Format format, const char* begin, const char* end);
+  ImageLoaderImpl(ImageLoader::Format format, const std::filesystem::path& path);
+  ImageLoaderImpl(ImageLoader::Format format, const char* begin, const char* end);
   ~ImageLoaderImpl();
 
   size_t paletteSize() const;
@@ -64,13 +62,13 @@ public:
 
   std::vector<unsigned char> loadPalette() const;
   std::vector<unsigned char> loadIndices() const;
-  std::vector<unsigned char> loadPixels(const ImageLoader::PixelFormat format) const;
+  std::vector<unsigned char> loadPixels(ImageLoader::PixelFormat format) const;
 
 private:
-  std::vector<unsigned char> loadIndexedPixels(const size_t pSize) const;
-  std::vector<unsigned char> loadPixels(const size_t pSize) const;
-  static FREE_IMAGE_FORMAT translateFormat(const ImageLoader::Format format);
-  static size_t pixelSize(const ImageLoader::PixelFormat format);
+  std::vector<unsigned char> loadIndexedPixels(size_t pSize) const;
+  std::vector<unsigned char> loadPixels(size_t pSize) const;
+  static FREE_IMAGE_FORMAT translateFormat(ImageLoader::Format format);
+  static size_t pixelSize(ImageLoader::PixelFormat format);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -21,22 +21,19 @@
 
 #include "Assets/PropertyDefinition.h"
 #include "Macros.h"
-#include "Model/EntityProperties.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/bbox_io.h"
-#include "vm/vec_io.h"
+#include "vm/bbox_io.h" // IWYU pragma: keep
+#include "vm/vec_io.h"  // IWYU pragma: keep
 
 #include <iostream>
-#include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type)
 {
   switch (type)
@@ -73,5 +70,4 @@ bool addPropertyDefinition(
   return true;
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

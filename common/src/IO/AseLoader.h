@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Assets/Material.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
@@ -36,14 +37,14 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModelData;
-class Material;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace IO
+namespace TrenchBroom::IO
 {
 namespace AseToken
 {
@@ -188,5 +189,5 @@ private: // model construction
 
   std::filesystem::path fixMaterialPath(std::filesystem::path path) const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

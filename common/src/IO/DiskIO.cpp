@@ -19,19 +19,17 @@
 
 #include "DiskIO.h"
 
+#include "Exceptions.h"
 #include "IO/File.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"
 #include "Macros.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/string_compare.h"
 #include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 namespace TrenchBroom::IO::Disk
 {
-
 namespace
 {
 

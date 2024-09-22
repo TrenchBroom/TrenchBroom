@@ -27,8 +27,6 @@
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 
-#include "kdl/vector_utils.h"
-
 #include <fmt/format.h>
 
 #include <string>

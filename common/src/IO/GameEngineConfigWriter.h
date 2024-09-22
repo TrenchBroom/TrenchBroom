@@ -24,16 +24,15 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
+
 class GameEngineConfigWriter
 {
 private:
@@ -51,5 +50,5 @@ private:
 
   deleteCopyAndMove(GameEngineConfigWriter);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

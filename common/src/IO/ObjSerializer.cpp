@@ -23,7 +23,6 @@
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
 #include "Model/PatchNode.h"
 #include "Model/Polyhedron.h"

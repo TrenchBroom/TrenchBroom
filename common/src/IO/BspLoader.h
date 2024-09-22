@@ -25,11 +25,6 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Assets
-{
-class Palette;
-} // namespace TrenchBroom::Assets
-
 namespace TrenchBroom::IO
 {
 class FileSystem;

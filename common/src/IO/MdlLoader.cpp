@@ -25,13 +25,11 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureResource.h"
-#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
 
-#include "kdl/result.h"
 #include "kdl/string_format.h"
 
 #include <fmt/format.h>

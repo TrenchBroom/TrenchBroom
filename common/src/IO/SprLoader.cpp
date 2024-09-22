@@ -26,8 +26,6 @@
 #include "Assets/TextureBuffer.h"
 #include "Assets/TextureResource.h"
 #include "Color.h"
-#include "Error.h"
-#include "Exceptions.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -35,9 +33,6 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
-
-#include "vm/bbox.h"
-#include "vm/vec.h"
 
 namespace TrenchBroom::IO
 {

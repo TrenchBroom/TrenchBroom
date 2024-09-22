@@ -21,12 +21,9 @@
 
 #include "Assets/Palette.h"
 #include "Ensure.h"
-#include "Error.h"
 #include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
-
-#include "kdl/result.h"
 
 #include <fmt/format.h>
 

@@ -19,7 +19,6 @@
 
 #include "VirtualFileSystem.h"
 
-#include "Error.h"
 #include "IO/File.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"

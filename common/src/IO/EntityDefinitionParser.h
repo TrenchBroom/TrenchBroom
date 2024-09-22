@@ -22,8 +22,6 @@
 #include "Color.h"
 
 #include <memory>
-#include <string>
-#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom::Assets

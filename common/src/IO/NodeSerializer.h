@@ -62,13 +62,11 @@ protected:
   using ObjectNo = unsigned int;
 
 private:
-  ObjectNo m_entityNo;
-  ObjectNo m_brushNo;
-
-  bool m_exporting;
+  ObjectNo m_entityNo = 0;
+  ObjectNo m_brushNo = 0;
+  bool m_exporting = false;
 
 public:
-  NodeSerializer();
   virtual ~NodeSerializer();
 
 protected:

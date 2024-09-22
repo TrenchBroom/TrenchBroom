@@ -31,10 +31,9 @@
 #include <cassert>
 #include <ostream>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 CompilationConfigWriter::CompilationConfigWriter(
   const Model::CompilationConfig& config, std::ostream& stream)
   : m_config{config}
@@ -134,5 +133,5 @@ EL::Value CompilationConfigWriter::writeTasks(
       task);
   })};
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

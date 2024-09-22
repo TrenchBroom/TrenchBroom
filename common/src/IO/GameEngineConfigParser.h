@@ -24,9 +24,7 @@
 #include "Model/GameEngineConfig.h"
 
 #include <filesystem>
-#include <memory>
-#include <string>
-#include <vector>
+#include <string_view>
 
 namespace TrenchBroom::IO
 {

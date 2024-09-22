@@ -21,12 +21,10 @@
 
 #include "IO/MapReader.h"
 
-#include <string>
+#include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
@@ -34,9 +32,9 @@ class EntityProperty;
 class LayerNode;
 enum class MapFormat;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -49,7 +47,7 @@ private:
   std::vector<Model::BrushFace> m_brushFaces;
 
 public:
-  BrushFaceReader(const std::string& str, Model::MapFormat sourceAndTargetMapFormat);
+  BrushFaceReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat);
 
   std::vector<Model::BrushFace> read(const vm::bbox3& worldBounds, ParserStatus& status);
 
@@ -63,5 +61,5 @@ private: // implement MapReader interface
     ParserStatus& status) override;
   void onBrushFace(Model::BrushFace face, ParserStatus& status) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

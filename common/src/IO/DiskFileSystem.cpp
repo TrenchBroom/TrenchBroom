@@ -19,8 +19,6 @@
 
 #include "DiskFileSystem.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/PathInfo.h"
@@ -35,6 +33,7 @@
 
 namespace TrenchBroom::IO
 {
+
 DiskFileSystem::DiskFileSystem(const std::filesystem::path& root)
   : m_root{root.lexically_normal()}
 {
@@ -128,4 +127,5 @@ Result<void> WritableDiskFileSystem::doRenameDirectory(
   return makeAbsolute(sourcePath).join(makeAbsolute(destPath))
          | kdl::and_then(Disk::renameDirectory);
 }
+
 } // namespace TrenchBroom::IO

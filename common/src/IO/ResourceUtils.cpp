@@ -34,8 +34,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
 #include "Ensure.h"
-#include "Error.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/PathQt.h"
 #include "IO/ReadFreeImageTexture.h"

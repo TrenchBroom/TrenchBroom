@@ -23,7 +23,6 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
 #include "Color.h"
-#include "Error.h"
 #include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"

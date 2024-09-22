@@ -42,7 +42,6 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/mat.h"
 #include "vm/mat_io.h"
 
 #include <fmt/format.h>

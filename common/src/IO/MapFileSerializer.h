@@ -26,9 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BezierPatch;
 class Brush;
@@ -37,10 +35,11 @@ class BrushFace;
 class EntityProperty;
 class Node;
 class PatchNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
+
 class MapFileSerializer : public NodeSerializer
 {
 private:
@@ -85,5 +84,5 @@ private: // threadsafe
   PrecomputedString writeBrushFaces(const Model::Brush& brush) const;
   PrecomputedString writePatch(const Model::BezierPatch& patch) const;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

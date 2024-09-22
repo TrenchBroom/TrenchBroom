@@ -22,7 +22,6 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Error.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "IO/SkinLoader.h"
@@ -32,7 +31,6 @@
 #include "Renderer/PrimType.h"
 
 #include "kdl/path_utils.h"
-#include "kdl/result.h"
 
 #include <fmt/format.h>
 

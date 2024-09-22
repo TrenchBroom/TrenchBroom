@@ -25,9 +25,9 @@
 namespace TrenchBroom::IO
 {
 
-PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions)
+PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions_)
 {
-  return [extensions = std::move(extensions)](
+  return [extensions = std::move(extensions_)](
            const std::filesystem::path& path, const GetPathInfo&) {
     return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
       return kdl::ci::str_is_equal(path.extension().string(), extension);
@@ -35,17 +35,17 @@ PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions)
   };
 }
 
-PathMatcher makeFilenamePathMatcher(std::string pattern)
+PathMatcher makeFilenamePathMatcher(std::string pattern_)
 {
-  return [pattern = std::move(pattern)](
+  return [pattern = std::move(pattern_)](
            const std::filesystem::path& path, const GetPathInfo&) {
     return kdl::ci::str_matches_glob(path.filename().string(), pattern);
   };
 }
 
-PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos)
+PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos_)
 {
-  return [pathInfos = std::move(pathInfos)](
+  return [pathInfos = std::move(pathInfos_)](
            const std::filesystem::path& path, const GetPathInfo& getPathInfo) {
     return kdl::vec_contains(pathInfos, getPathInfo(path));
   };

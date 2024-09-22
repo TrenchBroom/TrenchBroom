@@ -19,12 +19,12 @@
 
 #pragma once
 
+#include "Assets/Palette.h"
 #include "Assets/TextureResource.h"
 #include "Result.h"
 
 #include <filesystem>
 #include <optional>
-#include <string>
 #include <vector>
 
 namespace TrenchBroom
@@ -34,7 +34,6 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Palette;
 class Quake3Shader;
 class Material;
 class MaterialCollection;

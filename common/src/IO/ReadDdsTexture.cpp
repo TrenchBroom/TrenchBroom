@@ -22,12 +22,9 @@
 
 #include "Assets/Texture.h"
 #include "Assets/TextureBuffer.h"
-#include "Error.h"
 #include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
-
-#include "kdl/result.h"
 
 #include <fmt/format.h>
 

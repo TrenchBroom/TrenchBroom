@@ -28,7 +28,6 @@
 #include "IO/PathInfo.h"
 #include "IO/PathQt.h"
 
-#include <string>
 #include <vector>
 
 namespace TrenchBroom::IO::SystemPaths

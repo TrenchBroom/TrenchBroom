@@ -23,17 +23,16 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class SimpleParserStatus : public ParserStatus
 {
 public:
-  explicit SimpleParserStatus(Logger& logger, const std::string& prefix = "");
+  explicit SimpleParserStatus(Logger& logger, std::string prefix = "");
 
 private:
   void doProgress(double progress) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -19,10 +19,8 @@
 
 #include "NodeReader.h"
 
-#include "Error.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
@@ -31,16 +29,14 @@
 
 #include "kdl/vector_utils.h"
 
-#include <sstream>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 NodeReader::NodeReader(
-  std::string_view str,
+  const std::string_view str,
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   const Model::EntityPropertyConfig& entityPropertyConfig)
@@ -80,8 +76,8 @@ std::vector<Model::Node*> NodeReader::read(
 }
 
 /**
- * Attempts to parse the string as one or more entities (in the given source format), and
- * if that fails, as one or more brushes.
+ * Attempts to parse the string as one or more entities (in the given source format),
+ * and if that fails, as one or more brushes.
  *
  * Does not throw upon parsing failure, but instead logs the failure to `status` and
  * returns {}.
@@ -160,5 +156,5 @@ void NodeReader::onNode(
     m_nodes.push_back(node.release());
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

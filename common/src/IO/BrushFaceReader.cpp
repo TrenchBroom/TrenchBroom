@@ -21,21 +21,14 @@
 
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
 
-#include "kdl/vector_utils.h"
-
-#include <string>
-
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 BrushFaceReader::BrushFaceReader(
-  const std::string& str, const Model::MapFormat sourceAndTargetMapFormat)
-  : MapReader(str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {})
+  const std::string_view str, const Model::MapFormat sourceAndTargetMapFormat)
+  : MapReader{str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}}
 {
 }
 
@@ -58,12 +51,14 @@ Model::Node* BrushFaceReader::onWorldNode(
 {
   return nullptr;
 }
+
 void BrushFaceReader::onLayerNode(std::unique_ptr<Model::Node>, ParserStatus&) {}
+
 void BrushFaceReader::onNode(Model::Node*, std::unique_ptr<Model::Node>, ParserStatus&) {}
 
 void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
 {
   m_brushFaces.push_back(std::move(face));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

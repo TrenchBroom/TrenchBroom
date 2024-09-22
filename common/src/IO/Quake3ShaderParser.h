@@ -22,7 +22,7 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include <string>
+#include <string_view>
 
 namespace TrenchBroom::Assets
 {

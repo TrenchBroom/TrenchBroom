@@ -19,24 +19,16 @@
 
 #include "WorldReader.h"
 
-#include "Color.h"
-#include "Error.h"
 #include "IO/ParserStatus.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/LayerNode.h"
 #include "Model/LinkedGroupUtils.h"
-#include "Model/LockState.h"
 #include "Model/ModelUtils.h"
-#include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 
-#include "kdl/grouped_range.h"
-#include "kdl/result.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 
@@ -195,8 +187,8 @@ std::unique_ptr<Model::WorldNode> WorldReader::read(
 Model::Node* WorldReader::onWorldNode(
   std::unique_ptr<Model::WorldNode> worldNode, ParserStatus&)
 {
-  // we transfer the properties and the configuration of the default layer, but don't use
-  // the given node
+  // we transfer the properties and the configuration of the default layer, but don't
+  // use the given node
   m_worldNode->setEntity(worldNode->entity());
 
   auto* myDefaultLayerNode = m_worldNode->defaultLayer();

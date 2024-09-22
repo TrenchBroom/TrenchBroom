@@ -24,8 +24,6 @@
 #include "Model/CompilationConfig.h"
 
 #include <filesystem>
-#include <string>
-#include <vector>
 
 namespace TrenchBroom::IO
 {

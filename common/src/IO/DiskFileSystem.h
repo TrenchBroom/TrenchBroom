@@ -28,6 +28,7 @@
 
 namespace TrenchBroom::IO
 {
+
 class DiskFileSystem : public virtual FileSystem
 {
 protected:
@@ -80,4 +81,5 @@ private:
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+
 } // namespace TrenchBroom::IO

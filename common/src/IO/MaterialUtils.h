@@ -21,18 +21,13 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "Error.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
-#include "Macros.h"
 #include "Result.h"
 
 #include "kdl/reflection_decl.h"
-#include "kdl/result.h"
 
 #include <filesystem>
-#include <functional>
-#include <iosfwd>
 #include <string>
 #include <string_view>
 

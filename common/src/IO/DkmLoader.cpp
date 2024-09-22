@@ -20,8 +20,6 @@
 #include "DkmLoader.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Error.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
@@ -389,9 +387,10 @@ auto parseMeshes(Reader reader, const size_t /* commandCount */)
 }
 
 /**
- * Daikatana's models contain wrong skin paths. They often refer to a skin like "x/y.bmp"
- * which does not exist, and the correct skin file name will be "x/y.wal" instead. That's
- * why we try to find a matching file name by disregarding the extension.
+ * Daikatana's models contain wrong skin paths. They often refer to a skin like
+ * "x/y.bmp" which does not exist, and the correct skin file name will be "x/y.wal"
+ * instead. That's why we try to find a matching file name by disregarding the
+ * extension.
  */
 Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem& fs)
 {

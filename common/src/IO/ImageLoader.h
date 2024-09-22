@@ -23,9 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class ImageLoaderImpl;
 class Path;
@@ -50,8 +48,8 @@ private:
   std::unique_ptr<ImageLoaderImpl> m_impl;
 
 public:
-  ImageLoader(const Format format, const std::filesystem::path& path);
-  ImageLoader(const Format format, const char* begin, const char* end);
+  ImageLoader(Format format, const std::filesystem::path& path);
+  ImageLoader(Format format, const char* begin, const char* end);
   ~ImageLoader();
 
   size_t paletteSize() const;
@@ -67,11 +65,11 @@ public:
 
   std::vector<unsigned char> loadPalette() const;
   std::vector<unsigned char> loadIndices() const;
-  std::vector<unsigned char> loadPixels(const PixelFormat format) const;
+  std::vector<unsigned char> loadPixels(PixelFormat format) const;
 
 private:
   ImageLoader(const ImageLoader& other);
   ImageLoader& operator=(const ImageLoader& other);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

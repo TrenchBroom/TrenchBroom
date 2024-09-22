@@ -19,14 +19,11 @@
 
 #pragma once
 
-#include <cstdio> // FILE*
 #include <map>
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class BrushFace;
@@ -34,9 +31,9 @@ class EntityNode;
 class LayerNode;
 class Node;
 class WorldNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace IO
+namespace TrenchBroom::IO
 {
 class NodeSerializer;
 
@@ -71,5 +68,5 @@ private:
 public:
   void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

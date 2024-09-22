@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
-#include "EL/Value.h"
 #include "FloatType.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
@@ -30,7 +28,6 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
 
 namespace TrenchBroom::Model
 {
@@ -55,4 +52,5 @@ public:
 
 std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);
 std::string serializeSoftMapBoundsString(const vm::bbox3& bounds);
+
 } // namespace TrenchBroom::IO

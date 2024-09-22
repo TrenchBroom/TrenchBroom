@@ -25,9 +25,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 class ParserStatus;
 
@@ -80,5 +78,5 @@ private: // implement MapReader interface
     std::unique_ptr<Model::Node> node,
     ParserStatus& status) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

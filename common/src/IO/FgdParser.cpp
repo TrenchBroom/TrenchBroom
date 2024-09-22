@@ -22,11 +22,10 @@
 #include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expression.h"
-#include "Error.h" // IWYU pragma: keep
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 
