@@ -21,31 +21,28 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 NullLogger TestParserStatus::_logger;
 
 TestParserStatus::TestParserStatus()
-  : ParserStatus(_logger, "")
+  : ParserStatus{_logger, ""}
 {
 }
 
 size_t TestParserStatus::countStatus(LogLevel level) const
 {
   const auto it = m_statusCounts.find(level);
-  if (it == std::end(m_statusCounts))
-    return 0;
-  return it->second;
+  return it != m_statusCounts.end() ? it->second : 0;
 }
 
 void TestParserStatus::doProgress(const double) {}
 
 void TestParserStatus::doLog(const LogLevel level, const std::string& /* str */)
 {
-  m_statusCounts[level]++; // unknown map values are value constructed, which initializes
-                           // to 0 for size_t
+  // unknown map values are value constructed, which initializes to 0 for size_t
+  m_statusCounts[level]++;
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

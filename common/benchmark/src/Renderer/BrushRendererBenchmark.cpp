@@ -21,27 +21,20 @@
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "BenchmarkUtils.h"
-#include "Error.h"
-#include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 
 #include "kdl/result.h"
 
-#include <algorithm>
-#include <chrono>
 #include <string>
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 static constexpr size_t NumBrushes = 64'000;
 static constexpr size_t NumMaterials = 256;
@@ -155,5 +148,4 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
   kdl::vec_clear_and_delete(brushes);
   kdl::vec_clear_and_delete(materials);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer
