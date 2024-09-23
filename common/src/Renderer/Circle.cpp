@@ -19,24 +19,20 @@
 
 #include "Circle.h"
 
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 
 #include "vm/constants.h"
-#include "vm/forward.h"
 #include "vm/util.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 Circle::Circle(const float radius, const size_t segments, const bool filled)
-  : m_filled(filled)
+  : m_filled{filled}
 {
   assert(radius > 0.0f);
   assert(segments > 0);
@@ -49,7 +45,7 @@ Circle::Circle(
   const bool filled,
   const float startAngle,
   const float angleLength)
-  : m_filled(filled)
+  : m_filled{filled}
 {
   assert(radius > 0.0f);
   assert(segments > 0);
@@ -63,13 +59,13 @@ Circle::Circle(
   const vm::axis::type axis,
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
-  : m_filled(filled)
+  : m_filled{filled}
 {
   assert(radius > 0.0f);
   assert(segments > 0);
 
-  const std::pair<float, float> angles = startAngleAndLength(axis, startAxis, endAxis);
-  init3D(radius, segments, axis, angles.first, angles.second);
+  const auto [startAngle, angleLength] = startAngleAndLength(axis, startAxis, endAxis);
+  init3D(radius, segments, axis, startAngle, angleLength);
 }
 
 Circle::Circle(
@@ -134,5 +130,5 @@ void Circle::init3D(
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

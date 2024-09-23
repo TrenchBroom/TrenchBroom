@@ -22,15 +22,13 @@
 #include "Macros.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class AttrString;
 class FontGlyph;
@@ -80,5 +78,5 @@ public:
   void activate();
   void deactivate();
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

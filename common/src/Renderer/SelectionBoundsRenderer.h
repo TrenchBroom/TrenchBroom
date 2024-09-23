@@ -21,11 +21,9 @@
 
 #include "FloatType.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -35,12 +33,8 @@ class SelectionBoundsRenderer
 private:
   const vm::bbox3 m_bounds;
 
-  class SizeTextAnchor2D;
-  class SizeTextAnchor3D;
-  class MinMaxTextAnchor3D;
-
 public:
-  SelectionBoundsRenderer(const vm::bbox3& bounds);
+  explicit SelectionBoundsRenderer(const vm::bbox3& bounds);
 
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 
@@ -51,5 +45,5 @@ private:
   void renderSize3D(RenderContext& renderContext, RenderBatch& renderBatch);
   void renderMinMax(RenderContext& renderContext, RenderBatch& renderBatch);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

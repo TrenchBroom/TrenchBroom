@@ -25,12 +25,11 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 FontManager::FontManager()
-  : m_factory(std::make_unique<FreeTypeFontFactory>())
+  : m_factory{std::make_unique<FreeTypeFontFactory>()}
 {
 }
 
@@ -46,8 +45,7 @@ TextureFont& FontManager::font(const FontDescriptor& fontDescriptor)
   auto it = m_cache.lower_bound(fontDescriptor);
   if (it == std::end(m_cache) || it->first.compare(fontDescriptor) != 0)
   {
-    it = m_cache.insert(
-      it, std::make_pair(fontDescriptor, m_factory->createFont(fontDescriptor)));
+    it = m_cache.insert(it, {fontDescriptor, m_factory->createFont(fontDescriptor)});
   }
 
   return *it->second;
@@ -59,8 +57,8 @@ FontDescriptor FontManager::selectFontSize(
   const float maxWidth,
   const size_t minFontSize)
 {
-  FontDescriptor actualDescriptor = fontDescriptor;
-  vm::vec2f actualBounds = font(actualDescriptor).measure(string);
+  auto actualDescriptor = fontDescriptor;
+  auto actualBounds = font(actualDescriptor).measure(string);
   while (actualBounds.x() > maxWidth && actualDescriptor.size() > minFontSize)
   {
     actualDescriptor =
@@ -69,5 +67,5 @@ FontDescriptor FontManager::selectFontSize(
   }
   return actualDescriptor;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -27,13 +27,11 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 EdgeRenderer::Params::Params(
   const float i_width, const double i_offset, const bool i_onTop)
   : width{i_width}
@@ -275,5 +273,5 @@ void IndexedEdgeRenderer::doRender(
 {
   renderBatch.addOneShot(new Render{params, m_vertexArray, m_indexArray});
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

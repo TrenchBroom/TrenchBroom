@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Renderer/GL.h"
 #include "Renderer/GLVertex.h"
-#include "Renderer/GLVertexType.h"
 #include "Renderer/ShaderManager.h"
 #include "Renderer/Vbo.h"
 #include "Renderer/VboManager.h"
@@ -32,9 +31,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 enum class PrimType;
 
@@ -67,9 +64,9 @@ private:
   class Holder : public BaseHolder
   {
   private:
-    VboManager* m_vboManager;
-    Vbo* m_vbo;
-    size_t m_vertexCount;
+    VboManager* m_vboManager = nullptr;
+    Vbo* m_vbo = nullptr;
+    size_t m_vertexCount = 0;
 
   public:
     size_t vertexCount() const override { return m_vertexCount; }
@@ -82,14 +79,13 @@ private:
       {
         m_vboManager = &vboManager;
         m_vbo = vboManager.allocateVbo(VboType::ArrayBuffer, sizeInBytes());
-        ;
         m_vbo->writeBuffer(0, doGetVertices());
       }
     }
 
     void setup() override
     {
-      ensure(m_vbo != nullptr, "block is null");
+      ensure(m_vbo, "block is null");
       m_vbo->bind();
       VertexSpec::setup(m_vboManager->shaderManager().currentProgram(), m_vbo->offset());
     }
@@ -101,10 +97,8 @@ private:
     }
 
   protected:
-    Holder(const size_t vertexCount)
-      : m_vboManager(nullptr)
-      , m_vbo(nullptr)
-      , m_vertexCount(vertexCount)
+    explicit Holder(const size_t vertexCount)
+      : m_vertexCount{vertexCount}
     {
     }
 
@@ -112,7 +106,7 @@ private:
     {
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
       // VboManager, since it represents a safe time to delete the OpenGL buffer object.
-      if (m_vbo != nullptr)
+      if (m_vbo)
       {
         m_vboManager->destroyVbo(m_vbo);
         m_vbo = nullptr;
@@ -134,15 +128,15 @@ private:
     VertexList m_vertices;
 
   public:
-    ByValueHolder(const VertexList& vertices)
-      : Holder<VertexSpec>(vertices.size())
-      , m_vertices(vertices)
+    explicit ByValueHolder(const VertexList& vertices)
+      : Holder<VertexSpec>{vertices.size()}
+      , m_vertices{vertices}
     {
     }
 
-    ByValueHolder(VertexList&& vertices)
-      : Holder<VertexSpec>(vertices.size())
-      , m_vertices(std::move(vertices))
+    explicit ByValueHolder(VertexList&& vertices)
+      : Holder<VertexSpec>{vertices.size()}
+      , m_vertices{std::move(vertices)}
     {
     }
 
@@ -166,9 +160,9 @@ private:
     const VertexList& m_vertices;
 
   public:
-    ByRefHolder(const VertexList& vertices)
-      : Holder<VertexSpec>(vertices.size())
-      , m_vertices(vertices)
+    explicit ByRefHolder(const VertexList& vertices)
+      : Holder<VertexSpec>{vertices.size()}
+      , m_vertices{vertices}
     {
     }
 
@@ -178,8 +172,8 @@ private:
 
 private:
   std::shared_ptr<BaseHolder> m_holder;
-  bool m_prepared;
-  bool m_setup;
+  bool m_prepared = false;
+  bool m_setup = false;
 
 public:
   /**
@@ -333,5 +327,4 @@ public:
 private:
   explicit VertexArray(std::shared_ptr<BaseHolder> holder);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

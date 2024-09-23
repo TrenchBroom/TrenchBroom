@@ -26,13 +26,11 @@
 #include "Renderer/VertexArray.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class AttrString;
 class RenderContext;
@@ -54,27 +52,16 @@ private:
     vm::vec3f offset;
     Color textColor;
     Color backgroundColor;
-
-    Entry(
-      std::vector<vm::vec2f>& i_vertices,
-      const vm::vec2f& i_size,
-      const vm::vec3f& i_offset,
-      const Color& i_textColor,
-      const Color& i_backgroundColor);
   };
-
-  using EntryList = std::vector<Entry>;
 
   struct EntryCollection
   {
-    EntryList entries;
-    size_t textVertexCount;
-    size_t rectVertexCount;
+    std::vector<Entry> entries;
+    size_t textVertexCount = 0;
+    size_t rectVertexCount = 0;
 
     VertexArray textArray;
     VertexArray rectArray;
-
-    EntryCollection();
   };
 
   using TextVertex = GLVertexTypes::P3UV2C4::Vertex;
@@ -90,7 +77,7 @@ private:
 
 public:
   explicit TextRenderer(
-    const FontDescriptor& fontDescriptor,
+    FontDescriptor fontDescriptor,
     float maxViewDistance = DefaultMaxViewDistance,
     float minZoomFactor = DefaultMinZoomFactor,
     const vm::vec2f& inset = DefaultInset);
@@ -144,5 +131,5 @@ private:
 
   void clear();
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -43,7 +43,7 @@ class EntityNode;
 namespace TrenchBroom::Renderer
 {
 class RenderBatch;
-class ShaderConfig;
+struct ShaderConfig;
 class MaterialRenderer;
 
 class EntityModelRenderer : public DirectRenderable

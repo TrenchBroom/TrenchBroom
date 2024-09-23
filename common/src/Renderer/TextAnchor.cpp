@@ -24,24 +24,25 @@
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-TextAnchor::~TextAnchor() {}
 
-TextAnchor3D::~TextAnchor3D() {}
+TextAnchor::~TextAnchor() = default;
+
+TextAnchor3D::~TextAnchor3D() = default;
 
 vm::vec3f TextAnchor3D::offset(const Camera& camera, const vm::vec2f& size) const
 {
-  const vm::vec2f halfSize = size / 2.0f;
-  const TextAlignment::Type a = alignment();
-  const vm::vec2f factors = alignmentFactors(a);
-  const vm::vec2f extra = extraOffsets(a);
-  vm::vec3f offset = camera.project(basePosition());
-  for (size_t i = 0; i < 2; i++)
-    offset[i] = vm::round(offset[i] + factors[i] * size[i] - halfSize[i] + extra[i]);
-  return offset;
+  const auto halfSize = size / 2.0f;
+  const auto a = alignment();
+  const auto factors = alignmentFactors(a);
+  const auto extra = extraOffsets(a);
+
+  return camera.project(basePosition())
+         + vm::vec3f{
+           vm::round(factors.xy() * size.xy() - halfSize.xy() + extra.xy()),
+           0.0f,
+         };
 }
 
 vm::vec3f TextAnchor3D::position(const Camera& /* camera */) const
@@ -53,19 +54,27 @@ vm::vec2f TextAnchor3D::alignmentFactors(const TextAlignment::Type a) const
 {
   vm::vec2f factors;
   if ((a & TextAlignment::Left))
+  {
     factors[0] = +0.5f;
+  }
   else if ((a & TextAlignment::Right))
+  {
     factors[0] = -0.5f;
+  }
   if ((a & TextAlignment::Top))
+  {
     factors[1] = -0.5f;
+  }
   else if ((a & TextAlignment::Bottom))
+  {
     factors[1] = +0.5f;
+  }
   return factors;
 }
 
 vm::vec2f TextAnchor3D::extraOffsets(const TextAlignment::Type /* a */) const
 {
-  return vm::vec2f::zero();
+  return vm::vec2f{0, 0};
 }
 
 vm::vec3f SimpleTextAnchor::basePosition() const
@@ -87,10 +96,10 @@ SimpleTextAnchor::SimpleTextAnchor(
   const vm::vec3f& position,
   const TextAlignment::Type alignment,
   const vm::vec2f& extraOffsets)
-  : m_position(position)
-  , m_alignment(alignment)
-  , m_extraOffsets(extraOffsets)
+  : m_position{position}
+  , m_alignment{alignment}
+  , m_extraOffsets{extraOffsets}
 {
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

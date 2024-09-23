@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
 #include "vm/util.h"
 #include "vm/vec.h"

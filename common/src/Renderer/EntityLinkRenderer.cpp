@@ -121,7 +121,7 @@ struct CollectTransitiveSelectedLinksVisitor
   Color defaultColor;
   Color selectedColor;
 
-  std::unordered_set<const Model::Node*> visited = {};
+  std::unordered_set<const Model::Node*> visited;
 
   void visit(
     const Model::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
@@ -273,7 +273,7 @@ auto getTransitiveSelectedLinks(
   View::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
 {
   auto visitor = CollectTransitiveSelectedLinksVisitor{
-    document.editorContext(), defaultColor, selectedColor};
+    document.editorContext(), defaultColor, selectedColor, {}};
   return collectSelectedLinks(document.selectedNodes(), visitor);
 }
 

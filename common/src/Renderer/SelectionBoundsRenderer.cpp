@@ -30,15 +30,17 @@
 #include "vm/bbox.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <sstream>
+#include <fmt/format.h>
+#include <fmt/ostream.h>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+namespace
 {
-class SelectionBoundsRenderer::SizeTextAnchor2D : public TextAnchor3D
+
+class SizeTextAnchor2D : public TextAnchor3D
 {
 private:
   const vm::bbox3& m_bounds;
@@ -48,9 +50,9 @@ private:
 public:
   SizeTextAnchor2D(
     const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
-    : m_bounds(bounds)
-    , m_axis(axis)
-    , m_camera(camera)
+    : m_bounds{bounds}
+    , m_axis{axis}
+    , m_camera{camera}
   {
   }
 
@@ -65,23 +67,15 @@ private:
 
   TextAlignment::Type alignment() const override
   {
-    if (m_axis == vm::axis::x)
-    {
-      return TextAlignment::Top;
-    }
-    else if (m_axis == vm::axis::y && m_camera.direction().x() != 0.0f)
-    {
-      return TextAlignment::Top;
-    }
-    else
-    {
-      return TextAlignment::Right;
-    }
+    return m_axis == vm::axis::x
+               || (m_axis == vm::axis::y && m_camera.direction().x() != 0.0f)
+             ? TextAlignment::Top
+             : TextAlignment::Right;
   }
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
   {
-    vm::vec2f result;
+    auto result = vm::vec2f{};
     if (alignment & TextAlignment::Top)
     {
       result[1] -= 8.0f;
@@ -102,7 +96,7 @@ private:
   }
 };
 
-class SelectionBoundsRenderer::SizeTextAnchor3D : public TextAnchor3D
+class SizeTextAnchor3D : public TextAnchor3D
 {
 private:
   const vm::bbox3& m_bounds;
@@ -112,9 +106,9 @@ private:
 public:
   SizeTextAnchor3D(
     const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
-    : m_bounds(bounds)
-    , m_axis(axis)
-    , m_camera(camera)
+    : m_bounds{bounds}
+    , m_axis{axis}
+    , m_camera{camera}
   {
   }
 
@@ -123,7 +117,7 @@ private:
   {
     const auto camPos = m_bounds.relative_position(vm::vec3(m_camera.position()));
     const auto camDir = m_camera.direction();
-    vm::vec3 pos;
+    auto pos = vm::vec3{};
     const auto half = m_bounds.size() / 2.0;
 
     if (m_axis == vm::axis::z)
@@ -288,7 +282,7 @@ private:
       }
     }
 
-    return vm::vec3f(pos);
+    return vm::vec3f{pos};
   }
 
   TextAlignment::Type alignment() const override
@@ -299,19 +293,13 @@ private:
     }
 
     const auto camPos = m_bounds.relative_position(vm::vec3(m_camera.position()));
-    if (camPos[2] == vm::bbox3::Range::less)
-    {
-      return TextAlignment::Top;
-    }
-    else
-    {
-      return TextAlignment::Bottom;
-    }
+    return camPos[2] == vm::bbox3::Range::less ? TextAlignment::Top
+                                               : TextAlignment::Bottom;
   }
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
   {
-    vm::vec2f result;
+    auto result = vm::vec2f{};
     if (alignment & TextAlignment::Top)
     {
       result[1] -= 8.0f;
@@ -332,7 +320,7 @@ private:
   }
 };
 
-class SelectionBoundsRenderer::MinMaxTextAnchor3D : public TextAnchor3D
+class MinMaxTextAnchor3D : public TextAnchor3D
 {
 private:
   const vm::bbox3& m_bounds;
@@ -344,23 +332,17 @@ public:
     const vm::bbox3& bounds,
     const vm::bbox3::Corner minMax,
     const Renderer::Camera& camera)
-    : m_bounds(bounds)
-    , m_minMax(minMax)
-    , m_camera(camera)
+    : m_bounds{bounds}
+    , m_minMax{minMax}
+    , m_camera{camera}
   {
   }
 
 private:
   vm::vec3f basePosition() const override
   {
-    if (m_minMax == vm::bbox3::Corner::min)
-    {
-      return vm::vec3f(m_bounds.min);
-    }
-    else
-    {
-      return vm::vec3f(m_bounds.max);
-    }
+    return m_minMax == vm::bbox3::Corner::min ? vm::vec3f{m_bounds.min}
+                                              : vm::vec3f{m_bounds.max};
   }
 
   TextAlignment::Type alignment() const override
@@ -393,21 +375,31 @@ private:
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
   {
-    vm::vec2f result;
+    auto result = vm::vec2f{};
     if (alignment & TextAlignment::Top)
+    {
       result[1] -= 8.0f;
+    }
     if (alignment & TextAlignment::Bottom)
+    {
       result[1] += 8.0f;
+    }
     if (alignment & TextAlignment::Left)
+    {
       result[0] += 8.0f;
+    }
     if (alignment & TextAlignment::Right)
+    {
       result[0] -= 8.0f;
+    }
     return result;
   }
 };
 
+} // namespace
+
 SelectionBoundsRenderer::SelectionBoundsRenderer(const vm::bbox3& bounds)
-  : m_bounds(bounds)
+  : m_bounds{bounds}
 {
 }
 
@@ -422,44 +414,48 @@ void SelectionBoundsRenderer::render(
 void SelectionBoundsRenderer::renderBounds(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  RenderService renderService(renderContext, renderBatch);
+  auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
-  renderService.renderBounds(vm::bbox3f(m_bounds));
+  renderService.renderBounds(vm::bbox3f{m_bounds});
 }
 
 void SelectionBoundsRenderer::renderSize(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
   if (renderContext.render2D())
+  {
     renderSize2D(renderContext, renderBatch);
+  }
   else
+  {
     renderSize3D(renderContext, renderBatch);
+  }
 }
 
 void SelectionBoundsRenderer::renderSize2D(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
   static const std::string labels[3] = {"X", "Y", "Z"};
-  std::stringstream buffer;
 
-  RenderService renderService(renderContext, renderBatch);
+  auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-  renderService.setBackgroundColor(Color(
+  renderService.setBackgroundColor(Color{
     pref(Preferences::InfoOverlayBackgroundColor),
-    pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
+    pref(Preferences::WeakInfoOverlayBackgroundAlpha),
+  });
   renderService.setShowOccludedObjects();
 
-  const Camera& camera = renderContext.camera();
-  const vm::vec3f& direction = camera.direction();
+  const auto& camera = renderContext.camera();
+  const auto& direction = camera.direction();
 
-  const vm::vec3 boundsSize = correct(m_bounds.size());
+  const auto boundsSize = vm::correct(m_bounds.size());
   for (size_t i = 0; i < 3; ++i)
   {
     if (direction[i] == 0.0f)
     {
-      buffer << labels[i] << ": " << boundsSize[i];
-      renderService.renderString(buffer.str(), SizeTextAnchor2D(m_bounds, i, camera));
-      buffer.str("");
+      renderService.renderString(
+        fmt::format("{}: {}", labels[i], boundsSize[i]),
+        SizeTextAnchor2D{m_bounds, i, camera});
     }
   }
 }
@@ -468,49 +464,42 @@ void SelectionBoundsRenderer::renderSize3D(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
   static const std::string labels[3] = {"X", "Y", "Z"};
-  std::stringstream buffer;
 
-  RenderService renderService(renderContext, renderBatch);
+  auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-  renderService.setBackgroundColor(Color(
+  renderService.setBackgroundColor(Color{
     pref(Preferences::InfoOverlayBackgroundColor),
-    pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
+    pref(Preferences::WeakInfoOverlayBackgroundAlpha),
+  });
   renderService.setShowOccludedObjects();
 
-  const vm::vec3 boundsSize = correct(m_bounds.size());
+  const auto boundsSize = correct(m_bounds.size());
   for (size_t i = 0; i < 3; ++i)
   {
-    buffer << labels[i] << ": " << boundsSize[i];
-
     renderService.renderString(
-      buffer.str(), SizeTextAnchor3D(m_bounds, i, renderContext.camera()));
-
-    buffer.str("");
+      fmt::format("{}: {}", labels[i], boundsSize[i]),
+      SizeTextAnchor3D{m_bounds, i, renderContext.camera()});
   }
 }
 
 void SelectionBoundsRenderer::renderMinMax(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  std::stringstream buffer;
-
-  RenderService renderService(renderContext, renderBatch);
+  auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
-  renderService.setBackgroundColor(Color(
+  renderService.setBackgroundColor(Color{
     pref(Preferences::InfoOverlayBackgroundColor),
-    pref(Preferences::WeakInfoOverlayBackgroundAlpha)));
+    pref(Preferences::WeakInfoOverlayBackgroundAlpha),
+  });
   renderService.setShowOccludedObjects();
 
-  buffer << "Min: " << vm::correct(m_bounds.min);
   renderService.renderString(
-    buffer.str(),
-    MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::min, renderContext.camera()));
-  buffer.str("");
+    fmt::format("Min: {}", fmt::streamed(vm::correct(m_bounds.min))),
+    MinMaxTextAnchor3D{m_bounds, vm::bbox3::Corner::min, renderContext.camera()});
 
-  buffer << "Max: " << vm::correct(m_bounds.max);
   renderService.renderString(
-    buffer.str(),
-    MinMaxTextAnchor3D(m_bounds, vm::bbox3::Corner::max, renderContext.camera()));
+    fmt::format("Max: {}", fmt::streamed(vm::correct(m_bounds.max))),
+    MinMaxTextAnchor3D{m_bounds, vm::bbox3::Corner::max, renderContext.camera()});
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

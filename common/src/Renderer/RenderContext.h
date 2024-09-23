@@ -24,7 +24,7 @@
 #include "Macros.h"
 #include "Renderer/Transformation.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
 {

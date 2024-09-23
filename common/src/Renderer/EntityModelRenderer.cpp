@@ -22,8 +22,6 @@
 #include "Assets/AssetUtils.h"
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
-#include "Assets/ModelDefinition.h"
-#include "EL/ELExceptions.h"
 #include "Logger.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -36,11 +34,10 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
 
-#include "vm/mat.h"
+#include "vm/mat.h" // IWYU pragma: keep
 
 #include <vector>
 

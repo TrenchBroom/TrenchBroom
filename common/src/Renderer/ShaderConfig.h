@@ -25,23 +25,11 @@
 namespace TrenchBroom::Renderer
 {
 
-class ShaderConfig
+struct ShaderConfig
 {
-private:
-  std::string m_name;
-  std::vector<std::string> m_vertexShaders;
-  std::vector<std::string> m_fragmentShaders;
-
-public:
-  ShaderConfig(
-    std::string name,
-    std::vector<std::string> vertexShaders,
-    std::vector<std::string> fragmentShaders);
-
-public:
-  const std::string& name() const;
-  const std::vector<std::string>& vertexShaders() const;
-  const std::vector<std::string>& fragmentShaders() const;
+  std::string name;
+  std::vector<std::string> vertexShaders;
+  std::vector<std::string> fragmentShaders;
 };
 
 } // namespace TrenchBroom::Renderer

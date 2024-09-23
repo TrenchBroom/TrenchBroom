@@ -37,4 +37,5 @@ public:
   void prepare(VboManager& vboManager);
   void render();
 };
+
 } // namespace TrenchBroom::Renderer

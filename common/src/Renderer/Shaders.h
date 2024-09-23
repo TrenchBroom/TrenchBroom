@@ -23,6 +23,7 @@
 
 namespace TrenchBroom::Renderer::Shaders
 {
+
 extern const ShaderConfig Grid2DShader;
 extern const ShaderConfig VaryingPCShader;
 extern const ShaderConfig VaryingPUniformCShader;
@@ -44,4 +45,5 @@ extern const ShaderConfig LinkLineShader;
 extern const ShaderConfig LinkArrowShader;
 extern const ShaderConfig TriangleShader;
 extern const ShaderConfig UVViewShader;
+
 } // namespace TrenchBroom::Renderer::Shaders

@@ -23,14 +23,8 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-MaterialIndexArrayMap::Size::Size()
-  : m_indexCount{0u}
-{
-}
 
 size_t MaterialIndexArrayMap::Size::indexCount() const
 {
@@ -96,5 +90,5 @@ void MaterialIndexArrayMap::render(IndexArray& indexArray, MaterialRenderFunc& f
     func.after(material);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

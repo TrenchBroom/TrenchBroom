@@ -24,7 +24,6 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
 namespace TrenchBroom::Renderer

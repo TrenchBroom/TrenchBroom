@@ -19,27 +19,26 @@
 
 #include "MaterialIndexRangeRenderer.h"
 
-namespace TrenchBroom
+#include <utility>
+
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 MaterialRenderer::~MaterialRenderer() = default;
 
-MaterialIndexRangeRenderer::MaterialIndexRangeRenderer() {}
+MaterialIndexRangeRenderer::MaterialIndexRangeRenderer() = default;
 
 MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
-  const VertexArray& vertexArray, const MaterialIndexRangeMap& indexRange)
-  : m_vertexArray(vertexArray)
-  , m_indexRange(indexRange)
+  VertexArray vertexArray, MaterialIndexRangeMap indexRange)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexRange{std::move(indexRange)}
 {
 }
 
 MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
-  const VertexArray& vertexArray,
-  const Assets::Material* material,
-  const IndexRangeMap& indexRange)
-  : m_vertexArray(vertexArray)
-  , m_indexRange(material, indexRange)
+  VertexArray vertexArray, const Assets::Material* material, IndexRangeMap indexRange)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexRange{material, std::move(indexRange)}
 {
 }
 
@@ -66,7 +65,7 @@ void MaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
 
 MultiMaterialIndexRangeRenderer::MultiMaterialIndexRangeRenderer(
   std::vector<std::unique_ptr<MaterialIndexRangeRenderer>> renderers)
-  : m_renderers(std::move(renderers))
+  : m_renderers{std::move(renderers)}
 {
 }
 
@@ -99,5 +98,5 @@ void MultiMaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
     renderer->render(func);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

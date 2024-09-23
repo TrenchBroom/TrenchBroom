@@ -20,18 +20,15 @@
 #include "ShaderProgram.h"
 
 #include "Ensure.h"
-#include "Error.h"
 #include "Renderer/Shader.h"
 #include "Renderer/ShaderManager.h"
 
 #include "kdl/result.h"
 
 #include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/vec.h"
+#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/vec.h" // IWYU pragma: keep
 
-#include <memory>
-#include <sstream>
 #include <string>
 
 namespace TrenchBroom::Renderer

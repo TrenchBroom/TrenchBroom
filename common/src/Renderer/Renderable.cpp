@@ -19,10 +19,12 @@
 
 #include "Renderable.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
+Renderable::Renderable() = default;
+Renderable::~Renderable() = default;
+
 void Renderable::render(RenderContext& renderContext)
 {
   doRender(renderContext);
@@ -32,5 +34,11 @@ void DirectRenderable::prepareVertices(VboManager& vboManager)
 {
   doPrepareVertices(vboManager);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+DirectRenderable::DirectRenderable() = default;
+DirectRenderable::~DirectRenderable() = default;
+
+IndexedRenderable::IndexedRenderable() = default;
+IndexedRenderable::~IndexedRenderable() = default;
+
+} // namespace TrenchBroom::Renderer

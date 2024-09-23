@@ -25,17 +25,13 @@
 
 #include "kdl/vector_set.h"
 
-#include <vector>
-
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EditorContext;
 class GroupNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -49,19 +45,19 @@ private:
   kdl::vector_set<const Model::GroupNode*> m_groups;
 
   DirectEdgeRenderer m_boundsRenderer;
-  bool m_boundsValid;
+  bool m_boundsValid = false;
 
-  bool m_overrideColors;
-  bool m_showOverlays;
+  bool m_overrideColors = false;
+  bool m_showOverlays = true;
   Color m_overlayTextColor;
   Color m_overlayBackgroundColor;
-  bool m_showOccludedOverlays;
+  bool m_showOccludedOverlays = false;
   Color m_boundsColor;
-  bool m_showOccludedBounds;
+  bool m_showOccludedBounds = false;
   Color m_occludedBoundsColor;
 
 public:
-  GroupRenderer(const Model::EditorContext& editorContext);
+  explicit GroupRenderer(const Model::EditorContext& editorContext);
 
   /**
    * Equivalent to invalidateGroup() on all added groups.
@@ -114,5 +110,5 @@ private:
   AttrString groupString(const Model::GroupNode& group) const;
   Color groupColor(const Model::GroupNode& group) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

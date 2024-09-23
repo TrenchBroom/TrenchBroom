@@ -21,9 +21,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class FontGlyph;
 class FontTexture;
@@ -62,5 +60,5 @@ private:
     const char* glyphBuffer,
     size_t pitch);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

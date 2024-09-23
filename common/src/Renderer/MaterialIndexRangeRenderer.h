@@ -25,14 +25,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class VboManager;
 class MaterialRenderFunc;
@@ -56,12 +54,9 @@ private:
 
 public:
   MaterialIndexRangeRenderer();
+  MaterialIndexRangeRenderer(VertexArray vertexArray, MaterialIndexRangeMap indexRange);
   MaterialIndexRangeRenderer(
-    const VertexArray& vertexArray, const MaterialIndexRangeMap& indexRange);
-  MaterialIndexRangeRenderer(
-    const VertexArray& vertexArray,
-    const Assets::Material* material,
-    const IndexRangeMap& indexRange);
+    VertexArray vertexArray, const Assets::Material* material, IndexRangeMap indexRange);
   ~MaterialIndexRangeRenderer() override;
 
   bool empty() const override;
@@ -76,7 +71,7 @@ private:
   std::vector<std::unique_ptr<MaterialIndexRangeRenderer>> m_renderers;
 
 public:
-  MultiMaterialIndexRangeRenderer(
+  explicit MultiMaterialIndexRangeRenderer(
     std::vector<std::unique_ptr<MaterialIndexRangeRenderer>> renderers);
   ~MultiMaterialIndexRangeRenderer() override;
 
@@ -85,5 +80,5 @@ public:
   void prepare(VboManager& vboManager) override;
   void render(MaterialRenderFunc& func) override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

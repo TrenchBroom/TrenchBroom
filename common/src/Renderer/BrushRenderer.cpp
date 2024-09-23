@@ -27,7 +27,6 @@
 #include "Model/Polyhedron.h"
 #include "Model/TagAttribute.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"

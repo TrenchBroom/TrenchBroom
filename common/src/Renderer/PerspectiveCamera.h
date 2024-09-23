@@ -23,14 +23,13 @@
 
 #include "vm/forward.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class PerspectiveCamera : public Camera
 {
 private:
-  float m_fov;
+  float m_fov = 90.0f;
 
 public:
   PerspectiveCamera();
@@ -76,5 +75,5 @@ private:
   bool isValidZoom(float zoom) const override;
   void doUpdateZoom() override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

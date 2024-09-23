@@ -25,15 +25,14 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
+
 /**
  * Builds an index range map and a corresponding vertex array by recording rendering
  * primitives. The recorded data can be used to create an vertex array that can be
@@ -292,5 +291,5 @@ private:
     m_indexRange.add(material, primType, data.index, data.count);
   }
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

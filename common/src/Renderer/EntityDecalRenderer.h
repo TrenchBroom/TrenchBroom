@@ -23,9 +23,8 @@
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/Renderable.h"
-
-#include "kdl/vector_set.h"
 
 #include <memory>
 #include <unordered_map>
@@ -52,6 +51,7 @@ class MapDocument; // FIXME: Renderer should not depend on View
 
 namespace TrenchBroom::Renderer
 {
+
 class EntityDecalRenderer
 {
 private:
@@ -123,4 +123,5 @@ public: // rendering
 
   deleteCopy(EntityDecalRenderer);
 };
+
 } // namespace TrenchBroom::Renderer

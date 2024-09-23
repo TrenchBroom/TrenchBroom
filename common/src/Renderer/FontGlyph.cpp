@@ -22,17 +22,15 @@
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 FontGlyph::FontGlyph(
   const size_t x, const size_t y, const size_t w, const size_t h, const size_t a)
-  : m_x(static_cast<float>(x))
-  , m_y(static_cast<float>(y))
-  , m_w(static_cast<float>(w))
-  , m_h(static_cast<float>(h))
-  , m_a(static_cast<int>(a))
+  : m_x{static_cast<float>(x)}
+  , m_y{static_cast<float>(y)}
+  , m_w{static_cast<float>(w)}
+  , m_h{static_cast<float>(h)}
+  , m_a{static_cast<int>(a)}
 {
 }
 
@@ -49,31 +47,31 @@ void FontGlyph::appendVertices(
 
   if (clockwise)
   {
-    vertices.push_back(vm::vec2f(fxOffset, fyOffset));
-    vertices.push_back(vm::vec2f(m_x, m_y + m_h) / ftextureSize);
+    vertices.emplace_back(fxOffset, fyOffset);
+    vertices.push_back(vm::vec2f{m_x, m_y + m_h} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset, fyOffset + m_h));
-    vertices.push_back(vm::vec2f(m_x, m_y) / ftextureSize);
+    vertices.emplace_back(fxOffset, fyOffset + m_h);
+    vertices.push_back(vm::vec2f{m_x, m_y} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset + m_w, fyOffset + m_h));
-    vertices.push_back(vm::vec2f(m_x + m_w, m_y) / ftextureSize);
+    vertices.emplace_back(fxOffset + m_w, fyOffset + m_h);
+    vertices.push_back(vm::vec2f{m_x + m_w, m_y} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset + m_w, fyOffset));
-    vertices.push_back(vm::vec2f(m_x + m_w, m_y + m_h) / ftextureSize);
+    vertices.emplace_back(fxOffset + m_w, fyOffset);
+    vertices.push_back(vm::vec2f{m_x + m_w, m_y + m_h} / ftextureSize);
   }
   else
   {
-    vertices.push_back(vm::vec2f(fxOffset, fyOffset));
-    vertices.push_back(vm::vec2f(m_x, m_y + m_h) / ftextureSize);
+    vertices.emplace_back(fxOffset, fyOffset);
+    vertices.push_back(vm::vec2f{m_x, m_y + m_h} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset + m_w, fyOffset));
-    vertices.push_back(vm::vec2f(m_x + m_w, m_y + m_h) / ftextureSize);
+    vertices.emplace_back(fxOffset + m_w, fyOffset);
+    vertices.push_back(vm::vec2f{m_x + m_w, m_y + m_h} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset + m_w, fyOffset + m_h));
-    vertices.push_back(vm::vec2f(m_x + m_w, m_y) / ftextureSize);
+    vertices.emplace_back(fxOffset + m_w, fyOffset + m_h);
+    vertices.push_back(vm::vec2f{m_x + m_w, m_y} / ftextureSize);
 
-    vertices.push_back(vm::vec2f(fxOffset, fyOffset + m_h));
-    vertices.push_back(vm::vec2f(m_x, m_y) / ftextureSize);
+    vertices.emplace_back(fxOffset, fyOffset + m_h);
+    vertices.push_back(vm::vec2f{m_x, m_y} / ftextureSize);
   }
 }
 
@@ -81,5 +79,5 @@ int FontGlyph::advance() const
 {
   return m_a;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

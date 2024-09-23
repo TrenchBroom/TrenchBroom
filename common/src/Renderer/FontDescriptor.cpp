@@ -20,39 +20,32 @@
 #include "FontDescriptor.h"
 
 #include <cassert>
+#include <utility>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 FontDescriptor::FontDescriptor(
-  const std::filesystem::path& path,
+  std::filesystem::path path,
   const size_t size,
   const unsigned char minChar,
   const unsigned char maxChar)
-  : m_path(path)
-  , m_size(size)
-  , m_minChar(minChar)
-  , m_maxChar(maxChar)
+  : m_path{std::move(path)}
+  , m_size{size}
+  , m_minChar{minChar}
+  , m_maxChar{maxChar}
 {
   assert(m_minChar <= m_maxChar);
 }
 
 int FontDescriptor::compare(const FontDescriptor& other) const
 {
-  if (m_size < other.m_size)
-    return -1;
-  if (m_size > other.m_size)
-    return +1;
-  if (m_minChar < other.m_minChar)
-    return -1;
-  if (m_minChar > other.m_minChar)
-    return +1;
-  if (m_maxChar < other.m_maxChar)
-    return -1;
-  if (m_maxChar > other.m_maxChar)
-    return +1;
-  return m_path.compare(other.m_path);
+  return m_size < other.m_size         ? -1
+         : m_size > other.m_size       ? +1
+         : m_minChar < other.m_minChar ? -1
+         : m_minChar > other.m_minChar ? +1
+         : m_maxChar < other.m_maxChar ? -1
+         : m_maxChar > other.m_maxChar ? +1
+                                       : m_path.compare(other.m_path);
 }
 
 bool FontDescriptor::operator<(const FontDescriptor& other) const
@@ -89,5 +82,5 @@ unsigned char FontDescriptor::charCount() const
 {
   return static_cast<unsigned char>(m_maxChar - m_minChar + 1);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

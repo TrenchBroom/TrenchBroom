@@ -29,7 +29,7 @@
 
 namespace TrenchBroom::Renderer
 {
-class ShaderConfig;
+struct ShaderConfig;
 
 class ShaderManager
 {
@@ -52,4 +52,5 @@ private:
   Result<ShaderProgram> createProgram(const ShaderConfig& config);
   Result<std::reference_wrapper<Shader>> loadShader(const std::string& name, GLenum type);
 };
+
 } // namespace TrenchBroom::Renderer

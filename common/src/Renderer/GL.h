@@ -26,6 +26,7 @@
 
 namespace TrenchBroom
 {
+
 using GLIndices = std::vector<GLint>;
 using GLCounts = std::vector<GLsizei>;
 
@@ -162,4 +163,5 @@ GLenum glType()
 {
   return GLEnum<T>::Value;
 }
+
 } // namespace TrenchBroom

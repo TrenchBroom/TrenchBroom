@@ -20,11 +20,9 @@
 #pragma once
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 
@@ -49,7 +47,7 @@ public:
 class TextAnchor3D : public TextAnchor
 {
 public:
-  virtual ~TextAnchor3D() override;
+  ~TextAnchor3D() override;
   vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const override;
   vm::vec3f position(const Camera& camera) const override;
 
@@ -72,13 +70,12 @@ private:
 public:
   SimpleTextAnchor(
     const vm::vec3f& position,
-    const TextAlignment::Type alignment,
-    const vm::vec2f& extraOffsets = vm::vec2f::zero());
+    TextAlignment::Type alignment,
+    const vm::vec2f& extraOffsets = vm::vec2f{0, 0});
 
 private:
   vm::vec3f basePosition() const override;
   TextAlignment::Type alignment() const override;
   vm::vec2f extraOffsets(TextAlignment::Type a) const override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

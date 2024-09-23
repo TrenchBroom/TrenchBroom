@@ -24,18 +24,16 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class BoundsGuideRenderer : public DirectRenderable
 {
@@ -58,5 +56,5 @@ private:
   void doPrepareVertices(VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

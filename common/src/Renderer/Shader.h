@@ -24,9 +24,7 @@
 #include "Result.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
-#include <vector>
 
 namespace TrenchBroom::Renderer
 {

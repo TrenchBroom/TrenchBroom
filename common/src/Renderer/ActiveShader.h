@@ -23,11 +23,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-class ShaderConfig;
+struct ShaderConfig;
 class ShaderManager;
 
 class ActiveShader
@@ -46,5 +44,5 @@ public:
     m_program.set(name, value);
   }
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

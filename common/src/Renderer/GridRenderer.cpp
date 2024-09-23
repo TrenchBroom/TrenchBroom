@@ -26,15 +26,12 @@
 #include "Renderer/OrthographicCamera.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 GridRenderer::GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds)
   : m_vertexArray(VertexArray::move(vertices(camera, worldBounds)))
@@ -53,22 +50,22 @@ std::vector<GridRenderer::Vertex> GridRenderer::vertices(
   {
   case vm::axis::x:
     return {
-      Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() - h)),
-      Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() - w, p.z() + h)),
-      Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() + h)),
-      Vertex(vm::vec3f(float(worldBounds.min.x()), p.y() + w, p.z() - h))};
+      Vertex{vm::vec3f{float(worldBounds.min.x()), p.y() - w, p.z() - h}},
+      Vertex{vm::vec3f{float(worldBounds.min.x()), p.y() - w, p.z() + h}},
+      Vertex{vm::vec3f{float(worldBounds.min.x()), p.y() + w, p.z() + h}},
+      Vertex{vm::vec3f{float(worldBounds.min.x()), p.y() + w, p.z() - h}}};
   case vm::axis::y:
     return {
-      Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() - h)),
-      Vertex(vm::vec3f(p.x() - w, float(worldBounds.max.y()), p.z() + h)),
-      Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() + h)),
-      Vertex(vm::vec3f(p.x() + w, float(worldBounds.max.y()), p.z() - h))};
+      Vertex{vm::vec3f{p.x() - w, float(worldBounds.max.y()), p.z() - h}},
+      Vertex{vm::vec3f{p.x() - w, float(worldBounds.max.y()), p.z() + h}},
+      Vertex{vm::vec3f{p.x() + w, float(worldBounds.max.y()), p.z() + h}},
+      Vertex{vm::vec3f{p.x() + w, float(worldBounds.max.y()), p.z() - h}}};
   case vm::axis::z:
     return {
-      Vertex(vm::vec3f(p.x() - w, p.y() - h, float(worldBounds.min.z()))),
-      Vertex(vm::vec3f(p.x() - w, p.y() + h, float(worldBounds.min.z()))),
-      Vertex(vm::vec3f(p.x() + w, p.y() + h, float(worldBounds.min.z()))),
-      Vertex(vm::vec3f(p.x() + w, p.y() - h, float(worldBounds.min.z())))};
+      Vertex{vm::vec3f{p.x() - w, p.y() - h, float(worldBounds.min.z())}},
+      Vertex{vm::vec3f{p.x() - w, p.y() + h, float(worldBounds.min.z())}},
+      Vertex{vm::vec3f{p.x() + w, p.y() + h, float(worldBounds.min.z())}},
+      Vertex{vm::vec3f{p.x() + w, p.y() - h, float(worldBounds.min.z())}}};
   default:
     // Should not happen.
     return {};
@@ -86,7 +83,7 @@ void GridRenderer::doRender(RenderContext& renderContext)
   {
     const auto& camera = renderContext.camera();
 
-    ActiveShader shader(renderContext.shaderManager(), Shaders::Grid2DShader);
+    auto shader = ActiveShader{renderContext.shaderManager(), Shaders::Grid2DShader};
     shader.set("Normal", -camera.direction());
     shader.set("RenderGrid", renderContext.showGrid());
     shader.set("GridSize", static_cast<float>(renderContext.gridSize()));
@@ -97,5 +94,5 @@ void GridRenderer::doRender(RenderContext& renderContext)
     m_vertexArray.render(PrimType::Quads);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

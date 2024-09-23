@@ -19,14 +19,11 @@
 
 #pragma once
 
-#include "Renderer/GL.h"
 #include "Renderer/PrimType.h"
 
 #include <unordered_map>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class IndexArray;
 
@@ -53,7 +50,7 @@ private:
   {
     size_t offset;
     size_t capacity;
-    size_t count;
+    size_t count = 0;
 
     IndexArrayRange(size_t i_offset, size_t i_capacity);
     size_t add(size_t count);
@@ -77,7 +74,7 @@ public:
 
     using PrimTypeToSize = std::unordered_map<PrimType, size_t>;
     PrimTypeToSize m_sizes;
-    size_t m_indexCount;
+    size_t m_indexCount = 0;
 
   public:
     /**
@@ -161,5 +158,5 @@ public:
    */
   void render(IndexArray& indexArray) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

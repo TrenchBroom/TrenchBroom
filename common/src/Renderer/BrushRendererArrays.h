@@ -24,26 +24,21 @@
 #include "Renderer/GL.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/ShaderManager.h"
+#include "Renderer/ShaderManager.h" // IWYU pragma: keep
 #include "Renderer/Vbo.h"
 #include "Renderer/VboManager.h"
 
-#include "vm/vec.h"
-
 #include <cassert>
 #include <memory>
-#include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 struct DirtyRangeTracker
 {
-  size_t m_dirtyPos;
-  size_t m_dirtySize;
-  size_t m_capacity;
+  size_t m_dirtyPos = 0;
+  size_t m_dirtySize = 0;
+  size_t m_capacity = 0;
 
   /**
    * New trackers are initially clean.
@@ -255,7 +250,7 @@ class BrushIndexArray
 {
 private:
   IndexHolder m_indexHolder;
-  AllocationTracker m_allocationTracker;
+  AllocationTracker m_allocationTracker = AllocationTracker{0};
 
 public:
   BrushIndexArray();
@@ -283,7 +278,7 @@ public:
    */
   void zeroElementsWithKey(AllocationTracker::Block* key);
 
-  void render(const PrimType primType) const;
+  void render(PrimType primType) const;
   bool prepared() const;
   void prepare(VboManager& vboManager);
 
@@ -322,7 +317,7 @@ public:
     ensure(VboHolder<V>::m_vbo != nullptr, "block is null");
     VboHolder<V>::m_vbo->bind();
     V::Type::setup(
-      this->m_vboManager->shaderManager().currentProgram(),
+      VboHolder<V>::m_vboManager->shaderManager().currentProgram(),
       VboHolder<V>::m_vbo->offset());
     return true;
   }
@@ -334,7 +329,7 @@ public:
 
   void cleanupVertices() override
   {
-    V::Type::cleanup(this->m_vboManager->shaderManager().currentProgram());
+    V::Type::cleanup(VboHolder<V>::m_vboManager->shaderManager().currentProgram());
     VboHolder<V>::m_vbo->unbind();
   }
 
@@ -382,5 +377,4 @@ public:
   bool prepared() const;
   void prepare(VboManager& vboManager);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

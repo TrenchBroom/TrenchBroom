@@ -27,13 +27,12 @@
 
 //#define EXPENSIVE_CHECKS
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 AllocationTracker::Range::Range(Index p, Index s)
-  : pos(p)
-  , size(s)
+  : pos{p}
+  , size{s}
 {
 }
 
@@ -45,9 +44,13 @@ bool AllocationTracker::Range::operator==(const Range& other) const
 bool AllocationTracker::Range::operator<(const Range& other) const
 {
   if (pos < other.pos)
+  {
     return true;
+  }
   if (pos > other.pos)
+  {
     return false;
+  }
 
   return size < other.size;
 }
@@ -171,7 +174,9 @@ AllocationTracker::Block* AllocationTracker::allocate(const size_t needed)
   checkInvariants();
 
   if (needed == 0)
+  {
     throw std::runtime_error("allocate() requires positive nonzero size");
+  }
 
   // find the smallest free block that will fit the allocation
   auto it = findFirstLargerOrEqualBin(m_freeBlockSizeBins, needed);
@@ -517,10 +522,7 @@ std::vector<AllocationTracker::Range> AllocationTracker::usedBlocks() const
 AllocationTracker::Index AllocationTracker::largestPossibleAllocation() const
 {
   auto it = m_freeBlockSizeBins.crbegin();
-  if (it == m_freeBlockSizeBins.crend())
-    return 0;
-
-  return (*it)->size;
+  return it != m_freeBlockSizeBins.crend() ? (*it)->size : 0;
 }
 
 void AllocationTracker::checkInvariants() const
@@ -596,5 +598,5 @@ void AllocationTracker::checkInvariants() const
   }
 #endif
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

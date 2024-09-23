@@ -19,16 +19,16 @@
 
 #pragma once
 
+#include "Renderer/GL.h"
 #include "Renderer/VboManager.h"
 
 #include <cassert>
 #include <type_traits>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 /**
  * Wrapper around an OpenGL buffer
  */
@@ -44,6 +44,7 @@ private:
   size_t m_capacity;
   GLuint m_bufferId;
 
+public:
   /**
    * Immediately creates and binds to a buffer of the given type and capacity.
    * The contents are initially unspecified.
@@ -58,15 +59,14 @@ private:
    */
   void free();
 
-public:
   /**
    * Deprecated, always returns 0.
    */
   size_t offset() const;
   size_t capacity() const;
 
-  void bind();
-  void unbind();
+  void bind() const;
+  void unbind() const;
 
   template <typename T>
   size_t writeElements(const size_t address, const std::vector<T>& elements)
@@ -92,20 +92,20 @@ public:
   template <typename T>
   size_t writeArray(const size_t address, const T* array, const size_t count)
   {
-    const size_t size = count * sizeof(T);
+    const auto size = count * sizeof(T);
     assert(address + size <= m_capacity);
 
     static_assert(std::is_trivially_copyable<T>::value);
     static_assert(std::is_standard_layout<T>::value);
 
-    const GLvoid* ptr = static_cast<const GLvoid*>(array);
-    const GLintptr offset = static_cast<GLintptr>(address);
-    const GLsizeiptr sizei = static_cast<GLsizeiptr>(size);
+    const auto* ptr = static_cast<const GLvoid*>(array);
+    const auto offset = static_cast<GLintptr>(address);
+    const auto sizei = static_cast<GLsizeiptr>(size);
     glAssert(glBindBuffer(m_type, m_bufferId));
     glAssert(glBufferSubData(m_type, offset, sizei, ptr));
 
     return size;
   }
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

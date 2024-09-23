@@ -23,10 +23,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class FontGlyph
 {
 private:
@@ -47,5 +46,5 @@ public:
     bool clockwise) const;
   int advance() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

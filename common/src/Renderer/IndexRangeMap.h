@@ -27,9 +27,7 @@
 #include <functional>
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class VertexArray;
 
@@ -166,5 +164,5 @@ public:
   void forEachPrimitive(
     std::function<void(PrimType, size_t index, size_t count)> func) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -29,9 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class AttrString;
 class PointHandleRenderer;
@@ -48,7 +46,6 @@ class RenderService
 private:
   using OcclusionPolicy = PrimitiveRendererOcclusionPolicy;
   using CullingPolicy = PrimitiveRendererCullingPolicy;
-  class HeadsUpTextAnchor;
 
   RenderContext& m_renderContext;
   RenderBatch& m_renderBatch;
@@ -56,9 +53,9 @@ private:
   std::unique_ptr<PointHandleRenderer> m_pointHandleRenderer;
   std::unique_ptr<PrimitiveRenderer> m_primitiveRenderer;
 
-  Color m_foregroundColor;
-  Color m_backgroundColor;
-  float m_lineWidth;
+  Color m_foregroundColor = Color{1, 1, 1, 1};
+  Color m_backgroundColor = Color{0, 0, 0, 1};
+  float m_lineWidth = 1.0f;
   OcclusionPolicy m_occlusionPolicy;
   CullingPolicy m_cullingPolicy;
 
@@ -142,5 +139,5 @@ public:
 private:
   void flush();
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

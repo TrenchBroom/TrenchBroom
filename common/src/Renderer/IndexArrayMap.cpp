@@ -21,15 +21,13 @@
 
 #include "Renderer/IndexArray.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 IndexArrayMap::IndexArrayRange::IndexArrayRange(
   const size_t i_offset, const size_t i_capacity)
   : offset{i_offset}
   , capacity{i_capacity}
-  , count{0u}
 {
 }
 
@@ -41,15 +39,12 @@ size_t IndexArrayMap::IndexArrayRange::add(const size_t i_count)
   return result;
 }
 
-IndexArrayMap::Size::Size()
-  : m_indexCount{0u}
-{
-}
+IndexArrayMap::Size::Size() = default;
 
 void IndexArrayMap::Size::inc(const PrimType primType, const size_t count)
 {
-  m_sizes[primType] +=
-    count; // unknown map values are value constructed, which initializes to 0 for size_t
+  // unknown map values are value constructed, which initializes to 0 for size_t
+  m_sizes[primType] += count;
   m_indexCount += count;
 }
 
@@ -89,7 +84,7 @@ IndexArrayMap::IndexArrayMap(const Size& size, const size_t baseOffset)
 
 IndexArrayMap::Size IndexArrayMap::size() const
 {
-  Size result;
+  auto result = Size{};
   for (const auto& [primType, range] : m_ranges)
   {
     result.inc(primType, range.capacity);
@@ -111,5 +106,5 @@ void IndexArrayMap::render(IndexArray& indexArray) const
     indexArray.render(primType, range.offset, range.count);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

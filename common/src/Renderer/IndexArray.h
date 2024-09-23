@@ -29,9 +29,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 /**
  * Represents an array of indices. Optionally, multiple instances of this class can share
@@ -81,7 +79,7 @@ private:
 
     size_t sizeInBytes() const override { return sizeof(Index) * m_indexCount; }
 
-    virtual void prepare(VboManager& vboManager) override
+    void prepare(VboManager& vboManager) override
     {
       if (m_indexCount > 0 && m_vbo == nullptr)
       {
@@ -100,14 +98,14 @@ private:
     void cleanup() override { m_vbo->unbind(); }
 
   protected:
-    Holder(const size_t indexCount)
+    explicit Holder(const size_t indexCount)
       : m_vboManager{nullptr}
       , m_vbo{nullptr}
       , m_indexCount{indexCount}
     {
     }
 
-    virtual ~Holder() override
+    ~Holder() override
     {
       // TODO: Revisit this revisiting OpenGL resource management. We should not store the
       // VboManager, since it represents a safe time to delete the OpenGL buffer object.
@@ -142,7 +140,7 @@ private:
     IndexList m_indices;
 
   public:
-    ByValueHolder(IndexList indices)
+    explicit ByValueHolder(IndexList indices)
       : Holder<Index>{indices.size()}
       , m_indices{std::move(indices)}
     {
@@ -168,7 +166,7 @@ private:
     const IndexList& m_indices;
 
   public:
-    ByRefHolder(const IndexList& indices)
+    explicit ByRefHolder(const IndexList& indices)
       : Holder<Index>{indices.size()}
       , m_indices{indices}
     {
@@ -180,8 +178,8 @@ private:
 
 private:
   BaseHolder::Ptr m_holder;
-  bool m_prepared;
-  bool m_setup;
+  bool m_prepared = false;
+  bool m_setup = false;
 
 public:
   /**
@@ -304,5 +302,4 @@ public:
 private:
   explicit IndexArray(BaseHolder::Ptr holder);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

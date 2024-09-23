@@ -26,25 +26,18 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 
 #include "vm/forward.h"
 #include "vm/ray.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-SpikeGuideRenderer::SpikeGuideRenderer()
-  : m_valid(false)
-{
-}
 
 void SpikeGuideRenderer::setColor(const Color& color)
 {
@@ -57,16 +50,19 @@ void SpikeGuideRenderer::add(
   const FloatType length,
   std::shared_ptr<View::MapDocument> document)
 {
-  Model::PickResult pickResult = Model::PickResult::byDistance();
+  using namespace Model::HitFilters;
+
+  auto pickResult = Model::PickResult::byDistance();
   document->pick(ray, pickResult);
 
-  using namespace Model::HitFilters;
-  const auto& hit =
-    pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
-  if (hit.isMatch())
+  if (const auto& hit =
+        pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
+      hit.isMatch())
   {
     if (hit.distance() <= length)
+    {
       addPoint(vm::point_at_distance(ray, hit.distance() - 0.01));
+    }
     addSpike(ray, vm::min(length, hit.distance()), length);
   }
   else
@@ -80,22 +76,24 @@ void SpikeGuideRenderer::clear()
 {
   m_spikeVertices.clear();
   m_pointVertices.clear();
-  m_spikeArray = VertexArray();
-  m_pointArray = VertexArray();
+  m_spikeArray = VertexArray{};
+  m_pointArray = VertexArray{};
   m_valid = true;
 }
 
 void SpikeGuideRenderer::doPrepareVertices(VboManager& vboManager)
 {
   if (!m_valid)
+  {
     validate();
+  }
   m_pointArray.prepare(vboManager);
   m_spikeArray.prepare(vboManager);
 }
 
 void SpikeGuideRenderer::doRender(RenderContext& renderContext)
 {
-  ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
+  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::VaryingPCShader};
   m_spikeArray.render(PrimType::Lines);
 
   glAssert(glPointSize(3.0f));
@@ -124,5 +122,5 @@ void SpikeGuideRenderer::validate()
   m_spikeArray = VertexArray::move(std::move(m_spikeVertices));
   m_valid = true;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

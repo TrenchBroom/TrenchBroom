@@ -21,21 +21,15 @@
 
 #include "Color.h"
 #include "Renderer/ActiveShader.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/scalar.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(
   const Color& color,
@@ -52,23 +46,39 @@ bool PrimitiveRenderer::LineRenderAttributes::operator<(
 {
   // As a special exception, sort by descending alpha so opaque batches render first.
   if (m_color.a() < other.m_color.a())
+  {
     return false;
+  }
   if (m_color.a() > other.m_color.a())
+  {
     return true;
+  }
   // alpha is equal; continue with the regular comparison.
 
   if (m_lineWidth < other.m_lineWidth)
+  {
     return true;
+  }
   if (m_lineWidth > other.m_lineWidth)
+  {
     return false;
+  }
   if (m_color < other.m_color)
+  {
     return true;
+  }
   if (m_color > other.m_color)
+  {
     return false;
+  }
   if (m_occlusionPolicy < other.m_occlusionPolicy)
+  {
     return true;
+  }
   if (m_occlusionPolicy > other.m_occlusionPolicy)
+  {
     return false;
+  }
   return false;
 }
 
@@ -103,9 +113,9 @@ PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(
   const Color& color,
   const PrimitiveRendererOcclusionPolicy occlusionPolicy,
   const PrimitiveRendererCullingPolicy cullingPolicy)
-  : m_color(color)
-  , m_occlusionPolicy(occlusionPolicy)
-  , m_cullingPolicy(cullingPolicy)
+  : m_color{color}
+  , m_occlusionPolicy{occlusionPolicy}
+  , m_cullingPolicy{cullingPolicy}
 {
 }
 
@@ -114,23 +124,39 @@ bool PrimitiveRenderer::TriangleRenderAttributes::operator<(
 {
   // As a special exception, sort by descending alpha so opaque batches render first.
   if (m_color.a() < other.m_color.a())
+  {
     return false;
+  }
   if (m_color.a() > other.m_color.a())
+  {
     return true;
+  }
   // alpha is equal; continue with the regular comparison.
 
   if (m_color < other.m_color)
+  {
     return true;
+  }
   if (m_color > other.m_color)
+  {
     return false;
+  }
   if (m_occlusionPolicy < other.m_occlusionPolicy)
+  {
     return true;
+  }
   if (m_occlusionPolicy > other.m_occlusionPolicy)
+  {
     return false;
+  }
   if (m_cullingPolicy < other.m_cullingPolicy)
+  {
     return true;
+  }
   if (m_cullingPolicy > other.m_cullingPolicy)
+  {
     return false;
+  }
   return false;
 }
 
@@ -190,8 +216,8 @@ void PrimitiveRenderer::renderLine(
   const vm::vec3f& start,
   const vm::vec3f& end)
 {
-  m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLine(
-    Vertex(start), Vertex(end));
+  m_lineMeshes[LineRenderAttributes{color, lineWidth, occlusionPolicy}].addLine(
+    Vertex{start}, Vertex{end});
 }
 
 void PrimitiveRenderer::renderLines(
@@ -200,8 +226,8 @@ void PrimitiveRenderer::renderLines(
   const PrimitiveRendererOcclusionPolicy occlusionPolicy,
   const std::vector<vm::vec3f>& positions)
 {
-  m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLines(
-    Vertex::toList(positions.size(), std::begin(positions)));
+  m_lineMeshes[LineRenderAttributes{color, lineWidth, occlusionPolicy}].addLines(
+    Vertex::toList(positions.size(), positions.begin()));
 }
 
 void PrimitiveRenderer::renderLineStrip(
@@ -210,8 +236,8 @@ void PrimitiveRenderer::renderLineStrip(
   const PrimitiveRendererOcclusionPolicy occlusionPolicy,
   const std::vector<vm::vec3f>& positions)
 {
-  m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineStrip(
-    Vertex::toList(positions.size(), std::begin(positions)));
+  m_lineMeshes[LineRenderAttributes{color, lineWidth, occlusionPolicy}].addLineStrip(
+    Vertex::toList(positions.size(), positions.begin()));
 }
 
 void PrimitiveRenderer::renderCoordinateSystemXY(
@@ -288,8 +314,8 @@ void PrimitiveRenderer::renderPolygon(
   const PrimitiveRendererOcclusionPolicy occlusionPolicy,
   const std::vector<vm::vec3f>& positions)
 {
-  m_lineMeshes[LineRenderAttributes(color, lineWidth, occlusionPolicy)].addLineLoop(
-    Vertex::toList(positions.size(), std::begin(positions)));
+  m_lineMeshes[LineRenderAttributes{color, lineWidth, occlusionPolicy}].addLineLoop(
+    Vertex::toList(positions.size(), positions.begin()));
 }
 
 void PrimitiveRenderer::renderFilledPolygon(
@@ -298,8 +324,8 @@ void PrimitiveRenderer::renderFilledPolygon(
   const PrimitiveRendererCullingPolicy cullingPolicy,
   const std::vector<vm::vec3f>& positions)
 {
-  m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)]
-    .addTriangleFan(Vertex::toList(positions.size(), std::begin(positions)));
+  m_triangleMeshes[TriangleRenderAttributes{color, occlusionPolicy, cullingPolicy}]
+    .addTriangleFan(Vertex::toList(positions.size(), positions.begin()));
 }
 
 void PrimitiveRenderer::renderCylinder(
@@ -314,19 +340,19 @@ void PrimitiveRenderer::renderCylinder(
   assert(radius > 0.0f);
   assert(segments > 2);
 
-  const vm::vec3f vec = end - start;
-  const float len = vm::length(vec);
-  const vm::vec3f dir = vec / len;
+  const auto vec = end - start;
+  const auto len = vm::length(vec);
+  const auto dir = vec / len;
 
-  const vm::mat4x4f translation = vm::translation_matrix(start);
-  const vm::mat4x4f rotation = vm::rotation_matrix(vm::vec3f::pos_z(), dir);
-  const vm::mat4x4f transform = translation * rotation;
+  const auto translation = vm::translation_matrix(start);
+  const auto rotation = vm::rotation_matrix(vm::vec3f::pos_z(), dir);
+  const auto transform = translation * rotation;
 
-  const VertsAndNormals cylinder = Renderer::cylinder(radius, len, segments);
-  const std::vector<vm::vec3f> vertices = transform * cylinder.vertices;
+  const auto cylinder = Renderer::cylinder(radius, len, segments);
+  const auto vertices = transform * cylinder.vertices;
 
-  m_triangleMeshes[TriangleRenderAttributes(color, occlusionPolicy, cullingPolicy)]
-    .addTriangleStrip(Vertex::toList(vertices.size(), std::begin(vertices)));
+  m_triangleMeshes[TriangleRenderAttributes{color, occlusionPolicy, cullingPolicy}]
+    .addTriangleStrip(Vertex::toList(vertices.size(), vertices.begin()));
 }
 
 void PrimitiveRenderer::doPrepareVertices(VboManager& vboManager)
@@ -339,9 +365,8 @@ void PrimitiveRenderer::prepareLines(VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_lineMeshes)
   {
-    IndexRangeRenderer& renderer =
-      m_lineMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh)))
-        .first->second;
+    auto& renderer =
+      m_lineMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
     renderer.prepare(vboManager);
   }
 }
@@ -350,9 +375,8 @@ void PrimitiveRenderer::prepareTriangles(VboManager& vboManager)
 {
   for (auto& [attributes, mesh] : m_triangleMeshes)
   {
-    IndexRangeRenderer& renderer =
-      m_triangleMeshRenderers.insert(std::make_pair(attributes, IndexRangeRenderer(mesh)))
-        .first->second;
+    auto& renderer =
+      m_triangleMeshRenderers.emplace(attributes, IndexRangeRenderer{mesh}).first->second;
     renderer.prepare(vboManager);
   }
 }
@@ -365,7 +389,8 @@ void PrimitiveRenderer::doRender(RenderContext& renderContext)
 
 void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 {
-  ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
+  auto shader =
+    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_lineMeshRenderers)
   {
@@ -376,12 +401,13 @@ void PrimitiveRenderer::renderLines(RenderContext& renderContext)
 
 void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
 {
-  ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPUniformCShader);
+  auto shader =
+    ActiveShader{renderContext.shaderManager(), Shaders::VaryingPUniformCShader};
 
   for (auto& [attributes, renderer] : m_triangleMeshRenderers)
   {
     attributes.render(renderer, shader);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

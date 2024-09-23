@@ -20,7 +20,6 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
-#include "Error.h"
 #include "IO/SystemPaths.h"
 #include "Renderer/ShaderConfig.h"
 
@@ -38,9 +37,9 @@ namespace TrenchBroom::Renderer
 Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 {
   return createProgram(config) | kdl::and_then([&](auto program) -> Result<void> {
-           if (!m_programs.emplace(config.name(), std::move(program)).second)
+           if (!m_programs.emplace(config.name, std::move(program)).second)
            {
-             return Error{"Shader program '" + config.name() + "' already loaded"};
+             return Error{"Shader program '" + config.name + "' already loaded"};
            }
            return kdl::void_success;
          });
@@ -48,7 +47,7 @@ Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
 
 ShaderProgram& ShaderManager::program(const ShaderConfig& config)
 {
-  auto it = m_programs.find(config.name());
+  auto it = m_programs.find(config.name);
   ensure(it != std::end(m_programs), "Shader program was previously loaded");
   return it->second;
 }
@@ -65,9 +64,9 @@ void ShaderManager::setCurrentProgram(ShaderProgram* program)
 
 Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
 {
-  return createShaderProgram(config.name()) | kdl::and_then([&](auto program) {
+  return createShaderProgram(config.name) | kdl::and_then([&](auto program) {
            return kdl::vec_transform(
-                    config.vertexShaders(),
+                    config.vertexShaders,
                     [&](const auto& path) {
                       return loadShader(path, GL_VERTEX_SHADER)
                              | kdl::transform(
@@ -77,7 +76,7 @@ Result<ShaderProgram> ShaderManager::createProgram(const ShaderConfig& config)
          })
          | kdl::and_then([&](auto program) {
              return kdl::vec_transform(
-                      config.fragmentShaders(),
+                      config.fragmentShaders,
                       [&](const auto& path) {
                         return loadShader(path, GL_FRAGMENT_SHADER)
                                | kdl::transform(

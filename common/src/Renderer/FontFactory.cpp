@@ -21,15 +21,14 @@
 
 #include "Renderer/TextureFont.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 FontFactory::~FontFactory() = default;
 
 std::unique_ptr<TextureFont> FontFactory::createFont(const FontDescriptor& fontDescriptor)
 {
   return doCreateFont(fontDescriptor);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

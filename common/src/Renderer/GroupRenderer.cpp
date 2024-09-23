@@ -32,26 +32,24 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class GroupRenderer::GroupNameAnchor : public TextAnchor3D
 {
 private:
-  const Model::GroupNode* m_group;
+  const Model::GroupNode& m_group;
 
 public:
-  GroupNameAnchor(const Model::GroupNode* group)
-    : m_group(group)
+  explicit GroupNameAnchor(const Model::GroupNode& group)
+    : m_group{group}
   {
   }
 
 private:
   vm::vec3f basePosition() const override
   {
-    auto position = vm::vec3f(m_group->logicalBounds().center());
-    position[2] = float(m_group->logicalBounds().max.z());
+    auto position = vm::vec3f{m_group.logicalBounds().center()};
+    position[2] = float(m_group.logicalBounds().max.z());
     position[2] += 2.0f;
     return position;
   }
@@ -60,12 +58,7 @@ private:
 };
 
 GroupRenderer::GroupRenderer(const Model::EditorContext& editorContext)
-  : m_editorContext(editorContext)
-  , m_boundsValid(false)
-  , m_overrideColors(false)
-  , m_showOverlays(true)
-  , m_showOccludedOverlays(false)
-  , m_showOccludedBounds(false)
+  : m_editorContext{editorContext}
 {
 }
 
@@ -173,7 +166,7 @@ void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& rende
 {
   if (m_showOverlays)
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setBackgroundColor(m_overlayBackgroundColor);
 
     if (m_overrideColors)
@@ -190,7 +183,7 @@ void GroupRenderer::renderNames(RenderContext& renderContext, RenderBatch& rende
           renderService.setForegroundColor(groupColor(*group));
         }
 
-        const GroupNameAnchor anchor(group);
+        const auto anchor = GroupNameAnchor{*group};
         if (m_showOccludedOverlays)
         {
           renderService.setShowOccludedObjects();
@@ -214,26 +207,26 @@ void GroupRenderer::validateBounds()
 {
   if (m_overrideColors)
   {
-    std::vector<GLVertexTypes::P3::Vertex> vertices;
+    auto vertices = std::vector<GLVertexTypes::P3::Vertex>{};
     vertices.reserve(24 * m_groups.size());
 
     for (const auto* group : m_groups)
     {
       if (shouldRenderGroup(*group))
       {
-        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
-          vertices.emplace_back(vm::vec3f(v1));
-          vertices.emplace_back(vm::vec3f(v2));
+        group->logicalBounds().for_each_edge([&](const auto& v1, const auto& v2) {
+          vertices.emplace_back(vm::vec3f{v1});
+          vertices.emplace_back(vm::vec3f{v2});
         });
       }
     }
 
     m_boundsRenderer =
-      DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
+      DirectEdgeRenderer{VertexArray::move(std::move(vertices)), PrimType::Lines};
   }
   else
   {
-    std::vector<GLVertexTypes::P3C4::Vertex> vertices;
+    auto vertices = std::vector<GLVertexTypes::P3C4::Vertex>{};
     vertices.reserve(24 * m_groups.size());
 
     for (const auto* group : m_groups)
@@ -241,15 +234,15 @@ void GroupRenderer::validateBounds()
       if (shouldRenderGroup(*group))
       {
         const auto color = groupColor(*group);
-        group->logicalBounds().for_each_edge([&](const vm::vec3& v1, const vm::vec3& v2) {
-          vertices.emplace_back(vm::vec3f(v1), color);
-          vertices.emplace_back(vm::vec3f(v2), color);
+        group->logicalBounds().for_each_edge([&](const auto& v1, const auto& v2) {
+          vertices.emplace_back(vm::vec3f{v1}, color);
+          vertices.emplace_back(vm::vec3f{v2}, color);
         });
       }
     }
 
     m_boundsRenderer =
-      DirectEdgeRenderer(VertexArray::move(std::move(vertices)), PrimType::Lines);
+      DirectEdgeRenderer{VertexArray::move(std::move(vertices)), PrimType::Lines};
   }
 
   m_boundsValid = true;
@@ -264,12 +257,12 @@ bool GroupRenderer::shouldRenderGroup(const Model::GroupNode& group) const
 
 AttrString GroupRenderer::groupString(const Model::GroupNode& groupNode) const
 {
-  return groupNode.name();
+  return AttrString{groupNode.name()};
 }
 
 Color GroupRenderer::groupColor(const Model::GroupNode&) const
 {
   return pref(Preferences::DefaultGroupColor);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

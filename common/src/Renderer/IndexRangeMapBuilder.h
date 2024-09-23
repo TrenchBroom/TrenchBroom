@@ -25,10 +25,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 /**
  * Builds an index range map and a corresponding vertex array by recording rendering
  * primitives. The recorded data can be used to create an vertex array that can be
@@ -64,8 +63,8 @@ public:
    */
   IndexRangeMapBuilder(
     const size_t vertexCount, const IndexRangeMap::Size& indexRangeSize)
-    : m_vertexListBuilder(vertexCount)
-    , m_indexRange(indexRangeSize)
+    : m_vertexListBuilder{vertexCount}
+    , m_indexRange{indexRangeSize}
   {
   }
 
@@ -253,5 +252,5 @@ private:
     m_indexRange.add(primType, data.index, data.count);
   }
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

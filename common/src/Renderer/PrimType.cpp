@@ -22,9 +22,7 @@
 #include "Macros.h"
 #include "Renderer/GL.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 unsigned int toGL(const PrimType primType)
 {
@@ -53,5 +51,5 @@ unsigned int toGL(const PrimType primType)
     switchDefault();
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

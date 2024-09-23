@@ -252,7 +252,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Renderer/RenderUtils.cpp
         ${COMMON_SOURCE_DIR}/Renderer/SelectionBoundsRenderer.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Shader.cpp
-        ${COMMON_SOURCE_DIR}/Renderer/ShaderConfig.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ShaderManager.cpp
         ${COMMON_SOURCE_DIR}/Renderer/ShaderProgram.cpp
         ${COMMON_SOURCE_DIR}/Renderer/Shaders.cpp

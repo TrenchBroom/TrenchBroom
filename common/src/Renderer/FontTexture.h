@@ -21,18 +21,18 @@
 
 #include "Renderer/GL.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+#include <memory>
+
+namespace TrenchBroom::Renderer
 {
 class FontGlyphBuilder;
 
 class FontTexture
 {
 private:
-  size_t m_size;
-  char* m_buffer;
-  GLuint m_textureId;
+  size_t m_size = 0;
+  std::unique_ptr<char[]> m_buffer;
+  GLuint m_textureId = 0;
 
   friend class FontGlyphBuilder;
 
@@ -40,6 +40,7 @@ public:
   FontTexture();
   FontTexture(size_t cellCount, size_t cellSize, size_t margin);
   FontTexture(const FontTexture& other);
+  FontTexture(FontTexture&& other);
   FontTexture& operator=(FontTexture other);
   ~FontTexture();
 
@@ -51,5 +52,5 @@ public:
 private:
   size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

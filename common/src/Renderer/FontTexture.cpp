@@ -20,41 +20,31 @@
 #include "FontTexture.h"
 
 #include "Ensure.h"
-#include "Macros.h"
 
 #include <cassert>
 #include <cstring>
-#include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-FontTexture::FontTexture()
-  : m_size(0)
-  , m_buffer(nullptr)
-  , m_textureId(0)
-{
-}
+
+FontTexture::FontTexture() = default;
 
 FontTexture::FontTexture(
   const size_t cellCount, const size_t cellSize, const size_t margin)
-  : m_size(computeTextureSize(cellCount, cellSize, margin))
-  , m_buffer(nullptr)
-  , m_textureId(0)
+  : m_size{computeTextureSize(cellCount, cellSize, margin)}
+  , m_buffer{std::make_unique<char[]>(m_size * m_size)}
 {
-  m_buffer = new char[m_size * m_size];
-  std::memset(m_buffer, 0, m_size * m_size);
+  std::memset(m_buffer.get(), 0, m_size * m_size);
 }
 
 FontTexture::FontTexture(const FontTexture& other)
-  : m_size(other.m_size)
-  , m_buffer(nullptr)
-  , m_textureId(0)
+  : m_size{other.m_size}
+  , m_buffer{std::make_unique<char[]>(m_size * m_size)}
 {
-  m_buffer = new char[m_size * m_size];
-  std::memcpy(m_buffer, other.m_buffer, m_size * m_size);
+  std::memcpy(m_buffer.get(), other.m_buffer.get(), m_size * m_size);
 }
+
+FontTexture::FontTexture(FontTexture&& other) = default;
 
 FontTexture& FontTexture::operator=(FontTexture other)
 {
@@ -73,8 +63,7 @@ FontTexture::~FontTexture()
     glAssert(glDeleteTextures(1, &m_textureId));
     m_textureId = 0;
   }
-  delete[] m_buffer;
-  m_buffer = nullptr;
+  m_buffer.release();
 }
 
 size_t FontTexture::size() const
@@ -102,9 +91,8 @@ void FontTexture::activate()
       0,
       GL_LUMINANCE,
       GL_UNSIGNED_BYTE,
-      m_buffer));
-    delete[] m_buffer;
-    m_buffer = nullptr;
+      m_buffer.get()));
+    m_buffer.release();
   }
 
   assert(m_textureId > 0);
@@ -119,11 +107,13 @@ void FontTexture::deactivate()
 size_t FontTexture::computeTextureSize(
   const size_t cellCount, const size_t cellSize, const size_t margin) const
 {
-  const size_t minTextureSize = margin + cellCount * (cellSize + margin);
+  const auto minTextureSize = margin + cellCount * (cellSize + margin);
   size_t textureSize = 1;
   while (textureSize < minTextureSize)
+  {
     textureSize = textureSize << 1;
+  }
   return textureSize;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

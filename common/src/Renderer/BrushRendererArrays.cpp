@@ -24,37 +24,28 @@
 #include <cstring>
 #include <stdexcept>
 
-namespace TrenchBroom
-{
 // BrushIndexArray
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 
 // DirtyRangeTracker
 
-DirtyRangeTracker::DirtyRangeTracker(const size_t initial_capacity)
-  : m_dirtyPos(0)
-  , m_dirtySize(0)
-  , m_capacity(initial_capacity)
+DirtyRangeTracker::DirtyRangeTracker(size_t initial_capacity)
+  : m_capacity{initial_capacity}
 {
 }
 
-DirtyRangeTracker::DirtyRangeTracker()
-  : m_dirtyPos(0)
-  , m_dirtySize(0)
-  , m_capacity(0)
-{
-}
+DirtyRangeTracker::DirtyRangeTracker() = default;
 
 void DirtyRangeTracker::expand(const size_t newcap)
 {
   if (newcap <= m_capacity)
   {
-    throw std::invalid_argument("new capacity must be greater");
+    throw std::invalid_argument{"new capacity must be greater"};
   }
 
-  const size_t oldcap = m_capacity;
+  const auto oldcap = m_capacity;
   m_capacity = newcap;
   markDirty(oldcap, newcap - oldcap);
 }
@@ -69,11 +60,11 @@ void DirtyRangeTracker::markDirty(const size_t pos, const size_t size)
   // bounds check
   if (pos + size > m_capacity)
   {
-    throw std::invalid_argument("markDirty provided range out of bounds");
+    throw std::invalid_argument{"markDirty provided range out of bounds"};
   }
 
-  const size_t newPos = std::min(pos, m_dirtyPos);
-  const size_t newEnd = std::max(pos + size, m_dirtyPos + m_dirtySize);
+  const auto newPos = std::min(pos, m_dirtyPos);
+  const auto newEnd = std::max(pos + size, m_dirtyPos + m_dirtySize);
 
   m_dirtyPos = newPos;
   m_dirtySize = newEnd - newPos;
@@ -104,8 +95,8 @@ void IndexHolder::zeroRange(const size_t offsetWithinBlock, const size_t count)
 
 void IndexHolder::render(const PrimType primType, const size_t offset, size_t count) const
 {
-  const GLsizei renderCount = static_cast<GLsizei>(count);
-  const GLvoid* renderOffset =
+  const auto renderCount = static_cast<GLsizei>(count);
+  const auto* renderOffset =
     reinterpret_cast<GLvoid*>(m_vbo->offset() + sizeof(Index) * offset);
 
   glAssert(glDrawElements(toGL(primType), renderCount, glType<Index>(), renderOffset));
@@ -120,11 +111,7 @@ VertexArrayInterface::~VertexArrayInterface() {}
 
 // BrushIndexArray
 
-BrushIndexArray::BrushIndexArray()
-  : m_indexHolder()
-  , m_allocationTracker(0)
-{
-}
+BrushIndexArray::BrushIndexArray() = default;
 
 bool BrushIndexArray::hasValidIndices() const
 {
@@ -137,7 +124,7 @@ std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::
   auto block = m_allocationTracker.allocate(elementCount);
   if (block != nullptr)
   {
-    GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
+    auto* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
     return {block, dest};
   }
 
@@ -151,7 +138,7 @@ std::pair<AllocationTracker::Block*, GLuint*> BrushIndexArray::
   block = m_allocationTracker.allocate(elementCount);
   assert(block != nullptr);
 
-  GLuint* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
+  auto* dest = m_indexHolder.getPointerToWriteElementsTo(block->pos, elementCount);
   return {block, dest};
 }
 
@@ -193,11 +180,7 @@ void BrushIndexArray::cleanupIndices()
 
 // BrushVertexArray
 
-BrushVertexArray::BrushVertexArray()
-  : m_vertexHolder()
-  , m_allocationTracker(0)
-{
-}
+BrushVertexArray::BrushVertexArray() = default;
 
 std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray::
   getPointerToInsertVerticesAt(const size_t vertexCount)
@@ -205,12 +188,12 @@ std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray
   auto block = m_allocationTracker.allocate(vertexCount);
   if (block != nullptr)
   {
-    Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+    auto* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
     return {block, dest};
   }
 
   // retry
-  const size_t newSize = std::max(
+  const auto newSize = std::max(
     2 * m_allocationTracker.capacity(), m_allocationTracker.capacity() + vertexCount);
   m_allocationTracker.expand(newSize);
   m_vertexHolder.resize(newSize);
@@ -219,7 +202,7 @@ std::pair<AllocationTracker::Block*, BrushVertexArray::Vertex*> BrushVertexArray
   block = m_allocationTracker.allocate(vertexCount);
   assert(block != nullptr);
 
-  Vertex* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
+  auto* dest = m_vertexHolder.getPointerToWriteElementsTo(block->pos, vertexCount);
   return {block, dest};
 }
 
@@ -253,5 +236,5 @@ void BrushVertexArray::prepare(VboManager& vboManager)
   m_vertexHolder.prepare(vboManager);
   assert(m_vertexHolder.prepared());
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

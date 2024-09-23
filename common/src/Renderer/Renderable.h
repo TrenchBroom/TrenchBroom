@@ -21,9 +21,7 @@
 
 #include "Macros.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -31,8 +29,8 @@ class VboManager;
 class Renderable
 {
 public:
-  Renderable() = default;
-  virtual ~Renderable() = default;
+  Renderable();
+  virtual ~Renderable();
 
   void render(RenderContext& renderContext);
 
@@ -45,8 +43,8 @@ private:
 class DirectRenderable : public Renderable
 {
 public:
-  DirectRenderable() = default;
-  ~DirectRenderable() override = default;
+  DirectRenderable();
+  ~DirectRenderable() override;
 
   void prepareVertices(VboManager& vboManager);
 
@@ -59,12 +57,12 @@ private:
 class IndexedRenderable : public Renderable
 {
 public:
-  IndexedRenderable() = default;
-  ~IndexedRenderable() override = default;
+  IndexedRenderable();
+  ~IndexedRenderable() override;
 
   virtual void prepareVerticesAndIndices(VboManager& vboManager) = 0;
 
   defineCopyAndMove(IndexedRenderable);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

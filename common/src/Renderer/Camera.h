@@ -22,8 +22,10 @@
 #include "FloatType.h"
 #include "Notifier.h"
 
+#include "kdl/reflection_decl.h"
+
 #include "vm/forward.h"
-#include "vm/mat.h"
+#include "vm/mat.h" // IWYU pragma: keep
 #include "vm/ray.h"
 #include "vm/vec.h"
 
@@ -32,8 +34,9 @@
 namespace TrenchBroom
 {
 class Color;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -43,14 +46,10 @@ class Camera
 public:
   struct Viewport
   {
-    int x, y;
-    int width, height;
-
-    Viewport();
-    Viewport(int i_x, int i_y, int i_width, int i_height);
-
-    bool operator==(const Viewport& other) const;
-    bool operator!=(const Viewport& other) const;
+    int x = 0;
+    int y = 0;
+    int width = 0;
+    int height = 0;
 
     template <typename T>
     bool contains(const T i_x, const T i_y, const T i_w, const T i_h) const
@@ -69,16 +68,18 @@ public:
     }
 
     int minDimension() const { return width < height ? width : height; }
+
+    kdl_reflect_decl(Camera::Viewport, x, y, width, height);
   };
 
 public:
   static const float DefaultPointDistance;
 
 private:
-  float m_nearPlane;
-  float m_farPlane;
-  Viewport m_viewport;
-  float m_zoom;
+  float m_nearPlane = 1.0f;
+  float m_farPlane = 65536.0f;
+  Viewport m_viewport = Viewport{0, 0, 1024, 768};
+  float m_zoom = 1.0f;
   vm::vec3f m_position;
   vm::vec3f m_direction;
   vm::vec3f m_up;
@@ -90,12 +91,13 @@ private:
   mutable vm::mat4x4f m_inverseMatrix;
 
 protected:
-  typedef enum
+  enum class ProjectionType
   {
-    Projection_Orthographic,
-    Projection_Perspective
-  } ProjectionType;
-  mutable bool m_valid;
+    Orthographic,
+    Perspective
+  };
+
+  mutable bool m_valid = false;
 
 public:
   Notifier<const Camera*> cameraDidChangeNotifier;
@@ -131,7 +133,7 @@ public:
   float distanceTo(const vm::vec3f& point) const;
   float squaredDistanceTo(const vm::vec3f& point) const;
   float perpendicularDistanceTo(const vm::vec3f& point) const;
-  vm::vec3f defaultPoint(const float distance = DefaultPointDistance) const;
+  vm::vec3f defaultPoint(float distance = DefaultPointDistance) const;
   vm::vec3f defaultPoint(float x, float y) const;
 
   template <typename T>
@@ -163,7 +165,7 @@ public:
    * @param pitch the pitch angle (in radians) counterclockwise about m_right
    * @return upright clamped rotation that applies the given yaw and pitch
    */
-  vm::quatf clampedRotationFromYawPitch(const float yaw, const float pitch) const;
+  vm::quatf clampedRotationFromYawPitch(float yaw, float pitch) const;
   /**
    * Given a rotation, clamps it so that m_up.z() remains >= 0 after the rotation.
    *
@@ -225,5 +227,5 @@ private:
   virtual bool isValidZoom(float zoom) const;
   virtual void doUpdateZoom() = 0;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -31,14 +31,15 @@ namespace TrenchBroom
 {
 class Color;
 class Logger;
+} // namespace TrenchBroom
 
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityModel;
 class EntityModelManager;
-} // namespace Assets
+} // namespace TrenchBroom::Assets
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class EditorContext;
@@ -46,9 +47,9 @@ class EntityNode;
 class GroupNode;
 class Node;
 class PatchNode;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class FontManager;
 class RenderBatch;
@@ -121,5 +122,5 @@ public: // rendering
 
   deleteCopy(ObjectRenderer);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

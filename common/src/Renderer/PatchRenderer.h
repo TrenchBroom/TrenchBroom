@@ -26,8 +26,6 @@
 
 #include "kdl/vector_set.h"
 
-#include <vector>
-
 namespace TrenchBroom::Model
 {
 class EditorContext;

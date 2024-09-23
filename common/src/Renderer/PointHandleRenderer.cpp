@@ -24,7 +24,6 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VboManager.h"
 
@@ -32,13 +31,12 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 PointHandleRenderer::PointHandleRenderer()
-  : m_handle(pref(Preferences::HandleRadius), 16, true)
-  , m_highlight(2.0f * pref(Preferences::HandleRadius), 16, false)
+  : m_handle{pref(Preferences::HandleRadius), 16, true}
+  , m_highlight{2.0f * pref(Preferences::HandleRadius), 16, false}
 {
 }
 
@@ -60,17 +58,17 @@ void PointHandleRenderer::doPrepareVertices(VboManager& vboManager)
 
 void PointHandleRenderer::doRender(RenderContext& renderContext)
 {
-  const Camera& camera = renderContext.camera();
-  const Camera::Viewport& viewport = camera.viewport();
-  const vm::mat4x4f projection = vm::ortho_matrix(
+  const auto& camera = renderContext.camera();
+  const auto& viewport = camera.viewport();
+  const auto projection = vm::ortho_matrix(
     0.0f,
     1.0f,
     static_cast<float>(viewport.x),
     static_cast<float>(viewport.height),
     static_cast<float>(viewport.width),
     static_cast<float>(viewport.y));
-  const vm::mat4x4f view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
-  ReplaceTransformation ortho(renderContext.transformation(), projection, view);
+  const auto view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
+  auto ortho = ReplaceTransformation{renderContext.transformation(), projection, view};
 
   if (renderContext.render3D())
   {
@@ -99,29 +97,26 @@ void PointHandleRenderer::doRender(RenderContext& renderContext)
 void PointHandleRenderer::renderHandles(
   RenderContext& renderContext, const HandleMap& map, Circle& circle, const float opacity)
 {
-  const Camera& camera = renderContext.camera();
-  ActiveShader shader(renderContext.shaderManager(), Shaders::HandleShader);
+  const auto& camera = renderContext.camera();
+  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::HandleShader};
 
   for (const auto& [color, positions] : map)
   {
     shader.set("Color", mixAlpha(color, opacity));
 
-    for (const vm::vec3f& position : positions)
+    for (const auto& position : positions)
     {
-      vm::vec3f nudgeTowardsCamera;
-
       // In 3D view, nudge towards camera by the handle radius, to prevent lines (brush
       // edges, etc.) from clipping into the handle
-      if (renderContext.render3D())
-      {
-        nudgeTowardsCamera =
-          vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius);
-      }
+      const auto nudgeTowardsCamera =
+        renderContext.render3D()
+          ? vm::normalize(camera.position() - position) * pref(Preferences::HandleRadius)
+          : vm::vec3f{0, 0, 0};
 
-      const vm::vec3f offset =
-        camera.project(position + nudgeTowardsCamera) * vm::vec3f(1.0f, 1.0f, -1.0f);
-      MultiplyModelMatrix translate(
-        renderContext.transformation(), vm::translation_matrix(offset));
+      const auto offset =
+        camera.project(position + nudgeTowardsCamera) * vm::vec3f{1, 1, -1};
+      auto translate = MultiplyModelMatrix{
+        renderContext.transformation(), vm::translation_matrix(offset)};
       circle.render();
     }
   }
@@ -132,5 +127,5 @@ void PointHandleRenderer::clear()
   m_pointHandles.clear();
   m_highlights.clear();
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

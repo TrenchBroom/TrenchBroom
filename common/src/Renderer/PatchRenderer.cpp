@@ -34,14 +34,12 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VertexArray.h"
 
 #include "kdl/vector_utils.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
 {

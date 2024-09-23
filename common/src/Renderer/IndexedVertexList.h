@@ -25,10 +25,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 template <typename T>
 class IndexedVertexList
 {
@@ -37,27 +36,19 @@ private:
   using CountArray = std::vector<GLsizei>;
 
   bool m_allowDynamicGrowth;
-  size_t m_primStart;
+  size_t m_primStart = 0;
   typename T::Vertex::List m_vertices;
   IndexArray m_indices;
   CountArray m_counts;
 
 public:
   IndexedVertexList()
-    : m_allowDynamicGrowth(true)
-    , m_primStart(0)
-    , m_vertices(0)
-    , m_indices(0)
-    , m_counts(0)
+    : m_allowDynamicGrowth{true}
   {
   }
 
   IndexedVertexList(const size_t vertexCount, const size_t primCount)
-    : m_allowDynamicGrowth(false)
-    , m_primStart(0)
-    , m_vertices(0)
-    , m_indices(0)
-    , m_counts(0)
+    : m_allowDynamicGrowth{false}
   {
     reserve(vertexCount, primCount);
   }
@@ -148,5 +139,5 @@ public:
     m_counts.clear();
   }
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

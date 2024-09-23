@@ -24,10 +24,9 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 MaterialIndexArrayMapBuilder::MaterialIndexArrayMapBuilder(
   const MaterialIndexArrayMap::Size& size)
   : m_ranges{size}
@@ -47,7 +46,7 @@ MaterialIndexArrayMap& MaterialIndexArrayMapBuilder::ranges()
 
 void MaterialIndexArrayMapBuilder::addPoint(const Material* material, const Index i)
 {
-  const size_t offset = m_ranges.add(material, PrimType::Points, 1);
+  const auto offset = m_ranges.add(material, PrimType::Points, 1);
   m_indices[offset] = i;
 }
 
@@ -114,11 +113,12 @@ void MaterialIndexArrayMapBuilder::addQuads(
   const Material* material, const Index baseIndex, const size_t vertexCount)
 {
   assert(vertexCount % 4 == 0);
-  IndexList indices(vertexCount);
+  auto indices = IndexList{};
+  indices.reserve(vertexCount);
 
   for (size_t i = 0; i < vertexCount; ++i)
   {
-    indices[i] = baseIndex + static_cast<Index>(i);
+    indices.push_back(baseIndex + static_cast<Index>(i));
   }
 
   add(material, PrimType::Quads, indices);
@@ -127,7 +127,7 @@ void MaterialIndexArrayMapBuilder::addQuads(
 void MaterialIndexArrayMapBuilder::addPolygon(
   const Material* material, const IndexList& indices)
 {
-  const size_t count = indices.size();
+  const auto count = indices.size();
 
   auto polyIndices = IndexList{};
   polyIndices.reserve(3 * (count - 2));
@@ -161,10 +161,10 @@ void MaterialIndexArrayMapBuilder::addPolygon(
 void MaterialIndexArrayMapBuilder::add(
   const Material* material, const PrimType primType, const IndexList& indices)
 {
-  const size_t offset = m_ranges.add(material, primType, indices.size());
+  const auto offset = m_ranges.add(material, primType, indices.size());
   auto dest = std::begin(m_indices);
   std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
   std::copy(std::begin(indices), std::end(indices), dest);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

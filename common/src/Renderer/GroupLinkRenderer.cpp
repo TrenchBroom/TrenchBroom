@@ -20,23 +20,22 @@
 #include "GroupLinkRenderer.h"
 
 #include "Model/EditorContext.h"
-#include "Model/Group.h"
 #include "Model/GroupNode.h"
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+#include <utility>
+
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<View::MapDocument> document)
-  : m_document(document)
+  : m_document{std::move(document)}
 {
 }
 
@@ -77,5 +76,5 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
 
   return links;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

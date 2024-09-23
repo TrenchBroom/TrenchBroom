@@ -20,14 +20,13 @@
 #pragma once
 
 #include "vm/forward.h"
-#include "vm/mat.h"
+#include "vm/mat.h" // IWYU pragma: keep
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class Transformation
 {
 private:
@@ -95,7 +94,7 @@ public:
   ~MultiplyModelMatrix();
 
 private:
-  MultiplyModelMatrix(const ReplaceTransformation& other);
+  explicit MultiplyModelMatrix(const ReplaceTransformation& other);
   MultiplyModelMatrix& operator=(const ReplaceTransformation& other);
 };
 
@@ -109,8 +108,8 @@ public:
   ~ReplaceModelMatrix();
 
 private:
-  ReplaceModelMatrix(const ReplaceTransformation& other);
+  explicit ReplaceModelMatrix(const ReplaceTransformation& other);
   ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

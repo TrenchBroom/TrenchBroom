@@ -19,13 +19,13 @@
 
 #include "Sphere.h"
 
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
 
 namespace TrenchBroom::Renderer
 {
+
 Sphere::Sphere(const float radius, const size_t iterations)
 {
   using Vertex = GLVertexTypes::P3::Vertex;
@@ -48,4 +48,5 @@ void Sphere::render()
 {
   m_array.render(PrimType::Triangles);
 }
+
 } // namespace TrenchBroom::Renderer

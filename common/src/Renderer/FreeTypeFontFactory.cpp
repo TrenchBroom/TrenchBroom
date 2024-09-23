@@ -19,7 +19,6 @@
 
 #include "FreeTypeFontFactory.h"
 
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h" // IWYU pragma: keep

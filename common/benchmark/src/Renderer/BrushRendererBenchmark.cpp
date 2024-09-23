@@ -30,47 +30,49 @@
 
 #include "kdl/result.h"
 
+#include <fmt/format.h>
+
 #include <string>
 #include <tuple>
 #include <vector>
 
 namespace TrenchBroom::Renderer
 {
-static constexpr size_t NumBrushes = 64'000;
-static constexpr size_t NumMaterials = 256;
+namespace
+{
+
+constexpr size_t NumBrushes = 64'000;
+constexpr size_t NumMaterials = 256;
 
 /**
  * Both returned vectors need to be freed with VecUtils::clearAndDelete
  */
-static std::pair<std::vector<Model::BrushNode*>, std::vector<Assets::Material*>>
-makeBrushes()
+auto makeBrushes()
 {
   // make materials
-  std::vector<Assets::Material*> materials;
+  auto materials = std::vector<Assets::Material>{};
   for (size_t i = 0; i < NumMaterials; ++i)
   {
     auto materialName = "material " + std::to_string(i);
     auto textureResource = createTextureResource(Assets::Texture{64, 64});
-    materials.push_back(
-      new Assets::Material(std::move(materialName), std::move(textureResource)));
+    materials.emplace_back(std::move(materialName), std::move(textureResource));
   }
 
   // make brushes, cycling through the materials for each face
-  const vm::bbox3 worldBounds(4096.0);
+  const auto worldBounds = vm::bbox3{4096.0};
 
-  Model::BrushBuilder builder(Model::MapFormat::Standard, worldBounds);
+  auto builder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
 
-  std::vector<Model::BrushNode*> result;
+  auto result = std::vector<std::unique_ptr<Model::BrushNode>>{};
   size_t currentMaterialIndex = 0;
   for (size_t i = 0; i < NumBrushes; ++i)
   {
-    Model::Brush brush = builder.createCube(64.0, "") | kdl::value();
-    for (Model::BrushFace& face : brush.faces())
+    auto brush = builder.createCube(64.0, "") | kdl::value();
+    for (auto& face : brush.faces())
     {
-      face.setMaterial(materials.at((currentMaterialIndex++) % NumMaterials));
+      face.setMaterial(&materials.at((currentMaterialIndex++) % NumMaterials));
     }
-    Model::BrushNode* brushNode = new Model::BrushNode(std::move(brush));
-    result.push_back(brushNode);
+    result.push_back(std::make_unique<Model::BrushNode>(std::move(brush)));
   }
 
   // ensure the brushes have their vertices cached.
@@ -78,15 +80,17 @@ makeBrushes()
   // want it mixed into the timing
 
   BrushRenderer tempRenderer;
-  for (auto* brushNode : result)
+  for (auto& brushNode : result)
   {
-    tempRenderer.addBrush(brushNode);
+    tempRenderer.addBrush(brushNode.get());
   }
   tempRenderer.validate();
   tempRenderer.clear();
 
-  return {result, materials};
+  return std::tuple{std::move(result), std::move(materials)};
 }
+
+} // namespace
 
 TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
 {
@@ -96,12 +100,12 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
 
   timeLambda(
     [&]() {
-      for (auto* brush : brushes)
+      for (const auto& brush : brushes)
       {
-        r.addBrush(brush);
+        r.addBrush(brush.get());
       }
     },
-    "add " + std::to_string(brushes.size()) + " brushes to BrushRenderer");
+    fmt::format("add {} brushes to BrushRenderer", brushes.size()));
   timeLambda(
     [&]() {
       if (!r.valid())
@@ -109,11 +113,10 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
         r.validate();
       }
     },
-    "validate after adding " + std::to_string(brushes.size())
-      + " brushes to BrushRenderer");
+    fmt::format("validate after adding {} brushes to BrushRenderer", brushes.size()));
 
   // Tiny change: remove the last brush
-  timeLambda([&]() { r.removeBrush(brushes.back()); }, "call removeBrush once");
+  timeLambda([&]() { r.removeBrush(brushes.back().get()); }, "call removeBrush once");
   timeLambda(
     [&]() {
       if (!r.valid())
@@ -130,7 +133,7 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
       {
         if ((i % 2) == 0)
         {
-          r.removeBrush(brushes[i]);
+          r.removeBrush(brushes[i].get());
         }
       }
     },
@@ -144,8 +147,6 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
       }
     },
     "validate remaining brushes");
-
-  kdl::vec_clear_and_delete(brushes);
-  kdl::vec_clear_and_delete(materials);
 }
+
 } // namespace TrenchBroom::Renderer

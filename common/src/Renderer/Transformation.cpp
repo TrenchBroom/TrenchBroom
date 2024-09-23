@@ -26,10 +26,9 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 Transformation::Transformation(
   const vm::mat4x4f& projection, const vm::mat4x4f& view, const vm::mat4x4f& model)
 {
@@ -39,9 +38,13 @@ Transformation::Transformation(
 Transformation::~Transformation()
 {
   if (m_projectionStack.size() > 1)
+  {
     loadProjectionMatrix(m_projectionStack.front());
+  }
   if (m_viewStack.size() > 1 || m_modelStack.size() > 1)
+  {
     loadModelViewMatrix(m_viewStack.front() * m_modelStack.front());
+  }
 }
 
 const vm::mat4x4f& Transformation::projectionMatrix() const
@@ -64,8 +67,7 @@ const vm::mat4x4f& Transformation::modelMatrix() const
 
 Transformation Transformation::slice() const
 {
-  return Transformation(
-    m_projectionStack.back(), m_viewStack.back(), m_modelStack.back());
+  return {m_projectionStack.back(), m_viewStack.back(), m_modelStack.back()};
 }
 
 void Transformation::pushTransformation(
@@ -141,7 +143,7 @@ ReplaceTransformation::~ReplaceTransformation()
 
 MultiplyModelMatrix::MultiplyModelMatrix(
   Transformation& transformation, const vm::mat4x4f& modelMatrix)
-  : m_transformation(transformation)
+  : m_transformation{transformation}
 {
   m_transformation.pushModelMatrix(modelMatrix);
 }
@@ -153,7 +155,7 @@ MultiplyModelMatrix::~MultiplyModelMatrix()
 
 ReplaceModelMatrix::ReplaceModelMatrix(
   Transformation& transformation, const vm::mat4x4f& modelMatrix)
-  : m_transformation(transformation)
+  : m_transformation{transformation}
 {
   m_transformation.replaceAndPushModelMatrix(modelMatrix);
 }
@@ -162,5 +164,5 @@ ReplaceModelMatrix::~ReplaceModelMatrix()
 {
   m_transformation.popModelMatrix();
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

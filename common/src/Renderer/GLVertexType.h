@@ -22,11 +22,7 @@
 #include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexAttributeType.h"
 
-#include "vm/forward.h"
-
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class ShaderProgram;
 
@@ -199,5 +195,5 @@ using P3NT2 = GLVertexType<
   GLVertexAttributeTypes::N,
   GLVertexAttributeTypes::UV02>;
 } // namespace GLVertexTypes
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

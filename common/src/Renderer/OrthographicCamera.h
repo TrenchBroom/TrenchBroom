@@ -22,13 +22,13 @@
 #include "Renderer/Camera.h"
 
 #include "vm/forward.h"
+#include "vm/ray.h" // IWYU pragma: keep
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 class OrthographicCamera : public Camera
 {
 private:
@@ -68,5 +68,5 @@ private:
   float doGetPerspectiveScalingFactor(const vm::vec3f& position) const override;
   void doUpdateZoom() override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -24,8 +24,6 @@
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/FontDescriptor.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/PointHandleRenderer.h"
 #include "Renderer/PrimitiveRenderer.h"
 #include "Renderer/RenderBatch.h"
@@ -35,30 +33,31 @@
 #include "Renderer/TextRenderer.h"
 
 #include "vm/forward.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/segment.h" // IWYU pragma: keep
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+namespace
 {
-Renderer::FontDescriptor makeRenderServiceFont();
+
 Renderer::FontDescriptor makeRenderServiceFont()
 {
-  return Renderer::FontDescriptor(
+  return {
     pref(Preferences::RendererFontPath()),
-    static_cast<size_t>(pref(Preferences::RendererFontSize)));
+    size_t(pref(Preferences::RendererFontSize)),
+  };
 }
 
-class RenderService::HeadsUpTextAnchor : public TextAnchor
+class HeadsUpTextAnchor : public TextAnchor
 {
 private:
   vm::vec3f offset(const Camera& camera, const vm::vec2f& size) const override
   {
-    vm::vec3f off = getOffset(camera);
-    return vm::vec3f(off.x() - size.x() / 2.0f, off.y() - size.y(), off.z());
+    const auto off = getOffset(camera);
+    return vm::vec3f{off.xy() - size.xy() / 2.0f, off.z()};
   }
 
   vm::vec3f position(const Camera& camera) const override
@@ -70,21 +69,20 @@ private:
   {
     const auto w = static_cast<float>(camera.viewport().width);
     const auto h = static_cast<float>(camera.viewport().height);
-    return vm::vec3f(w / 2.0f, h - 20.0f, 0.0f);
+    return vm::vec3f{w / 2.0f, h - 20.0f, 0.0f};
   }
 };
 
+} // namespace
+
 RenderService::RenderService(RenderContext& renderContext, RenderBatch& renderBatch)
-  : m_renderContext(renderContext)
-  , m_renderBatch(renderBatch)
-  , m_textRenderer(std::make_unique<TextRenderer>(makeRenderServiceFont()))
-  , m_pointHandleRenderer(std::make_unique<PointHandleRenderer>())
-  , m_primitiveRenderer(std::make_unique<PrimitiveRenderer>())
-  , m_foregroundColor(1.0f, 1.0f, 1.0f, 1.0f)
-  , m_backgroundColor(0.0f, 0.0f, 0.0f, 1.0f)
-  , m_lineWidth(1.0f)
-  , m_occlusionPolicy(PrimitiveRendererOcclusionPolicy::Transparent)
-  , m_cullingPolicy(PrimitiveRendererCullingPolicy::CullBackfaces)
+  : m_renderContext{renderContext}
+  , m_renderBatch{renderBatch}
+  , m_textRenderer{std::make_unique<TextRenderer>(makeRenderServiceFont())}
+  , m_pointHandleRenderer{std::make_unique<PointHandleRenderer>()}
+  , m_primitiveRenderer{std::make_unique<PrimitiveRenderer>()}
+  , m_occlusionPolicy{OcclusionPolicy::Transparent}
+  , m_cullingPolicy{CullingPolicy::CullBackfaces}
 {
 }
 
@@ -161,23 +159,25 @@ void RenderService::renderHeadsUp(const AttrString& string)
 
 void RenderService::renderString(const std::string& string, const vm::vec3f& position)
 {
-  renderString(AttrString(string), position);
+  renderString(AttrString{string}, position);
 }
 
 void RenderService::renderString(const std::string& string, const TextAnchor& position)
 {
-  renderString(AttrString(string), position);
+  renderString(AttrString{string}, position);
 }
 
 void RenderService::renderHeadsUp(const std::string& string)
 {
-  renderHeadsUp(AttrString(string));
+  renderHeadsUp(AttrString{string});
 }
 
 void RenderService::renderHandles(const std::vector<vm::vec3f>& positions)
 {
-  for (const vm::vec3f& position : positions)
+  for (const auto& position : positions)
+  {
     renderHandle(position);
+  }
 }
 
 void RenderService::renderHandle(const vm::vec3f& position)
@@ -193,7 +193,9 @@ void RenderService::renderHandleHighlight(const vm::vec3f& position)
 void RenderService::renderHandles(const std::vector<vm::segment3f>& positions)
 {
   for (const vm::segment3f& position : positions)
+  {
     renderHandle(position);
+  }
 }
 
 void RenderService::renderHandle(const vm::segment3f& position)
@@ -216,8 +218,10 @@ void RenderService::renderHandleHighlight(const vm::segment3f& position)
 
 void RenderService::renderHandles(const std::vector<vm::polygon3f>& positions)
 {
-  for (const vm::polygon3f& position : positions)
+  for (const auto& position : positions)
+  {
     renderHandle(position);
+  }
 }
 
 void RenderService::renderHandle(const vm::polygon3f& position)
@@ -259,13 +263,13 @@ void RenderService::renderLineStrip(const std::vector<vm::vec3f>& positions)
 
 void RenderService::renderCoordinateSystem(const vm::bbox3f& bounds)
 {
-  const Color& x = pref(Preferences::XAxisColor);
-  const Color& y = pref(Preferences::YAxisColor);
-  const Color& z = pref(Preferences::ZAxisColor);
+  const auto& x = pref(Preferences::XAxisColor);
+  const auto& y = pref(Preferences::YAxisColor);
+  const auto& z = pref(Preferences::ZAxisColor);
 
   if (m_renderContext.render2D())
   {
-    const Camera& camera = m_renderContext.camera();
+    const auto& camera = m_renderContext.camera();
     switch (vm::find_abs_max_component(camera.direction()))
     {
     case vm::axis::x:
@@ -303,43 +307,19 @@ void RenderService::renderFilledPolygon(const std::vector<vm::vec3f>& positions)
 
 void RenderService::renderBounds(const vm::bbox3f& bounds)
 {
-  const vm::vec3f p1(bounds.min.x(), bounds.min.y(), bounds.min.z());
-  const vm::vec3f p2(bounds.min.x(), bounds.min.y(), bounds.max.z());
-  const vm::vec3f p3(bounds.min.x(), bounds.max.y(), bounds.min.z());
-  const vm::vec3f p4(bounds.min.x(), bounds.max.y(), bounds.max.z());
-  const vm::vec3f p5(bounds.max.x(), bounds.min.y(), bounds.min.z());
-  const vm::vec3f p6(bounds.max.x(), bounds.min.y(), bounds.max.z());
-  const vm::vec3f p7(bounds.max.x(), bounds.max.y(), bounds.min.z());
-  const vm::vec3f p8(bounds.max.x(), bounds.max.y(), bounds.max.z());
+  const auto p1 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()};
+  const auto p2 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.max.z()};
+  const auto p3 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.min.z()};
+  const auto p4 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.max.z()};
+  const auto p5 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.min.z()};
+  const auto p6 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.max.z()};
+  const auto p7 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.min.z()};
+  const auto p8 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.max.z()};
 
-  std::vector<vm::vec3f> positions;
-  positions.reserve(12 * 2);
-  positions.push_back(p1);
-  positions.push_back(p2);
-  positions.push_back(p1);
-  positions.push_back(p3);
-  positions.push_back(p1);
-  positions.push_back(p5);
-  positions.push_back(p2);
-  positions.push_back(p4);
-  positions.push_back(p2);
-  positions.push_back(p6);
-  positions.push_back(p3);
-  positions.push_back(p4);
-  positions.push_back(p3);
-  positions.push_back(p7);
-  positions.push_back(p4);
-  positions.push_back(p8);
-  positions.push_back(p5);
-  positions.push_back(p6);
-  positions.push_back(p5);
-  positions.push_back(p7);
-  positions.push_back(p6);
-  positions.push_back(p8);
-  positions.push_back(p7);
-  positions.push_back(p8);
-
-  renderLines(positions);
+  renderLines({
+    p1, p2, p1, p3, p1, p5, p2, p4, p2, p6, p3, p4,
+    p3, p7, p4, p8, p5, p6, p5, p7, p6, p8, p7, p8,
+  });
 }
 
 void RenderService::renderCircle(
@@ -350,8 +330,8 @@ void RenderService::renderCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
-  renderCircle(position, normal, segments, radius, angles.first, angles.second);
+  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  renderCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
 void RenderService::renderCircle(
@@ -362,7 +342,7 @@ void RenderService::renderCircle(
   const float startAngle,
   const float angleLength)
 {
-  const std::vector<vm::vec3f> positions =
+  const auto positions =
     circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderLineStrip(
     m_foregroundColor, m_lineWidth, m_occlusionPolicy, positions);
@@ -376,8 +356,8 @@ void RenderService::renderFilledCircle(
   const vm::vec3f& startAxis,
   const vm::vec3f& endAxis)
 {
-  const std::pair<float, float> angles = startAngleAndLength(normal, startAxis, endAxis);
-  renderFilledCircle(position, normal, segments, radius, angles.first, angles.second);
+  const auto [startAngle, angleLength] = startAngleAndLength(normal, startAxis, endAxis);
+  renderFilledCircle(position, normal, segments, radius, startAngle, angleLength);
 }
 
 void RenderService::renderFilledCircle(
@@ -388,7 +368,7 @@ void RenderService::renderFilledCircle(
   const float startAngle,
   const float angleLength)
 {
-  const std::vector<vm::vec3f> positions =
+  const auto positions =
     circle2D(radius, normal, startAngle, angleLength, segments) + position;
   m_primitiveRenderer->renderFilledPolygon(
     m_foregroundColor, m_occlusionPolicy, m_cullingPolicy, positions);
@@ -400,5 +380,5 @@ void RenderService::flush()
   m_renderBatch.addOneShot(m_pointHandleRenderer.release());
   m_renderBatch.addOneShot(m_textRenderer.release());
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

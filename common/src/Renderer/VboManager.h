@@ -19,13 +19,9 @@
 
 #pragma once
 
-#include "Renderer/GL.h"
+#include <cstddef>
 
-#include <cstddef> // for size_t
-
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Vbo;
 class ShaderManager;
@@ -45,13 +41,13 @@ enum class VboUsage
 class VboManager
 {
 private:
-  size_t m_peakVboCount;
-  size_t m_currentVboCount;
-  size_t m_currentVboSize;
-  ShaderManager* m_shaderManager;
+  size_t m_peakVboCount = 0;
+  size_t m_currentVboCount = 0;
+  size_t m_currentVboSize = 0;
+  ShaderManager& m_shaderManager;
 
 public:
-  explicit VboManager(ShaderManager* shaderManager);
+  explicit VboManager(ShaderManager& shaderManager);
   /**
    * Immediately creates and binds to an OpenGL buffer of the given type and capacity.
    * The contents are initially unspecified. See Vbo class.
@@ -65,5 +61,5 @@ public:
 
   ShaderManager& shaderManager();
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -19,16 +19,16 @@
 
 #include "IndexRangeRenderer.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
-{
-IndexRangeRenderer::IndexRangeRenderer() {}
+#include <utility>
 
-IndexRangeRenderer::IndexRangeRenderer(
-  const VertexArray& vertexArray, const IndexRangeMap& indexArray)
-  : m_vertexArray(vertexArray)
-  , m_indexArray(indexArray)
+namespace TrenchBroom::Renderer
+{
+
+IndexRangeRenderer::IndexRangeRenderer() = default;
+
+IndexRangeRenderer::IndexRangeRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexArray{std::move(indexArray)}
 {
 }
 
@@ -45,5 +45,5 @@ void IndexRangeRenderer::render()
     m_vertexArray.cleanup();
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

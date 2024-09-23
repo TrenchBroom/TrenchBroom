@@ -23,12 +23,11 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 MaterialIndexRangeMap::Size::Size()
-  : m_current(std::end(m_sizes))
+  : m_current{std::end(m_sizes)}
 {
 }
 
@@ -79,22 +78,20 @@ void MaterialIndexRangeMap::Size::initialize(MaterialToIndexRangeMap& data) cons
 }
 
 MaterialIndexRangeMap::MaterialIndexRangeMap()
-  : m_data(new MaterialToIndexRangeMap())
-  , m_current(m_data->end())
+  : m_data{std::make_shared<MaterialToIndexRangeMap>()}
+  , m_current{m_data->end()}
 {
 }
 
 MaterialIndexRangeMap::MaterialIndexRangeMap(const Size& size)
-  : m_data(new MaterialToIndexRangeMap())
-  , m_current(m_data->end())
+  : MaterialIndexRangeMap()
 {
   size.initialize(*m_data);
 }
 
 MaterialIndexRangeMap::MaterialIndexRangeMap(
   const Material* material, IndexRangeMap primitives)
-  : m_data(new MaterialToIndexRangeMap())
-  , m_current(m_data->end())
+  : MaterialIndexRangeMap()
 {
   add(material, std::move(primitives));
 }
@@ -104,8 +101,7 @@ MaterialIndexRangeMap::MaterialIndexRangeMap(
   const PrimType primType,
   const size_t index,
   const size_t vertexCount)
-  : m_data(new MaterialToIndexRangeMap())
-  , m_current(m_data->end())
+  : MaterialIndexRangeMap()
 {
   m_data->insert(std::make_pair(material, IndexRangeMap(primType, index, vertexCount)));
 }
@@ -181,5 +177,4 @@ bool MaterialIndexRangeMap::isCurrent(const Material* material) const
   const auto* currentMaterial = m_current->first;
   return !cmp(material, currentMaterial) && !cmp(currentMaterial, material);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

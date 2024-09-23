@@ -22,10 +22,9 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 /**
  * Implements bookkeeping for dynamic memory allocation (like malloc).
  */
@@ -153,5 +152,5 @@ public:
   Index largestPossibleAllocation() const;
   void checkInvariants() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

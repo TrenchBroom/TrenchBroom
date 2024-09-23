@@ -21,9 +21,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 enum class PrimType
 {
@@ -56,5 +54,5 @@ constexpr PrimType PrimTypeValues[PrimTypeCount] = {
  * Maps the given primitive type to its corresponding OpenGL enum.
  */
 unsigned int toGL(PrimType primType);
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -19,7 +19,6 @@
 
 #include "MapRenderer.h"
 
-#include "Assets/EntityDefinitionManager.h"
 #include "Assets/EntityModelManager.h"
 #include "Assets/MaterialManager.h"
 #include "Assets/Resource.h"
@@ -49,9 +48,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
-#include "kdl/vector_set.h"
 
-#include <set>
 #include <vector>
 
 namespace TrenchBroom::Renderer

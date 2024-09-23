@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"

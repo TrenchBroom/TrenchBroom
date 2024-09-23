@@ -23,17 +23,12 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 VertexArray::BaseHolder::~BaseHolder() = default;
 
-VertexArray::VertexArray()
-  : m_prepared(false)
-  , m_setup(false)
-{
-}
+VertexArray::VertexArray() = default;
 
 bool VertexArray::empty() const
 {
@@ -42,12 +37,12 @@ bool VertexArray::empty() const
 
 size_t VertexArray::sizeInBytes() const
 {
-  return m_holder.get() == nullptr ? 0 : m_holder->sizeInBytes();
+  return m_holder ? m_holder->sizeInBytes() : 0;
 }
 
 size_t VertexArray::vertexCount() const
 {
-  return m_holder.get() == nullptr ? 0 : m_holder->vertexCount();
+  return m_holder ? m_holder->vertexCount() : 0;
 }
 
 bool VertexArray::prepared() const
@@ -67,7 +62,9 @@ void VertexArray::prepare(VboManager& vboManager)
 bool VertexArray::setup()
 {
   if (empty())
+  {
     return false;
+  }
 
   assert(prepared());
   assert(!m_setup);
@@ -153,10 +150,8 @@ void VertexArray::render(
 }
 
 VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder)
-  : m_holder(std::move(holder))
-  , m_prepared(false)
-  , m_setup(false)
+  : m_holder{std::move(holder)}
 {
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

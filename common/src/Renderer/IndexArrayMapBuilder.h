@@ -24,10 +24,9 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 /**
  * Builds an index array map by recording rendering primitives. The recorded data can be
  * used to create an index array that can be uploaded to video card memory, and to render
@@ -181,5 +180,5 @@ public:
 private:
   void add(PrimType primType, const IndexList& indices);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

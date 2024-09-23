@@ -31,22 +31,10 @@ namespace TrenchBroom::Renderer
 
 BrushRendererBrushCache::CachedFace::CachedFace(
   const Model::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
-  : material(i_face->material())
-  , face(i_face)
-  , vertexCount(i_face->vertexCount())
-  , indexOfFirstVertexRelativeToBrush(i_indexOfFirstVertexRelativeToBrush)
-{
-}
-
-BrushRendererBrushCache::CachedEdge::CachedEdge(
-  const Model::BrushFace* i_face1,
-  const Model::BrushFace* i_face2,
-  const size_t i_vertexIndex1RelativeToBrush,
-  const size_t i_vertexIndex2RelativeToBrush)
-  : face1(i_face1)
-  , face2(i_face2)
-  , vertexIndex1RelativeToBrush(i_vertexIndex1RelativeToBrush)
-  , vertexIndex2RelativeToBrush(i_vertexIndex2RelativeToBrush)
+  : material{i_face->material()}
+  , face{i_face}
+  , vertexCount{i_face->vertexCount()}
+  , indexOfFirstVertexRelativeToBrush{i_indexOfFirstVertexRelativeToBrush}
 {
 }
 
@@ -134,8 +122,8 @@ void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushN
     const auto vertexIndex1RelativeToBrush = currentEdge->firstVertex()->payload();
     const auto vertexIndex2RelativeToBrush = currentEdge->secondVertex()->payload();
 
-    m_cachedEdges.emplace_back(
-      &face1, &face2, vertexIndex1RelativeToBrush, vertexIndex2RelativeToBrush);
+    m_cachedEdges.push_back(CachedEdge{
+      &face1, &face2, vertexIndex1RelativeToBrush, vertexIndex2RelativeToBrush});
   }
 
   m_rendererCacheValid = true;

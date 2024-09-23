@@ -25,8 +25,6 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-#include "vm/forward.h"
-
 #include <memory>
 #include <vector>
 
@@ -59,11 +57,9 @@ private:
   VertexArray m_spikeArray;
   VertexArray m_pointArray;
 
-  bool m_valid;
+  bool m_valid = false;
 
 public:
-  SpikeGuideRenderer();
-
   void setColor(const Color& color);
   void add(
     const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);

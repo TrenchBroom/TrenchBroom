@@ -24,18 +24,16 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -52,7 +50,7 @@ private:
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
-  PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
   void setColor(const Color& color);
   void setPosition(const vm::vec3& position);
@@ -61,5 +59,5 @@ private:
   void doPrepareVertices(VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

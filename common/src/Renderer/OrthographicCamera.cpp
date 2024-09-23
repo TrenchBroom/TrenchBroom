@@ -22,17 +22,14 @@
 #include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/plane.h"
-#include "vm/ray.h"
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 OrthographicCamera::OrthographicCamera()
-  : Camera()
-  , m_zoomedViewport(this->viewport())
+  : m_zoomedViewport{Camera::viewport()}
 {
 }
 
@@ -43,8 +40,8 @@ OrthographicCamera::OrthographicCamera(
   const vm::vec3f& position,
   const vm::vec3f& direction,
   const vm::vec3f& up)
-  : Camera(nearPlane, farPlane, viewport, position, direction, up)
-  , m_zoomedViewport(this->viewport())
+  : Camera{nearPlane, farPlane, viewport, position, direction, up}
+  , m_zoomedViewport{Camera::viewport()}
 {
 }
 
@@ -58,17 +55,17 @@ std::vector<vm::vec3> OrthographicCamera::viewportVertices() const
   const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
-  std::vector<vm::vec3> result(4);
-  result[0] = vm::vec3(position() - w2 * right() + h2 * up());
-  result[1] = vm::vec3(position() + w2 * right() + h2 * up());
-  result[2] = vm::vec3(position() + w2 * right() - h2 * up());
-  result[3] = vm::vec3(position() - w2 * right() - h2 * up());
-  return result;
+  return {
+    vm::vec3{position() - w2 * right() + h2 * up()},
+    vm::vec3{position() + w2 * right() + h2 * up()},
+    vm::vec3{position() + w2 * right() - h2 * up()},
+    vm::vec3{position() - w2 * right() - h2 * up()},
+  };
 }
 
 Camera::ProjectionType OrthographicCamera::doGetProjectionType() const
 {
-  return Projection_Orthographic;
+  return ProjectionType::Orthographic;
 }
 
 void OrthographicCamera::doValidateMatrices(
@@ -86,7 +83,7 @@ vm::ray3f OrthographicCamera::doGetPickRay(const vm::vec3f& point) const
   const auto v = point - position();
   const auto d = dot(v, direction());
   const auto o = point - d * direction();
-  return vm::ray3f(o, direction());
+  return {o, direction()};
 }
 
 void OrthographicCamera::doComputeFrustumPlanes(
@@ -99,10 +96,10 @@ void OrthographicCamera::doComputeFrustumPlanes(
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
   const auto& center = position();
-  topPlane = vm::plane3f(center + h2 * up(), up());
-  rightPlane = vm::plane3f(center + w2 * right(), right());
-  bottomPlane = vm::plane3f(center - h2 * up(), -up());
-  leftPlane = vm::plane3f(center - w2 * right(), -right());
+  topPlane = vm::plane3f{center + h2 * up(), up()};
+  rightPlane = vm::plane3f{center + w2 * right(), right()};
+  bottomPlane = vm::plane3f{center - h2 * up(), -up()};
+  leftPlane = vm::plane3f{center - w2 * right(), -right()};
 }
 
 void OrthographicCamera::doRenderFrustum(
@@ -128,11 +125,12 @@ float OrthographicCamera::doGetPerspectiveScalingFactor(
 void OrthographicCamera::doUpdateZoom()
 {
   const auto& unzoomedViewport = viewport();
-  m_zoomedViewport = Viewport(
+  m_zoomedViewport = Viewport{
     unzoomedViewport.x,
     unzoomedViewport.y,
     static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.width) / zoom())),
-    static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())));
+    static_cast<int>(vm::round(static_cast<float>(unzoomedViewport.height) / zoom())),
+  };
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

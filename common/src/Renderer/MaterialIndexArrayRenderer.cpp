@@ -19,11 +19,10 @@
 
 #include "MaterialIndexArrayRenderer.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-MaterialIndexArrayRenderer::MaterialIndexArrayRenderer() {}
+
+MaterialIndexArrayRenderer::MaterialIndexArrayRenderer() = default;
 
 MaterialIndexArrayRenderer::MaterialIndexArrayRenderer(
   VertexArray vertexArray, IndexArray indexArray, MaterialIndexArrayMap indexArrayMap)
@@ -56,5 +55,5 @@ void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
     m_vertexArray.cleanup();
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

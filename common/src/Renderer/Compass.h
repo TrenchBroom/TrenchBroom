@@ -27,8 +27,9 @@
 namespace TrenchBroom
 {
 class Color;
+}
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
@@ -45,7 +46,7 @@ private:
   IndexRangeRenderer m_arrowRenderer;
   IndexRangeRenderer m_backgroundRenderer;
   IndexRangeRenderer m_backgroundOutlineRenderer;
-  bool m_prepared;
+  bool m_prepared = false;
 
 public:
   Compass();
@@ -75,5 +76,5 @@ private:
   virtual void doRenderCompass(
     RenderContext& renderContext, const vm::mat4x4f& cameraTransformation) = 0;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

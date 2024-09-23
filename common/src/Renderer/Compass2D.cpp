@@ -24,10 +24,9 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 void Compass2D::doRenderCompass(
   RenderContext& renderContext, const vm::mat4x4f& transform)
 {
@@ -54,5 +53,5 @@ void Compass2D::doRenderCompass(
       prefs.get(Preferences::YAxisColor));
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

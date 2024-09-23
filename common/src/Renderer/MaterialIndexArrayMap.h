@@ -23,14 +23,12 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class IndexArray;
 class MaterialRenderFunc;
@@ -60,14 +58,9 @@ public:
 
     using MaterialToSize = std::unordered_map<const Material*, IndexArrayMap::Size>;
     MaterialToSize m_sizes;
-    size_t m_indexCount;
+    size_t m_indexCount = 0;
 
   public:
-    /**
-     * Creates a new instance.
-     */
-    Size();
-
     /**
      * Increase the storage for the given primitive type by the given number of indices.
      *
@@ -147,5 +140,5 @@ public:
    */
   void render(IndexArray& indexArray, MaterialRenderFunc& func);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

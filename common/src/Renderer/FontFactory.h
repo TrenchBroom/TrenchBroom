@@ -21,9 +21,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class FontDescriptor;
 class TextureFont;
@@ -47,5 +45,5 @@ private:
   virtual std::unique_ptr<TextureFont> doCreateFont(
     const FontDescriptor& fontDescriptor) = 0;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

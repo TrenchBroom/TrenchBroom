@@ -23,14 +23,12 @@
 
 #include <map>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class Material;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MaterialRenderFunc;
 class VertexArray;
@@ -190,5 +188,5 @@ private:
   IndexRangeMap& findCurrent(const Material* material);
   bool isCurrent(const Material* material) const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

@@ -26,9 +26,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 /**
  * User defined vertex attribute types.
@@ -57,7 +55,7 @@ public:
   {
     ensure(program != nullptr, "must have a program bound to use generic attributes");
 
-    const GLint attributeIndex = program->findAttributeLocation(A::name);
+    const auto attributeIndex = program->findAttributeLocation(A::name);
     glAssert(glEnableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
     glAssert(glVertexAttribPointer(
       static_cast<GLuint>(attributeIndex),
@@ -72,7 +70,7 @@ public:
   {
     ensure(program != nullptr, "must have a program bound to use generic attributes");
 
-    const GLint attributeIndex = program->findAttributeLocation(A::name);
+    const auto attributeIndex = program->findAttributeLocation(A::name);
     glAssert(glDisableVertexAttribArray(static_cast<GLuint>(attributeIndex)));
   }
 
@@ -241,5 +239,5 @@ using N = GLVertexAttributeNormal<GL_FLOAT, 3>;
 using UV02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
 using C4 = GLVertexAttributeColor<GL_FLOAT, 4>;
 } // namespace GLVertexAttributeTypes
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

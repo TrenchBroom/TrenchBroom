@@ -19,16 +19,12 @@
 
 #include "Shader.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "IO/DiskIO.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
 #include <cassert>
-#include <fstream>
-#include <sstream>
 #include <string>
 #include <vector>
 

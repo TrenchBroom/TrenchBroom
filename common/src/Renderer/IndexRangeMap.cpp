@@ -24,17 +24,13 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-IndexRangeMap::IndicesAndCounts::IndicesAndCounts()
-  : indices()
-  , counts()
-{
-}
+
+IndexRangeMap::IndicesAndCounts::IndicesAndCounts() = default;
 
 IndexRangeMap::IndicesAndCounts::IndicesAndCounts(const size_t index, const size_t count)
+  // do not use initializer list for indices and counts!
   : indices(1, static_cast<GLint>(index))
   , counts(1, static_cast<GLsizei>(count))
 {
@@ -124,29 +120,29 @@ void IndexRangeMap::Size::initialize(PrimTypeToIndexData& data) const
 }
 
 IndexRangeMap::IndexRangeMap()
-  : m_data(new PrimTypeToIndexData())
-  , m_dynamicGrowth(true)
+  : m_data{std::make_shared<PrimTypeToIndexData>()}
+  , m_dynamicGrowth{true}
 {
 }
 
 IndexRangeMap::IndexRangeMap(const Size& size)
-  : m_data(new PrimTypeToIndexData())
-  , m_dynamicGrowth(false)
+  : m_data{std::make_shared<PrimTypeToIndexData>()}
+  , m_dynamicGrowth{false}
 {
   size.initialize(*m_data);
 }
 
 IndexRangeMap::IndexRangeMap(
   const PrimType primType, const size_t index, const size_t count)
-  : m_data(new PrimTypeToIndexData())
-  , m_dynamicGrowth(false)
+  : m_data{std::make_shared<PrimTypeToIndexData>()}
+  , m_dynamicGrowth{false}
 {
   m_data->get(primType) = IndicesAndCounts(index, count);
 }
 
 IndexRangeMap::Size IndexRangeMap::size() const
 {
-  Size result;
+  auto result = Size{};
   for (const auto& primType : PrimTypeValues)
   {
     result.inc(primType, m_data->get(primType).size());
@@ -204,5 +200,5 @@ void IndexRangeMap::forEachPrimitive(
     }
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

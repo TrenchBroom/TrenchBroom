@@ -19,21 +19,18 @@
 
 #include "IndexArray.h"
 
-namespace TrenchBroom
+#include <utility>
+
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 void IndexArray::BaseHolder::render(
   const PrimType primType, size_t offset, const size_t count) const
 {
   doRender(primType, offset, count);
 }
 
-IndexArray::IndexArray()
-  : m_prepared(false)
-  , m_setup(false)
-{
-}
+IndexArray::IndexArray() = default;
 
 bool IndexArray::empty() const
 {
@@ -108,10 +105,8 @@ void IndexArray::cleanup()
 }
 
 IndexArray::IndexArray(BaseHolder::Ptr holder)
-  : m_holder(holder)
-  , m_prepared(false)
-  , m_setup(false)
+  : m_holder{std::move(holder)}
 {
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

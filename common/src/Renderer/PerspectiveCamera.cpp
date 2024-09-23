@@ -24,7 +24,6 @@
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
@@ -38,15 +37,10 @@
 #include <limits>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-PerspectiveCamera::PerspectiveCamera()
-  : Camera()
-  , m_fov(90.0)
-{
-}
+
+PerspectiveCamera::PerspectiveCamera() = default;
 
 PerspectiveCamera::PerspectiveCamera(
   const float fov,
@@ -56,8 +50,8 @@ PerspectiveCamera::PerspectiveCamera(
   const vm::vec3f& position,
   const vm::vec3f& direction,
   const vm::vec3f& up)
-  : Camera(nearPlane, farPlane, viewport, position, direction, up)
-  , m_fov(fov)
+  : Camera{nearPlane, farPlane, viewport, position, direction, up}
+  , m_fov{fov}
 {
   assert(m_fov > 0.0f);
 }
@@ -85,8 +79,8 @@ void PerspectiveCamera::setFov(const float fov)
 
 vm::ray3f PerspectiveCamera::doGetPickRay(const vm::vec3f& point) const
 {
-  const vm::vec3f direction = normalize(point - position());
-  return vm::ray3f(position(), direction);
+  const auto direction = vm::normalize(point - position());
+  return {position(), direction};
 }
 
 float PerspectiveCamera::computeZoomedFov(const float zoom, const float fov)
@@ -97,32 +91,22 @@ float PerspectiveCamera::computeZoomedFov(const float zoom, const float fov)
   // - for values in between, linearly interpolate between both
   const auto f1 = std::sqrt(zoom);
   const auto f2 = (-1.0f / zoom + 2.0f);
-  float z;
-  if (zoom < 0.7f)
-  {
-    z = f1;
-  }
-  else if (zoom < 1.2f)
-  {
-    z = vm::mix(f1, f2, 2.0f * (zoom - 0.7f));
-  }
-  else
-  {
-    z = f2;
-  }
+  const auto z = zoom < 0.7f   ? f1
+                 : zoom < 1.2f ? vm::mix(f1, f2, 2.0f * (zoom - 0.7f))
+                               : f2;
 
   return fov * z;
 }
 
 Camera::ProjectionType PerspectiveCamera::doGetProjectionType() const
 {
-  return Projection_Perspective;
+  return ProjectionType::Perspective;
 }
 
 void PerspectiveCamera::doValidateMatrices(
   vm::mat4x4f& projectionMatrix, vm::mat4x4f& viewMatrix) const
 {
-  const Viewport& viewport = this->viewport();
+  const auto& viewport = this->viewport();
   projectionMatrix = vm::perspective_matrix(
     zoomedFov(), nearPlane(), farPlane(), viewport.width, viewport.height);
   viewMatrix = vm::view_matrix(direction(), up()) * vm::translation_matrix(-position());
@@ -134,10 +118,10 @@ void PerspectiveCamera::doComputeFrustumPlanes(
   vm::plane3f& bottomPlane,
   vm::plane3f& leftPlane) const
 {
-  const vm::vec2f frustum = getFrustum();
-  const vm::vec3f center = position() + direction() * nearPlane();
+  const auto frustum = getFrustum();
+  const auto center = position() + direction() * nearPlane();
 
-  vm::vec3f d = center + up() * frustum.y() - position();
+  auto d = center + up() * frustum.y() - position();
   topPlane = vm::plane3f(position(), normalize(cross(right(), d)));
 
   d = center + right() * frustum.x() - position();
@@ -157,20 +141,20 @@ void PerspectiveCamera::doRenderFrustum(
   const Color& color) const
 {
   using Vertex = GLVertexTypes::P3C4::Vertex;
-  std::vector<Vertex> triangleVertices;
-  std::vector<Vertex> lineVertices;
+  auto triangleVertices = std::vector<Vertex>{};
+  auto lineVertices = std::vector<Vertex>{};
   triangleVertices.reserve(6);
   lineVertices.reserve(8 * 2);
 
   vm::vec3f verts[4];
   getFrustumVertices(size, verts);
 
-  triangleVertices.emplace_back(position(), Color(color, 0.7f));
+  triangleVertices.emplace_back(position(), Color{color, 0.7f});
   for (size_t i = 0; i < 4; ++i)
   {
-    triangleVertices.emplace_back(verts[i], Color(color, 0.2f));
+    triangleVertices.emplace_back(verts[i], Color{color, 0.2f});
   }
-  triangleVertices.emplace_back(verts[0], Color(color, 0.2f));
+  triangleVertices.emplace_back(verts[0], Color{color, 0.2f});
 
   for (size_t i = 0; i < 4; ++i)
   {
@@ -190,7 +174,7 @@ void PerspectiveCamera::doRenderFrustum(
   triangleArray.prepare(vboManager);
   lineArray.prepare(vboManager);
 
-  ActiveShader shader(renderContext.shaderManager(), Shaders::VaryingPCShader);
+  auto shader = ActiveShader{renderContext.shaderManager(), Shaders::VaryingPCShader};
   triangleArray.render(PrimType::TriangleFan);
   lineArray.render(PrimType::Lines);
 }
@@ -237,7 +221,7 @@ vm::vec2f PerspectiveCamera::getFrustum() const
   const auto v = std::tan(vm::to_radians(zoomedFov()) / 2.0f) * 0.75f * nearPlane();
   const auto h =
     v * static_cast<float>(viewport.width) / static_cast<float>(viewport.height);
-  return vm::vec2f(h, v);
+  return vm::vec2f{h, v};
 }
 
 float PerspectiveCamera::doGetPerspectiveScalingFactor(const vm::vec3f& position) const
@@ -259,5 +243,5 @@ bool PerspectiveCamera::isValidZoom(const float zoom) const
 }
 
 void PerspectiveCamera::doUpdateZoom() {}
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

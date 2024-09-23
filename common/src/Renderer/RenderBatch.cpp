@@ -25,33 +25,35 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+namespace
 {
-class RenderBatch::IndexedRenderableWrapper : public IndexedRenderable
+
+class IndexedRenderableWrapper : public IndexedRenderable
 {
 private:
-  IndexedRenderable* m_wrappee;
+  IndexedRenderable& m_wrappee;
 
 public:
-  IndexedRenderableWrapper(VboManager&, IndexedRenderable* wrappee)
+  IndexedRenderableWrapper(VboManager&, IndexedRenderable& wrappee)
     : m_wrappee{wrappee}
   {
-    ensure(m_wrappee != nullptr, "wrappee is null");
   }
 
 private:
   void prepareVerticesAndIndices(VboManager& vboManager) override
   {
-    m_wrappee->prepareVerticesAndIndices(vboManager);
+    m_wrappee.prepareVerticesAndIndices(vboManager);
   }
 
   void doRender(RenderContext& renderContext) override
   {
-    m_wrappee->render(renderContext);
+    m_wrappee.render(renderContext);
   }
 };
+
+} // namespace
 
 RenderBatch::RenderBatch(VboManager& vboManager)
   : m_vboManager{vboManager}
@@ -77,7 +79,7 @@ void RenderBatch::add(DirectRenderable* renderable)
 
 void RenderBatch::add(IndexedRenderable* renderable)
 {
-  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, renderable};
+  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, *renderable};
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
 }
@@ -97,7 +99,7 @@ void RenderBatch::addOneShot(DirectRenderable* renderable)
 
 void RenderBatch::addOneShot(IndexedRenderable* renderable)
 {
-  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, renderable};
+  auto* wrapper = new IndexedRenderableWrapper{m_vboManager, *renderable};
   doAdd(wrapper);
   m_indexedRenderables.push_back(wrapper);
   m_oneshots.push_back(renderable);
@@ -134,5 +136,5 @@ void RenderBatch::renderRenderables(RenderContext& renderContext)
     renderable->render(renderContext);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

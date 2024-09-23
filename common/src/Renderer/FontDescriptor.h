@@ -22,9 +22,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class FontDescriptor
 {
@@ -36,8 +34,8 @@ private:
 
 public:
   FontDescriptor(
-    const std::filesystem::path& path,
-    const size_t size,
+    std::filesystem::path path,
+    size_t size,
     unsigned char minChar = ' ',
     unsigned char maxChar = '~');
 
@@ -51,5 +49,4 @@ public:
   unsigned char maxChar() const;
   unsigned char charCount() const;
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer

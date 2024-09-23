@@ -21,9 +21,7 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Renderable;
 class DirectRenderable;
@@ -35,8 +33,6 @@ class RenderBatch
 {
 private:
   VboManager& m_vboManager;
-
-  class IndexedRenderableWrapper;
 
   using RenderableList = std::vector<Renderable*>;
   using DirectRenderableList = std::vector<DirectRenderable*>;
@@ -73,5 +69,5 @@ private:
 
   void renderRenderables(RenderContext& renderContext);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

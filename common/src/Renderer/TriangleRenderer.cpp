@@ -22,34 +22,23 @@
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom
+#include <utility>
+
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-TriangleRenderer::TriangleRenderer()
-  : m_useColor(false)
-  , m_applyTinting(false)
+TriangleRenderer::TriangleRenderer() = default;
+
+TriangleRenderer::TriangleRenderer(VertexArray vertexArray, IndexRangeMap indexArray)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexArray{std::move(indexArray)}
 {
 }
 
-TriangleRenderer::TriangleRenderer(
-  const VertexArray& vertexArray, const IndexRangeMap& indexArray)
-  : m_vertexArray(vertexArray)
-  , m_indexArray(indexArray)
-  , m_useColor(false)
-  , m_applyTinting(false)
-{
-}
-
-TriangleRenderer::TriangleRenderer(
-  const VertexArray& vertexArray, const PrimType primType)
-  : m_vertexArray(vertexArray)
-  , m_indexArray(primType, 0, m_vertexArray.vertexCount())
-  , m_useColor(false)
-  , m_applyTinting(false)
+TriangleRenderer::TriangleRenderer(VertexArray vertexArray, const PrimType primType)
+  : m_vertexArray{std::move(vertexArray)}
+  , m_indexArray{primType, 0, m_vertexArray.vertexCount()}
 {
 }
 
@@ -80,16 +69,16 @@ void TriangleRenderer::doPrepareVertices(VboManager& vboManager)
 
 void TriangleRenderer::doRender(RenderContext& context)
 {
-  if (m_vertexArray.vertexCount() == 0)
-    return;
-
-  ActiveShader shader(context.shaderManager(), Shaders::TriangleShader);
-  shader.set("ApplyTinting", m_applyTinting);
-  shader.set("TintColor", m_tintColor);
-  shader.set("UseColor", m_useColor);
-  shader.set("Color", m_color);
-  shader.set("CameraPosition", context.camera().position());
-  m_indexArray.render(m_vertexArray);
+  if (m_vertexArray.vertexCount() != 0)
+  {
+    auto shader = ActiveShader{context.shaderManager(), Shaders::TriangleShader};
+    shader.set("ApplyTinting", m_applyTinting);
+    shader.set("TintColor", m_tintColor);
+    shader.set("UseColor", m_useColor);
+    shader.set("Color", m_color);
+    shader.set("CameraPosition", context.camera().position());
+    m_indexArray.render(m_vertexArray);
+  }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

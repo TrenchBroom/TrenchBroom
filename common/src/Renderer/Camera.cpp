@@ -19,55 +19,31 @@
 
 #include "Camera.h"
 
-#include "Macros.h"
+#include "kdl/reflection_impl.h"
 
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/ray.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
-{
-Camera::Viewport::Viewport()
-  : x(0)
-  , y(0)
-  , width(0)
-  , height(0)
-{
-}
+#include <cmath>
 
-Camera::Viewport::Viewport(
-  const int i_x, const int i_y, const int i_width, const int i_height)
-  : x(i_x)
-  , y(i_y)
-  , width(i_width)
-  , height(i_height)
+namespace TrenchBroom::Renderer
 {
-}
 
-bool Camera::Viewport::operator==(const Viewport& other) const
-{
-  return x == other.x && y == other.y && width == other.width && height == other.height;
-}
-
-bool Camera::Viewport::operator!=(const Viewport& other) const
-{
-  return !(*this == other);
-}
+kdl_reflect_impl(Camera::Viewport);
 
 const float Camera::DefaultPointDistance = 256.0f;
 
-Camera::~Camera() {}
+Camera::~Camera() = default;
 
 bool Camera::orthographicProjection() const
 {
-  return projectionType() == Projection_Orthographic;
+  return projectionType() == ProjectionType::Orthographic;
 }
 
 bool Camera::perspectiveProjection() const
 {
-  return projectionType() == Projection_Perspective;
+  return projectionType() == ProjectionType::Perspective;
 }
 
 float Camera::nearPlane() const
@@ -131,14 +107,18 @@ const vm::vec3f& Camera::right() const
 const vm::mat4x4f& Camera::projectionMatrix() const
 {
   if (!m_valid)
+  {
     validateMatrices();
+  }
   return m_projectionMatrix;
 }
 
 const vm::mat4x4f& Camera::viewMatrix() const
 {
   if (!m_valid)
+  {
     validateMatrices();
+  }
   return m_viewMatrix;
 }
 
@@ -209,7 +189,7 @@ void Camera::frustumPlanes(
 
 vm::ray3f Camera::viewRay() const
 {
-  return vm::ray3f(m_position, m_direction);
+  return {m_position, m_direction};
 }
 
 vm::ray3f Camera::pickRay(const float x, const float y) const
@@ -256,9 +236,11 @@ float Camera::perspectiveScalingFactor(const vm::vec3f& position) const
 vm::vec3f Camera::project(const vm::vec3f& point) const
 {
   if (!m_valid)
+  {
     validateMatrices();
+  }
 
-  vm::vec3f win = m_matrix * point;
+  auto win = m_matrix * point;
   win[0] = static_cast<float>(m_viewport.x + m_viewport.width) * (win.x() + 1.0f) / 2.0f;
   win[1] = static_cast<float>(m_viewport.y + m_viewport.height) * (win.y() + 1.0f) / 2.0f;
   win[2] = (win.z() + 1.0f) / 2.0f;
@@ -273,9 +255,11 @@ vm::vec3f Camera::unproject(const vm::vec3f& point) const
 vm::vec3f Camera::unproject(const float x, const float y, const float depth) const
 {
   if (!m_valid)
+  {
     validateMatrices();
+  }
 
-  vm::vec3f normalized;
+  auto normalized = vm::vec3f{};
   normalized[0] =
     2.0f * (x - static_cast<float>(m_viewport.x)) / static_cast<float>(m_viewport.width)
     - 1.0f;
@@ -290,55 +274,55 @@ vm::vec3f Camera::unproject(const float x, const float y, const float depth) con
 void Camera::setNearPlane(const float nearPlane)
 {
   assert(nearPlane < m_farPlane);
-  if (nearPlane == m_nearPlane)
-    return;
-  m_nearPlane = nearPlane;
-  m_valid = false;
-  cameraDidChangeNotifier(this);
+  if (nearPlane != m_nearPlane)
+  {
+    m_nearPlane = nearPlane;
+    m_valid = false;
+    cameraDidChangeNotifier(this);
+  }
 }
 
 void Camera::setFarPlane(const float farPlane)
 {
   assert(farPlane > m_nearPlane);
-  if (farPlane == m_farPlane)
-    return;
-  m_farPlane = farPlane;
-  m_valid = false;
-  cameraDidChangeNotifier(this);
+  if (farPlane != m_farPlane)
+  {
+    m_farPlane = farPlane;
+    m_valid = false;
+    cameraDidChangeNotifier(this);
+  }
 }
 
 bool Camera::setViewport(const Viewport& viewport)
 {
-  if (viewport == m_viewport)
+  if (viewport != m_viewport)
   {
-    return false;
+    m_viewport = viewport;
+    doUpdateZoom();
+    m_valid = false;
+    return true;
   }
-  m_viewport = viewport;
-  doUpdateZoom();
-  m_valid = false;
-  return true;
+  return false;
 }
 
 void Camera::moveTo(const vm::vec3f& position)
 {
-  if (position == m_position)
+  if (position != m_position)
   {
-    return;
+    m_position = position;
+    m_valid = false;
+    cameraDidChangeNotifier(this);
   }
-  m_position = position;
-  m_valid = false;
-  cameraDidChangeNotifier(this);
 }
 
 void Camera::moveBy(const vm::vec3f& delta)
 {
-  if (vm::is_zero(delta, vm::Cf::almost_zero()))
+  if (!vm::is_zero(delta, vm::Cf::almost_zero()))
   {
-    return;
+    m_position = m_position + delta;
+    m_valid = false;
+    cameraDidChangeNotifier(this);
   }
-  m_position = m_position + delta;
-  m_valid = false;
-  cameraDidChangeNotifier(this);
 }
 
 void Camera::lookAt(const vm::vec3f& point, const vm::vec3f& up)
@@ -348,64 +332,59 @@ void Camera::lookAt(const vm::vec3f& point, const vm::vec3f& up)
 
 void Camera::setDirection(const vm::vec3f& direction, const vm::vec3f& up)
 {
-  if (direction == m_direction && up == m_up)
+  if (direction != m_direction || up != m_up)
   {
-    return;
-  }
-  m_direction = direction;
+    m_direction = direction;
 
-  const vm::vec3f rightUnnormalized = vm::cross(m_direction, up);
-  if (vm::is_zero(rightUnnormalized, vm::Cf::almost_zero()))
-  {
-    // `direction` and `up` were colinear.
-    const auto axis = vm::get_abs_max_component_axis(m_direction, 2u);
-    m_right = vm::normalize(cross(m_direction, axis));
+    const auto rightUnnormalized = vm::cross(m_direction, up);
+    if (vm::is_zero(rightUnnormalized, vm::Cf::almost_zero()))
+    {
+      // `direction` and `up` were colinear.
+      const auto axis = vm::get_abs_max_component_axis(m_direction, 2u);
+      m_right = vm::normalize(cross(m_direction, axis));
+    }
+    else
+    {
+      m_right = vm::normalize(rightUnnormalized);
+    }
+    m_up = vm::cross(m_right, m_direction);
+    m_valid = false;
+    cameraDidChangeNotifier(this);
   }
-  else
-  {
-    m_right = vm::normalize(rightUnnormalized);
-  }
-  m_up = vm::cross(m_right, m_direction);
-  m_valid = false;
-  cameraDidChangeNotifier(this);
 }
 
 void Camera::rotate(const float yaw, const float pitch)
 {
-  if (yaw == 0.0f && pitch == 0.0f)
+  if (yaw != 0.0f || pitch != 0.0f)
   {
-    return;
+    const auto rotation = clampedRotationFromYawPitch(yaw, pitch);
+
+    const auto newDirection = rotation * m_direction;
+    const auto newUp = rotation * m_up;
+
+    setDirection(newDirection, newUp);
   }
-
-  const auto rotation = clampedRotationFromYawPitch(yaw, pitch);
-
-  const auto newDirection = rotation * m_direction;
-  const auto newUp = rotation * m_up;
-
-  setDirection(newDirection, newUp);
 }
 
 void Camera::orbit(const vm::vec3f& center, const float horizontal, const float vertical)
 {
-  if (horizontal == 0.0f && vertical == 0.0f)
+  if (horizontal != 0.0f || vertical != 0.0f)
   {
-    return;
+    const auto rotation = clampedRotationFromYawPitch(horizontal, vertical);
+
+    const auto newDirection = rotation * m_direction;
+    const auto newUp = rotation * m_up;
+    const auto offset = rotation * (m_position - center);
+
+    setDirection(newDirection, newUp);
+    moveTo(offset + center);
   }
-
-  const auto rotation = clampedRotationFromYawPitch(horizontal, vertical);
-
-  const auto newDirection = rotation * m_direction;
-  const auto newUp = rotation * m_up;
-  const auto offset = rotation * (m_position - center);
-
-  setDirection(newDirection, newUp);
-  moveTo(offset + center);
 }
 
 vm::quatf Camera::clampedRotationFromYawPitch(const float yaw, const float pitch) const
 {
   const auto desiredRotation =
-    vm::quatf(vm::vec3f::pos_z(), yaw) * vm::quatf(m_right, pitch);
+    vm::quatf{vm::vec3f::pos_z(), yaw} * vm::quatf{m_right, pitch};
   return clampRotationToUpright(desiredRotation);
 }
 
@@ -421,24 +400,21 @@ vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation) const
   {
     // newUp should be prevented from rotating below Z=0
 
-    auto newUpClamped = vm::normalize(vm::vec3f(newUp.x(), newUp.y(), 0.0f));
+    auto newUpClamped = vm::normalize(vm::vec3f{newUp.x(), newUp.y(), 0.0f});
     if (vm::is_nan(newUpClamped))
     {
       newUpClamped = vm::vec3f::pos_x();
     }
 
     // how much does newUp need to be rotated to equal newUpClamped?
-    const auto cosAngle = vm::clamp(dot(newUpClamped, newUp), -1.0f, 1.0f);
+    const auto cosAngle = vm::clamp(vm::dot(newUpClamped, newUp), -1.0f, 1.0f);
     const auto angle = acosf(cosAngle);
 
-    const auto correction = vm::quatf(newRight, newDirection.z() > 0 ? -angle : angle);
+    const auto correction = vm::quatf{newRight, newDirection.z() > 0 ? -angle : angle};
 
     return correction * rotation;
   }
-  else
-  {
-    return rotation;
-  }
+  return rotation;
 }
 
 void Camera::renderFrustum(
@@ -482,12 +458,6 @@ std::optional<FloatType> Camera::pickLineSegmentHandle(
 }
 
 Camera::Camera()
-  : m_nearPlane(1.0f)
-  , m_farPlane(65536.0f)
-  , m_viewport(Viewport(0, 0, 1024, 768))
-  , m_zoom(1.0f)
-  , m_position(vm::vec3f::zero())
-  , m_valid(false)
 {
   setDirection(vm::vec3f::pos_x(), vm::vec3f::pos_z());
 }
@@ -499,12 +469,11 @@ Camera::Camera(
   const vm::vec3f& position,
   const vm::vec3f& direction,
   const vm::vec3f& up)
-  : m_nearPlane(nearPlane)
-  , m_farPlane(farPlane)
-  , m_viewport(viewport)
-  , m_zoom(1.0f)
-  , m_position(position)
-  , m_valid(false)
+  : m_nearPlane{nearPlane}
+  , m_farPlane{farPlane}
+  , m_viewport{viewport}
+  , m_zoom{1.0f}
+  , m_position{position}
 {
   assert(m_nearPlane >= 0.0f);
   assert(m_farPlane > m_nearPlane);
@@ -531,5 +500,5 @@ bool Camera::isValidZoom(const float zoom) const
 {
   return zoom >= 0.02f && zoom <= 100.0f;
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

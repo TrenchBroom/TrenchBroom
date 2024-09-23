@@ -21,14 +21,13 @@
 
 #include "Color.h"
 #include "Renderer/GLVertexType.h"
+#include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
 #include <map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class ActiveShader;
 template <typename VertexSpec>
@@ -174,5 +173,4 @@ private:
   void renderLines(RenderContext& renderContext);
   void renderTriangles(RenderContext& renderContext);
 };
-} // namespace Renderer
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Renderer
