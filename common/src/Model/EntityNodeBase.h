@@ -55,6 +55,8 @@ protected:
 
   std::vector<EntityNodeBase*> m_linkSources;
   std::vector<EntityNodeBase*> m_linkTargets;
+  std::vector<EntityNodeBase*> m_customSources;
+  std::vector<EntityNodeBase*> m_customTargets;
   std::vector<EntityNodeBase*> m_killSources;
   std::vector<EntityNodeBase*> m_killTargets;
 
@@ -108,6 +110,8 @@ private: // search index management
 public: // link management
   const std::vector<EntityNodeBase*>& linkSources() const;
   const std::vector<EntityNodeBase*>& linkTargets() const;
+  const std::vector<EntityNodeBase*>& customSources() const;
+  const std::vector<EntityNodeBase*>& customTargets() const;
   const std::vector<EntityNodeBase*>& killSources() const;
   const std::vector<EntityNodeBase*>& killTargets() const;
 
@@ -116,11 +120,14 @@ public: // link management
 
   bool hasMissingSources() const;
   std::vector<std::string> findMissingLinkTargets() const;
+  std::vector<std::string> findMissingCustomTargets() const;
   std::vector<std::string> findMissingKillTargets() const;
 
 private: // link management internals
   void findMissingTargets(
     const std::string& prefix, std::vector<std::string>& result) const;
+
+  void getAllCustomTargetPropertyNames(std::vector<std::string>& result) const;
 
   void addLinks(const std::string& name, const std::string& value);
   void removeLinks(const std::string& name, const std::string& value);
@@ -130,24 +137,34 @@ private: // link management internals
     const std::string& newName,
     const std::string& newValue);
 
+  //jwf: does targetname only
   void addLinkTargets(const std::string& targetname);
+  void addCustomTargets(const std::string& targetname);
   void addKillTargets(const std::string& targetname);
 
   void removeLinkTargets(const std::string& targetname);
+  void removeCustomTargets(const std::string& targetname);
   void removeKillTargets(const std::string& targetname);
 
+  //jwf: does targetname1,2,3 etc
   void addAllLinkSources(const std::string& targetname);
   void addAllLinkTargets();
+  void addAllCustomSources(const std::string& propertyName, const std::string& targetname);
+  void addAllCustomTargets(const std::string& propertyName);
   void addAllKillSources(const std::string& targetname);
   void addAllKillTargets();
 
   void addLinkTargets(const std::vector<EntityNodeBase*>& targets);
+  void addCustomTargets(const std::vector<EntityNodeBase*>& targets);
   void addKillTargets(const std::vector<EntityNodeBase*>& targets);
   void addLinkSources(const std::vector<EntityNodeBase*>& sources);
+  void addCustomSources(const std::vector<EntityNodeBase*>& sources);
   void addKillSources(const std::vector<EntityNodeBase*>& sources);
 
   void removeAllLinkSources();
   void removeAllLinkTargets();
+  void removeAllCustomSources();
+  void removeAllCustomTargets();
   void removeAllKillSources();
   void removeAllKillTargets();
 
@@ -156,11 +173,15 @@ private: // link management internals
 
   void addLinkSource(EntityNodeBase* node);
   void addLinkTarget(EntityNodeBase* node);
+  void addCustomSource(EntityNodeBase* node);
+  void addCustomTarget(EntityNodeBase* node);
   void addKillSource(EntityNodeBase* node);
   void addKillTarget(EntityNodeBase* node);
 
   void removeLinkSource(EntityNodeBase* node);
   void removeLinkTarget(EntityNodeBase* node);
+  void removeCustomSource(EntityNodeBase* node);
+  void removeCustomTarget(EntityNodeBase* node);
   void removeKillSource(EntityNodeBase* node);
   void removeKillTarget(EntityNodeBase* node);
 

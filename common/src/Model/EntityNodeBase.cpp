@@ -120,6 +120,27 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
 
   const auto notifyChange = NotifyPropertyChange{*this};
   m_entity.setDefinition(definition);
+
+  // Update custom targets/sources
+  std::vector<std::string> customTargetPropertyNames;
+  getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
+  removeAllCustomSources();
+  removeAllCustomTargets();
+
+  for (const auto& customTargetPropertyName : customTargetPropertyNames)
+  {
+    addAllCustomTargets(customTargetPropertyName);
+  }
+
+  const auto* targetname = m_entity.property(EntityPropertyKeys::Targetname);
+  if (targetname && !targetname->empty())
+  {
+    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    {
+      addAllCustomSources(customTargetPropertyName, *targetname);
+    }
+  }
 }
 
 EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase& node)
@@ -296,6 +317,16 @@ const std::vector<EntityNodeBase*>& EntityNodeBase::linkTargets() const
   return m_linkTargets;
 }
 
+const std::vector<EntityNodeBase*>& EntityNodeBase::customSources() const
+{
+  return m_customSources;
+}
+
+const std::vector<EntityNodeBase*>& EntityNodeBase::customTargets() const
+{
+  return m_customTargets;
+}
+
 const std::vector<EntityNodeBase*>& EntityNodeBase::killSources() const
 {
   return m_killSources;
@@ -329,6 +360,21 @@ std::vector<std::string> EntityNodeBase::findMissingLinkTargets() const
   return result;
 }
 
+std::vector<std::string> EntityNodeBase::findMissingCustomTargets() const
+{
+  auto result = std::vector<std::string>{};
+
+  std::vector<std::string> customTargetPropertyNames;
+  getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
+  for (const auto& customTargetPropertyName : customTargetPropertyNames)
+  {
+    findMissingTargets(customTargetPropertyName, result);
+  }
+
+  return result;
+}
+
 std::vector<std::string> EntityNodeBase::findMissingKillTargets() const
 {
   auto result = std::vector<std::string>{};
@@ -359,6 +405,20 @@ void EntityNodeBase::findMissingTargets(
   }
 }
 
+void EntityNodeBase::getAllCustomTargetPropertyNames(std::vector<std::string>& result) const
+{
+   if (!entity().definition())
+    return;
+
+  for (const auto& property : entity().definition()->propertyDefinitions())
+  {
+    if (property->type() == Assets::PropertyDefinitionType::TargetDestinationProperty)
+    {
+      result.push_back(property->key());
+    }
+  }
+}
+
 void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
 {
   if (isNumberedProperty(EntityPropertyKeys::Target, name))
@@ -373,6 +433,19 @@ void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
   {
     addAllLinkSources(value);
     addAllKillSources(value);
+  }
+  else
+  {
+    std::vector<std::string> customTargetPropertyNames;
+    getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
+    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    {
+      if (isNumberedProperty(customTargetPropertyName, name))
+      {
+        addCustomTargets(value);
+      }
+    }
   }
 }
 
@@ -390,6 +463,19 @@ void EntityNodeBase::removeLinks(const std::string& name, const std::string& val
   {
     removeAllLinkSources();
     removeAllKillSources();
+  }
+  else
+  {
+    std::vector<std::string> customTargetPropertyNames;
+    getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
+    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    {
+      if (isNumberedProperty(customTargetPropertyName, name))
+      {
+        removeCustomTargets(value);
+      }
+    }
   }
 }
 
@@ -414,6 +500,16 @@ void EntityNodeBase::addLinkTargets(const std::string& targetname)
     auto targets = std::vector<EntityNodeBase*>{};
     findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, targets);
     addLinkTargets(targets);
+  }
+}
+
+void EntityNodeBase::addCustomTargets(const std::string& targetname)
+{
+  if (!targetname.empty())
+  {
+    auto targets = std::vector<EntityNodeBase*>{};
+    findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, targets);
+    addCustomTargets(targets);
   }
 }
 
@@ -452,6 +548,33 @@ void EntityNodeBase::removeLinkTargets(const std::string& targetname)
     m_linkTargets.erase(rem, std::end(m_linkTargets));
   }
 }
+
+void EntityNodeBase::removeCustomTargets(const std::string& targetname)
+{
+  if (!targetname.empty())
+  {
+    auto rem = std::end(m_customTargets);
+    auto it = std::begin(m_customTargets);
+    while (it != rem)
+    {
+      auto* target = *it;
+      const auto* targetTargetname =
+        target->entity().property(EntityPropertyKeys::Targetname);
+      if (targetTargetname && *targetTargetname == targetname)
+      {
+        target->removeCustomSource(this);
+        --rem;
+        std::iter_swap(it, rem);
+      }
+      else
+      {
+        ++it;
+      }
+    }
+    m_customTargets.erase(rem, std::end(m_customTargets));
+  }
+}
+
 
 void EntityNodeBase::removeKillTargets(const std::string& targetname)
 {
@@ -505,6 +628,31 @@ void EntityNodeBase::addAllLinkTargets()
   }
 }
 
+void EntityNodeBase::addAllCustomSources(const std::string& propertyName, const std::string& targetname)
+{
+  if (!targetname.empty())
+  {
+    auto customSources = std::vector<EntityNodeBase*>{};
+    findEntityNodesWithNumberedProperty(
+      EntityPropertyKeys::Target, targetname, customSources);
+    addCustomSources(customSources);
+  }
+}
+void EntityNodeBase::addAllCustomTargets(const std::string& propertyName)
+{
+  for (const auto& property : m_entity.numberedProperties(propertyName))
+  {
+    const auto& targetname = property.value();
+    if (!targetname.empty())
+    {
+      auto customTargets = std::vector<EntityNodeBase*>{};
+      findEntityNodesWithProperty(
+        EntityPropertyKeys::Targetname, targetname, customTargets);
+      addCustomTargets(customTargets);
+    }
+  }
+}
+
 void EntityNodeBase::addAllKillSources(const std::string& targetname)
 {
   if (!targetname.empty())
@@ -542,6 +690,17 @@ void EntityNodeBase::addLinkTargets(const std::vector<EntityNodeBase*>& targets)
   invalidateIssues();
 }
 
+void EntityNodeBase::addCustomTargets(const std::vector<EntityNodeBase*>& targets)
+{
+  m_customTargets.reserve(m_customTargets.size() + targets.size());
+  for (auto* target : targets)
+  {
+    target->addCustomSource(this);
+    m_customTargets.push_back(target);
+  }
+  invalidateIssues();
+}
+
 void EntityNodeBase::addKillTargets(const std::vector<EntityNodeBase*>& targets)
 {
   m_killTargets.reserve(m_killTargets.size() + targets.size());
@@ -560,6 +719,17 @@ void EntityNodeBase::addLinkSources(const std::vector<EntityNodeBase*>& sources)
   {
     linkSource->addLinkTarget(this);
     m_linkSources.push_back(linkSource);
+  }
+  invalidateIssues();
+}
+
+void EntityNodeBase::addCustomSources(const std::vector<EntityNodeBase*>& sources)
+{
+  m_customSources.reserve(m_customSources.size() + sources.size());
+  for (auto* customSource : sources)
+  {
+    customSource->addCustomTarget(this);
+    m_customSources.push_back(customSource);
   }
   invalidateIssues();
 }
@@ -595,6 +765,25 @@ void EntityNodeBase::removeAllLinkTargets()
   invalidateIssues();
 }
 
+void EntityNodeBase::removeAllCustomSources()
+{
+  for (auto* customSource : m_customSources)
+  {
+    customSource->removeCustomTarget(this);
+  }
+  m_customSources.clear();
+  invalidateIssues();
+}
+
+void EntityNodeBase::removeAllCustomTargets()
+{
+  for (auto* customTarget : m_customTargets)
+  {
+    customTarget->removeCustomSource(this);
+  }
+  m_customTargets.clear();
+  invalidateIssues();}
+
 void EntityNodeBase::removeAllKillSources()
 {
   for (auto* killSource : m_killSources)
@@ -619,6 +808,8 @@ void EntityNodeBase::removeAllLinks()
 {
   removeAllLinkSources();
   removeAllLinkTargets();
+  removeAllCustomSources();
+  removeAllCustomTargets();
   removeAllKillSources();
   removeAllKillTargets();
 }
@@ -662,6 +853,19 @@ void EntityNodeBase::addLinkTarget(EntityNodeBase* node)
   invalidateIssues();
 }
 
+void EntityNodeBase::addCustomSource(EntityNodeBase* node)
+{
+  ensure(node, "node is not null");
+  m_customSources.push_back(node);
+  invalidateIssues();
+}
+void EntityNodeBase::addCustomTarget(EntityNodeBase* node)
+{
+  ensure(node, "node is not null");
+  m_customTargets.push_back(node);
+  invalidateIssues();
+}
+
 void EntityNodeBase::addKillSource(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
@@ -689,6 +893,18 @@ void EntityNodeBase::removeLinkTarget(EntityNodeBase* node)
   m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), node);
   invalidateIssues();
 }
+
+void EntityNodeBase::removeCustomSource(EntityNodeBase* node)
+{
+  ensure(node, "node is not null");
+  m_customSources = kdl::vec_erase(std::move(m_customSources), node);
+  invalidateIssues();
+}
+void EntityNodeBase::removeCustomTarget(EntityNodeBase* node)
+{
+  ensure(node, "node is not null");
+  m_customTargets = kdl::vec_erase(std::move(m_customTargets), node);
+  invalidateIssues();}
 
 void EntityNodeBase::removeKillSource(EntityNodeBase* node)
 {
