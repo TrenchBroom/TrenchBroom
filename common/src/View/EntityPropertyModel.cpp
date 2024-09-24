@@ -629,6 +629,24 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
     {
       result = getAllClassnames();
     }
+    else
+    {
+      std::vector<std::string> customTargetPropertyNames;
+      auto document = kdl::mem_lock(m_document);
+      for (const auto& entity : document->allSelectedEntityNodes())
+      {
+        entity->getAllCustomTargetPropertyNames(customTargetPropertyNames);
+      }
+
+      for (const auto& customTargetPropertyName : customTargetPropertyNames)
+      {
+        if (key == customTargetPropertyName)
+        {
+          result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Targetname});
+          break;
+        }
+      }
+    }
   }
 
   return toQStringList(std::begin(result), std::end(result));

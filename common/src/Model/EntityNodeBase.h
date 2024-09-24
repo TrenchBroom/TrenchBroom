@@ -108,6 +108,8 @@ private: // search index management
     const std::string& newValue);
 
 public: // link management
+  void getAllCustomTargetPropertyNames(std::vector<std::string>& result) const;
+
   const std::vector<EntityNodeBase*>& linkSources() const;
   const std::vector<EntityNodeBase*>& linkTargets() const;
   const std::vector<EntityNodeBase*>& customSources() const;
@@ -126,8 +128,6 @@ public: // link management
 private: // link management internals
   void findMissingTargets(
     const std::string& prefix, std::vector<std::string>& result) const;
-
-  void getAllCustomTargetPropertyNames(std::vector<std::string>& result) const;
 
   void addLinks(const std::string& name, const std::string& value);
   void removeLinks(const std::string& name, const std::string& value);

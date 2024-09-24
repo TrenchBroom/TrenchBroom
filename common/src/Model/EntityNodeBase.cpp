@@ -307,6 +307,20 @@ void EntityNodeBase::updatePropertyIndex(
   addToIndex(this, newKey, newValue);
 }
 
+void EntityNodeBase::getAllCustomTargetPropertyNames(std::vector<std::string>& result) const
+{
+  if (!entity().definition())
+    return;
+
+  for (const auto& property : entity().definition()->propertyDefinitions())
+  {
+    if (property->type() == Assets::PropertyDefinitionType::TargetDestinationProperty)
+    {
+      result.push_back(property->key());
+    }
+  }
+}
+
 const std::vector<EntityNodeBase*>& EntityNodeBase::linkSources() const
 {
   return m_linkSources;
@@ -405,19 +419,7 @@ void EntityNodeBase::findMissingTargets(
   }
 }
 
-void EntityNodeBase::getAllCustomTargetPropertyNames(std::vector<std::string>& result) const
-{
-   if (!entity().definition())
-    return;
 
-  for (const auto& property : entity().definition()->propertyDefinitions())
-  {
-    if (property->type() == Assets::PropertyDefinitionType::TargetDestinationProperty)
-    {
-      result.push_back(property->key());
-    }
-  }
-}
 
 void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
 {
