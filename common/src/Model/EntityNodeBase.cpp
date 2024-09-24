@@ -121,11 +121,18 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   const auto notifyChange = NotifyPropertyChange{*this};
   m_entity.setDefinition(definition);
 
-  // Update custom targets/sources
-  std::vector<std::string> customTargetPropertyNames;
+  //
+  auto customTargetPropertyNames = std::vector<std::string>{};
   getAllCustomTargetPropertyNames(customTargetPropertyNames);
 
-  //removeAllCustomSources(); //TODO(jwf): hack - remove
+  auto customSourcePropertyNames = std::vector<std::string>{};
+  for (auto* customSource : customSources())
+  {
+    //TODO(jwf): don't do this - customSource needs to store which prop name it came from
+    customSource->getAllCustomTargetPropertyNames(customSourcePropertyNames);
+  }
+
+  removeAllCustomSources();
   removeAllCustomTargets();
 
   for (const auto& customTargetPropertyName : customTargetPropertyNames)
@@ -136,12 +143,9 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   const auto* targetname = m_entity.property(EntityPropertyKeys::Targetname);
   if (targetname && !targetname->empty())
   {
-    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    for (const auto& customSourcePropertyName : customSourcePropertyNames)
     {
-      //TODO(jwf): this is the bug - we're readding things that are targeting this node
-      // based on the prop names that THIS node uses to target things - we need to
-      // do it based on what the SOURCE nodes use to target things... somehow
-      addAllCustomSources(customTargetPropertyName, *targetname);
+      addAllCustomSources(customSourcePropertyName, *targetname);
     }
   }
 }
