@@ -125,7 +125,7 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   std::vector<std::string> customTargetPropertyNames;
   getAllCustomTargetPropertyNames(customTargetPropertyNames);
 
-  removeAllCustomSources();
+  //removeAllCustomSources(); //TODO(jwf): hack - remove
   removeAllCustomTargets();
 
   for (const auto& customTargetPropertyName : customTargetPropertyNames)
@@ -138,6 +138,9 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   {
     for (const auto& customTargetPropertyName : customTargetPropertyNames)
     {
+      //TODO(jwf): this is the bug - we're readding things that are targeting this node
+      // based on the prop names that THIS node uses to target things - we need to
+      // do it based on what the SOURCE nodes use to target things... somehow
       addAllCustomSources(customTargetPropertyName, *targetname);
     }
   }
@@ -423,6 +426,9 @@ void EntityNodeBase::findMissingTargets(
 
 void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
 {
+  std::vector<std::string> customTargetPropertyNames;
+  getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
   if (isNumberedProperty(EntityPropertyKeys::Target, name))
   {
     addLinkTargets(value);
@@ -434,13 +440,14 @@ void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
   else if (name == EntityPropertyKeys::Targetname)
   {
     addAllLinkSources(value);
+    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    {
+      addAllCustomSources(customTargetPropertyName, value);
+    }
     addAllKillSources(value);
   }
   else
   {
-    std::vector<std::string> customTargetPropertyNames;
-    getAllCustomTargetPropertyNames(customTargetPropertyNames);
-
     for (const auto& customTargetPropertyName : customTargetPropertyNames)
     {
       if (isNumberedProperty(customTargetPropertyName, name))
@@ -464,6 +471,7 @@ void EntityNodeBase::removeLinks(const std::string& name, const std::string& val
   else if (name == EntityPropertyKeys::Targetname)
   {
     removeAllLinkSources();
+    removeAllCustomSources();
     removeAllKillSources();
   }
   else
@@ -636,7 +644,7 @@ void EntityNodeBase::addAllCustomSources(const std::string& propertyName, const 
   {
     auto customSources = std::vector<EntityNodeBase*>{};
     findEntityNodesWithNumberedProperty(
-      EntityPropertyKeys::Target, targetname, customSources);
+      propertyName, targetname, customSources);
     addCustomSources(customSources);
   }
 }
@@ -818,13 +826,24 @@ void EntityNodeBase::removeAllLinks()
 
 void EntityNodeBase::addAllLinks()
 {
+  std::vector<std::string> customTargetPropertyNames;
+  getAllCustomTargetPropertyNames(customTargetPropertyNames);
+
   addAllLinkTargets();
+  for (const auto& customTargetPropertyName : customTargetPropertyNames)
+  {
+    addAllCustomTargets(customTargetPropertyName);
+  }
   addAllKillTargets();
 
   const auto* targetname = m_entity.property(EntityPropertyKeys::Targetname);
   if (targetname && !targetname->empty())
   {
     addAllLinkSources(*targetname);
+    for (const auto& customTargetPropertyName : customTargetPropertyNames)
+    {
+      addAllCustomSources(customTargetPropertyName, *targetname);
+    }
     addAllKillSources(*targetname);
   }
 }
