@@ -21,32 +21,31 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 namespace ActionContext
 {
 using Type = size_t;
-static const Type View3D = 1u << 0u;
-static const Type View2D = 1u << 1u;
-static const Type AnyView = View3D | View2D;
-static const Type NoTool = 1u << 2u;
-static const Type AssembleBrushTool = 1u << 3u;
-static const Type ClipTool = 1u << 4u;
-static const Type RotateTool = 1u << 5u;
-static const Type ScaleTool = 1u << 6u;
-static const Type ShearTool = 1u << 7u;
-static const Type AnyVertexTool = 1u << 8u;
-static const Type AnyTool =
+constexpr Type View3D = 1u << 0u;
+constexpr Type View2D = 1u << 1u;
+constexpr Type AnyView = View3D | View2D;
+constexpr Type NoTool = 1u << 2u;
+constexpr Type AssembleBrushTool = 1u << 3u;
+constexpr Type ClipTool = 1u << 4u;
+constexpr Type RotateTool = 1u << 5u;
+constexpr Type ScaleTool = 1u << 6u;
+constexpr Type ShearTool = 1u << 7u;
+constexpr Type AnyVertexTool = 1u << 8u;
+constexpr Type AnyTool =
   AnyVertexTool | AssembleBrushTool | ClipTool | RotateTool | ScaleTool | ShearTool;
-static const Type AnyOrNoTool = AnyTool | NoTool;
-static const Type NoSelection = 1u << 9u;
-static const Type NodeSelection = 1u << 10u;
-static const Type FaceSelection = 1u << 11u;
-static const Type AnySelection = NodeSelection | FaceSelection;
-static const Type AnyOrNoSelection = AnySelection | NoSelection;
-static const Type Any = AnyView | AnyOrNoSelection | AnyOrNoTool;
+constexpr Type AnyOrNoTool = AnyTool | NoTool;
+constexpr Type NoSelection = 1u << 9u;
+constexpr Type NodeSelection = 1u << 10u;
+constexpr Type FaceSelection = 1u << 11u;
+constexpr Type AnySelection = NodeSelection | FaceSelection;
+constexpr Type AnyOrNoSelection = AnySelection | NoSelection;
+constexpr Type Any = AnyView | AnyOrNoSelection | AnyOrNoTool;
 } // namespace ActionContext
 
 bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs);
@@ -55,12 +54,12 @@ bool actionContextMatches(
 
 std::string actionContextName(ActionContext::Type actionContext);
 
-typedef enum
+enum class ActionView
 {
-  ActionView_Map2D = 0,
-  ActionView_Map3D = 1
-} ActionView;
+  Map2D = 0,
+  Map3D = 1
+};
 
 static const size_t NumActionViews = 2;
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

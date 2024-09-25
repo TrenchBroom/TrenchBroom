@@ -19,8 +19,6 @@
 
 #include "SmartPropertyEditor.h"
 
-#include "Model/Object.h"
-#include "Notifier.h"
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
@@ -28,19 +26,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SmartPropertyEditor::SmartPropertyEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
-  , m_active(false)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
 }
 
-SmartPropertyEditor::~SmartPropertyEditor() {}
+SmartPropertyEditor::~SmartPropertyEditor() = default;
 
 void SmartPropertyEditor::activate(const std::string& propertyKey)
 {
@@ -86,5 +82,5 @@ void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
   assert(m_active);
   document()->setProperty(m_propertyKey, value);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

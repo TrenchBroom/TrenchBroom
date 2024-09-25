@@ -151,8 +151,8 @@ void ChoosePathTypeDialog::createGui(
   auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(0);
-  outerLayout->addWidget(new DialogHeader{"Choose Path Type"});
-  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  outerLayout->addWidget(new DialogHeader{tr("Choose Path Type")});
+  outerLayout->addWidget(new BorderLine{});
   outerLayout->addLayout(innerLayout);
   outerLayout->addLayout(wrapDialogButtonBox(okCancelButtons));
 
@@ -164,19 +164,10 @@ void ChoosePathTypeDialog::createGui(
 
 PathType ChoosePathTypeDialog::pathType() const
 {
-  if (m_docRelativeRadio->isChecked())
-  {
-    return PathType::DocumentRelative;
-  }
-  if (m_appRelativeRadio->isChecked())
-  {
-    return PathType::AppRelative;
-  }
-  if (m_gameRelativeRadio->isChecked())
-  {
-    return PathType::GameRelative;
-  }
-  return PathType::Absolute;
+  return m_docRelativeRadio->isChecked()    ? PathType::DocumentRelative
+         : m_appRelativeRadio->isChecked()  ? PathType::AppRelative
+         : m_gameRelativeRadio->isChecked() ? PathType::GameRelative
+                                            : PathType::Absolute;
 }
 
 } // namespace TrenchBroom::View

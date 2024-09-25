@@ -29,6 +29,7 @@ namespace TrenchBroom
 {
 namespace
 {
+
 std::ofstream openLogFile(const std::filesystem::path& path)
 {
   return IO::Disk::createDirectory(path.parent_path()) | kdl::transform([&](auto) {
@@ -39,7 +40,9 @@ std::ofstream openLogFile(const std::filesystem::path& path)
            })
          | kdl::value();
 }
+
 } // namespace
+
 FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_stream{openLogFile(filePath)}
 {

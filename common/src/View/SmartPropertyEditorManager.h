@@ -29,15 +29,13 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class Selection;
@@ -53,7 +51,7 @@ private:
 
   std::vector<std::tuple<SmartPropertyEditorMatcher, SmartPropertyEditor*>> m_editors;
   std::string m_propertyKey;
-  QStackedLayout* m_stackedLayout{nullptr};
+  QStackedLayout* m_stackedLayout = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -83,5 +81,5 @@ private:
   void deactivateEditor();
   void updateEditor();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

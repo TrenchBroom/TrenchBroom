@@ -28,7 +28,6 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
-#include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
 #include "Renderer/Camera.h"
@@ -42,7 +41,6 @@
 
 #include "vm/distance.h"
 #include "vm/intersection.h"
-#include "vm/segment.h"
 #include "vm/vec.h"
 
 #include <memory>
@@ -52,6 +50,7 @@ namespace TrenchBroom::View
 {
 namespace
 {
+
 class PartDelegateBase
 {
 protected:
@@ -158,7 +157,7 @@ public:
   std::vector<vm::vec3> getHelpVectors(
     const InputState& inputState, const vm::vec3& /* clipPoint */) const override
   {
-    return std::vector<vm::vec3>{vm::vec3(inputState.camera().direction())};
+    return std::vector{vm::vec3{inputState.camera().direction()}};
   }
 
   std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
@@ -270,6 +269,7 @@ public:
     const InputState& inputState, const vm::vec3& clipPoint) const override
   {
     using namespace Model::HitFilters;
+
     auto hit =
       inputState.pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
     if (!hit.isMatch())
@@ -286,10 +286,11 @@ public:
     const InputState& inputState) const override
   {
     using namespace Model::HitFilters;
+
     const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
     if (const auto faceHandle = Model::hitToFaceHandle(hit))
     {
-      const Grid& grid = m_tool.grid();
+      const auto& grid = m_tool.grid();
       const auto position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
       return {{position, hit.hitPoint()}};
     }
@@ -529,6 +530,7 @@ private:
 
   bool cancel() override { return false; }
 };
+
 } // namespace
 
 ClipToolControllerBase::ClipToolControllerBase(ClipTool& tool)
@@ -603,4 +605,5 @@ ClipToolController3D::ClipToolController3D(ClipTool& tool)
   addController(
     std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
+
 } // namespace TrenchBroom::View

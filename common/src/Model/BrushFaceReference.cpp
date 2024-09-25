@@ -23,7 +23,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 
-#include "kdl/range_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result_fold.h"
 
 #include <cassert>
@@ -53,7 +53,7 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
   return handles | std::views::transform([](const auto& handle) {
            return BrushFaceReference{handle.node(), handle.face()};
          })
-         | kdl::to<std::vector<BrushFaceReference>>();
+         | kdl::to_vector;
 }
 
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
@@ -61,6 +61,6 @@ Result<std::vector<BrushFaceHandle>> resolveAllRefs(
 {
   return faceRefs
          | std::views::transform([](const auto& faceRef) { return faceRef.resolve(); })
-         | kdl::to<std::vector<Result<BrushFaceHandle>>>() | kdl::fold;
+         | kdl::to_vector | kdl::fold;
 }
 } // namespace TrenchBroom::Model

@@ -18,7 +18,6 @@
  */
 
 #include "Assets/EntityDefinition.h"
-#include "Error.h"
 #include "Macros.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -41,7 +40,6 @@
 #include "vm/mat_ext.h"
 
 #include <functional>
-#include <set>
 
 #include "CatchUtils/Matchers.h"
 
@@ -674,7 +672,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLinkedGroups")
   }
 
   SECTION(
-    "Given three linked groups, we ungroup two of them, and the remaining one keeps its "
+    "Given three linked groups, we ungroup two of them, and the remaining one keeps "
+    "its "
     "ID")
   {
     document->selectNodes({linkedGroupNode, linkedGroupNode2});
@@ -1038,8 +1037,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
     CHECK(
       document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
 
-    // This could generate conflicts, because what snaps one group could misalign another
-    // group in the link set. So, just reject the change.
+    // This could generate conflicts, because what snaps one group could misalign
+    // another group in the link set. So, just reject the change.
     CHECK(!document->snapVertices(16.0));
   }
 }
@@ -1069,9 +1068,9 @@ TEST_CASE_METHOD(
     document->selectNodes({groupNode, linkedGroupNode1});
 
     // Current design is to reject this because it's modifying entities from multiple
-    // groups in a link set. While in this case the change isn't conflicting, some entity
-    // changes are, e.g. unprotecting a property with 2 linked groups selected, where
-    // entities have different values for that protected property.
+    // groups in a link set. While in this case the change isn't conflicting, some
+    // entity changes are, e.g. unprotecting a property with 2 linked groups selected,
+    // where entities have different values for that protected property.
     //
     // Additionally, the use case for editing entity properties with the entire map
     // selected seems unlikely.
@@ -1125,9 +1124,9 @@ TEST_CASE_METHOD(
   {
     REQUIRE(m_pointEntityDef->bounds() == vm::bbox3{{-16, -16, -16}, {16, 16, 16}});
 
-    // create a new point entity below the origin -- this entity is temporarily created at
-    // the origin and then moved to its eventual position, but the entity at the origin is
-    // propagated into the linked group, where it ends up out of  world bounds
+    // create a new point entity below the origin -- this entity is temporarily created
+    // at the origin and then moved to its eventual position, but the entity at the
+    // origin is propagated into the linked group, where it ends up out of  world bounds
     CHECK(document->createPointEntity(m_pointEntityDef, {0, 0, -32}) != nullptr);
   }
 
@@ -1143,8 +1142,8 @@ TEST_CASE_METHOD(
     document->selectNodes({brushNode});
 
     // create a brush entity - a temporarily empty entity will be created at the origin
-    // and propagated into the linked group, where it ends up out of world bounds and thus
-    // failing
+    // and propagated into the linked group, where it ends up out of world bounds and
+    // thus failing
     CHECK(document->createBrushEntity(m_brushEntityDef) != nullptr);
   }
 }

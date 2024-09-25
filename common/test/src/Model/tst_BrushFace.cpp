@@ -19,7 +19,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/NodeReader.h"
@@ -374,8 +373,8 @@ static void doWithTranslationAnd90DegreeRotations(L&& lambda)
 }
 
 /**
- * Generates transforms for testing alignment lock, etc., by rotating by the given amount,
- * in each axis alone, as well as in all combinations of axes.
+ * Generates transforms for testing alignment lock, etc., by rotating by the given
+ * amount, in each axis alone, as well as in all combinations of axes.
  */
 template <class L>
 static void doMultiAxisRotations(const double degrees, L&& lambda)
@@ -531,7 +530,8 @@ static void checkAlignmentLockOffWithScale(const Brush& cube)
 {
   const vm::vec3 mins(cube.bounds().min);
 
-  // translate the cube mins to the origin, scale by 2 in the X axis, then translate back
+  // translate the cube mins to the origin, scale by 2 in the X axis, then translate
+  // back
   const vm::mat4x4 transform = vm::translation_matrix(mins)
                                * vm::scaling_matrix(vm::vec3(2.0, 1.0, 1.0))
                                * vm::translation_matrix(-1.0 * mins);
@@ -641,9 +641,11 @@ TEST_CASE("BrushFaceTest.testValveRotation")
     "( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
     "( 8 -8 48 ) ( -0 -16 -16 ) ( 8 8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
     "( 8 8 48 ) ( -0 16 -16 ) ( 24 8 48 ) tlight11 [ 1 0 0 -0 ] [ 0 0 -1 56 ] -0 1 1\n"
-    "( 24 -8 48 ) ( 32 -16 -16 ) ( 8 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 0 -1 56 ] -0 1 1\n"
+    "( 24 -8 48 ) ( 32 -16 -16 ) ( 8 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 0 -1 56 ] -0 1 "
+    "1\n"
     "( 8 -8 48 ) ( 8 8 48 ) ( 24 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 -1 0 48 ] -0 1 1\n"
-    "( -0 16 -16 ) ( -0 -16 -16 ) ( 32 16 -16 ) tlight11 [ -1 0 0 -0 ] [ 0 -1 0 48 ] -0 "
+    "( -0 16 -16 ) ( -0 -16 -16 ) ( 32 16 -16 ) tlight11 [ -1 0 0 -0 ] [ 0 -1 0 48 ] "
+    "-0 "
     "1 1\n"
     "}\n"
     "}\n");
@@ -701,15 +703,20 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
     "    {\n"
     "        ( 24 8 48 ) ( 32 16 -16 ) ( 24 -8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] "
     "-0 1 1\n"
-    "        ( 8 -8 48 ) ( -0 -16 -16 ) ( 8 8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] -0 "
+    "        ( 8 -8 48 ) ( -0 -16 -16 ) ( 8 8 48 ) tlight11 [ 0 1 0 0 ] [ 0 0 -1 56 ] "
+    "-0 "
     "1 1\n"
-    "        ( 8 8 48 ) ( -0 16 -16 ) ( 24 8 48 ) tlight11 [ 1 0 0 -0 ] [ 0 0 -1 56 ] -0 "
+    "        ( 8 8 48 ) ( -0 16 -16 ) ( 24 8 48 ) tlight11 [ 1 0 0 -0 ] [ 0 0 -1 56 ] "
+    "-0 "
     "1 1\n"
-    "        ( 24 -8 48 ) ( 32 -16 -16 ) ( 8 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 0 -1 56 ] "
+    "        ( 24 -8 48 ) ( 32 -16 -16 ) ( 8 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 0 -1 56 "
+    "] "
     "-0 1 1\n"
-    "        ( 8 -8 48 ) ( 8 8 48 ) ( 24 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 -1 0 48 ] -0 1 "
+    "        ( 8 -8 48 ) ( 8 8 48 ) ( 24 -8 48 ) tlight11 [ 1 0 0 0 ] [ 0 -1 0 48 ] -0 "
+    "1 "
     "1\n"
-    "        ( -0 16 -16 ) ( -0 -16 -16 ) ( 32 16 -16 ) tlight11 [ -1 0 0 -0 ] [ 0 -1 0 "
+    "        ( -0 16 -16 ) ( -0 -16 -16 ) ( 32 16 -16 ) tlight11 [ -1 0 0 -0 ] [ 0 -1 "
+    "0 "
     "48 ] -0 1 "
     "1\n"
     "    }\n"
@@ -853,10 +860,10 @@ TEST_CASE("BrushFaceTest.formatConversion")
     checkBrushUVsEqual(standardCube, standardCubeRoundTrip);
   };
 
-  // NOTE: intentionally include the shear/multi-axis rotations which won't work properly
-  // on Standard. We're not testing alignment lock, just generating interesting brushes to
-  // test Standard -> Valve -> Standard round trip, so it doesn't matter if alignment lock
-  // works.
+  // NOTE: intentionally include the shear/multi-axis rotations which won't work
+  // properly on Standard. We're not testing alignment lock, just generating interesting
+  // brushes to test Standard -> Valve -> Standard round trip, so it doesn't matter if
+  // alignment lock works.
   doWithAlignmentLockTestTransforms(true, testTransform);
 }
 

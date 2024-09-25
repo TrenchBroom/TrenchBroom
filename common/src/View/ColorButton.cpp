@@ -25,32 +25,29 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ColorButton::ColorButton(QWidget* parent)
-  : QWidget(parent)
-  , m_colorIndicator(nullptr)
-  , m_button(nullptr)
+  : QWidget{parent}
 {
-  m_colorIndicator = new QWidget();
-  m_button = new QPushButton("...");
+  m_colorIndicator = new QWidget{};
+  m_button = new QPushButton{"..."};
 
   m_colorIndicator->setSizePolicy(
-    QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred));
+    QSizePolicy{QSizePolicy::Minimum, QSizePolicy::Preferred});
   m_colorIndicator->setMinimumSize(20, 15);
 
-  auto* layout = new QHBoxLayout();
-  layout->setContentsMargins(QMargins());
+  auto* layout = new QHBoxLayout{};
+  layout->setContentsMargins(QMargins{});
   layout->setSpacing(LayoutConstants::MediumHMargin);
   layout->addWidget(m_colorIndicator);
   layout->addWidget(m_button);
   layout->addStretch();
   setLayout(layout);
 
-  connect(m_button, &QPushButton::clicked, this, [this]() {
-    const QColor color = QColorDialog::getColor(m_color, this);
+  connect(m_button, &QPushButton::clicked, this, [&]() {
+    const auto color = QColorDialog::getColor(m_color, this);
     if (color.isValid())
     {
       setColor(color);
@@ -73,5 +70,5 @@ void ColorButton::setColor(const QColor& color)
     emit colorChanged(m_color);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

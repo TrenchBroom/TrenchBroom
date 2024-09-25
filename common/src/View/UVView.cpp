@@ -24,7 +24,7 @@
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -37,7 +37,6 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VboManager.h"
 #include "Renderer/VertexArray.h"
@@ -265,15 +264,15 @@ void UVView::cameraDidChange(const Renderer::Camera*)
   update();
 }
 
-void UVView::doUpdateViewport(int x, int y, int width, int height)
+void UVView::updateViewport(int x, int y, int width, int height)
 {
-  if (m_camera.setViewport(Renderer::Camera::Viewport(x, y, width, height)))
+  if (m_camera.setViewport({x, y, width, height}))
   {
     m_helper.cameraViewportChanged();
   }
 }
 
-void UVView::doRender()
+void UVView::renderContents()
 {
   if (m_helper.valid())
   {
@@ -295,7 +294,7 @@ void UVView::doRender()
   }
 }
 
-bool UVView::doShouldRenderFocusIndicator() const
+bool UVView::shouldRenderFocusIndicator() const
 {
   return false;
 }
@@ -413,12 +412,12 @@ void UVView::processEvent(const CancelEvent& event)
   ToolBoxConnector::processEvent(event);
 }
 
-PickRequest UVView::doGetPickRequest(const float x, const float y) const
+PickRequest UVView::pickRequest(const float x, const float y) const
 {
   return PickRequest{vm::ray3{m_camera.pickRay(x, y)}, m_camera};
 }
 
-Model::PickResult UVView::doPick(const vm::ray3& pickRay) const
+Model::PickResult UVView::pick(const vm::ray3& pickRay) const
 {
   auto pickResult = Model::PickResult::byDistance();
   if (m_helper.valid())

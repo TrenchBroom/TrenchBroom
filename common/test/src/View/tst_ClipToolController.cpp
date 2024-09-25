@@ -77,7 +77,7 @@ TEST_CASE_METHOD(
 
   document->grid().setSize(2); // 2^2, so this sets it to grid 4
 
-  const Renderer::Camera::Viewport viewport(0, 0, 1920, 1080);
+  const auto viewport = Renderer::Camera::Viewport{0, 0, 1920, 1080};
 
   // Camera at 0 -160 64 looking towards +y
   Renderer::PerspectiveCamera camera(

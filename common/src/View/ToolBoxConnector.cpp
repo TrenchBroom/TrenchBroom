@@ -23,7 +23,6 @@
 
 #include "Ensure.h"
 #include "Macros.h"
-#include "View/PickRequest.h"
 #include "View/ToolBox.h"
 #include "View/ToolChain.h"
 #include "View/ToolController.h"
@@ -32,6 +31,23 @@
 
 namespace TrenchBroom::View
 {
+namespace
+{
+
+auto getScrollSource(const ScrollEvent& event)
+{
+  switch (event.source)
+  {
+  case ScrollEvent::Source::Mouse:
+    return ScrollSource::Mouse;
+  case ScrollEvent::Source::Trackpad:
+    return ScrollSource::Trackpad;
+    switchDefault();
+  }
+}
+
+} // namespace
+
 ToolBoxConnector::ToolBoxConnector()
   : m_toolChain{std::make_unique<ToolChain>()}
 {
@@ -53,9 +69,8 @@ void ToolBoxConnector::updatePickResult()
 {
   ensure(m_toolBox, "toolBox is set");
 
-  m_inputState.setPickRequest(
-    doGetPickRequest(m_inputState.mouseX(), m_inputState.mouseY()));
-  auto pickResult = doPick(m_inputState.pickRay());
+  m_inputState.setPickRequest(pickRequest(m_inputState.mouseX(), m_inputState.mouseY()));
+  auto pickResult = pick(m_inputState.pickRay());
   m_toolBox->pick(*m_toolChain, m_inputState, pickResult);
   m_inputState.setPickResult(std::move(pickResult));
 }
@@ -236,23 +251,6 @@ void ToolBoxConnector::processEvent(const MouseEvent& event)
   }
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
 }
-
-namespace
-{
-
-auto getScrollSource(const ScrollEvent& event)
-{
-  switch (event.source)
-  {
-  case ScrollEvent::Source::Mouse:
-    return ScrollSource::Mouse;
-  case ScrollEvent::Source::Trackpad:
-    return ScrollSource::Trackpad;
-    switchDefault();
-  }
-}
-
-} // namespace
 
 void ToolBoxConnector::processEvent(const ScrollEvent& event)
 {

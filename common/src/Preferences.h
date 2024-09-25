@@ -27,9 +27,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Preferences
+namespace TrenchBroom::Preferences
 {
 // NOTE: any QKeySequence preferences must be functions like CameraFly*
 // because QKeySequence docs specify that you can't create an instance before QApplication
@@ -222,5 +220,5 @@ extern DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible;
 extern DynamicPreferencePattern<QKeySequence> EntitiesCreate;
 
 const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
-} // namespace Preferences
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Preferences

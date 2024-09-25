@@ -24,13 +24,13 @@
 #include <QVariant>
 
 #include "IO/PathQt.h"
-#include "Notifier.h"
 #include "View/QtUtils.h"
 
 #include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
 {
+
 std::vector<std::filesystem::path> loadRecentDocuments(const size_t max)
 {
   auto result = std::vector<std::filesystem::path>{};
@@ -154,12 +154,8 @@ std::vector<std::filesystem::path> RecentDocuments::updateFilteredDocuments()
 void RecentDocuments::insertPath(const std::filesystem::path& path)
 {
   const auto canonPath = path.lexically_normal();
-  auto it =
-    std::find(std::begin(m_recentDocuments), std::end(m_recentDocuments), canonPath);
-  if (it != std::end(m_recentDocuments))
-  {
-    m_recentDocuments.erase(it);
-  }
+  std::erase(m_recentDocuments, canonPath);
+
   m_recentDocuments.insert(std::begin(m_recentDocuments), canonPath);
   if (m_recentDocuments.size() > m_maxSize)
   {
@@ -187,7 +183,7 @@ void RecentDocuments::createMenuItems(QMenu& menu)
   for (const auto& path : m_filteredDocuments)
   {
     menu.addAction(
-      IO::pathAsQString(path.filename()), [this, path]() { loadDocument(path); });
+      IO::pathAsQString(path.filename()), [&, path]() { loadDocument(path); });
   }
 }
 

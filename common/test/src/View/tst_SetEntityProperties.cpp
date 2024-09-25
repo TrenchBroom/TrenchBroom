@@ -28,6 +28,7 @@
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "View/Transaction.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -87,8 +88,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
 
   {
-    auto transaction =
-      Transaction{document}; // we only want to undo the following changes later
+    // we only want to undo the following changes later
+    auto transaction = Transaction{document};
     document->setProperty("temp", "large_entity");
     document->renameProperty("temp", "classname");
     transaction.commit();

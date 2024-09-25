@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
 #include "Model/PointTrace.h"
 
 #include "vm/vec.h"

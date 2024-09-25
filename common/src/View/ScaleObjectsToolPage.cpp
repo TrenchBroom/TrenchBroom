@@ -28,30 +28,25 @@
 #include <QStackedLayout>
 
 #include "FloatType.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/string_utils.h"
 
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
-namespace TrenchBroom
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ScaleObjectsToolPage::ScaleObjectsToolPage(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(std::move(document))
-  , m_book(nullptr)
-  , m_sizeTextBox(nullptr)
-  , m_factorsTextBox(nullptr)
-  , m_scaleFactorsOrSize(nullptr)
-  , m_button(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   createGui();
   connectObservers();
@@ -71,7 +66,8 @@ void ScaleObjectsToolPage::activate()
   const auto suggestedSize =
     document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero();
 
-  m_sizeTextBox->setText(QString::fromStdString(kdl::str_to_string(suggestedSize)));
+  m_sizeTextBox->setText(
+    QString::fromStdString(fmt::format("{}", fmt::streamed(suggestedSize))));
   m_factorsTextBox->setText("1.0 1.0 1.0");
 }
 
@@ -79,11 +75,11 @@ void ScaleObjectsToolPage::createGui()
 {
   auto document = kdl::mem_lock(m_document);
 
-  auto* text = new QLabel(tr("Scale objects"));
+  auto* text = new QLabel{tr("Scale objects")};
 
-  m_book = new QStackedLayout();
-  m_sizeTextBox = new QLineEdit();
-  m_factorsTextBox = new QLineEdit();
+  m_book = new QStackedLayout{};
+  m_sizeTextBox = new QLineEdit{};
+  m_factorsTextBox = new QLineEdit{};
   m_book->addWidget(m_sizeTextBox);
   m_book->addWidget(m_factorsTextBox);
 
@@ -92,7 +88,7 @@ void ScaleObjectsToolPage::createGui()
   connect(
     m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::applyScale);
 
-  m_scaleFactorsOrSize = new QComboBox();
+  m_scaleFactorsOrSize = new QComboBox{};
   m_scaleFactorsOrSize->addItem(tr("to size"));
   m_scaleFactorsOrSize->addItem(tr("by factors"));
 
@@ -106,7 +102,7 @@ void ScaleObjectsToolPage::createGui()
   m_button = new QPushButton(tr("Apply"));
   connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::applyScale);
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(LayoutConstants::MediumHMargin);
 
@@ -156,17 +152,15 @@ void ScaleObjectsToolPage::selectionDidChange(const Selection&)
 
 void ScaleObjectsToolPage::applyScale()
 {
-  if (!canScale())
+  if (canScale())
   {
-    return;
-  }
-
-  auto document = kdl::mem_lock(m_document);
-  const auto box = document->selectionBounds();
-  if (const auto scaleFactors = getScaleFactors())
-  {
-    document->scaleObjects(box.center(), *scaleFactors);
+    if (const auto scaleFactors = getScaleFactors())
+    {
+      auto document = kdl::mem_lock(m_document);
+      const auto box = document->selectionBounds();
+      document->scaleObjects(box.center(), *scaleFactors);
+    }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

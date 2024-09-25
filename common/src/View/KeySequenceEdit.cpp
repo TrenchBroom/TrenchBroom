@@ -27,24 +27,21 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 KeySequenceEdit::KeySequenceEdit(QWidget* parent)
-  : KeySequenceEdit(LimitedKeySequenceEdit::MaxCount, parent)
+  : KeySequenceEdit{LimitedKeySequenceEdit::MaxCount, parent}
 {
 }
 
 KeySequenceEdit::KeySequenceEdit(const size_t maxCount, QWidget* parent)
-  : QWidget(parent)
-  , m_keySequenceEdit(nullptr)
-  , m_clearButton(nullptr)
+  : QWidget{parent}
+  , m_keySequenceEdit{new LimitedKeySequenceEdit{maxCount}}
+  , m_clearButton{createBitmapButton(
+      style()->standardIcon(QStyle::SP_LineEditClearButton), "Clear shortcut")}
 {
-  m_keySequenceEdit = new LimitedKeySequenceEdit(maxCount);
   m_keySequenceEdit->setToolTip("Click to start editing, then press the shortcut keys");
-  m_clearButton = createBitmapButton(
-    style()->standardIcon(QStyle::SP_LineEditClearButton), "Clear shortcut");
 
   setFocusProxy(m_keySequenceEdit);
 
@@ -60,7 +57,7 @@ KeySequenceEdit::KeySequenceEdit(const size_t maxCount, QWidget* parent)
     &KeySequenceEdit::keySequenceChanged);
   connect(m_clearButton, &QAbstractButton::clicked, this, &KeySequenceEdit::clear);
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(LayoutConstants::NarrowHMargin);
   layout->addWidget(m_keySequenceEdit, 1);
@@ -82,5 +79,5 @@ void KeySequenceEdit::clear()
 {
   m_keySequenceEdit->clear();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

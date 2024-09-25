@@ -20,6 +20,7 @@
 #include "Macros.h"
 #include "NotifierConnection.h"
 #include "View/CommandProcessor.h"
+#include "View/MapDocumentCommandFacade.h"
 #include "View/TransactionScope.h"
 #include "View/UndoableCommand.h"
 
@@ -169,13 +170,13 @@ private:
     return call;
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
   {
     const auto expectedCall = popCall<DoPerformDo>();
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
   {
     const auto expectedCall = popCall<DoPerformUndo>();
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
@@ -231,12 +232,12 @@ public:
   {
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
   {
     return std::make_unique<CommandResult>(true);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
   {
     return std::make_unique<CommandResult>(true);
   }
@@ -248,7 +249,8 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
    * Execute a successful command, then undo it successfully.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
@@ -293,7 +295,8 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo")
    * Execute a successful command, then undo fails.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
@@ -334,7 +337,8 @@ TEST_CASE("CommandProcessorTest.doFailingCommand")
    * Execute a failing command.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName = "test command";
@@ -362,7 +366,8 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction")
    * successfully. Finally, redo it, also with success.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
@@ -444,7 +449,8 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction")
    * commit it.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
@@ -508,7 +514,8 @@ TEST_CASE("CommandProcessorTest.nestedTransactions")
    * and commit both transactions. Then undo the outer transaction.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto outerCommandName = "outer command";
@@ -584,7 +591,8 @@ TEST_CASE("CommandProcessorTest.nestedTransactions")
 
 TEST_CASE("CommandProceossor.isCurrentDocumentStateObservable")
 {
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
 
   SECTION("No enclosing transaction")
   {
@@ -667,7 +675,8 @@ TEST_CASE("CommandProcessorTest.collateCommands")
    * Execute a command and collate the next command, then undo.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
@@ -726,7 +735,8 @@ TEST_CASE("CommandProcessorTest.collationInterval")
    * collation interval. Then, undo the second command.
    */
 
-  auto commandProcessor = CommandProcessor{nullptr, std::chrono::milliseconds(100)};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade, std::chrono::milliseconds(100)};
   auto observer = TestObserver{commandProcessor};
 
   const auto commandName1 = "test command 1";
@@ -784,7 +794,8 @@ TEST_CASE("CommandProcessorTest.collationInterval")
 
 TEST_CASE("CommandProcessorTest.collateTransactions")
 {
-  auto commandProcessor = CommandProcessor{nullptr};
+  auto facade = MapDocumentCommandFacade{};
+  auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
   auto transaction1_command1 = std::make_unique<TestCommand>("cmd1");

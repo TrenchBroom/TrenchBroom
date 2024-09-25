@@ -34,50 +34,42 @@
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_to_vector.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // LayerListBoxWidget
 
 LayerListBoxWidget::LayerListBoxWidget(
   std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent)
   : ControlListBoxItemRenderer(parent)
-  , m_document(std::move(document))
-  , m_layer(layer)
-  , m_activeButton(nullptr)
-  , m_nameText(nullptr)
-  , m_infoText(nullptr)
-  , m_omitFromExportButton(nullptr)
-  , m_hiddenButton(nullptr)
-  , m_lockButton(nullptr)
+  , m_document{std::move(document)}
+  , m_layer{layer}
+  , m_activeButton{new QRadioButton{}}
+  , m_nameText{new QLabel{QString::fromStdString(m_layer->name())}}
+  , m_infoText{new QLabel{}}
+  , m_omitFromExportButton{createBitmapToggleButton(
+      "OmitFromExport.svg", tr("Toggle omit from export"))}
+  , m_hiddenButton{createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"))}
+  , m_lockButton{createBitmapToggleButton("Lock.svg", tr("Toggle locked state"))}
 {
-  m_nameText = new QLabel(QString::fromStdString(m_layer->name()));
   // Ignore the label's minimum width, this prevents a horizontal scroll bar from
   // appearing on the list widget, and instead just cuts off the label for long layer
   // names.
   m_nameText->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Preferred);
-  m_infoText = new QLabel("");
   makeInfo(m_infoText);
 
-  m_activeButton = new QRadioButton();
-  m_omitFromExportButton =
-    createBitmapToggleButton("OmitFromExport.svg", tr("Toggle omit from export"));
-  m_hiddenButton = createBitmapToggleButton("Hidden.svg", tr("Toggle hidden state"));
-  m_lockButton = createBitmapToggleButton("Lock.svg", tr("Toggle locked state"));
-
   auto documentS = kdl::mem_lock(m_document);
-  connect(m_omitFromExportButton, &QAbstractButton::clicked, this, [this]() {
+  connect(m_omitFromExportButton, &QAbstractButton::clicked, this, [&]() {
     emit layerOmitFromExportToggled(m_layer);
   });
-  connect(m_activeButton, &QAbstractButton::clicked, this, [this]() {
+  connect(m_activeButton, &QAbstractButton::clicked, this, [&]() {
     emit layerActiveClicked(m_layer);
   });
-  connect(m_hiddenButton, &QAbstractButton::clicked, this, [this]() {
+  connect(m_hiddenButton, &QAbstractButton::clicked, this, [&]() {
     emit layerVisibilityToggled(m_layer);
   });
-  connect(m_lockButton, &QAbstractButton::clicked, this, [this]() {
+  connect(m_lockButton, &QAbstractButton::clicked, this, [&]() {
     emit layerLockToggled(m_layer);
   });
 
@@ -85,14 +77,14 @@ LayerListBoxWidget::LayerListBoxWidget(
   m_nameText->installEventFilter(this);
   m_infoText->installEventFilter(this);
 
-  auto* textLayout = new QVBoxLayout();
+  auto* textLayout = new QVBoxLayout{};
   textLayout->setContentsMargins(
     0, LayoutConstants::NarrowVMargin, 0, LayoutConstants::NarrowVMargin);
   textLayout->setSpacing(LayoutConstants::NarrowVMargin);
   textLayout->addWidget(m_nameText, 1);
   textLayout->addWidget(m_infoText, 1);
 
-  auto* itemPanelLayout = new QHBoxLayout();
+  auto* itemPanelLayout = new QHBoxLayout{};
   itemPanelLayout->setContentsMargins(0, 0, 0, 0);
   itemPanelLayout->setSpacing(LayoutConstants::MediumHMargin);
 
@@ -173,8 +165,8 @@ bool LayerListBoxWidget::eventFilter(QObject* target, QEvent* event)
 // LayerListBox
 
 LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : ControlListBox("", true, parent)
-  , m_document(std::move(document))
+  : ControlListBox{"", true, parent}
+  , m_document{std::move(document)}
 {
   connectObservers();
 }
@@ -249,12 +241,11 @@ void LayerListBox::currentLayerDidChange(const Model::LayerNode*)
 size_t LayerListBox::itemCount() const
 {
   auto document = kdl::mem_lock(m_document);
-  const auto* world = document->world();
-  if (world == nullptr)
+  if (const auto* world = document->world())
   {
-    return 0;
+    return world->allLayers().size();
   }
-  return world->allLayers().size();
+  return 0;
 }
 
 ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
@@ -263,16 +254,10 @@ ControlListBoxItemRenderer* LayerListBox::createItemRenderer(
   auto document = kdl::mem_lock(m_document);
   auto* world = document->world();
 
-  Model::LayerNode* layer;
-  if (index == 0)
-  {
-    layer = world->defaultLayer();
-  }
-  else
-  {
-    layer = world->customLayersUserSorted().at(index - 1);
-  }
-  auto* renderer = new LayerListBoxWidget(document, layer, parent);
+  auto* layerNode =
+    index > 0 ? world->customLayersUserSorted().at(index - 1) : world->defaultLayer();
+
+  auto* renderer = new LayerListBoxWidget{document, layerNode, parent};
   connect(
     renderer,
     &LayerListBoxWidget::layerActiveClicked,
@@ -313,41 +298,25 @@ void LayerListBox::selectedRowChanged(const int index)
 
 const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const
 {
-  auto* renderer = this->renderer(row);
-  if (renderer == nullptr)
-  {
-    return nullptr;
-  }
-  else
-  {
-    return static_cast<const LayerListBoxWidget*>(renderer);
-  }
+  return static_cast<const LayerListBoxWidget*>(renderer(row));
 }
 
 Model::LayerNode* LayerListBox::layerForRow(const int row) const
 {
-  const auto* widget = widgetAtRow(row);
-  if (widget == nullptr)
-  {
-    return nullptr;
-  }
-  else
+  if (const auto* widget = widgetAtRow(row))
   {
     return widget->layer();
   }
+  return nullptr;
 }
 
 std::vector<Model::LayerNode*> LayerListBox::layers() const
 {
-  const int rowCount = count();
+  const auto rowCount = count();
 
-  std::vector<Model::LayerNode*> result;
-  result.reserve(static_cast<size_t>(rowCount));
-  for (int i = 0; i < rowCount; ++i)
-  {
-    result.push_back(layerForRow(i));
-  }
-  return result;
+  return std::views::iota(0, rowCount)
+         | std::views::transform([&](const auto i) { return layerForRow(i); })
+         | kdl::to_vector;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

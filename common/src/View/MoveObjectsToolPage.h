@@ -28,9 +28,7 @@
 class QAbstractButton;
 class QLineEdit;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class Selection;
@@ -41,8 +39,8 @@ class MoveObjectsToolPage : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  QLineEdit* m_offset;
-  QAbstractButton* m_button;
+  QLineEdit* m_offset = nullptr;
+  QAbstractButton* m_button = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -60,5 +58,5 @@ private:
 
   void applyMove();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

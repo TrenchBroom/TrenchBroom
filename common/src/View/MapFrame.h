@@ -31,9 +31,9 @@
 
 #include <chrono>
 #include <filesystem>
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 
 class QAction;
 class QComboBox;
@@ -117,7 +117,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 private: // shortcuts
-  using ActionMap = std::map<const Action*, QAction*>;
+  using ActionMap = std::unordered_map<const Action*, QAction*>;
   ActionMap m_actionMap;
 
 private: // special menu entries
@@ -157,7 +157,6 @@ private: // menu bar
   void updateRecentDocumentsMenu();
 
 private: // tool bar
-  class ToolBarBuilder;
   void createToolBar();
   void updateToolBarWidgets();
 
@@ -383,7 +382,7 @@ public:
   bool inspectorVisible() const;
 
   void toggleMaximizeCurrentView();
-  bool currentViewMaximized();
+  bool currentViewMaximized() const;
 
   void showCompileDialog();
   bool closeCompileDialog();

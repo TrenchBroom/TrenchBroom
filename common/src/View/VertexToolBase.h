@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -39,6 +37,7 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 #include "View/Tool.h"
+#include "View/Transaction.h"
 #include "View/TransactionScope.h"
 #include "View/VertexHandleManager.h"
 
@@ -51,8 +50,8 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec.h"    // IWYU pragma: keep
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>
 #include <map>
@@ -60,19 +59,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class Lasso;
@@ -93,21 +90,18 @@ protected:
   std::weak_ptr<MapDocument> m_document;
 
 private:
-  size_t m_changeCount;
-  size_t m_ignoreChangeNotifications;
+  size_t m_changeCount = 0;
+  size_t m_ignoreChangeNotifications = 0;
   NotifierConnection m_notifierConnection;
 
 protected:
   H m_dragHandlePosition;
-  bool m_dragging;
+  bool m_dragging = false;
 
 protected:
   explicit VertexToolBase(std::weak_ptr<MapDocument> document)
-    : Tool(false)
-    , m_document(std::move(document))
-    , m_changeCount(0)
-    , m_ignoreChangeNotifications(0u)
-    , m_dragging(false)
+    : Tool{false}
+    , m_document{std::move(document)}
   {
   }
 
@@ -129,10 +123,11 @@ public:
     const M& manager, I cur, I end) const
   {
     using H2 = typename M::Handle;
-    std::map<H2, std::vector<Model::BrushNode*>> result;
+
+    auto result = std::map<H2, std::vector<Model::BrushNode*>>{};
     while (cur != end)
     {
-      const H2& handle = *cur++;
+      const auto& handle = *cur++;
       result[handle] = findIncidentBrushes(manager, handle);
     }
     return result;
@@ -143,7 +138,7 @@ public:
   std::vector<Model::BrushNode*> findIncidentBrushes(
     const M& manager, const H2& handle) const
   {
-    const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+    const auto& brushes = selectedBrushes();
     return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
   }
 
@@ -151,8 +146,8 @@ public:
   template <typename M, typename I>
   std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const
   {
-    const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
-    kdl::vector_set<Model::BrushNode*> result;
+    const auto& brushes = selectedBrushes();
+    auto result = kdl::vector_set<Model::BrushNode*>{};
     auto out = std::inserter(result, std::end(result));
 
     while (cur != end)
@@ -174,11 +169,12 @@ public: // Handle selection
   bool select(const std::vector<Model::Hit>& hits, const bool addToSelection)
   {
     assert(!hits.empty());
-    const Model::Hit& firstHit = hits.front();
-    if (firstHit.type() == handleManager().hitType())
+    if (const auto& firstHit = hits.front(); firstHit.type() == handleManager().hitType())
     {
       if (!addToSelection)
+      {
         handleManager().deselectAll();
+      }
 
       // Count the number of hit handles which are selected already.
       size_t selected = 0u;
@@ -213,10 +209,8 @@ public: // Handle selection
 
   void select(const Lasso& lasso, const bool modifySelection)
   {
-    using HandleList = std::vector<H>;
-
-    const HandleList allHandles = handleManager().allHandles();
-    HandleList selectedHandles;
+    const auto allHandles = handleManager().allHandles();
+    auto selectedHandles = std::vector<H>{};
 
     lasso.selected(
       std::begin(allHandles), std::end(allHandles), std::back_inserter(selectedHandles));
@@ -383,7 +377,7 @@ public: // rendering
   void renderHandles(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     if (!handleManager().allSelected())
     {
       renderHandles(
@@ -448,7 +442,7 @@ public: // rendering
     const HH& handle,
     const Color& color) const
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(color);
     renderService.renderHandle(typename HH::float_type(handle));
   }
@@ -459,7 +453,7 @@ public: // rendering
     Renderer::RenderBatch& renderBatch,
     const HH& handle) const
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
     renderService.renderHandleHighlight(typename HH::float_type(handle));
   }
@@ -469,14 +463,14 @@ public: // rendering
     Renderer::RenderBatch& renderBatch,
     const vm::vec3& handle) const
   {
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-    renderService.renderHandleHighlight(vm::vec3f(handle));
+    renderService.renderHandleHighlight(vm::vec3f{handle});
 
     renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
     renderService.setBackgroundColor(
       pref(Preferences::SelectedInfoOverlayBackgroundColor));
-    renderService.renderString(kdl::str_to_string(handle), vm::vec3f(handle));
+    renderService.renderString(kdl::str_to_string(handle), vm::vec3f{handle});
   }
 
   template <typename HH>
@@ -669,5 +663,5 @@ protected:
     removeHandles(nodes, handleManager());
   }
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

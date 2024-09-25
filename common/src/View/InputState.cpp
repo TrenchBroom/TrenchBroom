@@ -25,7 +25,7 @@
 #include "Macros.h"
 #include "Renderer/Camera.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 namespace TrenchBroom::View
 {

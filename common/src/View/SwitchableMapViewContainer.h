@@ -28,11 +28,6 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-class Logger;
-}
-
 namespace TrenchBroom::Renderer
 {
 class MapRenderer;
@@ -57,7 +52,6 @@ class SwitchableMapViewContainer : public QWidget, public MapView
 {
   Q_OBJECT
 private:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
   GLContextManager& m_contextManager;
 
@@ -73,7 +67,6 @@ private:
 
 public:
   SwitchableMapViewContainer(
-    Logger* logger,
     std::weak_ptr<MapDocument> document,
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
@@ -136,24 +129,25 @@ private:
   void connectObservers();
   void refreshViews(Tool& tool);
 
-private: // implement MapView interface
-  void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
-  bool doGetIsCurrent() const override;
-  MapViewBase* doGetFirstMapViewBase() override;
-  bool doCanSelectTall() override;
-  void doSelectTall() override;
-  vm::vec3 doGetPasteObjectsDelta(
+public: // implement MapView interface
+  void installActivationTracker(MapViewActivationTracker& activationTracker) override;
+  bool isCurrent() const override;
+  MapViewBase* firstMapViewBase() override;
+  bool canSelectTall() override;
+  void selectTall() override;
+  vm::vec3 pasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
-  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
-  void doFocusCameraOnSelection(bool animate) override;
-  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
-  void doMoveCameraToCurrentTracePoint() override;
-  bool doCancelMouseDrag() override;
-  void doRefreshViews() override;
+  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void focusCameraOnSelection(bool animate) override;
+  void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
+  void moveCameraToCurrentTracePoint() override;
+  bool cancelMouseDrag() override;
+  void refreshViews() override;
 
-private: // implement ViewEffectsService interface
-  void doFlashSelection() override;
+public: // implement ViewEffectsService interface
+  void flashSelection() override;
 
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
+
 } // namespace TrenchBroom::View

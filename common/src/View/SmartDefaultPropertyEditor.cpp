@@ -21,13 +21,12 @@
 
 #include "Model/EntityNodeBase.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor(document, parent)
+  : SmartPropertyEditor{std::move(document), parent}
 {
 }
 
@@ -35,5 +34,5 @@ void SmartDefaultPropertyEditor::doUpdateVisual(
   const std::vector<Model::EntityNodeBase*>& /* nodes */)
 {
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

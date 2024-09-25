@@ -22,10 +22,9 @@
 #include <functional>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /**
  * A stack of actions (C++ callables) that can be repeatedly executed as a whole.
  *
@@ -48,15 +47,10 @@ private:
    * If nonempty, the last element is the currently open transaction.
    */
   std::vector<Transaction> m_openTransactionsStack;
-  bool m_clearOnNextPush;
-  mutable bool m_repeating;
+  bool m_clearOnNextPush = false;
+  mutable bool m_repeating = false;
 
 public:
-  /**
-   * Creates a new instance.
-   */
-  RepeatStack();
-
   /**
    * Returns the number of repeatable actions on this repeat stack.
    * Doesn't count open transactions.
@@ -134,5 +128,5 @@ public: // transactions
    */
   void rollbackTransaction();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

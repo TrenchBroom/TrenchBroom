@@ -22,7 +22,7 @@
 #include "View/Animation.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
 {
@@ -59,4 +59,5 @@ public:
 private:
   void doUpdate(double progress) override;
 };
+
 } // namespace TrenchBroom::View

@@ -19,13 +19,11 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "View/UndoableCommand.h"
 
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
 namespace TrenchBroom::Model
@@ -43,17 +41,7 @@ namespace TrenchBroom::View
 class SelectionCommand : public UndoableCommand
 {
 private:
-  enum class Action
-  {
-    SelectNodes,
-    SelectFaces,
-    SelectAllNodes,
-    SelectAllFaces,
-    ConvertToFaces,
-    DeselectNodes,
-    DeselectFaces,
-    DeselectAll
-  };
+  enum class Action;
 
   Action m_action;
 
@@ -86,9 +74,9 @@ public:
 private:
   static std::string makeName(Action action, size_t nodeCount, size_t faceCount);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
   deleteCopyAndMove(SelectionCommand);
 };

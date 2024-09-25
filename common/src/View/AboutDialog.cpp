@@ -25,10 +25,9 @@
 #include "View/AppInfoPanel.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 AboutDialog* AboutDialog::instance = nullptr;
 
 void AboutDialog::showAboutDialog()
@@ -67,7 +66,7 @@ AboutDialog::AboutDialog()
 
 void AboutDialog::createGui()
 {
-  const QString creditsString = tr(R"(
+  const auto creditsString = tr(R"(
 github.com/TrenchBroom/TrenchBroom<br />
 <br />
 <b>Developers</b><br />
@@ -131,5 +130,5 @@ Font Awesome 5 Free (Icons)<br />)");
   layout->addSpacing(50);
   setLayout(layout);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

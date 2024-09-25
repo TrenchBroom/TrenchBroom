@@ -19,7 +19,6 @@
 
 #include "View/HandleDragTracker.h"
 
-#include "Macros.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
@@ -33,15 +32,11 @@
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
-#include "vm/plane.h"
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/quat.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <ostream>
-
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 
 kdl_reflect_impl(DragState);
@@ -67,9 +62,10 @@ void HandleDragTrackerDelegate::render(
 {
 }
 
-DragHandlePicker makeLineHandlePicker(const vm::line3& line, const vm::vec3& handleOffset)
+DragHandlePicker makeLineHandlePicker(
+  const vm::line3& line_, const vm::vec3& handleOffset)
 {
-  return [line = vm::line3{line.point - handleOffset, line.direction},
+  return [line = vm::line3{line_.point - handleOffset, line_.direction},
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3> {
     const auto dist = vm::distance(inputState.pickRay(), line);
     if (dist.parallel)
@@ -81,9 +77,9 @@ DragHandlePicker makeLineHandlePicker(const vm::line3& line, const vm::vec3& han
 }
 
 DragHandlePicker makePlaneHandlePicker(
-  const vm::plane3& plane, const vm::vec3& handleOffset)
+  const vm::plane3& plane_, const vm::vec3& handleOffset)
 {
-  return [plane = vm::plane3{plane.anchor() - handleOffset, plane.normal},
+  return [plane = vm::plane3{plane_.anchor() - handleOffset, plane_.normal},
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3> {
     return kdl::optional_transform(
       vm::intersect_ray_plane(inputState.pickRay(), plane), [&](const auto distance) {
@@ -93,12 +89,12 @@ DragHandlePicker makePlaneHandlePicker(
 }
 
 DragHandlePicker makeCircleHandlePicker(
-  const vm::vec3& center,
+  const vm::vec3& center_,
   const vm::vec3& normal,
   const FloatType radius,
   const vm::vec3& handleOffset)
 {
-  return [center = center - handleOffset, normal, radius, handleOffset](
+  return [center = center_ - handleOffset, normal, radius, handleOffset](
            const InputState& inputState) -> std::optional<vm::vec3> {
     const auto plane = vm::plane3{center, normal};
     return kdl::optional_transform(
@@ -111,9 +107,9 @@ DragHandlePicker makeCircleHandlePicker(
 }
 
 DragHandlePicker makeSurfaceHandlePicker(
-  Model::HitFilter filter, const vm::vec3& handleOffset)
+  Model::HitFilter filter_, const vm::vec3& handleOffset)
 {
-  return [filter = std::move(filter),
+  return [filter = std::move(filter_),
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3> {
     const auto& hit = inputState.pickResult().first(filter);
     if (!hit.isMatch())
@@ -219,10 +215,10 @@ HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid)
 }
 
 HandlePositionProposer makeHandlePositionProposer(
-  DragHandlePicker pickHandlePosition, DragHandleSnapper snapHandlePosition)
+  DragHandlePicker pickHandlePosition_, DragHandleSnapper snapHandlePosition_)
 {
-  return [pickHandlePosition = std::move(pickHandlePosition),
-          snapHandlePosition = std::move(snapHandlePosition)](
+  return [pickHandlePosition = std::move(pickHandlePosition_),
+          snapHandlePosition = std::move(snapHandlePosition_)](
            const InputState& inputState,
            const DragState& dragState) -> std::optional<vm::vec3> {
     if (const auto handlePosition = pickHandlePosition(inputState))
@@ -232,5 +228,5 @@ HandlePositionProposer makeHandlePositionProposer(
     return std::nullopt;
   };
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

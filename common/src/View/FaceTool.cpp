@@ -24,12 +24,12 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
-namespace TrenchBroom
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
-  : VertexToolBase(document)
+  : VertexToolBase{std::move(document)}
   , m_faceHandles(std::make_unique<FaceHandleManager>())
 {
 }
@@ -98,5 +98,5 @@ void FaceTool::removeSelection()
     kdl::str_plural(handles.size(), "Remove Brush Face", "Remove Brush Faces");
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

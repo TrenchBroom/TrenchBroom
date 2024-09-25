@@ -345,7 +345,7 @@ QRect CellView::visibleRect() const
   return QRect{QPoint{0, top}, size()};
 }
 
-void CellView::doRender()
+void CellView::renderContents()
 {
   validate();
   if (!m_layoutInitialized)
@@ -435,6 +435,7 @@ void CellView::renderTitleBackgrounds(float y, float height)
 
 namespace
 {
+
 auto collectStringVertices(
   CellLayout& layout,
   const float y,
@@ -510,6 +511,7 @@ auto collectStringVertices(
 
   return stringVertices;
 }
+
 } // namespace
 
 void CellView::renderTitleStrings(float y, float height)

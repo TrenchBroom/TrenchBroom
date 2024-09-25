@@ -23,15 +23,14 @@
 #include <QLabel>
 #include <QResizeEvent>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ElidedLabel::ElidedLabel(
   const QString& text, const Qt::TextElideMode elideMode, QWidget* parent)
-  : QWidget(parent)
-  , m_label(new QLabel(this))
-  , m_elideMode(elideMode)
+  : QWidget{parent}
+  , m_label{new QLabel{this}}
+  , m_elideMode{elideMode}
 {
   setContentsMargins(0, 0, 0, 0);
   setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
@@ -39,7 +38,7 @@ ElidedLabel::ElidedLabel(
 }
 
 ElidedLabel::ElidedLabel(const Qt::TextElideMode elideMode, QWidget* parent)
-  : ElidedLabel("", elideMode, parent)
+  : ElidedLabel{"", elideMode, parent}
 {
 }
 
@@ -70,7 +69,7 @@ void ElidedLabel::updateElidedText(const int width)
 
 QSize ElidedLabel::minimumSizeHint() const
 {
-  return QSize(-1, m_label->sizeHint().height());
+  return {-1, m_label->sizeHint().height()};
 }
 
 void ElidedLabel::resizeEvent(QResizeEvent* event)
@@ -78,5 +77,5 @@ void ElidedLabel::resizeEvent(QResizeEvent* event)
   updateElidedText(event->size().width());
   m_label->setGeometry(contentsRect());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

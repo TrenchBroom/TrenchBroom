@@ -25,7 +25,6 @@
 #include <QMenu>
 #include <QTableView>
 
-#include "Ensure.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
@@ -36,6 +35,7 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "View/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -44,16 +44,12 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
-  , m_hiddenIssueTypes{0}
-  , m_showHiddenIssues{false}
-  , m_valid{false}
 {
   createGui();
   bindEvents();
@@ -63,7 +59,7 @@ void IssueBrowserView::createGui()
 {
   m_tableModel = new IssueBrowserModel{this};
 
-  m_tableView = new QTableView{nullptr};
+  m_tableView = new QTableView{};
   m_tableView->setModel(m_tableModel);
   m_tableView->verticalHeader()->setVisible(false);
   m_tableView->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Fixed);
@@ -431,5 +427,5 @@ QVariant IssueBrowserModel::headerData(
   }
   return QVariant{};
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

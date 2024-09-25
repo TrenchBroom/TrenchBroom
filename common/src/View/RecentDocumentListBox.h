@@ -27,6 +27,7 @@
 
 namespace TrenchBroom::View
 {
+
 class RecentDocumentListBox : public ImageListBox
 {
   Q_OBJECT
@@ -48,4 +49,5 @@ private:
 signals:
   void loadRecentDocument(const std::filesystem::path& path);
 };
+
 } // namespace TrenchBroom::View

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Exceptions.h"
 
 #include "kdl/overload.h"
@@ -28,7 +27,6 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
 #include "vm/intersection.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"
@@ -38,7 +36,6 @@
 #include <cmath>
 #include <cstdint>
 #include <optional>
-#include <ostream>
 #include <unordered_map>
 #include <variant>
 #include <vector>

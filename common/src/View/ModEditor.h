@@ -33,9 +33,7 @@ class QListWidget;
 class QWidget;
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -45,13 +43,13 @@ class ModEditor : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  QListWidget* m_availableModList;
-  QListWidget* m_enabledModList;
-  QLineEdit* m_filterBox;
-  QAbstractButton* m_addModsButton;
-  QAbstractButton* m_removeModsButton;
-  QAbstractButton* m_moveModUpButton;
-  QAbstractButton* m_moveModDownButton;
+  QListWidget* m_availableModList = nullptr;
+  QListWidget* m_enabledModList = nullptr;
+  QLineEdit* m_filterBox = nullptr;
+  QAbstractButton* m_addModsButton = nullptr;
+  QAbstractButton* m_removeModsButton = nullptr;
+  QAbstractButton* m_moveModUpButton = nullptr;
+  QAbstractButton* m_moveModDownButton = nullptr;
 
   std::vector<std::string> m_availableMods;
 
@@ -86,5 +84,5 @@ private:
   bool canEnableMoveDownButton() const;
   void filterBoxChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

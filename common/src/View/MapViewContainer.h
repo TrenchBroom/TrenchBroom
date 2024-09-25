@@ -36,9 +36,9 @@ public:
   ~MapViewContainer() override;
 
 public:
-  bool canMaximizeCurrentView() const;
-  bool currentViewMaximized() const;
-  void toggleMaximizeCurrentView();
+  virtual bool canMaximizeCurrentView() const = 0;
+  virtual bool currentViewMaximized() const = 0;
+  virtual void toggleMaximizeCurrentView() = 0;
 
 protected:
   /**
@@ -46,17 +46,11 @@ protected:
    *
    * @return the current map view
    */
-  MapView* currentMapView() const;
+  virtual MapView* currentMapView() const = 0;
 
-private: // implement MapView interface
-  vm::vec3 doGetPasteObjectsDelta(
+public: // implement MapView interface
+  vm::vec3 pasteObjectsDelta(
     const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
-
-private: // subclassing interface
-  virtual bool doCanMaximizeCurrentView() const = 0;
-  virtual bool doCurrentViewMaximized() const = 0;
-  virtual void doToggleMaximizeCurrentView() = 0;
-  virtual MapView* doGetCurrentMapView() const = 0;
 
 public:
   virtual void cycleChildMapView(MapView* after) = 0;

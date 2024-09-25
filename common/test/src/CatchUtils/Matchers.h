@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "Error.h"
 #include "Result.h"
 #include "StringMakers.h"
 
@@ -207,8 +206,8 @@ GlobMatcher MatchesGlob(std::string glob);
 
 /**
  * Catch2 matcher that compares two `std::vector`s of `vm::vec<T,S>`s,
- * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with an
- * epsilon.
+ * ignoring order of the `std::vector`s, and checking equality of `vm::vec<T,S>`s with
+ * an epsilon.
  */
 template <typename T, std::size_t S>
 class UnorderedApproxVecMatcher : public Catch::MatcherBase<std::vector<vm::vec<T, S>>>

@@ -109,7 +109,7 @@ private:
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
-  bool doShouldRenderFocusIndicator() const override;
+  bool shouldRenderFocusIndicator() const override;
   const Color& getBackgroundColor() override;
 
   void renderBounds(Layout& layout, float y, float height);

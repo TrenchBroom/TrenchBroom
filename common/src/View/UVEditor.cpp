@@ -25,9 +25,7 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-#include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Game.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/UVView.h"
@@ -209,8 +207,8 @@ void UVEditor::rotateUVCWClicked()
 
 void UVEditor::subDivisionChanged()
 {
-  const int x = m_xSubDivisionEditor->value();
-  const int y = m_ySubDivisionEditor->value();
+  const auto x = m_xSubDivisionEditor->value();
+  const auto y = m_ySubDivisionEditor->value();
   m_uvView->setSubDivisions(vm::vec2i(x, y));
 }
 

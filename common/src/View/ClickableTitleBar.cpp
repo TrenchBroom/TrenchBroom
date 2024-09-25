@@ -22,7 +22,6 @@
 #include <QLabel>
 #include <QLayout>
 
-#include "View/BorderLine.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 

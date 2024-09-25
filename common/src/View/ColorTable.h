@@ -25,16 +25,15 @@
 
 class QColor;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ColorTable : public QWidget
 {
   Q_OBJECT
 private:
   int m_cellSize;
-  int m_cellSpacing;
+  int m_cellSpacing = 2;
   std::vector<QColor> m_colors;
   std::vector<QColor> m_selectedColors;
 
@@ -60,5 +59,5 @@ private:
 signals:
   void colorTableSelected(QColor color);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

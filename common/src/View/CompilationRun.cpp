@@ -23,7 +23,6 @@
 #include "EL/Interpolator.h"
 #include "Ensure.h"
 #include "Model/CompilationProfile.h"
-#include "Model/Game.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
@@ -35,6 +34,7 @@
 
 namespace TrenchBroom::View
 {
+
 CompilationRun::~CompilationRun()
 {
   if (running())
@@ -83,9 +83,9 @@ void CompilationRun::run(
   QTextEdit* currentOutput,
   const bool test)
 {
-  ensure(!profile.tasks.empty(), "profile has no tasks");
-  ensure(document != nullptr, "document is null");
-  ensure(currentOutput != nullptr, "currentOutput is null");
+  ensure(!profile.tasks.empty(), "profile has  tasks");
+  ensure(document != nullptr, "document is not null");
+  ensure(currentOutput != nullptr, "currentOutput is not null");
 
   assert(!doIsRunning());
   cleanup();

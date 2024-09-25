@@ -25,10 +25,9 @@
 
 class QTextEdit;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /**
  * Helper for displaying the output of a command line tool in QTextEdit.
  *
@@ -61,5 +60,5 @@ public:
 private:
   void appendString(const QString& string);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

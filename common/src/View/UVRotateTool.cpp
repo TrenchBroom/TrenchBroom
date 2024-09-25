@@ -20,7 +20,6 @@
 #include "UVRotateTool.h"
 
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
@@ -33,7 +32,6 @@
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VboManager.h"
@@ -56,7 +54,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 
@@ -164,14 +161,7 @@ private:
       const auto translation = vm::translation_matrix(vm::vec3{originPosition});
       const auto centerTransform = Renderer::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
-      if (m_highlight)
-      {
-        shader.set("Color", highlightColor);
-      }
-      else
-      {
-        shader.set("Color", handleColor);
-      }
+      shader.set("Color", m_highlight ? highlightColor : handleColor);
       m_outer.render();
     }
 
@@ -343,7 +333,7 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
       toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
     const auto hitPointOnPlane = toPlane * hitPoint;
 
-    const auto zoom = static_cast<FloatType>(m_helper.cameraZoom());
+    const auto zoom = FloatType(m_helper.cameraZoom());
     const auto error =
       vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
     if (error <= RotateHandleWidth / zoom)

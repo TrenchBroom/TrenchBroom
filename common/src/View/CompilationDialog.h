@@ -27,9 +27,7 @@ class QLabel;
 class QPushButton;
 class QTextEdit;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class CompilationProfileManager;
 class MapFrame;
@@ -38,15 +36,15 @@ class CompilationDialog : public QDialog
 {
   Q_OBJECT
 private:
-  MapFrame* m_mapFrame{nullptr};
-  CompilationProfileManager* m_profileManager{nullptr};
-  QPushButton* m_launchButton{nullptr};
-  QPushButton* m_compileButton{nullptr};
-  QPushButton* m_testCompileButton{nullptr};
-  QPushButton* m_stopCompileButton{nullptr};
-  QPushButton* m_closeButton{nullptr};
-  QLabel* m_currentRunLabel{nullptr};
-  QTextEdit* m_output{nullptr};
+  MapFrame* m_mapFrame = nullptr;
+  CompilationProfileManager* m_profileManager = nullptr;
+  QPushButton* m_launchButton = nullptr;
+  QPushButton* m_compileButton = nullptr;
+  QPushButton* m_testCompileButton = nullptr;
+  QPushButton* m_stopCompileButton = nullptr;
+  QPushButton* m_closeButton = nullptr;
+  QLabel* m_currentRunLabel = nullptr;
+  QTextEdit* m_output = nullptr;
   CompilationRun m_run;
 
 public:
@@ -71,5 +69,5 @@ private slots:
 private:
   void saveProfile();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

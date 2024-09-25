@@ -37,9 +37,9 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/line.h"
-#include "vm/plane.h"
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/polygon.h"
-#include "vm/segment.h"
+#include "vm/segment.h" // IWYU pragma: keep
 
 #include <cassert>
 #include <utility>
@@ -100,7 +100,7 @@ static HandlePositionProposer makeHandlePositionProposer(
       || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
       || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType);
 
-    const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+    const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
     return makeHandlePositionProposer(
       makeLineHandlePicker(handleLine, handleOffset),
@@ -115,7 +115,7 @@ static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
                               ? AnchorPos::Center
                               : AnchorPos::Opposite;
 
-  ProportionalAxes scaleAllAxes = ProportionalAxes::None();
+  auto scaleAllAxes = ProportionalAxes::None();
   if (inputState.modifierKeysDown(ModifierKeys::Shift))
   {
     scaleAllAxes = ProportionalAxes::All();
@@ -469,4 +469,5 @@ void ScaleObjectsToolController3D::doPick(
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }
+
 } // namespace TrenchBroom::View

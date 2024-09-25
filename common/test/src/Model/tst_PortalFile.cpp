@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
 #include "IO/DiskIO.h"
 #include "Model/PortalFile.h"
 

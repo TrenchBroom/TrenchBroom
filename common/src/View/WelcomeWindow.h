@@ -25,9 +25,7 @@
 
 class QPushButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class RecentDocumentListBox;
 
@@ -35,9 +33,9 @@ class WelcomeWindow : public QMainWindow
 {
   Q_OBJECT
 private:
-  RecentDocumentListBox* m_recentDocumentListBox;
-  QPushButton* m_createNewDocumentButton;
-  QPushButton* m_openOtherDocumentButton;
+  RecentDocumentListBox* m_recentDocumentListBox = nullptr;
+  QPushButton* m_createNewDocumentButton = nullptr;
+  QPushButton* m_openOtherDocumentButton = nullptr;
 
 public:
   WelcomeWindow();
@@ -50,5 +48,5 @@ private slots:
   void openOtherDocument();
   void openDocument(const std::filesystem::path& path);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

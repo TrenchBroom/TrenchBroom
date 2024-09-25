@@ -24,14 +24,13 @@
 
 class QCompleter;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class MultiCompletionLineEdit : public QLineEdit
 {
 private:
-  QCompleter* m_multiCompleter;
+  QCompleter* m_multiCompleter = nullptr;
   QRegularExpression m_leftDelimiter;
   QRegularExpression m_rightDelimiter;
 
@@ -61,5 +60,5 @@ private slots:
   void triggerCompletion();
   void insertCompletion(const QString& string);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

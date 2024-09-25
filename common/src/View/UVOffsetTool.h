@@ -26,7 +26,6 @@
 
 namespace TrenchBroom::View
 {
-
 class GestureTracker;
 class MapDocument;
 class UVViewHelper;

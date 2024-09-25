@@ -21,22 +21,20 @@
 
 #include "FloatType.h"
 
-#include "vm/ray.h"
+#include "vm/ray.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class PickRequest
 {
 private:
   vm::ray3 m_pickRay;
-  const Renderer::Camera* m_camera;
+  const Renderer::Camera* m_camera = nullptr;
 
 public:
   PickRequest();
@@ -45,5 +43,5 @@ public:
   const vm::ray3& pickRay() const;
   const Renderer::Camera& camera() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

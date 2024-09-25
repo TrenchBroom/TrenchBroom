@@ -42,6 +42,7 @@ Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
 
 namespace TrenchBroom::View
 {
+
 EntityBrowser::EntityBrowser(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}

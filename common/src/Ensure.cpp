@@ -19,11 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Ensure.h"
 
-#include "TrenchBroomApp.h"
-#include "TrenchBroomStackWalker.h"
-
 #include <cassert>
-#include <sstream>
 
 #ifndef NDEBUG
 // for debug builds, ensure is just an assertion
@@ -36,6 +32,11 @@ void TrenchBroom::ensureFailed(
   assert(0);
 }
 #else
+#include "TrenchBroomApp.h"
+#include "TrenchBroomStackWalker.h"
+
+#include <sstream>
+
 // for release builds, ensure generates a crash report
 void TrenchBroom::ensureFailed(
   const char* file, const int line, const char* condition, const char* message)

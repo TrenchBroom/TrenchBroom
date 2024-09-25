@@ -27,6 +27,7 @@
 #include "Polyhedron.h"
 #include "Polyhedron_Matcher.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -170,21 +171,21 @@ const vm::bbox3& Brush::bounds() const
 
 std::optional<size_t> Brush::findFace(const std::string& materialName) const
 {
-  return kdl::vec_index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const BrushFace& face) {
     return face.attributes().materialName() == materialName;
   });
 }
 
 std::optional<size_t> Brush::findFace(const vm::vec3& normal) const
 {
-  return kdl::vec_index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const BrushFace& face) {
     return vm::is_equal(face.boundary().normal, normal, vm::C::almost_zero());
   });
 }
 
 std::optional<size_t> Brush::findFace(const vm::plane3& boundary) const
 {
-  return kdl::vec_index_of(m_faces, [&](const BrushFace& face) {
+  return kdl::index_of(m_faces, [&](const BrushFace& face) {
     return vm::is_equal(face.boundary(), boundary, vm::C::almost_zero());
   });
 }
@@ -192,7 +193,7 @@ std::optional<size_t> Brush::findFace(const vm::plane3& boundary) const
 std::optional<size_t> Brush::findFace(
   const vm::polygon3& vertices, const FloatType epsilon) const
 {
-  return kdl::vec_index_of(
+  return kdl::index_of(
     m_faces, [&](const BrushFace& face) { return face.hasVertices(vertices, epsilon); });
 }
 

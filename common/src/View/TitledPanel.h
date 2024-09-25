@@ -21,9 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class TitleBar;
 
@@ -31,8 +29,8 @@ class TitledPanel : public QWidget
 {
   Q_OBJECT
 private:
-  TitleBar* m_titleBar;
-  QWidget* m_panel;
+  TitleBar* m_titleBar = nullptr;
+  QWidget* m_panel = nullptr;
 
 public:
   TitledPanel(
@@ -46,5 +44,5 @@ public:
   TitleBar* getTitleBar() const;
   QWidget* getPanel() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

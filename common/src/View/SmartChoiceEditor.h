@@ -29,14 +29,12 @@ class QWidget;
 class QLabel;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class ChoicePropertyDefinition;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -44,8 +42,8 @@ class SmartChoiceEditor : public SmartPropertyEditor
 {
   Q_OBJECT
 private:
-  QComboBox* m_comboBox;
-  bool m_ignoreEditTextChanged;
+  QComboBox* m_comboBox = nullptr;
+  bool m_ignoreEditTextChanged = false;
 
 public:
   explicit SmartChoiceEditor(
@@ -58,5 +56,5 @@ private:
   void createGui();
   void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

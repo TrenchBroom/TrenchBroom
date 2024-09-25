@@ -31,13 +31,16 @@
 
 #include "vm/forward.h"
 #include "vm/intersection.h"
-#include "vm/plane.h"
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/scalar.h"
 #include "vm/vec.h"
 
 namespace TrenchBroom::View
 {
-static bool shouldMove(const InputState& inputState)
+namespace
+{
+
+bool shouldMove(const InputState& inputState)
 {
   return (
     inputState.mouseButtonsPressed(MouseButtons::None)
@@ -45,28 +48,28 @@ static bool shouldMove(const InputState& inputState)
       ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare));
 }
 
-static bool shouldLook(const InputState& inputState)
+bool shouldLook(const InputState& inputState)
 {
   return (
     inputState.mouseButtonsPressed(MouseButtons::Right)
     && inputState.modifierKeysPressed(ModifierKeys::None));
 }
 
-static bool shouldPan(const InputState& inputState)
+bool shouldPan(const InputState& inputState)
 {
   return (
     inputState.mouseButtonsPressed(MouseButtons::Middle)
     && (inputState.modifierKeysPressed(ModifierKeys::None) || inputState.modifierKeysPressed(ModifierKeys::MKAlt)));
 }
 
-static bool shouldOrbit(const InputState& inputState)
+bool shouldOrbit(const InputState& inputState)
 {
   return (
     inputState.mouseButtonsPressed(MouseButtons::Right)
     && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
 }
 
-static bool shouldAdjustFlySpeed(const InputState& inputState)
+bool shouldAdjustFlySpeed(const InputState& inputState)
 {
   return (
     inputState.mouseButtonsPressed(MouseButtons::Right)
@@ -74,15 +77,14 @@ static bool shouldAdjustFlySpeed(const InputState& inputState)
       ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::No));
 }
 
-static float adjustSpeedToZoom(
-  const Renderer::PerspectiveCamera& camera, const float speed)
+float adjustSpeedToZoom(const Renderer::PerspectiveCamera& camera, const float speed)
 {
   return speed * vm::min(1.0f, camera.zoomedFov() / camera.fov());
 }
 
-static float lookSpeedH(const Renderer::PerspectiveCamera& camera)
+float lookSpeedH(const Renderer::PerspectiveCamera& camera)
 {
-  float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
+  auto speed = pref(Preferences::CameraLookSpeed) / -50.0f;
   if (pref(Preferences::CameraLookInvertH))
   {
     speed *= -1.0f;
@@ -90,9 +92,9 @@ static float lookSpeedH(const Renderer::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-static float lookSpeedV(const Renderer::PerspectiveCamera& camera)
+float lookSpeedV(const Renderer::PerspectiveCamera& camera)
 {
-  float speed = pref(Preferences::CameraLookSpeed) / -50.0f;
+  auto speed = pref(Preferences::CameraLookSpeed) / -50.0f;
   if (pref(Preferences::CameraLookInvertV))
   {
     speed *= -1.0f;
@@ -100,9 +102,9 @@ static float lookSpeedV(const Renderer::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-static float panSpeedH(const Renderer::PerspectiveCamera& camera)
+float panSpeedH(const Renderer::PerspectiveCamera& camera)
 {
-  float speed = pref(Preferences::CameraPanSpeed);
+  auto speed = pref(Preferences::CameraPanSpeed);
   if (pref(Preferences::CameraPanInvertH))
   {
     speed *= -1.0f;
@@ -110,9 +112,9 @@ static float panSpeedH(const Renderer::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-static float panSpeedV(const Renderer::PerspectiveCamera& camera)
+float panSpeedV(const Renderer::PerspectiveCamera& camera)
 {
-  float speed = pref(Preferences::CameraPanSpeed);
+  auto speed = pref(Preferences::CameraPanSpeed);
   if (pref(Preferences::CameraPanInvertV))
   {
     speed *= -1.0f;
@@ -120,15 +122,143 @@ static float panSpeedV(const Renderer::PerspectiveCamera& camera)
   return adjustSpeedToZoom(camera, speed);
 }
 
-static float moveSpeed(const Renderer::PerspectiveCamera& camera, const bool altMode)
+float moveSpeed(const Renderer::PerspectiveCamera& camera, const bool altMode)
 {
-  float speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
+  auto speed = pref(Preferences::CameraMoveSpeed) * 20.0f;
   if (altMode && pref(Preferences::CameraAltMoveInvert))
   {
     speed *= -1.0f;
   }
   return adjustSpeedToZoom(camera, speed);
 }
+
+class OrbitDragTracker : public GestureTracker
+{
+private:
+  Renderer::PerspectiveCamera& m_camera;
+  vm::vec3f m_orbitCenter;
+
+public:
+  OrbitDragTracker(Renderer::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
+    : m_camera{camera}
+    , m_orbitCenter{orbitCenter}
+  {
+  }
+
+  void mouseScroll(const InputState& inputState) override
+  {
+    const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+    const auto scrollDist = inputState.scrollY();
+
+    const auto orbitPlane = vm::plane3f{m_orbitCenter, m_camera.direction()};
+    if (const auto hit = vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane))
+    {
+      const auto maxDistance = vm::max(*hit - 32.0f, 0.0f);
+      const auto distance =
+        vm::min(factor * scrollDist * moveSpeed(m_camera, false), maxDistance);
+
+      m_camera.moveBy(distance * m_camera.direction());
+    }
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    const auto hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
+    const auto vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
+    m_camera.orbit(m_orbitCenter, hAngle, vAngle);
+    return true;
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+};
+
+class LookDragTracker : public GestureTracker
+{
+private:
+  Renderer::PerspectiveCamera& m_camera;
+
+public:
+  explicit LookDragTracker(Renderer::PerspectiveCamera& camera)
+    : m_camera{camera}
+  {
+  }
+
+  void mouseScroll(const InputState& inputState) override
+  {
+    if (shouldAdjustFlySpeed(inputState))
+    {
+      const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+      const auto scrollDist = inputState.scrollY();
+
+      const auto speed = pref(Preferences::CameraFlyMoveSpeed);
+      // adjust speed by 5% of the current speed per scroll line
+      const auto deltaSpeed = factor * speed * 0.05f * scrollDist;
+      const auto newSpeed = vm::clamp(
+        speed + deltaSpeed,
+        Preferences::MinCameraFlyMoveSpeed,
+        Preferences::MaxCameraFlyMoveSpeed);
+
+      // prefs are only changed when releasing RMB
+      auto& prefs = PreferenceManager::instance();
+      prefs.set(Preferences::CameraFlyMoveSpeed, newSpeed);
+    }
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    const auto hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
+    const auto vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
+    m_camera.rotate(hAngle, vAngle);
+    return true;
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+};
+
+class PanDragTracker : public GestureTracker
+{
+private:
+  Renderer::PerspectiveCamera& m_camera;
+
+public:
+  explicit PanDragTracker(Renderer::PerspectiveCamera& camera)
+    : m_camera{camera}
+  {
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    const auto altMove = pref(Preferences::CameraEnableAltMove);
+    auto delta = vm::vec3f{};
+    if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt))
+    {
+      delta = delta
+              + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera)
+                  * m_camera.right();
+      delta = delta
+              + static_cast<float>(inputState.mouseDY()) * -moveSpeed(m_camera, altMove)
+                  * m_camera.direction();
+    }
+    else
+    {
+      delta = delta
+              + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera)
+                  * m_camera.right();
+      delta =
+        delta
+        + static_cast<float>(inputState.mouseDY()) * panSpeedV(m_camera) * m_camera.up();
+    }
+    m_camera.moveBy(delta);
+    return true;
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+};
+
+} // namespace
 
 CameraTool3D::CameraTool3D(Renderer::PerspectiveCamera& camera)
   : ToolController{}
@@ -189,135 +319,6 @@ void CameraTool3D::mouseUp(const InputState& inputState)
   }
 }
 
-namespace
-{
-class OrbitDragTracker : public GestureTracker
-{
-private:
-  Renderer::PerspectiveCamera& m_camera;
-  vm::vec3f m_orbitCenter;
-
-public:
-  OrbitDragTracker(Renderer::PerspectiveCamera& camera, const vm::vec3f& orbitCenter)
-    : m_camera{camera}
-    , m_orbitCenter{orbitCenter}
-  {
-  }
-
-  void mouseScroll(const InputState& inputState) override
-  {
-    const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-    const float scrollDist = inputState.scrollY();
-
-    const auto orbitPlane = vm::plane3f{m_orbitCenter, m_camera.direction()};
-    if (const auto hit = vm::intersect_ray_plane(m_camera.viewRay(), orbitPlane))
-    {
-      const float maxDistance = vm::max(*hit - 32.0f, 0.0f);
-      const float distance =
-        vm::min(factor * scrollDist * moveSpeed(m_camera, false), maxDistance);
-
-      m_camera.moveBy(distance * m_camera.direction());
-    }
-  }
-
-  bool update(const InputState& inputState) override
-  {
-    const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
-    const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
-    m_camera.orbit(m_orbitCenter, hAngle, vAngle);
-    return true;
-  }
-
-  void end(const InputState&) override {}
-  void cancel() override {}
-};
-
-class LookDragTracker : public GestureTracker
-{
-private:
-  Renderer::PerspectiveCamera& m_camera;
-
-public:
-  explicit LookDragTracker(Renderer::PerspectiveCamera& camera)
-    : m_camera{camera}
-  {
-  }
-
-  void mouseScroll(const InputState& inputState) override
-  {
-    if (shouldAdjustFlySpeed(inputState))
-    {
-      const float factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-      const float scrollDist = inputState.scrollY();
-
-      const float speed = pref(Preferences::CameraFlyMoveSpeed);
-      // adjust speed by 5% of the current speed per scroll line
-      const float deltaSpeed = factor * speed * 0.05f * scrollDist;
-      const float newSpeed = vm::clamp(
-        speed + deltaSpeed,
-        Preferences::MinCameraFlyMoveSpeed,
-        Preferences::MaxCameraFlyMoveSpeed);
-
-      // prefs are only changed when releasing RMB
-      auto& prefs = PreferenceManager::instance();
-      prefs.set(Preferences::CameraFlyMoveSpeed, newSpeed);
-    }
-  }
-
-  bool update(const InputState& inputState) override
-  {
-    const float hAngle = static_cast<float>(inputState.mouseDX()) * lookSpeedH(m_camera);
-    const float vAngle = static_cast<float>(inputState.mouseDY()) * lookSpeedV(m_camera);
-    m_camera.rotate(hAngle, vAngle);
-    return true;
-  }
-
-  void end(const InputState&) override {}
-  void cancel() override {}
-};
-
-class PanDragTracker : public GestureTracker
-{
-private:
-  Renderer::PerspectiveCamera& m_camera;
-
-public:
-  explicit PanDragTracker(Renderer::PerspectiveCamera& camera)
-    : m_camera{camera}
-  {
-  }
-
-  bool update(const InputState& inputState) override
-  {
-    const bool altMove = pref(Preferences::CameraEnableAltMove);
-    auto delta = vm::vec3f{};
-    if (altMove && inputState.modifierKeysPressed(ModifierKeys::MKAlt))
-    {
-      delta = delta
-              + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera)
-                  * m_camera.right();
-      delta = delta
-              + static_cast<float>(inputState.mouseDY()) * -moveSpeed(m_camera, altMove)
-                  * m_camera.direction();
-    }
-    else
-    {
-      delta = delta
-              + static_cast<float>(inputState.mouseDX()) * panSpeedH(m_camera)
-                  * m_camera.right();
-      delta =
-        delta
-        + static_cast<float>(inputState.mouseDY()) * panSpeedV(m_camera) * m_camera.up();
-    }
-    m_camera.moveBy(delta);
-    return true;
-  }
-
-  void end(const InputState&) override {}
-  void cancel() override {}
-};
-} // namespace
-
 std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
   const InputState& inputState)
 {
@@ -349,4 +350,5 @@ bool CameraTool3D::cancel()
 {
   return false;
 }
+
 } // namespace TrenchBroom::View

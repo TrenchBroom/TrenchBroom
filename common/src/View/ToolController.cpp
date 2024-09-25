@@ -26,6 +26,7 @@
 
 namespace TrenchBroom::View
 {
+
 ToolController::~ToolController() = default;
 
 bool ToolController::toolActive() const
@@ -38,16 +39,21 @@ void ToolController::pick(const InputState&, Model::PickResult&) {}
 void ToolController::modifierKeyChange(const InputState&) {}
 
 void ToolController::mouseDown(const InputState&) {}
+
 void ToolController::mouseUp(const InputState&) {}
+
 bool ToolController::mouseClick(const InputState&)
 {
   return false;
 }
+
 bool ToolController::mouseDoubleClick(const InputState&)
 {
   return false;
 }
+
 void ToolController::mouseMove(const InputState&) {}
+
 void ToolController::mouseScroll(const InputState&) {}
 
 std::unique_ptr<GestureTracker> ToolController::acceptMouseDrag(const InputState&)
@@ -91,6 +97,7 @@ std::unique_ptr<DropTracker> ToolController::acceptDrop(
 }
 
 ToolControllerGroup::ToolControllerGroup() = default;
+
 ToolControllerGroup::~ToolControllerGroup() = default;
 
 void ToolControllerGroup::addController(std::unique_ptr<ToolController> controller)
@@ -143,22 +150,15 @@ void ToolControllerGroup::mouseScroll(const InputState& inputState)
 std::unique_ptr<GestureTracker> ToolControllerGroup::acceptMouseDrag(
   const InputState& inputState)
 {
-  if (!doShouldHandleMouseDrag(inputState))
-  {
-    return nullptr;
-  }
-
-  return m_chain.acceptMouseDrag(inputState);
+  return doShouldHandleMouseDrag(inputState) ? m_chain.acceptMouseDrag(inputState)
+                                             : nullptr;
 }
 
 std::unique_ptr<DropTracker> ToolControllerGroup::acceptDrop(
   const InputState& inputState, const std::string& payload)
 {
-  if (!doShouldAcceptDrop(inputState, payload))
-  {
-    return nullptr;
-  }
-  return m_chain.dragEnter(inputState, payload);
+  return doShouldAcceptDrop(inputState, payload) ? m_chain.dragEnter(inputState, payload)
+                                                 : nullptr;
 }
 
 void ToolControllerGroup::setRenderOptions(
@@ -190,4 +190,5 @@ bool ToolControllerGroup::doShouldAcceptDrop(
 {
   return m_chain.shouldAcceptDrop(inputState, payload);
 }
+
 } // namespace TrenchBroom::View

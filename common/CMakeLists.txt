@@ -270,6 +270,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.cpp
         ${COMMON_SOURCE_DIR}/Uuid.cpp
         ${COMMON_SOURCE_DIR}/View/AboutDialog.cpp
+        ${COMMON_SOURCE_DIR}/View/ActionBuilder.cpp
         ${COMMON_SOURCE_DIR}/View/ActionContext.cpp
         ${COMMON_SOURCE_DIR}/View/Actions.cpp
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.cpp
@@ -374,7 +375,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/IssueBrowser.cpp
         ${COMMON_SOURCE_DIR}/View/IssueBrowserView.cpp
         ${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.cpp
-        ${COMMON_SOURCE_DIR}/View/KeyboardShortcut.cpp
         ${COMMON_SOURCE_DIR}/View/KeyboardShortcutItemDelegate.cpp
         ${COMMON_SOURCE_DIR}/View/KeyboardShortcutModel.cpp
         ${COMMON_SOURCE_DIR}/View/KeySequenceEdit.cpp
@@ -383,7 +383,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/LayerEditor.cpp
         ${COMMON_SOURCE_DIR}/View/LayerListBox.cpp
         ${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.cpp
-        ${COMMON_SOURCE_DIR}/View/MainMenuBuilder.cpp
         ${COMMON_SOURCE_DIR}/View/MapDocument.cpp
         ${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.cpp
         ${COMMON_SOURCE_DIR}/View/MapFrame.cpp
@@ -463,6 +462,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.cpp
         ${COMMON_SOURCE_DIR}/View/ToolChain.cpp
         ${COMMON_SOURCE_DIR}/View/ToolController.cpp
+        ${COMMON_SOURCE_DIR}/View/Transaction.cpp
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.cpp
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.cpp
         ${COMMON_SOURCE_DIR}/View/UpdateLinkedGroupsCommand.cpp
@@ -806,6 +806,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/TrenchBroomStackWalker.h
         ${COMMON_SOURCE_DIR}/Uuid.h
         ${COMMON_SOURCE_DIR}/View/AboutDialog.h
+        ${COMMON_SOURCE_DIR}/View/ActionBuilder.h
         ${COMMON_SOURCE_DIR}/View/ActionContext.h
         ${COMMON_SOURCE_DIR}/View/Actions.h
         ${COMMON_SOURCE_DIR}/View/AddRemoveNodesCommand.h
@@ -909,7 +910,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/IssueBrowser.h
         ${COMMON_SOURCE_DIR}/View/IssueBrowserView.h
         ${COMMON_SOURCE_DIR}/View/KeyboardPreferencePane.h
-        ${COMMON_SOURCE_DIR}/View/KeyboardShortcut.h
         ${COMMON_SOURCE_DIR}/View/KeyboardShortcutItemDelegate.h
         ${COMMON_SOURCE_DIR}/View/KeyboardShortcutModel.h
         ${COMMON_SOURCE_DIR}/View/KeySequenceEdit.h
@@ -918,7 +918,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/LayerEditor.h
         ${COMMON_SOURCE_DIR}/View/LayerListBox.h
         ${COMMON_SOURCE_DIR}/View/LimitedKeySequenceEdit.h
-        ${COMMON_SOURCE_DIR}/View/MainMenuBuilder.h
         ${COMMON_SOURCE_DIR}/View/MapDocument.h
         ${COMMON_SOURCE_DIR}/View/MapDocumentCommandFacade.h
         ${COMMON_SOURCE_DIR}/View/MapFrame.h
@@ -1000,6 +999,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/ToolBoxConnector.h
         ${COMMON_SOURCE_DIR}/View/ToolChain.h
         ${COMMON_SOURCE_DIR}/View/ToolController.h
+        ${COMMON_SOURCE_DIR}/View/Transaction.h
         ${COMMON_SOURCE_DIR}/View/TransactionScope.h
         ${COMMON_SOURCE_DIR}/View/TwoPaneMapView.h
         ${COMMON_SOURCE_DIR}/View/UndoableCommand.h

@@ -52,4 +52,5 @@ private:
 
   void logCachedMessages();
 };
+
 } // namespace TrenchBroom::View

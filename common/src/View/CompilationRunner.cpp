@@ -24,7 +24,6 @@
 #include <QProcess>
 #include <QtGlobal>
 
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
@@ -36,7 +35,7 @@
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
-#include "View/MapDocument.h"
+#include "View/MapDocument.h" // IWYU pragma: keep
 
 #include "kdl/functional.h"
 #include "kdl/overload.h"
@@ -49,6 +48,7 @@
 
 namespace TrenchBroom::View
 {
+
 CompilationTaskRunner::CompilationTaskRunner(CompilationContext& context)
   : m_context{context}
 {
@@ -340,18 +340,9 @@ std::string CompilationRunToolTaskRunner::cmd()
 {
   const auto toolPath = std::filesystem::path{interpolate(m_task.toolSpec)};
   const auto parameters = interpolate(m_task.parameterSpec);
-  if (parameters.empty())
-  {
-    return "\"" + toolPath.string() + "\"";
-  }
-  else if (toolPath.empty())
-  {
-    return "";
-  }
-  else
-  {
-    return "\"" + toolPath.string() + "\" " + parameters;
-  }
+  return toolPath.empty()     ? ""
+         : parameters.empty() ? "\"" + toolPath.string() + "\""
+                              : "\"" + toolPath.string() + "\" " + parameters;
 }
 
 void CompilationRunToolTaskRunner::processErrorOccurred(
@@ -388,7 +379,7 @@ void CompilationRunToolTaskRunner::processFinished(
 
 void CompilationRunToolTaskRunner::processReadyReadStandardError()
 {
-  if (m_process != nullptr)
+  if (m_process)
   {
     const QByteArray bytes = m_process->readAllStandardError();
     m_context << QString::fromLocal8Bit(bytes);
@@ -397,7 +388,7 @@ void CompilationRunToolTaskRunner::processReadyReadStandardError()
 
 void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
 {
-  if (m_process != nullptr)
+  if (m_process)
   {
     const QByteArray bytes = m_process->readAllStandardOutput();
     m_context << QString::fromLocal8Bit(bytes);

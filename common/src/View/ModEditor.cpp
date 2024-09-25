@@ -25,9 +25,6 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include "Error.h"
-#include "Model/EntityNode.h"
-#include "Model/Game.h"
 #include "Notifier.h"
 #include "PreferenceManager.h"
 #include "View/BorderLine.h"
@@ -38,23 +35,21 @@
 
 #include "kdl/collection_utils.h"
 #include "kdl/memory_utils.h"
+#include "kdl/range_to.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 
 #include <cassert>
+#include <ranges>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
-  , m_availableModList(nullptr)
-  , m_enabledModList(nullptr)
-  , m_filterBox(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   createGui();
   connectObservers();
@@ -62,14 +57,14 @@ ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
 
 void ModEditor::createGui()
 {
-  auto* availableModContainer = new TitledPanel("Available", false, true);
+  auto* availableModContainer = new TitledPanel{"Available", false, true};
   availableModContainer->setBackgroundRole(QPalette::Base);
   availableModContainer->setAutoFillBackground(true);
 
-  m_availableModList = new QListWidget();
+  m_availableModList = new QListWidget{};
   m_availableModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  auto* availableModContainerSizer = new QVBoxLayout();
+  auto* availableModContainerSizer = new QVBoxLayout{};
   availableModContainerSizer->setContentsMargins(0, 0, 0, 0);
   availableModContainerSizer->setSpacing(0);
   availableModContainerSizer->addWidget(m_availableModList, 1);
@@ -78,19 +73,19 @@ void ModEditor::createGui()
   m_filterBox = createSearchBox();
   m_filterBox->setToolTip(tr("Filter the list of available mods"));
 
-  auto* filterBoxSizer = new QVBoxLayout();
+  auto* filterBoxSizer = new QVBoxLayout{};
   filterBoxSizer->setContentsMargins(0, 0, 0, 0);
   filterBoxSizer->setSpacing(0);
   filterBoxSizer->addWidget(m_filterBox, 1);
 
-  auto* enabledModContainer = new TitledPanel("Enabled", false, true);
+  auto* enabledModContainer = new TitledPanel{"Enabled", false, true};
   enabledModContainer->setBackgroundRole(QPalette::Base);
   enabledModContainer->setAutoFillBackground(true);
 
-  m_enabledModList = new QListWidget();
+  m_enabledModList = new QListWidget{};
   m_enabledModList->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-  auto* enabledModContainerSizer = new QVBoxLayout();
+  auto* enabledModContainerSizer = new QVBoxLayout{};
   enabledModContainerSizer->setContentsMargins(0, 0, 0, 0);
   enabledModContainerSizer->setSpacing(0);
   enabledModContainerSizer->addWidget(m_enabledModList, 1);
@@ -108,13 +103,13 @@ void ModEditor::createGui()
     m_moveModUpButton,
     m_moveModDownButton);
 
-  auto* layout = new QGridLayout();
+  auto* layout = new QGridLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(availableModContainer, 0, 0);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Vertical), 0, 1, 3, 1);
+  layout->addWidget(new BorderLine{BorderLine::Direction::Vertical}, 0, 1, 3, 1);
   layout->addWidget(enabledModContainer, 0, 2);
-  layout->addWidget(new BorderLine(BorderLine::Direction::Horizontal), 1, 0, 1, 3);
+  layout->addWidget(new BorderLine{}, 1, 0, 1, 3);
   layout->addLayout(filterBoxSizer, 2, 0);
   layout->addLayout(toolBar, 2, 2);
 
@@ -213,80 +208,66 @@ void ModEditor::updateAvailableMods()
 
 void ModEditor::updateMods()
 {
-  m_availableModList->clear();
-  m_enabledModList->clear();
-
   const auto pattern = m_filterBox->text().toStdString();
 
   auto document = kdl::mem_lock(m_document);
-  auto enabledMods = document->mods();
+  const auto enabledMods = document->mods();
 
-  QStringList availableModItems;
-  for (size_t i = 0; i < m_availableMods.size(); ++i)
-  {
-    const auto& mod = m_availableMods[i];
-    if (kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod))
-    {
-      m_availableModList->addItem(QString::fromStdString(mod));
-    }
-  }
+  m_availableModList->clear();
+  m_availableModList->addItems(
+    m_availableMods | std::views::filter([&](const auto& mod) {
+      return kdl::ci::str_contains(mod, pattern) && !kdl::vec_contains(enabledMods, mod);
+    })
+    | std::views::transform(QString::fromStdString) | kdl::to<QStringList>());
 
-  QStringList enabledModItems;
-  for (size_t i = 0; i < enabledMods.size(); ++i)
-  {
-    if (kdl::ci::str_contains(enabledMods[i], pattern))
-    {
-      m_enabledModList->addItem(QString::fromStdString(enabledMods[i]));
-    }
-  }
+  m_enabledModList->clear();
+  m_enabledModList->addItems(
+    enabledMods | std::views::filter([&](const auto& mod) {
+      return kdl::ci::str_contains(mod, pattern);
+    })
+    | std::views::transform(QString::fromStdString) | kdl::to<QStringList>());
 }
 
 void ModEditor::addModClicked()
 {
-  const QList<QListWidgetItem*> selections = m_availableModList->selectedItems();
-  if (selections.empty())
+  if (const auto selections = m_availableModList->selectedItems(); !selections.empty())
   {
-    return;
-  }
+    auto document = kdl::mem_lock(m_document);
 
-  auto document = kdl::mem_lock(m_document);
-
-  std::vector<std::string> mods = document->mods();
-  for (QListWidgetItem* item : selections)
-  {
-    mods.push_back(item->text().toStdString());
+    auto mods = document->mods();
+    for (const auto* item : selections)
+    {
+      mods.push_back(item->text().toStdString());
+    }
+    document->setMods(mods);
   }
-  document->setMods(mods);
 }
 
 void ModEditor::removeModClicked()
 {
-  const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
-  if (selections.empty())
+  if (const auto selections = m_enabledModList->selectedItems(); !selections.empty())
   {
-    return;
-  }
+    auto document = kdl::mem_lock(m_document);
 
-  auto document = kdl::mem_lock(m_document);
-
-  std::vector<std::string> mods = document->mods();
-  for (QListWidgetItem* item : selections)
-  {
-    const std::string mod = item->text().toStdString();
-    mods = kdl::vec_erase(std::move(mods), mod);
+    auto mods = document->mods();
+    for (const auto* item : selections)
+    {
+      const auto mod = item->text().toStdString();
+      mods = kdl::vec_erase(std::move(mods), mod);
+    }
+    document->setMods(mods);
   }
-  document->setMods(mods);
 }
 
 void ModEditor::moveModUpClicked()
 {
-  const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
+  const auto selections = m_enabledModList->selectedItems();
   assert(selections.size() == 1);
 
   auto document = kdl::mem_lock(m_document);
   auto mods = document->mods();
 
-  const size_t index = static_cast<size_t>(m_enabledModList->row(selections.first()));
+  const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size(), "index out of range");
 
   using std::swap;
@@ -294,18 +275,18 @@ void ModEditor::moveModUpClicked()
   document->setMods(mods);
 
   m_enabledModList->clearSelection();
-  m_enabledModList->setCurrentRow(static_cast<int>(index - 1));
+  m_enabledModList->setCurrentRow(int(index - 1));
 }
 
 void ModEditor::moveModDownClicked()
 {
-  const QList<QListWidgetItem*> selections = m_enabledModList->selectedItems();
+  const auto selections = m_enabledModList->selectedItems();
   assert(selections.size() == 1);
 
   auto document = kdl::mem_lock(m_document);
   auto mods = document->mods();
 
-  const auto index = static_cast<size_t>(m_enabledModList->row(selections.first()));
+  const auto index = size_t(m_enabledModList->row(selections.first()));
   ensure(index < mods.size() - 1, "index out of range");
 
   using std::swap;
@@ -313,7 +294,7 @@ void ModEditor::moveModDownClicked()
   document->setMods(mods);
 
   m_enabledModList->clearSelection();
-  m_enabledModList->setCurrentRow(static_cast<int>(index + 1));
+  m_enabledModList->setCurrentRow(int(index + 1));
 }
 
 bool ModEditor::canEnableAddButton() const
@@ -345,5 +326,5 @@ void ModEditor::filterBoxChanged()
 {
   updateMods();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -40,10 +40,10 @@
 
 #include "Assets/Resource.h"
 #include "Console.h"
-#include "Error.h" // IWYU pragma: keep
 #include "Exceptions.h"
 #include "IO/ExportOptions.h"
 #include "IO/PathQt.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
@@ -61,6 +61,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
+#include "View/ActionBuilder.h"
 #include "View/Actions.h"
 #include "View/Autosaver.h"
 #include "View/ChoosePathTypeDialog.h"
@@ -76,7 +77,6 @@
 #include "View/InfoPanel.h"
 #include "View/Inspector.h"
 #include "View/LaunchGameEngineDialog.h"
-#include "View/MainMenuBuilder.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapViewBase.h"
@@ -93,7 +93,7 @@
 #include "View/ViewUtils.h"
 
 #include "kdl/overload.h"
-#include "kdl/range_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
@@ -221,7 +221,7 @@ QAction* MapFrame::findAction(const std::filesystem::path& path)
   if (const auto iAction = actionsMap.find(path); iAction != std::end(actionsMap))
   {
     const auto& action = iAction->second;
-    if (const auto iQAction = m_actionMap.find(action.get());
+    if (const auto iQAction = m_actionMap.find(&action);
         iQAction != std::end(m_actionMap))
     {
       return iQAction->second;
@@ -245,27 +245,24 @@ void MapFrame::updateTitleDelayed()
 
 void MapFrame::createMenus()
 {
-  auto menuBuilder =
-    MainMenuBuilder{*menuBar(), m_actionMap, [this](const Action& action) {
-                      auto context = ActionExecutionContext{this, currentMapViewBase()};
-                      action.execute(context);
-                    }};
+  auto createMenuResult =
+    populateMenuBar(*menuBar(), m_actionMap, [&](const Action& action) {
+      auto context = ActionExecutionContext{this, currentMapViewBase()};
+      action.execute(context);
+    });
 
-  const auto& actionManager = ActionManager::instance();
-  actionManager.visitMainMenu(menuBuilder);
-
-  m_recentDocumentsMenu = menuBuilder.recentDocumentsMenu;
-  m_undoAction = menuBuilder.undoAction;
-  m_redoAction = menuBuilder.redoAction;
+  m_recentDocumentsMenu = createMenuResult.recentDocumentsMenu;
+  m_undoAction = createMenuResult.undoAction;
+  m_redoAction = createMenuResult.redoAction;
 
   addRecentDocumentsMenu();
 }
 
 void MapFrame::updateShortcuts()
 {
-  for (auto [tAction, qAction] : m_actionMap)
+  for (auto [tbAction, qtAction] : m_actionMap)
   {
-    MenuBuilderBase::updateActionKeySeqeunce(qAction, tAction);
+    updateActionKeySequence(*qtAction, *tbAction);
   }
 }
 
@@ -362,7 +359,7 @@ void MapFrame::createGui()
   m_infoPanel = new InfoPanel{m_document};
   m_console = m_infoPanel->console();
 
-  m_mapView = new SwitchableMapViewContainer{m_console, m_document, *m_contextManager};
+  m_mapView = new SwitchableMapViewContainer{m_document, *m_contextManager};
   m_currentMapView = m_mapView->firstMapViewBase();
   ensure(
     m_currentMapView, "SwitchableMapViewContainer should have constructed a MapViewBase");
@@ -410,31 +407,6 @@ void MapFrame::createGui()
   restoreWindowState(m_vSplitter);
 }
 
-class MapFrame::ToolBarBuilder : public MenuBuilderBase, public MenuVisitor
-{
-private:
-  QToolBar& m_toolBar;
-
-public:
-  explicit ToolBarBuilder(
-    QToolBar& toolBar, ActionMap& actions, const TriggerFn& triggerFn)
-    : MenuBuilderBase{actions, triggerFn}
-    , m_toolBar{toolBar}
-  {
-  }
-
-  void visit(const Menu& menu) override { menu.visitEntries(*this); }
-
-  void visit(const MenuSeparatorItem&) override { m_toolBar.addSeparator(); }
-
-  void visit(const MenuActionItem& item) override
-  {
-    const auto& tAction = item.action();
-    auto* qAction = findOrCreateQAction(&tAction);
-    m_toolBar.addAction(qAction);
-  }
-};
-
 void MapFrame::createToolBar()
 {
   m_toolBar = addToolBar("Toolbar");
@@ -447,14 +419,10 @@ void MapFrame::createToolBar()
   // 24x24 (we could alternatively render the icons at 32x32).
   m_toolBar->setIconSize(QSize(24, 24));
 
-  auto builder =
-    ToolBarBuilder{*m_toolBar, m_actionMap, [this](const Action& action) {
-                     auto context = ActionExecutionContext{this, currentMapViewBase()};
-                     action.execute(context);
-                   }};
-
-  auto& actionManager = ActionManager::instance();
-  actionManager.visitToolBarActions(builder);
+  populateToolBar(*m_toolBar, m_actionMap, [&](const auto& tbAction) {
+    auto context = ActionExecutionContext{this, currentMapViewBase()};
+    tbAction.execute(context);
+  });
 
   m_gridChoice = new QComboBox{};
   for (int i = Grid::MinSize; i <= Grid::MaxSize; ++i)
@@ -2086,7 +2054,7 @@ void MapFrame::toggleMaximizeCurrentView()
   m_mapView->toggleMaximizeCurrentView();
 }
 
-bool MapFrame::currentViewMaximized()
+bool MapFrame::currentViewMaximized() const
 {
   return m_mapView->currentViewMaximized();
 }
@@ -2188,7 +2156,7 @@ void MapFrame::debugCreateCube()
   {
     const auto size = str.toDouble();
     const auto bounds = vm::bbox3{size / 2.0};
-    const auto positions = bounds.vertices() | kdl::to<std::vector<vm::vec3>>();
+    const auto positions = bounds.vertices() | kdl::to_vector;
     m_document->createBrush(positions);
   }
 }

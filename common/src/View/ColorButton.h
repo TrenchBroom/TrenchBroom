@@ -24,16 +24,15 @@
 class QPushButton;
 class QResizeEvent;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ColorButton : public QWidget
 {
   Q_OBJECT
 private:
-  QWidget* m_colorIndicator;
-  QPushButton* m_button;
+  QWidget* m_colorIndicator = nullptr;
+  QPushButton* m_button = nullptr;
   QColor m_color;
 
 public:
@@ -55,5 +54,5 @@ public slots:
    */
   void setColor(const QColor& color);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

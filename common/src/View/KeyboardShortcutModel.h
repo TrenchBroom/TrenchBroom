@@ -68,7 +68,6 @@ public:
 private:
   void initializeActions();
 
-  class MenuActionVisitor;
   void initializeMenuActions();
   void initializeViewActions();
   void initializeTagActions();
@@ -82,4 +81,5 @@ private:
 
   bool checkIndex(const QModelIndex& index) const;
 };
+
 } // namespace TrenchBroom::View

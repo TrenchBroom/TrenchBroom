@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include "View/TitleBar.h"
-
 class QLabel;
 
 namespace TrenchBroom::View

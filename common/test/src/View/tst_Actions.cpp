@@ -34,24 +34,14 @@ namespace TrenchBroom::View
 namespace
 {
 
-class CollectMenuActionVisitor : public MenuVisitor
-{
-private:
-  std::vector<const Action*> m_actions;
-
-public:
-  const std::vector<const Action*>& actions() const { return m_actions; }
-
-  void visit(const Menu& menu) override { menu.visitEntries(*this); }
-  void visit(const MenuSeparatorItem&) override {}
-  void visit(const MenuActionItem& item) override { m_actions.push_back(&item.action()); }
-};
-
 auto collectMenuActions(const ActionManager& actionManager)
 {
-  auto visitor = CollectMenuActionVisitor{};
-  actionManager.visitMainMenu(visitor);
-  return visitor.actions();
+  auto actions = std::vector<const Action*>{};
+  actionManager.visitMainMenu(kdl::overload(
+    [](const MenuSeparator&) {},
+    [&](const MenuAction& actionItem) { actions.push_back(&actionItem.action); },
+    [](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); }));
+  return actions;
 }
 
 auto collectViewActions(const ActionManager& actionManager)

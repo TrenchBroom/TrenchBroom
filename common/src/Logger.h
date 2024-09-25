@@ -24,6 +24,7 @@
 
 namespace TrenchBroom
 {
+
 enum class LogLevel
 {
   Debug,
@@ -81,4 +82,5 @@ class NullLogger : public Logger
 private:
   void doLog(LogLevel level, std::string_view message) override;
 };
+
 } // namespace TrenchBroom

@@ -34,15 +34,14 @@
 #include "View/ShearObjectsTool.h"
 #include "View/VertexTool.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MapViewToolBox::MapViewToolBox(
   std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
-  : m_document(document)
+  : m_document{std::move(document)}
 {
-  createTools(document, bookCtrl);
+  createTools(bookCtrl);
   connectObservers();
 }
 
@@ -252,21 +251,20 @@ void MapViewToolBox::moveVertices(const vm::vec3& delta)
   }
 }
 
-void MapViewToolBox::createTools(
-  std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl)
+void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
 {
-  m_clipTool = std::make_unique<ClipTool>(document);
-  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(document);
-  m_createEntityTool = std::make_unique<CreateEntityTool>(document);
-  m_drawShapeTool = std::make_unique<DrawShapeTool>(document);
-  m_moveObjectsTool = std::make_unique<MoveObjectsTool>(document);
-  m_extrudeTool = std::make_unique<ExtrudeTool>(document);
-  m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(document);
-  m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(document);
-  m_shearObjectsTool = std::make_unique<ShearObjectsTool>(document);
-  m_vertexTool = std::make_unique<VertexTool>(document);
-  m_edgeTool = std::make_unique<EdgeTool>(document);
-  m_faceTool = std::make_unique<FaceTool>(document);
+  m_clipTool = std::make_unique<ClipTool>(m_document);
+  m_assembleBrushTool = std::make_unique<AssembleBrushTool>(m_document);
+  m_createEntityTool = std::make_unique<CreateEntityTool>(m_document);
+  m_drawShapeTool = std::make_unique<DrawShapeTool>(m_document);
+  m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_document);
+  m_extrudeTool = std::make_unique<ExtrudeTool>(m_document);
+  m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(m_document);
+  m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(m_document);
+  m_shearObjectsTool = std::make_unique<ShearObjectsTool>(m_document);
+  m_vertexTool = std::make_unique<VertexTool>(m_document);
+  m_edgeTool = std::make_unique<EdgeTool>(m_document);
+  m_faceTool = std::make_unique<FaceTool>(m_document);
 
   suppressWhileActive(moveObjectsTool(), assembleBrushTool());
   suppressWhileActive(extrudeTool(), assembleBrushTool());
@@ -377,5 +375,4 @@ void MapViewToolBox::updateToolPage()
   }
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

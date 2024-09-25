@@ -21,12 +21,11 @@
 
 #include "EL/VariableStore.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 VariableStoreModel::VariableStoreModel(const EL::VariableStore& variables)
-  : m_variables(variables.clone())
+  : m_variables{variables.clone()}
 {
   for (const auto& name : m_variables->names())
   {
@@ -38,38 +37,24 @@ VariableStoreModel::~VariableStoreModel() = default;
 
 int VariableStoreModel::rowCount(const QModelIndex& /* parent */) const
 {
-  return static_cast<int>(m_variables->size());
+  return int(m_variables->size());
 }
 
 QVariant VariableStoreModel::data(const QModelIndex& index, const int role) const
 {
   if (
     index.column() < 0 || index.column() > 1 || index.row() < 0
-    || index.row() >= static_cast<int>(m_variables->size()))
+    || index.row() >= int(m_variables->size()))
   {
-    return QVariant();
+    return {};
   }
 
-  const auto& name = m_variableNames[static_cast<size_t>(index.row())];
-  if (index.column() == 0)
-  {
-    if (role == Qt::EditRole)
-    {
-      return QString::fromStdString("${" + name + "}");
-    }
-    else if (role == Qt::DisplayRole)
-    {
-      return QString::fromStdString(name);
-    }
-    else
-    {
-      return QVariant();
-    }
-  }
-  else
-  {
-    return QString::fromStdString(m_variables->value(name).stringValue());
-  }
+  const auto& name = m_variableNames[size_t(index.row())];
+  return index.column() == 0
+           ? role == Qt::EditRole      ? QString::fromStdString("${" + name + "}")
+             : role == Qt::DisplayRole ? QString::fromStdString(name)
+                                       : QVariant{}
+           : QString::fromStdString(m_variables->value(name).stringValue());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

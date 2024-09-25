@@ -23,32 +23,31 @@
 #include <QVBoxLayout>
 
 #include "Ensure.h"
-#include "Macros.h"
 #include "View/TabBar.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TabBookPage::TabBookPage(QWidget* parent)
-  : QWidget(parent)
+  : QWidget{parent}
 {
 }
-TabBookPage::~TabBookPage() {}
+
+TabBookPage::~TabBookPage() = default;
 
 QWidget* TabBookPage::createTabBarPage(QWidget* parent)
 {
-  return new QWidget(parent);
+  return new QWidget{parent};
 }
 
 TabBook::TabBook(QWidget* parent)
-  : QWidget(parent)
-  , m_tabBar(new TabBar(this))
+  : QWidget{parent}
+  , m_tabBar{new TabBar{this}}
 {
-  m_tabBook = new QStackedLayout();
+  m_tabBook = new QStackedLayout{};
   m_tabBook->setContentsMargins(0, 0, 0, 0);
 
-  QVBoxLayout* sizer = new QVBoxLayout();
+  auto* sizer = new QVBoxLayout{};
   sizer->setSpacing(0);
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->addWidget(m_tabBar, 0);
@@ -77,5 +76,5 @@ void TabBook::switchToPage(const int index)
   assert(index < m_tabBook->count());
   m_tabBook->setCurrentIndex(index);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -32,8 +32,47 @@
 
 namespace TrenchBroom::View
 {
+namespace
+{
+
+class CreateEntityDropTracker : public DropTracker
+{
+private:
+  using UpdateEntityPosition = std::function<void(const InputState&, CreateEntityTool&)>;
+
+  CreateEntityTool& m_tool;
+  UpdateEntityPosition m_updateEntityPosition;
+
+public:
+  explicit CreateEntityDropTracker(
+    const InputState& inputState,
+    CreateEntityTool& tool,
+    UpdateEntityPosition updateEntityPosition)
+    : m_tool{tool}
+    , m_updateEntityPosition{std::move(updateEntityPosition)}
+  {
+    m_updateEntityPosition(inputState, m_tool);
+  }
+
+  bool move(const InputState& inputState) override
+  {
+    m_updateEntityPosition(inputState, m_tool);
+    return true;
+  }
+
+  bool drop(const InputState&) override
+  {
+    m_tool.commitEntity();
+    return true;
+  }
+
+  void leave(const InputState&) override { m_tool.removeEntity(); }
+};
+
+} // namespace
+
 CreateEntityToolController::CreateEntityToolController(CreateEntityTool& tool)
-  : m_tool(tool)
+  : m_tool{tool}
 {
 }
 
@@ -62,12 +101,7 @@ std::unique_ptr<DropTracker> CreateEntityToolController::acceptDrop(
   const auto parts = kdl::str_split(payload, ":");
   ensure(parts.size() == 2 && parts[0] == "entity", "dropped item is an entity");
 
-  if (!m_tool.createEntity(parts[1]))
-  {
-    return nullptr;
-  }
-
-  return createDropTracker(inputState);
+  return m_tool.createEntity(parts[1]) ? createDropTracker(inputState) : nullptr;
 }
 
 bool CreateEntityToolController::cancel()
@@ -75,43 +109,8 @@ bool CreateEntityToolController::cancel()
   return false;
 }
 
-namespace
-{
-class CreateEntityDropTracker : public DropTracker
-{
-private:
-  CreateEntityTool& m_tool;
-  std::function<void(const InputState&, CreateEntityTool& tool)> m_updateEntityPosition;
-
-public:
-  explicit CreateEntityDropTracker(
-    const InputState& inputState,
-    CreateEntityTool& tool,
-    std::function<void(const InputState&, CreateEntityTool& tool)> updateEntityPosition)
-    : m_tool{tool}
-    , m_updateEntityPosition{std::move(updateEntityPosition)}
-  {
-    m_updateEntityPosition(inputState, m_tool);
-  }
-
-  bool move(const InputState& inputState) override
-  {
-    m_updateEntityPosition(inputState, m_tool);
-    return true;
-  }
-
-  bool drop(const InputState&) override
-  {
-    m_tool.commitEntity();
-    return true;
-  }
-
-  void leave(const InputState&) override { m_tool.removeEntity(); }
-};
-} // namespace
-
 CreateEntityToolController2D::CreateEntityToolController2D(CreateEntityTool& tool)
-  : CreateEntityToolController(tool)
+  : CreateEntityToolController{tool}
 {
 }
 
@@ -125,7 +124,7 @@ std::unique_ptr<DropTracker> CreateEntityToolController2D::createDropTracker(
 }
 
 CreateEntityToolController3D::CreateEntityToolController3D(CreateEntityTool& tool)
-  : CreateEntityToolController(tool)
+  : CreateEntityToolController{tool}
 {
 }
 
@@ -137,4 +136,5 @@ std::unique_ptr<DropTracker> CreateEntityToolController3D::createDropTracker(
       t.updateEntityPosition3D(is.pickRay(), is.pickResult());
     });
 }
+
 } // namespace TrenchBroom::View

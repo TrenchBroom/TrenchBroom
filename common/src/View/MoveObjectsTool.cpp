@@ -20,7 +20,6 @@
 #include "MoveObjectsTool.h"
 
 #include "FloatType.h"
-#include "Model/BrushNode.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -32,15 +31,14 @@
 #include "vm/bbox.h"
 
 #include <cassert>
+#include <utility>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document)
-  : Tool(true)
-  , m_document(document)
-  , m_duplicateObjects(false)
+  : Tool{true}
+  , m_document{std::move(document)}
 {
 }
 
@@ -73,7 +71,7 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
   const auto bounds = document->selectionBounds();
   if (!worldBounds.contains(bounds.translate(delta)))
   {
-    return MR_Deny;
+    return MoveResult::Deny;
   }
 
   if (m_duplicateObjects)
@@ -82,14 +80,7 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
     document->duplicateObjects();
   }
 
-  if (!document->translateObjects(delta))
-  {
-    return MR_Deny;
-  }
-  else
-  {
-    return MR_Continue;
-  }
+  return document->translateObjects(delta) ? MoveResult::Continue : MoveResult::Deny;
 }
 
 void MoveObjectsTool::endMove(const InputState&)
@@ -111,7 +102,7 @@ bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const
 
 QWidget* MoveObjectsTool::doCreatePage(QWidget* parent)
 {
-  return new MoveObjectsToolPage(m_document, parent);
+  return new MoveObjectsToolPage{m_document, parent};
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -28,9 +28,7 @@ class QStackedWidget;
 class QToolBar;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class PreferencePane;
@@ -39,21 +37,12 @@ class PreferenceDialog : public QDialog
 {
   Q_OBJECT
 private:
-  typedef enum
-  {
-    PrefPane_First = 0,
-    PrefPane_Games = 0,
-    PrefPane_View = 1,
-    PrefPane_Colors = 2,
-    PrefPane_Mouse = 3,
-    PrefPane_Keyboard = 4,
-    PrefPane_Last = 4
-  } PrefPane;
+  enum class PrefPane;
 
   std::shared_ptr<MapDocument> m_document;
-  QToolBar* m_toolBar;
-  QStackedWidget* m_stackedWidget;
-  QDialogButtonBox* m_buttonBox;
+  QToolBar* m_toolBar = nullptr;
+  QStackedWidget* m_stackedWidget = nullptr;
+  QDialogButtonBox* m_buttonBox = nullptr;
 
 public:
   explicit PreferenceDialog(
@@ -70,5 +59,4 @@ private:
 private slots:
   void resetToDefaults();
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

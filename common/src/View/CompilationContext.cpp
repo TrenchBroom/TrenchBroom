@@ -27,6 +27,7 @@
 
 namespace TrenchBroom::View
 {
+
 CompilationContext::CompilationContext(
   std::weak_ptr<MapDocument> document,
   const EL::VariableStore& variables,
@@ -58,4 +59,5 @@ std::string CompilationContext::variableValue(const std::string& variableName) c
 {
   return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
 }
+
 } // namespace TrenchBroom::View

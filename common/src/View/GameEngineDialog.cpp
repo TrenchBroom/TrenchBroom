@@ -61,7 +61,7 @@ void GameEngineDialog::createGui()
   setLayout(layout);
 
   layout->addWidget(gameIndicator);
-  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  layout->addWidget(new BorderLine{});
   layout->addWidget(m_profileManager, 1);
   layout->addLayout(wrapDialogButtonBox(buttons));
 

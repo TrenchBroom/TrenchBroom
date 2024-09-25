@@ -21,10 +21,9 @@
 
 #include <QFormLayout>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class FormWithSectionsLayout : public QFormLayout
 {
 public:
@@ -47,5 +46,5 @@ public:
   void insertRow(int row, QWidget* field);
   void insertRow(int row, QLayout* field);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

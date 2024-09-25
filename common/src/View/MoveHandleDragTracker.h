@@ -28,8 +28,8 @@
 
 #include "kdl/string_utils.h"
 
-#include "vm/line.h"
-#include "vm/plane.h"
+#include "vm/line.h"  // IWYU pragma: keep
+#include "vm/plane.h" // IWYU pragma: keep
 #include "vm/vec.h"
 
 #include <array>
@@ -53,7 +53,7 @@ enum class SnapMode
  */
 struct MoveHandleDragTrackerDelegate
 {
-  virtual ~MoveHandleDragTrackerDelegate() = default;
+  virtual ~MoveHandleDragTrackerDelegate();
 
   /**
    * Called every time when a new proposed handle position is computed by the move
@@ -508,4 +508,5 @@ createMoveHandleDragTracker(
  * Returns a relative or an absolute handle snapper according to the given snap mode.
  */
 DragHandleSnapper makeDragHandleSnapperFromSnapMode(const Grid& grid, SnapMode snapMode);
+
 } // namespace TrenchBroom::View

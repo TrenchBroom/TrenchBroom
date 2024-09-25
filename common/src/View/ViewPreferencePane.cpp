@@ -28,11 +28,12 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/GL.h"
-#include "View/ColorButton.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
+
+#include "kdl/range_utils.h"
 
 #include "vm/scalar.h"
 
@@ -254,7 +255,7 @@ void ViewPreferencePane::bindEvents()
     &ViewPreferencePane::rendererFontSizeChanged);
 }
 
-bool ViewPreferencePane::doCanResetToDefaults()
+bool ViewPreferencePane::canResetToDefaults()
 {
   return true;
 }
@@ -276,7 +277,7 @@ void ViewPreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::RendererFontSize);
 }
 
-void ViewPreferencePane::doUpdateControls()
+void ViewPreferencePane::updateControls()
 {
   m_layoutCombo->setCurrentIndex(pref(Preferences::MapViewLayout));
   m_link2dCameras->setChecked(pref(Preferences::Link2DCameras));
@@ -284,8 +285,10 @@ void ViewPreferencePane::doUpdateControls()
   m_gridAlphaSlider->setRatio(pref(Preferences::GridAlpha));
   m_fovSlider->setValue(int(pref(Preferences::CameraFov)));
 
-  const auto filterModeIndex = findFilterMode(
-    pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
+  const auto filterModeIndex =
+    findFilterMode(
+      pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter))
+      .value_or(-1);
   m_filterModeCombo->setCurrentIndex(int(filterModeIndex));
 
   m_showAxes->setChecked(pref(Preferences::ShowAxes));
@@ -326,33 +329,22 @@ void ViewPreferencePane::doUpdateControls()
     QString::asprintf("%i", pref(Preferences::RendererFontSize)));
 }
 
-bool ViewPreferencePane::doValidate()
+bool ViewPreferencePane::validate()
 {
   return true;
 }
 
-size_t ViewPreferencePane::findFilterMode(const int minFilter, const int magFilter) const
+std::optional<size_t> ViewPreferencePane::findFilterMode(
+  const int minFilter, const int magFilter) const
 {
-  for (size_t i = 0; i < FilterModes.size(); ++i)
-  {
-    if (FilterModes[i].minFilter == minFilter && FilterModes[i].magFilter == magFilter)
-    {
-      return i;
-    }
-  }
-  return FilterModes.size();
+  return kdl::index_of(FilterModes, [&](const FilterMode& filterMode) {
+    return filterMode.minFilter == minFilter && filterMode.magFilter == magFilter;
+  });
 }
 
 int ViewPreferencePane::findThemeIndex(const QString& theme)
 {
-  for (int i = 0; i < m_themeCombo->count(); ++i)
-  {
-    if (m_themeCombo->itemText(i) == theme)
-    {
-      return i;
-    }
-  }
-  return 0;
+  return m_themeCombo->findText(theme);
 }
 
 void ViewPreferencePane::layoutChanged(const int index)
@@ -461,4 +453,5 @@ void ViewPreferencePane::rendererFontSizeChanged(const QString& str)
     prefs.set(Preferences::RendererFontSize, value);
   }
 }
+
 } // namespace TrenchBroom::View

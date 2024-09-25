@@ -27,7 +27,6 @@
 
 #include "Assets/ColorRange.h"
 #include "Color.h"
-#include "Model/Entity.h"
 #include "Model/EntityColor.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
@@ -44,16 +43,69 @@
 #include "kdl/overload.h"
 #include "kdl/vector_set.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
+template <typename Node>
+std::vector<QColor> collectColors(
+  const std::vector<Node*>& nodes, const std::string& propertyKey)
+{
+  const auto cmp = [](const auto& lhs, const auto& rhs) {
+    const auto lr = float(lhs.red()) / 255.0f;
+    const auto lg = float(lhs.green()) / 255.0f;
+    const auto lb = float(lhs.blue()) / 255.0f;
+    const auto rr = float(rhs.red()) / 255.0f;
+    const auto rg = float(rhs.green()) / 255.0f;
+    const auto rb = float(rhs.blue()) / 255.0f;
+
+    float lh, ls, lbr, rh, rs, rbr;
+    Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
+    Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
+
+    return lh < rh     ? true
+           : lh > rh   ? false
+           : ls < rs   ? true
+           : ls > rs   ? false
+           : lbr < rbr ? true
+                       : false;
+  };
+
+  auto colors = kdl::vector_set<QColor, decltype(cmp)>{cmp};
+
+  const auto visitEntityNode = [&](const auto* node) {
+    if (const auto* value = node->entity().property(propertyKey))
+    {
+      colors.insert(toQColor(Model::parseEntityColor(*value)));
+    }
+  };
+
+  for (const auto* node : nodes)
+  {
+    node->accept(kdl::overload(
+      [&](auto&& thisLambda, const Model::WorldNode* world) {
+        world->visitChildren(thisLambda);
+        visitEntityNode(world);
+      },
+      [](auto&& thisLambda, const Model::LayerNode* layer) {
+        layer->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, const Model::GroupNode* group) {
+        group->visitChildren(thisLambda);
+      },
+      [&](const Model::EntityNode* entity) { visitEntityNode(entity); },
+      [](const Model::BrushNode*) {},
+      [](const Model::PatchNode*) {}));
+  }
+
+  return colors.get_data();
+}
+
+} // namespace
+
 SmartColorEditor::SmartColorEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor(document, parent)
-  , m_floatRadio(nullptr)
-  , m_byteRadio(nullptr)
-  , m_colorPicker(nullptr)
-  , m_colorHistory(nullptr)
+  : SmartPropertyEditor{std::move(document), parent}
 {
   createGui();
 }
@@ -65,20 +117,20 @@ void SmartColorEditor::createGui()
   assert(m_colorPicker == nullptr);
   assert(m_colorHistory == nullptr);
 
-  auto* rangeTxt = new QLabel(tr("Color range"));
+  auto* rangeTxt = new QLabel{tr("Color range")};
   makeEmphasized(rangeTxt);
 
-  m_floatRadio = new QRadioButton(tr("Float [0,1]"));
-  m_byteRadio = new QRadioButton(tr("Byte [0,255]"));
-  m_colorPicker = new ColorButton();
-  m_colorHistory = new ColorTable(ColorHistoryCellSize);
+  m_floatRadio = new QRadioButton{tr("Float [0,1]")};
+  m_byteRadio = new QRadioButton{tr("Byte [0,255]")};
+  m_colorPicker = new ColorButton{};
+  m_colorHistory = new ColorTable{ColorHistoryCellSize};
 
-  auto* colorHistoryScroller = new QScrollArea();
+  auto* colorHistoryScroller = new QScrollArea{};
   colorHistoryScroller->setWidget(m_colorHistory);
   colorHistoryScroller->setWidgetResizable(true);
   colorHistoryScroller->setSizeAdjustPolicy(QAbstractScrollArea::AdjustToContents);
 
-  auto* leftLayout = new QVBoxLayout();
+  auto* leftLayout = new QVBoxLayout{};
   leftLayout->setContentsMargins(0, 0, 0, 0);
   leftLayout->setSpacing(LayoutConstants::NarrowVMargin);
   leftLayout->addWidget(rangeTxt);
@@ -87,12 +139,12 @@ void SmartColorEditor::createGui()
   leftLayout->addWidget(m_colorPicker);
   leftLayout->addStretch(1);
 
-  auto* outerLayout = new QHBoxLayout();
+  auto* outerLayout = new QHBoxLayout{};
   outerLayout->setContentsMargins(LayoutConstants::WideHMargin, 0, 0, 0);
   outerLayout->setSpacing(0);
   outerLayout->addLayout(leftLayout);
   outerLayout->addSpacing(LayoutConstants::WideHMargin);
-  outerLayout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
+  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Vertical});
   outerLayout->addWidget(colorHistoryScroller, 1);
   setLayout(outerLayout);
 
@@ -149,86 +201,10 @@ void SmartColorEditor::updateColorRange(const std::vector<Model::EntityNodeBase*
   }
 }
 
-template <typename Node>
-static std::vector<QColor> collectColors(
-  const std::vector<Node*>& nodes, const std::string& propertyKey)
-{
-  struct ColorCmp
-  {
-    bool operator()(const QColor& lhs, const QColor& rhs) const
-    {
-      const auto lr = static_cast<float>(lhs.red()) / 255.0f;
-      const auto lg = static_cast<float>(lhs.green()) / 255.0f;
-      const auto lb = static_cast<float>(lhs.blue()) / 255.0f;
-      const auto rr = static_cast<float>(rhs.red()) / 255.0f;
-      const auto rg = static_cast<float>(rhs.green()) / 255.0f;
-      const auto rb = static_cast<float>(rhs.blue()) / 255.0f;
-
-      float lh, ls, lbr, rh, rs, rbr;
-      Color::rgbToHSB(lr, lg, lb, lh, ls, lbr);
-      Color::rgbToHSB(rr, rg, rb, rh, rs, rbr);
-
-      if (lh < rh)
-      {
-        return true;
-      }
-      else if (lh > rh)
-      {
-        return false;
-      }
-      else if (ls < rs)
-      {
-        return true;
-      }
-      else if (ls > rs)
-      {
-        return false;
-      }
-      else if (lbr < rbr)
-      {
-        return true;
-      }
-      else
-      {
-        return false;
-      }
-    }
-  };
-
-  kdl::vector_set<QColor, ColorCmp> colors;
-
-  const auto visitEntityNode = [&](const auto* node) {
-    if (const auto* value = node->entity().property(propertyKey))
-    {
-      colors.insert(toQColor(Model::parseEntityColor(*value)));
-    }
-  };
-
-  for (const auto* node : nodes)
-  {
-    node->accept(kdl::overload(
-      [&](auto&& thisLambda, const Model::WorldNode* world) {
-        world->visitChildren(thisLambda);
-        visitEntityNode(world);
-      },
-      [](auto&& thisLambda, const Model::LayerNode* layer) {
-        layer->visitChildren(thisLambda);
-      },
-      [](auto&& thisLambda, const Model::GroupNode* group) {
-        group->visitChildren(thisLambda);
-      },
-      [&](const Model::EntityNode* entity) { visitEntityNode(entity); },
-      [](const Model::BrushNode*) {},
-      [](const Model::PatchNode*) {}));
-  }
-
-  return colors.get_data();
-}
-
 void SmartColorEditor::updateColorHistory()
 {
   m_colorHistory->setColors(
-    collectColors(std::vector<Model::Node*>{document()->world()}, propertyKey()));
+    collectColors(std::vector{document()->world()}, propertyKey()));
 
   const auto selectedColors =
     collectColors(document()->allSelectedEntityNodes(), propertyKey());
@@ -264,5 +240,5 @@ void SmartColorEditor::colorTableSelected(QColor color)
 {
   setColor(color);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -18,7 +18,6 @@
  */
 
 #include "Assets/Material.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"

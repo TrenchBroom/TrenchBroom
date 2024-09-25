@@ -24,10 +24,9 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class CrashDialog : public QDialog
 {
   Q_OBJECT
@@ -45,5 +44,5 @@ private:
     const std::filesystem::path& mapPath,
     const std::filesystem::path& logPath);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

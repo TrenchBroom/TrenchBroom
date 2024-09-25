@@ -23,11 +23,6 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-class Logger;
-}
-
 namespace TrenchBroom::Renderer
 {
 class MapRenderer;
@@ -43,7 +38,6 @@ class MapViewToolBox;
 class OnePaneMapView : public MultiPaneMapView
 {
 private:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
   CyclingMapView* m_mapView = nullptr;
@@ -54,7 +48,6 @@ public:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
-    Logger* logger,
     QWidget* parent = nullptr);
 
 private:
@@ -64,7 +57,8 @@ private:
     GLContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface
-  void doMaximizeView(MapView* view) override;
-  void doRestoreViews() override;
+  void maximizeView(MapView* view) override;
+  void restoreViews() override;
 };
+
 } // namespace TrenchBroom::View

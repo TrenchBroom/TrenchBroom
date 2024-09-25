@@ -28,11 +28,6 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-#include "kdl/memory_utils.h"
-
-#include "vm/vec.h"
-#include "vm/vec_io.h"
-
 namespace TrenchBroom::View
 {
 

@@ -28,11 +28,7 @@
 #include "Assets/Material.h"
 #include "Assets/MaterialManager.h"
 #include "Assets/ResourceManager.h"
-#include "Assets/Texture.h"
-#include "EL/ELExceptions.h"
-#include "Error.h"
 #include "Exceptions.h"
-#include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/ExportOptions.h"
 #include "IO/GameConfigParser.h"
@@ -104,6 +100,7 @@
 #include "View/SetLockStateCommand.h"
 #include "View/SetVisibilityCommand.h"
 #include "View/SwapNodeContentsCommand.h"
+#include "View/Transaction.h"
 #include "View/TransactionScope.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 #include "View/UpdateLinkedGroupsHelper.h"
@@ -112,9 +109,9 @@
 #include "kdl/collection_utils.h"
 #include "kdl/grouped_range.h"
 #include "kdl/map_utils.h"
-#include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/parallel.h"
+#include "kdl/range_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/stable_remove_duplicates.h"
@@ -122,16 +119,15 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 #include "vm/util.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
 #include <algorithm>
 #include <cassert>
-#include <cstdlib> // for std::abs
+#include <cstdlib>
 #include <map>
-#include <mutex>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -268,8 +264,8 @@ applyToNodeContents(const std::vector<N*>& nodes, L lambda)
 }
 
 /**
- * Applies the given lambda to a copy of the contents of each of the given nodes and swaps
- * the node contents if the given lambda succeeds for all node contents.
+ * Applies the given lambda to a copy of the contents of each of the given nodes and
+ * swaps the node contents if the given lambda succeeds for all node contents.
  *
  * The lambda L needs three overloads:
  * - bool operator()(Model::Entity&);
@@ -282,9 +278,9 @@ applyToNodeContents(const std::vector<N*>& nodes, L lambda)
  * For each linked group in the given list of linked groups, its changes are distributed
  * to the connected members of its link set.
  *
- * Returns true if the given lambda could be applied successfully to all node contents and
- * false otherwise. If the lambda fails, then no node contents will be swapped, and the
- * original nodes remain unmodified.
+ * Returns true if the given lambda could be applied successfully to all node contents
+ * and false otherwise. If the lambda fails, then no node contents will be swapped, and
+ * the original nodes remain unmodified.
  */
 template <typename N, typename L>
 bool applyAndSwap(
@@ -311,9 +307,9 @@ bool applyAndSwap(
 /**
  * Applies the given lambda to a copy of each of the given faces.
  *
- * Specifically, each brush node of the given faces has its contents copied and the lambda
- * applied to the copied faces. If the lambda succeeds for each face, the node contents
- * are subsequently swapped.
+ * Specifically, each brush node of the given faces has its contents copied and the
+ * lambda applied to the copied faces. If the lambda succeeds for each face, the node
+ * contents are subsequently swapped.
  *
  * The lambda L needs to accept brush faces:
  * - bool operator()(Model::BrushFace&);
@@ -325,8 +321,8 @@ bool applyAndSwap(
  * to the connected members of its link set.
  *
  * Returns true if the given lambda could be applied successfully to each face and false
- * otherwise. If the lambda fails, then no node contents will be swapped, and the original
- * nodes remain unmodified.
+ * otherwise. If the lambda fails, then no node contents will be swapped, and the
+ * original nodes remain unmodified.
  */
 template <typename L>
 bool applyAndSwap(
@@ -973,7 +969,7 @@ bool MapDocument::pasteBrushFaces(const std::vector<Model::BrushFace>& faces)
 void MapDocument::loadPointFile(std::filesystem::path path)
 {
   static_assert(
-    !std::is_reference<decltype(path)>::value,
+    !std::is_reference_v<decltype(path)>,
     "path must be passed by value because reloadPointFile() passes m_pointFilePath");
 
   if (isPointFileLoaded())
@@ -1021,7 +1017,7 @@ void MapDocument::unloadPointFile()
 void MapDocument::loadPortalFile(std::filesystem::path path)
 {
   static_assert(
-    !std::is_reference<decltype(path)>::value,
+    !std::is_reference_v<decltype(path)>,
     "path must be passed by value because reloadPortalFile() passes m_portalFilePath");
 
   if (!Model::canLoadPortalFile(path))
@@ -1697,7 +1693,7 @@ auto setLinkIdsForReparentingNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodesToReparent)
 {
   auto result = std::vector<std::tuple<Model::Node*, std::string>>{};
-  for (const auto& [newParent, nodes] : nodesToReparent)
+  for (const auto& [newParent_, nodes] : nodesToReparent)
   {
     Model::Node::visitAll(
       nodes,
@@ -1707,20 +1703,20 @@ auto setLinkIdsForReparentingNodes(
         [](const Model::GroupNode*) {
           // group nodes can keep their ID because they should remain in their link set
         },
-        [&, newParent = newParent](auto&& thisLambda, Model::EntityNode* entityNode) {
+        [&, newParent = newParent_](auto&& thisLambda, Model::EntityNode* entityNode) {
           if (newParent->isAncestorOf(entityNode->parent()))
           {
             result.emplace_back(entityNode, generateUuid());
             entityNode->visitChildren(thisLambda);
           }
         },
-        [&, newParent = newParent](Model::BrushNode* brushNode) {
+        [&, newParent = newParent_](Model::BrushNode* brushNode) {
           if (newParent->isAncestorOf(brushNode->parent()))
           {
             result.emplace_back(brushNode, generateUuid());
           }
         },
-        [&, newParent = newParent](Model::PatchNode* patchNode) {
+        [&, newParent = newParent_](Model::PatchNode* patchNode) {
           if (newParent->isAncestorOf(patchNode->parent()))
           {
             result.emplace_back(patchNode, generateUuid());
@@ -1753,8 +1749,8 @@ bool MapDocument::reparentNodes(
   auto transaction = Transaction{*this, "Reparent Objects"};
 
   // This handles two main cases:
-  // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps them
-  // visible
+  // - creating brushes in a hidden layer, and then grouping / ungrouping them keeps
+  // them visible
   // - creating brushes in a hidden layer, then moving them to a hidden layer, should
   // downgrade them
   //   to inherited and hide them
@@ -1980,8 +1976,8 @@ Model::EntityNode* MapDocument::createBrushEntity(
   const auto brushes = selectedNodes().brushes();
   assert(!brushes.empty());
 
-  // if all brushes belong to the same entity, and that entity is not worldspawn, copy its
-  // properties
+  // if all brushes belong to the same entity, and that entity is not worldspawn, copy
+  // its properties
   auto entity =
     (brushes.front()->entity() != m_world.get()
      && std::all_of(
@@ -2477,7 +2473,7 @@ bool MapDocument::moveLayerByOne(Model::LayerNode* layerNode, MoveDirection dire
 {
   const std::vector<Model::LayerNode*> sorted = m_world->customLayersUserSorted();
 
-  const auto maybeIndex = kdl::vec_index_of(sorted, layerNode);
+  const auto maybeIndex = kdl::index_of(sorted, layerNode);
   if (!maybeIndex.has_value())
   {
     return false;
@@ -2539,7 +2535,7 @@ bool MapDocument::canMoveLayer(Model::LayerNode* layer, const int offset) const
   }
 
   const std::vector<Model::LayerNode*> sorted = world->customLayersUserSorted();
-  const auto maybeIndex = kdl::vec_index_of(sorted, layer);
+  const auto maybeIndex = kdl::index_of(sorted, layer);
   if (!maybeIndex.has_value())
   {
     return false;
@@ -2810,8 +2806,8 @@ void MapDocument::resetLock(const std::vector<Model::Node*>& nodes)
 }
 
 /**
- * This is called to clear the forced Visibility_Shown that was set on newly created nodes
- * so they could be visible if created in a hidden layer
+ * This is called to clear the forced Visibility_Shown that was set on newly created
+ * nodes so they could be visible if created in a hidden layer
  */
 void MapDocument::downgradeShownToInherit(const std::vector<Model::Node*>& nodes)
 {
@@ -3103,8 +3099,8 @@ bool MapDocument::csgConvexMerge()
              // The nodelist is either empty or contains only brushes.
              const auto toRemove = selectedNodes().nodes();
 
-             // We could be merging brushes that have different parents; use the parent of
-             // the first brush.
+             // We could be merging brushes that have different parents; use the parent
+             // of the first brush.
              auto* parentNode = static_cast<Model::Node*>(nullptr);
              if (!selectedNodes().brushes().empty())
              {
@@ -3487,9 +3483,9 @@ std::optional<std::string> findUnprotectedPropertyValue(
 }
 
 /**
- * Find the unprotected property value of the given key in the corresponding linked nodes
- * of the given entity nodes. This value is used to restore the original value when a
- * property is set from protected to unprotected.
+ * Find the unprotected property value of the given key in the corresponding linked
+ * nodes of the given entity nodes. This value is used to restore the original value
+ * when a property is set from protected to unprotected.
  */
 std::optional<std::string> findUnprotectedPropertyValue(
   const std::string& key,
@@ -3859,11 +3855,10 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
       moveVerticesResult != nullptr,
       "command processor returned unexpected command result type");
 
-    return MoveVerticesResult(
-      moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices());
+    return {moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices()};
   }
 
-  return MoveVerticesResult(false, false);
+  return MoveVerticesResult{false, false};
 }
 
 bool MapDocument::moveEdges(
@@ -4137,6 +4132,9 @@ void MapDocument::printVertices()
   }
 }
 
+namespace
+{
+
 class ThrowExceptionCommand : public UndoableCommand
 {
 public:
@@ -4149,16 +4147,18 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
   {
     throw CommandProcessorException();
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade*) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
   {
     return std::make_unique<CommandResult>(true);
   }
 };
+
+} // namespace
 
 bool MapDocument::throwExceptionDuringCommand()
 {
@@ -4375,14 +4375,8 @@ void MapDocument::clearWorld()
 
 Assets::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
 {
-  if (m_world)
-  {
-    return m_game->extractEntityDefinitionFile(m_world->entity());
-  }
-  else
-  {
-    return Assets::EntityDefinitionFileSpec();
-  }
+  return m_world ? m_game->extractEntityDefinitionFile(m_world->entity())
+                 : Assets::EntityDefinitionFileSpec{};
 }
 
 std::vector<Assets::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles()
@@ -5220,79 +5214,4 @@ void MapDocument::transactionUndone(const std::string& name)
   debug() << "Transaction '" << name << "' undone";
 }
 
-Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
-  : Transaction{kdl::mem_lock(document), std::move(name)}
-{
-}
-
-Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name)
-  : Transaction{*document, std::move(name)}
-{
-}
-
-Transaction::Transaction(MapDocument& document, std::string name)
-  : m_document{document}
-  , m_name{std::move(name)}
-  , m_state{State::Running}
-{
-  begin();
-}
-
-Transaction::~Transaction()
-{
-  if (m_state == State::Running)
-  {
-    m_document.error() << "Cancelling unfinished transaction with name '" << m_name
-                       << "' - please report this on github!";
-    cancel();
-  }
-}
-
-Transaction::State Transaction::state() const
-{
-  return m_state;
-}
-
-void Transaction::finish(const bool commit)
-{
-  if (commit)
-  {
-    this->commit();
-  }
-  else
-  {
-    cancel();
-  }
-}
-
-bool Transaction::commit()
-{
-  assert(m_state == State::Running);
-  if (m_document.commitTransaction())
-  {
-    m_state = State::Committed;
-    return true;
-  }
-
-  m_state = State::Cancelled;
-  return false;
-}
-
-void Transaction::rollback()
-{
-  assert(m_state == State::Running);
-  m_document.rollbackTransaction();
-}
-
-void Transaction::cancel()
-{
-  assert(m_state == State::Running);
-  m_document.cancelTransaction();
-  m_state = State::Cancelled;
-}
-
-void Transaction::begin()
-{
-  m_document.startTransaction(m_name, TransactionScope::Oneshot);
-}
 } // namespace TrenchBroom::View

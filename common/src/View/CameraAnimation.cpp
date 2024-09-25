@@ -62,4 +62,5 @@ void CameraAnimation::doUpdate(const double progress)
   m_camera.setDirection(direction, up);
   m_camera.setZoom(zoom);
 }
+
 } // namespace TrenchBroom::View

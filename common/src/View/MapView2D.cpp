@@ -19,15 +19,10 @@
 
 #include "MapView2D.h"
 
-#include "Assets/EntityDefinitionManager.h"
-#include "Error.h"
-#include "Exceptions.h"
-#include "Logger.h"
 #include "Macros.h"
-#include "Model/BrushBuilder.h"
+#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 #include "Model/ModelUtils.h"
@@ -48,7 +43,7 @@
 #include "View/EdgeTool.h"
 #include "View/EdgeToolController.h"
 #include "View/ExtrudeToolController.h"
-#include "View/FaceTool.h"
+#include "View/FaceTool.h" // IWYU pragma: keep
 #include "View/FaceToolController.h"
 #include "View/GLContextManager.h"
 #include "View/Grid.h"
@@ -62,27 +57,19 @@
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
 
-#include "kdl/overload.h"
-#include "kdl/result.h"
-
 #include "vm/util.h"
 
-#include <memory>
-#include <vector>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 MapView2D::MapView2D(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& renderer,
   GLContextManager& contextManager,
-  ViewPlane viewPlane,
-  Logger* logger)
-  : MapViewBase(document, toolBox, renderer, contextManager, logger)
-  , m_camera(std::make_unique<Renderer::OrthographicCamera>())
+  ViewPlane viewPlane)
+  : MapViewBase{std::move(document), toolBox, renderer, contextManager}
+  , m_camera{std::make_unique<Renderer::OrthographicCamera>()}
 {
   connectObservers();
   initializeCamera(viewPlane);
@@ -90,13 +77,13 @@ MapView2D::MapView2D(
 
   switch (viewPlane)
   {
-  case ViewPlane_XY:
+  case ViewPlane::XY:
     setObjectName("XY View");
     break;
-  case ViewPlane_YZ:
+  case ViewPlane::YZ:
     setObjectName("YZ View");
     break;
-  case ViewPlane_XZ:
+  case ViewPlane::XZ:
     setObjectName("XZ View");
     break;
     switchDefault();
@@ -112,22 +99,22 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
   switch (viewPlane)
   {
-  case MapView2D::ViewPlane_XY:
-    m_camera->setDirection(vm::vec3f::neg_z(), vm::vec3f::pos_y());
-    m_camera->moveTo(vm::vec3f(0.0f, 0.0f, worldBounds.max.z()));
+  case MapView2D::ViewPlane::XY:
+    m_camera->setDirection(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
+    m_camera->moveTo(vm::vec3f{0.0f, 0.0f, worldBounds.max.z()});
     break;
-  case MapView2D::ViewPlane_XZ:
-    m_camera->setDirection(vm::vec3f::pos_y(), vm::vec3f::pos_z());
-    m_camera->moveTo(vm::vec3f(0.0f, worldBounds.min.y(), 0.0f));
+  case MapView2D::ViewPlane::XZ:
+    m_camera->setDirection(vm::vec3f{0, 1, 0}, vm::vec3f{0, 0, 1});
+    m_camera->moveTo(vm::vec3f{0.0f, worldBounds.min.y(), 0.0f});
     break;
-  case MapView2D::ViewPlane_YZ:
-    m_camera->setDirection(vm::vec3f::neg_x(), vm::vec3f::pos_z());
-    m_camera->moveTo(vm::vec3f(worldBounds.max.x(), 0.0f, 0.0f));
+  case MapView2D::ViewPlane::YZ:
+    m_camera->setDirection(vm::vec3f{-1, 0, 0}, vm::vec3f{0, 0, 1});
+    m_camera->moveTo(vm::vec3f{worldBounds.max.x(), 0.0f, 0.0f});
     break;
   }
   m_camera->setNearPlane(1.0f);
-  // NOTE: GridRenderer draws at the far side of the map bounds, so add some extra margin
-  // so it's not fighting the far plane.
+  // NOTE: GridRenderer draws at the far side of the map bounds, so add some extra
+  // margin so it's not fighting the far plane.
   m_camera->setFarPlane(worldBounds.size().x() + 16.0f);
 }
 
@@ -162,12 +149,12 @@ void MapView2D::cameraDidChange(const Renderer::Camera*)
   update();
 }
 
-PickRequest MapView2D::doGetPickRequest(const float x, const float y) const
+PickRequest MapView2D::pickRequest(const float x, const float y) const
 {
-  return PickRequest(vm::ray3(m_camera->pickRay(x, y)), *m_camera);
+  return {vm::ray3{m_camera->pickRay(x, y)}, *m_camera};
 }
 
-Model::PickResult MapView2D::doPick(const vm::ray3& pickRay) const
+Model::PickResult MapView2D::pick(const vm::ray3& pickRay) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto axis = vm::find_abs_max_component(pickRay.direction);
@@ -184,13 +171,13 @@ void MapView2D::initializeGL()
   setCompass(std::make_unique<Renderer::Compass2D>());
 }
 
-void MapView2D::doUpdateViewport(
+void MapView2D::updateViewport(
   const int x, const int y, const int width, const int height)
 {
-  m_camera->setViewport(Renderer::Camera::Viewport(x, y, width, height));
+  m_camera->setViewport({x, y, width, height});
 }
 
-vm::vec3 MapView2D::doGetPasteObjectsDelta(
+vm::vec3 MapView2D::pasteObjectsDelta(
   const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
 {
   auto document = kdl::mem_lock(m_document);
@@ -209,25 +196,25 @@ vm::vec3 MapView2D::doGetPasteObjectsDelta(
   return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
 }
 
-bool MapView2D::doCanSelectTall()
+bool MapView2D::canSelectTall()
 {
   return true;
 }
 
-void MapView2D::doSelectTall()
+void MapView2D::selectTall()
 {
   const auto document = kdl::mem_lock(m_document);
   const vm::axis::type cameraAxis = vm::find_abs_max_component(m_camera->direction());
   document->selectTall(cameraAxis);
 }
 
-void MapView2D::doReset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
+void MapView2D::reset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
 {
   const auto oldPosition = m_camera->position();
-  const auto factors =
-    vm::vec3f::one() - vm::abs(masterCamera.direction()) - vm::abs(m_camera->direction());
+  const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera.direction())
+                       - vm::abs(m_camera->direction());
   const auto newPosition =
-    (vm::vec3f::one() - factors) * oldPosition + factors * masterCamera.position();
+    (vm::vec3f{1, 1, 1} - factors) * oldPosition + factors * masterCamera.position();
   m_camera->moveTo(newPosition);
 
   if (animate)
@@ -242,7 +229,7 @@ void MapView2D::doReset2dCameras(const Renderer::Camera& masterCamera, const boo
   }
 }
 
-void MapView2D::doFocusCameraOnSelection(const bool animate)
+void MapView2D::focusCameraOnSelection(const bool animate)
 {
   const auto document = kdl::mem_lock(m_document);
   const auto bounds = vm::bbox3f{document->referenceBounds()};
@@ -252,7 +239,7 @@ void MapView2D::doFocusCameraOnSelection(const bool animate)
   moveCameraToPosition(m_camera->position() + delta, animate);
 }
 
-void MapView2D::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
+void MapView2D::moveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   if (animate)
   {
@@ -272,15 +259,16 @@ void MapView2D::animateCamera(
   const int duration)
 {
   const auto actualPosition =
-    dot(position, m_camera->up()) * m_camera->up()
-    + dot(position, m_camera->right()) * m_camera->right()
-    + dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
+    vm::dot(position, m_camera->up()) * m_camera->up()
+    + vm::dot(position, m_camera->right()) * m_camera->right()
+    + vm::dot(m_camera->position(), m_camera->direction()) * m_camera->direction();
+
   auto animation = std::make_unique<CameraAnimation>(
     *m_camera, actualPosition, m_camera->direction(), m_camera->up(), zoom, duration);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
-void MapView2D::doMoveCameraToCurrentTracePoint()
+void MapView2D::moveCameraToCurrentTracePoint()
 {
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
@@ -291,30 +279,35 @@ void MapView2D::doMoveCameraToCurrentTracePoint()
   }
 }
 
-vm::vec3 MapView2D::doGetMoveDirection(const vm::direction direction) const
+Renderer::Camera& MapView2D::camera()
+{
+  return *m_camera;
+}
+
+vm::vec3 MapView2D::moveDirection(const vm::direction direction) const
 {
   // The mapping is a bit counter intuitive, but it makes sense considering that the
-  // cursor up key is usually bounds to the forward action (which makes sense in 3D), but
-  // should move objects "up" in 2D.
+  // cursor up key is usually bounds to the forward action (which makes sense in 3D),
+  // but should move objects "up" in 2D.
   switch (direction)
   {
   case vm::direction::forward:
-    return vm::vec3(vm::get_abs_max_component_axis(m_camera->up()));
+    return vm::vec3{vm::get_abs_max_component_axis(m_camera->up())};
   case vm::direction::backward:
-    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->up()));
+    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->up())};
   case vm::direction::left:
-    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->right()));
+    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->right())};
   case vm::direction::right:
-    return vm::vec3(vm::get_abs_max_component_axis(m_camera->right()));
+    return vm::vec3{vm::get_abs_max_component_axis(m_camera->right())};
   case vm::direction::up:
-    return vm::vec3(-vm::get_abs_max_component_axis(m_camera->direction()));
+    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->direction())};
   case vm::direction::down:
-    return vm::vec3(vm::get_abs_max_component_axis(m_camera->direction()));
+    return vm::vec3{vm::get_abs_max_component_axis(m_camera->direction())};
     switchDefault();
   }
 }
 
-size_t MapView2D::doGetFlipAxis(const vm::direction direction) const
+size_t MapView2D::flipAxis(const vm::direction direction) const
 {
   switch (direction)
   {
@@ -328,20 +321,22 @@ size_t MapView2D::doGetFlipAxis(const vm::direction direction) const
     return vm::find_abs_max_component(m_camera->right());
   case vm::direction::up:
   case vm::direction::down:
-    // Vertical flip. In 2D views, this corresponds to the vertical axis of the viewport.
+    // Vertical flip. In 2D views, this corresponds to the vertical axis of the
+    // viewport.
     return vm::find_abs_max_component(m_camera->up());
     switchDefault();
   }
 }
 
-vm::vec3 MapView2D::doComputePointEntityPosition(const vm::bbox3& bounds) const
+vm::vec3 MapView2D::computePointEntityPosition(const vm::bbox3& bounds) const
 {
+  using namespace Model::HitFilters;
+
   auto document = kdl::mem_lock(m_document);
 
   const auto& grid = document->grid();
   const auto& worldBounds = document->worldBounds();
 
-  using namespace Model::HitFilters;
   const auto& hit =
     pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
@@ -356,47 +351,33 @@ vm::vec3 MapView2D::doComputePointEntityPosition(const vm::bbox3& bounds) const
 
     const auto toMin = referenceBounds.min - pickRay.origin;
     const auto toMax = referenceBounds.max - pickRay.origin;
-    const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction)
-                          ? referenceBounds.min
-                          : referenceBounds.max;
-    const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
+    const auto anchor =
+      vm::dot(toMin, pickRay.direction) > vm::dot(toMax, pickRay.direction)
+        ? referenceBounds.min
+        : referenceBounds.max;
+    const auto dragPlane = vm::plane3{anchor, -pickRay.direction};
 
     return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
   }
 }
 
-ActionContext::Type MapView2D::doGetActionContext() const
+ActionContext::Type MapView2D::viewActionContext() const
 {
   return ActionContext::View2D;
 }
 
-ActionView MapView2D::doGetActionView() const
-{
-  return ActionView_Map2D;
-}
-
-bool MapView2D::doCancel()
-{
-  return false;
-}
-
-Renderer::RenderMode MapView2D::doGetRenderMode()
+Renderer::RenderMode MapView2D::renderMode()
 {
   return Renderer::RenderMode::Render2D;
 }
 
-Renderer::Camera& MapView2D::doGetCamera()
-{
-  return *m_camera;
-}
-
-void MapView2D::doRenderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void MapView2D::renderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
 {
   auto document = kdl::mem_lock(m_document);
   renderBatch.addOneShot(new Renderer::GridRenderer(*m_camera, document->worldBounds()));
 }
 
-void MapView2D::doRenderMap(
+void MapView2D::renderMap(
   Renderer::MapRenderer& renderer,
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch)
@@ -406,30 +387,27 @@ void MapView2D::doRenderMap(
   auto document = kdl::mem_lock(m_document);
   if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
   {
-    const vm::bbox3& bounds = document->selectionBounds();
-    Renderer::SelectionBoundsRenderer boundsRenderer(bounds);
+    auto boundsRenderer = Renderer::SelectionBoundsRenderer{document->selectionBounds()};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }
 
-void MapView2D::doRenderTools(
+void MapView2D::renderTools(
   MapViewToolBox& /* toolBox */,
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch)
 {
-  renderTools(renderContext, renderBatch);
+  ToolBoxConnector::renderTools(renderContext, renderBatch);
 }
 
-void MapView2D::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
-
-void MapView2D::doRenderSoftWorldBounds(
+void MapView2D::renderSoftWorldBounds(
   Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
 {
   if (!renderContext.softMapBounds().is_empty())
   {
     auto document = kdl::mem_lock(m_document);
 
-    Renderer::RenderService renderService(renderContext, renderBatch);
+    auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
     renderService.renderBounds(renderContext.softMapBounds());
   }
@@ -439,5 +417,5 @@ void MapView2D::linkCamera(CameraLinkHelper& helper)
 {
   helper.addCamera(m_camera.get());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

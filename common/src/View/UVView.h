@@ -100,9 +100,9 @@ private:
   void cameraDidChange(const Renderer::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
-  void doUpdateViewport(int x, int y, int width, int height) override;
-  void doRender() override;
-  bool doShouldRenderFocusIndicator() const override;
+  void updateViewport(int x, int y, int width, int height) override;
+  void renderContents() override;
+  bool shouldRenderFocusIndicator() const override;
   const Color& getBackgroundColor() override;
 
   void setupGL(Renderer::RenderContext& renderContext);
@@ -125,8 +125,8 @@ public: // implement InputEventProcessor interface
   void processEvent(const CancelEvent& event) override;
 
 private:
-  PickRequest doGetPickRequest(float x, float y) const override;
-  Model::PickResult doPick(const vm::ray3& pickRay) const override;
+  PickRequest pickRequest(float x, float y) const override;
+  Model::PickResult pick(const vm::ray3& pickRay) const override;
 };
 
 } // namespace TrenchBroom::View

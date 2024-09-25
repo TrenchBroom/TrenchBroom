@@ -23,6 +23,7 @@
 #include "View/ViewEffectsService.h"
 
 #include "vm/forward.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
 {
@@ -44,24 +45,24 @@ public:
   ~MapView() override;
 
   void setContainer(MapViewContainer* container);
-  void installActivationTracker(MapViewActivationTracker& activationTracker);
+  virtual void installActivationTracker(MapViewActivationTracker& activationTracker) = 0;
 
-  bool isCurrent() const;
-  MapViewBase* firstMapViewBase();
+  virtual bool isCurrent() const = 0;
+  virtual MapViewBase* firstMapViewBase() = 0;
 
-  bool canSelectTall();
-  void selectTall();
+  virtual bool canSelectTall() = 0;
+  virtual void selectTall() = 0;
 
-  vm::vec3 pasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const;
+  virtual vm::vec3 pasteObjectsDelta(
+    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
 
-  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate);
-  void focusCameraOnSelection(bool animate);
-  void moveCameraToPosition(const vm::vec3f& position, bool animate);
+  virtual void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) = 0;
+  virtual void focusCameraOnSelection(bool animate) = 0;
+  virtual void moveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
 
-  void moveCameraToCurrentTracePoint();
+  virtual void moveCameraToCurrentTracePoint() = 0;
 
-  bool cancelMouseDrag();
+  virtual bool cancelMouseDrag() = 0;
 
   /**
    * If the parent of this view is a CyclingMapView, cycle to the
@@ -73,29 +74,6 @@ public:
    * Requests repaint of the managed map views. Note, this must be used instead of
    * QWidget::update()
    */
-  void refreshViews();
-
-private:
-  virtual void doInstallActivationTracker(
-    MapViewActivationTracker& activationTracker) = 0;
-
-  virtual bool doGetIsCurrent() const = 0;
-  virtual MapViewBase* doGetFirstMapViewBase() = 0;
-
-  virtual bool doCanSelectTall() = 0;
-  virtual void doSelectTall() = 0;
-
-  virtual vm::vec3 doGetPasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
-
-  virtual void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) = 0;
-  virtual void doFocusCameraOnSelection(bool animate) = 0;
-  virtual void doMoveCameraToPosition(const vm::vec3f& position, bool animate) = 0;
-
-  virtual void doMoveCameraToCurrentTracePoint() = 0;
-
-  virtual bool doCancelMouseDrag() = 0;
-
-  virtual void doRefreshViews() = 0;
+  virtual void refreshViews() = 0;
 };
 } // namespace TrenchBroom::View

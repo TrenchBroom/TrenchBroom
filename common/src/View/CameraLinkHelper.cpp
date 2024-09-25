@@ -19,7 +19,6 @@
 
 #include "CameraLinkHelper.h"
 
-#include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -50,10 +49,10 @@ void CameraLinkHelper::updateCameras(const Renderer::Camera* masterCamera)
       camera->setZoom(masterCamera->zoom());
 
       const auto oldPosition = camera->position();
-      const auto factors =
-        vm::vec3f::one() - abs(masterCamera->direction()) - abs(camera->direction());
+      const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera->direction())
+                           - vm::abs(camera->direction());
       const auto newPosition =
-        (vm::vec3f::one() - factors) * oldPosition + factors * masterCamera->position();
+        (vm::vec3f{1, 1, 1} - factors) * oldPosition + factors * masterCamera->position();
       camera->moveTo(newPosition);
     }
   }
@@ -69,4 +68,5 @@ void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera)
 }
 
 CameraLinkableView::~CameraLinkableView() = default;
+
 } // namespace TrenchBroom::View

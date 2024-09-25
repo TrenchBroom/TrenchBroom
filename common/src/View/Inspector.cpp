@@ -29,30 +29,23 @@
 #include "View/TabBar.h"
 #include "View/TabBook.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 Inspector::Inspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QWidget(parent)
-  , m_tabBook(nullptr)
-  , m_mapInspector(nullptr)
-  , m_entityInspector(nullptr)
-  , m_faceInspector(nullptr)
-  , m_syncTabBarEventFilter(nullptr)
+  : QWidget{parent}
 {
-  m_tabBook = new TabBook();
+  m_tabBook = new TabBook{};
 
-  m_mapInspector = new MapInspector(document);
-  m_entityInspector = new EntityInspector(document, contextManager);
-  m_faceInspector = new FaceInspector(document, contextManager);
+  m_mapInspector = new MapInspector{document};
+  m_entityInspector = new EntityInspector{document, contextManager};
+  m_faceInspector = new FaceInspector{document, contextManager};
 
   m_tabBook->addPage(m_mapInspector, "Map");
   m_tabBook->addPage(m_entityInspector, "Entity");
   m_tabBook->addPage(m_faceInspector, "Face");
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_tabBook);
   setLayout(layout);
@@ -60,13 +53,13 @@ Inspector::Inspector(
 
 void Inspector::connectTopWidgets(MapViewBar* mapViewBar)
 {
-  if (m_syncTabBarEventFilter != nullptr)
+  if (m_syncTabBarEventFilter)
   {
     delete std::exchange(m_syncTabBarEventFilter, nullptr);
   }
 
   m_syncTabBarEventFilter =
-    new SyncHeightEventFilter(mapViewBar, m_tabBook->tabBar(), this);
+    new SyncHeightEventFilter{mapViewBar, m_tabBook->tabBar(), this};
 }
 
 void Inspector::switchToPage(const InspectorPage page)
@@ -83,5 +76,5 @@ FaceInspector* Inspector::faceInspector()
 {
   return m_faceInspector;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

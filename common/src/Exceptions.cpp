@@ -19,26 +19,13 @@
 
 #include "Exceptions.h"
 
-#include "FileLocation.h"
-
 #include <sstream>
 
 namespace TrenchBroom
 {
-Exception::Exception() noexcept {}
-
-Exception::Exception(std::string str) noexcept
-  : m_msg(std::move(str))
-{
-}
-
-const char* Exception::what() const noexcept
-{
-  return m_msg.c_str();
-}
-
 namespace
 {
+
 std::string buildMessage(
   const std::optional<FileLocation>& location, const std::string& str)
 {
@@ -61,11 +48,24 @@ std::string buildMessage(
   }
   return msg.str();
 }
+
 } // namespace
+
+Exception::Exception() noexcept = default;
+
+Exception::Exception(std::string str) noexcept
+  : m_msg{std::move(str)}
+{
+}
+
+const char* Exception::what() const noexcept
+{
+  return m_msg.c_str();
+}
 
 ParserException::ParserException(
   const std::optional<FileLocation>& location, const std::string& str)
-  : Exception(buildMessage(location, str))
+  : Exception{buildMessage(location, str)}
 {
 }
 

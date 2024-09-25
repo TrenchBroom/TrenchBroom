@@ -21,9 +21,6 @@
 
 #include "View/ToolController.h"
 
-#include "vm/bbox.h"
-#include "vm/vec.h"
-
 #include <memory>
 
 namespace TrenchBroom::View

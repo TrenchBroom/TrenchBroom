@@ -24,60 +24,67 @@
 #include <QDesktopWidget>
 #include <QWindow>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // PopupWindow
 
+namespace
+{
+
+auto getXPosition(
+  const QRect& refWidgetRectOnScreen, const QSize& ourSize, const QRect& screenGeom)
+{
+  if (refWidgetRectOnScreen.right() - ourSize.width() >= 0)
+  { // fits left?
+    return refWidgetRectOnScreen.right() - ourSize.width();
+  }
+  if (refWidgetRectOnScreen.left() + ourSize.width() <= screenGeom.right())
+  { // fits right?
+    return refWidgetRectOnScreen.left();
+  }
+  // otherwise put it as far to the left as possible, but make sure the left is visible
+  return std::max(refWidgetRectOnScreen.left() - ourSize.width(), 0);
+}
+
+auto getYPosition(
+  const QRect& refWidgetRectOnScreen, const QSize& ourSize, const QRect& screenGeom)
+{
+  if (refWidgetRectOnScreen.bottom() + ourSize.height() <= screenGeom.bottom())
+  { // fits below?
+    return refWidgetRectOnScreen.bottom();
+  }
+  if (refWidgetRectOnScreen.top() - ourSize.height() >= 0)
+  { // fits above?
+    return refWidgetRectOnScreen.top() - ourSize.height();
+  }
+  // otherwise put it as low as possible, but make sure the top is visible
+  const auto bottom =
+    std::min(refWidgetRectOnScreen.bottom() + ourSize.height(), screenGeom.bottom());
+  const auto top = bottom - ourSize.height();
+  return std::max(top, 0);
+}
+
+} // namespace
+
 PopupWindow::PopupWindow(QWidget* parent)
-  : QWidget(parent, Qt::Popup)
+  : QWidget{parent, Qt::Popup}
 {
 }
 
 void PopupWindow::positionTouchingWidget(QWidget* refWidget)
 {
-  const QRect screenGeom = QApplication::desktop()->availableGeometry(refWidget);
-  const QRect refWidgetRectOnScreen =
-    QRect(refWidget->mapToGlobal(QPoint(0, 0)), refWidget->size());
-  const QSize ourSize = size();
+  const auto screenGeom = QApplication::desktop()->availableGeometry(refWidget);
+  const auto refWidgetRectOnScreen =
+    QRect{refWidget->mapToGlobal(QPoint{0, 0}), refWidget->size()};
+  const auto ourSize = size();
 
   // Figure out y position on screen
-  int y;
-  if (refWidgetRectOnScreen.bottom() + ourSize.height() <= screenGeom.bottom())
-  { // fits below?
-    y = refWidgetRectOnScreen.bottom();
-  }
-  else if (refWidgetRectOnScreen.top() - ourSize.height() >= 0)
-  { // fits above?
-    y = refWidgetRectOnScreen.top() - ourSize.height();
-  }
-  else
-  { // otherwise put it as low as possible, but make sure the top is visible
-    const auto bottom =
-      std::min(refWidgetRectOnScreen.bottom() + ourSize.height(), screenGeom.bottom());
-    const auto top = bottom - ourSize.height();
-    y = std::max(top, 0);
-  }
-
-  // Figure out the x position on screen
-  int x;
-  if (refWidgetRectOnScreen.right() - ourSize.width() >= 0)
-  { // fits left?
-    x = refWidgetRectOnScreen.right() - ourSize.width();
-  }
-  else if (refWidgetRectOnScreen.left() + ourSize.width() <= screenGeom.right())
-  { // fits right?
-    x = refWidgetRectOnScreen.left();
-  }
-  else
-  { // otherwise put it as far to the left as possible, but make sure the left is visible
-    x = std::max(refWidgetRectOnScreen.left() - ourSize.width(), 0);
-  }
+  const auto x = getXPosition(refWidgetRectOnScreen, ourSize, screenGeom);
+  const auto y = getYPosition(refWidgetRectOnScreen, ourSize, screenGeom);
 
   // Now map x, y from global to our parent's coordinates
-  const QPoint desiredPointInParentCoords = mapToParent(mapFromGlobal(QPoint(x, y)));
-  setGeometry(QRect(desiredPointInParentCoords, ourSize));
+  const auto desiredPointInParentCoords = mapToParent(mapFromGlobal(QPoint{x, y}));
+  setGeometry(QRect{desiredPointInParentCoords, ourSize});
 }
 
 void PopupWindow::closeEvent(QCloseEvent*)
@@ -89,5 +96,5 @@ void PopupWindow::showEvent(QShowEvent*)
 {
   emit visibilityChanged(true);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

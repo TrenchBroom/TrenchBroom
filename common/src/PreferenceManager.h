@@ -169,13 +169,13 @@ private:
    * to disk.
    */
   std::map<std::filesystem::path, QJsonValue> m_cache;
-  QFileSystemWatcher* m_fileSystemWatcher;
+  QFileSystemWatcher* m_fileSystemWatcher = nullptr;
   /**
    * If true, don't try to read/write preferences anymore.
    * This gets set to true if there is a JSON parse error, so
    * we don't clobber the file if the user makes a mistake while editing it by hand.
    */
-  bool m_fileReadWriteDisabled;
+  bool m_fileReadWriteDisabled = false;
 
 public:
   AppPreferenceManager();

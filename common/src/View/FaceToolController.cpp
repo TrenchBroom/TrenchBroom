@@ -24,15 +24,14 @@
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3>
 {
 public:
   explicit SelectFacePart(FaceTool& tool)
-    : SelectPartBase(tool, FaceHandleManager::HandleHitType)
+    : SelectPartBase{tool, FaceHandleManager::HandleHitType}
   {
   }
 
@@ -47,7 +46,7 @@ class FaceToolController::MoveFacePart : public MovePartBase
 {
 public:
   explicit MoveFacePart(FaceTool& tool)
-    : MovePartBase(tool, FaceHandleManager::HandleHitType)
+    : MovePartBase{tool, FaceHandleManager::HandleHitType}
   {
   }
 };
@@ -58,5 +57,5 @@ FaceToolController::FaceToolController(FaceTool& tool)
   addController(std::make_unique<MoveFacePart>(tool));
   addController(std::make_unique<SelectFacePart>(tool));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

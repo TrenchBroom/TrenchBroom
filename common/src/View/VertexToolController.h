@@ -23,9 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Tool;
 class VertexTool;
@@ -43,7 +41,7 @@ private:
   class MoveVertexPart;
 
 public:
-  VertexToolController(VertexTool& tool);
+  explicit VertexToolController(VertexTool& tool);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

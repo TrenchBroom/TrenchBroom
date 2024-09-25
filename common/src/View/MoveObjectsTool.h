@@ -24,9 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class InputState;
@@ -35,16 +33,16 @@ class MapDocument;
 class MoveObjectsTool : public Tool
 {
 public:
-  typedef enum
+  enum class MoveResult
   {
-    MR_Continue,
-    MR_Deny,
-    MR_Cancel
-  } MoveResult;
+    Continue,
+    Deny,
+    Cancel,
+  };
 
 private:
   std::weak_ptr<MapDocument> m_document;
-  bool m_duplicateObjects;
+  bool m_duplicateObjects = false;
 
 public:
   explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
@@ -62,5 +60,5 @@ private:
 
   QWidget* doCreatePage(QWidget* parent) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

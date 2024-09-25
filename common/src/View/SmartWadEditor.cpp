@@ -32,10 +32,12 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
+#include "kdl/range_to_vector.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <filesystem>
+#include <ranges>
 
 namespace TrenchBroom::View
 {
@@ -50,9 +52,11 @@ std::vector<std::filesystem::path> getWadPaths(
   {
     if (const auto* wadPathsStr = nodes.front()->entity().property(propertyKey))
     {
-      return kdl::vec_transform(kdl::str_split(*wadPathsStr, ";"), [](const auto& s) {
-        return std::filesystem::path{s};
-      });
+      const auto wadPaths = kdl::str_split(*wadPathsStr, ";");
+      return wadPaths | std::views::transform([](const auto& s) {
+               return std::filesystem::path{s};
+             })
+             | kdl::to_vector;
     }
   }
   return {};
@@ -61,7 +65,8 @@ std::vector<std::filesystem::path> getWadPaths(
 std::string getWadPathStr(const std::vector<std::filesystem::path>& wadPaths)
 {
   return kdl::str_join(
-    kdl::vec_transform(wadPaths, [](const auto& path) { return path.string(); }), ";");
+    wadPaths | std::views::transform([](const auto& path) { return path.string(); }),
+    ";");
 }
 
 } // namespace

@@ -22,10 +22,7 @@
 #include <QShortcut>
 #include <QStackedLayout>
 
-#include "FloatType.h"
-#include "Model/BrushNode.h"
 #include "Renderer/Camera.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
@@ -35,19 +32,16 @@
 
 namespace TrenchBroom::View
 {
+
 CyclingMapView::CyclingMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   const int views,
-  Logger* logger,
   QWidget* parent)
-  : MapViewContainer(parent)
-  , m_logger(logger)
-  , m_document(std::move(document))
-  , m_currentMapView(nullptr)
-  , m_layout(nullptr)
+  : MapViewContainer{parent}
+  , m_document{std::move(document)}
 {
   setObjectName("CyclingMapView");
   createGui(toolBox, mapRenderer, contextManager, views);
@@ -61,40 +55,25 @@ void CyclingMapView::createGui(
 {
   if (views & View_3D)
   {
-    addMapView(new MapView3D(m_document, toolBox, mapRenderer, contextManager, m_logger));
+    addMapView(new MapView3D{m_document, toolBox, mapRenderer, contextManager});
   }
   if (views & View_XY)
   {
-    addMapView(new MapView2D(
-      m_document,
-      toolBox,
-      mapRenderer,
-      contextManager,
-      MapView2D::ViewPlane_XY,
-      m_logger));
+    addMapView(new MapView2D{
+      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY});
   }
   if (views & View_XZ)
   {
-    addMapView(new MapView2D(
-      m_document,
-      toolBox,
-      mapRenderer,
-      contextManager,
-      MapView2D::ViewPlane_XZ,
-      m_logger));
+    addMapView(new MapView2D{
+      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XZ});
   }
   if (views & View_YZ)
   {
-    addMapView(new MapView2D(
-      m_document,
-      toolBox,
-      mapRenderer,
-      contextManager,
-      MapView2D::ViewPlane_YZ,
-      m_logger));
+    addMapView(new MapView2D{
+      m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::YZ});
   }
 
-  m_layout = new QStackedLayout();
+  m_layout = new QStackedLayout{};
   // NOTE: It's important to setLayout() before adding widgets, rather than after.
   // Otherwise, they get setVisible immediately (and the first render calls happen during
   // the for loop), which breaks multisampling
@@ -123,77 +102,12 @@ void CyclingMapView::switchToMapView(MapViewBase* mapView)
   m_currentMapView->setFocus();
 }
 
-void CyclingMapView::doFlashSelection()
+void CyclingMapView::flashSelection()
 {
   m_currentMapView->flashSelection();
 }
 
-bool CyclingMapView::doGetIsCurrent() const
-{
-  return m_currentMapView->isCurrent();
-}
-
-MapViewBase* CyclingMapView::doGetFirstMapViewBase()
-{
-  return m_currentMapView;
-}
-
-bool CyclingMapView::doCanSelectTall()
-{
-  return m_currentMapView->canSelectTall();
-}
-
-void CyclingMapView::doSelectTall()
-{
-  m_currentMapView->selectTall();
-}
-
-void CyclingMapView::doReset2dCameras(const Renderer::Camera& masterCamera, bool animate)
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->reset2dCameras(masterCamera, animate);
-  }
-}
-
-void CyclingMapView::doFocusCameraOnSelection(const bool animate)
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->focusCameraOnSelection(animate);
-  }
-}
-
-void CyclingMapView::doMoveCameraToPosition(const vm::vec3f& position, const bool animate)
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->moveCameraToPosition(position, animate);
-  }
-}
-
-void CyclingMapView::doMoveCameraToCurrentTracePoint()
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->moveCameraToCurrentTracePoint();
-  }
-}
-
-bool CyclingMapView::doCanMaximizeCurrentView() const
-{
-  return false;
-}
-
-bool CyclingMapView::doCurrentViewMaximized() const
-{
-  return true;
-}
-
-void CyclingMapView::doToggleMaximizeCurrentView() {}
-
-void CyclingMapView::doInstallActivationTracker(
-  MapViewActivationTracker& activationTracker)
+void CyclingMapView::installActivationTracker(MapViewActivationTracker& activationTracker)
 {
   for (auto* mapView : m_mapViews)
   {
@@ -201,17 +115,91 @@ void CyclingMapView::doInstallActivationTracker(
   }
 }
 
-MapView* CyclingMapView::doGetCurrentMapView() const
+bool CyclingMapView::isCurrent() const
+{
+  return m_currentMapView->isCurrent();
+}
+
+MapViewBase* CyclingMapView::firstMapViewBase()
 {
   return m_currentMapView;
 }
 
-void CyclingMapView::doRefreshViews()
+bool CyclingMapView::canSelectTall()
+{
+  return m_currentMapView->canSelectTall();
+}
+
+void CyclingMapView::selectTall()
+{
+  m_currentMapView->selectTall();
+}
+
+void CyclingMapView::reset2dCameras(const Renderer::Camera& masterCamera, bool animate)
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->reset2dCameras(masterCamera, animate);
+  }
+}
+
+void CyclingMapView::focusCameraOnSelection(const bool animate)
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->focusCameraOnSelection(animate);
+  }
+}
+
+void CyclingMapView::moveCameraToPosition(const vm::vec3f& position, const bool animate)
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->moveCameraToPosition(position, animate);
+  }
+}
+
+void CyclingMapView::moveCameraToCurrentTracePoint()
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->moveCameraToCurrentTracePoint();
+  }
+}
+
+bool CyclingMapView::cancelMouseDrag()
+{
+  auto result = false;
+  for (auto* mapView : m_mapViews)
+  {
+    result = result || mapView->cancelMouseDrag();
+  }
+  return result;
+}
+
+void CyclingMapView::refreshViews()
 {
   for (auto* mapView : m_mapViews)
   {
     mapView->refreshViews();
   }
+}
+
+bool CyclingMapView::canMaximizeCurrentView() const
+{
+  return false;
+}
+
+bool CyclingMapView::currentViewMaximized() const
+{
+  return true;
+}
+
+void CyclingMapView::toggleMaximizeCurrentView() {}
+
+MapView* CyclingMapView::currentMapView() const
+{
+  return m_currentMapView;
 }
 
 void CyclingMapView::linkCamera(CameraLinkHelper& helper)
@@ -235,13 +223,4 @@ void CyclingMapView::cycleChildMapView(MapView* after)
   }
 }
 
-bool CyclingMapView::doCancelMouseDrag()
-{
-  auto result = false;
-  for (auto* mapView : m_mapViews)
-  {
-    result |= mapView->cancelMouseDrag();
-  }
-  return result;
-}
 } // namespace TrenchBroom::View

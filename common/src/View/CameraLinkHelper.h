@@ -30,6 +30,7 @@ class Camera;
 
 namespace TrenchBroom::View
 {
+
 class CameraLinkHelper
 {
 private:
@@ -51,4 +52,5 @@ public:
   virtual ~CameraLinkableView();
   virtual void linkCamera(CameraLinkHelper& linkHelper) = 0;
 };
+
 } // namespace TrenchBroom::View

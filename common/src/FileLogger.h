@@ -44,4 +44,5 @@ private:
 
   deleteCopyAndMove(FileLogger);
 };
+
 } // namespace TrenchBroom

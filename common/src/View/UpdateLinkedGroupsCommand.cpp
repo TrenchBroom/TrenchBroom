@@ -21,10 +21,9 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
   std::vector<Model::GroupNode*> changedLinkedGroups)
   : UpdateLinkedGroupsCommandBase{
@@ -35,15 +34,15 @@ UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
 UpdateLinkedGroupsCommand::~UpdateLinkedGroupsCommand() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformDo(
-  MapDocumentCommandFacade*)
+  MapDocumentCommandFacade&)
 {
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(
-  MapDocumentCommandFacade*)
+  MapDocumentCommandFacade&)
 {
   return std::make_unique<CommandResult>(true);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -25,16 +25,15 @@ class QLabel;
 class QPixmap;
 class QString;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class DialogHeader : public QWidget
 {
   Q_OBJECT
 private:
-  QLabel* m_iconLabel;
-  QLabel* m_textLabel;
+  QLabel* m_iconLabel = nullptr;
+  QLabel* m_textLabel = nullptr;
 
 public:
   explicit DialogHeader(QWidget* parent = nullptr);
@@ -47,5 +46,5 @@ public:
 private:
   void createGui();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

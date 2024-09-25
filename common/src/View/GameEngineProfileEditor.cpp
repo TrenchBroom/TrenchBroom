@@ -33,7 +33,6 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-#include "kdl/set_temp.h"
 #include "kdl/string_compare.h"
 
 namespace TrenchBroom::View

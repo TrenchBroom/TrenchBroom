@@ -19,7 +19,6 @@
  */
 
 #include "Assets/EntityModel.h"
-#include "Error.h"
 #include "IO/AssimpLoader.h"
 #include "IO/DiskFileSystem.h"
 #include "Logger.h"

@@ -30,9 +30,8 @@
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/FontManager.h"
-#include "Renderer/GL.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
@@ -40,7 +39,6 @@
 #include "View/MapDocument.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/skip_iterator.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -307,7 +305,7 @@ void MaterialBrowserView::doRender(Layout& layout, const float y, const float he
   renderMaterials(layout, y, height);
 }
 
-bool MaterialBrowserView::doShouldRenderFocusIndicator() const
+bool MaterialBrowserView::shouldRenderFocusIndicator() const
 {
   return false;
 }

@@ -36,7 +36,6 @@
 #include "View/CompilationVariables.h"
 #include "View/MultiCompletionLineEdit.h"
 #include "View/QtUtils.h"
-#include "View/TitleBar.h"
 #include "View/TitledPanel.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
@@ -608,4 +607,5 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
 
   return renderer;
 }
+
 } // namespace TrenchBroom::View

@@ -77,4 +77,5 @@ private:
 
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
 };
+
 } // namespace TrenchBroom::View

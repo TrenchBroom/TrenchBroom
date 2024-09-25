@@ -19,7 +19,6 @@
 
 #include "Autosaver.h"
 
-#include "Error.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/FileSystem.h"
@@ -36,52 +35,11 @@
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
-#include <algorithm> // for std::sort
+#include <algorithm>
 #include <cassert>
 
 namespace TrenchBroom::View
 {
-IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename)
-{
-  return [mapBasename = std::move(mapBasename)](
-           const std::filesystem::path& path, const IO::GetPathInfo& getPathInfo) {
-    const auto backupName = path.stem();
-    const auto backupBasename = backupName.stem();
-    const auto backupExtension = backupName.extension().string();
-    const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
-
-    return getPathInfo(path) == IO::PathInfo::File
-           && kdl::ci::str_is_equal(path.extension().string(), ".map")
-           && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
-           && kdl::str_to_size(backupNum).value_or(0u) > 0u;
-  };
-}
-
-Autosaver::Autosaver(
-  std::weak_ptr<MapDocument> document,
-  const std::chrono::milliseconds saveInterval,
-  const size_t maxBackups)
-  : m_document{std::move(document)}
-  , m_saveInterval{saveInterval}
-  , m_maxBackups{maxBackups}
-  , m_lastSaveTime{Clock::now()}
-  , m_lastModificationCount{kdl::mem_lock(m_document)->modificationCount()}
-{
-}
-
-void Autosaver::triggerAutosave(Logger& logger)
-{
-  if (!kdl::mem_expired(m_document))
-  {
-    auto document = kdl::mem_lock(m_document);
-    if (
-      document->modified() && document->modificationCount() != m_lastModificationCount
-      && Clock::now() - m_lastSaveTime >= m_saveInterval && document->persistent())
-    {
-      autosave(logger, document);
-    }
-  }
-}
 
 namespace
 {
@@ -154,6 +112,48 @@ Result<void> cleanBackups(
 }
 
 } // namespace
+
+IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
+{
+  return
+    [mapBasename = std::move(mapBasename_)](const auto& path, const auto& getPathInfo) {
+      const auto backupName = path.stem();
+      const auto backupBasename = backupName.stem();
+      const auto backupExtension = backupName.extension().string();
+      const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
+
+      return getPathInfo(path) == IO::PathInfo::File
+             && kdl::ci::str_is_equal(path.extension().string(), ".map")
+             && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
+             && kdl::str_to_size(backupNum).value_or(0u) > 0u;
+    };
+}
+
+Autosaver::Autosaver(
+  std::weak_ptr<MapDocument> document,
+  const std::chrono::milliseconds saveInterval,
+  const size_t maxBackups)
+  : m_document{std::move(document)}
+  , m_saveInterval{saveInterval}
+  , m_maxBackups{maxBackups}
+  , m_lastSaveTime{Clock::now()}
+  , m_lastModificationCount{kdl::mem_lock(m_document)->modificationCount()}
+{
+}
+
+void Autosaver::triggerAutosave(Logger& logger)
+{
+  if (!kdl::mem_expired(m_document))
+  {
+    auto document = kdl::mem_lock(m_document);
+    if (
+      document->modified() && document->modificationCount() != m_lastModificationCount
+      && Clock::now() - m_lastSaveTime >= m_saveInterval && document->persistent())
+    {
+      autosave(logger, document);
+    }
+  }
+}
 
 void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 {

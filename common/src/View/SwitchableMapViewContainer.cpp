@@ -45,12 +45,8 @@
 namespace TrenchBroom::View
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
-  Logger* logger,
-  std::weak_ptr<MapDocument> document,
-  GLContextManager& contextManager,
-  QWidget* parent)
+  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
   : QWidget{parent}
-  , m_logger{logger}
   , m_document{std::move(document)}
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
@@ -99,20 +95,20 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   switch (viewId)
   {
   case MapViewLayout::OnePane:
-    m_mapView = new OnePaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    m_mapView =
+      new OnePaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
     break;
   case MapViewLayout::TwoPanes:
-    m_mapView = new TwoPaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    m_mapView =
+      new TwoPaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
     break;
   case MapViewLayout::ThreePanes:
-    m_mapView = new ThreePaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    m_mapView =
+      new ThreePaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
     break;
   case MapViewLayout::FourPanes:
-    m_mapView = new FourPaneMapView{
-      m_document, *m_toolBox, *m_mapRenderer, m_contextManager, m_logger};
+    m_mapView =
+      new FourPaneMapView{m_document, *m_toolBox, *m_mapRenderer, m_contextManager};
     break;
     switchDefault();
   }
@@ -351,8 +347,8 @@ void SwitchableMapViewContainer::toggleMaximizeCurrentView()
 
 void SwitchableMapViewContainer::connectObservers()
 {
-  m_notifierConnection += m_toolBox->refreshViewsNotifier.connect(
-    this, &SwitchableMapViewContainer::refreshViews);
+  m_notifierConnection +=
+    m_toolBox->refreshViewsNotifier.connect([&](Tool& tool) { refreshViews(tool); });
 }
 
 void SwitchableMapViewContainer::refreshViews(Tool&)
@@ -363,72 +359,73 @@ void SwitchableMapViewContainer::refreshViews(Tool&)
   m_mapView->refreshViews();
 }
 
-void SwitchableMapViewContainer::doInstallActivationTracker(
+void SwitchableMapViewContainer::installActivationTracker(
   MapViewActivationTracker& activationTracker)
 {
   m_mapView->installActivationTracker(activationTracker);
 }
 
-bool SwitchableMapViewContainer::doGetIsCurrent() const
+bool SwitchableMapViewContainer::isCurrent() const
 {
   return m_mapView->isCurrent();
 }
 
-MapViewBase* SwitchableMapViewContainer::doGetFirstMapViewBase()
+MapViewBase* SwitchableMapViewContainer::firstMapViewBase()
 {
   return m_mapView->firstMapViewBase();
 }
 
-bool SwitchableMapViewContainer::doCanSelectTall()
+bool SwitchableMapViewContainer::canSelectTall()
 {
   return m_mapView->canSelectTall();
 }
 
-void SwitchableMapViewContainer::doSelectTall()
+void SwitchableMapViewContainer::selectTall()
 {
   m_mapView->selectTall();
 }
 
-vm::vec3 SwitchableMapViewContainer::doGetPasteObjectsDelta(
+vm::vec3 SwitchableMapViewContainer::pasteObjectsDelta(
   const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
 {
   return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
 }
 
-void SwitchableMapViewContainer::doReset2dCameras(
+void SwitchableMapViewContainer::reset2dCameras(
   const Renderer::Camera& masterCamera, const bool animate)
 {
   m_mapView->reset2dCameras(masterCamera, animate);
 }
 
-void SwitchableMapViewContainer::doFocusCameraOnSelection(const bool animate)
+void SwitchableMapViewContainer::focusCameraOnSelection(const bool animate)
 {
   m_mapView->focusCameraOnSelection(animate);
 }
 
-void SwitchableMapViewContainer::doMoveCameraToPosition(
+void SwitchableMapViewContainer::moveCameraToPosition(
   const vm::vec3f& position, const bool animate)
 {
   m_mapView->moveCameraToPosition(position, animate);
 }
 
-void SwitchableMapViewContainer::doMoveCameraToCurrentTracePoint()
+void SwitchableMapViewContainer::moveCameraToCurrentTracePoint()
 {
   m_mapView->moveCameraToCurrentTracePoint();
 }
 
-void SwitchableMapViewContainer::doFlashSelection()
+void SwitchableMapViewContainer::flashSelection()
 {
   m_mapView->flashSelection();
 }
 
-bool SwitchableMapViewContainer::doCancelMouseDrag()
+bool SwitchableMapViewContainer::cancelMouseDrag()
 {
   return m_mapView->cancelMouseDrag();
 }
 
-void SwitchableMapViewContainer::doRefreshViews()
+void SwitchableMapViewContainer::refreshViews()
 {
   m_mapView->refreshViews();
 }
+
 } // namespace TrenchBroom::View

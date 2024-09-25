@@ -22,7 +22,6 @@
 #include <QHBoxLayout>
 #include <QSettings>
 
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
@@ -36,10 +35,8 @@ FourPaneMapView::FourPaneMapView(
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  Logger* logger,
   QWidget* parent)
   : MultiPaneMapView{parent}
-  , m_logger{logger}
   , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
@@ -66,13 +63,13 @@ void FourPaneMapView::createGui(
   m_rightVSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_rightVSplitter->setObjectName("FourPaneMapView_RightVerticalSplitter");
 
-  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
+  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager};
   m_mapViewXY = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY};
   m_mapViewXZ = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XZ, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XZ};
   m_mapViewYZ = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_YZ, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::YZ};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);
@@ -134,7 +131,7 @@ void FourPaneMapView::onSplitterMoved(
   other->setSizes(moved->sizes());
 }
 
-void FourPaneMapView::doMaximizeView(MapView* view)
+void FourPaneMapView::maximizeView(MapView* view)
 {
   assert(
     view == m_mapView3D || view == m_mapViewXY || view == m_mapViewXZ
@@ -172,7 +169,7 @@ void FourPaneMapView::doMaximizeView(MapView* view)
   }
 }
 
-void FourPaneMapView::doRestoreViews()
+void FourPaneMapView::restoreViews()
 {
   for (int i = 0; i < 2; ++i)
   {
@@ -181,4 +178,5 @@ void FourPaneMapView::doRestoreViews()
     m_rightVSplitter->widget(i)->show();
   }
 }
+
 } // namespace TrenchBroom::View

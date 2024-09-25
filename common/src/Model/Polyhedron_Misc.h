@@ -21,7 +21,7 @@
 
 #include "Polyhedron.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/range_utils.h"
 
 #include "vm/bbox.h"
 #include "vm/plane.h"
@@ -1167,7 +1167,7 @@ std::string Polyhedron<T, FP, VP>::exportObjSelectedFaces(
     for (const auto* halfEdge : face->boundary())
     {
       const auto* vertex = halfEdge->origin();
-      auto indexOptional = kdl::vec_index_of(vertices, vertex);
+      auto indexOptional = kdl::index_of(vertices, vertex);
       assert(indexOptional.has_value());
 
       // .obj indices are 1-based

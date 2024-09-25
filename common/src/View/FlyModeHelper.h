@@ -25,28 +25,27 @@
 
 class QKeyEvent;
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class FlyModeHelper
 {
 private:
   Renderer::Camera& m_camera;
 
-  bool m_forward;
-  bool m_backward;
-  bool m_left;
-  bool m_right;
-  bool m_up;
-  bool m_down;
-  bool m_fast;
-  bool m_slow;
+  bool m_forward = false;
+  bool m_backward = false;
+  bool m_left = false;
+  bool m_right = false;
+  bool m_up = false;
+  bool m_down = false;
+  bool m_fast = false;
+  bool m_slow = false;
 
   int64_t m_lastPollTime;
 
@@ -68,5 +67,5 @@ private:
   vm::vec3f moveDelta(float time);
   float moveSpeed() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -33,10 +33,10 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
-#include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
 namespace TrenchBroom::View
@@ -198,7 +198,7 @@ void EntityDefinitionFileChooser::updateControls()
   const auto spec = document->entityDefinitionFile();
   if (spec.builtin())
   {
-    if (const auto index = kdl::vec_index_of(specs, spec))
+    if (const auto index = kdl::index_of(specs, spec))
     {
       // the chosen builtin entity definition file might not be in the game config anymore
       // if the config has changed after the definition file was chosen
@@ -207,7 +207,8 @@ void EntityDefinitionFileChooser::updateControls()
     m_externalLabel->setText(tr("use builtin"));
 
     auto lightText = QPalette{};
-    lightText.setColor(QPalette::WindowText, Colors::disabledText());
+    lightText.setColor(
+      QPalette::WindowText, lightText.color(QPalette::Disabled, QPalette::WindowText));
     m_externalLabel->setPalette(lightText);
 
     auto font = m_externalLabel->font();

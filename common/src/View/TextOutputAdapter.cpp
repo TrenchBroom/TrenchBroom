@@ -26,33 +26,30 @@
 
 #include "Ensure.h"
 
-#include <string>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit)
+  : m_textEdit{textEdit}
+  , m_insertionCursor{m_textEdit->document()}
 {
-  ensure(textEdit != nullptr, "textEdit is null");
-  m_textEdit = textEdit;
+  ensure(m_textEdit != nullptr, "textEdit is null");
 
   // Create our own private cursor, separate from the UI cursor
   // so user selections don't interfere with our text insertions
-  m_insertionCursor = QTextCursor(m_textEdit->document());
   m_insertionCursor.movePosition(QTextCursor::End);
 }
 
 void TextOutputAdapter::appendString(const QString& string)
 {
-  QScrollBar* scrollBar = m_textEdit->verticalScrollBar();
-  const bool wasAtBottom = (scrollBar->value() >= scrollBar->maximum());
+  auto* scrollBar = m_textEdit->verticalScrollBar();
+  const auto wasAtBottom = (scrollBar->value() >= scrollBar->maximum());
 
-  const int size = string.size();
+  const auto size = string.size();
   for (int i = 0; i < size; ++i)
   {
-    const QChar c = string[i];
-    const QChar n = (i + 1) < size ? string[i + 1] : static_cast<QChar>(0);
+    const auto c = string[i];
+    const auto n = (i + 1) < size ? string[i + 1] : static_cast<QChar>(0);
 
     // Handle CRLF by advancing to the LF, which is handled below
     if (c == '\r' && n == '\n')
@@ -75,18 +72,19 @@ void TextOutputAdapter::appendString(const QString& string)
 
     // Insert characters from index i, up to but excluding the next
     // CR or LF, as a literal string
-    int lastToInsert = i;
+    auto lastToInsert = i;
     for (int j = i; j < size; ++j)
     {
-      const QChar charJ = string[j];
+      const auto charJ = string[j];
       if (charJ == '\r' || charJ == '\n')
       {
         break;
       }
       lastToInsert = j;
     }
-    const int insertionSize = lastToInsert - i + 1;
-    const QString substring = string.mid(i, insertionSize);
+
+    const auto insertionSize = lastToInsert - i + 1;
+    const auto substring = string.mid(i, insertionSize);
     if (!m_insertionCursor.atEnd())
     {
       // This means a CR was previously used. We need to select
@@ -104,5 +102,5 @@ void TextOutputAdapter::appendString(const QString& string)
     m_textEdit->verticalScrollBar()->setValue(m_textEdit->verticalScrollBar()->maximum());
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

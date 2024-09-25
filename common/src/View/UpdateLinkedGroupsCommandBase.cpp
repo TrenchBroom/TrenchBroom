@@ -19,8 +19,6 @@
 
 #include "UpdateLinkedGroupsCommandBase.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 
@@ -28,10 +26,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
   std::string name,
   const bool updateModificationCount,
@@ -44,7 +41,7 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   // reimplemented from UndoableCommand::performDo
   auto commandResult = Command::performDo(document);
@@ -53,29 +50,26 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
     return commandResult;
   }
 
-  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(*document)
+  return m_updateLinkedGroupsHelper.applyLinkedGroupUpdates(document)
          | kdl::transform([&]() {
              setModificationCount(document);
              return std::move(commandResult);
            })
          | kdl::transform_error([&](auto e) {
              doPerformUndo(document);
-             if (document)
-             {
-               document->error() << e.msg;
-             }
+             document.error() << e.msg;
              return std::make_unique<CommandResult>(false);
            })
          | kdl::value();
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   auto commandResult = UndoableCommand::performUndo(document);
   if (commandResult->success())
   {
-    m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(*document);
+    m_updateLinkedGroupsHelper.undoLinkedGroupUpdates(document);
   }
   return commandResult;
 }
@@ -107,5 +101,4 @@ bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

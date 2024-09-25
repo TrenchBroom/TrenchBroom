@@ -20,6 +20,7 @@
 #include "VertexHandleManager.h"
 
 #include "FloatType.h"
+#include "Model/BrushFace.h"
 #include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -31,11 +32,10 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-VertexHandleManagerBase::~VertexHandleManagerBase() {}
+
+VertexHandleManagerBase::~VertexHandleManagerBase() = default;
 
 const Model::HitType::Type VertexHandleManager::HandleHitType =
   Model::HitType::freeType();
@@ -49,7 +49,7 @@ void VertexHandleManager::pick(
   {
     if (
       const auto distance = camera.pickPointHandle(
-        pickRay, position, static_cast<FloatType>(pref(Preferences::HandleRadius))))
+        pickRay, position, FloatType(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *distance);
       const auto error = vm::squared_distance(pickRay, position).distance;
@@ -60,8 +60,8 @@ void VertexHandleManager::pick(
 
 void VertexHandleManager::addHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushVertex* vertex : brush.vertices())
+  const auto& brush = brushNode->brush();
+  for (const auto* vertex : brush.vertices())
   {
     add(vertex->position());
   }
@@ -69,8 +69,8 @@ void VertexHandleManager::addHandles(const Model::BrushNode* brushNode)
 
 void VertexHandleManager::removeHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushVertex* vertex : brush.vertices())
+  const auto& brush = brushNode->brush();
+  for (const auto* vertex : brush.vertices())
   {
     assertResult(remove(vertex->position()));
   }
@@ -84,7 +84,7 @@ Model::HitType::Type VertexHandleManager::hitType() const
 bool VertexHandleManager::isIncident(
   const Handle& handle, const Model::BrushNode* brushNode) const
 {
-  const Model::Brush& brush = brushNode->brush();
+  const auto& brush = brushNode->brush();
   return brush.hasVertex(handle);
 }
 
@@ -111,8 +111,8 @@ void EdgeHandleManager::pickGridHandle(
             pickRay, *pointHandle, FloatType(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-          pickResult.addHit(Model::Hit(
-            HandleHitType, *pointDist, hitPoint, HitType(position, *pointHandle)));
+          pickResult.addHit(Model::Hit{
+            HandleHitType, *pointDist, hitPoint, HitType{position, *pointHandle}});
         }
       }
     }
@@ -133,27 +133,27 @@ void EdgeHandleManager::pickCenterHandle(
         pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-      pickResult.addHit(Model::Hit(HandleHitType, *pointDist, hitPoint, position));
+      pickResult.addHit(Model::Hit{HandleHitType, *pointDist, hitPoint, position});
     }
   }
 }
 
 void EdgeHandleManager::addHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushEdge* edge : brush.edges())
+  const auto& brush = brushNode->brush();
+  for (const auto* edge : brush.edges())
   {
-    add(vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position()));
+    add(vm::segment3{edge->firstVertex()->position(), edge->secondVertex()->position()});
   }
 }
 
 void EdgeHandleManager::removeHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushEdge* edge : brush.edges())
+  const auto& brush = brushNode->brush();
+  for (const auto* edge : brush.edges())
   {
     assertResult(remove(
-      vm::segment3(edge->firstVertex()->position(), edge->secondVertex()->position())));
+      vm::segment3{edge->firstVertex()->position(), edge->secondVertex()->position()}));
   }
 }
 
@@ -165,7 +165,7 @@ Model::HitType::Type EdgeHandleManager::hitType() const
 bool EdgeHandleManager::isIncident(
   const Handle& handle, const Model::BrushNode* brushNode) const
 {
-  const Model::Brush& brush = brushNode->brush();
+  const auto& brush = brushNode->brush();
   return brush.hasEdge(handle);
 }
 
@@ -193,8 +193,8 @@ void FaceHandleManager::pickGridHandle(
             pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-          pickResult.addHit(Model::Hit(
-            HandleHitType, *pointDist, hitPoint, HitType(position, pointHandle)));
+          pickResult.addHit(Model::Hit{
+            HandleHitType, *pointDist, hitPoint, HitType{position, pointHandle}});
         }
       }
     }
@@ -212,18 +212,18 @@ void FaceHandleManager::pickCenterHandle(
 
     if (
       const auto pointDist = camera.pickPointHandle(
-        pickRay, pointHandle, static_cast<FloatType>(pref(Preferences::HandleRadius))))
+        pickRay, pointHandle, FloatType(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *pointDist);
-      pickResult.addHit(Model::Hit(HandleHitType, *pointDist, hitPoint, position));
+      pickResult.addHit(Model::Hit{HandleHitType, *pointDist, hitPoint, position});
     }
   }
 }
 
 void FaceHandleManager::addHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushFace& face : brush.faces())
+  const auto& brush = brushNode->brush();
+  for (const auto& face : brush.faces())
   {
     add(face.polygon());
   }
@@ -231,8 +231,8 @@ void FaceHandleManager::addHandles(const Model::BrushNode* brushNode)
 
 void FaceHandleManager::removeHandles(const Model::BrushNode* brushNode)
 {
-  const Model::Brush& brush = brushNode->brush();
-  for (const Model::BrushFace& face : brush.faces())
+  const auto& brush = brushNode->brush();
+  for (const auto& face : brush.faces())
   {
     assertResult(remove(face.polygon()));
   }
@@ -246,8 +246,8 @@ Model::HitType::Type FaceHandleManager::hitType() const
 bool FaceHandleManager::isIncident(
   const Handle& handle, const Model::BrushNode* brushNode) const
 {
-  const Model::Brush& brush = brushNode->brush();
+  const auto& brush = brushNode->brush();
   return brush.hasFace(handle);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

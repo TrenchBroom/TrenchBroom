@@ -37,17 +37,11 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-class MapDocument;
 
 SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor(document, parent)
-  , m_scrolledWindow(nullptr)
-  , m_flagsEditor(nullptr)
-  , m_ignoreUpdates(false)
+  : SmartPropertyEditor{std::move(document), parent}
 {
   createGui();
 }
@@ -56,14 +50,14 @@ void SmartFlagsEditor::createGui()
 {
   assert(m_scrolledWindow == nullptr);
 
-  m_scrolledWindow = new QScrollArea();
+  m_scrolledWindow = new QScrollArea{};
 
-  m_flagsEditor = new FlagsEditor(NumCols);
+  m_flagsEditor = new FlagsEditor{NumCols};
   connect(m_flagsEditor, &FlagsEditor::flagChanged, this, &SmartFlagsEditor::flagChanged);
 
   m_scrolledWindow->setWidget(m_flagsEditor);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->addWidget(m_scrolledWindow, 1);
   setLayout(layout);
@@ -72,17 +66,17 @@ void SmartFlagsEditor::createGui()
 void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes)
 {
   assert(!nodes.empty());
-  if (m_ignoreUpdates)
-    return;
+  if (!m_ignoreUpdates)
+  {
+    auto labels = QStringList{};
+    auto tooltips = QStringList{};
+    getFlags(nodes, labels, tooltips);
+    m_flagsEditor->setFlags(labels, tooltips);
 
-  QStringList labels;
-  QStringList tooltips;
-  getFlags(nodes, labels, tooltips);
-  m_flagsEditor->setFlags(labels, tooltips);
-
-  int set, mixed;
-  getFlagValues(nodes, set, mixed);
-  m_flagsEditor->setFlagValue(set, mixed);
+    int set, mixed;
+    getFlagValues(nodes, set, mixed);
+    m_flagsEditor->setFlagValue(set, mixed);
+  }
 }
 
 void SmartFlagsEditor::getFlags(
@@ -90,13 +84,12 @@ void SmartFlagsEditor::getFlags(
   QStringList& labels,
   QStringList& tooltips) const
 {
-  QStringList defaultLabels;
+  auto defaultLabels = QStringList{};
 
   // Initialize the labels and tooltips.
   for (size_t i = 0; i < NumFlags; ++i)
   {
-    QString defaultLabel;
-    defaultLabel = QString::number(1 << i);
+    auto defaultLabel = QString::number(1 << i);
 
     defaultLabels.push_back(defaultLabel);
     labels.push_back(defaultLabel);
@@ -105,21 +98,19 @@ void SmartFlagsEditor::getFlags(
 
   for (size_t i = 0; i < NumFlags; ++i)
   {
-    bool firstPass = true;
-    for (const Model::EntityNodeBase* node : nodes)
+    auto firstPass = true;
+    for (const auto* node : nodes)
     {
-      const int indexI = static_cast<int>(i);
-      QString label = defaultLabels[indexI];
-      QString tooltip = "";
+      const auto indexI = int(i);
+      auto label = defaultLabels[indexI];
+      auto tooltip = QString{""};
 
-      const Assets::FlagsPropertyDefinition* propDef =
-        Assets::EntityDefinition::safeGetFlagsPropertyDefinition(
-          node->entity().definition(), propertyKey());
-      if (propDef != nullptr)
+      if (
+        const auto* propDef = Assets::EntityDefinition::safeGetFlagsPropertyDefinition(
+          node->entity().definition(), propertyKey()))
       {
-        const int flag = static_cast<int>(1 << i);
-        const Assets::FlagsPropertyOption* flagDef = propDef->option(flag);
-        if (flagDef != nullptr)
+        const int flag = int(1 << i);
+        if (const auto* flagDef = propDef->option(flag))
         {
           label = QString::fromStdString(flagDef->shortDescription());
           tooltip = QString::fromStdString(flagDef->longDescription());
@@ -132,13 +123,10 @@ void SmartFlagsEditor::getFlags(
         tooltips[indexI] = tooltip;
         firstPass = false;
       }
-      else
+      else if (labels[indexI] != label)
       {
-        if (labels[indexI] != label)
-        {
-          labels[indexI] = defaultLabels[indexI];
-          tooltips[indexI].clear();
-        }
+        labels[indexI] = defaultLabels[indexI];
+        tooltips[indexI].clear();
       }
     }
   }
@@ -160,7 +148,9 @@ void SmartFlagsEditor::getFlagValues(
   mixedFlags = 0;
 
   while (++it != end)
+  {
     combineFlags(NumFlags, getFlagValue(*it), setFlags, mixedFlags);
+  }
 }
 
 int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* node) const
@@ -169,10 +159,7 @@ int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* node) const
   {
     return kdl::str_to_int(*value).value_or(0);
   }
-  else
-  {
-    return 0;
-  }
+  return 0;
 }
 
 void SmartFlagsEditor::flagChanged(
@@ -181,13 +168,12 @@ void SmartFlagsEditor::flagChanged(
   const int /* setFlag */,
   const int /* mixedFlag */)
 {
-  const std::vector<Model::EntityNodeBase*>& toUpdate = nodes();
-  if (toUpdate.empty())
-    return;
-
-  const bool set = m_flagsEditor->isFlagSet(index);
-  const kdl::set_temp ignoreUpdates(m_ignoreUpdates);
-  document()->updateSpawnflag(propertyKey(), index, set);
+  if (const auto& toUpdate = nodes(); !toUpdate.empty())
+  {
+    const auto ignoreUpdates = kdl::set_temp{m_ignoreUpdates};
+    const auto set = m_flagsEditor->isFlagSet(index);
+    document()->updateSpawnflag(propertyKey(), index, set);
+  }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

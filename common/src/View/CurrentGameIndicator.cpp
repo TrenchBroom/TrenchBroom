@@ -27,10 +27,9 @@
 
 #include <filesystem>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
   : DialogHeader{parent}
 {
@@ -46,5 +45,5 @@ CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget*
   const auto gameIcon = IO::loadPixmapResource(iconPath);
   set(QString::fromStdString(gameName), gameIcon);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

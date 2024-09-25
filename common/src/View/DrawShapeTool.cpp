@@ -19,7 +19,6 @@
 
 #include "DrawShapeTool.h"
 
-#include "Error.h" // IWYU pragma: keep
 #include "FloatType.h"
 #include "Model/Brush.h" // IWYU pragma: keep
 #include "Model/BrushNode.h"

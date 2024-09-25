@@ -29,13 +29,10 @@
 #include "View/Actions.h"
 
 #include <array>
-#include <filesystem>
-#include <iostream>
 #include <tuple>
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 QString escapeString(const QString& str)
@@ -106,42 +103,25 @@ QString toString(const QKeySequence& keySequence)
   return result;
 }
 
-class PrintMenuVisitor : public TrenchBroom::View::MenuVisitor
-{
-private:
-  QTextStream& m_out;
-  QStringList m_path;
-
-public:
-  explicit PrintMenuVisitor(QTextStream& out)
-    : m_out{out}
-  {
-  }
-
-  void visit(const Menu& menu) override
-  {
-    m_path.push_back(QString::fromStdString(menu.name()));
-    menu.visitEntries(*this);
-    m_path.pop_back();
-  }
-
-  void visit(const MenuSeparatorItem&) override {}
-
-  void visit(const MenuActionItem& item) override
-  {
-    m_out << "    '" << IO::pathAsGenericQString(item.action().preferencePath()) << "': ";
-    m_out << "{ path: " << toString(m_path, item.label())
-          << ", shortcut: " << toString(item.action().keySequence()) << " },\n";
-  }
-};
-
 void printMenuShortcuts(QTextStream& out)
 {
   out << "const menu = {\n";
 
+  auto currentPath = QStringList{};
   const auto& actionManager = ActionManager::instance();
-  auto visitor = PrintMenuVisitor{out};
-  actionManager.visitMainMenu(visitor);
+  actionManager.visitMainMenu(kdl::overload(
+    [](const MenuSeparator&) {},
+    [&](const MenuAction& actionItem) {
+      out << "    '" << IO::pathAsGenericQString(actionItem.action.preferencePath())
+          << "': "
+          << "{ path: " << toString(currentPath, actionItem.action.label())
+          << ", shortcut: " << toString(actionItem.action.keySequence()) << " },\n";
+    },
+    [&](const auto& thisLambda, const Menu& menu) {
+      currentPath.push_back(QString::fromStdString(menu.name));
+      menu.visitEntries(thisLambda);
+      currentPath.pop_back();
+    }));
 
   out << "};\n";
 }
@@ -155,29 +135,13 @@ void printActionShortcuts(QTextStream& out)
     out << toString(keySequence) << ",\n";
   };
 
-  class ToolbarVisitor : public MenuVisitor
-  {
-  public:
-    std::vector<const Action*> toolbarActions;
-
-    void visit(const Menu& menu) override { menu.visitEntries(*this); }
-
-    void visit(const MenuSeparatorItem&) override {}
-
-    void visit(const MenuActionItem& item) override
-    {
-      const auto* tAction = &item.action();
-      toolbarActions.push_back(tAction);
-    }
-  };
-
   const auto& actionManager = ActionManager::instance();
-  auto visitor = ToolbarVisitor{};
-  actionManager.visitToolBarActions(visitor);
-  for (const auto* action : visitor.toolbarActions)
-  {
-    printPref(action->preferencePath(), action->keySequence());
-  }
+  actionManager.visitToolBar(kdl::overload(
+    [](const MenuSeparator&) {},
+    [&](const MenuAction& actionItem) {
+      printPref(actionItem.action.preferencePath(), actionItem.action.keySequence());
+    },
+    [&](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); }));
   actionManager.visitMapViewActions([&](const auto& action) {
     printPref(action.preferencePath(), action.keySequence());
   });
@@ -198,12 +162,6 @@ extern void qt_set_sequence_auto_mnemonic(bool b);
 
 int main(int argc, char* argv[])
 {
-  if (argc != 2)
-  {
-    std::cout << "Usage: dump-shortcuts <path-to-output-file>\n";
-    return 1;
-  }
-
   QSettings::setDefaultFormat(QSettings::IniFormat);
 
   // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the
@@ -212,18 +170,7 @@ int main(int argc, char* argv[])
   // TB, so we can't have shortcuts randomly activating.
   qt_set_sequence_auto_mnemonic(false);
 
-  const auto path = QString{argv[1]};
-  auto file = QFile{path};
-  const auto fileInfo = QFileInfo{file.fileName()};
-  const auto absPath = fileInfo.absoluteFilePath().toStdString();
-
-  if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-  { // QIODevice::WriteOnly implies truncate, which we want
-    std::cout << "Could not open output file for writing: " << absPath << "\n";
-    return 1;
-  }
-
-  auto out = QTextStream{&file};
+  auto out = QTextStream{stdout};
   out.setCodec("UTF-8");
 
   TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();

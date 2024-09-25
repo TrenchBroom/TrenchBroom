@@ -25,7 +25,6 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"

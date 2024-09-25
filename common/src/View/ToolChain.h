@@ -83,4 +83,5 @@ private:
   bool checkInvariant() const;
   bool chainEndsHere() const;
 };
+
 } // namespace TrenchBroom::View

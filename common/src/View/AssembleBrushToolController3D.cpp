@@ -52,6 +52,7 @@ namespace TrenchBroom::View
 {
 namespace
 {
+
 class Part
 {
 protected:

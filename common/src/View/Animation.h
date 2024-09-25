@@ -28,10 +28,9 @@
 
 class QTimer;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class AnimationCurve
 {
 public:
@@ -54,7 +53,7 @@ private:
   double m_threshold;
 
 public:
-  EaseInEaseOutAnimationCurve(double duration);
+  explicit EaseInEaseOutAnimationCurve(double duration);
   double doApply(double progress) const override;
 };
 
@@ -75,8 +74,8 @@ private:
   std::unique_ptr<AnimationCurve> m_curve;
 
   const double m_duration;
-  double m_elapsed;
-  double m_progress;
+  double m_elapsed = 0.0;
+  double m_progress = 0.0;
 
 public:
   static Type freeType();
@@ -120,5 +119,4 @@ public:
 private:
   void onTimerTick();
 };
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

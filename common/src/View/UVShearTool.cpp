@@ -38,7 +38,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 

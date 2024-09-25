@@ -206,4 +206,5 @@ private:
 signals:
   void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
 };
+
 } // namespace TrenchBroom::View

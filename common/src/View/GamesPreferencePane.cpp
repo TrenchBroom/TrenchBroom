@@ -47,6 +47,7 @@
 
 namespace TrenchBroom::View
 {
+
 GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
   : PreferencePane{parent}
   , m_document{document}
@@ -119,14 +120,14 @@ void GamesPreferencePane::showUserConfigDirClicked()
   });
 }
 
-bool GamesPreferencePane::doCanResetToDefaults()
+bool GamesPreferencePane::canResetToDefaults()
 {
   return false;
 }
 
 void GamesPreferencePane::doResetToDefaults() {}
 
-void GamesPreferencePane::doUpdateControls()
+void GamesPreferencePane::updateControls()
 {
   m_gameListBox->updateGameInfos();
 
@@ -157,7 +158,7 @@ void GamesPreferencePane::doUpdateControls()
   }
 }
 
-bool GamesPreferencePane::doValidate()
+bool GamesPreferencePane::validate()
 {
   return true;
 }

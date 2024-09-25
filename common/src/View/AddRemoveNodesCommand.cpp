@@ -20,20 +20,15 @@
 #include "AddRemoveNodesCommand.h"
 
 #include "Ensure.h"
-#include "Error.h"
 #include "Macros.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include "kdl/map_utils.h"
 
-#include <map>
-#include <vector>
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   Model::Node* parent, const std::vector<Model::Node*>& children)
 {
@@ -91,28 +86,28 @@ std::string AddRemoveNodesCommand::makeName(const Action action)
 }
 
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   doAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   undoAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade* document)
+void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
 {
   switch (m_action)
   {
   case Action::Add:
-    document->performAddNodes(m_nodesToAdd);
+    document.performAddNodes(m_nodesToAdd);
     break;
   case Action::Remove:
-    document->performRemoveNodes(m_nodesToRemove);
+    document.performRemoveNodes(m_nodesToRemove);
     break;
   }
 
@@ -120,20 +115,20 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade* document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade* document)
+void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
 {
   switch (m_action)
   {
   case Action::Add:
-    document->performRemoveNodes(m_nodesToRemove);
+    document.performRemoveNodes(m_nodesToRemove);
     break;
   case Action::Remove:
-    document->performAddNodes(m_nodesToAdd);
+    document.performAddNodes(m_nodesToAdd);
     break;
   }
 
   using std::swap;
   swap(m_nodesToAdd, m_nodesToRemove);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

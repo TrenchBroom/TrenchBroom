@@ -29,9 +29,7 @@ class QHBoxLayout;
 class QLabel;
 class QStackedLayout;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class TabBook;
 class TabBookPage;
@@ -40,9 +38,9 @@ class TabBarButton : public QWidget
 {
   Q_OBJECT
 private:
-  QLabel* m_label;
-  QWidget* m_indicator;
-  bool m_pressed;
+  QLabel* m_label = nullptr;
+  QWidget* m_indicator = nullptr;
+  bool m_pressed = false;
 
 public:
   explicit TabBarButton(const QString& label = "", QWidget* parent = nullptr);
@@ -65,13 +63,11 @@ class TabBar : public ContainerBar
 {
   Q_OBJECT
 private:
-  using ButtonList = std::vector<TabBarButton*>;
+  TabBook* m_tabBook = nullptr;
 
-  TabBook* m_tabBook;
-
-  QStackedLayout* m_barBook;
-  QHBoxLayout* m_controlLayout;
-  ButtonList m_buttons;
+  QStackedLayout* m_barBook = nullptr;
+  QHBoxLayout* m_controlLayout = nullptr;
+  std::vector<TabBarButton*> m_buttons;
 
 public:
   explicit TabBar(TabBook* tabBook);
@@ -85,5 +81,5 @@ private:
   void buttonClicked();
   void tabBookPageChanged(int newIndex);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

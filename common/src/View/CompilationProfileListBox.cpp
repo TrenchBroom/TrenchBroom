@@ -26,9 +26,7 @@
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // CompilationProfileItemRenderer
 
@@ -100,5 +98,5 @@ ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
     });
   return renderer;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

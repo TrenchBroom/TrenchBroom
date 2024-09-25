@@ -24,15 +24,12 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
-#include "vm/polygon.h"
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
-  : VertexToolBase(document)
-  , m_edgeHandles(std::make_unique<EdgeHandleManager>())
+  : VertexToolBase{std::move(document)}
+  , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
 {
 }
 
@@ -101,5 +98,5 @@ void EdgeTool::removeSelection()
     kdl::str_plural(handles.size(), "Remove Brush Edge", "Remove Brush Edges");
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

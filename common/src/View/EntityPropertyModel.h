@@ -27,17 +27,14 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <tuple>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -75,6 +72,12 @@ enum class PropertyProtection
 std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs);
 
 /**
+ * Suggests a new, unused property name of the form "property X".
+ */
+std::string newPropertyKeyForEntityNodes(
+  const std::vector<Model::EntityNodeBase*>& nodes);
+
+/**
  * Viewmodel (as in MVVM) for a single row in the table
  */
 class PropertyRow
@@ -104,22 +107,6 @@ public:
   bool isDefault() const;
   bool multi() const;
   bool subset() const;
-
-  static PropertyRow rowForEntityNodes(
-    const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes);
-  static std::vector<std::string> allKeys(
-    const std::vector<Model::EntityNodeBase*>& nodes,
-    bool showDefaultRows,
-    bool showPreservedProperties);
-  static std::map<std::string, PropertyRow> rowsForEntityNodes(
-    const std::vector<Model::EntityNodeBase*>& nodes,
-    bool showDefaultRows,
-    bool showPreservedProperties);
-  /**
-   * Suggests a new, unused property name of the form "property X".
-   */
-  static std::string newPropertyKeyForEntityNodes(
-    const std::vector<Model::EntityNodeBase*>& nodes);
 
   kdl_reflect_decl(
     PropertyRow,
@@ -219,5 +206,5 @@ public: // EntityPropertyGrid helpers
    */
   bool lessThan(size_t rowIndexA, size_t rowIndexB) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

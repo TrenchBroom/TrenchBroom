@@ -27,7 +27,6 @@ class QSplitter;
 
 namespace TrenchBroom::View
 {
-
 class EntityBrowser;
 class EntityPropertyEditor;
 class GLContextManager;

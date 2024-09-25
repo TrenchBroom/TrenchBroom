@@ -21,8 +21,6 @@
 
 #include <QVBoxLayout>
 
-#include "View/BorderLine.h"
-#include "View/CollapsibleTitledPanel.h"
 #include "View/EntityBrowser.h"
 #include "View/EntityDefinitionFileChooser.h"
 #include "View/EntityPropertyEditor.h"

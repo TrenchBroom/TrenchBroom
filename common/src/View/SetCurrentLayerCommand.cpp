@@ -21,10 +21,9 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(
   Model::LayerNode* layer)
 {
@@ -32,23 +31,22 @@ std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(
 }
 
 SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer)
-  : UndoableCommand("Set Current Layer", false)
-  , m_currentLayer(layer)
-  , m_oldCurrentLayer(nullptr)
+  : UndoableCommand{"Set Current Layer", false}
+  , m_currentLayer{layer}
 {
 }
 
 std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  m_oldCurrentLayer = document->performSetCurrentLayer(m_currentLayer);
+  m_oldCurrentLayer = document.performSetCurrentLayer(m_currentLayer);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SetCurrentLayerCommand::doPerformUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  document->performSetCurrentLayer(m_oldCurrentLayer);
+  document.performSetCurrentLayer(m_oldCurrentLayer);
   return std::make_unique<CommandResult>(true);
 }
 
@@ -61,5 +59,5 @@ bool SetCurrentLayerCommand::doCollateWith(UndoableCommand& command)
   }
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

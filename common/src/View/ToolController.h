@@ -24,12 +24,10 @@
 
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace TrenchBroom::Model
 {
 class Hit;
-class HitQuery;
 class PickResult;
 } // namespace TrenchBroom::Model
 
@@ -129,4 +127,5 @@ private: // subclassing interface
   virtual bool doShouldAcceptDrop(
     const InputState& inputState, const std::string& payload) const;
 };
+
 } // namespace TrenchBroom::View

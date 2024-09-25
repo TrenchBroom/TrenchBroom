@@ -27,7 +27,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
 #include "vm/vec.h"
 
 #include <functional>
@@ -525,4 +524,5 @@ HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid);
  */
 HandlePositionProposer makeHandlePositionProposer(
   DragHandlePicker pickHandlePosition, DragHandleSnapper snapHandlePosition);
+
 } // namespace TrenchBroom::View

@@ -28,14 +28,14 @@
 class QModelIndex;
 class QVariant;
 
-namespace TrenchBroom
-{
-namespace EL
+namespace TrenchBroom::EL
 {
 class VariableStore;
 }
-namespace View
+
+namespace TrenchBroom::View
 {
+
 class VariableStoreModel : public QAbstractListModel
 {
   Q_OBJECT
@@ -50,5 +50,5 @@ public:
   int rowCount(const QModelIndex& parent) const override;
   QVariant data(const QModelIndex& index, int role) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

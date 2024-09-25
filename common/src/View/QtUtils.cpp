@@ -63,9 +63,7 @@
 #include <QDesktopWidget>
 #endif
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 
 SyncHeightEventFilter::SyncHeightEventFilter(
@@ -189,7 +187,7 @@ bool widgetOrChildHasFocus(const QWidget* widget)
   ensure(widget != nullptr, "widget must not be null");
 
   const auto* currentWidget = static_cast<QObject*>(QApplication::focusWidget());
-  while (currentWidget != nullptr)
+  while (currentWidget)
   {
     if (currentWidget == widget)
     {
@@ -324,11 +322,11 @@ QWidget* makeUnselected(QWidget* widget, const QPalette& defaultPalette)
 
 Color fromQColor(const QColor& color)
 {
-  return Color(
+  return {
     static_cast<float>(color.redF()),
     static_cast<float>(color.greenF()),
     static_cast<float>(color.blueF()),
-    static_cast<float>(color.alphaF()));
+    static_cast<float>(color.alphaF())};
 }
 
 QColor toQColor(const Color& color)
@@ -426,7 +424,7 @@ QLayout* wrapDialogButtonBox(QWidget* buttonBox)
   auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  outerLayout->addWidget(new BorderLine{});
   outerLayout->addLayout(innerLayout);
 
   return outerLayout;
@@ -446,7 +444,7 @@ QLayout* wrapDialogButtonBox(QLayout* buttonBox)
   auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(QMargins{});
   outerLayout->setSpacing(0);
-  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  outerLayout->addWidget(new BorderLine{});
   outerLayout->addLayout(innerLayout);
 
   return outerLayout;
@@ -625,5 +623,5 @@ QString nativeModifierLabel(const int modifier)
 
   return nativeLabel;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

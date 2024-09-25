@@ -19,16 +19,13 @@
 
 #include "ClipTool.h"
 
-#include "Error.h"
 #include "FloatType.h"
-#include "Macros.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -37,17 +34,17 @@
 #include "Renderer/RenderService.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
+#include "View/Transaction.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 #include "kdl/set_temp.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>

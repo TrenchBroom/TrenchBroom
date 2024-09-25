@@ -19,15 +19,13 @@
 
 #include "UpdateLinkedGroupsHelper.h"
 
-#include "Error.h"
 #include "Model/GroupNode.h"
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
-#include "Model/Node.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include "kdl/overload.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
@@ -35,6 +33,7 @@
 #include <algorithm>
 #include <cassert>
 #include <map>
+#include <ranges>
 #include <unordered_set>
 
 namespace TrenchBroom::View
@@ -52,11 +51,12 @@ auto compareByAncestry(const Model::GroupNode* lhs, const Model::GroupNode* rhs)
 
 bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups)
 {
-  const auto linkedGroupIds = kdl::vec_sort(kdl::vec_transform(
-    changedLinkedGroups, [](const auto* groupNode) { return groupNode->linkId(); }));
+  const auto linkedGroupIds = kdl::vec_sort(
+    changedLinkedGroups
+    | std::views::transform([](const auto* groupNode) { return groupNode->linkId(); })
+    | kdl::to_vector);
 
-  return std::adjacent_find(std::begin(linkedGroupIds), std::end(linkedGroupIds))
-         == std::end(linkedGroupIds);
+  return std::ranges::adjacent_find(linkedGroupIds) == std::end(linkedGroupIds);
 }
 
 UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
@@ -89,26 +89,25 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   // Let p_o be an update from the other helper. If p_o is an update for a linked group
   // node that was updated by this helper, then there is a pair p_t in this helper such
   // that p_t.first == p_o.first. In this case, we want to keep the old children of the
-  // linked group node stored in this helper and discard those in the other helper. If p_o
-  // is not an update for a linked group node that was updated by this helper, then we
-  // will add p_o to our updates and remove it from the other helper's updates to prevent
-  // the replaced node to be deleted with the other helper.
+  // linked group node stored in this helper and discard those in the other helper. If
+  // p_o is not an update for a linked group node that was updated by this helper, then
+  // we will add p_o to our updates and remove it from the other helper's updates to
+  // prevent the replaced node to be deleted with the other helper.
 
   auto& myLinkedGroupUpdates = std::get<LinkedGroupUpdates>(m_state);
   auto& theirLinkedGroupUpdates = std::get<LinkedGroupUpdates>(other.m_state);
 
-  for (auto& [theirGroupNodeToUpdate, theirOldChildren] : theirLinkedGroupUpdates)
+  for (auto& [theirGroupNodeToUpdate_, theirOldChildren] : theirLinkedGroupUpdates)
   {
-    const auto myIt = std::find_if(
-      std::begin(myLinkedGroupUpdates),
-      std::end(myLinkedGroupUpdates),
-      [theirGroupNodeToUpdate = theirGroupNodeToUpdate](const auto& p) {
+    const auto myIt = std::ranges::find_if(
+      myLinkedGroupUpdates,
+      [theirGroupNodeToUpdate = theirGroupNodeToUpdate_](const auto& p) {
         return p.first == theirGroupNodeToUpdate;
       });
     if (myIt == std::end(myLinkedGroupUpdates))
     {
       myLinkedGroupUpdates.emplace_back(
-        theirGroupNodeToUpdate, std::move(theirOldChildren));
+        theirGroupNodeToUpdate_, std::move(theirOldChildren));
     }
   }
 }
@@ -139,16 +138,13 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   }
 
   const auto& worldBounds = document.worldBounds();
-  return kdl::vec_transform(
-           changedLinkedGroups,
-           [&](const auto* groupNode) {
-             const auto groupNodesToUpdate = kdl::vec_erase(
-               Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
-               groupNode);
+  return changedLinkedGroups | std::views::transform([&](const auto* groupNode) {
+           const auto groupNodesToUpdate = kdl::vec_erase(
+             Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
+             groupNode);
 
-             return Model::updateLinkedGroups(
-               *groupNode, groupNodesToUpdate, worldBounds);
-           })
+           return Model::updateLinkedGroups(*groupNode, groupNodesToUpdate, worldBounds);
+         })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {
              return kdl::vec_flatten(std::move(nestedUpdateLists));
@@ -166,4 +162,5 @@ void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(
       }),
     std::move(m_state));
 }
+
 } // namespace TrenchBroom::View

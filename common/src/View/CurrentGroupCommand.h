@@ -24,14 +24,12 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class GroupNode;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CurrentGroupCommand : public UndoableCommand
 {
@@ -45,11 +43,11 @@ public:
   explicit CurrentGroupCommand(Model::GroupNode* group);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
   deleteCopyAndMove(CurrentGroupCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

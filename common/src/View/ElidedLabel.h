@@ -24,14 +24,13 @@
 
 class QLabel;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ElidedLabel : public QWidget
 {
 private:
-  QLabel* m_label;
+  QLabel* m_label = nullptr;
   Qt::TextElideMode m_elideMode;
   QString m_fullText;
   QString m_elidedText;
@@ -54,5 +53,5 @@ public:
 protected:
   void resizeEvent(QResizeEvent* event) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

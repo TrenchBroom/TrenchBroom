@@ -28,9 +28,7 @@ class QString;
 class QWidget;
 class QScrollArea;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class FlagsEditor;
 class MapDocument;
@@ -42,9 +40,9 @@ private:
   static const size_t NumFlags = 24;
   static const size_t NumCols = 3;
 
-  QScrollArea* m_scrolledWindow;
-  FlagsEditor* m_flagsEditor;
-  bool m_ignoreUpdates;
+  QScrollArea* m_scrolledWindow = nullptr;
+  FlagsEditor* m_flagsEditor = nullptr;
+  bool m_ignoreUpdates = false;
 
 public:
   explicit SmartFlagsEditor(
@@ -67,5 +65,5 @@ private:
 
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

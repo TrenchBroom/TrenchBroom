@@ -31,7 +31,6 @@
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
 
-#include <algorithm>
 #include <tuple>
 #include <vector>
 
@@ -248,7 +247,7 @@ void MousePreferencePane::bindEvents()
     &MousePreferencePane::flyMoveSpeedChanged);
 }
 
-bool MousePreferencePane::doCanResetToDefaults()
+bool MousePreferencePane::canResetToDefaults()
 {
   return true;
 }
@@ -280,7 +279,7 @@ void MousePreferencePane::doResetToDefaults()
   prefs.resetToDefault(Preferences::CameraFlyMoveSpeed);
 }
 
-void MousePreferencePane::doUpdateControls()
+void MousePreferencePane::updateControls()
 {
   m_lookSpeedSlider->setRatio(pref(Preferences::CameraLookSpeed));
   m_invertLookHAxisCheckBox->setChecked(pref(Preferences::CameraLookInvertH));
@@ -309,7 +308,7 @@ void MousePreferencePane::doUpdateControls()
   updateConflicts();
 }
 
-bool MousePreferencePane::doValidate()
+bool MousePreferencePane::validate()
 {
   return true;
 }

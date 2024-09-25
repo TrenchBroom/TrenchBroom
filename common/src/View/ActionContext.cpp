@@ -24,10 +24,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 bool actionContextMatches(ActionContext::Type lhs, ActionContext::Type rhs)
 {
   return actionContextMatches(lhs, rhs, ActionContext::AnyView)
@@ -124,5 +123,5 @@ std::string actionContextName(const ActionContext::Type actionContext)
 
   return kdl::str_join(actionContexts, ", ");
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

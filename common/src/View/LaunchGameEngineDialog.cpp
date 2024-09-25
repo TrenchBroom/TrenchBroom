@@ -30,7 +30,6 @@
 #include "EL/EvaluationContext.h"
 #include "EL/Interpolator.h"
 #include "IO/PathQt.h"
-#include "Model/Game.h"
 #include "Model/GameConfig.h"
 #include "Model/GameEngineProfile.h"
 #include "Model/GameFactory.h"
@@ -50,10 +49,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 LaunchGameEngineDialog::LaunchGameEngineDialog(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QDialog{parent}
@@ -132,7 +130,7 @@ void LaunchGameEngineDialog::createGui()
   outerLayout->setContentsMargins(0, 0, 0, 0);
   outerLayout->setSpacing(0);
   outerLayout->addWidget(gameIndicator);
-  outerLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  outerLayout->addWidget(new BorderLine{});
   outerLayout->addWidget(midPanel, 1);
   outerLayout->addLayout(wrapDialogButtonBox(buttonBox));
 
@@ -262,7 +260,7 @@ void LaunchGameEngineDialog::launchEngine()
 
     if (!QProcess::startDetached("/usr/bin/open", arguments, workDir))
     {
-      throw Exception("Unknown error");
+      throw Exception{"Unknown error"};
     }
 #else
     const auto commandAndArgs = QString::fromLatin1("\"%1\" %2")
@@ -276,7 +274,7 @@ void LaunchGameEngineDialog::launchEngine()
 
     if (!success)
     {
-      throw Exception("Unknown error");
+      throw Exception{"Unknown error"};
     }
 #endif
 
@@ -304,5 +302,5 @@ void LaunchGameEngineDialog::saveConfig()
   auto& gameFactory = Model::GameFactory::instance();
   gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

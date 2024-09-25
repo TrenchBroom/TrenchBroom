@@ -25,10 +25,41 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
+class UVCameraToolDragTracker : public GestureTracker
+{
+private:
+  Renderer::Camera& m_camera;
+
+public:
+  explicit UVCameraToolDragTracker(Renderer::Camera& camera)
+    : m_camera{camera}
+  {
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    const auto oldX = inputState.mouseX() - inputState.mouseDX();
+    const auto oldY = inputState.mouseY() - inputState.mouseDY();
+
+    const auto oldWorldPos = m_camera.unproject(float(oldX), float(oldY), 0.0f);
+    const auto newWorldPos =
+      m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
+    const auto delta = oldWorldPos - newWorldPos;
+    m_camera.moveBy(delta);
+    return true;
+  }
+
+  void end(const InputState&) override {}
+  void cancel() override {}
+};
+
+} // namespace
+
 UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
@@ -51,7 +82,7 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
   const auto oldWorldPos =
     m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
 
-  // NOTE: some events will have scrollY() == 0, and have horizontal scorlling. We only
+  // NOTE: some events will have scrollY() == 0, and have horizontal scrolling. We only
   // care about scrollY().
 
   if (inputState.scrollY() > 0)
@@ -76,37 +107,6 @@ void UVCameraTool::mouseScroll(const InputState& inputState)
   m_camera.moveBy(delta);
 }
 
-namespace
-{
-class UVCameraToolDragTracker : public GestureTracker
-{
-private:
-  Renderer::Camera& m_camera;
-
-public:
-  UVCameraToolDragTracker(Renderer::Camera& camera)
-    : m_camera{camera}
-  {
-  }
-
-  bool update(const InputState& inputState)
-  {
-    const auto oldX = inputState.mouseX() - inputState.mouseDX();
-    const auto oldY = inputState.mouseY() - inputState.mouseDY();
-
-    const auto oldWorldPos = m_camera.unproject(float(oldX), float(oldY), 0.0f);
-    const auto newWorldPos =
-      m_camera.unproject(float(inputState.mouseX()), float(inputState.mouseY()), 0.0f);
-    const auto delta = oldWorldPos - newWorldPos;
-    m_camera.moveBy(delta);
-    return true;
-  }
-
-  void end(const InputState&) {}
-  void cancel() {}
-};
-} // namespace
-
 std::unique_ptr<GestureTracker> UVCameraTool::acceptMouseDrag(
   const InputState& inputState)
 {
@@ -124,5 +124,4 @@ bool UVCameraTool::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

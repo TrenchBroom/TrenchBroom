@@ -46,7 +46,7 @@ public:
    * Creates a new instance that contains one connection to the given notifier with the
    * given id.
    */
-  NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, const size_t id);
+  NotifierConnection(std::weak_ptr<NotifierStateBase> notifier, size_t id);
 
   NotifierConnection(const NotifierConnection&) = delete;
   NotifierConnection(NotifierConnection&&) noexcept;
@@ -70,4 +70,5 @@ public:
    */
   void disconnect();
 };
+
 } // namespace TrenchBroom

@@ -25,15 +25,14 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class ControlListBoxItemRenderer : public QWidget
 {
   Q_OBJECT
 protected:
-  size_t m_index;
+  size_t m_index = 0;
 
 public:
   explicit ControlListBoxItemRenderer(QWidget* parent = nullptr);
@@ -132,5 +131,5 @@ private slots:
 signals:
   void itemSelectionChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

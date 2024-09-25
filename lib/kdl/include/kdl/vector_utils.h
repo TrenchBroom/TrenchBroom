@@ -26,9 +26,8 @@
 // splitting this up further
 #include <algorithm> // for std::sort, std::unique, std::find, std::find_if, std::remove, std::remove_if
 #include <cassert>
-#include <functional> // for std::less
-#include <iterator>   // std::back_inserter
-#include <optional>
+#include <functional>  // for std::less
+#include <iterator>    // std::back_inserter
 #include <type_traits> // for std::less
 #include <vector>
 
@@ -238,56 +237,6 @@ std::vector<O> vec_static_cast(std::vector<T, A> v)
  * @tparam P the predicate type
  * @param v the vector to check
  * @param p the predicate
- * @return the smallest index at which the given predicate is satisfied in the given
- * vector or an empty optional if the given vector does not contain such a value
- */
-template <
-  typename T,
-  typename A,
-  typename P,
-  typename std::enable_if_t<std::is_invocable_r_v<bool, P, const T&>>* = nullptr>
-std::optional<typename std::vector<T, A>::size_type> vec_index_of(
-  const std::vector<T, A>& v, P&& p)
-{
-  using IndexType = typename std::vector<T, A>::size_type;
-  for (IndexType i = 0; i < v.size(); ++i)
-  {
-    if (p(v[i]))
-    {
-      return i;
-    }
-  }
-  return std::nullopt;
-}
-
-/**
- * Finds the smallest index at which the given value is found in the given vector. If the
- * given vector does not contain the given value, the size of the vector is returned.
- *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam X the value type
- * @param v the vector to check
- * @param x the value to find
- * @return the smallest index at which the given value is found in the given vector or the
- * vector's size if the given vector does not contain the given value
- */
-template <typename T, typename A, typename X>
-std::optional<typename std::vector<T, A>::size_type> vec_index_of(
-  const std::vector<T, A>& v, const X& x)
-{
-  return vec_index_of(v, [&](const auto& e) { return e == x; });
-}
-
-/**
- * Finds the smallest index at which the given predicate is satisified in the given
- * vector. If the given vector does not such a value, an empty optional is returned.
- *
- * @tparam T the type of the vector elements
- * @tparam A the vector's allocator type
- * @tparam P the predicate type
- * @param v the vector to check
- * @param p the predicate
  * @return true if the given vector contains an element that satisfies the given predicate
  */
 template <
@@ -297,7 +246,7 @@ template <
   typename std::enable_if_t<std::is_invocable_r_v<bool, P, const T&>>* = nullptr>
 bool vec_contains(const std::vector<T, A>& v, P&& p)
 {
-  return vec_index_of(v, std::forward<P>(p)).has_value();
+  return std::find_if(v.begin(), v.end(), p) != v.end();
 }
 
 /**
@@ -313,7 +262,7 @@ bool vec_contains(const std::vector<T, A>& v, P&& p)
 template <typename T, typename A, typename X>
 bool vec_contains(const std::vector<T, A>& v, const X& x)
 {
-  return vec_index_of(v, x).has_value();
+  return std::find(v.begin(), v.end(), x) != v.end();
 }
 
 namespace detail

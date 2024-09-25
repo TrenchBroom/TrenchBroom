@@ -30,12 +30,12 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CompilationProfileManager::CompilationProfileManager(
   std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent)
   : QWidget{parent}
@@ -58,7 +58,7 @@ CompilationProfileManager::CompilationProfileManager(
   listLayout->setContentsMargins(0, 0, 0, 0);
   listLayout->setSpacing(0);
   listLayout->addWidget(m_profileList, 1);
-  listLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  listLayout->addWidget(new BorderLine{});
   listLayout->addLayout(buttonLayout);
   listPanel->getPanel()->setLayout(listLayout);
 
@@ -149,7 +149,7 @@ void CompilationProfileManager::removeProfile(const size_t index)
 
 void CompilationProfileManager::removeProfile(const Model::CompilationProfile& profile)
 {
-  const auto index = kdl::vec_index_of(m_config.profiles, profile);
+  const auto index = kdl::index_of(m_config.profiles, profile);
   removeProfile(*index);
 }
 
@@ -186,5 +186,5 @@ void CompilationProfileManager::profileSelectionChanged()
 
   emit selectedProfileChanged();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -21,20 +21,19 @@
 
 #include "FloatType.h"
 
-#include "vm/bbox.h"
-#include "vm/plane.h"
+#include "vm/bbox.h"  // IWYU pragma : keep
+#include "vm/plane.h" // IWYU pragma : keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class Lasso
 {
 private:
@@ -81,5 +80,5 @@ private:
   vm::mat4x4 getTransform() const;
   vm::bbox2 getBox(const vm::mat4x4& transform) const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -25,10 +25,9 @@
 
 #include "vm/util.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Preferences
 {
-namespace Preferences
-{
+
 Preference<int> MapViewLayout(
   "Views/Map view layout", static_cast<int>(View::MapViewLayout::OnePane));
 
@@ -486,5 +485,5 @@ const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns()
     &EntitiesCreate};
   return list;
 }
-} // namespace Preferences
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Preferences

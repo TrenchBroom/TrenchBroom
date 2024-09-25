@@ -19,7 +19,6 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/WorldReader.h"
 #include "MapDocumentTest.h"
@@ -147,7 +146,8 @@ TEST_CASE("MapDocumentTest.detectEmptyMap")
     "fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map",
     "Quake",
     Model::MapFormat::Unknown);
-  // an empty map detects as Valve because Valve is listed first in the Quake game config
+  // an empty map detects as Valve because Valve is listed first in the Quake game
+  // config
   CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
   CHECK(document->world()->defaultLayer()->childCount() == 0);
 }

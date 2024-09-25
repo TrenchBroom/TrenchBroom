@@ -22,7 +22,6 @@
 #include <QDialog>
 
 #include <filesystem>
-#include <optional>
 
 class QRadioButton;
 class QWidget;

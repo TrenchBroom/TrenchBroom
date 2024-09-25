@@ -32,8 +32,7 @@
 namespace TrenchBroom::View
 {
 ColorModel::ColorModel(QObject* parent)
-  : QAbstractTableModel(parent)
-  , m_colorsCount(0)
+  : QAbstractTableModel{parent}
 {
   initialize();
 }
@@ -82,23 +81,23 @@ QVariant ColorModel::headerData(
     switch (section)
     {
     case 0:
-      return QString("Color");
+      return QString{tr("Color")};
     case 1:
-      return QString("Context");
+      return QString{tr("Context")};
     case 2:
-      return QString("Description");
+      return QString{tr("Description")};
       switchDefault();
     }
   }
 
-  return QVariant();
+  return {};
 }
 
 QVariant ColorModel::data(const QModelIndex& index, const int role) const
 {
   if (!checkIndex(index))
   {
-    return QVariant();
+    return {};
   }
 
   if (role == Qt::DisplayRole)
@@ -108,7 +107,7 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     switch (index.column())
     {
     case 0:
-      return QVariant(); // Leave first cell empty
+      return {}; // Leave first cell empty
     case 1:
       return QString::fromStdString(kdl::path_front(colorPreference->path()).string());
     case 2:
@@ -125,10 +124,10 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     auto color = toQColor(pref(*colorPreference));
     color.setAlpha(255); // Ignore alpha
 
-    return QBrush(color);
+    return QBrush{color};
   }
 
-  return QVariant();
+  return {};
 }
 
 bool ColorModel::setData(
@@ -164,26 +163,24 @@ Qt::ItemFlags ColorModel::flags(const QModelIndex& index) const
 
 void ColorModel::pickColor(const QModelIndex& mi)
 {
-  if (!checkIndex(mi))
+  if (checkIndex(mi))
   {
-    return;
-  }
+    // Get current color
+    auto* colorPreference = getColorPreference(mi.row());
+    auto color = toQColor(pref(*colorPreference));
 
-  // Get current color
-  auto* colorPreference = getColorPreference(mi.row());
-  auto color = toQColor(pref(*colorPreference));
+    // Show dialog
+    auto newColor = QColorDialog::getColor(
+      color, nullptr, "Select new color", QColorDialog::DontUseNativeDialog);
 
-  // Show dialog
-  auto newColor = QColorDialog::getColor(
-    color, nullptr, "Select new color", QColorDialog::DontUseNativeDialog);
-
-  // Apply color (QColorDialog::getColor() returns an invalid color if the user cancels
-  // the dialog)
-  if (newColor.isValid())
-  {
-    // pickColor() can be called for column 1 or 2 if the user double-clicks those
-    // columns, but we always edit column 0 (where the color is displayed)
-    setData(index(mi.row(), 0), newColor, Qt::EditRole);
+    // Apply color (QColorDialog::getColor() returns an invalid color if the user cancels
+    // the dialog)
+    if (newColor.isValid())
+    {
+      // pickColor() can be called for column 1 or 2 if the user double-clicks those
+      // columns, but we always edit column 0 (where the color is displayed)
+      setData(index(mi.row(), 0), newColor, Qt::EditRole);
+    }
   }
 }
 
@@ -197,4 +194,5 @@ bool ColorModel::checkIndex(const QModelIndex& index) const
 {
   return index.isValid() && index.column() < 3 && index.row() < m_colorsCount;
 }
+
 } // namespace TrenchBroom::View

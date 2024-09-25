@@ -20,33 +20,29 @@
 #pragma once
 
 #include "Macros.h"
-#include "Model/NodeContents.h"
 #include "View/UpdateLinkedGroupsCommandBase.h"
 
-#include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class GroupNode;
-class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
 public:
   explicit UpdateLinkedGroupsCommand(std::vector<Model::GroupNode*> changedLinkedGroups);
   ~UpdateLinkedGroupsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
   deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

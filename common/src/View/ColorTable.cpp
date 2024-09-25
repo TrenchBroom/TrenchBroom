@@ -27,18 +27,16 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ColorTable::ColorTable(const int cellSize, QWidget* parent)
-  : QWidget(parent)
-  , m_cellSize(cellSize)
-  , m_cellSpacing(2)
+  : QWidget{parent}
+  , m_cellSize{cellSize}
 {
   assert(m_cellSize > 0);
 
-  auto sizePolicy = QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+  auto sizePolicy = QSizePolicy{QSizePolicy::Expanding, QSizePolicy::Preferred};
   sizePolicy.setHeightForWidth(true);
   setSizePolicy(sizePolicy);
 }
@@ -67,7 +65,7 @@ void ColorTable::paintEvent(QPaintEvent* /* event */)
   auto x = startX;
   auto y = m_cellSpacing;
 
-  QPainter dc(this);
+  auto painter = QPainter{this};
 
   auto it = std::begin(m_colors);
   for (int row = 0; row < rows; ++row)
@@ -78,18 +76,16 @@ void ColorTable::paintEvent(QPaintEvent* /* event */)
       {
         const auto& color = *it;
 
-        if (
-          std::find(std::begin(m_selectedColors), std::end(m_selectedColors), color)
-          != std::end(m_selectedColors))
+        if (std::ranges::find(m_selectedColors, color) != std::end(m_selectedColors))
         {
-          dc.setPen(QColor(Qt::red));
-          dc.setBrush(QColor(Qt::red));
-          dc.drawRect(x - 1, y - 1, m_cellSize + 2, m_cellSize + 2);
+          painter.setPen(QColor{Qt::red});
+          painter.setBrush(QColor{Qt::red});
+          painter.drawRect(x - 1, y - 1, m_cellSize + 2, m_cellSize + 2);
         }
 
-        dc.setPen(color);
-        dc.setBrush(color);
-        dc.drawRect(x, y, m_cellSize, m_cellSize);
+        painter.setPen(color);
+        painter.setBrush(color);
+        painter.drawRect(x, y, m_cellSize, m_cellSize);
 
         ++it;
       }
@@ -137,19 +133,12 @@ int ColorTable::computeCols(const int width) const
 
 int ColorTable::computeRows(const int cols) const
 {
-  if (cols == 0)
-  {
-    return 0;
-  }
-  else
-  {
-    return (static_cast<int>(m_colors.size()) + cols - 1) / cols;
-  }
+  return cols != 0 ? (static_cast<int>(m_colors.size()) + cols - 1) / cols : 0;
 }
 
 int ColorTable::computeHeight(const int rows) const
 {
   return m_cellSpacing + rows * (m_cellSize + m_cellSpacing);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

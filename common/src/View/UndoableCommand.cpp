@@ -19,25 +19,23 @@
 
 #include "UndoableCommand.h"
 
-#include "Exceptions.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 UndoableCommand::UndoableCommand(std::string name, const bool updateModificationCount)
   : Command{std::move(name)}
   , m_modificationCount{updateModificationCount ? 1u : 0u}
 {
 }
 
-UndoableCommand::~UndoableCommand() {}
+UndoableCommand::~UndoableCommand() = default;
 
 std::unique_ptr<CommandResult> UndoableCommand::performDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   auto result = Command::performDo(document);
   if (result->success())
@@ -48,7 +46,7 @@ std::unique_ptr<CommandResult> UndoableCommand::performDo(
 }
 
 std::unique_ptr<CommandResult> UndoableCommand::performUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   m_state = CommandState::Undoing;
   auto result = doPerformUndo(document);
@@ -80,21 +78,17 @@ bool UndoableCommand::doCollateWith(UndoableCommand&)
   return false;
 }
 
-void UndoableCommand::setModificationCount(MapDocumentCommandFacade* document)
+void UndoableCommand::setModificationCount(MapDocumentCommandFacade& document) const
 {
-  if (document && m_modificationCount)
+  if (m_modificationCount)
   {
-    document->incModificationCount(m_modificationCount);
+    document.incModificationCount(m_modificationCount);
   }
 }
 
-void UndoableCommand::resetModificationCount(MapDocumentCommandFacade* document)
+void UndoableCommand::resetModificationCount(MapDocumentCommandFacade& document) const
 {
-  if (document)
-  {
-    document->decModificationCount(m_modificationCount);
-  }
+  document.decModificationCount(m_modificationCount);
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

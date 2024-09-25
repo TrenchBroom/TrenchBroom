@@ -84,4 +84,5 @@ private:
   void preferenceDidChange(const std::filesystem::path& path);
   void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
 };
+
 } // namespace TrenchBroom::View

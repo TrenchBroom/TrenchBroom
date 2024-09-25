@@ -21,6 +21,8 @@
 
 #include "View/PreferencePane.h"
 
+#include <optional>
+
 class QCheckBox;
 class QComboBox;
 
@@ -53,12 +55,12 @@ private:
 
   void bindEvents();
 
-  bool doCanResetToDefaults() override;
+  bool canResetToDefaults() override;
   void doResetToDefaults() override;
-  void doUpdateControls() override;
-  bool doValidate() override;
+  void updateControls() override;
+  bool validate() override;
 
-  size_t findFilterMode(int minFilter, int magFilter) const;
+  std::optional<size_t> findFilterMode(int minFilter, int magFilter) const;
   int findThemeIndex(const QString& theme);
 private slots:
   void layoutChanged(int index);
@@ -73,4 +75,5 @@ private slots:
   void materialBrowserIconSizeChanged(int index);
   void rendererFontSizeChanged(const QString& text);
 };
+
 } // namespace TrenchBroom::View

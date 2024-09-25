@@ -28,24 +28,21 @@
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 // TabBarButton
 
 TabBarButton::TabBarButton(const QString& label, QWidget* parent)
-  : QWidget(parent)
-  , m_label(new QLabel(label, this))
-  , m_indicator(new QWidget(this))
-  , m_pressed(false)
+  : QWidget{parent}
+  , m_label{new QLabel{label}}
+  , m_indicator{new QWidget{}}
 {
-  auto* labelLayout = new QHBoxLayout();
+  auto* labelLayout = new QHBoxLayout{};
   labelLayout->setContentsMargins(
     LayoutConstants::WideHMargin, 0, LayoutConstants::WideHMargin, 0);
   labelLayout->addWidget(m_label);
 
-  auto* outerLayout = new QVBoxLayout();
+  auto* outerLayout = new QVBoxLayout{};
   outerLayout->setContentsMargins(0, 1, 0, 1); // needs extra vertical space!
   outerLayout->setSpacing(0);
 
@@ -75,28 +72,20 @@ void TabBarButton::mousePressEvent(QMouseEvent*)
 
 void TabBarButton::updateState()
 {
-  QPalette pal;
-  if (m_pressed)
-  {
-    m_indicator->setBackgroundRole(QPalette::Highlight);
-  }
-  else
-  {
-    m_indicator->setBackgroundRole(QPalette::NoRole);
-  }
+  m_indicator->setBackgroundRole(m_pressed ? QPalette::Highlight : QPalette::NoRole);
 }
 
 // TabBar
 
 TabBar::TabBar(TabBook* tabBook)
-  : ContainerBar(BorderPanel::BottomSide, tabBook)
-  , m_tabBook(tabBook)
-  , m_barBook(new QStackedLayout())
+  : ContainerBar{BorderPanel::BottomSide, tabBook}
+  , m_tabBook{tabBook}
+  , m_barBook{new QStackedLayout{}}
 {
   ensure(m_tabBook != nullptr, "tabBook is null");
   connect(m_tabBook, &TabBook::pageChanged, this, &TabBar::tabBookPageChanged);
 
-  m_controlLayout = new QHBoxLayout();
+  m_controlLayout = new QHBoxLayout{};
   m_controlLayout->setContentsMargins(0, 0, 0, 0);
   m_controlLayout->setSpacing(0);
   m_controlLayout->addSpacing(LayoutConstants::TabBarBarLeftMargin);
@@ -112,21 +101,20 @@ void TabBar::addTab(TabBookPage* bookPage, const QString& title)
 {
   ensure(bookPage != nullptr, "bookPage is null");
 
-  auto* button = new TabBarButton(title);
+  auto* button = new TabBarButton{title};
   connect(button, &TabBarButton::clicked, this, &TabBar::buttonClicked);
   button->setPressed(m_buttons.empty());
   m_buttons.push_back(button);
 
-  const auto sizerIndex = static_cast<int>(m_buttons.size());
+  const auto sizerIndex = int(m_buttons.size());
   m_controlLayout->insertWidget(sizerIndex, button);
 
-  QWidget* barPage = bookPage->createTabBarPage(nullptr);
+  auto* barPage = bookPage->createTabBarPage();
   m_barBook->addWidget(barPage);
 }
 
 size_t TabBar::findButtonIndex(QWidget* button) const
 {
-
   for (size_t i = 0; i < m_buttons.size(); ++i)
   {
     if (m_buttons[i] == button)
@@ -139,20 +127,20 @@ size_t TabBar::findButtonIndex(QWidget* button) const
 
 void TabBar::setButtonActive(const int index)
 {
-  m_buttons.at(static_cast<size_t>(index))->setPressed(true);
+  m_buttons.at(size_t(index))->setPressed(true);
 }
 
 void TabBar::buttonClicked()
 {
   auto* button = dynamic_cast<QWidget*>(QObject::sender());
-  const size_t index = findButtonIndex(button);
+  const auto index = findButtonIndex(button);
   ensure(index < m_buttons.size(), "index out of range");
-  m_tabBook->switchToPage(static_cast<int>(index));
+  m_tabBook->switchToPage(int(index));
 }
 
 void TabBar::tabBookPageChanged(const int newIndex)
 {
-  for (TabBarButton* button : m_buttons)
+  for (auto* button : m_buttons)
   {
     button->setPressed(false);
   }
@@ -160,5 +148,5 @@ void TabBar::tabBookPageChanged(const int newIndex)
   setButtonActive(newIndex);
   m_barBook->setCurrentIndex(newIndex);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

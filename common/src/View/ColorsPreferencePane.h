@@ -33,17 +33,18 @@ class ColorsPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
-  QTableView* m_table;
-  ColorModel* m_model;
-  QSortFilterProxyModel* m_proxy;
+  QTableView* m_table = nullptr;
+  ColorModel* m_model = nullptr;
+  QSortFilterProxyModel* m_proxy = nullptr;
 
 public:
   explicit ColorsPreferencePane(QWidget* parent = nullptr);
 
 private:
-  bool doCanResetToDefaults() override;
+  bool canResetToDefaults() override;
   void doResetToDefaults() override;
-  void doUpdateControls() override;
-  bool doValidate() override;
+  void updateControls() override;
+  bool validate() override;
 };
+
 } // namespace TrenchBroom::View

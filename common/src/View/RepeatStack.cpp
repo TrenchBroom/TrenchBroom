@@ -22,18 +22,12 @@
 #include "Ensure.h"
 
 #include "kdl/set_temp.h"
+#include "kdl/vector_utils.h"
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-RepeatStack::RepeatStack()
-  : m_clearOnNextPush{false}
-  , m_repeating{false}
-{
-}
 
 size_t RepeatStack::size() const
 {
@@ -72,74 +66,60 @@ static void execute(const std::vector<RepeatStack::RepeatableAction>& actions)
 
 void RepeatStack::repeat() const
 {
-  if (!m_openTransactionsStack.empty())
+  if (m_openTransactionsStack.empty())
   {
-    return;
+    const auto repeating = kdl::set_temp{m_repeating};
+    execute(m_stack);
   }
-
-  const auto repeating = kdl::set_temp{m_repeating};
-  execute(m_stack);
 }
 
 void RepeatStack::clear()
 {
-  if (!m_openTransactionsStack.empty())
+  if (m_openTransactionsStack.empty())
   {
-    return;
+    assert(!m_repeating);
+    m_stack.clear();
   }
-  assert(!m_repeating);
-  m_stack.clear();
 }
 
 void RepeatStack::clearOnNextPush()
 {
-  if (!m_openTransactionsStack.empty())
+  if (m_openTransactionsStack.empty())
   {
-    return;
+    m_clearOnNextPush = true;
   }
-  m_clearOnNextPush = true;
 }
 
 void RepeatStack::startTransaction()
 {
-  if (m_repeating)
+  if (!m_repeating)
   {
-    return;
+    m_openTransactionsStack.emplace_back();
   }
-  m_openTransactionsStack.emplace_back();
 }
 
 void RepeatStack::commitTransaction()
 {
-  if (m_repeating)
+  if (!m_repeating)
   {
-    return;
+    ensure(!m_openTransactionsStack.empty(), "a transaction is open");
+
+    if (auto transaction = kdl::vec_pop_back(m_openTransactionsStack);
+        !transaction.empty())
+    {
+      // push it onto the next open transaction (or the main stack)
+      push([transaction_ = std::move(transaction)]() { execute(transaction_); });
+    }
   }
-  ensure(!m_openTransactionsStack.empty(), "a transaction is open");
-
-  auto transaction = std::move(m_openTransactionsStack.back());
-  m_openTransactionsStack.pop_back();
-
-  // discard empty transactions
-  if (transaction.empty())
-  {
-    return;
-  }
-
-  // push it onto the next open transaction (or the main stack)
-  push([transaction = std::move(transaction)]() { execute(transaction); });
 }
 
 void RepeatStack::rollbackTransaction()
 {
-  if (m_repeating)
+  if (!m_repeating)
   {
-    return;
+    ensure(!m_openTransactionsStack.empty(), "a transaction is open");
+    m_openTransactionsStack.back().clear();
   }
-  ensure(!m_openTransactionsStack.empty(), "a transaction is open");
-
-  auto& openTransaction = m_openTransactionsStack.back();
-  openTransaction.clear();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

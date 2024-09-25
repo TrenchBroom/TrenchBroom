@@ -20,9 +20,7 @@
 #include "MapDocumentCommandFacade.h"
 
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/MaterialManager.h"
-#include "Error.h"
-#include "Exceptions.h"
+#include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -39,40 +37,47 @@
 #include "Model/NodeQueries.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
-#include "PreferenceManager.h"
-#include "Preferences.h"
 #include "View/CommandProcessor.h"
 #include "View/Selection.h"
 #include "View/UndoableCommand.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/result.h"
-#include "kdl/string_format.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
-
-#include "vm/polygon.h"
-#include "vm/segment.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
+std::vector<Model::Node*> collectOldChildren(
+  const std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>&
+    nodes)
+{
+  auto result = std::vector<Model::Node*>{};
+  for (auto& [parent, newChildren] : nodes)
+  {
+    result = kdl::vec_concat(std::move(result), parent->children());
+  }
+  return result;
+}
+
+} // namespace
+
 std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument()
 {
   // can't use std::make_shared here because the constructor is private
-  return std::shared_ptr<MapDocument>(new MapDocumentCommandFacade());
+  return std::shared_ptr<MapDocument>{new MapDocumentCommandFacade{}};
 }
 
 MapDocumentCommandFacade::MapDocumentCommandFacade()
-  : m_commandProcessor(std::make_unique<CommandProcessor>(this))
+  : m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
 {
   connectObservers();
 }
@@ -84,16 +89,16 @@ void MapDocumentCommandFacade::performSelect(const std::vector<Model::Node*>& no
   selectionWillChangeNotifier();
   updateLastSelectionBounds();
 
-  std::vector<Model::Node*> selected;
+  auto selected = std::vector<Model::Node*>{};
   selected.reserve(nodes.size());
 
-  for (Model::Node* initialNode : nodes)
+  for (auto* initialNode : nodes)
   {
     ensure(
       initialNode->isDescendantOf(m_world.get()) || initialNode == m_world.get(),
       "to select a node, it must be world or a descendant");
     const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
-    for (Model::Node* node : nodesToSelect)
+    for (auto* node : nodesToSelect)
     {
       if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */)
       {
@@ -105,7 +110,7 @@ void MapDocumentCommandFacade::performSelect(const std::vector<Model::Node*>& no
 
   m_selectedNodes.addNodes(selected);
 
-  Selection selection;
+  auto selection = Selection{};
   selection.addSelectedNodes(selected);
 
   selectionDidChangeNotifier(selection);
@@ -120,20 +125,20 @@ void MapDocumentCommandFacade::performSelect(
   const auto constrained =
     Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces);
 
-  for (Model::GroupNode* node : constrained.groupsToLock)
+  for (auto* node : constrained.groupsToLock)
   {
     node->setLockedByOtherSelection(true);
   }
   nodeLockingDidChangeNotifier(
     kdl::vec_static_cast<Model::Node*>(constrained.groupsToLock));
 
-  std::vector<Model::BrushFaceHandle> selected;
+  auto selected = std::vector<Model::BrushFaceHandle>{};
   selected.reserve(constrained.facesToSelect.size());
 
   for (const auto& handle : constrained.facesToSelect)
   {
-    Model::BrushNode* node = handle.node();
-    const Model::BrushFace& face = handle.face();
+    auto* node = handle.node();
+    const auto& face = handle.face();
     if (!face.selected() && m_editorContext->selectable(node, face))
     {
       node->selectFace(handle.faceIndex());
@@ -143,7 +148,7 @@ void MapDocumentCommandFacade::performSelect(
 
   m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), selected);
 
-  Selection selection;
+  auto selection = Selection{};
   selection.addSelectedBrushFaces(selected);
 
   selectionDidChangeNotifier(selection);
@@ -178,10 +183,10 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<Model::Node*>& 
   selectionWillChangeNotifier();
   updateLastSelectionBounds();
 
-  std::vector<Model::Node*> deselected;
+  auto deselected = std::vector<Model::Node*>{};
   deselected.reserve(nodes.size());
 
-  for (Model::Node* node : nodes)
+  for (auto* node : nodes)
   {
     if (node->selected())
     {
@@ -192,7 +197,7 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<Model::Node*>& 
 
   m_selectedNodes.removeNodes(deselected);
 
-  Selection selection;
+  auto selection = Selection{};
   selection.addDeselectedNodes(deselected);
 
   selectionDidChangeNotifier(selection);
@@ -208,15 +213,15 @@ void MapDocumentCommandFacade::performDeselect(
 
   selectionWillChangeNotifier();
 
-  std::vector<Model::BrushFaceHandle> deselected;
+  auto deselected = std::vector<Model::BrushFaceHandle>{};
   deselected.reserve(faces.size());
 
   for (const auto& handle : faces)
   {
-    const Model::BrushFace& face = handle.face();
+    const auto& face = handle.face();
     if (face.selected())
     {
-      Model::BrushNode* node = handle.node();
+      auto* node = handle.node();
       node->deselectFace(handle.faceIndex());
       deselected.push_back(handle);
     }
@@ -224,18 +229,18 @@ void MapDocumentCommandFacade::performDeselect(
 
   m_selectedBrushFaces = kdl::vec_erase_all(std::move(m_selectedBrushFaces), deselected);
 
-  Selection selection;
+  auto selection = Selection{};
   selection.addDeselectedBrushFaces(deselected);
 
   selectionDidChangeNotifier(selection);
 
   // Selection change is done. Next, update implicit locking of linked groups.
-  // The strategy is to figure out what needs to be locked given m_selectedBrushFaces, and
-  // then un-implicitly-lock all other linked groups.
+  // The strategy is to figure out what needs to be locked given m_selectedBrushFaces,
+  // and then un-implicitly-lock all other linked groups.
   const auto groupsToLock = kdl::vector_set<Model::GroupNode*>{
     Model::faceSelectionWithLinkedGroupConstraints(*m_world.get(), m_selectedBrushFaces)
       .groupsToLock};
-  for (Model::GroupNode* node : groupsToLock)
+  for (auto* node : groupsToLock)
   {
     node->setLockedByOtherSelection(true);
   }
@@ -243,7 +248,7 @@ void MapDocumentCommandFacade::performDeselect(
     kdl::vec_static_cast<Model::Node*>(groupsToLock.get_data()));
 
   const auto groupsToUnlock = kdl::set_difference(implicitlyLockedGroups, groupsToLock);
-  for (Model::GroupNode* node : groupsToUnlock)
+  for (auto* node : groupsToUnlock)
   {
     node->setLockedByOtherSelection(false);
   }
@@ -268,10 +273,10 @@ void MapDocumentCommandFacade::performAddNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  NotifyBeforeAndAfter notifyParents(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+  auto notifyParents =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
 
-  std::vector<Model::Node*> addedNodes;
+  auto addedNodes = std::vector<Model::Node*>{};
   for (const auto& [parent, children] : nodes)
   {
     parent->addChildren(children);
@@ -291,12 +296,12 @@ void MapDocumentCommandFacade::performRemoveNodes(
   const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  NotifyBeforeAndAfter notifyParents(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+  auto notifyParents =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
 
   const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
-  NotifyBeforeAndAfter notifyChildren(
-    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren);
+  auto notifyChildren = NotifyBeforeAndAfter{
+    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren};
 
   for (const auto& [parent, children] : nodes)
   {
@@ -309,18 +314,6 @@ void MapDocumentCommandFacade::performRemoveNodes(
   invalidateSelectionBounds();
 }
 
-static std::vector<Model::Node*> collectOldChildren(
-  const std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>&
-    nodes)
-{
-  std::vector<Model::Node*> result;
-  for (auto& [parent, newChildren] : nodes)
-  {
-    result = kdl::vec_concat(std::move(result), parent->children());
-  }
-  return result;
-}
-
 std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>
 MapDocumentCommandFacade::performReplaceChildren(
   std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>> nodes)
@@ -331,12 +324,12 @@ MapDocumentCommandFacade::performReplaceChildren(
   }
 
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  NotifyBeforeAndAfter notifyParents(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
+  auto notifyParents =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
 
-  const std::vector<Model::Node*> allOldChildren = collectOldChildren(nodes);
-  NotifyBeforeAndAfter notifyChildren(
-    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allOldChildren);
+  const auto allOldChildren = collectOldChildren(nodes);
+  auto notifyChildren = NotifyBeforeAndAfter{
+    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allOldChildren};
 
   auto result =
     std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>{};
@@ -411,25 +404,25 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   const auto parents = collectAncestors(nodes);
   const auto descendants = collectDescendants(nodes);
 
-  NotifyBeforeAndAfter notifyNodes(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, nodes);
-  NotifyBeforeAndAfter notifyParents(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, parents);
-  NotifyBeforeAndAfter notifyDescendants(
-    nodesWillChangeNotifier, nodesDidChangeNotifier, descendants);
+  auto notifyNodes =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, nodes};
+  auto notifyParents =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
+  auto notifyDescendants =
+    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, descendants};
 
   const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
     notifySpecialWorldProperties(*game(), nodesToSwap);
-  NotifyBeforeAndAfter notifyWads(
+  auto notifyWads = NotifyBeforeAndAfter{
     notifyWadsChange,
     materialCollectionsWillChangeNotifier,
-    materialCollectionsDidChangeNotifier);
-  NotifyBeforeAndAfter notifyEntityDefinitions(
+    materialCollectionsDidChangeNotifier};
+  auto notifyEntityDefinitions = NotifyBeforeAndAfter{
     notifyEntityDefinitionsChange,
     entityDefinitionsWillChangeNotifier,
-    entityDefinitionsDidChangeNotifier);
-  NotifyBeforeAndAfter notifyMods(
-    notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier);
+    entityDefinitionsDidChangeNotifier};
+  auto notifyMods =
+    NotifyBeforeAndAfter{notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier};
 
   for (auto& pair : nodesToSwap)
   {
@@ -437,29 +430,29 @@ void MapDocumentCommandFacade::performSwapNodeContents(
     auto& contents = pair.second.get();
 
     pair.second = node->accept(kdl::overload(
-      [&](Model::WorldNode* worldNode) -> Model::NodeContents {
-        return Model::NodeContents(
-          worldNode->setEntity(std::get<Model::Entity>(std::move(contents))));
+      [&](Model::WorldNode* worldNode) {
+        return Model::NodeContents{
+          worldNode->setEntity(std::get<Model::Entity>(std::move(contents)))};
       },
-      [&](Model::LayerNode* layerNode) -> Model::NodeContents {
+      [&](Model::LayerNode* layerNode) {
         return Model::NodeContents(
           layerNode->setLayer(std::get<Model::Layer>(std::move(contents))));
       },
-      [&](Model::GroupNode* groupNode) -> Model::NodeContents {
-        return Model::NodeContents(
-          groupNode->setGroup(std::get<Model::Group>(std::move(contents))));
+      [&](Model::GroupNode* groupNode) {
+        return Model::NodeContents{
+          groupNode->setGroup(std::get<Model::Group>(std::move(contents)))};
       },
-      [&](Model::EntityNode* entityNode) -> Model::NodeContents {
-        return Model::NodeContents(
-          entityNode->setEntity(std::get<Model::Entity>(std::move(contents))));
+      [&](Model::EntityNode* entityNode) {
+        return Model::NodeContents{
+          entityNode->setEntity(std::get<Model::Entity>(std::move(contents)))};
       },
-      [&](Model::BrushNode* brushNode) -> Model::NodeContents {
-        return Model::NodeContents(
-          brushNode->setBrush(std::get<Model::Brush>(std::move(contents))));
+      [&](Model::BrushNode* brushNode) {
+        return Model::NodeContents{
+          brushNode->setBrush(std::get<Model::Brush>(std::move(contents)))};
       },
-      [&](Model::PatchNode* patchNode) -> Model::NodeContents {
-        return Model::NodeContents(
-          patchNode->setPatch(std::get<Model::BezierPatch>(std::move(contents))));
+      [&](Model::PatchNode* patchNode) {
+        return Model::NodeContents{
+          patchNode->setPatch(std::get<Model::BezierPatch>(std::move(contents)))};
       }));
   }
 
@@ -480,14 +473,14 @@ std::map<Model::Node*, Model::VisibilityState> MapDocumentCommandFacade::
   setVisibilityState(
     const std::vector<Model::Node*>& nodes, const Model::VisibilityState visibilityState)
 {
-  std::map<Model::Node*, Model::VisibilityState> result;
+  auto result = std::map<Model::Node*, Model::VisibilityState>{};
 
-  std::vector<Model::Node*> changedNodes;
+  auto changedNodes = std::vector<Model::Node*>{};
   changedNodes.reserve(nodes.size());
 
-  for (Model::Node* node : nodes)
+  for (auto* node : nodes)
   {
-    const Model::VisibilityState oldState = node->visibilityState();
+    const auto oldState = node->visibilityState();
     if (node->setVisibilityState(visibilityState))
     {
       changedNodes.push_back(node);
@@ -502,14 +495,14 @@ std::map<Model::Node*, Model::VisibilityState> MapDocumentCommandFacade::
 std::map<Model::Node*, Model::VisibilityState> MapDocumentCommandFacade::
   setVisibilityEnsured(const std::vector<Model::Node*>& nodes)
 {
-  std::map<Model::Node*, Model::VisibilityState> result;
+  auto result = std::map<Model::Node*, Model::VisibilityState>{};
 
-  std::vector<Model::Node*> changedNodes;
+  auto changedNodes = std::vector<Model::Node*>{};
   changedNodes.reserve(nodes.size());
 
-  for (Model::Node* node : nodes)
+  for (auto* node : nodes)
   {
-    const Model::VisibilityState oldState = node->visibilityState();
+    const auto oldState = node->visibilityState();
     if (node->ensureVisible())
     {
       changedNodes.push_back(node);
@@ -524,7 +517,7 @@ std::map<Model::Node*, Model::VisibilityState> MapDocumentCommandFacade::
 void MapDocumentCommandFacade::restoreVisibilityState(
   const std::map<Model::Node*, Model::VisibilityState>& nodes)
 {
-  std::vector<Model::Node*> changedNodes;
+  auto changedNodes = std::vector<Model::Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (const auto& [node, state] : nodes)
@@ -541,14 +534,14 @@ void MapDocumentCommandFacade::restoreVisibilityState(
 std::map<Model::Node*, Model::LockState> MapDocumentCommandFacade::setLockState(
   const std::vector<Model::Node*>& nodes, const Model::LockState lockState)
 {
-  std::map<Model::Node*, Model::LockState> result;
+  auto result = std::map<Model::Node*, Model::LockState>{};
 
-  std::vector<Model::Node*> changedNodes;
+  auto changedNodes = std::vector<Model::Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (Model::Node* node : nodes)
   {
-    const Model::LockState oldState = node->lockState();
+    const auto oldState = node->lockState();
     if (node->setLockState(lockState))
     {
       changedNodes.push_back(node);
@@ -563,7 +556,7 @@ std::map<Model::Node*, Model::LockState> MapDocumentCommandFacade::setLockState(
 void MapDocumentCommandFacade::restoreLockState(
   const std::map<Model::Node*, Model::LockState>& nodes)
 {
-  std::vector<Model::Node*> changedNodes;
+  auto changedNodes = std::vector<Model::Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (const auto& [node, state] : nodes)
@@ -585,7 +578,7 @@ void MapDocumentCommandFacade::performPushGroup(Model::GroupNode* group)
 
 void MapDocumentCommandFacade::performPopGroup()
 {
-  Model::GroupNode* previousGroup = m_editorContext->currentGroup();
+  auto* previousGroup = m_editorContext->currentGroup();
   m_editorContext->popGroup();
   groupWasClosedNotifier(previousGroup);
 }
@@ -700,5 +693,5 @@ std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecuteAndStore(
 {
   return m_commandProcessor->executeAndStore(std::move(command));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -22,26 +22,23 @@
 #include <QItemEditorFactory>
 
 #include "View/KeySequenceEdit.h"
-#include "View/KeyboardShortcutModel.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate()
 {
-  auto* itemEditorFactory = new QItemEditorFactory();
+  auto* itemEditorFactory = new QItemEditorFactory{};
   itemEditorFactory->registerEditor(
-    QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>());
+    QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>{});
   setItemEditorFactory(itemEditorFactory);
 }
 
 QWidget* KeyboardShortcutItemDelegate::createEditor(
   QWidget* parent, const QStyleOptionViewItem& option, const QModelIndex& index) const
 {
-  QWidget* widget = QStyledItemDelegate::createEditor(parent, option, index);
-  auto* editor = dynamic_cast<KeySequenceEdit*>(widget);
-  if (editor)
+  auto* widget = QStyledItemDelegate::createEditor(parent, option, index);
+  if (auto* editor = dynamic_cast<KeySequenceEdit*>(widget))
   {
     connect(
       editor,
@@ -54,12 +51,11 @@ QWidget* KeyboardShortcutItemDelegate::createEditor(
 
 void KeyboardShortcutItemDelegate::commitAndCloseEditor()
 {
-  auto* editor = dynamic_cast<KeySequenceEdit*>(sender());
-  if (editor)
+  if (auto* editor = dynamic_cast<KeySequenceEdit*>(sender()))
   {
     emit commitData(editor);
     emit closeEditor(editor);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

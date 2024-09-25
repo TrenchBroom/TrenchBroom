@@ -29,19 +29,16 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 #include "vm/vec_io.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MoveObjectsToolPage::MoveObjectsToolPage(
   std::weak_ptr<MapDocument> document, QWidget* parent)
-  : QWidget(parent)
-  , m_document(document)
-  , m_offset(nullptr)
-  , m_button(nullptr)
+  : QWidget{parent}
+  , m_document{std::move(document)}
 {
   createGui();
   connectObservers();
@@ -57,14 +54,14 @@ void MoveObjectsToolPage::connectObservers()
 
 void MoveObjectsToolPage::createGui()
 {
-  QLabel* text = new QLabel(tr("Move objects by"));
-  m_offset = new QLineEdit("0.0 0.0 0.0");
-  m_button = new QPushButton(tr("Apply"));
+  auto* text = new QLabel{tr("Move objects by")};
+  m_offset = new QLineEdit{"0.0 0.0 0.0"};
+  m_button = new QPushButton{tr("Apply")};
 
   connect(m_button, &QAbstractButton::clicked, this, &MoveObjectsToolPage::applyMove);
   connect(m_offset, &QLineEdit::returnPressed, this, &MoveObjectsToolPage::applyMove);
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(LayoutConstants::MediumHMargin);
 
@@ -95,5 +92,5 @@ void MoveObjectsToolPage::applyMove()
     document->translateObjects(*delta);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

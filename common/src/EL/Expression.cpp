@@ -26,7 +26,8 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/range_utils.h"
+#include "kdl/range_to.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -917,8 +918,7 @@ Expression optimize(const ArrayExpression& expression)
     }
     else
     {
-      return ArrayExpression{
-        std::move(optimizedExpressions) | kdl::to<std::vector<ExpressionNode>>()};
+      return ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector};
     }
   }
 

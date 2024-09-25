@@ -20,14 +20,14 @@
 #include "Md3Loader.h"
 
 #include "Assets/EntityModel.h"
-#include "Assets/Material.h"
+#include "Assets/Material.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Logger.h"
 #include "Renderer/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "Renderer/PrimType.h"
 
-#include "kdl/range_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h" // IWYU pragma: keep
 #include "kdl/string_format.h"
@@ -89,8 +89,7 @@ void loadSurfaceMaterials(
   const LoadMaterialFunc& loadMaterial)
 {
   using std::views::transform;
-  surface.setSkins(
-    shaderPaths | transform(loadMaterial) | kdl::to<std::vector<Assets::Material>>());
+  surface.setSkins(shaderPaths | transform(loadMaterial) | kdl::to_vector);
 }
 
 Result<void> parseSurfaces(

@@ -25,9 +25,7 @@ class QWidget;
 class QTableView;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class KeyboardShortcutModel;
 class MapDocument;
@@ -36,18 +34,18 @@ class KeyboardPreferencePane : public PreferencePane
 {
   Q_OBJECT
 private:
-  QTableView* m_table;
-  KeyboardShortcutModel* m_model;
-  QSortFilterProxyModel* m_proxy;
+  QTableView* m_table = nullptr;
+  KeyboardShortcutModel* m_model = nullptr;
+  QSortFilterProxyModel* m_proxy = nullptr;
 
 public:
   explicit KeyboardPreferencePane(MapDocument* document, QWidget* parent = nullptr);
 
 private:
-  bool doCanResetToDefaults() override;
+  bool canResetToDefaults() override;
   void doResetToDefaults() override;
-  void doUpdateControls() override;
-  bool doValidate() override;
+  void updateControls() override;
+  bool validate() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

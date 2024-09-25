@@ -44,4 +44,5 @@ private:
 
   QWidget* doCreatePage(QWidget* parent) override;
 };
+
 } // namespace TrenchBroom::View

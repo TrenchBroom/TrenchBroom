@@ -21,8 +21,6 @@
 
 #include <QObject>
 
-#include "Notifier.h"
-
 #include <filesystem>
 #include <functional>
 #include <vector>
@@ -31,6 +29,7 @@ class QMenu;
 
 namespace TrenchBroom::View
 {
+
 std::vector<std::filesystem::path> loadRecentDocuments(size_t max);
 void saveRecentDocuments(const std::vector<std::filesystem::path>& paths);
 
@@ -76,4 +75,5 @@ signals:
   void loadDocument(const std::filesystem::path& path) const;
   void didChange();
 };
+
 } // namespace TrenchBroom::View

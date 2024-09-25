@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
 #include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"

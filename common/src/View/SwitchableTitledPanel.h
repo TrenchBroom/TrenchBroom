@@ -21,8 +21,6 @@
 
 #include <QWidget>
 
-#include "View/TitleBar.h"
-
 #include <array>
 
 class QStackedLayout;

@@ -19,10 +19,9 @@
 
 #pragma once
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 enum class MapViewLayout
 {
   OnePane,
@@ -30,5 +29,5 @@ enum class MapViewLayout
   ThreePanes,
   FourPanes
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

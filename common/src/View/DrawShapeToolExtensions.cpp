@@ -25,13 +25,10 @@
 #include <QSpinBox>
 #include <QToolButton>
 
-#include "Error.h" // IWYU pragma: keep
 #include "Model/BrushBuilder.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
-
-#include "kdl/result.h"
 
 namespace TrenchBroom::View
 {

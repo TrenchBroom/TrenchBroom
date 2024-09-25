@@ -21,25 +21,19 @@
 
 #include "FloatType.h"
 #include "Macros.h"
+#include "Model/Hit.h"
 #include "Model/HitType.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Model
-{
-class Hit;
-}
-
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class RotateObjectsHandle
 {
@@ -169,5 +163,5 @@ public:
     Renderer::RenderBatch& renderBatch,
     HitArea area);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

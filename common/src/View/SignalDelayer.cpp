@@ -23,13 +23,11 @@
 #include <QMetaMethod>
 #include <QTimer>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SignalDelayer::SignalDelayer(QObject* parent)
   : QObject{parent}
-  , m_isQueued{false}
 {
 }
 
@@ -42,18 +40,16 @@ void SignalDelayer::queueSignal()
     qWarning() << "queueSignal called with nothing connected to processSignal";
   }
 
-  if (m_isQueued)
+  if (!m_isQueued)
   {
-    return;
+    m_isQueued = true;
+
+    QTimer::singleShot(0, this, [&]() {
+      m_isQueued = false;
+
+      emit processSignal();
+    });
   }
-
-  m_isQueued = true;
-
-  QTimer::singleShot(0, this, [&]() {
-    m_isQueued = false;
-
-    emit processSignal();
-  });
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

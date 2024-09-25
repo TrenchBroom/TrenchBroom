@@ -19,12 +19,10 @@
 
 #pragma once
 
-#include "Model/BrushFaceHandle.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
 #include <memory>
-#include <optional>
 
 namespace TrenchBroom::View
 {

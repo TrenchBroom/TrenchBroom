@@ -49,7 +49,7 @@ private:
   bool m_valid = false;
 
   QScrollBar* m_scrollBar = nullptr;
-  QPoint m_lastMousePos = QPoint{};
+  QPoint m_lastMousePos;
   bool m_potentialDrag = false;
 
   void updateScrollBar();
@@ -112,7 +112,7 @@ private:
 
 private:
   QRect visibleRect() const;
-  void doRender() override;
+  void renderContents() override;
   void setupGL();
 
   void renderTitleBackgrounds(float y, float height);

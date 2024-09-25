@@ -33,8 +33,7 @@
 #include <QToolButton>
 
 #include "Macros.h"
-#include "Model/EntityNodeBase.h"
-#include "Model/EntityProperties.h"
+#include "Model/EntityNodeBase.h" // IWYU pragma: keep
 #include "Model/Node.h"
 #include "View/BorderLine.h"
 #include "View/EntityPropertyItemDelegate.h"
@@ -42,6 +41,7 @@
 #include "View/EntityPropertyTable.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "View/Transaction.h"
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
@@ -53,10 +53,9 @@
 
 #define GRID_LOG(x)
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityPropertyGrid::EntityPropertyGrid(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
@@ -116,7 +115,7 @@ void EntityPropertyGrid::addProperty(const bool defaultToProtected)
 {
   auto document = kdl::mem_lock(m_document);
   const auto newPropertyKey =
-    PropertyRow::newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
+    newPropertyKeyForEntityNodes(document->allSelectedEntityNodes());
 
   if (!document->setProperty(newPropertyKey, "", defaultToProtected))
   {
@@ -371,7 +370,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_table, 1);
-  layout->addWidget(new BorderLine{BorderLine::Direction::Horizontal}, 0);
+  layout->addWidget(new BorderLine{}, 0);
   layout->addLayout(toolBar, 0);
   setLayout(layout);
 
@@ -468,5 +467,5 @@ std::string EntityPropertyGrid::selectedRowName() const
   const auto* rowModel = m_model->dataForModelIndex(current);
   return rowModel ? rowModel->key() : "";
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

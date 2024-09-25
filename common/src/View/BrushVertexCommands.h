@@ -22,17 +22,14 @@
 #include "Macros.h"
 #include "View/SwapNodeContentsCommand.h"
 
-#include "vm/forward.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
-#include "vm/vec.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/segment.h" // IWYU pragma: keep
+#include "vm/vec.h"     // IWYU pragma: keep
 
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class VertexHandleManagerBase;
@@ -43,11 +40,10 @@ class BrushVertexCommandBase : public SwapNodeContentsCommand
 {
 protected:
   BrushVertexCommandBase(
-    const std::string& name,
-    std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+    std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   virtual std::unique_ptr<CommandResult> createCommandResult(
     std::unique_ptr<CommandResult> swapResult);
 
@@ -91,7 +87,7 @@ private:
 
 public:
   BrushVertexCommand(
-    const std::string& name,
+    std::string name,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
     std::vector<vm::vec3> oldVertexPositions,
     std::vector<vm::vec3> newVertexPositions);
@@ -118,7 +114,7 @@ private:
 
 public:
   BrushEdgeCommand(
-    const std::string& name,
+    std::string name,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
     std::vector<vm::segment3> oldEdgePositions,
     std::vector<vm::segment3> newEdgePositions);
@@ -142,7 +138,7 @@ private:
 
 public:
   BrushFaceCommand(
-    const std::string& name,
+    std::string name,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
     std::vector<vm::polygon3> oldFacePositions,
     std::vector<vm::polygon3> newFacePositions);
@@ -157,5 +153,5 @@ private:
 
   deleteCopyAndMove(BrushFaceCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

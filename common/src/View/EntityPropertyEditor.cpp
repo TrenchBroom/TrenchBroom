@@ -38,19 +38,12 @@
 
 #include <algorithm>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 EntityPropertyEditor::EntityPropertyEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
-  , m_splitter{nullptr}
-  , m_propertyGrid{nullptr}
-  , m_smartEditorManager{nullptr}
-  , m_documentationText{nullptr}
-  , m_currentDefinition{nullptr}
 {
   createGui(m_document);
   connectObservers();
@@ -172,7 +165,7 @@ QString EntityPropertyEditor::optionDescriptions(
   case Assets::PropertyDefinitionType::FloatProperty:
   case Assets::PropertyDefinitionType::TargetSourceProperty:
   case Assets::PropertyDefinitionType::TargetDestinationProperty:
-    return QString();
+    return {};
     switchDefault();
   }
 }
@@ -324,5 +317,5 @@ void EntityPropertyEditor::updateMinimumSize()
   setMinimumSize(size);
   updateGeometry();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

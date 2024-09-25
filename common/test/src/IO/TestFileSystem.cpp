@@ -19,7 +19,6 @@
 
 #include "TestFileSystem.h"
 
-#include "Error.h"
 #include "IO/TraversalMode.h"
 
 #include "kdl/overload.h"

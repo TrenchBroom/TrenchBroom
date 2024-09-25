@@ -29,15 +29,13 @@ class QLabel;
 class QAbstractButton;
 class QListWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class LayerNode;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -46,13 +44,13 @@ class LayerListBoxWidget : public ControlListBoxItemRenderer
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::LayerNode* m_layer;
-  QAbstractButton* m_activeButton;
-  QLabel* m_nameText;
-  QLabel* m_infoText;
-  QAbstractButton* m_omitFromExportButton;
-  QAbstractButton* m_hiddenButton;
-  QAbstractButton* m_lockButton;
+  Model::LayerNode* m_layer = nullptr;
+  QAbstractButton* m_activeButton = nullptr;
+  QLabel* m_nameText = nullptr;
+  QLabel* m_infoText = nullptr;
+  QAbstractButton* m_omitFromExportButton = nullptr;
+  QAbstractButton* m_hiddenButton = nullptr;
+  QAbstractButton* m_lockButton = nullptr;
 
 public:
   LayerListBoxWidget(
@@ -119,5 +117,5 @@ signals:
   void layerVisibilityToggled(Model::LayerNode* layer);
   void layerLockToggled(Model::LayerNode* layer);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

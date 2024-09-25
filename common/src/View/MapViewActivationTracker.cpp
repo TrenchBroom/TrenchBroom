@@ -28,14 +28,8 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-MapViewActivationTracker::MapViewActivationTracker()
-  : m_active(false)
-{
-}
 
 bool MapViewActivationTracker::active() const
 {
@@ -178,7 +172,7 @@ bool MapViewActivationTracker::mouseUpEvent([[maybe_unused]] QMouseEvent* event,
   return event->button() == Qt::LeftButton;
 }
 
-void MapViewActivationTracker::enterEvent(QEvent*, QWidget* widget)
+void MapViewActivationTracker::enterEvent(QEvent*, QWidget* widget) const
 {
   if (m_active)
   {
@@ -238,5 +232,5 @@ void MapViewActivationTracker::clearFocusCursor(MapViewBase* mapView)
 {
   mapView->setCursor(Qt::ArrowCursor);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -36,15 +36,16 @@ BorderLine::BorderLine(const Direction direction, const int thickness, QWidget* 
   {
     setFrameShape(QFrame::HLine);
 #if !defined __APPLE__
-    setFixedHeight(
-      thickness); // necessary to remove extra space around the horizontal line
+    // necessary to remove extra space around the horizontal line
+    setFixedHeight(thickness);
 #endif
   }
   else
   {
     setFrameShape(QFrame::VLine);
 #if !defined __APPLE__
-    setFixedWidth(thickness); // this makes the vertical line disappear on macOS
+    // this makes the vertical line disappear on macOS
+    setFixedWidth(thickness);
 #endif
   }
 }

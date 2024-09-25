@@ -19,27 +19,22 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/NodeContents.h"
 #include "NotifierConnection.h"
 #include "View/MapDocument.h"
-
-#include "vm/forward.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 enum class LockState;
 enum class VisibilityState;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class CommandProcessor;
 
@@ -60,10 +55,8 @@ private:
 public:
   static std::shared_ptr<MapDocument> newMapDocument();
 
-private:
   MapDocumentCommandFacade();
 
-public:
   ~MapDocumentCommandFacade() override;
 
 public: // selection modification
@@ -139,5 +132,5 @@ private: // implement MapDocument interface
   std::unique_ptr<CommandResult> doExecuteAndStore(
     std::unique_ptr<UndoableCommand> command) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

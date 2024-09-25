@@ -47,33 +47,36 @@ public:
 protected:
   void addMapView(MapView* mapView);
 
-private: // implement ViewEffectsService interface
-  void doFlashSelection() override;
+public: // implement ViewEffectsService interface
+  void flashSelection() override;
 
-private: // implement MapView interface
-  void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
-  bool doGetIsCurrent() const override;
-  MapViewBase* doGetFirstMapViewBase() override;
-  bool doCanSelectTall() override;
-  void doSelectTall() override;
-  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
-  void doFocusCameraOnSelection(bool animate) override;
-  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
-  void doMoveCameraToCurrentTracePoint() override;
-  bool doCancelMouseDrag() override;
-  void doRefreshViews() override;
+public: // implement MapView interface
+  void installActivationTracker(MapViewActivationTracker& activationTracker) override;
+  bool isCurrent() const override;
+  MapViewBase* firstMapViewBase() override;
+  bool canSelectTall() override;
+  void selectTall() override;
+  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void focusCameraOnSelection(bool animate) override;
+  void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
+  void moveCameraToCurrentTracePoint() override;
+  bool cancelMouseDrag() override;
+  void refreshViews() override;
 
-private: // implement MapViewContainer interface
-  bool doCanMaximizeCurrentView() const override;
-  bool doCurrentViewMaximized() const override;
-  void doToggleMaximizeCurrentView() override;
-  MapView* doGetCurrentMapView() const override;
+public: // implement MapViewContainer interface
+  bool canMaximizeCurrentView() const override;
+  bool currentViewMaximized() const override;
+  void toggleMaximizeCurrentView() override;
+
+protected:
+  MapView* currentMapView() const override;
 
 public:
   void cycleChildMapView(MapView* after) override;
 
 private: // subclassing interface
-  virtual void doMaximizeView(MapView* view) = 0;
-  virtual void doRestoreViews() = 0;
+  virtual void maximizeView(MapView* view) = 0;
+  virtual void restoreViews() = 0;
 };
+
 } // namespace TrenchBroom::View

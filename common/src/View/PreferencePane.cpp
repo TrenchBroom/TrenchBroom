@@ -19,21 +19,15 @@
 
 #include "PreferencePane.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 PreferencePane::PreferencePane(QWidget* parent)
-  : QWidget(parent)
+  : QWidget{parent}
 {
 }
 
 PreferencePane::~PreferencePane() = default;
-
-bool PreferencePane::canResetToDefaults()
-{
-  return doCanResetToDefaults();
-}
 
 void PreferencePane::resetToDefaults()
 {
@@ -41,14 +35,4 @@ void PreferencePane::resetToDefaults()
   updateControls();
 }
 
-void PreferencePane::updateControls()
-{
-  doUpdateControls();
-}
-
-bool PreferencePane::validate()
-{
-  return doValidate();
-}
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

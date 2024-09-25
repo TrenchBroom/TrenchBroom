@@ -26,10 +26,9 @@
 
 class QCheckBox;
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class FlagsEditor : public QWidget
 {
   Q_OBJECT
@@ -74,5 +73,5 @@ signals:
    */
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

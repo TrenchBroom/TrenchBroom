@@ -34,6 +34,7 @@
 
 namespace TrenchBroom::View
 {
+
 AppInfoPanel::AppInfoPanel(QWidget* parent)
   : QWidget{parent}
 {
@@ -42,20 +43,19 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
 
 void AppInfoPanel::createGui()
 {
-  QPixmap appIconImage = IO::loadPixmapResource("AppIcon.png");
-  QLabel* appIcon = new QLabel{};
+  auto appIconImage = IO::loadPixmapResource("AppIcon.png");
+  auto* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
 
-  QLabel* appName = new QLabel{tr("TrenchBroom")};
+  auto* appName = new QLabel{tr("TrenchBroom")};
   makeHeader(appName);
 
-  BorderLine* appLine = new BorderLine{BorderLine::Direction::Horizontal};
-  QLabel* appClaim = new QLabel{tr("Level Editor")};
+  auto* appLine = new BorderLine{};
+  auto* appClaim = new QLabel{tr("Level Editor")};
 
-  ClickableLabel* version = new ClickableLabel{tr("Version ") % getBuildVersion()};
-  ClickableLabel* build = new ClickableLabel{tr("Build ") % getBuildIdStr()};
-  ClickableLabel* qtVersion =
-    new ClickableLabel{tr("Qt ") % QString::fromLocal8Bit(qVersion())};
+  auto version = new ClickableLabel{tr("Version ") % getBuildVersion()};
+  auto build = new ClickableLabel{tr("Build ") % getBuildIdStr()};
+  auto qtVersion = new ClickableLabel{tr("Qt ") % QString::fromLocal8Bit(qVersion())};
 
   makeInfo(version);
   makeInfo(build);
@@ -89,9 +89,10 @@ void AppInfoPanel::createGui()
 
 void AppInfoPanel::versionInfoClicked()
 {
-  QClipboard* clipboard = QApplication::clipboard();
-  const QString str =
+  auto* clipboard = QApplication::clipboard();
+  const auto str =
     tr("TrenchBroom ") % getBuildVersion() % tr(" Build ") % getBuildIdStr();
   clipboard->setText(str);
 }
+
 } // namespace TrenchBroom::View

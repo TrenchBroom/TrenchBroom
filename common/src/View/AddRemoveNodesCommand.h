@@ -26,14 +26,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -63,14 +61,14 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
-  void doAction(MapDocumentCommandFacade* document);
-  void undoAction(MapDocumentCommandFacade* document);
+  void doAction(MapDocumentCommandFacade& document);
+  void undoAction(MapDocumentCommandFacade& document);
 
   deleteCopyAndMove(AddRemoveNodesCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

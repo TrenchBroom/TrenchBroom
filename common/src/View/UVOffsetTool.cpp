@@ -19,9 +19,7 @@
 
 #include "UVOffsetTool.h"
 
-#include "Ensure.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Polyhedron.h"
 #include "View/GestureTracker.h"
@@ -42,7 +40,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 

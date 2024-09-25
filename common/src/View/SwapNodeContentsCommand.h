@@ -27,18 +27,14 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
-class Brush;
-class Entity;
-class GroupNode;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
 {
 protected:
@@ -46,17 +42,16 @@ protected:
 
 public:
   SwapNodeContentsCommand(
-    const std::string& name,
-    std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
-  ~SwapNodeContentsCommand();
+    std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+  ~SwapNodeContentsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(SwapNodeContentsCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

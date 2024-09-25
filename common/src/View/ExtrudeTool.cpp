@@ -19,8 +19,6 @@
 
 #include "ExtrudeTool.h"
 
-#include "Error.h"
-#include "Exceptions.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -41,15 +39,13 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/distance.h"
-#include "vm/line_io.h"
-#include "vm/plane_io.h"
-#include "vm/vec_io.h"
+#include "vm/line_io.h"  // IWYU pragma: keep
+#include "vm/plane_io.h" // IWYU pragma: keep
+#include "vm/vec_io.h"   // IWYU pragma: keep
 
-#include <limits>
 #include <map>
 #include <vector>
 
@@ -325,10 +321,9 @@ void ExtrudeTool::updateProposedDragHandles(const Model::PickResult& pickResult)
   auto document = kdl::mem_lock(m_document);
   if (m_dragging)
   {
-    // FIXME: this should be turned into an ensure failure, but it's easy to make it fail
-    // currently by spamming drags/modifiers.
-    // Indicates a bug in ExtrudeToolController thinking we are not dragging when we
-    // actually still are.
+    // FIXME: this should be turned into an ensure failure, but it's easy to make it
+    // fail currently by spamming drags/modifiers. Indicates a bug in
+    // ExtrudeToolController thinking we are not dragging when we actually still are.
     document->error() << "updateProposedDragHandles called during a drag";
     return;
   }
@@ -363,7 +358,8 @@ std::vector<Model::BrushFaceHandle> ExtrudeTool::getDragFaces(
 }
 
 /**
- * Starts resizing the faces determined by the previous call to updateProposedDragHandles
+ * Starts resizing the faces determined by the previous call to
+ * updateProposedDragHandles
  */
 void ExtrudeTool::beginExtrude()
 {
@@ -486,7 +482,8 @@ bool splitBrushesInward(
   auto newDragFaces = std::vector<Model::BrushFaceHandle>{};
   // This map is to handle the case when the brushes being
   // extruded have different parents (e.g. different brush entities),
-  // so each newly created brush should be made a sibling of the brush it was cloned from.
+  // so each newly created brush should be made a sibling of the brush it was cloned
+  // from.
   auto newNodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
   auto nodesToUpdate = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
 

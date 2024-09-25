@@ -23,6 +23,7 @@
 
 namespace TrenchBroom
 {
+
 class TrenchBroomStackWalker
 {
 public:
@@ -31,4 +32,5 @@ public:
 #endif
   static std::string getStackTrace();
 };
+
 } // namespace TrenchBroom

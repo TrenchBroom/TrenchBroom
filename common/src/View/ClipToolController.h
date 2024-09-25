@@ -21,9 +21,6 @@
 
 #include "View/ToolController.h"
 
-#include <memory>
-#include <vector>
-
 namespace TrenchBroom::Model
 {
 class BrushFace;

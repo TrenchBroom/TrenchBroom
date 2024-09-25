@@ -26,9 +26,7 @@ class QLineEdit;
 class QPushButton;
 class QRadioButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapFrame;
 
@@ -38,12 +36,12 @@ class ObjExportDialog : public QDialog
 private:
   MapFrame* m_mapFrame;
 
-  QLineEdit* m_exportPathEdit;
-  QPushButton* m_browseExportPathButton;
-  QRadioButton* m_relativeToGamePathRadioButton;
-  QRadioButton* m_relativeToExportPathRadioButton;
-  QPushButton* m_exportButton;
-  QPushButton* m_closeButton;
+  QLineEdit* m_exportPathEdit = nullptr;
+  QPushButton* m_browseExportPathButton = nullptr;
+  QRadioButton* m_relativeToGamePathRadioButton = nullptr;
+  QRadioButton* m_relativeToExportPathRadioButton = nullptr;
+  QPushButton* m_exportButton = nullptr;
+  QPushButton* m_closeButton = nullptr;
 
 public:
   explicit ObjExportDialog(MapFrame* mapFrame);
@@ -53,5 +51,5 @@ public:
 private:
   void createGui();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

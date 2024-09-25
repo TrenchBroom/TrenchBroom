@@ -90,29 +90,6 @@ TEST_CASE("vector_utils_test.vec_static_cast")
   CHECK(vec_static_cast<base*>(vd) == std::vector<base*>{d1.get(), d2.get()});
 }
 
-TEST_CASE("vector_utils_test.vec_index_of")
-{
-  using vec = std::vector<int>;
-
-  CHECK(vec_index_of(vec{}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 3) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 4) == std::nullopt);
-
-  CHECK(vec_index_of(vec{}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 3; }) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
-}
-
 TEST_CASE("vector_utils_test.vec_contains")
 {
   using vec = std::vector<int>;

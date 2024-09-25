@@ -19,7 +19,6 @@
 
 #include "UVScaleTool.h"
 
-#include "Assets/Material.h"
 #include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
@@ -27,8 +26,9 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
@@ -51,7 +51,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 

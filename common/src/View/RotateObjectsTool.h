@@ -23,21 +23,19 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/Tool.h"
 
-#include "vm/forward.h"
+#include "vm/scalar.h"
 
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class MapDocument;
@@ -47,9 +45,9 @@ class RotateObjectsTool : public Tool
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  RotateObjectsToolPage* m_toolPage;
+  RotateObjectsToolPage* m_toolPage = nullptr;
   RotateObjectsHandle m_handle;
-  double m_angle;
+  double m_angle = vm::to_radians(15.0);
   std::vector<vm::vec3> m_recentlyUsedCenters;
 
 public:
@@ -102,5 +100,5 @@ private:
 private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

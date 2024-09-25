@@ -33,14 +33,12 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Node;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CollapsibleTitledPanel;
 class MapDocument;
@@ -49,12 +47,12 @@ class MapInspector : public TabBookPage
 {
   Q_OBJECT
 private:
-  CollapsibleTitledPanel* m_mapPropertiesEditor;
-  CollapsibleTitledPanel* m_modEditor;
+  CollapsibleTitledPanel* m_mapPropertiesEditor = nullptr;
+  CollapsibleTitledPanel* m_modEditor = nullptr;
 
 public:
   explicit MapInspector(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-  ~MapInspector();
+  ~MapInspector() override;
 
 private:
   void createGui(std::weak_ptr<MapDocument> document);
@@ -71,15 +69,15 @@ class MapPropertiesEditor : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  bool m_updatingGui;
+  bool m_updatingGui = false;
 
-  QRadioButton* m_softBoundsDisabled;
-  QRadioButton* m_softBoundsFromGame;
-  QLabel* m_softBoundsFromGameMinLabel;
-  QLabel* m_softBoundsFromGameMaxLabel;
-  QRadioButton* m_softBoundsFromMap;
-  QLineEdit* m_softBoundsFromMapMinEdit;
-  QLineEdit* m_softBoundsFromMapMaxEdit;
+  QRadioButton* m_softBoundsDisabled = nullptr;
+  QRadioButton* m_softBoundsFromGame = nullptr;
+  QLabel* m_softBoundsFromGameMinLabel = nullptr;
+  QLabel* m_softBoundsFromGameMaxLabel = nullptr;
+  QRadioButton* m_softBoundsFromMap = nullptr;
+  QLineEdit* m_softBoundsFromMapMinEdit = nullptr;
+  QLineEdit* m_softBoundsFromMapMaxEdit = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -99,5 +97,5 @@ private:
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void updateGui();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

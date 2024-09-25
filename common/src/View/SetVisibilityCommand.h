@@ -27,26 +27,19 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Node;
 enum class VisibilityState;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
+
 class SetVisibilityCommand : public UndoableCommand
 {
 private:
-  enum class Action
-  {
-    Reset,
-    Hide,
-    Show,
-    Ensure
-  };
+  enum class Action;
 
   std::vector<Model::Node*> m_nodes;
   Action m_action;
@@ -64,11 +57,11 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) override;
+    MapDocumentCommandFacade& document) override;
 
   deleteCopyAndMove(SetVisibilityCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

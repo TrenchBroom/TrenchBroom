@@ -25,28 +25,26 @@
 #include "Preferences.h"
 #include "Renderer/RenderBatch.h"
 #include "View/BrushVertexCommands.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 
 #include "kdl/string_format.h"
 
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 
 #include <cassert>
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-VertexTool::VertexTool(const std::weak_ptr<MapDocument>& document)
-  : VertexToolBase(document)
-  , m_mode(Mode::Move)
-  , m_vertexHandles(std::make_unique<VertexHandleManager>())
-  , m_edgeHandles(std::make_unique<EdgeHandleManager>())
-  , m_faceHandles(std::make_unique<FaceHandleManager>())
-  , m_guideRenderer(document)
+
+VertexTool::VertexTool(std::weak_ptr<MapDocument> document)
+  : VertexToolBase{std::move(document)}
+  , m_mode{Mode::Move}
+  , m_vertexHandles{std::make_unique<VertexHandleManager>()}
+  , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
+  , m_faceHandles{std::make_unique<FaceHandleManager>()}
+  , m_guideRenderer{m_document}
 {
 }
 
@@ -74,7 +72,7 @@ void VertexTool::pick(
   Model::PickResult& pickResult) const
 {
   auto document = kdl::mem_lock(m_document);
-  const Grid& grid = document->grid();
+  const auto& grid = document->grid();
 
   m_vertexHandles->pick(pickRay, camera, pickResult);
   m_edgeHandles->pickGridHandle(pickRay, camera, grid, pickResult);
@@ -128,15 +126,13 @@ bool VertexTool::startMove(const std::vector<Model::Hit>& hits)
     m_vertexHandles->deselectAll();
     if (hit.hasType(EdgeHandleManager::HandleHitType))
     {
-      const vm::segment3& handle =
-        std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
+      const auto& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
       m_edgeHandles->select(handle);
       m_mode = Mode::SplitEdge;
     }
     else
     {
-      const vm::polygon3& handle =
-        std::get<0>(hit.target<const FaceHandleManager::HitType&>());
+      const auto& handle = std::get<0>(hit.target<const FaceHandleManager::HitType&>());
       m_faceHandles->select(handle);
       m_mode = Mode::SplitFace;
     }
@@ -152,10 +148,7 @@ bool VertexTool::startMove(const std::vector<Model::Hit>& hits)
     m_mode = Mode::Move;
     return false;
   }
-  else
-  {
-    return true;
-  }
+  return true;
 }
 
 VertexTool::MoveResult VertexTool::move(const vm::vec3& delta)
@@ -172,55 +165,47 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3& delta)
       {
         return MoveResult::Cancel;
       }
-      else
-      {
-        m_dragHandlePosition = m_dragHandlePosition + delta;
-        return MoveResult::Continue;
-      }
+      m_dragHandlePosition = m_dragHandlePosition + delta;
+      return MoveResult::Continue;
     }
-    else
+    return MoveResult::Deny;
+  }
+
+  auto brushes = std::vector<Model::BrushNode*>{};
+  if (m_mode == Mode::SplitEdge)
+  {
+    if (m_edgeHandles->selectedHandleCount() == 1)
     {
-      return MoveResult::Deny;
+      const vm::segment3 handle = m_edgeHandles->selectedHandles().front();
+      brushes = findIncidentBrushes(handle);
     }
   }
   else
   {
-    std::vector<Model::BrushNode*> brushes;
-    if (m_mode == Mode::SplitEdge)
+    assert(m_mode == Mode::SplitFace);
+    if (m_faceHandles->selectedHandleCount() == 1)
     {
-      if (m_edgeHandles->selectedHandleCount() == 1)
-      {
-        const vm::segment3 handle = m_edgeHandles->selectedHandles().front();
-        brushes = findIncidentBrushes(handle);
-      }
+      const vm::polygon3 handle = m_faceHandles->selectedHandles().front();
+      brushes = findIncidentBrushes(handle);
     }
-    else
-    {
-      assert(m_mode == Mode::SplitFace);
-      if (m_faceHandles->selectedHandleCount() == 1)
-      {
-        const vm::polygon3 handle = m_faceHandles->selectedHandles().front();
-        brushes = findIncidentBrushes(handle);
-      }
-    }
-
-    if (!brushes.empty())
-    {
-      const auto newVertexPosition = m_dragHandlePosition + delta;
-      if (document->addVertex(newVertexPosition))
-      {
-        m_mode = Mode::Move;
-        m_edgeHandles->deselectAll();
-        m_faceHandles->deselectAll();
-        m_dragHandlePosition = m_dragHandlePosition + delta;
-        m_vertexHandles->select(m_dragHandlePosition);
-      }
-      return MoveResult::Continue;
-    }
-
-    // Catch all failure cases: no brushes were selected or vertices could not be added:
-    return MoveResult::Deny;
   }
+
+  if (!brushes.empty())
+  {
+    const auto newVertexPosition = m_dragHandlePosition + delta;
+    if (document->addVertex(newVertexPosition))
+    {
+      m_mode = Mode::Move;
+      m_edgeHandles->deselectAll();
+      m_faceHandles->deselectAll();
+      m_dragHandlePosition = m_dragHandlePosition + delta;
+      m_vertexHandles->select(m_dragHandlePosition);
+    }
+    return MoveResult::Continue;
+  }
+
+  // Catch all failure cases: no brushes were selected or vertices could not be added:
+  return MoveResult::Deny;
 }
 
 void VertexTool::endMove()
@@ -250,18 +235,10 @@ vm::vec3 VertexTool::getHandlePosition(const Model::Hit& hit) const
     VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType
     | FaceHandleManager::HandleHitType));
 
-  if (hit.hasType(VertexHandleManager::HandleHitType))
-  {
-    return hit.target<vm::vec3>();
-  }
-  else if (hit.hasType(EdgeHandleManager::HandleHitType))
-  {
-    return std::get<1>(hit.target<EdgeHandleManager::HitType>());
-  }
-  else
-  {
-    return std::get<1>(hit.target<FaceHandleManager::HitType>());
-  }
+  return hit.hasType(VertexHandleManager::HandleHitType) ? hit.target<vm::vec3>()
+         : hit.hasType(EdgeHandleManager::HandleHitType)
+           ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
+           : std::get<1>(hit.target<FaceHandleManager::HitType>());
 }
 
 std::string VertexTool::actionName() const
@@ -306,7 +283,7 @@ bool VertexTool::doActivate()
   m_edgeHandles->clear();
   m_faceHandles->clear();
 
-  const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+  const auto& brushes = selectedBrushes();
   m_edgeHandles->addHandles(std::begin(brushes), std::end(brushes));
   m_faceHandles->addHandles(std::begin(brushes), std::end(brushes));
 
@@ -358,5 +335,5 @@ void VertexTool::resetModeAfterDeselection()
     m_mode = Mode::Move;
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

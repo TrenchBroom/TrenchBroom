@@ -26,12 +26,11 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 // AnimationCurve
-AnimationCurve::~AnimationCurve() {}
+AnimationCurve::~AnimationCurve() = default;
 
 double AnimationCurve::apply(const double progress) const
 {
@@ -45,22 +44,23 @@ double FlatAnimationCurve::doApply(const double progress) const
 
 EaseInEaseOutAnimationCurve::EaseInEaseOutAnimationCurve(const double duration)
 {
-  if (duration < 100 + 100)
-    m_threshold = 0.5;
-  else
-    m_threshold = 100.0 / duration;
+  m_threshold = duration < 100 + 100 ? 0.5 : 100.0 / duration;
 }
 
 double EaseInEaseOutAnimationCurve::doApply(const double progress) const
 {
   if (progress < m_threshold)
+  {
     return progress * progress / m_threshold;
+  }
+
   if (progress > 1.0 - m_threshold)
   {
-    double temp = 1.0 - progress;
+    auto temp = 1.0 - progress;
     temp = temp * temp / m_threshold;
     return 1.0 - m_threshold + temp;
   }
+
   return progress;
 }
 
@@ -73,11 +73,9 @@ Animation::Type Animation::freeType()
 }
 
 Animation::Animation(const Type type, const Curve curve, const double duration)
-  : m_type(type)
-  , m_curve(createAnimationCurve(curve, duration))
-  , m_duration(duration)
-  , m_elapsed(0)
-  , m_progress(0.0)
+  : m_type{type}
+  , m_curve{createAnimationCurve(curve, duration)}
+  , m_duration{duration}
 {
   assert(m_duration > 0);
 }
@@ -119,8 +117,8 @@ std::unique_ptr<AnimationCurve> Animation::createAnimationCurve(
 const int AnimationManager::AnimationUpdateRateHz = 60;
 
 AnimationManager::AnimationManager(QObject* parent)
-  : QObject(parent)
-  , m_timer(new QTimer(this))
+  : QObject{parent}
+  , m_timer{new QTimer{this}}
 {
   connect(m_timer, &QTimer::timeout, this, &AnimationManager::onTimerTick);
 }
@@ -166,24 +164,10 @@ void AnimationManager::onTimerTick()
         const auto finished = animation->step(msElapsed);
         animation->update();
 
-        if (finished)
-        {
-          listIt = list.erase(listIt);
-        }
-        else
-        {
-          ++listIt;
-        }
+        listIt = finished ? list.erase(listIt) : std::next(listIt);
       }
 
-      if (list.empty())
-      {
-        m_animations.erase(mapIt++);
-      }
-      else
-      {
-        ++mapIt;
-      }
+      mapIt = list.empty() ? m_animations.erase(mapIt) : std::next(mapIt);
     }
   }
 
@@ -194,5 +178,5 @@ void AnimationManager::onTimerTick()
     m_timer->stop();
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

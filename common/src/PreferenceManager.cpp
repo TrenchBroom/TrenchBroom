@@ -37,9 +37,7 @@
 #include "IO/PathQt.h"
 #include "IO/SystemPaths.h"
 #include "Preferences.h"
-#include "View/Actions.h"
 
-#include <string>
 #include <vector>
 
 namespace TrenchBroom
@@ -74,11 +72,9 @@ bool shouldSaveInstantly()
 
 AppPreferenceManager::AppPreferenceManager()
   : m_saveInstantly{shouldSaveInstantly()}
-  , m_fileSystemWatcher{nullptr}
-  , m_fileReadWriteDisabled{false}
 {
   m_saveTimer.setSingleShot(true);
-  connect(&m_saveTimer, &QTimer::timeout, this, [this] {
+  connect(&m_saveTimer, &QTimer::timeout, this, [&] {
     qDebug() << "Saving preferences";
     saveChangesImmediately();
   });
@@ -106,7 +102,7 @@ void AppPreferenceManager::initialize()
       m_fileSystemWatcher,
       &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
       this,
-      [this]() {
+      [&]() {
         qDebug() << "Reloading preferences after file change";
         loadCacheFromDisk();
       });
@@ -120,21 +116,19 @@ bool AppPreferenceManager::saveInstantly() const
 
 void AppPreferenceManager::saveChanges()
 {
-  if (m_unsavedPreferences.empty())
+  if (!m_unsavedPreferences.empty())
   {
-    return;
-  }
+    for (auto* pref : m_unsavedPreferences)
+    {
+      savePreferenceToCache(*pref);
+      preferenceDidChangeNotifier(pref->path());
+    }
+    m_unsavedPreferences.clear();
 
-  for (auto* pref : m_unsavedPreferences)
-  {
-    savePreferenceToCache(*pref);
-    preferenceDidChangeNotifier(pref->path());
-  }
-  m_unsavedPreferences.clear();
-
-  if (!m_fileReadWriteDisabled)
-  {
-    m_saveTimer.start(500);
+    if (!m_fileReadWriteDisabled)
+    {
+      m_saveTimer.start(500);
+    }
   }
 }
 
@@ -494,7 +488,7 @@ QByteArray writePreferencesToJson(
   const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
-  for (auto [key, val] : prefs)
+  for (const auto& [key, val] : prefs)
   {
     rootObject[IO::pathAsGenericQString(key)] = val;
   }
@@ -502,4 +496,5 @@ QByteArray writePreferencesToJson(
   auto document = QJsonDocument{rootObject};
   return document.toJson(QJsonDocument::Indented);
 }
+
 } // namespace TrenchBroom

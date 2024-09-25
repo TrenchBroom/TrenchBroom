@@ -19,7 +19,6 @@
 
 #include "TrenchBroomApp.h"
 
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/PathInfo.h"
@@ -46,7 +45,7 @@
 #include "View/RecentDocuments.h"
 #include "View/WelcomeWindow.h"
 #ifdef __APPLE__
-#include "View/MainMenuBuilder.h"
+#include "View/ActionBuilder.h"
 #endif
 
 #include <QColor>
@@ -65,7 +64,6 @@
 #include <QUrl>
 
 #include "kdl/path_utils.h"
-#include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
@@ -74,18 +72,18 @@
 #include <clocale>
 #include <csignal>
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
+
 // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
 std::shared_ptr<MapDocument> topDocument()
 {
@@ -98,6 +96,7 @@ std::shared_ptr<MapDocument> topDocument()
   }
   return {};
 }
+
 } // namespace
 
 TrenchBroomApp& TrenchBroomApp::instance()
@@ -116,8 +115,8 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 {
   using namespace std::chrono_literals;
 
-  // When this flag is enabled, font and palette changes propagate as though the user had
-  // manually called the corresponding QWidget methods.
+  // When this flag is enabled, font and palette changes propagate as though the user
+  // had manually called the corresponding QWidget methods.
   setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
 
   // Don't show icons in menus, they are scaled down and don't look very good.
@@ -179,18 +178,14 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   setQuitOnLastWindowClosed(false);
 
   auto* menuBar = new QMenuBar{};
-  auto actionMap = std::map<const Action*, QAction*>{};
+  auto actionMap = std::unordered_map<const Action*, QAction*>{};
 
-  auto menuBuilder =
-    MainMenuBuilder{*menuBar, actionMap, [](const Action& action) {
-                      auto context = ActionExecutionContext{nullptr, nullptr};
-                      action.execute(context);
-                    }};
+  auto menuBuilderResult = populateMenuBar(*menuBar, actionMap, [](const Action& action) {
+    auto context = ActionExecutionContext{nullptr, nullptr};
+    action.execute(context);
+  });
 
-  const auto& actionManager = ActionManager::instance();
-  actionManager.visitMainMenu(menuBuilder);
-
-  addRecentDocumentMenu(*menuBuilder.recentDocumentsMenu);
+  addRecentDocumentMenu(*menuBuilderResult.recentDocumentsMenu);
 
   auto context = ActionExecutionContext{nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
@@ -201,7 +196,6 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
       qtAction->setChecked(tbAction->checked(context));
     }
   }
-
 #endif
 }
 
@@ -284,15 +278,15 @@ bool TrenchBroomApp::loadStyleSheets()
 
 void TrenchBroomApp::loadStyle()
 {
-  // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the
-  // "Debug" menu, Alt+S activates the "Show default properties" checkbox in the entity
-  // inspector. Flying with Alt held down and pressing WASD is a fundamental behaviour in
-  // TB, so we can't have shortcuts randomly activating.
+  // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens
+  // the "Debug" menu, Alt+S activates the "Show default properties" checkbox in the
+  // entity inspector. Flying with Alt held down and pressing WASD is a fundamental
+  // behaviour in TB, so we can't have shortcuts randomly activating.
   //
   // Previously were calling `qt_set_sequence_auto_mnemonic(false);` in main(), but it
-  // turns out we also need to suppress an Alt press followed by release from focusing the
-  // menu bar (https://github.com/TrenchBroom/TrenchBroom/issues/3140), so the following
-  // QProxyStyle disables that completely.
+  // turns out we also need to suppress an Alt press followed by release from focusing
+  // the menu bar (https://github.com/TrenchBroom/TrenchBroom/issues/3140), so the
+  // following QProxyStyle disables that completely.
 
   class TrenchBroomProxyStyle : public QProxyStyle
   {
@@ -789,6 +783,5 @@ static void CrashHandler(int /* signum */)
     TrenchBroom::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
 }
 #endif
-
 
 } // namespace TrenchBroom::View

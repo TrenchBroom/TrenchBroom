@@ -19,23 +19,21 @@
 
 #include "UVOriginTool.h"
 
-#include "Assets/Material.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/Circle.h"
 #include "Renderer/EdgeRenderer.h"
+#include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
 #include "View/GestureTracker.h"
@@ -55,7 +53,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 
@@ -132,7 +129,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of
   // the vertices instead, we must snap to the edges!
   auto distanceInUVCoords = vm::vec2f::max();
-  for (const Model::BrushVertex* vertex : helper.face()->vertices())
+  for (const auto* vertex : helper.face()->vertices())
   {
     distanceInUVCoords = vm::abs_min(
       distanceInUVCoords,
@@ -140,8 +137,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   }
 
   // and to the UV grid
-  const auto* material = helper.face()->material();
-  if (material != nullptr)
+  if (helper.face()->material())
   {
     distanceInUVCoords = vm::abs_min(
       distanceInUVCoords,
@@ -276,7 +272,6 @@ public:
   bool update(const InputState& inputState) override
   {
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
-
     const auto delta = curPoint - m_lastPoint;
 
     const auto snapped = snapDelta(m_helper, delta * m_selector);
@@ -284,13 +279,11 @@ public:
     {
       return true;
     }
-    else
-    {
-      m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
-      m_lastPoint = m_lastPoint + snapped;
 
-      return true;
-    }
+    m_helper.setOriginInFaceCoords(m_helper.originInFaceCoords() + snapped);
+    m_lastPoint = m_lastPoint + snapped;
+
+    return true;
   }
 
   void end(const InputState&) override {}
@@ -411,22 +404,21 @@ void UVOriginTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  if (!m_helper.valid() || inputState.anyToolDragging())
-  {
-    return;
-  }
-
   using namespace Model::HitFilters;
 
-  const Model::Hit& xHandleHit =
-    inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
-  const Model::Hit& yHandleHit =
-    inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
+  if (m_helper.valid() && !inputState.anyToolDragging())
+  {
+    const auto& xHandleHit =
+      inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
+    const auto& yHandleHit =
+      inputState.pickResult().first(type(UVOriginTool::YHandleHitType));
 
-  const auto highlightHandles = vm::vec2b{xHandleHit.isMatch(), yHandleHit.isMatch()};
+    const auto highlightHandles = vm::vec2b{xHandleHit.isMatch(), yHandleHit.isMatch()};
 
-  renderLineHandles(m_helper, highlightHandles, renderBatch);
-  renderOriginHandle(m_helper, xHandleHit.isMatch() || yHandleHit.isMatch(), renderBatch);
+    renderLineHandles(m_helper, highlightHandles, renderBatch);
+    renderOriginHandle(
+      m_helper, xHandleHit.isMatch() || yHandleHit.isMatch(), renderBatch);
+  }
 }
 
 bool UVOriginTool::cancel()

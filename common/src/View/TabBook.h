@@ -23,9 +23,7 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class TabBar;
 
@@ -34,16 +32,16 @@ class TabBookPage : public QWidget
   Q_OBJECT
 public:
   explicit TabBookPage(QWidget* parent = nullptr);
-  virtual ~TabBookPage();
-  virtual QWidget* createTabBarPage(QWidget* parent);
+  ~TabBookPage() override;
+  virtual QWidget* createTabBarPage(QWidget* parent = nullptr);
 };
 
 class TabBook : public QWidget
 {
   Q_OBJECT
 private:
-  TabBar* m_tabBar;
-  QStackedLayout* m_tabBook;
+  TabBar* m_tabBar = nullptr;
+  QStackedLayout* m_tabBook = nullptr;
 
 public:
   explicit TabBook(QWidget* parent = nullptr);
@@ -56,5 +54,5 @@ public:
 signals:
   void pageChanged(int page);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

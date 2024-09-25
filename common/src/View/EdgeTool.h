@@ -22,26 +22,22 @@
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
 
-#include "vm/segment.h"
-
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushNode;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class EdgeTool : public VertexToolBase<vm::segment3>
 {
@@ -49,7 +45,7 @@ private:
   std::unique_ptr<EdgeHandleManager> m_edgeHandles;
 
 public:
-  EdgeTool(std::weak_ptr<MapDocument> document);
+  explicit EdgeTool(std::weak_ptr<MapDocument> document);
 
 public:
   std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3& handle) const;
@@ -77,5 +73,5 @@ public:
 
   void removeSelection();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

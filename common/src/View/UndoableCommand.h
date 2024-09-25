@@ -25,9 +25,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocumentCommandFacade;
 
@@ -40,23 +38,23 @@ protected:
   UndoableCommand(std::string name, bool updateModificationCount);
 
 public:
-  virtual ~UndoableCommand();
+  ~UndoableCommand() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
-  virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document);
+  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document) override;
+  virtual std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade& document);
 
   virtual bool collateWith(UndoableCommand& command);
 
 protected:
   virtual std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade* document) = 0;
+    MapDocumentCommandFacade& document) = 0;
 
   virtual bool doCollateWith(UndoableCommand& command);
 
-  void setModificationCount(MapDocumentCommandFacade* document);
-  void resetModificationCount(MapDocumentCommandFacade* document);
+  void setModificationCount(MapDocumentCommandFacade& document) const;
+  void resetModificationCount(MapDocumentCommandFacade& document) const;
 
   deleteCopyAndMove(UndoableCommand);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

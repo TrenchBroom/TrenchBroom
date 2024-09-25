@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/TraversalMode.h"

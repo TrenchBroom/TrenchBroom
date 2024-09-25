@@ -19,26 +19,30 @@
 
 #include "SelectionCommand.h"
 
-#include "Ensure.h"
-#include "Error.h"
 #include "Macros.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushFaceReference.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
 #include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 #include <sstream>
 #include <string>
 
 namespace TrenchBroom::View
 {
+enum class SelectionCommand::Action
+{
+  SelectNodes,
+  SelectFaces,
+  SelectAllNodes,
+  SelectAllFaces,
+  ConvertToFaces,
+  DeselectNodes,
+  DeselectFaces,
+  DeselectAll
+};
 
 std::unique_ptr<SelectionCommand> SelectionCommand::select(
   std::vector<Model::Node*> nodes)
@@ -152,64 +156,64 @@ std::string SelectionCommand::makeName(
 }
 
 std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  m_previouslySelectedNodes = document->selectedNodes().nodes();
-  m_previouslySelectedFaceRefs = Model::createRefs(document->selectedBrushFaces());
+  m_previouslySelectedNodes = document.selectedNodes().nodes();
+  m_previouslySelectedFaceRefs = Model::createRefs(document.selectedBrushFaces());
 
   switch (m_action)
   {
   case Action::SelectNodes:
-    document->performSelect(m_nodes);
+    document.performSelect(m_nodes);
     return std::make_unique<CommandResult>(true);
   case Action::SelectFaces:
     return std::make_unique<CommandResult>(
       Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
-        document->performSelect(faceHandles);
+        document.performSelect(faceHandles);
       })
-      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+      | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
       | kdl::is_success());
   case Action::SelectAllNodes:
-    document->performSelectAllNodes();
+    document.performSelectAllNodes();
     return std::make_unique<CommandResult>(true);
   case Action::SelectAllFaces:
-    document->performSelectAllBrushFaces();
+    document.performSelectAllBrushFaces();
     return std::make_unique<CommandResult>(true);
   case Action::ConvertToFaces:
-    document->performConvertToBrushFaceSelection();
+    document.performConvertToBrushFaceSelection();
     return std::make_unique<CommandResult>(true);
   case Action::DeselectNodes:
-    document->performDeselect(m_nodes);
+    document.performDeselect(m_nodes);
     return std::make_unique<CommandResult>(true);
   case Action::DeselectFaces:
     return std::make_unique<CommandResult>(
       Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
-        document->performDeselect(faceHandles);
+        document.performDeselect(faceHandles);
       })
-      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+      | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
       | kdl::is_success());
   case Action::DeselectAll:
-    document->performDeselectAll();
+    document.performDeselectAll();
     return std::make_unique<CommandResult>(true);
     switchDefault();
   }
 }
 
 std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  document->performDeselectAll();
+  document.performDeselectAll();
   if (!m_previouslySelectedNodes.empty())
   {
-    document->performSelect(m_previouslySelectedNodes);
+    document.performSelect(m_previouslySelectedNodes);
   }
   if (!m_previouslySelectedFaceRefs.empty())
   {
     return std::make_unique<CommandResult>(
       Model::resolveAllRefs(m_previouslySelectedFaceRefs)
       | kdl::transform(
-        [&](const auto& faceHandles) { document->performSelect(faceHandles); })
-      | kdl::transform_error([&](const auto& e) { document->error() << e.msg; })
+        [&](const auto& faceHandles) { document.performSelect(faceHandles); })
+      | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
       | kdl::is_success());
   }
   return std::make_unique<CommandResult>(true);

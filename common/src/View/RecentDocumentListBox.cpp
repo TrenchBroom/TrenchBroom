@@ -84,4 +84,5 @@ void RecentDocumentListBox::doubleClicked(const size_t index)
     emit loadRecentDocument(documentPath);
   }
 }
+
 } // namespace TrenchBroom::View

@@ -28,57 +28,49 @@
 #include "View/PopupButton.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 FlagsPopupEditor::FlagsPopupEditor(
-  size_t numCols, QWidget* parent, const QString& buttonLabel, const bool showFlagsText)
-  : QWidget(parent)
-  , m_flagsTxt(nullptr)
-  , m_button(nullptr)
-  , m_editor(nullptr)
+  size_t numCols, const QString& buttonLabel, const bool showFlagsText, QWidget* parent)
+  : QWidget{parent}
 {
-  QFrame* flagsFrame = nullptr;
-  if (showFlagsText)
-  {
-    m_flagsTxt = new ElidedLabel(Qt::ElideRight);
-
-    flagsFrame = new QFrame();
-    flagsFrame->setFrameShape(QFrame::QFrame::StyledPanel);
-
-    auto* layout = new QHBoxLayout();
-    layout->setContentsMargins(
-      LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
-    layout->setSpacing(0);
-    layout->addWidget(m_flagsTxt);
-    flagsFrame->setLayout(layout);
-  }
-
-  m_button = new PopupButton(buttonLabel);
+  m_button = new PopupButton{buttonLabel};
   m_button->setToolTip("Click to edit flags");
 
-  auto* editorContainer = new QWidget();
+  auto* editorContainer = new QWidget{};
   m_editor = new FlagsEditor(numCols, editorContainer);
 
-  auto* editorContainerLayout = new QVBoxLayout();
+  auto* editorContainerLayout = new QVBoxLayout{};
   editorContainerLayout->setContentsMargins(0, 0, 0, 0);
   editorContainerLayout->setSpacing(0);
   editorContainerLayout->addWidget(m_editor);
   editorContainer->setLayout(editorContainerLayout);
 
-  auto* popupLayout = new QVBoxLayout();
+  auto* popupLayout = new QVBoxLayout{};
   popupLayout->setContentsMargins(0, 0, 0, 0);
   popupLayout->setSpacing(0);
   popupLayout->addWidget(editorContainer);
   m_button->GetPopupWindow()->setLayout(popupLayout);
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(LayoutConstants::MediumHMargin);
 
-  if (flagsFrame != nullptr)
+  if (showFlagsText)
   {
+    m_flagsTxt = new ElidedLabel{Qt::ElideRight};
+
+    auto flagsFrame = new QFrame{};
+    flagsFrame->setFrameShape(QFrame::QFrame::StyledPanel);
+
+    auto* flagsLayout = new QHBoxLayout{};
+    flagsLayout->setContentsMargins(
+      LayoutConstants::NarrowHMargin, 0, LayoutConstants::NarrowHMargin, 0);
+    flagsLayout->setSpacing(0);
+    flagsLayout->addWidget(m_flagsTxt);
+    flagsFrame->setLayout(flagsLayout);
+
     layout->addWidget(flagsFrame, 1);
   }
 
@@ -119,51 +111,49 @@ void FlagsPopupEditor::setFlagValue(const int set, const int mixed)
 
 void FlagsPopupEditor::updateFlagsText()
 {
-  if (m_flagsTxt == nullptr)
+  if (m_flagsTxt)
   {
-    return;
-  }
-
-  if (!isEnabled())
-  {
-    m_flagsTxt->setDisabled(true);
-    m_flagsTxt->setText("n/a");
-    m_flagsTxt->setToolTip("");
-    return;
-  }
-
-  QString label;
-  bool first = true;
-  bool mixed = false;
-  for (size_t i = 0; i < m_editor->getNumFlags() && !mixed; ++i)
-  {
-    if (m_editor->isFlagMixed(i))
+    if (!isEnabled())
     {
-      label = "multi";
-      mixed = true;
+      m_flagsTxt->setDisabled(true);
+      m_flagsTxt->setText("n/a");
+      m_flagsTxt->setToolTip("");
+      return;
     }
-    else if (m_editor->isFlagSet(i))
+
+    QString label;
+    bool first = true;
+    bool mixed = false;
+    for (size_t i = 0; i < m_editor->getNumFlags() && !mixed; ++i)
     {
-      if (!first)
+      if (m_editor->isFlagMixed(i))
       {
-        label += ", ";
+        label = "multi";
+        mixed = true;
       }
-      label += m_editor->getFlagLabel(i);
-      first = false;
+      else if (m_editor->isFlagSet(i))
+      {
+        if (!first)
+        {
+          label += ", ";
+        }
+        label += m_editor->getFlagLabel(i);
+        first = false;
+      }
     }
-  }
 
-  m_flagsTxt->setText(label);
-  if (!first)
-  {
-    m_flagsTxt->setToolTip(label);
-  }
-  else
-  {
-    m_flagsTxt->setToolTip("");
-  }
+    m_flagsTxt->setText(label);
+    if (!first)
+    {
+      m_flagsTxt->setToolTip(label);
+    }
+    else
+    {
+      m_flagsTxt->setToolTip("");
+    }
 
-  m_flagsTxt->setDisabled(mixed);
+    m_flagsTxt->setDisabled(mixed);
+  }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

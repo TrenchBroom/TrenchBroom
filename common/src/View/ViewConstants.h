@@ -19,82 +19,78 @@
 
 #pragma once
 
-class QColor;
-class QFont;
-class QWidget;
+#include <QFont>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 namespace LayoutConstants
 {
 #if defined _WIN32
-static const int DialogOuterMargin = 20;
-static const int DialogButtonTopMargin = 10;
-static const int DialogButtonLeftMargin = 7;
-static const int DialogButtonRightMargin = 7;
-static const int DialogButtonBottomMargin = 10;
-static const int WideHMargin = 8;
-static const int MediumHMargin = 6;
-static const int NarrowHMargin = 4;
-static const int WideVMargin = 8;
-static const int MediumVMargin = 4;
-static const int NarrowVMargin = 2;
-static const int StaticBoxSideMargin = 15;
-static const int StaticBoxTopMargin = 20;
-static const int StaticBoxBottomMargin = 15;
-static const int ChoiceTopMargin = 1;
-static const int ChoiceLeftMargin = 0;
-static const int ChoiceSizeDelta = 0;
-static const int TextBoxInnerMargin = 5;
-static const int TabBarBarLeftMargin = 10;
-static const int ToggleButtonStyle = 0;
+static constexpr int DialogOuterMargin = 20;
+static constexpr int DialogButtonTopMargin = 10;
+static constexpr int DialogButtonLeftMargin = 7;
+static constexpr int DialogButtonRightMargin = 7;
+static constexpr int DialogButtonBottomMargin = 10;
+static constexpr int WideHMargin = 8;
+static constexpr int MediumHMargin = 6;
+static constexpr int NarrowHMargin = 4;
+static constexpr int WideVMargin = 8;
+static constexpr int MediumVMargin = 4;
+static constexpr int NarrowVMargin = 2;
+static constexpr int StaticBoxSideMargin = 15;
+static constexpr int StaticBoxTopMargin = 20;
+static constexpr int StaticBoxBottomMargin = 15;
+static constexpr int ChoiceTopMargin = 1;
+static constexpr int ChoiceLeftMargin = 0;
+static constexpr int ChoiceSizeDelta = 0;
+static constexpr int TextBoxInnerMargin = 5;
+static constexpr int TabBarBarLeftMargin = 10;
+static constexpr int ToggleButtonStyle = 0;
 #elif defined __APPLE__
-static const int DialogOuterMargin = 20;
-static const int DialogButtonTopMargin = 10;
-static const int DialogButtonLeftMargin = 10;
-static const int DialogButtonRightMargin = 10;
-static const int DialogButtonBottomMargin = 10;
-static const int WideHMargin = 8;
-static const int MediumHMargin = 4;
-static const int NarrowHMargin = 2;
-static const int WideVMargin = 8;
-static const int MediumVMargin = 4;
-static const int NarrowVMargin = 2;
-static const int StaticBoxSideMargin = 10;
-static const int StaticBoxTopMargin = 10;
-static const int StaticBoxBottomMargin = 10;
-static const int ChoiceTopMargin = 1;
-static const int ChoiceLeftMargin = 1;
-static const int ChoiceSizeDelta = 1;
-static const int TextBoxInnerMargin = 0;
-static const int TabBarBarLeftMargin = 10;
-static const int ToggleButtonStyle = 0x08000000; // wxBORDER_SUNKEN
+static constexpr int DialogOuterMargin = 20;
+static constexpr int DialogButtonTopMargin = 10;
+static constexpr int DialogButtonLeftMargin = 10;
+static constexpr int DialogButtonRightMargin = 10;
+static constexpr int DialogButtonBottomMargin = 10;
+static constexpr int WideHMargin = 8;
+static constexpr int MediumHMargin = 4;
+static constexpr int NarrowHMargin = 2;
+static constexpr int WideVMargin = 8;
+static constexpr int MediumVMargin = 4;
+static constexpr int NarrowVMargin = 2;
+static constexpr int StaticBoxSideMargin = 10;
+static constexpr int StaticBoxTopMargin = 10;
+static constexpr int StaticBoxBottomMargin = 10;
+static constexpr int ChoiceTopMargin = 1;
+static constexpr int ChoiceLeftMargin = 1;
+static constexpr int ChoiceSizeDelta = 1;
+static constexpr int TextBoxInnerMargin = 0;
+static constexpr int TabBarBarLeftMargin = 10;
+static constexpr int ToggleButtonStyle = 0x08000000; // wxBORDER_SUNKEN
 #else
-static const int DialogOuterMargin = 20;
-static const int DialogButtonTopMargin = 10;
-static const int DialogButtonLeftMargin = 8;
-static const int DialogButtonRightMargin = 8;
-static const int DialogButtonBottomMargin = 10;
-static const int WideHMargin = 8;
-static const int MediumHMargin = 4;
-static const int NarrowHMargin = 2;
-static const int WideVMargin = 8;
-static const int MediumVMargin = 4;
-static const int NarrowVMargin = 2;
-static const int StaticBoxSideMargin = 15;
-static const int StaticBoxTopMargin = 10;
-static const int StaticBoxBottomMargin = 30;
-static const int ChoiceTopMargin = 0;
-static const int ChoiceLeftMargin = 0;
-static const int ChoiceSizeDelta = 0;
-static const int TextBoxInnerMargin = 2;
-static const int TabBarBarLeftMargin = 10;
-static const int ToggleButtonStyle = 0;
+static constexpr int DialogOuterMargin = 20;
+static constexpr int DialogButtonTopMargin = 10;
+static constexpr int DialogButtonLeftMargin = 8;
+static constexpr int DialogButtonRightMargin = 8;
+static constexpr int DialogButtonBottomMargin = 10;
+static constexpr int WideHMargin = 8;
+static constexpr int MediumHMargin = 4;
+static constexpr int NarrowHMargin = 2;
+static constexpr int WideVMargin = 8;
+static constexpr int MediumVMargin = 4;
+static constexpr int NarrowVMargin = 2;
+static constexpr int StaticBoxSideMargin = 15;
+static constexpr int StaticBoxTopMargin = 10;
+static constexpr int StaticBoxBottomMargin = 30;
+static constexpr int ChoiceTopMargin = 0;
+static constexpr int ChoiceLeftMargin = 0;
+static constexpr int ChoiceSizeDelta = 0;
+static constexpr int TextBoxInnerMargin = 2;
+static constexpr int TabBarBarLeftMargin = 10;
+static constexpr int ToggleButtonStyle = 0;
 #endif
-static const int MinPreferenceLabelWidth = 100;
-static const int HighlightBoxMargin = 5;
+static constexpr int MinPreferenceLabelWidth = 100;
+static constexpr int HighlightBoxMargin = 5;
 } // namespace LayoutConstants
 
 namespace Fonts
@@ -102,14 +98,4 @@ namespace Fonts
 QFont fixedWidthFont();
 }
 
-namespace Colors
-{
-QColor defaultText();
-QColor highlightText();
-QColor disabledText();
-QColor disabledCellText();
-QColor disabledText(const QWidget* widget);
-QColor window();
-} // namespace Colors
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

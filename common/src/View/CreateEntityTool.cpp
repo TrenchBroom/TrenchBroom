@@ -26,12 +26,10 @@
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
-#include "PreferenceManager.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -39,18 +37,14 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/bbox.h"
-
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document)
   : Tool{true(initiallyActive)}
   , m_document{std::move(document)}
-  , m_entity{nullptr}
 {
 }
 
@@ -59,9 +53,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
   auto document = kdl::mem_lock(m_document);
   const auto& definitionManager = document->entityDefinitionManager();
   auto* definition = definitionManager.definition(classname);
-  if (
-    definition == nullptr
-    || definition->type() != Assets::EntityDefinitionType::PointEntity)
+  if (!definition || definition->type() != Assets::EntityDefinitionType::PointEntity)
   {
     return false;
   }
@@ -78,7 +70,8 @@ bool CreateEntityTool::createEntity(const std::string& classname)
 
 void CreateEntityTool::removeEntity()
 {
-  ensure(m_entity != nullptr, "entity is null");
+  ensure(m_entity != nullptr, "entity is not null");
+
   auto document = kdl::mem_lock(m_document);
   document->cancelTransaction();
   m_entity = nullptr;
@@ -86,7 +79,8 @@ void CreateEntityTool::removeEntity()
 
 void CreateEntityTool::commitEntity()
 {
-  ensure(m_entity != nullptr, "entity is null");
+  ensure(m_entity != nullptr, "entity is not null");
+
   auto document = kdl::mem_lock(m_document);
   document->commitTransaction();
   m_entity = nullptr;
@@ -94,7 +88,7 @@ void CreateEntityTool::commitEntity()
 
 void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay)
 {
-  ensure(m_entity != nullptr, "entity is null");
+  ensure(m_entity != nullptr, "entity is not null");
 
   auto document = kdl::mem_lock(m_document);
 
@@ -120,7 +114,7 @@ void CreateEntityTool::updateEntityPosition3D(
 {
   using namespace Model::HitFilters;
 
-  ensure(m_entity != nullptr, "entity is null");
+  ensure(m_entity != nullptr, "entity is not null");
 
   auto document = kdl::mem_lock(m_document);
 
@@ -146,5 +140,5 @@ void CreateEntityTool::updateEntityPosition3D(
     document->translateObjects(delta);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

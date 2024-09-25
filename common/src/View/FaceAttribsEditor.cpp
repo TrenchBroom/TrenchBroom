@@ -50,8 +50,7 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <memory>
 #include <string>
@@ -399,7 +398,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 
   m_surfaceFlagsLabel = new QLabel{"Surface"};
   makeEmphasized(m_surfaceFlagsLabel);
-  m_surfaceFlagsEditor = new FlagsPopupEditor{2, this};
+  m_surfaceFlagsEditor = new FlagsPopupEditor{2};
   m_surfaceFlagsUnsetButton =
     createBitmapButton("ResetUV.svg", tr("Unset surface flags"));
   m_surfaceFlagsEditorLayout =
@@ -407,7 +406,7 @@ void FaceAttribsEditor::createGui(GLContextManager& contextManager)
 
   m_contentFlagsLabel = new QLabel{"Content"};
   makeEmphasized(m_contentFlagsLabel);
-  m_contentFlagsEditor = new FlagsPopupEditor{2, this};
+  m_contentFlagsEditor = new FlagsPopupEditor{2};
   m_contentFlagsUnsetButton =
     createBitmapButton("ResetUV.svg", tr("Unset content flags"));
   m_contentFlagsEditorLayout =

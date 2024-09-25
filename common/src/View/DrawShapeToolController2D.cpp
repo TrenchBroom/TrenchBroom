@@ -32,26 +32,9 @@
 
 namespace TrenchBroom::View
 {
-
-DrawShapeToolController2D::DrawShapeToolController2D(
-  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
-  : m_tool{tool}
-  , m_document{std::move(document)}
-{
-}
-
-Tool& DrawShapeToolController2D::tool()
-{
-  return m_tool;
-}
-
-const Tool& DrawShapeToolController2D::tool() const
-{
-  return m_tool;
-}
-
 namespace
 {
+
 class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
@@ -203,7 +186,25 @@ private:
       vm::mix(min, refBounds.min, factors), vm::mix(max, refBounds.max, factors)};
   }
 };
+
 } // namespace
+
+DrawShapeToolController2D::DrawShapeToolController2D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
+  : m_tool{tool}
+  , m_document{std::move(document)}
+{
+}
+
+Tool& DrawShapeToolController2D::tool()
+{
+  return m_tool;
+}
+
+const Tool& DrawShapeToolController2D::tool() const
+{
+  return m_tool;
+}
 
 std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
   const InputState& inputState)
@@ -212,6 +213,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
   {
     return nullptr;
   }
+
   if (!inputState.checkModifierKeys(
         ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare))
   {

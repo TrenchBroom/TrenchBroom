@@ -26,18 +26,16 @@
 #include "View/PopupWindow.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 PopupButton::PopupButton(const QString& caption, QWidget* parent)
-  : QWidget(parent)
+  : QWidget{parent}
+  , m_button{new QToolButton()}
+  , m_window{new PopupWindow{this}}
 {
-  m_button = new QToolButton();
   m_button->setText(caption);
   m_button->setCheckable(true);
-
-  m_window = new PopupWindow(this);
 
   auto* sizer = new QHBoxLayout();
   sizer->setContentsMargins(0, 0, 0, 0);
@@ -78,5 +76,5 @@ void PopupButton::popupVisibilityChanged(bool visible)
 {
   m_button->setChecked(visible);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

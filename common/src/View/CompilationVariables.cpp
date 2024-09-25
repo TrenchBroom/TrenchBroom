@@ -20,7 +20,6 @@
 #include "CompilationVariables.h"
 
 #include "IO/SystemPaths.h"
-#include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 
@@ -31,10 +30,9 @@
 #include <string>
 #include <thread>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 namespace CompilationVariableNames
 {
 const std::string WORK_DIR_PATH = "WORK_DIR_PATH";
@@ -110,5 +108,5 @@ LaunchGameEngineVariables::LaunchGameEngineVariables(
   : CommonVariables{std::move(document)}
 {
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

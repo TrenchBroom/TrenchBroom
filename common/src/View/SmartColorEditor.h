@@ -29,9 +29,7 @@ class QWidget;
 class QPushButton;
 class QRadioButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class ColorButton;
 class ColorTable;
@@ -44,10 +42,10 @@ private:
   static const size_t ColorHistoryCellSize = 15;
   using wxColorList = std::vector<QColor>;
 
-  QRadioButton* m_floatRadio;
-  QRadioButton* m_byteRadio;
-  ColorButton* m_colorPicker;
-  ColorTable* m_colorHistory;
+  QRadioButton* m_floatRadio = nullptr;
+  QRadioButton* m_byteRadio = nullptr;
+  ColorButton* m_colorPicker = nullptr;
+  ColorTable* m_colorHistory = nullptr;
 
 public:
   explicit SmartColorEditor(
@@ -67,5 +65,5 @@ private:
   void colorPickerChanged(const QColor& color);
   void colorTableSelected(QColor color);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

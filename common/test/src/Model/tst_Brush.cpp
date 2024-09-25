@@ -19,7 +19,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "FloatType.h"
 #include "IO/DiskIO.h"
@@ -2207,8 +2206,8 @@ TEST_CASE("moveFaceWithUVLock")
 
     const auto normal = oldFace.boundary().normal;
 
-    // The brush modified without alignment lock is expected to have changed UV's on some
-    // faces, but not on others
+    // The brush modified without alignment lock is expected to have changed UV's on
+    // some faces, but not on others
     {
       const auto newFaceIndex = changed.findFace(shearedPolygon);
       REQUIRE(newFaceIndex);

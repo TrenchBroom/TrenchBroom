@@ -20,7 +20,6 @@
 #include "EL/Expression.h"
 #include "EL/Expression.h" // IWYU pragma: keep
 #include "EL/Value.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
@@ -108,8 +107,8 @@ public:
    * variant cases include a value to return when that function is called, or checks to
    * perform on the function arguments.
    *
-   * The expectations set this way are all mandatory and must be called in the order they
-   * are set.
+   * The expectations set this way are all mandatory and must be called in the order
+   * they are set.
    */
   void expectCall(ExpectedCall call) { m_expectedCalls.push_back(std::move(call)); }
 

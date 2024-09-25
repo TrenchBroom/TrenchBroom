@@ -29,18 +29,12 @@
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/scalar.h"
+namespace TrenchBroom::View
+{
 
-namespace TrenchBroom
-{
-namespace View
-{
 RotateObjectsTool::RotateObjectsTool(std::weak_ptr<MapDocument> document)
-  : Tool(false)
-  , m_document(document)
-  , m_toolPage(nullptr)
-  , m_handle()
-  , m_angle(vm::to_radians(15.0))
+  : Tool{false}
+  , m_document{std::move(document)}
 {
 }
 
@@ -199,8 +193,8 @@ QWidget* RotateObjectsTool::doCreatePage(QWidget* parent)
 {
   assert(m_toolPage == nullptr);
 
-  m_toolPage = new RotateObjectsToolPage(m_document, *this, parent);
+  m_toolPage = new RotateObjectsToolPage{m_document, *this, parent};
   return m_toolPage;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

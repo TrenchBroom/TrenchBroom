@@ -205,13 +205,12 @@ protected:
         return false;
       }
 
-      const auto hits = firstHits(inputState.pickResult());
-      if (hits.empty())
+      if (const auto hits = firstHits(inputState.pickResult()); !hits.empty())
       {
-        return m_tool.deselectAll();
+        return m_tool.select(
+          hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
       }
-
-      return m_tool.select(hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
+      return m_tool.deselectAll();
     }
 
     std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
@@ -224,8 +223,7 @@ protected:
         return nullptr;
       }
 
-      const auto hits = firstHits(inputState.pickResult());
-      if (!hits.empty())
+      if (!firstHits(inputState.pickResult()).empty())
       {
         return nullptr;
       }
@@ -311,11 +309,11 @@ protected:
     bool allIncidentBrushesVisited(
       const H& handle, std::unordered_set<Model::BrushNode*>& visitedBrushes) const
     {
-      bool result = true;
+      auto result = true;
       for (auto brush : m_tool.findIncidentBrushes(handle))
       {
-        const bool unvisited = visitedBrushes.insert(brush).second;
-        result &= unvisited;
+        const auto unvisited = visitedBrushes.insert(brush).second;
+        result = result && unvisited;
       }
       return result;
     }
@@ -373,11 +371,9 @@ protected:
     DragHandleSnapper makeDragHandleSnapper(
       const InputState&, const SnapMode snapMode) const override
     {
-      if (m_tool.allowAbsoluteSnapping())
-      {
-        return makeDragHandleSnapperFromSnapMode(m_tool.grid(), snapMode);
-      }
-      return makeRelativeHandleSnapper(m_tool.grid());
+      return m_tool.allowAbsoluteSnapping()
+               ? makeDragHandleSnapperFromSnapMode(m_tool.grid(), snapMode)
+               : makeRelativeHandleSnapper(m_tool.grid());
     }
   };
 

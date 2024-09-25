@@ -34,11 +34,9 @@
 
 namespace TrenchBroom::View
 {
+
 WelcomeWindow::WelcomeWindow()
   : QMainWindow{nullptr, Qt::Dialog} // Qt::Dialog flag centers window on Ubuntu
-  , m_recentDocumentListBox{nullptr}
-  , m_createNewDocumentButton{nullptr}
-  , m_openOtherDocumentButton{nullptr}
 {
   createGui();
 }
@@ -158,4 +156,5 @@ void WelcomeWindow::openDocument(const std::filesystem::path& path)
     show();
   }
 }
+
 } // namespace TrenchBroom::View

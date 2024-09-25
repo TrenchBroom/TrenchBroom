@@ -21,19 +21,17 @@
 
 #include <QKeyEvent>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent)
-  : LimitedKeySequenceEdit(MaxCount, parent)
+  : LimitedKeySequenceEdit{MaxCount, parent}
 {
 }
 
 LimitedKeySequenceEdit::LimitedKeySequenceEdit(const size_t maxCount, QWidget* parent)
-  : QKeySequenceEdit(parent)
-  , m_maxCount(maxCount)
-  , m_count(0)
+  : QKeySequenceEdit{parent}
+  , m_maxCount{maxCount}
 {
   Q_ASSERT(m_maxCount <= MaxCount);
   connect(
@@ -60,5 +58,5 @@ void LimitedKeySequenceEdit::resetCount()
 {
   m_count = 0;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

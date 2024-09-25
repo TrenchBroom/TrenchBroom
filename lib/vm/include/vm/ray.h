@@ -23,6 +23,7 @@
 
 #include "vm/abstract_line.h"
 #include "vm/mat.h"
+#include "vm/mat_ext.h"
 #include "vm/scalar.h"
 #include "vm/util.h"
 #include "vm/vec.h"

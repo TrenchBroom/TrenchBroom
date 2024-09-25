@@ -21,8 +21,6 @@
 
 #include <QApplication>
 
-#include "Notifier.h"
-
 #include <filesystem>
 #include <memory>
 #include <string>

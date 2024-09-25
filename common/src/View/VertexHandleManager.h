@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FloatType.h"
-#include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
@@ -28,20 +27,16 @@
 
 #include "kdl/vector_set.h"
 
-#include "vm/segment.h"
-
 #include <iterator>
 #include <map>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 
@@ -189,7 +184,7 @@ public:
   {
   }
 
-  virtual ~VertexHandleManagerBaseT() {}
+  ~VertexHandleManagerBaseT() override {}
 
 public:
   /**
@@ -298,9 +293,7 @@ public:
   bool selected(const Handle& handle) const
   {
     const auto it = m_handles.find(handle);
-    if (it == std::end(m_handles))
-      return false;
-    return it->second.selected;
+    return it != m_handles.end() && it->second.selected;
   }
 
   /**
@@ -760,5 +753,5 @@ public:
 private:
   bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

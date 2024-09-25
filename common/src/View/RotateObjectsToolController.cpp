@@ -30,7 +30,6 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/Renderable.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"

@@ -30,17 +30,13 @@
 #include "View/ViewConstants.h"
 #include "View/ViewEditor.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MapViewBar::MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent)
   : ContainerBar(Sides::BottomSide, parent)
-  , m_document(document)
-  , m_toolBook(nullptr)
-  , m_viewEditor(nullptr)
 {
-  createGui(document);
+  createGui(std::move(document));
 }
 
 QStackedLayout* MapViewBar::toolBook()
@@ -52,10 +48,10 @@ void MapViewBar::createGui(std::weak_ptr<MapDocument> document)
 {
   setAttribute(Qt::WA_MacSmallSize);
 
-  m_toolBook = new QStackedLayout();
+  m_toolBook = new QStackedLayout{};
   m_toolBook->setContentsMargins(0, 0, 0, 0);
 
-  m_viewEditor = new ViewPopupEditor(std::move(document));
+  m_viewEditor = new ViewPopupEditor{std::move(document)};
 
 #ifdef __APPLE__
   const auto vMargin = pref(Preferences::Theme) == Preferences::darkTheme()
@@ -65,7 +61,7 @@ void MapViewBar::createGui(std::weak_ptr<MapDocument> document)
   const auto vMargin = LayoutConstants::MediumVMargin;
 #endif
 
-  auto* layout = new QHBoxLayout();
+  auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(
     LayoutConstants::WideHMargin, vMargin, LayoutConstants::WideHMargin, vMargin);
   layout->setSpacing(LayoutConstants::WideHMargin);
@@ -74,5 +70,5 @@ void MapViewBar::createGui(std::weak_ptr<MapDocument> document)
 
   setLayout(layout);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -76,4 +76,5 @@ public:
 private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
 };
+
 } // namespace TrenchBroom::View

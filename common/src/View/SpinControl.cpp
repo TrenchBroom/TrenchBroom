@@ -27,17 +27,10 @@
 
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 SpinControl::SpinControl(QWidget* parent)
-  : QDoubleSpinBox(parent)
-  , m_regularIncrement(1.0)
-  , m_shiftIncrement(2.0)
-  , m_ctrlIncrement(4.0)
-  , m_minDigits(0)
-  , m_maxDigits(6)
+  : QDoubleSpinBox{parent}
 {
   setKeyboardTracking(false);
   updateTooltip();
@@ -108,5 +101,5 @@ void SpinControl::updateTooltip()
                .arg(nativeModifierLabel(Qt::CTRL))
                .arg(QString::fromStdString(kdl::str_to_string(m_ctrlIncrement))));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

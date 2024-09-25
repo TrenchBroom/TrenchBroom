@@ -28,14 +28,12 @@
 
 class QPushButton;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct GameEngineProfile;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class GameEngineProfileListBox;
 class MultiCompletionLineEdit;
@@ -76,5 +74,5 @@ public slots: // QDialog overrides
 private:
   void saveConfig();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

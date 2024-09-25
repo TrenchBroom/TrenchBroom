@@ -121,4 +121,5 @@ void Console::logCachedMessages()
     FileLogger::instance().log(level, message);
   });
 }
+
 } // namespace TrenchBroom::View

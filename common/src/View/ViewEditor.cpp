@@ -76,10 +76,10 @@ void EntityDefinitionCheckBoxList::refresh()
     {
       const auto firstHidden = m_editorContext.entityDefinitionHidden(definitions[0]);
       auto mixed = false;
-      for (size_t j = 0; j < definitions.size(); ++j)
+      for (const auto& definition : definitions)
       {
-        const auto hidden = m_editorContext.entityDefinitionHidden(definitions[j]);
-        mixed |= (hidden != firstHidden);
+        const auto hidden = m_editorContext.entityDefinitionHidden(definition);
+        mixed = mixed || (hidden != firstHidden);
         m_defCheckBoxes[defIndex++]->setChecked(!hidden);
       }
 
@@ -106,10 +106,8 @@ void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool 
   const auto& groups = m_entityDefinitionManager.groups();
   const auto& group = groups.at(groupIndex);
 
-  const auto& definitions = group.definitions();
-  for (size_t i = 0; i < definitions.size(); ++i)
+  for (const auto* definition : group.definitions())
   {
-    const auto* definition = definitions[i];
     m_editorContext.setEntityDefinitionHidden(definition, !checked);
   }
 
@@ -135,14 +133,10 @@ void EntityDefinitionCheckBoxList::hideAllClicked()
 
 void EntityDefinitionCheckBoxList::hideAll(const bool hidden)
 {
-  const auto& groups = m_entityDefinitionManager.groups();
-  for (size_t i = 0; i < groups.size(); ++i)
+  for (const auto& group : m_entityDefinitionManager.groups())
   {
-    const auto& group = groups[i];
-    const auto& definitions = group.definitions();
-    for (size_t j = 0; j < definitions.size(); ++j)
+    for (const auto* definition : group.definitions())
     {
-      const auto* definition = definitions[j];
       m_editorContext.setEntityDefinitionHidden(definition, hidden);
     }
   }
@@ -174,9 +168,9 @@ void EntityDefinitionCheckBoxList::createGui()
 
     for (const auto* definition : definitions)
     {
-      const auto defName = definition->name();
+      const auto& defName = definition->name();
 
-      auto* defCB = new QCheckBox(QString::fromStdString(defName));
+      auto* defCB = new QCheckBox{QString::fromStdString(defName)};
       defCB->setObjectName("entityDefinition_checkboxWidget");
 
       connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked) {
@@ -401,14 +395,13 @@ void ViewEditor::createTagFilter(QWidget* parent)
   m_tagCheckBoxes.clear();
 
   auto document = kdl::mem_lock(m_document);
-  const auto& tags = document->smartTags();
-  if (tags.empty())
+  if (const auto& tags = document->smartTags(); !tags.empty())
   {
-    createEmptyTagFilter(parent);
+    createTagFilter(parent, tags);
   }
   else
   {
-    createTagFilter(parent, tags);
+    createEmptyTagFilter(parent);
   }
 }
 
@@ -447,7 +440,7 @@ void ViewEditor::createTagFilter(
 
     layout->addWidget(checkBox);
     connect(
-      checkBox, &QAbstractButton::clicked, this, [this, tagType](const bool checked) {
+      checkBox, &QAbstractButton::clicked, this, [this, tagType](const auto checked) {
         showTagChanged(checked, tagType);
       });
   }
@@ -459,48 +452,42 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
   auto* panel = new TitledPanel{"Renderer", parent, false};
   auto* inner = panel->getPanel();
 
-  const auto FaceRenderModes =
-    QStringList{"Show materials", "Hide materials", "Hide faces"};
-  const auto FaceRenderModesPrefValues = QStringList{
-    Preferences::faceRenderModeTextured(),
-    Preferences::faceRenderModeFlat(),
-    Preferences::faceRenderModeSkip()};
+  const auto FaceRenderModes = std::vector<std::tuple<QString, QString>>{
+    {"Show materials", Preferences::faceRenderModeTextured()},
+    {"Hide materials", Preferences::faceRenderModeFlat()},
+    {"Hide faces", Preferences::faceRenderModeSkip()},
+  };
 
   m_renderModeRadioGroup = new QButtonGroup{};
-  for (int i = 0; i < FaceRenderModes.length(); ++i)
+  for (size_t i = 0; i < FaceRenderModes.size(); ++i)
   {
-    const auto& label = FaceRenderModes.at(i);
-    const auto& prefValue = FaceRenderModesPrefValues.at(i);
+    const auto& [label, prefValue] = FaceRenderModes.at(i);
 
     auto* radio = new QRadioButton{label};
     radio->setObjectName(prefValue);
-    m_renderModeRadioGroup->addButton(radio, i);
+    m_renderModeRadioGroup->addButton(radio, int(i));
   }
 
   m_shadeFacesCheckBox = new QCheckBox{tr("Shade faces")};
   m_showFogCheckBox = new QCheckBox{tr("Use fog")};
   m_showEdgesCheckBox = new QCheckBox{tr("Show edges")};
 
-  const auto EntityLinkModes = QStringList{
-    "Show all entity links",
-    "Show transitively selected entity links",
-    "Show directly selected entity links",
-    "Hide entity links"};
-  const auto EntityLinkModesPrefValues = QStringList{
-    Preferences::entityLinkModeAll(),
-    Preferences::entityLinkModeTransitive(),
-    Preferences::entityLinkModeDirect(),
-    Preferences::entityLinkModeNone()};
+
+  const auto EntityLinkModes = std::vector<std::tuple<QString, QString>>{
+    {"Show all entity links", Preferences::entityLinkModeAll()},
+    {"Show transitively selected entity links", Preferences::entityLinkModeTransitive()},
+    {"Show directly selected entity links", Preferences::entityLinkModeDirect()},
+    {"Hide entity links", Preferences::entityLinkModeNone()},
+  };
 
   m_entityLinkRadioGroup = new QButtonGroup{};
-  for (int i = 0; i < EntityLinkModes.length(); ++i)
+  for (size_t i = 0; i < EntityLinkModes.size(); ++i)
   {
-    const auto& label = EntityLinkModes.at(i);
-    const auto& prefValue = EntityLinkModesPrefValues.at(i);
+    const auto& [label, prefValue] = EntityLinkModes.at(i);
 
     auto* radio = new QRadioButton{label};
     radio->setObjectName(prefValue);
-    m_entityLinkRadioGroup->addButton(radio, i);
+    m_entityLinkRadioGroup->addButton(radio, int(i));
   }
 
   m_showSoftBoundsCheckBox = new QCheckBox{tr("Show soft bounds")};

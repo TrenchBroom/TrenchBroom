@@ -24,8 +24,6 @@
 #include "FloatType.h"
 #include "NotifierConnection.h"
 
-#include "vm/forward.h"
-
 #include <memory>
 #include <optional>
 
@@ -35,9 +33,7 @@ class QLineEdit;
 class QComboBox;
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class Selection;
@@ -47,13 +43,13 @@ class ScaleObjectsToolPage : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  QStackedLayout* m_book;
+  QStackedLayout* m_book = nullptr;
 
-  QLineEdit* m_sizeTextBox;
-  QLineEdit* m_factorsTextBox;
+  QLineEdit* m_sizeTextBox = nullptr;
+  QLineEdit* m_factorsTextBox = nullptr;
 
-  QComboBox* m_scaleFactorsOrSize;
-  QAbstractButton* m_button;
+  QComboBox* m_scaleFactorsOrSize = nullptr;
+  QAbstractButton* m_button = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,5 +71,5 @@ private:
 
   void applyScale();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

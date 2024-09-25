@@ -23,15 +23,13 @@
 
 class QPoint;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class ElidedLabel;
 
@@ -40,8 +38,8 @@ class CompilationProfileItemRenderer : public ControlListBoxItemRenderer
   Q_OBJECT
 private:
   Model::CompilationProfile& m_profile;
-  ElidedLabel* m_nameText{nullptr};
-  ElidedLabel* m_taskCountText{nullptr};
+  ElidedLabel* m_nameText = nullptr;
+  ElidedLabel* m_taskCountText = nullptr;
 
 public:
   explicit CompilationProfileItemRenderer(
@@ -73,5 +71,5 @@ signals:
   void profileContextMenuRequested(
     const QPoint& globalPos, Model::CompilationProfile& profile);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -18,7 +18,6 @@
  */
 
 #include "Assets/Palette.h"
-#include "Error.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "Result.h"

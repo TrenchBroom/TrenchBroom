@@ -25,12 +25,6 @@ class QCheckBox;
 class QKeySequence;
 class QLabel;
 
-namespace TrenchBroom
-{
-template <typename T>
-class Preference;
-}
-
 namespace TrenchBroom::View
 {
 class KeySequenceEdit;
@@ -74,10 +68,10 @@ private:
 
   void bindEvents();
 
-  bool doCanResetToDefaults() override;
+  bool canResetToDefaults() override;
   void doResetToDefaults() override;
-  void doUpdateControls() override;
-  bool doValidate() override;
+  void updateControls() override;
+  bool validate() override;
 private slots:
   void lookSpeedChanged(int value);
   void invertLookHAxisChanged(int state);

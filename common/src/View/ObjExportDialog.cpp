@@ -34,26 +34,19 @@
 #include "View/BorderLine.h"
 #include "View/DialogHeader.h"
 #include "View/FormWithSectionsLayout.h"
-#include "View/MapDocument.h"
+#include "View/MapDocument.h" // IWYU pragma: keep
 #include "View/MapFrame.h"
 
 #include "kdl/path_utils.h"
 
 #include <filesystem>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ObjExportDialog::ObjExportDialog(MapFrame* mapFrame)
   : QDialog{mapFrame}
   , m_mapFrame{mapFrame}
-  , m_exportPathEdit{nullptr}
-  , m_browseExportPathButton{nullptr}
-  , m_relativeToGamePathRadioButton{nullptr}
-  , m_relativeToExportPathRadioButton{nullptr}
-  , m_exportButton{nullptr}
-  , m_closeButton{nullptr}
 {
   ensure(m_mapFrame != nullptr, "Map frame is not null");
   createGui();
@@ -163,5 +156,5 @@ void ObjExportDialog::updateExportPath()
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
   m_exportPathEdit->setText(IO::pathAsQString(objPath));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

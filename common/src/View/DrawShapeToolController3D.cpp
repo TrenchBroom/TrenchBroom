@@ -34,32 +34,15 @@
 #include "kdl/memory_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/line.h"
+#include "vm/line.h" // IWYU pragma: keep
 #include "vm/plane.h"
 #include "vm/vec.h"
 
 namespace TrenchBroom::View
 {
-
-DrawShapeToolController3D::DrawShapeToolController3D(
-  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
-  : m_tool{tool}
-  , m_document{std::move(document)}
-{
-}
-
-Tool& DrawShapeToolController3D::tool()
-{
-  return m_tool;
-}
-
-const Tool& DrawShapeToolController3D::tool() const
-{
-  return m_tool;
-}
-
 namespace
 {
+
 class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
@@ -182,16 +165,17 @@ private:
       inputState,
       vm::bbox3{
         vm::min(initialHandlePosition, currentHandlePosition),
-        vm::max(initialHandlePosition, currentHandlePosition)});
+        vm::max(initialHandlePosition, currentHandlePosition),
+      });
 
     if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
-      const auto xyAxes = vm::vec3::pos_x() + vm::vec3::pos_y();
-      const auto zAxis = vm::vec3::pos_z();
-      const auto allAxes = vm::vec3::one();
-      const auto noAxis = vm::vec3::zero();
+      const auto xyAxes = vm::vec3{1, 0, 0} + vm::vec3{0, 1, 0};
+      const auto zAxis = vm::vec3{0, 0, 1};
+      const auto allAxes = vm::vec3{1, 1, 1};
+      const auto noAxis = vm::vec3{0, 0, 0};
       const auto maxLengthAxes = includeZAxis ? allAxes : xyAxes;
       const auto zLengthAxis = includeZAxis ? noAxis : zAxis;
 
@@ -202,8 +186,9 @@ private:
       // The direction in which the user is dragging per component:
       const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
       bounds = vm::bbox3{
-        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3::one() - dragDir),
-        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3{1, 1, 1} - dragDir),
+        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir),
+      };
     }
 
     return vm::intersect(bounds, m_worldBounds);
@@ -241,7 +226,25 @@ private:
     return bounds;
   }
 };
+
 } // namespace
+
+DrawShapeToolController3D::DrawShapeToolController3D(
+  DrawShapeTool& tool, std::weak_ptr<MapDocument> document)
+  : m_tool{tool}
+  , m_document{std::move(document)}
+{
+}
+
+Tool& DrawShapeToolController3D::tool()
+{
+  return m_tool;
+}
+
+const Tool& DrawShapeToolController3D::tool() const
+{
+  return m_tool;
+}
 
 std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)

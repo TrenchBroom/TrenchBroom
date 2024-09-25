@@ -30,23 +30,21 @@
 
 namespace TrenchBroom::View
 {
+
 ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
-  : PreferencePane(parent)
-  , m_table(nullptr)
-  , m_model(nullptr)
-  , m_proxy(nullptr)
+  : PreferencePane{parent}
 {
-  m_model = new ColorModel(this);
-  m_proxy = new QSortFilterProxyModel(this);
+  m_model = new ColorModel{this};
+  m_proxy = new QSortFilterProxyModel{this};
   m_proxy->setSourceModel(m_model);
   m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
   m_proxy->setFilterKeyColumn(-1); // Filter based on all columns
 
-  m_table = new QTableView();
+  m_table = new QTableView{};
   m_table->setCornerButtonEnabled(false);
   m_table->setModel(m_proxy);
 
-  m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
+  m_table->setHorizontalHeader(new QHeaderView{Qt::Horizontal});
   m_table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::ResizeMode::Fixed);
   m_table->horizontalHeader()->resizeSection(0, 80);
   m_table->horizontalHeader()->setSectionResizeMode(
@@ -59,13 +57,13 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
 
   m_table->setSelectionMode(QAbstractItemView::SelectionMode::NoSelection);
 
-  QLineEdit* searchBox = createSearchBox();
+  auto* searchBox = createSearchBox();
   makeSmall(searchBox);
 
-  auto* infoLabel = new QLabel(tr("Double-click a color to begin editing it."));
+  auto* infoLabel = new QLabel{tr("Double-click a color to begin editing it.")};
   makeInfo(infoLabel);
 
-  auto* infoAndSearchLayout = new QHBoxLayout();
+  auto* infoAndSearchLayout = new QHBoxLayout{};
   infoAndSearchLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::MediumVMargin,
@@ -75,7 +73,7 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   infoAndSearchLayout->addWidget(infoLabel, 1);
   infoAndSearchLayout->addWidget(searchBox);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_table, 1);
@@ -93,7 +91,7 @@ ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
   });
 }
 
-bool ColorsPreferencePane::doCanResetToDefaults()
+bool ColorsPreferencePane::canResetToDefaults()
 {
   return true;
 }
@@ -103,13 +101,14 @@ void ColorsPreferencePane::doResetToDefaults()
   m_model->reset();
 }
 
-void ColorsPreferencePane::doUpdateControls()
+void ColorsPreferencePane::updateControls()
 {
   m_table->update();
 }
 
-bool ColorsPreferencePane::doValidate()
+bool ColorsPreferencePane::validate()
 {
   return true;
 }
+
 } // namespace TrenchBroom::View

@@ -27,22 +27,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderContext;
 class RenderBatch;
 class RenderService;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class BrushVertexCommandBase;
 class Grid;
@@ -68,7 +66,7 @@ private:
   mutable Renderer::PointGuideRenderer m_guideRenderer;
 
 public:
-  explicit VertexTool(const std::weak_ptr<MapDocument>& document);
+  explicit VertexTool(std::weak_ptr<MapDocument> document);
 
 public:
   std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3& handle) const;
@@ -127,5 +125,5 @@ private:
 private: // General helper methods
   void resetModeAfterDeselection();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

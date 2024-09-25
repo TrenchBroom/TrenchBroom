@@ -19,26 +19,23 @@
 
 #pragma once
 
-#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class Node;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderContext;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class GestureTracker;
 class MapDocument;
@@ -73,5 +70,5 @@ public:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

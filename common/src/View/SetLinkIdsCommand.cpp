@@ -21,34 +21,45 @@
 
 #include "Ensure.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
+#include "Model/EntityNode.h" // IWYU pragma: keep
+#include "Model/GroupNode.h"  // IWYU pragma: keep
 #include "Model/LayerNode.h"
 #include "Model/Node.h"
 #include "Model/Object.h"
-#include "Model/PatchNode.h"
+#include "Model/PatchNode.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include "kdl/result.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace TrenchBroom::View
 {
-
-SetLinkIdsCommand::SetLinkIdsCommand(
-  const std::string& name, std::vector<std::tuple<Model::Node*, std::string>> linkIds)
-  : UndoableCommand{name, true}
-  , m_linkIds{std::move(linkIds)}
-{
-}
-
-SetLinkIdsCommand::~SetLinkIdsCommand() = default;
-
 namespace
 {
+
 auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkIds)
 {
+  return linkIds | std::views::transform([](const auto& nodeAndLinkId) {
+           auto* node = std::get<Model::Node*>(nodeAndLinkId);
+           const auto& linkId = std::get<std::string>(nodeAndLinkId);
+           return node->accept(kdl::overload(
+             [&](const Model::WorldNode*) -> std::tuple<Model::Node*, std::string> {
+               ensure(false, "no unexpected world node");
+             },
+             [](const Model::LayerNode*) -> std::tuple<Model::Node*, std::string> {
+               ensure(false, "no unexpected layer node");
+             },
+             [&](Model::Object* object) -> std::tuple<Model::Node*, std::string> {
+               auto oldLinkId = object->linkId();
+               object->setLinkId(std::move(linkId));
+               return {node, std::move(oldLinkId)};
+             }));
+         })
+         | kdl::to_vector;
+
   return kdl::vec_transform(linkIds, [](const auto& nodeAndLinkId) {
     auto* node = std::get<Model::Node*>(nodeAndLinkId);
     const auto& linkId = std::get<std::string>(nodeAndLinkId);
@@ -66,15 +77,25 @@ auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkId
       }));
   });
 }
+
 } // namespace
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(MapDocumentCommandFacade*)
+SetLinkIdsCommand::SetLinkIdsCommand(
+  const std::string& name, std::vector<std::tuple<Model::Node*, std::string>> linkIds)
+  : UndoableCommand{name, true}
+  , m_linkIds{std::move(linkIds)}
+{
+}
+
+SetLinkIdsCommand::~SetLinkIdsCommand() = default;
+
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(MapDocumentCommandFacade&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(MapDocumentCommandFacade*)
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(MapDocumentCommandFacade&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);

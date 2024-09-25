@@ -19,9 +19,6 @@
 
 #include "CellLayout.h"
 
-#include "Ensure.h"
-#include "Macros.h"
-
 #include <algorithm>
 #include <cassert>
 

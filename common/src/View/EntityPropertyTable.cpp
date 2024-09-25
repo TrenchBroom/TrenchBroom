@@ -26,13 +26,11 @@
 
 #define TABLE_LOG(x)
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 EntityPropertyTable::EntityPropertyTable(QWidget* parent)
   : QTableView{parent}
-  , m_mousePressedOnSelectedCell{false}
 {
 }
 
@@ -188,5 +186,5 @@ void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event)
     edit(modelIndex);
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -28,33 +28,29 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ImageListBoxItemRenderer::ImageListBoxItemRenderer(
   const QString& title, const QString& subtitle, const QPixmap& image, QWidget* parent)
-  : ControlListBoxItemRenderer(parent)
-  , m_titleLabel(nullptr)
-  , m_subtitleLabel(nullptr)
-  , m_imageLabel(nullptr)
+  : ControlListBoxItemRenderer{parent}
 {
-  m_titleLabel = new ElidedLabel(title, Qt::ElideRight);
+  m_titleLabel = new ElidedLabel{title, Qt::ElideRight};
   makeEmphasized(m_titleLabel);
 
-  m_subtitleLabel = new ElidedLabel(subtitle, Qt::ElideMiddle);
+  m_subtitleLabel = new ElidedLabel{subtitle, Qt::ElideMiddle};
   makeInfo(m_subtitleLabel);
 
-  auto* imageAndTextLayout = new QHBoxLayout();
+  auto* imageAndTextLayout = new QHBoxLayout{};
   imageAndTextLayout->setContentsMargins(0, 0, 0, 0);
   imageAndTextLayout->setSpacing(LayoutConstants::MediumHMargin);
   setLayout(imageAndTextLayout);
 
-  m_imageLabel = new QLabel(this);
+  m_imageLabel = new QLabel{};
   imageAndTextLayout->addWidget(m_imageLabel);
   m_imageLabel->setPixmap(image);
 
-  auto* textLayout = new QVBoxLayout();
+  auto* textLayout = new QVBoxLayout{};
   textLayout->setContentsMargins(0, 0, 0, 0);
   textLayout->setSpacing(0);
   textLayout->addWidget(m_titleLabel);
@@ -65,14 +61,15 @@ ImageListBoxItemRenderer::ImageListBoxItemRenderer(
 
 void ImageListBoxItemRenderer::updateItem()
 {
-  QObject* element = this->parent();
+  auto* element = this->parent();
   ImageListBox* listBox = nullptr;
   do
   {
     listBox = dynamic_cast<ImageListBox*>(element);
     element = element->parent();
-  } while (listBox == nullptr && element != nullptr);
-  if (listBox != nullptr)
+  } while (!listBox && element);
+
+  if (listBox)
   {
     m_titleLabel->setText(listBox->title(m_index));
     m_subtitleLabel->setText(listBox->subtitle(m_index));
@@ -81,20 +78,20 @@ void ImageListBoxItemRenderer::updateItem()
 }
 
 ImageListBox::ImageListBox(const QString& emptyText, bool showSeparator, QWidget* parent)
-  : ControlListBox(emptyText, showSeparator, parent)
+  : ControlListBox{emptyText, showSeparator, parent}
 {
 }
 
 ControlListBoxItemRenderer* ImageListBox::createItemRenderer(
   QWidget* parent, const size_t index)
 {
-  return new ImageListBoxItemRenderer(
-    title(index), subtitle(index), image(index), parent);
+  return new ImageListBoxItemRenderer{
+    title(index), subtitle(index), image(index), parent};
 }
 
 QPixmap ImageListBox::image(const size_t /* index */) const
 {
-  return QPixmap();
+  return {};
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

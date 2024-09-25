@@ -22,18 +22,15 @@
 #include <QWidget>
 
 #include <memory>
-#include <string>
 
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class LayerNode;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class LayerListBox;
 class MapDocument;
@@ -43,12 +40,12 @@ class LayerEditor : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  LayerListBox* m_layerList;
+  LayerListBox* m_layerList = nullptr;
 
-  QAbstractButton* m_addLayerButton;
-  QAbstractButton* m_removeLayerButton;
-  QAbstractButton* m_moveLayerUpButton;
-  QAbstractButton* m_moveLayerDownButton;
+  QAbstractButton* m_addLayerButton = nullptr;
+  QAbstractButton* m_removeLayerButton = nullptr;
+  QAbstractButton* m_moveLayerUpButton = nullptr;
+  QAbstractButton* m_moveLayerDownButton = nullptr;
 
 public:
   explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
@@ -104,5 +101,5 @@ private:
 private slots:
   void updateButtons();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

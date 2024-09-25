@@ -24,9 +24,7 @@
 class QKeySequence;
 class QAbstractButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class LimitedKeySequenceEdit;
 
@@ -36,8 +34,8 @@ class KeySequenceEdit : public QWidget
   Q_PROPERTY(QKeySequence keySequence READ keySequence WRITE setKeySequence NOTIFY
                keySequenceChanged USER true)
 private:
-  LimitedKeySequenceEdit* m_keySequenceEdit;
-  QAbstractButton* m_clearButton;
+  LimitedKeySequenceEdit* m_keySequenceEdit = nullptr;
+  QAbstractButton* m_clearButton = nullptr;
 
 public:
   explicit KeySequenceEdit(QWidget* parent = nullptr);
@@ -51,5 +49,5 @@ signals:
   void editingFinished();
   void keySequenceChanged(const QKeySequence& keySequence);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

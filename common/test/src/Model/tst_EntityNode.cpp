@@ -18,7 +18,6 @@
  */
 
 #include "Assets/EntityDefinition.h"
-#include "Error.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"

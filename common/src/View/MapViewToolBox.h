@@ -27,9 +27,7 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class ClipTool;
 class AssembleBrushTool;
@@ -120,7 +118,7 @@ public: // tools
   void moveVertices(const vm::vec3& delta);
 
 private: // Tool related methods
-  void createTools(std::weak_ptr<MapDocument> document, QStackedLayout* bookCtrl);
+  void createTools(QStackedLayout* bookCtrl);
 
 private: // notification
   void registerTool(Tool& tool, QStackedLayout* bookCtrl);
@@ -133,5 +131,5 @@ private: // notification
 
   void updateToolPage();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

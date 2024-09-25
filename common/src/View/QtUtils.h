@@ -56,8 +56,9 @@ class QWidget;
 namespace TrenchBroom
 {
 class Color;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
 enum class MapTextEncoding;
 
@@ -259,5 +260,5 @@ std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string
  *         (e.g. "Ctrl" on Windows or the Command symbol on macOS)
  */
 QString nativeModifierLabel(int modifier);
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

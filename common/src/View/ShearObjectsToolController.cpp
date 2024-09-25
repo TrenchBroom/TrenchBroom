@@ -36,44 +36,18 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/line.h"
-#include "vm/plane.h"
-#include "vm/polygon.h"
+#include "vm/line.h"    // IWYU pragma: keep
+#include "vm/plane.h"   // IWYU pragma: keep
+#include "vm/polygon.h" // IWYU pragma: keep
 
 #include <cassert>
 
 namespace TrenchBroom::View
 {
-ShearObjectsToolController::ShearObjectsToolController(
-  ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
-  : m_tool{tool}
-  , m_document{std::move(document)}
+namespace
 {
-}
 
-ShearObjectsToolController::~ShearObjectsToolController() = default;
-
-Tool& ShearObjectsToolController::tool()
-{
-  return m_tool;
-}
-
-const Tool& ShearObjectsToolController::tool() const
-{
-  return m_tool;
-}
-
-void ShearObjectsToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
-{
-  if (m_tool.applies())
-  {
-    // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
-    doPick(inputState.pickRay(), inputState.camera(), pickResult);
-  }
-}
-
-static HandlePositionProposer makeHandlePositionProposer(
+HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const Grid& grid,
   const Model::Hit& dragStartHit,
@@ -88,7 +62,7 @@ static HandlePositionProposer makeHandlePositionProposer(
 
   if (camera.perspectiveProjection())
   {
-    if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z())
+    if (vm::abs(side.normal) == vm::vec3{0, 0, 1})
     {
       return makeHandlePositionProposer(
         makePlaneHandlePicker(vm::plane3{sideCenter, side.normal}, handleOffset),
@@ -97,14 +71,14 @@ static HandlePositionProposer makeHandlePositionProposer(
 
     if (vertical)
     {
-      const auto verticalLine = vm::line3{sideCenter, vm::vec3::pos_z()};
+      const auto verticalLine = vm::line3{sideCenter, vm::vec3{0, 0, 1}};
       return makeHandlePositionProposer(
         makeLineHandlePicker(verticalLine, handleOffset),
         makeRelativeHandleSnapper(grid));
     }
 
     const auto sideways =
-      vm::line3{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3::pos_z()))};
+      vm::line3{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3{0, 0, 1}))};
     return makeHandlePositionProposer(
       makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
   }
@@ -115,16 +89,6 @@ static HandlePositionProposer makeHandlePositionProposer(
     makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
 }
 
-void ShearObjectsToolController::mouseMove(const InputState& inputState)
-{
-  if (m_tool.applies() && !inputState.anyToolDragging())
-  {
-    m_tool.updatePickedSide(inputState.pickResult());
-  }
-}
-
-namespace
-{
 class ShearObjectsDragDelegate : public HandleDragTrackerDelegate
 {
 private:
@@ -166,7 +130,7 @@ public:
 
     // Can't do vertical restraint on these
     const auto side = m_tool.dragStartHit().target<BBoxSide>();
-    if (side.normal == vm::vec3::pos_z() || side.normal == vm::vec3::neg_z())
+    if (side.normal == vm::vec3{0, 0, 1} || side.normal == vm::vec3{0, 0, -1})
     {
       return std::nullopt;
     }
@@ -205,9 +169,8 @@ public:
 
   void cancel(const DragState&) override { m_tool.cancelShear(); }
 };
-} // namespace
 
-static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
+std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   const vm::bbox3& bounds, const auto& hit)
 {
   assert(hit.isMatch());
@@ -217,21 +180,61 @@ static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   return {centerForBBoxSide(bounds, side), hit.hitPoint()};
 }
 
+} // namespace
+
+ShearObjectsToolController::ShearObjectsToolController(
+  ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
+  : m_tool{tool}
+  , m_document{std::move(document)}
+{
+}
+
+ShearObjectsToolController::~ShearObjectsToolController() = default;
+
+Tool& ShearObjectsToolController::tool()
+{
+  return m_tool;
+}
+
+const Tool& ShearObjectsToolController::tool() const
+{
+  return m_tool;
+}
+
+void ShearObjectsToolController::pick(
+  const InputState& inputState, Model::PickResult& pickResult)
+{
+  if (m_tool.applies())
+  {
+    // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
+    doPick(inputState.pickRay(), inputState.camera(), pickResult);
+  }
+}
+
+void ShearObjectsToolController::mouseMove(const InputState& inputState)
+{
+  if (m_tool.applies() && !inputState.anyToolDragging())
+  {
+    m_tool.updatePickedSide(inputState.pickResult());
+  }
+}
+
 std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
-  const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
-
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
+
+  const auto vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
   if (!(inputState.modifierKeysPressed(ModifierKeys::None) || vertical))
   {
     return nullptr;
   }
+
   if (!m_tool.applies())
   {
     return nullptr;
@@ -278,25 +281,22 @@ void ShearObjectsToolController::render(
   }
 
   // render shear handle
+  if (const auto poly = m_tool.shearHandle())
   {
-    const vm::polygon3f poly = m_tool.shearHandle();
-    if (poly.vertexCount() != 0)
+    // fill
     {
-      // fill
-      {
-        auto renderService = Renderer::RenderService{renderContext, renderBatch};
-        renderService.setShowBackfaces();
-        renderService.setForegroundColor(pref(Preferences::ShearFillColor));
-        renderService.renderFilledPolygon(poly.vertices());
-      }
+      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      renderService.setShowBackfaces();
+      renderService.setForegroundColor(pref(Preferences::ShearFillColor));
+      renderService.renderFilledPolygon(poly->vertices());
+    }
 
-      // outline
-      {
-        auto renderService = Renderer::RenderService{renderContext, renderBatch};
-        renderService.setLineWidth(2.0);
-        renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
-        renderService.renderPolygonOutline(poly.vertices());
-      }
+    // outline
+    {
+      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      renderService.setLineWidth(2.0);
+      renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
+      renderService.renderPolygonOutline(poly->vertices());
     }
   }
 }
@@ -333,4 +333,5 @@ void ShearObjectsToolController3D::doPick(
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }
+
 } // namespace TrenchBroom::View

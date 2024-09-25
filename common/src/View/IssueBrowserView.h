@@ -49,13 +49,13 @@ class IssueBrowserView : public QWidget
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  int m_hiddenIssueTypes;
-  bool m_showHiddenIssues;
+  int m_hiddenIssueTypes = 0;
+  bool m_showHiddenIssues = false;
 
-  bool m_valid;
+  bool m_valid = false;
 
-  QTableView* m_tableView;
-  IssueBrowserModel* m_tableModel;
+  QTableView* m_tableView = nullptr;
+  IssueBrowserModel* m_tableModel = nullptr;
 
 public:
   explicit IssueBrowserView(

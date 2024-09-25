@@ -20,7 +20,7 @@
 #include "MapDocumentTest.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "TestUtils.h"
+#include "View/Transaction.h"
 
 #include "vm/mat_ext.h"
 

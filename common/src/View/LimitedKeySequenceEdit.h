@@ -21,10 +21,9 @@
 
 #include <QKeySequenceEdit>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class LimitedKeySequenceEdit : public QKeySequenceEdit
 {
   Q_OBJECT
@@ -33,7 +32,7 @@ public:
 
 private:
   size_t m_maxCount;
-  size_t m_count;
+  size_t m_count = 0;
 
 public:
   explicit LimitedKeySequenceEdit(QWidget* parent = nullptr);
@@ -44,5 +43,5 @@ protected:
 private slots:
   void resetCount();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

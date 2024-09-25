@@ -73,4 +73,5 @@ private:
   std::unique_ptr<DropTracker> createDropTracker(
     const InputState& inputState) const override;
 };
+
 } // namespace TrenchBroom::View

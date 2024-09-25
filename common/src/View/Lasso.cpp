@@ -28,13 +28,12 @@
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/polygon.h"
-#include "vm/segment.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/segment.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 Lasso::Lasso(
   const Renderer::Camera& camera, const FloatType distance, const vm::vec3& point)
   : m_camera{camera}
@@ -89,7 +88,7 @@ void Lasso::render(
   const auto inverseTransform = vm::invert(transform);
 
   const auto box = getBox(transform);
-  const auto polygon = std::vector<vm::vec3f>{
+  const auto polygon = std::vector{
     vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.min.y(), 0.0}},
     vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.max.y(), 0.0}},
     vm::vec3f{*inverseTransform * vm::vec3{box.max.x(), box.max.y(), 0.0}},
@@ -130,5 +129,5 @@ vm::bbox2 Lasso::getBox(const vm::mat4x4& transform) const
   const auto max = vm::max(start, cur);
   return vm::bbox2{vm::vec2{min}, vm::vec2{max}};
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

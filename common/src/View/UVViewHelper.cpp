@@ -25,7 +25,6 @@
 #include "Model/BrushFace.h"
 #include "Model/PickResult.h"
 #include "Model/Polyhedron.h"
-#include "Preferences.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/UVView.h"
 

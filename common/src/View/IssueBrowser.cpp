@@ -33,18 +33,17 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+#include <utility>
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : TabBookPage(parent)
-  , m_document(document)
-  , m_view(new IssueBrowserView(m_document))
-  , m_showHiddenIssuesCheckBox(nullptr)
-  , m_filterEditor(nullptr)
+  : TabBookPage{parent}
+  , m_document{std::move(document)}
+  , m_view{new IssueBrowserView{m_document}}
 {
-  auto* sizer = new QVBoxLayout();
+  auto* sizer = new QVBoxLayout{};
   sizer->setContentsMargins(0, 0, 0, 0);
   sizer->addWidget(m_view);
   setLayout(sizer);
@@ -54,20 +53,19 @@ IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent)
 
 QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
 {
-
-  auto* barPage = new QWidget(parent);
-  m_showHiddenIssuesCheckBox = new QCheckBox("Show hidden issues");
+  auto* barPage = new QWidget{parent};
+  m_showHiddenIssuesCheckBox = new QCheckBox{"Show hidden issues"};
   connect(
     m_showHiddenIssuesCheckBox,
     &QCheckBox::stateChanged,
     this,
     &IssueBrowser::showHiddenIssuesChanged);
 
-  m_filterEditor = new FlagsPopupEditor(1, nullptr, "Filter", false);
+  m_filterEditor = new FlagsPopupEditor{1, "Filter", false};
   connect(
     m_filterEditor, &FlagsPopupEditor::flagChanged, this, &IssueBrowser::filterChanged);
 
-  auto* barPageSizer = new QHBoxLayout();
+  auto* barPageSizer = new QHBoxLayout{};
   barPageSizer->setContentsMargins(0, 0, 0, 0);
   barPageSizer->addWidget(m_showHiddenIssuesCheckBox, 0, Qt::AlignVCenter);
   barPageSizer->addWidget(m_filterEditor, 0, Qt::AlignVCenter);
@@ -134,19 +132,16 @@ void IssueBrowser::issueIgnoreChanged(Model::Issue*)
 void IssueBrowser::updateFilterFlags()
 {
   auto document = kdl::mem_lock(m_document);
-  const Model::WorldNode* world = document->world();
+  const auto* world = document->world();
   const auto validators = world->registeredValidators();
 
-  QList<int> flags;
-  QStringList labels;
+  auto flags = QList<int>{};
+  auto labels = QStringList{};
 
   for (const auto* validator : validators)
   {
-    const auto flag = validator->type();
-    const auto& description = validator->description();
-
-    flags.push_back(flag);
-    labels.push_back(QString::fromStdString(description));
+    flags.push_back(validator->type());
+    labels.push_back(QString::fromStdString(validator->description()));
   }
 
   m_filterEditor->setFlags(flags, labels);
@@ -167,5 +162,5 @@ void IssueBrowser::filterChanged(
 {
   m_view->setHiddenIssueTypes(~setFlag);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

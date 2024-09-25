@@ -29,20 +29,19 @@ class QWidget;
 
 namespace TrenchBroom::View
 {
-
 class MapDocument;
 
 class SmartWadEditor : public SmartPropertyEditor
 {
   Q_OBJECT
 private:
-  QListWidget* m_wadPaths{nullptr};
+  QListWidget* m_wadPaths = nullptr;
 
-  QAbstractButton* m_addWadsButton{nullptr};
-  QAbstractButton* m_removeWadsButton{nullptr};
-  QAbstractButton* m_moveWadUpButton{nullptr};
-  QAbstractButton* m_moveWadDownButton{nullptr};
-  QAbstractButton* m_reloadWadsButton{nullptr};
+  QAbstractButton* m_addWadsButton = nullptr;
+  QAbstractButton* m_removeWadsButton = nullptr;
+  QAbstractButton* m_moveWadUpButton = nullptr;
+  QAbstractButton* m_moveWadDownButton = nullptr;
+  QAbstractButton* m_reloadWadsButton = nullptr;
 
 public:
   explicit SmartWadEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);

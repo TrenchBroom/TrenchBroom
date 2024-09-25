@@ -19,13 +19,14 @@
 
 #pragma once
 
+#include "FileLocation.h"
+
 #include <exception>
 #include <optional>
 #include <string>
 
 namespace TrenchBroom
 {
-struct FileLocation;
 
 class Exception : public std::exception
 {
@@ -88,4 +89,5 @@ class FileFormatException : public Exception
 public:
   using Exception::Exception;
 };
+
 } // namespace TrenchBroom

@@ -24,8 +24,8 @@
 #include "FloatType.h"
 #include "NotifierConnection.h"
 
-#include "vm/forward.h"
 #include "vm/util.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 
@@ -33,9 +33,7 @@ class QCheckBox;
 class QComboBox;
 class QPushButton;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class RotateObjectsTool;
@@ -49,13 +47,13 @@ private:
   std::weak_ptr<MapDocument> m_document;
   RotateObjectsTool& m_tool;
 
-  QComboBox* m_recentlyUsedCentersList;
-  QPushButton* m_resetCenterButton;
+  QComboBox* m_recentlyUsedCentersList = nullptr;
+  QPushButton* m_resetCenterButton = nullptr;
 
-  SpinControl* m_angle;
-  QComboBox* m_axis;
-  QPushButton* m_rotateButton;
-  QCheckBox* m_updateAnglePropertyAfterTransformCheckBox;
+  SpinControl* m_angle = nullptr;
+  QComboBox* m_axis = nullptr;
+  QPushButton* m_rotateButton = nullptr;
+  QCheckBox* m_updateAnglePropertyAfterTransformCheckBox = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -85,5 +83,5 @@ private:
   void updateAnglePropertyAfterTransformClicked();
   vm::vec3 getAxis() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

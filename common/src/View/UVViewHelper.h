@@ -23,7 +23,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <optional>
 

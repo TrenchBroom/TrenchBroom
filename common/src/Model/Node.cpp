@@ -25,6 +25,7 @@
 #include "Model/Issue.h"
 #include "Model/Validator.h"
 
+#include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
@@ -58,7 +59,7 @@ NodePath Node::pathFrom(const Node& ancestor) const
   auto* child = this;
   while (parent && child != &ancestor)
   {
-    const auto index = kdl::vec_index_of(parent->children(), child);
+    const auto index = kdl::index_of(parent->children(), child);
 
     result.indices.push_back(*index);
     child = parent;

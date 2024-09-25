@@ -21,9 +21,14 @@
 #pragma once
 
 #include <iterator>
+#include <optional>
+#include <ranges>
 
-namespace kdl::detail
+namespace kdl
 {
+namespace detail
+{
+
 template <typename R>
 auto get_begin(const R& range)
 {
@@ -48,4 +53,48 @@ auto get_end(R&& range)
   return std::make_move_iterator(range.end());
 }
 
-} // namespace kdl::detail
+} // namespace detail
+
+/**
+ * Finds the smallest index at which the given predicate is satisified in the given
+ * range. If the given range does not such a value, an empty optional is
+ * returned.
+ *
+ * @tparam R the type of the range
+ * @tparam P the predicate type
+ * @param r the range to check
+ * @param p the predicate
+ * @return the smallest index at which the given predicate is satisfied in the given
+ * range or an empty optional if the given range does not contain such a value
+ */
+template <
+  std::ranges::range R,
+  typename P,
+  typename std::enable_if_t<
+    std::is_invocable_r_v<bool, P, const std::ranges::range_value_t<R>&>>* = nullptr>
+auto index_of(const R& r, P&& p)
+{
+  const auto it = std::ranges::find_if(r, std::forward<P>(p));
+  const auto dist = std::distance(std::begin(r), it);
+  const auto index = static_cast<std::ranges::range_size_t<R>>(dist);
+  return it != std::end(r) ? std::optional{index} : std::nullopt;
+}
+
+/**
+ * Finds the smallest index at which the given value is found in the given range. If
+ * the given range does not contain the given value, an empty optional is returned.
+ *
+ * @tparam R the type of the range
+ * @tparam X the value type
+ * @param r the range to check
+ * @param x the value to find
+ * @return the smallest index at which the given value is found in the given range or
+ * an empty optional if the given range does not contain such a value
+ */
+template <std::ranges::range R, typename X>
+auto index_of(const R& r, const X& x)
+{
+  return index_of(r, [&](const auto& e) { return e == x; });
+}
+
+} // namespace kdl

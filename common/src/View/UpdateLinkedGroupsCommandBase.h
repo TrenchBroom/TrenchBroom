@@ -26,9 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocumentCommandFacade;
 
@@ -46,13 +44,13 @@ protected:
 public:
   ~UpdateLinkedGroupsCommandBase() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document) override;
-  std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade* document) override;
+  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade& document) override;
 
   bool collateWith(UndoableCommand& command) override;
 
 private:
   deleteCopyAndMove(UpdateLinkedGroupsCommandBase);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -31,7 +31,6 @@
 #include "Assets/EntityDefinitionManager.h"
 #include "FloatType.h"
 #include "Logger.h"
-#include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -39,7 +38,6 @@
 #include "Model/EntityNode.h"
 #include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 #include "Model/LayerNode.h"
@@ -72,6 +70,7 @@
 #include "View/QtUtils.h"
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
+#include "View/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -81,7 +80,6 @@
 #include "vm/polygon.h"
 #include "vm/util.h"
 
-#include <sstream>
 #include <vector>
 
 namespace TrenchBroom::View
@@ -92,13 +90,11 @@ MapViewBase::MapViewBase(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& renderer,
-  GLContextManager& contextManager,
-  Logger* logger)
+  GLContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{std::move(document)}
   , m_toolBox{toolBox}
   , m_renderer{renderer}
-  , m_logger{logger}
   , m_animationManager{std::make_unique<AnimationManager>(this)}
   , m_updateActionStatesSignalDelayer{new SignalDelayer{this}}
 {
@@ -129,11 +125,6 @@ MapViewBase::~MapViewBase()
 void MapViewBase::setIsCurrent(const bool isCurrent)
 {
   m_isCurrent = isCurrent;
-}
-
-Renderer::Camera& MapViewBase::camera()
-{
-  return doGetCamera();
 }
 
 void MapViewBase::bindEvents()
@@ -406,11 +397,6 @@ void MapViewBase::moveObjects(const vm::direction direction)
   document->translateObjects(delta);
 }
 
-vm::vec3 MapViewBase::moveDirection(const vm::direction direction) const
-{
-  return doGetMoveDirection(direction);
-}
-
 void MapViewBase::duplicateObjects()
 {
   auto document = kdl::mem_lock(m_document);
@@ -482,7 +468,7 @@ void MapViewBase::flipObjects(const vm::direction direction)
     halfGrid.decSize();
 
     const auto center = halfGrid.referencePoint(document->selectionBounds());
-    const auto axis = doGetFlipAxis(direction);
+    const auto axis = flipAxis(direction);
 
     document->flipObjects(center, axis);
   }
@@ -624,7 +610,7 @@ void MapViewBase::resetCameraZoom()
 
 void MapViewBase::cancel()
 {
-  if (!doCancel() && !ToolBoxConnector::cancel())
+  if (!ToolBoxConnector::cancel())
   {
     auto document = kdl::mem_lock(m_document);
     if (document->hasSelection())
@@ -689,7 +675,7 @@ void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definit
   ensure(definition != nullptr, "definition is null");
 
   auto document = kdl::mem_lock(m_document);
-  const auto delta = doComputePointEntityPosition(definition->bounds());
+  const auto delta = computePointEntityPosition(definition->bounds());
   document->createPointEntity(definition, delta);
 }
 
@@ -925,7 +911,7 @@ ActionContext::Type MapViewBase::actionContext() const
 {
   auto document = kdl::mem_lock(m_document);
 
-  const auto derivedContext = doGetActionContext();
+  const auto viewContext = viewActionContext();
   const auto toolContext =
     m_toolBox.assembleBrushToolActive()   ? ActionContext::AssembleBrushTool
     : m_toolBox.clipToolActive()          ? ActionContext::ClipTool
@@ -938,36 +924,36 @@ ActionContext::Type MapViewBase::actionContext() const
     document->hasSelectedNodes()        ? ActionContext::NodeSelection
     : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection
                                         : ActionContext::NoSelection;
-  return derivedContext | toolContext | selectionContext;
+  return viewContext | toolContext | selectionContext;
 }
 
-void MapViewBase::doFlashSelection()
+void MapViewBase::flashSelection()
 {
   auto animation = std::make_unique<FlashSelectionAnimation>(m_renderer, this, 180);
   m_animationManager->runAnimation(std::move(animation), true);
 }
 
-void MapViewBase::doInstallActivationTracker(MapViewActivationTracker& activationTracker)
+void MapViewBase::installActivationTracker(MapViewActivationTracker& activationTracker)
 {
   activationTracker.addWindow(this);
 }
 
-bool MapViewBase::doGetIsCurrent() const
+bool MapViewBase::isCurrent() const
 {
   return m_isCurrent;
 }
 
-MapViewBase* MapViewBase::doGetFirstMapViewBase()
+MapViewBase* MapViewBase::firstMapViewBase()
 {
   return this;
 }
 
-bool MapViewBase::doCancelMouseDrag()
+bool MapViewBase::cancelMouseDrag()
 {
   return ToolBoxConnector::cancelDrag();
 }
 
-void MapViewBase::doRefreshViews()
+void MapViewBase::refreshViews()
 {
   update();
 }
@@ -976,23 +962,24 @@ void MapViewBase::initializeGL()
 {
   if (doInitializeGL())
   {
-    m_logger->info() << "Renderer info: " << GLContextManager::GLRenderer << " version "
-                     << GLContextManager::GLVersion << " from "
-                     << GLContextManager::GLVendor;
-    m_logger->info() << "Depth buffer bits: " << depthBits();
-    m_logger->info() << "Multisampling "
-                     << kdl::str_select(multisample(), "enabled", "disabled");
+    auto& logger = kdl::mem_lock(m_document)->logger();
+    logger.info() << "Renderer info: " << GLContextManager::GLRenderer << " version "
+                  << GLContextManager::GLVersion << " from "
+                  << GLContextManager::GLVendor;
+    logger.info() << "Depth buffer bits: " << depthBits();
+    logger.info() << "Multisampling "
+                  << kdl::str_select(multisample(), "enabled", "disabled");
   }
 }
 
-bool MapViewBase::doShouldRenderFocusIndicator() const
+bool MapViewBase::shouldRenderFocusIndicator() const
 {
   return true;
 }
 
-void MapViewBase::doRender()
+void MapViewBase::renderContents()
 {
-  doPreRender();
+  preRender();
 
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
@@ -1002,7 +989,7 @@ void MapViewBase::doRender()
   const auto& grid = document->grid();
 
   auto renderContext =
-    Renderer::RenderContext{doGetRenderMode(), camera(), fontManager(), shaderManager()};
+    Renderer::RenderContext{renderMode(), camera(), fontManager(), shaderManager()};
   renderContext.setFilterMode(
     pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
@@ -1031,13 +1018,12 @@ void MapViewBase::doRender()
 
   auto renderBatch = Renderer::RenderBatch{vboManager()};
 
-  doRenderGrid(renderContext, renderBatch);
-  doRenderMap(m_renderer, renderContext, renderBatch);
-  doRenderTools(m_toolBox, renderContext, renderBatch);
-  doRenderExtras(renderContext, renderBatch);
+  renderGrid(renderContext, renderBatch);
+  renderMap(m_renderer, renderContext, renderBatch);
+  renderTools(m_toolBox, renderContext, renderBatch);
 
   renderCoordinateSystem(renderContext, renderBatch);
-  renderSoftMapBounds(renderContext, renderBatch);
+  renderSoftWorldBounds(renderContext, renderBatch);
   renderPointFile(renderContext, renderBatch);
   renderPortalFile(renderContext, renderBatch);
   renderCompass(renderBatch);
@@ -1050,6 +1036,10 @@ void MapViewBase::doRender()
     update();
   }
 }
+
+void MapViewBase::preRender() {}
+
+void MapViewBase::renderGrid(Renderer::RenderContext&, Renderer::RenderBatch&) {}
 
 void MapViewBase::setupGL(Renderer::RenderContext& context)
 {
@@ -1087,10 +1077,8 @@ void MapViewBase::renderCoordinateSystem(
   }
 }
 
-void MapViewBase::renderSoftMapBounds(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+void MapViewBase::renderSoftWorldBounds(Renderer::RenderContext&, Renderer::RenderBatch&)
 {
-  doRenderSoftWorldBounds(renderContext, renderBatch);
 }
 
 void MapViewBase::renderPointFile(
@@ -1200,10 +1188,7 @@ void MapViewBase::doShowPopupMenu()
 
 void MapViewBase::showPopupMenuLater()
 {
-  if (!doBeforePopupMenu())
-  {
-    return;
-  }
+  beforePopupMenu();
 
   auto document = kdl::mem_lock(m_document);
   const auto& nodes = document->selectedNodes().nodes();
@@ -1382,9 +1367,9 @@ void MapViewBase::showPopupMenuLater()
     Qt::NoModifier,
     Qt::MouseEventSynthesizedByApplication);
   mouseMoveEvent(&mouseEvent);
-
-  doAfterPopupMenu();
 }
+
+void MapViewBase::beforePopupMenu() {}
 
 /**
  * Forward drag and drop events from QWidget to ToolBoxConnector
@@ -1730,15 +1715,5 @@ bool MapViewBase::canMakeStructural() const
   }
   return false;
 }
-
-void MapViewBase::doPreRender() {}
-
-void MapViewBase::doRenderExtras(Renderer::RenderContext&, Renderer::RenderBatch&) {}
-
-bool MapViewBase::doBeforePopupMenu()
-{
-  return true;
-}
-void MapViewBase::doAfterPopupMenu() {}
 
 } // namespace TrenchBroom::View

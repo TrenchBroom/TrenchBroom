@@ -23,14 +23,12 @@
 
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class MapRenderer;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class FlashSelectionAnimation : public Animation
 {
@@ -47,5 +45,6 @@ public:
 private:
   void doUpdate(double progress) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+
+} // namespace TrenchBroom::View

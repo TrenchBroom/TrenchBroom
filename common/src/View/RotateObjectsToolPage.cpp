@@ -38,27 +38,24 @@
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/string_utils.h"
+#include "kdl/range_to.h"
 
 #include "vm/util.h"
-#include "vm/vec.h"
 #include "vm/vec_io.h"
 
-namespace TrenchBroom
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
+#include <ranges>
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 RotateObjectsToolPage::RotateObjectsToolPage(
   std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
   , m_tool{tool}
-  , m_recentlyUsedCentersList{nullptr}
-  , m_resetCenterButton{nullptr}
-  , m_angle{nullptr}
-  , m_axis{nullptr}
-  , m_rotateButton{nullptr}
-  , m_updateAnglePropertyAfterTransformCheckBox{nullptr}
 {
   createGui();
   connectObservers();
@@ -84,11 +81,11 @@ void RotateObjectsToolPage::setAxis(const vm::axis::type axis)
 void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers)
 {
   m_recentlyUsedCentersList->clear();
-
-  for (auto it = centers.rbegin(), end = centers.rend(); it != end; ++it)
-  {
-    m_recentlyUsedCentersList->addItem(QString::fromStdString(kdl::str_to_string(*it)));
-  }
+  m_recentlyUsedCentersList->addItems(
+    centers | std::views::reverse | std::views::transform([](const auto& center) {
+      return QString::fromStdString(fmt::format("{}", fmt::streamed(center)));
+    })
+    | kdl::to<QStringList>());
 
   if (m_recentlyUsedCentersList->count() > 0)
   {
@@ -99,7 +96,7 @@ void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& 
 void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center)
 {
   m_recentlyUsedCentersList->setCurrentText(
-    QString::fromStdString(kdl::str_to_string(center)));
+    QString::fromStdString(fmt::format("{}", fmt::streamed(center))));
 }
 
 void RotateObjectsToolPage::createGui()
@@ -260,12 +257,12 @@ vm::vec3 RotateObjectsToolPage::getAxis() const
   switch (m_axis->currentIndex())
   {
   case 0:
-    return vm::vec3::pos_x();
+    return vm::vec3{1, 0, 0};
   case 1:
-    return vm::vec3::pos_y();
+    return vm::vec3{0, 1, 0};
   default:
-    return vm::vec3::pos_z();
+    return vm::vec3{0, 0, 1};
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -26,8 +26,9 @@
 namespace TrenchBroom
 {
 class Logger;
+}
 
-namespace View
+namespace TrenchBroom::View
 {
 class Console;
 class IssueBrowser;
@@ -38,13 +39,13 @@ class InfoPanel : public QWidget
 {
   Q_OBJECT
 private:
-  TabBook* m_tabBook;
-  Console* m_console;
-  IssueBrowser* m_issueBrowser;
+  TabBook* m_tabBook = nullptr;
+  Console* m_console = nullptr;
+  IssueBrowser* m_issueBrowser = nullptr;
 
 public:
   explicit InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
   Console* console() const;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

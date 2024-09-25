@@ -21,30 +21,31 @@
 
 #include <QKeySequence>
 
-#include "Ensure.h"
 #include "Macros.h"
 #include "View/ActionContext.h"
 
+#include "kdl/overload.h"
+#include "kdl/path_hash.h"
+
 #include <filesystem>
 #include <functional>
-#include <map>
-#include <memory>
+#include <optional>
 #include <string>
+#include <unordered_map>
+#include <variant>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 class EntityDefinition;
 }
 
-namespace Model
+namespace TrenchBroom::Model
 {
 class SmartTag;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class MapFrame;
@@ -62,30 +63,64 @@ public:
 
   bool hasDocument() const;
   bool hasActionContext(ActionContext::Type actionContext) const;
+
   MapFrame* frame();
+  const MapFrame* frame() const;
+
   MapViewBase* view();
+  const MapViewBase* view() const;
+
   MapDocument* document();
+  const MapDocument* document() const;
 };
+
+using ExecuteFn = std::function<void(ActionExecutionContext&)>;
+using EnabledFn = std::function<bool(const ActionExecutionContext&)>;
+using CheckedFn = std::function<bool(const ActionExecutionContext&)>;
 
 class Action
 {
-protected:
+private:
   QString m_label;
   std::filesystem::path m_preferencePath;
   ActionContext::Type m_actionContext;
   QKeySequence m_defaultShortcut;
-  std::filesystem::path m_iconPath;
-  QString m_statusTip;
+
+  ExecuteFn m_execute;
+  EnabledFn m_enabled;
+  std::optional<CheckedFn> m_checked;
+
+  std::optional<std::filesystem::path> m_iconPath;
+  std::optional<QString> m_statusTip;
 
 public:
   Action(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
+    std::filesystem::path preferencePath,
+    QString label,
     ActionContext::Type actionContext,
-    const QKeySequence& defaultShortcut,
-    const std::filesystem::path& iconPath,
-    const QString& statusTip);
-  virtual ~Action();
+    QKeySequence defaultShortcut,
+    ExecuteFn execute,
+    EnabledFn enabled,
+    std::optional<CheckedFn> checked,
+    std::optional<std::filesystem::path> iconPath = std::nullopt,
+    std::optional<QString> statusTip = std::nullopt);
+
+  Action(
+    std::filesystem::path preferencePath,
+    QString label,
+    ActionContext::Type actionContext,
+    QKeySequence defaultShortcut,
+    ExecuteFn execute,
+    EnabledFn enabled,
+    std::optional<std::filesystem::path> iconPath = std::nullopt,
+    std::optional<QString> statusTip = std::nullopt);
+
+  Action(
+    std::filesystem::path preferencePath,
+    QString label,
+    ActionContext::Type actionContext,
+    ExecuteFn execute,
+    EnabledFn enabled);
 
   const QString& label() const;
   const std::filesystem::path& preferencePath() const;
@@ -94,166 +129,72 @@ public:
   void setKeySequence(const QKeySequence& keySequence) const;
   void resetKeySequence() const;
 
-  virtual void execute(ActionExecutionContext& context) const = 0;
-  virtual bool enabled(ActionExecutionContext& context) const = 0;
-  virtual bool checkable() const = 0;
-  virtual bool checked(ActionExecutionContext& context) const = 0;
+  void execute(ActionExecutionContext& context) const;
+  bool enabled(const ActionExecutionContext& context) const;
+  bool checkable() const;
+  bool checked(const ActionExecutionContext& context) const;
 
-  bool hasIcon() const;
-  const std::filesystem::path& iconPath() const;
+  const std::optional<std::filesystem::path>& iconPath() const;
 
-  const QString& statusTip() const;
+  const std::optional<QString>& statusTip() const;
 
   deleteCopy(Action);
 
-  Action(Action&& other) =
-    default; // cannot be noexcept because it will call QKeySequence's copy constructor
+  // cannot be noexcept because it will call QKeySequence's copy constructor
+  Action(Action&& other) = default;
   Action& operator=(Action&& other) = default;
-};
-
-/**
- * ExecuteFn has type ActionExecutionContext& -> void
- * EnabledFn has type ActionExecutionContext& -> bool
- * CheckedFn has type ActionExecutionContext& -> bool
- */
-template <class ExecuteFn, class EnabledFn, class CheckedFn>
-class LambdaAction : public Action
-{
-private:
-  ExecuteFn m_execute;
-  EnabledFn m_enabled;
-  CheckedFn m_checked;
-  bool m_checkable;
-
-public:
-  LambdaAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const ActionContext::Type actionContext,
-    const QKeySequence& defaultShortcut,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const CheckedFn& checked,
-    const bool checkable,
-    const std::filesystem::path& iconPath,
-    const QString& statusTip)
-    : Action(preferencePath, label, actionContext, defaultShortcut, iconPath, statusTip)
-    , m_execute(execute)
-    , m_enabled(enabled)
-    , m_checked(checked)
-    , m_checkable(checkable)
-  {
-  }
-
-  void execute(ActionExecutionContext& context) const override
-  {
-    if (enabled(context))
-    {
-      m_execute(context);
-    }
-  }
-
-  bool enabled(ActionExecutionContext& context) const override
-  {
-    return context.hasActionContext(m_actionContext) && m_enabled(context);
-  }
-
-  bool checkable() const override { return m_checkable; }
-
-  bool checked(ActionExecutionContext& context) const override
-  {
-    assert(checkable());
-    return m_checked(context);
-  }
-};
-
-class Menu;
-class MenuSeparatorItem;
-class MenuActionItem;
-
-class MenuVisitor
-{
-public:
-  virtual ~MenuVisitor();
-
-  virtual void visit(const Menu& menu) = 0;
-  virtual void visit(const MenuSeparatorItem& item) = 0;
-  virtual void visit(const MenuActionItem& item) = 0;
 };
 
 enum class MenuEntryType
 {
-  Menu_RecentDocuments,
-  Menu_Undo,
-  Menu_Redo,
-  Menu_Cut,
-  Menu_Copy,
-  Menu_Paste,
-  Menu_PasteAtOriginalPosition,
-  Menu_None
+  RecentDocuments,
+  Undo,
+  Redo,
+  Cut,
+  Copy,
+  Paste,
+  PasteAtOriginalPosition,
+  None
 };
 
-class MenuEntry
+struct MenuSeparator
 {
-private:
-  MenuEntryType m_entryType;
-
-public:
-  explicit MenuEntry(MenuEntryType entryType);
-  virtual ~MenuEntry();
-  virtual void accept(MenuVisitor& visitor) const = 0;
-
-  MenuEntryType entryType() const;
-
-  deleteCopyAndMove(MenuEntry);
 };
 
-class MenuSeparatorItem : public MenuEntry
+struct MenuAction
 {
-public:
-  MenuSeparatorItem();
-  void accept(MenuVisitor& visitor) const override;
-
-  deleteCopyAndMove(MenuSeparatorItem);
+  const Action& action;
+  MenuEntryType entryType;
 };
 
-class MenuActionItem : public MenuEntry
+struct Menu;
+
+using MenuEntry = std::variant<MenuSeparator, MenuAction, Menu>;
+
+struct Menu
 {
-private:
-  const Action* m_action;
+  std::string name;
+  MenuEntryType entryType;
+  std::vector<MenuEntry> entries;
 
-public:
-  MenuActionItem(const Action* action, MenuEntryType entryType);
-
-  const QString& label() const;
-  const Action& action() const;
-
-  void accept(MenuVisitor& visitor) const override;
-
-  deleteCopyAndMove(MenuActionItem);
-};
-
-class Menu : public MenuEntry
-{
-private:
-  std::string m_name;
-  std::vector<std::unique_ptr<MenuEntry>> m_entries;
-
-public:
-  Menu(const std::string& name, MenuEntryType entryType);
-
-  const std::string& name() const;
-
-  Menu& addMenu(
-    const std::string& name, MenuEntryType entryType = MenuEntryType::Menu_None);
   void addSeparator();
-  MenuActionItem& addItem(
-    const Action* action, MenuEntryType entryType = MenuEntryType::Menu_None);
+  const Action& addItem(
+    const Action& action, MenuEntryType entryType = MenuEntryType::None);
+  Menu& addMenu(std::string name, MenuEntryType entryType = MenuEntryType::None);
 
-  void accept(MenuVisitor& visitor) const override;
-  void visitEntries(MenuVisitor& visitor) const;
-
-  deleteCopyAndMove(Menu);
+  template <typename Visitor>
+  void visitEntries(const Visitor& visitor) const
+  {
+    for (const auto& entry : entries)
+    {
+      std::visit(
+        kdl::overload(
+          [&](const MenuSeparator& separatorItem) { visitor(separatorItem); },
+          [&](const MenuAction& actionItem) { visitor(actionItem); },
+          [&](const Menu& menu) { visitor(visitor, menu); }),
+        entry);
+    }
+  }
 };
 
 using ActionVisitor = std::function<void(const Action&)>;
@@ -265,19 +206,19 @@ private:
    * All actions which are used either in a menu, a tool bar or as a shortcut.
    * Indexed by preference path.
    */
-  std::map<std::filesystem::path, std::unique_ptr<Action>> m_actions;
+  std::unordered_map<std::filesystem::path, Action, kdl::path_hash> m_actions;
 
   /**
    * The main menu for the map editing window.
    * These will hold pointers to the actions in m_actions.
    */
-  std::vector<std::unique_ptr<Menu>> m_mainMenu;
+  std::vector<Menu> m_mainMenu;
 
   /**
    * The toolbar for the map editing window. Stored as a menu to allow for separators.
    * These will hold pointers to the actions in m_actions.
    */
-  std::unique_ptr<Menu> m_toolBar;
+  Menu m_toolBar = Menu{"Toolbar", MenuEntryType::None, {}};
 
 private:
   ActionManager();
@@ -290,23 +231,36 @@ public:
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
-  std::vector<std::unique_ptr<Action>> createTagActions(
-    const std::vector<Model::SmartTag>& tags) const;
+  std::vector<Action> createTagActions(const std::vector<Model::SmartTag>& tags) const;
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
-  std::vector<std::unique_ptr<Action>> createEntityDefinitionActions(
+  std::vector<Action> createEntityDefinitionActions(
     const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
 
-  void visitMainMenu(MenuVisitor& visitor) const;
-  void visitToolBarActions(MenuVisitor& visitor) const;
+  template <typename MenuVisitor>
+  void visitMainMenu(const MenuVisitor& visitor) const
+  {
+    for (const auto& menu : m_mainMenu)
+    {
+      visitor(visitor, menu);
+    }
+  }
+
+  template <typename MenuVisitor>
+  void visitToolBar(const MenuVisitor& visitor) const
+  {
+    m_toolBar.visitEntries(visitor);
+  }
+
   /**
    * Visits actions not used in the menu or toolbar.
    */
   void visitMapViewActions(const ActionVisitor& visitor) const;
-  const std::map<std::filesystem::path, std::unique_ptr<Action>>& actionsMap() const;
 
-  class ResetMenuVisitor;
+  const std::unordered_map<std::filesystem::path, Action, kdl::path_hash>& actionsMap()
+    const;
+
   void resetAllKeySequences() const;
 
 private:
@@ -321,185 +275,14 @@ private:
   void createDebugMenu();
   void createHelpMenu();
 
-  Menu& createMainMenu(const std::string& name);
+  Menu& createMainMenu(std::string name);
 
   void createToolbar();
-  const Action* existingAction(const std::filesystem::path& preferencePath) const;
+  const Action& existingAction(const std::filesystem::path& preferencePath) const;
 
-  template <class ExecuteFn, class EnabledFn>
-  static std::unique_ptr<Action> makeAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const ActionContext::Type actionContext,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled)
-  {
-    const auto checkedFn = [](ActionExecutionContext&) { return false; };
-    return std::unique_ptr<Action>(
-      new LambdaAction<ExecuteFn, EnabledFn, decltype(checkedFn)>(
-        preferencePath,
-        label,
-        actionContext,
-        QKeySequence(),
-        execute,
-        enabled,
-        checkedFn,
-        false,
-        std::filesystem::path(),
-        QString()));
-  }
-
-  template <class ExecuteFn, class EnabledFn>
-  const Action* createMenuAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const int key,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-    return createAction(
-      preferencePath,
-      label,
-      ActionContext::Any,
-      QKeySequence(key),
-      execute,
-      enabled,
-      iconPath,
-      statusTip);
-  }
-
-  template <class ExecuteFn, class EnabledFn, class CheckedFn>
-  const Action* createMenuAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const int key,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const CheckedFn& checked,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-    return createAction(
-      preferencePath,
-      label,
-      ActionContext::Any,
-      QKeySequence(key),
-      execute,
-      enabled,
-      checked,
-      iconPath,
-      statusTip);
-  }
-
-  template <class ExecuteFn, class EnabledFn>
-  const Action* createMenuAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const QKeySequence::StandardKey key,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-    return createAction(
-      preferencePath,
-      label,
-      ActionContext::Any,
-      QKeySequence(key),
-      execute,
-      enabled,
-      iconPath,
-      statusTip);
-  }
-
-  template <class ExecuteFn, class EnabledFn, class CheckedFn>
-  const Action* createMenuAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const QKeySequence::StandardKey key,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const CheckedFn& checked,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-    return createAction(
-      preferencePath,
-      label,
-      ActionContext::Any,
-      QKeySequence(key),
-      execute,
-      enabled,
-      checked,
-      iconPath,
-      statusTip);
-  }
-
-  template <class ExecuteFn, class EnabledFn>
-  const Action* createAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const ActionContext::Type actionContext,
-    const QKeySequence& defaultShortcut,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-
-    const auto checkedFn = [](ActionExecutionContext&) { return false; };
-    auto action =
-      std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, decltype(checkedFn)>(
-        preferencePath,
-        label,
-        actionContext,
-        defaultShortcut,
-        execute,
-        enabled,
-        checkedFn,
-        false,
-        iconPath,
-        statusTip));
-
-    auto [it, didInsert] = m_actions.insert({preferencePath, std::move(action)});
-    ensure(didInsert, "duplicate action name");
-    return it->second.get();
-  }
-
-  template <class ExecuteFn, class EnabledFn, class CheckedFn>
-  const Action* createAction(
-    const std::filesystem::path& preferencePath,
-    const QString& label,
-    const ActionContext::Type actionContext,
-    const QKeySequence& defaultShortcut,
-    const ExecuteFn& execute,
-    const EnabledFn& enabled,
-    const CheckedFn& checked,
-    const std::filesystem::path& iconPath = std::filesystem::path(),
-    const QString& statusTip = QString())
-  {
-    auto action =
-      std::unique_ptr<Action>(new LambdaAction<ExecuteFn, EnabledFn, CheckedFn>(
-        preferencePath,
-        label,
-        actionContext,
-        defaultShortcut,
-        execute,
-        enabled,
-        checked,
-        true,
-        iconPath,
-        statusTip));
-
-    auto [it, didInsert] = m_actions.insert({preferencePath, std::move(action)});
-    ensure(didInsert, "duplicate action name");
-    return it->second.get();
-  }
+  const Action& addAction(Action action);
 };
 
 std::vector<size_t> findConflicts(const std::vector<const Action*>& actions);
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

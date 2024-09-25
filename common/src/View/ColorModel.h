@@ -26,12 +26,13 @@
 
 namespace TrenchBroom::View
 {
+
 class ColorModel : public QAbstractTableModel
 {
   Q_OBJECT
 private:
   std::vector<Preference<Color>*> m_colors;
-  int m_colorsCount;
+  int m_colorsCount = 0;
 
 public:
   explicit ColorModel(QObject* parent = nullptr);
@@ -54,4 +55,5 @@ private:
   Preference<Color>* getColorPreference(int index) const;
   bool checkIndex(const QModelIndex& index) const;
 };
+
 } // namespace TrenchBroom::View

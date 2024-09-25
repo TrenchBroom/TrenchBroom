@@ -34,11 +34,10 @@
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/Transaction.h"
 #include "View/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
-
-#include "vm/polygon.h"
 
 #include <vector>
 

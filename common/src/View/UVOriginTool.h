@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Model/HitType.h"
-#include "Renderer/GLVertexType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
 

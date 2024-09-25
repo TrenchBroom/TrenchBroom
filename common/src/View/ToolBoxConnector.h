@@ -130,8 +130,8 @@ public:
   bool cancelDrag();
 
 private:
-  virtual PickRequest doGetPickRequest(float x, float y) const = 0;
-  virtual Model::PickResult doPick(const vm::ray3& pickRay) const = 0;
+  virtual PickRequest pickRequest(float x, float y) const = 0;
+  virtual Model::PickResult pick(const vm::ray3& pickRay) const = 0;
   virtual void doShowPopupMenu();
 
   deleteCopyAndMove(ToolBoxConnector);

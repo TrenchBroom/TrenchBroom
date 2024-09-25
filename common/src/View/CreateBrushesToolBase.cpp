@@ -25,6 +25,7 @@
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
+#include "View/Transaction.h"
 
 #include "kdl/memory_utils.h"
 

@@ -21,6 +21,7 @@
 
 #include <QWidget>
 
+#include "Result.h"
 #include "View/DrawShapeToolExtension.h"
 
 #include <memory>

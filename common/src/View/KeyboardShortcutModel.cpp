@@ -26,13 +26,10 @@
 #include "View/Actions.h"
 #include "View/MapDocument.h"
 
-#include "kdl/range_utils.h"
-#include "kdl/vector_set.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
 
-#include <functional>
 #include <ranges>
-#include <set>
 
 namespace TrenchBroom::View
 {
@@ -161,45 +158,28 @@ void KeyboardShortcutModel::initializeActions()
   }
 }
 
-class KeyboardShortcutModel::MenuActionVisitor : public MenuVisitor
-{
-private:
-  std::vector<ActionInfo>& m_actions;
-  std::filesystem::path m_currentPath;
-
-public:
-  explicit MenuActionVisitor(std::vector<ActionInfo>& actions)
-    : m_actions{actions}
-  {
-  }
-
-  void visit(const Menu& menu) override
-  {
-    m_currentPath = m_currentPath / menu.name();
-    menu.visitEntries(*this);
-    m_currentPath = m_currentPath.parent_path();
-  }
-
-  void visit(const MenuSeparatorItem&) override {}
-
-  void visit(const MenuActionItem& item) override
-  {
-    m_actions.push_back(
-      ActionInfo{m_currentPath / IO::pathFromQString(item.label()), item.action()});
-  }
-};
-
 void KeyboardShortcutModel::initializeMenuActions()
 {
-  MenuActionVisitor visitor(m_actions);
   const auto& actionManager = ActionManager::instance();
-  actionManager.visitMainMenu(visitor);
+
+  auto currentPath = std::filesystem::path{};
+  actionManager.visitMainMenu(kdl::overload(
+    [](const MenuSeparator&) {},
+    [&](const MenuAction& actionItem) {
+      m_actions.push_back(ActionInfo{
+        currentPath / IO::pathFromQString(actionItem.action.label()), actionItem.action});
+    },
+    [&](const auto& thisLambda, const Menu& menu) {
+      currentPath = currentPath / menu.name;
+      menu.visitEntries(thisLambda);
+      currentPath = currentPath.parent_path();
+    }));
 }
 
 void KeyboardShortcutModel::initializeViewActions()
 {
   const auto& actionManager = ActionManager::instance();
-  actionManager.visitMapViewActions([this](const Action& action) {
+  actionManager.visitMapViewActions([&](const Action& action) {
     m_actions.push_back(
       ActionInfo{"Map View" / IO::pathFromQString(action.label()), action});
   });
@@ -208,7 +188,7 @@ void KeyboardShortcutModel::initializeViewActions()
 void KeyboardShortcutModel::initializeTagActions()
 {
   assert(m_document);
-  m_document->visitTagActions([this](const Action& action) {
+  m_document->visitTagActions([&](const Action& action) {
     m_actions.push_back(ActionInfo{"Tags" / IO::pathFromQString(action.label()), action});
   });
 }
@@ -216,7 +196,7 @@ void KeyboardShortcutModel::initializeTagActions()
 void KeyboardShortcutModel::initializeEntityDefinitionActions()
 {
   assert(m_document);
-  m_document->visitEntityDefinitionActions([this](const Action& action) {
+  m_document->visitEntityDefinitionActions([&](const Action& action) {
     m_actions.push_back(
       ActionInfo{"Entity Definitions" / IO::pathFromQString(action.label()), action});
   });
@@ -227,7 +207,7 @@ void KeyboardShortcutModel::updateConflicts()
   const auto allActions =
     m_actions
     | std::views::transform([](const auto& actionInfo) { return &actionInfo.action; })
-    | kdl::to<std::vector<const Action*>>();
+    | kdl::to_vector;
 
   m_conflicts = kdl::vec_static_cast<int>(findConflicts(allActions));
   for (const auto& row : m_conflicts)

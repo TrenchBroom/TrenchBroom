@@ -22,10 +22,9 @@
 #include <QString>
 #include <QTableView>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /**
  * Hardcoded shortcuts:
  * - Ctrl+Enter emits the `addRowShortcutTriggered` signal
@@ -35,7 +34,7 @@ class EntityPropertyTable : public QTableView
 {
   Q_OBJECT
 private:
-  bool m_mousePressedOnSelectedCell;
+  bool m_mousePressedOnSelectedCell = false;
 
 public:
   explicit EntityPropertyTable(QWidget* parent = nullptr);
@@ -55,5 +54,5 @@ signals:
   void addRowShortcutTriggered();
   void removeRowsShortcutTriggered();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

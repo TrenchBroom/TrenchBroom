@@ -58,4 +58,5 @@ public:
     return *this;
   }
 };
+
 } // namespace TrenchBroom::View

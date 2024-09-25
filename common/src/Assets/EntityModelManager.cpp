@@ -32,7 +32,7 @@
 #include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 
-#include "kdl/range_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 
 namespace TrenchBroom::Assets
@@ -177,7 +177,7 @@ const std::vector<const EntityModel*> EntityModelManager::
   const auto toPointer = [](const auto& model) { return &model; };
 
   return m_models | views::values | views::filter(filterByResourceId)
-         | views::transform(toPointer) | kdl::to<std::vector<const EntityModel*>>();
+         | views::transform(toPointer) | kdl::to_vector;
 }
 
 const EntityModel* EntityModelManager::safeGetModel(

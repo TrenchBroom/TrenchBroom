@@ -26,6 +26,7 @@
 
 namespace TrenchBroom::View
 {
+
 Tool::Tool(const bool initiallyActive)
   : m_active{initiallyActive}
 {

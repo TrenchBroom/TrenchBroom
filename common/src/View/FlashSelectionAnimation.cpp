@@ -24,29 +24,27 @@
 #include "Color.h"
 #include "Renderer/MapRenderer.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
 FlashSelectionAnimation::FlashSelectionAnimation(
   Renderer::MapRenderer& renderer, QWidget* view, const double duration)
-  : Animation(AnimationType, Curve::EaseInEaseOut, duration)
-  , m_renderer(renderer)
-  , m_view(view)
+  : Animation{AnimationType, Curve::EaseInEaseOut, duration}
+  , m_renderer{renderer}
+  , m_view{view}
 {
 }
 
 void FlashSelectionAnimation::doUpdate(const double progress)
 {
-  static const Color white(1.0f, 1.0f, 1.0f, 1.0f);
+  static const auto white = Color{1.0f, 1.0f, 1.0f, 1.0f};
 
-  const float fltProgress = static_cast<float>(progress);
+  const auto fltProgress = static_cast<float>(progress);
   if (fltProgress < 1.0f)
   {
     // factor ranges from 0 to 1 and then back to 0
-    const float factor =
+    const auto factor =
       fltProgress < 0.5f ? 2.0f * fltProgress : 1.0f - 2.0f * (fltProgress - 0.5f);
     m_renderer.overrideSelectionColors(white, factor * 0.8f);
   }
@@ -57,5 +55,5 @@ void FlashSelectionAnimation::doUpdate(const double progress)
 
   m_view->update();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

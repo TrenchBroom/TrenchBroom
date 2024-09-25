@@ -24,14 +24,11 @@
 
 #include "QtUtils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 DialogHeader::DialogHeader(QWidget* parent)
   : QWidget{parent}
-  , m_iconLabel{nullptr}
-  , m_textLabel{nullptr}
 {
   createGui();
 }
@@ -82,5 +79,4 @@ void DialogHeader::createGui()
   setLayout(layout);
 }
 
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

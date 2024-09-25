@@ -40,7 +40,7 @@ void MultiPaneMapView::addMapView(MapView* mapView)
   mapView->setContainer(this);
 }
 
-void MultiPaneMapView::doFlashSelection()
+void MultiPaneMapView::flashSelection()
 {
   for (auto* mapView : m_mapViews)
   {
@@ -48,7 +48,7 @@ void MultiPaneMapView::doFlashSelection()
   }
 }
 
-void MultiPaneMapView::doInstallActivationTracker(
+void MultiPaneMapView::installActivationTracker(
   MapViewActivationTracker& activationTracker)
 {
   for (auto* mapView : m_mapViews)
@@ -57,25 +57,25 @@ void MultiPaneMapView::doInstallActivationTracker(
   }
 }
 
-bool MultiPaneMapView::doGetIsCurrent() const
+bool MultiPaneMapView::isCurrent() const
 {
   return std::any_of(m_mapViews.begin(), m_mapViews.end(), [](auto* mapView) {
     return mapView->isCurrent();
   });
 }
 
-MapViewBase* MultiPaneMapView::doGetFirstMapViewBase()
+MapViewBase* MultiPaneMapView::firstMapViewBase()
 {
-  ensure(!m_mapViews.empty(), "MultiPaneMapView empty in doGetFirstMapViewBase()");
+  ensure(!m_mapViews.empty(), "MultiPaneMapView empty in firstMapViewBase()");
   return m_mapViews.front()->firstMapViewBase();
 }
 
-bool MultiPaneMapView::doCanSelectTall()
+bool MultiPaneMapView::canSelectTall()
 {
   return currentMapView() && currentMapView()->canSelectTall();
 }
 
-void MultiPaneMapView::doSelectTall()
+void MultiPaneMapView::selectTall()
 {
   if (currentMapView())
   {
@@ -83,7 +83,7 @@ void MultiPaneMapView::doSelectTall()
   }
 }
 
-void MultiPaneMapView::doReset2dCameras(
+void MultiPaneMapView::reset2dCameras(
   const Renderer::Camera& masterCamera, const bool animate)
 {
   for (auto* mapView : m_mapViews)
@@ -92,7 +92,7 @@ void MultiPaneMapView::doReset2dCameras(
   }
 }
 
-void MultiPaneMapView::doFocusCameraOnSelection(const bool animate)
+void MultiPaneMapView::focusCameraOnSelection(const bool animate)
 {
   for (auto* mapView : m_mapViews)
   {
@@ -100,8 +100,7 @@ void MultiPaneMapView::doFocusCameraOnSelection(const bool animate)
   }
 }
 
-void MultiPaneMapView::doMoveCameraToPosition(
-  const vm::vec3f& position, const bool animate)
+void MultiPaneMapView::moveCameraToPosition(const vm::vec3f& position, const bool animate)
 {
   for (auto* mapView : m_mapViews)
   {
@@ -109,7 +108,7 @@ void MultiPaneMapView::doMoveCameraToPosition(
   }
 }
 
-void MultiPaneMapView::doMoveCameraToCurrentTracePoint()
+void MultiPaneMapView::moveCameraToCurrentTracePoint()
 {
   for (auto* mapView : m_mapViews)
   {
@@ -117,21 +116,39 @@ void MultiPaneMapView::doMoveCameraToCurrentTracePoint()
   }
 }
 
-bool MultiPaneMapView::doCanMaximizeCurrentView() const
+bool MultiPaneMapView::cancelMouseDrag()
+{
+  auto result = false;
+  for (auto* mapView : m_mapViews)
+  {
+    result |= mapView->cancelMouseDrag();
+  }
+  return result;
+}
+
+void MultiPaneMapView::refreshViews()
+{
+  for (auto* mapView : m_mapViews)
+  {
+    mapView->refreshViews();
+  }
+}
+
+bool MultiPaneMapView::canMaximizeCurrentView() const
 {
   return m_maximizedView || currentMapView();
 }
 
-bool MultiPaneMapView::doCurrentViewMaximized() const
+bool MultiPaneMapView::currentViewMaximized() const
 {
   return m_maximizedView;
 }
 
-void MultiPaneMapView::doToggleMaximizeCurrentView()
+void MultiPaneMapView::toggleMaximizeCurrentView()
 {
   if (m_maximizedView)
   {
-    doRestoreViews();
+    restoreViews();
     m_maximizedView = nullptr;
   }
   else
@@ -139,12 +156,12 @@ void MultiPaneMapView::doToggleMaximizeCurrentView()
     m_maximizedView = currentMapView();
     if (m_maximizedView)
     {
-      doMaximizeView(m_maximizedView);
+      maximizeView(m_maximizedView);
     }
   }
 }
 
-MapView* MultiPaneMapView::doGetCurrentMapView() const
+MapView* MultiPaneMapView::currentMapView() const
 {
   for (auto* mapView : m_mapViews)
   {
@@ -161,21 +178,4 @@ void MultiPaneMapView::cycleChildMapView(MapView*)
   // only CyclingMapView support cycling
 }
 
-bool MultiPaneMapView::doCancelMouseDrag()
-{
-  auto result = false;
-  for (auto* mapView : m_mapViews)
-  {
-    result |= mapView->cancelMouseDrag();
-  }
-  return result;
-}
-
-void MultiPaneMapView::doRefreshViews()
-{
-  for (auto* mapView : m_mapViews)
-  {
-    mapView->refreshViews();
-  }
-}
 } // namespace TrenchBroom::View

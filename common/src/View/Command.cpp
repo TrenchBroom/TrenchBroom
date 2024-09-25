@@ -21,10 +21,9 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CommandResult::CommandResult(const bool success)
   : m_success{success}
 {
@@ -55,19 +54,12 @@ const std::string& Command::name() const
   return m_name;
 }
 
-std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade* document)
+std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade& document)
 {
   m_state = CommandState::Doing;
   auto result = doPerformDo(document);
-  if (result->success())
-  {
-    m_state = CommandState::Done;
-  }
-  else
-  {
-    m_state = CommandState::Default;
-  }
+  m_state = result->success() ? CommandState::Done : CommandState::Default;
   return result;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

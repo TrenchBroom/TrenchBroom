@@ -35,6 +35,7 @@
 
 namespace TrenchBroom::View
 {
+
 ToolBox::ToolBox() = default;
 ToolBox::~ToolBox() = default;
 
@@ -395,4 +396,5 @@ void ToolBox::deactivateTool(Tool& tool)
   m_modalTool = nullptr;
   toolDeactivatedNotifier(tool);
 }
+
 } // namespace TrenchBroom::View

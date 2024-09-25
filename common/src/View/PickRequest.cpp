@@ -20,20 +20,14 @@
 #include "PickRequest.h"
 
 #include "Ensure.h"
-#include "FloatType.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-PickRequest::PickRequest()
-  : m_camera(nullptr)
-{
-}
+PickRequest::PickRequest() = default;
 
 PickRequest::PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera)
-  : m_pickRay(pickRay)
-  , m_camera(&camera)
+  : m_pickRay{pickRay}
+  , m_camera{&camera}
 {
 }
 
@@ -47,5 +41,5 @@ const Renderer::Camera& PickRequest::camera() const
   ensure(m_camera != nullptr, "camera is null");
   return *m_camera;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

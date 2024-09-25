@@ -24,9 +24,7 @@
 class QLabel;
 class QPixmap;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class ElidedLabel;
 
@@ -34,9 +32,9 @@ class ImageListBoxItemRenderer : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  ElidedLabel* m_titleLabel;
-  ElidedLabel* m_subtitleLabel;
-  QLabel* m_imageLabel;
+  ElidedLabel* m_titleLabel = nullptr;
+  ElidedLabel* m_subtitleLabel = nullptr;
+  QLabel* m_imageLabel = nullptr;
 
 public:
   ImageListBoxItemRenderer(
@@ -61,5 +59,5 @@ private:
   virtual QString title(size_t index) const = 0;
   virtual QString subtitle(size_t index) const = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

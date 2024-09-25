@@ -22,21 +22,21 @@
 #include "View/SwapNodeContentsCommand.h"
 #include "View/VertexTool.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/range_to_vector.h"
 
-namespace TrenchBroom
+#include <ranges>
+
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 BrushVertexCommandBase::BrushVertexCommandBase(
-  const std::string& name,
-  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
-  : SwapNodeContentsCommand{name, std::move(nodes)}
+  std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  : SwapNodeContentsCommand{std::move(name), std::move(nodes)}
 {
 }
 
 std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   return createCommandResult(SwapNodeContentsCommand::doPerformDo(document));
 }
@@ -50,15 +50,12 @@ std::unique_ptr<CommandResult> BrushVertexCommandBase::createCommandResult(
 static auto collectBrushNodes(
   const std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
 {
-  auto result = std::vector<Model::BrushNode*>{};
-  for (const auto& [node, contents] : nodes)
-  {
-    if (auto* brushNode = dynamic_cast<Model::BrushNode*>(node))
-    {
-      result.push_back(brushNode);
-    }
-  }
-  return result;
+  return nodes | std::views::filter([](const auto& pair) {
+           return dynamic_cast<Model::BrushNode*>(pair.first) != nullptr;
+         })
+         | std::views::transform(
+           [](const auto& pair) { return static_cast<Model::BrushNode*>(pair.first); })
+         | kdl::to_vector;
 }
 
 void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager)
@@ -111,11 +108,11 @@ bool BrushVertexCommandResult::hasRemainingVertices() const
 }
 
 BrushVertexCommand::BrushVertexCommand(
-  const std::string& name,
+  std::string name,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::vec3> oldVertexPositions,
   std::vector<vm::vec3> newVertexPositions)
-  : BrushVertexCommandBase{name, std::move(nodes)}
+  : BrushVertexCommandBase{std::move(name), std::move(nodes)}
   , m_oldVertexPositions{std::move(oldVertexPositions)}
   , m_newVertexPositions{std::move(newVertexPositions)}
 {
@@ -130,25 +127,15 @@ std::unique_ptr<CommandResult> BrushVertexCommand::createCommandResult(
 
 bool BrushVertexCommand::doCollateWith(UndoableCommand& command)
 {
-  auto* other = dynamic_cast<BrushVertexCommand*>(&command);
-  if (other == nullptr)
+  if (auto* other = dynamic_cast<BrushVertexCommand*>(&command);
+      other && m_newVertexPositions == other->m_oldVertexPositions
+      && SwapNodeContentsCommand::doCollateWith(command))
   {
-    return false;
+    m_newVertexPositions = std::move(other->m_newVertexPositions);
+    return true;
   }
 
-  if (m_newVertexPositions != other->m_oldVertexPositions)
-  {
-    return false;
-  }
-
-  if (!SwapNodeContentsCommand::doCollateWith(command))
-  {
-    return false;
-  }
-
-  m_newVertexPositions = std::move(other->m_newVertexPositions);
-
-  return true;
+  return false;
 }
 
 void BrushVertexCommand::selectNewHandlePositions(
@@ -164,11 +151,11 @@ void BrushVertexCommand::selectOldHandlePositions(
 }
 
 BrushEdgeCommand::BrushEdgeCommand(
-  const std::string& name,
+  std::string name,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::segment3> oldEdgePositions,
   std::vector<vm::segment3> newEdgePositions)
-  : BrushVertexCommandBase{name, std::move(nodes)}
+  : BrushVertexCommandBase{std::move(name), std::move(nodes)}
   , m_oldEdgePositions{std::move(oldEdgePositions)}
   , m_newEdgePositions{std::move(newEdgePositions)}
 {
@@ -176,25 +163,15 @@ BrushEdgeCommand::BrushEdgeCommand(
 
 bool BrushEdgeCommand::doCollateWith(UndoableCommand& command)
 {
-  auto* other = dynamic_cast<BrushEdgeCommand*>(&command);
-  if (other == nullptr)
+  if (auto* other = dynamic_cast<BrushEdgeCommand*>(&command);
+      other && m_newEdgePositions == other->m_oldEdgePositions
+      && SwapNodeContentsCommand::doCollateWith(command))
   {
-    return false;
+    m_newEdgePositions = std::move(other->m_newEdgePositions);
+    return true;
   }
 
-  if (m_newEdgePositions != other->m_oldEdgePositions)
-  {
-    return false;
-  }
-
-  if (!SwapNodeContentsCommand::doCollateWith(command))
-  {
-    return false;
-  }
-
-  m_newEdgePositions = std::move(other->m_newEdgePositions);
-
-  return true;
+  return false;
 }
 
 void BrushEdgeCommand::selectNewHandlePositions(
@@ -210,11 +187,11 @@ void BrushEdgeCommand::selectOldHandlePositions(
 }
 
 BrushFaceCommand::BrushFaceCommand(
-  const std::string& name,
+  std::string name,
   std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes,
   std::vector<vm::polygon3> oldFacePositions,
   std::vector<vm::polygon3> newFacePositions)
-  : BrushVertexCommandBase{name, std::move(nodes)}
+  : BrushVertexCommandBase{std::move(name), std::move(nodes)}
   , m_oldFacePositions{std::move(oldFacePositions)}
   , m_newFacePositions{std::move(newFacePositions)}
 {
@@ -222,25 +199,14 @@ BrushFaceCommand::BrushFaceCommand(
 
 bool BrushFaceCommand::doCollateWith(UndoableCommand& command)
 {
-  auto* other = dynamic_cast<BrushFaceCommand*>(&command);
-  if (other == nullptr)
+  if (auto* other = dynamic_cast<BrushFaceCommand*>(&command);
+      other && m_newFacePositions == other->m_oldFacePositions
+      && SwapNodeContentsCommand::doCollateWith(command))
   {
-    return false;
+    m_newFacePositions = std::move(other->m_newFacePositions);
+    return true;
   }
-
-  if (m_newFacePositions != other->m_oldFacePositions)
-  {
-    return false;
-  }
-
-  if (!SwapNodeContentsCommand::doCollateWith(command))
-  {
-    return false;
-  }
-
-  m_newFacePositions = std::move(other->m_newFacePositions);
-
-  return true;
+  return false;
 }
 
 void BrushFaceCommand::selectNewHandlePositions(
@@ -254,5 +220,5 @@ void BrushFaceCommand::selectOldHandlePositions(
 {
   manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -22,7 +22,6 @@
 #include <QGridLayout>
 
 #include "View/CyclingMapView.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 
 namespace TrenchBroom::View
@@ -32,10 +31,8 @@ OnePaneMapView::OnePaneMapView(
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  Logger* logger,
   QWidget* parent)
   : MultiPaneMapView{parent}
-  , m_logger{logger}
   , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
@@ -47,13 +44,7 @@ void OnePaneMapView::createGui(
   GLContextManager& contextManager)
 {
   m_mapView = new CyclingMapView{
-    m_document,
-    toolBox,
-    mapRenderer,
-    contextManager,
-    CyclingMapView::View_ALL,
-    m_logger,
-    this};
+    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ALL};
   m_mapView->linkCamera(m_linkHelper);
   addMapView(m_mapView);
 
@@ -62,13 +53,14 @@ void OnePaneMapView::createGui(
   setLayout(layout);
 }
 
-void OnePaneMapView::doMaximizeView(MapView*)
+void OnePaneMapView::maximizeView(MapView*)
 {
   // nothing to do
 }
 
-void OnePaneMapView::doRestoreViews()
+void OnePaneMapView::restoreViews()
 {
   // nothing to do
 }
+
 } // namespace TrenchBroom::View

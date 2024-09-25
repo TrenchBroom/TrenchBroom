@@ -22,15 +22,13 @@
 #include "FloatType.h"
 #include "View/VertexToolBase.h"
 
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class FaceHandleManager;
 
@@ -40,10 +38,9 @@ private:
   std::unique_ptr<FaceHandleManager> m_faceHandles;
 
 public:
-  FaceTool(std::weak_ptr<MapDocument> document);
+  explicit FaceTool(std::weak_ptr<MapDocument> document);
 
 public:
-  // FIXME: use vector_set
   std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
 
 private:
@@ -69,5 +66,5 @@ public:
 
   void removeSelection();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

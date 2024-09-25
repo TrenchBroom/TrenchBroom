@@ -23,9 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class FaceInspector;
 class EntityInspector;
@@ -47,12 +45,12 @@ class Inspector : public QWidget
 {
   Q_OBJECT
 private:
-  TabBook* m_tabBook;
-  MapInspector* m_mapInspector;
-  EntityInspector* m_entityInspector;
-  FaceInspector* m_faceInspector;
+  TabBook* m_tabBook = nullptr;
+  MapInspector* m_mapInspector = nullptr;
+  EntityInspector* m_entityInspector = nullptr;
+  FaceInspector* m_faceInspector = nullptr;
 
-  SyncHeightEventFilter* m_syncTabBarEventFilter;
+  SyncHeightEventFilter* m_syncTabBarEventFilter = nullptr;
 
 public:
   Inspector(
@@ -65,5 +63,5 @@ public:
 
   FaceInspector* faceInspector();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

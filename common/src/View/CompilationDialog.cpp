@@ -31,21 +31,19 @@
 #include "Model/CompilationProfile.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
-#include "View/CompilationContext.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"
 #include "View/LaunchGameEngineDialog.h"
-#include "View/MapDocument.h"
+#include "View/MapDocument.h" // IWYU pragma: keep
 #include "View/MapFrame.h"
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CompilationDialog::CompilationDialog(MapFrame* mapFrame)
   : QDialog{mapFrame}
   , m_mapFrame{mapFrame}
@@ -68,7 +66,7 @@ void CompilationDialog::createGui()
 
   m_profileManager = new CompilationProfileManager{document, compilationConfig};
 
-  auto* outputPanel = new TitledPanel{"Output"};
+  auto* outputPanel = new TitledPanel{tr("Output")};
   m_output = new QTextEdit{};
   m_output->setReadOnly(true);
   m_output->setFont(Fonts::fixedWidthFont());
@@ -85,11 +83,11 @@ void CompilationDialog::createGui()
   splitter->setSizes({2, 1});
 
   auto* buttonBox = new QDialogButtonBox{};
-  m_launchButton = buttonBox->addButton("Launch...", QDialogButtonBox::NoRole);
-  m_stopCompileButton = buttonBox->addButton("Stop", QDialogButtonBox::NoRole);
-  m_testCompileButton = buttonBox->addButton("Test", QDialogButtonBox::NoRole);
-  m_compileButton = buttonBox->addButton("Compile", QDialogButtonBox::NoRole);
-  m_closeButton = buttonBox->addButton("Close", QDialogButtonBox::RejectRole);
+  m_launchButton = buttonBox->addButton(tr("Launch..."), QDialogButtonBox::NoRole);
+  m_stopCompileButton = buttonBox->addButton(tr("Stop"), QDialogButtonBox::NoRole);
+  m_testCompileButton = buttonBox->addButton(tr("Test"), QDialogButtonBox::NoRole);
+  m_compileButton = buttonBox->addButton(tr("Compile"), QDialogButtonBox::NoRole);
+  m_closeButton = buttonBox->addButton(tr("Close"), QDialogButtonBox::RejectRole);
 
   m_currentRunLabel = new QLabel{""};
   m_currentRunLabel->setAlignment(Qt::AlignRight);
@@ -147,15 +145,16 @@ void CompilationDialog::createGui()
 
 void CompilationDialog::keyPressEvent(QKeyEvent* event)
 {
-  // Dismissing the dialog with Escape, doesn't invoke CompilationDialog::closeEvent
-  // so handle it here, so we can potentially block it.
+  // Dismissing the dialog with Escape doesn't invoke CompilationDialog::closeEvent, so
+  // handle it here, so we can potentially block it.
   if (event->key() == Qt::Key_Escape)
   {
     close();
-    return;
   }
-
-  QDialog::keyPressEvent(event);
+  else
+  {
+    QDialog::keyPressEvent(event);
+  }
 }
 
 void CompilationDialog::updateCompileButtons()
@@ -170,6 +169,7 @@ void CompilationDialog::updateCompileButtons()
 void CompilationDialog::startCompilation(const bool test)
 {
   saveProfile();
+
   if (m_run.running())
   {
     m_run.terminate();
@@ -177,8 +177,8 @@ void CompilationDialog::startCompilation(const bool test)
   else
   {
     const auto* profile = m_profileManager->selectedProfile();
-    ensure(profile != nullptr, "profile is null");
-    ensure(!profile->tasks.empty(), "profile has no tasks");
+    ensure(profile != nullptr, "profile is not null");
+    ensure(!profile->tasks.empty(), "profile has tasks");
 
     if (test)
     {
@@ -205,8 +205,8 @@ void CompilationDialog::closeEvent(QCloseEvent* event)
   {
     const auto result = QMessageBox::warning(
       this,
-      "Warning",
-      "Closing this dialog will stop the running compilation. Are you sure?",
+      tr("Warning"),
+      tr("Closing this dialog will stop the running compilation. Are you sure?"),
       QMessageBox::Yes | QMessageBox::No,
       QMessageBox::Yes);
 
@@ -257,5 +257,5 @@ void CompilationDialog::saveProfile()
   gameFactory.saveCompilationConfig(
     gameName, m_profileManager->config(), m_mapFrame->logger());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

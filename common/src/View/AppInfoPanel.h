@@ -23,6 +23,7 @@
 
 namespace TrenchBroom::View
 {
+
 class AppInfoPanel : public QWidget
 {
   Q_OBJECT
@@ -34,4 +35,5 @@ private:
 
   void versionInfoClicked();
 };
+
 } // namespace TrenchBroom::View

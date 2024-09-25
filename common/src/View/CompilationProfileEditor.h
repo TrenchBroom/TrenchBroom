@@ -27,14 +27,12 @@ class QAbstractButton;
 class QLineEdit;
 class QStackedWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationProfile;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class CompilationTaskListBox;
 class MapDocument;
@@ -92,5 +90,5 @@ signals:
    */
   void profileChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

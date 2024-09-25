@@ -58,8 +58,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = UpdateLinkedGroupsCommand{{groupNode1, groupNode2}};
 
-    firstCommand.performDo(static_cast<MapDocumentCommandFacade*>(document.get()));
-    secondCommand.performDo(static_cast<MapDocumentCommandFacade*>(document.get()));
+    firstCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
+    secondCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
 
     CHECK(firstCommand.collateWith(secondCommand));
   }
@@ -69,8 +69,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = CurrentGroupCommand{groupNode2};
 
-    firstCommand.performDo(static_cast<MapDocumentCommandFacade*>(document.get()));
-    secondCommand.performDo(static_cast<MapDocumentCommandFacade*>(document.get()));
+    firstCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
+    secondCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
 
     CHECK_FALSE(firstCommand.collateWith(secondCommand));
   }

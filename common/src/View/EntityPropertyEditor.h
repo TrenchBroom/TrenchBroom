@@ -59,11 +59,11 @@ class EntityPropertyEditor : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  QSplitter* m_splitter;
-  EntityPropertyGrid* m_propertyGrid;
-  SmartPropertyEditorManager* m_smartEditorManager;
-  QTextEdit* m_documentationText;
-  const Assets::EntityDefinition* m_currentDefinition;
+  QSplitter* m_splitter = nullptr;
+  EntityPropertyGrid* m_propertyGrid = nullptr;
+  SmartPropertyEditorManager* m_smartEditorManager = nullptr;
+  QTextEdit* m_documentationText = nullptr;
+  const Assets::EntityDefinition* m_currentDefinition = nullptr;
 
   NotifierConnection m_notifierConnection;
 

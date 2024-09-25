@@ -29,9 +29,10 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
+#include "View/Actions.h"
 #include "View/CachingLogger.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
 #include "vm/util.h"
 
@@ -40,7 +41,6 @@
 #include <memory>
 #include <optional>
 #include <string>
-#include <variant>
 #include <vector>
 
 namespace TrenchBroom
@@ -84,7 +84,6 @@ enum class WrapStyle;
 
 namespace TrenchBroom::View
 {
-class Action;
 class Command;
 class CommandResult;
 class Grid;
@@ -132,7 +131,7 @@ protected:
   std::unique_ptr<Model::EditorContext> m_editorContext;
   std::unique_ptr<Grid> m_grid;
 
-  using ActionList = std::vector<std::unique_ptr<Action>>;
+  using ActionList = std::vector<Action>;
   ActionList m_tagActions;
   ActionList m_entityDefinitionActions;
 
@@ -291,9 +290,9 @@ private: // tag and entity definition actions
   template <typename ActionVisitor>
   void visitActions(const ActionVisitor& visitor, const ActionList& actions) const
   {
-    for (const std::unique_ptr<Action>& action : actions)
+    for (const auto& action : actions)
     {
-      visitor(*action);
+      visitor(action);
     }
   }
 
@@ -827,35 +826,4 @@ private: // observers
   void transactionUndone(const std::string& name);
 };
 
-class Transaction
-{
-public:
-  enum class State
-  {
-    Running,
-    Committed,
-    Cancelled,
-  };
-
-private:
-  MapDocument& m_document;
-  std::string m_name;
-  State m_state;
-
-public:
-  explicit Transaction(std::weak_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(std::shared_ptr<MapDocument> document, std::string name = "");
-  explicit Transaction(MapDocument& document, std::string name = "");
-  ~Transaction();
-
-  State state() const;
-
-  void finish(bool commit);
-  bool commit();
-  void rollback();
-  void cancel();
-
-private:
-  void begin();
-};
 } // namespace TrenchBroom::View

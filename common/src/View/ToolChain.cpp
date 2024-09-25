@@ -29,8 +29,8 @@
 
 namespace TrenchBroom::View
 {
-ToolChain::ToolChain() = default;
 
+ToolChain::ToolChain() = default;
 ToolChain::~ToolChain() = default;
 
 void ToolChain::append(std::unique_ptr<ToolController> tool)
@@ -273,4 +273,5 @@ bool ToolChain::chainEndsHere() const
 {
   return m_tool == nullptr;
 }
+
 } // namespace TrenchBroom::View

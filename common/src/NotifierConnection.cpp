@@ -25,6 +25,7 @@
 
 namespace TrenchBroom
 {
+
 NotifierConnection::NotifierConnection() = default;
 
 NotifierConnection::NotifierConnection(
@@ -64,4 +65,5 @@ void NotifierConnection::disconnect()
   }
   m_connections.clear();
 }
+
 } // namespace TrenchBroom

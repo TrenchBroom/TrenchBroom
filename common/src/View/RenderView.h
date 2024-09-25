@@ -104,9 +104,9 @@ protected:
 
 private:
   virtual const Color& getBackgroundColor();
-  virtual void doUpdateViewport(int x, int y, int width, int height);
-  virtual bool doShouldRenderFocusIndicator() const = 0;
-  virtual void doRender() = 0;
+  virtual void updateViewport(int x, int y, int width, int height);
+  virtual bool shouldRenderFocusIndicator() const = 0;
+  virtual void renderContents() = 0;
 };
 
 } // namespace TrenchBroom::View

@@ -22,20 +22,18 @@
 #include "FloatType.h"
 #include "View/Tool.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNode;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -43,7 +41,7 @@ class CreateEntityTool : public Tool
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::EntityNode* m_entity;
+  Model::EntityNode* m_entity = nullptr;
   vm::bbox3 m_referenceBounds;
 
 public:
@@ -57,5 +55,5 @@ public:
   void updateEntityPosition3D(
     const vm::ray3& pickRay, const Model::PickResult& pickResult);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

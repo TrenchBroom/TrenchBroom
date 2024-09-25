@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/CameraLinkHelper.h"
 #include "View/MapViewContainer.h"
 
@@ -57,14 +56,12 @@ public:
   static constexpr auto View_ALL = View_3D | View_2D;
 
 private:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
-  using MapViewList = std::vector<MapViewBase*>;
-  MapViewList m_mapViews;
-  MapViewBase* m_currentMapView;
+  std::vector<MapViewBase*> m_mapViews;
+  MapViewBase* m_currentMapView = nullptr;
 
-  QStackedLayout* m_layout;
+  QStackedLayout* m_layout = nullptr;
 
 public:
   CyclingMapView(
@@ -73,7 +70,6 @@ public:
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     int views,
-    Logger* logger,
     QWidget* parent = nullptr);
 
 private:
@@ -87,28 +83,30 @@ private:
 private:
   void switchToMapView(MapViewBase* mapView);
 
-private: // implement ViewEffectsService interface
-  void doFlashSelection() override;
+public: // implement ViewEffectsService interface
+  void flashSelection() override;
 
-private: // implement MapView interface
-  bool doGetIsCurrent() const override;
-  bool doCanSelectTall() override;
-  void doSelectTall() override;
-  void doReset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
-  void doFocusCameraOnSelection(bool animate) override;
-  void doMoveCameraToPosition(const vm::vec3f& position, bool animate) override;
-  void doMoveCameraToCurrentTracePoint() override;
-  bool doCanMaximizeCurrentView() const override;
-  bool doCurrentViewMaximized() const override;
-  void doToggleMaximizeCurrentView() override;
+public: // implement MapView interface
+  void installActivationTracker(MapViewActivationTracker& activationTracker) override;
+  bool isCurrent() const override;
+  MapViewBase* firstMapViewBase() override;
+  bool canSelectTall() override;
+  void selectTall() override;
+  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void focusCameraOnSelection(bool animate) override;
+  void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
+  void moveCameraToCurrentTracePoint() override;
 
-  bool doCancelMouseDrag() override;
-  void doRefreshViews() override;
+  bool cancelMouseDrag() override;
+  void refreshViews() override;
 
-private: // implement MapViewContainer interface
-  void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
-  MapView* doGetCurrentMapView() const override;
-  MapViewBase* doGetFirstMapViewBase() override;
+public: // implement MapViewContainer interface
+  bool canMaximizeCurrentView() const override;
+  bool currentViewMaximized() const override;
+  void toggleMaximizeCurrentView() override;
+
+protected:
+  MapView* currentMapView() const override;
 
 public:
   void cycleChildMapView(MapView* after) override;
@@ -116,4 +114,5 @@ public:
 public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
+
 } // namespace TrenchBroom::View

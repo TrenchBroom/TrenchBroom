@@ -25,11 +25,6 @@
 
 class QSplitter;
 
-namespace TrenchBroom
-{
-class Logger;
-}
-
 namespace TrenchBroom::Renderer
 {
 class MapRenderer;
@@ -50,7 +45,6 @@ class ThreePaneMapView : public MultiPaneMapView
 {
   Q_OBJECT
 private:
-  Logger* m_logger;
   std::weak_ptr<MapDocument> m_document;
 
   QSplitter* m_hSplitter = nullptr;
@@ -65,7 +59,6 @@ public:
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
-    Logger* logger,
     QWidget* parent = nullptr);
   ~ThreePaneMapView() override;
 
@@ -76,7 +69,8 @@ private:
     GLContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface
-  void doMaximizeView(MapView* view) override;
-  void doRestoreViews() override;
+  void maximizeView(MapView* view) override;
+  void restoreViews() override;
 };
+
 } // namespace TrenchBroom::View

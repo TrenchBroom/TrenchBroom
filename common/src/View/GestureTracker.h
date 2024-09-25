@@ -79,5 +79,4 @@ public:
     Renderer::RenderBatch& renderBatch) const;
 };
 
-
 } // namespace TrenchBroom::View

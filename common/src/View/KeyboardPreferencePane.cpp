@@ -28,7 +28,6 @@
 #include <QTableView>
 #include <QTimer>
 
-#include "Macros.h"
 #include "View/Actions.h"
 #include "View/KeyboardShortcutItemDelegate.h"
 #include "View/KeyboardShortcutModel.h"
@@ -36,23 +35,19 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* parent)
-  : PreferencePane(parent)
-  , m_table(nullptr)
-  , m_model(nullptr)
-  , m_proxy(nullptr)
+  : PreferencePane{parent}
+  , m_table{new QTableView{}}
+  , m_model{new KeyboardShortcutModel{document}}
+  , m_proxy{new QSortFilterProxyModel{}}
 {
-  m_model = new KeyboardShortcutModel(document, this);
-  m_proxy = new QSortFilterProxyModel(this);
   m_proxy->setSourceModel(m_model);
   m_proxy->setFilterCaseSensitivity(Qt::CaseInsensitive);
   m_proxy->setFilterKeyColumn(2); // Filter based on the text in the Description column
 
-  m_table = new QTableView();
   m_table->setModel(m_proxy);
 
   m_table->setHorizontalHeader(new QHeaderView(Qt::Horizontal));
@@ -75,14 +70,14 @@ KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* p
     | QAbstractItemView::EditTrigger::EditKeyPressed);
   m_table->setItemDelegate(new KeyboardShortcutItemDelegate());
 
-  QLineEdit* searchBox = createSearchBox();
+  auto* searchBox = createSearchBox();
   makeSmall(searchBox);
 
-  auto* infoLabel = new QLabel(
-    tr("Double-click an item to begin editing it. Click anywhere else to end editing."));
+  auto* infoLabel = new QLabel{
+    tr("Double-click an item to begin editing it. Click anywhere else to end editing.")};
   makeInfo(infoLabel);
 
-  auto* infoAndSearchLayout = new QHBoxLayout();
+  auto* infoAndSearchLayout = new QHBoxLayout{};
   infoAndSearchLayout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::MediumVMargin,
@@ -92,7 +87,7 @@ KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* p
   infoAndSearchLayout->addWidget(infoLabel, 1);
   infoAndSearchLayout->addWidget(searchBox);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
   layout->setSpacing(0);
   layout->addWidget(m_table, 1);
@@ -106,7 +101,7 @@ KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* p
   });
 }
 
-bool KeyboardPreferencePane::doCanResetToDefaults()
+bool KeyboardPreferencePane::canResetToDefaults()
 {
   return true;
 }
@@ -118,12 +113,12 @@ void KeyboardPreferencePane::doResetToDefaults()
   m_model->reset();
 }
 
-void KeyboardPreferencePane::doUpdateControls()
+void KeyboardPreferencePane::updateControls()
 {
   m_table->update();
 }
 
-bool KeyboardPreferencePane::doValidate()
+bool KeyboardPreferencePane::validate()
 {
   if (m_model->hasConflicts())
   {
@@ -131,10 +126,7 @@ bool KeyboardPreferencePane::doValidate()
       this, "Conflicts", "Please fix all conflicting shortcuts (highlighted in red).");
     return false;
   }
-  else
-  {
-    return true;
-  }
+  return true;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

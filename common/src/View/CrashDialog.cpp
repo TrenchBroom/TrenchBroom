@@ -33,12 +33,12 @@
 
 namespace TrenchBroom::View
 {
+
 CrashDialog::CrashDialog(
   const std::string& reason,
   const std::filesystem::path& reportPath,
   const std::filesystem::path& mapPath,
   const std::filesystem::path& logPath)
-  : QDialog{}
 {
   createGui(reason, reportPath, mapPath, logPath);
 }
@@ -104,4 +104,5 @@ void CrashDialog::createGui(
 
   // TODO: needs spacing tweaks
 }
+
 } // namespace TrenchBroom::View

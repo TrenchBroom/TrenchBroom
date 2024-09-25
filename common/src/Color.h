@@ -26,6 +26,7 @@
 
 namespace TrenchBroom
 {
+
 class Color : public vm::vec<float, 4>
 {
 public:
@@ -33,6 +34,7 @@ public:
   std::string toString() const;
 
   Color();
+  // NOLINTNEXTLINE(google-explicit-constructor)
   Color(const vec<float, 4>& v);
   Color(float r, float g, float b, float a = 1.0f);
   Color(const Color& color, float a);
@@ -48,24 +50,26 @@ public:
   template <typename T>
   Color& mix(const Color& other, const T f)
   {
-    const float c =
-      static_cast<float>(vm::max(static_cast<T>(0.0), vm::min(static_cast<T>(1.0), f)));
-    const float d = 1.0f - c;
+    const auto c = float(vm::max(static_cast<T>(0.0), vm::min(static_cast<T>(1.0), f)));
+    const auto d = 1.0f - c;
     for (size_t i = 0; i < 4; i++)
+    {
       v[i] = d * v[i] + c * other[i];
+    }
     return *this;
   }
 
   Color mixed(const Color& other, const float f) const
   {
-    return Color(*this).mix(other, f);
+    return Color{*this}.mix(other, f);
   }
 
   friend Color mixAlpha(const Color& color, const float f)
   {
-    return Color(color.r(), color.g(), color.b(), f * color.a());
+    return Color{color.r(), color.g(), color.b(), f * color.a()};
   }
 
   static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 };
+
 } // namespace TrenchBroom

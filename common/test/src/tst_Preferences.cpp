@@ -462,7 +462,7 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
   const auto actions =
     View::ActionManager::instance().createEntityDefinitionActions(defs);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return action->preferencePath(); });
+    actions, [](const auto& action) { return action.preferencePath(); });
 
   // example keys from 2019.6 for "monster_hell_knight" entity
   const auto preferenceKeys = std::vector<std::string>{
@@ -483,7 +483,7 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
     "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)}};
   const auto actions = View::ActionManager::instance().createTagActions(tags);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return action->preferencePath(); });
+    actions, [](const auto& action) { return action.preferencePath(); });
 
   // example keys from 2019.6 for "Detail" tag
   const auto preferenceKeys = std::vector<std::string>{

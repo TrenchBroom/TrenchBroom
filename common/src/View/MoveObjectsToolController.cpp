@@ -29,36 +29,18 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool& tool)
-  : m_tool(tool)
-{
-}
-
-MoveObjectsToolController::~MoveObjectsToolController() {}
-
-Tool& MoveObjectsToolController::tool()
-{
-  return m_tool;
-}
-
-const Tool& MoveObjectsToolController::tool() const
-{
-  return m_tool;
-}
-
 namespace
 {
+
 class MoveObjectsDragDelegate : public MoveHandleDragTrackerDelegate
 {
 private:
   MoveObjectsTool& m_tool;
 
 public:
-  MoveObjectsDragDelegate(MoveObjectsTool& tool)
+  explicit MoveObjectsDragDelegate(MoveObjectsTool& tool)
     : m_tool{tool}
   {
   }
@@ -71,11 +53,11 @@ public:
     switch (
       m_tool.move(inputState, proposedHandlePosition - dragState.currentHandlePosition))
     {
-    case MoveObjectsTool::MR_Continue:
+    case MoveObjectsTool::MoveResult::Continue:
       return DragStatus::Continue;
-    case MoveObjectsTool::MR_Deny:
+    case MoveObjectsTool::MoveResult::Deny:
       return DragStatus::Deny;
-    case MoveObjectsTool::MR_Cancel:
+    case MoveObjectsTool::MoveResult::Cancel:
       return DragStatus::End;
       switchDefault();
     }
@@ -100,7 +82,25 @@ public:
     return makeRelativeHandleSnapper(m_tool.grid());
   }
 };
+
 } // namespace
+
+MoveObjectsToolController::MoveObjectsToolController(MoveObjectsTool& tool)
+  : m_tool{tool}
+{
+}
+
+MoveObjectsToolController::~MoveObjectsToolController() = default;
+
+Tool& MoveObjectsToolController::tool()
+{
+  return m_tool;
+}
+
+const Tool& MoveObjectsToolController::tool() const
+{
+  return m_tool;
+}
 
 std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
@@ -119,25 +119,23 @@ std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
   // The transitivelySelected() lets the hit query match entities/brushes inside a
   // selected group, even though the entities/brushes aren't selected themselves.
 
-  const Model::Hit& hit =
-    inputState.pickResult().first(type(Model::nodeHitType()) && transitivelySelected());
-  if (!hit.isMatch())
+  if (const auto& hit = inputState.pickResult().first(
+        type(Model::nodeHitType()) && transitivelySelected());
+      hit.isMatch())
   {
-    return nullptr;
+    if (m_tool.startMove(inputState))
+    {
+      return createMoveHandleDragTracker(
+        MoveObjectsDragDelegate{m_tool}, inputState, hit.hitPoint(), hit.hitPoint());
+    }
   }
 
-  if (!m_tool.startMove(inputState))
-  {
-    return nullptr;
-  }
-
-  return createMoveHandleDragTracker(
-    MoveObjectsDragDelegate{m_tool}, inputState, hit.hitPoint(), hit.hitPoint());
+  return nullptr;
 }
 
 bool MoveObjectsToolController::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

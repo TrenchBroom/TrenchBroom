@@ -24,24 +24,23 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent)
-  : QWidget(parent)
-  , m_borders(borders)
-  , m_thickness(thickness)
+  : QWidget{parent}
+  , m_borders{borders}
+  , m_thickness{thickness}
 {
   setForegroundRole(QPalette::Mid);
 }
 
 void BorderPanel::paintEvent(QPaintEvent* /*event*/)
 {
-  QPainter painter(this);
+  auto painter = QPainter{this};
 
-  const QRectF r = QRectF(rect());
-  const qreal thickness = static_cast<qreal>(m_thickness);
+  const auto r = QRectF(rect());
+  const auto thickness = static_cast<qreal>(m_thickness);
 
   painter.setRenderHint(QPainter::Antialiasing, false);
 
@@ -53,22 +52,22 @@ void BorderPanel::paintEvent(QPaintEvent* /*event*/)
   painter.setBrush(palette().color(foregroundRole()));
   if ((m_borders & LeftSide) != 0)
   {
-    painter.drawRect(QRectF(r.topLeft(), QSizeF(thickness, r.height())));
+    painter.drawRect(QRectF{r.topLeft(), QSizeF{thickness, r.height()}});
   }
   if ((m_borders & TopSide) != 0)
   {
-    painter.drawRect(QRectF(r.topLeft(), QSizeF(r.width(), thickness)));
+    painter.drawRect(QRectF{r.topLeft(), QSizeF{r.width(), thickness}});
   }
   if ((m_borders & RightSide) != 0)
   {
     painter.drawRect(
-      QRectF(r.topRight() - QPointF(thickness, 0.0), QSizeF(thickness, r.height())));
+      QRectF{r.topRight() - QPointF{thickness, 0.0}, QSizeF{thickness, r.height()}});
   }
   if ((m_borders & BottomSide) != 0)
   {
     painter.drawRect(
-      QRectF(r.bottomLeft() - QPointF(0.0, thickness), QSizeF(r.width(), thickness)));
+      QRectF{r.bottomLeft() - QPointF{0.0, thickness}, QSizeF{r.width(), thickness}});
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

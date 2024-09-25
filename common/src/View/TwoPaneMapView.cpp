@@ -22,7 +22,6 @@
 #include <QHBoxLayout>
 
 #include "View/CyclingMapView.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView3D.h"
 #include "View/QtUtils.h"
@@ -35,11 +34,9 @@ TwoPaneMapView::TwoPaneMapView(
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  Logger* logger,
   QWidget* parent)
   : MultiPaneMapView{parent}
-  , m_logger{logger}
-  , m_document(std::move(document))
+  , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
 }
@@ -54,7 +51,6 @@ void TwoPaneMapView::createGui(
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
-
   // See comment in CyclingMapView::createGui
   m_splitter = new Splitter{DrawKnob::No};
   m_splitter->setObjectName("TwoPaneMapView_Splitter");
@@ -65,9 +61,9 @@ void TwoPaneMapView::createGui(
   setLayout(layout);
   layout->addWidget(m_splitter);
 
-  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
+  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager};
   m_mapView2D = new CyclingMapView{
-    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_2D};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapView2D->linkCamera(m_linkHelper);
@@ -86,7 +82,7 @@ void TwoPaneMapView::createGui(
   restoreWindowState(m_splitter);
 }
 
-void TwoPaneMapView::doMaximizeView(MapView* view)
+void TwoPaneMapView::maximizeView(MapView* view)
 {
   assert(view == m_mapView2D || view == m_mapView3D);
   if (view == m_mapView2D)
@@ -99,9 +95,10 @@ void TwoPaneMapView::doMaximizeView(MapView* view)
   }
 }
 
-void TwoPaneMapView::doRestoreViews()
+void TwoPaneMapView::restoreViews()
 {
   m_mapView3D->show();
   m_mapView2D->show();
 }
+
 } // namespace TrenchBroom::View

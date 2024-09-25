@@ -31,6 +31,8 @@
 #include "View/InputEvent.h"
 #include "View/QtUtils.h"
 
+#include <fmt/format.h>
+
 /*
  * - glew requires it is included before <OpenGL/gl.h>
  *
@@ -72,10 +74,8 @@
 #ifdef _WIN32
 #endif
 
-#include "vm/mat.h"
+#include "vm/mat.h" // IWYU pragma: keep
 #include "vm/mat_ext.h"
-
-#include <iostream>
 
 namespace TrenchBroom::View
 {
@@ -103,12 +103,13 @@ RenderView::RenderView(GLContextManager& contextManager, QWidget* parent)
     m_maxFrameTimeMsecs = 0;
     m_lastFPSCounterUpdate = currentTime;
 
-    m_currentFPS =
-      std::string{"Avg FPS: "} + std::to_string(avgFps)
-      + " Max time between frames: " + std::to_string(maxFrameTime) + "ms. "
-      + std::to_string(m_glContext->vboManager().currentVboCount()) + " current VBOs ("
-      + std::to_string(m_glContext->vboManager().peakVboCount()) + " peak) totalling "
-      + std::to_string(m_glContext->vboManager().currentVboSize() / 1024u) + " KiB";
+    m_currentFPS = fmt::format(
+      R"(Avg FPS: {} Max time between frames: {}ms. {} currentVBOS({} peak) totalling {} KiB)",
+      avgFps,
+      maxFrameTime,
+      m_glContext->vboManager().currentVboCount(),
+      m_glContext->vboManager().peakVboCount(),
+      m_glContext->vboManager().currentVboSize() / 1024u);
   });
 
   fpsCounter->start(1000);
@@ -138,7 +139,7 @@ static auto mouseEventWithFullPrecisionLocalPos(
   // and screen pos have full precision. We can't directly map the windowPos because
   // mapTo takes QPoint, so we just map the origin and subtract that.
   const auto localPos =
-    event->windowPos() - QPointF(widget->mapTo(widget->window(), QPoint(0, 0)));
+    event->windowPos() - QPointF{widget->mapTo(widget->window(), QPoint{0, 0})};
   return QMouseEvent{
     event->type(),
     localPos,
@@ -256,14 +257,14 @@ void RenderView::initializeGL()
 void RenderView::resizeGL(int w, int h)
 {
   // These are in points, not pixels
-  doUpdateViewport(0, 0, w, h);
+  updateViewport(0, 0, w, h);
 }
 
 void RenderView::render()
 {
   processInput();
   clearBackground();
-  doRender();
+  renderContents();
   renderFocusIndicator();
 }
 
@@ -288,56 +289,54 @@ const Color& RenderView::getBackgroundColor()
 
 void RenderView::renderFocusIndicator()
 {
-  if (!doShouldRenderFocusIndicator() || !hasFocus())
+  if (shouldRenderFocusIndicator() && hasFocus())
   {
-    return;
+    const auto& outer = m_focusColor;
+    const auto& inner = m_focusColor;
+
+    const auto r = devicePixelRatioF();
+    const auto w = float(width() * r);
+    const auto h = float(height() * r);
+    glAssert(glViewport(0, 0, int(w), int(h)));
+
+    const auto t = 1.0f;
+
+    const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, float(w), float(h));
+    auto transformation = Renderer::Transformation{projection, vm::mat4x4f::identity()};
+
+    glAssert(glDisable(GL_DEPTH_TEST));
+
+    using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
+    auto array = Renderer::VertexArray::move(std::vector{
+      // top
+      Vertex{{0.0f, 0.0f, 0.0f}, outer},
+      Vertex{{w, 0.0f, 0.0f}, outer},
+      Vertex{{w - t, t, 0.0f}, inner},
+      Vertex{{t, t, 0.0f}, inner},
+
+      // right
+      Vertex{{w, 0.0f, 0.0f}, outer},
+      Vertex{{w, h, 0.0f}, outer},
+      Vertex{{w - t, h - t, 0.0f}, inner},
+      Vertex{{w - t, t, 0.0f}, inner},
+
+      // bottom
+      Vertex{{w, h, 0.0f}, outer},
+      Vertex{{0.0f, h, 0.0f}, outer},
+      Vertex{{t, h - t, 0.0f}, inner},
+      Vertex{{w - t, h - t, 0.0f}, inner},
+
+      // left
+      Vertex{{0.0f, h, 0.0f}, outer},
+      Vertex{{0.0f, 0.0f, 0.0f}, outer},
+      Vertex{{t, t, 0.0f}, inner},
+      Vertex{{t, h - t, 0.0f}, inner},
+    });
+
+    array.prepare(vboManager());
+    array.render(Renderer::PrimType::Quads);
+    glAssert(glEnable(GL_DEPTH_TEST));
   }
-
-  const auto& outer = m_focusColor;
-  const auto& inner = m_focusColor;
-
-  const auto r = devicePixelRatioF();
-  const auto w = float(width() * r);
-  const auto h = float(height() * r);
-  glAssert(glViewport(0, 0, int(w), int(h)));
-
-  const auto t = 1.0f;
-
-  const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, float(w), float(h));
-  auto transformation = Renderer::Transformation{projection, vm::mat4x4f::identity()};
-
-  glAssert(glDisable(GL_DEPTH_TEST));
-
-  using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-  auto array = Renderer::VertexArray::move(std::vector{
-    // top
-    Vertex{{0.0f, 0.0f, 0.0f}, outer},
-    Vertex{{w, 0.0f, 0.0f}, outer},
-    Vertex{{w - t, t, 0.0f}, inner},
-    Vertex{{t, t, 0.0f}, inner},
-
-    // right
-    Vertex{{w, 0.0f, 0.0f}, outer},
-    Vertex{{w, h, 0.0f}, outer},
-    Vertex{{w - t, h - t, 0.0f}, inner},
-    Vertex{{w - t, t, 0.0f}, inner},
-
-    // bottom
-    Vertex{{w, h, 0.0f}, outer},
-    Vertex{{0.0f, h, 0.0f}, outer},
-    Vertex{{t, h - t, 0.0f}, inner},
-    Vertex{{w - t, h - t, 0.0f}, inner},
-
-    // left
-    Vertex{{0.0f, h, 0.0f}, outer},
-    Vertex{{0.0f, 0.0f, 0.0f}, outer},
-    Vertex{{t, t, 0.0f}, inner},
-    Vertex{{t, h - t, 0.0f}, inner},
-  });
-
-  array.prepare(vboManager());
-  array.render(Renderer::PrimType::Quads);
-  glAssert(glEnable(GL_DEPTH_TEST));
 }
 
 bool RenderView::doInitializeGL()
@@ -345,7 +344,7 @@ bool RenderView::doInitializeGL()
   return m_glContext->initialize();
 }
 
-void RenderView::doUpdateViewport(
+void RenderView::updateViewport(
   const int /* x */, const int /* y */, const int /* width */, const int /* height */)
 {
 }

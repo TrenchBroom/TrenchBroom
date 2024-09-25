@@ -22,7 +22,6 @@
 #include <QHBoxLayout>
 
 #include "View/CyclingMapView.h"
-#include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
@@ -31,15 +30,14 @@
 
 namespace TrenchBroom::View
 {
+
 ThreePaneMapView::ThreePaneMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
   Renderer::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
-  Logger* logger,
   QWidget* parent)
-  : MultiPaneMapView(parent)
-  , m_logger{logger}
+  : MultiPaneMapView{parent}
   , m_document{std::move(document)}
 {
   createGui(toolBox, mapRenderer, contextManager);
@@ -62,11 +60,11 @@ void ThreePaneMapView::createGui(
   m_vSplitter = new Splitter{Qt::Vertical, DrawKnob::No};
   m_vSplitter->setObjectName("ThreePaneMapView_VerticalSplitter");
 
-  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager, m_logger};
+  m_mapView3D = new MapView3D{m_document, toolBox, mapRenderer, contextManager};
   m_mapViewXY = new MapView2D{
-    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane_XY, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, MapView2D::ViewPlane::XY};
   m_mapViewZZ = new CyclingMapView{
-    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ, m_logger};
+    m_document, toolBox, mapRenderer, contextManager, CyclingMapView::View_ZZ};
 
   m_mapView3D->linkCamera(m_linkHelper);
   m_mapViewXY->linkCamera(m_linkHelper);
@@ -102,7 +100,7 @@ void ThreePaneMapView::createGui(
   restoreWindowState(m_vSplitter);
 }
 
-void ThreePaneMapView::doMaximizeView(MapView* view)
+void ThreePaneMapView::maximizeView(MapView* view)
 {
   assert(view == m_mapView3D || view == m_mapViewXY || view == m_mapViewZZ);
   if (view == m_mapView3D)
@@ -121,7 +119,7 @@ void ThreePaneMapView::doMaximizeView(MapView* view)
   }
 }
 
-void ThreePaneMapView::doRestoreViews()
+void ThreePaneMapView::restoreViews()
 {
   for (int i = 0; i < 2; ++i)
   {
@@ -129,4 +127,5 @@ void ThreePaneMapView::doRestoreViews()
     m_vSplitter->widget(i)->show();
   }
 }
+
 } // namespace TrenchBroom::View

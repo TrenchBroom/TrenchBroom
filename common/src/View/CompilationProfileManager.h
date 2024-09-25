@@ -28,14 +28,12 @@
 class QAbstractButton;
 class QPoint;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 struct CompilationProfile;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class CompilationProfileListBox;
 class CompilationProfileEditor;
@@ -52,9 +50,9 @@ class CompilationProfileManager : public QWidget
   Q_OBJECT
 private:
   Model::CompilationConfig m_config;
-  CompilationProfileListBox* m_profileList{nullptr};
-  CompilationProfileEditor* m_profileEditor{nullptr};
-  QAbstractButton* m_removeProfileButton{nullptr};
+  CompilationProfileListBox* m_profileList = nullptr;
+  CompilationProfileEditor* m_profileEditor = nullptr;
+  QAbstractButton* m_removeProfileButton = nullptr;
 
 public:
   CompilationProfileManager(
@@ -86,5 +84,5 @@ signals:
    */
   void profileChanged();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

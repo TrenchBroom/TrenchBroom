@@ -24,9 +24,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -71,5 +69,5 @@ class LaunchGameEngineVariables : public CommonVariables
 public:
   explicit LaunchGameEngineVariables(std::shared_ptr<MapDocument> document);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

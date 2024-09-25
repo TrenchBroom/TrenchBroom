@@ -32,8 +32,6 @@
 
 #include "kdl/vector_utils.h"
 
-#include <filesystem>
-
 namespace TrenchBroom::View
 {
 
@@ -59,7 +57,7 @@ GameEngineProfileManager::GameEngineProfileManager(
   listLayout->setSpacing(0);
   listPanel->getPanel()->setLayout(listLayout);
   listLayout->addWidget(m_profileList, 1);
-  listLayout->addWidget(new BorderLine{BorderLine::Direction::Horizontal});
+  listLayout->addWidget(new BorderLine{});
   listLayout->addLayout(buttonLayout);
 
   auto* editorLayout = new QHBoxLayout{};

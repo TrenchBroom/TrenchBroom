@@ -27,9 +27,7 @@ class QFocusEvent;
 class QMouseEvent;
 class QWindow;
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapViewBase;
 
@@ -58,10 +56,7 @@ class MapViewActivationTracker : public QObject
 private:
   std::vector<MapViewBase*> m_mapViews;
 
-  bool m_active;
-
-public:
-  MapViewActivationTracker();
+  bool m_active = false;
 
 public:
   /**
@@ -142,7 +137,7 @@ private:
    * @param event the enter event
    * @param widget the window that received the event
    */
-  void enterEvent(QEvent* event, QWidget* widget);
+  void enterEvent(QEvent* event, QWidget* widget) const;
   void dragEnterEvent(QEvent* event, QWidget* widget);
 
   /**
@@ -180,5 +175,5 @@ private:
    */
   void clearFocusCursor(MapViewBase* mapView);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -187,4 +187,5 @@ bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs)
 PreferenceBase::~PreferenceBase() = default;
 
 DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
+
 } // namespace TrenchBroom

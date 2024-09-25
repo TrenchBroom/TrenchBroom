@@ -21,17 +21,13 @@
 
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
-#include "View/Grid.h"
 #include "View/VertexTool.h"
-
-#include "vm/polygon.h"
 
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /*
  * This is a bit awkward, but I'd rather not duplicate this logic into the two part
  * classes, and I can't move it up the inheritance hierarchy either. Nor can I introduce a
@@ -43,17 +39,21 @@ Model::Hit VertexToolController::findHandleHit(
 {
   using namespace Model::HitFilters;
 
-  const auto vertexHit =
-    base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
-  if (vertexHit.isMatch())
+  if (const auto vertexHit =
+        base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
+      vertexHit.isMatch())
+  {
     return vertexHit;
+  }
+
   if (
     inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
-    const auto& anyHit = inputState.pickResult().all().front();
-    if (anyHit.hasType(
+    if (const auto& anyHit = inputState.pickResult().all().front(); anyHit.hasType(
           EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
+    {
       return anyHit;
+    }
   }
   return Model::Hit::NoHit;
 }
@@ -63,37 +63,45 @@ std::vector<Model::Hit> VertexToolController::findHandleHits(
 {
   using namespace Model::HitFilters;
 
-  const auto vertexHits =
-    base.findDraggableHandles(inputState, VertexHandleManager::HandleHitType);
-  if (!vertexHits.empty())
+
+  if (const auto vertexHits =
+        base.findDraggableHandles(inputState, VertexHandleManager::HandleHitType);
+      !vertexHits.empty())
+  {
     return vertexHits;
+  }
+
   if (
     inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
     const auto& anyHit = inputState.pickResult().all().front();
     if (anyHit.hasType(EdgeHandleManager::HandleHitType))
     {
-      const auto edgeHits =
-        inputState.pickResult().all(type(EdgeHandleManager::HandleHitType));
-      if (!edgeHits.empty())
+      if (const auto edgeHits =
+            inputState.pickResult().all(type(EdgeHandleManager::HandleHitType));
+          !edgeHits.empty())
+      {
         return edgeHits;
+      }
     }
     else if (anyHit.hasType(FaceHandleManager::HandleHitType))
     {
-      const auto faceHits =
-        inputState.pickResult().all(type(FaceHandleManager::HandleHitType));
-      if (!faceHits.empty())
+      if (const auto faceHits =
+            inputState.pickResult().all(type(FaceHandleManager::HandleHitType));
+          !faceHits.empty())
+      {
         return faceHits;
+      }
     }
   }
-  return std::vector<Model::Hit>();
+  return {};
 }
 
 class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
-    : SelectPartBase(tool, VertexHandleManager::HandleHitType)
+    : SelectPartBase{tool, VertexHandleManager::HandleHitType}
   {
   }
 
@@ -119,7 +127,7 @@ class VertexToolController::MoveVertexPart : public MovePartBase
 {
 public:
   explicit MoveVertexPart(VertexTool& tool)
-    : MovePartBase(tool, VertexHandleManager::HandleHitType)
+    : MovePartBase{tool, VertexHandleManager::HandleHitType}
   {
   }
 
@@ -131,13 +139,12 @@ private:
       && inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::Shift)
       && m_tool.handleManager().selectedHandleCount() == 1)
     {
-
-      const Model::Hit hit = VertexToolController::findHandleHit(inputState, *this);
-      if (hit.hasType(VertexHandleManager::HandleHitType))
+      if (const auto hit = VertexToolController::findHandleHit(inputState, *this);
+          hit.hasType(VertexHandleManager::HandleHitType))
       {
-        const vm::vec3 sourcePos = m_tool.handleManager().selectedHandles().front();
-        const vm::vec3 targetPos = hit.target<vm::vec3>();
-        const vm::vec3 delta = targetPos - sourcePos;
+        const auto sourcePos = m_tool.handleManager().selectedHandles().front();
+        const auto targetPos = hit.target<vm::vec3>();
+        const auto delta = targetPos - sourcePos;
         m_tool.moveSelection(delta);
         return true;
       }
@@ -177,16 +184,19 @@ private:
 
     if (!inputState.anyToolDragging())
     {
-      const Model::Hit hit = findDraggableHandle(inputState);
-      if (hit.hasType(
+      if (const auto hit = findDraggableHandle(inputState); hit.hasType(
             EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
       {
-        const vm::vec3 handle = m_tool.getHandlePosition(hit);
+        const auto handle = m_tool.getHandlePosition(hit);
         if (inputState.mouseButtonsPressed(MouseButtons::Left))
+        {
           m_tool.renderHandle(
             renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
+        }
         else
+        {
           m_tool.renderHandle(renderContext, renderBatch, handle);
+        }
         m_tool.renderHighlight(renderContext, renderBatch, handle);
       }
     }
@@ -211,5 +221,5 @@ VertexToolController::VertexToolController(VertexTool& tool)
   addController(std::make_unique<MoveVertexPart>(tool));
   addController(std::make_unique<SelectVertexPart>(tool));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

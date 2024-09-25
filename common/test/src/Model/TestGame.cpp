@@ -23,7 +23,6 @@
 #include "Assets/EntityDefinitionFileSpec.h"
 #include "Assets/EntityModel.h"
 #include "Assets/MaterialManager.h"
-#include "Error.h"
 #include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"

@@ -29,16 +29,14 @@ class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFaceHandle;
 class Issue;
 class Node;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace View
+namespace TrenchBroom::View
 {
 class FlagsPopupEditor;
 class IssueBrowserView;
@@ -54,9 +52,9 @@ private:
   static const int FixObjectsBaseId = 4;
 
   std::weak_ptr<MapDocument> m_document;
-  IssueBrowserView* m_view;
-  QCheckBox* m_showHiddenIssuesCheckBox;
-  FlagsPopupEditor* m_filterEditor;
+  IssueBrowserView* m_view = nullptr;
+  QCheckBox* m_showHiddenIssuesCheckBox = nullptr;
+  FlagsPopupEditor* m_filterEditor = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -80,5 +78,5 @@ private:
   void showHiddenIssuesChanged();
   void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

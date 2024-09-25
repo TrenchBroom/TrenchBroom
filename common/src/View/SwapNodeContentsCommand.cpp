@@ -19,39 +19,34 @@
 
 #include "SwapNodeContentsCommand.h"
 
-#include "Model/Brush.h"
-#include "Model/Entity.h"
 #include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
 
-#include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SwapNodeContentsCommand::SwapNodeContentsCommand(
-  const std::string& name,
-  std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
-  : UpdateLinkedGroupsCommandBase(name, true)
-  , m_nodes(std::move(nodes))
+  std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  : UpdateLinkedGroupsCommandBase{std::move(name), true}
+  , m_nodes{std::move(nodes)}
 {
 }
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  document->performSwapNodeContents(m_nodes);
+  document.performSwapNodeContents(m_nodes);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  document->performSwapNodeContents(m_nodes);
+  document.performSwapNodeContents(m_nodes);
   return std::make_unique<CommandResult>(true);
 }
 
@@ -72,5 +67,5 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)
 
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

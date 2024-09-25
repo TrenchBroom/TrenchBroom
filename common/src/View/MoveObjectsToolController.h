@@ -21,9 +21,7 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class GestureTracker;
 class MoveObjectsTool;
@@ -34,8 +32,8 @@ private:
   MoveObjectsTool& m_tool;
 
 public:
-  MoveObjectsToolController(MoveObjectsTool& tool);
-  virtual ~MoveObjectsToolController() override;
+  explicit MoveObjectsToolController(MoveObjectsTool& tool);
+  ~MoveObjectsToolController() override;
 
 private:
   Tool& tool() override;
@@ -45,5 +43,5 @@ private:
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -25,10 +25,17 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+enum class SetVisibilityCommand::Action
 {
+  Reset,
+  Hide,
+  Show,
+  Ensure,
+};
+
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(
   std::vector<Model::Node*> nodes)
 {
@@ -55,7 +62,7 @@ std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(
 
 SetVisibilityCommand::SetVisibilityCommand(
   std::vector<Model::Node*> nodes, const Action action)
-  : UndoableCommand(makeName(action), false)
+  : UndoableCommand{makeName(action), false}
   , m_nodes{std::move(nodes)}
   , m_action{action}
 {
@@ -78,21 +85,21 @@ std::string SetVisibilityCommand::makeName(const Action action)
 }
 
 std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
   switch (m_action)
   {
   case Action::Reset:
-    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Inherited);
+    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Inherited);
     break;
   case Action::Hide:
-    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Hidden);
+    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Hidden);
     break;
   case Action::Show:
-    m_oldState = document->setVisibilityState(m_nodes, Model::VisibilityState::Shown);
+    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Shown);
     break;
   case Action::Ensure:
-    m_oldState = document->setVisibilityEnsured(m_nodes);
+    m_oldState = document.setVisibilityEnsured(m_nodes);
     break;
     switchDefault();
   }
@@ -100,10 +107,10 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
 }
 
 std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
-  MapDocumentCommandFacade* document)
+  MapDocumentCommandFacade& document)
 {
-  document->restoreVisibilityState(m_oldState);
+  document.restoreVisibilityState(m_oldState);
   return std::make_unique<CommandResult>(true);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

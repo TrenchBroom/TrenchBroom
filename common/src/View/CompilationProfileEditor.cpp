@@ -37,12 +37,12 @@
 #include "View/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 CompilationProfileEditor::CompilationProfileEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
@@ -132,7 +132,7 @@ Variables are allowed.)");
     &CompilationTaskListBox::taskContextMenuRequested,
     this,
     [&](const QPoint& globalPos, const Model::CompilationTask& task) {
-      const auto index = static_cast<int>(*kdl::vec_index_of(m_profile->tasks, task));
+      const auto index = static_cast<int>(*kdl::index_of(m_profile->tasks, task));
 
       auto menu = QMenu{this};
       auto* moveUpAction =
@@ -342,5 +342,5 @@ void CompilationProfileEditor::refresh()
     m_profile && m_taskList->currentRow() >= 0
     && m_taskList->currentRow() < static_cast<int>(m_profile->tasks.size()) - 1);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

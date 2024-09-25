@@ -37,12 +37,13 @@
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 
-#include "vm/distance.h"
-#include "vm/plane.h"
+#include "vm/distance.h" // IWYU pragma: keep
+#include "vm/plane.h"    // IWYU pragma: keep
 #include "vm/scalar.h"
 
 namespace TrenchBroom::View
 {
+
 ExtrudeToolController::ExtrudeToolController(ExtrudeTool& tool)
   : m_tool{tool}
 {
@@ -65,8 +66,7 @@ void ExtrudeToolController::pick(
 {
   if (handleInput(inputState))
   {
-    const Model::Hit hit = doPick(inputState.pickRay(), pickResult);
-    if (hit.isMatch())
+    if (const auto hit = doPick(inputState.pickRay(), pickResult); hit.isMatch())
     {
       pickResult.addHit(hit);
     }
@@ -483,4 +483,5 @@ bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const
     inputState.modifierKeysPressed(ModifierKeys::Shift)
     || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd));
 }
+
 } // namespace TrenchBroom::View

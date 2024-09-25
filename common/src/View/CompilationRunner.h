@@ -20,7 +20,7 @@
 #pragma once
 
 #include <QObject>
-#include <QProcess> // for QProcess::ProcessError
+#include <QProcess>
 
 #include "Macros.h"
 #include "Model/CompilationTask.h"

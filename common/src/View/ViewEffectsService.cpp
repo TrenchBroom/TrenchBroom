@@ -19,15 +19,9 @@
 
 #include "ViewEffectsService.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 ViewEffectsService::~ViewEffectsService() {}
 
-void ViewEffectsService::flashSelection()
-{
-  doFlashSelection();
-}
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

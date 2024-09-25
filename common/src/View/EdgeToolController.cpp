@@ -21,19 +21,16 @@
 
 #include "View/EdgeTool.h"
 
-#include "vm/polygon.h"
-
 #include <memory>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3>
 {
 public:
-  SelectEdgePart(EdgeTool& tool)
-    : SelectPartBase(tool, EdgeHandleManager::HandleHitType)
+  explicit SelectEdgePart(EdgeTool& tool)
+    : SelectPartBase{tool, EdgeHandleManager::HandleHitType}
   {
   }
 
@@ -47,17 +44,17 @@ private:
 class EdgeToolController::MoveEdgePart : public MovePartBase
 {
 public:
-  MoveEdgePart(EdgeTool& tool)
-    : MovePartBase(tool, EdgeHandleManager::HandleHitType)
+  explicit MoveEdgePart(EdgeTool& tool)
+    : MovePartBase{tool, EdgeHandleManager::HandleHitType}
   {
   }
 };
 
 EdgeToolController::EdgeToolController(EdgeTool& tool)
-  : VertexToolControllerBase(tool)
+  : VertexToolControllerBase{tool}
 {
   addController(std::make_unique<MoveEdgePart>(tool));
   addController(std::make_unique<SelectEdgePart>(tool));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

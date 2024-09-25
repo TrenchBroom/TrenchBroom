@@ -25,26 +25,27 @@
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
-#include "vm/bbox.h"
-#include "vm/vec.h"
+#include "kdl/reflection_decl.h"
+
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/line.h" // IWYU pragma: keep
+#include "vm/vec.h"  // IWYU pragma: keep
 
 #include <bitset>
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class MapDocument;
@@ -59,10 +60,9 @@ class BBoxSide
 public:
   vm::vec3 normal;
 
-  static bool validSideNormal(const vm::vec3& n);
   explicit BBoxSide(const vm::vec3& n);
-  bool operator<(const BBoxSide& other) const;
-  bool operator==(const BBoxSide& other) const;
+
+  kdl_reflect_decl(BBoxSide, normal);
 };
 
 /**
@@ -74,10 +74,9 @@ class BBoxCorner
 public:
   vm::vec3 corner;
 
-  static bool validCorner(const vm::vec3& c);
   explicit BBoxCorner(const vm::vec3& c);
 
-  bool operator==(const BBoxCorner& other) const;
+  kdl_reflect_decl(BBoxCorner, corner);
 };
 
 /**
@@ -92,7 +91,7 @@ public:
 
   explicit BBoxEdge(const vm::vec3& p0, const vm::vec3& p1);
 
-  bool operator==(const BBoxEdge& other) const;
+  kdl_reflect_decl(BBoxEdge, point0, point1);
 };
 
 enum class AnchorPos
@@ -120,8 +119,7 @@ public:
   bool isAxisProportional(size_t axis) const;
   bool allAxesProportional() const;
 
-  bool operator==(const ProportionalAxes& other) const;
-  bool operator!=(const ProportionalAxes& other) const;
+  kdl_reflect_decl(ProportionalAxes, m_bits);
 };
 
 std::vector<BBoxSide> allSides();
@@ -228,13 +226,13 @@ public:
 
 private:
   std::weak_ptr<MapDocument> m_document;
-  ScaleObjectsToolPage* m_toolPage;
-  bool m_resizing;
-  AnchorPos m_anchorPos;
+  ScaleObjectsToolPage* m_toolPage = nullptr;
+  bool m_resizing = false;
+  AnchorPos m_anchorPos = AnchorPos::Opposite;
   vm::bbox3 m_bboxAtDragStart;
-  Model::Hit m_dragStartHit; // contains the drag type (side/edge/corner)
+  Model::Hit m_dragStartHit = Model::Hit::NoHit;
   vm::vec3 m_dragCumulativeDelta;
-  ProportionalAxes m_proportionalAxes;
+  ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
   explicit ScaleObjectsTool(std::weak_ptr<MapDocument> document);
@@ -303,5 +301,5 @@ public:
 private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

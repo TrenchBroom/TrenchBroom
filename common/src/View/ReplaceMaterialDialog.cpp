@@ -35,6 +35,7 @@
 #include "View/MaterialBrowser.h"
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
+#include "View/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -45,17 +46,9 @@
 
 namespace TrenchBroom::View
 {
-
-ReplaceMaterialDialog::ReplaceMaterialDialog(
-  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
-  : QDialog{parent}
-  , m_document{std::move(document)}
-{
-  createGui(contextManager);
-}
-
 namespace
 {
+
 void replaceMaterials(
   MapDocument& document,
   const std::vector<Model::BrushFaceHandle>& faces,
@@ -75,7 +68,16 @@ void replaceMaterials(
   }
   transaction.commit();
 }
+
 } // namespace
+
+ReplaceMaterialDialog::ReplaceMaterialDialog(
+  std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
+  : QDialog{parent}
+  , m_document{std::move(document)}
+{
+  createGui(contextManager);
+}
 
 void ReplaceMaterialDialog::accept()
 {

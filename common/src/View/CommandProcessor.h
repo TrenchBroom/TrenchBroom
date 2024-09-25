@@ -26,9 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Command;
 class CommandResult;
@@ -60,7 +58,7 @@ private:
   /**
    * The document to pass on to commands when they are executed or undone.
    */
-  MapDocumentCommandFacade* m_document;
+  MapDocumentCommandFacade& m_document;
 
   /**
    * Limits the time after which to succeeding commands can be collated.
@@ -92,7 +90,6 @@ private:
   std::vector<TransactionState> m_transactionStack;
 
   struct SubmitAndStoreResult;
-  class TransactionCommand;
 
 public:
   /**
@@ -102,7 +99,7 @@ public:
    * @param document the document to pass to commands, may be null
    */
   explicit CommandProcessor(
-    MapDocumentCommandFacade* document,
+    MapDocumentCommandFacade& document,
     std::chrono::milliseconds collationInterval = std::chrono::milliseconds{1000});
 
   ~CommandProcessor();
@@ -392,5 +389,5 @@ private:
    */
   std::unique_ptr<UndoableCommand> popFromRedoStack();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

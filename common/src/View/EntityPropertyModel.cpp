@@ -36,20 +36,16 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 #include "Model/EntityProperties.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
 #include "Model/ModelUtils.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
-#include "View/ViewConstants.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
+#include "kdl/range_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
-#include "kdl/vector_utils.h"
 
 #include <cassert>
 #include <iterator>
@@ -60,12 +56,12 @@
 
 #define MODEL_LOG(x)
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
-// helper functions
-static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string& key)
+
+bool isPropertyKeyMutable(const Model::Entity& entity, const std::string& key)
 {
   assert(!Model::isGroup(entity.classname(), entity.properties()));
   assert(!Model::isLayer(entity.classname(), entity.properties()));
@@ -88,7 +84,7 @@ static bool isPropertyKeyMutable(const Model::Entity& entity, const std::string&
   return true;
 }
 
-static bool isPropertyValueMutable(const Model::Entity& entity, const std::string& key)
+bool isPropertyValueMutable(const Model::Entity& entity, const std::string& key)
 {
   assert(!Model::isGroup(entity.classname(), entity.properties()));
   assert(!Model::isLayer(entity.classname(), entity.properties()));
@@ -110,14 +106,14 @@ static bool isPropertyValueMutable(const Model::Entity& entity, const std::strin
   return true;
 }
 
-static bool isPropertyProtectable(
+bool isPropertyProtectable(
   const Model::EntityNodeBase& entityNode, const std::string& key)
 {
   return Model::findContainingGroup(&entityNode)
          && key != Model::EntityPropertyKeys::Origin;
 }
 
-static PropertyProtection isPropertyProtected(
+PropertyProtection isPropertyProtected(
   const Model::EntityNodeBase& entityNode, const std::string& key)
 {
   if (isPropertyProtectable(entityNode, key))
@@ -133,6 +129,76 @@ static PropertyProtection isPropertyProtected(
   }
   return PropertyProtection::NotProtectable;
 }
+
+PropertyRow rowForEntityNodes(
+  const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes)
+{
+  ensure(!nodes.empty(), "rowForEntityNodes requries a non-empty node list");
+
+  return std::accumulate(
+    std::next(nodes.begin()),
+    nodes.end(),
+    PropertyRow{key, nodes.front()},
+    [](PropertyRow lhs, const Model::EntityNodeBase* rhs) {
+      lhs.merge(rhs);
+      return lhs;
+    });
+}
+
+std::vector<std::string> allKeys(
+  const std::vector<Model::EntityNodeBase*>& nodes,
+  const bool showDefaultRows,
+  const bool showProtectedProperties)
+{
+  auto result = kdl::vector_set<std::string>{};
+
+  for (const auto* node : nodes)
+  {
+    // Add explicitly set properties
+    for (const auto& property : node->entity().properties())
+    {
+      result.insert(property.key());
+    }
+
+    // Add default properties from the entity definition
+    if (showDefaultRows)
+    {
+      if (const auto* entityDefinition = node->entity().definition())
+      {
+        for (const auto& propertyDefinition : entityDefinition->propertyDefinitions())
+        {
+          result.insert(propertyDefinition->key());
+        }
+      }
+    }
+  }
+
+  if (showProtectedProperties)
+  {
+    for (const auto* node : nodes)
+    {
+      const auto& protectedProperties = node->entity().protectedProperties();
+      result.insert(std::begin(protectedProperties), std::end(protectedProperties));
+    }
+  }
+
+  return result.release_data();
+}
+
+std::map<std::string, PropertyRow> rowsForEntityNodes(
+  const std::vector<Model::EntityNodeBase*>& nodes,
+  const bool showDefaultRows,
+  const bool showProtectedProperties)
+{
+  auto result = std::map<std::string, PropertyRow>{};
+  for (const auto& key : allKeys(nodes, showDefaultRows, showProtectedProperties))
+  {
+    result[key] = rowForEntityNodes(key, nodes);
+  }
+  return result;
+}
+
+} // namespace
 
 std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs)
 {
@@ -164,6 +230,21 @@ std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs)
     return lhs << "Mixed";
     switchDefault();
   }
+}
+
+std::string newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes)
+{
+  const auto rows = rowsForEntityNodes(nodes, true, false);
+
+  for (int i = 1;; ++i)
+  {
+    const auto newKey = kdl::str_to_string("property ", i);
+    if (rows.find(newKey) == rows.end())
+    {
+      return newKey;
+    }
+  }
+  // unreachable
 }
 
 PropertyRow::PropertyRow()
@@ -305,90 +386,6 @@ bool PropertyRow::subset() const
   return m_valueType == ValueType::SingleValueAndUnset;
 }
 
-PropertyRow PropertyRow::rowForEntityNodes(
-  const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes)
-{
-  ensure(!nodes.empty(), "rowForEntityNodes requries a non-empty node list");
-
-  return std::accumulate(
-    std::next(nodes.begin()),
-    nodes.end(),
-    PropertyRow{key, nodes.front()},
-    [](PropertyRow lhs, const Model::EntityNodeBase* rhs) {
-      lhs.merge(rhs);
-      return lhs;
-    });
-}
-
-std::vector<std::string> PropertyRow::allKeys(
-  const std::vector<Model::EntityNodeBase*>& nodes,
-  const bool showDefaultRows,
-  const bool showProtectedProperties)
-{
-  auto result = kdl::vector_set<std::string>{};
-
-  for (const auto* node : nodes)
-  {
-    // Add explicitly set properties
-    for (const auto& property : node->entity().properties())
-    {
-      result.insert(property.key());
-    }
-
-    // Add default properties from the entity definition
-    if (showDefaultRows)
-    {
-      if (const auto* entityDefinition = node->entity().definition())
-      {
-        for (const auto& propertyDefinition : entityDefinition->propertyDefinitions())
-        {
-          result.insert(propertyDefinition->key());
-        }
-      }
-    }
-  }
-
-  if (showProtectedProperties)
-  {
-    for (const auto* node : nodes)
-    {
-      const auto& protectedProperties = node->entity().protectedProperties();
-      result.insert(std::begin(protectedProperties), std::end(protectedProperties));
-    }
-  }
-
-  return result.release_data();
-}
-
-std::map<std::string, PropertyRow> PropertyRow::rowsForEntityNodes(
-  const std::vector<Model::EntityNodeBase*>& nodes,
-  const bool showDefaultRows,
-  const bool showProtectedProperties)
-{
-  auto result = std::map<std::string, PropertyRow>{};
-  for (const auto& key : allKeys(nodes, showDefaultRows, showProtectedProperties))
-  {
-    result[key] = rowForEntityNodes(key, nodes);
-  }
-  return result;
-}
-
-std::string PropertyRow::newPropertyKeyForEntityNodes(
-  const std::vector<Model::EntityNodeBase*>& nodes)
-{
-  const auto rows = rowsForEntityNodes(nodes, true, false);
-
-  for (int i = 1;; ++i)
-  {
-    const auto newKey = kdl::str_to_string("property ", i);
-    if (rows.find(newKey) == rows.end())
-    {
-      return newKey;
-    }
-  }
-  // unreachable
-}
-
 kdl_reflect_impl(PropertyRow);
 
 // EntityPropertyModel
@@ -511,7 +508,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
                << mapStringToUnicode(document->encoding(), oldDeletion.key()) << " -> "
                << mapStringToUnicode(document->encoding(), newAddition.key()));
 
-    const auto oldIndex = kdl::vec_index_of(m_rows, oldDeletion);
+    const auto oldIndex = kdl::index_of(m_rows, oldDeletion);
     ensure(oldIndex, "deleted row must be found");
 
     m_rows.at(*oldIndex) = newAddition;
@@ -532,7 +529,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
   {
     const auto& oldRow = oldRowMap.at(key);
     const auto& newRow = newRowMap.at(key);
-    const auto oldIndex = kdl::vec_index_of(m_rows, oldRow);
+    const auto oldIndex = kdl::index_of(m_rows, oldRow);
 
     MODEL_LOG(
       qDebug() << "   updating row " << *oldIndex << "(" << QString::fromStdString(key)
@@ -576,7 +573,7 @@ void EntityPropertyModel::setRows(const std::map<std::string, PropertyRow>& newR
     for (const auto& key : diff.removed)
     {
       const auto& row = oldRowMap.at(key);
-      const auto index = kdl::vec_index_of(m_rows, row);
+      const auto index = kdl::index_of(m_rows, row);
       assert(index);
 
       beginRemoveRows(QModelIndex{}, static_cast<int>(*index), static_cast<int>(*index));
@@ -737,8 +734,7 @@ void EntityPropertyModel::updateFromMapDocument()
   auto document = kdl::mem_lock(m_document);
 
   const auto entityNodes = document->allSelectedEntityNodes();
-  const auto rowsMap =
-    PropertyRow::rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
+  const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
   m_shouldShowProtectedProperties = computeShouldShowProtectedProperties(entityNodes);
@@ -828,23 +824,24 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
         return QVariant{IO::loadSVGIcon("Locked_small.svg")};
       }
     }
-    return QVariant{};
+    return {};
   }
 
   if (role == Qt::ForegroundRole)
   {
+    const auto disabledCellText = QPalette{}.color(QPalette::Disabled, QPalette::Text);
     if (row.isDefault() || row.subset())
     {
-      return QVariant(QBrush(Colors::disabledCellText()));
+      return QVariant{QBrush{disabledCellText}};
     }
     if (index.column() == ColumnValue)
     {
       if (row.multi())
       {
-        return QVariant(QBrush(Colors::disabledCellText()));
+        return QVariant{QBrush{disabledCellText}};
       }
     }
-    return QVariant();
+    return {};
   }
 
   if (role == Qt::FontRole)
@@ -864,7 +861,7 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
         return QVariant(italicFont);
       }
     }
-    return QVariant{};
+    return {};
   }
 
   if (role == Qt::DisplayRole || role == Qt::EditRole)
@@ -1153,5 +1150,5 @@ bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndex
   // 2. sort by name
   return rowA.key() < rowB.key();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -52,10 +52,10 @@ private:
 
 private:
   void showUserConfigDirClicked();
-  bool doCanResetToDefaults() override;
+  bool canResetToDefaults() override;
   void doResetToDefaults() override;
-  void doUpdateControls() override;
-  bool doValidate() override;
+  void updateControls() override;
+  bool validate() override;
 };
 
 /**
@@ -94,4 +94,5 @@ signals:
    */
   void requestUpdate();
 };
+
 } // namespace TrenchBroom::View

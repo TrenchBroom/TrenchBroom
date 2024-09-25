@@ -28,20 +28,19 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-FlagsEditor::FlagsEditor(size_t numCols, QWidget* parent)
-  : QWidget(parent)
-  , m_numCols(numCols)
+
+FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
+  : QWidget{parent}
+  , m_numCols{numCols}
 {
   assert(m_numCols > 0);
 }
 
 void FlagsEditor::setFlags(const QStringList& labels, const QStringList& tooltips)
 {
-  QList<int> values;
+  auto values = QList<int>{};
   values.reserve(labels.size());
 
   for (int i = 0; i < labels.size(); ++i)
@@ -55,7 +54,7 @@ void FlagsEditor::setFlags(
   const QList<int>& values, const QStringList& labels, const QStringList& tooltips)
 {
   const auto count = static_cast<size_t>(values.size());
-  const size_t numRows = (count + (m_numCols - 1)) / m_numCols;
+  const auto numRows = (count + (m_numCols - 1)) / m_numCols;
   ensure(numRows * m_numCols >= count, "didn't allocate enough grid cells");
 
   m_checkBoxes.clear();
@@ -66,7 +65,7 @@ void FlagsEditor::setFlags(
 
   deleteChildWidgetsLaterAndDeleteLayout(this);
 
-  auto* layout = new QGridLayout();
+  auto* layout = new QGridLayout{};
   layout->setHorizontalSpacing(LayoutConstants::WideHMargin);
   layout->setVerticalSpacing(0);
   layout->setSizeConstraint(QLayout::SetMinimumSize);
@@ -75,15 +74,15 @@ void FlagsEditor::setFlags(
   {
     for (size_t col = 0; col < m_numCols; ++col)
     {
-      const size_t index = col * numRows + row;
+      const auto index = col * numRows + row;
       if (index < count)
       {
-        const int indexInt = static_cast<int>(index);
-        const int rowInt = static_cast<int>(row);
-        const int colInt = static_cast<int>(col);
-        const int value = values[indexInt];
+        const auto indexInt = static_cast<int>(index);
+        const auto rowInt = static_cast<int>(row);
+        const auto colInt = static_cast<int>(col);
+        const auto value = values[indexInt];
 
-        m_checkBoxes[index] = new QCheckBox();
+        m_checkBoxes[index] = new QCheckBox{};
         m_values[index] = value;
 
         m_checkBoxes[index]->setText(
@@ -102,7 +101,7 @@ void FlagsEditor::setFlags(
 
   for (size_t i = 0; i < m_checkBoxes.size(); ++i)
   {
-    ensure(m_checkBoxes[i] != nullptr, "didn't create enough checkbox widgets");
+    ensure(m_checkBoxes[i], "didn't create enough checkbox widgets");
   }
 
   setLayout(layout);
@@ -112,10 +111,10 @@ void FlagsEditor::setFlagValue(const int on, const int mixed)
 {
   for (size_t i = 0; i < m_checkBoxes.size(); ++i)
   {
-    QCheckBox* checkBox = m_checkBoxes[i];
-    const int value = m_values[i];
-    const bool isMixed = (mixed & value) != 0;
-    const bool isChecked = (on & value) != 0;
+    auto* checkBox = m_checkBoxes[i];
+    const auto value = m_values[i];
+    const auto isMixed = (mixed & value) != 0;
+    const auto isChecked = (on & value) != 0;
     if (isMixed)
     {
       checkBox->setCheckState(Qt::PartiallyChecked);
@@ -150,7 +149,7 @@ bool FlagsEditor::isFlagMixed(const size_t index) const
 
 int FlagsEditor::getSetFlagValue() const
 {
-  int value = 0;
+  auto value = 0;
   for (size_t i = 0; i < m_checkBoxes.size(); ++i)
   {
     if (isFlagSet(i))
@@ -163,7 +162,7 @@ int FlagsEditor::getSetFlagValue() const
 
 int FlagsEditor::getMixedFlagValue() const
 {
-  int value = 0;
+  auto value = 0;
   for (size_t i = 0; i < m_checkBoxes.size(); ++i)
   {
     if (isFlagMixed(i))
@@ -185,5 +184,5 @@ int FlagsEditor::lineHeight() const
   assert(!m_checkBoxes.empty());
   return m_checkBoxes.front()->frameSize().height();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

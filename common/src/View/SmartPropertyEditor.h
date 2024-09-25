@@ -25,14 +25,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class EntityNodeBase;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 
@@ -44,7 +42,7 @@ private:
 
   std::string m_propertyKey;
   std::vector<Model::EntityNodeBase*> m_nodes;
-  bool m_active;
+  bool m_active = false;
 
 public:
   explicit SmartPropertyEditor(
@@ -66,5 +64,5 @@ protected:
 private:
   virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) = 0;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

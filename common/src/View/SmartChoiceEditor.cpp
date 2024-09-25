@@ -35,21 +35,18 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 SmartChoiceEditor::SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
-  : SmartPropertyEditor(std::move(document), parent)
-  , m_comboBox(nullptr)
-  , m_ignoreEditTextChanged(false)
+  : SmartPropertyEditor{std::move(document), parent}
 {
   createGui();
 }
 
 void SmartChoiceEditor::comboBoxActivated(const int /* index */)
 {
-  const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
+  const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
 
   const auto valueDescStr =
     mapStringFromUnicode(document()->encoding(), m_comboBox->currentText());
@@ -70,9 +67,9 @@ void SmartChoiceEditor::createGui()
 {
   assert(m_comboBox == nullptr);
 
-  auto* infoText = new QLabel(tr("Select a choice option:"));
+  auto* infoText = new QLabel{tr("Select a choice option:")};
 
-  m_comboBox = new QComboBox();
+  m_comboBox = new QComboBox{};
   m_comboBox->setEditable(true);
   connect(
     m_comboBox,
@@ -85,7 +82,7 @@ void SmartChoiceEditor::createGui()
     this,
     &SmartChoiceEditor::comboBoxEditTextChanged);
 
-  auto* layout = new QVBoxLayout();
+  auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(
     LayoutConstants::WideHMargin,
     LayoutConstants::WideVMargin,
@@ -103,23 +100,17 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
 {
   ensure(m_comboBox != nullptr, "comboBox is null");
 
-  const kdl::set_temp ignoreTextChanged(m_ignoreEditTextChanged);
+  const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
   m_comboBox->clear();
 
-  const auto* propDef = Model::selectPropertyDefinition(propertyKey(), nodes);
   if (
-    propDef == nullptr
-    || propDef->type() != Assets::PropertyDefinitionType::ChoiceProperty)
-  {
-    m_comboBox->setDisabled(true);
-  }
-  else
+    const auto* choiceDef = dynamic_cast<const Assets::ChoicePropertyDefinition*>(
+      Model::selectPropertyDefinition(propertyKey(), nodes)))
   {
     m_comboBox->setDisabled(false);
-    const auto* choiceDef = static_cast<const Assets::ChoicePropertyDefinition*>(propDef);
     const auto& options = choiceDef->options();
 
-    for (const Assets::ChoicePropertyOption& option : options)
+    for (const auto& option : options)
     {
       m_comboBox->addItem(mapStringToUnicode(
         document()->encoding(), option.value() + " : " + option.description()));
@@ -128,6 +119,10 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
     const auto value = Model::selectPropertyValue(propertyKey(), nodes);
     m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
   }
+  else
+  {
+    m_comboBox->setDisabled(true);
+  }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

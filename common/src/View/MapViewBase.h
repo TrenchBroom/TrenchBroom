@@ -36,11 +36,6 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace TrenchBroom
-{
-class Logger;
-}
-
 namespace TrenchBroom::Assets
 {
 class BrushEntityDefinition;
@@ -93,7 +88,6 @@ protected:
   std::weak_ptr<MapDocument> m_document;
   MapViewToolBox& m_toolBox;
   Renderer::MapRenderer& m_renderer;
-  Logger* m_logger = nullptr;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
@@ -119,8 +113,7 @@ protected:
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
     Renderer::MapRenderer& renderer,
-    GLContextManager& contextManager,
-    Logger* logger);
+    GLContextManager& contextManager);
 
   void setCompass(std::unique_ptr<Renderer::Compass> compass);
 
@@ -143,7 +136,7 @@ public:
 public:
   void setIsCurrent(bool isCurrent);
 
-  Renderer::Camera& camera();
+  virtual Renderer::Camera& camera() = 0;
 
 private:
   void bindEvents();
@@ -181,7 +174,7 @@ public: // move, rotate, flip actions
   void moveVertices(vm::direction direction);
   void moveRotationCenter(vm::direction direction);
   void moveObjects(vm::direction direction);
-  vm::vec3 moveDirection(vm::direction direction) const;
+  virtual vm::vec3 moveDirection(vm::direction direction) const = 0;
 
   void duplicateAndMoveObjects(vm::direction direction);
   void duplicateObjects();
@@ -191,6 +184,7 @@ public: // move, rotate, flip actions
 
   void flipObjects(vm::direction direction);
   bool canFlipObjects() const;
+  virtual size_t flipAxis(vm::direction direction) const = 0;
 
 public: // UV actions
   enum class UVActionMode
@@ -265,6 +259,7 @@ public: // reparenting objects
 
   void createPointEntity();
   void createBrushEntity();
+  virtual vm::vec3 computePointEntityPosition(const vm::bbox3& bounds) const = 0;
 
   Assets::EntityDefinition* findEntityDefinition(
     Assets::EntityDefinitionType type, size_t index) const;
@@ -309,28 +304,43 @@ public: // view filters
 
 public:
   ActionContext::Type actionContext() const;
+  virtual ActionContext::Type viewActionContext() const = 0;
 
-private: // implement ViewEffectsService interface
-  void doFlashSelection() override;
+public: // implement ViewEffectsService interface
+  void flashSelection() override;
 
-private: // implement MapView interface
-  void doInstallActivationTracker(MapViewActivationTracker& activationTracker) override;
-  bool doGetIsCurrent() const override;
-  MapViewBase* doGetFirstMapViewBase() override;
-  bool doCancelMouseDrag() override;
-  void doRefreshViews() override;
+public: // implement MapView interface
+  void installActivationTracker(MapViewActivationTracker& activationTracker) override;
+  bool isCurrent() const override;
+  MapViewBase* firstMapViewBase() override;
+  bool cancelMouseDrag() override;
+  void refreshViews() override;
 
 protected: // RenderView overrides
   void initializeGL() override;
 
 private: // implement RenderView interface
-  bool doShouldRenderFocusIndicator() const override;
-  void doRender() override;
+  bool shouldRenderFocusIndicator() const override;
+  void renderContents() override;
+
+  virtual void preRender();
+  virtual Renderer::RenderMode renderMode() = 0;
+
+  virtual void renderGrid(
+    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  virtual void renderMap(
+    Renderer::MapRenderer& renderer,
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) = 0;
+  virtual void renderTools(
+    MapViewToolBox& toolBox,
+    Renderer::RenderContext& renderContext,
+    Renderer::RenderBatch& renderBatch) = 0;
 
   void setupGL(Renderer::RenderContext& renderContext);
   void renderCoordinateSystem(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  void renderSoftMapBounds(
+  virtual void renderSoftWorldBounds(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
   void renderPointFile(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -356,6 +366,9 @@ private: // implement ToolBoxConnector
 public slots:
   void showPopupMenuLater();
 
+private:
+  virtual void beforePopupMenu();
+
 protected: // QWidget overrides
   void dragEnterEvent(QDragEnterEvent* event) override;
   void dragLeaveEvent(QDragLeaveEvent* event) override;
@@ -367,36 +380,6 @@ private:
 
   bool canMergeGroups() const;
   bool canMakeStructural() const;
-
-private: // subclassing interface
-  virtual vm::vec3 doGetMoveDirection(vm::direction direction) const = 0;
-  virtual size_t doGetFlipAxis(vm::direction direction) const = 0;
-  virtual vm::vec3 doComputePointEntityPosition(const vm::bbox3& bounds) const = 0;
-
-  virtual ActionContext::Type doGetActionContext() const = 0;
-  virtual ActionView doGetActionView() const = 0;
-  virtual bool doCancel() = 0;
-
-  virtual Renderer::RenderMode doGetRenderMode() = 0;
-  virtual Renderer::Camera& doGetCamera() = 0;
-  virtual void doPreRender();
-  virtual void doRenderGrid(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-  virtual void doRenderMap(
-    Renderer::MapRenderer& renderer,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) = 0;
-  virtual void doRenderTools(
-    MapViewToolBox& toolBox,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) = 0;
-  virtual void doRenderExtras(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
-  virtual void doRenderSoftWorldBounds(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
-
-  virtual bool doBeforePopupMenu();
-  virtual void doAfterPopupMenu();
 };
 
 } // namespace TrenchBroom::View

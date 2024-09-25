@@ -24,9 +24,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocumentCommandFacade;
 
@@ -58,20 +56,20 @@ protected:
   std::string m_name;
 
 public:
-  Command(std::string name);
+  explicit Command(std::string name);
   virtual ~Command();
 
 public:
   CommandState state() const;
   const std::string& name() const;
 
-  virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade* document);
+  virtual std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document);
 
 private:
   virtual std::unique_ptr<CommandResult> doPerformDo(
-    MapDocumentCommandFacade* document) = 0;
+    MapDocumentCommandFacade& document) = 0;
 
   deleteCopyAndMove(Command);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

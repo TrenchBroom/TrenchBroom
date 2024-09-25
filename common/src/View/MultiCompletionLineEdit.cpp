@@ -27,18 +27,16 @@
 #include <QShortcut>
 #include <QtGlobal>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 MultiCompletionLineEdit::MultiCompletionLineEdit(QWidget* parent)
-  : MultiCompletionLineEdit(QString(), parent)
+  : MultiCompletionLineEdit(QString{}, parent)
 {
 }
 
 MultiCompletionLineEdit::MultiCompletionLineEdit(const QString& contents, QWidget* parent)
-  : QLineEdit(contents, parent)
-  , m_multiCompleter(nullptr)
+  : QLineEdit{contents, parent}
 {
   auto* shortcut = new QShortcut(
     QKeySequence(
@@ -75,7 +73,7 @@ void MultiCompletionLineEdit::setMultiCompleter(QCompleter* completer)
 {
   delete m_multiCompleter;
   m_multiCompleter = completer;
-  if (m_multiCompleter != nullptr)
+  if (m_multiCompleter)
   {
     m_multiCompleter->setWidget(this);
     connect(
@@ -121,7 +119,7 @@ void MultiCompletionLineEdit::updateCompleter(const bool showCompleter)
 
   if (showCompleter)
   {
-    QRect cr = cursorRect();
+    auto cr = cursorRect();
     cr.setWidth(
       m_multiCompleter->popup()->sizeHintForColumn(0)
       + m_multiCompleter->popup()->verticalScrollBar()->sizeHint().width());
@@ -143,22 +141,10 @@ int MultiCompletionLineEdit::findLeftBoundary() const
   const auto lastLeftDelimiter = findLastMatch(prefix, m_leftDelimiter);
   const auto lastRightDelimiter = findLastMatch(prefix, m_rightDelimiter);
 
-  if (lastLeftDelimiter == -1)
-  {
-    return cursorPosition();
-  }
-  else if (lastRightDelimiter == -1)
-  {
-    return lastLeftDelimiter;
-  }
-  else if (lastRightDelimiter > lastLeftDelimiter)
-  {
-    return cursorPosition();
-  }
-  else
-  {
-    return lastLeftDelimiter;
-  }
+  return lastLeftDelimiter == -1                  ? cursorPosition()
+         : lastRightDelimiter == -1               ? lastLeftDelimiter
+         : lastRightDelimiter > lastLeftDelimiter ? cursorPosition()
+                                                  : lastLeftDelimiter;
 }
 
 int MultiCompletionLineEdit::findRightBoundary() const
@@ -176,52 +162,35 @@ int MultiCompletionLineEdit::findRightBoundary() const
   const auto firstLeftDelimiter = findFirstMatch(suffix, m_leftDelimiter);
   const auto firstRightDelimiter = findFirstMatch(suffix, m_rightDelimiter);
 
-  if (firstRightDelimiter == -1)
-  {
-    return cursorPosition();
-  }
-  else if (firstLeftDelimiter == -1)
-  {
-    return cursorPosition() + firstRightDelimiter + 1;
-  }
-  else if (firstLeftDelimiter < firstRightDelimiter)
-  {
-    return cursorPosition();
-  }
-  else
-  {
-    return cursorPosition() + firstRightDelimiter + 1;
-  }
+  return firstRightDelimiter == -1  ? cursorPosition()
+         : firstLeftDelimiter == -1 ? cursorPosition() + firstRightDelimiter + 1
+         : firstLeftDelimiter < firstRightDelimiter
+           ? cursorPosition()
+           : cursorPosition() + firstRightDelimiter + 1;
 }
 
 int MultiCompletionLineEdit::findFirstMatch(
   const QString& str, const QRegularExpression& expression) const
 {
   auto matches = expression.globalMatch(str);
-  if (!matches.hasNext() || !matches.isValid())
-  {
-    return -1;
-  }
-
-  return matches.next().capturedStart();
+  return matches.hasNext() && matches.isValid() ? matches.next().capturedStart() : -1;
 }
 
 int MultiCompletionLineEdit::findLastMatch(
   const QString& str, const QRegularExpression& expression) const
 {
   auto matches = expression.globalMatch(str);
-  if (!matches.hasNext() || !matches.isValid())
+  if (matches.hasNext() && matches.isValid())
   {
-    return -1;
-  }
+    auto lastMatch = matches.next();
+    while (matches.hasNext())
+    {
+      lastMatch = matches.next();
+    }
 
-  auto lastMatch = matches.next();
-  while (matches.hasNext())
-  {
-    lastMatch = matches.next();
+    return lastMatch.capturedStart();
   }
-
-  return lastMatch.capturedStart();
+  return -1;
 }
 
 void MultiCompletionLineEdit::triggerCompletion()
@@ -243,5 +212,5 @@ void MultiCompletionLineEdit::insertCompletion(const QString& string)
   setText(oldText.replace(leftBoundary, rightBoundary - leftBoundary, string));
   setCursorPosition(leftBoundary + string.length());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

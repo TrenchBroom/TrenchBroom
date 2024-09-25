@@ -25,25 +25,25 @@
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
-#include "vm/bbox.h"
+#include "vm/bbox.h" // IWYU pragma: keep
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/vec.h"     // IWYU pragma: keep
 
 #include <memory>
+#include <optional>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 class MapDocument;
@@ -55,10 +55,10 @@ public:
 
 private:
   std::weak_ptr<MapDocument> m_document;
-  bool m_resizing;
-  bool m_constrainVertical;
+  bool m_resizing = false;
+  bool m_constrainVertical = false;
   vm::bbox3 m_bboxAtDragStart;
-  Model::Hit m_dragStartHit;
+  Model::Hit m_dragStartHit = Model::Hit::NoHit;
   vm::vec3 m_dragCumulativeDelta;
 
 public:
@@ -72,21 +72,18 @@ public:
   void pickBackSides(
     const vm::ray3& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult);
+    Model::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult);
+    Model::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult);
+    Model::PickResult& pickResult) const;
 
 public:
   vm::bbox3 bounds() const;
-
-  bool hasDragPolygon() const;
-  vm::polygon3f dragPolygon() const;
 
   /**
    * If inside a drag, returns the bbox at the start of the drag.
@@ -102,12 +99,12 @@ public:
   const Model::Hit& dragStartHit() const;
 
   vm::mat4x4 bboxShearMatrix() const;
-  vm::polygon3f shearHandle() const;
+  std::optional<vm::polygon3f> shearHandle() const;
 
   void updatePickedSide(const Model::PickResult& pickResult);
 
   bool constrainVertical() const;
   void setConstrainVertical(bool constrainVertical);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

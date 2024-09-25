@@ -25,7 +25,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron3.h"
 
-#include "kdl/range_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 
 #include <string>
@@ -52,8 +52,7 @@ auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
 auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& faces)
 {
   return Brush::create(
-           vm::bbox3{8192.0},
-           faces | std::views::transform(makeFace) | kdl::to<std::vector<BrushFace>>())
+           vm::bbox3{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
          | kdl::value();
 };
 } // namespace

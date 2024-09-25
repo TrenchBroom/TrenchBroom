@@ -28,30 +28,24 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 GameListBox::GameListBox(QWidget* parent)
-  : ImageListBox("No Games Found", true, parent)
+  : ImageListBox{"No Games Found", true, parent}
 {
   reloadGameInfos();
 }
 
 std::string GameListBox::selectedGameName() const
 {
-  const Model::GameFactory& gameFactory = Model::GameFactory::instance();
-  const std::vector<std::string>& gameList = gameFactory.gameList();
+  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameList = gameFactory.gameList();
 
-  const int index = currentRow();
-  if (index < 0 || index >= static_cast<int>(gameList.size()))
-  {
-    return "";
-  }
-  else
-  {
-    return gameList[static_cast<size_t>(index)];
-  }
+  const auto index = currentRow();
+  return index >= 0 && index < static_cast<int>(gameList.size())
+           ? gameList[static_cast<size_t>(index)]
+           : "";
 }
 
 void GameListBox::selectGame(const size_t index)
@@ -66,14 +60,14 @@ void GameListBox::reloadGameInfos()
   m_gameInfos.clear();
 
   const auto& gameFactory = Model::GameFactory::instance();
-  for (const std::string& gameName : gameFactory.gameList())
+  for (const auto& gameName : gameFactory.gameList())
   {
     m_gameInfos.push_back(makeGameInfo(gameName));
   }
 
   reload();
 
-  const std::vector<std::string>& gameList = gameFactory.gameList();
+  const auto& gameList = gameFactory.gameList();
   for (size_t i = 0u; i < gameList.size(); ++i)
   {
     if (gameList[i] == currentGameName)
@@ -151,5 +145,5 @@ void GameListBox::doubleClicked(const size_t index)
     emit selectCurrentGame(QString::fromStdString(m_gameInfos[index].name));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

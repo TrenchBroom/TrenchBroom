@@ -26,18 +26,15 @@
 #include "Assets/EntityModel.h"
 #include "Assets/EntityModelManager.h"
 #include "EL/VariableStore.h"
-#include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontManager.h"
 #include "Renderer/GL.h"
-#include "Renderer/GLVertex.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderUtils.h"
-#include "Renderer/ShaderManager.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/TextureFont.h"
 #include "Renderer/Transformation.h"
@@ -311,7 +308,7 @@ void EntityBrowserView::doRender(Layout& layout, const float y, const float heig
   renderModels(layout, y, height, transformation);
 }
 
-bool EntityBrowserView::doShouldRenderFocusIndicator() const
+bool EntityBrowserView::shouldRenderFocusIndicator() const
 {
   return false;
 }

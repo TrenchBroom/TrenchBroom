@@ -22,7 +22,7 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
-#include "Model/GroupNode.h"
+#include "Model/GroupNode.h" // IWYU pragma: keep
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
@@ -35,15 +35,20 @@
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "View/Transaction.h"
 #include "View/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_to_vector.h"
+#include "kdl/stable_remove_duplicates.h"
 
 #include <algorithm>
 #include <unordered_set>
 #include <vector>
 
 namespace TrenchBroom::View
+{
+namespace
 {
 
 /**
@@ -54,10 +59,9 @@ namespace TrenchBroom::View
  * This is used to implement the UI where clicking on a brush inside a group selects the
  * group.
  */
-static Model::Node* findOutermostClosedGroupOrNode(Model::Node* node)
+Model::Node* findOutermostClosedGroupOrNode(Model::Node* node)
 {
-  Model::GroupNode* group = findOutermostClosedGroup(node);
-  if (group != nullptr)
+  if (auto* group = findOutermostClosedGroup(node))
   {
     return group;
   }
@@ -65,18 +69,12 @@ static Model::Node* findOutermostClosedGroupOrNode(Model::Node* node)
   return node;
 }
 
-static const Model::Node* findOutermostClosedGroupOrNode(const Model::Node* node)
+const Model::Node* findOutermostClosedGroupOrNode(const Model::Node* node)
 {
-  const Model::GroupNode* group = findOutermostClosedGroup(node);
-  if (group != nullptr)
-  {
-    return group;
-  }
-
-  return node;
+  return findOutermostClosedGroupOrNode(const_cast<Model::Node*>(node));
 }
 
-static Model::HitFilter isNodeSelectable(const Model::EditorContext& editorContext)
+Model::HitFilter isNodeSelectable(const Model::EditorContext& editorContext)
 {
   return [&](const auto& hit) {
     if (const auto faceHandle = Model::hitToFaceHandle(hit))
@@ -94,53 +92,29 @@ static Model::HitFilter isNodeSelectable(const Model::EditorContext& editorConte
   };
 }
 
-std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits)
-{
-  auto hitNodes = std::vector<Model::Node*>{};
-  hitNodes.reserve(hits.size());
-
-  auto duplicateCheck = std::unordered_set<Model::Node*>{};
-
-  for (const auto& hit : hits)
-  {
-    Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
-    if (!duplicateCheck.insert(node).second)
-    {
-      continue;
-    }
-
-    // Note that the order of the input hits are preserved, although duplicates later in
-    // the list are dropped
-    hitNodes.push_back(node);
-  }
-
-  return hitNodes;
-}
-
-static bool isFaceClick(const InputState& inputState)
+bool isFaceClick(const InputState& inputState)
 {
   return inputState.modifierKeysDown(ModifierKeys::Shift);
 }
 
-static bool isMultiClick(const InputState& inputState)
+bool isMultiClick(const InputState& inputState)
 {
   return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
 }
 
-static const Model::Hit& firstHit(
+const Model::Hit& firstHit(
   const InputState& inputState, const Model::HitFilter& hitFilter)
 {
   return inputState.pickResult().first(hitFilter);
 }
 
-static std::vector<Model::Node*> collectSelectableChildren(
+std::vector<Model::Node*> collectSelectableChildren(
   const Model::EditorContext& editorContext, const Model::Node* node)
 {
   return Model::collectSelectableNodes(node->children(), editorContext);
 }
 
-static bool handleClick(
-  const InputState& inputState, const Model::EditorContext& editorContext)
+bool handleClick(const InputState& inputState, const Model::EditorContext& editorContext)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
@@ -155,6 +129,137 @@ static bool handleClick(
   }
 
   return editorContext.canChangeSelection();
+}
+
+void adjustGrid(const InputState& inputState, Grid& grid)
+{
+  const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
+  if (factor * inputState.scrollY() < 0.0f)
+  {
+    grid.incSize();
+  }
+  else if (factor * inputState.scrollY() > 0.0f)
+  {
+    grid.decSize();
+  }
+}
+
+/**
+ * Returns a pair where:
+ *  - first is the first node in the given list that's currently selected
+ *  - second is the next selectable node in the list
+ */
+template <typename I>
+std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end)
+{
+  const auto first =
+    std::find_if(it, end, [](const auto* node) { return node->selected(); });
+  if (first == end)
+  {
+    return {nullptr, nullptr};
+  }
+
+  const auto next = std::next(first);
+  if (next == end)
+  {
+    return {*first, nullptr};
+  }
+
+  return {*first, *next};
+}
+
+void drillSelection(const InputState& inputState, MapDocument& document)
+{
+  using namespace Model::HitFilters;
+
+  const auto& editorContext = document.editorContext();
+
+  const auto hits = inputState.pickResult().all(
+    type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+
+  // Hits may contain multiple brush/entity hits that are inside closed groups. These need
+  // to be converted to group hits using findOutermostClosedGroupOrNode() and multiple
+  // hits on the same Group need to be collapsed.
+  const auto hitNodes = hitsToNodesWithGroupPicking(hits);
+
+  const auto forward =
+    (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
+  const auto nodePair = forward
+                          ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes))
+                          : findSelectionPair(std::rbegin(hitNodes), std::rend(hitNodes));
+
+  auto* selectedNode = nodePair.first;
+  auto* nextNode = nodePair.second;
+
+  if (nextNode)
+  {
+    auto transaction = Transaction{document, "Drill Selection"};
+    document.deselectNodes({selectedNode});
+    document.selectNodes({nextNode});
+    transaction.commit();
+  }
+}
+
+class PaintSelectionDragTracker : public GestureTracker
+{
+private:
+  std::shared_ptr<MapDocument> m_document;
+
+public:
+  explicit PaintSelectionDragTracker(std::shared_ptr<MapDocument> document)
+    : m_document{std::move(document)}
+  {
+  }
+
+  bool update(const InputState& inputState) override
+  {
+    using namespace Model::HitFilters;
+
+    const auto& editorContext = m_document->editorContext();
+    if (m_document->hasSelectedBrushFaces())
+    {
+      const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
+      if (const auto faceHandle = Model::hitToFaceHandle(hit))
+      {
+        const auto* brush = faceHandle->node();
+        const auto& face = faceHandle->face();
+        if (!face.selected() && editorContext.selectable(brush, face))
+        {
+          m_document->selectBrushFaces({*faceHandle});
+        }
+      }
+    }
+    else
+    {
+      assert(m_document->hasSelectedNodes());
+      const auto& hit = firstHit(
+        inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+      if (hit.isMatch())
+      {
+        auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+        if (!node->selected() && editorContext.selectable(node))
+        {
+          m_document->selectNodes({node});
+        }
+      }
+    }
+    return true;
+  }
+
+  void end(const InputState&) override { m_document->commitTransaction(); }
+
+  void cancel() override { m_document->cancelTransaction(); }
+};
+
+} // namespace
+
+std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits)
+{
+  return kdl::col_stable_remove_duplicates(
+    hits | std::views::transform([](const auto& hit) {
+      return findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+    })
+    | kdl::to_vector);
 }
 
 SelectionTool::SelectionTool(std::weak_ptr<MapDocument> document)
@@ -380,75 +485,6 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
   return true;
 }
 
-static void adjustGrid(const InputState& inputState, Grid& grid)
-{
-  const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
-  if (factor * inputState.scrollY() < 0.0f)
-  {
-    grid.incSize();
-  }
-  else if (factor * inputState.scrollY() > 0.0f)
-  {
-    grid.decSize();
-  }
-}
-
-/**
- * Returns a pair where:
- *  - first is the first node in the given list that's currently selected
- *  - second is the next selectable node in the list
- */
-template <typename I>
-static std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end)
-{
-  const auto first =
-    std::find_if(it, end, [](const auto* node) { return node->selected(); });
-  if (first == end)
-  {
-    return {nullptr, nullptr};
-  }
-
-  const auto next = std::next(first);
-  if (next == end)
-  {
-    return {*first, nullptr};
-  }
-
-  return {*first, *next};
-}
-
-static void drillSelection(const InputState& inputState, MapDocument& document)
-{
-  using namespace Model::HitFilters;
-
-  const auto& editorContext = document.editorContext();
-
-  const auto hits = inputState.pickResult().all(
-    type(Model::nodeHitType()) && isNodeSelectable(editorContext));
-
-  // Hits may contain multiple brush/entity hits that are inside closed groups. These need
-  // to be converted to group hits using findOutermostClosedGroupOrNode() and multiple
-  // hits on the same Group need to be collapsed.
-  const std::vector<Model::Node*> hitNodes = hitsToNodesWithGroupPicking(hits);
-
-  const auto forward =
-    (inputState.scrollY() > 0.0f) != (pref(Preferences::CameraMouseWheelInvert));
-  const auto nodePair = forward
-                          ? findSelectionPair(std::begin(hitNodes), std::end(hitNodes))
-                          : findSelectionPair(std::rbegin(hitNodes), std::rend(hitNodes));
-
-  auto* selectedNode = nodePair.first;
-  auto* nextNode = nodePair.second;
-
-  if (nextNode != nullptr)
-  {
-    auto transaction = Transaction{document, "Drill Selection"};
-    document.deselectNodes({selectedNode});
-    document.selectNodes({nextNode});
-    transaction.commit();
-  }
-}
-
 void SelectionTool::mouseScroll(const InputState& inputState)
 {
   const auto document = kdl::mem_lock(m_document);
@@ -464,60 +500,6 @@ void SelectionTool::mouseScroll(const InputState& inputState)
     drillSelection(inputState, *document);
   }
 }
-
-namespace
-{
-class PaintSelectionDragTracker : public GestureTracker
-{
-private:
-  std::shared_ptr<MapDocument> m_document;
-
-public:
-  explicit PaintSelectionDragTracker(std::shared_ptr<MapDocument> document)
-    : m_document{std::move(document)}
-  {
-  }
-
-  bool update(const InputState& inputState) override
-  {
-    using namespace Model::HitFilters;
-
-    const auto& editorContext = m_document->editorContext();
-    if (m_document->hasSelectedBrushFaces())
-    {
-      const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
-      if (const auto faceHandle = Model::hitToFaceHandle(hit))
-      {
-        const auto* brush = faceHandle->node();
-        const auto& face = faceHandle->face();
-        if (!face.selected() && editorContext.selectable(brush, face))
-        {
-          m_document->selectBrushFaces({*faceHandle});
-        }
-      }
-    }
-    else
-    {
-      assert(m_document->hasSelectedNodes());
-      const auto& hit = firstHit(
-        inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
-      if (hit.isMatch())
-      {
-        auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
-        if (!node->selected() && editorContext.selectable(node))
-        {
-          m_document->selectNodes({node});
-        }
-      }
-    }
-    return true;
-  }
-
-  void end(const InputState&) override { m_document->commitTransaction(); }
-
-  void cancel() override { m_document->cancelTransaction(); }
-};
-} // namespace
 
 std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
   const InputState& inputState)
@@ -591,11 +573,9 @@ void SelectionTool::setRenderOptions(
   using namespace Model::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
-  const auto& hit = firstHit(inputState, type(Model::nodeHitType()));
-  if (hit.isMatch())
+  if (const auto& hit = firstHit(inputState, type(Model::nodeHitType())); hit.isMatch())
   {
-    Model::Node* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
-
+    auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
     if (node->selected())
     {
       renderContext.setShowSelectionGuide();

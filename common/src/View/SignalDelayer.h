@@ -21,10 +21,9 @@
 
 #include <QObject>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 /**
  * Helper for delaying actions until control returns to the Qt event loop, and coalescing
  * multiple requests.
@@ -33,7 +32,7 @@ class SignalDelayer : public QObject
 {
   Q_OBJECT
 private:
-  bool m_isQueued;
+  bool m_isQueued = false;
 
 public:
   explicit SignalDelayer(QObject* parent = nullptr);
@@ -50,5 +49,5 @@ public slots:
 signals:
   void processSignal();
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
