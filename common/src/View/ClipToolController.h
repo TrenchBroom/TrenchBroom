@@ -19,30 +19,25 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/ToolController.h"
-
-#include "vm/forward.h"
 
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class BrushFace;
 class BrushNode;
 class PickResult;
-} // namespace Model
+} // namespace TrenchBroom::Model
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class ClipTool;
 
@@ -53,7 +48,7 @@ protected:
 
 protected:
   explicit ClipToolControllerBase(ClipTool& tool);
-  virtual ~ClipToolControllerBase() override;
+  ~ClipToolControllerBase() override;
 
 private:
   Tool& tool() override;
@@ -82,5 +77,5 @@ class ClipToolController3D : public ClipToolControllerBase
 public:
   explicit ClipToolController3D(ClipTool& tool);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

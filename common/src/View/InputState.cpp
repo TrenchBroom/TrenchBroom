@@ -23,41 +23,23 @@
 
 #include "FloatType.h"
 #include "Macros.h"
-#include "Model/CompareHits.h"
 #include "Renderer/Camera.h"
 
 #include "vm/vec.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 InputState::InputState()
-  : m_modifierKeys(ModifierKeys::MKNone)
-  , m_mouseButtons(MouseButtons::MBNone)
-  , m_mouseX(0.0f)
-  , m_mouseY(0.0f)
-  , m_mouseDX(0.0f)
-  , m_mouseDY(0.0f)
-  , m_scrollX(0.0f)
-  , m_scrollY(0.0f)
-  , m_anyToolDragging(false)
 {
-  const QPoint mouseState = QCursor::pos();
-  m_mouseX = static_cast<float>(mouseState.x());
-  m_mouseY = static_cast<float>(mouseState.y());
+  const auto mouseState = QCursor::pos();
+  m_mouseX = float(mouseState.x());
+  m_mouseY = float(mouseState.y());
 }
 
 InputState::InputState(const float mouseX, const float mouseY)
-  : m_modifierKeys(ModifierKeys::MKNone)
-  , m_mouseButtons(MouseButtons::MBNone)
-  , m_mouseX(mouseX)
-  , m_mouseY(mouseY)
-  , m_mouseDX(0.0f)
-  , m_mouseDY(0.0f)
-  , m_scrollX(0.0f)
-  , m_scrollY(0.0f)
-  , m_anyToolDragging(false)
+  : m_mouseX{mouseX}
+  , m_mouseY{mouseY}
 {
 }
 
@@ -84,15 +66,23 @@ bool InputState::checkModifierKeys(
   const ModifierKeyState key3,
   const ModifierKeyState key4) const
 {
-  assert(key1 != ModifierKeys::MKDontCare);
+  assert(key1 != ModifierKeys::DontCare);
   if (modifierKeysPressed(key1))
+  {
     return true;
-  if (key2 != ModifierKeys::MKDontCare && modifierKeysPressed(key2))
+  }
+  if (key2 != ModifierKeys::DontCare && modifierKeysPressed(key2))
+  {
     return true;
-  if (key3 != ModifierKeys::MKDontCare && modifierKeysPressed(key3))
+  }
+  if (key3 != ModifierKeys::DontCare && modifierKeysPressed(key3))
+  {
     return true;
-  if (key4 != ModifierKeys::MKDontCare && modifierKeysPressed(key4))
+  }
+  if (key4 != ModifierKeys::DontCare && modifierKeysPressed(key4))
+  {
     return true;
+  }
   return false;
 }
 
@@ -104,18 +94,18 @@ bool InputState::checkModifierKeys(
   return (
     checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd)
     && checkModifierKey(alt, ModifierKeys::MKAlt)
-    && checkModifierKey(shift, ModifierKeys::MKShift));
+    && checkModifierKey(shift, ModifierKeys::Shift));
 }
 
 bool InputState::checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const
 {
   switch (state)
   {
-  case MK_Yes:
+  case ModifierKeyPressed::Yes:
     return modifierKeysDown(key);
-  case MK_No:
+  case ModifierKeyPressed::No:
     return !modifierKeysDown(key);
-  case MK_DontCare:
+  case ModifierKeyPressed::DontCare:
     return true;
     switchDefault();
   }
@@ -156,6 +146,11 @@ float InputState::mouseDY() const
   return m_mouseDY;
 }
 
+ScrollSource InputState::scrollSource() const
+{
+  return m_scrollSource;
+}
+
 float InputState::scrollX() const
 {
   return m_scrollX;
@@ -166,6 +161,40 @@ float InputState::scrollY() const
   return m_scrollY;
 }
 
+bool InputState::gestureActive() const
+{
+  return m_gestureActive;
+}
+
+float InputState::gesturePanX() const
+{
+  return m_gesturePanX;
+}
+
+float InputState::gesturePanY() const
+{
+  return m_gesturePanY;
+}
+
+float InputState::gesturePanDX() const
+{
+  return m_gesturePanDX;
+}
+float InputState::gesturePanDY() const
+{
+  return m_gesturePanDY;
+}
+
+float InputState::gestureZoomValue() const
+{
+  return m_gestureZoomValue;
+}
+
+float InputState::gestureRotateValue() const
+{
+  return m_gestureRotateValue;
+}
+
 void InputState::setModifierKeys(const ModifierKeyState keys)
 {
   m_modifierKeys = keys;
@@ -173,7 +202,7 @@ void InputState::setModifierKeys(const ModifierKeyState keys)
 
 void InputState::clearModifierKeys()
 {
-  m_modifierKeys = ModifierKeys::MKNone;
+  m_modifierKeys = ModifierKeys::None;
 }
 
 void InputState::mouseDown(const MouseButtonState button)
@@ -188,7 +217,7 @@ void InputState::mouseUp(const MouseButtonState button)
 
 void InputState::clearMouseButtons()
 {
-  m_mouseButtons = MouseButtons::MBNone;
+  m_mouseButtons = MouseButtons::None;
 }
 
 void InputState::mouseMove(
@@ -200,10 +229,44 @@ void InputState::mouseMove(
   m_mouseDY = mouseDY;
 }
 
-void InputState::scroll(const float scrollX, const float scrollY)
+void InputState::scroll(
+  const ScrollSource scrollSource, const float scrollX, const float scrollY)
 {
+  m_scrollSource = scrollSource;
   m_scrollX = scrollX;
   m_scrollY = scrollY;
+}
+
+void InputState::startGesture()
+{
+  m_gestureActive = true;
+}
+
+void InputState::gesturePan(const float x, const float y, const float dx, const float dy)
+{
+  m_gesturePanX = x;
+  m_gesturePanY = y;
+  m_gesturePanDX = dx;
+  m_gesturePanDY = dy;
+}
+
+void InputState::gestureZoom(const float value)
+{
+  m_gestureZoomValue = value;
+}
+
+void InputState::gestureRotate(const float value)
+{
+  m_gestureRotateValue = value;
+}
+
+void InputState::endGesture()
+{
+  m_gestureActive = false;
+  m_gesturePanX = 0.0f;
+  m_gesturePanY = 0.0f;
+  m_gestureZoomValue = 0.0f;
+  m_gestureRotateValue = 0.0f;
 }
 
 bool InputState::anyToolDragging() const
@@ -223,12 +286,12 @@ const vm::ray3& InputState::pickRay() const
 
 const vm::vec3 InputState::defaultPoint() const
 {
-  return vm::vec3(camera().defaultPoint());
+  return vm::vec3{camera().defaultPoint()};
 }
 
 const vm::vec3 InputState::defaultPointUnderMouse() const
 {
-  return vm::vec3(camera().defaultPoint(pickRay()));
+  return vm::vec3{camera().defaultPoint(pickRay())};
 }
 
 const Renderer::Camera& InputState::camera() const
@@ -246,9 +309,8 @@ const Model::PickResult& InputState::pickResult() const
   return m_pickResult;
 }
 
-void InputState::setPickResult(Model::PickResult&& pickResult)
+void InputState::setPickResult(Model::PickResult pickResult)
 {
   m_pickResult = std::move(pickResult);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

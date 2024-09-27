@@ -398,6 +398,16 @@ void UVView::processEvent(const MouseEvent& event)
   ToolBoxConnector::processEvent(event);
 }
 
+void UVView::processEvent(const ScrollEvent& event)
+{
+  ToolBoxConnector::processEvent(event);
+}
+
+void UVView::processEvent(const GestureEvent& event)
+{
+  ToolBoxConnector::processEvent(event);
+}
+
 void UVView::processEvent(const CancelEvent& event)
 {
   ToolBoxConnector::processEvent(event);

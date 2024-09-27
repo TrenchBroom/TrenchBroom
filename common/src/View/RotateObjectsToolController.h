@@ -19,18 +19,15 @@
 
 #pragma once
 
-#include "View/RotateObjectsHandle.h"
 #include "View/ToolController.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class RotateObjectsTool;
 
@@ -87,5 +84,5 @@ private:
   void doRenderHandle(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

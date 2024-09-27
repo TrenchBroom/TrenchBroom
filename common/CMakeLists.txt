@@ -322,7 +322,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.cpp
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.cpp
         ${COMMON_SOURCE_DIR}/View/DialogHeader.cpp
-        ${COMMON_SOURCE_DIR}/View/DragTracker.cpp
         ${COMMON_SOURCE_DIR}/View/DrawShapeTool.cpp
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.cpp
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.cpp
@@ -363,6 +362,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.cpp
         ${COMMON_SOURCE_DIR}/View/GameListBox.cpp
         ${COMMON_SOURCE_DIR}/View/GamesPreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/View/GestureTracker.cpp
         ${COMMON_SOURCE_DIR}/View/GetVersion.cpp
         ${COMMON_SOURCE_DIR}/View/GLContextManager.cpp
         ${COMMON_SOURCE_DIR}/View/Grid.cpp
@@ -857,7 +857,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/CurrentGroupCommand.h
         ${COMMON_SOURCE_DIR}/View/CyclingMapView.h
         ${COMMON_SOURCE_DIR}/View/DialogHeader.h
-        ${COMMON_SOURCE_DIR}/View/DragTracker.h
         ${COMMON_SOURCE_DIR}/View/DrawShapeTool.h
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController2D.h
         ${COMMON_SOURCE_DIR}/View/DrawShapeToolController3D.h
@@ -898,6 +897,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/View/GameEngineProfileManager.h
         ${COMMON_SOURCE_DIR}/View/GameListBox.h
         ${COMMON_SOURCE_DIR}/View/GamesPreferencePane.h
+        ${COMMON_SOURCE_DIR}/View/GestureTracker.h
         ${COMMON_SOURCE_DIR}/View/GetVersion.h
         ${COMMON_SOURCE_DIR}/View/GLContextManager.h
         ${COMMON_SOURCE_DIR}/View/Grid.h

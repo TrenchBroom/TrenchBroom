@@ -21,6 +21,7 @@
 
 #include "FloatType.h"
 #include "Model/BrushFace.h"
+#include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
@@ -36,7 +37,6 @@
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
-#include "View/MapDocument.h"
 
 #include "kdl/vector_utils.h"
 
@@ -97,7 +97,7 @@ public:
       makeIdentityHandleSnapper());
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -156,11 +156,11 @@ private:
   Tool& tool() override { return m_tool; }
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
-    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       return nullptr;
     }
@@ -212,7 +212,7 @@ public:
       makeRelativeLineHandleSnapper(m_tool.grid(), line));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -251,11 +251,11 @@ private:
   Tool& tool() override { return m_tool; }
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
-    if (!inputState.modifierKeysDown(ModifierKeys::MKShift))
+    if (!inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       return nullptr;
     }
@@ -305,8 +305,9 @@ const Tool& AssembleBrushToolController3D::tool() const
 bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
 {
   if (
-    !inputState.mouseButtonsDown(MouseButtons::MBLeft)
-    || !inputState.checkModifierKeys(MK_No, MK_No, MK_No))
+    !inputState.mouseButtonsDown(MouseButtons::Left)
+    || !inputState.checkModifierKeys(
+      ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::No))
   {
     return false;
   }
@@ -332,8 +333,9 @@ bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
 bool AssembleBrushToolController3D::mouseDoubleClick(const InputState& inputState)
 {
   if (
-    !inputState.mouseButtonsDown(MouseButtons::MBLeft)
-    || !inputState.checkModifierKeys(MK_No, MK_No, MK_No))
+    !inputState.mouseButtonsDown(MouseButtons::Left)
+    || !inputState.checkModifierKeys(
+      ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::No))
   {
     return false;
   }
@@ -356,8 +358,9 @@ bool AssembleBrushToolController3D::mouseDoubleClick(const InputState& inputStat
 bool AssembleBrushToolController3D::doShouldHandleMouseDrag(
   const InputState& inputState) const
 {
-  return inputState.mouseButtonsDown(MouseButtons::MBLeft)
-         && inputState.checkModifierKeys(MK_No, MK_No, MK_DontCare);
+  return inputState.mouseButtonsDown(MouseButtons::Left)
+         && inputState.checkModifierKeys(
+           ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare);
 }
 
 void AssembleBrushToolController3D::render(
@@ -386,7 +389,7 @@ void AssembleBrushToolController3D::render(
       renderService.renderHandle(vm::vec3f(vertex->position()));
     }
 
-    if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::MKShift))
+    if (polyhedron.polygon() && inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       if (polyhedron.pickFace(inputState.pickRay()))
       {

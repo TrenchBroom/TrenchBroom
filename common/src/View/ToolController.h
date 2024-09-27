@@ -19,15 +19,8 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "Model/HitFilter.h"
-#include "Model/HitType.h"
 #include "ToolChain.h"
 #include "View/InputState.h"
-
-#include "vm/line.h"
-#include "vm/plane.h"
-#include "vm/vec.h"
 
 #include <memory>
 #include <string>
@@ -48,7 +41,7 @@ class RenderContext;
 
 namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class DropTracker;
 class InputState;
 class Tool;
@@ -73,7 +66,8 @@ public:
   virtual void mouseMove(const InputState& inputState);
   virtual void mouseScroll(const InputState& inputState);
 
-  virtual std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState);
+  virtual std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState);
+  virtual std::unique_ptr<GestureTracker> acceptGesture(const InputState& inputState);
 
   virtual bool shouldAcceptDrop(
     const InputState& inputState, const std::string& payload) const;
@@ -117,7 +111,7 @@ public:
   void mouseMove(const InputState& inputState) override;
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
   std::unique_ptr<DropTracker> acceptDrop(
     const InputState& inputState, const std::string& payload) override;
 

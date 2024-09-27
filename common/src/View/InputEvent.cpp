@@ -21,36 +21,16 @@
 
 #include <QApplication>
 
+#include "Ensure.h"
+
+#include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
 #include <iostream>
 #include <string_view>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-InputEvent::~InputEvent() = default;
-
-bool InputEvent::collateWith(const KeyEvent& /* event */)
-{
-  return false;
-}
-
-bool InputEvent::collateWith(const MouseEvent& /* event */)
-{
-  return false;
-}
-
-bool InputEvent::collateWith(const CancelEvent& /* event */)
-{
-  return false;
-}
-
-KeyEvent::KeyEvent(const Type i_type)
-  : type(i_type)
-{
-}
 
 void KeyEvent::processWith(InputEventProcessor& processor) const
 {
@@ -67,26 +47,10 @@ std::ostream& operator<<(std::ostream& lhs, const KeyEvent::Type& rhs)
     lhs << "KeyEvent { type=Down }";
     break;
   case KeyEvent::Type::Up:
-    lhs << "KeyEVent { type=Up }";
+    lhs << "KeyEvent { type=Up }";
     break;
   }
   return lhs;
-}
-
-MouseEvent::MouseEvent(
-  const Type i_type,
-  const Button i_button,
-  const WheelAxis i_wheelAxis,
-  const float i_posX,
-  const float i_posY,
-  const float i_scrollDistance)
-  : type(i_type)
-  , button(i_button)
-  , wheelAxis(i_wheelAxis)
-  , posX(i_posX)
-  , posY(i_posY)
-  , scrollDistance(i_scrollDistance)
-{
 }
 
 bool MouseEvent::collateWith(const MouseEvent& event)
@@ -98,15 +62,6 @@ bool MouseEvent::collateWith(const MouseEvent& event)
     posX = event.posX;
     posY = event.posY;
     return true;
-  }
-
-  if (type == Type::Scroll && event.type == Type::Scroll)
-  {
-    if (wheelAxis == event.wheelAxis)
-    {
-      scrollDistance += event.scrollDistance;
-      return true;
-    }
   }
 
   return false;
@@ -137,9 +92,6 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Type& rhs)
     break;
   case MouseEvent::Type::Motion:
     lhs << "Motion";
-    break;
-  case MouseEvent::Type::Scroll:
-    lhs << "Scroll";
     break;
   case MouseEvent::Type::DragStart:
     lhs << "DragStart";
@@ -180,18 +132,88 @@ std::ostream& operator<<(std::ostream& lhs, const MouseEvent::Button& rhs)
   return lhs;
 }
 
-std::ostream& operator<<(std::ostream& lhs, const MouseEvent::WheelAxis& rhs)
+bool ScrollEvent::collateWith(const ScrollEvent& event)
+{
+  if (source == event.source && axis == event.axis)
+  {
+    distance += event.distance;
+    return true;
+  }
+
+  return false;
+}
+
+void ScrollEvent::processWith(InputEventProcessor& processor) const
+{
+  processor.processEvent(*this);
+}
+
+kdl_reflect_impl(ScrollEvent);
+
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Source& rhs)
 {
   switch (rhs)
   {
-  case MouseEvent::WheelAxis::None:
-    lhs << "None";
+  case ScrollEvent::Source::Mouse:
+    lhs << "Mouse";
     break;
-  case MouseEvent::WheelAxis::Horizontal:
+  case ScrollEvent::Source::Trackpad:
+    lhs << "Trackpad";
+    break;
+  }
+  return lhs;
+}
+
+std::ostream& operator<<(std::ostream& lhs, const ScrollEvent::Axis& rhs)
+{
+  switch (rhs)
+  {
+  case ScrollEvent::Axis::Horizontal:
     lhs << "Horizontal";
     break;
-  case MouseEvent::WheelAxis::Vertical:
+  case ScrollEvent::Axis::Vertical:
     lhs << "Vertical";
+    break;
+  }
+  return lhs;
+}
+
+bool GestureEvent::collateWith(const GestureEvent& event)
+{
+  if (
+    (type == Type::Pan && event.type == Type::Pan)
+    || (type == Type::Zoom && event.type == Type::Zoom)
+    || (type == Type::Rotate && event.type == Type::Rotate))
+  {
+    posX = event.posX;
+    posY = event.posY;
+    value = event.value;
+    return true;
+  }
+
+  return false;
+}
+
+kdl_reflect_impl(GestureEvent);
+
+std::ostream& operator<<(std::ostream& lhs, const GestureEvent::Type& rhs)
+{
+  switch (rhs)
+  {
+  case GestureEvent::Type::Start:
+    lhs << "Begin";
+    break;
+  case GestureEvent::Type::End:
+    lhs << "End";
+    break;
+  case GestureEvent::Type::Pan:
+    lhs << "Pan";
+    break;
+  case GestureEvent::Type::Zoom:
+    lhs << "Zoom";
+    break;
+  case GestureEvent::Type::Rotate:
+    lhs << "Rotate";
     break;
   }
   return lhs;
@@ -202,37 +224,57 @@ void CancelEvent::processWith(InputEventProcessor& processor) const
   processor.processEvent(*this);
 }
 
+void GestureEvent::processWith(InputEventProcessor& processor) const
+{
+  processor.processEvent(*this);
+}
+
 kdl_reflect_impl(CancelEvent);
+
+namespace
+{
+bool collateEvents(InputEvent& lhs, const InputEvent& rhs)
+{
+  return std::visit(
+    kdl::overload(
+      [](MouseEvent& lhsMouseEvent, const MouseEvent& rhsMouseEvent) {
+        return lhsMouseEvent.collateWith(rhsMouseEvent);
+      },
+      [](ScrollEvent& lhsScrollEvent, const ScrollEvent& rhsScrollEvent) {
+        return lhsScrollEvent.collateWith(rhsScrollEvent);
+      },
+      [](GestureEvent& lhsGestureEvent, const GestureEvent& rhsGestureEvent) {
+        return lhsGestureEvent.collateWith(rhsGestureEvent);
+      },
+      [](auto&, const auto&) { return false; }),
+    lhs,
+    rhs);
+}
+} // namespace
+
+void InputEventQueue::enqueueEvent(InputEvent event)
+{
+  if (m_eventQueue.empty() || !collateEvents(m_eventQueue.back(), event))
+  {
+    m_eventQueue.push_back(std::move(event));
+  }
+}
 
 void InputEventQueue::processEvents(InputEventProcessor& processor)
 {
   // Swap out the queue before processing it, because if processing an event blocks (e.g.
   // a popup menu), then stale events maybe processed again.
 
-  EventQueue copy;
-  using std::swap;
-  swap(copy, m_eventQueue);
-
-  for (const auto& event : copy)
+  auto eventQueue = std::exchange(m_eventQueue, std::vector<InputEvent>{});
+  for (const auto& event : eventQueue)
   {
-    event->processWith(processor);
+    std::visit([&processor](const auto& x) { x.processWith(processor); }, event);
   }
-}
-
-InputEventRecorder::InputEventRecorder()
-  : m_dragging(false)
-  , m_anyMouseButtonDown(false)
-  , m_lastClickX(0.0f)
-  , m_lastClickY(0.0f)
-  , m_lastClickTime(std::chrono::high_resolution_clock::now())
-  , m_nextMouseUpIsRMB(false)
-  , m_nextMouseUpIsDblClick(false)
-{
 }
 
 void InputEventRecorder::recordEvent(const QKeyEvent& qEvent)
 {
-  m_queue.enqueueEvent(std::make_unique<KeyEvent>(getEventType(qEvent)));
+  m_queue.enqueueEvent(KeyEvent{getEventType(qEvent)});
 }
 
 void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
@@ -241,9 +283,6 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
   auto button = getButton(qEvent);
   const auto posX = static_cast<float>(qEvent.localPos().x());
   const auto posY = static_cast<float>(qEvent.localPos().y());
-
-  const auto wheelAxis = MouseEvent::WheelAxis::None;
-  const float scrollDistance = 0.0f;
 
   if (type == MouseEvent::Type::Down)
   {
@@ -260,8 +299,7 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
     m_lastClickY = posY;
     m_lastClickTime = std::chrono::high_resolution_clock::now();
     m_anyMouseButtonDown = true;
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::Down, button, posX, posY});
   }
   else if (type == MouseEvent::Type::Up)
   {
@@ -284,43 +322,31 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
       if (duration < minDuration)
       {
         // This was an accidental drag.
-        m_queue.enqueueEvent(std::make_unique<CancelEvent>());
+        m_queue.enqueueEvent(CancelEvent{});
         m_dragging = false;
 
         // Synthesize a click event
         if (!isDrag(posX, posY))
         {
-          m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-            MouseEvent::Type::Click,
-            button,
-            wheelAxis,
-            m_lastClickX,
-            m_lastClickY,
-            scrollDistance));
+          m_queue.enqueueEvent(
+            MouseEvent{MouseEvent::Type::Click, button, m_lastClickX, m_lastClickY});
         }
       }
       else
       {
-        m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-          MouseEvent::Type::DragEnd, button, wheelAxis, posX, posY, scrollDistance));
+        m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::DragEnd, button, posX, posY});
         m_dragging = false;
       }
     }
     else if (!m_nextMouseUpIsDblClick)
     {
       // Synthesize a click event
-      m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Click,
-        button,
-        wheelAxis,
-        m_lastClickX,
-        m_lastClickY,
-        scrollDistance));
+      m_queue.enqueueEvent(
+        MouseEvent{MouseEvent::Type::Click, button, m_lastClickX, m_lastClickY});
     }
     m_anyMouseButtonDown = false;
     m_nextMouseUpIsDblClick = false;
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Up, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::Up, button, posX, posY});
   }
   else if (type == MouseEvent::Type::Motion)
   {
@@ -328,63 +354,52 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
     {
       if (isDrag(posX, posY))
       {
-        m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-          MouseEvent::Type::DragStart,
-          button,
-          wheelAxis,
-          m_lastClickX,
-          m_lastClickY,
-          scrollDistance));
+        m_queue.enqueueEvent(
+          MouseEvent{MouseEvent::Type::DragStart, button, m_lastClickX, m_lastClickY});
         m_dragging = true;
       }
     }
     if (m_dragging)
     {
-      m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Drag, button, wheelAxis, posX, posY, scrollDistance));
+      m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::Drag, button, posX, posY});
     }
     else
     {
-      m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-        MouseEvent::Type::Motion, button, wheelAxis, posX, posY, scrollDistance));
+      m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::Motion, button, posX, posY});
     }
   }
   else if (type == MouseEvent::Type::DoubleClick)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Down, button, wheelAxis, posX, posY, scrollDistance));
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::DoubleClick, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::Down, button, posX, posY});
+    m_queue.enqueueEvent(MouseEvent{MouseEvent::Type::DoubleClick, button, posX, posY});
     m_nextMouseUpIsDblClick = true;
   }
   else
   {
-    m_queue.enqueueEvent(
-      std::make_unique<MouseEvent>(type, button, wheelAxis, posX, posY, scrollDistance));
+    m_queue.enqueueEvent(MouseEvent{type, button, posX, posY});
   }
 }
 
 QPointF InputEventRecorder::scrollLinesForEvent(const QWheelEvent& qtEvent)
 {
-  // TODO: support pixel scrolling via qtEvent.pixelDelta()?
-  const int linesPerStep = QApplication::wheelScrollLines();
-  const QPointF angleDelta = QPointF(qtEvent.angleDelta()); // in eighths-of-degrees
-  constexpr float EighthsOfDegreesPerStep =
-    120.0f; // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+  // see: https://doc.qt.io/qt-5/qwheelevent.html#angleDelta
+  constexpr auto EighthsOfDegreesPerStep = 120.0f;
 
-  const QPointF lines = (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
-  return lines;
+  // TODO: support pixel scrolling via qtEvent.pixelDelta()?
+  const auto linesPerStep = QApplication::wheelScrollLines();
+  const auto angleDelta = QPointF{qtEvent.angleDelta()}; // in eighths-of-degrees
+
+  return (angleDelta / EighthsOfDegreesPerStep) * linesPerStep;
 }
 
 void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 {
-  // These are the mouse X and Y position, not the wheel delta, in points relative to top
-  // left of widget.
-  const auto posX = static_cast<float>(qtEvent.x());
-  const auto posY = static_cast<float>(qtEvent.y());
+  const auto source = qtEvent.source() == Qt::MouseEventNotSynthesized
+                        ? ScrollEvent::Source::Mouse
+                        : ScrollEvent::Source::Trackpad;
 
   // Number of "lines" to scroll
-  QPointF scrollDistance = scrollLinesForEvent(qtEvent);
+  auto scrollDistance = scrollLinesForEvent(qtEvent);
 
   // Qt switches scroll axis when alt is pressed, but unfortunately, not consistently on
   // all OS'es and doesn't give any way of knowing. see:
@@ -397,28 +412,71 @@ void InputEventRecorder::recordEvent(const QWheelEvent& qtEvent)
 #endif
   if (swapXY)
   {
-    scrollDistance = QPointF(scrollDistance.y(), scrollDistance.x());
+    scrollDistance = QPointF{scrollDistance.y(), scrollDistance.x()};
   }
 
   if (scrollDistance.x() != 0.0f)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      posX,
-      posY,
-      static_cast<float>(scrollDistance.x())));
+    m_queue.enqueueEvent(
+      ScrollEvent{source, ScrollEvent::Axis::Horizontal, float(scrollDistance.x())});
   }
   if (scrollDistance.y() != 0.0f)
   {
-    m_queue.enqueueEvent(std::make_unique<MouseEvent>(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      posX,
-      posY,
-      static_cast<float>(scrollDistance.y())));
+    m_queue.enqueueEvent(
+      ScrollEvent{source, ScrollEvent::Axis::Vertical, float(scrollDistance.y())});
+  }
+}
+
+namespace
+{
+std::optional<GestureEvent::Type> getGestureType(
+  const Qt::NativeGestureType qtGestureType)
+{
+  switch (qtGestureType)
+  {
+  case Qt::BeginNativeGesture:
+    return GestureEvent::Type::Start;
+  case Qt::EndNativeGesture:
+    return GestureEvent::Type::End;
+  case Qt::PanNativeGesture:
+    return GestureEvent::Type::Pan;
+  case Qt::ZoomNativeGesture:
+    return GestureEvent::Type::Zoom;
+  case Qt::RotateNativeGesture:
+    return GestureEvent::Type::Rotate;
+  default:
+    return std::nullopt;
+  }
+}
+} // namespace
+
+void InputEventRecorder::recordEvent(const QNativeGestureEvent& qEvent)
+{
+  if (const auto type = getGestureType(qEvent.gestureType()))
+  {
+    if (*type == GestureEvent::Type::Start)
+    {
+      ++m_activeGestures;
+      if (m_activeGestures > 1)
+      {
+        return;
+      }
+    }
+    else if (*type == GestureEvent::Type::End)
+    {
+      ensure(m_activeGestures > 0, "a gesture is active");
+
+      --m_activeGestures;
+      if (m_activeGestures > 0)
+      {
+        return;
+      }
+    }
+
+    const auto posX = float(qEvent.localPos().x());
+    const auto posY = float(qEvent.localPos().y());
+    const auto value = float(qEvent.value());
+    m_queue.enqueueEvent(GestureEvent{*type, posX, posY, value});
   }
 }
 
@@ -429,7 +487,8 @@ void InputEventRecorder::processEvents(InputEventProcessor& processor)
 
 bool InputEventRecorder::isDrag(const float posX, const float posY) const
 {
-  static const auto MinDragDistance = 2.0f;
+  constexpr auto MinDragDistance = 2.0f;
+
   return std::abs(posX - m_lastClickX) > MinDragDistance
          || std::abs(posY - m_lastClickY) > MinDragDistance;
 }
@@ -441,14 +500,11 @@ KeyEvent::Type InputEventRecorder::getEventType(const QKeyEvent& qEvent)
   {
     return KeyEvent::Type::Down;
   }
-  else if (qEventType == QEvent::KeyRelease)
+  if (qEventType == QEvent::KeyRelease)
   {
     return KeyEvent::Type::Up;
   }
-  else
-  {
-    throw std::runtime_error("Unexpected qEvent type");
-  }
+  throw std::runtime_error("Unexpected qEvent type");
 }
 
 MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent& qEvent)
@@ -457,22 +513,19 @@ MouseEvent::Type InputEventRecorder::getEventType(const QMouseEvent& qEvent)
   {
     return MouseEvent::Type::Down;
   }
-  else if (qEvent.type() == QEvent::MouseButtonRelease)
+  if (qEvent.type() == QEvent::MouseButtonRelease)
   {
     return MouseEvent::Type::Up;
   }
-  else if (qEvent.type() == QEvent::MouseButtonDblClick)
+  if (qEvent.type() == QEvent::MouseButtonDblClick)
   {
     return MouseEvent::Type::DoubleClick;
   }
-  else if (qEvent.type() == QEvent::MouseMove)
+  if (qEvent.type() == QEvent::MouseMove)
   {
     return MouseEvent::Type::Motion;
   }
-  else
-  {
-    throw std::runtime_error("Unexpected qEvent type");
-  }
+  throw std::runtime_error("Unexpected qEvent type");
 }
 
 MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent)
@@ -481,28 +534,25 @@ MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent)
   {
     return MouseEvent::Button::Left;
   }
-  else if (qEvent.button() == Qt::MiddleButton)
+  if (qEvent.button() == Qt::MiddleButton)
   {
     return MouseEvent::Button::Middle;
   }
-  else if (qEvent.button() == Qt::RightButton)
+  if (qEvent.button() == Qt::RightButton)
   {
     return MouseEvent::Button::Right;
   }
-  else if (qEvent.button() == Qt::XButton1)
+  if (qEvent.button() == Qt::XButton1)
   {
     return MouseEvent::Button::Aux1;
   }
-  else if (qEvent.button() == Qt::XButton2)
+  if (qEvent.button() == Qt::XButton2)
   {
     return MouseEvent::Button::Aux2;
   }
-  else
-  {
-    return MouseEvent::Button::None;
-  }
+  return MouseEvent::Button::None;
 }
 
 InputEventProcessor::~InputEventProcessor() = default;
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

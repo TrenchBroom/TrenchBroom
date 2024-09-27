@@ -32,7 +32,7 @@
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -169,7 +169,7 @@ void renderHighlight(
   handleRenderer.render(renderBatch, color, 1.0f);
 }
 
-class UVScaleDragTracker : public DragTracker
+class UVScaleDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -193,7 +193,7 @@ public:
     document.startTransaction("Scale UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto curPoint = getHitPoint(m_helper, inputState.pickRay());
     if (!curPoint)
@@ -290,15 +290,15 @@ void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResu
   }
 }
 
-std::unique_ptr<DragTracker> UVScaleTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
   assert(m_helper.valid());
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::MKNone)
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    !inputState.modifierKeysPressed(ModifierKeys::None)
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

@@ -22,20 +22,16 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "View/ToolController.h"
 
-#include "vm/forward.h"
-
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class MapDocument;
 class ScaleObjectsTool;
@@ -63,7 +59,7 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
@@ -106,5 +102,5 @@ private:
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

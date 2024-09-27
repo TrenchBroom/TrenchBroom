@@ -30,7 +30,7 @@ namespace TrenchBroom::View
 {
 
 class DrawShapeTool;
-class DragTracker;
+class GestureTracker;
 class MapDocument;
 
 class DrawShapeToolController2D : public ToolController
@@ -46,7 +46,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };

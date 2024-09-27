@@ -23,18 +23,16 @@
 #include "View/ToolController.h"
 
 #include "vm/forward.h"
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class OrthographicCamera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 
 class CameraTool2D : public ToolController, public Tool
 {
@@ -51,9 +49,9 @@ private:
 
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View
