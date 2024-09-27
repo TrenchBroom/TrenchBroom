@@ -614,36 +614,60 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
   }
   else if (index.column() == ColumnValue)
   {
-    if (
-      key == Model::EntityPropertyKeys::Target
-      || key == Model::EntityPropertyKeys::Killtarget)
-    {
-      result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Targetname});
-    }
-    else if (key == Model::EntityPropertyKeys::Targetname)
-    {
-      result = getAllValuesForPropertyKeys(
-        {Model::EntityPropertyKeys::Target, Model::EntityPropertyKeys::Killtarget});
-    }
-    else if (key == Model::EntityPropertyKeys::Classname)
+    if (key == Model::EntityPropertyKeys::Classname)
     {
       result = getAllClassnames();
     }
     else
     {
-      std::vector<std::string> customTargetPropertyNames;
-      auto document = kdl::mem_lock(m_document);
-      for (const auto& entity : document->allSelectedEntityNodes())
+      const auto document = kdl::mem_lock(m_document);
+      const auto selectedEntityNodes = document->allSelectedEntityNodes();
+
+      // work out if this key is a target source/destination
+      bool isTargetSource = false;
+      bool isTargetDestination = false;
+
+      for (const auto* node : selectedEntityNodes)
       {
-        entity->getAllCustomTargetPropertyNames(customTargetPropertyNames);
+        if (!isTargetSource)
+        {
+          auto allTargetSources = std::vector<std::string>{};
+          node->getAllTargetSourcePropertyNames(allTargetSources);
+
+          if (kdl::vec_contains(allTargetSources, key))
+          {
+            isTargetSource = true;
+          }
+        }
+
+        if (!isTargetDestination)
+        {
+          auto allTargetDestinations = std::vector<std::string>{};
+          node->getAllTargetDestinationPropertyNames(allTargetDestinations);
+
+          if (kdl::vec_contains(allTargetDestinations, key))
+          {
+            isTargetDestination = true;
+          }
+        }
       }
 
-      for (const auto& customTargetPropertyName : customTargetPropertyNames)
+      if (isTargetSource)
       {
-        if (key == customTargetPropertyName)
+        for (const auto* node : selectedEntityNodes)
         {
-          result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Targetname});
-          break;
+          auto allTargetDestinations = std::vector<std::string>{};
+          node->getAllTargetDestinationPropertyNames(allTargetDestinations);
+          result = kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetDestinations));
+        }
+      }
+      else if (isTargetDestination)
+      {
+        for (const auto* node : selectedEntityNodes)
+        {
+          auto allTargetSources = std::vector<std::string>{};
+          node->getAllTargetSourcePropertyNames(allTargetSources);
+          result = kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetSources));
         }
       }
     }

@@ -497,6 +497,18 @@ protected: // index management
     const std::string& prefix,
     const std::string& value,
     std::vector<EntityNodeBase*>& result) const;
+  void findEntityNodesWithTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  void findEntityNodesWithNumberedTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  void findEntityNodesWithTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  void findEntityNodesWithNumberedTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
 
   void addToIndex(EntityNodeBase* node, const std::string& key, const std::string& value);
   void removeFromIndex(
@@ -560,6 +572,18 @@ private: // subclassing interface
     std::vector<EntityNodeBase*>& result) const;
   virtual void doFindEntityNodesWithNumberedProperty(
     const std::string& prefix,
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  virtual void doFindEntityNodesWithTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  virtual void doFindEntityNodesWithNumberedTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  virtual void doFindEntityNodesWithTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const;
+  virtual void doFindEntityNodesWithNumberedTargetDestinationProperty(
     const std::string& value,
     std::vector<EntityNodeBase*>& result) const;
 

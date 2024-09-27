@@ -180,6 +180,96 @@ std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodes(
   return result;
 }
 
+std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodesWithTargetSource(
+  const std::string& value, bool allowNumberedProperties) const
+{
+  // first, find Nodes which have `value` as the value for any key
+  std::vector<EntityNodeBase*> result;
+  m_valueIndex->find_matches(value, std::back_inserter(result));
+  if (result.empty())
+  {
+    return {};
+  }
+
+  result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+
+  // next, remove results from the result set that don't match `keyQuery`
+  auto it = std::begin(result);
+  while (it != std::end(result))
+  {
+    const EntityNodeBase* node = *it;
+
+    auto targetSourceProperties = std::vector<std::string>();
+    node->getAllTargetSourcePropertyNames(targetSourceProperties);
+
+    bool matches = false;
+    for (const auto& targetSourceProperty : targetSourceProperties)
+    {
+      auto keyQuery = allowNumberedProperties
+        ? EntityNodeIndexQuery::numbered(targetSourceProperty)
+        : EntityNodeIndexQuery::exact(targetSourceProperty);
+
+      if (keyQuery.execute(node, value))
+      {
+        matches = true;
+        break;
+      }
+    }
+
+    if (!matches)
+      it = result.erase(it);
+    else
+      ++it;
+  }
+
+  return result;
+}
+
+std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodesWithTargetDestination(
+  const std::string& value, bool allowNumberedProperties) const
+{
+  // first, find Nodes which have `value` as the value for any key
+  std::vector<EntityNodeBase*> result;
+  m_valueIndex->find_matches(value, std::back_inserter(result));
+  if (result.empty())
+  {
+    return {};
+  }
+
+  result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+
+  // next, remove results from the result set that don't match `keyQuery`
+  auto it = std::begin(result);
+  while (it != std::end(result))
+  {
+    const EntityNodeBase* node = *it;
+
+    auto targetDestinationProperties = std::vector<std::string>();
+    node->getAllTargetDestinationPropertyNames(targetDestinationProperties);
+
+    bool matches = false;
+    for (const auto& targetDestinationProperty : targetDestinationProperties)
+    {
+      auto keyQuery = allowNumberedProperties
+        ? EntityNodeIndexQuery::numbered(targetDestinationProperty)
+        : EntityNodeIndexQuery::exact(targetDestinationProperty);
+
+      if (keyQuery.execute(node, value))
+      {
+        matches = true;
+        break;
+      }
+    }
+
+    if (!matches)
+      it = result.erase(it);
+    else
+      ++it;
+  }
+
+  return result;
+}
+
 std::vector<std::string> EntityNodeIndex::allKeys() const
 {
   std::vector<std::string> result;

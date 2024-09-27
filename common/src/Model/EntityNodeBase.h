@@ -104,7 +104,8 @@ private: // search index management
     const std::string& newValue);
 
 public: // link management
-  void getAllCustomTargetPropertyNames(std::vector<std::string>& result) const;
+  void getAllTargetSourcePropertyNames(std::vector<std::string>& result) const;
+  void getAllTargetDestinationPropertyNames(std::vector<std::string>& result) const;
 
   const std::vector<EntityNodeBase*>& linkSources() const;
   const std::vector<EntityNodeBase*>& linkTargets() const;
@@ -132,11 +133,11 @@ private: // link management internals
   void removeLinkTargets(const std::string& targetname);
 
   //jwf: does targetname1,2,3 etc
-  void addLinkSourcesIncludingNumbered(const std::string& linkPropertyName, const std::string& targetname);
+  void addLinkSourcesIncludingNumbered(const std::string& targetname);
   void addLinkTargetsIncludingNumbered(const std::string& linkPropertyName);
 
   void addLinkTargets(const std::vector<EntityNodeBase*>& targets);
-  void addCustomSources(const std::vector<EntityNodeBase*>& sources);
+  void addLinkSources(const std::vector<EntityNodeBase*>& sources);
 
   void removeAllLinkSources();
   void removeAllLinkTargets();

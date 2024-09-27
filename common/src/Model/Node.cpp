@@ -869,6 +869,32 @@ void Node::findEntityNodesWithNumberedProperty(
   return doFindEntityNodesWithNumberedProperty(prefix, value, result);
 }
 
+void Node::findEntityNodesWithTargetSourceProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  return doFindEntityNodesWithTargetSourceProperty(value, result);
+}
+void Node::findEntityNodesWithNumberedTargetSourceProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  return doFindEntityNodesWithNumberedTargetSourceProperty(value, result);
+}
+
+void Node::findEntityNodesWithTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const
+{
+  return doFindEntityNodesWithTargetDestinationProperty(value, result);
+}
+void Node::findEntityNodesWithNumberedTargetDestinationProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  return doFindEntityNodesWithNumberedTargetDestinationProperty(value, result);
+}
+
 void Node::addToIndex(
   EntityNodeBase* node, const std::string& key, const std::string& value)
 {
@@ -948,6 +974,47 @@ void Node::doFindEntityNodesWithNumberedProperty(
   if (m_parent)
   {
     m_parent->findEntityNodesWithNumberedProperty(prefix, value, result);
+  }
+}
+
+void Node::doFindEntityNodesWithTargetSourceProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  if (m_parent)
+  {
+    m_parent->findEntityNodesWithTargetSourceProperty(value, result);
+  }
+}
+
+void Node::doFindEntityNodesWithNumberedTargetSourceProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  if (m_parent)
+  {
+    m_parent->findEntityNodesWithNumberedTargetSourceProperty(value, result);
+  }
+}
+
+
+void Node::doFindEntityNodesWithTargetDestinationProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  if (m_parent)
+  {
+    m_parent->findEntityNodesWithNumberedTargetDestinationProperty(value, result);
+  }
+}
+
+void Node::doFindEntityNodesWithNumberedTargetDestinationProperty(
+  const std::string& value,
+  std::vector<EntityNodeBase*>& result) const
+{
+  if (m_parent)
+  {
+    m_parent->findEntityNodesWithNumberedTargetDestinationProperty(value, result);
   }
 }
 

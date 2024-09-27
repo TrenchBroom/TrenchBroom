@@ -177,6 +177,18 @@ private: // implement Node interface
     const std::string& prefix,
     const std::string& value,
     std::vector<EntityNodeBase*>& result) const override;
+  void doFindEntityNodesWithTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
+  void doFindEntityNodesWithNumberedTargetSourceProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
+  void doFindEntityNodesWithTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
+  void doFindEntityNodesWithNumberedTargetDestinationProperty(
+    const std::string& value,
+    std::vector<EntityNodeBase*>& result) const override;
   void doAddToIndex(
     EntityNodeBase* node, const std::string& key, const std::string& value) override;
   void doRemoveFromIndex(

@@ -121,33 +121,9 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   const auto notifyChange = NotifyPropertyChange{*this};
   m_entity.setDefinition(definition);
 
-  //
-  auto linkTargetPropertyNames = std::vector<std::string>{};
-  getAllCustomTargetPropertyNames(linkTargetPropertyNames);
-
-  auto linkSourcePropertyNames = std::vector<std::string>{};
-  for (auto* linkSource : linkSources())
-  {
-    //TODO(jwf): don't do this - linkSource needs to store which prop name it came from
-    linkSource->getAllCustomTargetPropertyNames(linkSourcePropertyNames);
-  }
-
-  removeAllLinkSources();
-  removeAllLinkTargets();
-
-  for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
-  {
-    addLinkTargetsIncludingNumbered(linkTargetPropertyName);
-  }
-
-  const auto* targetname = m_entity.property(EntityPropertyKeys::Targetname);
-  if (targetname && !targetname->empty())
-  {
-    for (const auto& linkSourcePropertyName : linkSourcePropertyNames)
-    {
-      addLinkSourcesIncludingNumbered(linkSourcePropertyName, *targetname);
-    }
-  }
+  //update links based on new entity definition
+  removeAllLinks();
+  addAllLinks();
 }
 
 EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase& node)
@@ -314,18 +290,42 @@ void EntityNodeBase::updatePropertyIndex(
   addToIndex(this, newKey, newValue);
 }
 
-void EntityNodeBase::getAllCustomTargetPropertyNames(std::vector<std::string>& result) const
+void EntityNodeBase::getAllTargetSourcePropertyNames(std::vector<std::string>& result) const
 {
   if (!entity().definition())
-    return;
-
-  for (const auto& property : entity().definition()->propertyDefinitions())
   {
-    if (property->type() == Assets::PropertyDefinitionType::TargetDestinationProperty)
-    {
-      result.push_back(property->key());
-    }
+    return;
   }
+
+  result = kdl::vec_concat(result,
+     kdl::vec_transform(
+       kdl::vec_filter(entity().definition()->propertyDefinitions(), [&](const auto& definition)
+       {
+         return definition->type() == Assets::PropertyDefinitionType::TargetSourceProperty;
+       }),
+     [&](const auto& definition)
+     {
+       return definition->key();
+     }));
+}
+
+void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::string>& result) const
+{
+  if (!entity().definition())
+  {
+    return;
+  }
+
+  result = kdl::vec_concat(result,
+    kdl::vec_transform(
+      kdl::vec_filter(entity().definition()->propertyDefinitions(), [&](const auto& definition)
+      {
+        return definition->type() == Assets::PropertyDefinitionType::TargetDestinationProperty;
+      }),
+    [&](const auto& definition)
+    {
+      return definition->key();
+    }));
 }
 
 
@@ -351,8 +351,21 @@ vm::vec3 EntityNodeBase::linkTargetAnchor() const
 
 bool EntityNodeBase::hasMissingSources() const
 {
-  return m_linkTargets.empty()
-         && m_entity.hasProperty(EntityPropertyKeys::Targetname);
+  bool hasTargetname = false;
+
+  auto targetPropertyNames = std::vector<std::string>{};
+  getAllTargetSourcePropertyNames(targetPropertyNames);
+
+  for (const auto& sourceProperty : targetPropertyNames)
+  {
+    if (m_entity.hasProperty(sourceProperty))
+    {
+      hasTargetname = true;
+      break;
+    }
+  }
+
+  return m_linkTargets.empty() && hasTargetname;
 }
 
 std::vector<std::string> EntityNodeBase::findMissingLinkTargets() const
@@ -360,7 +373,7 @@ std::vector<std::string> EntityNodeBase::findMissingLinkTargets() const
   auto result = std::vector<std::string>{};
 
   std::vector<std::string> linkTargetPropertyNames;
-  getAllCustomTargetPropertyNames(linkTargetPropertyNames);
+  getAllTargetDestinationPropertyNames(linkTargetPropertyNames);
 
   for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
   {
@@ -384,8 +397,7 @@ void EntityNodeBase::findMissingTargets(
     else
     {
       auto linkTargets = std::vector<EntityNodeBase*>{};
-      findEntityNodesWithProperty(
-        EntityPropertyKeys::Targetname, targetname, linkTargets);
+      findEntityNodesWithTargetSourceProperty(targetname, linkTargets);
       if (linkTargets.empty())
       {
         result.push_back(property.key());
@@ -396,21 +408,21 @@ void EntityNodeBase::findMissingTargets(
 
 void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
 {
-  std::vector<std::string> linkTargetPropertyNames;
-  getAllCustomTargetPropertyNames(linkTargetPropertyNames);
+  std::vector<std::string> targetSourceNames;
+  getAllTargetSourcePropertyNames(targetSourceNames);
 
-  if (name == EntityPropertyKeys::Targetname)
+  std::vector<std::string> targetDestinationNames;
+  getAllTargetDestinationPropertyNames(targetDestinationNames);
+
+  if (kdl::vec_contains(targetSourceNames, name))
   {
-    for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
-    {
-      addLinkSourcesIncludingNumbered(linkTargetPropertyName, value);
-    }
+    addLinkSourcesIncludingNumbered(value);
   }
   else
   {
-    for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
+    for (const auto& targetDestinationName : targetDestinationNames)
     {
-      if (isNumberedProperty(linkTargetPropertyName, name))
+      if (isNumberedProperty(targetDestinationName, name))
       {
         addLinkTargets(value);
       }
@@ -420,14 +432,17 @@ void EntityNodeBase::addLinks(const std::string& name, const std::string& value)
 
 void EntityNodeBase::removeLinks(const std::string& name, const std::string& value)
 {
-  if (name == EntityPropertyKeys::Targetname)
+  std::vector<std::string> targetSourceNames;
+  getAllTargetSourcePropertyNames(targetSourceNames);
+
+  if (kdl::vec_contains(targetSourceNames, name))
   {
     removeAllLinkSources();
   }
   else
   {
     std::vector<std::string> linkTargetPropertyNames;
-    getAllCustomTargetPropertyNames(linkTargetPropertyNames);
+    getAllTargetDestinationPropertyNames(linkTargetPropertyNames);
 
     for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
     {
@@ -458,7 +473,7 @@ void EntityNodeBase::addLinkTargets(const std::string& targetname)
   if (!targetname.empty())
   {
     auto targets = std::vector<EntityNodeBase*>{};
-    findEntityNodesWithProperty(EntityPropertyKeys::Targetname, targetname, targets);
+    findEntityNodesWithTargetSourceProperty(targetname, targets);
     addLinkTargets(targets);
   }
 }
@@ -491,14 +506,13 @@ void EntityNodeBase::removeLinkTargets(const std::string& targetname)
 }
 
 
-void EntityNodeBase::addLinkSourcesIncludingNumbered(const std::string& propertyName, const std::string& targetname)
+void EntityNodeBase::addLinkSourcesIncludingNumbered(const std::string& targetname)
 {
   if (!targetname.empty())
   {
     auto linkSources = std::vector<EntityNodeBase*>{};
-    findEntityNodesWithNumberedProperty(
-      propertyName, targetname, linkSources);
-    addCustomSources(linkSources);
+    findEntityNodesWithTargetDestinationProperty(targetname, linkSources);
+    addLinkSources(linkSources);
   }
 }
 
@@ -510,8 +524,7 @@ void EntityNodeBase::addLinkTargetsIncludingNumbered(const std::string& property
     if (!targetname.empty())
     {
       auto linkTargets = std::vector<EntityNodeBase*>{};
-      findEntityNodesWithProperty(
-        EntityPropertyKeys::Targetname, targetname, linkTargets);
+      findEntityNodesWithTargetSourceProperty(targetname, linkTargets);
       addLinkTargets(linkTargets);
     }
   }
@@ -530,7 +543,7 @@ void EntityNodeBase::addLinkTargets(const std::vector<EntityNodeBase*>& targets)
   invalidateIssues();
 }
 
-void EntityNodeBase::addCustomSources(const std::vector<EntityNodeBase*>& sources)
+void EntityNodeBase::addLinkSources(const std::vector<EntityNodeBase*>& sources)
 {
   m_linkSources.reserve(m_linkSources.size() + sources.size());
   for (auto* linkSource : sources)
@@ -570,19 +583,24 @@ void EntityNodeBase::removeAllLinks()
 void EntityNodeBase::addAllLinks()
 {
   std::vector<std::string> linkTargetPropertyNames;
-  getAllCustomTargetPropertyNames(linkTargetPropertyNames);
+  getAllTargetDestinationPropertyNames(linkTargetPropertyNames);
 
   for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
   {
     addLinkTargetsIncludingNumbered(linkTargetPropertyName);
   }
 
-  const auto* targetname = m_entity.property(EntityPropertyKeys::Targetname);
-  if (targetname && !targetname->empty())
+  // get all targetnames
+  std::vector<std::string> linkSourcePropertyNames;
+  getAllTargetSourcePropertyNames(linkSourcePropertyNames);
+
+  for (const auto& linkSourcePropertyName : linkSourcePropertyNames)
   {
-    for (const auto& linkTargetPropertyName : linkTargetPropertyNames)
+    // foreach name we could be called by
+    const auto* targetname = m_entity.property(linkSourcePropertyName);
+    if (targetname && !targetname->empty())
     {
-      addLinkSourcesIncludingNumbered(linkTargetPropertyName, *targetname);
+      addLinkSourcesIncludingNumbered(*targetname);
     }
   }
 }

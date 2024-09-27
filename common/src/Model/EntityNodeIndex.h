@@ -84,6 +84,10 @@ public:
 
   std::vector<EntityNodeBase*> findEntityNodes(
     const EntityNodeIndexQuery& keyQuery, const std::string& value) const;
+  std::vector<EntityNodeBase*> findEntityNodesWithTargetSource(
+    const std::string& value, bool allowNumberedProperties) const;
+  std::vector<EntityNodeBase*> findEntityNodesWithTargetDestination(
+    const std::string& value, bool allowNumberedProperties) const;
   std::vector<std::string> allKeys() const;
   std::vector<std::string> allValuesForKeys(const EntityNodeIndexQuery& keyQuery) const;
 };
