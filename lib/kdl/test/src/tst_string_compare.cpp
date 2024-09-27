@@ -27,6 +27,7 @@ namespace kdl
 {
 namespace cs
 {
+
 TEST_CASE("string_utils_cs_test.str_mismatch")
 {
   CHECK(str_mismatch("", "") == 0u);
@@ -356,5 +357,6 @@ TEST_CASE("string_utils_ci_test.sort")
       "Zasdf",
     }));
 }
+
 } // namespace ci
 } // namespace kdl

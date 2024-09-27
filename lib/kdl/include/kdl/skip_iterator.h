@@ -63,9 +63,9 @@ public:
    */
   skip_iterator(
     I cur, I end, const difference_type offset = 0, const difference_type stride = 1)
-    : m_cur(cur)
-    , m_end(end)
-    , m_stride(stride)
+    : m_cur{cur}
+    , m_end{end}
+    , m_stride{stride}
   {
     advance(offset);
   }
@@ -74,10 +74,12 @@ public:
   {
     return lhs.m_cur < rhs.m_cur;
   }
+
   friend bool operator<(const skip_iterator& lhs, const I& rhs)
   {
     return lhs.m_cur < rhs;
   }
+
   friend bool operator<(const I& lhs, const skip_iterator& rhs)
   {
     return lhs < rhs.m_cur;
@@ -87,10 +89,12 @@ public:
   {
     return lhs.m_cur > rhs.m_cur;
   }
+
   friend bool operator>(const skip_iterator& lhs, const I& rhs)
   {
     return lhs.m_cur > rhs;
   }
+
   friend bool operator>(const I& lhs, const skip_iterator& rhs)
   {
     return lhs > rhs.m_cur;
@@ -100,10 +104,12 @@ public:
   {
     return lhs.m_cur == rhs.m_cur;
   }
+
   friend bool operator==(const skip_iterator& lhs, const I& rhs)
   {
     return lhs.m_cur == rhs;
   }
+
   friend bool operator==(const I& lhs, const skip_iterator& rhs)
   {
     return lhs == rhs.m_cur;
@@ -113,10 +119,12 @@ public:
   {
     return lhs.m_cur != rhs.m_cur;
   }
+
   friend bool operator!=(const skip_iterator& lhs, const I& rhs)
   {
     return lhs.m_cur != rhs;
   }
+
   friend bool operator!=(const I& lhs, const skip_iterator& rhs)
   {
     return lhs != rhs.m_cur;
@@ -153,4 +161,5 @@ template <typename I>
 skip_iterator(
   I cur, I end, typename I::difference_type offset, typename I::difference_type stride)
   -> skip_iterator<I>;
+
 } // namespace kdl

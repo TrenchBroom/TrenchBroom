@@ -43,13 +43,13 @@ auto combine_cmp(First first)
  *
  * @tparam First the type of the first comparator
  * @tparam Rest the types of the remaining comparators
- * @param first the first comparator
- * @param rest the remaining comparators
+ * @param first_ the first comparator
+ * @param rest_ the remaining comparators
  */
 template <typename First, typename... Rest>
-auto combine_cmp(First first, Rest... rest)
+auto combine_cmp(First first_, Rest... rest_)
 {
-  return [first = std::move(first), rest = std::move(rest...)](
+  return [first = std::move(first_), rest = std::move(rest_...)](
            const auto& lhs, const auto& rhs) {
     return first(lhs, rhs)   ? true
            : first(rhs, lhs) ? false
@@ -146,7 +146,7 @@ template <
   typename I1,
   typename I2,
   typename Compare = std::less<
-    typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
+    typename std::common_type_t<typename I1::value_type, typename I2::value_type>>>
 int range_lexicographical_compare(
   I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare())
 {
@@ -202,7 +202,7 @@ template <
   typename I1,
   typename I2,
   typename Compare = std::less<
-    typename std::common_type<typename I1::value_type, typename I2::value_type>::type>>
+    typename std::common_type_t<typename I1::value_type, typename I2::value_type>>>
 bool range_is_equivalent(
   I1 first1, I1 last1, I2 first2, I2 last2, const Compare& cmp = Compare())
 {
@@ -211,8 +211,10 @@ bool range_is_equivalent(
   if constexpr (
     std::is_convertible_v<
       typename std::iterator_traits<I1>::iterator_category,
-      std::
-        random_access_iterator_tag> && std::is_convertible_v<typename std::iterator_traits<I2>::iterator_category, std::random_access_iterator_tag>)
+      std::random_access_iterator_tag>
+    && std::is_convertible_v<
+      typename std::iterator_traits<I2>::iterator_category,
+      std::random_access_iterator_tag>)
   {
     if (last1 - first1 != last2 - first2)
     {
@@ -283,7 +285,7 @@ template <
   typename C1,
   typename C2,
   typename Compare = std::less<
-    typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
+    typename std::common_type_t<typename C1::value_type, typename C2::value_type>>>
 int col_lexicographical_compare(
   const C1& c1, const C2& c2, const Compare& cmp = Compare())
 {
@@ -310,7 +312,7 @@ template <
   typename C1,
   typename C2,
   typename Compare = std::less<
-    typename std::common_type<typename C1::value_type, typename C2::value_type>::type>>
+    typename std::common_type_t<typename C1::value_type, typename C2::value_type>>>
 bool col_is_equivalent(const C1& c1, const C2& c2, const Compare& cmp = Compare())
 {
   if (c1.size() != c2.size())

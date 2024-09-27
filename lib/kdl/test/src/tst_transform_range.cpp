@@ -26,6 +26,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("transform_iterator_test.operator_less_than")
 {
   const auto v1 = std::vector<int>({});
@@ -208,4 +209,5 @@ TEST_CASE("transform_adapter_test.reverse_iterators")
   ++it;
   CHECK(end == it);
 }
+
 } // namespace kdl

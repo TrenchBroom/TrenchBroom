@@ -26,12 +26,17 @@
 
 namespace kdl
 {
+namespace
+{
+
 template <typename L, typename R>
 bool checkRelation(
   const binary_relation<L, R>& act, const std::vector<std::pair<L, R>>& exp)
 {
   return std::equal(std::begin(act), std::end(act), std::begin(exp), std::end(exp));
 }
+
+} // namespace
 
 TEST_CASE("binary_relation_test.constructor_default")
 {
@@ -385,4 +390,5 @@ TEST_CASE("binary_relation_test.erase")
   CHECK_FALSE(r.contains(3, "c"));
   CHECK_FALSE(r.erase(2, "b"));
 }
+
 } // namespace kdl

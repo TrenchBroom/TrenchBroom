@@ -76,4 +76,5 @@ TEST_CASE("tup_capture")
       "can capture multiple arguments");
   }
 }
+
 } // namespace kdl

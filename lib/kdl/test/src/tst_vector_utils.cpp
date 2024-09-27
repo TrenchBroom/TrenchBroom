@@ -30,6 +30,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("vector_utils_test.vec_at")
 {
   const auto cv = std::vector<int>{1, 2, 3};
@@ -481,4 +482,5 @@ TEST_CASE("vector_utils_test.vec_clear_and_delete")
   CHECK(d2);
   CHECK(d3);
 }
+
 } // namespace kdl

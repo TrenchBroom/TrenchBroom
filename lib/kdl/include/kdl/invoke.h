@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 /**
  * Invokes a lambda when going out of scope.
  *
@@ -58,4 +59,5 @@ public:
  */
 template <typename LL>
 invoke_later(const LL& lambda_now) -> invoke_later<LL>;
+
 } // namespace kdl

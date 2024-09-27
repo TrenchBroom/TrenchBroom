@@ -27,14 +27,15 @@
 
 namespace kdl
 {
-
 namespace
 {
+
 template <typename T, typename D>
 auto make_window(const std::vector<T>& v, const D offset, const D length)
 {
   return range{std::next(v.begin(), offset), std::next(v.begin(), offset + length)};
 }
+
 } // namespace
 
 TEST_CASE("grouped_range")

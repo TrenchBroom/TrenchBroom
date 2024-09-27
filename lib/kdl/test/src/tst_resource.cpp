@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("resource")
 {
   auto deleter_calls = std::vector<int>{};
@@ -115,4 +116,5 @@ TEST_CASE("resource")
     CHECK(deleter_calls.empty());
   }
 }
+
 } // namespace kdl

@@ -22,11 +22,13 @@
 
 namespace kdl
 {
+
 struct deletable
 {
   bool& deleted;
 
-  deletable(bool& i_deleted);
+  explicit deletable(bool& i_deleted);
   ~deletable();
 };
+
 } // namespace kdl

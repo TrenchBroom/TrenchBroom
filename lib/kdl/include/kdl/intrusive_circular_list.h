@@ -21,11 +21,10 @@
 #pragma once
 
 #include <cassert>
-#include <cstddef> // for ptrdiff_t
+#include <cstddef>
 #include <initializer_list>
-#include <iterator>    // for std::forward_iterator_tag
-#include <type_traits> // for std::is_pointer
-#include <utility>
+#include <iterator>
+#include <type_traits>
 
 namespace kdl
 {
@@ -37,8 +36,7 @@ namespace kdl
 template <typename T>
 class intrusive_circular_link
 {
-  static_assert(
-    !std::is_pointer<T>::value, "intrusive lists do not accept pointer arguments");
+  static_assert(!std::is_pointer_v<T>, "intrusive lists do not accept pointer arguments");
   template <typename, typename>
   friend class intrusive_circular_list;
 
@@ -111,8 +109,7 @@ private:
 template <typename T, typename GetLink>
 class intrusive_circular_list
 {
-  static_assert(
-    !std::is_pointer<T>::value, "intrusive lists do not accept pointer arguments");
+  static_assert(!std::is_pointer_v<T>, "intrusive lists do not accept pointer arguments");
 
 public:
   using value_type = T*;
@@ -131,21 +128,17 @@ public: // iterators
     using reference = TT&;
 
   private:
-    pointer m_first;
-    pointer m_item;
+    pointer m_first = nullptr;
+    pointer m_item = nullptr;
 
   public:
     explicit iterator_base(pointer item)
-      : m_first(item)
-      , m_item(item)
+      : m_first{item}
+      , m_item{item}
     {
     }
 
-    iterator_base()
-      : m_first(nullptr)
-      , m_item(nullptr)
-    {
-    }
+    iterator_base() = default;
 
     iterator_base& operator++()
     {
@@ -155,7 +148,7 @@ public: // iterators
 
     iterator_base operator++(int)
     {
-      auto result = iterator_base(*this);
+      auto result = iterator_base{*this};
       this->increment();
       return result;
     }
@@ -171,10 +164,10 @@ public: // iterators
   private:
     void increment()
     {
-      if (m_item != nullptr)
+      if (m_item)
       {
-        Inc inc;
-        pointer next = inc(m_item);
+        auto inc = Inc{};
+        auto next = inc(m_item);
         if (next == m_first)
         {
           m_item = nullptr;
@@ -215,19 +208,14 @@ public: // iterators
   using const_reverse_iterator = iterator_base<T const, IncBackward>;
 
 private:
-  T* m_head;
-  std::size_t m_size;
+  T* m_head = nullptr;
+  std::size_t m_size = 0;
 
 public:
   /**
    * Creates a new empty list.
    */
-  intrusive_circular_list()
-    : m_head(nullptr)
-    , m_size(0u)
-  {
-    assert(check_invariant());
-  }
+  intrusive_circular_list() { assert(check_invariant()); }
 
   /**
    * Creates a new list containing the items in the given initializer list. Each of the
@@ -236,8 +224,6 @@ public:
    * @param items the items to insert into this list
    */
   intrusive_circular_list(std::initializer_list<T*> items)
-    : m_head(nullptr)
-    , m_size(0u)
   {
     for (T* item : items)
     {
@@ -358,17 +344,7 @@ public:
   /**
    * Returns the last element in this list or null if this list is empty;
    */
-  T* back() const
-  {
-    if (empty())
-    {
-      return nullptr;
-    }
-    else
-    {
-      return get_previous(m_head);
-    }
-  }
+  T* back() const { return !empty() ? get_previous(m_head) : nullptr; }
 
   /**
    * Returns an iterator for the given item. The returned iterator can be used to iterate
@@ -796,4 +772,5 @@ private: // invariant
     }
   }
 };
+
 } // namespace kdl

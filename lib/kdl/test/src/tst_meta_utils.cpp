@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("meta_utils_test.contains")
 {
   static_assert(meta_contains_v<int, int>);
@@ -73,4 +74,5 @@ TEST_CASE("meta_utils_test.remove_duplicates")
                 meta_remove_duplicates_t<int, float, int, double, bool, float>,
                 meta_type_list<int, float, double, bool>>);
 }
+
 } // namespace kdl

@@ -25,6 +25,7 @@
 
 namespace kdl
 {
+
 /** Manage a generic resource.
  *
  * Takes the resource and a deleter that cleans up the resource. The deleter is called

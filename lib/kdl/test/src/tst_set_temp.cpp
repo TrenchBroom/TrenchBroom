@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("set_temp_test.set_unset")
 {
   int value = 0;
@@ -87,4 +88,5 @@ TEST_CASE("dec_temp.dec_inc")
   }
   CHECK(value == 0);
 }
+
 } // namespace kdl

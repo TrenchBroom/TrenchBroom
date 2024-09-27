@@ -22,13 +22,11 @@
 
 #include "kdl/collection_utils.h"
 
-// Note: all except <cassert> are included by <vector> anyway, so there's no point in
-// splitting this up further
-#include <algorithm> // for std::sort, std::unique, std::find, std::find_if, std::remove, std::remove_if
+#include <algorithm>
 #include <cassert>
-#include <functional>  // for std::less
-#include <iterator>    // std::back_inserter
-#include <type_traits> // for std::less
+#include <functional>
+#include <iterator>
+#include <type_traits>
 #include <vector>
 
 namespace kdl
@@ -1015,7 +1013,7 @@ auto set_union(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using T = typename std::common_type<T1, T2>::type;
+  using T = typename std::common_type_t<T1, T2>;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -1056,7 +1054,7 @@ auto set_intersection(const S1& s1, const S2& s2, const C& c = C{})
 {
   using T1 = typename S1::value_type;
   using T2 = typename S2::value_type;
-  using T = typename std::common_type<T1, T2>::type;
+  using T = typename std::common_type_t<T1, T2>;
 
   std::vector<T> result;
   result.reserve(s1.size() + s2.size());
@@ -1134,4 +1132,5 @@ void vec_clear_and_delete(std::vector<T*>& v, const D& deleter = D())
   kdl::col_delete_all(v, deleter);
   v.clear();
 }
+
 } // namespace kdl

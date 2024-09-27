@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "vm/abstract_line.h"
+#include "vm/abstract_line.h" // IWYU pragma: export
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/scalar.h"

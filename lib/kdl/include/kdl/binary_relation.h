@@ -48,7 +48,7 @@ private:
 
   left_right_map m_left_right_map;
   right_left_map m_right_left_map;
-  std::size_t m_size;
+  std::size_t m_size = 0;
 
 public:
   /**
@@ -174,10 +174,7 @@ public:
   /**
    * Creates an empty binary relation.
    */
-  binary_relation()
-    : m_size(0u)
-  {
-  }
+  binary_relation() = default;
 
   /**
    * Creates a binary relation with the given entries.
@@ -185,7 +182,6 @@ public:
    * @param list the entries for the relation
    */
   binary_relation(std::initializer_list<std::pair<L, R>> list)
-    : m_size(0u)
   {
     for (const auto& pair : list)
     {

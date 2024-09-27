@@ -22,8 +22,8 @@
 
 #include "kdl/string_compare_detail.h"
 
-#include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
-#include <cctype>    // for std::tolower
+#include <algorithm>
+#include <cctype>
 #include <string_view>
 
 namespace kdl

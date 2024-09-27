@@ -19,14 +19,9 @@
 */
 
 #include "kdl/overload.h"
-#include "kdl/reflection_decl.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/result_io.h"
-
-#include <iostream>
-#include <string>
 
 #include "catch2.h"
 

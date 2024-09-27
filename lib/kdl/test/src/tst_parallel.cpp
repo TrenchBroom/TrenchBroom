@@ -33,6 +33,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("for 0")
 {
   bool ran = false;
@@ -140,4 +141,5 @@ TEST_CASE("overhead for small work batches")
 
   CHECK(static_cast<size_t>(counter) == OuterLoop * InnerLoop);
 }
+
 } // namespace kdl

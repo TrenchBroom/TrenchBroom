@@ -31,6 +31,7 @@
 
 namespace kdl
 {
+
 /**
  * Thrown when attempting to access a result success value on a failed result.
  */
@@ -273,9 +274,9 @@ public:
    */
   template <
     typename T,
-    typename std::enable_if<std::disjunction_v<
+    typename std::enable_if_t<std::disjunction_v<
       std::is_convertible<T, Value>,
-      std::is_convertible<T, Errors>...>>::type* = nullptr>
+      std::is_convertible<T, Errors>...>>* = nullptr>
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -295,8 +296,8 @@ public:
   // NOLINTNEXTLINE
   result(result<Value, ErrorSubset...> other)
     : m_value{std::move(other).visit(overload(
-      [](Value&& v) -> variant_type { return std::move(v); },
-      [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+        [](Value&& v) -> variant_type { return std::move(v); },
+        [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
   {
     static_assert(
       meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
@@ -930,18 +931,12 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const
-  {
-    return m_value.index() == 0u;
-  }
+  bool is_success() const { return m_value.index() == 0u; }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const
-  {
-    return !is_success();
-  }
+  bool is_error() const { return !is_success(); }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -959,10 +954,7 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs)
-  {
-    return !(lhs == rhs);
-  }
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
 template <typename... Values, typename... Errors>
@@ -999,9 +991,9 @@ public:
    */
   template <
     typename T,
-    typename std::enable_if<std::disjunction_v<
+    typename std::enable_if_t<std::disjunction_v<
       std::is_convertible<T, multi_value<Values...>>,
-      std::is_convertible<T, Errors>...>>::type* = nullptr>
+      std::is_convertible<T, Errors>...>>* = nullptr>
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -1021,10 +1013,10 @@ public:
   // NOLINTNEXTLINE
   result(result<multi_value<Values...>, ErrorSubset...> other)
     : m_value{std::move(other).visit(overload(
-      [](Values&&... v) -> variant_type {
-        return multi_value<Values...>{std::move(v)...};
-      },
-      [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+        [](Values&&... v) -> variant_type {
+          return multi_value<Values...>{std::move(v)...};
+        },
+        [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
   {
     static_assert(
       meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
@@ -1545,18 +1537,12 @@ public:
   /**
    * Indicates whether the given result contains a value.
    */
-  bool is_success() const
-  {
-    return m_value.index() == 0u;
-  }
+  bool is_success() const { return m_value.index() == 0u; }
 
   /**
    * Indicates whether the given result contains an error.
    */
-  bool is_error() const
-  {
-    return !is_success();
-  }
+  bool is_error() const { return !is_success(); }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -1574,10 +1560,7 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs)
-  {
-    return !(lhs == rhs);
-  }
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
 namespace detail
@@ -1736,9 +1719,9 @@ public:
    */
   template <
     typename T,
-    typename std::enable_if<std::disjunction_v<
+    typename std::enable_if_t<std::disjunction_v<
       std::is_convertible<T, value_type>,
-      std::is_convertible<T, Errors>...>>::type* = nullptr>
+      std::is_convertible<T, Errors>...>>* = nullptr>
   // NOLINTNEXTLINE
   result(T&& v)
     : m_value{std::forward<T>(v)}
@@ -2149,10 +2132,7 @@ public:
   /**
    * Indicates whether this result contains an error.
    */
-  bool is_error() const
-  {
-    return !is_success();
-  }
+  bool is_error() const { return !is_success(); }
 
   /**
    * Indicates whether the given result contains the given type of error.
@@ -2170,10 +2150,7 @@ public:
     return lhs.m_value == rhs.m_value;
   }
 
-  friend bool operator!=(const result& lhs, const result& rhs)
-  {
-    return !(lhs == rhs);
-  }
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
 template <typename R>

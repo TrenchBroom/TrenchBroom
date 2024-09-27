@@ -24,8 +24,8 @@
 #include "kdl/vector_set_forward.h"
 
 #include <cassert>
-#include <functional> // for std::less
-#include <memory>     // for std::allocator
+#include <functional>
+#include <memory>
 #include <vector>
 
 namespace kdl
@@ -156,7 +156,7 @@ public:
    * created instance of Allocator
    */
   template <typename TT, typename AA>
-  vector_set(
+  explicit vector_set(
     const std::vector<TT, AA>& vec,
     const Compare& cmp = Compare(),
     const Allocator& alloc = Allocator())
@@ -264,10 +264,8 @@ template <
   typename Compare = std::less<typename std::iterator_traits<I>::value_type>,
   typename Allocator = std::allocator<typename std::iterator_traits<I>::value_type>>
 vector_set(
-  const typename vector_set<
-    typename std::iterator_traits<I>::value_type,
-    Compare,
-    Allocator>::size_type capacity,
+  typename vector_set<typename std::iterator_traits<I>::value_type, Compare, Allocator>::
+    size_type capacity,
   I first,
   I last,
   const Compare& cmp = Compare(),

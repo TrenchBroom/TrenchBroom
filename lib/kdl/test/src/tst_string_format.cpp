@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("string_format_test.str_select")
 {
   CHECK(str_select(true, "yes", "no") == "yes");
@@ -171,4 +172,5 @@ TEST_CASE("string_format_test.str_is_numeric")
   CHECK(str_is_numeric("1"));
   CHECK(str_is_numeric("1234567890"));
 }
+
 } // namespace kdl

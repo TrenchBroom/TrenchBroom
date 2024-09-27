@@ -18,7 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/string_utils.h"
 #include "kdl/struct_io.h"
 
 #include <optional>
@@ -67,4 +66,5 @@ TEST_CASE("streamable_struct")
     build_string("type", "a", std::vector<std::optional<int>>{{1, std::nullopt, 2}})
     == "type{a: [1,nullopt,2]}");
 }
+
 } // namespace kdl

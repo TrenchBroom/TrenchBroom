@@ -24,7 +24,6 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/collection_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
-    "${KDL_INCLUDE_DIR}/kdl/deref_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
     "${KDL_INCLUDE_DIR}/kdl/functional.h"
     "${KDL_INCLUDE_DIR}/kdl/grouped_range.h"

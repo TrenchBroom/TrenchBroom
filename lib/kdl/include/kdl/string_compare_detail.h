@@ -22,9 +22,9 @@
 
 #include "kdl/collection_utils.h"
 
-#include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
+#include <algorithm>
 #include <string_view>
-#include <vector> // used in str_matches_glob
+#include <vector>
 
 namespace kdl
 {

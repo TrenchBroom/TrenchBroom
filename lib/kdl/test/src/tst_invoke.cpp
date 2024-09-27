@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("invoke_test.invoke_later_lvalue")
 {
   bool invoked = false;
@@ -46,4 +47,5 @@ TEST_CASE("invoke_test.invoke_later_rvalue")
   }
   CHECK(invoked);
 }
+
 } // namespace kdl

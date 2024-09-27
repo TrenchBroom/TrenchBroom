@@ -27,6 +27,7 @@
 
 namespace kdl
 {
+
 /**
  * Returns a vector containing copies of the given map's keys. The keys are returned in
  * the order in which they are stored in the given map.
@@ -92,29 +93,16 @@ template <typename K, typename V, typename C, typename D = std::less<V>>
 int map_lexicographical_compare(
   const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& value_cmp = D())
 {
-  const auto key_cmp = C();
+  const auto key_cmp = C{};
   return kdl::range_lexicographical_compare(
     std::begin(map1),
     std::end(map1),
     std::begin(map2),
     std::end(map2),
     [&key_cmp, &value_cmp](const auto& lhs, const auto& rhs) {
-      const K& lhs_key = lhs.first;
-      const K& rhs_key = rhs.first;
-      if (key_cmp(lhs_key, rhs_key))
-      {
-        return true;
-      }
-      else if (key_cmp(rhs_key, lhs_key))
-      {
-        return false;
-      }
-      else
-      {
-        const V& lhs_value = lhs.second;
-        const V& rhs_value = rhs.second;
-        return value_cmp(lhs_value, rhs_value);
-      }
+      return key_cmp(lhs.first, rhs.first)   ? true
+             : key_cmp(rhs.first, lhs.first) ? false
+                                             : value_cmp(lhs.second, rhs.second);
     });
 }
 
@@ -142,12 +130,8 @@ template <typename K, typename V, typename C, typename D = std::less<V>>
 bool map_is_equivalent(
   const std::map<K, V, C>& map1, const std::map<K, V, C>& map2, const D& valueCmp = D())
 {
-  if (map1.size() != map2.size())
-  {
-    return false;
-  }
-
-  return map_lexicographical_compare(map1, map2, valueCmp) == 0;
+  return map1.size() == map2.size()
+         && map_lexicographical_compare(map1, map2, valueCmp) == 0;
 }
 
 /**
@@ -165,14 +149,7 @@ template <typename K, typename V>
 const V& map_find_or_default(const std::map<K, V>& m, const K& k, const V& default_value)
 {
   auto it = m.find(k);
-  if (it == std::end(m))
-  {
-    return default_value;
-  }
-  else
-  {
-    return it->second;
-  }
+  return it != m.end() ? it->second : default_value;
 }
 
 /**
@@ -192,7 +169,7 @@ template <typename K, typename V, typename C, typename A>
 std::map<K, V, C, A> map_union(
   const std::map<K, V, C, A>& m1, const std::map<K, V, C, A>& m2)
 {
-  std::map<K, V, C, A> result;
+  auto result = std::map<K, V, C, A>{};
   result.insert(
     std::begin(m2),
     std::end(m2)); // insert doesn't overwrite, so we need to insert m2 first
@@ -223,7 +200,7 @@ std::map<K, std::vector<V>, C> map_merge(
   {
     return m2;
   }
-  else if (m2.empty())
+  if (m2.empty())
   {
     return m1;
   }
@@ -231,7 +208,7 @@ std::map<K, std::vector<V>, C> map_merge(
   auto result = m1;
   for (const auto& [key, from] : m2)
   {
-    std::vector<V>& into = result[key];
+    auto& into = result[key];
     into.insert(std::end(into), std::begin(from), std::end(from));
   }
   return result;
@@ -256,4 +233,5 @@ void map_clear_and_delete(std::map<K, std::vector<V*>>& m, const D& deleter = D(
   }
   m.clear();
 }
+
 } // namespace kdl

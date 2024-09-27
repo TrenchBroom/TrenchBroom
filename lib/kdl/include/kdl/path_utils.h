@@ -28,6 +28,7 @@
 
 namespace kdl
 {
+
 inline size_t path_length(const std::filesystem::path& path)
 {
   return size_t(std::distance(path.begin(), path.end()));

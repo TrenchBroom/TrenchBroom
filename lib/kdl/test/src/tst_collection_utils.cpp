@@ -28,6 +28,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("collection_utils_test.compare_cmp")
 {
   using namespace std::string_literals;

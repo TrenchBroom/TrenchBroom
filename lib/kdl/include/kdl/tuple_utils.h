@@ -63,4 +63,5 @@ auto tup_capture(First&& first, Rest&&... rest)
   return std::tuple_cat(
     tup_capture(std::forward<First>(first)), tup_capture(std::forward<Rest>(rest)...));
 }
+
 } // namespace kdl

@@ -22,7 +22,7 @@
 
 #include "kdl/string_format.h"
 
-#include <algorithm> // for std::search
+#include <algorithm>
 #include <cassert>
 #include <charconv>
 #include <iterator>

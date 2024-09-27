@@ -27,6 +27,7 @@
 
 namespace kdl
 {
+
 /**
  * Wraps several iterators and offers their current values as a tuple of references.
  *
@@ -165,4 +166,5 @@ auto make_zip_range(C&&... c)
   return range<I>{
     make_zip_begin(std::forward<C>(c)...), make_zip_end(std::forward<C>(c)...)};
 }
+
 } // namespace kdl

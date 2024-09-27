@@ -22,6 +22,7 @@
 
 namespace kdl
 {
+
 deletable::deletable(bool& i_deleted)
   : deleted(i_deleted)
 {
@@ -32,4 +33,5 @@ deletable::~deletable()
 {
   deleted = true;
 }
+
 } // namespace kdl

@@ -25,6 +25,7 @@
 
 namespace kdl
 {
+
 /**
  * Checks whether the given shared pointer is expired. Always returns false.
  *
@@ -78,4 +79,5 @@ std::shared_ptr<T> mem_lock(std::weak_ptr<T> ptr)
   assert(!mem_expired(ptr));
   return ptr.lock();
 }
+
 } // namespace kdl

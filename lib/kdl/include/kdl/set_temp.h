@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 /**
  * RAII class that temporarily sets a value and resets it to its original value when going
  * out of scope.
@@ -45,10 +46,9 @@ public:
    * @param newValue the new value to set temporarily
    */
   set_temp(T& value, T newValue)
-    : m_value(value)
-    , m_oldValue(std::move(m_value))
+    : m_value{value}
+    , m_oldValue{std::exchange(m_value, std::move(newValue))}
   {
-    m_value = std::move(newValue);
   }
 
   /**
@@ -59,7 +59,7 @@ public:
    */
   template <typename B, typename std::enable_if_t<std::is_same_v<B, bool>>* = nullptr>
   explicit set_temp(B& value)
-    : set_temp(value, true)
+    : set_temp{value, true}
   {
   }
 
@@ -92,8 +92,8 @@ public:
    * @param newValue the value to set
    */
   set_later(T& value, T newValue)
-    : m_value(value)
-    , m_newValue(std::move(newValue))
+    : m_value{value}
+    , m_newValue{std::move(newValue)}
   {
   }
 
@@ -124,7 +124,7 @@ public:
    * @param value the value
    */
   explicit inc_temp(T& value)
-    : m_value(value)
+    : m_value{value}
   {
     ++m_value;
   }
@@ -156,7 +156,7 @@ public:
    * @param value the value
    */
   explicit dec_temp(T& value)
-    : m_value(value)
+    : m_value{value}
   {
     --m_value;
   }
@@ -169,4 +169,5 @@ public:
 
 template <typename T>
 dec_temp(T& value) -> dec_temp<T>;
+
 } // namespace kdl

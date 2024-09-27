@@ -208,8 +208,8 @@ void parseSurfaceParmTag(
   }
   else if (value["pattern"].type() == EL::ValueType::Array)
   {
-    matcher =
-      std::make_unique<Model::SurfaceParmTagMatcher>(value["pattern"].asStringSet());
+    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(
+      kdl::vector_set{value["pattern"].asStringSet()});
   }
   else
   {

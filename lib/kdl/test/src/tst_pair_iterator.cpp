@@ -27,6 +27,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("pair_iterator")
 {
   using Catch::Matchers::UnorderedEquals;
@@ -45,4 +46,5 @@ TEST_CASE("pair_iterator")
   const auto v = std::vector<std::tuple<int, int>>(r.begin(), r.end());
   CHECK_THAT(v, UnorderedEquals(expected));
 }
+
 } // namespace kdl

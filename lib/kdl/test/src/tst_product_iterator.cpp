@@ -27,6 +27,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("product_iterator")
 {
   using Catch::Matchers::UnorderedEquals;
@@ -100,4 +101,5 @@ TEST_CASE("product_iterator")
     CHECK_THAT(v, UnorderedEquals(expected));
   }
 }
+
 } // namespace kdl

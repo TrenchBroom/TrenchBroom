@@ -23,6 +23,7 @@
 #include "kdl/range_utils.h"
 
 #include <ranges>
+#include <vector>
 
 namespace kdl
 {

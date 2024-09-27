@@ -26,6 +26,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("lift_and")
 {
   const auto f1 = [](int a, int b, int) { return a == b; };
@@ -77,4 +78,5 @@ TEST_CASE("lift_or")
     CHECK_FALSE(f1_or_f2(1, 2, 3));
   }
 }
+
 } // namespace kdl
