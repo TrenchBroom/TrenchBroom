@@ -53,8 +53,8 @@ protected:
 
   Entity m_entity;
 
-  std::vector<EntityNodeBase*> m_linkSources;
-  std::vector<EntityNodeBase*> m_linkTargets;
+  std::vector<std::tuple<EntityNodeBase*, int>> m_linkSources;
+  std::vector<std::tuple<EntityNodeBase*, int>> m_linkTargets;
 
 public:
   ~EntityNodeBase() override;
@@ -107,8 +107,8 @@ public: // link management
   void getAllTargetSourcePropertyNames(std::vector<std::string>& result) const;
   void getAllTargetDestinationPropertyNames(std::vector<std::string>& result) const;
 
-  const std::vector<EntityNodeBase*>& linkSources() const;
-  const std::vector<EntityNodeBase*>& linkTargets() const;
+  std::vector<EntityNodeBase*> linkSources() const;
+  std::vector<EntityNodeBase*> linkTargets() const;
 
   vm::vec3 linkSourceAnchor() const;
   vm::vec3 linkTargetAnchor() const;

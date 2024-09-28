@@ -27,6 +27,7 @@
 #include "kdl/vector_utils.h"
 
 #include <string>
+#include <unistd.h>
 #include <vector>
 
 namespace TrenchBroom::Model
@@ -329,14 +330,18 @@ void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::strin
 }
 
 
-const std::vector<EntityNodeBase*>& EntityNodeBase::linkSources() const
+std::vector<EntityNodeBase*> EntityNodeBase::linkSources() const
 {
-  return m_linkSources;
+  return kdl::vec_transform(m_linkSources, [&](const auto& link) {
+    return std::get<EntityNodeBase*>(link);
+  });
 }
 
-const std::vector<EntityNodeBase*>& EntityNodeBase::linkTargets() const
+std::vector<EntityNodeBase*> EntityNodeBase::linkTargets() const
 {
-  return m_linkTargets;
+  return kdl::vec_transform(m_linkTargets, [&](const auto& link) {
+      return std::get<EntityNodeBase*>(link);
+    });
 }
 
 vm::vec3 EntityNodeBase::linkSourceAnchor() const
@@ -481,27 +486,26 @@ void EntityNodeBase::addLinkTargets(const std::string& targetname)
 
 void EntityNodeBase::removeLinkTargets(const std::string& targetname)
 {
-  if (!targetname.empty())
+  if (targetname.empty())
   {
-    auto rem = std::end(m_linkTargets);
-    auto it = std::begin(m_linkTargets);
-    while (it != rem)
+    return;
+  }
+
+  for (auto& [target, _] : m_linkTargets)
+  {
+    auto targetSourcePropertyNames = std::vector<std::string>{};
+    target->getAllTargetSourcePropertyNames(targetSourcePropertyNames);
+
+    for (const auto& targetSourcePropertyName : targetSourcePropertyNames)
     {
-      auto* target = *it;
-      const auto* targetTargetname =
-        target->entity().property(EntityPropertyKeys::Targetname);
+      const auto* targetTargetname = target->entity().property(targetSourcePropertyName);
       if (targetTargetname && *targetTargetname == targetname)
       {
+        removeLinkTarget(target);
         target->removeLinkSource(this);
-        --rem;
-        std::iter_swap(it, rem);
-      }
-      else
-      {
-        ++it;
+        break;
       }
     }
-    m_linkTargets.erase(rem, std::end(m_linkTargets));
   }
 }
 
@@ -538,7 +542,7 @@ void EntityNodeBase::addLinkTargets(const std::vector<EntityNodeBase*>& targets)
   for (auto* target : targets)
   {
     target->addLinkSource(this);
-    m_linkTargets.push_back(target);
+    addLinkTarget(target);
   }
   invalidateIssues();
 }
@@ -549,14 +553,14 @@ void EntityNodeBase::addLinkSources(const std::vector<EntityNodeBase*>& sources)
   for (auto* linkSource : sources)
   {
     linkSource->addLinkTarget(this);
-    m_linkSources.push_back(linkSource);
+    addLinkSource(linkSource);
   }
   invalidateIssues();
 }
 
 void EntityNodeBase::removeAllLinkSources()
 {
-  for (auto* linkSource : m_linkSources)
+  for (auto& [linkSource, ref] : m_linkSources)
   {
     linkSource->removeLinkTarget(this);
   }
@@ -566,7 +570,7 @@ void EntityNodeBase::removeAllLinkSources()
 
 void EntityNodeBase::removeAllLinkTargets()
 {
-  for (auto* linkTarget : m_linkTargets)
+  for (auto& [linkTarget, ref] : m_linkTargets)
   {
     linkTarget->removeLinkSource(this);
   }
@@ -620,29 +624,72 @@ void EntityNodeBase::doAncestorDidChange()
 void EntityNodeBase::addLinkSource(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
-  m_linkSources.push_back(node);
   invalidateIssues();
+
+  for (auto& [link, ref] : m_linkSources)
+  {
+    if (link == node)
+    {
+      ref++;
+      return;
+    }
+  }
+
+  m_linkSources.emplace_back(node, 1);
 }
 
 void EntityNodeBase::addLinkTarget(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
-  m_linkTargets.push_back(node);
   invalidateIssues();
+
+  for (auto& [link, ref] : m_linkTargets)
+  {
+    if (link == node)
+    {
+      ref++;
+      return;
+    }
+  }
+
+  m_linkTargets.emplace_back(node, 1);
 }
 
 void EntityNodeBase::removeLinkSource(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
-  m_linkSources = kdl::vec_erase(std::move(m_linkSources), node);
   invalidateIssues();
+
+  for (auto& [link, ref] : m_linkSources)
+  {
+    if (link == node)
+    {
+      if (--ref == 0)
+      {
+        m_linkSources = kdl::vec_erase(std::move(m_linkSources), std::tuple{link, ref});
+      }
+
+      return;
+    }
+  }
 }
 
 void EntityNodeBase::removeLinkTarget(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
-  m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), node);
   invalidateIssues();
+
+  for (auto& [target, ref] : m_linkTargets)
+  {
+    if (target == node)
+    {
+      if (--ref == 0)
+      {
+        m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), std::tuple{target, ref});
+      }
+      return;
+    }
+  }
 }
 EntityNodeBase::EntityNodeBase() = default;
 
