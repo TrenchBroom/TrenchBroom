@@ -128,11 +128,9 @@ private: // link management internals
     const std::string& newName,
     const std::string& newValue);
 
-  //jwf: does targetname only
   void addLinkTargets(const std::string& targetname);
   void removeLinkTargets(const std::string& targetname);
 
-  //jwf: does targetname1,2,3 etc
   void addLinkSourcesIncludingNumbered(const std::string& targetname);
   void addLinkTargetsIncludingNumbered(const std::string& linkPropertyName);
 

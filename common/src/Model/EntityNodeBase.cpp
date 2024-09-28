@@ -27,7 +27,6 @@
 #include "kdl/vector_utils.h"
 
 #include <string>
-#include <unistd.h>
 #include <vector>
 
 namespace TrenchBroom::Model
@@ -53,6 +52,38 @@ const auto* select(const std::vector<T*> ts, const Eq& eq = Eq{})
     }
   }
   return result;
+}
+
+template <typename T>
+void add_ref(std::vector<std::tuple<T*, int>>& vec, T* elem)
+{
+  for (auto& [existingElem, ref] : vec)
+  {
+    if (existingElem == elem)
+    {
+      ++ref;
+      return;
+    }
+  }
+
+  vec.emplace_back(elem, 1);
+}
+
+template <typename T>
+void remove_ref(std::vector<std::tuple<T*, int>>& vec, T* elem)
+{
+  for (auto& [existingElem, ref] : vec)
+  {
+    if (existingElem == elem)
+    {
+      if (--ref == 0)
+      {
+        vec = kdl::vec_erase(std::move(vec), std::tuple{existingElem, ref});
+      }
+
+      return;
+    }
+  }
 }
 } // namespace
 
@@ -624,72 +655,29 @@ void EntityNodeBase::doAncestorDidChange()
 void EntityNodeBase::addLinkSource(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
+  add_ref(m_linkSources, node);
   invalidateIssues();
-
-  for (auto& [link, ref] : m_linkSources)
-  {
-    if (link == node)
-    {
-      ref++;
-      return;
-    }
-  }
-
-  m_linkSources.emplace_back(node, 1);
 }
 
 void EntityNodeBase::addLinkTarget(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
+  add_ref(m_linkTargets, node);
   invalidateIssues();
-
-  for (auto& [link, ref] : m_linkTargets)
-  {
-    if (link == node)
-    {
-      ref++;
-      return;
-    }
-  }
-
-  m_linkTargets.emplace_back(node, 1);
 }
 
 void EntityNodeBase::removeLinkSource(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
+  remove_ref(m_linkSources, node);
   invalidateIssues();
-
-  for (auto& [link, ref] : m_linkSources)
-  {
-    if (link == node)
-    {
-      if (--ref == 0)
-      {
-        m_linkSources = kdl::vec_erase(std::move(m_linkSources), std::tuple{link, ref});
-      }
-
-      return;
-    }
-  }
 }
 
 void EntityNodeBase::removeLinkTarget(EntityNodeBase* node)
 {
   ensure(node, "node is not null");
+  remove_ref(m_linkTargets, node);
   invalidateIssues();
-
-  for (auto& [target, ref] : m_linkTargets)
-  {
-    if (target == node)
-    {
-      if (--ref == 0)
-      {
-        m_linkTargets = kdl::vec_erase(std::move(m_linkTargets), std::tuple{target, ref});
-      }
-      return;
-    }
-  }
 }
 EntityNodeBase::EntityNodeBase() = default;
 
