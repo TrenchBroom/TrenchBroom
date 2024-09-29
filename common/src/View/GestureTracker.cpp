@@ -17,30 +17,28 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "DragTracker.h"
+#include "GestureTracker.h"
 
-#include "FloatType.h"
 #include "View/InputState.h"
-
-#include "vm/vec.h"
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+
+GestureTracker::~GestureTracker() = default;
+
+void GestureTracker::modifierKeyChange(const InputState&) {}
+
+void GestureTracker::mouseScroll(const InputState&) {}
+
+void GestureTracker::setRenderOptions(const InputState&, Renderer::RenderContext&) const
 {
-DragTracker::~DragTracker() = default;
+}
 
-void DragTracker::modifierKeyChange(const InputState&) {}
-
-void DragTracker::mouseScroll(const InputState&) {}
-
-void DragTracker::setRenderOptions(const InputState&, Renderer::RenderContext&) const {}
-
-void DragTracker::render(
+void GestureTracker::render(
   const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) const
 {
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -22,802 +22,610 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "View/InputEvent.h"
 
-#include "kdl/overload.h"
-
 #include <array>
 #include <chrono>
 #include <list>
 #include <thread>
 #include <variant>
 
-#include "Catch2.h"
+#include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
-TEST_CASE("KeyEventTest.collateWith")
-{
-  static const std::array<KeyEvent::Type, 2> eventTypes = {
-    KeyEvent::Type::Down, KeyEvent::Type::Up};
 
-  for (std::size_t i = 0; i < 2; ++i)
+TEST_CASE("MouseEvent")
+{
+  SECTION("collateWith")
   {
-    for (std::size_t j = 0; j < 2; ++j)
+    SECTION("can collate")
     {
-      auto lhs = KeyEvent(eventTypes[i]);
-      const auto rhs = KeyEvent(eventTypes[j]);
-      CHECK_FALSE(lhs.collateWith(rhs));
+      constexpr std::array<std::array<bool, 8>, 8> expectedResult = {{
+        // Down   Up   Click  DClick Motion DragSt Drag   DragEnd
+        {false, false, false, false, false, false, false, false}, // Down
+        {false, false, false, false, false, false, false, false}, // Up
+        {false, false, false, false, false, false, false, false}, // Click
+        {false, false, false, false, false, false, false, false}, // DClick
+        {false, false, false, false, true, false, false, false},  // Motion
+        {false, false, false, false, false, false, false, false}, // DragStart
+        {false, false, false, false, false, false, true, false},  // Drag
+        {false, false, false, false, false, false, false, false}, // DragEnd
+      }};
+
+      using Type = MouseEvent::Type;
+      const auto lhsType = GENERATE(
+        Type::Down,
+        Type::Up,
+        Type::Click,
+        Type::DoubleClick,
+        Type::Motion,
+        Type::DragStart,
+        Type::Drag,
+        Type::DragEnd);
+      const auto rhsType = GENERATE(
+        Type::Down,
+        Type::Up,
+        Type::Click,
+        Type::DoubleClick,
+        Type::Motion,
+        Type::DragStart,
+        Type::Drag,
+        Type::DragEnd);
+
+      auto lhs = MouseEvent{lhsType, MouseEvent::Button::None, 0, 0};
+      const auto rhs = MouseEvent{rhsType, MouseEvent::Button::None, 0, 0};
+
+      CHECK(lhs.collateWith(rhs) == expectedResult[size_t(lhsType)][size_t(rhsType)]);
+    }
+
+    SECTION("motion collation")
+    {
+      auto lhs = MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 2, 3};
+      const auto rhs =
+        MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 5, 5};
+      CHECK(lhs.collateWith(rhs));
+      CHECK(lhs.posX == 5);
+      CHECK(lhs.posY == 5);
+    }
+
+    SECTION("drag collation")
+    {
+      auto lhs = MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::None, 2, 3};
+      const auto rhs = MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::None, 5, 5};
+      CHECK(lhs.collateWith(rhs));
+      CHECK(lhs.posX == 5);
+      CHECK(lhs.posY == 5);
     }
   }
 }
 
-TEST_CASE("MouseEventTest.collateWith")
+TEST_CASE("ScrollEvent")
 {
-  static const std::array<MouseEvent::Type, 9> eventTypes = {
-    MouseEvent::Type::Down,
-    MouseEvent::Type::Up,
-    MouseEvent::Type::Click,
-    MouseEvent::Type::DoubleClick,
-    MouseEvent::Type::Motion,
-    MouseEvent::Type::Scroll,
-    MouseEvent::Type::DragStart,
-    MouseEvent::Type::Drag,
-    MouseEvent::Type::DragEnd};
-  static const std::array<std::array<bool, 9>, 9> collationMatrix = {{
-    // Down   Up     Click  DClick Motion Scroll DragSt Drag   DragEnd
-    {false, false, false, false, false, false, false, false, false}, // Down
-    {false, false, false, false, false, false, false, false, false}, // Up
-    {false, false, false, false, false, false, false, false, false}, // Click
-    {false, false, false, false, false, false, false, false, false}, // DClick
-    {false, false, false, false, true, false, false, false, false},  // Motion
-    {false, false, false, false, false, true, false, false, false},  // Scroll
-    {false, false, false, false, false, false, false, false, false}, // DragStart
-    {false, false, false, false, false, false, false, true, false},  // Drag
-    {false, false, false, false, false, false, false, false, false}, // DragEnd
-  }};
-
-  for (std::size_t i = 0; i < 9; ++i)
+  SECTION("collateWith")
   {
-    for (std::size_t j = 0; j < 9; ++j)
-    {
-      auto lhs = MouseEvent(
-        eventTypes[i], MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f);
-      const auto rhs = MouseEvent(
-        eventTypes[j], MouseEvent::Button::None, MouseEvent::WheelAxis::None, 0, 0, 0.0f);
+    using Source = ScrollEvent::Source;
+    const auto lhsSource = GENERATE(Source::Mouse, Source::Trackpad);
+    const auto rhsSource = GENERATE(Source::Mouse, Source::Trackpad);
 
-      CHECK(lhs.collateWith(rhs) == collationMatrix[i][j]);
+    using Axis = ScrollEvent::Axis;
+    const auto lhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
+    const auto rhsWheelAxis = GENERATE(Axis::Horizontal, Axis::Vertical);
+
+    const auto canCollate = lhsSource == rhsSource && lhsWheelAxis == rhsWheelAxis;
+    const auto expectedScrollDistance = canCollate ? std::optional{-2.0f} : std::nullopt;
+
+    auto lhs = ScrollEvent{lhsSource, lhsWheelAxis, 3.0f};
+    const auto rhs = ScrollEvent{rhsSource, rhsWheelAxis, -5.0f};
+
+    CHECK(lhs.collateWith(rhs) == expectedScrollDistance.has_value());
+    if (expectedScrollDistance)
+    {
+      CHECK(lhs.distance == expectedScrollDistance);
     }
   }
+}
 
+TEST_CASE("GestureEvent")
+{
+  SECTION("collateWith")
   {
-    // motion collation
-    auto lhs = MouseEvent(
-      MouseEvent::Type::Motion,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::None,
-      2,
-      3,
-      0.0f);
-    const auto rhs = MouseEvent(
-      MouseEvent::Type::Motion,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::None,
-      5,
-      5,
-      0.0f);
-    CHECK(lhs.collateWith(rhs));
-    CHECK(lhs.posX == 5);
+    using Type = GestureEvent::Type;
+    const auto lhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+    const auto rhsType = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    const auto expected = std::array<std::array<bool, 3>, 3>{{
+      // Pan  Zoom Rotate
+      {true, false, false}, // Pan
+      {false, true, false}, // Zoom
+      {false, false, true}, // Rotate
+    }};
+
+    auto lhs = GestureEvent{lhsType, 0, 0, 0.0f};
+    const auto rhs = GestureEvent{rhsType, 0, 0, 0.0f};
+    CHECK(lhs.collateWith(rhs) == expected[size_t(lhsType) - 2][size_t(rhsType) - 2]);
+  }
+
+  SECTION("value collation")
+  {
+    using Type = GestureEvent::Type;
+    const auto type = GENERATE(Type::Pan, Type::Zoom, Type::Rotate);
+
+    auto lhs = GestureEvent{type, 1, 2, 3.0f};
+    const auto rhs = GestureEvent{type, 4, 5, 6.0f};
+
+    REQUIRE(lhs.collateWith(rhs));
+    CHECK(lhs.posX == 4);
     CHECK(lhs.posY == 5);
+    CHECK(lhs.value == 6);
   }
+}
 
-  {
-    // drag collation
-    auto lhs = MouseEvent(
-      MouseEvent::Type::Drag,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::None,
-      2,
-      3,
-      0.0f);
-    const auto rhs = MouseEvent(
-      MouseEvent::Type::Drag,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::None,
-      5,
-      5,
-      0.0f);
-    CHECK(lhs.collateWith(rhs));
-    CHECK(lhs.posX == 5);
-    CHECK(lhs.posY == 5);
-  }
+namespace
+{
+using Event = std::variant<KeyEvent, MouseEvent, ScrollEvent, GestureEvent, CancelEvent>;
 
-  {
-    // horizontal wheel collation
-    auto lhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      3.0f);
-    const auto rhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      -5.0f);
-    CHECK(lhs.collateWith(rhs));
-    CHECK(lhs.scrollDistance == -2.0f);
-  }
-
-  {
-    // vertical wheel collation
-    auto lhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      0,
-      0,
-      3.0f);
-    const auto rhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      0,
-      0,
-      -5.0f);
-    CHECK(lhs.collateWith(rhs));
-    CHECK(lhs.scrollDistance == -2.0f);
-  }
-
-  {
-    // unmatched axis wheel collation
-    auto lhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      3.0f);
-    const auto rhs = MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      0,
-      0,
-      -5.0f);
-    CHECK_FALSE(lhs.collateWith(rhs));
-    CHECK(lhs.scrollDistance == 3.0f);
-  }
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const Event& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
 }
 
 class TestEventProcessor : public InputEventProcessor
 {
 private:
-  using Event = std::variant<KeyEvent, MouseEvent, CancelEvent>;
-  std::list<Event> m_expectedEvents;
+  std::vector<Event> m_events;
 
 public:
-  template <typename... Args>
-  TestEventProcessor(Args&&... args)
-  {
-    (m_expectedEvents.emplace_back(std::forward<Args>(args)), ...);
-  }
+  const std::vector<Event>& events() const { return m_events; }
 
-  void processEvent(const KeyEvent& act) override
-  {
-    CHECK_FALSE(m_expectedEvents.empty());
-    std::visit(
-      kdl::overload(
-        [&](const KeyEvent& exp) { CHECK(act == exp); },
-        [&](const auto&) { CHECK(false); }),
-      m_expectedEvents.front());
-    m_expectedEvents.pop_front();
-  }
+  void processEvent(const KeyEvent& event) override { m_events.emplace_back(event); }
 
-  void processEvent(const MouseEvent& act) override
-  {
-    CHECK_FALSE(m_expectedEvents.empty());
-    std::visit(
-      kdl::overload(
-        [&](const MouseEvent& exp) {
-          CHECK(exp.type == act.type);
-          CHECK(exp.button == act.button);
-          CHECK(exp.wheelAxis == act.wheelAxis);
-          CHECK(exp.posX == act.posX);
-          CHECK(exp.posY == act.posY);
-          CHECK(exp.scrollDistance == Approx(act.scrollDistance));
-        },
-        [&](const auto&) { CHECK(false); }),
-      m_expectedEvents.front());
-    m_expectedEvents.pop_front();
-  }
+  void processEvent(const MouseEvent& event) override { m_events.emplace_back(event); }
 
-  void processEvent(const CancelEvent& act) override
-  {
-    CHECK_FALSE(m_expectedEvents.empty());
-    std::visit(
-      kdl::overload(
-        [&](const CancelEvent& exp) { CHECK(act == exp); },
-        [&](const auto&) { CHECK(false); }),
-      m_expectedEvents.front());
-    m_expectedEvents.pop_front();
-  }
+  void processEvent(const ScrollEvent& event) override { m_events.emplace_back(event); }
 
-  bool allConsumed() const { return m_expectedEvents.empty(); }
+  void processEvent(const GestureEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const CancelEvent& event) override { m_events.emplace_back(event); }
 };
 
-template <typename... Args>
-void checkEventQueue(InputEventRecorder& r, Args&&... args)
+auto getEvents(InputEventRecorder& r)
 {
-  TestEventProcessor p(std::forward<Args>(args)...);
+  auto p = TestEventProcessor{};
   r.processEvents(p);
-  CHECK(p.allConsumed());
+  return p.events();
 }
 
-inline QWheelEvent makeWheelEvent(const QPoint& angleDelta)
+QWheelEvent makeWheelEvent(const QPoint& angleDelta)
 {
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-  return QWheelEvent({}, {}, {}, angleDelta, Qt::NoButton, 0, Qt::ScrollUpdate, false);
+  return {{}, {}, {}, angleDelta, Qt::NoButton, nullptr, Qt::ScrollUpdate, false};
 #else
-  return QWheelEvent(
-    {}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0);
+  return {{}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0};
 #endif
 }
 
-TEST_CASE("InputEventRecorderTest.recordKeyEvents")
+} // namespace
+
+TEST_CASE("InputEventRecorder")
 {
-  InputEventRecorder r;
+  auto r = InputEventRecorder{};
 
-  r.recordEvent(QKeyEvent(QEvent::KeyPress, 0, 0, 0, 0));
-  r.recordEvent(QKeyEvent(QEvent::KeyRelease, 0, 0, 0, 0));
+  SECTION("recordKeyEvents")
+  {
+    r.recordEvent(QKeyEvent{QEvent::KeyPress, 0, nullptr, nullptr, 0});
+    r.recordEvent(QKeyEvent{QEvent::KeyRelease, 0, nullptr, nullptr, 0});
 
-  checkEventQueue(r, KeyEvent(KeyEvent::Type::Down), KeyEvent(KeyEvent::Type::Up));
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{{
+        KeyEvent{KeyEvent::Type::Down},
+        KeyEvent{KeyEvent::Type::Up},
+      }});
+  }
+
+  SECTION("recordLeftClick")
+  {
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5},
+      });
+  }
+
+  SECTION("recordLeftDoubleClick")
+  {
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonDblClick,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::DoubleClick, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 2, 5},
+      });
+  }
+
+  SECTION("recordCtrlLeftClick")
+  {
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      Qt::MetaModifier});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Right, 2, 5},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Right, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Right, 2, 5},
+      });
+  }
+
+  SECTION("recordRightClick")
+  {
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::RightButton,
+      Qt::RightButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::RightButton,
+      Qt::RightButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Right, 2, 5},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Right, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Right, 2, 5},
+      });
+  }
+
+  SECTION("recordMotionWithCollation")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::NoButton, Qt::NoButton, nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::NoButton, Qt::NoButton, nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::None, 12, 8},
+      });
+  }
+
+  SECTION("recordHScrollWithCollation")
+  {
+    const auto qWheel1 = makeWheelEvent({2, 0});
+    const auto qWheel2 = makeWheelEvent({3, 0});
+
+    const auto expectedScrollLines =
+      float((InputEventRecorder::scrollLinesForEvent(qWheel1)
+             + InputEventRecorder::scrollLinesForEvent(qWheel2))
+              .x());
+    REQUIRE(expectedScrollLines > 0.0f);
+
+    using namespace std::chrono_literals;
+    r.recordEvent(qWheel1);
+    r.recordEvent(qWheel2);
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        ScrollEvent{
+          ScrollEvent::Source::Mouse,
+          ScrollEvent::Axis::Horizontal,
+          expectedScrollLines,
+        },
+      });
+  }
+
+  SECTION("recordVScrollWithCollation")
+  {
+    const auto qWheel1 = makeWheelEvent({0, 4});
+    const auto qWheel2 = makeWheelEvent({0, 6});
+
+    const auto expectedScrollLines =
+      float((InputEventRecorder::scrollLinesForEvent(qWheel1)
+             + InputEventRecorder::scrollLinesForEvent(qWheel2))
+              .y());
+    REQUIRE(expectedScrollLines > 0.0f);
+
+    using namespace std::chrono_literals;
+    r.recordEvent(qWheel1);
+    r.recordEvent(qWheel2);
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        ScrollEvent{
+          ScrollEvent::Source::Mouse,
+          ScrollEvent::Axis::Vertical,
+          expectedScrollLines,
+        },
+      });
+  }
+
+  SECTION("recordDiagonalScroll")
+  {
+    const auto qWheel1 = makeWheelEvent({1, 3});
+    const auto qWheel2 = makeWheelEvent({3, 0});
+
+    const auto expectedScrollLines1 = InputEventRecorder::scrollLinesForEvent(qWheel1);
+    REQUIRE(expectedScrollLines1.x() > 0.0f);
+    REQUIRE(expectedScrollLines1.y() > 0.0f);
+
+    const auto expectedScrollLines2 = InputEventRecorder::scrollLinesForEvent(qWheel2);
+    REQUIRE(expectedScrollLines2.x() > 0.0f);
+    REQUIRE(0.0f == expectedScrollLines2.y());
+
+    using namespace std::chrono_literals;
+    r.recordEvent(qWheel1);
+    r.recordEvent(qWheel2);
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        ScrollEvent{
+          ScrollEvent::Source::Mouse,
+          ScrollEvent::Axis::Horizontal,
+          float(expectedScrollLines1.x()),
+        },
+        ScrollEvent{
+          ScrollEvent::Source::Mouse,
+          ScrollEvent::Axis::Vertical,
+          float(expectedScrollLines1.y()),
+        },
+        ScrollEvent{
+          ScrollEvent::Source::Mouse,
+          ScrollEvent::Axis::Horizontal,
+          float(expectedScrollLines2.x()),
+        },
+      });
+  }
+
+  SECTION("recordLeftClickWithQuickSmallMotion")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {4.0f, 3.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::Left, 4, 3},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 4, 3},
+      });
+  }
+
+  SECTION("recordLeftClickWithSlowSmallMotion")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    std::this_thread::sleep_for(200ms);
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {4.0f, 3.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Motion, MouseEvent::Button::Left, 4, 3},
+        MouseEvent{MouseEvent::Type::Click, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 4, 3},
+      });
+  }
+
+  SECTION("recordLeftClickWithAccidentalDrag")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {6.0f, 3.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 6, 3},
+        CancelEvent(),
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 6, 3},
+      });
+  }
+
+  SECTION("recordLeftDrag")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    std::this_thread::sleep_for(200ms);
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {6.0f, 3.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 6, 3},
+        MouseEvent{MouseEvent::Type::DragEnd, MouseEvent::Button::Left, 6, 3},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 6, 3},
+      });
+  }
+
+  SECTION("recordLeftDragWithCollation")
+  {
+    using namespace std::chrono_literals;
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonPress,
+      {2.0f, 5.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    std::this_thread::sleep_for(200ms);
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(QMouseEvent{
+      QEvent::MouseButtonRelease,
+      {12.0f, 8.0f},
+      {},
+      {},
+      Qt::LeftButton,
+      Qt::LeftButton,
+      nullptr});
+
+    CHECK(
+      getEvents(r)
+      == std::vector<Event>{
+        MouseEvent{MouseEvent::Type::Down, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::DragStart, MouseEvent::Button::Left, 2, 5},
+        MouseEvent{MouseEvent::Type::Drag, MouseEvent::Button::Left, 12, 8},
+        MouseEvent{MouseEvent::Type::DragEnd, MouseEvent::Button::Left, 12, 8},
+        MouseEvent{MouseEvent::Type::Up, MouseEvent::Button::Left, 12, 8},
+      });
+  }
 }
 
-TEST_CASE("InputEventRecorderTest.recordLeftClick")
-{
-  InputEventRecorder r;
-
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftDoubleClick")
-{
-  InputEventRecorder r;
-
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonDblClick,
-    {2.0f, 5.0f},
-    {},
-    {},
-    Qt::LeftButton,
-    Qt::LeftButton,
-    0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DoubleClick,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordCtrlLeftClick")
-{
-  InputEventRecorder r;
-
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress,
-    {2.0f, 5.0f},
-    {},
-    {},
-    Qt::LeftButton,
-    Qt::LeftButton,
-    Qt::MetaModifier));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordRightClick")
-{
-  InputEventRecorder r;
-
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::RightButton, Qt::RightButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease,
-    {2.0f, 5.0f},
-    {},
-    {},
-    Qt::RightButton,
-    Qt::RightButton,
-    0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Right,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordMotionWithCollation")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(
-    QMouseEvent(QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::NoButton, Qt::NoButton, 0));
-  r.recordEvent(
-    QMouseEvent(QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::NoButton, Qt::NoButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Motion,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::None,
-      12,
-      8,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordHScrollWithCollation")
-{
-  InputEventRecorder r;
-  const auto qWheel1 = makeWheelEvent({2, 0});
-  const auto qWheel2 = makeWheelEvent({3, 0});
-
-  const float expectedScrollLines =
-    static_cast<float>((InputEventRecorder::scrollLinesForEvent(qWheel1)
-                        + InputEventRecorder::scrollLinesForEvent(qWheel2))
-                         .x());
-  REQUIRE(expectedScrollLines > 0.0f);
-
-  using namespace std::chrono_literals;
-  r.recordEvent(qWheel1);
-  r.recordEvent(qWheel2);
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      expectedScrollLines));
-}
-
-TEST_CASE("InputEventRecorderTest.recordVScrollWithCollation")
-{
-  InputEventRecorder r;
-  const auto qWheel1 = makeWheelEvent({0, 3});
-  const auto qWheel2 = makeWheelEvent({0, 4});
-
-  const float expectedScrollLines =
-    static_cast<float>((InputEventRecorder::scrollLinesForEvent(qWheel1)
-                        + InputEventRecorder::scrollLinesForEvent(qWheel2))
-                         .y());
-  REQUIRE(expectedScrollLines > 0.0f);
-
-  using namespace std::chrono_literals;
-  r.recordEvent(qWheel1);
-  r.recordEvent(qWheel2);
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      0,
-      0,
-      expectedScrollLines));
-}
-
-TEST_CASE("InputEventRecorderTest.recordDiagonalScroll")
-{
-  InputEventRecorder r;
-  const auto qWheel1 = makeWheelEvent({1, 3});
-  const auto qWheel2 = makeWheelEvent({3, 0});
-
-  const QPointF expectedScrollLines1 = InputEventRecorder::scrollLinesForEvent(qWheel1);
-  REQUIRE(expectedScrollLines1.x() > 0.0f);
-  REQUIRE(expectedScrollLines1.y() > 0.0f);
-
-  const QPointF expectedScrollLines2 = InputEventRecorder::scrollLinesForEvent(qWheel2);
-  REQUIRE(expectedScrollLines2.x() > 0.0f);
-  REQUIRE(0.0f == expectedScrollLines2.y());
-
-  using namespace std::chrono_literals;
-  r.recordEvent(qWheel1);
-  r.recordEvent(qWheel2);
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      static_cast<float>(expectedScrollLines1.x())),
-    MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Vertical,
-      0,
-      0,
-      static_cast<float>(expectedScrollLines1.y())),
-    MouseEvent(
-      MouseEvent::Type::Scroll,
-      MouseEvent::Button::None,
-      MouseEvent::WheelAxis::Horizontal,
-      0,
-      0,
-      static_cast<float>(expectedScrollLines2.x())));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftClickWithQuickSmallMotion")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Motion,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      4,
-      3,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      4,
-      3,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftClickWithSlowSmallMotion")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  std::this_thread::sleep_for(200ms);
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Motion,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      4,
-      3,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Click,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      4,
-      3,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftClickWithAccidentalDrag")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DragStart,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Drag,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      6,
-      3,
-      0.0f),
-    CancelEvent(),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      6,
-      3,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftDrag")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  std::this_thread::sleep_for(200ms);
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DragStart,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Drag,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      6,
-      3,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DragEnd,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      6,
-      3,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      6,
-      3,
-      0.0f));
-}
-
-TEST_CASE("InputEventRecorderTest.recordLeftDragWithCollation")
-{
-  InputEventRecorder r;
-
-  using namespace std::chrono_literals;
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonPress, {2.0f, 5.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  std::this_thread::sleep_for(200ms);
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, 0));
-  r.recordEvent(QMouseEvent(
-    QEvent::MouseButtonRelease,
-    {12.0f, 8.0f},
-    {},
-    {},
-    Qt::LeftButton,
-    Qt::LeftButton,
-    0));
-
-  checkEventQueue(
-    r,
-    MouseEvent(
-      MouseEvent::Type::Down,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DragStart,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      2,
-      5,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Drag,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      12,
-      8,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::DragEnd,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      12,
-      8,
-      0.0f),
-    MouseEvent(
-      MouseEvent::Type::Up,
-      MouseEvent::Button::Left,
-      MouseEvent::WheelAxis::None,
-      12,
-      8,
-      0.0f));
-}
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

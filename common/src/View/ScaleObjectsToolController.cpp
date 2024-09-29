@@ -36,19 +36,20 @@
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
+#include "vm/line.h"
+#include "vm/plane.h"
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
 #include <cassert>
+#include <utility>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 ScaleObjectsToolController::ScaleObjectsToolController(
   ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
-  , m_document{document}
+  , m_document{std::move(document)}
 {
 }
 
@@ -80,7 +81,7 @@ static HandlePositionProposer makeHandlePositionProposer(
   const vm::bbox3& bboxAtDragStart,
   const vm::vec3& handleOffset)
 {
-  const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::MKShift);
+  const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::Shift);
 
   if (
     dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
@@ -115,7 +116,7 @@ static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
                               : AnchorPos::Opposite;
 
   ProportionalAxes scaleAllAxes = ProportionalAxes::None();
-  if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+  if (inputState.modifierKeysDown(ModifierKeys::Shift))
   {
     scaleAllAxes = ProportionalAxes::All();
 
@@ -162,7 +163,7 @@ private:
   ScaleObjectsTool& m_tool;
 
 public:
-  ScaleObjectsDragDelegate(ScaleObjectsTool& tool)
+  explicit ScaleObjectsDragDelegate(ScaleObjectsTool& tool)
     : m_tool{tool}
   {
   }
@@ -198,7 +199,7 @@ public:
       ResetInitialHandlePosition::Keep};
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -223,16 +224,16 @@ public:
 static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
   const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit)
 {
-  const vm::line3 handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
+  const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
   return {handleLine.get_origin(), dragStartHit.hitPoint()};
 }
 
-std::unique_ptr<DragTracker> ScaleObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
@@ -243,7 +244,7 @@ std::unique_ptr<DragTracker> ScaleObjectsToolController::acceptMouseDrag(
   }
   auto document = kdl::mem_lock(m_document);
 
-  const Model::Hit& hit = inputState.pickResult().first(type(
+  const auto& hit = inputState.pickResult().first(type(
     ScaleObjectsTool::ScaleToolSideHitType | ScaleObjectsTool::ScaleToolEdgeHitType
     | ScaleObjectsTool::ScaleToolCornerHitType));
   if (!hit.isMatch())
@@ -285,7 +286,7 @@ static void renderCornerHandles(
 
   for (const auto& corner : corners)
   {
-    renderService.renderHandle(vm::vec3f(corner));
+    renderService.renderHandle(vm::vec3f{corner});
   }
 }
 
@@ -311,8 +312,8 @@ static void renderDragSideHighlights(
     {
       auto renderService = Renderer::RenderService{renderContext, renderBatch};
       renderService.setLineWidth(2.0);
-      renderService.setForegroundColor(Color(
-        pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)));
+      renderService.setForegroundColor(Color{
+        pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)});
       renderService.renderPolygonOutline(side.vertices());
     }
   }
@@ -468,5 +469,4 @@ void ScaleObjectsToolController3D::doPick(
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

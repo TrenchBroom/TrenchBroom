@@ -23,24 +23,25 @@
 #include "View/InputEvent.h"
 #include "View/InputState.h"
 
+#include <vm/vec.h>
+
 #include <memory>
+#include <optional>
 #include <string>
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 class PickResult;
 }
 
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
 class PickRequest;
 class ToolController;
@@ -50,14 +51,15 @@ class ToolChain;
 class ToolBoxConnector : public InputEventProcessor
 {
 private:
-  ToolBox* m_toolBox;
-  ToolChain* m_toolChain;
+  ToolBox* m_toolBox = nullptr;
+  std::unique_ptr<ToolChain> m_toolChain;
 
   InputState m_inputState;
 
-  float m_lastMouseX;
-  float m_lastMouseY;
-  bool m_ignoreNextDrag;
+  vm::vec2f m_lastMousePos = {0.0f, 0.0f};
+  bool m_ignoreNextDrag = false;
+
+  std::optional<vm::vec2f> m_lastGesturePanPos;
 
 public:
   ToolBoxConnector();
@@ -101,6 +103,8 @@ private:
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;
   void processEvent(const MouseEvent& event) override;
+  void processEvent(const ScrollEvent& event) override;
+  void processEvent(const GestureEvent& event) override;
   void processEvent(const CancelEvent& event) override;
 
 private:
@@ -109,13 +113,18 @@ private:
   void processMouseClick(const MouseEvent& event);
   void processMouseDoubleClick(const MouseEvent& event);
   void processMouseMotion(const MouseEvent& event);
-  void processScroll(const MouseEvent& event);
   void processDragStart(const MouseEvent& event);
   void processDrag(const MouseEvent& event);
   void processDragEnd(const MouseEvent& event);
 
   MouseButtonState mouseButton(const MouseEvent& event);
   void mouseMoved(float x, float y);
+
+  void processGestureStart(const GestureEvent& event);
+  void processGestureEnd(const GestureEvent& event);
+  void processGesturePan(const GestureEvent& event);
+  void processGestureZoom(const GestureEvent& event);
+  void processGestureRotate(const GestureEvent& event);
 
 public:
   bool cancelDrag();
@@ -127,5 +136,5 @@ private:
 
   deleteCopyAndMove(ToolBoxConnector);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

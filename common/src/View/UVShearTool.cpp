@@ -24,7 +24,7 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -57,7 +57,7 @@ std::optional<vm::vec2f> getHit(
     });
 }
 
-class UVShearDragTracker : public DragTracker
+class UVShearDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -87,7 +87,7 @@ public:
     m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto currentHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
     if (!currentHit)
@@ -171,7 +171,7 @@ void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResu
   }
 }
 
-std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
@@ -179,7 +179,7 @@ std::unique_ptr<DragTracker> UVShearTool::acceptMouseDrag(const InputState& inpu
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::MKAlt)
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

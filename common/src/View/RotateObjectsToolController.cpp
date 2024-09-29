@@ -35,6 +35,7 @@
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MoveHandleDragTracker.h"
+#include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsTool.h"
 #include "View/ToolController.h"
 
@@ -48,12 +49,11 @@
 #include <memory>
 #include <sstream>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 namespace
 {
+
 class AngleIndicatorRenderer : public Renderer::DirectRenderable
 {
 private:
@@ -110,7 +110,7 @@ private:
   RotateObjectsTool& m_tool;
   RotateObjectsHandle::HitArea m_area;
   RenderHighlight m_renderHighlight;
-  FloatType m_angle{0.0};
+  FloatType m_angle = 0.0;
 
 public:
   RotateObjectsDragDelegate(
@@ -137,15 +137,15 @@ public:
       makeCircleHandleSnapper(m_tool.grid(), m_tool.angle(), center, axis, radius));
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState&,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
   {
     const auto center = m_tool.rotationCenter();
     const auto axis = m_tool.rotationAxis(m_area);
-    const vm::vec3 ref = vm::normalize(dragState.initialHandlePosition - center);
-    const vm::vec3 vec = vm::normalize(proposedHandlePosition - center);
+    const auto ref = vm::normalize(dragState.initialHandlePosition - center);
+    const auto vec = vm::normalize(proposedHandlePosition - center);
     m_angle = vm::measure_angle(vec, ref, axis);
     m_tool.applyRotation(center, axis, m_angle);
 
@@ -233,19 +233,19 @@ private:
   {
     using namespace Model::HitFilters;
 
-    if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    if (!inputState.mouseButtonsPressed(MouseButtons::Left))
     {
       return false;
     }
 
-    const Model::Hit& hit =
+    const auto& hit =
       inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
     if (!hit.isMatch())
     {
       return false;
     }
 
-    const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
+    const auto area = hit.target<RotateObjectsHandle::HitArea>();
     if (area == RotateObjectsHandle::HitArea::Center)
     {
       return false;
@@ -255,25 +255,25 @@ private:
     return true;
   }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
     if (
-      inputState.mouseButtons() != MouseButtons::MBLeft
-      || inputState.modifierKeys() != ModifierKeys::MKNone)
+      inputState.mouseButtons() != MouseButtons::Left
+      || inputState.modifierKeys() != ModifierKeys::None)
     {
       return nullptr;
     }
 
-    const Model::Hit& hit =
+    const auto& hit =
       inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
     if (!hit.isMatch())
     {
       return nullptr;
     }
 
-    const RotateObjectsHandle::HitArea area = hit.target<RotateObjectsHandle::HitArea>();
+    const auto area = hit.target<RotateObjectsHandle::HitArea>();
     if (area == RotateObjectsHandle::HitArea::Center)
     {
       return nullptr;
@@ -319,12 +319,11 @@ private:
 
     if (!inputState.anyToolDragging())
     {
-      const Model::Hit& hit =
+      const auto& hit =
         inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
       if (hit.isMatch())
       {
-        const RotateObjectsHandle::HitArea area =
-          hit.target<RotateObjectsHandle::HitArea>();
+        const auto area = hit.target<RotateObjectsHandle::HitArea>();
         if (area != RotateObjectsHandle::HitArea::Center)
         {
           doRenderHighlight(
@@ -398,7 +397,7 @@ protected:
 
 protected:
   explicit MoveCenterBase(RotateObjectsTool& tool)
-    : m_tool(tool)
+    : m_tool{tool}
   {
   }
 
@@ -406,21 +405,19 @@ protected:
 
   const Tool& tool() const override { return m_tool; }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
     if (
-      !inputState.mouseButtonsPressed(MouseButtons::MBLeft)
+      !inputState.mouseButtonsPressed(MouseButtons::Left)
       || !inputState.checkModifierKeys(
-        ModifierKeyPressed::MK_No,
-        ModifierKeyPressed::MK_DontCare,
-        ModifierKeyPressed::MK_No))
+        ModifierKeyPressed::No, ModifierKeyPressed::DontCare, ModifierKeyPressed::No))
     {
       return nullptr;
     }
 
-    const Model::Hit& hit =
+    const auto& hit =
       inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
     if (!hit.isMatch())
     {
@@ -457,7 +454,7 @@ protected:
 
     if (!inputState.anyToolDragging())
     {
-      const Model::Hit& hit =
+      const auto& hit =
         inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
       if (
         hit.isMatch()
@@ -484,7 +481,7 @@ class MoveCenterPart2D : public MoveCenterBase
 {
 public:
   explicit MoveCenterPart2D(RotateObjectsTool& tool)
-    : MoveCenterBase(tool)
+    : MoveCenterBase{tool}
   {
   }
 
@@ -503,7 +500,7 @@ class RotateObjectsPart2D : public RotateObjectsBase
 {
 public:
   explicit RotateObjectsPart2D(RotateObjectsTool& tool)
-    : RotateObjectsBase(tool)
+    : RotateObjectsBase{tool}
   {
   }
 
@@ -522,7 +519,7 @@ class MoveCenterPart3D : public MoveCenterBase
 {
 public:
   explicit MoveCenterPart3D(RotateObjectsTool& tool)
-    : MoveCenterBase(tool)
+    : MoveCenterBase{tool}
   {
   }
 
@@ -541,7 +538,7 @@ class RotateObjectsPart3D : public RotateObjectsBase
 {
 public:
   explicit RotateObjectsPart3D(RotateObjectsTool& tool)
-    : RotateObjectsBase(tool)
+    : RotateObjectsBase{tool}
   {
   }
 
@@ -555,10 +552,11 @@ private:
     m_tool.renderHighlight3D(renderContext, renderBatch, area);
   }
 };
+
 } // namespace
 
 RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool& tool)
-  : m_tool(tool)
+  : m_tool{tool}
 {
 }
 
@@ -577,7 +575,7 @@ const Tool& RotateObjectsToolController::tool() const
 void RotateObjectsToolController::pick(
   const InputState& inputState, Model::PickResult& pickResult)
 {
-  const Model::Hit hit = doPick(inputState);
+  const auto hit = doPick(inputState);
   if (hit.isMatch())
   {
     pickResult.addHit(hit);
@@ -609,7 +607,7 @@ bool RotateObjectsToolController::cancel()
 }
 
 RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool& tool)
-  : RotateObjectsToolController(tool)
+  : RotateObjectsToolController{tool}
 {
   addController(std::make_unique<MoveCenterPart2D>(tool));
   addController(std::make_unique<RotateObjectsPart2D>(tool));
@@ -627,7 +625,7 @@ void RotateObjectsToolController2D::doRenderHandle(
 }
 
 RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool& tool)
-  : RotateObjectsToolController(tool)
+  : RotateObjectsToolController{tool}
 {
   addController(std::make_unique<MoveCenterPart3D>(tool));
   addController(std::make_unique<RotateObjectsPart3D>(tool));
@@ -643,5 +641,5 @@ void RotateObjectsToolController3D::doRenderHandle(
 {
   m_tool.renderHandle3D(renderContext, renderBatch);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -22,22 +22,16 @@
 #include <QStackedLayout>
 #include <QWidget>
 
-#include "IO/ResourceUtils.h"
-
 #include <cassert>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 Tool::Tool(const bool initiallyActive)
-  : m_active(initiallyActive)
-  , m_book(nullptr)
-  , m_pageIndex(0)
+  : m_active{initiallyActive}
 {
 }
 
-Tool::~Tool() {}
+Tool::~Tool() = default;
 
 bool Tool::active() const
 {
@@ -78,7 +72,7 @@ void Tool::notifyToolHandleSelectionChanged()
 
 void Tool::createPage(QStackedLayout* book)
 {
-  assert(m_book == nullptr);
+  assert(!m_book);
 
   m_book = book;
   m_pageIndex = m_book->count();
@@ -102,7 +96,7 @@ bool Tool::doDeactivate()
 
 QWidget* Tool::doCreatePage(QWidget* parent)
 {
-  return new QWidget(parent);
+  return new QWidget{parent};
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

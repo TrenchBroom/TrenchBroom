@@ -22,21 +22,16 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
-
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class PerspectiveCamera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 
 class CameraTool3D : public ToolController, public Tool
 {
@@ -44,7 +39,7 @@ private:
   Renderer::PerspectiveCamera& m_camera;
 
 public:
-  CameraTool3D(Renderer::PerspectiveCamera& camera);
+  explicit CameraTool3D(Renderer::PerspectiveCamera& camera);
 
 private:
   Tool& tool() override;
@@ -53,9 +48,9 @@ private:
   void mouseScroll(const InputState& inputState) override;
   void mouseUp(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

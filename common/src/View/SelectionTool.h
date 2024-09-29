@@ -40,7 +40,7 @@ class RenderContext;
 
 namespace View
 {
-class DragTracker;
+class GestureTracker;
 class MapDocument;
 
 /**
@@ -66,7 +66,7 @@ public:
   bool mouseDoubleClick(const InputState& inputState) override;
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;

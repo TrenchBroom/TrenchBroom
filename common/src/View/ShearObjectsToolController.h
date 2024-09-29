@@ -24,18 +24,16 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class MapDocument;
 class ShearObjectsTool;
 
@@ -64,7 +62,7 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
@@ -102,5 +100,5 @@ private:
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

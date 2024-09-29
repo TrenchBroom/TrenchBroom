@@ -31,7 +31,7 @@
 #include "Model/LinkedGroupUtils.h"
 #include "Model/ModelUtils.h"
 #include "Model/UVCoordSystem.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -119,7 +119,7 @@ bool copyMaterialAttribsProjectionModifiersDown(const InputState& inputState)
 
 bool copyMaterialAttribsRotationModifiersDown(const InputState& inputState)
 {
-  return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKShift);
+  return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::Shift);
 }
 
 /**
@@ -132,7 +132,7 @@ bool applies(const InputState& inputState)
   const auto projection = copyMaterialAttribsProjectionModifiersDown(inputState);
   const auto rotation = copyMaterialAttribsRotationModifiersDown(inputState);
 
-  return inputState.mouseButtonsPressed(MouseButtons::MBLeft)
+  return inputState.mouseButtonsPressed(MouseButtons::Left)
          && (materialOnly || projection || rotation);
 }
 
@@ -296,7 +296,7 @@ void transferFaceAttributes(
   transaction.commit();
 }
 
-class SetBrushFaceAttributesDragTracker : public DragTracker
+class SetBrushFaceAttributesDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -312,7 +312,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     using namespace Model::HitFilters;
 
@@ -359,7 +359,7 @@ public:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
+std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
   const InputState& inputState)
 {
   if (!applies(inputState))

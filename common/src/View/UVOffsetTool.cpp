@@ -24,7 +24,7 @@
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/Polyhedron.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -82,7 +82,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   return vm::round(delta);
 }
 
-class UVOffsetDragTracker : public DragTracker
+class UVOffsetDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -99,7 +99,7 @@ public:
     m_document.startTransaction("Move UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     assert(m_helper.valid());
 
@@ -150,13 +150,14 @@ const Tool& UVOffsetTool::tool() const
   return *this;
 }
 
-std::unique_ptr<DragTracker> UVOffsetTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVOffsetTool::acceptMouseDrag(
+  const InputState& inputState)
 {
   assert(m_helper.valid());
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::MKNone)
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    !inputState.modifierKeysPressed(ModifierKeys::None)
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
