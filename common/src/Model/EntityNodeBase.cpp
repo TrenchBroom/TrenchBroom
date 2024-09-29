@@ -519,6 +519,8 @@ void EntityNodeBase::removeLinkTargets(const std::string& targetname)
     return;
   }
 
+  auto targetsToDereference = std::vector<EntityNodeBase*>{};
+
   for (auto& [target, _] : m_linkTargets)
   {
     auto targetSourcePropertyNames = std::vector<std::string>{};
@@ -529,11 +531,18 @@ void EntityNodeBase::removeLinkTargets(const std::string& targetname)
       const auto* targetTargetname = target->entity().property(targetSourcePropertyName);
       if (targetTargetname && *targetTargetname == targetname)
       {
-        removeLinkTarget(target);
+        targetsToDereference.push_back(target);
         target->removeLinkSource(this);
         break;
       }
     }
+  }
+
+  // Dereference links after iteration (because removeLinkTarget CAN mutate
+  // m_linkTargets if it's removing the last reference to a link)
+  for (auto* target : targetsToDereference)
+  {
+    removeLinkTarget(target);
   }
 }
 
