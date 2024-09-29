@@ -139,6 +139,7 @@ Entity EntityNodeBase::setEntity(Entity entity)
   const auto notifyChange = NotifyPropertyChange{*this};
 
   auto oldEntity = std::exchange(m_entity, std::move(entity));
+  m_entity.setDefinition(oldEntity.definition());
   updateIndexAndLinks(oldEntity.properties());
   return oldEntity;
 }

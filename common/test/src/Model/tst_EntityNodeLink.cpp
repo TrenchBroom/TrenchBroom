@@ -17,6 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Assets/DecalDefinition.h"
+#include "Assets/EntityDefinition.h"
+#include "Assets/ModelDefinition.h"
+#include "Assets/PropertyDefinition.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/EntityNodeBase.h"
@@ -32,6 +36,34 @@
 
 namespace TrenchBroom::Model
 {
+namespace
+{
+std::shared_ptr<Assets::EntityDefinition> createTestEntityDefinition()
+{
+  auto propertyDefinitions = std::vector<std::shared_ptr<Assets::PropertyDefinition>>{};
+  propertyDefinitions.emplace_back(std::make_shared<Assets::PropertyDefinition>(
+    EntityPropertyKeys::Targetname,
+    Assets::PropertyDefinitionType::TargetSourceProperty,
+    "",
+    "",
+    false));
+  propertyDefinitions.emplace_back(std::make_shared<Assets::PropertyDefinition>(
+    EntityPropertyKeys::Target,
+    Assets::PropertyDefinitionType::TargetDestinationProperty,
+    "",
+    "",
+    false));
+
+  return std::make_shared<Assets::PointEntityDefinition>(
+    "",
+    Color{},
+    vm::bbox3(-64.0f, +64.0f),
+    "",
+    propertyDefinitions,
+    Assets::ModelDefinition{},
+    Assets::DecalDefinition{});
+}
+}
 
 TEST_CASE("EntityNodeLinkTest.testCreateLink")
 {
@@ -45,6 +77,10 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink")
 
   targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
@@ -54,6 +90,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateLink")
     targetNode->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
@@ -72,6 +111,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
 
   targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode1->setDefinition(definition.get());
+  sourceNode2->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   CHECK(sourceNode1->linkSources().empty());
   CHECK_THAT(
     sourceNode1->linkTargets(),
@@ -86,6 +130,10 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiSourceLink")
     targetNode->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode1, sourceNode2}));
   CHECK(targetNode->linkTargets().empty());
+
+  sourceNode1->setDefinition(nullptr);
+  sourceNode2->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
@@ -108,6 +156,11 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
 
   targetNode2->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a2"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode1->setDefinition(definition.get());
+  targetNode2->setDefinition(definition.get());
+
   CHECK(sourceNode->linkSources().empty());
   CHECK_THAT(
     sourceNode->linkTargets(),
@@ -122,6 +175,10 @@ TEST_CASE("EntityNodeLinkTest.testCreateMultiTargetLink")
     targetNode2->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode2->linkTargets().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode1->setDefinition(nullptr);
+  targetNode2->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testLoadLink")
@@ -129,6 +186,10 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink")
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
+
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -142,6 +203,9 @@ TEST_CASE("EntityNodeLinkTest.testLoadLink")
     targetNode->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
@@ -149,6 +213,10 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
+
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -169,6 +237,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingSource")
     targetNode->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
@@ -176,6 +247,10 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
+
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
 
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
@@ -196,6 +271,9 @@ TEST_CASE("EntityNodeLinkTest.testCreateLinkByChangingTarget")
     targetNode->linkSources(),
     Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
   CHECK(targetNode->linkTargets().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
@@ -204,6 +282,10 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
@@ -211,6 +293,9 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingSource")
 
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
@@ -219,6 +304,10 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
@@ -226,6 +315,9 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByChangingTarget")
 
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 }
 
 TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
@@ -234,6 +326,10 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
@@ -241,6 +337,9 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingSource")
 
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
+
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 
   delete sourceNode;
 }
@@ -251,6 +350,10 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget")
   auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Target, "a"}}});
   auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
 
+  auto definition = createTestEntityDefinition();
+  sourceNode->setDefinition(definition.get());
+  targetNode->setDefinition(definition.get());
+
   worldNode.defaultLayer()->addChild(sourceNode);
   worldNode.defaultLayer()->addChild(targetNode);
 
@@ -259,169 +362,9 @@ TEST_CASE("EntityNodeLinkTest.testRemoveLinkByRemovingTarget")
   CHECK(sourceNode->linkTargets().empty());
   CHECK(targetNode->linkSources().empty());
 
-  delete targetNode;
-}
-
-TEST_CASE("EntityNodeLinkTest.testCreateKillLink")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode{Entity{}};
-  auto* targetNode = new EntityNode{Entity{}};
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-
-  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  CHECK(sourceNode->killSources().empty());
-  CHECK_THAT(
-    sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
-
-  CHECK_THAT(
-    targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
-  CHECK(targetNode->killTargets().empty());
-}
-
-TEST_CASE("EntityNodeLinkTest.testLoadKillLink")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  CHECK(sourceNode->killSources().empty());
-  CHECK_THAT(
-    sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
-
-  CHECK_THAT(
-    targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
-  CHECK(targetNode->killTargets().empty());
-}
-
-
-TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingSource")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  REQUIRE(sourceNode->killSources().empty());
-  REQUIRE(sourceNode->killTargets().empty());
-  REQUIRE(targetNode->killSources().empty());
-  REQUIRE(targetNode->killTargets().empty());
-
-  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "b"}}});
-
-  CHECK(sourceNode->killSources().empty());
-  CHECK_THAT(
-    sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
-
-  CHECK_THAT(
-    targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
-  CHECK(targetNode->killTargets().empty());
-}
-
-TEST_CASE("EntityNodeLinkTest.testCreateKillLinkByChangingTarget")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  REQUIRE(sourceNode->killSources().empty());
-  REQUIRE(sourceNode->killTargets().empty());
-  REQUIRE(targetNode->killSources().empty());
-  REQUIRE(targetNode->killTargets().empty());
-
-  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  CHECK(sourceNode->killSources().empty());
-  CHECK_THAT(
-    sourceNode->killTargets(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{targetNode}));
-
-  CHECK_THAT(
-    targetNode->killSources(),
-    Catch::UnorderedEquals(std::vector<EntityNodeBase*>{sourceNode}));
-  CHECK(targetNode->killTargets().empty());
-}
-
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingSource")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  sourceNode->setEntity(Entity{{{EntityPropertyKeys::Killtarget, "b"}}});
-
-  CHECK(sourceNode->killTargets().empty());
-  CHECK(targetNode->killSources().empty());
-}
-
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByChangingTarget")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  targetNode->setEntity(Entity{{{EntityPropertyKeys::Targetname, "b"}}});
-
-  CHECK(sourceNode->killTargets().empty());
-  CHECK(targetNode->killSources().empty());
-}
-
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingSource")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  worldNode.defaultLayer()->removeChild(sourceNode);
-
-  CHECK(sourceNode->killTargets().empty());
-  CHECK(targetNode->killSources().empty());
-
-  delete sourceNode;
-}
-
-TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget")
-{
-  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
-  auto* sourceNode = new EntityNode(Entity{{{EntityPropertyKeys::Killtarget, "a"}}});
-  auto* targetNode = new EntityNode(Entity{{{EntityPropertyKeys::Targetname, "a"}}});
-
-  worldNode.defaultLayer()->addChild(sourceNode);
-  worldNode.defaultLayer()->addChild(targetNode);
-
-  worldNode.defaultLayer()->removeChild(targetNode);
-
-  CHECK(sourceNode->killTargets().empty());
-  CHECK(targetNode->killSources().empty());
+  sourceNode->setDefinition(nullptr);
+  targetNode->setDefinition(nullptr);
 
   delete targetNode;
 }
-
 } // namespace TrenchBroom::Model
