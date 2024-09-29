@@ -329,16 +329,12 @@ void EntityNodeBase::getAllTargetSourcePropertyNames(std::vector<std::string>& r
     return;
   }
 
+  auto targetSourceType = Assets::PropertyDefinitionType::TargetSourceProperty;
   result = kdl::vec_concat(result,
      kdl::vec_transform(
-       kdl::vec_filter(entity().definition()->propertyDefinitions(), [&](const auto& definition)
-       {
-         return definition->type() == Assets::PropertyDefinitionType::TargetSourceProperty;
-       }),
-     [&](const auto& definition)
-     {
-       return definition->key();
-     }));
+       kdl::vec_filter(entity().definition()->propertyDefinitions(),
+          [&](const auto& definition) { return definition->type() == targetSourceType; }),
+     [&](const auto& definition) { return definition->key(); }));
 }
 
 void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::string>& result) const
@@ -348,16 +344,12 @@ void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::strin
     return;
   }
 
+  auto targetDestType = Assets::PropertyDefinitionType::TargetDestinationProperty;
   result = kdl::vec_concat(result,
-    kdl::vec_transform(
-      kdl::vec_filter(entity().definition()->propertyDefinitions(), [&](const auto& definition)
-      {
-        return definition->type() == Assets::PropertyDefinitionType::TargetDestinationProperty;
-      }),
-    [&](const auto& definition)
-    {
-      return definition->key();
-    }));
+     kdl::vec_transform(
+       kdl::vec_filter(entity().definition()->propertyDefinitions(),
+          [&](const auto& definition) { return definition->type() == targetDestType; }),
+     [&](const auto& definition) { return definition->key(); }));
 }
 
 
