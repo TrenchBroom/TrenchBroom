@@ -63,7 +63,7 @@ std::shared_ptr<Assets::EntityDefinition> createTestEntityDefinition()
     Assets::ModelDefinition{},
     Assets::DecalDefinition{});
 }
-}
+} // namespace
 
 TEST_CASE("EntityNodeLinkTest.testCreateLink")
 {
