@@ -33,7 +33,7 @@ class OrthographicCamera;
 
 namespace View
 {
-class DragTracker;
+class GestureTracker;
 
 class UVCameraTool : public ToolController, public Tool
 {
@@ -49,7 +49,7 @@ private:
 
   void mouseScroll(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   bool cancel() override;
 };

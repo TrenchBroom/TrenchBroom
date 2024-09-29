@@ -22,15 +22,13 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/OrthographicCamera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "vm/forward.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 CameraTool2D::CameraTool2D(Renderer::OrthographicCamera& camera)
   : ToolController{}
@@ -52,8 +50,8 @@ const Tool& CameraTool2D::tool() const
 static bool shouldZoom(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBNone)
-    && inputState.modifierKeysPressed(ModifierKeys::MKNone));
+    inputState.mouseButtonsPressed(MouseButtons::None)
+    && inputState.modifierKeysPressed(ModifierKeys::None));
 }
 
 static void zoom(
@@ -88,7 +86,7 @@ void CameraTool2D::mouseScroll(const InputState& inputState)
 
 namespace
 {
-class PanDragTracker : public DragTracker
+class PanDragTracker : public GestureTracker
 {
 private:
   Renderer::OrthographicCamera& m_camera;
@@ -101,7 +99,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto currentMousePos = vm::vec2f{inputState.mouseX(), inputState.mouseY()};
     const auto lastWorldPos =
@@ -118,7 +116,7 @@ public:
   void cancel() override {}
 };
 
-class ZoomDragTracker : public DragTracker
+class ZoomDragTracker : public GestureTracker
 {
 private:
   Renderer::OrthographicCamera& m_camera;
@@ -131,7 +129,7 @@ public:
   {
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     const auto speed = pref(Preferences::CameraAltMoveInvert) ? 1.0f : -1.0f;
     const auto factor = 1.0f + static_cast<float>(inputState.mouseDY()) / 100.0f * speed;
@@ -147,19 +145,20 @@ public:
 static bool shouldPan(const InputState& inputState)
 {
   return (
-    inputState.mouseButtonsPressed(MouseButtons::MBRight)
-    || (inputState.mouseButtonsPressed(MouseButtons::MBMiddle) && !pref(Preferences::CameraEnableAltMove)));
+    inputState.mouseButtonsPressed(MouseButtons::Right)
+    || (inputState.mouseButtonsPressed(MouseButtons::Middle) && !pref(Preferences::CameraEnableAltMove)));
 }
 
 static bool shouldDragZoom(const InputState& inputState)
 {
   return (
     pref(Preferences::CameraEnableAltMove)
-    && inputState.mouseButtonsPressed(MouseButtons::MBMiddle)
+    && inputState.mouseButtonsPressed(MouseButtons::Middle)
     && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
 }
 
-std::unique_ptr<DragTracker> CameraTool2D::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> CameraTool2D::acceptMouseDrag(
+  const InputState& inputState)
 {
   if (shouldPan(inputState))
   {
@@ -180,5 +179,4 @@ bool CameraTool2D::cancel()
 {
   return false;
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

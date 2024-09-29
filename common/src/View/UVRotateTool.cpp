@@ -37,7 +37,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
 #include "Renderer/VboManager.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
@@ -185,7 +185,7 @@ private:
   }
 };
 
-class UVRotateDragTracker : public DragTracker
+class UVRotateDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
@@ -202,7 +202,7 @@ public:
     document.startTransaction("Rotate UV", TransactionScope::LongRunning);
   }
 
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
     assert(m_helper.valid());
 
@@ -354,14 +354,15 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
   }
 }
 
-std::unique_ptr<DragTracker> UVRotateTool::acceptMouseDrag(const InputState& inputState)
+std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
+  const InputState& inputState)
 {
   assert(m_helper.valid());
 
   if (
-    !(inputState.modifierKeysPressed(ModifierKeys::MKNone)
+    !(inputState.modifierKeysPressed(ModifierKeys::None)
       || inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
-    || !inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+    || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }

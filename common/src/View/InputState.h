@@ -23,61 +23,82 @@
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 
-namespace TrenchBroom
-{
-namespace Renderer
+namespace TrenchBroom::Renderer
 {
 class Camera;
 }
 
-namespace View
+namespace TrenchBroom::View
 {
 using ModifierKeyState = unsigned int;
 namespace ModifierKeys
 {
-static const ModifierKeyState MKNone = 0;
-static const ModifierKeyState MKShift = 1 << 0;
+static const ModifierKeyState None = 0;
+static const ModifierKeyState Shift = 1 << 0;
 static const ModifierKeyState MKCtrlCmd = 1 << 1; // Cmd on Mac, Ctrl on other systems
 static const ModifierKeyState MKAlt = 1 << 2;
-static const ModifierKeyState MKDontCare = 1 << 3;
+static const ModifierKeyState DontCare = 1 << 3;
 } // namespace ModifierKeys
 
-typedef enum
+enum class ModifierKeyPressed
 {
-  MK_Yes,
-  MK_No,
-  MK_DontCare
-} ModifierKeyPressed;
+  Yes,
+  No,
+  DontCare
+};
 
 using MouseButtonState = unsigned int;
 namespace MouseButtons
 {
-static const MouseButtonState MBNone = 0;
-static const MouseButtonState MBLeft = 1 << 0;
-static const MouseButtonState MBRight = 1 << 1;
-static const MouseButtonState MBMiddle = 1 << 2;
+static const MouseButtonState None = 0;
+static const MouseButtonState Left = 1 << 0;
+static const MouseButtonState Right = 1 << 1;
+static const MouseButtonState Middle = 1 << 2;
 } // namespace MouseButtons
+
+enum class ScrollSource
+{
+  Mouse,
+  Trackpad,
+};
+
+enum class GestureType
+{
+  Pan,
+  Zoom,
+  Rotate,
+};
 
 class InputState
 {
 private:
-  ModifierKeyState m_modifierKeys;
-  MouseButtonState m_mouseButtons;
+  ModifierKeyState m_modifierKeys = ModifierKeys::None;
+  MouseButtonState m_mouseButtons = MouseButtons::None;
   /** Mouse position in units of points, relative to top left of widget */
-  float m_mouseX;
-  float m_mouseY;
-  float m_mouseDX;
-  float m_mouseDY;
-  float m_scrollX;
-  float m_scrollY;
+  float m_mouseX = 0.0f;
+  float m_mouseY = 0.0f;
+  float m_mouseDX = 0.0f;
+  float m_mouseDY = 0.0f;
 
-  bool m_anyToolDragging;
+  ScrollSource m_scrollSource = ScrollSource::Mouse;
+  float m_scrollX = 0.0f;
+  float m_scrollY = 0.0f;
+
+  bool m_gestureActive = false;
+  float m_gesturePanX = 0.0;
+  float m_gesturePanY = 0.0;
+  float m_gesturePanDX = 0.0;
+  float m_gesturePanDY = 0.0;
+  float m_gestureZoomValue = 0.0f;
+  float m_gestureRotateValue = 0.0f;
+
+  bool m_anyToolDragging = false;
   PickRequest m_pickRequest;
   Model::PickResult m_pickResult;
 
 public:
   InputState();
-  InputState(const float mouseX, const float mouseY);
+  InputState(float mouseX, float mouseY);
   virtual ~InputState();
 
   virtual ModifierKeyState modifierKeys() const;
@@ -85,9 +106,9 @@ public:
   bool modifierKeysPressed(ModifierKeyState keys) const;
   bool checkModifierKeys(
     ModifierKeyState key1,
-    ModifierKeyState key2 = ModifierKeys::MKDontCare,
-    ModifierKeyState key3 = ModifierKeys::MKDontCare,
-    ModifierKeyState key4 = ModifierKeys::MKDontCare) const;
+    ModifierKeyState key2 = ModifierKeys::DontCare,
+    ModifierKeyState key3 = ModifierKeys::DontCare,
+    ModifierKeyState key4 = ModifierKeys::DontCare) const;
   bool checkModifierKeys(
     ModifierKeyPressed ctrl, ModifierKeyPressed alt, ModifierKeyPressed shift) const;
   bool checkModifierKey(ModifierKeyPressed state, ModifierKeyState key) const;
@@ -97,11 +118,13 @@ public:
   /**
    * Checks whether only the given buttons are down (and no others).
    */
-  bool mouseButtonsPressed(const MouseButtonState buttons) const;
+  bool mouseButtonsPressed(MouseButtonState buttons) const;
   float mouseX() const;
   float mouseY() const;
   float mouseDX() const;
   float mouseDY() const;
+
+  ScrollSource scrollSource() const;
 
   /**
    * Number of "lines" to scroll horizontally.
@@ -112,14 +135,27 @@ public:
    */
   float scrollY() const;
 
-  void setModifierKeys(const ModifierKeyState keys);
+  bool gestureActive() const;
+  float gesturePanX() const;
+  float gesturePanY() const;
+  float gesturePanDX() const;
+  float gesturePanDY() const;
+  float gestureZoomValue() const;
+  float gestureRotateValue() const;
+
+  void setModifierKeys(ModifierKeyState keys);
   void clearModifierKeys();
-  void mouseDown(const MouseButtonState button);
-  void mouseUp(const MouseButtonState button);
+  void mouseDown(MouseButtonState button);
+  void mouseUp(MouseButtonState button);
   void clearMouseButtons();
-  void mouseMove(
-    const float mouseX, const float mouseY, const float mouseDX, const float mouseDY);
-  void scroll(const float scrollX, const float scrollY);
+  void mouseMove(float mouseX, float mouseY, float mouseDX, float mouseDY);
+  void scroll(ScrollSource scrollSource, float scrollX, float scrollY);
+
+  void startGesture();
+  void gesturePan(float x, float y, float dx, float dy);
+  void gestureZoom(float value);
+  void gestureRotate(float value);
+  void endGesture();
 
   bool anyToolDragging() const;
   void setAnyToolDragging(bool anyToolDragging);
@@ -131,7 +167,7 @@ public:
   void setPickRequest(const PickRequest& pickRequest);
 
   const Model::PickResult& pickResult() const;
-  void setPickResult(Model::PickResult&& pickResult);
+  void setPickResult(Model::PickResult pickResult);
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

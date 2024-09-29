@@ -36,7 +36,6 @@
 #include "View/ClipTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
-#include "View/MapDocument.h"
 
 #include "kdl/optional_utils.h"
 #include "kdl/vector_utils.h"
@@ -49,9 +48,7 @@
 #include <memory>
 #include <optional>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 namespace
 {
@@ -336,7 +333,7 @@ public:
       inputState, initialHandlePosition, handleOffset);
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState&,
     const vm::vec3& proposedHandlePosition) override
@@ -397,8 +394,8 @@ private:
   bool mouseClick(const InputState& inputState) override
   {
     if (
-      !inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-      || !inputState.modifierKeysPressed(ModifierKeys::MKNone))
+      !inputState.mouseButtonsPressed(MouseButtons::Left)
+      || !inputState.modifierKeysPressed(ModifierKeys::None))
     {
       return false;
     }
@@ -409,19 +406,19 @@ private:
   bool mouseDoubleClick(const InputState& inputState) override
   {
     if (
-      !inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-      || !inputState.modifierKeysPressed(ModifierKeys::MKNone))
+      !inputState.mouseButtonsPressed(MouseButtons::Left)
+      || !inputState.modifierKeysPressed(ModifierKeys::None))
     {
       return false;
     }
     return m_delegate->setClipFace(inputState);
   }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     if (
-      inputState.mouseButtons() != MouseButtons::MBLeft
-      || inputState.modifierKeys() != ModifierKeys::MKNone)
+      inputState.mouseButtons() != MouseButtons::Left
+      || inputState.modifierKeys() != ModifierKeys::None)
     {
       return nullptr;
     }
@@ -468,7 +465,7 @@ public:
       inputState, initialHandlePosition, handleOffset);
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState&,
     const vm::vec3& proposedHandlePosition) override
@@ -506,11 +503,11 @@ private:
 
   const Tool& tool() const override { return m_delegate->tool(); }
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
     if (
-      inputState.mouseButtons() != MouseButtons::MBLeft
-      || inputState.modifierKeys() != ModifierKeys::MKNone)
+      inputState.mouseButtons() != MouseButtons::Left
+      || inputState.modifierKeys() != ModifierKeys::None)
     {
       return nullptr;
     }
@@ -606,5 +603,4 @@ ClipToolController3D::ClipToolController3D(ClipTool& tool)
   addController(
     std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

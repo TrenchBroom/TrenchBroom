@@ -22,7 +22,7 @@
 #include "FloatType.h"
 #include "Model/HitFilter.h"
 #include "Renderer/Camera.h"
-#include "View/DragTracker.h"
+#include "View/GestureTracker.h"
 #include "View/InputState.h"
 
 #include "kdl/reflection_decl.h"
@@ -35,9 +35,7 @@
 #include <optional>
 #include <type_traits>
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 class Grid;
 
@@ -140,7 +138,7 @@ struct HandleDragTrackerDelegate
    * @return a value of DragStatus that instructs the drag tracker on how to continue with
    * the drag
    */
-  virtual DragStatus drag(
+  virtual DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) = 0;
@@ -232,7 +230,7 @@ struct HandleDragTrackerDelegate
  * function that the tracker uses to compute a new handle position from the current input
  * state.
  *
- * The current handle position updates in response to calls to drag() or a modifier key
+ * The current handle position updates in response to calls to update() or a modifier key
  * change.
  *
  * The delegate's start function is called once when this drag tracker is constructed. It
@@ -244,7 +242,7 @@ struct HandleDragTrackerDelegate
  * horizontally and vertically.
  */
 template <typename Delegate>
-class HandleDragTracker : public DragTracker
+class HandleDragTracker : public GestureTracker
 {
 private:
   enum class IdenticalPositionPolicy
@@ -289,7 +287,7 @@ public:
    * of the returned ResetInitialHandlePosition value.
    *
    * If a new proposer function is returned by the delegate, it is called with the current
-   * drag state and drag() is called with the new proposed handle position.
+   * drag state and update() is called with the new proposed handle position.
    */
   void modifierKeyChange(const InputState& inputState) override
   {
@@ -309,7 +307,7 @@ public:
 
       m_proposeHandlePosition = std::move(dragConfig->proposeHandlePosition);
 
-      assertResult(drag(inputState, IdenticalPositionPolicy::ForceDrag));
+      assertResult(update(inputState, IdenticalPositionPolicy::ForceDrag));
     }
   }
 
@@ -328,13 +326,13 @@ public:
    * Returns true to indicate succes. If this function returns false, the drag ends and
    * end() is called.
    */
-  bool drag(const InputState& inputState) override
+  bool update(const InputState& inputState) override
   {
-    return drag(inputState, IdenticalPositionPolicy::SkipDrag);
+    return update(inputState, IdenticalPositionPolicy::SkipDrag);
   }
 
   /**
-   * Called when the drag ends normally (e.g. by releasing a mouse button) or if drag()
+   * Called when the drag ends normally (e.g. by releasing a mouse button) or if update()
    * returns false. The delegate should commit any changes made in result of the drag.
    */
   void end(const InputState& inputState) override
@@ -369,7 +367,7 @@ public:
   }
 
 private:
-  bool drag(
+  bool update(
     const InputState& inputState, const IdenticalPositionPolicy identicalPositionPolicy)
   {
     const auto proposedHandlePosition = m_proposeHandlePosition(inputState, m_dragState);
@@ -381,7 +379,7 @@ private:
     }
 
     const auto dragResult =
-      m_delegate.drag(inputState, m_dragState, *proposedHandlePosition);
+      m_delegate.update(inputState, m_dragState, *proposedHandlePosition);
     if (dragResult == DragStatus::End)
     {
       return false;
@@ -527,5 +525,4 @@ HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid);
  */
 HandlePositionProposer makeHandlePositionProposer(
   DragHandlePicker pickHandlePosition, DragHandleSnapper snapHandlePosition);
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

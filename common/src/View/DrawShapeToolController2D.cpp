@@ -89,7 +89,7 @@ public:
       makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -167,7 +167,7 @@ private:
       vm::merge(
         vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition));
 
-    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       const auto viewAxis = vm::abs(vm::vec3{inputState.camera().direction()});
       const auto orthoAxes = vm::vec3::one() - viewAxis;
@@ -205,17 +205,15 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> DrawShapeToolController2D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
   const InputState& inputState)
 {
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
   if (!inputState.checkModifierKeys(
-        ModifierKeyPressed::MK_No,
-        ModifierKeyPressed::MK_No,
-        ModifierKeyPressed::MK_DontCare))
+        ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare))
   {
     return nullptr;
   }

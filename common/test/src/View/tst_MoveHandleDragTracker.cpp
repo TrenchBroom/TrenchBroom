@@ -194,7 +194,7 @@ static auto makeInputState(
   const vm::vec3& rayOrigin,
   const vm::vec3& rayDirection,
   Renderer::Camera& camera,
-  ModifierKeyState modifierKeys = ModifierKeys::MKNone)
+  ModifierKeyState modifierKeys = ModifierKeys::None)
 {
   auto inputState = InputState{};
   inputState.setPickRequest(
@@ -230,7 +230,7 @@ TEST_CASE("MoveDragTracker.constructor")
         {
           // we check this indirectly by observing how the move handle position changes
           // when dragging
-          REQUIRE(tracker.drag(
+          REQUIRE(tracker.update(
             makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
           CHECK(
             tracker.dragState()
@@ -251,7 +251,7 @@ TEST_CASE("MoveDragTracker.constructor")
       {
         // we check this indirectly by observing how the move handle position changes when
         // dragging
-        REQUIRE(tracker.drag(
+        REQUIRE(tracker.update(
           makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
         CHECK(
           tracker.dragState()
@@ -284,7 +284,7 @@ TEST_CASE("MoveDragTracker.constructor")
         {
           // we check this indirectly by observing how the move handle position changes
           // when dragging
-          REQUIRE(tracker.drag(
+          REQUIRE(tracker.update(
             makeInputState(vm::vec3{16, 80, 64}, vm::vec3{0, 0, -1}, camera2d)));
           CHECK(
             tracker.dragState()
@@ -305,7 +305,7 @@ TEST_CASE("MoveDragTracker.constructor")
       {
         // we check this indirectly by observing how the move handle position changes when
         // dragging
-        REQUIRE(tracker.drag(
+        REQUIRE(tracker.update(
           makeInputState(vm::vec3{16, 80, 64}, vm::vec3{0, 0, -1}, camera2d)));
         CHECK(
           tracker.dragState()
@@ -341,7 +341,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
       {
         // we check this indirectly by observing how the move handle position changes when
         // dragging
-        REQUIRE(tracker.drag(
+        REQUIRE(tracker.update(
           makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
         CHECK(
           tracker.dragState()
@@ -358,7 +358,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
         {
           // we check this indirectly by observing how the move handle position changes
           // when dragging
-          REQUIRE(tracker.drag(
+          REQUIRE(tracker.update(
             makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
           CHECK(
             tracker.dragState()
@@ -370,13 +370,13 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     WHEN("The shift modifier is pressed before the handle is moved")
     {
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{0, 0, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker still has a default hit finder")
       {
         // we check this indirectly by observing how the move handle position changes when
         // dragging
-        REQUIRE(tracker.drag(
+        REQUIRE(tracker.update(
           makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
         CHECK(
           tracker.dragState()
@@ -386,14 +386,14 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
 
     WHEN("The shift modifier is pressed after the handle is moved diagonally")
     {
-      REQUIRE(
-        tracker.drag(makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
+      REQUIRE(tracker.update(
+        makeInputState(vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d)));
       REQUIRE(
         tracker.dragState()
         == DragState{initialHandlePosition, vm::vec3{16, 80, 0}, handleOffset});
 
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{16, 16, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker still has a default hit finder")
       {
@@ -407,14 +407,14 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
 
     WHEN("The shift modifier is pressed after the handle is moved non-diagonally")
     {
-      REQUIRE(
-        tracker.drag(makeInputState(vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d)));
+      REQUIRE(tracker.update(
+        makeInputState(vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d)));
       REQUIRE(
         tracker.dragState()
         == DragState{initialHandlePosition, vm::vec3{16, 96, 0}, handleOffset});
 
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::MKShift));
+        vm::vec3{16, 32, 64}, vm::vec3{0, 1, -1}, camera3d, ModifierKeys::Shift));
 
       THEN("The tracker has a constricted hit finder")
       {
@@ -465,7 +465,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
       {
         // we check this indirectly by observing how the move handle position changes when
         // dragging
-        REQUIRE(tracker.drag(
+        REQUIRE(tracker.update(
           makeInputState(vm::vec3{16, 80, 64}, vm::vec3{0, 0, -1}, camera2d)));
         CHECK(
           tracker.dragState()

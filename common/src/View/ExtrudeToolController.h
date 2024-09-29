@@ -19,21 +19,17 @@
 
 #pragma once
 
-#include "Renderer/EdgeRenderer.h"
 #include "View/ToolController.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
-class DirectEdgeRenderer;
 class RenderBatch;
 class RenderContext;
-} // namespace Renderer
+} // namespace TrenchBroom::Renderer
 
-namespace View
+namespace TrenchBroom::View
 {
-class DragTracker;
+class GestureTracker;
 class ExtrudeTool;
 
 class ExtrudeToolController : public ToolController
@@ -57,7 +53,7 @@ private:
 
   void mouseMove(const InputState& inputState) override;
 
-  std::unique_ptr<DragTracker> acceptMouseDrag(const InputState& inputState) override;
+  std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void render(
     const InputState& inputState,
@@ -95,5 +91,5 @@ private:
     const vm::ray3& pickRay, const Model::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

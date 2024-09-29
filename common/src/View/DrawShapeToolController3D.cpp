@@ -91,7 +91,7 @@ public:
   std::optional<UpdateDragConfig> modifierKeyChange(
     const InputState& inputState, const DragState& dragState) override
   {
-    if (inputState.modifierKeys() == ModifierKeys::MKShift)
+    if (inputState.modifierKeys() == ModifierKeys::Shift)
     {
       const auto currentBounds = makeBounds(
         inputState, dragState.initialHandlePosition, dragState.currentHandlePosition);
@@ -122,7 +122,7 @@ public:
       ResetInitialHandlePosition::Keep};
   }
 
-  DragStatus drag(
+  DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
     const vm::vec3& proposedHandlePosition) override
@@ -184,7 +184,7 @@ private:
         vm::min(initialHandlePosition, currentHandlePosition),
         vm::max(initialHandlePosition, currentHandlePosition)});
 
-    if (inputState.modifierKeysDown(ModifierKeys::MKShift))
+    if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
@@ -243,20 +243,18 @@ private:
 };
 } // namespace
 
-std::unique_ptr<DragTracker> DrawShapeToolController3D::acceptMouseDrag(
+std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace Model::HitFilters;
 
-  if (!inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+  if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
   }
 
   if (!inputState.checkModifierKeys(
-        ModifierKeyPressed::MK_No,
-        ModifierKeyPressed::MK_No,
-        ModifierKeyPressed::MK_DontCare))
+        ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare))
   {
     return nullptr;
   }

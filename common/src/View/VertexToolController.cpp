@@ -48,8 +48,7 @@ Model::Hit VertexToolController::findHandleHit(
   if (vertexHit.isMatch())
     return vertexHit;
   if (
-    inputState.modifierKeysDown(ModifierKeys::MKShift)
-    && !inputState.pickResult().empty())
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
     const auto& anyHit = inputState.pickResult().all().front();
     if (anyHit.hasType(
@@ -69,8 +68,7 @@ std::vector<Model::Hit> VertexToolController::findHandleHits(
   if (!vertexHits.empty())
     return vertexHits;
   if (
-    inputState.modifierKeysDown(ModifierKeys::MKShift)
-    && !inputState.pickResult().empty())
+    inputState.modifierKeysDown(ModifierKeys::Shift) && !inputState.pickResult().empty())
   {
     const auto& anyHit = inputState.pickResult().all().front();
     if (anyHit.hasType(EdgeHandleManager::HandleHitType))
@@ -129,8 +127,8 @@ private:
   bool mouseClick(const InputState& inputState) override
   {
     if (
-      inputState.mouseButtonsPressed(MouseButtons::MBLeft)
-      && inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::MKShift)
+      inputState.mouseButtonsPressed(MouseButtons::Left)
+      && inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::Shift)
       && m_tool.handleManager().selectedHandleCount() == 1)
     {
 
@@ -151,21 +149,21 @@ private:
   bool shouldStartMove(const InputState& inputState) const override
   {
     return (
-      inputState.mouseButtonsPressed(MouseButtons::MBLeft) &&
-      (inputState.modifierKeysPressed(ModifierKeys::MKNone) ||    // horizontal movement
+      inputState.mouseButtonsPressed(MouseButtons::Left) &&
+      (inputState.modifierKeysPressed(ModifierKeys::None) ||    // horizontal movement
        inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||     // vertical movement
        inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) || // horizontal absolute snap
        inputState.modifierKeysPressed(
          ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt) || // vertical absolute snap
        inputState.modifierKeysPressed(
-         ModifierKeys::MKShift) || // add new vertex and horizontal movement
+         ModifierKeys::Shift) || // add new vertex and horizontal movement
        inputState.modifierKeysPressed(
-         ModifierKeys::MKShift | ModifierKeys::MKAlt) || // add new vertex and vertical movement
+         ModifierKeys::Shift | ModifierKeys::MKAlt) || // add new vertex and vertical movement
        inputState.modifierKeysPressed(
-         ModifierKeys::MKShift |
+         ModifierKeys::Shift |
          ModifierKeys::MKCtrlCmd) || // add new vertex and horizontal movement with absolute snap
        inputState.modifierKeysPressed(
-         ModifierKeys::MKShift | ModifierKeys::MKCtrlCmd |
+         ModifierKeys::Shift | ModifierKeys::MKCtrlCmd |
          ModifierKeys::MKAlt) // add new vertex and vertical movement with absolute snap
        ));
   }
@@ -184,7 +182,7 @@ private:
             EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
       {
         const vm::vec3 handle = m_tool.getHandlePosition(hit);
-        if (inputState.mouseButtonsPressed(MouseButtons::MBLeft))
+        if (inputState.mouseButtonsPressed(MouseButtons::Left))
           m_tool.renderHandle(
             renderContext, renderBatch, handle, pref(Preferences::SelectedHandleColor));
         else
