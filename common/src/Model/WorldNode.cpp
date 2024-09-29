@@ -493,8 +493,7 @@ void WorldNode::doFindEntityNodesWithNumberedProperty(
 }
 
 void WorldNode::doFindEntityNodesWithTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   constexpr bool allowNumberedProperties = false;
 
@@ -503,8 +502,7 @@ void WorldNode::doFindEntityNodesWithTargetSourceProperty(
     m_entityNodeIndex->findEntityNodesWithTargetSource(value, allowNumberedProperties));
 }
 void WorldNode::doFindEntityNodesWithNumberedTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   constexpr bool allowNumberedProperties = true;
 
@@ -514,24 +512,24 @@ void WorldNode::doFindEntityNodesWithNumberedTargetSourceProperty(
 }
 
 void WorldNode::doFindEntityNodesWithTargetDestinationProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   constexpr bool allowNumberedProperties = false;
 
   result = kdl::vec_concat(
     std::move(result),
-    m_entityNodeIndex->findEntityNodesWithTargetDestination(value, allowNumberedProperties));
+    m_entityNodeIndex->findEntityNodesWithTargetDestination(
+      value, allowNumberedProperties));
 }
 void WorldNode::doFindEntityNodesWithNumberedTargetDestinationProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   constexpr bool allowNumberedProperties = true;
 
   result = kdl::vec_concat(
     std::move(result),
-    m_entityNodeIndex->findEntityNodesWithTargetDestination(value, allowNumberedProperties));
+    m_entityNodeIndex->findEntityNodesWithTargetDestination(
+      value, allowNumberedProperties));
 }
 
 void WorldNode::doAddToIndex(

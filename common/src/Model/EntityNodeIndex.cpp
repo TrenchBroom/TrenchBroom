@@ -206,8 +206,8 @@ std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodesWithTargetSource(
     for (const auto& targetSourceProperty : targetSourceProperties)
     {
       auto keyQuery = allowNumberedProperties
-        ? EntityNodeIndexQuery::numbered(targetSourceProperty)
-        : EntityNodeIndexQuery::exact(targetSourceProperty);
+                        ? EntityNodeIndexQuery::numbered(targetSourceProperty)
+                        : EntityNodeIndexQuery::exact(targetSourceProperty);
 
       if (keyQuery.execute(node, value))
       {
@@ -251,8 +251,8 @@ std::vector<EntityNodeBase*> EntityNodeIndex::findEntityNodesWithTargetDestinati
     for (const auto& targetDestinationProperty : targetDestinationProperties)
     {
       auto keyQuery = allowNumberedProperties
-        ? EntityNodeIndexQuery::numbered(targetDestinationProperty)
-        : EntityNodeIndexQuery::exact(targetDestinationProperty);
+                        ? EntityNodeIndexQuery::numbered(targetDestinationProperty)
+                        : EntityNodeIndexQuery::exact(targetDestinationProperty);
 
       if (keyQuery.execute(node, value))
       {

@@ -658,7 +658,8 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
         {
           auto allTargetDestinations = std::vector<std::string>{};
           node->getAllTargetDestinationPropertyNames(allTargetDestinations);
-          result = kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetDestinations));
+          result =
+            kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetDestinations));
         }
       }
       else if (isTargetDestination)

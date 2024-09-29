@@ -870,27 +870,23 @@ void Node::findEntityNodesWithNumberedProperty(
 }
 
 void Node::findEntityNodesWithTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   return doFindEntityNodesWithTargetSourceProperty(value, result);
 }
 void Node::findEntityNodesWithNumberedTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   return doFindEntityNodesWithNumberedTargetSourceProperty(value, result);
 }
 
 void Node::findEntityNodesWithTargetDestinationProperty(
-    const std::string& value,
-    std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   return doFindEntityNodesWithTargetDestinationProperty(value, result);
 }
 void Node::findEntityNodesWithNumberedTargetDestinationProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   return doFindEntityNodesWithNumberedTargetDestinationProperty(value, result);
 }
@@ -978,8 +974,7 @@ void Node::doFindEntityNodesWithNumberedProperty(
 }
 
 void Node::doFindEntityNodesWithTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   if (m_parent)
   {
@@ -988,8 +983,7 @@ void Node::doFindEntityNodesWithTargetSourceProperty(
 }
 
 void Node::doFindEntityNodesWithNumberedTargetSourceProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   if (m_parent)
   {
@@ -999,8 +993,7 @@ void Node::doFindEntityNodesWithNumberedTargetSourceProperty(
 
 
 void Node::doFindEntityNodesWithTargetDestinationProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   if (m_parent)
   {
@@ -1009,8 +1002,7 @@ void Node::doFindEntityNodesWithTargetDestinationProperty(
 }
 
 void Node::doFindEntityNodesWithNumberedTargetDestinationProperty(
-  const std::string& value,
-  std::vector<EntityNodeBase*>& result) const
+  const std::string& value, std::vector<EntityNodeBase*>& result) const
 {
   if (m_parent)
   {

@@ -154,15 +154,15 @@ void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
   const auto notifyChange = NotifyPropertyChange{*this};
   m_entity.setDefinition(definition);
 
-  //update links based on new entity definition
+  // update links based on new entity definition
   removeAllLinks();
   addAllLinks();
 }
 
 EntityNodeBase::NotifyPropertyChange::NotifyPropertyChange(EntityNodeBase& node)
   : m_nodeChange{node}
-, m_node{node}
-, m_oldPhysicalBounds{node.physicalBounds()}
+  , m_node{node}
+  , m_oldPhysicalBounds{node.physicalBounds()}
 {
   m_node.propertiesWillChange();
 }
@@ -323,7 +323,8 @@ void EntityNodeBase::updatePropertyIndex(
   addToIndex(this, newKey, newValue);
 }
 
-void EntityNodeBase::getAllTargetSourcePropertyNames(std::vector<std::string>& result) const
+void EntityNodeBase::getAllTargetSourcePropertyNames(
+  std::vector<std::string>& result) const
 {
   if (!entity().definition())
   {
@@ -331,14 +332,17 @@ void EntityNodeBase::getAllTargetSourcePropertyNames(std::vector<std::string>& r
   }
 
   auto targetSourceType = Assets::PropertyDefinitionType::TargetSourceProperty;
-  result = kdl::vec_concat(result,
-     kdl::vec_transform(
-       kdl::vec_filter(entity().definition()->propertyDefinitions(),
-          [&](const auto& definition) { return definition->type() == targetSourceType; }),
-     [&](const auto& definition) { return definition->key(); }));
+  result = kdl::vec_concat(
+    result,
+    kdl::vec_transform(
+      kdl::vec_filter(
+        entity().definition()->propertyDefinitions(),
+        [&](const auto& definition) { return definition->type() == targetSourceType; }),
+      [&](const auto& definition) { return definition->key(); }));
 }
 
-void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::string>& result) const
+void EntityNodeBase::getAllTargetDestinationPropertyNames(
+  std::vector<std::string>& result) const
 {
   if (!entity().definition())
   {
@@ -346,26 +350,26 @@ void EntityNodeBase::getAllTargetDestinationPropertyNames(std::vector<std::strin
   }
 
   auto targetDestType = Assets::PropertyDefinitionType::TargetDestinationProperty;
-  result = kdl::vec_concat(result,
-     kdl::vec_transform(
-       kdl::vec_filter(entity().definition()->propertyDefinitions(),
-          [&](const auto& definition) { return definition->type() == targetDestType; }),
-     [&](const auto& definition) { return definition->key(); }));
+  result = kdl::vec_concat(
+    result,
+    kdl::vec_transform(
+      kdl::vec_filter(
+        entity().definition()->propertyDefinitions(),
+        [&](const auto& definition) { return definition->type() == targetDestType; }),
+      [&](const auto& definition) { return definition->key(); }));
 }
 
 
 std::vector<EntityNodeBase*> EntityNodeBase::linkSources() const
 {
-  return kdl::vec_transform(m_linkSources, [&](const auto& link) {
-    return std::get<EntityNodeBase*>(link);
-  });
+  return kdl::vec_transform(
+    m_linkSources, [&](const auto& link) { return std::get<EntityNodeBase*>(link); });
 }
 
 std::vector<EntityNodeBase*> EntityNodeBase::linkTargets() const
 {
-  return kdl::vec_transform(m_linkTargets, [&](const auto& link) {
-      return std::get<EntityNodeBase*>(link);
-    });
+  return kdl::vec_transform(
+    m_linkTargets, [&](const auto& link) { return std::get<EntityNodeBase*>(link); });
 }
 
 vm::vec3 EntityNodeBase::linkSourceAnchor() const
@@ -557,7 +561,6 @@ void EntityNodeBase::addLinkTargetsIncludingNumbered(const std::string& property
     }
   }
 }
-
 
 
 void EntityNodeBase::addLinkTargets(const std::vector<EntityNodeBase*>& targets)
