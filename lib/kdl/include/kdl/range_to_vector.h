@@ -20,32 +20,29 @@
 
 #pragma once
 
-#include <iterator>
+#include "kdl/range_utils.h"
 
-namespace kdl::detail
+#include <ranges>
+
+namespace kdl
 {
-template <typename R>
-auto get_begin(const R& range)
+namespace detail
 {
-  return range.begin();
+
+// Type acts as a tag to find the correct operator| overload
+struct to_vector_helper
+{
+};
+
+// This actually does the work
+template <std::ranges::range R>
+auto operator|(R&& r, to_vector_helper)
+{
+  return std::vector(get_begin(std::forward<R>(r)), get_end(std::forward<R>(r)));
 }
 
-template <typename R>
-auto get_end(const R& range)
-{
-  return range.end();
-}
+} // namespace detail
 
-template <typename R>
-auto get_begin(R&& range)
-{
-  return std::make_move_iterator(range.begin());
-}
+constexpr auto to_vector = detail::to_vector_helper{};
 
-template <typename R>
-auto get_end(R&& range)
-{
-  return std::make_move_iterator(range.end());
-}
-
-} // namespace kdl::detail
+} // namespace kdl

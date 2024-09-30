@@ -43,6 +43,8 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/path_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/product_iterator.h"
     "${KDL_INCLUDE_DIR}/kdl/range_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/range_to.h"
+    "${KDL_INCLUDE_DIR}/kdl/range_to_vector.h"
     "${KDL_INCLUDE_DIR}/kdl/range_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/range.h"
     "${KDL_INCLUDE_DIR}/kdl/reflection_decl.h"
