@@ -47,6 +47,8 @@
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
 #include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_compare_detail.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -645,7 +647,13 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
           auto allTargetDestinations = std::vector<std::string>{};
           node->getAllTargetDestinationPropertyNames(allTargetDestinations);
 
-          if (kdl::vec_contains(allTargetDestinations, key))
+          auto matchesIncludingNumbered = [&](const auto& targetName) {
+            return kdl::str_matches_glob(key, targetName + "%*", kdl::cs::char_equal{});
+          };
+
+          if (
+            kdl::vec_index_of(allTargetDestinations, matchesIncludingNumbered)
+            != std::nullopt)
           {
             isTargetDestination = true;
           }
