@@ -19,21 +19,14 @@
 
 #include "Model/BezierPatch.h"
 
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
-
 #include <tuple>
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("BezierPatch.evaluate")
 {
   using T = std::tuple<
@@ -45,14 +38,14 @@ TEST_CASE("BezierPatch.evaluate")
 
   // clang-format off
   const auto
-  [w, h, controlPoints,                                     subdiv, expectedGrid ] = GENERATE(values<T>({
+  [w, h, controlPoints,                       subdiv, expectedGrid ] = GENERATE(values<T>({
   {3, 3, { {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-                          {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-                          {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, 2,      { {0, 0,   0},     {0.5, 0,   0.375}, {1, 0,   0.5},   {1.5, 0,   0.375}, {2, 0,   0}, 
-                                                                      {0, 0.5, 0.375}, {0.5, 0.5, 0.75},  {1, 0.5, 0.875}, {1.5, 0.5, 0.75},  {2, 0.5, 0.375}, 
-                                                                      {0, 1,   0.5},   {0.5, 1,   0.875}, {1, 1,   1},     {1.5, 1,   0.875}, {2, 1,   0.5}, 
-                                                                      {0, 1.5, 0.375}, {0.5, 1.5, 0.75},  {1, 1.5, 0.875}, {1.5, 1.5, 0.75},  {2, 1.5, 0.375}, 
-                                                                      {0, 2,   0},     {0.5, 2,   0.375}, {1, 2,   0.5},   {1.5, 2,   0.375}, {2, 2,   0} } }
+           {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
+           {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, 2,      { {0, 0,   0},     {0.5, 0,   0.375}, {1, 0,   0.5},   {1.5, 0,   0.375}, {2, 0,   0}, 
+                                                        {0, 0.5, 0.375}, {0.5, 0.5, 0.75},  {1, 0.5, 0.875}, {1.5, 0.5, 0.75},  {2, 0.5, 0.375}, 
+                                                        {0, 1,   0.5},   {0.5, 1,   0.875}, {1, 1,   1},     {1.5, 1,   0.875}, {2, 1,   0.5}, 
+                                                        {0, 1.5, 0.375}, {0.5, 1.5, 0.75},  {1, 1.5, 0.875}, {1.5, 1.5, 0.75},  {2, 1.5, 0.375}, 
+                                                        {0, 2,   0},     {0.5, 2,   0.375}, {1, 2,   0.5},   {1.5, 2,   0.375}, {2, 2,   0} } }
   }));
   // clang-format on
 
@@ -76,5 +69,5 @@ TEST_CASE("BezierPatch.transform")
                                                                   {2, 2, 0}, {3, 2, 1}, {4, 2, 0} });
   // clang-format on
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Assets/EntityModel_Forward.h"
+#include "Assets/EntityModel.h"
 #include "Result.h"
 
 namespace TrenchBroom

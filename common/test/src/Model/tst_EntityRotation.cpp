@@ -40,6 +40,7 @@ namespace TrenchBroom::Model
 {
 namespace
 {
+
 struct EntityDefinitionInfo
 {
   Assets::EntityDefinitionType type;
@@ -72,6 +73,7 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
     switchDefault();
   }
 }
+
 } // namespace
 
 TEST_CASE("entityRotationInfo")

@@ -40,19 +40,18 @@
 #include "View/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
-#include "kdl/string_compare.h"
 
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 #include "vm/scalar.h"
-#include "vm/segment.h"
+#include "vm/segment.h" // IWYU pragma: keep
 
-#include <sstream>
 #include <string>
 
 #include "Catch2.h"
 
 namespace TrenchBroom
 {
+
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 {
   for (size_t i = 0; i < 2; ++i)
@@ -62,7 +61,9 @@ bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 
     if (!(vm::is_equal(distRemainder, 0.0f, vm::Cf::almost_zero())
           || vm::is_equal(distRemainder, 1.0f, vm::Cf::almost_zero())))
+    {
       return false;
+    }
   }
   return true;
 }
@@ -358,7 +359,9 @@ const Model::BrushFace* findFaceByPoints(
     if (
       face.points()[0] == point0 && face.points()[1] == point1
       && face.points()[2] == point2)
+    {
       return &face;
+    }
   }
   return nullptr;
 }

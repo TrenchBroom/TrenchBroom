@@ -21,17 +21,13 @@
 #include "EL/Types.h"
 #include "EL/Value.h"
 
-#include "vm/scalar.h"
-
-#include <limits>
 #include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
-{
+
 TEST_CASE("ELTest.constructValues")
 {
   CHECK(Value(true).type() == ValueType::Boolean);
@@ -206,5 +202,4 @@ TEST_CASE("ELTest.subscriptOperator")
   CHECK_THROWS_AS(mapValue[Value(ArrayType({Value("test"), Value(0)}))], ConversionError);
 }
 
-} // namespace EL
-} // namespace TrenchBroom
+} // namespace TrenchBroom::EL

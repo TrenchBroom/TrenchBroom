@@ -21,13 +21,13 @@
 #include "Exceptions.h"
 #include "TestLogger.h"
 
-#include <filesystem>
 #include <optional>
 
 #include "Catch2.h"
 
 namespace TrenchBroom::Assets
 {
+
 TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
 {
   TestLogger logger;
@@ -67,4 +67,5 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
     CHECK(*actual == ModelSpecification());
   }
 }
+
 } // namespace TrenchBroom::Assets

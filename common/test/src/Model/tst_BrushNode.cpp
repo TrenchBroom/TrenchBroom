@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Exceptions.h"
-#include "IO/NodeReader.h"
-#include "IO/TestParserStatus.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -36,17 +32,9 @@
 #include "Model/PickResult.h"
 #include "TestUtils.h"
 
-#include "kdl/collection_utils.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/polygon.h"
-#include "vm/ray.h"
-#include "vm/segment.h"
-#include "vm/vec.h"
 
 #include <memory>
 #include <string>
@@ -54,10 +42,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("BrushNodeTest.entity")
 {
   const auto worldBounds = vm::bbox3{4096.0};
@@ -342,5 +329,5 @@ TEST_CASE("BrushNodeTest.clone")
     CHECK(cloneFace == originalFace);
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

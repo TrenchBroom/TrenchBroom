@@ -17,21 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "TestUtils.h"
+#include "Model/BrushNode.h" // IWYU pragma: keep
+#include "Model/GroupNode.h" // IWYU pragma: keep
 #include "View/CurrentGroupCommand.h"
-#include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsCommand.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
@@ -75,5 +70,5 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     CHECK_FALSE(firstCommand.collateWith(secondCommand));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

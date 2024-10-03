@@ -18,25 +18,15 @@
  */
 
 #include "Model/Group.h"
-#include "TestUtils.h"
 
-#include "kdl/result.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-
-#include <memory>
-#include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("GroupTest.transform")
 {
   auto group = Group{"name"};
@@ -51,5 +41,5 @@ TEST_CASE("GroupTest.transform")
     == vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0))
          * vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

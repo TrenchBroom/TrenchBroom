@@ -23,14 +23,12 @@
 #include "TestFileSystem.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("FileSystem")
 {
   auto fs = TestFileSystem{DirectoryEntry{
@@ -169,5 +167,4 @@ TEST_CASE("FileSystem")
   }
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

@@ -35,18 +35,6 @@
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
 
-#include "kdl/memory_utils.h"
-#include "kdl/result.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
-
-#include <filesystem>
 #include <memory>
 
 #include "Catch2.h"

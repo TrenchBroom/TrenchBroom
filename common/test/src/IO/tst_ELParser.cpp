@@ -23,7 +23,6 @@
 #include "EL/Value.h"
 #include "IO/ELParser.h"
 
-#include <limits>
 #include <string>
 
 #include "Catch2.h"

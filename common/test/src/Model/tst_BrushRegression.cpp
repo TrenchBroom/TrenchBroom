@@ -17,10 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Exceptions.h"
 #include "FloatType.h"
-#include "IO/DiskIO.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -28,24 +25,18 @@
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
 
-#include "kdl/intrusive_circular_list.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/polygon.h"
-#include "vm/ray.h"
-#include "vm/segment.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 
 #include <filesystem>
-#include <fstream>
 #include <string>
 #include <vector>
 
@@ -53,10 +44,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 /*
  Regex to turn a face definition into a c++ statement to add a face to a vector of
  faces: Find:
@@ -2050,5 +2040,5 @@ TEST_CASE("BrushTest.headEdgesFail")
     IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

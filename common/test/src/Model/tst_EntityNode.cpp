@@ -37,21 +37,16 @@
 #include "kdl/result.h"
 
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat_ext.h"
 #include "vm/util.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
-#include <memory>
 #include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("EntityNodeTest.canAddChild")
 {
   constexpr auto worldBounds = vm::bbox3d{8192.0};
@@ -212,5 +207,5 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
   CHECK(m_entity->entity().origin() == newOrigin);
   CHECK(m_entity->logicalBounds() == newBounds);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -25,21 +25,16 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 
-#include "vm/approx.h"
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
-
-#include <filesystem>
 
 #include "Catch2.h"
 
 namespace TrenchBroom::Model
 {
+
 TEST_CASE("EntityTest")
 {
   SECTION("defaults")
@@ -755,4 +750,5 @@ TEST_CASE("EntityTest")
     }
   }
 }
+
 } // namespace TrenchBroom::Model

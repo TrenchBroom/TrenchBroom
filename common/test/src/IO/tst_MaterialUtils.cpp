@@ -17,10 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "Logger.h"
@@ -31,10 +29,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("getMaterialNameFromPathSuffix")
 {
   using T = std::tuple<size_t, std::filesystem::path, std::string>;
@@ -72,5 +69,5 @@ TEST_CASE("makeReadTextureErrorHandler")
   CHECK(defaultTexture.width() == 32);
   CHECK(defaultTexture.height() == 32);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

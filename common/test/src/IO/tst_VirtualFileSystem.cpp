@@ -22,16 +22,11 @@
 #include "IO/TraversalMode.h"
 #include "IO/VirtualFileSystem.h"
 
-#include "kdl/overload.h"
-#include "kdl/reflection_impl.h"
 #include "kdl/result.h"
-#include "kdl/result_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 TEST_CASE("VirtualFileSystem")
@@ -665,5 +660,4 @@ TEST_CASE("VirtualFileSystem")
   }
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

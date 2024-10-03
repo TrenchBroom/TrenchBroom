@@ -22,18 +22,15 @@
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
-#include "Logger.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
 
 #include <fmt/format.h>
 
@@ -43,10 +40,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("ObjSerializer.writeBrush")
 {
   const auto worldBounds = vm::bbox3{8192.0};
@@ -449,5 +445,5 @@ map_Kd {}
 
   CHECK(mtlStream.str() == expectedMtl);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

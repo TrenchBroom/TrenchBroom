@@ -22,22 +22,18 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
 
-#include "kdl/vector_utils.h"
-
-#include <algorithm>
 #include <filesystem>
 #include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 static void assertPropertyDefinition(
   const std::string& key,
   const Assets::PropertyDefinitionType expectedType,
@@ -563,5 +559,5 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

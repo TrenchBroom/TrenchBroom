@@ -24,10 +24,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 namespace TrenchBroom
 {
 TEST_CASE("StackWalkerTest.testStackTraceSymbols")
+
 {
   const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
   // FIXME: doesn't work on CI right now
   // EXPECT_THAT(stackTrace, HasSubstr("testStackTraceSymbols"));
 }
+
 } // namespace TrenchBroom

@@ -20,28 +20,21 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "TestUtils.h"
-#include "View/Command.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/TransactionScope.h"
 
-#include "kdl/result.h"
-
 #include "vm/approx.h"
-#include "vm/bbox_io.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat")
 {
   CHECK_FALSE(document->canRepeatCommands());
@@ -341,5 +334,5 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo")
   // containing undo/redo (it just clears the repeat stack)
   CHECK(!document->canRepeatCommands());
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

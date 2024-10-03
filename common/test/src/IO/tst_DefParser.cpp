@@ -22,21 +22,17 @@
 #include "Assets/PropertyDefinition.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
 #include "Model/EntityProperties.h"
 
-#include "kdl/string_compare.h"
-#include "kdl/vector_utils.h"
-
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("DefParserTest.parseIncludedDefFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
@@ -451,5 +447,5 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
   const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -21,9 +21,7 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/EntityModel.h"
 #include "Assets/MaterialManager.h"
-#include "Exceptions.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -40,16 +38,13 @@
 #include "TestUtils.h"
 
 #include "kdl/result.h"
-#include "kdl/string_utils.h"
 
-#include <fstream>
 #include <memory>
 #include <vector>
 
-#include "Catch2.h"
-
 namespace TrenchBroom::Model
 {
+
 TestGame::TestGame()
   : m_fs{std::make_unique<IO::VirtualFileSystem>()}
 {
@@ -87,10 +82,11 @@ void TestGame::setAdditionalSearchPaths(
   const std::vector<std::filesystem::path>& /* searchPaths */, Logger& /* logger */)
 {
 }
+
 Game::PathErrors TestGame::checkAdditionalSearchPaths(
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
-  return PathErrors();
+  return {};
 }
 
 Result<std::unique_ptr<WorldNode>> TestGame::newMap(
@@ -105,20 +101,15 @@ Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
   const std::filesystem::path& /* path */,
   Logger& /* logger */) const
 {
-  if (!m_worldNodeToLoad)
-  {
-    return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-  }
-  else
-  {
-    return std::move(m_worldNodeToLoad);
-  }
+  return m_worldNodeToLoad
+           ? std::move(m_worldNodeToLoad)
+           : std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
 Result<void> TestGame::writeMap(WorldNode& world, const std::filesystem::path& path) const
 {
   return IO::Disk::withOutputStream(path, [&](auto& stream) {
-    IO::NodeWriter writer(world, stream);
+    auto writer = IO::NodeWriter{world, stream};
     writer.writeMap();
   });
 }
@@ -135,7 +126,7 @@ std::vector<Node*> TestGame::parseNodes(
   const vm::bbox3& worldBounds,
   Logger& /* logger */) const
 {
-  IO::TestParserStatus status;
+  auto status = IO::TestParserStatus{};
   return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
 }
 
@@ -145,22 +136,22 @@ std::vector<BrushFace> TestGame::parseBrushFaces(
   const vm::bbox3& worldBounds,
   Logger& /* logger */) const
 {
-  IO::TestParserStatus status;
-  IO::BrushFaceReader reader(str, mapFormat);
+  auto status = IO::TestParserStatus{};
+  auto reader = IO::BrushFaceReader{str, mapFormat};
   return reader.read(worldBounds, status);
 }
 
 void TestGame::writeNodesToStream(
   WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
 {
-  IO::NodeWriter writer(world, stream);
+  auto writer = IO::NodeWriter{world, stream};
   writer.writeNodes(nodes);
 }
 
 void TestGame::writeBrushFacesToStream(
   WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
 {
-  IO::NodeWriter writer(world, stream);
+  auto writer = IO::NodeWriter{world, stream};
   writer.writeBrushFaces(faces);
 }
 
@@ -168,7 +159,7 @@ void TestGame::loadMaterialCollections(
   Assets::MaterialManager& materialManager,
   const Assets::CreateTextureResource& createResource) const
 {
-  const Model::MaterialConfig materialConfig{
+  const auto materialConfig = Model::MaterialConfig{
     "textures",
     {".D"},
     "fixture/test/palette.lmp",
@@ -202,13 +193,13 @@ bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) c
 
 std::vector<Assets::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
 {
-  return std::vector<Assets::EntityDefinitionFileSpec>();
+  return {};
 }
 
 Assets::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
   const Entity& /* entity */) const
 {
-  return Assets::EntityDefinitionFileSpec();
+  return {};
 }
 
 std::filesystem::path TestGame::findEntityDefinitionFile(
@@ -237,8 +228,7 @@ Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
   loadEntityDefinitions(
     IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>{
-    std::vector<std::unique_ptr<Assets::EntityDefinition>>{}};
+  return std::vector<std::unique_ptr<Assets::EntityDefinition>>{};
 }
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)

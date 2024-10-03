@@ -20,7 +20,6 @@
 #include "Model/PointTrace.h"
 
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <sstream>
 
@@ -28,6 +27,7 @@
 
 namespace TrenchBroom::Model
 {
+
 TEST_CASE("PointTrace")
 {
   const auto points = std::vector<vm::vec3f>{
@@ -117,4 +117,5 @@ TEST_CASE("loadPointFile")
   auto stream = std::istringstream{file};
   CHECK(loadPointFile(stream) == expectedTrace);
 }
+
 } // namespace TrenchBroom::Model

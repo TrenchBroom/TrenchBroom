@@ -17,11 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
-#include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LoadMaterialCollections.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"
@@ -31,7 +29,6 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 
-#include <cstdio>
 #include <filesystem>
 #include <memory>
 
@@ -39,6 +36,7 @@
 
 namespace TrenchBroom::IO
 {
+
 TEST_CASE("Md3LoaderTest.loadFailure_2659")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2659
@@ -84,4 +82,5 @@ TEST_CASE("Md3LoaderTest.loadFailure_2659")
   CHECK(modelData.value().frameCount() == 30u);
   CHECK(modelData.value().surfaceCount() == 2u);
 }
+
 } // namespace TrenchBroom::IO

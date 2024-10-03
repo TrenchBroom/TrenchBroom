@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/GLVertex.h"
 #include "Renderer/GLVertexType.h"
 
 #include "vm/forward.h"
@@ -27,16 +26,19 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
+namespace
 {
+
 struct TestVertex
 {
   vm::vec3f pos;
   vm::vec2f uv;
   vm::vec4f color;
 };
+
+} // namespace
 
 TEST_CASE("VertexTest.memoryLayoutSingleVertex")
 {
@@ -75,5 +77,5 @@ TEST_CASE("VertexTest.memoryLayoutVertexList")
   REQUIRE(actual.size() == expected.size());
   REQUIRE(std::memcmp(expected.data(), actual.data(), sizeof(TestVertex) * 3) == 0);
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

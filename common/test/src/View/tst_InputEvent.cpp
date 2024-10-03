@@ -23,8 +23,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "View/InputEvent.h"
 
 #include <array>
-#include <chrono>
-#include <list>
 #include <thread>
 #include <variant>
 
@@ -32,6 +30,52 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 namespace TrenchBroom::View
 {
+namespace
+{
+using Event = std::variant<KeyEvent, MouseEvent, ScrollEvent, GestureEvent, CancelEvent>;
+
+[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const Event& rhs)
+{
+  std::visit([&](const auto& x) { lhs << x; }, rhs);
+  return lhs;
+}
+
+class TestEventProcessor : public InputEventProcessor
+{
+private:
+  std::vector<Event> m_events;
+
+public:
+  const std::vector<Event>& events() const { return m_events; }
+
+  void processEvent(const KeyEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const MouseEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const ScrollEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const GestureEvent& event) override { m_events.emplace_back(event); }
+
+  void processEvent(const CancelEvent& event) override { m_events.emplace_back(event); }
+};
+
+auto getEvents(InputEventRecorder& r)
+{
+  auto p = TestEventProcessor{};
+  r.processEvents(p);
+  return p.events();
+}
+
+QWheelEvent makeWheelEvent(const QPoint& angleDelta)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
+  return {{}, {}, {}, angleDelta, Qt::NoButton, nullptr, Qt::ScrollUpdate, false};
+#else
+  return {{}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0};
+#endif
+}
+
+} // namespace
 
 TEST_CASE("MouseEvent")
 {
@@ -158,53 +202,6 @@ TEST_CASE("GestureEvent")
     CHECK(lhs.value == 6);
   }
 }
-
-namespace
-{
-using Event = std::variant<KeyEvent, MouseEvent, ScrollEvent, GestureEvent, CancelEvent>;
-
-[[maybe_unused]] std::ostream& operator<<(std::ostream& lhs, const Event& rhs)
-{
-  std::visit([&](const auto& x) { lhs << x; }, rhs);
-  return lhs;
-}
-
-class TestEventProcessor : public InputEventProcessor
-{
-private:
-  std::vector<Event> m_events;
-
-public:
-  const std::vector<Event>& events() const { return m_events; }
-
-  void processEvent(const KeyEvent& event) override { m_events.emplace_back(event); }
-
-  void processEvent(const MouseEvent& event) override { m_events.emplace_back(event); }
-
-  void processEvent(const ScrollEvent& event) override { m_events.emplace_back(event); }
-
-  void processEvent(const GestureEvent& event) override { m_events.emplace_back(event); }
-
-  void processEvent(const CancelEvent& event) override { m_events.emplace_back(event); }
-};
-
-auto getEvents(InputEventRecorder& r)
-{
-  auto p = TestEventProcessor{};
-  r.processEvents(p);
-  return p.events();
-}
-
-QWheelEvent makeWheelEvent(const QPoint& angleDelta)
-{
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-  return {{}, {}, {}, angleDelta, Qt::NoButton, nullptr, Qt::ScrollUpdate, false};
-#else
-  return {{}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0};
-#endif
-}
-
-} // namespace
 
 TEST_CASE("InputEventRecorder")
 {

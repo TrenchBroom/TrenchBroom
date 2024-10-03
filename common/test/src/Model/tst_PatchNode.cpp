@@ -26,10 +26,7 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/ray.h"
-#include "vm/ray_io.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
@@ -83,6 +80,7 @@ public:
     return str;
   }
 };
+
 } // namespace vm
 
 namespace TrenchBroom::Model

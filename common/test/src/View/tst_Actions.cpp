@@ -30,7 +30,6 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
 
@@ -93,6 +92,7 @@ TEST_CASE("Actions")
 
 namespace Catch
 {
+
 template <>
 struct StringMaker<TrenchBroom::View::ActionConflict>
 {
@@ -104,4 +104,5 @@ struct StringMaker<TrenchBroom::View::ActionConflict>
     return str.str();
   }
 };
+
 } // namespace Catch

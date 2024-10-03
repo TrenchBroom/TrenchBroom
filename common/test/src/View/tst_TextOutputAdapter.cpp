@@ -23,10 +23,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE("TextOutputAdapterTest.test")
 {
   QTextEdit textEdit;
@@ -75,5 +74,5 @@ TEST_CASE("TextOutputAdapterTest.test")
     CHECK(textEdit.toPlainText() == "ABC\nline 2");
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

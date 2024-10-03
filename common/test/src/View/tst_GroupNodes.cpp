@@ -50,6 +50,7 @@ namespace TrenchBroom::View
 
 namespace
 {
+
 bool hasEmptyName(const std::vector<std::string>& names)
 {
   return kdl::any_of(names, [](const auto& s) { return s.empty(); });

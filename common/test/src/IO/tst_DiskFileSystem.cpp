@@ -20,19 +20,13 @@
 #include <QFileInfo>
 #include <QString>
 
-#include "Exceptions.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
 #include "IO/File.h"
 #include "IO/PathInfo.h"
-#include "IO/PathQt.h"
 #include "IO/TestEnvironment.h"
 #include "IO/TraversalMode.h"
-#include "Macros.h"
 
-#include "kdl/regex_utils.h"
-
-#include <algorithm>
 #include <filesystem>
 
 #include "CatchUtils/Matchers.h"

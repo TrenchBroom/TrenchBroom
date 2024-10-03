@@ -23,10 +23,6 @@
 #include "View/PickRequest.h"
 
 #include "vm/approx.h"
-#include "vm/ray.h"
-#include "vm/ray_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
@@ -82,12 +78,14 @@ public:
     return str;
   }
 };
+
 } // namespace vm
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
 template <
   typename Move,
   typename End,
@@ -147,7 +145,7 @@ struct TestDelegate : public MoveHandleDragTrackerDelegate
   }
 };
 
-static auto makeMoveTracker(
+auto makeMoveTracker(
   const InputState& inputState,
   const vm::vec3& initialHandlePosition,
   const vm::vec3& handleOffset)
@@ -190,7 +188,7 @@ static auto makeMoveTracker(
     handleOffset};
 }
 
-static auto makeInputState(
+auto makeInputState(
   const vm::vec3& rayOrigin,
   const vm::vec3& rayDirection,
   Renderer::Camera& camera,
@@ -202,6 +200,8 @@ static auto makeInputState(
   inputState.setModifierKeys(modifierKeys);
   return inputState;
 }
+
+} // namespace
 
 TEST_CASE("MoveDragTracker.constructor")
 {
@@ -474,5 +474,4 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+} // namespace TrenchBroom::View

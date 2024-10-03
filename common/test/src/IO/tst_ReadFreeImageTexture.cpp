@@ -17,13 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/ReadFreeImageTexture.h"
-#include "TestLogger.h"
 #include "TestUtils.h"
 
 #include "kdl/result.h"
@@ -35,9 +32,9 @@
 
 namespace TrenchBroom::IO
 {
-
 namespace
 {
+
 auto loadTexture(const std::string& name)
 {
   auto diskFS =

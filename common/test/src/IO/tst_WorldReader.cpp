@@ -18,7 +18,7 @@
  */
 
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/BezierPatch.h"
@@ -29,7 +29,6 @@
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/ParallelUVCoordSystem.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"

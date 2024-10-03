@@ -26,10 +26,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
 {
   // delete default brush
@@ -167,5 +166,5 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

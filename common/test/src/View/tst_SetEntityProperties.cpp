@@ -33,8 +33,6 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/bbox.h"
-
 #include <vector>
 
 #include "Catch2.h"

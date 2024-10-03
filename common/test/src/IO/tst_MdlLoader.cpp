@@ -21,21 +21,18 @@
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/MdlLoader.h"
 #include "IO/Reader.h"
 #include "Logger.h"
-#include "Model/EntityNode.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("MdlLoaderTest.loadValidMdl")
 {
   auto logger = NullLogger{};
@@ -81,5 +78,5 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
     loader.load(logger)
     == Result<Assets::EntityModelData>{Error{"Unknown MDL model version: 538976288"}});
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

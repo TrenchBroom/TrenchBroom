@@ -21,18 +21,14 @@
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/BrushNode.h"
-#include "Model/EntityProperties.h"
 #include "Model/GroupNode.h"
 #include "Model/ParaxialUVCoordSystem.h"
 
-#include "vm/bbox.h"
-
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("NodeReaderTest.parseFaceAsNode")
 {
   const std::string data(R"(
@@ -146,5 +142,5 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
   auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

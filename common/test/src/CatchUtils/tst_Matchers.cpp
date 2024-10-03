@@ -20,7 +20,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "FloatType.h"
 #include "Matchers.h"
 
-#include "vm/vec.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include "Catch2.h"
 

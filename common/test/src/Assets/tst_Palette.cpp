@@ -19,7 +19,7 @@
 
 #include "Assets/Palette.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "Result.h"
 
 #include "kdl/result.h"
@@ -28,6 +28,7 @@
 
 namespace TrenchBroom::Assets
 {
+
 TEST_CASE("makePalette")
 {
   using T =
@@ -213,4 +214,5 @@ TEST_CASE("loadPalette")
 
   CHECK(loadPalette(*file, filePath) == expectedPalette);
 }
+
 } // namespace TrenchBroom::Assets

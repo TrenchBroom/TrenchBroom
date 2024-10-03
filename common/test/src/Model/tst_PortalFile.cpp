@@ -20,17 +20,15 @@
 #include "IO/DiskIO.h"
 #include "Model/PortalFile.h"
 
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 
 #include <filesystem>
-#include <memory>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt";
@@ -103,5 +101,5 @@ TEST_CASE("PortalFileTest.parsePRT2")
       .portals()
     == ExpectedPortals);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

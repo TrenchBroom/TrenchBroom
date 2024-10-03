@@ -19,7 +19,6 @@
 
 #include "TestEnvironment.h"
 
-#include "IO/PathQt.h"
 #include "Macros.h"
 
 #include <fstream>

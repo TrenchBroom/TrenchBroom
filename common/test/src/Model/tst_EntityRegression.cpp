@@ -19,24 +19,16 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Color.h"
-#include "EL/ELExceptions.h"
 #include "EL/Expression.h"
 #include "FloatType.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
-#include "Model/EntityProperties.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("EntityTest.modelScaleExpressionThrows")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
@@ -65,5 +57,5 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
   // Entity::updateCachedProperties
   CHECK_NOTHROW(entity.addOrUpdateProperty("spawnflags", "a"));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

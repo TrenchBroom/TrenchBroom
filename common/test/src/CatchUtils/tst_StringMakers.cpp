@@ -28,11 +28,8 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
-#include "Result.h"
 #include "StringMakers.h"
 #include "TestUtils.h"
-
-#include "vm/bbox.h"
 
 #include "Catch2.h"
 

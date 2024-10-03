@@ -26,10 +26,9 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 class TestParserStatus : public ParserStatus
 {
 private:
@@ -47,5 +46,5 @@ private:
   void doProgress(double progress) override;
   void doLog(LogLevel level, const std::string& str) override;
 };
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

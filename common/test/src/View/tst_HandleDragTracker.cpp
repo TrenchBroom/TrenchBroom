@@ -25,15 +25,6 @@
 #include "View/HandleDragTracker.h"
 
 #include "vm/approx.h"
-#include "vm/line.h"
-#include "vm/line_io.h" // IWYU pragma: keep
-#include "vm/plane.h"
-#include "vm/plane_io.h" // IWYU pragma: keep
-#include "vm/ray.h"
-#include "vm/ray_io.h" // IWYU pragma: keep
-#include "vm/scalar.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <tuple>
 #include <vector>
@@ -41,6 +32,8 @@
 #include "Catch2.h" // IWYU pragma: keep
 
 namespace TrenchBroom::View
+{
+namespace
 {
 struct TestDelegateData
 {
@@ -114,7 +107,7 @@ struct TestDelegate : public HandleDragTrackerDelegate
   }
 };
 
-static auto makeHandleTracker(
+auto makeHandleTracker(
   TestDelegateData& data,
   const vm::vec3& initialHandlePosition,
   const vm::vec3& handleOffset)
@@ -122,6 +115,8 @@ static auto makeHandleTracker(
   return HandleDragTracker<TestDelegate>{
     TestDelegate{data}, InputState{}, initialHandlePosition, handleOffset};
 }
+
+} // namespace
 
 TEST_CASE("RestrictedDragTracker.constructor")
 {
@@ -741,4 +736,5 @@ TEST_CASE("makeCircleHandleSnapper")
       proposedHandlePosition)
     == vm::approx{radius * expectedHandlePosition});
 }
+
 } // namespace TrenchBroom::View

@@ -33,12 +33,6 @@
 
 #include "kdl/result.h"
 
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-
 #include <memory>
 #include <vector>
 

@@ -17,15 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/Camera.h"
 #include "Renderer/PerspectiveCamera.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 TEST_CASE("CameraTest.testInvalidUp")
 {
   PerspectiveCamera c;
@@ -71,5 +69,5 @@ TEST_CASE("CameraTest.testYawWhenPitchedDown")
   CHECK_FALSE(vm::is_nan(c.right()));
   CHECK_FALSE(vm::is_nan(c.up()));
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

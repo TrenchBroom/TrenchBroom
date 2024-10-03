@@ -32,20 +32,15 @@
 #include "Model/NodeQueries.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
-#include "Renderer/PerspectiveCamera.h"
-#include "TestLogger.h"
 #include "TestUtils.h"
 #include "View/ExtrudeTool.h"
 
 #include "kdl/result.h"
-#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/ray.h"
-#include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <filesystem>
 #include <memory>
@@ -56,13 +51,14 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
+
 vm::vec3 n(const vm::vec3& v)
 {
   return vm::normalize(v);
 }
+
 } // namespace
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
@@ -478,4 +474,5 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       AllDifferent<std::vector<std::string>>());
   }
 }
+
 } // namespace TrenchBroom::View

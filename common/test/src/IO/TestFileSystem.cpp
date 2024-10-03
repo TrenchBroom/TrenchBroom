@@ -24,7 +24,6 @@
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/result.h"
 
 namespace TrenchBroom::IO
 {

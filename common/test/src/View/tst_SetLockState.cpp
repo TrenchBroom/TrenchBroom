@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Model/BezierPatch.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -30,16 +28,13 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 
-#include "vm/bbox.h"
-
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges")
 {
   auto* brushNode = createBrushNode();
@@ -177,5 +172,5 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
         {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

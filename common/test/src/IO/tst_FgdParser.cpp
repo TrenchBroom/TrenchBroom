@@ -22,12 +22,10 @@
 #include "Assets/PropertyDefinition.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
-
-#include "kdl/vector_utils.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -35,10 +33,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
 {
   const auto basePath = std::filesystem::current_path() / "fixture/games/";
@@ -1041,5 +1038,5 @@ TEST_CASE("FgdParserTest.parseStringContinuations")
     definition.description()
     == R"(This is an example description for this example entity. It will appear in the help dialog for this entity)");
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

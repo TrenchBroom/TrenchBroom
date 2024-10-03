@@ -32,10 +32,6 @@
 #include "Model/PatchNode.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
 
 #include <vector>
 

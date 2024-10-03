@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
 #include "Model/NodeCollection.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
@@ -25,9 +24,8 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace View
+namespace TrenchBroom::View
+
 {
 // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
 TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244")
@@ -56,5 +54,5 @@ TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244"
   CHECK(document->selectedNodes().brushCount() == 1u);
   CHECK_NOTHROW(document->snapVertices(document->grid().actualSize()));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Brush.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -32,15 +31,6 @@
 #include "View/UpdateLinkedGroupsHelper.h"
 
 #include "kdl/overload.h"
-#include "kdl/result.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 

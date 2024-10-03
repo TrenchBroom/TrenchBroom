@@ -26,8 +26,8 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
-#include "Model/PatchNode.h"
-#include "Model/Polyhedron.h"
+#include "Model/PatchNode.h"  // IWYU pragma: keep
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -38,11 +38,6 @@
 #include "kdl/zip_iterator.h"
 
 #include "vm/approx.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <vector>
 

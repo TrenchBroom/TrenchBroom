@@ -17,9 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "IO/NodeWriter.h"
-#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceAttributes.h"
@@ -30,23 +28,14 @@
 #include "Model/LayerNode.h"
 #include "Model/LockState.h"
 #include "Model/MapFormat.h"
-#include "Model/PatchNode.h"
 #include "Model/VisibilityState.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
 #include "kdl/result.h"
-#include "kdl/string_compare.h"
-
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <fmt/format.h>
 
-#include <iostream>
 #include <sstream>
 #include <vector>
 
@@ -681,8 +670,6 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   layer1.setOmitFromExport(true);
 
   auto* layerNode1 = new Model::LayerNode{std::move(layer1)};
-  layerNode1->setLayer(std::move(layer1));
-
   map.addChild(layerNode1);
 
   auto* layer1PointEntityNode =

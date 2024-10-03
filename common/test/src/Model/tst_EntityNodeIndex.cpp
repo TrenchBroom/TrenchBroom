@@ -21,212 +21,183 @@
 #include "Model/EntityNodeBase.h"
 #include "Model/EntityNodeIndex.h"
 
-#include "kdl/vector_utils.h"
-
 #include <string>
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
+namespace
 {
-static std::vector<EntityNodeBase*> findExactExact(
+
+std::vector<EntityNodeBase*> findExactExact(
   const EntityNodeIndex& index, const std::string& name, const std::string& value)
 {
   return index.findEntityNodes(EntityNodeIndexQuery::exact(name), value);
 }
 
-static std::vector<EntityNodeBase*> findNumberedExact(
+std::vector<EntityNodeBase*> findNumberedExact(
   const EntityNodeIndex& index, const std::string& name, const std::string& value)
 {
   return index.findEntityNodes(EntityNodeIndexQuery::numbered(name), value);
 }
 
-TEST_CASE("EntityNodeIndexTest.addEntityNode")
+} // namespace
+
+TEST_CASE("EntityNodeIndex")
 {
-  EntityNodeIndex index;
+  auto index = EntityNodeIndex{};
 
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
+  SECTION("addEntityNode")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
+    auto entity2 = EntityNode{Entity{{
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }}};
 
-  EntityNode* entity2 = new EntityNode(Entity{{
-    {"test", "somevalue"},
-    {"other", "someothervalue"},
-  }});
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
 
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
+    CHECK(findExactExact(index, "test", "notfound").empty());
 
-  CHECK(findExactExact(index, "test", "notfound").empty());
+    CHECK_THAT(
+      findExactExact(index, "test", "somevalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
 
-  std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
-  CHECK(nodes.size() == 2u);
-  CHECK(kdl::vec_contains(nodes, entity1));
-  CHECK(kdl::vec_contains(nodes, entity2));
+    CHECK_THAT(
+      findExactExact(index, "other", "someothervalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
+  }
 
-  nodes = findExactExact(index, "other", "someothervalue");
-  CHECK(nodes.size() == 1u);
-  CHECK(kdl::vec_contains(nodes, entity2));
+  SECTION("removeEntityNode")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
 
-  delete entity1;
-  delete entity2;
+    auto entity2 = EntityNode{Entity{{
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }}};
+
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
+
+    index.removeEntityNode(&entity2);
+
+    CHECK_THAT(
+      findExactExact(index, "test", "somevalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+  }
+
+  SECTION("addProperty")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
+    auto entity2 = EntityNode{Entity{{{"test", "somevalue"}}}};
+
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
+
+    entity2.setEntity(Entity{{
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }});
+    index.addProperty(&entity2, "other", "someothervalue");
+
+    CHECK(findExactExact(index, "test", "notfound") == std::vector<EntityNodeBase*>{});
+
+    CHECK_THAT(
+      findExactExact(index, "test", "somevalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
+
+    CHECK_THAT(
+      findExactExact(index, "other", "someothervalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity2}));
+  }
+
+  SECTION("removeProperty")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
+
+    auto entity2 = EntityNode{Entity{{
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }}};
+
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
+
+    index.removeProperty(&entity2, "other", "someothervalue");
+
+    CHECK_THAT(
+      findExactExact(index, "test", "somevalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1, &entity2}));
+
+    CHECK(
+      findExactExact(index, "other", "someothervalue") == std::vector<EntityNodeBase*>{});
+  }
+
+  SECTION("addNumberedEntityProperty")
+  {
+    auto entity1 = EntityNode{Entity{{
+      {"test1", "somevalue"},
+      {"test2", "somevalue"},
+    }}};
+
+    index.addEntityNode(&entity1);
+
+    CHECK(findNumberedExact(index, "test", "notfound") == std::vector<EntityNodeBase*>{});
+
+    CHECK_THAT(
+      findNumberedExact(index, "test", "somevalue"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+  }
+
+  SECTION("addRemoveFloatProperty")
+  {
+    auto entity1 = EntityNode{Entity{{{"delay", "3.5"}}}};
+
+    index.addEntityNode(&entity1);
+    CHECK_THAT(
+      findExactExact(index, "delay", "3.5"),
+      Catch::UnorderedEquals(std::vector<EntityNodeBase*>{&entity1}));
+
+    index.removeProperty(&entity1, "delay", "3.5");
+    CHECK(findNumberedExact(index, "delay", "3.5") == std::vector<EntityNodeBase*>{});
+  }
+
+  SECTION("allKeys")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
+
+    auto entity2 = EntityNode{Entity{{
+      {"test", "somevalue"},
+      {"other", "someothervalue"},
+    }}};
+
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
+
+    CHECK_THAT(
+      index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
+  }
+
+  SECTION("allValuesForKeys")
+  {
+    auto entity1 = EntityNode{Entity{{{"test", "somevalue"}}}};
+
+    auto entity2 = EntityNode{Entity{{
+      {"test", "somevalue2"},
+      {"other", "someothervalue"},
+    }}};
+
+    index.addEntityNode(&entity1);
+    index.addEntityNode(&entity2);
+
+    CHECK_THAT(
+      index.allValuesForKeys(EntityNodeIndexQuery::exact("test")),
+      Catch::UnorderedEquals(std::vector<std::string>{"somevalue", "somevalue2"}));
+  }
 }
 
-TEST_CASE("EntityNodeIndexTest.removeEntityNode")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
-
-  EntityNode* entity2 = new EntityNode(Entity{{
-    {"test", "somevalue"},
-    {"other", "someothervalue"},
-  }});
-
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
-
-  index.removeEntityNode(entity2);
-
-  const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
-  CHECK(nodes.size() == 1u);
-  CHECK(nodes.front() == entity1);
-
-  delete entity1;
-  delete entity2;
-}
-
-TEST_CASE("EntityNodeIndexTest.addProperty")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
-  EntityNode* entity2 = new EntityNode(Entity{{{"test", "somevalue"}}});
-
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
-
-  entity2->setEntity(Entity{{
-    {"test", "somevalue"},
-    {"other", "someothervalue"},
-  }});
-  index.addProperty(entity2, "other", "someothervalue");
-
-  CHECK(findExactExact(index, "test", "notfound").empty());
-
-  std::vector<EntityNodeBase*> nodes = findExactExact(index, "test", "somevalue");
-  CHECK(nodes.size() == 2u);
-  CHECK(kdl::vec_contains(nodes, entity1));
-  CHECK(kdl::vec_contains(nodes, entity2));
-
-  nodes = findExactExact(index, "other", "someothervalue");
-  CHECK(nodes.size() == 1u);
-  CHECK(kdl::vec_contains(nodes, entity2));
-
-  delete entity1;
-  delete entity2;
-}
-
-TEST_CASE("EntityNodeIndexTest.removeProperty")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
-
-  EntityNode* entity2 = new EntityNode{Entity{{
-    {"test", "somevalue"},
-    {"other", "someothervalue"},
-  }}};
-
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
-
-  index.removeProperty(entity2, "other", "someothervalue");
-
-  const std::vector<EntityNodeBase*>& nodes = findExactExact(index, "test", "somevalue");
-  CHECK(nodes.size() == 2u);
-  CHECK(kdl::vec_contains(nodes, entity1));
-  CHECK(kdl::vec_contains(nodes, entity2));
-
-  CHECK(findExactExact(index, "other", "someothervalue").empty());
-
-  delete entity1;
-  delete entity2;
-}
-
-TEST_CASE("EntityNodeIndexTest.addNumberedEntityProperty")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{
-    {"test1", "somevalue"},
-    {"test2", "somevalue"},
-  }});
-
-  index.addEntityNode(entity1);
-
-  CHECK(findNumberedExact(index, "test", "notfound").empty());
-
-  std::vector<EntityNodeBase*> nodes = findNumberedExact(index, "test", "somevalue");
-  CHECK(nodes.size() == 1u);
-  CHECK(kdl::vec_contains(nodes, entity1));
-
-  delete entity1;
-}
-
-TEST_CASE("EntityNodeIndexTest.addRemoveFloatProperty")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"delay", "3.5"}}});
-
-  index.addEntityNode(entity1);
-
-  std::vector<EntityNodeBase*> nodes = findExactExact(index, "delay", "3.5");
-  CHECK(nodes.size() == 1u);
-  CHECK(kdl::vec_contains(nodes, entity1));
-
-  index.removeProperty(entity1, "delay", "3.5");
-
-  delete entity1;
-}
-
-TEST_CASE("EntityNodeIndexTest.allKeys")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
-
-  EntityNode* entity2 = new EntityNode(Entity{{
-    {"test", "somevalue"},
-    {"other", "someothervalue"},
-  }});
-
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
-
-  CHECK_THAT(
-    index.allKeys(), Catch::UnorderedEquals(std::vector<std::string>{"test", "other"}));
-}
-
-TEST_CASE("EntityNodeIndexTest.allValuesForKeys")
-{
-  EntityNodeIndex index;
-
-  EntityNode* entity1 = new EntityNode(Entity{{{"test", "somevalue"}}});
-
-  EntityNode* entity2 = new EntityNode(Entity{{
-    {"test", "somevalue2"},
-    {"other", "someothervalue"},
-  }});
-
-  index.addEntityNode(entity1);
-  index.addEntityNode(entity2);
-
-  CHECK_THAT(
-    index.allValuesForKeys(EntityNodeIndexQuery::exact("test")),
-    Catch::UnorderedEquals(std::vector<std::string>{"somevalue", "somevalue2"}));
-}
-} // namespace Model
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Model

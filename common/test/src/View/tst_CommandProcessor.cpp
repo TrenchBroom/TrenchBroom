@@ -28,16 +28,16 @@
 
 #include <chrono>
 #include <memory>
-#include <optional>
 #include <thread>
 #include <variant>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
+
 enum class CommandNotif
 {
   CommandDo,
@@ -158,7 +158,7 @@ public:
   {
   }
 
-  ~TestCommand() { CHECK(m_expectedCalls.empty()); }
+  ~TestCommand() override { CHECK(m_expectedCalls.empty()); }
 
 private:
   template <class T>
@@ -200,7 +200,7 @@ public:
    */
   void expectDo(const bool returnSuccess)
   {
-    m_expectedCalls.push_back(DoPerformDo{returnSuccess});
+    m_expectedCalls.emplace_back(DoPerformDo{returnSuccess});
   }
 
   /**
@@ -209,7 +209,7 @@ public:
    */
   void expectUndo(const bool returnSuccess)
   {
-    m_expectedCalls.push_back(DoPerformUndo{returnSuccess});
+    m_expectedCalls.emplace_back(DoPerformUndo{returnSuccess});
   }
 
   /**
@@ -218,7 +218,7 @@ public:
    */
   void expectCollate(UndoableCommand* expectedOtherCommand, const bool returnCanCollate)
   {
-    m_expectedCalls.push_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
+    m_expectedCalls.emplace_back(DoCollateWith{returnCanCollate, expectedOtherCommand});
   }
 
   deleteCopyAndMove(TestCommand);
@@ -242,6 +242,8 @@ public:
     return std::make_unique<CommandResult>(true);
   }
 };
+
+} // namespace
 
 TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
 {
@@ -829,5 +831,5 @@ TEST_CASE("CommandProcessorTest.collateTransactions")
 
   commandProcessor.undo();
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

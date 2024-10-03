@@ -17,37 +17,34 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/LayerNode.h"
 #include "Model/MapFormat.h"
 #include "Model/Tag.h"
-#include "Model/TagManager.h"
 #include "Model/WorldNode.h"
 
 #include "kdl/result.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("TaggingTest.testTagBrush")
 {
-  const vm::bbox3 worldBounds{4096.0};
-  WorldNode world{{}, {}, MapFormat::Standard};
+  const auto worldBounds = vm::bbox3{4096.0};
+  auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
-  BrushBuilder builder{MapFormat::Standard, worldBounds};
-  BrushNode* brushNode = new BrushNode(
+  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+  auto* brushNode = new BrushNode{
     builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
-    | kdl::value());
+    | kdl::value()};
 
-  world.defaultLayer()->addChild(brushNode);
+  worldNode.defaultLayer()->addChild(brushNode);
 
-  Tag tag1{"tag1", {}};
-  Tag tag2{"tag2", {}};
+  auto tag1 = Tag{"tag1", {}};
+  auto tag2 = Tag{"tag2", {}};
 
   tag1.setIndex(0);
   tag2.setIndex(1);
@@ -67,5 +64,5 @@ TEST_CASE("TaggingTest.testTagBrush")
   CHECK_FALSE(brushNode->hasTag(tag1));
   CHECK_FALSE(brushNode->hasTag(tag2));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

@@ -21,11 +21,9 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/EntityNode.h"
 #include "Model/Game.h"
-#include "Model/GroupNode.h"
 #include "Model/LayerNode.h"
-#include "Model/TestGame.h"
+#include "Model/TestGame.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"

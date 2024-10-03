@@ -22,8 +22,6 @@
 #include "Result.h"
 
 #include "kdl/reflection_impl.h"
-#include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include "Catch2.h"
 

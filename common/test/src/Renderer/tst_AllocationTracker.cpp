@@ -25,10 +25,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Renderer
 {
-namespace Renderer
-{
+
 TEST_CASE("AllocationTrackerTest.constructor")
 {
   AllocationTracker t(100);
@@ -396,5 +395,5 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand")
     CHECK(key != nullptr);
   }
 }
-} // namespace Renderer
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Renderer

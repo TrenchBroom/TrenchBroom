@@ -35,10 +35,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
 {
   Model::EntityNode* entityNode =
@@ -104,5 +103,5 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
 
   kdl::vec_clear_and_delete(validators);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -23,24 +23,24 @@
 
 #include "View/RecentDocuments.h"
 
-#include "kdl/vector_utils.h"
+#include "kdl/range_to_vector.h"
+
+#include <ranges>
 
 #include "Catch2.h"
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
+
 std::vector<QString> getTexts(const QList<QAction*>& actions)
 {
-  auto result = std::vector<QString>{};
-  for (const auto* action : actions)
-  {
-    result.push_back(action->text());
-  }
-  return result;
+  return actions
+         | std::views::transform([](const auto* action) { return action->text(); })
+         | kdl::to_vector;
 }
+
 } // namespace
 
 TEST_CASE("RecentDocuments")
@@ -356,4 +356,5 @@ TEST_CASE("RecentDocuments")
     CHECK(menu2.actions().empty());
   }
 }
+
 } // namespace TrenchBroom::View

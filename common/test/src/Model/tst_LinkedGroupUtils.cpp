@@ -31,7 +31,6 @@
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/pair_iterator.h"
 #include "kdl/vector_utils.h"
 
@@ -40,7 +39,6 @@
 #include "vm/mat_ext.h"
 
 #include <numeric>
-#include <unordered_set>
 #include <vector>
 
 #include "CatchUtils/Matchers.h"

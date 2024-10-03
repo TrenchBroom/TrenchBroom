@@ -20,18 +20,12 @@
 #include "Exceptions.h"
 #include "IO/GameEngineConfigParser.h"
 #include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
-
-#include "kdl/vector_utils.h"
 
 #include <filesystem>
-#include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace IO
+namespace TrenchBroom::IO
 {
 
 TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
@@ -120,5 +114,5 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
       {{"winquake", R"(C:\Quake\winquake.exe)", "-flag1 -flag2"},
        {"glquake", R"(C:\Quake\glquake.exe)", "-flag3 -flag4"}}});
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

@@ -45,6 +45,7 @@
 
 namespace TrenchBroom::View
 {
+
 MapDocumentTest::MapDocumentTest()
   : MapDocumentTest{Model::MapFormat::Standard}
 {

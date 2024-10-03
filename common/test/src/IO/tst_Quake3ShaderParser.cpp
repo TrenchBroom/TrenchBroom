@@ -18,15 +18,8 @@
  */
 
 #include "Assets/Quake3Shader.h"
-#include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
 #include "IO/Quake3ShaderParser.h"
-#include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
-
-#include <filesystem>
-#include <string>
 
 #include "Catch2.h"
 

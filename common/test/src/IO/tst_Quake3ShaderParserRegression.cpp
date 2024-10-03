@@ -19,8 +19,7 @@
 
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Quake3ShaderParser.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
@@ -30,10 +29,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry")
 {
   const std::string data(R"(
@@ -126,5 +124,5 @@ textures/evil3_floors/cemtiledrk_mhbrk
   TestParserStatus status;
   CHECK_NOTHROW(parser.parse(status));
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

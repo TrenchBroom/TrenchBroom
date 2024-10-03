@@ -22,12 +22,9 @@
 #include "Model/BrushNode.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
-#include "Renderer/PerspectiveCamera.h"
 #include "View/ClipTool.h"
 #include "View/ClipToolController.h"
-#include "View/Grid.h"
 #include "View/PasteType.h"
-#include "View/Tool.h"
 
 #include "Catch2.h"
 

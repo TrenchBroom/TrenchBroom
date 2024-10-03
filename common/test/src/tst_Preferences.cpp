@@ -25,14 +25,11 @@
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
-#include "QtPrettyPrinters.h"
 #include "View/Actions.h"
 
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/bbox.h"
 
 #include <filesystem>
 #include <iostream>
@@ -40,7 +37,6 @@
 #include <string>
 
 #include "Catch2.h"
-
 
 inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
 {
@@ -52,6 +48,7 @@ namespace TrenchBroom
 {
 namespace
 {
+
 QJsonValue getValue(
   const std::map<std::filesystem::path, QJsonValue>& map,
   const std::filesystem::path& key)
@@ -59,9 +56,8 @@ QJsonValue getValue(
   auto it = map.find(key);
   return it != map.end() ? it->second : QJsonValue{QJsonValue::Undefined};
 }
-} // namespace
 
-static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
+void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   CHECK(getValue(prefs, "Controls/Camera/Field of vision") == QJsonValue{108});
   CHECK(getValue(prefs, "Controls/Camera/Move down") == QJsonValue{"R"});
@@ -185,6 +181,8 @@ static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
     == QJsonValue{QJsonValue::Undefined});
   CHECK(getValue(prefs, "RecentDocuments/0") == QJsonValue{QJsonValue::Undefined});
 }
+
+} // namespace
 
 TEST_CASE("PreferencesTest.read")
 {
@@ -498,4 +496,5 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
     CHECK(kdl::vec_contains(actualPrefPaths, preferenceKey));
   }
 }
+
 } // namespace TrenchBroom

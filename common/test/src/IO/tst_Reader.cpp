@@ -28,17 +28,18 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-static const char* buff()
+
+const char* buff()
 {
   static const auto* result = "abcdefghij_";
   return result;
 }
 
-static std::shared_ptr<File> file()
+std::shared_ptr<File> file()
 {
   static auto result =
     Disk::openFile(std::filesystem::current_path() / "fixture/test/IO/Reader/10byte")
@@ -46,7 +47,7 @@ static std::shared_ptr<File> file()
   return result;
 }
 
-static void createEmpty(Reader&& r)
+void createEmpty(Reader&& r)
 {
   CHECK(r.size() == 0U);
   CHECK(r.position() == 0U);
@@ -58,6 +59,8 @@ static void createEmpty(Reader&& r)
   CHECK(r.eof());
   CHECK_THROWS_AS(r.readChar<char>(), ReaderException);
 }
+
+} // namespace
 
 TEST_CASE("BufferReaderTest.createEmpty")
 {
@@ -226,5 +229,4 @@ TEST_CASE("FileReaderTest.subReader")
 {
   subReader(file()->reader());
 }
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

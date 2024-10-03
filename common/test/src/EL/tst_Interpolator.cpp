@@ -25,17 +25,19 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::EL
 {
-namespace EL
+namespace
 {
-static void interpolateAndCheck(
+void interpolateAndCheck(
   const std::string& expression,
   const std::string& expected,
   const EvaluationContext& context = EvaluationContext())
 {
   CHECK(Interpolator(expression).interpolate(context) == expected);
 }
+
+} // namespace
 
 TEST_CASE("ELInterpolatorTest.interpolateEmptyString")
 {
@@ -91,5 +93,5 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL")
   CHECK_THROWS(interpolate(" an ${TEST", context));
   CHECK_THROWS(interpolate(" an ${TEST expression", context));
 }
-} // namespace EL
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::EL

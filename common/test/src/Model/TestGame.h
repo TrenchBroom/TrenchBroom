@@ -123,4 +123,5 @@ public:
   void setSmartTags(std::vector<SmartTag> smartTags);
   void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
 };
+
 } // namespace TrenchBroom::Model

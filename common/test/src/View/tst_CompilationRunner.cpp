@@ -37,13 +37,15 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <condition_variable>
 #include <filesystem>
 #include <mutex>
-#include <thread>
 
 #include "Catch2.h"
 
 namespace TrenchBroom::View
 {
 using namespace std::chrono_literals;
+
+namespace
+{
 
 class ExecuteTask
 {
@@ -96,6 +98,8 @@ public:
     return false;
   }
 };
+
+} // namespace
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
 {
@@ -372,4 +376,5 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
 
   CHECK(interpolated == expected);
 }
+
 } // namespace TrenchBroom::View

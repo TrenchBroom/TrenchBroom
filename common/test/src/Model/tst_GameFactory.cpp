@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h" // IWYU pragma: keep
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
@@ -33,7 +32,6 @@
 
 namespace TrenchBroom::Model
 {
-
 namespace
 {
 const auto gamesPath = std::filesystem::path{"games"};
@@ -155,6 +153,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
   writeCompilationProfile(env, "Migrate 3");
   writeGameEngineProfile(env, "Migrate3");
 }
+
 } // namespace
 
 TEST_CASE("GameFactory")

@@ -22,10 +22,9 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/TestEnvironment.h"
 #include "Logger.h"
-#include "Model/BrushNode.h"
+#include "Model/BrushNode.h" // IWYU pragma: keep
 #include "Model/EntityNode.h"
-#include "Model/LayerNode.h"
-#include "TestUtils.h"
+#include "Model/LayerNode.h" // IWYU pragma: keep
 #include "View/Autosaver.h"
 #include "View/MapDocumentTest.h"
 
@@ -41,9 +40,9 @@
 
 namespace TrenchBroom::View
 {
-
 namespace
 {
+
 IO::TestEnvironment makeTestEnvironment()
 {
   // have a non-ASCII character in the directory name to help catch

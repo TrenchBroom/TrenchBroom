@@ -25,31 +25,22 @@
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
 
-#include "kdl/vector_set.h"
-
-#include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h" // enable Catch2 to print vm::vec on test failures
-
 #include <filesystem>
 #include <memory>
-#include <sstream>
 #include <string>
 
 namespace TrenchBroom
 {
+bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
+bool pointExactlyIntegral(const vm::vec3d& point);
+bool uvListsEqual(
+  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
+
 namespace Assets
 {
 class Material;
 class Texture;
 } // namespace Assets
-
-bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
-bool pointExactlyIntegral(const vm::vec3d& point);
-bool uvListsEqual(
-  const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
 namespace IO
 {

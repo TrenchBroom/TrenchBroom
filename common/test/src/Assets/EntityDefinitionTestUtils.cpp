@@ -21,14 +21,11 @@
 
 #include "Assets/EntityDefinition.h"
 #include "EL/EvaluationContext.h"
-#include "EL/Types.h"
 #include "EL/Value.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
-
-#include "kdl/vector_utils.h"
 
 #include <string>
 #include <vector>

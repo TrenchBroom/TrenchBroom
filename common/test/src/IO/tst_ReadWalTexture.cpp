@@ -17,12 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/ReadWalTexture.h"
 
 #include "kdl/result.h"
@@ -31,11 +29,12 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
+namespace
 {
-static const auto fixturePath = "fixture/test/IO/Wal";
+constexpr auto fixturePath = "fixture/test/IO/Wal";
+}
 
 TEST_CASE("readWalTexture")
 {
@@ -75,5 +74,5 @@ TEST_CASE("readWalTexture")
   CHECK(texture.height() == height);
   CHECK(texture.embeddedDefaults() == embeddedDefaults);
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

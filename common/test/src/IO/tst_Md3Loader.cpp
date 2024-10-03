@@ -19,9 +19,8 @@
 
 #include "Assets/EntityModel.h"
 #include "Assets/Palette.h"
-#include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LoadMaterialCollections.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"
@@ -33,9 +32,7 @@
 
 #include "vm/bbox.h"
 #include "vm/forward.h"
-#include "vm/vec.h"
 
-#include <cstdio>
 #include <filesystem>
 #include <memory>
 
@@ -43,6 +40,7 @@
 
 namespace TrenchBroom::IO
 {
+
 TEST_CASE("Md3LoaderTest.loadValidMd3")
 {
   auto logger = NullLogger{};
@@ -111,4 +109,5 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
   const auto* skin2 = surface2->skin("models/weapons2/bfg/LDAbfg_z");
   CHECK(skin2 != nullptr);
 }
+
 } // namespace TrenchBroom::IO

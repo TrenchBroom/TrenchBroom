@@ -26,15 +26,15 @@
 #include "View/ClipToolController.h"
 #include "View/Grid.h"
 #include "View/PasteType.h"
-#include "View/Tool.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
-static void updatePickState(
+
+void updatePickState(
   InputState& inputState, const Renderer::Camera& camera, const MapDocument& document)
 {
   Model::PickResult pickResult = Model::PickResult::byDistance();
@@ -48,6 +48,8 @@ static void updatePickState(
   inputState.setPickRequest(pickRequest);
   inputState.setPickResult(std::move(pickResult));
 }
+
+} // namespace
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2602
 TEST_CASE_METHOD(
@@ -147,5 +149,5 @@ TEST_CASE_METHOD(
   CHECK(
     brush->logicalBounds() == vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)));
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

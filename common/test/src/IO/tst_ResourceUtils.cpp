@@ -19,19 +19,17 @@
 
 #include "Assets/Material.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
 #include "IO/ResourceUtils.h"
-#include "TestLogger.h"
+#include "Logger.h"
 
 #include <filesystem>
 #include <memory>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("ResourceUtilsTest.loadDefaultMaterial")
 {
   auto fs = std::make_shared<DiskFileSystem>(
@@ -41,5 +39,5 @@ TEST_CASE("ResourceUtilsTest.loadDefaultMaterial")
   auto material = loadDefaultMaterial(*fs, "some_name", logger);
   CHECK(material.name() == "some_name");
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

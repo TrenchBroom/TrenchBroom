@@ -32,20 +32,23 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
+namespace
 {
-static void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex)
+
+void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex)
 {
   auto layer = layerNode.layer();
   layer.setSortIndex(sortIndex);
   layerNode.setLayer(layer);
 }
 
+} // namespace
+
 TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable")
 {
-  Model::LayerNode* defaultLayerNode = document->world()->defaultLayer();
+  auto* defaultLayerNode = document->world()->defaultLayer();
   setLayerSortIndex(*defaultLayerNode, 555);
 
   CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
@@ -57,7 +60,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  Model::LayerNode* layerNode = new Model::LayerNode(Model::Layer("test1"));
+  auto* layerNode = new Model::LayerNode{Model::Layer{"test1"}};
   document->addNodes({{document->world(), {layerNode}}});
   CHECK(layerNode->name() == "test1");
 
@@ -74,14 +77,13 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->selectAllNodes();
   document->deleteObjects();
 
-  Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  Model::EntityNode* entity =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -90,7 +92,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->duplicateObjects(); // the duplicate should stay in layer1
 
   REQUIRE(document->selectedNodes().entityCount() == 1);
-  Model::EntityNode* entityClone = document->selectedNodes().entities().at(0);
+  auto* entityClone = document->selectedNodes().entities().at(0);
   CHECK(entityClone->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2);
   CHECK(document->currentLayer() == layerNode2);
@@ -102,14 +104,13 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  Model::EntityNode* entity =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -130,16 +131,15 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
   document->selectAllNodes();
   document->deleteObjects();
 
-  Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  Model::LayerNode* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
 
   // Create an entity in layer1
-  Model::EntityNode* entity1 =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
@@ -155,8 +155,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
 
   // Create another entity in layer1. It will be visible, while entity1 will still be
   // hidden.
-  Model::EntityNode* entity2 =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
@@ -206,16 +205,15 @@ TEST_CASE_METHOD(
   document->selectAllNodes();
   document->deleteObjects();
 
-  Model::LayerNode* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
   document->addNodes({{document->world(), {layerNode1}}});
 
   document->setCurrentLayer(layerNode1);
   document->hideLayers({layerNode1});
 
   // Create entity1 and brush1 in the hidden layer1
-  Model::EntityNode* entity1 =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
-  Model::BrushNode* brush1 = createBrushNode();
+  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+  auto* brush1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush1}}});
 
   CHECK(entity1->parent() == layerNode1);
@@ -233,8 +231,8 @@ TEST_CASE_METHOD(
   document->duplicateObjects();
   REQUIRE(document->selectedNodes().entityCount() == 1u);
   REQUIRE(document->selectedNodes().brushCount() == 1u);
-  Model::EntityNode* entity2 = document->selectedNodes().entities().front();
-  Model::BrushNode* brush2 = document->selectedNodes().brushes().front();
+  auto* entity2 = document->selectedNodes().entities().front();
+  auto* brush2 = document->selectedNodes().brushes().front();
 
   CHECK(entity2 != entity1);
   CHECK(brush2 != brush1);
@@ -252,8 +250,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
@@ -323,9 +321,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode0 = new Model::LayerNode(Model::Layer("layer0"));
-  auto* layerNode1 = new Model::LayerNode(Model::Layer("layer1"));
-  auto* layerNode2 = new Model::LayerNode(Model::Layer("layer2"));
+  auto* layerNode0 = new Model::LayerNode{Model::Layer{"layer0"}};
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"layer1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"layer2"}};
 
   setLayerSortIndex(*layerNode0, 0);
   setLayerSortIndex(*layerNode1, 1);
@@ -385,7 +383,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* customLayer = new Model::LayerNode(Model::Layer("layer"));
+  auto* customLayer = new Model::LayerNode{Model::Layer{"layer"}};
   document->addNodes({{document->world(), {customLayer}}});
 
   auto* defaultLayer = document->world()->defaultLayer();
@@ -514,8 +512,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation")
   document->deleteObjects();
 
   auto* defaultLayerNode = document->world()->defaultLayer();
-  auto* layerNode1 = new Model::LayerNode(Model::Layer("test1"));
-  auto* layerNode2 = new Model::LayerNode(Model::Layer("test2"));
+  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
   CHECK(document->currentLayer() == defaultLayerNode);
@@ -535,5 +533,5 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation")
   document->redoCommand();
   CHECK(document->currentLayer() == layerNode2);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Assets/Palette.h"
+#include "Assets/Quake3Shader.h"
 #include "Assets/TextureResource.h"
 #include "Result.h"
 
@@ -34,7 +35,6 @@ class Logger;
 
 namespace TrenchBroom::Assets
 {
-class Quake3Shader;
 class Material;
 class MaterialCollection;
 } // namespace TrenchBroom::Assets

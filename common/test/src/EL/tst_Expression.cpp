@@ -26,8 +26,6 @@
 
 #include <fmt/ostream.h>
 
-#include <cmath>
-#include <map>
 #include <string>
 #include <variant>
 #include <vector>
@@ -36,20 +34,24 @@
 
 namespace TrenchBroom::EL
 {
+namespace
+{
 
 using V = Value;
 
-static Value evaluate(const std::string& expression, const MapType& variables = {})
+Value evaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
   return IO::ELParser::parseStrict(expression).evaluate(context);
 }
 
-static Value tryEvaluate(const std::string& expression, const MapType& variables = {})
+Value tryEvaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
   return IO::ELParser::parseStrict(expression).evaluate(context);
 }
+
+} // namespace
 
 TEST_CASE("ExpressionTest.testValueLiterals")
 {

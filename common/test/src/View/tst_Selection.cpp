@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
@@ -31,12 +30,6 @@
 #include "View/MapDocumentTest.h"
 
 #include "kdl/result.h"
-
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include "Catch2.h"
 

@@ -22,7 +22,7 @@
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
 #include "IO/LoadEntityModel.h"
-#include "Model/Game.h"
+#include "Model/Game.h" // IWYU pragma: keep
 #include "Model/GameConfig.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
@@ -32,7 +32,6 @@
 #include "vm/approx.h"
 #include "vm/bbox.h"
 #include "vm/intersection.h"
-#include "vm/ray.h"
 
 #include <filesystem>
 

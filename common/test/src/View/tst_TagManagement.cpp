@@ -21,22 +21,18 @@
 #include "Assets/MaterialCollection.h"
 #include "Assets/MaterialManager.h"
 #include "Assets/Texture.h"
-#include "IO/TestEnvironment.h"
-#include "Logger.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "Model/EntityNode.h"
-#include "Model/LayerNode.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
-#include "Model/TestGame.h"
+#include "Model/TestGame.h" // IWYU pragma: keep
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 
 #include "kdl/vector_utils.h"
 
-#include <filesystem>
 #include <vector>
 
 #include "Catch2.h"

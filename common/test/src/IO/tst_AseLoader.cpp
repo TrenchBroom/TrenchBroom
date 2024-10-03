@@ -20,10 +20,9 @@
 #include "Assets/EntityModel.h"
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "Assets/Quake3Shader.h"
 #include "IO/AseLoader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LoadMaterialCollections.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"

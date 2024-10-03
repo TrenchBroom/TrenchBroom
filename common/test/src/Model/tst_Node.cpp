@@ -18,14 +18,11 @@
  */
 
 #include "EL/Expression.h"
-#include "EL/Expression.h" // IWYU pragma: keep
 #include "EL/Value.h"
-#include "Exceptions.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/BrushFaceAttributes.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
@@ -41,14 +38,6 @@
 #include "kdl/overload.h"
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/ray.h"
-#include "vm/ray_io.h"
 
 #include <variant>
 #include <vector>

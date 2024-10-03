@@ -29,20 +29,11 @@
 
 #include "kdl/overload.h"
 
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/mat.h"
-#include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h"
-
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
 {
   SECTION("Update linked groups")
@@ -155,5 +146,5 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails")
   CHECK(groupNode->childCount() == 0u);
   CHECK(linkedGroupNode->childCount() == 0u);
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

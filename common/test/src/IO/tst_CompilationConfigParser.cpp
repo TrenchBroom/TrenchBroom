@@ -20,17 +20,13 @@
 #include "Exceptions.h"
 #include "IO/CompilationConfigParser.h"
 #include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
-
-#include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("CompilationConfigParserTest.parseBlankConfig")
 {
   const auto config = "   ";
@@ -460,5 +456,5 @@ TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
        }},
     }});
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

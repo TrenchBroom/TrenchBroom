@@ -18,14 +18,12 @@
  */
 
 #include "Ensure.h"
-#include "Macros.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Ensure
 {
-namespace Ensure
-{
+
 TEST_CASE("EnsureTest.successfulEnsure")
 {
   CHECK_NOTHROW([]() { ensure(true, "this shouldn't fail"); }());
@@ -46,5 +44,5 @@ TEST_CASE("EnsureTest.failingEnsure")
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-} // namespace Ensure
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Ensure

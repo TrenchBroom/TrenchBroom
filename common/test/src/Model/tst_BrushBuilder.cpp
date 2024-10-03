@@ -17,12 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h" // IWYU pragma: keep
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
-#include "Model/Polyhedron.h"
+#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Model/Polyhedron3.h"
 
 #include "kdl/range_to_vector.h"
@@ -30,14 +29,13 @@
 
 #include <string>
 
-#include "CatchUtils/Matchers.h"
-
 #include "Catch2.h"
 
 namespace TrenchBroom::Model
 {
 namespace
 {
+
 auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
 {
   return BrushFace::create(
@@ -55,6 +53,7 @@ auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& face
            vm::bbox3{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
          | kdl::value();
 };
+
 } // namespace
 
 TEST_CASE("BrushBuilderTest.createCube")

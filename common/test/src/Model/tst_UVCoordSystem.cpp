@@ -22,12 +22,11 @@
 #include "Model/ParallelUVCoordSystem.h"
 #include "Model/ParaxialUVCoordSystem.h"
 
-#include "vm/vec.h"
-
 #include "Catch2.h"
 
 namespace TrenchBroom::Model
 {
+
 // Disable a clang warning when using ASSERT_DEATH
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -54,4 +53,5 @@ TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
+
 } // namespace TrenchBroom::Model

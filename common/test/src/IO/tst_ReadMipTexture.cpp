@@ -17,12 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Assets/MaterialCollection.h"
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/MaterialUtils.h"
 #include "IO/ReadMipTexture.h"
 #include "IO/WadFileSystem.h"

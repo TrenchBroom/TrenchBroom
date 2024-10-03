@@ -17,46 +17,26 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Exceptions.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
-#include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
-#include "Model/PatchNode.h"
-#include "Model/PickResult.h"
 #include "TestUtils.h"
 
-#include "kdl/collection_utils.h"
-#include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/approx.h"
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/polygon.h"
-#include "vm/ray.h"
-#include "vm/segment.h"
-#include "vm/vec.h"
-
-#include <memory>
 #include <string>
 #include <vector>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 TEST_CASE("BrushNodeTest.buildBrush_1186")
 {
   /*
@@ -803,5 +783,5 @@ TEST_CASE("BrushNodeTest.intersects_1893")
 
   kdl::vec_clear_and_delete(nodes);
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

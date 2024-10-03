@@ -18,7 +18,6 @@
  */
 
 #include "Assets/DecalDefinition.h"
-#include "EL/Expression.h"
 #include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 
@@ -27,9 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Assets
+namespace TrenchBroom::Assets
 {
 
 namespace
@@ -95,5 +92,4 @@ TEST_CASE("DecalDefinitionTest.defaultDecalSpecification")
   CHECK(decalDefinition.defaultDecalSpecification() == expectedDecalSpecification);
 }
 
-} // namespace Assets
-} // namespace TrenchBroom
+} // namespace TrenchBroom::Assets

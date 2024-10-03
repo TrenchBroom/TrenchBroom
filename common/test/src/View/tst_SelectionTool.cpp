@@ -36,16 +36,12 @@
 #include "View/SelectionTool.h"
 
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
-
-#include "vm/ray.h"
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::View
 {
-namespace View
-{
+
 TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 {
   const auto* world = document->world();
@@ -444,5 +440,5 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
     }
   }
 }
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::View

@@ -19,24 +19,18 @@
 
 #include "FloatType.h"
 #include "Model/Polyhedron.h"
-#include "Model/Polyhedron_BrushGeometryPayload.h"
 #include "Model/Polyhedron_DefaultPayload.h"
 #include "Model/Polyhedron_Instantiation.h"
 
 #include "vm/plane.h"
-#include "vm/scalar.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
 #include <iterator>
-#include <set>
-#include <tuple>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
-{
-namespace Model
+namespace TrenchBroom::Model
 {
 
 using Polyhedron3d =
@@ -650,5 +644,5 @@ TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar")
     },
     0.0));
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

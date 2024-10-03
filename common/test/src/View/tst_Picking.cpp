@@ -24,7 +24,6 @@
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
-#include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
@@ -35,8 +34,6 @@
 #include "kdl/result.h"
 
 #include "vm/approx.h"
-#include "vm/ray.h"
-#include "vm/ray_io.h"
 
 #include <vector>
 

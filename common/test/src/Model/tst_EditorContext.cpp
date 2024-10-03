@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -35,20 +34,15 @@
 #include "Preferences.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
-
-#include "vm/bbox.h"
-#include "vm/bbox_io.h"
 
 #include <functional>
 #include <tuple>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::Model
 {
-namespace Model
-{
+
 class EditorContextTest
 {
 protected:
@@ -1208,5 +1202,5 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
     CHECK(context.selectable(entityNode) == selectable);
   }
 }
-} // namespace Model
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::Model

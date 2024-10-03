@@ -17,22 +17,19 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/TraversalMode.h"
 #include "TestFileSystem.h"
 
 #include "kdl/result.h"
-#include "kdl/result_io.h"
 
 #include <filesystem>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("TestFileSystem")
 {
   auto root_file_1 = makeObjectFile(1);
@@ -162,5 +159,4 @@ TEST_CASE("TestFileSystem")
   }
 }
 
-} // namespace IO
-} // namespace TrenchBroom
+} // namespace TrenchBroom::IO

@@ -17,14 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/File.h"
+#include "IO/File.h" // IWYU pragma: keep
 #include "IO/ReadM8Texture.h"
-#include "TestLogger.h"
 #include "TestUtils.h"
 
 #include "kdl/result.h"
@@ -34,10 +31,9 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace TrenchBroom::IO
 {
-namespace IO
-{
+
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
 {
   auto fs = DiskFileSystem{std::filesystem::current_path()};
@@ -65,5 +61,5 @@ TEST_CASE("ReadM8TextureTest.testBasicLoading")
     }
   }
 }
-} // namespace IO
-} // namespace TrenchBroom
+
+} // namespace TrenchBroom::IO

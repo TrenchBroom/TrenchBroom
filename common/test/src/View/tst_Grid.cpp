@@ -17,12 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Exceptions.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
-#include "Model/Entity.h"
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
 #include "View/Grid.h"
@@ -30,7 +27,7 @@
 #include "kdl/result.h"
 
 #include "vm/approx.h"
-#include "vm/polygon.h"
+#include "vm/polygon.h" // IWYU pragma: keep
 #include "vm/segment.h"
 
 #include <cmath>
@@ -228,7 +225,7 @@ namespace
 {
 vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to)
 {
-  return vm::ray3(from, vm::normalize(to - from));
+  return vm::ray3{from, vm::normalize(to - from)};
 }
 } // namespace
 
