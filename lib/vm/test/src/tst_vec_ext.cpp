@@ -19,12 +19,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
-#include "vm/approx.h"
 #include "vm/forward.h"
 #include "vm/vec_ext.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <vector>

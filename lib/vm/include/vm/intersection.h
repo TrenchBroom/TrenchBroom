@@ -805,7 +805,7 @@ constexpr bool intersect_bbox_polygon(
 
   // 3
   auto edgeIsect = false;
-  bbox.for_each_edge([&, pl = pl](const auto& start, const auto& en) {
+  bbox.for_each_edge([&](const auto& start, const auto& en) {
     const auto dir = en - start;
     const auto ln = line<T, 3>{start, dir};
     const auto d = intersect_line_plane(ln, *pl);

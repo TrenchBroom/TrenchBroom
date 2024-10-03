@@ -22,7 +22,7 @@
 #pragma once
 
 #include "vm/plane.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <ostream>
 

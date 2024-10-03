@@ -24,9 +24,8 @@
 #include "vm/approx.h"
 #include "vm/forward.h"
 #include "vm/mat_ext.h" // used by rotate_pos_x_by_degrees
-#include "vm/mat_io.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <limits>

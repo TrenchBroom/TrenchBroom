@@ -18,8 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "vm/forward.h"
 #include "vm/mat_io.h"
 

@@ -21,8 +21,6 @@
 
 #pragma once
 
-#include "vm/forward.h"
-
 #define CE_CHECK(expr)                                                                   \
   {                                                                                      \
     constexpr auto _r_r = (expr);                                                        \

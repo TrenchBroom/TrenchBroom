@@ -19,8 +19,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "vm/forward.h"
 #include "vm/vec_io.h"
 

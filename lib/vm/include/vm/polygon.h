@@ -22,9 +22,8 @@
 #pragma once
 
 #include "vm/mat.h"
-#include "vm/mat_ext.h"
 #include "vm/vec.h"
-#include "vm/vec_ext.h"
+#include "vm/vec_ext.h" // IWYU pragma: keep
 
 #include <algorithm>
 #include <cstddef>

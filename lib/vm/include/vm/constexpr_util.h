@@ -24,9 +24,7 @@
 #include <cstddef>
 #include <iterator>
 
-namespace vm
-{
-namespace detail
+namespace vm::detail
 {
 /**
  * Swaps the given values.
@@ -86,5 +84,4 @@ constexpr void sort(I left, I right, const C& cmp)
     sort(std::next(mid), right, cmp);
   }
 }
-} // namespace detail
-} // namespace vm
+} // namespace vm::detail

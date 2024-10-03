@@ -22,13 +22,12 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/constexpr_util.h"
 #include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/quat.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 

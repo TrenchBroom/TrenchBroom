@@ -24,7 +24,6 @@
 #include "vm/approx.h"
 #include "vm/scalar.h"
 
-#include <array>
 #include <limits>
 
 #include <catch2/catch.hpp>

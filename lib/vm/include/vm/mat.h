@@ -21,7 +21,6 @@
 
 #pragma once
 
-#include "vm/constants.h"
 #include "vm/vec.h"
 
 #include <cassert>
@@ -205,7 +204,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_x_cw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+1, +0, +0, +0, +0, +0, +1, +0, +0, -1, +0, +0, +0, +0, +0, +1);
@@ -218,7 +217,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_y_cw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+0, +0, -1, +0, +0, +1, +0, +0, +1, +0, +0, +0, +0, +0, +0, +1);
@@ -231,7 +230,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_z_cw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+0, +1, +0, +0, -1, +0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1);
@@ -244,7 +243,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_x_ccw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+1, +0, +0, +0, +0, +0, -1, +0, +0, +1, +0, +0, +0, +0, +0, +1);
@@ -257,7 +256,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_y_ccw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+0, +0, +1, +0, +0, +1, +0, +0, -1, +0, +0, +0, +0, +0, +0, +1);
@@ -270,7 +269,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_90_z_ccw(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+0, -1, +0, +0, +1, +0, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1);
@@ -282,7 +281,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_180_x(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+1, +0, +0, +0, +0, -1, +0, +0, +0, +0, -1, +0, +0, +0, +0, +1);
@@ -294,7 +293,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_180_y(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(-1, +0, +0, +0, +0, +1, +0, +0, +0, +0, -1, +0, +0, +0, +0, +1);
@@ -306,7 +305,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> rot_180_z(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(-1, +0, +0, +0, +0, -1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1);
@@ -318,7 +317,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> mirror_x(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(-1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1);
@@ -330,7 +329,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> mirror_y(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+1, +0, +0, +0, +0, -1, +0, +0, +0, +0, +1, +0, +0, +0, +0, +1);
@@ -342,7 +341,7 @@ public:
    */
   template <std::size_t RR = R, std::size_t CC = C>
   static constexpr mat<T, R, C> mirror_z(
-    typename std::enable_if<RR == 4 && CC == 4>::type* = nullptr)
+    typename std::enable_if_t<RR == 4 && CC == 4>* = nullptr)
   {
     constexpr auto result =
       mat<T, R, C>(+1, +0, +0, +0, +0, +1, +0, +0, +0, +0, -1, +0, +0, +0, +0, +1);
@@ -356,8 +355,7 @@ public:
    * @return the matrix
    */
   template <std::size_t E, std::size_t RR = R, std::size_t CC = C>
-  static constexpr mat<T, R, C> zero_out(
-    typename std::enable_if<RR == CC>::type* = nullptr)
+  static constexpr mat<T, R, C> zero_out(typename std::enable_if_t<RR == CC>* = nullptr)
   {
     static_assert(E < R, "Element index out of bounds");
     constexpr auto result = set(mat<T, R, C>::identity(), E, E, static_cast<T>(0));

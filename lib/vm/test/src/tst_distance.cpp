@@ -23,11 +23,8 @@
 
 #include "vm/abstract_line.h"
 #include "vm/approx.h"
-#include "vm/constants.h"
 #include "vm/distance.h"
 #include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/util.h"
 #include "vm/vec.h"
 
 #include <catch2/catch.hpp>

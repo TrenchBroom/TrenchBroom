@@ -27,8 +27,7 @@
 #include "View/Grid.h"
 
 #include "vm/distance.h"
-#include "vm/intersection.h"
-#include "vm/plane.h"
+#include "vm/polygon.h"
 #include "vm/ray.h"
 #include "vm/vec.h"
 

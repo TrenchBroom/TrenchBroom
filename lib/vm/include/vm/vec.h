@@ -207,7 +207,7 @@ public:
    * @return the value of the first component
    */
   template <std::size_t SS = S>
-  constexpr T x(typename std::enable_if<SS >= 1>::type* = nullptr) const
+  constexpr T x(typename std::enable_if_t<SS >= 1>* = nullptr) const
   {
     static_assert(S > 0);
     return v[0];
@@ -219,7 +219,7 @@ public:
    * @return the value of the second component
    */
   template <std::size_t SS = S>
-  constexpr T y(typename std::enable_if<SS >= 2>::type* = nullptr) const
+  constexpr T y(typename std::enable_if_t<SS >= 2>* = nullptr) const
   {
     static_assert(S > 1);
     return v[1];
@@ -231,7 +231,7 @@ public:
    * @return the value of the third component
    */
   template <std::size_t SS = S>
-  constexpr T z(typename std::enable_if<SS >= 3>::type* = nullptr) const
+  constexpr T z(typename std::enable_if_t<SS >= 3>* = nullptr) const
   {
     static_assert(S > 2);
     // cppcheck-suppress arrayIndexOutOfBounds
@@ -244,7 +244,7 @@ public:
    * @return the value of the fourth component
    */
   template <std::size_t SS = S>
-  constexpr T w(typename std::enable_if<SS >= 4>::type* = nullptr) const
+  constexpr T w(typename std::enable_if_t<SS >= 4>* = nullptr) const
   {
     static_assert(S > 3);
     // cppcheck-suppress arrayIndexOutOfBounds
@@ -1726,7 +1726,7 @@ constexpr bool is_parallel_c(
 template <typename T, std::size_t S>
 constexpr vec<T, S> floor(const vec<T, S>& v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a float point type");
   vec<T, S> result;
   for (size_t i = 0; i < S; ++i)
   {
@@ -1747,7 +1747,7 @@ constexpr vec<T, S> floor(const vec<T, S>& v)
 template <typename T, std::size_t S>
 constexpr vec<T, S> ceil(const vec<T, S>& v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a float point type");
   vec<T, S> result;
   for (size_t i = 0; i < S; ++i)
   {
@@ -1961,11 +1961,11 @@ constexpr bool is_between_c(
  */
 template <typename I, typename G = identity>
 constexpr auto average(I cur, I end, const G& get = G()) ->
-  typename std::remove_reference<decltype(get(*cur))>::type
+  typename std::remove_reference_t<decltype(get(*cur))>
 {
   assert(cur != end);
 
-  using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
+  using T = typename std::remove_reference_t<decltype(get(*cur))>::type;
 
   auto result = get(*cur++);
   auto count = T(1.0);

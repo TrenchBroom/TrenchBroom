@@ -24,7 +24,6 @@
 #include "vm/abstract_line.h"
 #include "vm/constants.h"
 #include "vm/line.h"
-#include "vm/polygon.h"
 #include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/vec.h"

@@ -56,7 +56,7 @@ struct identity
 template <typename T>
 constexpr bool is_nan(const T f)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return f != f;
 }
 
@@ -70,7 +70,7 @@ constexpr bool is_nan(const T f)
 template <typename T>
 constexpr bool is_inf(const T f)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return (
     f == std::numeric_limits<T>::infinity() || f == -std::numeric_limits<T>::infinity());
 }
@@ -84,7 +84,7 @@ constexpr bool is_inf(const T f)
 template <typename T>
 constexpr T nan()
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return std::numeric_limits<T>::quiet_NaN();
 }
 
@@ -346,7 +346,7 @@ constexpr T safe_max(const T lhs, const T rhs, const Rest... rest)
 template <typename T>
 constexpr T abs_difference(const T lhs, const T rhs)
 {
-  if constexpr (std::is_signed<T>::value)
+  if constexpr (std::is_signed_v<T>)
   {
     return abs(abs(lhs) - abs(rhs));
   }
@@ -424,7 +424,7 @@ constexpr T step(const T e, const T v)
 template <typename T>
 constexpr T smoothstep(const T e0, const T e1, const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   const auto t = clamp((v - e0) / (e1 - e0), T(0), T(1));
   return t * t * (T(3) - T(2) * t);
 }
@@ -454,7 +454,7 @@ constexpr T trunc(const T v)
 template <typename T>
 constexpr T mod(const T x, const T y)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return x - y * trunc(x / y);
 }
 
@@ -468,7 +468,7 @@ constexpr T mod(const T x, const T y)
 template <typename T>
 constexpr T floor(const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   const auto r = trunc(v);
   return (v >= static_cast<T>(0.0)) ? r : (r == v ? v : r - static_cast<T>(1.0));
 }
@@ -483,7 +483,7 @@ constexpr T floor(const T v)
 template <typename T>
 constexpr T ceil(const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   const auto r = trunc(v);
   return (v < static_cast<T>(0.0)) ? r : (r == v ? r : r + static_cast<T>(1.0));
 }
@@ -532,7 +532,7 @@ constexpr T fract(const T v)
 template <typename T>
 constexpr T round(const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return v > static_cast<T>(0.0) ? floor(v + static_cast<T>(0.5))
                                  : ceil(v - static_cast<T>(0.5));
 }
@@ -549,7 +549,7 @@ constexpr T round(const T v)
 template <typename T>
 constexpr T round_up(const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return v < static_cast<T>(0.0) ? floor(v) : ceil(v);
 }
 
@@ -565,7 +565,7 @@ constexpr T round_up(const T v)
 template <typename T>
 constexpr T round_down(const T v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   // this is equivalent to calling trunc
   // we keep this function for consistency because there is no equivalent function to
   // roundUp
@@ -583,7 +583,7 @@ constexpr T round_down(const T v)
 template <typename T>
 constexpr T snap(const T v, const T grid)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   assert(grid != static_cast<T>(0.0));
   return grid * round(v / grid);
 }
@@ -599,7 +599,7 @@ constexpr T snap(const T v, const T grid)
 template <typename T>
 constexpr T snapUp(const T v, const T grid)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   assert(grid > static_cast<T>(0.0));
   return grid * round_up(v / grid);
 }
@@ -615,7 +615,7 @@ constexpr T snapUp(const T v, const T grid)
 template <typename T>
 constexpr T snapDown(const T v, const T grid)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   assert(grid > static_cast<T>(0.0));
   return grid * round_down(v / grid);
 }
@@ -637,7 +637,7 @@ constexpr T correct(
   const std::size_t decimals = 0u,
   const T epsilon = constants<T>::correct_epsilon())
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   const T m = static_cast<T>(1u << decimals);
   const T r = round(v * m);
   if (abs(v - r) < epsilon)
@@ -677,7 +677,7 @@ constexpr bool is_equal(const T lhs, const T rhs, const T epsilon)
 template <typename T>
 constexpr bool is_zero(const T v, const T epsilon)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   // MSVC sometimes complains about a possible division by 0 when we use is_zero to check
   // that the denominator is not 0. The diagnostic does not understand that abs(v) >
   // epsilon implies that v != 0, so we make it explicit.
@@ -717,7 +717,7 @@ constexpr bool contains(const T v, const T s, const T e)
 template <typename T>
 constexpr T to_radians(const T d)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return d * constants<T>::pi() / static_cast<T>(180);
 }
 
@@ -731,7 +731,7 @@ constexpr T to_radians(const T d)
 template <typename T>
 constexpr T to_degrees(const T r)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return r * static_cast<T>(180) / constants<T>::pi();
 }
 
@@ -745,7 +745,7 @@ constexpr T to_degrees(const T r)
 template <typename T>
 constexpr T normalize_radians(T angle)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   constexpr T z = static_cast<T>(0.0);
   constexpr T o = constants<T>::two_pi();
   while (angle < z)
@@ -765,7 +765,7 @@ constexpr T normalize_radians(T angle)
 template <typename T>
 constexpr T normalize_degrees(T angle)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   constexpr T z = static_cast<T>(0.0);
   constexpr T o = static_cast<T>(360.0);
   while (angle < z)
@@ -788,8 +788,8 @@ constexpr T normalize_degrees(T angle)
 template <typename T, typename U>
 constexpr T succ(const T index, const U count, const T stride = static_cast<T>(1))
 {
-  static_assert(std::is_integral<T>::value, "T must be an integer type");
-  static_assert(std::is_integral<U>::value, "U must be an integer type");
+  static_assert(std::is_integral_v<T>, "T must be an integer type");
+  static_assert(std::is_integral_v<U>, "U must be an integer type");
   return (index + stride) % static_cast<T>(count);
 }
 
@@ -806,8 +806,8 @@ constexpr T succ(const T index, const U count, const T stride = static_cast<T>(1
 template <typename T, typename U>
 constexpr T pred(const T index, const U count, const T stride = static_cast<T>(1))
 {
-  static_assert(std::is_integral<T>::value, "T must be an integer type");
-  static_assert(std::is_integral<U>::value, "U must be an integer type");
+  static_assert(std::is_integral_v<T>, "T must be an integer type");
+  static_assert(std::is_integral_v<U>, "U must be an integer type");
   const auto c = static_cast<T>(count);
   return ((index + c) - (stride % c)) % c;
 }
@@ -823,7 +823,7 @@ constexpr T pred(const T index, const U count, const T stride = static_cast<T>(1
 template <typename T>
 T nextgreater(const T value)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   // TODO: does MSC not implement cmath correctly?
 #ifdef _MSC_VER
   return _nextafter(value, std::numeric_limits<T>::infinity());
@@ -849,7 +849,7 @@ constexpr T sqrt_c_nr(const T x, const T curr, const T prev)
 template <typename T>
 constexpr T sqrt_c(const T value)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   if (is_nan(value) || value == std::numeric_limits<T>::infinity())
   {
     return value;
@@ -874,7 +874,7 @@ constexpr T sqrt_c(const T value)
 template <typename T>
 T sqrt(const T value)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
   return std::sqrt(value);
 }
 
@@ -898,7 +898,7 @@ template <typename T>
 std::tuple<std::size_t, T, T> solve_quadratic(
   const T a, const T b, const T c, const T epsilon)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
 
   // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
 
@@ -943,7 +943,7 @@ template <typename T>
 std::tuple<std::size_t, T, T, T> solve_cubic(
   const T a, const T b, const T c, const T d, const T epsilon)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
 
   // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
 
@@ -1031,7 +1031,7 @@ template <typename T>
 std::tuple<size_t, T, T, T, T> solve_quartic(
   const T a, const T b, const T c, const T d, const T e, const T epsilon)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a floating point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a floating point type");
 
   // adapted from https://github.com/erich666/GraphicsGems/blob/master/gems/Roots3And4.c
 

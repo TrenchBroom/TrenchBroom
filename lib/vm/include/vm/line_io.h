@@ -22,7 +22,7 @@
 #pragma once
 
 #include "vm/line.h"
-#include "vm/vec_io.h"
+#include "vm/vec_io.h" // IWYU pragma: export
 
 #include <ostream>
 

@@ -38,7 +38,7 @@
 
 #include "vm/bbox.h"
 #include "vm/distance.h"
-#include "vm/intersection.h"
+#include "vm/polygon.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
