@@ -96,7 +96,6 @@ struct CollectAllLinksVisitor
     if (editorContext.visible(&node))
     {
       addTargets(node, node.linkTargets(), links);
-      addTargets(node, node.killTargets(), links);
     }
   }
 
@@ -131,9 +130,7 @@ struct CollectTransitiveSelectedLinksVisitor
       if (visited.insert(&node).second)
       {
         addSources(node.linkSources(), node, links);
-        addSources(node.killSources(), node, links);
         addTargets(node, node.linkTargets(), links);
-        addTargets(node, node.killTargets(), links);
       }
     }
   }
@@ -181,9 +178,7 @@ struct CollectDirectSelectedLinksVisitor
     if (node.selected() || node.descendantSelected())
     {
       addSources(node.linkSources(), node, links);
-      addSources(node.killSources(), node, links);
       addTargets(node, node.linkTargets(), links);
-      addTargets(node, node.killTargets(), links);
     }
   }
 

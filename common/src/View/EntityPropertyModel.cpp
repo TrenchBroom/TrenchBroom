@@ -47,6 +47,8 @@
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
 #include "kdl/reflection_impl.h"
+#include "kdl/string_compare.h"
+#include "kdl/string_compare_detail.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
@@ -614,20 +616,73 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
   }
   else if (index.column() == ColumnValue)
   {
-    if (
-      key == Model::EntityPropertyKeys::Target
-      || key == Model::EntityPropertyKeys::Killtarget)
-    {
-      result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Targetname});
-    }
-    else if (key == Model::EntityPropertyKeys::Targetname)
-    {
-      result = getAllValuesForPropertyKeys(
-        {Model::EntityPropertyKeys::Target, Model::EntityPropertyKeys::Killtarget});
-    }
-    else if (key == Model::EntityPropertyKeys::Classname)
+    if (key == Model::EntityPropertyKeys::Classname)
     {
       result = getAllClassnames();
+    }
+    else
+    {
+      const auto document = kdl::mem_lock(m_document);
+      const auto selectedEntityNodes = document->allSelectedEntityNodes();
+
+      // work out if this key is a target source/destination
+      bool isTargetSource = false;
+      bool isTargetDestination = false;
+
+      for (const auto* node : selectedEntityNodes)
+      {
+        if (!isTargetSource)
+        {
+          auto allTargetSources = std::vector<std::string>{};
+          node->getAllTargetSourcePropertyNames(allTargetSources);
+
+          if (kdl::vec_contains(allTargetSources, key))
+          {
+            isTargetSource = true;
+          }
+        }
+
+        if (!isTargetDestination)
+        {
+          auto allTargetDestinations = std::vector<std::string>{};
+          node->getAllTargetDestinationPropertyNames(allTargetDestinations);
+
+          auto matchesIncludingNumbered = [&](const auto& targetName) {
+            return kdl::str_matches_glob(key, targetName + "%*", kdl::cs::char_equal{});
+          };
+
+          if (
+            kdl::vec_index_of(allTargetDestinations, matchesIncludingNumbered)
+            != std::nullopt)
+          {
+            isTargetDestination = true;
+          }
+        }
+      }
+
+      if (isTargetSource)
+      {
+        for (const auto* node : selectedEntityNodes)
+        {
+          auto allTargetDestinations = std::vector<std::string>{};
+          node->getAllTargetDestinationPropertyNames(allTargetDestinations);
+          result =
+            kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetDestinations));
+        }
+
+        result = kdl::vec_sort_and_remove_duplicates(result);
+      }
+      else if (isTargetDestination)
+      {
+        for (const auto* node : selectedEntityNodes)
+        {
+          auto allTargetSources = std::vector<std::string>{};
+          node->getAllTargetSourcePropertyNames(allTargetSources);
+          result = kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetSources));
+        }
+
+        result = kdl::vec_sort_and_remove_duplicates(result);
+      }
     }
   }
 

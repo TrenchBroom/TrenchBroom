@@ -65,7 +65,6 @@ void LinkTargetValidator::doValidate(
   EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   validateInternal(entityNode, entityNode.findMissingLinkTargets(), issues);
-  validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
 }
 
 } // namespace Model
