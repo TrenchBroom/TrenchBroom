@@ -669,6 +669,8 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
           result =
             kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetDestinations));
         }
+
+        result = kdl::vec_sort_and_remove_duplicates(result);
       }
       else if (isTargetDestination)
       {
@@ -678,6 +680,8 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
           node->getAllTargetSourcePropertyNames(allTargetSources);
           result = kdl::vec_concat(result, getAllValuesForPropertyKeys(allTargetSources));
         }
+
+        result = kdl::vec_sort_and_remove_duplicates(result);
       }
     }
   }
