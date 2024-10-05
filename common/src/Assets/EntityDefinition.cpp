@@ -122,7 +122,28 @@ const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(
     [&](const auto& propertyDefinition) {
       return propertyDefinition->key() == propertyKey;
     });
-  return it != propertyDefinitions.end() ? it->get() : nullptr;
+  if (it != propertyDefinitions.end())
+  {
+    return it->get();
+  }
+
+  // Check if property key has a numerical suffix, and try looking up base key
+  size_t lastBaseKeyPos = propertyKey.find_last_not_of("0123456789");
+  if (lastBaseKeyPos != std::string::npos && lastBaseKeyPos < propertyKey.size() - 1)
+  {
+    std::string baseKey = propertyKey.substr(0, lastBaseKeyPos + 1);
+    const auto baseIt = std::find_if(
+      propertyDefinitions.begin(),
+      propertyDefinitions.end(),
+      [&](const auto& propertyDefinition) {
+        return propertyDefinition->key() == baseKey;
+      });
+    if (baseIt != propertyDefinitions.end())
+    {
+      return baseIt->get();
+    }
+  }
+  return nullptr;
 }
 
 const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
@@ -141,9 +162,29 @@ const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
       return propertyDefinition->type() == PropertyDefinitionType::FlagsProperty
              && propertyDefinition->key() == propertyKey;
     });
-  return it != propertyDefinitions.end()
-           ? static_cast<FlagsPropertyDefinition*>(it->get())
-           : nullptr;
+  if (it != propertyDefinitions.end())
+  {
+    return static_cast<FlagsPropertyDefinition*>(it->get());
+  }
+
+  // Check if property key has a numerical suffix, and try looking up base key
+  size_t lastBaseKeyPos = propertyKey.find_last_not_of("0123456789");
+  if (lastBaseKeyPos != std::string::npos && lastBaseKeyPos < propertyKey.size() - 1)
+  {
+    std::string baseKey = propertyKey.substr(0, lastBaseKeyPos + 1);
+    const auto baseIt = std::find_if(
+      propertyDefinitions.begin(),
+      propertyDefinitions.end(),
+      [&](const auto& propertyDefinition) {
+        return propertyDefinition->type() == PropertyDefinitionType::FlagsProperty
+               && propertyDefinition->key() == baseKey;
+      });
+    if (baseIt != propertyDefinitions.end())
+    {
+      return static_cast<FlagsPropertyDefinition*>(baseIt->get());
+    }
+  }
+  return nullptr;
 }
 
 std::vector<EntityDefinition*> EntityDefinition::filterAndSort(
