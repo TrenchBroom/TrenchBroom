@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QtGlobal>
 
-#include "FloatType.h"
 #include "Model/EntityProperties.h"
 #include "Model/WorldNode.h"
 #include "View/BorderLine.h"
@@ -78,7 +77,7 @@ void RotateObjectsToolPage::setAxis(const vm::axis::type axis)
   m_axis->setCurrentIndex(static_cast<int>(axis));
 }
 
-void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& centers)
+void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3d>& centers)
 {
   m_recentlyUsedCentersList->clear();
   m_recentlyUsedCentersList->addItems(
@@ -93,7 +92,7 @@ void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3>& 
   }
 }
 
-void RotateObjectsToolPage::setCurrentCenter(const vm::vec3& center)
+void RotateObjectsToolPage::setCurrentCenter(const vm::vec3d& center)
 {
   m_recentlyUsedCentersList->setCurrentText(
     QString::fromStdString(fmt::format("{}", fmt::streamed(center))));
@@ -217,7 +216,7 @@ void RotateObjectsToolPage::centerChanged()
 {
   if (
     const auto center =
-      vm::parse<FloatType, 3>(m_recentlyUsedCentersList->currentText().toStdString()))
+      vm::parse<double, 3>(m_recentlyUsedCentersList->currentText().toStdString()))
   {
     m_tool.setRotationCenter(*center);
   }
@@ -252,16 +251,16 @@ void RotateObjectsToolPage::updateAnglePropertyAfterTransformClicked()
     m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 
-vm::vec3 RotateObjectsToolPage::getAxis() const
+vm::vec3d RotateObjectsToolPage::getAxis() const
 {
   switch (m_axis->currentIndex())
   {
   case 0:
-    return vm::vec3{1, 0, 0};
+    return vm::vec3d{1, 0, 0};
   case 1:
-    return vm::vec3{0, 1, 0};
+    return vm::vec3d{0, 1, 0};
   default:
-    return vm::vec3{0, 0, 1};
+    return vm::vec3d{0, 0, 1};
   }
 }
 

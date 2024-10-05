@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
@@ -62,7 +61,7 @@ private:
 public:
   void setColor(const Color& color);
   void add(
-    const vm::ray3& ray, FloatType length, std::shared_ptr<View::MapDocument> document);
+    const vm::ray3d& ray, double length, std::shared_ptr<View::MapDocument> document);
   void clear();
 
 private:
@@ -70,8 +69,8 @@ private:
   void doRender(RenderContext& renderContext) override;
 
 private:
-  void addPoint(const vm::vec3& position);
-  void addSpike(const vm::ray3& ray, FloatType length, FloatType maxLength);
+  void addPoint(const vm::vec3d& position);
+  void addSpike(const vm::ray3d& ray, double length, double maxLength);
 
   void validate();
 };

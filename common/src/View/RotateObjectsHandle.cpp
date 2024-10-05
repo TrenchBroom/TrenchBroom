@@ -19,7 +19,6 @@
 
 #include "RotateObjectsHandle.h"
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Hit.h"
 #include "PreferenceManager.h"
@@ -48,7 +47,7 @@ namespace
 
 template <typename T>
 std::tuple<vm::vec<T, 3>, vm::vec<T, 3>, vm::vec<T, 3>> computeAxes(
-  const vm::vec3& handlePos, const vm::vec<T, 3>& cameraPos)
+  const vm::vec3d& handlePos, const vm::vec<T, 3>& cameraPos)
 {
   const auto viewDir = vm::normalize(vm::vec<T, 3>{handlePos} - cameraPos);
   return vm::is_equal(std::abs(viewDir.z()), T(1), vm::constants<T>::almost_zero())
@@ -65,34 +64,34 @@ std::tuple<vm::vec<T, 3>, vm::vec<T, 3>, vm::vec<T, 3>> computeAxes(
 const Model::HitType::Type RotateObjectsHandle::HandleHitType =
   Model::HitType::freeType();
 
-RotateObjectsHandle::Handle::Handle(const vm::vec3& position)
+RotateObjectsHandle::Handle::Handle(const vm::vec3d& position)
   : m_position{position}
 {
 }
 
 RotateObjectsHandle::Handle::~Handle() = default;
 
-FloatType RotateObjectsHandle::Handle::scalingFactor(const Renderer::Camera& camera) const
+double RotateObjectsHandle::Handle::scalingFactor(const Renderer::Camera& camera) const
 {
-  return FloatType(camera.perspectiveScalingFactor(vm::vec3f{m_position}));
+  return double(camera.perspectiveScalingFactor(vm::vec3f{m_position}));
 }
 
-FloatType RotateObjectsHandle::Handle::majorRadius()
+double RotateObjectsHandle::Handle::majorRadius()
 {
-  return FloatType(pref(Preferences::RotateHandleRadius));
+  return double(pref(Preferences::RotateHandleRadius));
 }
 
-FloatType RotateObjectsHandle::Handle::minorRadius()
+double RotateObjectsHandle::Handle::minorRadius()
 {
-  return FloatType(pref(Preferences::HandleRadius));
+  return double(pref(Preferences::HandleRadius));
 }
 
 Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
-  const vm::ray3& pickRay, const Renderer::Camera& camera) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   if (
     const auto distance = camera.pickPointHandle(
-      pickRay, m_position, FloatType(pref(Preferences::HandleRadius))))
+      pickRay, m_position, double(pref(Preferences::HandleRadius))))
   {
     const auto hitPoint = vm::point_at_distance(pickRay, *distance);
     return {HandleHitType, *distance, hitPoint, HitArea::Center};
@@ -101,7 +100,7 @@ Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
 }
 
 Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   const auto transform = handleTransform(camera, area);
 
@@ -124,33 +123,33 @@ Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
   return Model::Hit::NoHit;
 }
 
-vm::mat4x4 RotateObjectsHandle::Handle::handleTransform(
+vm::mat4x4d RotateObjectsHandle::Handle::handleTransform(
   const Renderer::Camera& camera, const HitArea area) const
 {
   const auto scalingFactor = this->scalingFactor(camera);
-  if (scalingFactor <= FloatType(0))
+  if (scalingFactor <= double(0))
   {
-    return vm::mat4x4::zero();
+    return vm::mat4x4d::zero();
   }
 
   const auto scalingMatrix =
-    vm::scaling_matrix(vm::vec3{scalingFactor, scalingFactor, scalingFactor});
+    vm::scaling_matrix(vm::vec3d{scalingFactor, scalingFactor, scalingFactor});
   switch (area)
   {
   case HitArea::XAxis:
-    return vm::mat4x4::rot_90_y_ccw() * scalingMatrix;
+    return vm::mat4x4d::rot_90_y_ccw() * scalingMatrix;
   case HitArea::YAxis:
-    return vm::mat4x4::rot_90_x_cw() * scalingMatrix;
+    return vm::mat4x4d::rot_90_x_cw() * scalingMatrix;
   case HitArea::ZAxis:
   case HitArea::Center:
   case HitArea::None:
-    return vm::mat4x4::identity() * scalingMatrix;
+    return vm::mat4x4d::identity() * scalingMatrix;
     switchDefault();
   }
 }
 
 Model::Hit RotateObjectsHandle::Handle2D::pick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   switch (vm::find_abs_max_component(camera.direction()))
   {
@@ -170,7 +169,7 @@ Model::Hit RotateObjectsHandle::Handle2D::pick(
 }
 
 Model::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   // Work around imprecision caused by 2D cameras being positioned at map bounds
   // by placing the ray origin on the same plane as the handle itself.
@@ -262,7 +261,7 @@ void RotateObjectsHandle::Handle2D::renderHighlight(
 }
 
 Model::Hit RotateObjectsHandle::Handle3D::pick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   return Model::selectClosest(
     pickCenterHandle(pickRay, camera),
@@ -352,7 +351,7 @@ void RotateObjectsHandle::Handle3D::renderHighlight(
 }
 
 Model::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, const HitArea area) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   if (const auto hit = Handle::pickRotateHandle(pickRay, camera, area); hit.isMatch())
   {
@@ -376,51 +375,51 @@ RotateObjectsHandle::RotateObjectsHandle()
 {
 }
 
-const vm::vec3& RotateObjectsHandle::position() const
+const vm::vec3d& RotateObjectsHandle::position() const
 {
   return m_position;
 }
 
-void RotateObjectsHandle::setPosition(const vm::vec3& position)
+void RotateObjectsHandle::setPosition(const vm::vec3d& position)
 {
   m_position = position;
 }
 
 Model::Hit RotateObjectsHandle::pick2D(
-  const vm::ray3& pickRay, const Renderer::Camera& camera) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   return m_handle2D.pick(pickRay, camera);
 }
 
 Model::Hit RotateObjectsHandle::pick3D(
-  const vm::ray3& pickRay, const Renderer::Camera& camera) const
+  const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   return m_handle3D.pick(pickRay, camera);
 }
 
-FloatType RotateObjectsHandle::majorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsHandle::majorHandleRadius(const Renderer::Camera& camera) const
 {
   return Handle::majorRadius() * m_handle3D.scalingFactor(camera);
 }
 
-FloatType RotateObjectsHandle::minorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsHandle::minorHandleRadius(const Renderer::Camera& camera) const
 {
   return Handle::minorRadius() * m_handle3D.scalingFactor(camera);
 }
 
-vm::vec3 RotateObjectsHandle::rotationAxis(const HitArea area) const
+vm::vec3d RotateObjectsHandle::rotationAxis(const HitArea area) const
 {
   switch (area)
   {
   case HitArea::XAxis:
-    return vm::vec3{1, 0, 0};
+    return vm::vec3d{1, 0, 0};
   case HitArea::YAxis:
-    return vm::vec3{0, 1, 0};
+    return vm::vec3d{0, 1, 0};
   case HitArea::ZAxis:
-    return vm::vec3{0, 0, 1};
+    return vm::vec3d{0, 0, 1};
   case HitArea::None:
   case HitArea::Center:
-    return vm::vec3{0, 0, 1};
+    return vm::vec3d{0, 0, 1};
     switchDefault();
   }
 }

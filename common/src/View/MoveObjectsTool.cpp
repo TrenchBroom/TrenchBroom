@@ -19,7 +19,6 @@
 
 #include "MoveObjectsTool.h"
 
-#include "FloatType.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -64,7 +63,7 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 }
 
 MoveObjectsTool::MoveResult MoveObjectsTool::move(
-  const InputState&, const vm::vec3& delta)
+  const InputState&, const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& worldBounds = document->worldBounds();

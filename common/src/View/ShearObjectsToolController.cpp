@@ -51,8 +51,8 @@ HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const Grid& grid,
   const Model::Hit& dragStartHit,
-  const vm::bbox3& bboxAtDragStart,
-  const vm::vec3& handleOffset)
+  const vm::bbox3d& bboxAtDragStart,
+  const vm::vec3d& handleOffset)
 {
   const auto vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
   const auto& camera = inputState.camera();
@@ -62,29 +62,29 @@ HandlePositionProposer makeHandlePositionProposer(
 
   if (camera.perspectiveProjection())
   {
-    if (vm::abs(side.normal) == vm::vec3{0, 0, 1})
+    if (vm::abs(side.normal) == vm::vec3d{0, 0, 1})
     {
       return makeHandlePositionProposer(
-        makePlaneHandlePicker(vm::plane3{sideCenter, side.normal}, handleOffset),
+        makePlaneHandlePicker(vm::plane3d{sideCenter, side.normal}, handleOffset),
         makeRelativeHandleSnapper(grid));
     }
 
     if (vertical)
     {
-      const auto verticalLine = vm::line3{sideCenter, vm::vec3{0, 0, 1}};
+      const auto verticalLine = vm::line3d{sideCenter, vm::vec3d{0, 0, 1}};
       return makeHandlePositionProposer(
         makeLineHandlePicker(verticalLine, handleOffset),
         makeRelativeHandleSnapper(grid));
     }
 
     const auto sideways =
-      vm::line3{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3{0, 0, 1}))};
+      vm::line3d{sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3d{0, 0, 1}))};
     return makeHandlePositionProposer(
       makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
   }
 
-  const auto sideways = vm::line3{
-    sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3{camera.direction()}))};
+  const auto sideways = vm::line3d{
+    sideCenter, vm::normalize(vm::cross(side.normal, vm::vec3d{camera.direction()}))};
   return makeHandlePositionProposer(
     makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
 }
@@ -102,8 +102,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& /* initialHandlePosition */,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& /* initialHandlePosition */,
+    const vm::vec3d& handleOffset) override
   {
     return makeHandlePositionProposer(
       inputState,
@@ -130,7 +130,7 @@ public:
 
     // Can't do vertical restraint on these
     const auto side = m_tool.dragStartHit().target<BBoxSide>();
-    if (side.normal == vm::vec3{0, 0, 1} || side.normal == vm::vec3{0, 0, -1})
+    if (side.normal == vm::vec3d{0, 0, 1} || side.normal == vm::vec3d{0, 0, -1})
     {
       return std::nullopt;
     }
@@ -152,7 +152,7 @@ public:
   DragStatus update(
     const InputState&,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
     m_tool.shearByDelta(delta);
@@ -170,8 +170,8 @@ public:
   void cancel(const DragState&) override { m_tool.cancelShear(); }
 };
 
-std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3& bounds, const auto& hit)
+std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
+  const vm::bbox3d& bounds, const auto& hit)
 {
   assert(hit.isMatch());
   assert(hit.hasType(ShearObjectsTool::ShearToolSideHitType));
@@ -274,7 +274,7 @@ void ShearObjectsToolController::render(
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
     const auto mat = m_tool.bboxShearMatrix();
-    const auto op = [&](const vm::vec3& start, const vm::vec3& end) {
+    const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
       renderService.renderLine(vm::vec3f(mat * start), vm::vec3f(mat * end));
     };
     m_tool.bboxAtDragStart().for_each_edge(op);
@@ -315,7 +315,7 @@ ShearObjectsToolController2D::ShearObjectsToolController2D(
 }
 
 void ShearObjectsToolController2D::doPick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -329,7 +329,7 @@ ShearObjectsToolController3D::ShearObjectsToolController3D(
 }
 
 void ShearObjectsToolController3D::doPick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

@@ -74,7 +74,7 @@ private: // property management internals
   private:
     NotifyNodeChange m_nodeChange;
     EntityNodeBase& m_node;
-    vm::bbox3 m_oldPhysicalBounds;
+    vm::bbox3d m_oldPhysicalBounds;
 
   public:
     explicit NotifyPropertyChange(EntityNodeBase& node);
@@ -82,7 +82,7 @@ private: // property management internals
   };
 
   void propertiesWillChange();
-  void propertiesDidChange(const vm::bbox3& oldPhysicalBounds);
+  void propertiesDidChange(const vm::bbox3d& oldPhysicalBounds);
 
 private: // bulk update after property changes
   void updateIndexAndLinks(const std::vector<EntityProperty>& newProperties);
@@ -111,8 +111,8 @@ public: // link management
   const std::vector<EntityNodeBase*>& killSources() const;
   const std::vector<EntityNodeBase*>& killTargets() const;
 
-  vm::vec3 linkSourceAnchor() const;
-  vm::vec3 linkTargetAnchor() const;
+  vm::vec3d linkSourceAnchor() const;
+  vm::vec3d linkTargetAnchor() const;
 
   bool hasMissingSources() const;
   std::vector<std::string> findMissingLinkTargets() const;
@@ -173,9 +173,9 @@ private: // implemenation of node interface
   void doAncestorDidChange() override;
 
 private: // subclassing interface
-  virtual void doPropertiesDidChange(const vm::bbox3& oldBounds) = 0;
-  virtual vm::vec3 doGetLinkSourceAnchor() const = 0;
-  virtual vm::vec3 doGetLinkTargetAnchor() const = 0;
+  virtual void doPropertiesDidChange(const vm::bbox3d& oldBounds) = 0;
+  virtual vm::vec3d doGetLinkSourceAnchor() const = 0;
+  virtual vm::vec3d doGetLinkTargetAnchor() const = 0;
 
 private: // hide copy constructor and assignment operator
   EntityNodeBase(const EntityNodeBase&);

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
+#include "vm/forward.h"
 #include "vm/mat.h" // IWYU pragma: keep
 
 #include <string>
@@ -35,7 +35,7 @@ class Group
 private:
   std::string m_name;
 
-  vm::mat4x4 m_transformation;
+  vm::mat4x4d m_transformation;
 
   kdl_reflect_decl(Group, m_name, m_transformation);
 
@@ -45,9 +45,9 @@ public:
   const std::string& name() const;
   void setName(std::string name);
 
-  const vm::mat4x4& transformation() const;
-  void setTransformation(const vm::mat4x4& transformation);
-  void transform(const vm::mat4x4& transformation);
+  const vm::mat4x4d& transformation() const;
+  void setTransformation(const vm::mat4x4d& transformation);
+  void transform(const vm::mat4x4d& transformation);
 };
 
 } // namespace TrenchBroom::Model

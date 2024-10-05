@@ -658,7 +658,7 @@ TEST_CASE_METHOD(
   SECTION("Vertex manipulation")
   {
     const auto result =
-      document->moveVertices({vm::vec3::fill(16.0)}, vm::vec3::fill(1.0));
+      document->moveVertices({vm::vec3d::fill(16.0)}, vm::vec3d::fill(1.0));
     REQUIRE(result.success);
     REQUIRE(result.hasRemainingVertices);
   }

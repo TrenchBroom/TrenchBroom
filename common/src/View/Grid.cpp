@@ -19,7 +19,6 @@
 
 #include "Grid.h"
 
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Polyhedron.h"
@@ -39,7 +38,7 @@ Grid::Grid(const int size)
 {
 }
 
-FloatType Grid::actualSize(const int size)
+double Grid::actualSize(const int size)
 {
   return std::exp2(size);
 }
@@ -75,14 +74,14 @@ void Grid::decSize()
   }
 }
 
-FloatType Grid::actualSize() const
+double Grid::actualSize() const
 {
-  return snap() ? actualSize(m_size) : FloatType(1);
+  return snap() ? actualSize(m_size) : double(1);
 }
 
-FloatType Grid::angle() const
+double Grid::angle() const
 {
-  return vm::to_radians(static_cast<FloatType>(15.0));
+  return vm::to_radians(static_cast<double>(15.0));
 }
 
 bool Grid::visible() const
@@ -107,24 +106,24 @@ void Grid::toggleSnap()
   gridDidChangeNotifier();
 }
 
-FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const
+double Grid::intersectWithRay(const vm::ray3d& ray, const size_t skip) const
 {
-  auto planeAnchor = vm::vec3{};
+  auto planeAnchor = vm::vec3d{};
 
   for (size_t i = 0; i < 3; ++i)
   {
     planeAnchor[i] =
       ray.direction[i] > 0.0
-        ? snapUp(ray.origin[i], true) + static_cast<FloatType>(skip) * actualSize()
-        : snapDown(ray.origin[i], true) - static_cast<FloatType>(skip) * actualSize();
+        ? snapUp(ray.origin[i], true) + static_cast<double>(skip) * actualSize()
+        : snapDown(ray.origin[i], true) - static_cast<double>(skip) * actualSize();
   }
 
   const auto distX =
-    vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_x()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_x()));
   const auto distY =
-    vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_y()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_y()));
   const auto distZ =
-    vm::intersect_ray_plane(ray, vm::plane3(planeAnchor, vm::vec3::pos_z()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_z()));
 
   auto dist = distX;
   if (distY && (!dist || std::abs(*distY) < std::abs(*dist)))
@@ -138,7 +137,7 @@ FloatType Grid::intersectWithRay(const vm::ray3& ray, const size_t skip) const
   return *dist;
 }
 
-vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const
+vm::vec3d Grid::moveDeltaForPoint(const vm::vec3d& point, const vm::vec3d& delta) const
 {
   const auto newPoint = snap(point + delta);
   auto actualDelta = newPoint - point;
@@ -146,10 +145,10 @@ vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) c
   for (size_t i = 0; i < 3; ++i)
   {
     if (
-      (actualDelta[i] > static_cast<FloatType>(0.0))
-      != (delta[i] > static_cast<FloatType>(0.0)))
+      (actualDelta[i] > static_cast<double>(0.0))
+      != (delta[i] > static_cast<double>(0.0)))
     {
-      actualDelta[i] = static_cast<FloatType>(0.0);
+      actualDelta[i] = static_cast<double>(0.0);
     }
   }
   return actualDelta;
@@ -175,11 +174,11 @@ vm::vec3 Grid::moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) c
  * an entity from the entity browser onto the map, the mouse is always grabbing the edge
  * of the entity bbox that's closest to the camera.
  */
-vm::vec3 Grid::moveDeltaForBounds(
-  const vm::plane3& targetPlane,
-  const vm::bbox3& bounds,
-  const vm::bbox3& /* worldBounds */,
-  const vm::ray3& ray) const
+vm::vec3d Grid::moveDeltaForBounds(
+  const vm::plane3d& targetPlane,
+  const vm::bbox3d& bounds,
+  const vm::bbox3d& /* worldBounds */,
+  const vm::ray3d& ray) const
 {
   // First, find the ray/plane intersection, and snap it to grid.
   // This will become one of the corners of our resulting bbox.
@@ -187,7 +186,7 @@ vm::vec3 Grid::moveDeltaForBounds(
   const auto dist = vm::intersect_ray_plane(ray, targetPlane);
   if (!dist)
   {
-    return vm::vec3{0, 0, 0};
+    return vm::vec3d{0, 0, 0};
   }
 
   const auto hitPoint = vm::point_at_distance(ray, *dist);
@@ -202,7 +201,7 @@ vm::vec3 Grid::moveDeltaForBounds(
   if (vm::is_equal(
         targetPlane.normal,
         vm::get_abs_max_component_axis(targetPlane.normal),
-        vm::C::almost_zero()))
+        vm::Cd::almost_zero()))
   {
     // targetPlane is axial. As a special case, only snap X and Y
     firstCorner[localZ] = hitPoint[localZ];
@@ -240,9 +239,9 @@ vm::vec3 Grid::moveDeltaForBounds(
   return newMinPos - bounds.min;
 }
 
-FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance) const
+double Grid::snapToGridPlane(const vm::line3d& line, const double distance) const
 {
-  auto snappedDistance = std::numeric_limits<FloatType>::max();
+  auto snappedDistance = std::numeric_limits<double>::max();
 
   // x is a point on the line and it is located in one grid cube
   const auto x = vm::point_at_distance(line, distance);
@@ -253,7 +252,7 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   // intersect l with every grid plane that meets at that corner
   for (size_t i = 0; i < 3; ++i)
   {
-    const auto p = vm::plane3{c, vm::vec3::axis(i)};
+    const auto p = vm::plane3d{c, vm::vec3d::axis(i)};
     const auto y = vm::intersect_line_plane(line, p);
     if (y && vm::abs(*y - distance) < vm::abs(snappedDistance - distance))
     {
@@ -265,15 +264,15 @@ FloatType Grid::snapToGridPlane(const vm::line3& line, const FloatType distance)
   return snappedDistance;
 }
 
-FloatType Grid::snapMoveDistanceForFace(
-  const Model::BrushFace& face, const FloatType moveDistance) const
+double Grid::snapMoveDistanceForFace(
+  const Model::BrushFace& face, const double moveDistance) const
 {
   const auto isBoundaryEdge = [&](const Model::BrushEdge* edge) {
     return edge->firstFace() == face.geometry() || edge->secondFace() == face.geometry();
   };
 
   const auto& moveDirection = face.normal();
-  auto snappedMoveDistance = std::numeric_limits<FloatType>::max();
+  auto snappedMoveDistance = std::numeric_limits<double>::max();
 
   for (const auto* vertex : face.vertices())
   {
@@ -286,7 +285,8 @@ FloatType Grid::snapMoveDistanceForFace(
         // plane
         const auto edgeDirection = vm::normalize(currentHalfEdge->vector());
         const auto distanceOnEdge = moveDistance / vm::dot(edgeDirection, moveDirection);
-        const auto line = vm::line3{currentHalfEdge->origin()->position(), edgeDirection};
+        const auto line =
+          vm::line3d{currentHalfEdge->origin()->position(), edgeDirection};
         const auto snappedDistanceOnEdge = snapToGridPlane(line, distanceOnEdge);
 
         // convert this to a movement along moveDirection and minimize the difference
@@ -306,7 +306,7 @@ FloatType Grid::snapMoveDistanceForFace(
   return snappedMoveDistance;
 }
 
-vm::vec3 Grid::referencePoint(const vm::bbox3& bounds) const
+vm::vec3d Grid::referencePoint(const vm::bbox3d& bounds) const
 {
   return snap(bounds.center());
 }

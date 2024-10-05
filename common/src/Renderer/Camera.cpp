@@ -431,21 +431,21 @@ float Camera::pickFrustum(const float size, const vm::ray3f& ray) const
   return doPickFrustum(size, ray);
 }
 
-std::optional<FloatType> Camera::pickPointHandle(
-  const vm::ray3& pickRay,
-  const vm::vec3& handlePosition,
-  const FloatType handleRadius) const
+std::optional<double> Camera::pickPointHandle(
+  const vm::ray3d& pickRay,
+  const vm::vec3d& handlePosition,
+  const double handleRadius) const
 {
   const auto scaling =
-    static_cast<FloatType>(perspectiveScalingFactor(vm::vec3f(handlePosition)));
+    static_cast<double>(perspectiveScalingFactor(vm::vec3f(handlePosition)));
   return vm::intersect_ray_sphere(
-    pickRay, handlePosition, FloatType(2.0) * handleRadius * scaling);
+    pickRay, handlePosition, double(2.0) * handleRadius * scaling);
 }
 
-std::optional<FloatType> Camera::pickLineSegmentHandle(
-  const vm::ray3& pickRay,
-  const vm::segment3& handlePosition,
-  const FloatType handleRadius) const
+std::optional<double> Camera::pickLineSegmentHandle(
+  const vm::ray3d& pickRay,
+  const vm::segment3d& handlePosition,
+  const double handleRadius) const
 {
   const auto dist = distance(pickRay, handlePosition);
   if (dist.parallel)

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Game.h"
 #include "Model/MapFacade.h"
 #include "Model/NodeCollection.h"
@@ -111,11 +110,11 @@ struct PortalFile
 class MapDocument : public Model::MapFacade, public CachingLogger
 {
 public:
-  static const vm::bbox3 DefaultWorldBounds;
+  static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
 protected:
-  vm::bbox3 m_worldBounds;
+  vm::bbox3d m_worldBounds;
   std::shared_ptr<Model::Game> m_game;
   std::unique_ptr<Model::WorldNode> m_world;
 
@@ -144,8 +143,8 @@ protected:
 
   Model::LayerNode* m_currentLayer;
   std::string m_currentMaterialName;
-  vm::bbox3 m_lastSelectionBounds;
-  mutable vm::bbox3 m_selectionBounds;
+  vm::bbox3d m_lastSelectionBounds;
+  mutable vm::bbox3d m_selectionBounds;
   mutable bool m_selectionBoundsValid;
 
   ViewEffectsService* m_viewEffectsService;
@@ -229,7 +228,7 @@ public: // accessors and such
   Logger& logger();
 
   std::shared_ptr<Model::Game> game() const override;
-  const vm::bbox3& worldBounds() const;
+  const vm::bbox3d& worldBounds() const;
   Model::WorldNode* world() const;
 
   bool isGamePathPreference(const std::filesystem::path& path) const;
@@ -303,11 +302,11 @@ private: // tag and entity definition actions
 public: // new, load, save document
   Result<void> newDocument(
     Model::MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     std::shared_ptr<Model::Game> game);
   Result<void> loadDocument(
     Model::MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     std::shared_ptr<Model::Game> game,
     const std::filesystem::path& path);
   void saveDocument();
@@ -393,9 +392,9 @@ public: // selection
   std::vector<Model::BrushFaceHandle> allSelectedBrushFaces() const override;
   std::vector<Model::BrushFaceHandle> selectedBrushFaces() const override;
 
-  const vm::bbox3& referenceBounds() const override;
-  const vm::bbox3& lastSelectionBounds() const override;
-  const vm::bbox3& selectionBounds() const override;
+  const vm::bbox3d& referenceBounds() const override;
+  const vm::bbox3d& lastSelectionBounds() const override;
+  const vm::bbox3d& selectionBounds() const override;
   const std::string& currentMaterialName() const override;
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
@@ -454,7 +453,7 @@ public:
 
 public: // entity management
   Model::EntityNode* createPointEntity(
-    const Assets::PointEntityDefinition* definition, const vm::vec3& delta) override;
+    const Assets::PointEntityDefinition* definition, const vm::vec3d& delta) override;
   Model::EntityNode* createBrushEntity(
     const Assets::BrushEntityDefinition* definition) override;
 
@@ -562,26 +561,27 @@ public: // modifying objects, declared in MapFacade interface
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<Model::Node*, Model::NodeContents>> nodesToSwap);
-  bool transformObjects(const std::string& commandName, const vm::mat4x4& transformation);
+  bool transformObjects(
+    const std::string& commandName, const vm::mat4x4d& transformation);
 
-  bool translateObjects(const vm::vec3& delta) override;
+  bool translateObjects(const vm::vec3d& delta) override;
   bool rotateObjects(
-    const vm::vec3& center, const vm::vec3& axis, FloatType angle) override;
-  bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) override;
-  bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) override;
+    const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
+  bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) override;
+  bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) override;
   bool shearObjects(
-    const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) override;
-  bool flipObjects(const vm::vec3& center, vm::axis::type axis) override;
+    const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) override;
+  bool flipObjects(const vm::vec3d& center, vm::axis::type axis) override;
 
 public: // CSG operations, declared in MapFacade interface
-  bool createBrush(const std::vector<vm::vec3>& points);
+  bool createBrush(const std::vector<vm::vec3d>& points);
   bool csgConvexMerge();
   bool csgSubtract();
   bool csgIntersect();
   bool csgHollow();
 
 public: // Clipping operations, declared in MapFacade interface
-  bool clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3);
+  bool clipBrushes(const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3);
 
 public: // modifying entity properties, declared in MapFacade interface
   bool setProperty(
@@ -603,7 +603,7 @@ public: // modifying entity properties, declared in MapFacade interface
 
 public: // brush resizing, declared in MapFacade interface
   bool extrudeBrushes(
-    const std::vector<vm::polygon3>& faces, const vm::vec3& delta) override;
+    const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta) override;
 
 public:
   bool setFaceAttributes(const Model::BrushFaceAttributes& attributes) override;
@@ -613,7 +613,7 @@ public:
   bool copyUVFromFace(
     const Model::UVCoordSystemSnapshot& coordSystemSnapshot,
     const Model::BrushFaceAttributes& attribs,
-    const vm::plane3& sourceFacePlane,
+    const vm::plane3d& sourceFacePlane,
     Model::WrapStyle wrapStyle);
   bool translateUV(
     const vm::vec3f& cameraUp,
@@ -627,16 +627,18 @@ public:
     vm::direction cameraRelativeFlipDirection);
 
 public: // modifying vertices, declared in MapFacade interface
-  bool snapVertices(FloatType snapTo) override;
+  bool snapVertices(double snapTo) override;
 
   MoveVerticesResult moveVertices(
-    std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) override;
-  bool moveEdges(std::vector<vm::segment3> edgePositions, const vm::vec3& delta) override;
-  bool moveFaces(std::vector<vm::polygon3> facePositions, const vm::vec3& delta) override;
+    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) override;
+  bool moveEdges(
+    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) override;
+  bool moveFaces(
+    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) override;
 
-  bool addVertex(const vm::vec3& vertexPosition);
+  bool addVertex(const vm::vec3d& vertexPosition);
   bool removeVertices(
-    const std::string& commandName, std::vector<vm::vec3> vertexPositions);
+    const std::string& commandName, std::vector<vm::vec3d> vertexPositions);
 
 public: // debug commands
   void printVertices();
@@ -689,17 +691,17 @@ public: // asset state management
   bool needsResourceProcessing();
 
 public: // picking
-  void pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const;
-  std::vector<Model::Node*> findNodesContaining(const vm::vec3& point) const;
+  void pick(const vm::ray3d& pickRay, Model::PickResult& pickResult) const;
+  std::vector<Model::Node*> findNodesContaining(const vm::vec3d& point) const;
 
 private: // world management
   Result<void> createWorld(
     Model::MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     std::shared_ptr<Model::Game> game);
   Result<void> loadWorld(
     Model::MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     std::shared_ptr<Model::Game> game,
     const std::filesystem::path& path);
   void clearWorld();

@@ -166,16 +166,16 @@ double MapViewToolBox::rotateToolAngle() const
   return m_rotateObjectsTool->angle();
 }
 
-vm::vec3 MapViewToolBox::rotateToolCenter() const
+vm::vec3d MapViewToolBox::rotateToolCenter() const
 {
   assert(rotateObjectsToolActive());
   return m_rotateObjectsTool->rotationCenter();
 }
 
-void MapViewToolBox::moveRotationCenter(const vm::vec3& delta)
+void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
 {
   assert(rotateObjectsToolActive());
-  const vm::vec3 center = m_rotateObjectsTool->rotationCenter();
+  const vm::vec3d center = m_rotateObjectsTool->rotationCenter();
   m_rotateObjectsTool->setRotationCenter(center + delta);
 }
 
@@ -234,7 +234,7 @@ bool MapViewToolBox::faceToolActive() const
   return m_faceTool->active();
 }
 
-void MapViewToolBox::moveVertices(const vm::vec3& delta)
+void MapViewToolBox::moveVertices(const vm::vec3d& delta)
 {
   assert(anyVertexToolActive());
   if (vertexToolActive())

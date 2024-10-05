@@ -41,7 +41,7 @@ namespace TrenchBroom::View
 TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
 {
   Model::EntityNode* entityNode =
-    document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+    document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
 
   document->deselectAll();
   document->selectNodes({entityNode});

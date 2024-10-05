@@ -19,9 +19,12 @@
 
 #pragma once
 
-#include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
+
+#include "vm/forward.h"
+#include "vm/mat.h"
+#include "vm/vec.h"
 
 #include <iosfwd>
 #include <optional>
@@ -70,17 +73,18 @@ struct EntityRotationInfo
 
 EntityRotationInfo entityRotationInfo(const Entity& entity);
 
-vm::mat4x4 entityRotation(
+vm::mat4x4d entityRotation(
   const std::vector<EntityProperty>& properties, const EntityRotationInfo& info);
 
-vm::mat4x4 entityRotation(const Entity& entity);
+vm::mat4x4d entityRotation(const Entity& entity);
 
-vm::vec3 entityYawPitchRoll(const vm::mat4x4& transformation, const vm::mat4x4& rotation);
+vm::vec3d entityYawPitchRoll(
+  const vm::mat4x4d& transformation, const vm::mat4x4d& rotation);
 
 std::optional<EntityProperty> applyEntityRotation(
   const std::vector<EntityProperty>& properties,
   const EntityRotationInfo& info,
-  const vm::mat4x4& transformation);
-void applyEntityRotation(Entity& entity, const vm::mat4x4& transformation);
+  const vm::mat4x4d& transformation);
+void applyEntityRotation(Entity& entity, const vm::mat4x4d& transformation);
 
 } // namespace TrenchBroom::Model

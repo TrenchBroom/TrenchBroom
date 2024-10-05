@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitType.h"
 
 #include <functional>
@@ -38,7 +37,7 @@ HitFilter none();
 HitFilter type(HitType::Type typeMask = HitType::AnyType);
 HitFilter selected();
 HitFilter transitivelySelected();
-HitFilter minDistance(FloatType minDistance);
+HitFilter minDistance(double minDistance);
 } // namespace HitFilters
 
 HitFilter operator&&(HitFilter lhs, HitFilter rhs);

@@ -57,7 +57,7 @@ TEST_CASE("NodeCollection.empty")
 TEST_CASE("NodeCollection.counts")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto nodeCollection = NodeCollection{};
   REQUIRE(nodeCollection.nodeCount() == 0u);
@@ -92,7 +92,7 @@ TEST_CASE("NodeCollection.counts")
 TEST_CASE("NodeCollection.has")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -209,7 +209,7 @@ TEST_CASE("NodeCollection.has")
 TEST_CASE("NodeCollection.iterators")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -241,7 +241,7 @@ TEST_CASE("NodeCollection.iterators")
 TEST_CASE("NodeCollection.collections")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -307,7 +307,7 @@ TEST_CASE("NodeCollection.collections")
 TEST_CASE("NodeCollection.addNode")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -367,7 +367,7 @@ TEST_CASE("NodeCollection.addNode")
 TEST_CASE("NodeCollection.addNodes")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -403,7 +403,7 @@ TEST_CASE("NodeCollection.addNodes")
 TEST_CASE("NodeCollection.removeNode")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
@@ -473,7 +473,7 @@ TEST_CASE("NodeCollection.removeNode")
 TEST_CASE("NodeCollection.clear")
 {
   const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};

@@ -21,14 +21,14 @@
 
 #include "Assets/AssetReference.h"
 #include "EL/EL_Forward.h" // IWYU pragma: keep
-#include "FloatType.h"
 #include "Model/EntityProperties.h"
 
 #include "kdl/reflection_decl.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/mat.h"  // IWYU pragma: keep
-#include "vm/vec.h"  // IWYU pragma: keep
+#include "vm/forward.h"
+#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <optional>
 #include <string>
@@ -89,7 +89,7 @@ void setDefaultProperties(
 class Entity
 {
 public:
-  static const vm::bbox3 DefaultBounds;
+  static const vm::bbox3d DefaultBounds;
 
 private:
   std::vector<EntityProperty> m_properties;
@@ -110,9 +110,9 @@ private:
    * These properties are cached for performance reasons.
    */
   mutable std::optional<std::string> m_cachedClassname;
-  mutable std::optional<vm::vec3> m_cachedOrigin;
-  mutable std::optional<vm::mat4x4> m_cachedRotation;
-  mutable std::optional<vm::mat4x4> m_cachedModelTransformation;
+  mutable std::optional<vm::vec3d> m_cachedOrigin;
+  mutable std::optional<vm::mat4x4d> m_cachedRotation;
+  mutable std::optional<vm::mat4x4d> m_cachedModelTransformation;
 
 public:
   Entity();
@@ -145,7 +145,7 @@ public: // property management
 
   Assets::EntityDefinition* definition();
   const Assets::EntityDefinition* definition() const;
-  const vm::bbox3& definitionBounds() const;
+  const vm::bbox3d& definitionBounds() const;
   void setDefinition(Assets::EntityDefinition* definition);
 
   const Assets::EntityModel* model() const;
@@ -153,7 +153,7 @@ public: // property management
 
   const Assets::EntityModelFrame* modelFrame() const;
   Assets::ModelSpecification modelSpecification() const;
-  const vm::mat4x4& modelTransformation(
+  const vm::mat4x4d& modelTransformation(
     const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const;
 
   Assets::DecalSpecification decalSpecification() const;
@@ -178,16 +178,16 @@ public: // property management
   const std::string& classname() const;
   void setClassname(const std::string& classname);
 
-  const vm::vec3& origin() const;
-  void setOrigin(const vm::vec3& origin);
+  const vm::vec3d& origin() const;
+  void setOrigin(const vm::vec3d& origin);
 
-  const vm::mat4x4& rotation() const;
+  const vm::mat4x4d& rotation() const;
 
   std::vector<EntityProperty> propertiesWithKey(const std::string& property) const;
   std::vector<EntityProperty> propertiesWithPrefix(const std::string& property) const;
   std::vector<EntityProperty> numberedProperties(const std::string& property) const;
 
-  void transform(const vm::mat4x4& transformation, bool updateAngleProperty);
+  void transform(const vm::mat4x4d& transformation, bool updateAngleProperty);
 };
 
 } // namespace TrenchBroom::Model

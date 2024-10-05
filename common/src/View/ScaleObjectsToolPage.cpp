@@ -27,7 +27,6 @@
 #include <QPushButton>
 #include <QStackedLayout>
 
-#include "FloatType.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ViewConstants.h"
@@ -64,7 +63,7 @@ void ScaleObjectsToolPage::activate()
 {
   const auto document = kdl::mem_lock(m_document);
   const auto suggestedSize =
-    document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3::zero();
+    document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3d::zero();
 
   m_sizeTextBox->setText(
     QString::fromStdString(fmt::format("{}", fmt::streamed(suggestedSize))));
@@ -126,22 +125,21 @@ bool ScaleObjectsToolPage::canScale() const
   return kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-std::optional<vm::vec3> ScaleObjectsToolPage::getScaleFactors() const
+std::optional<vm::vec3d> ScaleObjectsToolPage::getScaleFactors() const
 {
   switch (m_scaleFactorsOrSize->currentIndex())
   {
   case 0: {
     auto document = kdl::mem_lock(m_document);
     if (
-      const auto desiredSize =
-        vm::parse<FloatType, 3>(m_sizeTextBox->text().toStdString()))
+      const auto desiredSize = vm::parse<double, 3>(m_sizeTextBox->text().toStdString()))
     {
       return *desiredSize / document->selectionBounds().size();
     }
     return std::nullopt;
   }
   default:
-    return vm::parse<FloatType, 3>(m_factorsTextBox->text().toStdString());
+    return vm::parse<double, 3>(m_factorsTextBox->text().toStdString());
   }
 }
 

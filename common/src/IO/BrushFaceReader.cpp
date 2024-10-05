@@ -33,7 +33,7 @@ BrushFaceReader::BrushFaceReader(
 }
 
 std::vector<Model::BrushFace> BrushFaceReader::read(
-  const vm::bbox3& worldBounds, ParserStatus& status)
+  const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   try
   {

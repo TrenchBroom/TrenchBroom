@@ -27,12 +27,14 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 
+#include "vm/forward.h"
+
 #include <unordered_map>
 #include <unordered_set>
 
 namespace TrenchBroom::IO
 {
-static const auto DefaultSize = vm::bbox3(-8, +8);
+static const auto DefaultSize = vm::bbox3d(-8, +8);
 
 EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
   : m_defaultEntityColor{defaultEntityColor}

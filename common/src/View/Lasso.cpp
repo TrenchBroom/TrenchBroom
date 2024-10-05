@@ -19,7 +19,6 @@
 
 #include "Lasso.h"
 
-#include "FloatType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderService.h"
 
@@ -35,7 +34,7 @@ namespace TrenchBroom::View
 {
 
 Lasso::Lasso(
-  const Renderer::Camera& camera, const FloatType distance, const vm::vec3& point)
+  const Renderer::Camera& camera, const double distance, const vm::vec3d& point)
   : m_camera{camera}
   , m_distance{distance}
   , m_start{point}
@@ -43,37 +42,37 @@ Lasso::Lasso(
 {
 }
 
-void Lasso::update(const vm::vec3& point)
+void Lasso::update(const vm::vec3d& point)
 {
   m_cur = point;
 }
 
 bool Lasso::selects(
-  const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const
+  const vm::vec3d& point, const vm::plane3d& plane, const vm::bbox2d& box) const
 {
   if (const auto projected = project(point, plane))
   {
-    return box.contains(vm::vec2{*projected});
+    return box.contains(vm::vec2d{*projected});
   }
   return false;
 }
 
 bool Lasso::selects(
-  const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const
+  const vm::segment3d& edge, const vm::plane3d& plane, const vm::bbox2d& box) const
 {
   return selects(edge.center(), plane, box);
 }
 
 bool Lasso::selects(
-  const vm::polygon3& polygon, const vm::plane3& plane, const vm::bbox2& box) const
+  const vm::polygon3d& polygon, const vm::plane3d& plane, const vm::bbox2d& box) const
 {
   return selects(polygon.center(), plane, box);
 }
 
-std::optional<vm::vec3> Lasso::project(
-  const vm::vec3& point, const vm::plane3& plane) const
+std::optional<vm::vec3d> Lasso::project(
+  const vm::vec3d& point, const vm::plane3d& plane) const
 {
-  const auto ray = vm::ray3{m_camera.pickRay(vm::vec3f{point})};
+  const auto ray = vm::ray3d{m_camera.pickRay(vm::vec3f{point})};
   return kdl::optional_transform(
     vm::intersect_ray_plane(ray, plane), [&](const auto hitDistance) {
       const auto hitPoint = vm::point_at_distance(ray, hitDistance);
@@ -89,10 +88,10 @@ void Lasso::render(
 
   const auto box = getBox(transform);
   const auto polygon = std::vector{
-    vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.min.y(), 0.0}},
-    vm::vec3f{*inverseTransform * vm::vec3{box.min.x(), box.max.y(), 0.0}},
-    vm::vec3f{*inverseTransform * vm::vec3{box.max.x(), box.max.y(), 0.0}},
-    vm::vec3f{*inverseTransform * vm::vec3{box.max.x(), box.min.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3d{box.min.x(), box.min.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3d{box.min.x(), box.max.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3d{box.max.x(), box.max.y(), 0.0}},
+    vm::vec3f{*inverseTransform * vm::vec3d{box.max.x(), box.min.y(), 0.0}},
   };
 
   auto renderService = Renderer::RenderService{renderContext, renderBatch};
@@ -104,30 +103,30 @@ void Lasso::render(
   renderService.renderFilledPolygon(polygon);
 }
 
-vm::plane3 Lasso::getPlane() const
+vm::plane3d Lasso::getPlane() const
 {
-  return vm::plane3{
-    vm::vec3{m_camera.defaultPoint(static_cast<float>(m_distance))},
-    vm::vec3{m_camera.direction()}};
+  return vm::plane3d{
+    vm::vec3d{m_camera.defaultPoint(static_cast<float>(m_distance))},
+    vm::vec3d{m_camera.direction()}};
 }
 
-vm::mat4x4 Lasso::getTransform() const
+vm::mat4x4d Lasso::getTransform() const
 {
-  return vm::mat4x4{vm::coordinate_system_matrix(
+  return vm::mat4x4d{vm::coordinate_system_matrix(
     m_camera.right(),
     m_camera.up(),
     -m_camera.direction(),
     m_camera.defaultPoint(static_cast<float>(m_distance)))};
 }
 
-vm::bbox2 Lasso::getBox(const vm::mat4x4& transform) const
+vm::bbox2d Lasso::getBox(const vm::mat4x4d& transform) const
 {
   const auto start = transform * m_start;
   const auto cur = transform * m_cur;
 
   const auto min = vm::min(start, cur);
   const auto max = vm::max(start, cur);
-  return vm::bbox2{vm::vec2{min}, vm::vec2{max}};
+  return vm::bbox2d{vm::vec2d{min}, vm::vec2d{max}};
 }
 
 } // namespace TrenchBroom::View

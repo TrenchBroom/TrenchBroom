@@ -19,9 +19,11 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "NotifierConnection.h"
 #include "View/ToolBox.h"
+
+#include "vm/forward.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 
@@ -95,8 +97,8 @@ public: // tools
   void toggleRotateObjectsTool();
   bool rotateObjectsToolActive() const;
   double rotateToolAngle() const;
-  vm::vec3 rotateToolCenter() const;
-  void moveRotationCenter(const vm::vec3& delta);
+  vm::vec3d rotateToolCenter() const;
+  void moveRotationCenter(const vm::vec3d& delta);
 
   void toggleScaleObjectsTool();
   bool scaleObjectsToolActive() const;
@@ -115,7 +117,7 @@ public: // tools
   void toggleFaceTool();
   bool faceToolActive() const;
 
-  void moveVertices(const vm::vec3& delta);
+  void moveVertices(const vm::vec3d& delta);
 
 private: // Tool related methods
   void createTools(QStackedLayout* bookCtrl);

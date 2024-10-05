@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
@@ -96,8 +95,8 @@ private:
 
   std::string parseDescription();
 
-  vm::vec3 parseVector(ParserStatus& status);
-  vm::bbox3 parseBounds(ParserStatus& status);
+  vm::vec3d parseVector(ParserStatus& status);
+  vm::bbox3d parseBounds(ParserStatus& status);
   Color parseColor(ParserStatus& status);
 
   Token nextTokenIgnoringNewlines();

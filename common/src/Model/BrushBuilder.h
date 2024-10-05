@@ -20,7 +20,6 @@
 #pragma once
 
 #include "BrushFaceAttributes.h"
-#include "FloatType.h"
 #include "Model/Polyhedron3.h"
 #include "Result.h"
 
@@ -46,29 +45,19 @@ class BrushBuilder
 {
 private:
   MapFormat m_mapFormat;
-  const vm::bbox3 m_worldBounds;
+  const vm::bbox3d m_worldBounds;
   const BrushFaceAttributes m_defaultAttribs;
 
 public:
-  BrushBuilder(MapFormat mapFormat, const vm::bbox3& worldBounds);
+  BrushBuilder(MapFormat mapFormat, const vm::bbox3d& worldBounds);
   BrushBuilder(
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     BrushFaceAttributes defaultAttribs);
 
-  Result<Brush> createCube(FloatType size, const std::string& materialName) const;
+  Result<Brush> createCube(double size, const std::string& materialName) const;
   Result<Brush> createCube(
-    FloatType size,
-    const std::string& leftMaterial,
-    const std::string& rightMaterial,
-    const std::string& frontMaterial,
-    const std::string& backMaterial,
-    const std::string& topMaterial,
-    const std::string& bottomMaterial) const;
-
-  Result<Brush> createCuboid(const vm::vec3& size, const std::string& materialName) const;
-  Result<Brush> createCuboid(
-    const vm::vec3& size,
+    double size,
     const std::string& leftMaterial,
     const std::string& rightMaterial,
     const std::string& frontMaterial,
@@ -77,9 +66,20 @@ public:
     const std::string& bottomMaterial) const;
 
   Result<Brush> createCuboid(
-    const vm::bbox3& bounds, const std::string& materialName) const;
+    const vm::vec3d& size, const std::string& materialName) const;
   Result<Brush> createCuboid(
-    const vm::bbox3& bounds,
+    const vm::vec3d& size,
+    const std::string& leftMaterial,
+    const std::string& rightMaterial,
+    const std::string& frontMaterial,
+    const std::string& backMaterial,
+    const std::string& topMaterial,
+    const std::string& bottomMaterial) const;
+
+  Result<Brush> createCuboid(
+    const vm::bbox3d& bounds, const std::string& materialName) const;
+  Result<Brush> createCuboid(
+    const vm::bbox3d& bounds,
     const std::string& leftMaterial,
     const std::string& rightMaterial,
     const std::string& frontMaterial,
@@ -88,15 +88,15 @@ public:
     const std::string& bottomMaterial) const;
 
   Result<Brush> createCylinder(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     size_t numSides,
     RadiusMode radiusMode,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<std::vector<Brush>> createHollowCylinder(
-    const vm::bbox3& bounds,
-    FloatType thickness,
+    const vm::bbox3d& bounds,
+    double thickness,
     size_t numSides,
     RadiusMode radiusMode,
     vm::axis::type axis,
@@ -104,14 +104,14 @@ public:
 
 
   Result<Brush> createCone(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     size_t numSides,
     RadiusMode radiusMode,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<Brush> createUVSphere(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     size_t numSides,
     size_t numRings,
     RadiusMode radiusMode,
@@ -119,10 +119,10 @@ public:
     const std::string& textureName) const;
 
   Result<Brush> createIcoSphere(
-    const vm::bbox3& bounds, size_t iterations, const std::string& textureName) const;
+    const vm::bbox3d& bounds, size_t iterations, const std::string& textureName) const;
 
   Result<Brush> createBrush(
-    const std::vector<vm::vec3>& points, const std::string& materialName) const;
+    const std::vector<vm::vec3d>& points, const std::string& materialName) const;
   Result<Brush> createBrush(
     const Polyhedron3& polyhedron, const std::string& materialName) const;
 };

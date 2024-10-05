@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitType.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <map>
 #include <vector>
@@ -73,10 +73,10 @@ std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>&
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext);
 
-vm::bbox3 computeLogicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
-vm::bbox3 computePhysicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds = vm::bbox3());
+vm::bbox3d computeLogicalBounds(
+  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds = vm::bbox3d());
+vm::bbox3d computePhysicalBounds(
+  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds = vm::bbox3d());
 
 std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
 std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);

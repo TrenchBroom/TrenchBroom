@@ -19,7 +19,6 @@
 
 #include "BrushNode.h"
 
-#include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -165,9 +164,9 @@ bool BrushNode::contains(const Node* node) const
 }
 
 static bool faceIntersectsEdge(
-  const BrushFace& face, const vm::vec3& p0, const vm::vec3& p1)
+  const BrushFace& face, const vm::vec3d& p0, const vm::vec3d& p1)
 {
-  const auto ray = vm::ray3{p0, p1 - p0}; // not normalized
+  const auto ray = vm::ray3d{p0, p1 - p0}; // not normalized
   if (const auto dist = face.intersectWithRay(ray))
   {
     // dist is scaled by inverse of vm::length(p1 - p0)
@@ -268,21 +267,21 @@ const std::string& BrushNode::doGetName() const
   return name;
 }
 
-const vm::bbox3& BrushNode::doGetLogicalBounds() const
+const vm::bbox3d& BrushNode::doGetLogicalBounds() const
 {
   return m_brush.bounds();
 }
 
-const vm::bbox3& BrushNode::doGetPhysicalBounds() const
+const vm::bbox3d& BrushNode::doGetPhysicalBounds() const
 {
   return logicalBounds();
 }
 
-FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const
+double BrushNode::doGetProjectedArea(const vm::axis::type axis) const
 {
-  const auto normal = vm::vec3::axis(axis);
+  const auto normal = vm::vec3d::axis(axis);
 
-  auto result = static_cast<FloatType>(0);
+  auto result = static_cast<double>(0);
   for (const auto& face : m_brush.faces())
   {
     // only consider one side of the brush -- doesn't matter which one!
@@ -295,7 +294,7 @@ FloatType BrushNode::doGetProjectedArea(const vm::axis::type axis) const
   return result;
 }
 
-Node* BrushNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* BrushNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result = std::make_unique<BrushNode>(m_brush);
   cloneLinkId(*result);
@@ -339,7 +338,7 @@ void BrushNode::doAccept(ConstNodeVisitor& visitor) const
 }
 
 void BrushNode::doPick(
-  const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult)
+  const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
   if (editorContext.visible(this))
   {
@@ -354,7 +353,7 @@ void BrushNode::doPick(
   }
 }
 
-void BrushNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void BrushNode::doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   if (m_brush.containsPoint(point))
   {
@@ -362,8 +361,8 @@ void BrushNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>&
   }
 }
 
-std::optional<std::tuple<FloatType, size_t>> BrushNode::findFaceHit(
-  const vm::ray3& ray) const
+std::optional<std::tuple<double, size_t>> BrushNode::findFaceHit(
+  const vm::ray3d& ray) const
 {
   if (vm::intersect_ray_bbox(ray, logicalBounds()))
   {

@@ -19,7 +19,6 @@
 
 #include "DrawShapeTool.h"
 
-#include "FloatType.h"
 #include "Model/Brush.h" // IWYU pragma: keep
 #include "Model/BrushNode.h"
 #include "View/DrawShapeToolExtension.h"
@@ -40,7 +39,7 @@ DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-void DrawShapeTool::update(const vm::bbox3& bounds, const vm::axis::type axis)
+void DrawShapeTool::update(const vm::bbox3d& bounds, const vm::axis::type axis)
 {
   auto document = kdl::mem_lock(m_document);
   m_extensionManager.currentExtension().createBrushes(bounds, axis, *document)

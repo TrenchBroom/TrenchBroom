@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
 #include "Model/Game.h"
@@ -161,7 +160,7 @@ public:
   }
 
   virtual void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const = 0;
 
@@ -246,7 +245,7 @@ public:
   virtual const HandleManager& handleManager() const = 0;
 
 public: // performing moves
-  virtual std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
+  virtual std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const = 0;
 
   virtual bool startMove(const std::vector<Model::Hit>& hits)
@@ -284,7 +283,7 @@ public: // performing moves
     return true;
   }
 
-  virtual MoveResult move(const vm::vec3& delta) = 0;
+  virtual MoveResult move(const vm::vec3d& delta) = 0;
 
   virtual void endMove()
   {
@@ -313,7 +312,7 @@ public: // csg convex merge
 
   void csgConvexMerge()
   {
-    auto vertices = std::vector<vm::vec3>{};
+    auto vertices = std::vector<vm::vec3d>{};
     const auto handles = handleManager().selectedHandles();
     H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
@@ -362,7 +361,7 @@ public: // csg convex merge
   virtual std::string actionName() const = 0;
 
 public:
-  void moveSelection(const vm::vec3& delta)
+  void moveSelection(const vm::vec3d& delta)
   {
     const auto ignoreChangeNotifications = kdl::inc_temp{m_ignoreChangeNotifications};
 
@@ -461,7 +460,7 @@ public: // rendering
   void renderHighlight(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& handle) const
+    const vm::vec3d& handle) const
   {
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
@@ -482,7 +481,7 @@ public: // rendering
   virtual void renderGuide(
     Renderer::RenderContext&,
     Renderer::RenderBatch&,
-    const vm::vec3& /* position */) const
+    const vm::vec3d& /* position */) const
   {
   }
 

@@ -186,7 +186,7 @@ Updated: 2011-03-02
 
   UNSCOPED_INFO("Expected matching bounds");
   CHECK(vm::is_equal(
-    vm::bbox3{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}}, pointDefinition->bounds(), 0.01));
+    vm::bbox3d{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}}, pointDefinition->bounds(), 0.01));
 
   UNSCOPED_INFO("Expected three property definitions");
   CHECK(pointDefinition->propertyDefinitions().size() == 3u);

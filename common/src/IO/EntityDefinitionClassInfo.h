@@ -23,11 +23,11 @@
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
 #include "FileLocation.h"
-#include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <iosfwd>
 #include <memory>
@@ -59,7 +59,7 @@ struct EntityDefinitionClassInfo
 
   std::optional<std::string> description;
   std::optional<Color> color;
-  std::optional<vm::bbox3> size;
+  std::optional<vm::bbox3d> size;
   std::optional<Assets::ModelDefinition> modelDefinition;
   std::optional<Assets::DecalDefinition> decalDefinition;
 

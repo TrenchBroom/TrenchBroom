@@ -33,6 +33,7 @@
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 
+#include "vm/forward.h"
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>
@@ -173,7 +174,7 @@ std::optional<Color> parseColor(
   return Color::parse(parseString(element, attributeName));
 }
 
-std::optional<vm::bbox3> parseBounds(
+std::optional<vm::bbox3d> parseBounds(
   const tinyxml2::XMLElement& element,
   const std::string& attributeName,
   ParserStatus& status)
@@ -185,11 +186,11 @@ std::optional<vm::bbox3> parseBounds(
     const auto mid = std::next(it, 3);
     const auto end = std::end(parts);
 
-    const auto min = vm::parse<FloatType, 3>(kdl::str_join(it, mid, " "));
-    const auto max = vm::parse<FloatType, 3>(kdl::str_join(mid, end, " "));
+    const auto min = vm::parse<double, 3>(kdl::str_join(it, mid, " "));
+    const auto max = vm::parse<double, 3>(kdl::str_join(mid, end, " "));
     if (min && max)
     {
-      return vm::bbox3{*min, *max};
+      return vm::bbox3d{*min, *max};
     }
   }
 

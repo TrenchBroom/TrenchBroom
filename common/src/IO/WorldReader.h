@@ -59,7 +59,7 @@ public:
     const Model::EntityPropertyConfig& entityPropertyConfig);
 
   std::unique_ptr<Model::WorldNode> read(
-    const vm::bbox3& worldBounds, ParserStatus& status);
+    const vm::bbox3d& worldBounds, ParserStatus& status);
 
   /**
    * Try to parse the given string as the given map formats, in order.
@@ -75,7 +75,7 @@ public:
   static std::unique_ptr<Model::WorldNode> tryRead(
     std::string_view str,
     const std::vector<Model::MapFormat>& mapFormatsToTry,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const Model::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 

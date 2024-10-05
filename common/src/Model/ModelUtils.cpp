@@ -314,10 +314,10 @@ std::vector<BrushFaceHandle> collectSelectableBrushFaces(
     });
 }
 
-vm::bbox3 computeLogicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds)
+vm::bbox3d computeLogicalBounds(
+  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds)
 {
-  vm::bbox3::builder builder;
+  vm::bbox3d::builder builder;
   Node::visitAll(
     nodes,
     kdl::overload(
@@ -330,10 +330,10 @@ vm::bbox3 computeLogicalBounds(
   return builder.initialized() ? builder.bounds() : defaultBounds;
 }
 
-vm::bbox3 computePhysicalBounds(
-  const std::vector<Node*>& nodes, const vm::bbox3& defaultBounds)
+vm::bbox3d computePhysicalBounds(
+  const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds)
 {
-  vm::bbox3::builder builder;
+  vm::bbox3d::builder builder;
   Node::visitAll(
     nodes,
     kdl::overload(

@@ -19,8 +19,6 @@
 
 #include "EdgeTool.h"
 
-#include "FloatType.h"
-
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
@@ -34,13 +32,13 @@ EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
 }
 
 std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(
-  const vm::segment3& handle) const
+  const vm::segment3d& handle) const
 {
   return findIncidentBrushes(*m_edgeHandles, handle);
 }
 
 void EdgeTool::pick(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -57,7 +55,7 @@ const EdgeHandleManager& EdgeTool::handleManager() const
   return *m_edgeHandles;
 }
 
-std::tuple<vm::vec3, vm::vec3> EdgeTool::handlePositionAndHitPoint(
+std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
   const std::vector<Model::Hit>& hits) const
 {
   assert(!hits.empty());
@@ -65,10 +63,10 @@ std::tuple<vm::vec3, vm::vec3> EdgeTool::handlePositionAndHitPoint(
   const auto& hit = hits.front();
   assert(hit.hasType(EdgeHandleManager::HandleHitType));
 
-  return {hit.target<vm::segment3>().center(), hit.hitPoint()};
+  return {hit.target<vm::segment3d>().center(), hit.hitPoint()};
 }
 
-EdgeTool::MoveResult EdgeTool::move(const vm::vec3& delta)
+EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -89,9 +87,9 @@ std::string EdgeTool::actionName() const
 void EdgeTool::removeSelection()
 {
   const auto handles = m_edgeHandles->selectedHandles();
-  auto vertexPositions = std::vector<vm::vec3>{};
+  auto vertexPositions = std::vector<vm::vec3d>{};
   vertexPositions.reserve(2 * vertexPositions.size());
-  vm::segment3::get_vertices(
+  vm::segment3d::get_vertices(
     std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
 
   const auto commandName =

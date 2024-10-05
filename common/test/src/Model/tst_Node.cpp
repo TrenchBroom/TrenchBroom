@@ -117,7 +117,7 @@ private:
   }
 
 private: // implement Node interface
-  Node* doClone(const vm::bbox3& /* worldBounds */) const override
+  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
   {
     return new MockNode{};
   }
@@ -128,22 +128,19 @@ private: // implement Node interface
     return name;
   }
 
-  const vm::bbox3& doGetLogicalBounds() const override
+  const vm::bbox3d& doGetLogicalBounds() const override
   {
-    static const auto bounds = vm::bbox3{};
+    static const auto bounds = vm::bbox3d{};
     return bounds;
   }
 
-  const vm::bbox3& doGetPhysicalBounds() const override
+  const vm::bbox3d& doGetPhysicalBounds() const override
   {
-    static const auto bounds = vm::bbox3{};
+    static const auto bounds = vm::bbox3d{};
     return bounds;
   }
 
-  FloatType doGetProjectedArea(const vm::axis::type) const override
-  {
-    return FloatType(0);
-  }
+  double doGetProjectedArea(const vm::axis::type) const override { return double(0); }
 
   bool doCanAddChild(const Node* child) const override
   {
@@ -174,12 +171,12 @@ private: // implement Node interface
   void doAncestorDidChange() override { popCall<DoAncestorDidChange>(); }
 
   void doPick(
-    const EditorContext&, const vm::ray3& /*ray*/, PickResult& /*pickResult*/) override
+    const EditorContext&, const vm::ray3d& /*ray*/, PickResult& /*pickResult*/) override
   {
   }
 
   void doFindNodesContaining(
-    const vm::vec3& /*point*/, std::vector<Node*>& /*result*/) override
+    const vm::vec3d& /*point*/, std::vector<Node*>& /*result*/) override
   {
   }
 
@@ -194,7 +191,7 @@ private: // implement Node interface
 class TestNode : public Node
 {
 private: // implement Node interface
-  Node* doClone(const vm::bbox3& /* worldBounds */) const override
+  Node* doClone(const vm::bbox3d& /* worldBounds */) const override
   {
     return new TestNode{};
   }
@@ -205,22 +202,19 @@ private: // implement Node interface
     return name;
   }
 
-  const vm::bbox3& doGetLogicalBounds() const override
+  const vm::bbox3d& doGetLogicalBounds() const override
   {
-    static const auto bounds = vm::bbox3{};
+    static const auto bounds = vm::bbox3d{};
     return bounds;
   }
 
-  const vm::bbox3& doGetPhysicalBounds() const override
+  const vm::bbox3d& doGetPhysicalBounds() const override
   {
-    static const auto bounds = vm::bbox3{};
+    static const auto bounds = vm::bbox3d{};
     return bounds;
   }
 
-  FloatType doGetProjectedArea(const vm::axis::type) const override
-  {
-    return FloatType(0);
-  }
+  double doGetProjectedArea(const vm::axis::type) const override { return double(0); }
 
   bool doCanAddChild(const Node* /* child */) const override { return true; }
 
@@ -239,12 +233,12 @@ private: // implement Node interface
 
   void doPick(
     const EditorContext&,
-    const vm::ray3& /* ray */,
+    const vm::ray3d& /* ray */,
     PickResult& /* pickResult */) override
   {
   }
   void doFindNodesContaining(
-    const vm::vec3& /* point */, std::vector<Node*>& /* result */) override
+    const vm::vec3d& /* point */, std::vector<Node*>& /* result */) override
   {
   }
 
@@ -605,7 +599,7 @@ const auto constNodeTestVisitor = kdl::overload(
 
 TEST_CASE("NodeTest.accept")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
   auto layerNode = LayerNode{Layer{"name"}};

@@ -189,7 +189,8 @@ TEST_CASE("DefParserTest.parsePointClass")
 
   const auto& pointDefinition =
     static_cast<const Assets::PointEntityDefinition&>(definition);
-  CHECK(pointDefinition.bounds() == vm::bbox3{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
+  CHECK(
+    pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
   const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags
@@ -230,7 +231,8 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 
   const auto& pointDefinition =
     static_cast<const Assets::PointEntityDefinition&>(definition);
-  CHECK(pointDefinition.bounds() == vm::bbox3{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
+  CHECK(
+    pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
   const auto& properties = definition.propertyDefinitions();
   CHECK(properties.size() == 1u); // spawnflags

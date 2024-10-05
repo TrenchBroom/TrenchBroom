@@ -62,7 +62,7 @@ QWidget* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolCuboidExtension::createBrushes(
-  const vm::bbox3& bounds, const vm::axis::type, const MapDocument& document) const
+  const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
@@ -166,7 +166,7 @@ QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
-  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
@@ -208,7 +208,7 @@ QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
-  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
@@ -262,7 +262,7 @@ QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
-  const vm::bbox3& bounds, const vm::axis::type, const MapDocument& document) const
+  const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{
@@ -312,7 +312,7 @@ QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<Model::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
-  const vm::bbox3& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = Model::BrushBuilder{

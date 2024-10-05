@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
@@ -38,19 +37,19 @@ namespace TrenchBroom::Renderer
 class BoundsGuideRenderer : public DirectRenderable
 {
 private:
-  static const FloatType SpikeLength;
+  static const double SpikeLength;
 
   std::weak_ptr<View::MapDocument> m_document;
 
   Color m_color;
-  vm::bbox3 m_bounds;
+  vm::bbox3d m_bounds;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
   explicit BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
   void setColor(const Color& color);
-  void setBounds(const vm::bbox3& bounds);
+  void setBounds(const vm::bbox3d& bounds);
 
 private:
   void doPrepareVertices(VboManager& vboManager) override;

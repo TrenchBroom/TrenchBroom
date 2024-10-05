@@ -19,8 +19,9 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/Tool.h"
+
+#include "vm/forward.h"
 
 #include <memory>
 
@@ -51,7 +52,7 @@ public:
   const Grid& grid() const;
 
   bool startMove(const InputState& inputState);
-  MoveResult move(const InputState& inputState, const vm::vec3& delta);
+  MoveResult move(const InputState& inputState, const vm::vec3d& delta);
   void endMove(const InputState& inputState);
   void cancelMove();
 

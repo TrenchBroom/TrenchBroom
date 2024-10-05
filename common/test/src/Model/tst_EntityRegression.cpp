@@ -20,7 +20,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Color.h"
 #include "EL/Expression.h"
-#include "FloatType.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
 
@@ -44,7 +43,7 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
   auto definition = Assets::PointEntityDefinition{
     "some_name",
     Color{},
-    vm::bbox3{32.0},
+    vm::bbox3d{32.0},
     "",
     {},
     Assets::ModelDefinition{modelExpression},

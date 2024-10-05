@@ -48,10 +48,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
     | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
@@ -63,7 +65,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
 
   auto* brushNode3 = entityNode->children().front();
   CHECK(
-    brushNode3->logicalBounds() == vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}});
+    brushNode3->logicalBounds() == vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
@@ -75,10 +77,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
     | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
@@ -104,8 +108,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
   const auto face2Verts = face2.vertexPositions();
 
   const auto bounds = vm::merge(
-    vm::bbox3::merge_all(std::begin(face1Verts), std::end(face1Verts)),
-    vm::bbox3::merge_all(std::begin(face2Verts), std::end(face2Verts)));
+    vm::bbox3d::merge_all(std::begin(face1Verts), std::end(face1Verts)),
+    vm::bbox3d::merge_all(std::begin(face2Verts), std::end(face2Verts)));
 
   CHECK(brushNode3->logicalBounds() == bounds);
 }
@@ -118,19 +122,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment =
+    Model::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
-  auto brush1 =
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 64, 64}}, "material")
-    | kdl::value();
-  brush1.face(*brush1.findFace(vm::vec3::pos_z()))
+  auto brush1 = builder.createCuboid(
+                  vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
+                | kdl::value();
+  brush1.face(*brush1.findFace(vm::vec3d::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
-  auto brush2 =
-    builder.createCuboid(vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-    | kdl::value();
-  brush2.face(*brush2.findFace(vm::vec3::pos_z()))
+  auto brush2 = builder.createCuboid(
+                  vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+                | kdl::value();
+  brush2.face(*brush2.findFace(vm::vec3d::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
@@ -147,9 +152,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto* brushNode3 = static_cast<Model::BrushNode*>(entityNode->children()[0]);
   const auto& brush3 = brushNode3->brush();
 
-  const auto& top = brush3.face(*brush3.findFace(vm::vec3::pos_z()));
-  CHECK(top.uAxis() == vm::vec3{1, 0, 0});
-  CHECK(top.vAxis() == vm::vec3{0, 1, 0});
+  const auto& top = brush3.face(*brush3.findFace(vm::vec3d::pos_z()));
+  CHECK(top.uAxis() == vm::vec3d{1, 0, 0});
+  CHECK(top.vAxis() == vm::vec3d{0, 1, 0});
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing")
@@ -160,16 +165,17 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   auto* entityNode = new Model::EntityNode{Model::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment = Model::ParallelUVCoordSystem{vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}};
+  auto texAlignment =
+    Model::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
-  auto brush1 =
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
-    | kdl::value();
-  auto brush2 =
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 32}}, "material")
-    | kdl::value();
-  brush2.face(*brush2.findFace(vm::vec3::pos_z()))
+  auto brush1 = builder.createCuboid(
+                  vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
+                | kdl::value();
+  auto brush2 = builder.createCuboid(
+                  vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 32}}, "material")
+                | kdl::value();
+  brush2.face(*brush2.findFace(vm::vec3d::pos_z()))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
@@ -188,13 +194,14 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   const auto& brush3 = brushNode3->brush();
 
   CHECK(
-    brushNode3->logicalBounds() == vm::bbox3{vm::vec3{0, 0, 32}, vm::vec3{64, 64, 64}});
+    brushNode3->logicalBounds()
+    == vm::bbox3d{vm::vec3d{0, 0, 32}, vm::vec3d{64, 64, 64}});
 
   // the material alignment from the top of brush2 should have transferred
   // to the bottom face of brush3
-  const auto& top = brush3.face(*brush3.findFace(vm::vec3::neg_z()));
-  CHECK(top.uAxis() == vm::vec3{1, 0, 0});
-  CHECK(top.vAxis() == vm::vec3{0, 1, 0});
+  const auto& top = brush3.face(*brush3.findFace(vm::vec3d::neg_z()));
+  CHECK(top.uAxis() == vm::vec3d{1, 0, 0});
+  CHECK(top.vAxis() == vm::vec3d{0, 1, 0});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
@@ -206,13 +213,16 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* minuendNode = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
   auto* subtrahendNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{32, 32, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 32, 64}}, "material")
     | kdl::value()};
   auto* subtrahendNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{32, 32, 0}, vm::vec3{64, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{32, 32, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
 
   document->addNodes({{entityNode, {minuendNode, subtrahendNode1, subtrahendNode2}}});
@@ -228,8 +238,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
   CHECK(remainderNode1 != nullptr);
   CHECK(remainderNode2 != nullptr);
 
-  const auto expectedBBox1 = vm::bbox3{vm::vec3{0, 32, 0}, vm::vec3{32, 64, 64}};
-  const auto expectedBBox2 = vm::bbox3{vm::vec3{32, 0, 0}, vm::vec3{64, 32, 64}};
+  const auto expectedBBox1 = vm::bbox3d{vm::vec3d{0, 32, 0}, vm::vec3d{32, 64, 64}};
+  const auto expectedBBox2 = vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 32, 64}};
 
   if (remainderNode1->logicalBounds() != expectedBBox1)
   {
@@ -249,7 +259,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   auto* subtrahend1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}}, "material")
+    builder.createCuboid(
+      vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
   document->addNodes({{entityNode, {subtrahend1}}});
 
@@ -292,7 +303,7 @@ TEST_CASE("CsgTest.csgSubtractFailure")
   CHECK_THAT(
     result->brush().vertexPositions(),
     UnorderedApproxVecMatches(
-      std::vector<vm::vec3>{
+      std::vector<vm::vec3d>{
         {-2852, 372, 248},
         {-2854, 372, 256},
         {-2854, 364, 256},

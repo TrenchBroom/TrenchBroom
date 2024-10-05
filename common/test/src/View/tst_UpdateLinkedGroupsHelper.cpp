@@ -137,11 +137,11 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 
   transformNode(
     *linkedGroupNode,
-    vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)),
+    vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)),
     document->worldBounds());
   REQUIRE(
     linkedBrushNode->physicalBounds()
-    == brushNode->physicalBounds().translate(vm::vec3(32.0, 0.0, 0.0)));
+    == brushNode->physicalBounds().translate(vm::vec3d(32.0, 0.0, 0.0)));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedGroupNode}}});
 
@@ -158,11 +158,11 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 
   transformNode(
     *brushNode,
-    vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)),
+    vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)),
     document->worldBounds());
   REQUIRE(
     brushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 16.0, 0.0)));
 
   /*
   world
@@ -195,7 +195,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
   auto* newLinkedBrushNode = linkedGroupNode->children().front();
   CHECK(
     newLinkedBrushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 0.0)));
 
   // undo change propagation
   helper.undoLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()));
@@ -216,7 +216,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
   CHECK(linkedBrushNode->parent() == linkedGroupNode);
   CHECK(
     linkedBrushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 }
 
 static void setGroupName(Model::GroupNode& groupNode, const std::string& name)
@@ -317,22 +317,22 @@ TEST_CASE_METHOD(
 
   REQUIRE(
     linkedOuterGroupNode->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+    == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
   REQUIRE(
     linkedOuterGroupNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 
   REQUIRE(
     nestedLinkedInnerGroupNode->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+    == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
   REQUIRE(
     nestedLinkedInnerGroupNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 
   auto* nestedLinkedBrushNode = nestedLinkedInnerGroupNode->children().front();
   REQUIRE(
     nestedLinkedBrushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 
   /*
   world
@@ -357,10 +357,10 @@ TEST_CASE_METHOD(
     == vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)));
   REQUIRE(
     innerGroupNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 16.0, 0.0)));
   REQUIRE(
     brushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 16.0, 0.0)));
 
   /*
   world
@@ -382,7 +382,7 @@ TEST_CASE_METHOD(
 
   REQUIRE(
     brushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 8.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 16.0, 8.0)));
 
   /*
   world
@@ -423,21 +423,21 @@ TEST_CASE_METHOD(
     auto* newLinkedBrushNode = linkedInnerGroupNode->children().front();
     CHECK(
       newLinkedBrushNode->physicalBounds()
-      == originalBrushBounds.translate(vm::vec3(0.0, 0.0, 8.0)));
+      == originalBrushBounds.translate(vm::vec3d(0.0, 0.0, 8.0)));
 
     REQUIRE(nestedLinkedInnerGroupNode != nullptr);
     CHECK(
       nestedLinkedInnerGroupNode->group().transformation()
-      == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+      == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
     CHECK(
       nestedLinkedInnerGroupNode->physicalBounds()
-      == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 8.0)));
+      == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 8.0)));
     REQUIRE(nestedLinkedInnerGroupNode->childCount() == 1u);
 
     auto* newNestedLinkedBrushNode = nestedLinkedInnerGroupNode->children().front();
     CHECK(
       newNestedLinkedBrushNode->physicalBounds()
-      == originalBrushBounds.translate(vm::vec3(32.0, 0.0, 8.0)));
+      == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 8.0)));
 
     auto helper2 = UpdateLinkedGroupsHelper{{outerGroupNode}};
     CHECK(
@@ -477,16 +477,16 @@ TEST_CASE_METHOD(
       findGroupByName(*document->world(), "nestedLinkedInnerGroupNode");
     CHECK(
       newNestedLinkedInnerGroupNode->group().transformation()
-      == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+      == vm::translation_matrix(vm::vec3d(32.0, 16.0, 0.0)));
     CHECK(
       newNestedLinkedInnerGroupNode->physicalBounds()
-      == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
+      == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
     REQUIRE(newNestedLinkedInnerGroupNode->childCount() == 1u);
 
     auto* newNestedLinkedBrushNode = newNestedLinkedInnerGroupNode->children().front();
     CHECK(
       newNestedLinkedBrushNode->physicalBounds()
-      == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
+      == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
 
     auto helper2 = UpdateLinkedGroupsHelper{{innerGroupNode}};
     REQUIRE(
@@ -534,7 +534,7 @@ TEST_CASE_METHOD(
   auto* newLinkedBrushNode = linkedInnerGroupNode->children().front();
   CHECK(
     newLinkedBrushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 0.0, 8.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 0.0, 8.0)));
 
   CHECK(
     linkedOuterGroupNode->group().transformation()
@@ -545,16 +545,16 @@ TEST_CASE_METHOD(
   REQUIRE(newNestedLinkedInnerGroupNode != nullptr);
   CHECK(
     newNestedLinkedInnerGroupNode->group().transformation()
-    == vm::translation_matrix(vm::vec3(32.0, 16.0, 0.0)));
+    == vm::translation_matrix(vm::vec3d(32.0, 16.0, 0.0)));
   CHECK(
     newNestedLinkedInnerGroupNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
   REQUIRE(newNestedLinkedInnerGroupNode->childCount() == 1u);
 
   auto* newNestedLinkedBrushNode = newNestedLinkedInnerGroupNode->children().front();
   CHECK(
     newNestedLinkedBrushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(32.0, 16.0, 8.0)));
+    == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
 }
 
 } // namespace TrenchBroom::View

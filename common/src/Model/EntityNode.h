@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/EntityNodeBase.h"
 #include "Model/HitType.h"
@@ -47,14 +46,14 @@ class EntityNode : public EntityNodeBase, public Object
 {
 public:
   static const HitType::Type EntityHitType;
-  static const vm::bbox3 DefaultBounds;
+  static const vm::bbox3d DefaultBounds;
 
 private:
   struct CachedBounds
   {
-    vm::bbox3 modelBounds;
-    vm::bbox3 logicalBounds;
-    vm::bbox3 physicalBounds;
+    vm::bbox3d modelBounds;
+    vm::bbox3d logicalBounds;
+    vm::bbox3d physicalBounds;
   };
   mutable std::optional<CachedBounds> m_cachedBounds;
 
@@ -62,16 +61,16 @@ public:
   explicit EntityNode(Entity entity);
 
 public: // entity model
-  const vm::bbox3& modelBounds() const;
+  const vm::bbox3d& modelBounds() const;
   void setModel(const Assets::EntityModel* model);
 
 private: // implement Node interface
-  const vm::bbox3& doGetLogicalBounds() const override;
-  const vm::bbox3& doGetPhysicalBounds() const override;
+  const vm::bbox3d& doGetLogicalBounds() const override;
+  const vm::bbox3d& doGetPhysicalBounds() const override;
 
-  FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  double doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3d& worldBounds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -89,9 +88,9 @@ private: // implement Node interface
 
   void doPick(
     const EditorContext& editorContext,
-    const vm::ray3& ray,
+    const vm::ray3d& ray,
     PickResult& pickResult) override;
-  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+  void doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;
@@ -99,9 +98,9 @@ private: // implement Node interface
   std::vector<Node*> nodesRequiredForViewSelection() override;
 
 private: // implement EntityNodeBase interface
-  void doPropertiesDidChange(const vm::bbox3& oldBounds) override;
-  vm::vec3 doGetLinkSourceAnchor() const override;
-  vm::vec3 doGetLinkTargetAnchor() const override;
+  void doPropertiesDidChange(const vm::bbox3d& oldBounds) override;
+  vm::vec3d doGetLinkSourceAnchor() const override;
+  vm::vec3d doGetLinkTargetAnchor() const override;
 
 private: // implement Object interface
   Node* doGetContainer() override;

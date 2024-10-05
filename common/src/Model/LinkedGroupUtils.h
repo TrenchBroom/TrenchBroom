@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h" // IWYU pragma: keep
@@ -134,7 +133,7 @@ using UpdateLinkedGroupsResult =
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<Model::GroupNode*>& targetGroupNodes,
-  const vm::bbox3& worldBounds);
+  const vm::bbox3d& worldBounds);
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
 

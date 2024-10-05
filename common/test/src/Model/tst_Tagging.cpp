@@ -33,7 +33,7 @@ namespace TrenchBroom::Model
 
 TEST_CASE("TaggingTest.testTagBrush")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   auto worldNode = WorldNode{{}, {}, MapFormat::Standard};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};

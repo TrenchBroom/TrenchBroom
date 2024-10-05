@@ -39,7 +39,7 @@ void updatePickState(
 {
   Model::PickResult pickResult = Model::PickResult::byDistance();
   const PickRequest pickRequest(
-    vm::ray3(camera.pickRay(
+    vm::ray3d(camera.pickRay(
       static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))),
     camera);
 
@@ -92,8 +92,8 @@ TEST_CASE_METHOD(
     vm::vec3f::pos_z());
 
   // The following test places these 2 clip points
-  const auto clipPoint1 = vm::vec3(-16, -16, 52);
-  const auto clipPoint2 = vm::vec3(20, -16, 52);
+  const auto clipPoint1 = vm::vec3d(-16, -16, 52);
+  const auto clipPoint2 = vm::vec3d(20, -16, 52);
 
   auto clipPoint1ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint1)));
   auto clipPoint2ScreenSpace = vm::vec2f(camera.project(vm::vec3f(clipPoint2)));
@@ -147,7 +147,7 @@ TEST_CASE_METHOD(
   REQUIRE(brush != nullptr);
 
   CHECK(
-    brush->logicalBounds() == vm::bbox3(vm::vec3(-16, -16, 52), vm::vec3(20, 16, 72)));
+    brush->logicalBounds() == vm::bbox3d(vm::vec3d(-16, -16, 52), vm::vec3d(20, 16, 72)));
 }
 
 } // namespace TrenchBroom::View

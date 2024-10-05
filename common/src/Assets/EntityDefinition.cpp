@@ -187,7 +187,7 @@ EntityDefinition::EntityDefinition(
 PointEntityDefinition::PointEntityDefinition(
   std::string name,
   const Color& color,
-  const vm::bbox3& bounds,
+  const vm::bbox3d& bounds,
   std::string description,
   std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
   ModelDefinition modelDefinition,
@@ -204,7 +204,7 @@ EntityDefinitionType PointEntityDefinition::type() const
   return EntityDefinitionType::PointEntity;
 }
 
-const vm::bbox3& PointEntityDefinition::bounds() const
+const vm::bbox3d& PointEntityDefinition::bounds() const
 {
   return m_bounds;
 }

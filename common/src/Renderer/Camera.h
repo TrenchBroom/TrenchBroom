@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Notifier.h"
 
 #include "kdl/reflection_decl.h"
@@ -181,14 +180,12 @@ public:
     const Color& color) const;
   float pickFrustum(float size, const vm::ray3f& ray) const;
 
-  std::optional<FloatType> pickPointHandle(
-    const vm::ray3& pickRay,
-    const vm::vec3& handlePosition,
-    FloatType handleRadius) const;
-  std::optional<FloatType> pickLineSegmentHandle(
-    const vm::ray3& pickRay,
-    const vm::segment3& handlePosition,
-    FloatType handleRadius) const;
+  std::optional<double> pickPointHandle(
+    const vm::ray3d& pickRay, const vm::vec3d& handlePosition, double handleRadius) const;
+  std::optional<double> pickLineSegmentHandle(
+    const vm::ray3d& pickRay,
+    const vm::segment3d& handlePosition,
+    double handleRadius) const;
 
 protected:
   Camera();

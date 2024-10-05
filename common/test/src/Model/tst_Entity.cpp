@@ -20,7 +20,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/PropertyDefinition.h"
 #include "EL/Expression.h"
-#include "FloatType.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -43,8 +42,8 @@ TEST_CASE("EntityTest")
 
     CHECK(entity.classname() == EntityPropertyValues::NoClassname);
     CHECK(entity.pointEntity());
-    CHECK(entity.origin() == vm::vec3::zero());
-    CHECK(entity.rotation() == vm::mat4x4::identity());
+    CHECK(entity.origin() == vm::vec3d::zero());
+    CHECK(entity.rotation() == vm::mat4x4d::identity());
   }
 
   SECTION("setProperties")
@@ -54,7 +53,7 @@ TEST_CASE("EntityTest")
       auto definition = Assets::PointEntityDefinition{
         "some_name",
         Color{},
-        vm::bbox3{32.0},
+        vm::bbox3d{32.0},
         "",
         {},
         Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{
@@ -69,13 +68,13 @@ TEST_CASE("EntityTest")
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
 
       entity.setProperties({{"modelscale", "1 2 3"}});
 
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+        == vm::scaling_matrix(vm::vec3d{1, 2, 3}));
     }
   }
 
@@ -86,7 +85,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {
         std::make_shared<Assets::StringPropertyDefinition>(
@@ -126,18 +125,18 @@ TEST_CASE("EntityTest")
   SECTION("definitionBounds")
   {
     auto pointEntityDefinition = Assets::PointEntityDefinition(
-      "some_name", Color{}, vm::bbox3{32.0}, "", {}, {}, {});
+      "some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {});
     auto entity = Entity{};
 
     SECTION("Returns default bounds if no definition is set")
     {
-      CHECK(entity.definitionBounds() == vm::bbox3{8.0});
+      CHECK(entity.definitionBounds() == vm::bbox3d{8.0});
     }
 
     SECTION("Returns definition bounds if definition is set")
     {
       entity.setDefinition(&pointEntityDefinition);
-      CHECK(entity.definitionBounds() == vm::bbox3{32.0});
+      CHECK(entity.definitionBounds() == vm::bbox3d{32.0});
     }
   }
 
@@ -148,7 +147,7 @@ TEST_CASE("EntityTest")
       auto definition = Assets::PointEntityDefinition{
         "some_name",
         Color{},
-        vm::bbox3{32.0},
+        vm::bbox3d{32.0},
         "",
         {},
         Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{{}}}},
@@ -161,12 +160,12 @@ TEST_CASE("EntityTest")
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::mat4x4::identity());
+        == vm::mat4x4d::identity());
 
       entity.setDefinition(&definition);
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
   }
 
@@ -181,7 +180,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       Assets::ModelDefinition{modelExpression},
@@ -206,7 +205,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       {},
@@ -225,7 +224,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{{}}}},
@@ -239,19 +238,19 @@ TEST_CASE("EntityTest")
 
     REQUIRE(
       entity.modelTransformation(defaultModelScaleExpression)
-      == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+      == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
 
     entity.unsetEntityDefinitionAndModel();
     CHECK(entity.definition() == nullptr);
     CHECK(
-      entity.modelTransformation(defaultModelScaleExpression) == vm::mat4x4::identity());
+      entity.modelTransformation(defaultModelScaleExpression) == vm::mat4x4d::identity());
   }
 
   SECTION("addOrUpdateProperty")
   {
     // needs to be created here so that it is destroyed last
     auto definition = Assets::PointEntityDefinition{
-      "some_name", Color{}, vm::bbox3{32.0}, "", {}, {}, {}};
+      "some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
 
     auto entity = Entity{};
     REQUIRE(entity.property("test") == nullptr);
@@ -281,13 +280,13 @@ TEST_CASE("EntityTest")
       REQUIRE(
         entity.modelTransformation(
           EL::ExpressionNode{EL::LiteralExpression{EL::Value{1.0}}})
-        == vm::scaling_matrix(vm::vec3{1, 1, 1}));
+        == vm::scaling_matrix(vm::vec3d{1, 1, 1}));
 
       entity.addOrUpdateProperty("something", "else");
       CHECK(
         entity.modelTransformation(
           EL::ExpressionNode{EL::LiteralExpression{EL::Value{2.0}}})
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
   }
 
@@ -297,7 +296,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{
@@ -351,17 +350,17 @@ TEST_CASE("EntityTest")
       entity.addOrUpdateProperty("something", "1 2 3");
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
 
       entity.renameProperty("something", "modelscale");
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+        == vm::scaling_matrix(vm::vec3d{1, 2, 3}));
 
       entity.renameProperty("modelscale", "not modelscale");
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
   }
 
@@ -371,7 +370,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{
@@ -418,12 +417,12 @@ TEST_CASE("EntityTest")
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{1, 2, 3}));
+        == vm::scaling_matrix(vm::vec3d{1, 2, 3}));
 
       entity.removeProperty("modelscale");
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
   }
 
@@ -441,7 +440,7 @@ TEST_CASE("EntityTest")
     auto entity = Entity{};
     entity.setProperties({{"origin", "10 20 30"}});
 
-    CHECK(entity.origin() == vm::vec3{10, 20, 30});
+    CHECK(entity.origin() == vm::vec3d{10, 20, 30});
   }
 
   SECTION("hasPropertyWithPrefix")
@@ -543,46 +542,46 @@ TEST_CASE("EntityTest")
 
     SECTION("Entities without an origin property return 0,0,0")
     {
-      CHECK(entity.origin() == vm::vec3::zero());
+      CHECK(entity.origin() == vm::vec3d::zero());
     }
 
     SECTION("Entities with invalid origin property return 0,0,0")
     {
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2");
-      CHECK(entity.origin() == vm::vec3::zero());
+      CHECK(entity.origin() == vm::vec3d::zero());
 
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "asdf");
-      CHECK(entity.origin() == vm::vec3::zero());
+      CHECK(entity.origin() == vm::vec3d::zero());
     }
 
     SECTION("Entities with nan origin property return 0,0,0")
     {
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 nan");
-      CHECK(entity.origin() == vm::vec3::zero());
+      CHECK(entity.origin() == vm::vec3d::zero());
 
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "nan nan nan");
-      CHECK(entity.origin() == vm::vec3::zero());
+      CHECK(entity.origin() == vm::vec3d::zero());
     }
 
     entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
     SECTION("Entities with an origin property return the value")
     {
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
-      CHECK(entity.origin() == vm::vec3{1, 2, 3});
+      CHECK(entity.origin() == vm::vec3d{1, 2, 3});
     }
 
     SECTION("addOrUpdateProperty updates cached classname property")
     {
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
-      CHECK(entity.origin() == vm::vec3{1, 2, 3});
+      CHECK(entity.origin() == vm::vec3d{1, 2, 3});
     }
 
     SECTION("setProperties updates cached classname property")
     {
       entity.setProperties({{EntityPropertyKeys::Origin, "3 4 5"}});
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
-      CHECK(entity.origin() == vm::vec3{3, 4, 5});
+      CHECK(entity.origin() == vm::vec3d{3, 4, 5});
     }
   }
 
@@ -592,7 +591,7 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition{
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       {},
       Assets::ModelDefinition{EL::ExpressionNode{EL::MapExpression{
@@ -600,17 +599,17 @@ TEST_CASE("EntityTest")
       {}};
 
     auto entity = Entity{};
-    REQUIRE(entity.origin() == vm::vec3::zero());
+    REQUIRE(entity.origin() == vm::vec3d::zero());
 
-    entity.setOrigin(vm::vec3{1, 2, 3});
+    entity.setOrigin(vm::vec3d{1, 2, 3});
     CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");
-    CHECK(entity.origin() == vm::vec3{1, 2, 3});
+    CHECK(entity.origin() == vm::vec3d{1, 2, 3});
 
     SECTION("Updates cached origin property")
     {
-      entity.setOrigin(vm::vec3{3, 4, 5});
+      entity.setOrigin(vm::vec3d{3, 4, 5});
       CHECK(*entity.property(EntityPropertyKeys::Origin) == "3 4 5");
-      CHECK(entity.origin() == vm::vec3{3, 4, 5});
+      CHECK(entity.origin() == vm::vec3d{3, 4, 5});
     }
 
     SECTION("Updates cached model transformation")
@@ -622,14 +621,14 @@ TEST_CASE("EntityTest")
 
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::translation_matrix(vm::vec3{1, 2, 3})
-             * vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::translation_matrix(vm::vec3d{1, 2, 3})
+             * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
 
-      entity.setOrigin(vm::vec3{9, 8, 7});
+      entity.setOrigin(vm::vec3d{9, 8, 7});
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::translation_matrix(vm::vec3{9, 8, 7})
-             * vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::translation_matrix(vm::vec3d{9, 8, 7})
+             * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
   }
 
@@ -639,16 +638,16 @@ TEST_CASE("EntityTest")
     auto definition = Assets::PointEntityDefinition(
       "some_name",
       Color{},
-      vm::bbox3{16.0}.translate(vm::vec3{16, 16, 0}),
+      vm::bbox3d{16.0}.translate(vm::vec3d{16, 16, 0}),
       "",
       {},
       {},
       {});
     auto otherDefinition = Assets::PointEntityDefinition{
-      "some_class", Color{}, vm::bbox3{32.0}, "", {}, {}, {}};
+      "some_class", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
 
     auto entity = Entity{};
-    REQUIRE(entity.rotation() == vm::mat4x4::identity());
+    REQUIRE(entity.rotation() == vm::mat4x4d::identity());
 
     SECTION("Requires classname for rotation")
     {
@@ -656,46 +655,46 @@ TEST_CASE("EntityTest")
       entity.transform(rotation, true);
 
       // rotation had no effect
-      CHECK(entity.rotation() == vm::mat4x4::identity());
+      CHECK(entity.rotation() == vm::mat4x4d::identity());
     }
 
     SECTION("Requires point entity for rotation")
     {
       entity.setClassname("some_class");
       entity.setPointEntity(false);
-      REQUIRE(entity.rotation() == vm::mat4x4::identity());
+      REQUIRE(entity.rotation() == vm::mat4x4d::identity());
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
       entity.transform(rotation, true);
 
       // rotation had no effect
-      CHECK(entity.rotation() == vm::mat4x4::identity());
+      CHECK(entity.rotation() == vm::mat4x4d::identity());
     }
 
     SECTION("Rotate - without offset")
     {
       entity.setClassname("some_class");
-      entity.setOrigin(vm::vec3{10, 20, 30});
+      entity.setOrigin(vm::vec3d{10, 20, 30});
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
       entity.transform(rotation, true);
 
       CHECK(entity.rotation() == rotation);
-      CHECK(entity.origin() == vm::vec3{-20, 10, 30});
+      CHECK(entity.origin() == vm::vec3d{-20, 10, 30});
     }
 
     SECTION("Rotate - with offset")
     {
       entity.setClassname("some_class");
-      entity.setOrigin(vm::vec3{32, 32, 0});
+      entity.setOrigin(vm::vec3d{32, 32, 0});
 
       entity.setDefinition(&definition);
 
       const auto rotation = vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0));
       entity.transform(rotation, true);
 
-      CHECK(entity.rotation() == vm::mat4x4::identity());
-      CHECK(entity.origin() == vm::vec3{-64, 32, 0});
+      CHECK(entity.rotation() == vm::mat4x4d::identity());
+      CHECK(entity.origin() == vm::vec3d{-64, 32, 0});
     }
 
     SECTION("Rotate - with subsequent translation")
@@ -706,7 +705,7 @@ TEST_CASE("EntityTest")
       entity.transform(rotation, true);
       REQUIRE(entity.rotation() == rotation);
 
-      entity.transform(vm::translation_matrix(vm::vec3{100, 0, 0}), true);
+      entity.transform(vm::translation_matrix(vm::vec3d{100, 0, 0}), true);
       CHECK(entity.rotation() == rotation);
     }
 
@@ -720,13 +719,13 @@ TEST_CASE("EntityTest")
       entity.setDefinition(&otherDefinition);
       REQUIRE(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::scaling_matrix(vm::vec3d{2, 2, 2}));
 
-      entity.transform(vm::translation_matrix(vm::vec3{8, 7, 6}), true);
+      entity.transform(vm::translation_matrix(vm::vec3d{8, 7, 6}), true);
       CHECK(
         entity.modelTransformation(defaultModelScaleExpression)
-        == vm::translation_matrix(vm::vec3{8, 7, 6})
-             * vm::scaling_matrix(vm::vec3{2, 2, 2}));
+        == vm::translation_matrix(vm::vec3d{8, 7, 6})
+             * vm::scaling_matrix(vm::vec3d{2, 2, 2}));
     }
 
     SECTION("Updates angle property")

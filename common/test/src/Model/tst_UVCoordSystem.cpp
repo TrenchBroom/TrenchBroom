@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/ParallelUVCoordSystem.h"
 #include "Model/ParaxialUVCoordSystem.h"
@@ -37,10 +36,10 @@ TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
-  ParaxialUVCoordSystem paraxial(vm::vec3::pos_z(), attribs);
+  ParaxialUVCoordSystem paraxial(vm::vec3d::pos_z(), attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
-  ParallelUVCoordSystem parallel(vm::vec3::pos_y(), vm::vec3::pos_x());
+  ParallelUVCoordSystem parallel(vm::vec3d::pos_y(), vm::vec3d::pos_x());
   auto parallelSnapshot = parallel.takeSnapshot();
   CHECK(parallelSnapshot != nullptr);
 

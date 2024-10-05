@@ -75,7 +75,7 @@ WorldReader::WorldReader(
 std::unique_ptr<Model::WorldNode> WorldReader::tryRead(
   std::string_view str,
   const std::vector<Model::MapFormat>& mapFormatsToTry,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const Model::EntityPropertyConfig& entityPropertyConfig,
   ParserStatus& status)
 {
@@ -174,7 +174,7 @@ void setLinkIds(Model::WorldNode& worldNode, ParserStatus& status)
 } // namespace
 
 std::unique_ptr<Model::WorldNode> WorldReader::read(
-  const vm::bbox3& worldBounds, ParserStatus& status)
+  const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   readEntities(worldBounds, status);
   sanitizeLayerSortIndicies(*m_worldNode, status);

@@ -19,7 +19,6 @@
 
 #include "RotateObjectsToolController.h"
 
-#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "PreferenceManager.h"
@@ -56,16 +55,16 @@ namespace
 class AngleIndicatorRenderer : public Renderer::DirectRenderable
 {
 private:
-  vm::vec3 m_position;
+  vm::vec3d m_position;
   Renderer::Circle m_circle;
 
 public:
   AngleIndicatorRenderer(
-    const vm::vec3& position,
+    const vm::vec3d& position,
     const float radius,
     const vm::axis::type axis,
-    const vm::vec3& startAxis,
-    const vm::vec3& endAxis)
+    const vm::vec3d& startAxis,
+    const vm::vec3d& endAxis)
     : m_position{position}
     , m_circle{radius, 24, true, axis, vm::vec3f{startAxis}, vm::vec3f{endAxis}}
   {
@@ -109,7 +108,7 @@ private:
   RotateObjectsTool& m_tool;
   RotateObjectsHandle::HitArea m_area;
   RenderHighlight m_renderHighlight;
-  FloatType m_angle = 0.0;
+  double m_angle = 0.0;
 
 public:
   RotateObjectsDragDelegate(
@@ -124,8 +123,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& /* initialHandlePosition */,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& /* initialHandlePosition */,
+    const vm::vec3d& handleOffset) override
   {
     const auto center = m_tool.rotationCenter();
     const auto axis = m_tool.rotationAxis(m_area);
@@ -139,7 +138,7 @@ public:
   DragStatus update(
     const InputState&,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     const auto center = m_tool.rotationCenter();
     const auto axis = m_tool.rotationAxis(m_area);
@@ -176,14 +175,14 @@ private:
   void renderAngleIndicator(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& initialHandlePosition) const
+    const vm::vec3d& initialHandlePosition) const
   {
     const auto center = m_tool.rotationCenter();
     const auto axis = m_tool.rotationAxis(m_area);
     const auto handleRadius =
       static_cast<float>(m_tool.majorHandleRadius(renderContext.camera()));
     const auto startAxis = vm::normalize(initialHandlePosition - center);
-    const auto endAxis = vm::quat3{axis, m_angle} * startAxis;
+    const auto endAxis = vm::quatd{axis, m_angle} * startAxis;
 
     renderBatch.addOneShot(new AngleIndicatorRenderer{
       center, handleRadius, vm::find_abs_max_component(axis), startAxis, endAxis});
@@ -202,7 +201,7 @@ private:
     renderService.renderString(angleString(vm::to_degrees(m_angle)), vm::vec3f{center});
   }
 
-  std::string angleString(const FloatType angle) const
+  std::string angleString(const double angle) const
   {
     auto str = std::stringstream{};
     str.precision(2);
@@ -286,7 +285,7 @@ private:
 
     if (
       const auto distance =
-        vm::intersect_ray_plane(inputState.pickRay(), vm::plane3{center, axis}))
+        vm::intersect_ray_plane(inputState.pickRay(), vm::plane3d{center, axis}))
     {
       const auto initialHandlePosition =
         vm::point_at_distance(inputState.pickRay(), *distance);
@@ -359,7 +358,7 @@ public:
   }
 
   DragStatus move(
-    const InputState&, const DragState&, const vm::vec3& currentHandlePosition) override
+    const InputState&, const DragState&, const vm::vec3d& currentHandlePosition) override
   {
     m_tool.setRotationCenter(currentHandlePosition);
     return DragStatus::Continue;

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -51,8 +50,8 @@ namespace TrenchBroom::Model
  Regex to turn a face definition into a c++ statement to add a face to a vector of
  faces: Find:
  \(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*\(\s*(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s+(-?[\d\.+-]+)\s*\)\s*[^\n]+
- Replace: faces.push_back(createParaxial(vm::vec3($1, $2, $3), vm::vec3($4, $5, $6),
- vm::vec3($7, $8, $9)));
+ Replace: faces.push_back(createParaxial(vm::vec3d($1, $2, $3), vm::vec3d($4, $5, $6),
+ vm::vec3d($7, $8, $9)));
  */
 
 TEST_CASE("BrushTest.constructWithFailingFaces")
@@ -69,39 +68,39 @@ TEST_CASE("BrushTest.constructWithFailingFaces")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-192.0, 704.0, 128.0),
-                            vm::vec3(-156.0, 650.0, 128.0),
-                            vm::vec3(-156.0, 650.0, 160.0)),
+                            vm::vec3d(-192.0, 704.0, 128.0),
+                            vm::vec3d(-156.0, 650.0, 128.0),
+                            vm::vec3d(-156.0, 650.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-202.0, 604.0, 160.0),
-                            vm::vec3(-164.0, 664.0, 128.0),
-                            vm::vec3(-216.0, 613.0, 128.0)),
+                            vm::vec3d(-202.0, 604.0, 160.0),
+                            vm::vec3d(-164.0, 664.0, 128.0),
+                            vm::vec3d(-216.0, 613.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-156.0, 650.0, 128.0),
-                            vm::vec3(-202.0, 604.0, 128.0),
-                            vm::vec3(-202.0, 604.0, 160.0)),
+                            vm::vec3d(-156.0, 650.0, 128.0),
+                            vm::vec3d(-202.0, 604.0, 128.0),
+                            vm::vec3d(-202.0, 604.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-192.0, 704.0, 160.0),
-                            vm::vec3(-256.0, 640.0, 160.0),
-                            vm::vec3(-256.0, 640.0, 128.0)),
+                            vm::vec3d(-192.0, 704.0, 160.0),
+                            vm::vec3d(-256.0, 640.0, 160.0),
+                            vm::vec3d(-256.0, 640.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-256.0, 640.0, 160.0),
-                            vm::vec3(-202.0, 604.0, 160.0),
-                            vm::vec3(-202.0, 604.0, 128.0)),
+                            vm::vec3d(-256.0, 640.0, 160.0),
+                            vm::vec3d(-202.0, 604.0, 160.0),
+                            vm::vec3d(-202.0, 604.0, 128.0)),
                           createParaxial(
-                            vm::vec3(-217.0, 672.0, 160.0),
-                            vm::vec3(-161.0, 672.0, 160.0),
-                            vm::vec3(-161.0, 603.0, 160.0)),
+                            vm::vec3d(-217.0, 672.0, 160.0),
+                            vm::vec3d(-161.0, 672.0, 160.0),
+                            vm::vec3d(-161.0, 603.0, 160.0)),
                           createParaxial(
-                            vm::vec3(-161.0, 603.0, 128.0),
-                            vm::vec3(-161.0, 672.0, 128.0),
-                            vm::vec3(-217.0, 672.0, 128.0)),
+                            vm::vec3d(-161.0, 603.0, 128.0),
+                            vm::vec3d(-161.0, 672.0, 128.0),
+                            vm::vec3d(-217.0, 672.0, 128.0)),
                         })
                       | kdl::value();
 
@@ -128,47 +127,47 @@ TEST_CASE("BrushTest.constructWithFailingFaces2")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(3488.0, 1152.0, 1340.0),
-                            vm::vec3(3488.0, 1248.0, 1344.0),
-                            vm::vec3(3488.0, 1344.0, 1340.0)),
+                            vm::vec3d(3488.0, 1152.0, 1340.0),
+                            vm::vec3d(3488.0, 1248.0, 1344.0),
+                            vm::vec3d(3488.0, 1344.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3232.0, 1344.0, 1576.0),
-                            vm::vec3(3232.0, 1152.0, 1576.0),
-                            vm::vec3(3232.0, 1152.0, 1256.0)),
+                            vm::vec3d(3232.0, 1344.0, 1576.0),
+                            vm::vec3d(3232.0, 1152.0, 1576.0),
+                            vm::vec3d(3232.0, 1152.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1344.0, 1576.0),
-                            vm::vec3(3264.0, 1344.0, 1576.0),
-                            vm::vec3(3264.0, 1344.0, 1256.0)),
+                            vm::vec3d(3488.0, 1344.0, 1576.0),
+                            vm::vec3d(3264.0, 1344.0, 1576.0),
+                            vm::vec3d(3264.0, 1344.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3280.0, 1152.0, 1576.0),
-                            vm::vec3(3504.0, 1152.0, 1576.0),
-                            vm::vec3(3504.0, 1152.0, 1256.0)),
+                            vm::vec3d(3280.0, 1152.0, 1576.0),
+                            vm::vec3d(3504.0, 1152.0, 1576.0),
+                            vm::vec3d(3504.0, 1152.0, 1256.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1248.0, 1344.0),
-                            vm::vec3(3488.0, 1152.0, 1340.0),
-                            vm::vec3(3232.0, 1152.0, 1340.0)),
+                            vm::vec3d(3488.0, 1248.0, 1344.0),
+                            vm::vec3d(3488.0, 1152.0, 1340.0),
+                            vm::vec3d(3232.0, 1152.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1248.0, 1344.0),
-                            vm::vec3(3232.0, 1248.0, 1344.0),
-                            vm::vec3(3232.0, 1344.0, 1340.0)),
+                            vm::vec3d(3488.0, 1248.0, 1344.0),
+                            vm::vec3d(3232.0, 1248.0, 1344.0),
+                            vm::vec3d(3232.0, 1344.0, 1340.0)),
                           createParaxial(
-                            vm::vec3(3488.0, 1152.0, 1340.0),
-                            vm::vec3(3360.0, 1152.0, 1344.0),
-                            vm::vec3(3424.0, 1344.0, 1342.0)),
+                            vm::vec3d(3488.0, 1152.0, 1340.0),
+                            vm::vec3d(3360.0, 1152.0, 1344.0),
+                            vm::vec3d(3424.0, 1344.0, 1342.0)),
                           createParaxial(
-                            vm::vec3(3360.0, 1152.0, 1344.0),
-                            vm::vec3(3232.0, 1152.0, 1340.0),
-                            vm::vec3(3296.0, 1344.0, 1342.0)),
+                            vm::vec3d(3360.0, 1152.0, 1344.0),
+                            vm::vec3d(3232.0, 1152.0, 1340.0),
+                            vm::vec3d(3296.0, 1344.0, 1342.0)),
                           createParaxial(
-                            vm::vec3(3504.0, 1344.0, 1280.0),
-                            vm::vec3(3280.0, 1344.0, 1280.0),
-                            vm::vec3(3280.0, 1152.0, 1280.0)),
+                            vm::vec3d(3504.0, 1344.0, 1280.0),
+                            vm::vec3d(3280.0, 1344.0, 1280.0),
+                            vm::vec3d(3280.0, 1152.0, 1280.0)),
                         })
                       | kdl::value();
 
@@ -190,35 +189,35 @@ TEST_CASE("BrushTest.constructWithFailingFaces3")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-32.0, -1088.0, 896.0),
-                            vm::vec3(-64.0, -1120.0, 896.0),
-                            vm::vec3(-64.0, -1120.0, 912.0)),
+                            vm::vec3d(-32.0, -1088.0, 896.0),
+                            vm::vec3d(-64.0, -1120.0, 896.0),
+                            vm::vec3d(-64.0, -1120.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -832.0, 896.0),
-                            vm::vec3(-32.0, -1088.0, 896.0),
-                            vm::vec3(-32.0, -1088.0, 912.0)),
+                            vm::vec3d(-32.0, -832.0, 896.0),
+                            vm::vec3d(-32.0, -1088.0, 896.0),
+                            vm::vec3d(-32.0, -1088.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -848.0, 912.0),
-                            vm::vec3(-64.0, -1120.0, 912.0),
-                            vm::vec3(-64.0, -1120.0, 896.0)),
+                            vm::vec3d(-64.0, -848.0, 912.0),
+                            vm::vec3d(-64.0, -1120.0, 912.0),
+                            vm::vec3d(-64.0, -1120.0, 896.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -896.0, 896.0),
-                            vm::vec3(-32.0, -912.0, 912.0),
-                            vm::vec3(-64.0, -912.0, 912.0)),
+                            vm::vec3d(-32.0, -896.0, 896.0),
+                            vm::vec3d(-32.0, -912.0, 912.0),
+                            vm::vec3d(-64.0, -912.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -1088.0, 912.0),
-                            vm::vec3(-64.0, -848.0, 912.0),
-                            vm::vec3(-32.0, -848.0, 912.0)),
+                            vm::vec3d(-64.0, -1088.0, 912.0),
+                            vm::vec3d(-64.0, -848.0, 912.0),
+                            vm::vec3d(-32.0, -848.0, 912.0)),
                           createParaxial(
-                            vm::vec3(-64.0, -864.0, 896.0),
-                            vm::vec3(-32.0, -864.0, 896.0),
-                            vm::vec3(-32.0, -832.0, 896.0)),
+                            vm::vec3d(-64.0, -864.0, 896.0),
+                            vm::vec3d(-32.0, -864.0, 896.0),
+                            vm::vec3d(-32.0, -832.0, 896.0)),
                         })
                       | kdl::value();
 
@@ -241,35 +240,35 @@ TEST_CASE("BrushTest.constructWithFailingFaces4")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-1268.0, 272.0, 2524.0),
-                            vm::vec3(-1268.0, 272.0, 2536.0),
-                            vm::vec3(-1268.0, 288.0, 2540.0)),
+                            vm::vec3d(-1268.0, 272.0, 2524.0),
+                            vm::vec3d(-1268.0, 272.0, 2536.0),
+                            vm::vec3d(-1268.0, 288.0, 2540.0)),
                           createParaxial(
-                            vm::vec3(-1280.0, 265.0, 2534.0),
-                            vm::vec3(-1268.0, 272.0, 2524.0),
-                            vm::vec3(-1268.0, 288.0, 2528.0)),
+                            vm::vec3d(-1280.0, 265.0, 2534.0),
+                            vm::vec3d(-1268.0, 272.0, 2524.0),
+                            vm::vec3d(-1268.0, 288.0, 2528.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 288.0, 2528.0),
-                            vm::vec3(-1280.0, 288.0, 2540.0),
-                            vm::vec3(-1280.0, 265.0, 2534.0)),
+                            vm::vec3d(-1268.0, 288.0, 2528.0),
+                            vm::vec3d(-1280.0, 288.0, 2540.0),
+                            vm::vec3d(-1280.0, 265.0, 2534.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 288.0, 2540.0),
-                            vm::vec3(-1280.0, 288.0, 2540.0),
-                            vm::vec3(-1280.0, 288.0, 2536.0)),
+                            vm::vec3d(-1268.0, 288.0, 2540.0),
+                            vm::vec3d(-1280.0, 288.0, 2540.0),
+                            vm::vec3d(-1280.0, 288.0, 2536.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 265.0, 2534.0),
-                            vm::vec3(-1280.0, 265.0, 2534.0),
-                            vm::vec3(-1280.0, 288.0, 2540.0)),
+                            vm::vec3d(-1268.0, 265.0, 2534.0),
+                            vm::vec3d(-1280.0, 265.0, 2534.0),
+                            vm::vec3d(-1280.0, 288.0, 2540.0)),
                           createParaxial(
-                            vm::vec3(-1268.0, 265.0, 2534.0),
-                            vm::vec3(-1268.0, 272.0, 2524.0),
-                            vm::vec3(-1280.0, 265.0, 2534.0)),
+                            vm::vec3d(-1268.0, 265.0, 2534.0),
+                            vm::vec3d(-1268.0, 272.0, 2524.0),
+                            vm::vec3d(-1280.0, 265.0, 2534.0)),
                         })
                       | kdl::value();
 
@@ -294,35 +293,35 @@ TEST_CASE("BrushTest.constructWithFailingFaces5")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(1296.0, 896.0, 944.0),
-                            vm::vec3(1296.0, 1008.0, 1056.0),
-                            vm::vec3(1280.0, 1008.0, 1008.0)),
+                            vm::vec3d(1296.0, 896.0, 944.0),
+                            vm::vec3d(1296.0, 1008.0, 1056.0),
+                            vm::vec3d(1280.0, 1008.0, 1008.0)),
                           createParaxial(
-                            vm::vec3(1296.0, 1008.0, 1168.0),
-                            vm::vec3(1296.0, 1008.0, 1056.0),
-                            vm::vec3(1296.0, 896.0, 944.0)),
+                            vm::vec3d(1296.0, 1008.0, 1168.0),
+                            vm::vec3d(1296.0, 1008.0, 1056.0),
+                            vm::vec3d(1296.0, 896.0, 944.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 1008.0, 1008.0),
-                            vm::vec3(1280.0, 1008.0, 1168.0),
-                            vm::vec3(1280.0, 896.0, 1056.0)),
+                            vm::vec3d(1280.0, 1008.0, 1008.0),
+                            vm::vec3d(1280.0, 1008.0, 1168.0),
+                            vm::vec3d(1280.0, 896.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 1008.0, 1168.0),
-                            vm::vec3(1280.0, 1008.0, 1008.0),
-                            vm::vec3(1296.0, 1008.0, 1056.0)),
+                            vm::vec3d(1280.0, 1008.0, 1168.0),
+                            vm::vec3d(1280.0, 1008.0, 1008.0),
+                            vm::vec3d(1296.0, 1008.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1296.0, 1008.0, 1168.0),
-                            vm::vec3(1296.0, 896.0, 1056.0),
-                            vm::vec3(1280.0, 896.0, 1056.0)),
+                            vm::vec3d(1296.0, 1008.0, 1168.0),
+                            vm::vec3d(1296.0, 896.0, 1056.0),
+                            vm::vec3d(1280.0, 896.0, 1056.0)),
                           createParaxial(
-                            vm::vec3(1280.0, 896.0, 896.0),
-                            vm::vec3(1280.0, 896.0, 1056.0),
-                            vm::vec3(1296.0, 896.0, 1056.0)),
+                            vm::vec3d(1280.0, 896.0, 896.0),
+                            vm::vec3d(1280.0, 896.0, 1056.0),
+                            vm::vec3d(1296.0, 896.0, 1056.0)),
                         })
                       | kdl::value();
 
@@ -343,31 +342,31 @@ TEST_CASE("BrushTest.constructWithFailingFaces6")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(-80.0, -80.0, -3840.0),
-                            vm::vec3(-80.0, -80.0, -3824.0),
-                            vm::vec3(-32.0, -32.0, -3808.0)),
+                            vm::vec3d(-80.0, -80.0, -3840.0),
+                            vm::vec3d(-80.0, -80.0, -3824.0),
+                            vm::vec3d(-32.0, -32.0, -3808.0)),
                           createParaxial(
-                            vm::vec3(-96.0, -32.0, -3840.0),
-                            vm::vec3(-96.0, -32.0, -3824.0),
-                            vm::vec3(-80.0, -80.0, -3824.0)),
+                            vm::vec3d(-96.0, -32.0, -3840.0),
+                            vm::vec3d(-96.0, -32.0, -3824.0),
+                            vm::vec3d(-80.0, -80.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-96.0, -32.0, -3824.0),
-                            vm::vec3(-32.0, -32.0, -3808.0),
-                            vm::vec3(-80.0, -80.0, -3824.0)),
+                            vm::vec3d(-96.0, -32.0, -3824.0),
+                            vm::vec3d(-32.0, -32.0, -3808.0),
+                            vm::vec3d(-80.0, -80.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -32.0, -3840.0),
-                            vm::vec3(-32.0, -32.0, -3808.0),
-                            vm::vec3(-96.0, -32.0, -3824.0)),
+                            vm::vec3d(-32.0, -32.0, -3840.0),
+                            vm::vec3d(-32.0, -32.0, -3808.0),
+                            vm::vec3d(-96.0, -32.0, -3824.0)),
                           createParaxial(
-                            vm::vec3(-32.0, -32.0, -3840.0),
-                            vm::vec3(-96.0, -32.0, -3840.0),
-                            vm::vec3(-80.0, -80.0, -3840.0)),
+                            vm::vec3d(-32.0, -32.0, -3840.0),
+                            vm::vec3d(-96.0, -32.0, -3840.0),
+                            vm::vec3d(-80.0, -80.0, -3840.0)),
                         })
                       | kdl::value();
 
@@ -394,50 +393,50 @@ TEST_CASE("BrushTest.constructBrushWithManySides")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const Brush brush = Brush::create(
                         worldBounds,
                         {
                           createParaxial(
-                            vm::vec3(624.0, 688.0, -456.0),
-                            vm::vec3(656.0, 760.0, -480.0),
-                            vm::vec3(624.0, 680.0, -480.0),
+                            vm::vec3d(624.0, 688.0, -456.0),
+                            vm::vec3d(656.0, 760.0, -480.0),
+                            vm::vec3d(624.0, 680.0, -480.0),
                             "face7"),
                           createParaxial(
-                            vm::vec3(536.0, 792.0, -480.0),
-                            vm::vec3(536.0, 792.0, -432.0),
-                            vm::vec3(488.0, 720.0, -480.0),
+                            vm::vec3d(536.0, 792.0, -480.0),
+                            vm::vec3d(536.0, 792.0, -432.0),
+                            vm::vec3d(488.0, 720.0, -480.0),
                             "face12"),
                           createParaxial(
-                            vm::vec3(568.0, 656.0, -464.0),
-                            vm::vec3(568.0, 648.0, -480.0),
-                            vm::vec3(520.0, 672.0, -456.0),
+                            vm::vec3d(568.0, 656.0, -464.0),
+                            vm::vec3d(568.0, 648.0, -480.0),
+                            vm::vec3d(520.0, 672.0, -456.0),
                             "face14"),
                           createParaxial(
-                            vm::vec3(520.0, 672.0, -456.0),
-                            vm::vec3(520.0, 664.0, -480.0),
-                            vm::vec3(488.0, 720.0, -452.0),
+                            vm::vec3d(520.0, 672.0, -456.0),
+                            vm::vec3d(520.0, 664.0, -480.0),
+                            vm::vec3d(488.0, 720.0, -452.0),
                             "face15"),
                           createParaxial(
-                            vm::vec3(560.0, 728.0, -440.0),
-                            vm::vec3(488.0, 720.0, -452.0),
-                            vm::vec3(536.0, 792.0, -432.0),
+                            vm::vec3d(560.0, 728.0, -440.0),
+                            vm::vec3d(488.0, 720.0, -452.0),
+                            vm::vec3d(536.0, 792.0, -432.0),
                             "face17"),
                           createParaxial(
-                            vm::vec3(568.0, 656.0, -464.0),
-                            vm::vec3(520.0, 672.0, -456.0),
-                            vm::vec3(624.0, 688.0, -456.0),
+                            vm::vec3d(568.0, 656.0, -464.0),
+                            vm::vec3d(520.0, 672.0, -456.0),
+                            vm::vec3d(624.0, 688.0, -456.0),
                             "face19"),
                           createParaxial(
-                            vm::vec3(560.0, 728.0, -440.0),
-                            vm::vec3(624.0, 688.0, -456.0),
-                            vm::vec3(520.0, 672.0, -456.0),
+                            vm::vec3d(560.0, 728.0, -440.0),
+                            vm::vec3d(624.0, 688.0, -456.0),
+                            vm::vec3d(520.0, 672.0, -456.0),
                             "face20"),
                           createParaxial(
-                            vm::vec3(600.0, 840.0, -480.0),
-                            vm::vec3(536.0, 792.0, -480.0),
-                            vm::vec3(636.0, 812.0, -480.0),
+                            vm::vec3d(600.0, 840.0, -480.0),
+                            vm::vec3d(536.0, 792.0, -480.0),
+                            vm::vec3d(636.0, 812.0, -480.0),
                             "face22"),
                         })
                       | kdl::value();
@@ -481,44 +480,44 @@ TEST_CASE("BrushTest.constructBrushAfterRotateFail")
    }
    */
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
   const Brush brush =
     Brush::create(
       worldBounds,
       {
         createParaxial(
-          vm::vec3(-729.68857812925364, -128, 2061.2927432882448),
-          vm::vec3(-910.70791411301013, 128, 2242.3120792720015),
-          vm::vec3(-820.19824612113155, -128, 1970.7830752963655)),
+          vm::vec3d(-729.68857812925364, -128, 2061.2927432882448),
+          vm::vec3d(-910.70791411301013, 128, 2242.3120792720015),
+          vm::vec3d(-820.19824612113155, -128, 1970.7830752963655)),
         createParaxial(
-          vm::vec3(-639.17891013737574, -640, 1970.7830752963669),
-          vm::vec3(-729.68857812925364, -128, 2061.2927432882448),
-          vm::vec3(-729.68857812925364, -640, 1880.2734073044885)),
+          vm::vec3d(-639.17891013737574, -640, 1970.7830752963669),
+          vm::vec3d(-729.68857812925364, -128, 2061.2927432882448),
+          vm::vec3d(-729.68857812925364, -640, 1880.2734073044885)),
         createParaxial(
-          vm::vec3(-639.17891013737574, -1024, 1970.7830752963669),
-          vm::vec3(-820.19824612113177, -640, 2151.8024112801227),
-          vm::vec3(-639.17891013737574, -640, 1970.7830752963669)),
+          vm::vec3d(-639.17891013737574, -1024, 1970.7830752963669),
+          vm::vec3d(-820.19824612113177, -640, 2151.8024112801227),
+          vm::vec3d(-639.17891013737574, -640, 1970.7830752963669)),
         createParaxial(
-          vm::vec3(-639.17891013737574, -1024, 1970.7830752963669),
-          vm::vec3(-639.17891013737574, -640, 1970.7830752963669),
-          vm::vec3(-729.68857812925364, -1024, 1880.2734073044885)),
+          vm::vec3d(-639.17891013737574, -1024, 1970.7830752963669),
+          vm::vec3d(-639.17891013737574, -640, 1970.7830752963669),
+          vm::vec3d(-729.68857812925364, -1024, 1880.2734073044885)),
         createParaxial(
-          vm::vec3(-1001.2175821048878, -128, 2151.8024112801222),
-          vm::vec3(-910.70791411301013, -128, 2242.3120792720015),
-          vm::vec3(-910.70791411300991, -640, 2061.2927432882443)),
+          vm::vec3d(-1001.2175821048878, -128, 2151.8024112801222),
+          vm::vec3d(-910.70791411301013, -128, 2242.3120792720015),
+          vm::vec3d(-910.70791411300991, -640, 2061.2927432882443)),
         createParaxial(
-          vm::vec3(-639.17891013737574, -1024, 1970.7830752963669),
-          vm::vec3(-729.68857812925364, -1024, 1880.2734073044885),
-          vm::vec3(
+          vm::vec3d(-639.17891013737574, -1024, 1970.7830752963669),
+          vm::vec3d(-729.68857812925364, -1024, 1880.2734073044885),
+          vm::vec3d(
             -820.19824612113177, -640, 2151.8024112801227)), // assertion failure here
         createParaxial(
-          vm::vec3(-1001.2175821048878, -128, 2151.8024112801222),
-          vm::vec3(-1001.2175821048878, 128, 2151.8024112801222),
-          vm::vec3(-910.70791411301013, -128, 2242.3120792720015)),
+          vm::vec3d(-1001.2175821048878, -128, 2151.8024112801222),
+          vm::vec3d(-1001.2175821048878, 128, 2151.8024112801222),
+          vm::vec3d(-910.70791411301013, -128, 2242.3120792720015)),
         createParaxial(
-          vm::vec3(-729.68857812925364, -1024, 1880.2734073044885),
-          vm::vec3(-729.68857812925364, -640, 1880.2734073044885),
-          vm::vec3(-910.70791411300991, -640, 2061.2927432882443)),
+          vm::vec3d(-729.68857812925364, -1024, 1880.2734073044885),
+          vm::vec3d(-729.68857812925364, -640, 1880.2734073044885),
+          vm::vec3d(-910.70791411300991, -640, 2061.2927432882443)),
       })
     | kdl::value();
 
@@ -538,7 +537,7 @@ TEST_CASE("BrushTest.moveVertexFailing1")
   oldPositions.push_back(p3);
   oldPositions.push_back(p4);
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush = builder.createBrush(oldPositions, "material") | kdl::value();
@@ -575,7 +574,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
     "( 384 240 320 ) ( 208 240 320 ) ( 208 64 320 ) sky1 0 0 0 1 1\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   IO::TestParserStatus status;
 
@@ -584,10 +583,10 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
-  const vm::vec3 p(192.0, 128.0, 352.0);
+  const vm::vec3d p(192.0, 128.0, 352.0);
 
-  auto oldVertexPositions = std::vector<vm::vec3>({p});
-  auto delta = 4.0 * 16.0 * vm::vec3::neg_y();
+  auto oldVertexPositions = std::vector<vm::vec3d>({p});
+  auto delta = 4.0 * 16.0 * vm::vec3d::neg_y();
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
@@ -600,7 +599,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
 TEST_CASE("BrushTest.moveVerticesFail_2158")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const std::string data = R"(
 {
@@ -651,19 +650,19 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
-  const std::vector<vm::vec3> vertexPositions{
+  const std::vector<vm::vec3d> vertexPositions{
     brush.findClosestVertexPosition(
-      vm::vec3(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
+      vm::vec3d(1169.1764156206966, -1800.2961013859342, 568.79748529920892)),
     brush.findClosestVertexPosition(
-      vm::vec3(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
+      vm::vec3d(1164.1689509627774, -1797.7259237617193, 578.31488545196294)),
     brush.findClosestVertexPosition(
-      vm::vec3(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
+      vm::vec3d(1163.5185572994671, -1820.7940760208414, 554.17919392904093)),
     brush.findClosestVertexPosition(
-      vm::vec3(1120.5128684458623, -1855.3192739534061, 574.53563498325116))};
+      vm::vec3d(1120.5128684458623, -1855.3192739534061, 574.53563498325116))};
 
-  CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+  CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3d(16.0, 0.0, 0.0)));
   CHECK_NOTHROW(
-    brush.moveVertices(worldBounds, vertexPositions, vm::vec3(16.0, 0.0, 0.0)));
+    brush.moveVertices(worldBounds, vertexPositions, vm::vec3d(16.0, 0.0, 0.0)));
 
   kdl::col_delete_all(nodes);
 }
@@ -672,7 +671,7 @@ TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2082
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const std::string data = R"(
 {
@@ -697,19 +696,19 @@ TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
-  const vm::vec3 p1(32.0, 32.0, 0.0);
-  const vm::vec3 p2(-16.0, 32.0, 0.0);
-  const vm::vec3 p3(-32.0, -16.0, 0.0);
-  const vm::vec3 p4(-16.0, -32.0, 0.0);
-  const vm::vec3 p5(32.0, -32.0, 0.0);
+  const vm::vec3d p1(32.0, 32.0, 0.0);
+  const vm::vec3d p2(-16.0, 32.0, 0.0);
+  const vm::vec3d p3(-32.0, -16.0, 0.0);
+  const vm::vec3d p4(-16.0, -32.0, 0.0);
+  const vm::vec3d p5(32.0, -32.0, 0.0);
 
-  const vm::vec3 p6(32.0, 32.0, 32.0);
-  const vm::vec3 p7(-16.0, 32.0, 32.0); // this vertex will be deleted
-  const vm::vec3 p8(-32.0, -16.0, 32.0);
-  const vm::vec3 p9(-16.0, -32.0, 32.0);
-  const vm::vec3 p10(32.0, -32.0, 32.0);
+  const vm::vec3d p6(32.0, 32.0, 32.0);
+  const vm::vec3d p7(-16.0, 32.0, 32.0); // this vertex will be deleted
+  const vm::vec3d p8(-32.0, -16.0, 32.0);
+  const vm::vec3d p9(-16.0, -32.0, 32.0);
+  const vm::vec3d p10(32.0, -32.0, 32.0);
 
-  const vm::vec3 p11(32.0, 0.0, 64.0);
+  const vm::vec3d p11(32.0, 0.0, 64.0);
 
   // Make sure that the faces have the materials we expect before the vertex is deleted.
 
@@ -757,9 +756,9 @@ TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 
 // snap vertices tests
 
-static void assertCannotSnapTo(const std::string& data, const FloatType gridSize)
+static void assertCannotSnapTo(const std::string& data, const double gridSize)
 {
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
 
@@ -778,9 +777,9 @@ static void assertCannotSnap(const std::string& data)
   assertCannotSnapTo(data, 1.0);
 }
 
-static void assertSnapTo(const std::string& data, const FloatType gridSize)
+static void assertSnapTo(const std::string& data, const double gridSize)
 {
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
 
@@ -798,7 +797,7 @@ static void assertSnapTo(const std::string& data, const FloatType gridSize)
   {
     for (const Model::BrushVertex* vertex : brush.vertices())
     {
-      const vm::vec3& pos = vertex->position();
+      const vm::vec3d& pos = vertex->position();
       CHECK(vm::is_integral(pos, 0.001));
     }
   }
@@ -1214,7 +1213,7 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2361
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   const std::string data = R"(
 {
@@ -1299,15 +1298,15 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
 
   const auto vertex1 =
-    brush.findClosestVertexPosition(vm::vec3(-5774.7302805949275, 488.0, 1108.0));
+    brush.findClosestVertexPosition(vm::vec3d(-5774.7302805949275, 488.0, 1108.0));
   const auto vertex2 =
-    brush.findClosestVertexPosition(vm::vec3(-5730.730280440197, 486.0, 1108.0));
-  const auto segment = vm::segment3(vertex1, vertex2);
+    brush.findClosestVertexPosition(vm::vec3d(-5730.730280440197, 486.0, 1108.0));
+  const auto segment = vm::segment3d(vertex1, vertex2);
 
   CHECK(brush.canMoveEdges(
-    worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
+    worldBounds, std::vector<vm::segment3d>{segment}, vm::vec3d(0.0, -4.0, 0.0)));
   CHECK_NOTHROW(brush.moveEdges(
-    worldBounds, std::vector<vm::segment3>{segment}, vm::vec3(0.0, -4.0, 0.0)));
+    worldBounds, std::vector<vm::segment3d>{segment}, vm::vec3d(0.0, -4.0, 0.0)));
 
   kdl::col_delete_all(nodes);
 }
@@ -1316,20 +1315,20 @@ TEST_CASE("BrushTest.moveFaceFailure_1499")
 {
   // https://github.com/TrenchBroom/TrenchBroom/issues/1499
 
-  const vm::vec3 p1(-4408.0, 16.0, 288.0);
-  const vm::vec3 p2(-4384.0, 40.0, 288.0);
-  const vm::vec3 p3(-4384.0, 64.0, 288.0);
-  const vm::vec3 p4(-4416.0, 64.0, 288.0);
-  const vm::vec3 p5(-4424.0, 48.0, 288.0); // left back  top
-  const vm::vec3 p6(-4424.0, 16.0, 288.0); // left front top
-  const vm::vec3 p7(-4416.0, 64.0, 224.0);
-  const vm::vec3 p8(-4384.0, 64.0, 224.0);
-  const vm::vec3 p9(-4384.0, 40.0, 224.0);
-  const vm::vec3 p10(-4408.0, 16.0, 224.0);
-  const vm::vec3 p11(-4424.0, 16.0, 224.0);
-  const vm::vec3 p12(-4424.0, 48.0, 224.0);
+  const vm::vec3d p1(-4408.0, 16.0, 288.0);
+  const vm::vec3d p2(-4384.0, 40.0, 288.0);
+  const vm::vec3d p3(-4384.0, 64.0, 288.0);
+  const vm::vec3d p4(-4416.0, 64.0, 288.0);
+  const vm::vec3d p5(-4424.0, 48.0, 288.0); // left back  top
+  const vm::vec3d p6(-4424.0, 16.0, 288.0); // left front top
+  const vm::vec3d p7(-4416.0, 64.0, 224.0);
+  const vm::vec3d p8(-4384.0, 64.0, 224.0);
+  const vm::vec3d p9(-4384.0, 40.0, 224.0);
+  const vm::vec3d p10(-4408.0, 16.0, 224.0);
+  const vm::vec3d p11(-4424.0, 16.0, 224.0);
+  const vm::vec3d p12(-4424.0, 48.0, 224.0);
 
-  std::vector<vm::vec3> points;
+  std::vector<vm::vec3d> points;
   points.push_back(p1);
   points.push_back(p2);
   points.push_back(p3);
@@ -1343,12 +1342,12 @@ TEST_CASE("BrushTest.moveFaceFailure_1499")
   points.push_back(p11);
   points.push_back(p12);
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   BrushBuilder builder(MapFormat::Standard, worldBounds);
   Brush brush = builder.createBrush(points, "asdf") | kdl::value();
 
-  std::vector<vm::vec3> topFacePos;
+  std::vector<vm::vec3d> topFacePos;
   topFacePos.push_back(p1);
   topFacePos.push_back(p2);
   topFacePos.push_back(p3);
@@ -1356,26 +1355,26 @@ TEST_CASE("BrushTest.moveFaceFailure_1499")
   topFacePos.push_back(p5);
   topFacePos.push_back(p6);
 
-  const vm::polygon3 topFace(topFacePos);
+  const vm::polygon3d topFace(topFacePos);
 
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(+16.0, 0.0, 0.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(+16.0, 0.0, 0.0)));
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(-16.0, 0.0, 0.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(-16.0, 0.0, 0.0)));
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, +16.0, 0.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(0.0, +16.0, 0.0)));
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, -16.0, 0.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(0.0, -16.0, 0.0)));
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, +16.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(0.0, 0.0, +16.0)));
   CHECK(brush.canMoveFaces(
-    worldBounds, std::vector<vm::polygon3>(1, topFace), vm::vec3(0.0, 0.0, -16.0)));
+    worldBounds, std::vector<vm::polygon3d>(1, topFace), vm::vec3d(0.0, 0.0, -16.0)));
 }
 
 TEST_CASE("BrushTest.convexMergeCrash_2789")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2789
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   const auto path =
     std::filesystem::current_path() / "fixture/test/Model/Brush/curvetut-crash.map";
@@ -1387,7 +1386,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(!nodes.empty());
 
-  std::vector<vm::vec3> points;
+  std::vector<vm::vec3d> points;
   for (const auto* node : nodes)
   {
     if (const auto* brushNode = dynamic_cast<const BrushNode*>(node))
@@ -1400,7 +1399,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
   }
 
   const Polyhedron3 polyhedron(std::move(points));
-  const std::vector<vm::vec3> expectedPositions{
+  const std::vector<vm::vec3d> expectedPositions{
     {40.000000, -144.000031, 180.999969},   {40.000000, -144.000000, -0.000023},
     {55.996799, -111.999001, -0.000018},    {55.996799, -111.999031, 178.999985},
     {16.000000, -168.000000, -0.000027},    {16.000000, -168.000031, 183.999969},
@@ -1442,7 +1441,7 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
 TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
 {
   // weirdcurvemerge.map from https://github.com/TrenchBroom/TrenchBroom/issues/2789
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   const auto path =
     std::filesystem::current_path() / "fixture/test/Model/Brush/weirdcurvemerge.map";
@@ -1455,7 +1454,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
     IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(nodes.size() == 28);
 
-  std::vector<vm::vec3> points;
+  std::vector<vm::vec3d> points;
   for (const auto* node : nodes)
   {
     const auto* brushNode = dynamic_cast<const BrushNode*>(node);
@@ -1472,7 +1471,7 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
   CHECK(polyhedron.faceCount() == 26);
   CHECK(polyhedron.edgeCount() == 72);
   CHECK(polyhedron.vertexCount() == 48);
-  const std::vector<vm::vec3> expectedPositions{
+  const std::vector<vm::vec3d> expectedPositions{
     {383.997, -959.993, 875.0}, {383.997, 959.993, 592.0},  {383.997, 959.993, 875.0},
     {128.0, -1024.0, 624.0},    {128.0, -1024.0, 907.0},    {128.0, 1023.99, 624.0},
     {-1024.0, -128.0, 768.0},   {-1024.0, -128.0, 1051.0},  {-1024.0, 128.0, 768.0},
@@ -1556,7 +1555,7 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
                 ( -16 -16 -0 ) ( 16 16 -0 ) ( -16 16 -0 ) __TB_empty [ -1 0 0 -0 ] [ 0 -1 0 -0 ] -0 1 1
             })");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
@@ -1593,7 +1592,7 @@ TEST_CASE("BrushTest.subtractDome")
     std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
   const auto subtrahendStr = IO::readTextFile(subtrahendPath);
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
@@ -1693,7 +1692,7 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
     "0.90138781070709229\n"
     "}\n");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
@@ -1733,7 +1732,7 @@ TEST_CASE("BrushTest.healEdgesCrash")
 }
 )");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
@@ -1793,7 +1792,7 @@ TEST_CASE("BrushTest.healEdgesCrash2")
 }
 )");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
@@ -1935,7 +1934,7 @@ TEST_CASE("BrushTest.healEdgesCrash3")
 }
 )");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
@@ -1981,7 +1980,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail")
 }
 )");
 
-  const vm::bbox3 worldBounds(8192.0);
+  const vm::bbox3d worldBounds(8192.0);
 
   IO::TestParserStatus status;
   const std::vector<Node*> nodes =
@@ -1995,7 +1994,7 @@ TEST_CASE("BrushTest.findInitialEdgeFail")
   CHECK_THAT(
     brush.vertexPositions(),
     UnorderedApproxVecMatches(
-      std::vector<vm::vec3>{
+      std::vector<vm::vec3d>{
         {832, -256, 48},
         {841.391, -256, 88.6956},
         {841.391, -272, 88.6956},
@@ -2033,7 +2032,7 @@ TEST_CASE("BrushTest.headEdgesFail")
 }
 )");
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
   const auto nodes =

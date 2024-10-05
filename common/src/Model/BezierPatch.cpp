@@ -37,9 +37,9 @@ kdl_reflect_impl(BezierPatch);
 
 namespace
 {
-vm::bbox3 computeBounds(const std::vector<BezierPatch::Point>& points)
+vm::bbox3d computeBounds(const std::vector<BezierPatch::Point>& points)
 {
-  auto builder = vm::bbox3::builder{};
+  auto builder = vm::bbox3d::builder{};
   for (const auto& point : points)
   {
     builder.add(point.xyz());
@@ -129,7 +129,7 @@ void BezierPatch::setControlPoint(const size_t row, const size_t col, Point cont
   m_bounds = computeBounds(m_controlPoints);
 }
 
-const vm::bbox3& BezierPatch::bounds() const
+const vm::bbox3d& BezierPatch::bounds() const
 {
   return m_bounds;
 }
@@ -160,9 +160,9 @@ bool BezierPatch::setMaterial(Assets::Material* material)
   return true;
 }
 
-void BezierPatch::transform(const vm::mat4x4& transformation)
+void BezierPatch::transform(const vm::mat4x4d& transformation)
 {
-  auto builder = vm::bbox3::builder{};
+  auto builder = vm::bbox3d::builder{};
   for (auto& controlPoint : m_controlPoints)
   {
     controlPoint =
@@ -234,12 +234,11 @@ void evaluateSurface(
 
   for (size_t row = 0u; row < maxRow; ++row)
   {
-    const auto v =
-      static_cast<FloatType>(row) / static_cast<FloatType>(subdivisionsPerSurface);
+    const auto v = static_cast<double>(row) / static_cast<double>(subdivisionsPerSurface);
     for (size_t col = 0u; col < maxCol; ++col)
     {
       const auto u =
-        static_cast<FloatType>(col) / static_cast<FloatType>(subdivisionsPerSurface);
+        static_cast<double>(col) / static_cast<double>(subdivisionsPerSurface);
       out = vm::evaluate_quadratic_bezier_surface(surfaceControlPoints, u, v);
     }
   }
@@ -313,16 +312,15 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   {
     const size_t surfaceRow =
       (gridRow > 0u ? gridRow - 1u : gridRow) / quadsPerSurfaceSide;
-    const FloatType v = static_cast<FloatType>(gridRow - surfaceRow * quadsPerSurfaceSide)
-                        / static_cast<FloatType>(quadsPerSurfaceSide);
+    const double v = static_cast<double>(gridRow - surfaceRow * quadsPerSurfaceSide)
+                     / static_cast<double>(quadsPerSurfaceSide);
 
     for (size_t gridCol = 0u; gridCol < gridPointColumnCount; ++gridCol)
     {
       const size_t surfaceCol =
         (gridCol > 0u ? gridCol - 1u : gridCol) / quadsPerSurfaceSide;
-      const FloatType u =
-        static_cast<FloatType>(gridCol - surfaceCol * quadsPerSurfaceSide)
-        / static_cast<FloatType>(quadsPerSurfaceSide);
+      const double u = static_cast<double>(gridCol - surfaceCol * quadsPerSurfaceSide)
+                       / static_cast<double>(quadsPerSurfaceSide);
 
       const auto& surfaceControlPoints =
         allSurfaceControlPoints[surfaceRow * surfaceColumnCount() + surfaceCol];

@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
@@ -41,19 +40,19 @@ class VboManager;
 class PointGuideRenderer : public DirectRenderable
 {
 private:
-  static const FloatType SpikeLength;
+  static const double SpikeLength;
 
   std::weak_ptr<View::MapDocument> m_document;
 
   Color m_color;
-  vm::vec3 m_position;
+  vm::vec3d m_position;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
   explicit PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
 
   void setColor(const Color& color);
-  void setPosition(const vm::vec3& position);
+  void setPosition(const vm::vec3d& position);
 
 private:
   void doPrepareVertices(VboManager& vboManager) override;

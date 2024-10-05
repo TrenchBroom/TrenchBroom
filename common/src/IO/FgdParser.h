@@ -20,10 +20,11 @@
 #pragma once
 
 #include "Color.h"
-#include "FloatType.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
+
+#include "vm/forward.h"
 
 #include <filesystem>
 #include <memory>
@@ -158,8 +159,8 @@ private:
   std::optional<float> parseDefaultFloatValue(ParserStatus& status);
   std::optional<std::string> parseDefaultChoiceValue(ParserStatus& status);
 
-  vm::vec3 parseVector(ParserStatus& status);
-  vm::bbox3 parseSize(ParserStatus& status);
+  vm::vec3d parseVector(ParserStatus& status);
+  vm::bbox3d parseSize(ParserStatus& status);
   Color parseColor(ParserStatus& status);
   std::string parseString(ParserStatus& status);
 

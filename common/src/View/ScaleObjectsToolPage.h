@@ -21,8 +21,10 @@
 
 #include <QWidget>
 
-#include "FloatType.h"
 #include "NotifierConnection.h"
+
+#include "vm/forward.h"
+#include "vm/vec.h" // IWYU pragma: keep
 
 #include <memory>
 #include <optional>
@@ -65,7 +67,7 @@ private:
   void updateGui();
 
   bool canScale() const;
-  std::optional<vm::vec3> getScaleFactors() const;
+  std::optional<vm::vec3d> getScaleFactors() const;
 
   void selectionDidChange(const Selection& selection);
 

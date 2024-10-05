@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Assets/AssetReference.h"
-#include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -42,13 +41,13 @@ namespace TrenchBroom::Model
 class BezierPatch
 {
 public:
-  using Point = vm::vec<FloatType, 5>;
+  using Point = vm::vec<double, 5>;
 
 private:
   size_t m_pointRowCount;
   size_t m_pointColumnCount;
   std::vector<Point> m_controlPoints;
-  vm::bbox3 m_bounds;
+  vm::bbox3d m_bounds;
 
   std::string m_materialName;
   Assets::AssetReference<Assets::Material> m_materialReference;
@@ -89,7 +88,7 @@ public: // control points:
   const Point& controlPoint(size_t row, size_t col) const;
   void setControlPoint(size_t row, size_t col, Point controlPoint);
 
-  const vm::bbox3& bounds() const;
+  const vm::bbox3d& bounds() const;
 
   const std::string& materialName() const;
   void setMaterialName(std::string materialName);
@@ -97,7 +96,7 @@ public: // control points:
   const Assets::Material* material() const;
   bool setMaterial(Assets::Material* material);
 
-  void transform(const vm::mat4x4& transformation);
+  void transform(const vm::mat4x4d& transformation);
 
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 };

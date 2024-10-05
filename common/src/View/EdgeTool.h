@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/VertexToolBase.h"
 
 #include <memory>
@@ -39,7 +38,7 @@ class Camera;
 
 namespace TrenchBroom::View
 {
-class EdgeTool : public VertexToolBase<vm::segment3>
+class EdgeTool : public VertexToolBase<vm::segment3d>
 {
 private:
   std::unique_ptr<EdgeHandleManager> m_edgeHandles;
@@ -48,14 +47,14 @@ public:
   explicit EdgeTool(std::weak_ptr<MapDocument> document);
 
 public:
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3& handle) const;
+  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
 
 public:
   void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override;
 
@@ -64,10 +63,10 @@ public:
   const EdgeHandleManager& handleManager() const override;
 
 public:
-  std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
+  std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const override;
 
-  MoveResult move(const vm::vec3& delta) override;
+  MoveResult move(const vm::vec3d& delta) override;
 
   std::string actionName() const override;
 

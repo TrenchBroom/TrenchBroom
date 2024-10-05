@@ -20,7 +20,6 @@
 #include "ParallelUVCoordSystem.h"
 
 #include "Ensure.h"
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/ParaxialUVCoordSystem.h"
 
@@ -41,11 +40,11 @@ namespace
  * Generates two vectors which are perpendicular to `normal` and perpendicular to each
  * other.
  */
-std::tuple<vm::vec3, vm::vec3> computeInitialAxes(const vm::vec3& normal)
+std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
 {
   const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
-                       ? vm::normalize(vm::cross(vm::vec3::pos_y(), normal))
-                       : vm::normalize(vm::cross(vm::vec3::pos_z(), normal));
+                       ? vm::normalize(vm::cross(vm::vec3d::pos_y(), normal))
+                       : vm::normalize(vm::cross(vm::vec3d::pos_z(), normal));
 
   return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
 }
@@ -53,20 +52,20 @@ std::tuple<vm::vec3, vm::vec3> computeInitialAxes(const vm::vec3& normal)
 /**
  * Rotate CCW by `angle` radians about `normal`.
  */
-std::tuple<vm::vec3, vm::vec3> applyRotation(
-  const vm::vec3& uAxis,
-  const vm::vec3& vAxis,
-  const vm::vec3& normal,
-  const FloatType angle)
+std::tuple<vm::vec3d, vm::vec3d> applyRotation(
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
+  const vm::vec3d& normal,
+  const double angle)
 {
-  const auto rot = vm::quat3{normal, angle};
+  const auto rot = vm::quatd{normal, angle};
   return {rot * uAxis, rot * vAxis};
 }
 
 } // namespace
 
 ParallelUVCoordSystemSnapshot::ParallelUVCoordSystemSnapshot(
-  const vm::vec3& uAxis, const vm::vec3& vAxis)
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis)
   : m_uAxis{uAxis}
   , m_vAxis{vAxis}
 {
@@ -106,18 +105,19 @@ void ParallelUVCoordSystemSnapshot::doRestore(
  * @param attribs face attributes
  */
 ParallelUVCoordSystem::ParallelUVCoordSystem(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const BrushFaceAttributes& attribs)
 {
   const auto normal = vm::normalize(vm::cross(point2 - point0, point1 - point0));
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
   std::tie(m_uAxis, m_vAxis) =
-    applyRotation(uAxis(), vAxis(), normal, FloatType(attribs.rotation()));
+    applyRotation(uAxis(), vAxis(), normal, double(attribs.rotation()));
 }
 
-ParallelUVCoordSystem::ParallelUVCoordSystem(const vm::vec3& uAxis, const vm::vec3& vAxis)
+ParallelUVCoordSystem::ParallelUVCoordSystem(
+  const vm::vec3d& uAxis, const vm::vec3d& vAxis)
   : m_uAxis{uAxis}
   , m_vAxis{vAxis}
 {
@@ -125,9 +125,9 @@ ParallelUVCoordSystem::ParallelUVCoordSystem(const vm::vec3& uAxis, const vm::ve
 
 std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   fromParaxial(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs)
 {
   const auto tempParaxial = ParaxialUVCoordSystem{point0, point1, point2, attribs};
@@ -150,50 +150,50 @@ void ParallelUVCoordSystem::restoreSnapshot(const UVCoordSystemSnapshot& snapsho
   snapshot.doRestore(*this);
 }
 
-vm::vec3 ParallelUVCoordSystem::uAxis() const
+vm::vec3d ParallelUVCoordSystem::uAxis() const
 {
   return m_uAxis;
 }
 
-vm::vec3 ParallelUVCoordSystem::vAxis() const
+vm::vec3d ParallelUVCoordSystem::vAxis() const
 {
   return m_vAxis;
 }
 
-vm::vec3 ParallelUVCoordSystem::normal() const
+vm::vec3d ParallelUVCoordSystem::normal() const
 {
   return vm::normalize(vm::cross(uAxis(), vAxis()));
 }
 
 void ParallelUVCoordSystem::resetCache(
-  const vm::vec3& /* point0 */,
-  const vm::vec3& /* point1 */,
-  const vm::vec3& /* point2 */,
+  const vm::vec3d& /* point0 */,
+  const vm::vec3d& /* point1 */,
+  const vm::vec3d& /* point2 */,
   const BrushFaceAttributes& /* attribs */)
 {
   // no-op
 }
 
-void ParallelUVCoordSystem::reset(const vm::vec3& normal)
+void ParallelUVCoordSystem::reset(const vm::vec3d& normal)
 {
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
 }
 
-void ParallelUVCoordSystem::resetToParaxial(const vm::vec3& normal, float angle)
+void ParallelUVCoordSystem::resetToParaxial(const vm::vec3d& normal, float angle)
 {
   const auto index = ParaxialUVCoordSystem::planeNormalIndex(normal);
   std::tie(m_uAxis, m_vAxis, std::ignore) = ParaxialUVCoordSystem::axes(index);
-  std::tie(m_uAxis, m_vAxis) = applyRotation(uAxis(), vAxis(), normal, FloatType(angle));
+  std::tie(m_uAxis, m_vAxis) = applyRotation(uAxis(), vAxis(), normal, double(angle));
 }
 
-void ParallelUVCoordSystem::resetToParallel(const vm::vec3& normal, float angle)
+void ParallelUVCoordSystem::resetToParallel(const vm::vec3d& normal, float angle)
 {
   std::tie(m_uAxis, m_vAxis) = computeInitialAxes(normal);
-  std::tie(m_uAxis, m_vAxis) = applyRotation(uAxis(), vAxis(), normal, FloatType(angle));
+  std::tie(m_uAxis, m_vAxis) = applyRotation(uAxis(), vAxis(), normal, double(angle));
 }
 
 vm::vec2f ParallelUVCoordSystem::uvCoords(
-  const vm::vec3& point,
+  const vm::vec3d& point,
   const BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize) const
 {
@@ -205,24 +205,24 @@ vm::vec2f ParallelUVCoordSystem::uvCoords(
  * the texture normal (`getZAxis()`). The provided `normal` is ignored.
  */
 void ParallelUVCoordSystem::setRotation(
-  const vm::vec3& /* normal */, const float oldAngle, const float newAngle)
+  const vm::vec3d& /* normal */, const float oldAngle, const float newAngle)
 {
   const auto angleDelta = newAngle - oldAngle;
   if (angleDelta != 0.0f)
   {
     std::tie(m_uAxis, m_vAxis) =
-      applyRotation(uAxis(), vAxis(), normal(), FloatType(vm::to_radians(angleDelta)));
+      applyRotation(uAxis(), vAxis(), normal(), double(vm::to_radians(angleDelta)));
   }
 }
 
 void ParallelUVCoordSystem::transform(
-  const vm::plane3& oldBoundary,
-  const vm::plane3& newBoundary,
-  const vm::mat4x4& transformation,
+  const vm::plane3d& oldBoundary,
+  const vm::plane3d& newBoundary,
+  const vm::mat4x4d& transformation,
   BrushFaceAttributes& attribs,
   const vm::vec2f& textureSize,
   const bool lockAlignment,
-  const vm::vec3& oldInvariant)
+  const vm::vec3d& oldInvariant)
 {
   if (attribs.xScale() == 0.0f || attribs.yScale() == 0.0f)
   {
@@ -291,10 +291,10 @@ void ParallelUVCoordSystem::transform(
   attribs.setOffset(newOffset);
 }
 
-void ParallelUVCoordSystem::shear(const vm::vec3& /* normal */, const vm::vec2f& f)
+void ParallelUVCoordSystem::shear(const vm::vec3d& /* normal */, const vm::vec2f& f)
 {
   // clang-format off
-  const auto shear = vm::mat4x4{
+  const auto shear = vm::mat4x4d{
      1.0, f[0], 0.0, 0.0, 
     f[1],  1.0, 0.0, 0.0, 
      0.0,  0.0, 1.0, 0.0, 
@@ -302,7 +302,7 @@ void ParallelUVCoordSystem::shear(const vm::vec3& /* normal */, const vm::vec2f&
   // clang-format on
 
   const auto toMatrix =
-    vm::coordinate_system_matrix(uAxis(), vAxis(), normal(), vm::vec3::zero());
+    vm::coordinate_system_matrix(uAxis(), vAxis(), normal(), vm::vec3d::zero());
   const auto fromMatrix = vm::invert(toMatrix);
 
   const auto transform = *fromMatrix * shear * toMatrix;
@@ -326,9 +326,9 @@ float ParallelUVCoordSystem::measureAngle(
 
 std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   toParallel(
-    const vm::vec3&,
-    const vm::vec3&,
-    const vm::vec3&,
+    const vm::vec3d&,
+    const vm::vec3d&,
+    const vm::vec3d&,
     const BrushFaceAttributes& attribs) const
 {
   return {clone(), attribs};
@@ -336,22 +336,22 @@ std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordS
 
 std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> ParallelUVCoordSystem::
   toParaxial(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const
 {
   return ParaxialUVCoordSystem::fromParallel(
     point0, point1, point2, attribs, uAxis(), vAxis());
 }
 
-bool ParallelUVCoordSystem::isRotationInverted(const vm::vec3& /* normal */) const
+bool ParallelUVCoordSystem::isRotationInverted(const vm::vec3d& /* normal */) const
 {
   return false;
 }
 
 void ParallelUVCoordSystem::updateNormalWithProjection(
-  const vm::vec3& newNormal, const BrushFaceAttributes& /* attribs */)
+  const vm::vec3d& newNormal, const BrushFaceAttributes& /* attribs */)
 {
   // Goal: (m_uAxis, m_vAxis) define the UV projection that was used for a face with
   // oldNormal. We want to update (m_uAxis, m_vAxis) to be usable on a face with
@@ -364,14 +364,14 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
   // normal (cross product of the U and V axis) is closest to newNormal (the new face
   // normal).
 
-  auto possibleUVAxes = std::vector<std::pair<vm::vec3, vm::vec3>>{};
+  auto possibleUVAxes = std::vector<std::pair<vm::vec3d, vm::vec3d>>{};
   possibleUVAxes.emplace_back(uAxis(), vAxis()); // front
   possibleUVAxes.emplace_back(vAxis(), uAxis()); // back
-  const auto rotations = std::vector<vm::quat3>{
-    vm::quat3{vm::normalize(uAxis()), vm::to_radians(90.0)},  // bottom
-    vm::quat3{vm::normalize(uAxis()), vm::to_radians(-90.0)}, // top
-    vm::quat3{vm::normalize(vAxis()), vm::to_radians(90.0)},  // left
-    vm::quat3{vm::normalize(vAxis()), vm::to_radians(-90.0)}, // right
+  const auto rotations = std::vector<vm::quatd>{
+    vm::quatd{vm::normalize(uAxis()), vm::to_radians(90.0)},  // bottom
+    vm::quatd{vm::normalize(uAxis()), vm::to_radians(-90.0)}, // top
+    vm::quatd{vm::normalize(vAxis()), vm::to_radians(90.0)},  // left
+    vm::quatd{vm::normalize(vAxis()), vm::to_radians(-90.0)}, // right
   };
   for (const auto& rotation : rotations)
   {
@@ -379,7 +379,7 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
   }
   assert(possibleUVAxes.size() == 6);
 
-  auto possibleUVNormals = std::vector<vm::vec3>{};
+  auto possibleUVNormals = std::vector<vm::vec3d>{};
   for (const auto& axes : possibleUVAxes)
   {
     const auto normal = vm::normalize(vm::cross(axes.first, axes.second));
@@ -389,7 +389,7 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
 
   // Find the index in possibleUVNormals of the normal closest to the newNormal (face
   // normal)
-  auto cosAngles = std::vector<FloatType>{};
+  auto cosAngles = std::vector<double>{};
   for (const auto& uvNormal : possibleUVNormals)
   {
     const auto cosAngle = vm::dot(uvNormal, newNormal);
@@ -414,12 +414,12 @@ void ParallelUVCoordSystem::updateNormalWithProjection(
 }
 
 void ParallelUVCoordSystem::updateNormalWithRotation(
-  const vm::vec3& oldNormal,
-  const vm::vec3& newNormal,
+  const vm::vec3d& oldNormal,
+  const vm::vec3d& newNormal,
   const BrushFaceAttributes& /* attribs */)
 {
   const auto cross = vm::cross(oldNormal, newNormal);
-  if (cross == vm::vec3::zero())
+  if (cross == vm::vec3d::zero())
   {
     // oldNormal and newNormal are either the same or opposite.
     // in this case, no need to update the texture axes.
@@ -428,14 +428,14 @@ void ParallelUVCoordSystem::updateNormalWithRotation(
 
   const auto axis = vm::normalize(cross);
   const auto angle = vm::measure_angle(newNormal, oldNormal, axis);
-  const auto rotation = vm::quat3{axis, angle};
+  const auto rotation = vm::quatd{axis, angle};
 
   m_uAxis = rotation * uAxis();
   m_vAxis = rotation * vAxis();
 }
 
 float ParallelUVCoordSystem::computeRotationAngle(
-  const vm::plane3& oldBoundary, const vm::mat4x4& transformation) const
+  const vm::plane3d& oldBoundary, const vm::mat4x4d& transformation) const
 {
   const auto rotationScale = vm::strip_translation(transformation);
   const auto oldNormal = oldBoundary.normal;

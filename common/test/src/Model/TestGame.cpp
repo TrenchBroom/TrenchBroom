@@ -75,7 +75,7 @@ void TestGame::setGamePath(
 
 Game::SoftMapBounds TestGame::extractSoftMapBounds(const Entity&) const
 {
-  return {Game::SoftMapBoundsType::Game, vm::bbox3()};
+  return {Game::SoftMapBoundsType::Game, vm::bbox3d()};
 }
 
 void TestGame::setAdditionalSearchPaths(
@@ -90,14 +90,14 @@ Game::PathErrors TestGame::checkAdditionalSearchPaths(
 }
 
 Result<std::unique_ptr<WorldNode>> TestGame::newMap(
-  const MapFormat format, const vm::bbox3& /* worldBounds */, Logger& /* logger */) const
+  const MapFormat format, const vm::bbox3d& /* worldBounds */, Logger& /* logger */) const
 {
   return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
 Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
   const MapFormat format,
-  const vm::bbox3& /* worldBounds */,
+  const vm::bbox3d& /* worldBounds */,
   const std::filesystem::path& /* path */,
   Logger& /* logger */) const
 {
@@ -123,7 +123,7 @@ Result<void> TestGame::exportMap(
 std::vector<Node*> TestGame::parseNodes(
   const std::string& str,
   const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   Logger& /* logger */) const
 {
   auto status = IO::TestParserStatus{};
@@ -133,7 +133,7 @@ std::vector<Node*> TestGame::parseNodes(
 std::vector<BrushFace> TestGame::parseBrushFaces(
   const std::string& str,
   const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   Logger& /* logger */) const
 {
   auto status = IO::TestParserStatus{};

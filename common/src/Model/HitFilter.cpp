@@ -74,7 +74,7 @@ HitFilter transitivelySelected()
   };
 }
 
-HitFilter minDistance(const FloatType minDistance)
+HitFilter minDistance(const double minDistance)
 {
   return [minDistance](const Hit& hit) { return hit.distance() >= minDistance; };
 }

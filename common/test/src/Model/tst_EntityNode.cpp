@@ -129,7 +129,7 @@ TEST_CASE("EntityNodeTest.area")
   auto definition = Assets::PointEntityDefinition(
     "some_name",
     Color(),
-    vm::bbox3(vm::vec3::zero(), vm::vec3(1.0, 2.0, 3.0)),
+    vm::bbox3d(vm::vec3d::zero(), vm::vec3d(1.0, 2.0, 3.0)),
     "",
     {},
     {},
@@ -171,8 +171,8 @@ protected:
 
 TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
 {
-  const vm::vec3 newOrigin(10, 20, 30);
-  const vm::bbox3 newBounds(
+  const vm::vec3d newOrigin(10, 20, 30);
+  const vm::bbox3d newBounds(
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
@@ -183,8 +183,8 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithSetProperties")
 
 TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateWithAddOrUpdateProperties")
 {
-  const vm::vec3 newOrigin(10, 20, 30);
-  const vm::bbox3 newBounds(
+  const vm::vec3d newOrigin(10, 20, 30);
+  const vm::bbox3d newBounds(
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 
@@ -198,8 +198,8 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
 {
   m_world->defaultLayer()->addChild(m_entity);
 
-  const vm::vec3 newOrigin(10, 20, 30);
-  const vm::bbox3 newBounds(
+  const vm::vec3d newOrigin(10, 20, 30);
+  const vm::bbox3d newBounds(
     newOrigin - (EntityNode::DefaultBounds.size() / 2.0),
     newOrigin + (EntityNode::DefaultBounds.size() / 2.0));
 

@@ -65,10 +65,10 @@ public:
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
   Result<std::unique_ptr<WorldNode>> newMap(
-    MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const override;
+    MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const override;
   Result<std::unique_ptr<WorldNode>> loadMap(
     MapFormat format,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
   Result<void> writeMap(
@@ -79,12 +79,12 @@ public:
   std::vector<Node*> parseNodes(
     const std::string& str,
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     Logger& logger) const override;
   std::vector<BrushFace> parseBrushFaces(
     const std::string& str,
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     Logger& logger) const override;
   void writeNodesToStream(
     WorldNode& world,

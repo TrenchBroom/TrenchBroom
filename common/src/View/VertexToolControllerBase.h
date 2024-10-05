@@ -45,7 +45,7 @@ template <typename T>
 class VertexToolControllerBase : public ToolControllerGroup
 {
 protected:
-  constexpr static const FloatType MaxHandleDistance = 0.25;
+  constexpr static const double MaxHandleDistance = 0.25;
 
 protected:
   class PartBase
@@ -133,14 +133,14 @@ protected:
 
     HandlePositionProposer start(
       const InputState& inputState,
-      const vm::vec3& initialHandlePosition,
-      const vm::vec3& handleOffset) override
+      const vm::vec3d& initialHandlePosition,
+      const vm::vec3d& handleOffset) override
     {
       const auto& camera = inputState.camera();
       m_lasso = std::make_unique<Lasso>(camera, LassoDistance, initialHandlePosition);
 
       const auto plane =
-        vm::orthogonal_plane(initialHandlePosition, vm::vec3{camera.direction()});
+        vm::orthogonal_plane(initialHandlePosition, vm::vec3d{camera.direction()});
       return makeHandlePositionProposer(
         makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
     }
@@ -148,7 +148,7 @@ protected:
     DragStatus update(
       const InputState&,
       const DragState&,
-      const vm::vec3& proposedHandlePosition) override
+      const vm::vec3d& proposedHandlePosition) override
     {
       m_lasso->update(proposedHandlePosition);
       return DragStatus::Continue;
@@ -230,9 +230,9 @@ protected:
 
       const auto& camera = inputState.camera();
       const auto plane = vm::orthogonal_plane(
-        vm::vec3{
+        vm::vec3d{
           camera.defaultPoint(static_cast<float>(LassoDragDelegate::LassoDistance))},
-        vm::vec3{camera.direction()});
+        vm::vec3d{camera.direction()});
 
       if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
       {
@@ -339,7 +339,7 @@ protected:
     DragStatus move(
       const InputState&,
       const DragState& dragState,
-      const vm::vec3& proposedHandlePosition) override
+      const vm::vec3d& proposedHandlePosition) override
     {
       switch (m_tool.move(proposedHandlePosition - dragState.currentHandlePosition))
       {

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "IO/ConfigParserBase.h"
 #include "Macros.h"
 #include "Model/GameConfig.h"
@@ -50,7 +49,7 @@ public:
   deleteCopyAndMove(GameConfigParser);
 };
 
-std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string);
-std::string serializeSoftMapBoundsString(const vm::bbox3& bounds);
+std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string);
+std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds);
 
 } // namespace TrenchBroom::IO

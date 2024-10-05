@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "IO/DiskIO.h"
 #include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
@@ -69,13 +68,13 @@ class GroupNode;
 class Node;
 
 BrushFace createParaxial(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const std::string& materialName = "");
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
-std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges);
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces);
 
 void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
@@ -122,7 +121,7 @@ void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
 void transformNode(
-  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
+  Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds);
 
 struct GameAndConfig
 {
@@ -133,9 +132,9 @@ GameAndConfig loadGame(const std::string& gameName);
 
 const Model::BrushFace* findFaceByPoints(
   const std::vector<Model::BrushFace>& faces,
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2);
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2);
 void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
 void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
 

@@ -21,7 +21,6 @@
 
 #include <QCursor>
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Renderer/Camera.h"
 
@@ -279,19 +278,19 @@ void InputState::setAnyToolDragging(const bool anyToolDragging)
   m_anyToolDragging = anyToolDragging;
 }
 
-const vm::ray3& InputState::pickRay() const
+const vm::ray3d& InputState::pickRay() const
 {
   return m_pickRequest.pickRay();
 }
 
-const vm::vec3 InputState::defaultPoint() const
+const vm::vec3d InputState::defaultPoint() const
 {
-  return vm::vec3{camera().defaultPoint()};
+  return vm::vec3d{camera().defaultPoint()};
 }
 
-const vm::vec3 InputState::defaultPointUnderMouse() const
+const vm::vec3d InputState::defaultPointUnderMouse() const
 {
-  return vm::vec3{camera().defaultPoint(pickRay())};
+  return vm::vec3d{camera().defaultPoint(pickRay())};
 }
 
 const Renderer::Camera& InputState::camera() const

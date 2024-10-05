@@ -45,7 +45,7 @@ public:
     const vm::vec3f& up);
 
   const Viewport& zoomedViewport() const;
-  std::vector<vm::vec3> viewportVertices() const;
+  std::vector<vm::vec3d> viewportVertices() const;
 
 private:
   ProjectionType doGetProjectionType() const override;

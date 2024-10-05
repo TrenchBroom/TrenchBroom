@@ -49,7 +49,7 @@ private:
 public:
   BrushFaceReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat);
 
-  std::vector<Model::BrushFace> read(const vm::bbox3& worldBounds, ParserStatus& status);
+  std::vector<Model::BrushFace> read(const vm::bbox3d& worldBounds, ParserStatus& status);
 
 private: // implement MapReader interface
   Model::Node* onWorldNode(

@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 
@@ -160,9 +159,9 @@ public:
   bool anyToolDragging() const;
   void setAnyToolDragging(bool anyToolDragging);
 
-  const vm::ray3& pickRay() const;
-  const vm::vec3 defaultPoint() const;
-  const vm::vec3 defaultPointUnderMouse() const;
+  const vm::ray3d& pickRay() const;
+  const vm::vec3d defaultPoint() const;
+  const vm::vec3d defaultPointUnderMouse() const;
   const Renderer::Camera& camera() const;
   void setPickRequest(const PickRequest& pickRequest);
 

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/BrushNode.h"
@@ -35,7 +34,7 @@ TEST_CASE("NodeReaderTest.parseFaceAsNode")
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 )");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   IO::TestParserStatus status;
 
@@ -61,7 +60,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
 }
 )");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   IO::TestParserStatus status;
 
@@ -97,7 +96,7 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
 }
 )");
 
-  const vm::bbox3 worldBounds(4096.0);
+  const vm::bbox3d worldBounds(4096.0);
 
   IO::TestParserStatus status;
 
@@ -136,7 +135,7 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   auto status = IO::TestParserStatus{};
 
   auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);

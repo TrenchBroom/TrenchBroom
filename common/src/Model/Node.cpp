@@ -92,27 +92,27 @@ const Node* Node::resolvePath(const NodePath& path) const
   return const_cast<Node*>(this)->resolvePath(path);
 }
 
-const vm::bbox3& Node::logicalBounds() const
+const vm::bbox3d& Node::logicalBounds() const
 {
   return doGetLogicalBounds();
 }
 
-const vm::bbox3& Node::physicalBounds() const
+const vm::bbox3d& Node::physicalBounds() const
 {
   return doGetPhysicalBounds();
 }
 
-FloatType Node::projectedArea(const vm::axis::type axis) const
+double Node::projectedArea(const vm::axis::type axis) const
 {
   return doGetProjectedArea(axis);
 }
 
-Node* Node::clone(const vm::bbox3& worldBounds) const
+Node* Node::clone(const vm::bbox3d& worldBounds) const
 {
   return doClone(worldBounds);
 }
 
-Node* Node::cloneRecursively(const vm::bbox3& worldBounds) const
+Node* Node::cloneRecursively(const vm::bbox3d& worldBounds) const
 {
   return doCloneRecursively(worldBounds);
 }
@@ -124,7 +124,7 @@ void Node::cloneAttributes(Node& node) const
 }
 
 std::vector<Node*> Node::clone(
-  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
+  const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
@@ -133,7 +133,7 @@ std::vector<Node*> Node::clone(
 }
 
 std::vector<Node*> Node::cloneRecursively(
-  const vm::bbox3& worldBounds, const std::vector<Node*>& nodes)
+  const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes)
 {
   auto clones = std::vector<Node*>{};
   clones.reserve(nodes.size());
@@ -778,12 +778,12 @@ void Node::setLockedByOtherSelection(const bool lockedByOtherSelection)
 }
 
 void Node::pick(
-  const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult)
+  const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
   doPick(editorContext, ray, pickResult);
 }
 
-void Node::findNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void Node::findNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   doFindNodesContaining(point, result);
 }
@@ -879,7 +879,7 @@ void Node::removeFromIndex(
   doRemoveFromIndex(node, key, value);
 }
 
-Node* Node::doCloneRecursively(const vm::bbox3& worldBounds) const
+Node* Node::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   auto* clone = Node::clone(worldBounds);
   clone->addChildren(Node::cloneRecursively(worldBounds, children()));

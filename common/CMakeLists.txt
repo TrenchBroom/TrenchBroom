@@ -530,7 +530,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Exceptions.h
         ${COMMON_SOURCE_DIR}/FileLocation.h
         ${COMMON_SOURCE_DIR}/FileLogger.h
-        ${COMMON_SOURCE_DIR}/FloatType.h
         ${COMMON_SOURCE_DIR}/IO/AseLoader.h
         ${COMMON_SOURCE_DIR}/IO/AssimpLoader.h
         ${COMMON_SOURCE_DIR}/IO/BrushFaceReader.h

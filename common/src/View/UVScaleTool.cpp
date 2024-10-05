@@ -19,7 +19,6 @@
 
 #include "UVScaleTool.h"
 
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -71,7 +70,7 @@ std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputSta
   return {getScaleHandle(xHit, yHit), vm::vec2b{xHit.isMatch(), yHit.isMatch()}};
 }
 
-std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3& pickRay)
+std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
   return kdl::optional_transform(
@@ -96,7 +95,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
     helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
   return vm::vec2f{
-    toTex * toWorld * vm::vec3{getScaledTranslatedHandlePos(helper, handle)}};
+    toTex * toWorld * vm::vec3d{getScaledTranslatedHandlePos(helper, handle)}};
 }
 
 vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
@@ -131,9 +130,9 @@ std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2i& handle, const vm::vec2b& selector)
 {
   const auto stripeSize = helper.stripeSize();
-  const auto pos = stripeSize * vm::vec2{handle};
+  const auto pos = stripeSize * vm::vec2d{handle};
 
-  vm::vec3 h1, h2, v1, v2;
+  vm::vec3d h1, h2, v1, v2;
   helper.computeScaleHandleVertices(pos, v1, v2, h1, h2);
 
   auto vertices = std::vector<EdgeVertex>{};

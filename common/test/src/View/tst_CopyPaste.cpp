@@ -290,7 +290,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
 
   const auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto box = vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{64, 64, 64}};
+  const auto box = vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}};
 
   auto* brushNode1 =
     new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
@@ -305,7 +305,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
 
   const auto copied = document->serializeSelectedNodes();
 
-  const auto delta = vm::vec3{16, 16, 16};
+  const auto delta = vm::vec3d{16, 16, 16};
   CHECK(document->paste(copied) == PasteType::Node);
   CHECK(document->selectedNodes().groupCount() == 1u);
   CHECK(document->selectedNodes().groups().at(0)->name() == groupName);

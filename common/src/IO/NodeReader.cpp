@@ -47,7 +47,7 @@ NodeReader::NodeReader(
 std::vector<Model::Node*> NodeReader::read(
   const std::string& str,
   const Model::MapFormat preferredMapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const Model::EntityPropertyConfig& entityPropertyConfig,
   ParserStatus& status)
 {
@@ -88,7 +88,7 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   const Model::MapFormat sourceMapFormat,
   const Model::MapFormat targetMapFormat,
   const std::string& str,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const Model::EntityPropertyConfig& entityPropertyConfig,
   ParserStatus& status)
 {

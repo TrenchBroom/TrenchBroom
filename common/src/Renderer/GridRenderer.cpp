@@ -19,7 +19,6 @@
 
 #include "GridRenderer.h"
 
-#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -33,13 +32,14 @@
 
 namespace TrenchBroom::Renderer
 {
-GridRenderer::GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds)
+GridRenderer::GridRenderer(
+  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
   : m_vertexArray(VertexArray::move(vertices(camera, worldBounds)))
 {
 }
 
 std::vector<GridRenderer::Vertex> GridRenderer::vertices(
-  const OrthographicCamera& camera, const vm::bbox3& worldBounds)
+  const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
 {
   const auto& viewport = camera.zoomedViewport();
   const auto w = float(viewport.width) / 2.0f;

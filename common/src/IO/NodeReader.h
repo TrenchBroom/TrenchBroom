@@ -56,7 +56,7 @@ public:
   static std::vector<Model::Node*> read(
     const std::string& str,
     Model::MapFormat preferredMapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const Model::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
@@ -65,7 +65,7 @@ private:
     Model::MapFormat sourceMapFormat,
     Model::MapFormat targetMapFormat,
     const std::string& str,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const Model::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 

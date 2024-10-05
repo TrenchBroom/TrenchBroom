@@ -258,25 +258,25 @@ void WorldNode::invalidateAllIssues()
   });
 }
 
-const vm::bbox3& WorldNode::doGetLogicalBounds() const
+const vm::bbox3d& WorldNode::doGetLogicalBounds() const
 {
   // TODO: this should probably return the world bounds, as it does in
   // Layer::doGetLogicalBounds
-  static const vm::bbox3 bounds;
+  static const vm::bbox3d bounds;
   return bounds;
 }
 
-const vm::bbox3& WorldNode::doGetPhysicalBounds() const
+const vm::bbox3d& WorldNode::doGetPhysicalBounds() const
 {
   return logicalBounds();
 }
 
-FloatType WorldNode::doGetProjectedArea(const vm::axis::type) const
+double WorldNode::doGetProjectedArea(const vm::axis::type) const
 {
-  return static_cast<FloatType>(0);
+  return static_cast<double>(0);
 }
 
-Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* WorldNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result =
     std::make_unique<WorldNode>(entityPropertyConfig(), entity(), mapFormat());
@@ -284,7 +284,7 @@ Node* WorldNode::doClone(const vm::bbox3& /* worldBounds */) const
   return result.release();
 }
 
-Node* WorldNode::doCloneRecursively(const vm::bbox3& worldBounds) const
+Node* WorldNode::doCloneRecursively(const vm::bbox3d& worldBounds) const
 {
   const auto& myChildren = children();
   assert(myChildren[0] == m_defaultLayer);
@@ -439,7 +439,7 @@ bool WorldNode::doSelectable() const
 }
 
 void WorldNode::doPick(
-  const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult)
+  const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
   for (auto* node : m_nodeTree->find_intersectors(ray))
   {
@@ -447,7 +447,7 @@ void WorldNode::doPick(
   }
 }
 
-void WorldNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void WorldNode::doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   for (auto* node : m_nodeTree->find_containers(point))
   {
@@ -502,16 +502,16 @@ void WorldNode::doRemoveFromIndex(
   m_entityNodeIndex->removeProperty(node, key, value);
 }
 
-void WorldNode::doPropertiesDidChange(const vm::bbox3& /* oldBounds */) {}
+void WorldNode::doPropertiesDidChange(const vm::bbox3d& /* oldBounds */) {}
 
-vm::vec3 WorldNode::doGetLinkSourceAnchor() const
+vm::vec3d WorldNode::doGetLinkSourceAnchor() const
 {
-  return vm::vec3::zero();
+  return vm::vec3d::zero();
 }
 
-vm::vec3 WorldNode::doGetLinkTargetAnchor() const
+vm::vec3d WorldNode::doGetLinkTargetAnchor() const
 {
-  return vm::vec3::zero();
+  return vm::vec3d::zero();
 }
 
 void WorldNode::doAcceptTagVisitor(TagVisitor& visitor)

@@ -78,7 +78,7 @@ int CompareHitsBySize::doCompare(const Hit& lhs, const Hit& rhs) const
                              : m_compareByDistance.compare(lhs, rhs);
 }
 
-FloatType CompareHitsBySize::getSize(const Hit& hit) const
+double CompareHitsBySize::getSize(const Hit& hit) const
 {
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
   {

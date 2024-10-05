@@ -19,7 +19,6 @@
 
 #include "ExtrudeTool.h"
 
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushGeometry.h"
 #include "Model/BrushNode.h"
@@ -66,7 +65,7 @@ const Model::BrushFace& ExtrudeDragHandle::faceAtDragStart() const
   return brushAtDragStart.face(faceHandle.faceIndex());
 }
 
-vm::vec3 ExtrudeDragHandle::faceNormal() const
+vm::vec3d ExtrudeDragHandle::faceNormal() const
 {
   return faceAtDragStart().normal();
 }
@@ -106,10 +105,10 @@ struct EdgeInfo
 {
   Model::BrushFaceHandle leftFaceHandle;
   Model::BrushFaceHandle rightFaceHandle;
-  FloatType leftDot;
-  FloatType rightDot;
-  vm::segment3 segment;
-  vm::line_distance<FloatType> dist;
+  double leftDot;
+  double rightDot;
+  vm::segment3d segment;
+  vm::line_distance<double> dist;
 };
 
 bool operator<(const std::optional<EdgeInfo>& lhs, const std::optional<EdgeInfo>& rhs)
@@ -120,7 +119,7 @@ bool operator<(const std::optional<EdgeInfo>& lhs, const std::optional<EdgeInfo>
 }
 
 std::optional<EdgeInfo> getEdgeInfo(
-  const Model::BrushEdge* edge, Model::BrushNode* brushNode, const vm::ray3& pickRay)
+  const Model::BrushEdge* edge, Model::BrushNode* brushNode, const vm::ray3d& pickRay)
 {
 
   const auto segment = edge->segment();
@@ -149,7 +148,7 @@ std::optional<EdgeInfo> getEdgeInfo(
 }
 
 std::optional<EdgeInfo> findClosestHorizonEdge(
-  const std::vector<Model::Node*>& nodes, const vm::ray3& pickRay)
+  const std::vector<Model::Node*>& nodes, const vm::ray3d& pickRay)
 {
   auto result = std::optional<EdgeInfo>{};
   for (auto* node : nodes)
@@ -172,7 +171,7 @@ std::optional<EdgeInfo> findClosestHorizonEdge(
 } // namespace
 
 Model::Hit ExtrudeTool::pick2D(
-  const vm::ray3& pickRay, const Model::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const Model::PickResult& pickResult) const
 {
   using namespace Model::HitFilters;
 
@@ -196,25 +195,25 @@ Model::Hit ExtrudeTool::pick2D(
   const auto handlePosition = vm::point_at_distance(segment, distance.position2);
 
   // Select the face that is perpendicular to the view direction or the back facing one.
-  if (leftDot >= -vm::C::almost_zero() && !vm::is_zero(rightDot, vm::C::almost_zero()))
+  if (leftDot >= -vm::Cd::almost_zero() && !vm::is_zero(rightDot, vm::Cd::almost_zero()))
   {
     return {
       ExtrudeHitType,
       distance.position1,
       hitPoint,
       ExtrudeHitData{
-        leftFaceHandle, vm::plane3{handlePosition, pickRay.direction}, handlePosition}};
+        leftFaceHandle, vm::plane3d{handlePosition, pickRay.direction}, handlePosition}};
   }
   return {
     ExtrudeHitType,
     distance.position1,
     hitPoint,
     ExtrudeHitData{
-      rightFaceHandle, vm::plane3{handlePosition, pickRay.direction}, handlePosition}};
+      rightFaceHandle, vm::plane3d{handlePosition, pickRay.direction}, handlePosition}};
 }
 
 Model::Hit ExtrudeTool::pick3D(
-  const vm::ray3& pickRay, const Model::PickResult& pickResult) const
+  const vm::ray3d& pickRay, const Model::PickResult& pickResult) const
 {
   using namespace Model::HitFilters;
 
@@ -229,7 +228,7 @@ Model::Hit ExtrudeTool::pick3D(
       hit.hitPoint(),
       ExtrudeHitData{
         *faceHandle,
-        vm::line3{hit.hitPoint(), faceHandle->face().normal()},
+        vm::line3d{hit.hitPoint(), faceHandle->face().normal()},
         hit.hitPoint()}};
   }
 
@@ -255,7 +254,7 @@ Model::Hit ExtrudeTool::pick3D(
     hitPoint,
     ExtrudeHitData{
       dragFaceHandle,
-      vm::plane3{handlePosition, referenceFaceHandle.face().normal()},
+      vm::plane3d{handlePosition, referenceFaceHandle.face().normal()},
       handlePosition}};
 }
 
@@ -385,7 +384,7 @@ namespace
  * - returns true
  */
 bool splitBrushesOutward(
-  MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
+  MapDocument& document, const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
   const bool lockAlignment = pref(Preferences::AlignmentLock);
@@ -395,7 +394,7 @@ bool splitBrushesOutward(
   for (const auto& dragHandle : dragState.initialDragHandles)
   {
     const auto& normal = dragHandle.faceNormal();
-    if (vm::dot(normal, delta) <= FloatType{0})
+    if (vm::dot(normal, delta) <= double{0})
     {
       return false;
     }
@@ -464,7 +463,7 @@ bool splitBrushesOutward(
  * - returns true
  */
 bool splitBrushesInward(
-  MapDocument& document, const vm::vec3& delta, ExtrudeDragState& dragState)
+  MapDocument& document, const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   const auto& worldBounds = document.worldBounds();
   const bool lockAlignment = pref(Preferences::AlignmentLock);
@@ -474,7 +473,7 @@ bool splitBrushesInward(
   for (const auto& dragHandle : dragState.initialDragHandles)
   {
     const auto& normal = dragHandle.faceNormal();
-    if (vm::dot(normal, delta) > FloatType{0})
+    if (vm::dot(normal, delta) > double{0})
     {
       return false;
     }
@@ -553,7 +552,7 @@ bool splitBrushesInward(
   return true;
 }
 
-std::vector<vm::polygon3> getPolygons(const std::vector<ExtrudeDragHandle>& dragHandles)
+std::vector<vm::polygon3d> getPolygons(const std::vector<ExtrudeDragHandle>& dragHandles)
 {
   return kdl::vec_transform(dragHandles, [](const auto& dragHandle) {
     return dragHandle.brushAtDragStart.face(dragHandle.faceHandle.faceIndex()).polygon();
@@ -561,7 +560,7 @@ std::vector<vm::polygon3> getPolygons(const std::vector<ExtrudeDragHandle>& drag
 }
 } // namespace
 
-bool ExtrudeTool::extrude(const vm::vec3& handleDelta, ExtrudeDragState& dragState)
+bool ExtrudeTool::extrude(const vm::vec3d& handleDelta, ExtrudeDragState& dragState)
 {
   ensure(m_dragging, "may only be called during a drag");
 
@@ -605,7 +604,7 @@ void ExtrudeTool::beginMove()
     ->startTransaction("Move Faces", TransactionScope::LongRunning);
 }
 
-bool ExtrudeTool::move(const vm::vec3& delta, ExtrudeDragState& dragState)
+bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
 {
   ensure(m_dragging, "may only be called during a drag");
 
@@ -632,7 +631,7 @@ void ExtrudeTool::commit(const ExtrudeDragState& dragState)
   ensure(m_dragging, "may only be called during a drag");
 
   auto document = kdl::mem_lock(m_document);
-  if (vm::is_zero(dragState.totalDelta, vm::C::almost_zero()))
+  if (vm::is_zero(dragState.totalDelta, vm::Cd::almost_zero()))
   {
     document->cancelTransaction();
   }

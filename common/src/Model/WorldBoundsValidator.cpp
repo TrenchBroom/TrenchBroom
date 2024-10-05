@@ -35,7 +35,7 @@ namespace
 const auto Type = freeIssueType();
 
 void validateInternal(
-  const vm::bbox3& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues)
+  const vm::bbox3d& bounds, Node& node, std::vector<std::unique_ptr<Issue>>& issues)
 {
   if (!bounds.contains(node.logicalBounds()))
   {
@@ -45,7 +45,7 @@ void validateInternal(
 }
 } // namespace
 
-WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3& bounds)
+WorldBoundsValidator::WorldBoundsValidator(const vm::bbox3d& bounds)
   : Validator{Type, "Objects out of world bounds"}
   , m_bounds{bounds}
 {

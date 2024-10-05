@@ -38,7 +38,7 @@ namespace TrenchBroom::View
 {
 namespace
 {
-const auto worldBounds = vm::bbox3{8192.0};
+const auto worldBounds = vm::bbox3d{8192.0};
 }
 
 TEST_CASE("GridTest.size")
@@ -134,29 +134,33 @@ TEST_CASE("GridTest.snapOnLine")
   const auto X = vm::line3d{vm::vec3d{5.0, 0.0, 0.0}, vm::vec3d::pos_x()};
 
   CHECK(Grid{2}.snap(vm::vec3d::zero(), X) == vm::approx{vm::vec3d::zero()});
-  CHECK(Grid{2}.snap(vm::vec3{1.0, 0.0, 0.0}, X) == vm::approx{vm::vec3d::zero()});
-  CHECK(Grid{2}.snap(vm::vec3{1.0, 1.0, 0.0}, X) == vm::approx{vm::vec3d::zero()});
-  CHECK(Grid{2}.snap(vm::vec3{3.0, 1.0, 0.0}, X) == vm::approx{vm::vec3d{4.0, 0.0, 0.0}});
-  CHECK(Grid{2}.snap(vm::vec3{3.0, 1.0, 2.0}, X) == vm::approx{vm::vec3d{4.0, 0.0, 0.0}});
+  CHECK(Grid{2}.snap(vm::vec3d{1.0, 0.0, 0.0}, X) == vm::approx{vm::vec3d::zero()});
+  CHECK(Grid{2}.snap(vm::vec3d{1.0, 1.0, 0.0}, X) == vm::approx{vm::vec3d::zero()});
+  CHECK(
+    Grid{2}.snap(vm::vec3d{3.0, 1.0, 0.0}, X) == vm::approx{vm::vec3d{4.0, 0.0, 0.0}});
+  CHECK(
+    Grid{2}.snap(vm::vec3d{3.0, 1.0, 2.0}, X) == vm::approx{vm::vec3d{4.0, 0.0, 0.0}});
 
   const auto L = vm::line3d{vm::vec3d::zero(), vm::normalize(vm::vec3d{1.0, 2.0, 0.0})};
   CHECK(Grid{2}.snap(vm::vec3d::zero(), L) == vm::approx{vm::vec3d::zero()});
-  CHECK(Grid{2}.snap(vm::vec3{1.0, 0.0, 0.0}, L) == vm::approx{vm::vec3d::zero()});
+  CHECK(Grid{2}.snap(vm::vec3d{1.0, 0.0, 0.0}, L) == vm::approx{vm::vec3d::zero()});
   CHECK(
-    Grid{2}.snap(vm::vec3{10.0, 0.0, 0.0}, L) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
-  CHECK(Grid{2}.snap(vm::vec3{7.5, 0.0, 0.0}, L) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
+    Grid{2}.snap(vm::vec3d{10.0, 0.0, 0.0}, L) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
+  CHECK(
+    Grid{2}.snap(vm::vec3d{7.5, 0.0, 0.0}, L) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
 }
 
 TEST_CASE("GridTest.snapOnEdge")
 {
   const auto E = vm::segment3d{vm::vec3d::zero(), vm::vec3d{1.0, 2.0, 0.0} * 2.0};
   CHECK(Grid{2}.snap(vm::vec3d::zero(), E) == vm::approx{vm::vec3d::zero()});
-  CHECK(Grid{2}.snap(vm::vec3{1.0, 0.0, 0.0}, E) == vm::approx{vm::vec3d::zero()});
+  CHECK(Grid{2}.snap(vm::vec3d{1.0, 0.0, 0.0}, E) == vm::approx{vm::vec3d::zero()});
   CHECK(
-    Grid{2}.snap(vm::vec3{10.0, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
-  CHECK(Grid{2}.snap(vm::vec3{7.5, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
-  CHECK(Grid{2}.snap(vm::vec3{20.0, 0.0, 0.0}, E) == std::nullopt);
-  CHECK(Grid{2}.snap(vm::vec3{-10.0, 0.0, 0.0}, E) == std::nullopt);
+    Grid{2}.snap(vm::vec3d{10.0, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
+  CHECK(
+    Grid{2}.snap(vm::vec3d{7.5, 0.0, 0.0}, E) == vm::approx{vm::vec3d{2.0, 4.0, 0.0}});
+  CHECK(Grid{2}.snap(vm::vec3d{20.0, 0.0, 0.0}, E) == std::nullopt);
+  CHECK(Grid{2}.snap(vm::vec3d{-10.0, 0.0, 0.0}, E) == std::nullopt);
 }
 
 TEST_CASE("GridTest.snapOnQuad")
@@ -223,9 +227,9 @@ TEST_CASE("GridTest.moveDeltaForPoint_SubInteger2")
 
 namespace
 {
-vm::ray3 make_ray_from_to(const vm::vec3& from, const vm::vec3& to)
+vm::ray3d make_ray_from_to(const vm::vec3d& from, const vm::vec3d& to)
 {
-  return vm::ray3{from, vm::normalize(to - from)};
+  return vm::ray3d{from, vm::normalize(to - from)};
 }
 } // namespace
 
@@ -233,33 +237,33 @@ TEST_CASE("GridTest.moveDeltaForBounds")
 {
   const auto grid16 = Grid{4};
 
-  const auto box = vm::bbox3{vm::vec3{0, 0, 0}, vm::vec3{95, 100, 105}};
+  const auto box = vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{95, 100, 105}};
   SECTION("drop to floor")
   {
-    const auto floor = vm::plane3{vm::vec3::zero(), vm::vec3::pos_z()};
+    const auto floor = vm::plane3d{vm::vec3d::zero(), vm::vec3d::pos_z()};
 
     SECTION("camera looking towards +x +y")
     {
       const auto pickRay =
-        make_ray_from_to(vm::vec3{512, 512, 200}, vm::vec3{1024 - 8, 1024 - 8, 0});
+        make_ray_from_to(vm::vec3d{512, 512, 200}, vm::vec3d{1024 - 8, 1024 - 8, 0});
 
       // Snaps towards the camera
       CHECK(
         grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay)
-        == vm::approx{vm::vec3{1024 - 16, 1024 - 16, 0}});
+        == vm::approx{vm::vec3d{1024 - 16, 1024 - 16, 0}});
     }
 
     SECTION("camera looking towards -x -y")
     {
-      const auto pickRay = make_ray_from_to(vm::vec3{512, 512, 200}, vm::vec3{8, 8, 0});
+      const auto pickRay = make_ray_from_to(vm::vec3d{512, 512, 200}, vm::vec3d{8, 8, 0});
 
-      // Note, the box corner is rounded towards the camera (vm::vec3{8, 8, 0} ->
-      // vm::vec3{16, 16, 0})
-      const auto snappedBoxCorner = vm::vec3{16, 16, 0};
+      // Note, the box corner is rounded towards the camera (vm::vec3d{8, 8, 0} ->
+      // vm::vec3d{16, 16, 0})
+      const auto snappedBoxCorner = vm::vec3d{16, 16, 0};
       // But the box orientation is pushed away from the camera so the snapped box mins
       // are:
       const auto newBoxMin =
-        snappedBoxCorner - vm::vec3{box.size().x(), box.size().y(), 0.0};
+        snappedBoxCorner - vm::vec3d{box.size().x(), box.size().y(), 0.0};
 
       CHECK(grid16.moveDeltaForBounds(floor, box, worldBounds, pickRay) == newBoxMin);
     }
@@ -269,46 +273,46 @@ TEST_CASE("GridTest.moveDeltaForBounds")
   {
     const auto ceilHeight = 512.0;
 
-    const auto ceil = vm::plane3{vm::vec3{0, 0, ceilHeight}, vm::vec3::neg_z()};
+    const auto ceil = vm::plane3d{vm::vec3d{0, 0, ceilHeight}, vm::vec3d::neg_z()};
     const auto pickRay =
-      make_ray_from_to(vm::vec3{50, 50, 200}, vm::vec3{1024 - 8, 1024 - 8, ceilHeight});
+      make_ray_from_to(vm::vec3d{50, 50, 200}, vm::vec3d{1024 - 8, 1024 - 8, ceilHeight});
 
     // Snaps towards the camera
-    const auto snappedBoxCorner = vm::vec3{1024 - 16, 1024 - 16, ceilHeight};
-    const auto newBoxMin = snappedBoxCorner - vm::vec3{0.0, 0.0, box.size().z()};
+    const auto snappedBoxCorner = vm::vec3d{1024 - 16, 1024 - 16, ceilHeight};
+    const auto newBoxMin = snappedBoxCorner - vm::vec3d{0.0, 0.0, box.size().z()};
 
     CHECK(grid16.moveDeltaForBounds(ceil, box, worldBounds, pickRay) == newBoxMin);
   }
 
   SECTION("drop onto a sub-grid platform")
   {
-    const auto subGridPlatform = vm::plane3{vm::vec3{0, 0, 4}, vm::vec3::pos_z()};
-    const auto pickRay = make_ray_from_to(vm::vec3{0, 0, 200}, vm::vec3{17, 17, 4});
+    const auto subGridPlatform = vm::plane3d{vm::vec3d{0, 0, 4}, vm::vec3d::pos_z()};
+    const auto pickRay = make_ray_from_to(vm::vec3d{0, 0, 200}, vm::vec3d{17, 17, 4});
 
     // We allow a sub-grid result here because it's a flat plane
     CHECK(
       grid16.moveDeltaForBounds(subGridPlatform, box, worldBounds, pickRay)
-      == vm::approx(vm::vec3{16, 16, 4}));
+      == vm::approx(vm::vec3d{16, 16, 4}));
   }
 
   SECTION("drop onto a slope")
   {
     const auto slope =
-      vm::from_points(vm::vec3::zero(), vm::vec3{0, 100, 5}, vm::vec3{100, 0, 0});
+      vm::from_points(vm::vec3d::zero(), vm::vec3d{0, 100, 5}, vm::vec3d{100, 0, 0});
     CHECK(slope->normal.z() > 0.0);
 
-    const auto pickRay = make_ray_from_to(vm::vec3{0, 0, 200}, vm::vec3{17, 17, 0});
+    const auto pickRay = make_ray_from_to(vm::vec3d{0, 0, 200}, vm::vec3d{17, 17, 0});
 
     // Float above the sloped plane
     CHECK(
       grid16.moveDeltaForBounds(*slope, box, worldBounds, pickRay)
-      == vm::approx(vm::vec3{16, 16, 16}));
+      == vm::approx(vm::vec3d{16, 16, 16}));
   }
 }
 
 TEST_CASE("GridTest.snapToGridPlane")
 {
-  using T = std::tuple<vm::vec3, vm::vec3, FloatType, vm::vec3>;
+  using T = std::tuple<vm::vec3d, vm::vec3d, double, vm::vec3d>;
 
   // clang-format off
   const auto
@@ -333,7 +337,7 @@ TEST_CASE("GridTest.snapToGridPlane")
   CAPTURE(origin, direction, distance);
 
   auto grid = Grid{4};
-  const auto line = vm::line3{origin, vm::normalize(direction)};
+  const auto line = vm::line3d{origin, vm::normalize(direction)};
   const auto snappedDistance = grid.snapToGridPlane(line, distance);
 
   CHECK(vm::point_at_distance(line, snappedDistance) == vm::approx{expectedPoint});
@@ -343,7 +347,7 @@ TEST_CASE("GridTest.snapToGridPlane")
 
 TEST_CASE("GridTest.snapMoveDeltaForFace")
 {
-  using T = std::tuple<std::vector<vm::vec3>, vm::vec3, FloatType, FloatType>;
+  using T = std::tuple<std::vector<vm::vec3d>, vm::vec3d, double, double>;
 
   // clang-format off
   const auto 
@@ -366,15 +370,15 @@ TEST_CASE("GridTest.snapMoveDeltaForFace")
   */
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
-           vm::normalize(vm::vec3{1, -4, 0}),  
+           vm::normalize(vm::vec3d{1, -4, 0}),  
                        16, 15.5222800023},
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
-           vm::normalize(vm::vec3{1, -4, 0}),  
+           vm::normalize(vm::vec3d{1, -4, 0}),  
                        15, 15.5222800023},
   {{{-64, -64, +16}, {-64, +64, +16}, {+64, +64, +16}, {+64, -32, +16}, 
     {-64, -64, -16}, {-64, +64, -16}, {+64, +64, -16}, {+64, -32, -16}},
-           vm::normalize(vm::vec3{1, -4, 0}),  
+           vm::normalize(vm::vec3d{1, -4, 0}),  
                        25, 31.0445600047},
   }));
   // clang-format on

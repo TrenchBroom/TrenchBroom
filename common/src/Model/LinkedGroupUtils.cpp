@@ -203,7 +203,7 @@ namespace
 Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
   const Node* nodeToClone,
   std::unordered_map<const Node*, NodeContents>& origNodeToTransformedContents,
-  const vm::bbox3& worldBounds)
+  const vm::bbox3d& worldBounds)
 {
   // First, clone `n`, and move in the new (transformed) content which was
   // prepared for it above
@@ -267,7 +267,7 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
  * Returns a vector of the cloned direct children of `node`.
  */
 Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
-  const Node& node, const vm::bbox3& worldBounds, const vm::mat4x4& transformation)
+  const Node& node, const vm::bbox3d& worldBounds, const vm::mat4x4d& transformation)
 {
   auto nodesToClone = collectDescendants(std::vector{&node});
 
@@ -466,7 +466,7 @@ void preserveEntityProperties(
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<GroupNode*>& targetGroupNodes,
-  const vm::bbox3& worldBounds)
+  const vm::bbox3d& worldBounds)
 {
   const auto& sourceGroup = sourceGroupNode.group();
   const auto invertedSourceTransformation = vm::invert(sourceGroup.transformation());
@@ -679,7 +679,7 @@ void setLinkIds(
     for (auto* linkedGroupNode : groups)
     {
       auto group = linkedGroupNode->group();
-      group.setTransformation(vm::mat4x4::identity());
+      group.setTransformation(vm::mat4x4d::identity());
       linkedGroupNode->setGroup(std::move(group));
       linkedGroupNode->setLinkId(generateUuid());
     }

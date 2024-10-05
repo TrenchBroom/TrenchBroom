@@ -223,11 +223,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching")
 
   transformNode(
     *brushNode2,
-    vm::translation_matrix(vm::vec3{10.0, 0.0, 0.0}),
+    vm::translation_matrix(vm::vec3d{10.0, 0.0, 0.0}),
     document->worldBounds());
   transformNode(
     *brushNode3,
-    vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}),
+    vm::translation_matrix(vm::vec3d{100.0, 0.0, 0.0}),
     document->worldBounds());
 
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
 
   const auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
+  const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
     new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
@@ -305,13 +305,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
+  const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
     new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
   document->addNodes({{group, {brush}}});
 
-  const auto selectionBounds = vm::bbox3{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
+  const auto selectionBounds = vm::bbox3d{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
   auto* selectionBrush = new Model::BrushNode{
     builder.createCuboid(selectionBounds, "material") | kdl::value()};
@@ -337,13 +337,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto brushBounds = vm::bbox3{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
+  const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
     new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
   document->addNodes({{group, {brush}}});
 
-  const auto selectionBounds = vm::bbox3{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
+  const auto selectionBounds = vm::bbox3d{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
   auto* selectionBrush = new Model::BrushNode{
     builder.createCuboid(selectionBounds, "material") | kdl::value()};
@@ -370,11 +370,11 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
 
   transformNode(
     *brushNode2,
-    vm::translation_matrix(vm::vec3{0.0, 0.0, -500.0}),
+    vm::translation_matrix(vm::vec3d{0.0, 0.0, -500.0}),
     document->worldBounds());
   transformNode(
     *brushNode3,
-    vm::translation_matrix(vm::vec3{100.0, 0.0, 0.0}),
+    vm::translation_matrix(vm::vec3d{100.0, 0.0, 0.0}),
     document->worldBounds());
 
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
@@ -412,7 +412,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
 
   const auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
+  const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
     new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
@@ -501,7 +501,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
 
   const auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
+  const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
     new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
@@ -599,11 +599,11 @@ TEST_CASE_METHOD(
   MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo")
 {
   auto* brushNode = createBrushNode();
-  CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
+  CHECK(brushNode->logicalBounds().center() == vm::vec3d::zero());
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
+  const auto topFaceIndex = brushNode->brush().findFace(vm::vec3d::pos_z());
   REQUIRE(topFaceIndex);
 
   // select the top face
@@ -624,13 +624,13 @@ TEST_CASE_METHOD(
     Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
 
   // translate the brush
-  document->translateObjects(vm::vec3{10.0, 0.0, 0.0});
-  CHECK(brushNode->logicalBounds().center() == vm::vec3{10.0, 0.0, 0.0});
+  document->translateObjects(vm::vec3d{10.0, 0.0, 0.0});
+  CHECK(brushNode->logicalBounds().center() == vm::vec3d{10.0, 0.0, 0.0});
 
   // Start undoing changes
 
   document->undoCommand();
-  CHECK(brushNode->logicalBounds().center() == vm::vec3::zero());
+  CHECK(brushNode->logicalBounds().center() == vm::vec3d::zero());
   CHECK_THAT(
     document->selectedNodes().brushes(),
     Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));

@@ -114,7 +114,7 @@ TEST_CASE("NodeWriterTest.writeDefaultLayerProperties")
 
 TEST_CASE("NodeWriterTest.writeDaikatanaMap")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Daikatana};
 
@@ -167,7 +167,7 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap")
 
 TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake2_Valve};
 
@@ -176,7 +176,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
   // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
   {
-    auto index = brush1.findFace(vm::vec3::pos_z());
+    auto index = brush1.findFace(vm::vec3d::pos_z());
     REQUIRE(index);
 
     auto& face = brush1.face(*index);
@@ -189,7 +189,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
   }
   // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
   {
-    auto index = brush1.findFace(vm::vec3::neg_z());
+    auto index = brush1.findFace(vm::vec3d::neg_z());
     REQUIRE(index);
 
     auto& face = brush1.face(*index);
@@ -231,7 +231,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
 TEST_CASE("NodeWriterTest.writeQuake3ValveMap")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3_Valve};
 
@@ -266,7 +266,7 @@ TEST_CASE("NodeWriterTest.writeQuake3ValveMap")
 
 TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -299,7 +299,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer")
 
 TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -388,7 +388,7 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex")
 
 TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -434,7 +434,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
 
 TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -492,7 +492,7 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
 
 TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -564,7 +564,7 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 
 TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -647,7 +647,7 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 
 TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
@@ -768,7 +768,7 @@ TEST_CASE("NodeWriterTest.writeMapWithInheritedLock")
 
 TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -832,7 +832,7 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 
 TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
@@ -868,7 +868,7 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
   SECTION("Group node with changed transformation writes transformation")
   {
     Model::transformNode(
-      *groupNode, vm::translation_matrix(vm::vec3{32, 0, 0}), worldBounds);
+      *groupNode, vm::translation_matrix(vm::vec3d{32, 0, 0}), worldBounds);
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
@@ -897,20 +897,20 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 
 TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
 
   auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
   Model::setLinkId(*groupNode, "asdf");
   Model::transformNode(
-    *groupNode, vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)), worldBounds);
+    *groupNode, vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)), worldBounds);
   worldNode.defaultLayer()->addChild(groupNode);
 
   auto* groupNodeClone =
     static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
   Model::transformNode(
-    *groupNodeClone, vm::translation_matrix(vm::vec3(0.0, 16.0, 0.0)), worldBounds);
+    *groupNodeClone, vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)), worldBounds);
 
   worldNode.defaultLayer()->addChild(groupNodeClone);
   REQUIRE(groupNodeClone->linkId() == groupNode->linkId());
@@ -983,7 +983,7 @@ TEST_CASE("NodeWriterTest.writeProtectedEntityProperties")
 
 TEST_CASE("NodeWriterTest.writeFaces")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
   auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};

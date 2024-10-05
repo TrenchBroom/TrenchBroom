@@ -66,7 +66,7 @@ public:
   ~ToolBoxConnector() override;
 
 public:
-  const vm::ray3& pickRay() const;
+  const vm::ray3d& pickRay() const;
   const Model::PickResult& pickResult() const;
 
   void updatePickResult();
@@ -131,7 +131,7 @@ public:
 
 private:
   virtual PickRequest pickRequest(float x, float y) const = 0;
-  virtual Model::PickResult pick(const vm::ray3& pickRay) const = 0;
+  virtual Model::PickResult pick(const vm::ray3d& pickRay) const = 0;
   virtual void doShowPopupMenu();
 
   deleteCopyAndMove(ToolBoxConnector);

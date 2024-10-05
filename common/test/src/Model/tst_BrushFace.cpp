@@ -19,7 +19,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "FloatType.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -54,7 +53,7 @@ namespace
 
 void getFaceVertsAndUVCoords(
   const BrushFace& face,
-  std::vector<vm::vec3>* vertPositions,
+  std::vector<vm::vec3d>* vertPositions,
   std::vector<vm::vec2f>* vertUVCoords)
 {
   for (const auto* vertex : face.vertices())
@@ -62,7 +61,7 @@ void getFaceVertsAndUVCoords(
     vertPositions->push_back(vertex->position());
     if (vertUVCoords)
     {
-      vertUVCoords->push_back(face.uvCoords(vm::vec3{vertex->position()}));
+      vertUVCoords->push_back(face.uvCoords(vm::vec3d{vertex->position()}));
     }
   }
 }
@@ -103,7 +102,7 @@ void checkUVListsEqual(
  * applying the transform.
  */
 void checkAlignmentLockOffWithTransform(
-  const vm::mat4x4& transform, const BrushFace& origFace)
+  const vm::mat4x4d& transform, const BrushFace& origFace)
 {
 
   // reset alignment, transform the face (alignment lock off)
@@ -121,11 +120,11 @@ void checkAlignmentLockOffWithTransform(
 
   // UVs of the verts of `face` and `resetFace` should be the same now
 
-  auto verts = std::vector<vm::vec3>{};
+  auto verts = std::vector<vm::vec3d>{};
   getFaceVertsAndUVCoords(origFace, &verts, nullptr);
 
   // transform the verts
-  auto transformedVerts = std::vector<vm::vec3>{};
+  auto transformedVerts = std::vector<vm::vec3d>{};
   for (size_t i = 0; i < verts.size(); i++)
   {
     transformedVerts.push_back(transform * verts[i]);
@@ -145,7 +144,7 @@ void checkAlignmentLockOffWithTransform(
 
 void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other)
 {
-  auto verts = std::vector<vm::vec3>{};
+  auto verts = std::vector<vm::vec3d>{};
   auto faceUVs = std::vector<vm::vec2f>{};
   auto otherFaceUVs = std::vector<vm::vec2f>{};
 
@@ -153,7 +152,7 @@ void checkFaceUVsEqual(const BrushFace& face, const BrushFace& other)
   {
     verts.push_back(vertex->position());
 
-    const auto position = vm::vec3{vertex->position()};
+    const auto position = vm::vec3d{vertex->position()};
     faceUVs.push_back(face.uvCoords(position));
     otherFaceUVs.push_back(other.uvCoords(position));
   }
@@ -179,9 +178,9 @@ void checkBrushUVsEqual(const Brush& brush, const Brush& other)
  * i.e. checks that alignment lock worked.
  */
 void checkAlignmentLockOnWithTransform(
-  const vm::mat4x4& transform, const BrushFace& origFace)
+  const vm::mat4x4d& transform, const BrushFace& origFace)
 {
-  auto verts = std::vector<vm::vec3>{};
+  auto verts = std::vector<vm::vec3d>{};
   auto uvs = std::vector<vm::vec2f>{};
   getFaceVertsAndUVCoords(origFace, &verts, &uvs);
   CHECK(verts.size() >= 3u);
@@ -192,7 +191,7 @@ void checkAlignmentLockOnWithTransform(
   face.resetUVCoordSystemCache();
 
   // transform the verts
-  auto transformedVerts = std::vector<vm::vec3>{};
+  auto transformedVerts = std::vector<vm::vec3d>{};
   for (size_t i = 0; i < verts.size(); i++)
   {
     transformedVerts.push_back(transform * verts[i]);
@@ -218,7 +217,7 @@ void doWithTranslationAnd90DegreeRotations(L&& lambda)
 {
   for (int i = 0; i < (1 << 7); i++)
   {
-    auto xform = vm::mat4x4{};
+    auto xform = vm::mat4x4d{};
 
     const auto translate = (i & (1 << 0)) != 0;
 
@@ -234,7 +233,7 @@ void doWithTranslationAnd90DegreeRotations(L&& lambda)
 
     if (translate)
     {
-      xform = vm::translation_matrix(vm::vec3{100, 100, 100}) * xform;
+      xform = vm::translation_matrix(vm::vec3d{100, 100, 100}) * xform;
     }
 
     // -180 / -90 / 90 degree rotations
@@ -280,7 +279,7 @@ void doMultiAxisRotations(const double degrees, L&& lambda)
 
   for (int i = 0; i < (1 << 3); i++)
   {
-    auto xform = vm::mat4x4{};
+    auto xform = vm::mat4x4d{};
 
     const auto testRoll = (i & (1 << 0)) != 0;
     const auto testPitch = (i & (1 << 1)) != 0;
@@ -304,7 +303,7 @@ void doMultiAxisRotations(const double degrees, L&& lambda)
 }
 
 /**
- * Runs the given lambda of type `const vm::mat4x4& -> void` with
+ * Runs the given lambda of type `const vm::mat4x4d& -> void` with
  * rotations of the given angle in degrees in +/- pitch, yaw, and roll.
  */
 template <class L>
@@ -314,7 +313,7 @@ void doWithSingleAxisRotations(const double degrees, L&& lambda)
 
   for (int i = 0; i < 6; i++)
   {
-    auto xform = vm::mat4x4{};
+    auto xform = vm::mat4x4d{};
 
     switch (i)
     {
@@ -344,12 +343,12 @@ void doWithSingleAxisRotations(const double degrees, L&& lambda)
 
 void checkAlignmentLockOffWithTranslation(const BrushFace& origFace)
 {
-  const auto xform = vm::translation_matrix(vm::vec3(100.0, 100.0, 100.0));
+  const auto xform = vm::translation_matrix(vm::vec3d(100.0, 100.0, 100.0));
   checkAlignmentLockOffWithTransform(xform, origFace);
 }
 
 template <class L>
-void doWithScale(const vm::vec3& scaleFactors, L&& lambda)
+void doWithScale(const vm::vec3d& scaleFactors, L&& lambda)
 {
   const auto xform = vm::scaling_matrix(scaleFactors);
   lambda(xform);
@@ -380,13 +379,13 @@ void doWithAlignmentLockTestTransforms(const bool doParallelTests, L&& lambda)
     doWithShear(lambda);
   }
 
-  doWithScale(vm::vec3{2, 2, 1}, lambda);
-  doWithScale(vm::vec3{2, 2, -1}, lambda);
+  doWithScale(vm::vec3d{2, 2, 1}, lambda);
+  doWithScale(vm::vec3d{2, 2, -1}, lambda);
 }
 
 void checkAlignmentLockForFace(const BrushFace& origFace, const bool doParallelTests)
 {
-  doWithAlignmentLockTestTransforms(doParallelTests, [&](const vm::mat4x4& xform) {
+  doWithAlignmentLockTestTransforms(doParallelTests, [&](const vm::mat4x4d& xform) {
     checkAlignmentLockOnWithTransform(xform, origFace);
   });
 
@@ -400,7 +399,7 @@ void checkAlignmentLockForFace(const BrushFace& origFace, const bool doParallelT
 void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
 {
   const auto transform = vm::mirror_matrix<double>(vm::axis::z);
-  const auto origFaceIndex = cube.findFace(vm::vec3{1, 0, 0});
+  const auto origFaceIndex = cube.findFace(vm::vec3d{1, 0, 0});
   REQUIRE(origFaceIndex);
   const auto& origFace = cube.face(*origFaceIndex);
 
@@ -425,14 +424,14 @@ void checkAlignmentLockOffWithVerticalFlip(const Brush& cube)
 
 void checkAlignmentLockOffWithScale(const Brush& cube)
 {
-  const vm::vec3 mins(cube.bounds().min);
+  const vm::vec3d mins(cube.bounds().min);
 
   // translate the cube mins to the origin, scale by 2 in the X axis, then translate
   // back
-  const vm::mat4x4 transform = vm::translation_matrix(mins)
-                               * vm::scaling_matrix(vm::vec3{2, 1, 1})
-                               * vm::translation_matrix(-1.0 * mins);
-  const auto origFaceIndex = cube.findFace(vm::vec3{0, -1, 0});
+  const vm::mat4x4d transform = vm::translation_matrix(mins)
+                                * vm::scaling_matrix(vm::vec3d{2, 1, 1})
+                                * vm::translation_matrix(-1.0 * mins);
+  const auto origFaceIndex = cube.findFace(vm::vec3d{0, -1, 0});
   REQUIRE(origFaceIndex);
   const auto& origFace = cube.face(*origFaceIndex);
 
@@ -448,9 +447,9 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
 
   // get UVs at mins, plus the X size of the cube
   const auto right_origTC =
-    origFace.uvCoords(mins + vm::vec3{cube.bounds().size().x(), 0, 0});
+    origFace.uvCoords(mins + vm::vec3d{cube.bounds().size().x(), 0, 0});
   const auto right_transformedTC =
-    face.uvCoords(mins + vm::vec3{2.0 * cube.bounds().size().x(), 0, 0});
+    face.uvCoords(mins + vm::vec3d{2.0 * cube.bounds().size().x(), 0, 0});
 
   // this assumes that the U axis of the material was scaled (i.e. the material is
   // oriented upright)
@@ -465,9 +464,9 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
 
 TEST_CASE("BrushFaceTest.constructWithValidPoints")
 {
-  const auto p0 = vm::vec3{0, 0, 4};
-  const auto p1 = vm::vec3{1, 0, 4};
-  const auto p2 = vm::vec3{0, -1, 4};
+  const auto p0 = vm::vec3d{0, 0, 4};
+  const auto p1 = vm::vec3d{1, 0, 4};
+  const auto p2 = vm::vec3d{0, -1, 4};
 
   const auto attribs = BrushFaceAttributes{""};
   auto face =
@@ -477,15 +476,15 @@ TEST_CASE("BrushFaceTest.constructWithValidPoints")
   CHECK(face.points()[0] == vm::approx{p0});
   CHECK(face.points()[1] == vm::approx{p1});
   CHECK(face.points()[2] == vm::approx{p2});
-  CHECK(face.boundary().normal == vm::approx{vm::vec3{0, 0, 1}});
+  CHECK(face.boundary().normal == vm::approx{vm::vec3d{0, 0, 1}});
   CHECK(face.boundary().distance == 4.0);
 }
 
 TEST_CASE("BrushFaceTest.constructWithColinearPoints")
 {
-  const auto p0 = vm::vec3{0, 0, 4};
-  const auto p1 = vm::vec3{1, 0, 4};
-  const auto p2 = vm::vec3{2, 0, 4};
+  const auto p0 = vm::vec3d{0, 0, 4};
+  const auto p1 = vm::vec3d{1, 0, 4};
+  const auto p2 = vm::vec3d{2, 0, 4};
 
   const auto attribs = BrushFaceAttributes{""};
   CHECK_FALSE(
@@ -496,9 +495,9 @@ TEST_CASE("BrushFaceTest.constructWithColinearPoints")
 
 TEST_CASE("BrushFaceTest.materialUsageCount")
 {
-  const auto p0 = vm::vec3{0, 0, 4};
-  const auto p1 = vm::vec3{1, 0, 4};
-  const auto p2 = vm::vec3{0, -1, 4};
+  const auto p0 = vm::vec3d{0, 0, 4};
+  const auto p1 = vm::vec3d{1, 0, 4};
+  const auto p2 = vm::vec3d{0, -1, 4};
   auto material =
     Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
   auto material2 =
@@ -546,11 +545,11 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
 
 TEST_CASE("BrushFaceTest.projectedArea")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
   auto brush = builder.createCuboid(
-                 vm::bbox3(vm::vec3{-64, -64, -64}, vm::vec3{64, 64, 64}), "material")
+                 vm::bbox3d(vm::vec3d{-64, -64, -64}, vm::vec3d{64, 64, 64}), "material")
                | kdl::value();
   REQUIRE(
     brush
@@ -569,7 +568,7 @@ TEST_CASE("BrushFaceTest.projectedArea")
 
 TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   Assets::Material material(
     "testMaterial", createTextureResource(Assets::Texture{64, 64}));
 
@@ -580,9 +579,9 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
   // This face's UV normal is in the same direction as the face normal
   const auto uvNormal = vm::normalize(vm::cross(face.uAxis(), face.vAxis()));
 
-  const auto rot45 = vm::quat3{uvNormal, vm::to_radians(45.0)};
-  const auto newXAxis = vm::vec3{rot45 * face.uAxis()};
-  const auto newYAxis = vm::vec3{rot45 * face.vAxis()};
+  const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
+  const auto newXAxis = vm::vec3d{rot45 * face.uAxis()};
+  const auto newYAxis = vm::vec3d{rot45 * face.vAxis()};
 
   auto attributes = face.attributes();
   attributes.setRotation(-45.0f);
@@ -594,7 +593,7 @@ TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 
 TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   auto material =
     Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
 
@@ -613,7 +612,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
 
 TEST_CASE("BrushFaceTest.testAlignmentLock_Parallel")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   auto material =
     Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
 
@@ -647,7 +646,7 @@ TEST_CASE("BrushFaceTest.testValveRotation")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
   auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
@@ -660,7 +659,7 @@ TEST_CASE("BrushFaceTest.testValveRotation")
   BrushFace* negXFace = nullptr;
   for (auto& face : brush.faces())
   {
-    if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3{-1, 0, 0})
+    if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{-1, 0, 0})
     {
       REQUIRE(negXFace == nullptr);
       negXFace = &face;
@@ -668,16 +667,16 @@ TEST_CASE("BrushFaceTest.testValveRotation")
   }
   REQUIRE(negXFace != nullptr);
 
-  CHECK(negXFace->uAxis() == vm::vec3{0, 1, 0});
-  CHECK(negXFace->vAxis() == vm::vec3{0, 0, -1});
+  CHECK(negXFace->uAxis() == vm::vec3d{0, 1, 0});
+  CHECK(negXFace->vAxis() == vm::vec3d{0, 0, -1});
 
   // This face's UV normal is in the same direction as the face normal
   const auto uvNormal = vm::normalize(vm::cross(negXFace->uAxis(), negXFace->vAxis()));
-  CHECK(vm::dot(uvNormal, vm::vec3{negXFace->boundary().normal}) > 0.0);
+  CHECK(vm::dot(uvNormal, vm::vec3d{negXFace->boundary().normal}) > 0.0);
 
-  const auto rot45 = vm::quat3{uvNormal, vm::to_radians(45.0)};
-  const auto newXAxis = vm::vec3{rot45 * negXFace->uAxis()};
-  const auto newYAxis = vm::vec3{rot45 * negXFace->vAxis()};
+  const auto rot45 = vm::quatd{uvNormal, vm::to_radians(45.0)};
+  const auto newXAxis = vm::vec3d{rot45 * negXFace->uAxis()};
+  const auto newYAxis = vm::vec3d{rot45 * negXFace->vAxis()};
 
   // Rotate by 45 degrees CCW
   CHECK(negXFace->attributes().rotation() == vm::approx{0.0f});
@@ -707,7 +706,7 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -722,12 +721,12 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
   BrushFace* posXFace = nullptr;
   for (auto& face : brush.faces())
   {
-    if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3{0, -1, 0})
+    if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{0, -1, 0})
     {
       REQUIRE(negYFace == nullptr);
       negYFace = &face;
     }
-    else if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3{1, 0, 0})
+    else if (vm::get_abs_max_component_axis(face.boundary().normal) == vm::vec3d{1, 0, 0})
     {
       REQUIRE(posXFace == nullptr);
       posXFace = &face;
@@ -736,8 +735,8 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
   REQUIRE(negYFace != nullptr);
   REQUIRE(posXFace != nullptr);
 
-  CHECK(negYFace->uAxis() == vm::vec3{1, 0, 0});
-  CHECK(negYFace->vAxis() == vm::vec3{0, 0, -1});
+  CHECK(negYFace->uAxis() == vm::vec3d{1, 0, 0});
+  CHECK(negYFace->vAxis() == vm::vec3d{0, 0, -1});
 
   auto snapshot = negYFace->takeUVCoordSystemSnapshot();
 
@@ -747,17 +746,17 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
   CHECK(
     posXFace->uAxis()
     == vm::approx{
-      vm::vec3{0.030303030303030123, 0.96969696969696961, -0.24242424242424243}});
+      vm::vec3d{0.030303030303030123, 0.96969696969696961, -0.24242424242424243}});
   CHECK(
     posXFace->vAxis()
     == vm::approx{
-      vm::vec3{-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011}});
+      vm::vec3d{-0.0037296037296037088, -0.24242424242424243, -0.97016317016317011}});
 
   // copy texturing from the negYFace to posXFace using the projection method
   posXFace->copyUVCoordSystemFromFace(
     *snapshot, negYFace->attributes(), negYFace->boundary(), WrapStyle::Projection);
-  CHECK(posXFace->uAxis() == vm::approx{vm::vec3{0, -1, 0}});
-  CHECK(posXFace->vAxis() == vm::approx{vm::vec3{0, 0, -1}});
+  CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
+  CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
   kdl::vec_clear_and_delete(nodes);
 }
@@ -780,7 +779,7 @@ TEST_CASE("BrushFaceTest.move45DegreeFace")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -792,14 +791,14 @@ TEST_CASE("BrushFaceTest.move45DegreeFace")
 
   // find the face
   const auto angledFaceIndex =
-    brush.findFace(vm::vec3{-0.70710678118654746, 0.70710678118654746, 0});
+    brush.findFace(vm::vec3d{-0.70710678118654746, 0.70710678118654746, 0});
   REQUIRE(angledFaceIndex);
 
   CHECK(brush
           .moveBoundary(
             worldBounds,
             *angledFaceIndex,
-            vm::vec3{-7.9999999999999973, 7.9999999999999973, 0},
+            vm::vec3d{-7.9999999999999973, 7.9999999999999973, 0},
             true)
           .is_success());
 
@@ -808,7 +807,7 @@ TEST_CASE("BrushFaceTest.move45DegreeFace")
 
 TEST_CASE("BrushFaceTest.formatConversion")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto standardBuilder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto valveBuilder = BrushBuilder{MapFormat::Valve, worldBounds};
@@ -869,7 +868,7 @@ TEST_CASE("BrushFaceTest.flipUV")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -878,13 +877,13 @@ TEST_CASE("BrushFaceTest.flipUV")
   REQUIRE(brushNode != nullptr);
 
   auto brush = brushNode->brush();
-  auto& face = brush.face(*brush.findFace(vm::vec3{0, 0, 1}));
+  auto& face = brush.face(*brush.findFace(vm::vec3d{0, 0, 1}));
   CHECK(face.attributes().scale() == vm::vec2f{1, 1});
 
   SECTION("Default camera angle")
   {
-    const auto cameraUp = vm::vec3{0.284427, 0.455084, 0.843801};
-    const auto cameraRight = vm::vec3{0.847998, -0.529999, 0};
+    const auto cameraUp = vm::vec3d{0.284427, 0.455084, 0.843801};
+    const auto cameraRight = vm::vec3d{0.847998, -0.529999, 0};
 
     SECTION("Left flip")
     {
@@ -901,8 +900,8 @@ TEST_CASE("BrushFaceTest.flipUV")
 
   SECTION("Camera is aimed at +x")
   {
-    const auto cameraUp = vm::vec3{0.419431, -0.087374, 0.903585};
-    const auto cameraRight = vm::vec3{-0.203938, -0.978984, 0};
+    const auto cameraUp = vm::vec3d{0.419431, -0.087374, 0.903585};
+    const auto cameraRight = vm::vec3d{-0.203938, -0.978984, 0};
 
     SECTION("left arrow (does vertical flip)")
     {

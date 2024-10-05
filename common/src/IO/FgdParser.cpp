@@ -966,9 +966,9 @@ std::optional<std::string> FgdParser::parseDefaultChoiceValue(ParserStatus& stat
   return std::nullopt;
 }
 
-vm::vec3 FgdParser::parseVector(ParserStatus& status)
+vm::vec3d FgdParser::parseVector(ParserStatus& status)
 {
-  auto vec = vm::vec3{};
+  auto vec = vm::vec3d{};
   for (size_t i = 0; i < 3; i++)
   {
     auto token =
@@ -978,9 +978,9 @@ vm::vec3 FgdParser::parseVector(ParserStatus& status)
   return vec;
 }
 
-vm::bbox3 FgdParser::parseSize(ParserStatus& status)
+vm::bbox3d FgdParser::parseSize(ParserStatus& status)
 {
-  auto size = vm::bbox3{};
+  auto size = vm::bbox3d{};
   expect(status, FgdToken::OParenthesis, m_tokenizer.nextToken());
   size.min = parseVector(status);
 

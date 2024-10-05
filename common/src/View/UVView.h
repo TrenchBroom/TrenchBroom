@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
 #include "NotifierConnection.h"
@@ -126,7 +125,7 @@ public: // implement InputEventProcessor interface
 
 private:
   PickRequest pickRequest(float x, float y) const override;
-  Model::PickResult pick(const vm::ray3& pickRay) const override;
+  Model::PickResult pick(const vm::ray3d& pickRay) const override;
 };
 
 } // namespace TrenchBroom::View

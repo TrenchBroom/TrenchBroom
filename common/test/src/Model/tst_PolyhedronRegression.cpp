@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron_DefaultPayload.h"
 #include "Model/Polyhedron_Instantiation.h"
@@ -46,7 +45,7 @@ using EdgeInfoList = std::vector<EdgeInfo>;
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-64.0, -45.5049, -34.4752),
     vm::vec3d(-64.0, -43.6929, -48.0),
     vm::vec3d(-64.0, 20.753, -34.4752),
@@ -63,7 +62,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-64.0, 48.7375, -34.4752),
     vm::vec3d(-64.0, 64.0, -48.0),
     vm::vec3d(-64.0, 64.0, -34.4752),
@@ -84,7 +83,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints2")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-64, -64, -48),
     vm::vec3d(-64, 22.5637, -48),
     vm::vec3d(-64, 64, -48),
@@ -100,7 +99,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints3")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-64, 64, -48),
     vm::vec3d(-43.5959, -39.1918, -46.2555),
     vm::vec3d(-40.5744, -38.257, -48),
@@ -123,7 +122,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints4")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-64, -64, -64),
     vm::vec3d(-64, -64, 64),
     vm::vec3d(-64, -32, 64),
@@ -142,7 +141,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints5")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-32, -16, -32),
     vm::vec3d(-32, 16, -32),
     vm::vec3d(-32, 16, -0),
@@ -159,7 +158,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints6")
 
 TEST_CASE("PolyhedronTest.convexHullWithFailingPoints7")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(12.8616, -36.5751, 32),
     vm::vec3d(57.9411, -22.6274, 5.9733),
     vm::vec3d(64, -64, 2.47521),
@@ -179,7 +178,7 @@ TEST_CASE("PolyhedronTest.convexHullWithFailingPoints8")
   // Cause of https://github.com/TrenchBroom/TrenchBroom/issues/1469
   // See also BrushTest.subtractTruncatedCones
 
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(-22.364439661516872, 9.2636542228362799, 32),
     vm::vec3d(-21.333333333333332, 11.049582771255995, 32),
     vm::vec3d(-20.235886048009661, 12.95041722806517, 32),
@@ -364,7 +363,7 @@ TEST_CASE("PolyhedronTest.testAddManyPointsCrash")
 
 TEST_CASE("PolyhedronTest.testAdd8PointsCrash")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     // a horizontal rectangle
     vm::vec3d(0, 0, 0),
     vm::vec3d(0, 32, 0),
@@ -384,7 +383,7 @@ TEST_CASE("PolyhedronTest.testAdd8PointsCrash")
 
 TEST_CASE("PolyhedronTest.crashWhileAddingPoints1")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(224, 336, 0),
     vm::vec3d(272, 320, 0),
     vm::vec3d(-96, 352, 128),
@@ -440,7 +439,7 @@ TEST_CASE("PolyhedronTest.crashWhileAddingPoints2")
 
 TEST_CASE("PolyhedronTest.crashWhileAddingPoints3")
 {
-  const auto vertices = std::vector<vm::vec3>({
+  const auto vertices = std::vector<vm::vec3d>({
     vm::vec3d(256, 39, 160),
     vm::vec3d(256, 0, 160),
     vm::vec3d(256, 0, 64),
@@ -625,22 +624,22 @@ TEST_CASE("PolyhedronTest.subtractTetrahedronFromCubeWithOverlappingFragments")
 TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar")
 {
   auto p = Polyhedron3d{
-    vm::vec3{-64.0, 64.0, -16.0},
-    vm::vec3{64.0, 64.0, -16.0},
-    vm::vec3{22288.0, 18208.0, 16.0},
-    vm::vec3{
+    vm::vec3d{-64.0, 64.0, -16.0},
+    vm::vec3d{64.0, 64.0, -16.0},
+    vm::vec3d{22288.0, 18208.0, 16.0},
+    vm::vec3d{
       22288.0,
       18336.0,
       16.0}, // does not get added due to all incident faces being coplanar
-    vm::vec3{22416.0, 18336.0, 16.0},
+    vm::vec3d{22416.0, 18336.0, 16.0},
   };
 
   CHECK(p.hasAllVertices(
     {
-      vm::vec3{-64.0, 64.0, -16.0},
-      vm::vec3{64.0, 64.0, -16.0},
-      vm::vec3{22288.0, 18208.0, 16.0},
-      vm::vec3{22416.0, 18336.0, 16.0},
+      vm::vec3d{-64.0, 64.0, -16.0},
+      vm::vec3d{64.0, 64.0, -16.0},
+      vm::vec3d{22288.0, 18208.0, 16.0},
+      vm::vec3d{22416.0, 18336.0, 16.0},
     },
     0.0));
 }

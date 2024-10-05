@@ -24,7 +24,6 @@
 #include "EL/Expression.h"
 #include "EL/Value.h"
 #include "Exceptions.h"
-#include "FloatType.h"
 #include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagAttribute.h"
@@ -117,7 +116,7 @@ std::vector<Model::CompilationTool> parseCompilationTools(
   return result;
 }
 
-std::optional<vm::bbox3> parseSoftMapBounds(
+std::optional<vm::bbox3d> parseSoftMapBounds(
   const EL::Value& value, const EL::EvaluationTrace& trace)
 {
   if (value == EL::Value::Null)
@@ -694,16 +693,16 @@ Model::GameConfig GameConfigParser::parse()
   };
 }
 
-std::optional<vm::bbox3> parseSoftMapBoundsString(const std::string& string)
+std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string)
 {
   if (const auto v = vm::parse<double, 6u>(string))
   {
-    return vm::bbox3{{(*v)[0], (*v)[1], (*v)[2]}, {(*v)[3], (*v)[4], (*v)[5]}};
+    return vm::bbox3d{{(*v)[0], (*v)[1], (*v)[2]}, {(*v)[3], (*v)[4], (*v)[5]}};
   }
   return std::nullopt;
 }
 
-std::string serializeSoftMapBoundsString(const vm::bbox3& bounds)
+std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds)
 {
   auto result = std::stringstream{};
   result << bounds.min << " " << bounds.max;

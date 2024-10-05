@@ -66,7 +66,8 @@ public:
 
   ClipTool& tool() const { return m_tool; }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> addClipPoint(const InputState& inputState)
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> addClipPoint(
+    const InputState& inputState)
   {
     const auto positionAndHitPoint = doGetNewClipPointPositionAndHitPoint(inputState);
     if (!positionAndHitPoint)
@@ -101,10 +102,10 @@ public:
 
   virtual HandlePositionProposer makeHandlePositionProposer(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) const = 0;
-  virtual std::vector<vm::vec3> getHelpVectors(
-    const InputState& inputState, const vm::vec3& clipPoint) const = 0;
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) const = 0;
+  virtual std::vector<vm::vec3d> getHelpVectors(
+    const InputState& inputState, const vm::vec3d& clipPoint) const = 0;
 
   void renderFeedback(
     const InputState& inputState,
@@ -130,7 +131,7 @@ public:
   }
 
 private:
-  virtual std::optional<std::tuple<vm::vec3, vm::vec3>>
+  virtual std::optional<std::tuple<vm::vec3d, vm::vec3d>>
   doGetNewClipPointPositionAndHitPoint(const InputState& inputState) const = 0;
 };
 
@@ -144,32 +145,32 @@ public:
 
   HandlePositionProposer makeHandlePositionProposer(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) const override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) const override
   {
     return View::makeHandlePositionProposer(
       makePlaneHandlePicker(
-        vm::plane3{initialHandlePosition, vm::vec3{inputState.camera().direction()}},
+        vm::plane3d{initialHandlePosition, vm::vec3d{inputState.camera().direction()}},
         handleOffset),
       makeAbsoluteHandleSnapper(m_tool.grid()));
   }
 
-  std::vector<vm::vec3> getHelpVectors(
-    const InputState& inputState, const vm::vec3& /* clipPoint */) const override
+  std::vector<vm::vec3d> getHelpVectors(
+    const InputState& inputState, const vm::vec3d& /* clipPoint */) const override
   {
-    return std::vector{vm::vec3{inputState.camera().direction()}};
+    return std::vector{vm::vec3d{inputState.camera().direction()}};
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const override
   {
     const auto& camera = inputState.camera();
-    const auto viewDir = vm::get_abs_max_component_axis(vm::vec3(camera.direction()));
+    const auto viewDir = vm::get_abs_max_component_axis(vm::vec3d(camera.direction()));
 
     const auto& pickRay = inputState.pickRay();
     const auto defaultPos = m_tool.defaultClipPointPos();
     return kdl::optional_transform(
-      vm::intersect_ray_plane(pickRay, vm::plane3{defaultPos, viewDir}),
+      vm::intersect_ray_plane(pickRay, vm::plane3d{defaultPos, viewDir}),
       [&](const auto distance) {
         const auto hitPoint = vm::point_at_distance(pickRay, distance);
         const auto position = m_tool.grid().snap(hitPoint);
@@ -181,12 +182,12 @@ public:
 std::vector<const Model::BrushFace*> selectIncidentFaces(
   const Model::BrushNode* brushNode,
   const Model::BrushFace& face,
-  const vm::vec3& hitPoint)
+  const vm::vec3d& hitPoint)
 {
-  static const auto MaxDistance = vm::constants<FloatType>::almost_zero();
+  static const auto MaxDistance = vm::constants<double>::almost_zero();
 
   // First, try to see if the clip point is almost equal to a vertex:
-  FloatType closestVertexDistance = MaxDistance;
+  double closestVertexDistance = MaxDistance;
   const Model::BrushVertex* closestVertex = nullptr;
   for (const auto* vertex : face.vertices())
   {
@@ -205,7 +206,7 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
   }
 
   // Next, try the edges:
-  FloatType closestEdgeDistance = MaxDistance;
+  double closestEdgeDistance = MaxDistance;
   const Model::BrushEdge* closestEdge = nullptr;
   for (const auto* edge : face.edges())
   {
@@ -233,16 +234,16 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
   return {&face};
 }
 
-std::vector<vm::vec3> selectHelpVectors(
+std::vector<vm::vec3d> selectHelpVectors(
   const Model::BrushNode* brushNode,
   const Model::BrushFace& face,
-  const vm::vec3& hitPoint)
+  const vm::vec3d& hitPoint)
 {
-  auto result = std::vector<vm::vec3>{};
+  auto result = std::vector<vm::vec3d>{};
   for (const Model::BrushFace* incidentFace :
        selectIncidentFaces(brushNode, face, hitPoint))
   {
-    const vm::vec3& normal = incidentFace->boundary().normal;
+    const vm::vec3d& normal = incidentFace->boundary().normal;
     result.push_back(vm::get_abs_max_component_axis(normal));
   }
 
@@ -259,14 +260,14 @@ public:
 
   HandlePositionProposer makeHandlePositionProposer(
     const InputState&,
-    const vm::vec3& /* initialHandlePosition */,
-    const vm::vec3& /* handleOffset */) const override
+    const vm::vec3d& /* initialHandlePosition */,
+    const vm::vec3d& /* handleOffset */) const override
   {
     return makeBrushFaceHandleProposer(m_tool.grid());
   }
 
-  std::vector<vm::vec3> getHelpVectors(
-    const InputState& inputState, const vm::vec3& clipPoint) const override
+  std::vector<vm::vec3d> getHelpVectors(
+    const InputState& inputState, const vm::vec3d& clipPoint) const override
   {
     using namespace Model::HitFilters;
 
@@ -282,7 +283,7 @@ public:
     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> doGetNewClipPointPositionAndHitPoint(
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const override
   {
     using namespace Model::HitFilters;
@@ -327,8 +328,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     return m_delegate.makeHandlePositionProposer(
       inputState, initialHandlePosition, handleOffset);
@@ -337,7 +338,7 @@ public:
   DragStatus update(
     const InputState& inputState,
     const DragState&,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     if (!m_secondPointSet)
     {
@@ -459,8 +460,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     return m_delegate.makeHandlePositionProposer(
       inputState, initialHandlePosition, handleOffset);
@@ -469,7 +470,7 @@ public:
   DragStatus update(
     const InputState& inputState,
     const DragState&,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     if (m_delegate.tool().dragPoint(
           proposedHandlePosition,

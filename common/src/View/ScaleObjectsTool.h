@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
@@ -58,9 +57,9 @@ class ScaleObjectsToolPage;
 class BBoxSide
 {
 public:
-  vm::vec3 normal;
+  vm::vec3d normal;
 
-  explicit BBoxSide(const vm::vec3& n);
+  explicit BBoxSide(const vm::vec3d& n);
 
   kdl_reflect_decl(BBoxSide, normal);
 };
@@ -72,9 +71,9 @@ public:
 class BBoxCorner
 {
 public:
-  vm::vec3 corner;
+  vm::vec3d corner;
 
-  explicit BBoxCorner(const vm::vec3& c);
+  explicit BBoxCorner(const vm::vec3d& c);
 
   kdl_reflect_decl(BBoxCorner, corner);
 };
@@ -86,10 +85,10 @@ public:
 class BBoxEdge
 {
 public:
-  vm::vec3 point0;
-  vm::vec3 point1;
+  vm::vec3d point0;
+  vm::vec3d point1;
 
-  explicit BBoxEdge(const vm::vec3& p0, const vm::vec3& p1);
+  explicit BBoxEdge(const vm::vec3d& p0, const vm::vec3d& p1);
 
   kdl_reflect_decl(BBoxEdge, point0, point1);
 };
@@ -125,13 +124,13 @@ public:
 std::vector<BBoxSide> allSides();
 std::vector<BBoxEdge> allEdges();
 std::vector<BBoxCorner> allCorners();
-vm::vec3 pointForBBoxCorner(const vm::bbox3& box, const BBoxCorner& corner);
+vm::vec3d pointForBBoxCorner(const vm::bbox3d& box, const BBoxCorner& corner);
 BBoxSide oppositeSide(const BBoxSide& side);
 BBoxCorner oppositeCorner(const BBoxCorner& corner);
 BBoxEdge oppositeEdge(const BBoxEdge& edge);
-vm::segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge);
-vm::polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
-vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
+vm::segment3d pointsForBBoxEdge(const vm::bbox3d& box, const BBoxEdge& edge);
+vm::polygon3d polygonForBBoxSide(const vm::bbox3d& box, const BBoxSide& side);
+vm::vec3d centerForBBoxSide(const vm::bbox3d& box, const BBoxSide& side);
 
 /**
  * Computes a new bbox after moving the given side by the given delta.
@@ -143,10 +142,10 @@ vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side);
  * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
  * because the specified delta either collapses the bbox, or inverts it.
  */
-vm::bbox3 moveBBoxSide(
-  const vm::bbox3& in,
+vm::bbox3d moveBBoxSide(
+  const vm::bbox3d& in,
   const BBoxSide& side,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   AnchorPos anchor);
 
@@ -158,8 +157,11 @@ vm::bbox3 moveBBoxSide(
  * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
  * because the specified delta either collapses the bbox, or inverts it.
  */
-vm::bbox3 moveBBoxCorner(
-  const vm::bbox3& in, const BBoxCorner& corner, const vm::vec3& delta, AnchorPos anchor);
+vm::bbox3d moveBBoxCorner(
+  const vm::bbox3d& in,
+  const BBoxCorner& corner,
+  const vm::vec3d& delta,
+  AnchorPos anchor);
 
 /**
  * Computes a new bbox after moving the specified edge by the specified delta.
@@ -170,10 +172,10 @@ vm::bbox3 moveBBoxCorner(
  * Returns BBox3(Vec3::Null, Vec3::Null) if the move could not be completed
  * because the specified delta either collapses the bbox, or inverts it.
  */
-vm::bbox3 moveBBoxEdge(
-  const vm::bbox3& in,
+vm::bbox3d moveBBoxEdge(
+  const vm::bbox3d& in,
   const BBoxEdge& edge,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   AnchorPos anchor);
 
@@ -183,7 +185,7 @@ vm::bbox3 moveBBoxEdge(
  *
  * Only looks at the hit type (corner/edge/side), and which particular corner/edge/side.
  */
-vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit);
+vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit& hit);
 
 /**
  * Wrapper around moveBBoxSide/moveBBoxEdge/moveBBoxCorner.
@@ -191,17 +193,17 @@ vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& h
  * Looks in the `dragStartHit` and calls the appropriate move function based on whether a
  * side, edge, or corner handle was grabbed.
  */
-vm::bbox3 moveBBoxForHit(
-  const vm::bbox3& bboxAtDragStart,
+vm::bbox3d moveBBoxForHit(
+  const vm::bbox3d& bboxAtDragStart,
   const Model::Hit& dragStartHit,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   AnchorPos anchor);
 
 struct BackSide
 {
-  FloatType distAlongRay;
-  vm::vec3 pickedSideNormal;
+  double distAlongRay;
+  vm::vec3d pickedSideNormal;
 };
 
 /**
@@ -215,7 +217,7 @@ struct BackSide
  * to the selected face, as well as that face's normal.
  */
 BackSide pickBackSideOfBox(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, const vm::bbox3& box);
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, const vm::bbox3d& box);
 
 class ScaleObjectsTool : public Tool
 {
@@ -229,9 +231,9 @@ private:
   ScaleObjectsToolPage* m_toolPage = nullptr;
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
-  vm::bbox3 m_bboxAtDragStart;
+  vm::bbox3d m_bboxAtDragStart;
   Model::Hit m_dragStartHit = Model::Hit::NoHit;
-  vm::vec3 m_dragCumulativeDelta;
+  vm::vec3d m_dragCumulativeDelta;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
@@ -246,20 +248,20 @@ public:
   bool applies() const;
 
   void pickBackSides(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
   void pick2D(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
   void pick3D(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
 
 public:
-  vm::bbox3 bounds() const;
+  vm::bbox3d bounds() const;
 
 public:
   std::vector<vm::polygon3f> polygonsHighlightedByDrag() const;
@@ -280,9 +282,9 @@ public:
    * Returns the bbox at the start of the drag. Only allowed to call while m_resizing is
    * true.
    */
-  vm::bbox3 bboxAtDragStart() const;
+  vm::bbox3d bboxAtDragStart() const;
 
-  std::vector<vm::vec3> cornerHandles() const;
+  std::vector<vm::vec3d> cornerHandles() const;
 
   void updatePickedHandle(const Model::PickResult& pickResult);
 
@@ -294,7 +296,7 @@ public:
 
 public:
   void startScaleWithHit(const Model::Hit& hit);
-  void scaleByDelta(const vm::vec3& delta);
+  void scaleByDelta(const vm::vec3d& delta);
   void commitScale();
   void cancelScale();
 

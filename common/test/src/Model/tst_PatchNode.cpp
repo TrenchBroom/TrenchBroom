@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/EditorContext.h"
 #include "Model/PatchNode.h"
@@ -38,25 +37,25 @@ class approx<TrenchBroom::Model::PatchGrid::Point>
 private:
   using GP = TrenchBroom::Model::PatchGrid::Point;
   const GP m_value;
-  const FloatType m_epsilon;
+  const double m_epsilon;
 
 public:
-  constexpr explicit approx(const GP value, const FloatType epsilon)
+  constexpr explicit approx(const GP value, const double epsilon)
     : m_value{value}
     , m_epsilon{epsilon}
   {
-    assert(epsilon >= FloatType(0));
+    assert(epsilon >= double(0));
   }
   constexpr explicit approx(const GP value)
-    : approx{value, vm::constants<FloatType>::almost_zero()}
+    : approx{value, vm::constants<double>::almost_zero()}
   {
   }
 
   friend constexpr bool operator==(const GP& lhs, const approx<GP>& rhs)
   {
-    return lhs.position == approx<vec3>{rhs.m_value.position, rhs.m_epsilon}
-           && lhs.uvCoords == approx<vec2>{rhs.m_value.uvCoords, rhs.m_epsilon}
-           && lhs.normal == approx<vec3>{rhs.m_value.normal, rhs.m_epsilon};
+    return lhs.position == approx<vec3d>{rhs.m_value.position, rhs.m_epsilon}
+           && lhs.uvCoords == approx<vec2d>{rhs.m_value.uvCoords, rhs.m_epsilon}
+           && lhs.normal == approx<vec3d>{rhs.m_value.normal, rhs.m_epsilon};
   }
 
   friend constexpr bool operator==(const approx<GP>& lhs, const GP& rhs)
@@ -178,16 +177,16 @@ TEST_CASE("PatchNode.pickFlatPatch")
   }, "material"}};
   // clang-format on
 
-  using T = std::tuple<vm::ray3, std::optional<vm::vec3>>;
+  using T = std::tuple<vm::ray3d, std::optional<vm::vec3d>>;
 
   // clang-format off
   const auto 
   [pickRay,                                        expectedHitPoint  ] = GENERATE(values<T>({
-  {vm::ray3{vm::vec3{2, 2,  1}, vm::vec3::neg_z()}, vm::vec3{2, 2, 0}},
-  {vm::ray3{vm::vec3{2, 2, -1}, vm::vec3::pos_z()}, vm::vec3{2, 2, 0}},
-  {vm::ray3{vm::vec3{2, 3,  1}, vm::vec3::neg_z()}, vm::vec3{2, 3, 0}},
-  {vm::ray3{vm::vec3{2, 3,  1}, vm::vec3::pos_z()}, std::nullopt     },
-  {vm::ray3{vm::vec3{0, -1, 1}, vm::vec3::neg_z()}, std::nullopt     },
+  {vm::ray3d{vm::vec3d{2, 2,  1}, vm::vec3d::neg_z()}, vm::vec3d{2, 2, 0}},
+  {vm::ray3d{vm::vec3d{2, 2, -1}, vm::vec3d::pos_z()}, vm::vec3d{2, 2, 0}},
+  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d::neg_z()}, vm::vec3d{2, 3, 0}},
+  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d::pos_z()}, std::nullopt     },
+  {vm::ray3d{vm::vec3d{0, -1, 1}, vm::vec3d::neg_z()}, std::nullopt     },
   }));
   // clang-format on
 

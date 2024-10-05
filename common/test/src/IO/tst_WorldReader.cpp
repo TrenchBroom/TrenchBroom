@@ -54,7 +54,7 @@ using namespace std::string_literals;
 TEST_CASE("WorldReader.parseEmptyMap")
 {
   const auto data = "";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -69,7 +69,7 @@ TEST_CASE("WorldReader.parseEmptyMap")
 TEST_CASE("WorldReader.parseMapWithEmptyEntity")
 {
   const auto data = "{}";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -90,7 +90,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawn")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -125,7 +125,7 @@ TEST_CASE("WorldReader.parseDefaultLayerProperties")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -157,7 +157,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneMoreEntity")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -199,7 +199,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) tex6 0 0 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -217,9 +217,9 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
 
   const auto* face1 = findFaceByPoints(
     faces,
-    vm::vec3{0.0, 0.0, -16.0},
-    vm::vec3{0.0, 0.0, 0.0},
-    vm::vec3{64.0, 0.0, -16.0});
+    vm::vec3d{0.0, 0.0, -16.0},
+    vm::vec3d{0.0, 0.0, 0.0},
+    vm::vec3d{64.0, 0.0, -16.0});
   CHECK(face1 != nullptr);
   CHECK(face1->attributes().materialName() == "tex1");
   CHECK(face1->attributes().xOffset() == 1.0);
@@ -231,37 +231,37 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{0.0, 0.0, -16.0},
-      vm::vec3{0.0, 64.0, -16.0},
-      vm::vec3{0.0, 0.0, 0.0})
+      vm::vec3d{0.0, 0.0, -16.0},
+      vm::vec3d{0.0, 64.0, -16.0},
+      vm::vec3d{0.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{0.0, 0.0, -16.0},
-      vm::vec3{64.0, 0.0, -16.0},
-      vm::vec3{0.0, 64.0, -16.0})
+      vm::vec3d{0.0, 0.0, -16.0},
+      vm::vec3d{64.0, 0.0, -16.0},
+      vm::vec3d{0.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{0.0, 64.0, 0.0},
-      vm::vec3{64.0, 64.0, -16.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{0.0, 64.0, 0.0},
+      vm::vec3d{64.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{64.0, 64.0, -16.0},
-      vm::vec3{64.0, 0.0, 0.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{64.0, 64.0, -16.0},
+      vm::vec3d{64.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{64.0, 0.0, 0.0},
-      vm::vec3{0.0, 64.0, 0.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{64.0, 0.0, 0.0},
+      vm::vec3d{0.0, 64.0, 0.0})
     != nullptr);
 }
 
@@ -279,7 +279,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -297,9 +297,9 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
 
   const auto* face = findFaceByPoints(
     faces,
-    vm::vec3{0.0, 0.0, -16.0},
-    vm::vec3{0.0, 0.0, 0.0},
-    vm::vec3{64.0, 0.0, -16.0});
+    vm::vec3d{0.0, 0.0, -16.0},
+    vm::vec3d{0.0, 0.0, 0.0},
+    vm::vec3d{64.0, 0.0, -16.0});
   CHECK(face != nullptr);
   CHECK(face->attributes().xOffset() == 22.0f);
   CHECK(face->attributes().xOffset() == 22.0f);
@@ -322,7 +322,7 @@ TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
 ( 64 64  -0 ) ( 64 -0  -0 ) ( -0 64  -0 ) none 0 0 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -341,44 +341,44 @@ TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{0.0, 0.0, -16.0},
-      vm::vec3{0.0, 0.0, 0.0},
-      vm::vec3{64.0, 0.0, -16.0})
+      vm::vec3d{0.0, 0.0, -16.0},
+      vm::vec3d{0.0, 0.0, 0.0},
+      vm::vec3d{64.0, 0.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{0.0, 0.0, -16.0},
-      vm::vec3{0.0, 64.0, -16.0},
-      vm::vec3{0.0, 0.0, 0.0})
+      vm::vec3d{0.0, 0.0, -16.0},
+      vm::vec3d{0.0, 64.0, -16.0},
+      vm::vec3d{0.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{0.0, 0.0, -16.0},
-      vm::vec3{64.0, 0.0, -16.0},
-      vm::vec3{0.0, 64.0, -16.0})
+      vm::vec3d{0.0, 0.0, -16.0},
+      vm::vec3d{64.0, 0.0, -16.0},
+      vm::vec3d{0.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{0.0, 64.0, 0.0},
-      vm::vec3{64.0, 64.0, -16.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{0.0, 64.0, 0.0},
+      vm::vec3d{64.0, 64.0, -16.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{64.0, 64.0, -16.0},
-      vm::vec3{64.0, 0.0, 0.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{64.0, 64.0, -16.0},
+      vm::vec3d{64.0, 0.0, 0.0})
     != nullptr);
   CHECK(
     findFaceByPoints(
       faces,
-      vm::vec3{64.0, 64.0, 0.0},
-      vm::vec3{64.0, 0.0, 0.0},
-      vm::vec3{0.0, 64.0, 0.0})
+      vm::vec3d{64.0, 64.0, 0.0},
+      vm::vec3d{64.0, 0.0, 0.0},
+      vm::vec3d{0.0, 64.0, 0.0})
     != nullptr);
 }
 
@@ -396,7 +396,7 @@ TEST_CASE("WorldReader.parseValveBrush")
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) METAL4_5 [ 1 0 0 64 ] [ 0 -1 0 0 ] 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Valve, {}};
@@ -424,7 +424,7 @@ TEST_CASE("WorldReader.parseQuake2Brush")
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -493,7 +493,7 @@ TEST_CASE("WorldReader.parseQuake2ValveBrush")
 ( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) e1u2/basic1_1 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 1 1 0 1 0
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2_Valve, {}};
@@ -523,7 +523,7 @@ TEST_CASE("WorldReader.parseQuake3ValveBrush")
 ( 224 -52 80 ) ( 224 200 80 ) ( 224 -52 -176 ) gothic_block/blocks18c_3 [ -0.625 1 0 44 ] [ 0 0 -1 0 ] 32.6509 0.25 0.25 0 0 0
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake3_Valve, {}};
@@ -551,7 +551,7 @@ TEST_CASE("WorldReader.parseDaikatanaBrush")
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) rtz/c_mf_v3c 16 96 0 1 1 0 0 0
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
@@ -614,7 +614,7 @@ TEST_CASE("WorldReader.parseDaikatanaMapHeader")
 }
 )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
@@ -642,7 +642,7 @@ TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
 ( -896 1056 -416 ) ( -896 1056 -448 ) ( -896 1344 -448 ) c_mf_v3c 16 96 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -692,7 +692,7 @@ TEST_CASE("WorldReader.parseBrushesWithLayer")
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -740,7 +740,7 @@ TEST_CASE("WorldReader.parseLayersWithReverseSort")
 "_tb_layer_hidden" "1"
 "_tb_layer_omit_from_export" "1"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -802,7 +802,7 @@ TEST_CASE("WorldReader.parseLayersWithReversedSortIndicesWithGaps")
 "_tb_id" "3"
 "_tb_layer_sort_index" "1"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -881,7 +881,7 @@ TEST_CASE("WorldReader.parseLayersWithSortIndicesWithGapsAndDuplicates")
 "_tb_id" "6"
 "_tb_layer_sort_index" "12"
 })end";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -977,7 +977,7 @@ TEST_CASE("WorldReader.parseEntitiesAndBrushesWithLayer")
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -1053,7 +1053,7 @@ TEST_CASE("WorldReader.parseEntitiesAndBrushesWithGroup")
 ( -800 224 576 ) ( -736 224 576 ) ( -736 288 576 ) rtz/c_mf_v3c 56 -32 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -1098,7 +1098,7 @@ TEST_CASE("WorldReader.parseLayersAndGroupsAndRetainIds")
 "_tb_id" "22"
 }
 )";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1145,7 +1145,7 @@ TEST_CASE("WorldReader.parseBrushPrimitive")
                 }
             })";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
@@ -1182,7 +1182,7 @@ brushDef
 }
 })";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
@@ -1213,7 +1213,7 @@ common/caulk
 }
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
@@ -1262,7 +1262,7 @@ TEST_CASE("WorldReader.parseMultipleClassnames")
 "classname" "worldspawn"
 })";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
@@ -1277,7 +1277,7 @@ TEST_CASE("WorldReader.parseEscapedDoubleQuotationMarks")
 "classname" "worldspawn"
 "message" "yay \"Mr. Robot!\""
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1300,7 +1300,7 @@ TEST_CASE("WorldReader.parsePropertyWithUnescapedPathAndTrailingBackslash")
 "classname" "worldspawn"
 "path" "c:\a\b\c\"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1323,7 +1323,7 @@ TEST_CASE("WorldReader.parsePropertyWithEscapedPathAndTrailingBackslash")
 "classname" "worldspawn"
 "path" "c:\\a\\b\\c\\"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1346,7 +1346,7 @@ TEST_CASE("WorldReader.parsePropertyTrailingEscapedBackslash")
 "classname" "worldspawn"
 "message" "test\\"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1368,9 +1368,9 @@ TEST_CASE("WorldReader.parsePropertyNewlineEscapeSequence")
   const auto data = R"(
 {
 "classname" "worldspawn"
-"message" "vm::line1\nvm::line2"
+"message" "vm::line1\nvm::line2d"
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1383,7 +1383,7 @@ TEST_CASE("WorldReader.parsePropertyNewlineEscapeSequence")
 
   CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
-  CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2");
+  CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2d");
 }
 
 /*
@@ -1406,7 +1406,7 @@ TEST_CASE("WorldReader.parseIssueIgnoreFlags") {
                       "\"origin\" \"1 22 -3\""
                       "\"angle\" \" -1 \""
                       "}");
-    vm::bbox3 worldBounds(-8192, 8192);
+    vm::bbox3d worldBounds(-8192, 8192);
 
     using namespace testing;
     Model::MockGameSPtr game = Model::MockGame::newGame();
@@ -1443,7 +1443,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   auto status = TestParserStatus{};
   auto worldReader = WorldReader{fileReader.stringView(), Model::MapFormat::Quake2, {}};
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   auto worldNode = worldReader.read(worldBounds, status);
 
   REQUIRE(worldNode != nullptr);
@@ -1456,7 +1456,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   auto* brushNode = dynamic_cast<Model::BrushNode*>(layerNode->children().at(0));
   REQUIRE(brushNode != nullptr);
 
-  CHECK(brushNode->logicalBounds() == vm::bbox3{{-512, -512, -64}, {512, 512, 0}});
+  CHECK(brushNode->logicalBounds() == vm::bbox3d{{-512, -512, -64}, {512, 512, 0}});
   for (const auto& face : brushNode->brush().faces())
   {
     CHECK("general/sand1" == face.attributes().materialName());
@@ -1480,7 +1480,7 @@ TEST_CASE("WorldReader.parseTBEmptyMaterialName")
 }
 })";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1537,7 +1537,7 @@ TEST_CASE("WorldReader.parseQuotedMaterialNames")
 }})",
     materialName);
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1582,7 +1582,7 @@ TEST_CASE("WorldReader.parseLinkedGroups")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1604,10 +1604,10 @@ TEST_CASE("WorldReader.parseLinkedGroups")
 
   CHECK(
     groupNode1->group().transformation()
-    == vm::translation_matrix(vm::vec3{32.0, 0.0, 0.0}));
+    == vm::translation_matrix(vm::vec3d{32.0, 0.0, 0.0}));
   CHECK(
     groupNode2->group().transformation()
-    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
+    == vm::translation_matrix(vm::vec3d{32.0, 16.0, 0.0}));
 }
 
 TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
@@ -1626,7 +1626,7 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1641,7 +1641,7 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
   CHECK(groupNode != nullptr);
   CHECK(groupNode->linkId() == "abcd");
   CHECK(
-    groupNode->group().transformation() == vm::translation_matrix(vm::vec3{32, 0, 0}));
+    groupNode->group().transformation() == vm::translation_matrix(vm::vec3d{32, 0, 0}));
 }
 
 TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
@@ -1675,7 +1675,7 @@ TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1702,10 +1702,10 @@ TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
   CHECK(groupNode1->group().transformation() == vm::mat4x4d::identity());
   CHECK(
     groupNode2->group().transformation()
-    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
+    == vm::translation_matrix(vm::vec3d{32.0, 16.0, 0.0}));
   CHECK(
     groupNode3->group().transformation()
-    == vm::translation_matrix(vm::vec3{32.0, 16.0, 0.0}));
+    == vm::translation_matrix(vm::vec3d{32.0, 16.0, 0.0}));
 }
 
 TEST_CASE("WorldReader.parseGroupWithUnnecessaryTransformation")
@@ -1723,7 +1723,7 @@ TEST_CASE("WorldReader.parseGroupWithUnnecessaryTransformation")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1821,7 +1821,7 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1861,28 +1861,28 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
   CHECK(groupNode_1_abcd->linkId() == "abcd");
   CHECK(
     groupNode_1_abcd->group().transformation()
-    == vm::translation_matrix(vm::vec3{32, 0, 0}));
+    == vm::translation_matrix(vm::vec3d{32, 0, 0}));
   CHECK(groupNode_1_2_abcd->linkId() != "abcd");
-  CHECK(groupNode_1_2_abcd->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_1_2_abcd->group().transformation() == vm::mat4x4d::identity());
 
   CHECK(groupNode_2_xyz->linkId() == "xyz");
   CHECK(
     groupNode_2_xyz->group().transformation()
-    == vm::translation_matrix(vm::vec3{32, 0, 0}));
+    == vm::translation_matrix(vm::vec3d{32, 0, 0}));
   CHECK(groupNode_2_1_xyz->linkId() != "xyz");
-  CHECK(groupNode_2_1_xyz->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_2_1_xyz->group().transformation() == vm::mat4x4d::identity());
   CHECK(groupNode_3_xyz->linkId() == "xyz");
   CHECK(
     groupNode_3_xyz->group().transformation()
-    == vm::translation_matrix(vm::vec3{32, 0, 0}));
+    == vm::translation_matrix(vm::vec3d{32, 0, 0}));
 
   CHECK(groupNode_4_fgh->linkId() == "fgh");
   CHECK(
     groupNode_4_fgh->group().transformation()
-    == vm::translation_matrix(vm::vec3{32, 0, 0}));
-  CHECK(groupNode_4_1->group().transformation() == vm::mat4x4::identity());
+    == vm::translation_matrix(vm::vec3d{32, 0, 0}));
+  CHECK(groupNode_4_1->group().transformation() == vm::mat4x4d::identity());
   CHECK(groupNode_4_1_1_fgh->linkId() != "fgh");
-  CHECK(groupNode_4_1_1_fgh->group().transformation() == vm::mat4x4::identity());
+  CHECK(groupNode_4_1_1_fgh->group().transformation() == vm::mat4x4d::identity());
 }
 
 TEST_CASE("WorldReader.parseProtectedEntityProperties")
@@ -1905,7 +1905,7 @@ TEST_CASE("WorldReader.parseProtectedEntityProperties")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -1956,7 +1956,7 @@ TEST_CASE("WorldReader.parseUnknownFormatEmptyMap")
 }
             )";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
   auto world = WorldReader::tryRead(

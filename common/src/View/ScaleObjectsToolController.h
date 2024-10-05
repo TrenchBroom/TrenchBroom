@@ -72,7 +72,7 @@ private:
 
 private:
   virtual void doPick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const = 0;
 };
@@ -85,7 +85,7 @@ public:
 
 private:
   void doPick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override;
 };
@@ -98,7 +98,7 @@ public:
 
 private:
   void doPick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override;
 };

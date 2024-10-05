@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/UVCoordSystem.h"
 
@@ -34,85 +33,85 @@ class ParaxialUVCoordSystem : public UVCoordSystem
 {
 private:
   size_t m_index = 0;
-  vm::vec3 m_uAxis;
-  vm::vec3 m_vAxis;
+  vm::vec3d m_uAxis;
+  vm::vec3d m_vAxis;
 
 public:
   ParaxialUVCoordSystem(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs);
-  ParaxialUVCoordSystem(const vm::vec3& normal, const BrushFaceAttributes& attribs);
-  ParaxialUVCoordSystem(size_t index, const vm::vec3& uAxis, const vm::vec3& vAxis);
+  ParaxialUVCoordSystem(const vm::vec3d& normal, const BrushFaceAttributes& attribs);
+  ParaxialUVCoordSystem(size_t index, const vm::vec3d& uAxis, const vm::vec3d& vAxis);
 
   static std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> fromParallel(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs,
-    const vm::vec3& uAxis,
-    const vm::vec3& vAxis);
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis);
 
-  static size_t planeNormalIndex(const vm::vec3& normal);
-  static std::tuple<vm::vec3, vm::vec3, vm::vec3> axes(size_t index);
+  static size_t planeNormalIndex(const vm::vec3d& normal);
+  static std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> axes(size_t index);
 
   std::unique_ptr<UVCoordSystem> clone() const override;
   std::unique_ptr<UVCoordSystemSnapshot> takeSnapshot() const override;
   void restoreSnapshot(const UVCoordSystemSnapshot& snapshot) override;
 
-  vm::vec3 uAxis() const override;
-  vm::vec3 vAxis() const override;
-  vm::vec3 normal() const override;
+  vm::vec3d uAxis() const override;
+  vm::vec3d vAxis() const override;
+  vm::vec3d normal() const override;
 
   void resetCache(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) override;
-  void reset(const vm::vec3& normal) override;
-  void resetToParaxial(const vm::vec3& normal, float angle) override;
-  void resetToParallel(const vm::vec3& normal, float angle) override;
+  void reset(const vm::vec3d& normal) override;
+  void resetToParaxial(const vm::vec3d& normal, float angle) override;
+  void resetToParallel(const vm::vec3d& normal, float angle) override;
 
   vm::vec2f uvCoords(
-    const vm::vec3& point,
+    const vm::vec3d& point,
     const BrushFaceAttributes& attribs,
     const vm::vec2f& textureSize) const override;
 
-  void setRotation(const vm::vec3& normal, float oldAngle, float newAngle) override;
+  void setRotation(const vm::vec3d& normal, float oldAngle, float newAngle) override;
   void transform(
-    const vm::plane3& oldBoundary,
-    const vm::plane3& newBoundary,
-    const vm::mat4x4& transformation,
+    const vm::plane3d& oldBoundary,
+    const vm::plane3d& newBoundary,
+    const vm::mat4x4d& transformation,
     BrushFaceAttributes& attribs,
     const vm::vec2f& textureSize,
     bool lockTexture,
-    const vm::vec3& invariant) override;
+    const vm::vec3d& invariant) override;
 
-  void shear(const vm::vec3& normal, const vm::vec2f& factors) override;
+  void shear(const vm::vec3d& normal, const vm::vec2f& factors) override;
 
   float measureAngle(
     float currentAngle, const vm::vec2f& center, const vm::vec2f& point) const override;
 
   std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParallel(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const override;
   std::tuple<std::unique_ptr<UVCoordSystem>, BrushFaceAttributes> toParaxial(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attribs) const override;
 
 private:
-  bool isRotationInverted(const vm::vec3& normal) const override;
+  bool isRotationInverted(const vm::vec3d& normal) const override;
 
   void updateNormalWithProjection(
-    const vm::vec3& newNormal, const BrushFaceAttributes& attribs) override;
+    const vm::vec3d& newNormal, const BrushFaceAttributes& attribs) override;
   void updateNormalWithRotation(
-    const vm::vec3& oldNormal,
-    const vm::vec3& newNormal,
+    const vm::vec3d& oldNormal,
+    const vm::vec3d& newNormal,
     const BrushFaceAttributes& attribs) override;
 
   deleteCopyAndMove(ParaxialUVCoordSystem);

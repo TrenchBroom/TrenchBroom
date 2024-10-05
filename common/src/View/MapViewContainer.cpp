@@ -30,8 +30,8 @@ MapViewContainer::MapViewContainer(QWidget* parent)
 
 MapViewContainer::~MapViewContainer() = default;
 
-vm::vec3 MapViewContainer::pasteObjectsDelta(
-  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
+vm::vec3d MapViewContainer::pasteObjectsDelta(
+  const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
   auto* current = currentMapView();
   ensure(current != nullptr, "current is nullptr");

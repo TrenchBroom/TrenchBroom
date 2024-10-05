@@ -19,10 +19,11 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitType.h"
 #include "NotifierConnection.h"
 #include "View/Tool.h"
+
+#include "vm/forward.h"
 
 #include <map>
 #include <memory>
@@ -92,7 +93,7 @@ public:
   void toggleSide();
 
   void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult);
 
@@ -113,7 +114,7 @@ public:
   void renderFeedback(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& point) const;
+    const vm::vec3d& point) const;
 
 public:
   bool hasBrushes() const;
@@ -124,18 +125,18 @@ private:
   std::map<Model::Node*, std::vector<Model::Node*>> clipBrushes();
 
 public:
-  vm::vec3 defaultClipPointPos() const;
+  vm::vec3d defaultClipPointPos() const;
 
-  bool canAddPoint(const vm::vec3& point) const;
+  bool canAddPoint(const vm::vec3d& point) const;
   bool hasPoints() const;
-  void addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors);
+  void addPoint(const vm::vec3d& point, const std::vector<vm::vec3d>& helpVectors);
   bool canRemoveLastPoint() const;
   bool removeLastPoint();
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> beginDragPoint(
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> beginDragPoint(
     const Model::PickResult& pickResult);
   void beginDragLastPoint();
-  bool dragPoint(const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors);
+  bool dragPoint(const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors);
   void endDragPoint();
   void cancelDragPoint();
 

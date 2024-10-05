@@ -19,7 +19,6 @@
 
 #include "MapView3D.h"
 
-#include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -203,10 +202,10 @@ void MapView3D::resetFlyModeKeys()
 
 PickRequest MapView3D::pickRequest(const float x, const float y) const
 {
-  return {vm::ray3{m_camera->pickRay(x, y)}, *m_camera};
+  return {vm::ray3d{m_camera->pickRay(x, y)}, *m_camera};
 }
 
-Model::PickResult MapView3D::pick(const vm::ray3& pickRay) const
+Model::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
   auto document = kdl::mem_lock(m_document);
   auto pickResult = Model::PickResult::byDistance();
@@ -221,8 +220,8 @@ void MapView3D::updateViewport(
   m_camera->setViewport({x, y, width, height});
 }
 
-vm::vec3 MapView3D::pasteObjectsDelta(
-  const vm::bbox3& bounds, const vm::bbox3& /* referenceBounds */) const
+vm::vec3d MapView3D::pasteObjectsDelta(
+  const vm::bbox3d& bounds, const vm::bbox3d& /* referenceBounds */) const
 {
   using namespace Model::HitFilters;
 
@@ -235,7 +234,7 @@ vm::vec3 MapView3D::pasteObjectsDelta(
   if (QRect{0, 0, width(), height()}.contains(clientCoords))
   {
     const auto pickRay =
-      vm::ray3{m_camera->pickRay(float(clientCoords.x()), float(clientCoords.y()))};
+      vm::ray3d{m_camera->pickRay(float(clientCoords.x()), float(clientCoords.y()))};
     auto pickResult = Model::PickResult::byDistance();
 
     document->pick(pickRay, pickResult);
@@ -249,8 +248,8 @@ vm::vec3 MapView3D::pasteObjectsDelta(
     }
     else
     {
-      const auto point = vm::vec3{grid.snap(m_camera->defaultPoint(pickRay))};
-      const auto targetPlane = vm::plane3{point, -vm::vec3{m_camera->direction()}};
+      const auto point = vm::vec3d{grid.snap(m_camera->defaultPoint(pickRay))};
+      const auto targetPlane = vm::plane3d{point, -vm::vec3d{m_camera->direction()}};
       return grid.moveDeltaForBounds(
         targetPlane, bounds, document->worldBounds(), pickRay);
     }
@@ -259,7 +258,7 @@ vm::vec3 MapView3D::pasteObjectsDelta(
   {
     const auto oldMin = bounds.min;
     const auto oldCenter = bounds.center();
-    const auto newCenter = vm::vec3{m_camera->defaultPoint()};
+    const auto newCenter = vm::vec3d{m_camera->defaultPoint()};
     const auto newMin = oldMin + (newCenter - oldCenter);
     return grid.snap(newMin);
   }
@@ -343,7 +342,7 @@ float computeCameraOffset(
     frustumPlanes[0], frustumPlanes[1], frustumPlanes[2], frustumPlanes[3]);
 
   auto offset = std::numeric_limits<float>::min();
-  const auto handlePoint = [&](const vm::vec3& point, const vm::plane3f& plane) {
+  const auto handlePoint = [&](const vm::vec3d& point, const vm::plane3f& plane) {
     const auto ray = vm::ray3f{camera.position(), -camera.direction()};
     const auto newPlane =
       vm::plane3f{vm::vec3f{point} + 64.0f * plane.normal, plane.normal};
@@ -457,23 +456,24 @@ Renderer::Camera& MapView3D::camera()
   return *m_camera;
 }
 
-vm::vec3 MapView3D::moveDirection(const vm::direction direction) const
+vm::vec3d MapView3D::moveDirection(const vm::direction direction) const
 {
   switch (direction)
   {
   case vm::direction::forward: {
-    const auto plane = vm::plane3{vm::vec3{m_camera->position()}, vm::vec3{0, 0, 1}};
-    const auto projectedDirection = plane.project_vector(vm::vec3{m_camera->direction()});
-    if (vm::is_zero(projectedDirection, vm::C::almost_zero()))
+    const auto plane = vm::plane3d{vm::vec3d{m_camera->position()}, vm::vec3d{0, 0, 1}};
+    const auto projectedDirection =
+      plane.project_vector(vm::vec3d{m_camera->direction()});
+    if (vm::is_zero(projectedDirection, vm::Cd::almost_zero()))
     {
       // camera is looking straight down or up
       if (m_camera->direction().z() < 0.0f)
       {
-        return vm::vec3{vm::get_abs_max_component_axis(m_camera->up())};
+        return vm::vec3d{vm::get_abs_max_component_axis(m_camera->up())};
       }
       else
       {
-        return vm::vec3{-vm::get_abs_max_component_axis(m_camera->up())};
+        return vm::vec3d{-vm::get_abs_max_component_axis(m_camera->up())};
       }
     }
     return vm::get_abs_max_component_axis(projectedDirection);
@@ -483,17 +483,17 @@ vm::vec3 MapView3D::moveDirection(const vm::direction direction) const
   case vm::direction::left:
     return -moveDirection(vm::direction::right);
   case vm::direction::right: {
-    auto dir = vm::vec3(vm::get_abs_max_component_axis(m_camera->right()));
+    auto dir = vm::vec3d(vm::get_abs_max_component_axis(m_camera->right()));
     if (dir == moveDirection(vm::direction::forward))
     {
-      dir = vm::cross(dir, vm::vec3{0, 0, 1});
+      dir = vm::cross(dir, vm::vec3d{0, 0, 1});
     }
     return dir;
   }
   case vm::direction::up:
-    return vm::vec3{0, 0, 1};
+    return vm::vec3d{0, 0, 1};
   case vm::direction::down:
-    return vm::vec3{0, 0, -1};
+    return vm::vec3d{0, 0, -1};
     switchDefault();
   }
 }
@@ -503,7 +503,7 @@ size_t MapView3D::flipAxis(const vm::direction direction) const
   return vm::find_abs_max_component(moveDirection(direction));
 }
 
-vm::vec3 MapView3D::computePointEntityPosition(const vm::bbox3& bounds) const
+vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace Model::HitFilters;
 

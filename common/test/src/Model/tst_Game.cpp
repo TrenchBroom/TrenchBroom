@@ -70,7 +70,7 @@ TEST_CASE("GameTest.newMap")
       std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
     auto game = GameImpl{config, gamePath, logger};
 
-    auto world = game.newMap(mapFormat, vm::bbox3{8192.0}, logger) | kdl::value();
+    auto world = game.newMap(mapFormat, vm::bbox3d{8192.0}, logger) | kdl::value();
     CHECK_THAT(
       world->entity().properties(), Catch::Matchers::UnorderedEquals(expectedProperties));
   }

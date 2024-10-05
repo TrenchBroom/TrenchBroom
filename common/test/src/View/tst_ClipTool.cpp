@@ -65,9 +65,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
     auto tool = ClipTool{document};
     REQUIRE(tool.activate());
 
-    tool.addPoint(vm::vec3{0, 16, 16}, {});
-    tool.addPoint(vm::vec3{0, -16, 16}, {});
-    tool.addPoint(vm::vec3{0, -64, 0}, {});
+    tool.addPoint(vm::vec3d{0, 16, 16}, {});
+    tool.addPoint(vm::vec3d{0, -16, 16}, {});
+    tool.addPoint(vm::vec3d{0, -64, 0}, {});
 
     REQUIRE(tool.canClip());
     tool.toggleSide();

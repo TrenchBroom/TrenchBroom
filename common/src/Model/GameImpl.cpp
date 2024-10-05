@@ -174,7 +174,7 @@ Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
 }
 
 Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
-  const MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const
+  const MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const
 {
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
   if (
@@ -214,7 +214,7 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
 
 Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
   const MapFormat format,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const std::filesystem::path& path,
   Logger& logger) const
 {
@@ -287,7 +287,7 @@ Result<void> GameImpl::exportMap(WorldNode& world, const IO::ExportOptions& opti
 std::vector<Node*> GameImpl::parseNodes(
   const std::string& str,
   const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};
@@ -298,7 +298,7 @@ std::vector<Node*> GameImpl::parseNodes(
 std::vector<BrushFace> GameImpl::parseBrushFaces(
   const std::string& str,
   const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   Logger& logger) const
 {
   auto parserStatus = IO::SimpleParserStatus{logger};

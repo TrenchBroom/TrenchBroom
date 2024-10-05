@@ -43,17 +43,17 @@ void Group::setName(std::string name)
   m_name = std::move(name);
 }
 
-const vm::mat4x4& Group::transformation() const
+const vm::mat4x4d& Group::transformation() const
 {
   return m_transformation;
 }
 
-void Group::setTransformation(const vm::mat4x4& transformation)
+void Group::setTransformation(const vm::mat4x4d& transformation)
 {
   m_transformation = transformation;
 }
 
-void Group::transform(const vm::mat4x4& transformation)
+void Group::transform(const vm::mat4x4d& transformation)
 {
   m_transformation = transformation * m_transformation;
 }

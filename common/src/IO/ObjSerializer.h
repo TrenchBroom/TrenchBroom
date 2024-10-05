@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeSerializer.h"
 
@@ -129,9 +128,9 @@ private:
   std::string m_mtlFilename;
   ObjExportOptions m_options;
 
-  IndexMap<vm::vec3> m_vertices;
+  IndexMap<vm::vec3d> m_vertices;
   IndexMap<vm::vec2f> m_uvCoords;
-  IndexMap<vm::vec3> m_normals;
+  IndexMap<vm::vec3d> m_normals;
 
   std::optional<BrushObject> m_currentBrush;
   std::vector<Object> m_objects;

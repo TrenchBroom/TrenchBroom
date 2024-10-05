@@ -2141,8 +2141,8 @@ void MapFrame::debugCreateBrush()
     &ok);
   if (ok)
   {
-    auto positions = std::vector<vm::vec3>{};
-    vm::parse_all<FloatType, 3>(str.toStdString(), std::back_inserter(positions));
+    auto positions = std::vector<vm::vec3d>{};
+    vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(positions));
     m_document->createBrush(positions);
   }
 }
@@ -2155,7 +2155,7 @@ void MapFrame::debugCreateCube()
   if (ok)
   {
     const auto size = str.toDouble();
-    const auto bounds = vm::bbox3{size / 2.0};
+    const auto bounds = vm::bbox3d{size / 2.0};
     const auto positions = bounds.vertices() | kdl::to_vector;
     m_document->createBrush(positions);
   }
@@ -2173,8 +2173,8 @@ void MapFrame::debugClipBrush()
     &ok);
   if (ok)
   {
-    auto points = std::vector<vm::vec3>{};
-    vm::parse_all<FloatType, 3>(str.toStdString(), std::back_inserter(points));
+    auto points = std::vector<vm::vec3d>{};
+    vm::parse_all<double, 3>(str.toStdString(), std::back_inserter(points));
     if (points.size() == 3)
     {
       m_document->clipBrushes(points[0], points[1], points[2]);

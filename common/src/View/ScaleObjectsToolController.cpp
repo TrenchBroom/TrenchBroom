@@ -78,8 +78,8 @@ static HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const Grid& grid,
   const Model::Hit& dragStartHit,
-  const vm::bbox3& bboxAtDragStart,
-  const vm::vec3& handleOffset)
+  const vm::bbox3d& bboxAtDragStart,
+  const vm::vec3d& handleOffset)
 {
   const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::Shift);
 
@@ -87,9 +87,9 @@ static HandlePositionProposer makeHandlePositionProposer(
     dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
     && inputState.camera().orthographicProjection() && !scaleAllAxes)
   {
-    const auto plane = vm::plane3{
+    const auto plane = vm::plane3d{
       dragStartHit.hitPoint() + handleOffset,
-      vm::vec3{inputState.camera().direction()} * -1.0};
+      vm::vec3d{inputState.camera().direction()} * -1.0};
     return makeHandlePositionProposer(
       makePlaneHandlePicker(plane, handleOffset), makeRelativeHandleSnapper(grid));
   }
@@ -170,8 +170,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& /* initialHandlePosition */,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& /* initialHandlePosition */,
+    const vm::vec3d& handleOffset) override
   {
     // update modifier settings
     const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
@@ -202,7 +202,7 @@ public:
   DragStatus update(
     const InputState&,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     const auto delta = proposedHandlePosition - dragState.currentHandlePosition;
     m_tool.scaleByDelta(delta);
@@ -221,8 +221,8 @@ public:
 };
 } // namespace
 
-static std::tuple<vm::vec3, vm::vec3> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3& bboxAtDragStart, const Model::Hit& dragStartHit)
+static std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
+  const vm::bbox3d& bboxAtDragStart, const Model::Hit& dragStartHit)
 {
   const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
   return {handleLine.get_origin(), dragStartHit.hitPoint()};
@@ -269,7 +269,7 @@ void ScaleObjectsToolController::setRenderOptions(
 static void renderBounds(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch,
-  const vm::bbox3& bounds)
+  const vm::bbox3d& bounds)
 {
   auto renderService = Renderer::RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
@@ -279,7 +279,7 @@ static void renderBounds(
 static void renderCornerHandles(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch,
-  const std::vector<vm::vec3>& corners)
+  const std::vector<vm::vec3d>& corners)
 {
   auto renderService = Renderer::RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
@@ -373,7 +373,7 @@ static void renderDragCorner(
   renderService.renderHandleHighlight(corner);
 }
 
-static std::vector<vm::vec3> visibleCornerHandles(
+static std::vector<vm::vec3d> visibleCornerHandles(
   const ScaleObjectsTool& tool, const Renderer::Camera& camera)
 {
   using namespace Model::HitFilters;
@@ -385,7 +385,7 @@ static std::vector<vm::vec3> visibleCornerHandles(
   }
 
   return kdl::vec_filter(cornerHandles, [&](const auto& corner) {
-    const auto ray = vm::ray3{camera.pickRay(vm::vec3f{corner})};
+    const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
 
     auto pr = Model::PickResult{};
     if (camera.orthographicProjection())
@@ -447,7 +447,7 @@ ScaleObjectsToolController2D::ScaleObjectsToolController2D(
 }
 
 void ScaleObjectsToolController2D::doPick(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -463,7 +463,7 @@ ScaleObjectsToolController3D::ScaleObjectsToolController3D(
 }
 
 void ScaleObjectsToolController3D::doPick(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {

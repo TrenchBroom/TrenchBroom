@@ -50,7 +50,7 @@ namespace TrenchBroom::View
 namespace
 {
 
-std::optional<vm::vec3> parseVec(const QString& qString)
+std::optional<vm::vec3d> parseVec(const QString& qString)
 {
   const auto string = qString.toStdString();
   if (const auto vec = vm::parse<double, 3u>(string))
@@ -60,13 +60,13 @@ std::optional<vm::vec3> parseVec(const QString& qString)
 
   if (const auto val = vm::parse<double, 1u>(string))
   {
-    return vm::vec3::fill(val->x());
+    return vm::vec3d::fill(val->x());
   }
 
   return std::nullopt;
 }
 
-QString formatVec(const std::optional<vm::bbox3>& bbox, const bool max)
+QString formatVec(const std::optional<vm::bbox3d>& bbox, const bool max)
 {
   if (bbox)
   {
@@ -172,12 +172,12 @@ MapPropertiesEditor::MapPropertiesEditor(
   connectObservers();
 }
 
-std::optional<vm::bbox3> MapPropertiesEditor::parseLineEdits()
+std::optional<vm::bbox3d> MapPropertiesEditor::parseLineEdits()
 {
   const auto min = parseVec(m_softBoundsFromMapMinEdit->text());
   const auto max = parseVec(m_softBoundsFromMapMaxEdit->text());
 
-  return min && max && min < max ? std::optional{vm::bbox3{*min, *max}} : std::nullopt;
+  return min && max && min < max ? std::optional{vm::bbox3d{*min, *max}} : std::nullopt;
 }
 
 void MapPropertiesEditor::createGui()

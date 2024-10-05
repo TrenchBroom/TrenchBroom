@@ -78,7 +78,7 @@ private: // notification
 
 private: // implement ToolBoxConnector interface
   PickRequest pickRequest(float x, float y) const override;
-  Model::PickResult pick(const vm::ray3& pickRay) const override;
+  Model::PickResult pick(const vm::ray3d& pickRay) const override;
 
 protected: // QOpenGLWidget overrides
   void initializeGL() override;
@@ -87,8 +87,8 @@ private: // implement RenderView interface
   void updateViewport(int x, int y, int width, int height) override;
 
 private: // implement MapView interface
-  vm::vec3 pasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
+  vm::vec3d pasteObjectsDelta(
+    const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
   bool canSelectTall() override;
   void selectTall() override;
   void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
@@ -107,9 +107,9 @@ private: // implement MapView interface
 public: // implement MapViewBase interface
   Renderer::Camera& camera() override;
 
-  vm::vec3 moveDirection(vm::direction direction) const override;
+  vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;
-  vm::vec3 computePointEntityPosition(const vm::bbox3& bounds) const override;
+  vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const override;
 
   ActionContext::Type viewActionContext() const override;
 

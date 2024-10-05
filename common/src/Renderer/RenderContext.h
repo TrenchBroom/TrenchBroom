@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "GL.h"
 #include "Macros.h"
 #include "Renderer/Transformation.h"
@@ -76,7 +75,7 @@ private:
   bool m_showFog = false;
 
   bool m_showGrid = true;
-  FloatType m_gridSize = 4;
+  double m_gridSize = 4;
   float m_dpiScale = 1.0;
 
   bool m_hideSelection = false;
@@ -145,8 +144,8 @@ public:
   const vm::bbox3f& softMapBounds() const;
   void setSoftMapBounds(const vm::bbox3f& softMapBounds);
 
-  FloatType gridSize() const;
-  void setGridSize(FloatType gridSize);
+  double gridSize() const;
+  void setGridSize(double gridSize);
 
   float dpiScale() const;
   void setDpiScale(float dpiScale);

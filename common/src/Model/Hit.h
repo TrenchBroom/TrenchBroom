@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitType.h"
 
+#include "vm/forward.h"
 #include "vm/vec.h" // IWYU pragma: keep
 
 #include <any>
@@ -35,19 +35,19 @@ public:
 
 private:
   HitType::Type m_type;
-  FloatType m_distance;
-  vm::vec3 m_hitPoint;
+  double m_distance;
+  vm::vec3d m_hitPoint;
   std::any m_target;
-  FloatType m_error;
+  double m_error;
 
 public:
   template <typename T>
   Hit(
     const HitType::Type type,
-    const FloatType distance,
-    const vm::vec3& hitPoint,
+    const double distance,
+    const vm::vec3d& hitPoint,
     T target,
-    const FloatType error = 0.0)
+    const double error = 0.0)
     : m_type(type)
     , m_distance(distance)
     , m_hitPoint(hitPoint)
@@ -59,9 +59,9 @@ public:
   bool isMatch() const;
   HitType::Type type() const;
   bool hasType(HitType::Type typeMask) const;
-  FloatType distance() const;
-  const vm::vec3& hitPoint() const;
-  FloatType error() const;
+  double distance() const;
+  const vm::vec3d& hitPoint() const;
+  double error() const;
 
   template <typename T>
   T target() const

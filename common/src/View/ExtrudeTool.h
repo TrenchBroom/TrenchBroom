@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
@@ -70,7 +69,7 @@ struct ExtrudeDragHandle
   explicit ExtrudeDragHandle(Model::BrushFaceHandle faceHandle);
 
   const Model::BrushFace& faceAtDragStart() const;
-  vm::vec3 faceNormal() const;
+  vm::vec3d faceNormal() const;
 
   kdl_reflect_decl(ExtrudeDragHandle, faceHandle);
 };
@@ -85,7 +84,7 @@ struct ExtrudeDragState
   /** Whether or not to create new brushes by splitting the selected brushes. */
   bool splitBrushes = false;
   /** The total drag distance so far. */
-  vm::vec3 totalDelta = {0, 0, 0};
+  vm::vec3d totalDelta = {0, 0, 0};
 
   kdl_reflect_decl(
     ExtrudeDragState, initialDragHandles, currentDragFaces, splitBrushes, totalDelta);
@@ -94,8 +93,8 @@ struct ExtrudeDragState
 struct ExtrudeHitData
 {
   Model::BrushFaceHandle face;
-  std::variant<vm::plane3, vm::line3> dragReference;
-  vm::vec3 initialHandlePosition;
+  std::variant<vm::plane3d, vm::line3d> dragReference;
+  vm::vec3d initialHandlePosition;
 
   kdl_reflect_decl(ExtrudeHitData, face, dragReference, initialHandlePosition);
 };
@@ -131,8 +130,8 @@ public:
 
   const Grid& grid() const;
 
-  Model::Hit pick2D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
-  Model::Hit pick3D(const vm::ray3& pickRay, const Model::PickResult& pickResult) const;
+  Model::Hit pick2D(const vm::ray3d& pickRay, const Model::PickResult& pickResult) const;
+  Model::Hit pick3D(const vm::ray3d& pickRay, const Model::PickResult& pickResult) const;
 
   /**
    * Returns the current proposed drag handles as per the last call to
@@ -149,10 +148,10 @@ public:
     const std::vector<ExtrudeDragHandle>& dragHandles);
 
   void beginExtrude();
-  bool extrude(const vm::vec3& faceDelta, ExtrudeDragState& dragState);
+  bool extrude(const vm::vec3d& faceDelta, ExtrudeDragState& dragState);
 
   void beginMove();
-  bool move(const vm::vec3& delta, ExtrudeDragState& dragState);
+  bool move(const vm::vec3d& delta, ExtrudeDragState& dragState);
 
   void commit(const ExtrudeDragState& dragState);
   void cancel();

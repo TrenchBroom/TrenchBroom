@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
 #include "View/Tool.h"
@@ -57,9 +56,9 @@ private:
   std::weak_ptr<MapDocument> m_document;
   bool m_resizing = false;
   bool m_constrainVertical = false;
-  vm::bbox3 m_bboxAtDragStart;
+  vm::bbox3d m_bboxAtDragStart;
   Model::Hit m_dragStartHit = Model::Hit::NoHit;
-  vm::vec3 m_dragCumulativeDelta;
+  vm::vec3d m_dragCumulativeDelta;
 
 public:
   explicit ShearObjectsTool(std::weak_ptr<MapDocument> document);
@@ -70,35 +69,35 @@ public:
   bool applies() const;
 
   void pickBackSides(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
   void pick2D(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
   void pick3D(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
 
 public:
-  vm::bbox3 bounds() const;
+  vm::bbox3d bounds() const;
 
   /**
    * If inside a drag, returns the bbox at the start of the drag.
    * Otherwise, returns the current bounds(). for rendering sheared bbox.
    */
-  vm::bbox3 bboxAtDragStart() const;
+  vm::bbox3d bboxAtDragStart() const;
 
   void startShearWithHit(const Model::Hit& hit);
   void commitShear();
   void cancelShear();
-  void shearByDelta(const vm::vec3& delta);
+  void shearByDelta(const vm::vec3d& delta);
 
   const Model::Hit& dragStartHit() const;
 
-  vm::mat4x4 bboxShearMatrix() const;
+  vm::mat4x4d bboxShearMatrix() const;
   std::optional<vm::polygon3f> shearHandle() const;
 
   void updatePickedSide(const Model::PickResult& pickResult);

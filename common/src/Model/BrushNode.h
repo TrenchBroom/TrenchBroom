@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Brush.h"
 #include "Model/BrushGeometry.h"
@@ -94,12 +93,12 @@ private:
 
 private: // implement Node interface
   const std::string& doGetName() const override;
-  const vm::bbox3& doGetLogicalBounds() const override;
-  const vm::bbox3& doGetPhysicalBounds() const override;
+  const vm::bbox3d& doGetLogicalBounds() const override;
+  const vm::bbox3d& doGetPhysicalBounds() const override;
 
-  FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  double doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3d& worldBounds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -115,11 +114,11 @@ private: // implement Node interface
 private: // implement Object interface
   void doPick(
     const EditorContext& editorContext,
-    const vm::ray3& ray,
+    const vm::ray3d& ray,
     PickResult& pickResult) override;
-  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+  void doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result) override;
 
-  std::optional<std::tuple<FloatType, size_t>> findFaceHit(const vm::ray3& ray) const;
+  std::optional<std::tuple<double, size_t>> findFaceHit(const vm::ray3d& ray) const;
 
   Node* doGetContainer() override;
   LayerNode* doGetContainingLayer() override;

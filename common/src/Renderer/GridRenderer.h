@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
@@ -39,11 +38,11 @@ private:
   VertexArray m_vertexArray;
 
 public:
-  GridRenderer(const OrthographicCamera& camera, const vm::bbox3& worldBounds);
+  GridRenderer(const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
 private:
   static std::vector<Vertex> vertices(
-    const OrthographicCamera& camera, const vm::bbox3& worldBounds);
+    const OrthographicCamera& camera, const vm::bbox3d& worldBounds);
 
   void doPrepareVertices(VboManager& vboManager) override;
   void doRender(RenderContext& renderContext) override;

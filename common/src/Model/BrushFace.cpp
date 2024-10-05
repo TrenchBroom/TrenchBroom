@@ -22,7 +22,6 @@
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
 #include "Ensure.h"
-#include "FloatType.h"
 #include "Model/MapFormat.h"
 #include "Model/ParallelUVCoordSystem.h"
 #include "Model/ParaxialUVCoordSystem.h"
@@ -120,9 +119,9 @@ BrushFace::~BrushFace() = default;
 kdl_reflect_impl(BrushFace);
 
 Result<BrushFace> BrushFace::create(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const BrushFaceAttributes& attributes,
   const MapFormat mapFormat)
 {
@@ -144,9 +143,9 @@ Result<BrushFace> BrushFace::create(
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const BrushFaceAttributes& inputAttribs,
   const MapFormat mapFormat)
 {
@@ -173,12 +172,12 @@ Result<BrushFace> BrushFace::createFromStandard(
 }
 
 Result<BrushFace> BrushFace::createFromValve(
-  const vm::vec3& point1,
-  const vm::vec3& point2,
-  const vm::vec3& point3,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
   const BrushFaceAttributes& inputAttribs,
-  const vm::vec3& uAxis,
-  const vm::vec3& vAxis,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
   MapFormat mapFormat)
 {
   assert(mapFormat != MapFormat::Unknown);
@@ -203,9 +202,9 @@ Result<BrushFace> BrushFace::createFromValve(
 }
 
 Result<BrushFace> BrushFace::create(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const BrushFaceAttributes& attributes,
   std::unique_ptr<UVCoordSystem> uvCoordSystem)
 {
@@ -219,7 +218,7 @@ Result<BrushFace> BrushFace::create(
 
 BrushFace::BrushFace(
   const BrushFace::Points& points,
-  const vm::plane3& boundary,
+  const vm::plane3d& boundary,
   BrushFaceAttributes attributes,
   std::unique_ptr<UVCoordSystem> uvCoordSystem)
   : m_points{points}
@@ -272,13 +271,13 @@ void BrushFace::restoreUVCoordSystemSnapshot(
 void BrushFace::copyUVCoordSystemFromFace(
   const UVCoordSystemSnapshot& coordSystemSnapshot,
   const BrushFaceAttributes& attributes,
-  const vm::plane3& sourceFacePlane,
+  const vm::plane3d& sourceFacePlane,
   const WrapStyle wrapStyle)
 {
   // Get a line, and a reference point, that are on both the source face's plane and our
   // plane
   const auto seam =
-    vm::intersect_plane_plane(sourceFacePlane, m_boundary).value_or(vm::line3{});
+    vm::intersect_plane_plane(sourceFacePlane, m_boundary).value_or(vm::line3d{});
   const auto refPoint = vm::project_point(seam, center());
 
   coordSystemSnapshot.restore(*m_uvCoordSystem);
@@ -304,17 +303,17 @@ const BrushFace::Points& BrushFace::points() const
   return m_points;
 }
 
-const vm::plane3& BrushFace::boundary() const
+const vm::plane3d& BrushFace::boundary() const
 {
   return m_boundary;
 }
 
-const vm::vec3& BrushFace::normal() const
+const vm::vec3d& BrushFace::normal() const
 {
   return boundary().normal;
 }
 
-vm::vec3 BrushFace::center() const
+vm::vec3d BrushFace::center() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   const BrushHalfEdgeList& boundary = m_geometry->boundary();
@@ -322,7 +321,7 @@ vm::vec3 BrushFace::center() const
     std::begin(boundary), std::end(boundary), BrushGeometry::GetVertexPosition());
 }
 
-vm::vec3 BrushFace::boundsCenter() const
+vm::vec3d BrushFace::boundsCenter() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
@@ -333,7 +332,7 @@ vm::vec3 BrushFace::boundsCenter() const
   const auto* first = m_geometry->boundary().front();
   const auto* current = first;
 
-  vm::bbox3 bounds;
+  vm::bbox3d bounds;
   bounds.min = bounds.max = toPlane * current->origin()->position();
 
   current = current->next();
@@ -345,10 +344,10 @@ vm::vec3 BrushFace::boundsCenter() const
   return *fromPlane * bounds.center();
 }
 
-FloatType BrushFace::projectedArea(const vm::axis::type axis) const
+double BrushFace::projectedArea(const vm::axis::type axis) const
 {
-  FloatType c1 = 0.0;
-  FloatType c2 = 0.0;
+  double c1 = 0.0;
+  double c2 = 0.0;
   for (const BrushHalfEdge* halfEdge : m_geometry->boundary())
   {
     const auto origin = vm::swizzle(halfEdge->origin()->position(), axis);
@@ -359,9 +358,9 @@ FloatType BrushFace::projectedArea(const vm::axis::type axis) const
   return vm::abs((c1 - c2) / 2.0);
 }
 
-FloatType BrushFace::area() const
+double BrushFace::area() const
 {
-  auto result = static_cast<FloatType>(0);
+  auto result = static_cast<double>(0);
 
   const auto* firstEdge = m_geometry->boundary().front();
   const auto* currentEdge = firstEdge->next();
@@ -384,7 +383,7 @@ bool BrushFace::coplanarWith(const vm::plane3d& plane) const
 {
   // Test if the face's center lies on the reference plane within an epsilon.
   if (!vm::is_zero(
-        plane.point_distance(center()), vm::constants<FloatType>::almost_zero() * 10.0))
+        plane.point_distance(center()), vm::constants<double>::almost_zero() * 10.0))
   {
     return false;
   }
@@ -392,7 +391,7 @@ bool BrushFace::coplanarWith(const vm::plane3d& plane) const
   // Test if the normals are colinear by checking their enclosed angle.
   if (
     1.0 - vm::dot(boundary().normal, plane.normal)
-    >= vm::constants<FloatType>::colinear_epsilon())
+    >= vm::constants<double>::colinear_epsilon())
   {
     return false;
   }
@@ -528,12 +527,12 @@ bool BrushFace::setMaterial(Assets::Material* material)
   return true;
 }
 
-vm::vec3 BrushFace::uAxis() const
+vm::vec3d BrushFace::uAxis() const
 {
   return m_uvCoordSystem->uAxis();
 }
 
-vm::vec3 BrushFace::vAxis() const
+vm::vec3d BrushFace::vAxis() const
 {
   return m_uvCoordSystem->vAxis();
 }
@@ -566,7 +565,8 @@ void BrushFace::convertToParallel()
   m_uvCoordSystem = std::move(newUVCoordSystem);
 }
 
-void BrushFace::moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset)
+void BrushFace::moveUV(
+  const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset)
 {
   m_uvCoordSystem->translate(m_boundary.normal, up, right, offset, m_attributes);
 }
@@ -584,25 +584,25 @@ void BrushFace::shearUV(const vm::vec2f& factors)
 }
 
 void BrushFace::flipUV(
-  const vm::vec3& /* cameraUp */,
-  const vm::vec3& cameraRight,
+  const vm::vec3d& /* cameraUp */,
+  const vm::vec3d& cameraRight,
   const vm::direction cameraRelativeFlipDirection)
 {
-  const vm::mat4x4 texToWorld =
+  const vm::mat4x4d texToWorld =
     m_uvCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one());
 
-  const vm::vec3 texUAxisInWorld =
+  const vm::vec3d texUAxisInWorld =
     vm::normalize((texToWorld * vm::vec4d(1, 0, 0, 0)).xyz());
-  const vm::vec3 texVAxisInWorld =
+  const vm::vec3d texVAxisInWorld =
     vm::normalize((texToWorld * vm::vec4d(0, 1, 0, 0)).xyz());
 
   // Get the cos(angle) between cameraRight and the texUAxisInWorld _line_ (so, take the
   // smaller of the angles among -texUAxisInWorld and texUAxisInWorld). Note that larger
   // cos(angle) means smaller angle.
-  const FloatType uAxisCosAngle = vm::max(
+  const double uAxisCosAngle = vm::max(
     vm::dot(texUAxisInWorld, cameraRight), vm::dot(-texUAxisInWorld, cameraRight));
 
-  const FloatType vAxisCosAngle = vm::max(
+  const double vAxisCosAngle = vm::max(
     vm::dot(texVAxisInWorld, cameraRight), vm::dot(-texVAxisInWorld, cameraRight));
 
   // If this is true, it means the V axis is closer to the camera's right vector than
@@ -629,12 +629,12 @@ void BrushFace::flipUV(
   }
 }
 
-Result<void> BrushFace::transform(const vm::mat4x4& transform, const bool lockAlignment)
+Result<void> BrushFace::transform(const vm::mat4x4d& transform, const bool lockAlignment)
 {
   using std::swap;
 
-  const vm::vec3 invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
-  const vm::plane3 oldBoundary = m_boundary;
+  const vm::vec3d invariant = m_geometry != nullptr ? center() : m_boundary.anchor();
+  const vm::plane3d oldBoundary = m_boundary;
 
   m_boundary = m_boundary.transform(transform);
   for (size_t i = 0; i < 3; ++i)
@@ -705,22 +705,22 @@ Result<void> BrushFace::updatePointsFromVertices()
            });
 }
 
-vm::mat4x4 BrushFace::projectToBoundaryMatrix() const
+vm::mat4x4d BrushFace::projectToBoundaryMatrix() const
 {
   const auto texZAxis =
-    m_uvCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3::pos_z();
+    m_uvCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3d::pos_z();
   const auto worldToPlaneMatrix =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
   const auto planeToWorldMatrix = vm::invert(worldToPlaneMatrix);
-  return *planeToWorldMatrix * vm::mat4x4::zero_out<2>() * worldToPlaneMatrix;
+  return *planeToWorldMatrix * vm::mat4x4d::zero_out<2>() * worldToPlaneMatrix;
 }
 
-vm::mat4x4 BrushFace::toUVCoordSystemMatrix(
+vm::mat4x4d BrushFace::toUVCoordSystemMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const
 {
   if (project)
   {
-    return vm::mat4x4::zero_out<2>() * m_uvCoordSystem->toMatrix(offset, scale);
+    return vm::mat4x4d::zero_out<2>() * m_uvCoordSystem->toMatrix(offset, scale);
   }
   else
   {
@@ -728,7 +728,7 @@ vm::mat4x4 BrushFace::toUVCoordSystemMatrix(
   }
 }
 
-vm::mat4x4 BrushFace::fromUVCoordSystemMatrix(
+vm::mat4x4d BrushFace::fromUVCoordSystemMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale, const bool project) const
 {
   if (project)
@@ -764,22 +764,22 @@ BrushFace::VertexList BrushFace::vertices() const
   return VertexList(m_geometry->boundary(), TransformHalfEdgeToVertex());
 }
 
-std::vector<vm::vec3> BrushFace::vertexPositions() const
+std::vector<vm::vec3d> BrushFace::vertexPositions() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   return m_geometry->vertexPositions();
 }
 
-bool BrushFace::hasVertices(const vm::polygon3& vertices, const FloatType epsilon) const
+bool BrushFace::hasVertices(const vm::polygon3d& vertices, const double epsilon) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   return m_geometry->hasVertexPositions(vertices.vertices(), epsilon);
 }
 
-vm::polygon3 BrushFace::polygon() const
+vm::polygon3d BrushFace::polygon() const
 {
   ensure(m_geometry != nullptr, "geometry is null");
-  return vm::polygon3(vertexPositions());
+  return vm::polygon3d(vertexPositions());
 }
 
 BrushFaceGeometry* BrushFace::geometry() const
@@ -820,27 +820,27 @@ void BrushFace::deselect()
   m_selected = false;
 }
 
-vm::vec2f BrushFace::uvCoords(const vm::vec3& point) const
+vm::vec2f BrushFace::uvCoords(const vm::vec3d& point) const
 {
   return m_uvCoordSystem->uvCoords(point, m_attributes, textureSize());
 }
 
-std::optional<FloatType> BrushFace::intersectWithRay(const vm::ray3& ray) const
+std::optional<double> BrushFace::intersectWithRay(const vm::ray3d& ray) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
 
   const auto cos = vm::dot(m_boundary.normal, ray.direction);
-  return cos < FloatType(0) ? vm::intersect_ray_polygon(
-                                ray,
-                                m_boundary,
-                                m_geometry->boundary().begin(),
-                                m_geometry->boundary().end(),
-                                BrushGeometry::GetVertexPosition())
-                            : std::nullopt;
+  return cos < double(0) ? vm::intersect_ray_polygon(
+                             ray,
+                             m_boundary,
+                             m_geometry->boundary().begin(),
+                             m_geometry->boundary().end(),
+                             BrushGeometry::GetVertexPosition())
+                         : std::nullopt;
 }
 
 Result<void> BrushFace::setPoints(
-  const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2)
+  const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2)
 {
   m_points[0] = point0;
   m_points[1] = point1;

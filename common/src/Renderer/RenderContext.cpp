@@ -203,12 +203,12 @@ void RenderContext::setShowGrid(const bool showGrid)
   m_showGrid = showGrid;
 }
 
-FloatType RenderContext::gridSize() const
+double RenderContext::gridSize() const
 {
   return m_gridSize;
 }
 
-void RenderContext::setGridSize(const FloatType gridSize)
+void RenderContext::setGridSize(const double gridSize)
 {
   m_gridSize = gridSize;
 }

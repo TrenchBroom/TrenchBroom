@@ -46,9 +46,7 @@ void SpikeGuideRenderer::setColor(const Color& color)
 }
 
 void SpikeGuideRenderer::add(
-  const vm::ray3& ray,
-  const FloatType length,
-  std::shared_ptr<View::MapDocument> document)
+  const vm::ray3d& ray, const double length, std::shared_ptr<View::MapDocument> document)
 {
   using namespace Model::HitFilters;
 
@@ -101,13 +99,13 @@ void SpikeGuideRenderer::doRender(RenderContext& renderContext)
   glAssert(glPointSize(1.0f));
 }
 
-void SpikeGuideRenderer::addPoint(const vm::vec3& position)
+void SpikeGuideRenderer::addPoint(const vm::vec3d& position)
 {
   m_pointVertices.emplace_back(vm::vec3f(position), m_color);
 }
 
 void SpikeGuideRenderer::addSpike(
-  const vm::ray3& ray, const FloatType length, const FloatType maxLength)
+  const vm::ray3d& ray, const double length, const double maxLength)
 {
   const auto mix = static_cast<float>(maxLength / length / 2.0);
 

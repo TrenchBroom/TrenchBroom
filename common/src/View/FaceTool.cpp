@@ -19,8 +19,6 @@
 
 #include "FaceTool.h"
 
-#include "FloatType.h"
-
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
@@ -35,13 +33,13 @@ FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
 }
 
 std::vector<Model::BrushNode*> FaceTool::findIncidentBrushes(
-  const vm::polygon3& handle) const
+  const vm::polygon3d& handle) const
 {
   return findIncidentBrushes(*m_faceHandles, handle);
 }
 
 void FaceTool::pick(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -58,7 +56,7 @@ const FaceHandleManager& FaceTool::handleManager() const
   return *m_faceHandles;
 }
 
-std::tuple<vm::vec3, vm::vec3> FaceTool::handlePositionAndHitPoint(
+std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
   const std::vector<Model::Hit>& hits) const
 {
   assert(!hits.empty());
@@ -66,10 +64,10 @@ std::tuple<vm::vec3, vm::vec3> FaceTool::handlePositionAndHitPoint(
   const auto& hit = hits.front();
   assert(hit.hasType(FaceHandleManager::HandleHitType));
 
-  return {hit.target<vm::polygon3>().center(), hit.hitPoint()};
+  return {hit.target<vm::polygon3d>().center(), hit.hitPoint()};
 }
 
-FaceTool::MoveResult FaceTool::move(const vm::vec3& delta)
+FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -90,8 +88,8 @@ std::string FaceTool::actionName() const
 void FaceTool::removeSelection()
 {
   const auto handles = m_faceHandles->selectedHandles();
-  auto vertexPositions = std::vector<vm::vec3>{};
-  vm::polygon3::get_vertices(
+  auto vertexPositions = std::vector<vm::vec3d>{};
+  vm::polygon3d::get_vertices(
     std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));
 
   const auto commandName =

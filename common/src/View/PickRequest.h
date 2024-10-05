@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "FloatType.h"
 
+#include "vm/forward.h"
 #include "vm/ray.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
@@ -33,14 +33,14 @@ namespace TrenchBroom::View
 class PickRequest
 {
 private:
-  vm::ray3 m_pickRay;
+  vm::ray3d m_pickRay;
   const Renderer::Camera* m_camera = nullptr;
 
 public:
   PickRequest();
-  PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  PickRequest(const vm::ray3d& pickRay, const Renderer::Camera& camera);
 
-  const vm::ray3& pickRay() const;
+  const vm::ray3d& pickRay() const;
   const Renderer::Camera& camera() const;
 };
 

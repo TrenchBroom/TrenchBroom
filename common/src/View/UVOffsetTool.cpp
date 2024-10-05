@@ -43,7 +43,7 @@ namespace TrenchBroom::View
 namespace
 {
 
-vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
+vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 {
   const auto& boundary = helper.face()->boundary();
   return *kdl::optional_transform(

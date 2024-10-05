@@ -19,8 +19,6 @@
 
 #include "PointGuideRenderer.h"
 
-#include "FloatType.h"
-
 #include "kdl/memory_utils.h"
 
 #include "vm/ray.h" // IWYU pragma: keep
@@ -30,7 +28,7 @@
 
 namespace TrenchBroom::Renderer
 {
-const FloatType PointGuideRenderer::SpikeLength = 512.0;
+const double PointGuideRenderer::SpikeLength = 512.0;
 
 PointGuideRenderer::PointGuideRenderer(std::weak_ptr<View::MapDocument> document)
   : m_document{std::move(document)}
@@ -46,19 +44,19 @@ void PointGuideRenderer::setColor(const Color& color)
   }
 }
 
-void PointGuideRenderer::setPosition(const vm::vec3& position)
+void PointGuideRenderer::setPosition(const vm::vec3d& position)
 {
   if (position != m_position)
   {
     m_spikeRenderer.clear();
 
     auto document = kdl::mem_lock(m_document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_x()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_x()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_y()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_y()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::pos_z()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3(position, vm::vec3::neg_z()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_x()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_x()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_y()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_y()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_z()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_z()), SpikeLength, document);
 
     m_position = position;
   }

@@ -19,27 +19,23 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"
 #include "Model/Polyhedron_Forward.h"
 
 namespace TrenchBroom::Model
 {
 
-using BrushGeometry = Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushGeometry = Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
-using BrushVertex = Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
-using BrushEdge = Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
-using BrushHalfEdge =
-  Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
-using BrushFaceGeometry =
-  Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+using BrushVertex = Polyhedron_Vertex<double, BrushFacePayload, BrushVertexPayload>;
+using BrushEdge = Polyhedron_Edge<double, BrushFacePayload, BrushVertexPayload>;
+using BrushHalfEdge = Polyhedron_HalfEdge<double, BrushFacePayload, BrushVertexPayload>;
+using BrushFaceGeometry = Polyhedron_Face<double, BrushFacePayload, BrushVertexPayload>;
 
 using BrushVertexList =
-  Polyhedron_VertexList<FloatType, BrushFacePayload, BrushVertexPayload>;
-using BrushEdgeList =
-  Polyhedron_EdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
+  Polyhedron_VertexList<double, BrushFacePayload, BrushVertexPayload>;
+using BrushEdgeList = Polyhedron_EdgeList<double, BrushFacePayload, BrushVertexPayload>;
 using BrushHalfEdgeList =
-  Polyhedron_HalfEdgeList<FloatType, BrushFacePayload, BrushVertexPayload>;
+  Polyhedron_HalfEdgeList<double, BrushFacePayload, BrushVertexPayload>;
 
 } // namespace TrenchBroom::Model

@@ -30,16 +30,16 @@ namespace TrenchBroom::Model
 TEST_CASE("GroupTest.transform")
 {
   auto group = Group{"name"};
-  REQUIRE(group.transformation() == vm::mat4x4());
+  REQUIRE(group.transformation() == vm::mat4x4d());
 
-  group.transform(vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
-  CHECK(group.transformation() == vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+  group.transform(vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
+  CHECK(group.transformation() == vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 
   group.transform(vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0)));
   CHECK(
     group.transformation()
     == vm::rotation_matrix(0.0, 0.0, vm::to_radians(90.0))
-         * vm::translation_matrix(vm::vec3(32.0, 0.0, 0.0)));
+         * vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 }
 
 } // namespace TrenchBroom::Model

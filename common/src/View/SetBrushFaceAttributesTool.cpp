@@ -135,7 +135,7 @@ bool applies(const InputState& inputState)
          && (materialOnly || projection || rotation);
 }
 
-size_t findClosestFace(const Model::Brush& brush, const vm::vec3& normal)
+size_t findClosestFace(const Model::Brush& brush, const vm::vec3d& normal)
 {
   size_t best = 0;
   for (size_t i = 1; i < brush.faceCount(); ++i)

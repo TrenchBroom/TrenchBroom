@@ -56,17 +56,17 @@ namespace TrenchBroom::View
 namespace
 {
 
-std::tuple<vm::line3, vm::line3> computeOriginHandles(const UVViewHelper& helper)
+std::tuple<vm::line3d, vm::line3d> computeOriginHandles(const UVViewHelper& helper)
 {
   const auto toWorld =
     helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
 
-  const auto origin = vm::vec3{helper.originInFaceCoords()};
+  const auto origin = vm::vec3d{helper.originInFaceCoords()};
   const auto linePoint = toWorld * origin;
   return {
-    vm::line3{
-      linePoint, vm::normalize(toWorld * (origin + vm::vec3::pos_y()) - linePoint)},
-    vm::line3{linePoint, (toWorld * (origin + vm::vec3::pos_x()) - linePoint)},
+    vm::line3d{
+      linePoint, vm::normalize(toWorld * (origin + vm::vec3d::pos_y()) - linePoint)},
+    vm::line3d{linePoint, (toWorld * (origin + vm::vec3d::pos_x()) - linePoint)},
   };
 }
 
@@ -83,7 +83,7 @@ vm::vec2f getSelector(const InputState& inputState)
     xHandleHit.isMatch() ? 1.0f : 0.0f, yHandleHit.isMatch() ? 1.0f : 0.0f};
 }
 
-vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3& ray)
+vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 {
   const auto& boundary = helper.face()->boundary();
   return *kdl::optional_transform(
@@ -123,7 +123,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
 
   const auto newOriginInFaceCoords = helper.originInFaceCoords() + delta;
   const auto newOriginInUVCoords =
-    vm::vec2f{f2tTransform * vm::vec3{newOriginInFaceCoords}};
+    vm::vec2f{f2tTransform * vm::vec3d{newOriginInFaceCoords}};
 
   // now snap to the vertices
   // TODO: this actually doesn't work because we're snapping to the X or Y coordinate of
@@ -141,7 +141,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   {
     distanceInUVCoords = vm::abs_min(
       distanceInUVCoords,
-      helper.computeDistanceFromUVGrid(vm::vec3{newOriginInUVCoords}));
+      helper.computeDistanceFromUVGrid(vm::vec3d{newOriginInUVCoords}));
   }
 
   // finally snap to the face center
@@ -153,7 +153,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   // coordinate system and take the actual distance
   const auto distanceInFaceCoords =
     newOriginInFaceCoords
-    - vm::vec2f{t2fTransform * vm::vec3{newOriginInUVCoords + distanceInUVCoords}};
+    - vm::vec2f{t2fTransform * vm::vec3d{newOriginInUVCoords + distanceInUVCoords}};
   return helper.snapDelta(delta, -distanceInFaceCoords);
 }
 
@@ -167,7 +167,7 @@ std::vector<EdgeVertex> getHandleVertices(
   const auto yColor =
     highlightHandle.y() ? Color{1.0f, 0.0f, 0.0f, 1.0f} : Color{0.7f, 0.0f, 0.0f, 1.0f};
 
-  vm::vec3 x1, x2, y1, y2;
+  vm::vec3d x1, x2, y1, y2;
   helper.computeOriginHandleVertices(x1, x2, y1, y2);
 
   return {
@@ -229,14 +229,14 @@ private:
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
     const auto fromPlane = vm::invert(toPlane);
     const auto originPosition(
-      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()});
+      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()});
 
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
     const auto toWorldTransform = Renderer::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
-    const auto translation = vm::translation_matrix(vm::vec3{originPosition});
+    const auto translation = vm::translation_matrix(vm::vec3d{originPosition});
     const auto centerTransform = Renderer::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{translation}};
 
@@ -305,7 +305,7 @@ public:
 
 const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
 const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
-const FloatType UVOriginTool::MaxPickDistance = 5.0;
+const double UVOriginTool::MaxPickDistance = 5.0;
 const float UVOriginTool::OriginHandleRadius = 5.0f;
 
 UVOriginTool::UVOriginTool(UVViewHelper& helper)
@@ -333,13 +333,13 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
 
     const auto fromTex =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
-    const auto origin = fromTex * vm::vec3{m_helper.originInFaceCoords()};
+    const auto origin = fromTex * vm::vec3d{m_helper.originInFaceCoords()};
 
     const auto& pickRay = inputState.pickRay();
     const auto oDistance = vm::distance(pickRay, origin);
     if (
       oDistance.distance
-      <= static_cast<FloatType>(OriginHandleRadius / m_helper.cameraZoom()))
+      <= static_cast<double>(OriginHandleRadius / m_helper.cameraZoom()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
       pickResult.addHit(Model::Hit{
@@ -356,7 +356,7 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
       assert(!yDistance.parallel);
 
       const auto maxDistance =
-        MaxPickDistance / static_cast<FloatType>(m_helper.cameraZoom());
+        MaxPickDistance / static_cast<double>(m_helper.cameraZoom());
       if (xDistance.distance <= maxDistance)
       {
         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);

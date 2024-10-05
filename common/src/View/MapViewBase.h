@@ -174,13 +174,13 @@ public: // move, rotate, flip actions
   void moveVertices(vm::direction direction);
   void moveRotationCenter(vm::direction direction);
   void moveObjects(vm::direction direction);
-  virtual vm::vec3 moveDirection(vm::direction direction) const = 0;
+  virtual vm::vec3d moveDirection(vm::direction direction) const = 0;
 
   void duplicateAndMoveObjects(vm::direction direction);
   void duplicateObjects();
 
   void rotateObjects(vm::rotation_axis axis, bool clockwise);
-  vm::vec3 rotationAxis(vm::rotation_axis axis, bool clockwise) const;
+  vm::vec3d rotationAxis(vm::rotation_axis axis, bool clockwise) const;
 
   void flipObjects(vm::direction direction);
   bool canFlipObjects() const;
@@ -259,7 +259,7 @@ public: // reparenting objects
 
   void createPointEntity();
   void createBrushEntity();
-  virtual vm::vec3 computePointEntityPosition(const vm::bbox3& bounds) const = 0;
+  virtual vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const = 0;
 
   Assets::EntityDefinition* findEntityDefinition(
     Assets::EntityDefinitionType type, size_t index) const;

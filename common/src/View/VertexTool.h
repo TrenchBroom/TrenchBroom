@@ -47,7 +47,7 @@ class Grid;
 class Lasso;
 class Selection;
 
-class VertexTool : public VertexToolBase<vm::vec3>
+class VertexTool : public VertexToolBase<vm::vec3d>
 {
 private:
   enum class Mode
@@ -69,16 +69,16 @@ public:
   explicit VertexTool(std::weak_ptr<MapDocument> document);
 
 public:
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3& handle) const;
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3& handle) const;
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3& handle) const;
+  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;
+  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
+  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
 
 public:
   void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override;
 
@@ -90,17 +90,17 @@ public:
   const VertexHandleManager& handleManager() const override;
 
 public: // Vertex moving
-  std::tuple<vm::vec3, vm::vec3> handlePositionAndHitPoint(
+  std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
     const std::vector<Model::Hit>& hits) const override;
 
   bool startMove(const std::vector<Model::Hit>& hits) override;
-  MoveResult move(const vm::vec3& delta) override;
+  MoveResult move(const vm::vec3d& delta) override;
   void endMove() override;
   void cancelMove() override;
 
   bool allowAbsoluteSnapping() const override;
 
-  vm::vec3 getHandlePosition(const Model::Hit& hit) const override;
+  vm::vec3d getHandlePosition(const Model::Hit& hit) const override;
   std::string actionName() const override;
 
   void removeSelection();
@@ -109,7 +109,7 @@ public: // Rendering
   void renderGuide(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& position) const override;
+    const vm::vec3d& position) const override;
 
 private: // Tool interface
   bool doActivate() override;

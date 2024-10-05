@@ -19,7 +19,6 @@
 
 #include "DrawShapeToolController3D.h"
 
-#include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
@@ -47,10 +46,10 @@ class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
   DrawShapeTool& m_tool;
-  vm::bbox3 m_worldBounds;
+  vm::bbox3d m_worldBounds;
 
 public:
-  DrawShapeDragDelegate(DrawShapeTool& tool, const vm::bbox3& worldBounds)
+  DrawShapeDragDelegate(DrawShapeTool& tool, const vm::bbox3d& worldBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
   {
@@ -58,8 +57,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
@@ -91,7 +90,7 @@ public:
       return UpdateDragConfig{
         makeHandlePositionProposer(
           makeLineHandlePicker(
-            vm::line3{dragState.currentHandlePosition, vm::vec3::pos_z()},
+            vm::line3d{dragState.currentHandlePosition, vm::vec3d::pos_z()},
             dragState.handleOffset),
           makeIdentityHandleSnapper()),
         ResetInitialHandlePosition::Keep};
@@ -108,7 +107,7 @@ public:
   DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     if (updateBounds(
           inputState,
@@ -138,9 +137,9 @@ public:
 private:
   bool updateBounds(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& lastHandlePosition,
-    const vm::vec3& currentHandlePosition)
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& lastHandlePosition,
+    const vm::vec3d& currentHandlePosition)
   {
     const auto lastBounds =
       makeBounds(inputState, initialHandlePosition, lastHandlePosition);
@@ -156,14 +155,14 @@ private:
     return true;
   }
 
-  vm::bbox3 makeBounds(
+  vm::bbox3d makeBounds(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& currentHandlePosition) const
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& currentHandlePosition) const
   {
     auto bounds = snapBounds(
       inputState,
-      vm::bbox3{
+      vm::bbox3d{
         vm::min(initialHandlePosition, currentHandlePosition),
         vm::max(initialHandlePosition, currentHandlePosition),
       });
@@ -172,10 +171,10 @@ private:
     {
       const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
 
-      const auto xyAxes = vm::vec3{1, 0, 0} + vm::vec3{0, 1, 0};
-      const auto zAxis = vm::vec3{0, 0, 1};
-      const auto allAxes = vm::vec3{1, 1, 1};
-      const auto noAxis = vm::vec3{0, 0, 0};
+      const auto xyAxes = vm::vec3d{1, 0, 0} + vm::vec3d{0, 1, 0};
+      const auto zAxis = vm::vec3d{0, 0, 1};
+      const auto allAxes = vm::vec3d{1, 1, 1};
+      const auto noAxis = vm::vec3d{0, 0, 0};
       const auto maxLengthAxes = includeZAxis ? allAxes : xyAxes;
       const auto zLengthAxis = includeZAxis ? noAxis : zAxis;
 
@@ -185,8 +184,8 @@ private:
 
       // The direction in which the user is dragging per component:
       const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
-      bounds = vm::bbox3{
-        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3{1, 1, 1} - dragDir),
+      bounds = vm::bbox3d{
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d{1, 1, 1} - dragDir),
         vm::mix(bounds.max, bounds.min + lengthDiff, dragDir),
       };
     }
@@ -194,7 +193,7 @@ private:
     return vm::intersect(bounds, m_worldBounds);
   }
 
-  vm::bbox3 snapBounds(const InputState& inputState, vm::bbox3 bounds) const
+  vm::bbox3d snapBounds(const InputState& inputState, vm::bbox3d bounds) const
   {
 
     // prevent flickering due to very small rounding errors
@@ -206,7 +205,7 @@ private:
     bounds.max = grid.snapUp(bounds.max);
 
     const auto& camera = inputState.camera();
-    const auto cameraPosition = vm::vec3{camera.position()};
+    const auto cameraPosition = vm::vec3d{camera.position()};
 
     for (size_t i = 0; i < 3; i++)
     {

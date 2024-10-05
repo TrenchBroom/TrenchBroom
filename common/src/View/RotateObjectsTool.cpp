@@ -75,12 +75,12 @@ void RotateObjectsTool::setAngle(const double angle)
   m_angle = angle;
 }
 
-vm::vec3 RotateObjectsTool::rotationCenter() const
+vm::vec3d RotateObjectsTool::rotationCenter() const
 {
   return m_handle.position();
 }
 
-void RotateObjectsTool::setRotationCenter(const vm::vec3& position)
+void RotateObjectsTool::setRotationCenter(const vm::vec3d& position)
 {
   m_handle.setPosition(position);
   m_toolPage->setCurrentCenter(position);
@@ -95,12 +95,12 @@ void RotateObjectsTool::resetRotationCenter()
   setRotationCenter(position);
 }
 
-FloatType RotateObjectsTool::majorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsTool::majorHandleRadius(const Renderer::Camera& camera) const
 {
   return m_handle.majorHandleRadius(camera);
 }
 
-FloatType RotateObjectsTool::minorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsTool::minorHandleRadius(const Renderer::Camera& camera) const
 {
   return m_handle.minorHandleRadius(camera);
 }
@@ -124,14 +124,14 @@ void RotateObjectsTool::cancelRotation()
   document->cancelTransaction();
 }
 
-FloatType RotateObjectsTool::snapRotationAngle(const FloatType angle) const
+double RotateObjectsTool::snapRotationAngle(const double angle) const
 {
   auto document = kdl::mem_lock(m_document);
   return document->grid().snapAngle(angle);
 }
 
 void RotateObjectsTool::applyRotation(
-  const vm::vec3& center, const vm::vec3& axis, const FloatType angle)
+  const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   auto document = kdl::mem_lock(m_document);
   document->rollbackTransaction();
@@ -139,18 +139,18 @@ void RotateObjectsTool::applyRotation(
 }
 
 Model::Hit RotateObjectsTool::pick2D(
-  const vm::ray3& pickRay, const Renderer::Camera& camera)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera)
 {
   return m_handle.pick2D(pickRay, camera);
 }
 
 Model::Hit RotateObjectsTool::pick3D(
-  const vm::ray3& pickRay, const Renderer::Camera& camera)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera)
 {
   return m_handle.pick3D(pickRay, camera);
 }
 
-vm::vec3 RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const
+vm::vec3d RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const
 {
   return m_handle.rotationAxis(area);
 }
@@ -182,7 +182,7 @@ void RotateObjectsTool::renderHighlight3D(
   m_handle.renderHighlight3D(renderContext, renderBatch, area);
 }
 
-void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3& center)
+void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3d& center)
 {
   m_recentlyUsedCenters = kdl::vec_erase(std::move(m_recentlyUsedCenters), center);
   m_recentlyUsedCenters.push_back(center);

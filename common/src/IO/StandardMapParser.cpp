@@ -667,7 +667,7 @@ void StandardMapParser::parsePatch(
   expect(QuakeMapToken::Integer, m_tokenizer.nextToken());
   expect(QuakeMapToken::CParenthesis, m_tokenizer.nextToken());
 
-  auto controlPoints = std::vector<vm::vec<FloatType, 5>>{};
+  auto controlPoints = std::vector<vm::vec<double, 5>>{};
   controlPoints.reserve(columnCount * rowCount);
 
   expect(QuakeMapToken::OParenthesis, m_tokenizer.nextToken());
@@ -696,7 +696,7 @@ void StandardMapParser::parsePatch(
     status);
 }
 
-std::tuple<vm::vec3, vm::vec3, vm::vec3> StandardMapParser::parseFacePoints(
+std::tuple<vm::vec3d, vm::vec3d, vm::vec3d> StandardMapParser::parseFacePoints(
   ParserStatus& /* status */)
 {
   const auto p1 =
@@ -716,7 +716,7 @@ std::string StandardMapParser::parseMaterialName(ParserStatus& /* status */)
   return wasQuoted ? kdl::str_unescape(materialName, "\"\\") : std::string{materialName};
 }
 
-std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveUVAxes(
+std::tuple<vm::vec3d, float, vm::vec3d, float> StandardMapParser::parseValveUVAxes(
   ParserStatus& /* status */)
 {
   const auto firstAxis =
@@ -732,7 +732,7 @@ std::tuple<vm::vec3, float, vm::vec3, float> StandardMapParser::parseValveUVAxes
   return {uAxis, uOffset, vAxis, vOffset};
 }
 
-std::tuple<vm::vec3, vm::vec3> StandardMapParser::parsePrimitiveUVAxes(
+std::tuple<vm::vec3d, vm::vec3d> StandardMapParser::parsePrimitiveUVAxes(
   ParserStatus& /* status */)
 {
   const auto uAxis =

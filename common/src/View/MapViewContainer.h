@@ -49,8 +49,8 @@ protected:
   virtual MapView* currentMapView() const = 0;
 
 public: // implement MapView interface
-  vm::vec3 pasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
+  vm::vec3d pasteObjectsDelta(
+    const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
 
 public:
   virtual void cycleChildMapView(MapView* after) = 0;

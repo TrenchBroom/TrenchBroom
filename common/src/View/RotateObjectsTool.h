@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/Tool.h"
 
@@ -48,7 +47,7 @@ private:
   RotateObjectsToolPage* m_toolPage = nullptr;
   RotateObjectsHandle m_handle;
   double m_angle = vm::to_radians(15.0);
-  std::vector<vm::vec3> m_recentlyUsedCenters;
+  std::vector<vm::vec3d> m_recentlyUsedCenters;
 
 public:
   explicit RotateObjectsTool(std::weak_ptr<MapDocument> document);
@@ -62,24 +61,24 @@ public:
   double angle() const;
   void setAngle(double angle);
 
-  vm::vec3 rotationCenter() const;
-  void setRotationCenter(const vm::vec3& position);
+  vm::vec3d rotationCenter() const;
+  void setRotationCenter(const vm::vec3d& position);
   void resetRotationCenter();
 
-  FloatType majorHandleRadius(const Renderer::Camera& camera) const;
-  FloatType minorHandleRadius(const Renderer::Camera& camera) const;
+  double majorHandleRadius(const Renderer::Camera& camera) const;
+  double minorHandleRadius(const Renderer::Camera& camera) const;
 
   void beginRotation();
   void commitRotation();
   void cancelRotation();
 
-  FloatType snapRotationAngle(FloatType angle) const;
-  void applyRotation(const vm::vec3& center, const vm::vec3& axis, FloatType angle);
+  double snapRotationAngle(double angle) const;
+  void applyRotation(const vm::vec3d& center, const vm::vec3d& axis, double angle);
 
-  Model::Hit pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera);
-  Model::Hit pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera);
+  Model::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
+  Model::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
 
-  vm::vec3 rotationAxis(RotateObjectsHandle::HitArea area) const;
+  vm::vec3d rotationAxis(RotateObjectsHandle::HitArea area) const;
 
   void renderHandle2D(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
@@ -95,7 +94,7 @@ public:
     RotateObjectsHandle::HitArea area);
 
 private:
-  void updateRecentlyUsedCenters(const vm::vec3& center);
+  void updateRecentlyUsedCenters(const vm::vec3d& center);
 
 private:
   QWidget* doCreatePage(QWidget* parent) override;

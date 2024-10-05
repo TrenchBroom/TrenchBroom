@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "FloatType.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 namespace TrenchBroom::Renderer
 {
@@ -31,10 +31,10 @@ class RenderContext;
 class SelectionBoundsRenderer
 {
 private:
-  const vm::bbox3 m_bounds;
+  const vm::bbox3d m_bounds;
 
 public:
-  explicit SelectionBoundsRenderer(const vm::bbox3& bounds);
+  explicit SelectionBoundsRenderer(const vm::bbox3d& bounds);
 
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 

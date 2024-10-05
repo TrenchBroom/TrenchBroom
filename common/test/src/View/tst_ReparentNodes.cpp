@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups")
   document->deselectAll();
 
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(vm::vec3{32, 0, 0});
+  document->translateObjects(vm::vec3d{32, 0, 0});
   document->deselectAll();
 
   SECTION("Move node into group node")

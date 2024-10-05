@@ -21,7 +21,6 @@
 
 #include "Color.h"
 #include "EL/Expression.h"
-#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
@@ -137,7 +136,7 @@ struct GameConfig
   EntityConfig entityConfig;
   FaceAttribsConfig faceAttribsConfig;
   std::vector<SmartTag> smartTags;
-  std::optional<vm::bbox3> softMapBounds;
+  std::optional<vm::bbox3d> softMapBounds;
   std::vector<CompilationTool> compilationTools;
 
   CompilationConfig compilationConfig{};

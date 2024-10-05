@@ -102,10 +102,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
   checkBrushIntegral(brushNode1);
@@ -117,15 +117,15 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
   document->selectNodes({brushNode1, brushNode2});
 
   const auto boundsCenter = document->selectionBounds().center();
-  CHECK(boundsCenter == vm::approx{vm::vec3{15.5, 15.5, 15.5}});
+  CHECK(boundsCenter == vm::approx{vm::vec3d{15.5, 15.5, 15.5}});
 
   document->flipObjects(boundsCenter, vm::axis::x);
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
 
-  CHECK(brushNode1->logicalBounds() == vm::bbox3{{1.0, 0.0, 0.0}, {31.0, 31.0, 31.0}});
-  CHECK(brushNode2->logicalBounds() == vm::bbox3{{0.0, 0.0, 0.0}, {1.0, 31.0, 31.0}});
+  CHECK(brushNode1->logicalBounds() == vm::bbox3d{{1.0, 0.0, 0.0}, {31.0, 31.0, 31.0}});
+  CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0.0, 0.0, 0.0}, {1.0, 31.0, 31.0}});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
@@ -191,10 +191,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
   checkBrushIntegral(brushNode1);
@@ -206,16 +206,16 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
   document->selectNodes({brushNode1, brushNode2});
 
   const auto boundsCenter = document->selectionBounds().center();
-  CHECK(boundsCenter == vm::vec3{15.5, 15.5, 15.5});
+  CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
   // 90 degrees CCW about the Z axis through the center of the selection
-  document->rotateObjects(boundsCenter, vm::vec3::pos_z(), vm::to_radians(90.0));
+  document->rotateObjects(boundsCenter, vm::vec3d::pos_z(), vm::to_radians(90.0));
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
 
-  const auto brush1ExpectedBounds = vm::bbox3{{0.0, 0.0, 0.0}, {31.0, 30.0, 31.0}};
-  const auto brush2ExpectedBounds = vm::bbox3{{0.0, 30.0, 0.0}, {31.0, 31.0, 31.0}};
+  const auto brush1ExpectedBounds = vm::bbox3d{{0.0, 0.0, 0.0}, {31.0, 30.0, 31.0}};
+  const auto brush2ExpectedBounds = vm::bbox3d{{0.0, 30.0, 0.0}, {31.0, 31.0, 31.0}};
 
   // these should be exactly integral
   CHECK(brushNode1->logicalBounds() == brush1ExpectedBounds);
@@ -227,10 +227,10 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
   auto* brushNode2 = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+    builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
   auto* entityNode = new Model::EntityNode{Model::Entity{{
@@ -247,7 +247,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   {
     document->selectNodes({brushNode1});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "45");
   }
@@ -256,7 +256,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   {
     document->selectNodes({brushNode1, brushNode2});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");
   }
@@ -269,7 +269,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
     document->deselectAll();
     document->selectNodes({groupNode});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");
   }
@@ -277,7 +277,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
 {
-  const auto initialBBox = vm::bbox3{{100, 100, 100}, {200, 200, 200}};
+  const auto initialBBox = vm::bbox3d{{100, 100, 100}, {200, 200, 200}};
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -289,7 +289,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::UnorderedEquals(std::vector<vm::vec3d>{
       // bottom face
       {100, 100, 100},
       {200, 100, 100},
@@ -303,11 +303,11 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
     }));
 
   // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3::neg_y(), vm::vec3{50, 0, 0}));
+  CHECK(document->shearObjects(initialBBox, vm::vec3d::neg_y(), vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::UnorderedEquals(std::vector<vm::vec3d>{
       // bottom face
       {150, 100, 100},
       {250, 100, 100},
@@ -323,7 +323,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
 {
-  const auto initialBBox = vm::bbox3{{0, 0, 0}, {100, 100, 400}};
+  const auto initialBBox = vm::bbox3d{{0, 0, 0}, {100, 100, 400}};
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -335,7 +335,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::UnorderedEquals(std::vector<vm::vec3d>{
       // bottom face
       {0, 0, 0},
       {100, 0, 0},
@@ -349,11 +349,11 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
     }));
 
   // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3::pos_z(), vm::vec3{50, 0, 0}));
+  CHECK(document->shearObjects(initialBBox, vm::vec3d::pos_z(), vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
-    Catch::UnorderedEquals(std::vector<vm::vec3>{
+    Catch::UnorderedEquals(std::vector<vm::vec3d>{
       // bottom face
       {0, 0, 0},
       {100, 0, 0},
@@ -369,9 +369,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
 {
-  const auto initialBBox = vm::bbox3{{-100, -100, -100}, {100, 100, 100}};
-  const auto doubleBBox = vm::bbox3{2.0 * initialBBox.min, 2.0 * initialBBox.max};
-  const auto invalidBBox = vm::bbox3{{0, -100, -100}, {0, 100, 100}};
+  const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+  const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
+  const auto invalidBBox = vm::bbox3d{{0, -100, -100}, {0, 100, 100}};
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -382,30 +382,30 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
 
-  CHECK(brushNode->logicalBounds().size() == vm::vec3{200, 200, 200});
+  CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3::pos_z())).boundary()
-    == vm::plane3{100.0, vm::vec3::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
+    == vm::plane3d{100.0, vm::vec3d::pos_z()});
 
   // attempting an invalid scale has no effect
   CHECK_FALSE(document->scaleObjects(initialBBox, invalidBBox));
-  CHECK(brushNode->logicalBounds().size() == vm::vec3{200, 200, 200});
+  CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3::pos_z())).boundary()
-    == vm::plane3{100.0, vm::vec3::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
+    == vm::plane3d{100.0, vm::vec3d::pos_z()});
 
   CHECK(document->scaleObjects(initialBBox, doubleBBox));
-  CHECK(brushNode->logicalBounds().size() == vm::vec3{400, 400, 400});
+  CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3::pos_z())).boundary()
-    == vm::plane3{200.0, vm::vec3::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
+    == vm::plane3d{200.0, vm::vec3d::pos_z()});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
 {
-  const auto initialBBox = vm::bbox3{{-100, -100, -100}, {100, 100, 100}};
-  const auto doubleBBox = vm::bbox3{2.0 * initialBBox.min, 2.0 * initialBBox.max};
-  const auto invalidBBox = vm::bbox3{{0, -100, -100}, {0, 100, 100}};
+  const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
+  const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
+  const auto invalidBBox = vm::bbox3d{{0, -100, -100}, {0, 100, 100}};
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -418,16 +418,16 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
 
   // attempting an invalid scale has no effect
   CHECK_FALSE(document->scaleObjects(initialBBox, invalidBBox));
-  CHECK(brushNode->logicalBounds().size() == vm::vec3{200, 200, 200});
+  CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
 
   CHECK(document->scaleObjects(initialBBox, doubleBBox));
-  CHECK(brushNode->logicalBounds().size() == vm::vec3{400, 400, 400});
+  CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
 {
-  const auto initialBBox = vm::bbox3{{0, 0, 0}, {100, 100, 400}};
-  const auto expectedBBox = vm::bbox3{{-50, 0, 0}, {150, 100, 400}};
+  const auto initialBBox = vm::bbox3d{{0, 0, 0}, {100, 100, 400}};
+  const auto expectedBBox = vm::bbox3d{{-50, 0, 0}, {150, 100, 400}};
 
   auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -438,7 +438,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
   document->selectNodes({brushNode});
 
   const auto boundsCenter = initialBBox.center();
-  CHECK(document->scaleObjects(boundsCenter, vm::vec3{2.0, 1.0, 1.0}));
+  CHECK(document->scaleObjects(boundsCenter, vm::vec3d{2.0, 1.0, 1.0}));
   CHECK(brushNode->logicalBounds() == expectedBBox);
 }
 
@@ -451,7 +451,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   const auto builder =
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  const auto box = vm::bbox3{{0, 0, 0}, {64, 64, 64}};
+  const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
     new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
@@ -473,11 +473,11 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   setPref(Preferences::AlignmentLock, false);
 
-  const auto delta = vm::vec3{0.125, 0, 0};
+  const auto delta = vm::vec3d{0.125, 0, 0};
   REQUIRE(document->translateObjects(delta));
 
   auto getUVCoords =
-    [](auto* brushNode, const vm::vec3& normal) -> std::vector<vm::vec2f> {
+    [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
     const Model::BrushFace& face =
       brushNode->brush().face(*brushNode->brush().findFace(normal));
     return kdl::vec_transform(
@@ -486,8 +486,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   // Brushes in linked groups should have alignment lock forced on
   CHECK(uvListsEqual(
-    getUVCoords(brushNode1, vm::vec3::pos_z()),
-    getUVCoords(linkedBrushNode, vm::vec3::pos_z())));
+    getUVCoords(brushNode1, vm::vec3d::pos_z()),
+    getUVCoords(linkedBrushNode, vm::vec3d::pos_z())));
 
   PreferenceManager::instance().resetToDefault(Preferences::AlignmentLock);
 }

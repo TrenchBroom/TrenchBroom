@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/HitFilter.h"
 #include "Renderer/Camera.h"
 #include "View/GestureTracker.h"
@@ -43,9 +42,9 @@ class Grid;
  */
 struct DragState
 {
-  vm::vec3 initialHandlePosition;
-  vm::vec3 currentHandlePosition;
-  vm::vec3 handleOffset;
+  vm::vec3d initialHandlePosition;
+  vm::vec3d currentHandlePosition;
+  vm::vec3d handleOffset;
 
   kdl_reflect_decl(DragState, initialHandlePosition, currentHandlePosition, handleOffset);
 };
@@ -57,7 +56,7 @@ struct DragState
  * callback will not be called.
  */
 using HandlePositionProposer =
-  std::function<std::optional<vm::vec3>(const InputState&, const DragState&)>;
+  std::function<std::optional<vm::vec3d>(const InputState&, const DragState&)>;
 
 /**
  * Controls whether the initial handle position should be updated to the current handle
@@ -116,8 +115,8 @@ struct HandleDragTrackerDelegate
    */
   virtual HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& initialHitPoint) = 0;
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& initialHitPoint) = 0;
 
   /**
    * Called every time when a new proposed handle position is computed by the drag
@@ -140,7 +139,7 @@ struct HandleDragTrackerDelegate
   virtual DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) = 0;
+    const vm::vec3d& proposedHandlePosition) = 0;
 
   /**
    * Called when the drag ends successfully, i.e. if the drag callback returned
@@ -265,8 +264,8 @@ public:
   HandleDragTracker(
     Delegate delegate,
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& initialHitPoint)
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& initialHitPoint)
     : m_delegate{std::move(delegate)}
     , m_dragState{initialHandlePosition, initialHandlePosition, initialHandlePosition - initialHitPoint}
     , m_proposeHandlePosition{m_delegate.start(
@@ -405,8 +404,8 @@ template <typename Delegate>
 std::unique_ptr<HandleDragTracker<Delegate>> createHandleDragTracker(
   Delegate delegate,
   const InputState& inputState,
-  const vm::vec3& initialHandlePosition,
-  const vm::vec3& initialHitPoint)
+  const vm::vec3d& initialHandlePosition,
+  const vm::vec3d& initialHitPoint)
 {
   return std::make_unique<HandleDragTracker<Delegate>>(
     std::move(delegate), inputState, initialHandlePosition, initialHitPoint);
@@ -417,7 +416,7 @@ std::unique_ptr<HandleDragTracker<Delegate>> createHandleDragTracker(
  * position and not a hit position, so it must be corrected by the handle offset if the
  * offset is not zero.
  */
-using DragHandlePicker = std::function<std::optional<vm::vec3>(const InputState&)>;
+using DragHandlePicker = std::function<std::optional<vm::vec3d>(const InputState&)>;
 
 /**
  * Returns a drag handle picker that picks a point on a line. The given line should be
@@ -425,7 +424,7 @@ using DragHandlePicker = std::function<std::optional<vm::vec3>(const InputState&
  * handle position.
  */
 DragHandlePicker makeLineHandlePicker(
-  const vm::line3& line, const vm::vec3& handleOffset);
+  const vm::line3d& line, const vm::vec3d& handleOffset);
 
 /**
  * Returns a drag handle picker that picks a point on a plane. The given plane should be
@@ -433,17 +432,17 @@ DragHandlePicker makeLineHandlePicker(
  * handle position.
  */
 DragHandlePicker makePlaneHandlePicker(
-  const vm::plane3& plane, const vm::vec3& handleOffset);
+  const vm::plane3d& plane, const vm::vec3d& handleOffset);
 
 /**
  * Returns a drag handle picker that picks a point on a circle. The distance of the
  * returned point and the given center is always equal to the given adius.
  */
 DragHandlePicker makeCircleHandlePicker(
-  const vm::vec3& center,
-  const vm::vec3& normal,
-  FloatType radius,
-  const vm::vec3& handleOffset);
+  const vm::vec3d& center,
+  const vm::vec3d& normal,
+  double radius,
+  const vm::vec3d& handleOffset);
 
 /**
  * Returns a drag handle picker that picks a point on a surface. The surface is determined
@@ -451,13 +450,13 @@ DragHandlePicker makeCircleHandlePicker(
  * that hit's hit point is returned, corrected by the given handle offset.
  */
 DragHandlePicker makeSurfaceHandlePicker(
-  Model::HitFilter filter, const vm::vec3& handleOffset);
+  Model::HitFilter filter, const vm::vec3d& handleOffset);
 
 /**
  * Snaps a proposed handle position to its final position.
  */
-using DragHandleSnapper = std::function<std::optional<vm::vec3>(
-  const InputState&, const DragState&, const vm::vec3& /* proposedHandlePosition */)>;
+using DragHandleSnapper = std::function<std::optional<vm::vec3d>(
+  const InputState&, const DragState&, const vm::vec3d& /* proposedHandlePosition */)>;
 
 /**
  * Returns a snapper function that just returns the proposed handle position.
@@ -482,13 +481,13 @@ DragHandleSnapper makeAbsoluteHandleSnapper(const Grid& grid);
  * position is a multiple of the grid size. If the initial handle position is not on the
  * line itself, it is orthogonally projected onto the line.
  */
-DragHandleSnapper makeRelativeLineHandleSnapper(const Grid& grid, const vm::line3& line);
+DragHandleSnapper makeRelativeLineHandleSnapper(const Grid& grid, const vm::line3d& line);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to the closest point
  * on the given line such that any of its components is a multiple of the grid size.
  */
-DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line3& line);
+DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line3d& line);
 
 /**
  * Returns a snapper function that snaps the proposed handle position to a point on a
@@ -508,10 +507,10 @@ DragHandleSnapper makeAbsoluteLineHandleSnapper(const Grid& grid, const vm::line
  */
 DragHandleSnapper makeCircleHandleSnapper(
   const Grid& grid,
-  FloatType snapAngle,
-  const vm::vec3& center,
-  const vm::vec3& normal,
-  FloatType radius);
+  double snapAngle,
+  const vm::vec3d& center,
+  const vm::vec3d& normal,
+  double radius);
 
 /**
  * Returns a handle proposer that proposes the position of the first brush face hit in the

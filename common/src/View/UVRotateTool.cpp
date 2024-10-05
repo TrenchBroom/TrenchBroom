@@ -147,7 +147,7 @@ private:
     const auto fromPlane = vm::invert(toPlane);
 
     const auto originPosition =
-      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
+      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()};
     const auto faceCenterPosition = toPlane * m_helper.face()->boundsCenter();
 
     const auto& handleColor = pref(Preferences::HandleColor);
@@ -158,7 +158,7 @@ private:
     const auto toWorldTransform = Renderer::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     {
-      const auto translation = vm::translation_matrix(vm::vec3{originPosition});
+      const auto translation = vm::translation_matrix(vm::vec3d{originPosition});
       const auto centerTransform = Renderer::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", m_highlight ? highlightColor : handleColor);
@@ -166,7 +166,7 @@ private:
     }
 
     {
-      const auto translation = vm::translation_matrix(vm::vec3{faceCenterPosition});
+      const auto translation = vm::translation_matrix(vm::vec3d{faceCenterPosition});
       const auto centerTransform = Renderer::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", highlightColor);
@@ -213,7 +213,7 @@ public:
     const auto snappedAngle = vm::correct(snapAngle(m_helper, angle), 4, 0.0f);
 
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
-    const auto oldCenterInWorldCoords = toWorld * vm::vec3{oldCenterInFaceCoords};
+    const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
 
     auto request = Model::ChangeBrushFaceAttributesRequest{};
     request.setRotation(snappedAngle);
@@ -330,10 +330,10 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
     const auto toPlane = vm::plane_projection_matrix(boundary.distance, boundary.normal);
 
     const auto originOnPlane =
-      toPlane * fromFace * vm::vec3{m_helper.originInFaceCoords()};
+      toPlane * fromFace * vm::vec3d{m_helper.originInFaceCoords()};
     const auto hitPointOnPlane = toPlane * hitPoint;
 
-    const auto zoom = FloatType(m_helper.cameraZoom());
+    const auto zoom = double(m_helper.cameraZoom());
     const auto error =
       vm::abs(RotateHandleRadius / zoom - vm::distance(hitPointOnPlane, originOnPlane));
     if (error <= RotateHandleWidth / zoom)

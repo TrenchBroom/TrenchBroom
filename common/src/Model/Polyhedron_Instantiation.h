@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Polyhedron.h"
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
@@ -28,36 +27,33 @@ namespace TrenchBroom::Model
 {
 
 extern template class Polyhedron_Vertex<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-extern template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Vertex<double, BrushFacePayload, BrushVertexPayload>;
 
 extern template class Polyhedron_Edge<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-extern template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Edge<double, BrushFacePayload, BrushVertexPayload>;
 
 extern template class Polyhedron_HalfEdge<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-extern template class Polyhedron_HalfEdge<
-  FloatType,
-  BrushFacePayload,
-  BrushVertexPayload>;
+extern template class Polyhedron_HalfEdge<double, BrushFacePayload, BrushVertexPayload>;
 
 extern template class Polyhedron_Face<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-extern template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron_Face<double, BrushFacePayload, BrushVertexPayload>;
 
 extern template class Polyhedron<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-extern template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+extern template class Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
 } // namespace TrenchBroom::Model

@@ -86,7 +86,7 @@ kdl_reflect_impl(PatchGrid);
  * quadrants (e.g. the corner points have only one). If the grid points of two opposing
  * sides of the grid coincide, we treat them as one grid point and average their normals.
  */
-std::vector<vm::vec3> computeGridNormals(
+std::vector<vm::vec3d> computeGridNormals(
   const std::vector<BezierPatch::Point> patchGrid,
   const size_t pointRowCount,
   const size_t pointColumnCount)
@@ -178,7 +178,7 @@ std::vector<vm::vec3> computeGridNormals(
   const size_t l = 0u;                    // left column
   const size_t r = pointColumnCount - 1u; // right column
 
-  auto normals = std::vector<vm::vec3>{};
+  auto normals = std::vector<vm::vec3d>{};
   normals.resize(patchGrid.size());
 
   // corner normals
@@ -193,11 +193,11 @@ std::vector<vm::vec3> computeGridNormals(
     normals[index(t, col)] =
       (normalForQuadrant(t, col, RowOffset::Below, ColOffset::Left)
        + normalForQuadrant(t, col, RowOffset::Below, ColOffset::Right))
-      / static_cast<FloatType>(2);
+      / static_cast<double>(2);
     normals[index(b, col)] =
       (normalForQuadrant(b, col, RowOffset::Above, ColOffset::Left)
        + normalForQuadrant(b, col, RowOffset::Above, ColOffset::Right))
-      / static_cast<FloatType>(2);
+      / static_cast<double>(2);
   }
 
   // left and right column normals, excluding corners
@@ -206,11 +206,11 @@ std::vector<vm::vec3> computeGridNormals(
     normals[index(row, l)] =
       (normalForQuadrant(row, l, RowOffset::Above, ColOffset::Right)
        + normalForQuadrant(row, l, RowOffset::Below, ColOffset::Right))
-      / static_cast<FloatType>(2);
+      / static_cast<double>(2);
     normals[index(row, r)] =
       (normalForQuadrant(row, r, RowOffset::Above, ColOffset::Left)
        + normalForQuadrant(row, r, RowOffset::Below, ColOffset::Left))
-      / static_cast<FloatType>(2);
+      / static_cast<double>(2);
   }
 
   // inner point normals
@@ -223,13 +223,13 @@ std::vector<vm::vec3> computeGridNormals(
          + normalForQuadrant(row, col, RowOffset::Above, ColOffset::Right)
          + normalForQuadrant(row, col, RowOffset::Below, ColOffset::Left)
          + normalForQuadrant(row, col, RowOffset::Below, ColOffset::Right))
-        / static_cast<FloatType>(4);
+        / static_cast<double>(4);
     }
   }
 
   // Two grid points on opposing sides of the grid coincide if their distance is less than
   // this. This is from Q3 Radiant's source code.
-  constexpr auto GridPointEpsilon = static_cast<FloatType>(1);
+  constexpr auto GridPointEpsilon = static_cast<double>(1);
 
   // check opposing sides of the grid, if their corresponding points coincide, combine the
   // normals
@@ -240,7 +240,7 @@ std::vector<vm::vec3> computeGridNormals(
       < GridPointEpsilon * GridPointEpsilon)
     {
       const auto combinedNormal =
-        (normals[index(row, l)] + normals[index(row, r)]) / static_cast<FloatType>(2);
+        (normals[index(row, l)] + normals[index(row, r)]) / static_cast<double>(2);
       normals[index(row, l)] = normals[index(row, r)] = combinedNormal;
     }
   }
@@ -251,7 +251,7 @@ std::vector<vm::vec3> computeGridNormals(
       < GridPointEpsilon * GridPointEpsilon)
     {
       const auto combinedNormal =
-        (normals[index(t, col)] + normals[index(b, col)]) / static_cast<FloatType>(2);
+        (normals[index(t, col)] + normals[index(b, col)]) / static_cast<double>(2);
       normals[index(t, col)] = normals[index(b, col)] = combinedNormal;
     }
   }
@@ -278,7 +278,7 @@ PatchGrid makePatchGrid(const BezierPatch& patch, const size_t subdivisionsPerSu
   assert(patchGrid.size() == normals.size());
 
   auto points = std::vector<PatchGrid::Point>{};
-  auto boundsBuilder = vm::bbox3::builder{};
+  auto boundsBuilder = vm::bbox3d::builder{};
   for (const auto [point, normal] : kdl::make_zip_range(patchGrid, normals))
   {
     const auto position = vm::slice<3>(point, 0);
@@ -356,20 +356,20 @@ const std::string& PatchNode::doGetName() const
   return name;
 }
 
-const vm::bbox3& PatchNode::doGetLogicalBounds() const
+const vm::bbox3d& PatchNode::doGetLogicalBounds() const
 {
   return m_patch.bounds();
 }
 
-const vm::bbox3& PatchNode::doGetPhysicalBounds() const
+const vm::bbox3d& PatchNode::doGetPhysicalBounds() const
 {
   return m_grid.bounds;
 }
 
-FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
+double PatchNode::doGetProjectedArea(const vm::axis::type axis) const
 {
   // computing the projected area of a patch is expensive, so we just use the bounds
-  const vm::vec3 size = physicalBounds().size();
+  const vm::vec3d size = physicalBounds().size();
   switch (axis)
   {
   case vm::axis::x:
@@ -383,7 +383,7 @@ FloatType PatchNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* PatchNode::doClone(const vm::bbox3&) const
+Node* PatchNode::doClone(const vm::bbox3d&) const
 {
   auto result = std::make_unique<PatchNode>(m_patch);
   cloneLinkId(*result);
@@ -416,7 +416,7 @@ bool PatchNode::doSelectable() const
 }
 
 void PatchNode::doPick(
-  const EditorContext& editorContext, const vm::ray3& pickRay, PickResult& pickResult)
+  const EditorContext& editorContext, const vm::ray3d& pickRay, PickResult& pickResult)
 {
   if (!editorContext.visible(this))
   {
@@ -449,7 +449,7 @@ void PatchNode::doPick(
   }
 }
 
-void PatchNode::doFindNodesContaining(const vm::vec3&, std::vector<Node*>&) {}
+void PatchNode::doFindNodesContaining(const vm::vec3d&, std::vector<Node*>&) {}
 
 void PatchNode::doAccept(NodeVisitor& visitor)
 {

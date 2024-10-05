@@ -45,7 +45,7 @@ TEST_CASE("WorldReaderTest.parseFailure_1424")
 }
 })";
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -68,7 +68,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1")
 ( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -105,7 +105,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2")
 ( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
@@ -133,7 +133,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3")
 ( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
   auto reader = WorldReader{data, Model::MapFormat::Standard, {}};

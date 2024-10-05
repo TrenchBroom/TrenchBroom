@@ -21,7 +21,6 @@
 #include "ShearObjectsTool.h"
 
 #include "Ensure.h"
-#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
@@ -61,7 +60,7 @@ bool ShearObjectsTool::applies() const
 }
 
 void ShearObjectsTool::pickBackSides(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -73,7 +72,7 @@ void ShearObjectsTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3(0, 0, 0));
+    assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
     pickResult.addHit(Model::Hit{
       ShearToolSideHitType,
       result.distAlongRay,
@@ -83,7 +82,7 @@ void ShearObjectsTool::pickBackSides(
 }
 
 void ShearObjectsTool::pick2D(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -107,7 +106,7 @@ void ShearObjectsTool::pick2D(
 }
 
 void ShearObjectsTool::pick3D(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -148,14 +147,14 @@ void ShearObjectsTool::pick3D(
   }
 }
 
-vm::bbox3 ShearObjectsTool::bounds() const
+vm::bbox3d ShearObjectsTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->selectionBounds();
 }
 
 // for rendering sheared bbox
-vm::bbox3 ShearObjectsTool::bboxAtDragStart() const
+vm::bbox3d ShearObjectsTool::bboxAtDragStart() const
 {
   return m_resizing ? m_bboxAtDragStart : bounds();
 }
@@ -168,7 +167,7 @@ void ShearObjectsTool::startShearWithHit(const Model::Hit& hit)
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3{0, 0, 0};
+  m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
   auto document = kdl::mem_lock(m_document);
   document->startTransaction("Shear Objects", TransactionScope::LongRunning);
@@ -180,7 +179,7 @@ void ShearObjectsTool::commitShear()
   ensure(m_resizing, "must be resizing already");
 
   auto document = kdl::mem_lock(m_document);
-  if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero()))
+  if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
     document->cancelTransaction();
   }
@@ -201,7 +200,7 @@ void ShearObjectsTool::cancelShear()
   m_resizing = false;
 }
 
-void ShearObjectsTool::shearByDelta(const vm::vec3& delta)
+void ShearObjectsTool::shearByDelta(const vm::vec3d& delta)
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -209,7 +208,7 @@ void ShearObjectsTool::shearByDelta(const vm::vec3& delta)
 
   auto document = kdl::mem_lock(m_document);
 
-  if (!vm::is_zero(delta, vm::C::almost_zero()))
+  if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
     document->shearObjects(bounds(), side.normal, delta);
@@ -221,12 +220,12 @@ const Model::Hit& ShearObjectsTool::dragStartHit() const
   return m_dragStartHit;
 }
 
-vm::mat4x4 ShearObjectsTool::bboxShearMatrix() const
+vm::mat4x4d ShearObjectsTool::bboxShearMatrix() const
 {
   // happens if you cmd+drag on an edge or corner
   if (!m_resizing || m_dragStartHit.type() != ShearToolSideHitType)
   {
-    return vm::mat4x4::identity();
+    return vm::mat4x4d::identity();
   }
 
   const auto side = m_dragStartHit.target<BBoxSide>();

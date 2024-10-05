@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/Tool.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <memory>
 #include <string>
@@ -42,7 +42,7 @@ class CreateEntityTool : public Tool
 private:
   std::weak_ptr<MapDocument> m_document;
   Model::EntityNode* m_entity = nullptr;
-  vm::bbox3 m_referenceBounds;
+  vm::bbox3d m_referenceBounds;
 
 public:
   explicit CreateEntityTool(std::weak_ptr<MapDocument> document);
@@ -51,9 +51,9 @@ public:
   void removeEntity();
   void commitEntity();
 
-  void updateEntityPosition2D(const vm::ray3& pickRay);
+  void updateEntityPosition2D(const vm::ray3d& pickRay);
   void updateEntityPosition3D(
-    const vm::ray3& pickRay, const Model::PickResult& pickResult);
+    const vm::ray3d& pickRay, const Model::PickResult& pickResult);
 };
 
 } // namespace TrenchBroom::View

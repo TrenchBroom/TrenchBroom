@@ -21,7 +21,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/Polyhedron.h" // IWYU pragma: keep
@@ -96,10 +95,10 @@ private:
     const auto pos4 = -w2 * r - h2 * u + p;
 
     return {
-      Vertex{pos1, normal, m_helper.face()->uvCoords(vm::vec3(pos1))},
-      Vertex{pos2, normal, m_helper.face()->uvCoords(vm::vec3(pos2))},
-      Vertex{pos3, normal, m_helper.face()->uvCoords(vm::vec3(pos3))},
-      Vertex{pos4, normal, m_helper.face()->uvCoords(vm::vec3(pos4))},
+      Vertex{pos1, normal, m_helper.face()->uvCoords(vm::vec3d(pos1))},
+      Vertex{pos2, normal, m_helper.face()->uvCoords(vm::vec3d(pos2))},
+      Vertex{pos3, normal, m_helper.face()->uvCoords(vm::vec3d(pos3))},
+      Vertex{pos4, normal, m_helper.face()->uvCoords(vm::vec3d(pos4))},
     };
   }
 
@@ -414,10 +413,10 @@ void UVView::processEvent(const CancelEvent& event)
 
 PickRequest UVView::pickRequest(const float x, const float y) const
 {
-  return PickRequest{vm::ray3{m_camera.pickRay(x, y)}, m_camera};
+  return PickRequest{vm::ray3d{m_camera.pickRay(x, y)}, m_camera};
 }
 
-Model::PickResult UVView::pick(const vm::ray3& pickRay) const
+Model::PickResult UVView::pick(const vm::ray3d& pickRay) const
 {
   auto pickResult = Model::PickResult::byDistance();
   if (m_helper.valid())

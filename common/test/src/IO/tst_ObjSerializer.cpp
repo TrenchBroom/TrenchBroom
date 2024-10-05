@@ -45,7 +45,7 @@ namespace TrenchBroom::IO
 
 TEST_CASE("ObjSerializer.writeBrush")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
@@ -112,7 +112,7 @@ f  8/4/6  5/3/6  6/2/6  7/1/6
 
 TEST_CASE("ObjSerializer.writePatch")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
 
@@ -388,7 +388,7 @@ f  71/1/71  80/1/80  81/1/81  72/1/72
 
 TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   // must outlive map
   auto textureResource = createTextureResource(Assets::Texture{16, 16});

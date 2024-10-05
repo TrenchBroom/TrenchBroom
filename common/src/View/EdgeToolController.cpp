@@ -26,7 +26,7 @@
 namespace TrenchBroom::View
 {
 
-class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3>
+class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3d>
 {
 public:
   explicit SelectEdgePart(EdgeTool& tool)
@@ -35,7 +35,7 @@ public:
   }
 
 private:
-  bool equalHandles(const vm::segment3& lhs, const vm::segment3& rhs) const override
+  bool equalHandles(const vm::segment3d& lhs, const vm::segment3d& rhs) const override
   {
     return compare(lhs, rhs, MaxHandleDistance) == 0;
   }

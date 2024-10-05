@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -69,7 +68,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
       camera.moveTo({0, 0, 32});
       camera.setDirection({0, 0, -1}, {0, 1, 0});
 
-      const auto pickRay = vm::ray3{camera.pickRay({0, 0, 0})};
+      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
       auto pickResult = Model::PickResult{};
       document->pick(pickRay, pickResult);
@@ -137,7 +136,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
       camera.moveTo({0, 0, 32});
       camera.setDirection({0, 0, -1}, {0, 1, 0});
 
-      const auto pickRay = vm::ray3{camera.pickRay({0, 0, 0})};
+      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
       auto pickResult = Model::PickResult{};
       document->pick(pickRay, pickResult);

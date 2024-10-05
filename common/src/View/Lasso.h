@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 
-#include "vm/bbox.h"  // IWYU pragma : keep
-#include "vm/plane.h" // IWYU pragma : keep
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
+#include "vm/plane.h" // IWYU pragma: keep
 
 namespace TrenchBroom::Renderer
 {
@@ -38,14 +38,14 @@ class Lasso
 {
 private:
   const Renderer::Camera& m_camera;
-  const FloatType m_distance;
-  const vm::vec3 m_start;
-  vm::vec3 m_cur;
+  const double m_distance;
+  const vm::vec3d m_start;
+  vm::vec3d m_cur;
 
 public:
-  Lasso(const Renderer::Camera& camera, FloatType distance, const vm::vec3& point);
+  Lasso(const Renderer::Camera& camera, double distance, const vm::vec3d& point);
 
-  void update(const vm::vec3& point);
+  void update(const vm::vec3d& point);
 
   template <typename I, typename O>
   void selected(I cur, I end, O out) const
@@ -64,21 +64,22 @@ public:
 
 private:
   bool selects(
-    const vm::vec3& point, const vm::plane3& plane, const vm::bbox2& box) const;
+    const vm::vec3d& point, const vm::plane3d& plane, const vm::bbox2d& box) const;
   bool selects(
-    const vm::segment3& edge, const vm::plane3& plane, const vm::bbox2& box) const;
+    const vm::segment3d& edge, const vm::plane3d& plane, const vm::bbox2d& box) const;
   bool selects(
-    const vm::polygon3& polygon, const vm::plane3& plane, const vm::bbox2& box) const;
-  std::optional<vm::vec3> project(const vm::vec3& point, const vm::plane3& plane) const;
+    const vm::polygon3d& polygon, const vm::plane3d& plane, const vm::bbox2d& box) const;
+  std::optional<vm::vec3d> project(
+    const vm::vec3d& point, const vm::plane3d& plane) const;
 
 public:
   void render(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
 
 private:
-  vm::plane3 getPlane() const;
-  vm::mat4x4 getTransform() const;
-  vm::bbox2 getBox(const vm::mat4x4& transform) const;
+  vm::plane3d getPlane() const;
+  vm::mat4x4d getTransform() const;
+  vm::bbox2d getBox(const vm::mat4x4d& transform) const;
 };
 
 } // namespace TrenchBroom::View

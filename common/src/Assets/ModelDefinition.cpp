@@ -115,12 +115,12 @@ ModelSpecification ModelDefinition::defaultModelSpecification() const
   return convertToModel(m_expression.tryEvaluate(context));
 }
 
-static std::optional<vm::vec3> scaleValue(const EL::Value& value)
+static std::optional<vm::vec3d> scaleValue(const EL::Value& value)
 {
   if (value.type() == EL::ValueType::Number)
   {
     const auto scale = value.numberValue();
-    return vm::vec3{scale, scale, scale};
+    return vm::vec3d{scale, scale, scale};
   }
 
   if (value.type() != EL::ValueType::String)
@@ -134,7 +134,7 @@ static std::optional<vm::vec3> scaleValue(const EL::Value& value)
     return std::nullopt;
   }
 
-  if (const auto scale = vm::parse<FloatType, 3>(stringValue))
+  if (const auto scale = vm::parse<double, 3>(stringValue))
   {
     return *scale;
   }
@@ -145,10 +145,10 @@ static std::optional<vm::vec3> scaleValue(const EL::Value& value)
   }
 
   const auto scale = value.convertTo(EL::ValueType::Number).numberValue();
-  return vm::vec3{scale, scale, scale};
+  return vm::vec3d{scale, scale, scale};
 }
 
-static std::optional<vm::vec3> convertToScale(const EL::Value& value)
+static std::optional<vm::vec3d> convertToScale(const EL::Value& value)
 {
   if (value.type() == EL::ValueType::Array)
   {
@@ -166,7 +166,7 @@ static std::optional<vm::vec3> convertToScale(const EL::Value& value)
   return scaleValue(value);
 }
 
-vm::vec3 ModelDefinition::scale(
+vm::vec3d ModelDefinition::scale(
   const EL::VariableStore& variableStore,
   const std::optional<EL::ExpressionNode>& defaultScaleExpression) const
 {
@@ -198,12 +198,12 @@ vm::vec3 ModelDefinition::scale(
     }
   }
 
-  return vm::vec3{1, 1, 1};
+  return vm::vec3d{1, 1, 1};
 }
 
 kdl_reflect_impl(ModelDefinition);
 
-vm::vec3 safeGetModelScale(
+vm::vec3d safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
   const std::optional<EL::ExpressionNode>& defaultScaleExpression)
@@ -214,7 +214,7 @@ vm::vec3 safeGetModelScale(
   }
   catch (const EL::Exception&)
   {
-    return vm::vec3{1, 1, 1};
+    return vm::vec3d{1, 1, 1};
   }
 }
 

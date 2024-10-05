@@ -54,7 +54,7 @@ namespace TrenchBroom::View
 namespace
 {
 
-vm::vec3 n(const vm::vec3& v)
+vm::vec3d n(const vm::vec3d& v)
 {
   return vm::normalize(v);
 }
@@ -63,7 +63,7 @@ vm::vec3 n(const vm::vec3& v)
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
 {
-  constexpr auto brushBounds = vm::bbox3{16.0};
+  constexpr auto brushBounds = vm::bbox3d{16.0};
 
   auto tool = ExtrudeTool{document};
 
@@ -77,7 +77,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
 
   SECTION("Pick ray hits brush directly")
   {
-    constexpr auto pickRay = vm::ray3{{0, 0, 32}, {0, 0, -1}};
+    constexpr auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
 
     auto pickResult = Model::PickResult{};
     document->pick(pickRay, pickResult);
@@ -90,7 +90,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
 
   SECTION("Pick ray does not hit brush directly")
   {
-    using T = std::tuple<vm::vec3, vm::vec3, vm::vec3, vm::vec3, vm::plane3, vm::vec3>;
+    using T =
+      std::tuple<vm::vec3d, vm::vec3d, vm::vec3d, vm::vec3d, vm::plane3d, vm::vec3d>;
 
     // clang-format off
     const auto
@@ -104,7 +105,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
 
     CAPTURE(brushBounds, origin, direction);
 
-    const auto hit = tool.pick2D(vm::ray3{origin, vm::normalize(direction)}, {});
+    const auto hit = tool.pick2D(vm::ray3d{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
     CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -122,7 +123,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
 {
-  constexpr auto brushBounds = vm::bbox3{16.0};
+  constexpr auto brushBounds = vm::bbox3d{16.0};
 
   auto tool = ExtrudeTool{document};
 
@@ -136,7 +137,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
 
   SECTION("Pick ray hits brush directly")
   {
-    const auto pickRay = vm::ray3{{0, 0, 24}, vm::normalize(vm::vec3{-1, 0, -1})};
+    const auto pickRay = vm::ray3d{{0, 0, 24}, vm::normalize(vm::vec3d{-1, 0, -1})};
 
     auto pickResult = Model::PickResult{};
     document->pick(pickRay, pickResult);
@@ -147,20 +148,21 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
 
     CHECK(hit.isMatch());
     CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
-    CHECK(hit.hitPoint() == vm::vec3{-8, 0, 16});
+    CHECK(hit.hitPoint() == vm::vec3d{-8, 0, 16});
     CHECK(hit.distance() == vm::approx{vm::length(hit.hitPoint() - pickRay.origin)});
 
     CHECK(
       hit.target<ExtrudeHitData>()
       == ExtrudeHitData{
-        {brushNode1, *brushNode1->brush().findFace(vm::vec3{0, 0, 1})},
-        vm::line3{hit.hitPoint(), {0, 0, 1}},
+        {brushNode1, *brushNode1->brush().findFace(vm::vec3d{0, 0, 1})},
+        vm::line3d{hit.hitPoint(), {0, 0, 1}},
         hit.hitPoint()});
   }
 
   SECTION("Pick ray does not hit brush directly")
   {
-    using T = std::tuple<vm::vec3, vm::vec3, vm::vec3, vm::vec3, vm::plane3, vm::vec3>;
+    using T =
+      std::tuple<vm::vec3d, vm::vec3d, vm::vec3d, vm::vec3d, vm::plane3d, vm::vec3d>;
 
     // clang-format off
     const auto
@@ -174,7 +176,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
 
     CAPTURE(brushBounds, origin, direction);
 
-    const auto hit = tool.pick3D(vm::ray3{origin, vm::normalize(direction)}, {});
+    const auto hit = tool.pick3D(vm::ray3d{origin, vm::normalize(direction)}, {});
 
     CHECK(hit.isMatch());
     CHECK(hit.type() == ExtrudeTool::ExtrudeHitType);
@@ -194,7 +196,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
  * Boilerplate to perform picking
  */
 static Model::PickResult performPick(
-  View::MapDocument& document, ExtrudeTool& tool, const vm::ray3& pickRay)
+  View::MapDocument& document, ExtrudeTool& tool, const vm::ray3d& pickRay)
 {
   auto pickResult = Model::PickResult::byDistance();
   document.pick(pickRay, pickResult); // populate pickResult
@@ -254,7 +256,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
     }).front();
 
   // Fire a pick ray at largerTopFace
-  const auto pickRay = vm::ray3{
+  const auto pickRay = vm::ray3d{
     cameraEntity->entity().origin(),
     vm::normalize(largerTopFace.center() - cameraEntity->entity().origin())};
 
@@ -303,7 +305,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       .front();
 
   // Fire a pick ray at cameraTarget
-  const auto pickRay = vm::ray3(
+  const auto pickRay = vm::ray3d(
     cameraEntity->entity().origin(),
     vm::normalize(cameraTarget->entity().origin() - cameraEntity->entity().origin()));
 
@@ -316,18 +318,18 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     kdl::vec_transform(
       tool.proposedDragHandles(),
       [](const auto& h) { return h.faceAtDragStart().normal(); })
-    == std::vector<vm::vec3>{vm::vec3::pos_y(), vm::vec3::pos_y()});
+    == std::vector<vm::vec3d>{vm::vec3d::pos_y(), vm::vec3d::pos_y()});
 
   const auto hit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
   auto dragState = ExtrudeDragState{
     tool.proposedDragHandles(),
     ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
     false,
-    vm::vec3::zero()};
+    vm::vec3d::zero()};
 
   SECTION("split brushes inwards 32 units towards -Y")
   {
-    const auto delta = vm::vec3(0, -32, 0);
+    const auto delta = vm::vec3d(0, -32, 0);
 
     dragState.splitBrushes = true;
     tool.beginExtrude();
@@ -342,7 +344,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{
+      const auto expectedBounds = std::vector<vm::bbox3d>{
         {{-32, 144, 16}, {-16, 192, 32}}, {{-32, 192, 16}, {-16, 224, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
@@ -352,7 +354,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{
+      const auto expectedBounds = std::vector<vm::bbox3d>{
         {{-16, 176, 16}, {16, 192, 32}}, {{-16, 192, 16}, {16, 224, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
@@ -366,7 +368,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
   SECTION("split brushes inwards 48 units towards -Y")
   {
-    const auto delta = vm::vec3(0, -48, 0);
+    const auto delta = vm::vec3d(0, -48, 0);
 
     dragState.splitBrushes = true;
     tool.beginExtrude();
@@ -381,7 +383,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{
+      const auto expectedBounds = std::vector<vm::bbox3d>{
         {{-32, 144, 16}, {-16, 176, 32}}, {{-32, 176, 16}, {-16, 224, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
@@ -391,14 +393,15 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 176, 16}, {16, 224, 32}}};
+      const auto expectedBounds =
+        std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 224, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
   }
 
   SECTION("extrude inwards 32 units towards -Y")
   {
-    const auto delta = vm::vec3{0, -32, 0};
+    const auto delta = vm::vec3d{0, -32, 0};
 
     dragState.splitBrushes = false;
     tool.beginExtrude();
@@ -413,7 +416,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{
+      const auto expectedBounds = std::vector<vm::bbox3d>{
         {{-32, 144, 16}, {-16, 192, 32}},
       };
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
@@ -424,14 +427,15 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
       const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 176, 16}, {16, 192, 32}}};
+      const auto expectedBounds =
+        std::vector<vm::bbox3d>{{{-16, 176, 16}, {16, 192, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
   }
 
   SECTION("split brushes outwards 16 units towards +Y")
   {
-    const auto delta = vm::vec3{0, 16, 0};
+    const auto delta = vm::vec3d{0, 16, 0};
 
     dragState.splitBrushes = true;
     tool.beginExtrude();
@@ -449,7 +453,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{
+      const auto expectedBounds = std::vector<vm::bbox3d>{
         {{-32, 224, 16}, {-16, 240, 32}},
       };
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
@@ -463,7 +467,8 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
-      const auto expectedBounds = std::vector<vm::bbox3>{{{-16, 224, 16}, {16, 240, 32}}};
+      const auto expectedBounds =
+        std::vector<vm::bbox3d>{{{-16, 224, 16}, {16, 240, 32}}};
       CHECK_THAT(bounds, Catch::UnorderedEquals(expectedBounds));
     }
 

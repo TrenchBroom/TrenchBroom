@@ -19,9 +19,11 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "NotifierConnection.h"
 #include "View/TabBook.h"
+
+#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <memory>
 #include <optional>
@@ -86,7 +88,7 @@ public:
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
-  std::optional<vm::bbox3> parseLineEdits();
+  std::optional<vm::bbox3d> parseLineEdits();
   void createGui();
 
 private:

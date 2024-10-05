@@ -54,7 +54,7 @@ public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<Model::Brush>> createBrushes(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
 };
@@ -80,7 +80,7 @@ private:
 struct CylinderShapeParameters : public CircularShapeParameters
 {
   bool hollow;
-  FloatType thickness;
+  double thickness;
 };
 
 class DrawShapeToolCylinderShapeExtensionPage
@@ -104,7 +104,7 @@ public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<Model::Brush>> createBrushes(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
 
@@ -120,7 +120,7 @@ public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<Model::Brush>> createBrushes(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
 
@@ -153,7 +153,7 @@ public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<Model::Brush>> createBrushes(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
 
@@ -187,7 +187,7 @@ public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<Model::Brush>> createBrushes(
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
 

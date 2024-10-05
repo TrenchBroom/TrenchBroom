@@ -50,16 +50,16 @@ const OrthographicCamera::Viewport& OrthographicCamera::zoomedViewport() const
   return m_zoomedViewport;
 }
 
-std::vector<vm::vec3> OrthographicCamera::viewportVertices() const
+std::vector<vm::vec3d> OrthographicCamera::viewportVertices() const
 {
   const auto w2 = static_cast<float>(zoomedViewport().width) / 2.0f;
   const auto h2 = static_cast<float>(zoomedViewport().height) / 2.0f;
 
   return {
-    vm::vec3{position() - w2 * right() + h2 * up()},
-    vm::vec3{position() + w2 * right() + h2 * up()},
-    vm::vec3{position() + w2 * right() - h2 * up()},
-    vm::vec3{position() - w2 * right() - h2 * up()},
+    vm::vec3d{position() - w2 * right() + h2 * up()},
+    vm::vec3d{position() + w2 * right() + h2 * up()},
+    vm::vec3d{position() + w2 * right() - h2 * up()},
+    vm::vec3d{position() - w2 * right() - h2 * up()},
   };
 }
 

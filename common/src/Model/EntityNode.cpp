@@ -46,14 +46,14 @@ namespace TrenchBroom::Model
 {
 
 const HitType::Type EntityNode::EntityHitType = HitType::freeType();
-const vm::bbox3 EntityNode::DefaultBounds = vm::bbox3{8.0};
+const vm::bbox3d EntityNode::DefaultBounds = vm::bbox3d{8.0};
 
 EntityNode::EntityNode(Entity entity)
   : EntityNodeBase{std::move(entity)}
 {
 }
 
-const vm::bbox3& EntityNode::modelBounds() const
+const vm::bbox3d& EntityNode::modelBounds() const
 {
   validateBounds();
   return m_cachedBounds->modelBounds;
@@ -65,19 +65,19 @@ void EntityNode::setModel(const Assets::EntityModel* model)
   nodePhysicalBoundsDidChange();
 }
 
-const vm::bbox3& EntityNode::doGetLogicalBounds() const
+const vm::bbox3d& EntityNode::doGetLogicalBounds() const
 {
   validateBounds();
   return m_cachedBounds->logicalBounds;
 }
 
-const vm::bbox3& EntityNode::doGetPhysicalBounds() const
+const vm::bbox3d& EntityNode::doGetPhysicalBounds() const
 {
   validateBounds();
   return m_cachedBounds->physicalBounds;
 }
 
-FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
+double EntityNode::doGetProjectedArea(const vm::axis::type axis) const
 {
   const auto size = physicalBounds().size();
   switch (axis)
@@ -93,7 +93,7 @@ FloatType EntityNode::doGetProjectedArea(const vm::axis::type axis) const
   }
 }
 
-Node* EntityNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* EntityNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result = std::make_unique<EntityNode>(m_entity);
   cloneLinkId(*result);
@@ -156,7 +156,7 @@ bool EntityNode::doSelectable() const
 }
 
 void EntityNode::doPick(
-  const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult)
+  const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult)
 {
   if (!hasChildren() && editorContext.visible(this))
   {
@@ -185,16 +185,16 @@ void EntityNode::doPick(
         {
           // transform back to world space
           const auto transformedHitPoint =
-            vm::vec3{point_at_distance(transformedRay, *distance)};
+            vm::vec3d{point_at_distance(transformedRay, *distance)};
           const auto hitPoint = transform * transformedHitPoint;
-          pickResult.addHit(Hit{EntityHitType, FloatType(*distance), hitPoint, this});
+          pickResult.addHit(Hit{EntityHitType, double(*distance), hitPoint, this});
         }
       }
     }
   }
 }
 
-void EntityNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void EntityNode::doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   if (hasChildren())
   {
@@ -235,17 +235,17 @@ std::vector<Node*> EntityNode::nodesRequiredForViewSelection()
   }
 }
 
-void EntityNode::doPropertiesDidChange(const vm::bbox3& /* oldBounds */)
+void EntityNode::doPropertiesDidChange(const vm::bbox3d& /* oldBounds */)
 {
   nodePhysicalBoundsDidChange();
 }
 
-vm::vec3 EntityNode::doGetLinkSourceAnchor() const
+vm::vec3d EntityNode::doGetLinkSourceAnchor() const
 {
   return logicalBounds().center();
 }
 
-vm::vec3 EntityNode::doGetLinkTargetAnchor() const
+vm::vec3d EntityNode::doGetLinkTargetAnchor() const
 {
   return logicalBounds().center();
 }
@@ -285,7 +285,7 @@ void EntityNode::validateBounds() const
   if (hasModel)
   {
     m_cachedBounds->modelBounds =
-      vm::bbox3(m_entity.modelFrame()->bounds())
+      vm::bbox3d(m_entity.modelFrame()->bounds())
         .transform(m_entity.modelTransformation(defaultModelScaleExpression));
   }
   else
@@ -296,8 +296,8 @@ void EntityNode::validateBounds() const
 
   if (hasChildren())
   {
-    m_cachedBounds->logicalBounds = computeLogicalBounds(children(), vm::bbox3(0.0));
-    m_cachedBounds->physicalBounds = computePhysicalBounds(children(), vm::bbox3(0.0));
+    m_cachedBounds->logicalBounds = computeLogicalBounds(children(), vm::bbox3d(0.0));
+    m_cachedBounds->physicalBounds = computePhysicalBounds(children(), vm::bbox3d(0.0));
   }
   else
   {

@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Ensure.h"
-#include "FloatType.h"
 #include "Macros.h"
 #include "Notifier.h"
 
@@ -59,17 +58,17 @@ public:
 public:
   explicit Grid(int size);
 
-  static FloatType actualSize(int size);
+  static double actualSize(int size);
 
   int size() const;
   void setSize(int size);
   void incSize();
   void decSize();
-  FloatType actualSize() const;
+  double actualSize() const;
   /**
    * Snap increment in radians for angle snapping
    */
-  FloatType angle() const;
+  double angle() const;
 
   bool visible() const;
   void toggleVisible();
@@ -427,19 +426,19 @@ public:
   }
 
 public:
-  FloatType intersectWithRay(const vm::ray3& ray, size_t skip) const;
+  double intersectWithRay(const vm::ray3d& ray, size_t skip) const;
 
   /**
    * Returns a copy of `delta` that snaps the result to grid, if the grid snapping moves
    * the result in the same direction as delta (tested on each axis). Otherwise, returns
    * the original point for that axis.
    */
-  vm::vec3 moveDeltaForPoint(const vm::vec3& point, const vm::vec3& delta) const;
-  vm::vec3 moveDeltaForBounds(
-    const vm::plane3& targetPlane,
-    const vm::bbox3& bounds,
-    const vm::bbox3& worldBounds,
-    const vm::ray3& ray) const;
+  vm::vec3d moveDeltaForPoint(const vm::vec3d& point, const vm::vec3d& delta) const;
+  vm::vec3d moveDeltaForBounds(
+    const vm::plane3d& targetPlane,
+    const vm::bbox3d& bounds,
+    const vm::bbox3d& worldBounds,
+    const vm::ray3d& ray) const;
 
   /**
    * Given a line and a point X on the line (via the distance from the line's origin),
@@ -447,12 +446,11 @@ public:
    * the line with a grid plane, and the distance between X and Y is minimal among all
    * such points.
    */
-  FloatType snapToGridPlane(const vm::line3& line, FloatType distance) const;
+  double snapToGridPlane(const vm::line3d& line, double distance) const;
 
-  FloatType snapMoveDistanceForFace(
-    const Model::BrushFace& face, FloatType moveDistance) const;
+  double snapMoveDistanceForFace(const Model::BrushFace& face, double moveDistance) const;
 
-  vm::vec3 referencePoint(const vm::bbox3& bounds) const;
+  vm::vec3d referencePoint(const vm::bbox3d& bounds) const;
 };
 
 } // namespace TrenchBroom::View

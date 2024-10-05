@@ -22,7 +22,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModelManager.h"
 #include "AttrString.h"
-#include "FloatType.h"
 #include "Model/EditorContext.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
@@ -390,7 +389,7 @@ namespace
 
 auto makeWireFrameBoundsVertexBuilder(std::vector<GLVertexTypes::P3::Vertex>& vertices)
 {
-  return [&](const vm::vec3& v1, const vm::vec3& v2) {
+  return [&](const vm::vec3d& v1, const vm::vec3d& v2) {
     vertices.emplace_back(vm::vec3f{v1});
     vertices.emplace_back(vm::vec3f{v2});
   };
@@ -399,7 +398,7 @@ auto makeWireFrameBoundsVertexBuilder(std::vector<GLVertexTypes::P3::Vertex>& ve
 auto makeColoredWireFrameBoundsVertexBuilder(
   std::vector<GLVertexTypes::P3C4::Vertex>& vertices, const Color& color)
 {
-  return [&](const vm::vec3& v1, const vm::vec3& v2) {
+  return [&](const vm::vec3d& v1, const vm::vec3d& v2) {
     vertices.emplace_back(vm::vec3f{v1}, color);
     vertices.emplace_back(vm::vec3f{v2}, color);
   };
@@ -409,11 +408,11 @@ auto makeColoredSolidBoundsVertexBuilder(
   std::vector<GLVertexTypes::P3NC4::Vertex>& vertices, const Color& color)
 {
   return [&](
-           const vm::vec3& v1,
-           const vm::vec3& v2,
-           const vm::vec3& v3,
-           const vm::vec3& v4,
-           const vm::vec3& n) {
+           const vm::vec3d& v1,
+           const vm::vec3d& v2,
+           const vm::vec3d& v3,
+           const vm::vec3d& v4,
+           const vm::vec3d& n) {
     vertices.emplace_back(vm::vec3f{v1}, vm::vec3f{n}, color);
     vertices.emplace_back(vm::vec3f{v2}, vm::vec3f{n}, color);
     vertices.emplace_back(vm::vec3f{v3}, vm::vec3f{n}, color);

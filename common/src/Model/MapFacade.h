@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/EntityColor.h"
 
@@ -86,9 +85,9 @@ public: // selection
   virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
   virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
 
-  virtual const vm::bbox3& referenceBounds() const = 0;
-  virtual const vm::bbox3& lastSelectionBounds() const = 0;
-  virtual const vm::bbox3& selectionBounds() const = 0;
+  virtual const vm::bbox3d& referenceBounds() const = 0;
+  virtual const vm::bbox3d& lastSelectionBounds() const = 0;
+  virtual const vm::bbox3d& selectionBounds() const = 0;
   virtual const std::string& currentMaterialName() const = 0;
 
   virtual void selectAllNodes() = 0;
@@ -116,7 +115,7 @@ public: // adding, removing, reparenting, and duplicating nodes
 
 public: // entity management
   virtual Model::EntityNode* createPointEntity(
-    const Assets::PointEntityDefinition* definition, const vm::vec3& delta) = 0;
+    const Assets::PointEntityDefinition* definition, const vm::vec3d& delta) = 0;
   virtual Model::EntityNode* createBrushEntity(
     const Assets::BrushEntityDefinition* definition) = 0;
 
@@ -130,14 +129,14 @@ public:                                            // modifying transient node a
   virtual void resetLock(const std::vector<Node*>& nodes) = 0;
 
 public: // modifying objects
-  virtual bool translateObjects(const vm::vec3& delta) = 0;
+  virtual bool translateObjects(const vm::vec3d& delta) = 0;
   virtual bool rotateObjects(
-    const vm::vec3& center, const vm::vec3& axis, FloatType angle) = 0;
-  virtual bool scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox) = 0;
-  virtual bool scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors) = 0;
+    const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
+  virtual bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
+  virtual bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
   virtual bool shearObjects(
-    const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta) = 0;
-  virtual bool flipObjects(const vm::vec3& center, vm::axis::type axis) = 0;
+    const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) = 0;
+  virtual bool flipObjects(const vm::vec3d& center, vm::axis::type axis) = 0;
 
 public: // modifying entity properties
   virtual bool setProperty(
@@ -154,7 +153,7 @@ public: // modifying entity properties
 
 public: // brush extrusion
   virtual bool extrudeBrushes(
-    const std::vector<vm::polygon3>& faces, const vm::vec3& delta) = 0;
+    const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta) = 0;
 
 public: // modifying face attributes
   virtual bool setFaceAttributes(const BrushFaceAttributes& attributes) = 0;
@@ -167,7 +166,7 @@ public: // modifying face attributes
   virtual bool shearUV(const vm::vec2f& factors) = 0;
 
 public: // modifying vertices
-  virtual bool snapVertices(FloatType snapTo) = 0;
+  virtual bool snapVertices(double snapTo) = 0;
 
   struct MoveVerticesResult
   {
@@ -177,11 +176,11 @@ public: // modifying vertices
   };
 
   virtual MoveVerticesResult moveVertices(
-    std::vector<vm::vec3> vertexPositions, const vm::vec3& delta) = 0;
+    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) = 0;
   virtual bool moveEdges(
-    std::vector<vm::segment3> edgePositions, const vm::vec3& delta) = 0;
+    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) = 0;
   virtual bool moveFaces(
-    std::vector<vm::polygon3> facePositions, const vm::vec3& delta) = 0;
+    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) = 0;
 
 public: // search paths and mods
   virtual std::vector<std::string> mods() const = 0;

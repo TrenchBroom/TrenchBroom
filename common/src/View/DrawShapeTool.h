@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/CreateBrushesToolBase.h"
 #include "View/DrawShapeToolExtension.h"
 
@@ -35,7 +34,7 @@ class DrawShapeTool : public CreateBrushesToolBase
 {
 public:
   explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3& bounds, vm::axis::type axis);
+  void update(const vm::bbox3d& bounds, vm::axis::type axis);
 
   bool cancel();
 

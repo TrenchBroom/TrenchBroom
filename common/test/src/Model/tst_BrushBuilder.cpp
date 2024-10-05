@@ -36,7 +36,7 @@ namespace TrenchBroom::Model
 namespace
 {
 
-auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
+auto makeFace(const std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>& face)
 {
   return BrushFace::create(
            std::get<0>(face),
@@ -47,10 +47,10 @@ auto makeFace(const std::tuple<vm::vec3, vm::vec3, vm::vec3>& face)
          | kdl::value();
 };
 
-auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& faces)
+auto makeBrush(const std::vector<std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>>& faces)
 {
   return Brush::create(
-           vm::bbox3{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
+           vm::bbox3d{8192.0}, faces | std::views::transform(makeFace) | kdl::to_vector)
          | kdl::value();
 };
 
@@ -58,7 +58,7 @@ auto makeBrush(const std::vector<std::tuple<vm::vec3, vm::vec3, vm::vec3>>& face
 
 TEST_CASE("BrushBuilderTest.createCube")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   const auto cube = builder.createCube(128.0, "someName") | kdl::value();
@@ -76,7 +76,7 @@ TEST_CASE("BrushBuilderTest.createCube")
 
 TEST_CASE("BrushBuilderTest.createCubeDefaults")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
   defaultAttribs.setOffset({0.5f, 0.5f});
@@ -110,7 +110,7 @@ TEST_CASE("BrushBuilderTest.createCubeDefaults")
 
 TEST_CASE("BrushBuilderTest.createBrushDefaults")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
   defaultAttribs.setOffset({0.5f, 0.5f});
@@ -124,14 +124,14 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
   const auto brush = builder.createBrush(
                        Polyhedron3{
-                         vm::vec3{-64, -64, -64},
-                         vm::vec3{-64, -64, +64},
-                         vm::vec3{-64, +64, -64},
-                         vm::vec3{-64, +64, +64},
-                         vm::vec3{+64, -64, -64},
-                         vm::vec3{+64, -64, +64},
-                         vm::vec3{+64, +64, -64},
-                         vm::vec3{+64, +64, +64},
+                         vm::vec3d{-64, -64, -64},
+                         vm::vec3d{-64, -64, +64},
+                         vm::vec3d{-64, +64, -64},
+                         vm::vec3d{-64, +64, +64},
+                         vm::vec3d{+64, -64, -64},
+                         vm::vec3d{+64, -64, +64},
+                         vm::vec3d{+64, +64, -64},
+                         vm::vec3d{+64, +64, +64},
                        },
                        "someName")
                      | kdl::value();
@@ -156,11 +156,11 @@ TEST_CASE("BrushBuilderTest.createBrushDefaults")
 
 TEST_CASE("BrushBuilderTest.createCylinder")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   const auto cylinder = builder.createCylinder(
-    vm::bbox3{{-32, -32, -32}, {32, 32, 32}},
+    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
     4,
     RadiusMode::ToEdge,
     vm::axis::z,
@@ -180,11 +180,11 @@ TEST_CASE("BrushBuilderTest.createCylinder")
 
 TEST_CASE("BrushBuilderTest.createHollowCylinder")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   const auto cylinder = builder.createHollowCylinder(
-    vm::bbox3{{-32, -32, -32}, {32, 32, 32}},
+    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
     8.0,
     8,
     RadiusMode::ToEdge,

@@ -81,21 +81,21 @@ MapReader::MapReader(
 {
 }
 
-void MapReader::readEntities(const vm::bbox3& worldBounds, ParserStatus& status)
+void MapReader::readEntities(const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   m_worldBounds = worldBounds;
   parseEntities(status);
   createNodes(status);
 }
 
-void MapReader::readBrushes(const vm::bbox3& worldBounds, ParserStatus& status)
+void MapReader::readBrushes(const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   m_worldBounds = worldBounds;
   parseBrushesOrPatches(status);
   createNodes(status);
 }
 
-void MapReader::readBrushFaces(const vm::bbox3& worldBounds, ParserStatus& status)
+void MapReader::readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   m_worldBounds = worldBounds;
   parseBrushFaces(status);
@@ -139,9 +139,9 @@ void MapReader::onEndBrush(const FileLocation& endLocation, ParserStatus& /* sta
 void MapReader::onStandardBrushFace(
   const FileLocation& location,
   const Model::MapFormat targetMapFormat,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
-  const vm::vec3& point3,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
   const Model::BrushFaceAttributes& attribs,
   ParserStatus& status)
 {
@@ -157,12 +157,12 @@ void MapReader::onStandardBrushFace(
 void MapReader::onValveBrushFace(
   const FileLocation& location,
   const Model::MapFormat targetMapFormat,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
-  const vm::vec3& point3,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const vm::vec3d& point3,
   const Model::BrushFaceAttributes& attribs,
-  const vm::vec3& uAxis,
-  const vm::vec3& vAxis,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
   ParserStatus& status)
 {
   Model::BrushFace::createFromValve(
@@ -181,7 +181,7 @@ void MapReader::onPatch(
   Model::MapFormat,
   const size_t rowCount,
   const size_t columnCount,
-  std::vector<vm::vec<FloatType, 5>> controlPoints,
+  std::vector<vm::vec<double, 5>> controlPoints,
   std::string materialName,
   ParserStatus&)
 {
@@ -489,7 +489,7 @@ CreateNodeResult createGroupNode(const MapReader::EntityInfo& entityInfo)
       entityInfo.properties, Model::EntityPropertyKeys::GroupTransformation);
     if (!transformationStr.empty())
     {
-      transformation = vm::parse<FloatType, 4u, 4u>(transformationStr);
+      transformation = vm::parse<double, 4u, 4u>(transformationStr);
       if (!transformation)
       {
         nodeIssues.emplace_back(MalformedTransformationIssue{transformationStr});
@@ -585,7 +585,7 @@ CreateNodeResult createNodeFromEntityInfo(
  * be created.
  */
 CreateNodeResult createBrushNode(
-  MapReader::BrushInfo brushInfo, const vm::bbox3& worldBounds)
+  MapReader::BrushInfo brushInfo, const vm::bbox3d& worldBounds)
 {
   return Model::Brush::create(worldBounds, std::move(brushInfo.faces))
          | kdl::transform([&](auto brush) {
@@ -635,7 +635,7 @@ CreateNodeResult createPatchNode(MapReader::PatchInfo patchInfo)
 std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
   const Model::EntityPropertyConfig& entityPropertyConfig,
   std::vector<MapReader::ObjectInfo> objectInfos,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const Model::MapFormat mapFormat,
   ParserStatus& status)
 {
@@ -718,7 +718,7 @@ void validateDuplicateLayersAndGroups(
 void unlinkGroup(Model::GroupNode& groupNode, const bool resetLinkId)
 {
   auto newGroup = groupNode.group();
-  newGroup.setTransformation(vm::mat4x4::identity());
+  newGroup.setTransformation(vm::mat4x4d::identity());
   groupNode.setGroup(std::move(newGroup));
 
   if (resetLinkId)

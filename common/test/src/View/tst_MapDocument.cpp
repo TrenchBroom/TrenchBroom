@@ -61,12 +61,12 @@ void MapDocumentTest::SetUp()
 {
   game = std::make_shared<Model::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(m_mapFormat, vm::bbox3{8192.0}, game)
+  document->newDocument(m_mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   // create two entity definitions
   m_pointEntityDef = new Assets::PointEntityDefinition{
-    "point_entity", Color{}, vm::bbox3{16.0}, "this is a point entity", {}, {}, {}};
+    "point_entity", Color{}, vm::bbox3d{16.0}, "this is a point entity", {}, {}, {}};
   m_brushEntityDef = new Assets::BrushEntityDefinition{
     "brush_entity", Color{}, "this is a brush entity", {}};
 
@@ -470,16 +470,16 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
   SECTION("Point entity is created and selected")
   {
     auto* entityNode =
-      document->createPointEntity(m_pointEntityDef, vm::vec3{16.0, 32.0, 48.0});
+      document->createPointEntity(m_pointEntityDef, vm::vec3d{16.0, 32.0, 48.0});
     CHECK(entityNode != nullptr);
     CHECK(entityNode->entity().definition() == m_pointEntityDef);
-    CHECK(entityNode->entity().origin() == vm::vec3{16.0, 32.0, 48.0});
+    CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
     CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{entityNode});
   }
 
   SECTION("Selected objects are deselect and not translated")
   {
-    auto* existingNode = document->createPointEntity(m_pointEntityDef, vm::vec3::zero());
+    auto* existingNode = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
     document->selectNodes({existingNode});
 
     const auto origin = existingNode->entity().origin();
@@ -501,7 +501,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
     auto definitionWithDefaultsOwner = std::make_unique<Assets::PointEntityDefinition>(
       "some_name",
       Color{},
-      vm::bbox3{32.0},
+      vm::bbox3d{32.0},
       "",
       std::vector<std::shared_ptr<Assets::PropertyDefinition>>{
         std::make_shared<Assets::StringPropertyDefinition>(
@@ -612,7 +612,7 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   auto definitionWithDefaultsOwner = std::make_unique<Assets::PointEntityDefinition>(
     "some_name",
     Color{},
-    vm::bbox3{32.0},
+    vm::bbox3d{32.0},
     "",
     std::vector<std::shared_ptr<Assets::PropertyDefinition>>{
       std::make_shared<Assets::StringPropertyDefinition>(

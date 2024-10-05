@@ -43,9 +43,9 @@ namespace
 
 std::optional<vm::vec2f> getHit(
   const UVViewHelper& helper,
-  const vm::vec3& xAxis,
-  const vm::vec3& yAxis,
-  const vm::ray3& pickRay)
+  const vm::vec3d& xAxis,
+  const vm::vec3d& yAxis,
+  const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
   return kdl::optional_transform(
@@ -62,8 +62,8 @@ private:
   MapDocument& m_document;
   const UVViewHelper& m_helper;
   vm::vec2b m_selector;
-  vm::vec3 m_xAxis;
-  vm::vec3 m_yAxis;
+  vm::vec3d m_xAxis;
+  vm::vec3d m_yAxis;
   vm::vec2f m_initialHit;
   vm::vec2f m_lastHit;
 
@@ -72,8 +72,8 @@ public:
     MapDocument& document,
     const UVViewHelper& helper,
     const vm::vec2b& selector,
-    const vm::vec3& xAxis,
-    const vm::vec3& yAxis,
+    const vm::vec3d& xAxis,
+    const vm::vec3d& yAxis,
     const vm::vec2f& initialHit)
     : m_document{document}
     , m_helper{helper}

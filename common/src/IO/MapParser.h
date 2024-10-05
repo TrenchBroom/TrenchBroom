@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/MapFormat.h"
 
 #include "vm/forward.h"
@@ -59,20 +58,20 @@ protected: // subclassing interface for users of the parser
   virtual void onStandardBrushFace(
     const FileLocation& location,
     Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
     const Model::BrushFaceAttributes& attribs,
     ParserStatus& status) = 0;
   virtual void onValveBrushFace(
     const FileLocation& location,
     Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
     const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& uAxis,
-    const vm::vec3& vAxis,
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis,
     ParserStatus& status) = 0;
   virtual void onPatch(
     const FileLocation& startLocation,
@@ -80,7 +79,7 @@ protected: // subclassing interface for users of the parser
     Model::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,
-    std::vector<vm::vec<FloatType, 5>> controlPoints,
+    std::vector<vm::vec<double, 5>> controlPoints,
     std::string materialName,
     ParserStatus& status) = 0;
 };

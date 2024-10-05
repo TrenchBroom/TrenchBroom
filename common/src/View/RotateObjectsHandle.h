@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Hit.h"
 #include "Model/HitType.h"
@@ -53,14 +52,14 @@ private:
   class Handle
   {
   protected:
-    const vm::vec3& m_position;
+    const vm::vec3d& m_position;
 
   public:
-    explicit Handle(const vm::vec3& position);
+    explicit Handle(const vm::vec3d& position);
     virtual ~Handle();
 
     virtual Model::Hit pick(
-      const vm::ray3& pickRay, const Renderer::Camera& camera) const = 0;
+      const vm::ray3d& pickRay, const Renderer::Camera& camera) const = 0;
     virtual void renderHandle(
       Renderer::RenderContext& renderContext,
       Renderer::RenderBatch& renderBatch) const = 0;
@@ -69,17 +68,17 @@ private:
       Renderer::RenderBatch& renderBatch,
       HitArea area) const = 0;
 
-    FloatType scalingFactor(const Renderer::Camera& camera) const;
-    static FloatType majorRadius();
-    static FloatType minorRadius();
+    double scalingFactor(const Renderer::Camera& camera) const;
+    static double majorRadius();
+    static double minorRadius();
 
   protected:
     Model::Hit pickCenterHandle(
-      const vm::ray3& pickRay, const Renderer::Camera& camera) const;
+      const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
     virtual Model::Hit pickRotateHandle(
-      const vm::ray3& pickRay, const Renderer::Camera& camera, HitArea area) const;
+      const vm::ray3d& pickRay, const Renderer::Camera& camera, HitArea area) const;
 
-    vm::mat4x4 handleTransform(const Renderer::Camera& camera, HitArea area) const;
+    vm::mat4x4d handleTransform(const Renderer::Camera& camera, HitArea area) const;
   };
 
   class Handle2D : public Handle
@@ -88,7 +87,7 @@ private:
     using Handle::Handle;
 
     Model::Hit pick(
-      const vm::ray3& pickRay, const Renderer::Camera& camera) const override;
+      const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
     void renderHandle(
       Renderer::RenderContext& renderContext,
       Renderer::RenderBatch& renderBatch) const override;
@@ -99,7 +98,7 @@ private:
 
   protected:
     Model::Hit pickRotateHandle(
-      const vm::ray3& pickRay,
+      const vm::ray3d& pickRay,
       const Renderer::Camera& camera,
       HitArea area) const override;
 
@@ -112,7 +111,7 @@ private:
     using Handle::Handle;
 
     Model::Hit pick(
-      const vm::ray3& pickRay, const Renderer::Camera& camera) const override;
+      const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
     void renderHandle(
       Renderer::RenderContext& renderContext,
       Renderer::RenderBatch& renderBatch) const override;
@@ -123,7 +122,7 @@ private:
 
   protected:
     Model::Hit pickRotateHandle(
-      const vm::ray3& pickRay,
+      const vm::ray3d& pickRay,
       const Renderer::Camera& camera,
       HitArea area) const override;
 
@@ -131,23 +130,23 @@ private:
   };
 
 private:
-  vm::vec3 m_position;
+  vm::vec3d m_position;
   Handle2D m_handle2D;
   Handle3D m_handle3D;
 
 public:
   RotateObjectsHandle();
 
-  const vm::vec3& position() const;
-  void setPosition(const vm::vec3& position);
+  const vm::vec3d& position() const;
+  void setPosition(const vm::vec3d& position);
 
-  Model::Hit pick2D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
-  Model::Hit pick3D(const vm::ray3& pickRay, const Renderer::Camera& camera) const;
+  Model::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
+  Model::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
 
-  FloatType majorHandleRadius(const Renderer::Camera& camera) const;
-  FloatType minorHandleRadius(const Renderer::Camera& camera) const;
+  double majorHandleRadius(const Renderer::Camera& camera) const;
+  double minorHandleRadius(const Renderer::Camera& camera) const;
 
-  vm::vec3 rotationAxis(HitArea area) const;
+  vm::vec3d rotationAxis(HitArea area) const;
 
 public:
   void renderHandle2D(

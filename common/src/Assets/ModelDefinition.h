@@ -21,10 +21,10 @@
 
 #include "Assets/ModelSpecification.h"
 #include "EL/Expression.h"
-#include "FloatType.h"
 
 #include "kdl/reflection_decl.h"
 
+#include "vm/forward.h"
 #include "vm/vec.h" // IWYU pragma: keep
 
 #include <optional>
@@ -86,7 +86,7 @@ public:
    *
    * @throws EL::Exception if the expression could not be evaluated
    */
-  vm::vec3 scale(
+  vm::vec3d scale(
     const EL::VariableStore& variableStore,
     const std::optional<EL::ExpressionNode>& defaultScaleExpression) const;
 
@@ -97,7 +97,7 @@ public:
  * Returns the model scale value for the given parameters or a default scale of 1, 1, 1 if
  * an error occurs.
  */
-vm::vec3 safeGetModelScale(
+vm::vec3d safeGetModelScale(
   const ModelDefinition& definition,
   const EL::VariableStore& variableStore,
   const std::optional<EL::ExpressionNode>& defaultScaleExpression);

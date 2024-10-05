@@ -17,7 +17,6 @@ You should have received a copy of the GNU General Public License
 along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "FloatType.h"
 #include "Matchers.h"
 
 #include "vm/vec.h" // IWYU pragma: keep
@@ -29,7 +28,7 @@ namespace TrenchBroom
 
 TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
 {
-  using V = std::vector<vm::vec3>;
+  using V = std::vector<vm::vec3d>;
   CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));
   CHECK_THAT(
     (V{{0, 0, 0}, {1, 1, 1}}),

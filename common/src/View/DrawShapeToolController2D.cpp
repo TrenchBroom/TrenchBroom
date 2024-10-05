@@ -39,12 +39,12 @@ class DrawShapeDragDelegate : public HandleDragTrackerDelegate
 {
 private:
   DrawShapeTool& m_tool;
-  vm::bbox3 m_worldBounds;
-  vm::bbox3 m_referenceBounds;
+  vm::bbox3d m_worldBounds;
+  vm::bbox3d m_referenceBounds;
 
 public:
   DrawShapeDragDelegate(
-    DrawShapeTool& tool, const vm::bbox3& worldBounds, const vm::bbox3& referenceBounds)
+    DrawShapeTool& tool, const vm::bbox3d& worldBounds, const vm::bbox3d& referenceBounds)
     : m_tool{tool}
     , m_worldBounds{worldBounds}
     , m_referenceBounds{referenceBounds}
@@ -53,8 +53,8 @@ public:
 
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     const auto currentBounds =
       makeBounds(inputState, initialHandlePosition, initialHandlePosition);
@@ -64,9 +64,9 @@ public:
     m_tool.refreshViews();
 
     const auto& camera = inputState.camera();
-    const auto plane = vm::plane3{
+    const auto plane = vm::plane3d{
       initialHandlePosition,
-      vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
+      vm::vec3d{vm::get_abs_max_component_axis(camera.direction())}};
 
     return makeHandlePositionProposer(
       makePlaneHandlePicker(plane, handleOffset), makeIdentityHandleSnapper());
@@ -75,7 +75,7 @@ public:
   DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     if (updateBounds(
           inputState,
@@ -121,9 +121,9 @@ public:
 private:
   bool updateBounds(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& lastHandlePosition,
-    const vm::vec3& currentHandlePosition)
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& lastHandlePosition,
+    const vm::vec3d& currentHandlePosition)
   {
     const auto lastBounds =
       makeBounds(inputState, initialHandlePosition, lastHandlePosition);
@@ -140,20 +140,20 @@ private:
     return true;
   }
 
-  vm::bbox3 makeBounds(
+  vm::bbox3d makeBounds(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& currentHandlePosition) const
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& currentHandlePosition) const
   {
     auto bounds = snapBounds(
       inputState,
       vm::merge(
-        vm::bbox3{initialHandlePosition, initialHandlePosition}, currentHandlePosition));
+        vm::bbox3d{initialHandlePosition, initialHandlePosition}, currentHandlePosition));
 
     if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
-      const auto viewAxis = vm::abs(vm::vec3{inputState.camera().direction()});
-      const auto orthoAxes = vm::vec3::one() - viewAxis;
+      const auto viewAxis = vm::abs(vm::vec3d{inputState.camera().direction()});
+      const auto orthoAxes = vm::vec3d::one() - viewAxis;
 
       // The max length of the bounds along any of the ortho axes:
       const auto maxLength = vm::get_abs_max_component(bounds.size() * orthoAxes);
@@ -164,15 +164,15 @@ private:
 
       // The direction in which the user is dragging per component:
       const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
-      bounds = vm::bbox3{
-        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3::one() - dragDir),
+      bounds = vm::bbox3d{
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d::one() - dragDir),
         vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
     }
 
     return vm::intersect(bounds, m_worldBounds);
   }
 
-  vm::bbox3 snapBounds(const InputState& inputState, const vm::bbox3& bounds) const
+  vm::bbox3d snapBounds(const InputState& inputState, const vm::bbox3d& bounds) const
   {
     const auto& grid = m_tool.grid();
     const auto min = grid.snapDown(bounds.min);
@@ -181,8 +181,8 @@ private:
     const auto& camera = inputState.camera();
     const auto& refBounds = m_referenceBounds;
     const auto factors =
-      vm::vec3{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
-    return vm::bbox3{
+      vm::vec3d{vm::abs(vm::get_abs_max_component_axis(camera.direction()))};
+    return vm::bbox3d{
       vm::mix(min, refBounds.min, factors), vm::mix(max, refBounds.max, factors)};
   }
 };
@@ -228,8 +228,8 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
 
   const auto& bounds = document->referenceBounds();
   const auto& camera = inputState.camera();
-  const auto plane =
-    vm::plane3{bounds.min, vm::vec3{vm::get_abs_max_component_axis(camera.direction())}};
+  const auto plane = vm::plane3d{
+    bounds.min, vm::vec3d{vm::get_abs_max_component_axis(camera.direction())}};
 
   if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
   {

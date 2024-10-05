@@ -20,7 +20,6 @@
 
 #include "ScaleObjectsTool.h"
 
-#include "FloatType.h"
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
@@ -53,14 +52,14 @@ namespace TrenchBroom::View
 namespace
 {
 
-bool validSideNormal(const vm::vec3& normal)
+bool validSideNormal(const vm::vec3d& normal)
 {
   return std::ranges::any_of(std::views::iota(0u, 3u), [&](const auto i) {
-    return vm::abs(normal) == vm::vec3::axis(i);
+    return vm::abs(normal) == vm::vec3d::axis(i);
   });
 }
 
-bool validCorner(const vm::vec3& corner)
+bool validCorner(const vm::vec3d& corner)
 {
   return std::ranges::all_of(
     std::views::iota(0u, 3u), [&](const auto i) { return vm::abs(corner[i]) == 1.0; });
@@ -72,7 +71,7 @@ bool validCorner(const vm::vec3& corner)
 std::vector<BBoxSide> sidesForCornerSelection(const BBoxCorner& corner)
 {
   return std::views::iota(0u, 3u) | std::views::transform([&](const auto i) {
-           auto sideNormal = vm::vec3{};
+           auto sideNormal = vm::vec3d{};
            sideNormal[i] = corner.corner[i];
            return BBoxSide{sideNormal};
          })
@@ -88,7 +87,7 @@ std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge)
 
   auto visitor =
     [&](const auto& p0, const auto& p1, const auto& p2, const auto& p3, const auto& n) {
-      const vm::vec3 verts[4] = {p0, p1, p2, p3};
+      const vm::vec3d verts[4] = {p0, p1, p2, p3};
 
       // look for the edge
       for (size_t i = 0; i < 4; ++i)
@@ -102,14 +101,14 @@ std::vector<BBoxSide> sidesForEdgeSelection(const BBoxEdge& edge)
       }
     };
 
-  vm::bbox3{{-1, -1, -1}, {1, 1, 1}}.for_each_face(visitor);
+  vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_face(visitor);
   assert(result.size() == 2);
 
   return result;
 }
 
 std::vector<vm::polygon3f> polysForSides(
-  const vm::bbox3& box, const std::vector<BBoxSide>& sides)
+  const vm::bbox3d& box, const std::vector<BBoxSide>& sides)
 {
   return sides | std::views::transform([&](const auto& side) {
            return vm::polygon3f{polygonForBBoxSide(box, side)};
@@ -140,7 +139,7 @@ const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType =
 
 // Scale tool helper functions
 
-BBoxSide::BBoxSide(const vm::vec3& n)
+BBoxSide::BBoxSide(const vm::vec3d& n)
   : normal{n}
 {
   if (!validSideNormal(n))
@@ -154,7 +153,7 @@ kdl_reflect_impl(BBoxSide);
 
 // Corner
 
-BBoxCorner::BBoxCorner(const vm::vec3& c)
+BBoxCorner::BBoxCorner(const vm::vec3d& c)
   : corner(c)
 {
   if (!validCorner(c))
@@ -168,7 +167,7 @@ kdl_reflect_impl(BBoxCorner);
 
 // BBoxEdge
 
-BBoxEdge::BBoxEdge(const vm::vec3& p0, const vm::vec3& p1)
+BBoxEdge::BBoxEdge(const vm::vec3d& p0, const vm::vec3d& p1)
   : point0{p0}
   , point1{p1}
 {
@@ -228,7 +227,7 @@ std::vector<BBoxSide> allSides()
   auto result = std::vector<BBoxSide>{};
   result.reserve(6);
 
-  vm::bbox3{{-1, -1, -1}, {1, 1, 1}}.for_each_face(
+  vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_face(
     [&](const auto&, const auto&, const auto&, const auto&, const auto& n) {
       result.emplace_back(n);
     });
@@ -242,7 +241,7 @@ std::vector<BBoxEdge> allEdges()
   auto result = std::vector<BBoxEdge>{};
   result.reserve(12);
 
-  vm::bbox3{{-1, -1, -1}, {1, 1, 1}}.for_each_edge(
+  vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_edge(
     [&](const auto& p0, const auto& p1) { result.emplace_back(p0, p1); });
 
   assert(result.size() == 12);
@@ -254,16 +253,16 @@ std::vector<BBoxCorner> allCorners()
   auto result = std::vector<BBoxCorner>{};
   result.reserve(8);
 
-  vm::bbox3{{-1, -1, -1}, {1, 1, 1}}.for_each_vertex(
+  vm::bbox3d{{-1, -1, -1}, {1, 1, 1}}.for_each_vertex(
     [&](const auto& point) { result.emplace_back(point); });
 
   assert(result.size() == 8);
   return result;
 }
 
-vm::vec3 pointForBBoxCorner(const vm::bbox3& box, const BBoxCorner& corner)
+vm::vec3d pointForBBoxCorner(const vm::bbox3d& box, const BBoxCorner& corner)
 {
-  vm::vec3 res;
+  vm::vec3d res;
   for (size_t i = 0; i < 3; ++i)
   {
     assert(corner.corner[i] == 1.0 || corner.corner[i] == -1.0);
@@ -290,23 +289,23 @@ BBoxEdge oppositeEdge(const BBoxEdge& edge)
     oppositeCorner(BBoxCorner{edge.point1}).corner};
 }
 
-vm::segment3 pointsForBBoxEdge(const vm::bbox3& box, const BBoxEdge& edge)
+vm::segment3d pointsForBBoxEdge(const vm::bbox3d& box, const BBoxEdge& edge)
 {
-  return vm::segment3{
+  return vm::segment3d{
     pointForBBoxCorner(box, BBoxCorner{edge.point0}),
     pointForBBoxCorner(box, BBoxCorner{edge.point1})};
 }
 
-vm::polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side)
+vm::polygon3d polygonForBBoxSide(const vm::bbox3d& box, const BBoxSide& side)
 {
   const auto wantedNormal = side.normal;
 
-  auto result = vm::polygon3{};
+  auto result = vm::polygon3d{};
   box.for_each_face(
     [&](const auto& p0, const auto& p1, const auto& p2, const auto& p3, const auto& n) {
       if (n == wantedNormal)
       {
-        result = vm::polygon3{p0, p1, p2, p3};
+        result = vm::polygon3d{p0, p1, p2, p3};
       }
     });
 
@@ -314,11 +313,11 @@ vm::polygon3 polygonForBBoxSide(const vm::bbox3& box, const BBoxSide& side)
   return result;
 }
 
-vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side)
+vm::vec3d centerForBBoxSide(const vm::bbox3d& box, const BBoxSide& side)
 {
   const auto wantedNormal = side.normal;
 
-  auto result = std::optional<vm::vec3>{};
+  auto result = std::optional<vm::vec3d>{};
   auto visitor =
     [&](const auto& p0, const auto& p1, const auto& p2, const auto& p3, const auto& n) {
       if (n == wantedNormal)
@@ -334,10 +333,10 @@ vm::vec3 centerForBBoxSide(const vm::bbox3& box, const BBoxSide& side)
 
 // manipulating bboxes
 
-vm::bbox3 moveBBoxSide(
-  const vm::bbox3& in,
+vm::bbox3d moveBBoxSide(
+  const vm::bbox3d& in,
   const BBoxSide& side,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   AnchorPos anchorType)
 {
@@ -356,7 +355,7 @@ vm::bbox3 moveBBoxSide(
 
   if (sideLength <= 0)
   {
-    return vm::bbox3{};
+    return vm::bbox3d{};
   }
 
   const auto n = side.normal;
@@ -385,13 +384,13 @@ vm::bbox3 moveBBoxSide(
 
   const auto matrix = vm::scale_bbox_matrix_with_anchor(in, newSize, anchor);
 
-  return vm::bbox3{matrix * in.min, matrix * in.max};
+  return vm::bbox3d{matrix * in.min, matrix * in.max};
 }
 
-vm::bbox3 moveBBoxCorner(
-  const vm::bbox3& in,
+vm::bbox3d moveBBoxCorner(
+  const vm::bbox3d& in,
   const BBoxCorner& corner,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const AnchorPos anchorType)
 {
 
@@ -406,32 +405,32 @@ vm::bbox3 moveBBoxCorner(
   {
     if (newCorner[i] == anchor[i])
     {
-      return vm::bbox3{};
+      return vm::bbox3d{};
     }
     const bool oldPositive = oldCorner[i] > anchor[i];
     const bool newPositive = newCorner[i] > anchor[i];
     if (oldPositive != newPositive)
     {
-      return vm::bbox3{};
+      return vm::bbox3d{};
     }
   }
 
   if (anchorType == AnchorPos::Center)
   {
     const auto points = std::vector{anchor - (newCorner - anchor), newCorner};
-    return vm::bbox3::merge_all(std::begin(points), std::end(points));
+    return vm::bbox3d::merge_all(std::begin(points), std::end(points));
   }
   else
   {
     const auto points = std::vector{oppositePoint, newCorner};
-    return vm::bbox3::merge_all(std::begin(points), std::end(points));
+    return vm::bbox3d::merge_all(std::begin(points), std::end(points));
   }
 }
 
-vm::bbox3 moveBBoxEdge(
-  const vm::bbox3& in,
+vm::bbox3d moveBBoxEdge(
+  const vm::bbox3d& in,
   const BBoxEdge& edge,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   const AnchorPos anchorType)
 {
@@ -450,11 +449,11 @@ vm::bbox3 moveBBoxEdge(
   {
     if ((oldAnchorDist[i] > 0) && (newAnchorDist[i] < 0))
     {
-      return vm::bbox3{};
+      return vm::bbox3d{};
     }
     if ((oldAnchorDist[i] < 0) && (newAnchorDist[i] > 0))
     {
-      return vm::bbox3{};
+      return vm::bbox3d{};
     }
   }
 
@@ -483,15 +482,15 @@ vm::bbox3 moveBBoxEdge(
     p2[nonMovingAxis] = in.max[nonMovingAxis];
   }
 
-  const auto result = vm::bbox3{vm::min(p1, p2), vm::max(p1, p2)};
+  const auto result = vm::bbox3d{vm::min(p1, p2), vm::max(p1, p2)};
 
   // check for zero size
-  return !result.is_empty() ? result : vm::bbox3{};
+  return !result.is_empty() ? result : vm::bbox3d{};
 }
 
-vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& hit)
+vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit& hit)
 {
-  auto handleLine = vm::line3{};
+  auto handleLine = vm::line3d{};
 
   // NOTE: We don't need to check for the Alt modifier (moves the drag anchor to the
   // center of the bbox) because all of these lines go through the center of the box
@@ -502,30 +501,30 @@ vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& h
     const auto draggingSide = hit.target<BBoxSide>();
 
     handleLine =
-      vm::line3{centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal};
+      vm::line3d{centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal};
   }
   else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHitType)
   {
     const auto endEdge = hit.target<BBoxEdge>();
     const auto startEdge = oppositeEdge(endEdge);
 
-    const vm::segment3 endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
-    const vm::segment3 startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
+    const vm::segment3d endEdgeActual = pointsForBBoxEdge(bboxAtDragStart, endEdge);
+    const vm::segment3d startEdgeActual = pointsForBBoxEdge(bboxAtDragStart, startEdge);
 
-    const vm::vec3 handleLineStart = startEdgeActual.center();
-    const vm::vec3 handleLineEnd = endEdgeActual.center();
+    const vm::vec3d handleLineStart = startEdgeActual.center();
+    const vm::vec3d handleLineEnd = endEdgeActual.center();
 
-    handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
+    handleLine = vm::line3d(handleLineStart, normalize(handleLineEnd - handleLineStart));
   }
   else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHitType)
   {
     const auto endCorner = hit.target<BBoxCorner>();
     const auto startCorner = oppositeCorner(endCorner);
 
-    const vm::vec3 handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
-    const vm::vec3 handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
+    const vm::vec3d handleLineStart = pointForBBoxCorner(bboxAtDragStart, startCorner);
+    const vm::vec3d handleLineEnd = pointForBBoxCorner(bboxAtDragStart, endCorner);
 
-    handleLine = vm::line3(handleLineStart, normalize(handleLineEnd - handleLineStart));
+    handleLine = vm::line3d(handleLineStart, normalize(handleLineEnd - handleLineStart));
   }
   else
   {
@@ -535,10 +534,10 @@ vm::line3 handleLineForHit(const vm::bbox3& bboxAtDragStart, const Model::Hit& h
   return handleLine;
 }
 
-vm::bbox3 moveBBoxForHit(
-  const vm::bbox3& bboxAtDragStart,
+vm::bbox3d moveBBoxForHit(
+  const vm::bbox3d& bboxAtDragStart,
   const Model::Hit& dragStartHit,
-  const vm::vec3& delta,
+  const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   const AnchorPos anchor)
 {
@@ -563,7 +562,7 @@ vm::bbox3 moveBBoxForHit(
   else
   {
     assert(0);
-    return vm::bbox3{};
+    return vm::bbox3d{};
   }
 }
 
@@ -600,11 +599,11 @@ bool ScaleObjectsTool::applies() const
 }
 
 BackSide pickBackSideOfBox(
-  const vm::ray3& pickRay, const Renderer::Camera& /* camera */, const vm::bbox3& box)
+  const vm::ray3d& pickRay, const Renderer::Camera& /* camera */, const vm::bbox3d& box)
 {
-  auto closestDistToRay = std::numeric_limits<FloatType>::max();
-  auto bestDistAlongRay = std::numeric_limits<FloatType>::max();
-  vm::vec3 bestNormal;
+  auto closestDistToRay = std::numeric_limits<double>::max();
+  auto bestDistAlongRay = std::numeric_limits<double>::max();
+  vm::vec3d bestNormal;
 
   // idea is: find the closest point on an edge of the cube, belonging
   // to a face that's facing away from the pick ray.
@@ -616,11 +615,11 @@ BackSide pickBackSideOfBox(
         // the face is pointing away from the camera (or exactly perpendicular)
         // but not equal to the camera direction (important for 2D views)
 
-        const vm::vec3 points[] = {p0, p1, p2, p3};
+        const vm::vec3d points[] = {p0, p1, p2, p3};
         for (size_t i = 0; i < 4; i++)
         {
           const auto result =
-            vm::distance(pickRay, vm::segment3(points[i], points[(i + 1) % 4]));
+            vm::distance(pickRay, vm::segment3d(points[i], points[(i + 1) % 4]));
           if (result.distance < closestDistToRay)
           {
             closestDistToRay = result.distance;
@@ -635,7 +634,7 @@ BackSide pickBackSideOfBox(
   // The hit point is the closest point on the pick ray to one of the edges of the face.
   // For face dragging, we'll project the pick ray onto the line through this point and
   // having the face normal.
-  assert(bestNormal != vm::vec3::zero());
+  assert(bestNormal != vm::vec3d::zero());
 
   return {
     bestDistAlongRay,
@@ -644,7 +643,7 @@ BackSide pickBackSideOfBox(
 }
 
 void ScaleObjectsTool::pickBackSides(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -656,7 +655,7 @@ void ScaleObjectsTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3::zero());
+    assert(result.pickedSideNormal != vm::vec3d::zero());
     pickResult.addHit(Model::Hit{
       ScaleToolSideHitType,
       result.distAlongRay,
@@ -666,7 +665,7 @@ void ScaleObjectsTool::pickBackSides(
 }
 
 void ScaleObjectsTool::pick2D(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -689,14 +688,14 @@ void ScaleObjectsTool::pick2D(
     const auto points = pointsForBBoxEdge(myBounds, edge);
 
     // in 2d views, only use edges that are parallel to the camera
-    if (vm::is_parallel(points.direction(), vm::vec3{camera.direction()}))
+    if (vm::is_parallel(points.direction(), vm::vec3d{camera.direction()}))
     {
       // could figure out which endpoint is closer to camera, or just test both.
       for (const auto& point : {points.start(), points.end()})
       {
         if (
           const auto dist = camera.pickPointHandle(
-            pickRay, point, FloatType(pref(Preferences::HandleRadius))))
+            pickRay, point, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *dist);
           localPickResult.addHit(Model::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
@@ -714,7 +713,7 @@ void ScaleObjectsTool::pick2D(
 }
 
 void ScaleObjectsTool::pick3D(
-  const vm::ray3& pickRay,
+  const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
   Model::PickResult& pickResult) const
 {
@@ -740,7 +739,7 @@ void ScaleObjectsTool::pick3D(
 
     // make the spheres for the corner handles slightly larger than the
     // cylinders of the edge handles, so they take priority where they overlap.
-    const auto cornerRadius = FloatType(pref(Preferences::HandleRadius)) * 2.0;
+    const auto cornerRadius = double(pref(Preferences::HandleRadius)) * 2.0;
     if (const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
@@ -755,7 +754,7 @@ void ScaleObjectsTool::pick3D(
 
     if (
       const auto dist = camera.pickLineSegmentHandle(
-        pickRay, points, FloatType(pref(Preferences::HandleRadius))))
+        pickRay, points, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
       localPickResult.addHit(Model::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
@@ -784,7 +783,7 @@ void ScaleObjectsTool::pick3D(
   }
 }
 
-vm::bbox3 ScaleObjectsTool::bounds() const
+vm::bbox3d ScaleObjectsTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->selectionBounds();
@@ -812,11 +811,11 @@ std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const
       if (m_proportionalAxes.isAxisProportional(i))
       {
         // Highlight the + and - sides on this axis
-        auto side1 = vm::vec3{};
+        auto side1 = vm::vec3d{};
         side1[i] = 1.0;
         sides.emplace_back(side1);
 
-        auto side2 = vm::vec3{};
+        auto side2 = vm::vec3d{};
         side2[i] = -1.0;
         sides.emplace_back(side2);
       }
@@ -934,15 +933,15 @@ vm::vec3f ScaleObjectsTool::dragAnchor() const
   return vm::vec3f{};
 }
 
-vm::bbox3 ScaleObjectsTool::bboxAtDragStart() const
+vm::bbox3d ScaleObjectsTool::bboxAtDragStart() const
 {
   ensure(m_resizing, "bboxAtDragStart() can only be called while resizing");
   return m_bboxAtDragStart;
 }
 
-std::vector<vm::vec3> ScaleObjectsTool::cornerHandles() const
+std::vector<vm::vec3d> ScaleObjectsTool::cornerHandles() const
 {
-  auto result = std::vector<vm::vec3>{};
+  auto result = std::vector<vm::vec3d>{};
   if (!bounds().is_empty())
   {
     result.reserve(8);
@@ -1023,14 +1022,14 @@ void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit)
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3::zero();
+  m_dragCumulativeDelta = vm::vec3d::zero();
 
   auto document = kdl::mem_lock(m_document);
   document->startTransaction("Scale Objects", TransactionScope::LongRunning);
   m_resizing = true;
 }
 
-void ScaleObjectsTool::scaleByDelta(const vm::vec3& delta)
+void ScaleObjectsTool::scaleByDelta(const vm::vec3d& delta)
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -1054,7 +1053,7 @@ void ScaleObjectsTool::scaleByDelta(const vm::vec3& delta)
 void ScaleObjectsTool::commitScale()
 {
   auto document = kdl::mem_lock(m_document);
-  if (vm::is_zero(m_dragCumulativeDelta, vm::C::almost_zero()))
+  if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
   {
     document->cancelTransaction();
   }

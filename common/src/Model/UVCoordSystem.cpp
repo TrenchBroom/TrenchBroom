@@ -49,8 +49,8 @@ bool operator!=(const UVCoordSystem& lhs, const UVCoordSystem& rhs)
 }
 
 void UVCoordSystem::setNormal(
-  const vm::vec3& oldNormal,
-  const vm::vec3& newNormal,
+  const vm::vec3d& oldNormal,
+  const vm::vec3d& newNormal,
   const BrushFaceAttributes& attribs,
   const WrapStyle style)
 {
@@ -69,20 +69,20 @@ void UVCoordSystem::setNormal(
 }
 
 void UVCoordSystem::translate(
-  const vm::vec3& normal,
-  const vm::vec3& up,
-  const vm::vec3& right,
+  const vm::vec3d& normal,
+  const vm::vec3d& up,
+  const vm::vec3d& right,
   const vm::vec2f& offset,
   BrushFaceAttributes& attribs) const
 {
   const auto toPlane = vm::plane_projection_matrix(0.0, normal);
   const auto fromPlane = vm::invert(toPlane);
-  const auto transform = *fromPlane * vm::mat4x4::zero_out<2>() * toPlane;
+  const auto transform = *fromPlane * vm::mat4x4d::zero_out<2>() * toPlane;
   const auto transformedUAxis = vm::normalize(transform * uAxis());
   const auto transformedVAxis = vm::normalize(transform * vAxis());
 
-  auto verticalAxis = vm::vec3{};
-  auto horizontalAxis = vm::vec3{};
+  auto verticalAxis = vm::vec3d{};
+  auto horizontalAxis = vm::vec3d{};
   size_t uIndex = 0;
   size_t vIndex = 0;
 
@@ -158,19 +158,19 @@ void UVCoordSystem::translate(
 }
 
 void UVCoordSystem::rotate(
-  const vm::vec3& normal, const float angle, BrushFaceAttributes& attribs) const
+  const vm::vec3d& normal, const float angle, BrushFaceAttributes& attribs) const
 {
   const auto actualAngle = isRotationInverted(normal) ? -angle : angle;
   attribs.setRotation(attribs.rotation() + actualAngle);
 }
 
-vm::mat4x4 UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
+vm::mat4x4d UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
 {
-  const vm::vec3 u = safeScaleAxis(uAxis(), s.x());
-  const vm::vec3 v = safeScaleAxis(vAxis(), s.y());
-  const vm::vec3 n = normal();
+  const vm::vec3d u = safeScaleAxis(uAxis(), s.x());
+  const vm::vec3d v = safeScaleAxis(vAxis(), s.y());
+  const vm::vec3d n = normal();
 
-  return vm::mat4x4{
+  return vm::mat4x4d{
     u[0],
     u[1],
     u[2],
@@ -189,14 +189,14 @@ vm::mat4x4 UVCoordSystem::toMatrix(const vm::vec2f& o, const vm::vec2f& s) const
     1.0};
 }
 
-vm::mat4x4 UVCoordSystem::fromMatrix(
+vm::mat4x4d UVCoordSystem::fromMatrix(
   const vm::vec2f& offset, const vm::vec2f& scale) const
 {
   return *invert(toMatrix(offset, scale));
 }
 
 vm::vec2f UVCoordSystem::computeUVCoords(
-  const vm::vec3& point, const vm::vec2f& scale) const
+  const vm::vec3d& point, const vm::vec2f& scale) const
 {
   return vm::vec2f{
     float(vm::dot(point, safeScaleAxis(uAxis(), scale.x()))),

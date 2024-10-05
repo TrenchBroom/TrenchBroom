@@ -53,7 +53,7 @@ public:
 
 TEST_CASE("Issue.addSelectableNodes")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto outerGroupNode = GroupNode{Group{"outer"}};
 

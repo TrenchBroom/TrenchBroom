@@ -56,7 +56,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
   SECTION("translate brush")
   {
     document->selectNodes({brushNode});
-    document->translateObjects(vm::vec3(1, 1, 1));
+    document->translateObjects(vm::vec3d(1, 1, 1));
     CHECK(material->usageCount() == 6u);
 
     document->undoCommand();
@@ -75,7 +75,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 
   SECTION("select top face, translate UV")
   {
-    auto topFaceIndex = brushNode->brush().findFace(vm::vec3::pos_z());
+    auto topFaceIndex = brushNode->brush().findFace(vm::vec3d::pos_z());
     REQUIRE(topFaceIndex.has_value());
 
     document->selectBrushFaces({{brushNode, *topFaceIndex}});
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation")
   CHECK(!entityNode->entity().hasProperty("angle"));
 
   document->selectNodes({entityNode});
-  document->rotateObjects(vm::vec3::zero(), vm::vec3::pos_z(), vm::to_radians(15.0));
+  document->rotateObjects(vm::vec3d::zero(), vm::vec3d::pos_z(), vm::to_radians(15.0));
   CHECK(entityNode->entity().hasProperty("angle"));
   CHECK(*entityNode->entity().property("angle") == "15");
 

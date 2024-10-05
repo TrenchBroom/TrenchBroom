@@ -21,7 +21,7 @@
 
 namespace TrenchBroom::Model
 {
-const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3::zero(), false);
+const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3d::zero(), false);
 
 bool Hit::isMatch() const
 {
@@ -38,17 +38,17 @@ bool Hit::hasType(const HitType::Type typeMask) const
   return (m_type & typeMask) != 0;
 }
 
-FloatType Hit::distance() const
+double Hit::distance() const
 {
   return m_distance;
 }
 
-const vm::vec3& Hit::hitPoint() const
+const vm::vec3d& Hit::hitPoint() const
 {
   return m_hitPoint;
 }
 
-FloatType Hit::error() const
+double Hit::error() const
 {
   return m_error;
 }

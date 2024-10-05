@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Assets/TextureResource.h"
-#include "FloatType.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
@@ -94,7 +93,7 @@ public: // game configuration
     /**
      * std::nullopt indicates unlimited soft map bounds
      */
-    std::optional<vm::bbox3> bounds;
+    std::optional<vm::bbox3d> bounds;
   };
 
   /**
@@ -105,10 +104,10 @@ public: // game configuration
 
 public: // loading and writing map files
   virtual Result<std::unique_ptr<WorldNode>> newMap(
-    MapFormat format, const vm::bbox3& worldBounds, Logger& logger) const = 0;
+    MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const = 0;
   virtual Result<std::unique_ptr<WorldNode>> loadMap(
     MapFormat format,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
   virtual Result<void> writeMap(
@@ -120,12 +119,12 @@ public: // parsing and serializing objects
   virtual std::vector<Node*> parseNodes(
     const std::string& str,
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     Logger& logger) const = 0;
   virtual std::vector<BrushFace> parseBrushFaces(
     const std::string& str,
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     Logger& logger) const = 0;
 
   virtual void writeNodesToStream(

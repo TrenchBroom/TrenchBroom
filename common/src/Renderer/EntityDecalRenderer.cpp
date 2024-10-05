@@ -103,7 +103,7 @@ std::vector<Vertex> createDecalBrushFace(
     return {};
   }
 
-  if (!vm::is_equal(plane.normal, vertPlane->normal, vm::C::almost_zero()))
+  if (!vm::is_equal(plane.normal, vertPlane->normal, vm::Cd::almost_zero()))
   {
     std::reverse(std::begin(verts), std::end(verts));
   }
@@ -350,7 +350,7 @@ void EntityDecalRenderer::validateDecalData(
   // bounding box 'touches' but doesn't actually intersect through a face, we do not want
   // to place a decal on it. To achieve this logic, we shrink the bounds just a tiny bit
   // so adjacent faces that don't actually breach the entity's bounding box are excluded.
-  const auto shrunkBounds = entityBounds.expand(-vm::C::almost_zero());
+  const auto shrunkBounds = entityBounds.expand(-vm::Cd::almost_zero());
 
   // create geometry for the decal
   auto vertices = std::vector<Vertex>{};

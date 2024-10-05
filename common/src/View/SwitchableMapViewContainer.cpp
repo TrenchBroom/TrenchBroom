@@ -21,7 +21,6 @@
 
 #include <QGridLayout>
 
-#include "FloatType.h"
 #include "Model/PointTrace.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -385,8 +384,8 @@ void SwitchableMapViewContainer::selectTall()
   m_mapView->selectTall();
 }
 
-vm::vec3 SwitchableMapViewContainer::pasteObjectsDelta(
-  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
+vm::vec3d SwitchableMapViewContainer::pasteObjectsDelta(
+  const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
   return m_mapView->pasteObjectsDelta(bounds, referenceBounds);
 }

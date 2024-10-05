@@ -55,7 +55,7 @@ ToolBoxConnector::ToolBoxConnector()
 
 ToolBoxConnector::~ToolBoxConnector() = default;
 
-const vm::ray3& ToolBoxConnector::pickRay() const
+const vm::ray3d& ToolBoxConnector::pickRay() const
 {
   return m_inputState.pickRay();
 }

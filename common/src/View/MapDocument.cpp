@@ -371,7 +371,7 @@ bool applyAndSwap(
 }
 } // namespace
 
-const vm::bbox3 MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
+const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
 MapDocument::MapDocument()
@@ -427,7 +427,7 @@ std::shared_ptr<Model::Game> MapDocument::game() const
   return m_game;
 }
 
-const vm::bbox3& MapDocument::worldBounds() const
+const vm::bbox3d& MapDocument::worldBounds() const
 {
   return m_worldBounds;
 }
@@ -586,7 +586,7 @@ void MapDocument::createEntityDefinitionActions()
 
 Result<void> MapDocument::newDocument(
   const Model::MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   std::shared_ptr<Model::Game> game)
 {
   info("Creating new document");
@@ -609,7 +609,7 @@ Result<void> MapDocument::newDocument(
 
 Result<void> MapDocument::loadDocument(
   const Model::MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   std::shared_ptr<Model::Game> game,
   const std::filesystem::path& path)
 {
@@ -1208,17 +1208,17 @@ std::vector<Model::BrushFaceHandle> MapDocument::selectedBrushFaces() const
   return m_selectedBrushFaces;
 }
 
-const vm::bbox3& MapDocument::referenceBounds() const
+const vm::bbox3d& MapDocument::referenceBounds() const
 {
   return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();
 }
 
-const vm::bbox3& MapDocument::lastSelectionBounds() const
+const vm::bbox3d& MapDocument::lastSelectionBounds() const
 {
   return m_lastSelectionBounds;
 }
 
-const vm::bbox3& MapDocument::selectionBounds() const
+const vm::bbox3d& MapDocument::selectionBounds() const
 {
   if (!m_selectionBoundsValid)
   {
@@ -1458,15 +1458,15 @@ void MapDocument::selectFacesWithMaterial(const Assets::Material* material)
 
 void MapDocument::selectTall(const vm::axis::type cameraAxis)
 {
-  const auto cameraAbsDirection = vm::vec3::axis(cameraAxis);
+  const auto cameraAbsDirection = vm::vec3d::axis(cameraAxis);
   // we can't make a brush that is exactly as large as worldBounds
   const auto tallBounds = worldBounds().expand(-1.0);
 
   const auto min = vm::dot(tallBounds.min, cameraAbsDirection);
   const auto max = vm::dot(tallBounds.max, cameraAbsDirection);
 
-  const auto minPlane = vm::plane3{min, cameraAbsDirection};
-  const auto maxPlane = vm::plane3{max, cameraAbsDirection};
+  const auto minPlane = vm::plane3d{min, cameraAbsDirection};
+  const auto maxPlane = vm::plane3d{max, cameraAbsDirection};
 
   const auto& selectionBrushNodes = selectedNodes().brushes();
   assert(!selectionBrushNodes.empty());
@@ -1478,7 +1478,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
     [&](const auto* selectionBrushNode) {
       const auto& selectionBrush = selectionBrushNode->brush();
 
-      auto tallVertices = std::vector<vm::vec3>{};
+      auto tallVertices = std::vector<vm::vec3d>{};
       tallVertices.reserve(2 * selectionBrush.vertexCount());
 
       for (const auto* vertex : selectionBrush.vertices())
@@ -1931,7 +1931,7 @@ void MapDocument::duplicateObjects()
 }
 
 Model::EntityNode* MapDocument::createPointEntity(
-  const Assets::PointEntityDefinition* definition, const vm::vec3& delta)
+  const Assets::PointEntityDefinition* definition, const vm::vec3d& delta)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -2869,7 +2869,7 @@ bool MapDocument::swapNodeContents(
 }
 
 bool MapDocument::transformObjects(
-  const std::string& commandName, const vm::mat4x4& transformation)
+  const std::string& commandName, const vm::mat4x4d& transformation)
 {
   auto nodesToTransform = std::vector<Model::Node*>{};
   auto entitiesToTransform = std::unordered_map<Model::EntityNodeBase*, size_t>{};
@@ -2981,13 +2981,13 @@ bool MapDocument::transformObjects(
          | kdl::value_or(false);
 }
 
-bool MapDocument::translateObjects(const vm::vec3& delta)
+bool MapDocument::translateObjects(const vm::vec3d& delta)
 {
   return transformObjects("Translate Objects", vm::translation_matrix(delta));
 }
 
 bool MapDocument::rotateObjects(
-  const vm::vec3& center, const vm::vec3& axis, const FloatType angle)
+  const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::rotation_matrix(axis, angle)
@@ -2995,13 +2995,13 @@ bool MapDocument::rotateObjects(
   return transformObjects("Rotate Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::bbox3& oldBBox, const vm::bbox3& newBBox)
+bool MapDocument::scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
 {
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFactors)
+bool MapDocument::scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::scaling_matrix(scaleFactors)
@@ -3010,21 +3010,21 @@ bool MapDocument::scaleObjects(const vm::vec3& center, const vm::vec3& scaleFact
 }
 
 bool MapDocument::shearObjects(
-  const vm::bbox3& box, const vm::vec3& sideToShear, const vm::vec3& delta)
+  const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta)
 {
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::flipObjects(const vm::vec3& center, const vm::axis::type axis)
+bool MapDocument::flipObjects(const vm::vec3d& center, const vm::axis::type axis)
 {
   const auto transformation = vm::translation_matrix(center)
-                              * vm::mirror_matrix<FloatType>(axis)
+                              * vm::mirror_matrix<double>(axis)
                               * vm::translation_matrix(-center);
   return transformObjects("Flip Objects", transformation);
 }
 
-bool MapDocument::createBrush(const std::vector<vm::vec3>& points)
+bool MapDocument::createBrush(const std::vector<vm::vec3d>& points)
 {
   const auto builder = Model::BrushBuilder{
     m_world->mapFormat(), m_worldBounds, m_game->config().faceAttribsConfig.defaults};
@@ -3059,7 +3059,7 @@ bool MapDocument::csgConvexMerge()
     return false;
   }
 
-  auto points = std::vector<vm::vec3>{};
+  auto points = std::vector<vm::vec3d>{};
 
   if (hasSelectedBrushFaces())
   {
@@ -3256,7 +3256,7 @@ bool MapDocument::csgHollow()
     const auto& originalBrush = brushNode->brush();
 
     auto shrunkenBrush = originalBrush;
-    shrunkenBrush.expand(m_worldBounds, -FloatType(m_grid->actualSize()), true)
+    shrunkenBrush.expand(m_worldBounds, -double(m_grid->actualSize()), true)
       | kdl::and_then([&]() {
           didHollowAnything = true;
 
@@ -3300,7 +3300,8 @@ bool MapDocument::csgHollow()
   return transaction.commit();
 }
 
-bool MapDocument::clipBrushes(const vm::vec3& p1, const vm::vec3& p2, const vm::vec3& p3)
+bool MapDocument::clipBrushes(
+  const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3)
 {
   return kdl::vec_transform(
            m_selectedNodes.brushes(),
@@ -3608,7 +3609,7 @@ void MapDocument::setDefaultProperties(const Model::SetDefaultPropertyMode mode)
 }
 
 bool MapDocument::extrudeBrushes(
-  const std::vector<vm::polygon3>& faces, const vm::vec3& delta)
+  const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta)
 {
   const auto nodes = m_selectedNodes.nodes();
   return applyAndSwap(
@@ -3668,7 +3669,7 @@ bool MapDocument::setFaceAttributes(
 bool MapDocument::copyUVFromFace(
   const Model::UVCoordSystemSnapshot& coordSystemSnapshot,
   const Model::BrushFaceAttributes& attribs,
-  const vm::plane3& sourceFacePlane,
+  const vm::plane3d& sourceFacePlane,
   const Model::WrapStyle wrapStyle)
 {
   return applyAndSwap(
@@ -3684,7 +3685,7 @@ bool MapDocument::translateUV(
 {
   return applyAndSwap(
     *this, "Move UV", m_selectedBrushFaces, [&](Model::BrushFace& face) {
-      face.moveUV(vm::vec3(cameraUp), vm::vec3(cameraRight), delta);
+      face.moveUV(vm::vec3d(cameraUp), vm::vec3d(cameraRight), delta);
       return true;
     });
 }
@@ -3720,12 +3721,13 @@ bool MapDocument::flipUV(
     isHFlip ? "Flip UV Horizontally" : "Flip UV Vertically",
     m_selectedBrushFaces,
     [&](Model::BrushFace& face) {
-      face.flipUV(vm::vec3(cameraUp), vm::vec3(cameraRight), cameraRelativeFlipDirection);
+      face.flipUV(
+        vm::vec3d(cameraUp), vm::vec3d(cameraRight), cameraRelativeFlipDirection);
       return true;
     });
 }
 
-bool MapDocument::snapVertices(const FloatType snapTo)
+bool MapDocument::snapVertices(const double snapTo)
 {
   size_t succeededBrushCount = 0;
   size_t failedBrushCount = 0;
@@ -3783,9 +3785,9 @@ bool MapDocument::snapVertices(const FloatType snapTo)
 }
 
 MapDocument::MoveVerticesResult MapDocument::moveVertices(
-  std::vector<vm::vec3> vertexPositions, const vm::vec3& delta)
+  std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta)
 {
-  auto newVertexPositions = std::vector<vm::vec3>{};
+  auto newVertexPositions = std::vector<vm::vec3d>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
@@ -3862,9 +3864,9 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
 }
 
 bool MapDocument::moveEdges(
-  std::vector<vm::segment3> edgePositions, const vm::vec3& delta)
+  std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta)
 {
-  auto newEdgePositions = std::vector<vm::segment3>{};
+  auto newEdgePositions = std::vector<vm::segment3d>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
@@ -3930,9 +3932,9 @@ bool MapDocument::moveEdges(
 }
 
 bool MapDocument::moveFaces(
-  std::vector<vm::polygon3> facePositions, const vm::vec3& delta)
+  std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta)
 {
-  auto newFacePositions = std::vector<vm::polygon3>{};
+  auto newFacePositions = std::vector<vm::polygon3d>{};
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
     kdl::overload(
@@ -3997,7 +3999,7 @@ bool MapDocument::moveFaces(
   return false;
 }
 
-bool MapDocument::addVertex(const vm::vec3& vertexPosition)
+bool MapDocument::addVertex(const vm::vec3d& vertexPosition)
 {
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
@@ -4029,8 +4031,8 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
     const auto result = executeAndStore(std::make_unique<BrushVertexCommand>(
       commandName,
       std::move(*newNodes),
-      std::vector<vm::vec3>{},
-      std::vector<vm::vec3>{vertexPosition}));
+      std::vector<vm::vec3d>{},
+      std::vector<vm::vec3d>{vertexPosition}));
 
     if (!result->success())
     {
@@ -4046,7 +4048,7 @@ bool MapDocument::addVertex(const vm::vec3& vertexPosition)
 }
 
 bool MapDocument::removeVertices(
-  const std::string& commandName, std::vector<vm::vec3> vertexPositions)
+  const std::string& commandName, std::vector<vm::vec3d> vertexPositions)
 {
   auto newNodes = applyToNodeContents(
     m_selectedNodes.nodes(),
@@ -4085,7 +4087,7 @@ bool MapDocument::removeVertices(
       commandName,
       std::move(*newNodes),
       std::move(vertexPositions),
-      std::vector<vm::vec3>{}));
+      std::vector<vm::vec3d>{}));
 
     if (!result->success())
     {
@@ -4312,7 +4314,7 @@ bool MapDocument::needsResourceProcessing()
   return m_resourceManager->needsProcessing();
 }
 
-void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) const
+void MapDocument::pick(const vm::ray3d& pickRay, Model::PickResult& pickResult) const
 {
   if (m_world)
   {
@@ -4320,7 +4322,7 @@ void MapDocument::pick(const vm::ray3& pickRay, Model::PickResult& pickResult) c
   }
 }
 
-std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point) const
+std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3d& point) const
 {
   auto result = std::vector<Model::Node*>{};
   if (m_world)
@@ -4332,7 +4334,7 @@ std::vector<Model::Node*> MapDocument::findNodesContaining(const vm::vec3& point
 
 Result<void> MapDocument::createWorld(
   const Model::MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   std::shared_ptr<Model::Game> game)
 {
   return game->newMap(mapFormat, m_worldBounds, logger())
@@ -4350,7 +4352,7 @@ Result<void> MapDocument::createWorld(
 
 Result<void> MapDocument::loadWorld(
   const Model::MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   std::shared_ptr<Model::Game> game,
   const std::filesystem::path& path)
 {

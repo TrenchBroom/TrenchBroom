@@ -21,7 +21,6 @@
 
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -86,7 +85,7 @@ void CreateEntityTool::commitEntity()
   m_entity = nullptr;
 }
 
-void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay)
+void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 {
   ensure(m_entity != nullptr, "entity is not null");
 
@@ -97,20 +96,20 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3& pickRay)
   const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction)
                         ? m_referenceBounds.min
                         : m_referenceBounds.max;
-  const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
+  const auto dragPlane = vm::plane3d(anchor, -pickRay.direction);
 
   const auto& grid = document->grid();
   const auto delta = grid.moveDeltaForBounds(
     dragPlane, m_entity->logicalBounds(), document->worldBounds(), pickRay);
 
-  if (!vm::is_zero(delta, vm::C::almost_zero()))
+  if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     document->translateObjects(delta);
   }
 }
 
 void CreateEntityTool::updateEntityPosition3D(
-  const vm::ray3& pickRay, const Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Model::PickResult& pickResult)
 {
   using namespace Model::HitFilters;
 
@@ -118,7 +117,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   auto document = kdl::mem_lock(m_document);
 
-  auto delta = vm::vec3{};
+  auto delta = vm::vec3d{};
   const auto& grid = document->grid();
   const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
   if (const auto faceHandle = Model::hitToFaceHandle(hit))
@@ -130,12 +129,12 @@ void CreateEntityTool::updateEntityPosition3D(
   else
   {
     const auto newPosition = vm::point_at_distance(
-      pickRay, static_cast<FloatType>(Renderer::Camera::DefaultPointDistance));
+      pickRay, static_cast<double>(Renderer::Camera::DefaultPointDistance));
     const auto boundsCenter = m_entity->logicalBounds().center();
     delta = grid.moveDeltaForPoint(boundsCenter, newPosition - boundsCenter);
   }
 
-  if (!vm::is_zero(delta, vm::C::almost_zero()))
+  if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     document->translateObjects(delta);
   }

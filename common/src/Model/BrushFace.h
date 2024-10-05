@@ -20,7 +20,6 @@
 #pragma once
 
 #include "Assets/AssetReference.h"
-#include "FloatType.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h"
@@ -63,7 +62,7 @@ public:
    * |
    * 0-----------2
    */
-  using Points = std::array<vm::vec3, 3u>;
+  using Points = std::array<vm::vec3d, 3u>;
 
 private:
   /**
@@ -88,7 +87,7 @@ public:
 
 private:
   BrushFace::Points m_points;
-  vm::plane3 m_boundary;
+  vm::plane3d m_boundary;
   BrushFaceAttributes m_attributes;
 
   Assets::AssetReference<Assets::Material> m_materialReference;
@@ -125,9 +124,9 @@ public:
    * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> create(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
     MapFormat mapFormat);
 
@@ -140,9 +139,9 @@ public:
    * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromStandard(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
     MapFormat mapFormat);
 
@@ -155,24 +154,24 @@ public:
    * The returned face has a UVCoordSystem matching the given format.
    */
   static Result<BrushFace> createFromValve(
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
     const BrushFaceAttributes& attributes,
-    const vm::vec3& uAxis,
-    const vm::vec3& vAxis,
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis,
     MapFormat mapFormat);
 
   static Result<BrushFace> create(
-    const vm::vec3& point0,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
+    const vm::vec3d& point0,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
     const BrushFaceAttributes& attributes,
     std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
   BrushFace(
     const BrushFace::Points& points,
-    const vm::plane3& boundary,
+    const vm::plane3d& boundary,
     BrushFaceAttributes attributes,
     std::unique_ptr<UVCoordSystem> uvCoordSystem);
 
@@ -183,16 +182,16 @@ public:
   void copyUVCoordSystemFromFace(
     const UVCoordSystemSnapshot& coordSystemSnapshot,
     const BrushFaceAttributes& attributes,
-    const vm::plane3& sourceFacePlane,
+    const vm::plane3d& sourceFacePlane,
     WrapStyle wrapStyle);
 
   const BrushFace::Points& points() const;
-  const vm::plane3& boundary() const;
-  const vm::vec3& normal() const;
-  vm::vec3 center() const;
-  vm::vec3 boundsCenter() const;
-  FloatType projectedArea(vm::axis::type axis) const;
-  FloatType area() const;
+  const vm::plane3d& boundary() const;
+  const vm::vec3d& normal() const;
+  vm::vec3d center() const;
+  vm::vec3d boundsCenter() const;
+  double projectedArea(vm::axis::type axis) const;
+  double area() const;
   bool coplanarWith(const vm::plane3d& plane) const;
 
   const BrushFaceAttributes& attributes() const;
@@ -213,42 +212,42 @@ public:
 
   bool setMaterial(Assets::Material* material);
 
-  vm::vec3 uAxis() const;
-  vm::vec3 vAxis() const;
+  vm::vec3d uAxis() const;
+  vm::vec3d vAxis() const;
   void resetUVAxes();
   void resetUVAxesToParaxial();
 
   void convertToParaxial();
   void convertToParallel();
 
-  void moveUV(const vm::vec3& up, const vm::vec3& right, const vm::vec2f& offset);
+  void moveUV(const vm::vec3d& up, const vm::vec3d& right, const vm::vec2f& offset);
   void rotateUV(float angle);
   void shearUV(const vm::vec2f& factors);
   void flipUV(
-    const vm::vec3& cameraUp,
-    const vm::vec3& cameraRight,
+    const vm::vec3d& cameraUp,
+    const vm::vec3d& cameraRight,
     vm::direction cameraRelativeFlipDirection);
 
-  Result<void> transform(const vm::mat4x4& transform, bool lockAlignment);
+  Result<void> transform(const vm::mat4x4d& transform, bool lockAlignment);
   void invert();
 
   Result<void> updatePointsFromVertices();
 
-  vm::mat4x4 projectToBoundaryMatrix() const;
-  vm::mat4x4 toUVCoordSystemMatrix(
+  vm::mat4x4d projectToBoundaryMatrix() const;
+  vm::mat4x4d toUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
-  vm::mat4x4 fromUVCoordSystemMatrix(
+  vm::mat4x4d fromUVCoordSystemMatrix(
     const vm::vec2f& offset, const vm::vec2f& scale, bool project) const;
   float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
   EdgeList edges() const;
   VertexList vertices() const;
-  std::vector<vm::vec3> vertexPositions() const;
+  std::vector<vm::vec3d> vertexPositions() const;
 
   bool hasVertices(
-    const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
-  vm::polygon3 polygon() const;
+    const vm::polygon3d& vertices, double epsilon = static_cast<double>(0.0)) const;
+  vm::polygon3d polygon() const;
 
 public:
   BrushFaceGeometry* geometry() const;
@@ -261,13 +260,13 @@ public:
   void select();
   void deselect();
 
-  vm::vec2f uvCoords(const vm::vec3& point) const;
+  vm::vec2f uvCoords(const vm::vec3d& point) const;
 
-  std::optional<FloatType> intersectWithRay(const vm::ray3& ray) const;
+  std::optional<double> intersectWithRay(const vm::ray3d& ray) const;
 
 private:
   Result<void> setPoints(
-    const vm::vec3& point0, const vm::vec3& point1, const vm::vec3& point2);
+    const vm::vec3d& point0, const vm::vec3d& point1, const vm::vec3d& point2);
   void correctPoints();
 
 public: // brush renderer

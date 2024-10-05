@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/Validator.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <vector>
 
@@ -32,10 +32,10 @@ namespace TrenchBroom::Model
 class WorldBoundsValidator : public Validator
 {
 private:
-  const vm::bbox3 m_bounds;
+  const vm::bbox3d m_bounds;
 
 public:
-  explicit WorldBoundsValidator(const vm::bbox3& bounds);
+  explicit WorldBoundsValidator(const vm::bbox3d& bounds);
 
 private:
   void doValidate(

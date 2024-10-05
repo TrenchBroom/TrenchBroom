@@ -135,7 +135,7 @@ EntityNodeBase::NotifyPropertyChange::~NotifyPropertyChange()
 
 void EntityNodeBase::propertiesWillChange() {}
 
-void EntityNodeBase::propertiesDidChange(const vm::bbox3& oldPhysicalBounds)
+void EntityNodeBase::propertiesDidChange(const vm::bbox3d& oldPhysicalBounds)
 {
   doPropertiesDidChange(oldPhysicalBounds);
 }
@@ -304,12 +304,12 @@ const std::vector<EntityNodeBase*>& EntityNodeBase::killTargets() const
   return m_killTargets;
 }
 
-vm::vec3 EntityNodeBase::linkSourceAnchor() const
+vm::vec3d EntityNodeBase::linkSourceAnchor() const
 {
   return doGetLinkSourceAnchor();
 }
 
-vm::vec3 EntityNodeBase::linkTargetAnchor() const
+vm::vec3d EntityNodeBase::linkTargetAnchor() const
 {
   return doGetLinkTargetAnchor();
 }

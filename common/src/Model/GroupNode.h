@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Group.h"
 #include "Model/IdType.h"
@@ -54,8 +53,8 @@ private:
 
   Group m_group;
   EditState m_editState = EditState::Closed;
-  mutable vm::bbox3 m_logicalBounds;
-  mutable vm::bbox3 m_physicalBounds;
+  mutable vm::bbox3d m_logicalBounds;
+  mutable vm::bbox3d m_physicalBounds;
   mutable bool m_boundsValid = false;
 
   /**
@@ -95,12 +94,12 @@ private:
 
 private: // implement methods inherited from Node
   const std::string& doGetName() const override;
-  const vm::bbox3& doGetLogicalBounds() const override;
-  const vm::bbox3& doGetPhysicalBounds() const override;
+  const vm::bbox3d& doGetLogicalBounds() const override;
+  const vm::bbox3d& doGetPhysicalBounds() const override;
 
-  FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  double doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3d& worldBounds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -118,9 +117,9 @@ private: // implement methods inherited from Node
 
   void doPick(
     const EditorContext& editorContext,
-    const vm::ray3& ray,
+    const vm::ray3d& ray,
     PickResult& pickResult) override;
-  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+  void doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;

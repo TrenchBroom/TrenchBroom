@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/ToolController.h"
 
 #include "vm/vec.h" // IWYU pragma: keep
@@ -39,7 +38,7 @@ private:
   DrawShapeTool& m_tool;
   std::weak_ptr<MapDocument> m_document;
 
-  vm::vec3 m_initialPoint;
+  vm::vec3d m_initialPoint;
 
 public:
   DrawShapeToolController3D(DrawShapeTool& tool, std::weak_ptr<MapDocument> document);

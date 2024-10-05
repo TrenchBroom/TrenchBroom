@@ -75,7 +75,7 @@ struct MoveHandleDragTrackerDelegate
   virtual DragStatus move(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) = 0;
+    const vm::vec3d& proposedHandlePosition) = 0;
 
   /**
    * Called when the move ends successfully, i.e. if the move callback returned
@@ -226,8 +226,8 @@ public:
    */
   HandlePositionProposer start(
     const InputState& inputState,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     const bool verticalMove = isVerticalMove(inputState);
     m_lastMoveMode = verticalMove ? MoveMode::Vertical : MoveMode::Default;
@@ -249,7 +249,7 @@ public:
   DragStatus update(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     return m_delegate.move(inputState, dragState, proposedHandlePosition);
   }
@@ -344,10 +344,10 @@ public:
       renderService.setShowOccludedObjects();
       renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
 
-      const auto stages = std::array<vm::vec3, 3>{
-        vec * vm::vec3::pos_x(),
-        vec * vm::vec3::pos_y(),
-        vec * vm::vec3::pos_z(),
+      const auto stages = std::array<vm::vec3d, 3>{
+        vec * vm::vec3d::pos_x(),
+        vec * vm::vec3d::pos_y(),
+        vec * vm::vec3d::pos_z(),
       };
 
       const auto colors = std::array<Color, 3>{
@@ -371,7 +371,7 @@ public:
       for (size_t i = 0; i < 3; ++i)
       {
         const auto& stage = stages[i];
-        if (stage != vm::vec3::zero())
+        if (stage != vm::vec3d::zero())
         {
           const auto curPos = lastPos + stage;
           const auto midPoint = (lastPos + curPos) / 2.0;
@@ -457,13 +457,13 @@ private:
 
   static DragHandlePicker makeVerticalDragHandlePicker(
     [[maybe_unused]] const InputState& inputState,
-    const vm::vec3& origin,
-    const vm::vec3& handleOffset)
+    const vm::vec3d& origin,
+    const vm::vec3d& handleOffset)
   {
     assert(inputState.camera().perspectiveProjection());
 
-    const auto axis = vm::vec3::pos_z();
-    return makeLineHandlePicker(vm::line3{origin, axis}, handleOffset);
+    const auto axis = vm::vec3d::pos_z();
+    return makeLineHandlePicker(vm::line3d{origin, axis}, handleOffset);
   }
 
   static DragHandlePicker makeConstrictedDragHandlePicker(const DragState& dragState)
@@ -471,17 +471,17 @@ private:
     const auto delta = dragState.currentHandlePosition - dragState.initialHandlePosition;
     const auto axis = vm::get_abs_max_component_axis(delta);
     return makeLineHandlePicker(
-      vm::line3{dragState.initialHandlePosition, axis}, dragState.handleOffset);
+      vm::line3d{dragState.initialHandlePosition, axis}, dragState.handleOffset);
   }
 
   static DragHandlePicker makeDefaultDragHandlePicker(
-    const InputState& inputState, const vm::vec3& origin, const vm::vec3& handleOffset)
+    const InputState& inputState, const vm::vec3d& origin, const vm::vec3d& handleOffset)
   {
     const auto& camera = inputState.camera();
     const auto axis = camera.perspectiveProjection()
-                        ? vm::vec3::pos_z()
-                        : vm::vec3(vm::get_abs_max_component_axis(camera.direction()));
-    return makePlaneHandlePicker(vm::plane3{origin, axis}, handleOffset);
+                        ? vm::vec3d::pos_z()
+                        : vm::vec3d(vm::get_abs_max_component_axis(camera.direction()));
+    return makePlaneHandlePicker(vm::plane3d{origin, axis}, handleOffset);
   }
 };
 
@@ -494,8 +494,8 @@ std::unique_ptr<HandleDragTracker<MoveHandleDragDelegate<Delegate>>>
 createMoveHandleDragTracker(
   Delegate delegate,
   const InputState& inputState,
-  const vm::vec3& initialHandlePosition,
-  const vm::vec3& initialHitPoint)
+  const vm::vec3d& initialHandlePosition,
+  const vm::vec3d& initialHitPoint)
 {
   return std::make_unique<HandleDragTracker<MoveHandleDragDelegate<Delegate>>>(
     MoveHandleDragDelegate{std::move(delegate)},

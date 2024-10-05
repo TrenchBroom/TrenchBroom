@@ -44,17 +44,17 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
-  document->transformObjects("translate", vm::translation_matrix(vm::vec3{1, 0, 0}));
+  document->transformObjects("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 
   REQUIRE(transaction.state() == Transaction::State::Running);
-  REQUIRE(entityNode->entity().origin() == vm::vec3{1, 0, 0});
+  REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
 
   SECTION("commit")
   {
     CHECK(transaction.commit());
 
     CHECK(transaction.state() == Transaction::State::Committed);
-    CHECK(entityNode->entity().origin() == vm::vec3{1, 0, 0});
+    CHECK(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
 
     document->undoCommand();
     document->selectAllNodes();

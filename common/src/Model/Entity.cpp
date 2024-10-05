@@ -66,7 +66,7 @@ void setDefaultProperties(
 
 kdl_reflect_impl(Entity);
 
-const vm::bbox3 Entity::DefaultBounds = vm::bbox3{8.0};
+const vm::bbox3d Entity::DefaultBounds = vm::bbox3d{8.0};
 
 Entity::Entity() = default;
 
@@ -136,7 +136,7 @@ const Assets::EntityDefinition* Entity::definition() const
   return m_definition.get();
 }
 
-const vm::bbox3& Entity::definitionBounds() const
+const vm::bbox3d& Entity::definitionBounds() const
 {
   return definition() && definition()->type() == Assets::EntityDefinitionType::PointEntity
            ? static_cast<const Assets::PointEntityDefinition*>(definition())->bounds()
@@ -196,7 +196,7 @@ Assets::ModelSpecification Entity::modelSpecification() const
   }
 }
 
-const vm::mat4x4& Entity::modelTransformation(
+const vm::mat4x4d& Entity::modelTransformation(
   const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const
 {
   if (!m_cachedModelTransformation)
@@ -213,7 +213,7 @@ const vm::mat4x4& Entity::modelTransformation(
     }
     else
     {
-      m_cachedModelTransformation = vm::mat4x4::identity();
+      m_cachedModelTransformation = vm::mat4x4d::identity();
     }
   }
   return *m_cachedModelTransformation;
@@ -397,20 +397,20 @@ auto parseOrigin(const std::string* str)
 {
   if (!str)
   {
-    return vm::vec3::zero();
+    return vm::vec3d::zero();
   }
 
-  const auto parsed = vm::parse<FloatType, 3>(*str);
+  const auto parsed = vm::parse<double, 3>(*str);
   if (!parsed || vm::is_nan(*parsed))
   {
-    return vm::vec3::zero();
+    return vm::vec3d::zero();
   }
 
   return *parsed;
 }
 } // namespace
 
-const vm::vec3& Entity::origin() const
+const vm::vec3d& Entity::origin() const
 {
   if (!m_cachedOrigin)
   {
@@ -420,13 +420,13 @@ const vm::vec3& Entity::origin() const
   return *m_cachedOrigin;
 }
 
-void Entity::setOrigin(const vm::vec3& origin)
+void Entity::setOrigin(const vm::vec3d& origin)
 {
   addOrUpdateProperty(
     EntityPropertyKeys::Origin, kdl::str_to_string(vm::correct(origin)));
 }
 
-const vm::mat4x4& Entity::rotation() const
+const vm::mat4x4d& Entity::rotation() const
 {
   if (!m_cachedRotation)
   {
@@ -454,7 +454,7 @@ std::vector<EntityProperty> Entity::numberedProperties(const std::string& prefix
   });
 }
 
-void Entity::transform(const vm::mat4x4& transformation, const bool updateAngleProperty)
+void Entity::transform(const vm::mat4x4d& transformation, const bool updateAngleProperty)
 {
   if (m_pointEntity)
   {
@@ -471,7 +471,7 @@ void Entity::transform(const vm::mat4x4& transformation, const bool updateAngleP
   // applying rotation has side effects (e.g. normalizing "angles")
   // so only do it if there is actually some rotation.
   const auto rotation = vm::strip_translation(transformation);
-  if (rotation != vm::mat4x4::identity())
+  if (rotation != vm::mat4x4d::identity())
   {
     // applyRotation does not read the origin, so it's ok that it's already updated now
     if (updateAngleProperty)

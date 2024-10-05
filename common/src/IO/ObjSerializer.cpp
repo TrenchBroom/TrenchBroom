@@ -150,7 +150,7 @@ static void writeMtlFile(
   }
 }
 
-static void writeVertices(std::ostream& str, const std::vector<vm::vec3>& vertices)
+static void writeVertices(std::ostream& str, const std::vector<vm::vec3d>& vertices)
 {
   str << "# vertices\n";
   for (const auto& elem : vertices)
@@ -173,7 +173,7 @@ static void writeUVCoords(std::ostream& str, const std::vector<vm::vec2f>& uvCoo
   }
 }
 
-static void writeNormals(std::ostream& str, const std::vector<vm::vec3>& normals)
+static void writeNormals(std::ostream& str, const std::vector<vm::vec3d>& normals)
 {
   str << "# normals\n";
   for (const auto& elem : normals)
@@ -191,9 +191,9 @@ static void writeNormals(std::ostream& str, const std::vector<vm::vec3>& normals
 static void writeObjFile(
   std::ostream& str,
   const std::string mtlFilename,
-  const std::vector<vm::vec3>& vertices,
+  const std::vector<vm::vec3d>& vertices,
   const std::vector<vm::vec2f>& uvCoords,
-  const std::vector<vm::vec3>& normals,
+  const std::vector<vm::vec3d>& normals,
   const std::vector<ObjSerializer::Object>& objects)
 {
 

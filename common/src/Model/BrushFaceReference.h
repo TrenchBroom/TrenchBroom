@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushFaceHandle.h"
 #include "Result.h"
 
+#include "vm/forward.h"
 #include "vm/plane.h" // IWYU pragma: keep
 
 #include <vector>
@@ -44,7 +44,7 @@ class BrushFaceReference
 {
 private:
   BrushNode* m_node;
-  vm::plane3 m_facePlane;
+  vm::plane3d m_facePlane;
 
 public:
   /**

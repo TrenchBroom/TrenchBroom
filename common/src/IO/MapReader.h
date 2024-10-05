@@ -20,7 +20,6 @@
 #pragma once
 
 #include "FileLocation.h"
-#include "FloatType.h"
 #include "IO/StandardMapParser.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
@@ -103,7 +102,7 @@ public: // only public so that helper methods can see these declarations
 
 private:
   Model::EntityPropertyConfig m_entityPropertyConfig;
-  vm::bbox3 m_worldBounds;
+  vm::bbox3d m_worldBounds;
 
 private: // data populated in response to MapParser callbacks
   std::vector<ObjectInfo> m_objectInfos;
@@ -131,19 +130,19 @@ protected:
    *
    * @throws ParserException if parsing fails
    */
-  void readEntities(const vm::bbox3& worldBounds, ParserStatus& status);
+  void readEntities(const vm::bbox3d& worldBounds, ParserStatus& status);
   /**
    * Attempts to parse as one or more brushes without any enclosing entity.
    *
    * @throws ParserException if parsing fails
    */
-  void readBrushes(const vm::bbox3& worldBounds, ParserStatus& status);
+  void readBrushes(const vm::bbox3d& worldBounds, ParserStatus& status);
   /**
    * Attempts to parse as one or more brush faces.
    *
    * @throws ParserException if parsing fails
    */
-  void readBrushFaces(const vm::bbox3& worldBounds, ParserStatus& status);
+  void readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status);
 
 protected: // implement MapParser interface
   void onBeginEntity(
@@ -156,20 +155,20 @@ protected: // implement MapParser interface
   void onStandardBrushFace(
     const FileLocation& location,
     Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
     const Model::BrushFaceAttributes& attribs,
     ParserStatus& status) override;
   void onValveBrushFace(
     const FileLocation& location,
     Model::MapFormat targetMapFormat,
-    const vm::vec3& point1,
-    const vm::vec3& point2,
-    const vm::vec3& point3,
+    const vm::vec3d& point1,
+    const vm::vec3d& point2,
+    const vm::vec3d& point3,
     const Model::BrushFaceAttributes& attribs,
-    const vm::vec3& uAxis,
-    const vm::vec3& vAxis,
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis,
     ParserStatus& status) override;
   void onPatch(
     const FileLocation& startLocation,
@@ -177,7 +176,7 @@ protected: // implement MapParser interface
     Model::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,
-    std::vector<vm::vec<FloatType, 5>> controlPoints,
+    std::vector<vm::vec<double, 5>> controlPoints,
     std::string materialName,
     ParserStatus& status) override;
 

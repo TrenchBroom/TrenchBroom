@@ -48,7 +48,7 @@ public:
   DragStatus move(
     const InputState& inputState,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     switch (
       m_tool.move(inputState, proposedHandlePosition - dragState.currentHandlePosition))

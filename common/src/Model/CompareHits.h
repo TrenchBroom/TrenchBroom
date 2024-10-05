@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 
 #include "vm/util.h"
 
@@ -76,7 +75,7 @@ public:
 
 private:
   int doCompare(const Hit& lhs, const Hit& rhs) const override;
-  FloatType getSize(const Hit& hit) const;
+  double getSize(const Hit& hit) const;
 };
 
 } // namespace TrenchBroom::Model

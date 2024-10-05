@@ -151,10 +151,10 @@ void MapView2D::cameraDidChange(const Renderer::Camera*)
 
 PickRequest MapView2D::pickRequest(const float x, const float y) const
 {
-  return {vm::ray3{m_camera->pickRay(x, y)}, *m_camera};
+  return {vm::ray3d{m_camera->pickRay(x, y)}, *m_camera};
 }
 
-Model::PickResult MapView2D::pick(const vm::ray3& pickRay) const
+Model::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto axis = vm::find_abs_max_component(pickRay.direction);
@@ -177,8 +177,8 @@ void MapView2D::updateViewport(
   m_camera->setViewport({x, y, width, height});
 }
 
-vm::vec3 MapView2D::pasteObjectsDelta(
-  const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const
+vm::vec3d MapView2D::pasteObjectsDelta(
+  const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
@@ -191,7 +191,7 @@ vm::vec3 MapView2D::pasteObjectsDelta(
   const auto anchor = dot(toMin, pickRay.direction) > dot(toMax, pickRay.direction)
                         ? referenceBounds.min
                         : referenceBounds.max;
-  const auto dragPlane = vm::plane3(anchor, -pickRay.direction);
+  const auto dragPlane = vm::plane3d(anchor, -pickRay.direction);
 
   return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
 }
@@ -284,7 +284,7 @@ Renderer::Camera& MapView2D::camera()
   return *m_camera;
 }
 
-vm::vec3 MapView2D::moveDirection(const vm::direction direction) const
+vm::vec3d MapView2D::moveDirection(const vm::direction direction) const
 {
   // The mapping is a bit counter intuitive, but it makes sense considering that the
   // cursor up key is usually bounds to the forward action (which makes sense in 3D),
@@ -292,17 +292,17 @@ vm::vec3 MapView2D::moveDirection(const vm::direction direction) const
   switch (direction)
   {
   case vm::direction::forward:
-    return vm::vec3{vm::get_abs_max_component_axis(m_camera->up())};
+    return vm::vec3d{vm::get_abs_max_component_axis(m_camera->up())};
   case vm::direction::backward:
-    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->up())};
+    return vm::vec3d{-vm::get_abs_max_component_axis(m_camera->up())};
   case vm::direction::left:
-    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->right())};
+    return vm::vec3d{-vm::get_abs_max_component_axis(m_camera->right())};
   case vm::direction::right:
-    return vm::vec3{vm::get_abs_max_component_axis(m_camera->right())};
+    return vm::vec3d{vm::get_abs_max_component_axis(m_camera->right())};
   case vm::direction::up:
-    return vm::vec3{-vm::get_abs_max_component_axis(m_camera->direction())};
+    return vm::vec3d{-vm::get_abs_max_component_axis(m_camera->direction())};
   case vm::direction::down:
-    return vm::vec3{vm::get_abs_max_component_axis(m_camera->direction())};
+    return vm::vec3d{vm::get_abs_max_component_axis(m_camera->direction())};
     switchDefault();
   }
 }
@@ -328,7 +328,7 @@ size_t MapView2D::flipAxis(const vm::direction direction) const
   }
 }
 
-vm::vec3 MapView2D::computePointEntityPosition(const vm::bbox3& bounds) const
+vm::vec3d MapView2D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
   using namespace Model::HitFilters;
 
@@ -355,7 +355,7 @@ vm::vec3 MapView2D::computePointEntityPosition(const vm::bbox3& bounds) const
       vm::dot(toMin, pickRay.direction) > vm::dot(toMax, pickRay.direction)
         ? referenceBounds.min
         : referenceBounds.max;
-    const auto dragPlane = vm::plane3{anchor, -pickRay.direction};
+    const auto dragPlane = vm::plane3d{anchor, -pickRay.direction};
 
     return grid.moveDeltaForBounds(dragPlane, bounds, worldBounds, pickRay);
   }

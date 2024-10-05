@@ -96,7 +96,7 @@ void CreateBrushesToolBase::render(
     m_brushRenderer->setForceTransparent(true);
     m_brushRenderer->setTransparencyAlpha(0.7f);
 
-    auto boundsBuilder = vm::bbox3::builder{};
+    auto boundsBuilder = vm::bbox3d::builder{};
     for (const auto& brushNode : m_brushNodes)
     {
       m_brushRenderer->addBrush(brushNode.get());

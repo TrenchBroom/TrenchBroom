@@ -92,6 +92,8 @@ class line;
 
 using line3f = line<float, 3>;
 using line3d = line<double, 3>;
+using line2f = line<float, 2>;
+using line2d = line<double, 2>;
 
 template <typename T, size_t S>
 class plane;

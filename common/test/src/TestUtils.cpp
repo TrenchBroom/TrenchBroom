@@ -177,9 +177,9 @@ std::string readTextFile(const std::filesystem::path& path)
 namespace Model
 {
 BrushFace createParaxial(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const std::string& materialName)
 {
   const BrushFaceAttributes attributes(materialName);
@@ -192,24 +192,24 @@ BrushFace createParaxial(
          | kdl::value();
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges)
 {
-  std::vector<vm::vec3> result;
-  vm::segment3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::segment3d::get_vertices(
     std::begin(edges), std::end(edges), std::back_inserter(result));
   return result;
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces)
 {
-  std::vector<vm::vec3> result;
-  vm::polygon3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::polygon3d::get_vertices(
     std::begin(faces), std::end(faces), std::back_inserter(result));
   return result;
 }
 
 void assertMaterial(
-  const std::string& expected, const BrushNode* brushNode, const vm::vec3& faceNormal)
+  const std::string& expected, const BrushNode* brushNode, const vm::vec3d& faceNormal)
 {
   assertMaterial(expected, brushNode->brush(), faceNormal);
 }
@@ -250,7 +250,7 @@ void assertMaterial(
 }
 
 void assertMaterial(
-  const std::string& expected, const Brush& brush, const vm::vec3& faceNormal)
+  const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal)
 {
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex);
@@ -297,7 +297,7 @@ void assertMaterial(
 }
 
 void transformNode(
-  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds)
+  Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds)
 {
   node.accept(kdl::overload(
     [](const WorldNode*) {},
@@ -350,9 +350,9 @@ GameAndConfig loadGame(const std::string& gameName)
 
 const Model::BrushFace* findFaceByPoints(
   const std::vector<Model::BrushFace>& faces,
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2)
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2)
 {
   for (const Model::BrushFace& face : faces)
   {
@@ -422,7 +422,7 @@ DocumentGameConfig newMapDocument(
   auto [game, gameConfig] = Model::loadGame(gameName);
 
   auto document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(mapFormat, vm::bbox3(8192.0), game)
+  document->newDocument(mapFormat, vm::bbox3d(8192.0), game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {std::move(document), std::move(game), std::move(gameConfig)};

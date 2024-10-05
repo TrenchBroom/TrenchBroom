@@ -451,9 +451,9 @@ std::string DefParser::parseDescription()
            : "";
 }
 
-vm::vec3 DefParser::parseVector(ParserStatus& status)
+vm::vec3d DefParser::parseVector(ParserStatus& status)
 {
-  auto vec = vm::vec3{};
+  auto vec = vm::vec3d{};
   for (size_t i = 0; i < 3; i++)
   {
     auto token =
@@ -463,9 +463,9 @@ vm::vec3 DefParser::parseVector(ParserStatus& status)
   return vec;
 }
 
-vm::bbox3 DefParser::parseBounds(ParserStatus& status)
+vm::bbox3d DefParser::parseBounds(ParserStatus& status)
 {
-  auto bounds = vm::bbox3{};
+  auto bounds = vm::bbox3d{};
   expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
   bounds.min = parseVector(status);
   expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());

@@ -19,7 +19,6 @@
 
 #include "ClipTool.h"
 
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Hit.h"
@@ -63,7 +62,7 @@ public:
   virtual ~ClipStrategy() = default;
 
   virtual void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const = 0;
   virtual void render(
@@ -73,29 +72,29 @@ public:
   virtual void renderFeedback(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& point) const = 0;
+    const vm::vec3d& point) const = 0;
 
-  virtual std::optional<vm::vec3> computeThirdPoint() const = 0;
+  virtual std::optional<vm::vec3d> computeThirdPoint() const = 0;
 
   virtual bool canClip() const = 0;
   virtual bool hasPoints() const = 0;
-  virtual bool canAddPoint(const vm::vec3& point) const = 0;
-  virtual void addPoint(const vm::vec3& point, std::vector<vm::vec3> helpVectors) = 0;
+  virtual bool canAddPoint(const vm::vec3d& point) const = 0;
+  virtual void addPoint(const vm::vec3d& point, std::vector<vm::vec3d> helpVectors) = 0;
   virtual bool canRemoveLastPoint() const = 0;
   virtual void removeLastPoint() = 0;
 
-  virtual std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
+  virtual std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
     const Model::PickResult& pickResult) const = 0;
   virtual void beginDragPoint(const Model::PickResult& pickResult) = 0;
   virtual void beginDragLastPoint() = 0;
   virtual bool dragPoint(
-    const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) = 0;
+    const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors) = 0;
   virtual void endDragPoint() = 0;
   virtual void cancelDragPoint() = 0;
 
   virtual bool setFace(const Model::BrushFaceHandle& faceHandle) = 0;
   virtual void reset() = 0;
-  virtual std::vector<vm::vec3> getPoints() const = 0;
+  virtual std::vector<vm::vec3d> getPoints() const = 0;
 };
 
 namespace
@@ -106,8 +105,8 @@ class PointClipStrategy : public ClipStrategy
 private:
   struct ClipPoint
   {
-    vm::vec3 point;
-    std::vector<vm::vec3> helpVectors;
+    vm::vec3d point;
+    std::vector<vm::vec3d> helpVectors;
   };
 
   struct DragState
@@ -121,7 +120,7 @@ private:
 
 public:
   void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const override
   {
@@ -130,7 +129,7 @@ public:
       const auto& point = m_points[i].point;
       if (
         const auto distance = camera.pickPointHandle(
-          pickRay, point, static_cast<FloatType>(pref(Preferences::HandleRadius))))
+          pickRay, point, static_cast<double>(pref(Preferences::HandleRadius))))
       {
         const auto hitPoint = vm::point_at_distance(pickRay, *distance);
         pickResult.addHit(Model::Hit{ClipTool::PointHitType, *distance, hitPoint, i});
@@ -150,14 +149,14 @@ public:
   void renderFeedback(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const vm::vec3& point) const override
+    const vm::vec3d& point) const override
   {
     auto renderService = Renderer::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
     renderService.renderHandle(vm::vec3f{point});
   }
 
-  std::optional<vm::vec3> computeThirdPoint() const override
+  std::optional<vm::vec3d> computeThirdPoint() const override
   {
     if (m_points.size() == 2)
     {
@@ -170,7 +169,7 @@ public:
     return std::nullopt;
   }
 
-  vm::vec3 computeHelpVector() const
+  vm::vec3d computeHelpVector() const
   {
     size_t counts[6];
     counts[0] = counts[1] = counts[2] = counts[3] = counts[4] = counts[5] = 0;
@@ -189,7 +188,7 @@ public:
     const auto next = std::max_element(std::next(first), std::end(counts));
     if (next == std::end(counts) || *first > *next)
     {
-      return vm::vec3::axis(size_t(firstIndex % 3));
+      return vm::vec3d::axis(size_t(firstIndex % 3));
     }
 
     const auto nextIndex = std::distance(std::begin(counts), next);
@@ -198,14 +197,14 @@ public:
     if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
     {
       // prefer the Z axis if possible:
-      return vm::vec3::pos_z();
+      return vm::vec3d::pos_z();
     }
 
     // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-    return vm::vec3::pos_x();
+    return vm::vec3d::pos_x();
   }
 
-  std::vector<vm::vec3> combineHelpVectors() const
+  std::vector<vm::vec3d> combineHelpVectors() const
   {
     return kdl::vec_flatten(
       kdl::vec_transform(m_points, [](const auto& point) { return point.helpVectors; }));
@@ -215,16 +214,16 @@ public:
 
   bool hasPoints() const override { return !m_points.empty(); }
 
-  bool canAddPoint(const vm::vec3& point) const override
+  bool canAddPoint(const vm::vec3d& point) const override
   {
     return (m_points.size() < 2
             || (m_points.size() == 2 && !vm::is_colinear(m_points[0].point, m_points[1].point, point)))
            && kdl::none_of(m_points, [&](const auto& p) {
-                return vm::is_equal(p.point, point, vm::C::almost_zero());
+                return vm::is_equal(p.point, point, vm::Cd::almost_zero());
               });
   }
 
-  void addPoint(const vm::vec3& point, std::vector<vm::vec3> helpVectors) override
+  void addPoint(const vm::vec3d& point, std::vector<vm::vec3d> helpVectors) override
   {
     m_points.push_back(ClipPoint{point, std::move(helpVectors)});
   }
@@ -237,7 +236,7 @@ public:
     m_points.pop_back();
   }
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
     const Model::PickResult& pickResult) const override
   {
     using namespace Model::HitFilters;
@@ -271,7 +270,7 @@ public:
   }
 
   bool dragPoint(
-    const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors) override
+    const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors) override
   {
     ensure(m_dragState, "Clip tool is dragging");
 
@@ -280,7 +279,7 @@ public:
     {
       if (
         m_dragState->index != i
-        && vm::is_equal(m_points[i].point, newPosition, vm::C::almost_zero()))
+        && vm::is_equal(m_points[i].point, newPosition, vm::Cd::almost_zero()))
       {
         return false;
       }
@@ -321,7 +320,7 @@ public:
 
   void reset() override { m_points.clear(); }
 
-  std::vector<vm::vec3> getPoints() const override
+  std::vector<vm::vec3d> getPoints() const override
   {
     auto result = kdl::vec_transform(m_points, [](const auto& p) { return p.point; });
     if (const auto thirdPoint = computeThirdPoint())
@@ -404,7 +403,7 @@ private:
   std::optional<Model::BrushFaceHandle> m_faceHandle;
 
 public:
-  void pick(const vm::ray3&, const Renderer::Camera&, Model::PickResult&) const override
+  void pick(const vm::ray3d&, const Renderer::Camera&, Model::PickResult&) const override
   {
   }
 
@@ -430,22 +429,22 @@ public:
   }
 
   void renderFeedback(
-    Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3&) const override
+    Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3d&) const override
   {
   }
 
-  vm::vec3 getHelpVector() const { return vm::vec3::zero(); }
+  vm::vec3d getHelpVector() const { return vm::vec3d::zero(); }
 
-  std::optional<vm::vec3> computeThirdPoint() const override { return std::nullopt; }
+  std::optional<vm::vec3d> computeThirdPoint() const override { return std::nullopt; }
 
   bool canClip() const override { return m_faceHandle.has_value(); }
   bool hasPoints() const override { return false; }
-  bool canAddPoint(const vm::vec3&) const override { return false; }
-  void addPoint(const vm::vec3&, std::vector<vm::vec3>) override {}
+  bool canAddPoint(const vm::vec3d&) const override { return false; }
+  void addPoint(const vm::vec3d&, std::vector<vm::vec3d>) override {}
   bool canRemoveLastPoint() const override { return false; }
   void removeLastPoint() override {}
 
-  std::optional<std::tuple<vm::vec3, vm::vec3>> canDragPoint(
+  std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
     const Model::PickResult&) const override
   {
     return std::nullopt;
@@ -453,8 +452,8 @@ public:
   void beginDragPoint(const Model::PickResult&) override {}
   void beginDragLastPoint() override {}
   bool dragPoint(
-    const vm::vec3& /* newPosition */,
-    const std::vector<vm::vec3>& /* helpVectors */) override
+    const vm::vec3d& /* newPosition */,
+    const std::vector<vm::vec3d>& /* helpVectors */) override
   {
     return false;
   }
@@ -469,7 +468,7 @@ public:
 
   void reset() override { m_faceHandle = std::nullopt; }
 
-  std::vector<vm::vec3> getPoints() const override
+  std::vector<vm::vec3d> getPoints() const override
   {
     if (m_faceHandle)
     {
@@ -523,7 +522,7 @@ void ClipTool::toggleSide()
 }
 
 void ClipTool::pick(
-  const vm::ray3& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
 {
   if (m_strategy)
   {
@@ -576,7 +575,7 @@ void ClipTool::renderStrategy(
 void ClipTool::renderFeedback(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch,
-  const vm::vec3& point) const
+  const vm::vec3d& point) const
 {
   if (m_strategy)
   {
@@ -655,13 +654,13 @@ std::map<Model::Node*, std::vector<Model::Node*>> ClipTool::clipBrushes()
   return result;
 }
 
-vm::vec3 ClipTool::defaultClipPointPos() const
+vm::vec3d ClipTool::defaultClipPointPos() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->selectionBounds().center();
 }
 
-bool ClipTool::canAddPoint(const vm::vec3& point) const
+bool ClipTool::canAddPoint(const vm::vec3d& point) const
 {
   return !m_strategy || m_strategy->canAddPoint(point);
 }
@@ -671,7 +670,7 @@ bool ClipTool::hasPoints() const
   return m_strategy && m_strategy->hasPoints();
 }
 
-void ClipTool::addPoint(const vm::vec3& point, const std::vector<vm::vec3>& helpVectors)
+void ClipTool::addPoint(const vm::vec3d& point, const std::vector<vm::vec3d>& helpVectors)
 {
   assert(canAddPoint(point));
   if (!m_strategy)
@@ -700,7 +699,7 @@ bool ClipTool::removeLastPoint()
   return false;
 }
 
-std::optional<std::tuple<vm::vec3, vm::vec3>> ClipTool::beginDragPoint(
+std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
   const Model::PickResult& pickResult)
 {
   assert(!m_dragging);
@@ -727,7 +726,7 @@ void ClipTool::beginDragLastPoint()
 }
 
 bool ClipTool::dragPoint(
-  const vm::vec3& newPosition, const std::vector<vm::vec3>& helpVectors)
+  const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors)
 {
   assert(m_dragging);
   ensure(m_strategy, "strategy is not null");

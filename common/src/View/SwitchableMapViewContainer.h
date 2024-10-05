@@ -21,7 +21,6 @@
 
 #include <QWidget>
 
-#include "FloatType.h"
 #include "Macros.h"
 #include "NotifierConnection.h"
 #include "View/MapView.h"
@@ -135,8 +134,8 @@ public: // implement MapView interface
   MapViewBase* firstMapViewBase() override;
   bool canSelectTall() override;
   void selectTall() override;
-  vm::vec3 pasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const override;
+  vm::vec3d pasteObjectsDelta(
+    const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
   void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;

@@ -117,8 +117,8 @@ protected:
     const std::string& materialName = face.attributes().materialName().empty()
                                         ? Model::BrushFaceAttributes::NoMaterialName
                                         : face.attributes().materialName();
-    const vm::vec3 uAxis = face.uAxis();
-    const vm::vec3 vAxis = face.vAxis();
+    const vm::vec3d uAxis = face.uAxis();
+    const vm::vec3d vAxis = face.vAxis();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),

@@ -29,7 +29,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityDefinitionGroup.h"
 #include "Assets/EntityDefinitionManager.h"
-#include "FloatType.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -376,7 +375,7 @@ void MapViewBase::moveRotationCenter(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
+  const auto delta = moveDirection(direction) * double(grid.actualSize());
   m_toolBox.moveRotationCenter(delta);
   update();
 }
@@ -385,7 +384,7 @@ void MapViewBase::moveVertices(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
+  const auto delta = moveDirection(direction) * double(grid.actualSize());
   m_toolBox.moveVertices(delta);
 }
 
@@ -393,7 +392,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
-  const auto delta = moveDirection(direction) * FloatType(grid.actualSize());
+  const auto delta = moveDirection(direction) * double(grid.actualSize());
   document->translateObjects(delta);
 }
 
@@ -422,7 +421,7 @@ void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clo
     const auto axis = rotationAxis(axisSpec, clockwise);
     const auto angle = m_toolBox.rotateObjectsToolActive()
                          ? vm::abs(m_toolBox.rotateToolAngle())
-                         : vm::C::half_pi();
+                         : vm::Cd::half_pi();
 
     const auto& grid = document->grid();
     const auto center = m_toolBox.rotateObjectsToolActive()
@@ -433,10 +432,10 @@ void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clo
   }
 }
 
-vm::vec3 MapViewBase::rotationAxis(
+vm::vec3d MapViewBase::rotationAxis(
   const vm::rotation_axis axisSpec, const bool clockwise) const
 {
-  vm::vec3 axis;
+  vm::vec3d axis;
   switch (axisSpec)
   {
   case vm::rotation_axis::roll:
@@ -1010,7 +1009,7 @@ void MapViewBase::renderContents()
   renderContext.setDpiScale(static_cast<float>(window()->devicePixelRatioF()));
   renderContext.setSoftMapBounds(
     pref(Preferences::ShowSoftMapBounds)
-      ? vm::bbox3f{document->softMapBounds().bounds.value_or(vm::bbox3{})}
+      ? vm::bbox3f{document->softMapBounds().bounds.value_or(vm::bbox3d{})}
       : vm::bbox3f{});
 
   setupGL(renderContext);

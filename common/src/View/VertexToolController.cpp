@@ -97,7 +97,7 @@ std::vector<Model::Hit> VertexToolController::findHandleHits(
   return {};
 }
 
-class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3>
+class VertexToolController::SelectVertexPart : public SelectPartBase<vm::vec3d>
 {
 public:
   explicit SelectVertexPart(VertexTool& tool)
@@ -117,7 +117,7 @@ private:
     return VertexToolController::findHandleHits(inputState, *this);
   }
 
-  bool equalHandles(const vm::vec3& lhs, const vm::vec3& rhs) const override
+  bool equalHandles(const vm::vec3d& lhs, const vm::vec3d& rhs) const override
   {
     return vm::squared_distance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
   }
@@ -143,7 +143,7 @@ private:
           hit.hasType(VertexHandleManager::HandleHitType))
       {
         const auto sourcePos = m_tool.handleManager().selectedHandles().front();
-        const auto targetPos = hit.target<vm::vec3>();
+        const auto targetPos = hit.target<vm::vec3d>();
         const auto delta = targetPos - sourcePos;
         m_tool.moveSelection(delta);
         return true;

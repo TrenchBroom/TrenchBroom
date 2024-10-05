@@ -19,7 +19,6 @@
 
 #include "AssembleBrushToolController3D.h"
 
-#include "FloatType.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/BrushNode.h"
@@ -73,11 +72,11 @@ class DrawFaceDragDelegate : public HandleDragTrackerDelegate
 {
 private:
   AssembleBrushTool& m_tool;
-  vm::plane3 m_plane;
+  vm::plane3d m_plane;
   const Model::Polyhedron3 m_oldPolyhedron;
 
 public:
-  DrawFaceDragDelegate(AssembleBrushTool& tool, const vm::plane3 plane)
+  DrawFaceDragDelegate(AssembleBrushTool& tool, const vm::plane3d plane)
     : m_tool{tool}
     , m_plane{plane}
     , m_oldPolyhedron{m_tool.polyhedron()}
@@ -86,8 +85,8 @@ public:
 
   HandlePositionProposer start(
     const InputState&,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     using namespace Model::HitFilters;
 
@@ -101,7 +100,7 @@ public:
   DragStatus update(
     const InputState&,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     updatePolyhedron(dragState.initialHandlePosition, proposedHandlePosition);
     return DragStatus::Continue;
@@ -113,28 +112,28 @@ public:
 
 private:
   void updatePolyhedron(
-    const vm::vec3& initialHandlePosition, const vm::vec3& currentHandlePosition)
+    const vm::vec3d& initialHandlePosition, const vm::vec3d& currentHandlePosition)
   {
     const auto& grid = m_tool.grid();
 
     const auto axis = vm::find_abs_max_component(m_plane.normal);
     const auto swizzledPlane =
-      vm::plane3{vm::swizzle(m_plane.anchor(), axis), vm::swizzle(m_plane.normal, axis)};
+      vm::plane3d{vm::swizzle(m_plane.anchor(), axis), vm::swizzle(m_plane.normal, axis)};
     const auto theMin = vm::swizzle(
       grid.snapDown(vm::min(initialHandlePosition, currentHandlePosition)), axis);
     const auto theMax = vm::swizzle(
       grid.snapUp(vm::max(initialHandlePosition, currentHandlePosition)), axis);
 
-    const auto topLeft2 = vm::vec2{theMin.x(), theMin.y()};
-    const auto topRight2 = vm::vec2{theMax.x(), theMin.y()};
-    const auto bottomLeft2 = vm::vec2{theMin.x(), theMax.y()};
-    const auto bottomRight2 = vm::vec2{theMax.x(), theMax.y()};
+    const auto topLeft2 = vm::vec2d{theMin.x(), theMin.y()};
+    const auto topRight2 = vm::vec2d{theMax.x(), theMin.y()};
+    const auto bottomLeft2 = vm::vec2d{theMin.x(), theMax.y()};
+    const auto bottomRight2 = vm::vec2d{theMax.x(), theMax.y()};
 
-    const auto newVertices = std::vector<vm::vec3>{
-      vm::unswizzle(vm::vec3{topLeft2, swizzledPlane.zAt(topLeft2)}, axis),
-      vm::unswizzle(vm::vec3{topRight2, swizzledPlane.zAt(topRight2)}, axis),
-      vm::unswizzle(vm::vec3{bottomLeft2, swizzledPlane.zAt(bottomLeft2)}, axis),
-      vm::unswizzle(vm::vec3{bottomRight2, swizzledPlane.zAt(bottomRight2)}, axis)};
+    const auto newVertices = std::vector<vm::vec3d>{
+      vm::unswizzle(vm::vec3d{topLeft2, swizzledPlane.zAt(topLeft2)}, axis),
+      vm::unswizzle(vm::vec3d{topRight2, swizzledPlane.zAt(topRight2)}, axis),
+      vm::unswizzle(vm::vec3d{bottomLeft2, swizzledPlane.zAt(bottomLeft2)}, axis),
+      vm::unswizzle(vm::vec3d{bottomRight2, swizzledPlane.zAt(bottomRight2)}, axis)};
 
     m_tool.update(Model::Polyhedron3{
       kdl::vec_concat(newVertices, m_oldPolyhedron.vertexPositions())});
@@ -144,8 +143,8 @@ private:
 class DrawFacePart : public Part, public ToolController
 {
 private:
-  vm::plane3 m_plane;
-  vm::vec3 m_initialPoint;
+  vm::plane3d m_plane;
+  vm::vec3d m_initialPoint;
 
 public:
   explicit DrawFacePart(AssembleBrushTool& tool)
@@ -189,11 +188,11 @@ class DuplicateFaceDragDelegate : public HandleDragTrackerDelegate
 {
 private:
   AssembleBrushTool& m_tool;
-  vm::vec3 m_dragDir;
+  vm::vec3d m_dragDir;
   const Model::Polyhedron3 m_oldPolyhedron;
 
 public:
-  DuplicateFaceDragDelegate(AssembleBrushTool& tool, const vm::vec3 dragDir)
+  DuplicateFaceDragDelegate(AssembleBrushTool& tool, const vm::vec3d dragDir)
     : m_tool{tool}
     , m_dragDir{dragDir}
     , m_oldPolyhedron{m_tool.polyhedron()}
@@ -202,12 +201,12 @@ public:
 
   HandlePositionProposer start(
     const InputState&,
-    const vm::vec3& initialHandlePosition,
-    const vm::vec3& handleOffset) override
+    const vm::vec3d& initialHandlePosition,
+    const vm::vec3d& handleOffset) override
   {
     using namespace Model::HitFilters;
 
-    const auto line = vm::line3{initialHandlePosition, m_dragDir};
+    const auto line = vm::line3d{initialHandlePosition, m_dragDir};
     return makeHandlePositionProposer(
       makeLineHandlePicker(line, handleOffset),
       makeRelativeLineHandleSnapper(m_tool.grid(), line));
@@ -216,7 +215,7 @@ public:
   DragStatus update(
     const InputState&,
     const DragState& dragState,
-    const vm::vec3& proposedHandlePosition) override
+    const vm::vec3d& proposedHandlePosition) override
   {
     auto polyhedron = m_oldPolyhedron;
     assert(polyhedron.polygon());
@@ -240,7 +239,7 @@ public:
 class DuplicateFacePart : public Part, public ToolController
 {
 private:
-  vm::vec3 m_dragDir;
+  vm::vec3d m_dragDir;
 
 public:
   explicit DuplicateFacePart(AssembleBrushTool& tool)
@@ -272,9 +271,9 @@ private:
       return nullptr;
     }
 
-    const vm::vec3 initialHandlePosition =
+    const vm::vec3d initialHandlePosition =
       vm::point_at_distance(inputState.pickRay(), hit->distance);
-    const vm::vec3 normal = hit->face.normal();
+    const vm::vec3d normal = hit->face.normal();
 
     return createHandleDragTracker(
       DuplicateFaceDragDelegate{m_tool, normal},
@@ -323,7 +322,7 @@ bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
     const auto snapped = grid.snap(hit.hitPoint(), face.boundary());
 
     m_tool.update(Model::Polyhedron3{kdl::vec_concat(
-      std::vector<vm::vec3>{snapped}, m_tool.polyhedron().vertexPositions())});
+      std::vector<vm::vec3d>{snapped}, m_tool.polyhedron().vertexPositions())});
 
     return true;
   }

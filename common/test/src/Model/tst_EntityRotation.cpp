@@ -20,7 +20,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/EntityModel.h"
 #include "Assets/PropertyDefinition.h"
-#include "FloatType.h"
 #include "Macros.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
@@ -45,7 +44,7 @@ struct EntityDefinitionInfo
 {
   Assets::EntityDefinitionType type;
   std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
-  vm::bbox3 bounds = vm::bbox3{16.0};
+  vm::bbox3d bounds = vm::bbox3d{16.0};
 };
 
 std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
@@ -197,7 +196,7 @@ TEST_CASE("entityRotationInfo")
 
 TEST_CASE("entityRotation")
 {
-  using T = std::tuple<std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4>;
+  using T = std::tuple<std::vector<EntityProperty>, EntityRotationInfo, vm::mat4x4d>;
   using ERT = EntityRotationType;
   const auto usage =
     GENERATE(EntityRotationUsage::Allowed, EntityRotationUsage::BlockRotation);
@@ -205,20 +204,20 @@ TEST_CASE("entityRotation")
   // clang-format off
   const auto
   [properties,              info,                          expectedTransformation] = GENERATE_COPY(values<T>({
-  {{},                      {ERT::Angle,                   "angle", usage}, vm::mat4x4::identity()},
-  {{{"angle", "90"}},       {ERT::Angle,                   "angle", usage}, vm::mat4x4::rot_90_z_ccw()},
-  {{},                      {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::identity()},
-  {{{"angle", "90"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_z_ccw()},
-  {{{"angle", "-1"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_y_cw()},
-  {{{"angle", "-2"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4::rot_90_y_ccw()},
-  {{},                      {ERT::Euler,                   "angle", usage}, vm::mat4x4::identity()},
+  {{},                      {ERT::Angle,                   "angle", usage}, vm::mat4x4d::identity()},
+  {{{"angle", "90"}},       {ERT::Angle,                   "angle", usage}, vm::mat4x4d::rot_90_z_ccw()},
+  {{},                      {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4d::identity()},
+  {{{"angle", "90"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4d::rot_90_z_ccw()},
+  {{{"angle", "-1"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4d::rot_90_y_cw()},
+  {{{"angle", "-2"}},       {ERT::AngleUpDown,             "angle", usage}, vm::mat4x4d::rot_90_y_ccw()},
+  {{},                      {ERT::Euler,                   "angle", usage}, vm::mat4x4d::identity()},
   {{{"angle", "30 60 90"}}, {ERT::Euler,                   "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(-30.0), vm::to_radians(60.0))},
-  {{},                      {ERT::Euler_PositivePitchDown, "angle", usage}, vm::mat4x4::identity()},
+  {{},                      {ERT::Euler_PositivePitchDown, "angle", usage}, vm::mat4x4d::identity()},
   {{{"angle", "30 60 90"}}, {ERT::Euler_PositivePitchDown, "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(30.0), vm::to_radians(60.0))},
-  {{},                      {ERT::Mangle,                  "angle", usage}, vm::mat4x4::identity()},
+  {{},                      {ERT::Mangle,                  "angle", usage}, vm::mat4x4d::identity()},
   {{{"angle", "30 60 90"}}, {ERT::Mangle,                  "angle", usage}, vm::rotation_matrix(vm::to_radians(90.0), vm::to_radians(-60.0), vm::to_radians(30.0))},
-  {{},                      {ERT::None,                    "angle", usage}, vm::mat4x4::identity()},
-  {{{"angle", "30 60 90"}}, {ERT::None,                    "angle", usage}, vm::mat4x4::identity()},
+  {{},                      {ERT::None,                    "angle", usage}, vm::mat4x4d::identity()},
+  {{{"angle", "30 60 90"}}, {ERT::None,                    "angle", usage}, vm::mat4x4d::identity()},
   }));
   // clang-format on
 
@@ -254,7 +253,7 @@ TEST_CASE("applyEntityRotation")
   using T = std::tuple<
     std::vector<EntityProperty>,
     EntityRotationInfo,
-    vm::mat4x4,
+    vm::mat4x4d,
     std::optional<EntityProperty>>;
   using ERT = EntityRotationType;
   using ERU = EntityRotationUsage;
@@ -262,10 +261,10 @@ TEST_CASE("applyEntityRotation")
   // clang-format off
   const auto
   [properties,        info,                                      transform, expectedProperty] = GENERATE_COPY(values<T>({
-  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::Allowed},       vm::mat4x4::rot_90_z_ccw(),                           {{"angle", "135"}}},
-  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::BlockRotation}, vm::mat4x4::rot_90_z_ccw(),                           {}},
+  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::Allowed},       vm::mat4x4d::rot_90_z_ccw(),                           {{"angle", "135"}}},
+  {{{"angle", "45"}},         {ERT::Angle,                   "angle", ERU::BlockRotation}, vm::mat4x4d::rot_90_z_ccw(),                           {}},
 
-  {{{"angle", "45"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::mat4x4::rot_90_z_ccw(),                           {{"angle", "135"}}},
+  {{{"angle", "45"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::mat4x4d::rot_90_z_ccw(),                           {{"angle", "135"}}},
   {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(-90.0), 0.0), {{"angle", "-1"}}},
   {{{"angle",  "0"}},         {ERT::AngleUpDown,             "angle", ERU::Allowed},       vm::rotation_matrix(0.0, vm::to_radians(90.0), 0.0),  {{"angle", "-2"}}},
   

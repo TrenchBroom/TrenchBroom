@@ -42,7 +42,7 @@
 namespace TrenchBroom::Model
 {
 
-BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBounds)
+BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
   , m_defaultAttribs{BrushFaceAttributes::NoMaterialName}
@@ -51,7 +51,7 @@ BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3& worldBoun
 
 BrushBuilder::BrushBuilder(
   const MapFormat mapFormat,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   BrushFaceAttributes defaultAttribs)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
@@ -60,10 +60,10 @@ BrushBuilder::BrushBuilder(
 }
 
 Result<Brush> BrushBuilder::createCube(
-  const FloatType size, const std::string& materialName) const
+  const double size, const std::string& materialName) const
 {
   return createCuboid(
-    vm::bbox3{size / 2.0},
+    vm::bbox3d{size / 2.0},
     materialName,
     materialName,
     materialName,
@@ -73,7 +73,7 @@ Result<Brush> BrushBuilder::createCube(
 }
 
 Result<Brush> BrushBuilder::createCube(
-  FloatType size,
+  double size,
   const std::string& leftMaterial,
   const std::string& rightMaterial,
   const std::string& frontMaterial,
@@ -82,7 +82,7 @@ Result<Brush> BrushBuilder::createCube(
   const std::string& bottomMaterial) const
 {
   return createCuboid(
-    vm::bbox3{size / 2.0},
+    vm::bbox3d{size / 2.0},
     leftMaterial,
     rightMaterial,
     frontMaterial,
@@ -92,10 +92,10 @@ Result<Brush> BrushBuilder::createCube(
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::vec3& size, const std::string& materialName) const
+  const vm::vec3d& size, const std::string& materialName) const
 {
   return createCuboid(
-    vm::bbox3{-size / 2.0, size / 2.0},
+    vm::bbox3d{-size / 2.0, size / 2.0},
     materialName,
     materialName,
     materialName,
@@ -105,7 +105,7 @@ Result<Brush> BrushBuilder::createCuboid(
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::vec3& size,
+  const vm::vec3d& size,
   const std::string& leftMaterial,
   const std::string& rightMaterial,
   const std::string& frontMaterial,
@@ -114,7 +114,7 @@ Result<Brush> BrushBuilder::createCuboid(
   const std::string& bottomMaterial) const
 {
   return createCuboid(
-    vm::bbox3{-size / 2.0, size / 2.0},
+    vm::bbox3d{-size / 2.0, size / 2.0},
     leftMaterial,
     rightMaterial,
     frontMaterial,
@@ -124,7 +124,7 @@ Result<Brush> BrushBuilder::createCuboid(
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::bbox3& bounds, const std::string& materialName) const
+  const vm::bbox3d& bounds, const std::string& materialName) const
 {
   return createCuboid(
     bounds,
@@ -137,7 +137,7 @@ Result<Brush> BrushBuilder::createCuboid(
 }
 
 Result<Brush> BrushBuilder::createCuboid(
-  const vm::bbox3& bounds,
+  const vm::bbox3d& bounds,
   const std::string& leftMaterial,
   const std::string& rightMaterial,
   const std::string& frontMaterial,
@@ -148,38 +148,38 @@ Result<Brush> BrushBuilder::createCuboid(
   return std::vector{
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3::pos_y(),
-             bounds.min + vm::vec3::pos_z(),
+             bounds.min + vm::vec3d::pos_y(),
+             bounds.min + vm::vec3d::pos_z(),
              {leftMaterial, m_defaultAttribs},
              m_mapFormat), // left
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3::pos_z(),
-             bounds.max + vm::vec3::pos_y(),
+             bounds.max + vm::vec3d::pos_z(),
+             bounds.max + vm::vec3d::pos_y(),
              {rightMaterial, m_defaultAttribs},
              m_mapFormat), // right
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3::pos_z(),
-             bounds.min + vm::vec3::pos_x(),
+             bounds.min + vm::vec3d::pos_z(),
+             bounds.min + vm::vec3d::pos_x(),
              {frontMaterial, m_defaultAttribs},
              m_mapFormat), // front
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3::pos_x(),
-             bounds.max + vm::vec3::pos_z(),
+             bounds.max + vm::vec3d::pos_x(),
+             bounds.max + vm::vec3d::pos_z(),
              {backMaterial, m_defaultAttribs},
              m_mapFormat), // back
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3::pos_y(),
-             bounds.max + vm::vec3::pos_x(),
+             bounds.max + vm::vec3d::pos_y(),
+             bounds.max + vm::vec3d::pos_x(),
              {topMaterial, m_defaultAttribs},
              m_mapFormat), // top
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3::pos_x(),
-             bounds.min + vm::vec3::pos_y(),
+             bounds.min + vm::vec3d::pos_x(),
+             bounds.min + vm::vec3d::pos_y(),
              {bottomMaterial, m_defaultAttribs},
              m_mapFormat), // bottom
          }
@@ -192,7 +192,7 @@ namespace
 {
 auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
 {
-  auto vertices = std::vector<vm::vec2>{};
+  auto vertices = std::vector<vm::vec2d>{};
 
   switch (radiusMode)
   {
@@ -200,8 +200,8 @@ auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
     for (size_t i = 0; i < numSides; ++i)
     {
       const auto angle =
-        (FloatType(i) + 0.5) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
-      const auto a = vm::C::pi() / FloatType(numSides); // Half angle
+        (double(i) + 0.5) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
+      const auto a = vm::Cd::pi() / double(numSides); // Half angle
       const auto ca = std::cos(a);
       const auto x = std::cos(angle) / ca;
       const auto y = std::sin(angle) / ca;
@@ -212,7 +212,7 @@ auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
     for (size_t i = 0; i < numSides; ++i)
     {
       const auto angle =
-        FloatType(i) * vm::C::two_pi() / FloatType(numSides) - vm::C::half_pi();
+        double(i) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
       const auto x = std::cos(angle);
       const auto y = std::sin(angle);
       vertices.emplace_back(x, y);
@@ -226,7 +226,7 @@ auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
 
 auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
 {
-  auto vertices = std::vector<vm::vec3>{};
+  auto vertices = std::vector<vm::vec3d>{};
   for (const auto& v : makeUnitCircle(numSides, radiusMode))
   {
     vertices.emplace_back(v.x(), v.y(), -1.0);
@@ -237,7 +237,7 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
 } // namespace
 
 Result<Brush> BrushBuilder::createCylinder(
-  const vm::bbox3& bounds,
+  const vm::bbox3d& bounds,
   const size_t numSides,
   const RadiusMode radiusMode,
   const vm::axis::type axis,
@@ -247,9 +247,9 @@ Result<Brush> BrushBuilder::createCylinder(
 
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
-                         * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
+                         * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
+                         * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
+                         * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
 
   const auto cylinder = makeUnitCylinder(numSides, radiusMode);
   const auto vertices =
@@ -263,7 +263,7 @@ namespace
 {
 
 auto makeHollowCylinderOuterCircle(
-  const vm::vec2& size, const size_t numSides, const RadiusMode radiusMode)
+  const vm::vec2d& size, const size_t numSides, const RadiusMode radiusMode)
 {
   const auto unitCircle = makeUnitCircle(numSides, radiusMode);
   return unitCircle
@@ -272,12 +272,12 @@ auto makeHollowCylinderOuterCircle(
          | kdl::to_vector;
 }
 
-Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
-  const std::vector<vm::vec2>& outerCircle, const FloatType thickness)
+Result<std::vector<vm::vec2d>> makeHollowCylinderInnerCircle(
+  const std::vector<vm::vec2d>& outerCircle, const double thickness)
 {
   const auto numSides = outerCircle.size();
 
-  auto outerLines = std::vector<vm::line2>{};
+  auto outerLines = std::vector<vm::line2d>{};
   outerLines.reserve(numSides);
   for (size_t i = 0; i < numSides; ++i)
   {
@@ -288,12 +288,12 @@ Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
 
   const auto innerLines =
     outerLines | std::views::transform([&](const auto& l) {
-      const auto offsetDir = vm::vec2{-l.direction.y(), l.direction.x()};
-      return vm::line2{l.point + offsetDir * thickness, l.direction};
+      const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
+      return vm::line2d{l.point + offsetDir * thickness, l.direction};
     })
     | kdl::to_vector;
 
-  auto innerCircle = std::vector<vm::vec2>{};
+  auto innerCircle = std::vector<vm::vec2d>{};
   innerCircle.reserve(numSides);
   for (size_t i = 0; i < numSides; ++i)
   {
@@ -312,10 +312,10 @@ Result<std::vector<vm::vec2>> makeHollowCylinderInnerCircle(
 }
 
 auto makeHollowCylinderFragmentVertices(
-  const std::vector<vm::vec2>& outerCircle,
-  const std::vector<vm::vec2>& innerCircle,
+  const std::vector<vm::vec2d>& outerCircle,
+  const std::vector<vm::vec2d>& innerCircle,
   const size_t i,
-  const FloatType sz)
+  const double sz)
 {
   assert(outerCircle.size() == innerCircle.size());
   const auto numSides = outerCircle.size();
@@ -325,7 +325,7 @@ auto makeHollowCylinderFragmentVertices(
   const auto no = outerCircle[(i + 1) % numSides];
   const auto ni = innerCircle[(i + 1) % numSides];
 
-  const auto brushVertices = std::vector<vm::vec3>{
+  const auto brushVertices = std::vector<vm::vec3d>{
     {po, -sz},
     {po, +sz},
     {pi, -sz},
@@ -342,8 +342,8 @@ auto makeHollowCylinderFragmentVertices(
 } // namespace
 
 Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
-  const vm::bbox3& bounds,
-  const FloatType thickness,
+  const vm::bbox3d& bounds,
+  const double thickness,
   const size_t numSides,
   const RadiusMode radiusMode,
   const vm::axis::type axis,
@@ -351,7 +351,7 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
 {
   ensure(numSides > 2, "cylinder has at least three sides");
 
-  const auto rotation = vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
+  const auto rotation = vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
   const auto rotatedSize = rotation * bounds.size();
 
   const auto outerCircle =
@@ -386,7 +386,7 @@ namespace
 {
 auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
 {
-  auto vertices = std::vector<vm::vec3>{};
+  auto vertices = std::vector<vm::vec3d>{};
   for (const auto& v : makeUnitCircle(numSides, radiusMode))
   {
     vertices.emplace_back(v.x(), v.y(), -1.0);
@@ -397,7 +397,7 @@ auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
 } // namespace
 
 Result<Brush> BrushBuilder::createCone(
-  const vm::bbox3& bounds,
+  const vm::bbox3d& bounds,
   const size_t numSides,
   const RadiusMode radiusMode,
   const vm::axis::type axis,
@@ -407,9 +407,9 @@ Result<Brush> BrushBuilder::createCone(
 
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
-                         * vm::translation_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis));
+                         * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
+                         * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
+                         * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
 
   const auto cone = makeUnitCone(numSides, radiusMode);
   const auto vertices =
@@ -421,28 +421,28 @@ Result<Brush> BrushBuilder::createCone(
 
 namespace
 {
-auto makeRing(const FloatType angle, const size_t numSides, const RadiusMode radiusMode)
+auto makeRing(const double angle, const size_t numSides, const RadiusMode radiusMode)
 {
   const auto r = std::sin(angle);
   const auto z = std::cos(angle);
   const auto circle = makeUnitCircle(numSides, radiusMode);
   return circle
-         | std::views::transform([&, t = vm::scaling_matrix(vm::vec2{r, r})](
-                                   const auto& v) { return vm::vec3{t * v, z}; })
+         | std::views::transform([&, t = vm::scaling_matrix(vm::vec2d{r, r})](
+                                   const auto& v) { return vm::vec3d{t * v, z}; })
          | kdl::to_vector;
 }
 
 } // namespace
 
 Result<Brush> BrushBuilder::createUVSphere(
-  const vm::bbox3& bounds,
+  const vm::bbox3d& bounds,
   const size_t numSides,
   const size_t numRings,
   const RadiusMode radiusMode,
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  const auto angleDelta = vm::C::pi() / (FloatType(numRings) + 1.0);
+  const auto angleDelta = vm::Cd::pi() / (double(numRings) + 1.0);
   auto previousRing = makeRing(angleDelta, numSides, radiusMode);
 
   auto faces = std::vector<Result<BrushFace>>{};
@@ -450,7 +450,7 @@ Result<Brush> BrushBuilder::createUVSphere(
   // top cone
   for (size_t i = 0; i < numSides; ++i)
   {
-    const auto p1 = vm::vec3{0, 0, 1};
+    const auto p1 = vm::vec3d{0, 0, 1};
     const auto p2 = previousRing[(i + 1) % numSides];
     const auto p3 = previousRing[(i + 0) % numSides];
 
@@ -461,7 +461,7 @@ Result<Brush> BrushBuilder::createUVSphere(
   // // quad rings
   for (size_t i = 0; i < numRings - 1; ++i)
   {
-    auto currentRing = makeRing(FloatType(i + 2) * angleDelta, numSides, radiusMode);
+    auto currentRing = makeRing(double(i + 2) * angleDelta, numSides, radiusMode);
     for (size_t j = 0; j < numSides; ++j)
     {
       const auto p1 = currentRing[(j + 1) % numSides];
@@ -477,7 +477,7 @@ Result<Brush> BrushBuilder::createUVSphere(
   // bottom cone
   for (size_t i = 0; i < numSides; ++i)
   {
-    const auto p1 = vm::vec3{0, 0, -1};
+    const auto p1 = vm::vec3d{0, 0, -1};
     const auto p2 = previousRing[(i + 0) % numSides];
     const auto p3 = previousRing[(i + 1) % numSides];
 
@@ -486,7 +486,7 @@ Result<Brush> BrushBuilder::createUVSphere(
   }
 
   // ensure that the sphere fills the bounds when number or rings is equal
-  const auto centerRingRadius = std::sin(angleDelta * FloatType(numRings / 2));
+  const auto centerRingRadius = std::sin(angleDelta * double(numRings / 2));
   const auto extraScale = numRings % 2 == 0 ? 1.0 / centerRingRadius : 1.0;
 
   return std::move(faces) | kdl::fold | kdl::and_then([&](auto f) {
@@ -495,20 +495,19 @@ Result<Brush> BrushBuilder::createUVSphere(
          | kdl::and_then([&](auto b) {
              const auto transform =
                vm::translation_matrix(bounds.min) * vm::scaling_matrix(bounds.size())
-               * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
-               * vm::translation_matrix(vm::vec3{1, 1, 1})
-               * vm::rotation_matrix(vm::vec3::pos_z(), vm::vec3::axis(axis))
-               * vm::scaling_matrix(vm::vec3{extraScale, extraScale, 1.0});
+               * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
+               * vm::translation_matrix(vm::vec3d{1, 1, 1})
+               * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis))
+               * vm::scaling_matrix(vm::vec3d{extraScale, extraScale, 1.0});
              return b.transform(m_worldBounds, transform, false)
                     | kdl::transform([&]() { return std::move(b); });
            });
 }
 
 Result<Brush> BrushBuilder::createIcoSphere(
-  const vm::bbox3& bounds, const size_t iterations, const std::string& textureName) const
+  const vm::bbox3d& bounds, const size_t iterations, const std::string& textureName) const
 {
-  const auto [sphereVertices_, sphereIndices] =
-    Renderer::sphereMesh<FloatType>(iterations);
+  const auto [sphereVertices_, sphereIndices] = Renderer::sphereMesh<double>(iterations);
 
   return sphereIndices
          | std::views::transform(
@@ -529,15 +528,15 @@ Result<Brush> BrushBuilder::createIcoSphere(
          | kdl::and_then([&](auto b) {
              const auto transform = vm::translation_matrix(bounds.min)
                                     * vm::scaling_matrix(bounds.size())
-                                    * vm::scaling_matrix(vm::vec3{0.5, 0.5, 0.5})
-                                    * vm::translation_matrix(vm::vec3{1, 1, 1});
+                                    * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
+                                    * vm::translation_matrix(vm::vec3d{1, 1, 1});
              return b.transform(m_worldBounds, transform, false)
                     | kdl::transform([&]() { return std::move(b); });
            });
 }
 
 Result<Brush> BrushBuilder::createBrush(
-  const std::vector<vm::vec3>& points, const std::string& materialName) const
+  const std::vector<vm::vec3d>& points, const std::string& materialName) const
 {
   return createBrush(Polyhedron3{points}, materialName);
 }

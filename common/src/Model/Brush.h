@@ -19,11 +19,12 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushGeometry.h"
 #include "Result.h"
 
 #include "kdl/reflection_decl.h"
+
+#include "vm/forward.h"
 
 #include <memory>
 #include <optional>
@@ -45,7 +46,7 @@ private:
   /**
    * Epsilon value to use when finding a vertex after applying a vertex operation
    */
-  constexpr static FloatType CloseVertexEpsilon = static_cast<FloatType>(0.01);
+  constexpr static double CloseVertexEpsilon = static_cast<double>(0.01);
 
 public:
   using VertexList = BrushVertexList;
@@ -68,25 +69,26 @@ public:
 
   ~Brush();
 
-  static Result<Brush> create(const vm::bbox3& worldBounds, std::vector<BrushFace> faces);
+  static Result<Brush> create(
+    const vm::bbox3d& worldBounds, std::vector<BrushFace> faces);
 
 private:
   explicit Brush(std::vector<BrushFace> faces);
 
-  Result<void> updateGeometryFromFaces(const vm::bbox3& worldBounds);
+  Result<void> updateGeometryFromFaces(const vm::bbox3d& worldBounds);
 
 public:
-  const vm::bbox3& bounds() const;
+  const vm::bbox3d& bounds() const;
 
 public: // face management:
   std::optional<size_t> findFace(const std::string& materialName) const;
-  std::optional<size_t> findFace(const vm::vec3& normal) const;
-  std::optional<size_t> findFace(const vm::plane3& boundary) const;
+  std::optional<size_t> findFace(const vm::vec3d& normal) const;
+  std::optional<size_t> findFace(const vm::plane3d& boundary) const;
   std::optional<size_t> findFace(
-    const vm::polygon3& vertices, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+    const vm::polygon3d& vertices, double epsilon = static_cast<double>(0.0)) const;
   std::optional<size_t> findFace(
-    const std::vector<vm::polygon3>& candidates,
-    FloatType epsilon = static_cast<FloatType>(0.0)) const;
+    const std::vector<vm::polygon3d>& candidates,
+    double epsilon = static_cast<double>(0.0)) const;
 
   const BrushFace& face(size_t index) const;
   BrushFace& face(size_t index);
@@ -103,7 +105,7 @@ public: // clone face attributes from matching faces of other brushes
   void cloneInvertedFaceAttributesFrom(const Brush& brush);
 
 public: // clipping
-  Result<void> clip(const vm::bbox3& worldBounds, BrushFace face);
+  Result<void> clip(const vm::bbox3d& worldBounds, BrushFace face);
 
 public: // move face along normal
   /**
@@ -119,9 +121,9 @@ public: // move face along normal
    * @return a void result or an error
    */
   Result<void> moveBoundary(
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     size_t faceIndex,
-    const vm::vec3& delta,
+    const vm::vec3d& delta,
     bool lockMaterial);
 
   /**
@@ -134,78 +136,78 @@ public: // move face along normal
    *
    * @return a void result or an error
    */
-  Result<void> expand(const vm::bbox3& worldBounds, FloatType delta, bool lockMaterial);
+  Result<void> expand(const vm::bbox3d& worldBounds, double delta, bool lockMaterial);
 
 public:
   // geometry access
   size_t vertexCount() const;
   const VertexList& vertices() const;
-  const std::vector<vm::vec3> vertexPositions() const;
+  const std::vector<vm::vec3d> vertexPositions() const;
 
-  vm::vec3 findClosestVertexPosition(const vm::vec3& position) const;
-  std::vector<vm::vec3> findClosestVertexPositions(
-    const std::vector<vm::vec3>& positions) const;
-  std::vector<vm::segment3> findClosestEdgePositions(
-    const std::vector<vm::segment3>& positions) const;
-  std::vector<vm::polygon3> findClosestFacePositions(
-    const std::vector<vm::polygon3>& positions) const;
+  vm::vec3d findClosestVertexPosition(const vm::vec3d& position) const;
+  std::vector<vm::vec3d> findClosestVertexPositions(
+    const std::vector<vm::vec3d>& positions) const;
+  std::vector<vm::segment3d> findClosestEdgePositions(
+    const std::vector<vm::segment3d>& positions) const;
+  std::vector<vm::polygon3d> findClosestFacePositions(
+    const std::vector<vm::polygon3d>& positions) const;
 
   bool hasVertex(
-    const vm::vec3& position, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+    const vm::vec3d& position, double epsilon = static_cast<double>(0.0)) const;
   bool hasEdge(
-    const vm::segment3& edge, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+    const vm::segment3d& edge, double epsilon = static_cast<double>(0.0)) const;
   bool hasFace(
-    const vm::polygon3& face, FloatType epsilon = static_cast<FloatType>(0.0)) const;
+    const vm::polygon3d& face, double epsilon = static_cast<double>(0.0)) const;
 
   size_t edgeCount() const;
   const EdgeList& edges() const;
-  bool containsPoint(const vm::vec3& point) const;
+  bool containsPoint(const vm::vec3d& point) const;
 
   std::vector<const BrushFace*> incidentFaces(const BrushVertex* vertex) const;
 
   // vertex operations
   bool canMoveVertices(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::vec3>& vertices,
-    const vm::vec3& delta) const;
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::vec3d>& vertices,
+    const vm::vec3d& delta) const;
   Result<void> moveVertices(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::vec3>& vertexPositions,
-    const vm::vec3& delta,
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::vec3d>& vertexPositions,
+    const vm::vec3d& delta,
     bool uvLock = false);
 
-  bool canAddVertex(const vm::bbox3& worldBounds, const vm::vec3& position) const;
-  Result<void> addVertex(const vm::bbox3& worldBounds, const vm::vec3& position);
+  bool canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position) const;
+  Result<void> addVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position);
 
   bool canRemoveVertices(
-    const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions) const;
+    const vm::bbox3d& worldBounds, const std::vector<vm::vec3d>& vertexPositions) const;
   Result<void> removeVertices(
-    const vm::bbox3& worldBounds, const std::vector<vm::vec3>& vertexPositions);
+    const vm::bbox3d& worldBounds, const std::vector<vm::vec3d>& vertexPositions);
 
-  bool canSnapVertices(const vm::bbox3& worldBounds, FloatType snapTo) const;
+  bool canSnapVertices(const vm::bbox3d& worldBounds, double snapTo) const;
   Result<void> snapVertices(
-    const vm::bbox3& worldBounds, FloatType snapTo, bool uvLock = false);
+    const vm::bbox3d& worldBounds, double snapTo, bool uvLock = false);
 
   // edge operations
   bool canMoveEdges(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::segment3>& edgePositions,
-    const vm::vec3& delta) const;
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::segment3d>& edgePositions,
+    const vm::vec3d& delta) const;
   Result<void> moveEdges(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::segment3>& edgePositions,
-    const vm::vec3& delta,
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::segment3d>& edgePositions,
+    const vm::vec3d& delta,
     bool uvLock = false);
 
   // face operations
   bool canMoveFaces(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::polygon3>& facePositions,
-    const vm::vec3& delta) const;
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::polygon3d>& facePositions,
+    const vm::vec3d& delta) const;
   Result<void> moveFaces(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::polygon3>& facePositions,
-    const vm::vec3& delta,
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::polygon3d>& facePositions,
+    const vm::vec3d& delta,
     bool uvLock = false);
 
 private:
@@ -224,14 +226,14 @@ private:
   };
 
   CanMoveVerticesResult doCanMoveVertices(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::vec3>& vertexPositions,
-    vm::vec3 delta,
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::vec3d>& vertexPositions,
+    vm::vec3d delta,
     bool allowVertexRemoval) const;
   Result<void> doMoveVertices(
-    const vm::bbox3& worldBounds,
-    const std::vector<vm::vec3>& vertexPositions,
-    const vm::vec3& delta,
+    const vm::bbox3d& worldBounds,
+    const std::vector<vm::vec3d>& vertexPositions,
+    const vm::vec3d& delta,
     bool lockMaterial);
   /**
    * Tries to find 3 vertices in `left` and `right` that are related according to the
@@ -243,7 +245,7 @@ private:
    * @param right the face of the right polyhedron
    * @return the transformation matrix or nullopt if it cannot be found
    */
-  static std::optional<vm::mat4x4> findTransformForUVLock(
+  static std::optional<vm::mat4x4d> findTransformForUVLock(
     const PolyhedronMatcher<BrushGeometry>& matcher,
     BrushFaceGeometry* left,
     BrushFaceGeometry* right);
@@ -272,7 +274,7 @@ private:
     const BrushFace& leftFace,
     BrushFace& rightFace);
   Result<void> updateFacesFromGeometry(
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const PolyhedronMatcher<BrushGeometry>& matcher,
     const BrushGeometry& newGeometry,
     bool uvLock = false);
@@ -292,12 +294,12 @@ public:
    */
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const std::string& defaultMaterialName,
     const std::vector<const Brush*>& subtrahends) const;
   std::vector<Result<Brush>> subtract(
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const std::string& defaultMaterialName,
     const Brush& subtrahend) const;
 
@@ -310,7 +312,7 @@ public:
    * @param brush the brush to intersect this brush with
    * @return a void result or an error if the operation fails
    */
-  Result<void> intersect(const vm::bbox3& worldBounds, const Brush& brush);
+  Result<void> intersect(const vm::bbox3d& worldBounds, const Brush& brush);
 
   /**
    * Applies the given transformation to this brush.
@@ -323,12 +325,12 @@ public:
    * @return a void result or an error if the operation fails
    */
   Result<void> transform(
-    const vm::bbox3& worldBounds, const vm::mat4x4& transformation, bool lockMaterials);
+    const vm::bbox3d& worldBounds, const vm::mat4x4d& transformation, bool lockMaterials);
 
 public:
-  bool contains(const vm::bbox3& bounds) const;
+  bool contains(const vm::bbox3d& bounds) const;
   bool contains(const Brush& brush) const;
-  bool intersects(const vm::bbox3& bounds) const;
+  bool intersects(const vm::bbox3d& bounds) const;
   bool intersects(const Brush& brush) const;
 
 private:
@@ -346,7 +348,7 @@ private:
    */
   Result<Brush> createBrush(
     MapFormat mapFormat,
-    const vm::bbox3& worldBounds,
+    const vm::bbox3d& worldBounds,
     const std::string& defaultMaterialName,
     const BrushGeometry& geometry,
     const std::vector<const Brush*>& subtrahends) const;

@@ -47,7 +47,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   auto pointEntityDefOwner = std::make_unique<Assets::PointEntityDefinition>(
     "point_entity",
     Color{},
-    vm::bbox3{16.0},
+    vm::bbox3d{16.0},
     "this is a point entity",
     std::vector<std::shared_ptr<Assets::PropertyDefinition>>{},
     Assets::ModelDefinition{},
@@ -57,7 +57,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   auto largeEntityDefOwner = std::make_unique<Assets::PointEntityDefinition>(
     "large_entity",
     Color{},
-    vm::bbox3{64.0},
+    vm::bbox3d{64.0},
     "this is a point entity",
     std::vector<std::shared_ptr<Assets::PropertyDefinition>>{},
     Assets::ModelDefinition{},
@@ -428,7 +428,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
     Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
   auto* brushNode = new Model::BrushNode{
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
+    builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
   document->selectAllNodes();

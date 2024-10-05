@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/IssueType.h"
 #include "Model/LockState.h"
 #include "Model/NodeVisitor.h"
@@ -29,6 +28,7 @@
 #include "kdl/reflection_decl.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 #include "vm/util.h"
 
 #include <algorithm>
@@ -114,40 +114,40 @@ public: // getters
    * entity definition file), and used for grid snapping, for example. Nodes can render or
    * hit test outside of these logicalBounds if necessary (see `physicalBounds()`).
    */
-  const vm::bbox3& logicalBounds() const;
+  const vm::bbox3d& logicalBounds() const;
   /**
    * Returns a box that encloses all rendering and hit testing for this node and its
    * children. Equal to or larger than `logicalBounds()`. Currently, the only case where
    * this differs from `logicalBounds()` is with entity models that extend beyond the
    * bounds specified in the .fgd.
    */
-  const vm::bbox3& physicalBounds() const;
+  const vm::bbox3d& physicalBounds() const;
 
   /**
    * Returns the area of this node when projected onto a plane with the given axis.
    */
-  FloatType projectedArea(vm::axis::type axis) const;
+  double projectedArea(vm::axis::type axis) const;
 
 public: // cloning and snapshots
-  Node* clone(const vm::bbox3& worldBounds) const;
-  Node* cloneRecursively(const vm::bbox3& worldBounds) const;
+  Node* clone(const vm::bbox3d& worldBounds) const;
+  Node* cloneRecursively(const vm::bbox3d& worldBounds) const;
 
 protected:
   void cloneAttributes(Node& node) const;
 
   static std::vector<Node*> clone(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes);
   static std::vector<Node*> cloneRecursively(
-    const vm::bbox3& worldBounds, const std::vector<Node*>& nodes);
+    const vm::bbox3d& worldBounds, const std::vector<Node*>& nodes);
 
   template <typename I, typename O>
-  static void clone(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void clone(const vm::bbox3d& worldBounds, I cur, I end, O result)
   {
     std::for_each(cur, end, [&](auto* node) { result++ = node->clone(worldBounds); });
   }
 
   template <typename I, typename O>
-  static void cloneRecursively(const vm::bbox3& worldBounds, I cur, I end, O result)
+  static void cloneRecursively(const vm::bbox3d& worldBounds, I cur, I end, O result)
   {
     std::for_each(
       cur, end, [&](auto* node) { result++ = node->cloneRecursively(worldBounds); });
@@ -340,8 +340,8 @@ public: // visibility, locking
   void setLockedByOtherSelection(bool lockedByOtherSelection);
 
 public: // picking
-  void pick(const EditorContext& editorContext, const vm::ray3& ray, PickResult& result);
-  void findNodesContaining(const vm::vec3& point, std::vector<Node*>& result);
+  void pick(const EditorContext& editorContext, const vm::ray3d& ray, PickResult& result);
+  void findNodesContaining(const vm::vec3d& point, std::vector<Node*>& result);
 
 public: // file position
   size_t lineNumber() const;
@@ -504,13 +504,13 @@ protected: // index management
 
 private: // subclassing interface
   virtual const std::string& doGetName() const = 0;
-  virtual const vm::bbox3& doGetLogicalBounds() const = 0;
-  virtual const vm::bbox3& doGetPhysicalBounds() const = 0;
+  virtual const vm::bbox3d& doGetLogicalBounds() const = 0;
+  virtual const vm::bbox3d& doGetPhysicalBounds() const = 0;
 
-  virtual FloatType doGetProjectedArea(vm::axis::type axis) const = 0;
+  virtual double doGetProjectedArea(vm::axis::type axis) const = 0;
 
-  virtual Node* doClone(const vm::bbox3& worldBounds) const = 0;
-  virtual Node* doCloneRecursively(const vm::bbox3& worldBounds) const;
+  virtual Node* doClone(const vm::bbox3d& worldBounds) const = 0;
+  virtual Node* doCloneRecursively(const vm::bbox3d& worldBounds) const;
 
   virtual bool doCanAddChild(const Node* child) const = 0;
   virtual bool doCanRemoveChild(const Node* child) const = 0;
@@ -545,9 +545,9 @@ private: // subclassing interface
   virtual bool doSelectable() const = 0;
 
   virtual void doPick(
-    const EditorContext& editorContext, const vm::ray3& ray, PickResult& pickResult) = 0;
+    const EditorContext& editorContext, const vm::ray3d& ray, PickResult& pickResult) = 0;
   virtual void doFindNodesContaining(
-    const vm::vec3& point, std::vector<Node*>& result) = 0;
+    const vm::vec3d& point, std::vector<Node*>& result) = 0;
 
   virtual void doAccept(NodeVisitor& visitor) = 0;
   virtual void doAccept(ConstNodeVisitor& visitor) const = 0;

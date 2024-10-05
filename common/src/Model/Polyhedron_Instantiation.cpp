@@ -19,7 +19,6 @@
 
 // clang-format off
 // order of includes is important
-#include "FloatType.h"
 #include "Polyhedron.h"
 #include "Polyhedron_Misc.h" // IWYU pragma: keep
 #include "Polyhedron_Vertex.h" // IWYU pragma: keep
@@ -40,57 +39,54 @@ namespace TrenchBroom::Model
 {
 
 template struct Polyhedron_GetVertexLink<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template struct Polyhedron_GetVertexLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetVertexLink<double, BrushFacePayload, BrushVertexPayload>;
 
 template class Polyhedron_Vertex<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template class Polyhedron_Vertex<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Vertex<double, BrushFacePayload, BrushVertexPayload>;
 
 template struct Polyhedron_GetEdgeLink<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template struct Polyhedron_GetEdgeLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetEdgeLink<double, BrushFacePayload, BrushVertexPayload>;
 
 template class Polyhedron_Edge<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template class Polyhedron_Edge<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Edge<double, BrushFacePayload, BrushVertexPayload>;
 
 template struct Polyhedron_GetHalfEdgeLink<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template struct Polyhedron_GetHalfEdgeLink<
-  FloatType,
-  BrushFacePayload,
-  BrushVertexPayload>;
+template struct Polyhedron_GetHalfEdgeLink<double, BrushFacePayload, BrushVertexPayload>;
 
 template class Polyhedron_HalfEdge<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template class Polyhedron_HalfEdge<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_HalfEdge<double, BrushFacePayload, BrushVertexPayload>;
 
 template struct Polyhedron_GetFaceLink<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template struct Polyhedron_GetFaceLink<FloatType, BrushFacePayload, BrushVertexPayload>;
+template struct Polyhedron_GetFaceLink<double, BrushFacePayload, BrushVertexPayload>;
 
 template class Polyhedron_Face<
-  FloatType,
+  double,
   DefaultPolyhedronPayload,
   DefaultPolyhedronPayload>;
-template class Polyhedron_Face<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron_Face<double, BrushFacePayload, BrushVertexPayload>;
 
-template class Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
-template class Polyhedron<FloatType, BrushFacePayload, BrushVertexPayload>;
+template class Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+template class Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
 } // namespace TrenchBroom::Model

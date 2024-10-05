@@ -113,8 +113,8 @@ const Hit& PickResult::first(const HitFilter& filter) const
     auto end = std::end(m_hits);
     auto bestMatch = end;
 
-    auto bestMatchError = std::numeric_limits<FloatType>::max();
-    auto bestOccluderError = std::numeric_limits<FloatType>::max();
+    auto bestMatchError = std::numeric_limits<double>::max();
+    auto bestOccluderError = std::numeric_limits<double>::max();
 
     auto containsOccluder = false;
     while (it != end && !containsOccluder)
@@ -137,7 +137,8 @@ const Hit& PickResult::first(const HitFilter& filter) const
           containsOccluder = true;
         }
         ++it;
-      } while (it != end && vm::is_equal(it->distance(), distance, vm::C::almost_zero()));
+      } while (it != end
+               && vm::is_equal(it->distance(), distance, vm::Cd::almost_zero()));
     }
 
     if (bestMatch != end && bestMatchError <= bestOccluderError)

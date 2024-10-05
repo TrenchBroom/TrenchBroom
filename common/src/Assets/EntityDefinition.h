@@ -22,15 +22,14 @@
 #include "Assets/DecalDefinition.h"
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
-#include "FloatType.h"
 
 #include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/forward.h"
 
 #include <atomic>
 #include <memory>
 #include <string>
 #include <vector>
-
 
 namespace TrenchBroom::Assets
 {
@@ -101,7 +100,7 @@ protected:
 class PointEntityDefinition : public EntityDefinition
 {
 private:
-  vm::bbox3 m_bounds;
+  vm::bbox3d m_bounds;
   ModelDefinition m_modelDefinition;
   DecalDefinition m_decalDefinition;
 
@@ -109,14 +108,14 @@ public:
   PointEntityDefinition(
     std::string name,
     const Color& color,
-    const vm::bbox3& bounds,
+    const vm::bbox3d& bounds,
     std::string description,
     std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
     ModelDefinition modelDefinition,
     DecalDefinition decalDefinition);
 
   EntityDefinitionType type() const override;
-  const vm::bbox3& bounds() const;
+  const vm::bbox3d& bounds() const;
   const ModelDefinition& modelDefinition() const;
   const DecalDefinition& decalDefinition() const;
 };

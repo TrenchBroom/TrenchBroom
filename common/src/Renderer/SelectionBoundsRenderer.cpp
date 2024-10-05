@@ -19,7 +19,6 @@
 
 #include "SelectionBoundsRenderer.h"
 
-#include "FloatType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -43,13 +42,13 @@ namespace
 class SizeTextAnchor2D : public TextAnchor3D
 {
 private:
-  const vm::bbox3& m_bounds;
+  const vm::bbox3d& m_bounds;
   const vm::axis::type m_axis;
   const Camera& m_camera;
 
 public:
   SizeTextAnchor2D(
-    const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
+    const vm::bbox3d& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
     : m_bounds{bounds}
     , m_axis{axis}
     , m_camera{camera}
@@ -99,13 +98,13 @@ private:
 class SizeTextAnchor3D : public TextAnchor3D
 {
 private:
-  const vm::bbox3& m_bounds;
+  const vm::bbox3d& m_bounds;
   const vm::axis::type m_axis;
   const Camera& m_camera;
 
 public:
   SizeTextAnchor3D(
-    const vm::bbox3& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
+    const vm::bbox3d& bounds, const vm::axis::type axis, const Renderer::Camera& camera)
     : m_bounds{bounds}
     , m_axis{axis}
     , m_camera{camera}
@@ -115,37 +114,38 @@ public:
 private:
   vm::vec3f basePosition() const override
   {
-    const auto camPos = m_bounds.relative_position(vm::vec3(m_camera.position()));
+    const auto camPos = m_bounds.relative_position(vm::vec3d(m_camera.position()));
     const auto camDir = m_camera.direction();
-    auto pos = vm::vec3{};
+    auto pos = vm::vec3d{};
     const auto half = m_bounds.size() / 2.0;
 
     if (m_axis == vm::axis::z)
     {
       if (
-        (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::less)
-        || (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::within))
+        (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
+        || (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within))
       {
         pos[0] = m_bounds.min.x();
         pos[1] = m_bounds.max.y();
       }
       else if (
-        (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::greater)
-        || (camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::greater))
+        (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
+        || (camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::greater))
       {
         pos[0] = m_bounds.max.x();
         pos[1] = m_bounds.max.y();
       }
       else if (
-        (camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::greater)
-        || (camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::within))
+        (camPos[0] == vm::bbox3d::Range::greater
+         && camPos[1] == vm::bbox3d::Range::greater)
+        || (camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::within))
       {
         pos[0] = m_bounds.max.x();
         pos[1] = m_bounds.min.y();
       }
       else if (
-        (camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::less)
-        || (camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::less))
+        (camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
+        || (camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less))
       {
         pos[0] = m_bounds.min.x();
         pos[1] = m_bounds.min.y();
@@ -164,115 +164,121 @@ private:
       if (m_axis == vm::axis::x)
       {
         pos[0] = m_bounds.min.x() + half.x();
-        if (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::less)
+        if (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[1] = m_bounds.max.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::less)
+          camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::within
+          && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[1] = camDir.y() <= 0.0f ? m_bounds.min.y() : m_bounds.max.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::within
+          && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::less)
+          camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::greater
+          && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[1] = m_bounds.min.y();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater
-          && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::greater
+          && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[1] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
       }
       else
       {
         pos[1] = m_bounds.min.y() + half.y();
-        if (camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::less)
+        if (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::less && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::less)
+          camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[0] = m_bounds.min.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::within
+          && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[0] = camDir.x() <= 0.0f ? m_bounds.min.x() : m_bounds.max.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::within && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::within
+          && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[0] = m_bounds.max.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::less)
+          camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater && camPos[1] == vm::bbox3::Range::within)
+          camPos[0] == vm::bbox3d::Range::greater
+          && camPos[1] == vm::bbox3d::Range::within)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
         else if (
-          camPos[0] == vm::bbox3::Range::greater
-          && camPos[1] == vm::bbox3::Range::greater)
+          camPos[0] == vm::bbox3d::Range::greater
+          && camPos[1] == vm::bbox3d::Range::greater)
         {
           pos[0] =
-            camPos[2] == vm::bbox3::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
       }
 
-      if (camPos[2] == vm::bbox3::Range::less)
+      if (camPos[2] == vm::bbox3d::Range::less)
       {
         pos[2] = m_bounds.min.z();
       }
@@ -292,9 +298,9 @@ private:
       return TextAlignment::Right;
     }
 
-    const auto camPos = m_bounds.relative_position(vm::vec3(m_camera.position()));
-    return camPos[2] == vm::bbox3::Range::less ? TextAlignment::Top
-                                               : TextAlignment::Bottom;
+    const auto camPos = m_bounds.relative_position(vm::vec3d(m_camera.position()));
+    return camPos[2] == vm::bbox3d::Range::less ? TextAlignment::Top
+                                                : TextAlignment::Bottom;
   }
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
@@ -323,14 +329,14 @@ private:
 class MinMaxTextAnchor3D : public TextAnchor3D
 {
 private:
-  const vm::bbox3& m_bounds;
-  const vm::bbox3::Corner m_minMax;
+  const vm::bbox3d& m_bounds;
+  const vm::bbox3d::Corner m_minMax;
   const Renderer::Camera& m_camera;
 
 public:
   MinMaxTextAnchor3D(
-    const vm::bbox3& bounds,
-    const vm::bbox3::Corner minMax,
+    const vm::bbox3d& bounds,
+    const vm::bbox3d::Corner minMax,
     const Renderer::Camera& camera)
     : m_bounds{bounds}
     , m_minMax{minMax}
@@ -341,18 +347,18 @@ public:
 private:
   vm::vec3f basePosition() const override
   {
-    return m_minMax == vm::bbox3::Corner::min ? vm::vec3f{m_bounds.min}
-                                              : vm::vec3f{m_bounds.max};
+    return m_minMax == vm::bbox3d::Corner::min ? vm::vec3f{m_bounds.min}
+                                               : vm::vec3f{m_bounds.max};
   }
 
   TextAlignment::Type alignment() const override
   {
-    const auto camPos = m_bounds.relative_position(vm::vec3(m_camera.position()));
-    if (m_minMax == vm::bbox3::Corner::min)
+    const auto camPos = m_bounds.relative_position(vm::vec3d(m_camera.position()));
+    if (m_minMax == vm::bbox3d::Corner::min)
     {
       if (
-        (camPos[1] == vm::bbox3::Range::less)
-        || (camPos[1] == vm::bbox3::Range::within && camPos[0] != vm::bbox3::Range::less))
+        (camPos[1] == vm::bbox3d::Range::less)
+        || (camPos[1] == vm::bbox3d::Range::within && camPos[0] != vm::bbox3d::Range::less))
       {
         return TextAlignment::Top | TextAlignment::Right;
       }
@@ -362,8 +368,8 @@ private:
       }
     }
     else if (
-      (camPos[1] == vm::bbox3::Range::less)
-      || (camPos[1] == vm::bbox3::Range::within && camPos[0] != vm::bbox3::Range::less))
+      (camPos[1] == vm::bbox3d::Range::less)
+      || (camPos[1] == vm::bbox3d::Range::within && camPos[0] != vm::bbox3d::Range::less))
     {
       return TextAlignment::Bottom | TextAlignment::Left;
     }
@@ -398,7 +404,7 @@ private:
 
 } // namespace
 
-SelectionBoundsRenderer::SelectionBoundsRenderer(const vm::bbox3& bounds)
+SelectionBoundsRenderer::SelectionBoundsRenderer(const vm::bbox3d& bounds)
   : m_bounds{bounds}
 {
 }
@@ -495,11 +501,11 @@ void SelectionBoundsRenderer::renderMinMax(
 
   renderService.renderString(
     fmt::format("Min: {}", fmt::streamed(vm::correct(m_bounds.min))),
-    MinMaxTextAnchor3D{m_bounds, vm::bbox3::Corner::min, renderContext.camera()});
+    MinMaxTextAnchor3D{m_bounds, vm::bbox3d::Corner::min, renderContext.camera()});
 
   renderService.renderString(
     fmt::format("Max: {}", fmt::streamed(vm::correct(m_bounds.max))),
-    MinMaxTextAnchor3D{m_bounds, vm::bbox3::Corner::max, renderContext.camera()});
+    MinMaxTextAnchor3D{m_bounds, vm::bbox3d::Corner::max, renderContext.camera()});
 }
 
 } // namespace TrenchBroom::Renderer

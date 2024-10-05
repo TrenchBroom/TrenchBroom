@@ -19,7 +19,6 @@
 
 #include "GroupNode.h"
 
-#include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h"
@@ -147,7 +146,7 @@ const std::string& GroupNode::doGetName() const
   return m_group.name();
 }
 
-const vm::bbox3& GroupNode::doGetLogicalBounds() const
+const vm::bbox3d& GroupNode::doGetLogicalBounds() const
 {
   if (!m_boundsValid)
   {
@@ -156,7 +155,7 @@ const vm::bbox3& GroupNode::doGetLogicalBounds() const
   return m_logicalBounds;
 }
 
-const vm::bbox3& GroupNode::doGetPhysicalBounds() const
+const vm::bbox3d& GroupNode::doGetPhysicalBounds() const
 {
   if (!m_boundsValid)
   {
@@ -165,12 +164,12 @@ const vm::bbox3& GroupNode::doGetPhysicalBounds() const
   return m_physicalBounds;
 }
 
-FloatType GroupNode::doGetProjectedArea(const vm::axis::type) const
+double GroupNode::doGetProjectedArea(const vm::axis::type) const
 {
-  return static_cast<FloatType>(0);
+  return static_cast<double>(0);
 }
 
-Node* GroupNode::doClone(const vm::bbox3& /* worldBounds */) const
+Node* GroupNode::doClone(const vm::bbox3d& /* worldBounds */) const
 {
   auto result = std::make_unique<GroupNode>(m_group);
   cloneLinkId(*result);
@@ -247,7 +246,7 @@ bool GroupNode::doSelectable() const
   return true;
 }
 
-void GroupNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResult&)
+void GroupNode::doPick(const EditorContext&, const vm::ray3d& /* ray */, PickResult&)
 {
   // For composite nodes (Groups, brush entities), pick rays don't hit the group
   // but instead just the primitives inside (brushes, point entities).
@@ -257,7 +256,7 @@ void GroupNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResu
   // See: https://github.com/TrenchBroom/TrenchBroom/issues/2742
 }
 
-void GroupNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void GroupNode::doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   if (logicalBounds().contains(point))
   {
@@ -302,8 +301,8 @@ void GroupNode::invalidateBounds()
 
 void GroupNode::validateBounds() const
 {
-  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3{0.0});
-  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3{0.0});
+  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3d{0.0});
+  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3d{0.0});
   m_boundsValid = true;
 }
 

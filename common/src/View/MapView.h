@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "View/ViewEffectsService.h"
 
 #include "vm/forward.h"
@@ -53,8 +52,8 @@ public:
   virtual bool canSelectTall() = 0;
   virtual void selectTall() = 0;
 
-  virtual vm::vec3 pasteObjectsDelta(
-    const vm::bbox3& bounds, const vm::bbox3& referenceBounds) const = 0;
+  virtual vm::vec3d pasteObjectsDelta(
+    const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const = 0;
 
   virtual void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) = 0;
   virtual void focusCameraOnSelection(bool animate) = 0;

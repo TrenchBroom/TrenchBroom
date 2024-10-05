@@ -86,7 +86,7 @@ void MoveObjectsToolPage::selectionDidChange(const Selection&)
 
 void MoveObjectsToolPage::applyMove()
 {
-  if (const auto delta = vm::parse<FloatType, 3>(m_offset->text().toStdString()))
+  if (const auto delta = vm::parse<double, 3>(m_offset->text().toStdString()))
   {
     auto document = kdl::mem_lock(m_document);
     document->translateObjects(*delta);

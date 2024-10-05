@@ -169,7 +169,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.undoMoveGroupContainingBrushEn
   auto* groupNode = document->groupSelection("test");
   CHECK(groupNode->selected());
 
-  CHECK(document->translateObjects(vm::vec3{16, 0, 0}));
+  CHECK(document->translateObjects(vm::vec3d{16, 0, 0}));
 
   CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
@@ -196,7 +196,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.rotateGroupContainingBrushEnti
 
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
   CHECK(document->rotateObjects(
-    vm::vec3::zero(), vm::vec3::pos_z(), static_cast<FloatType>(10.0)));
+    vm::vec3d::zero(), vm::vec3d::pos_z(), static_cast<double>(10.0)));
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 
   document->undoCommand();
@@ -534,7 +534,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   auto* brushNode1 = new Model::BrushNode(
-    builder.createCuboid(vm::bbox3{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value());
+    builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value());
   document->addNodes({{entityNode1, {brushNode1}}});
   document->selectNodes({entityNode1});
   CHECK_THAT(
@@ -1036,7 +1036,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
     document->selectNodes({groupNode, linkedGroupNode});
 
     CHECK(
-      document->transformObjects("", vm::translation_matrix(vm::vec3{0.5, 0.5, 0.0})));
+      document->transformObjects("", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
 
     // This could generate conflicts, because what snaps one group could misalign
     // another group in the link set. So, just reject the change.
@@ -1103,7 +1103,7 @@ TEST_CASE_METHOD(
   // move the entity down
   REQUIRE(document->translateObjects({0, 0, -256}));
   REQUIRE(
-    entityNode->physicalBounds() == vm::bbox3{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
+    entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
   auto* groupNode = document->groupSelection("test");
   auto* linkedGroupNode = document->createLinkedDuplicate();
@@ -1115,7 +1115,7 @@ TEST_CASE_METHOD(
   document->translateObjects({0, 0, document->worldBounds().max.z()});
   REQUIRE(
     linkedGroupNode->physicalBounds()
-    == vm::bbox3{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
+    == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});
 
   // create a brush entity inside the original group
   document->openGroup(groupNode);
@@ -1123,7 +1123,7 @@ TEST_CASE_METHOD(
 
   SECTION("create point entity")
   {
-    REQUIRE(m_pointEntityDef->bounds() == vm::bbox3{{-16, -16, -16}, {16, 16, 16}});
+    REQUIRE(m_pointEntityDef->bounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 16}});
 
     // create a new point entity below the origin -- this entity is temporarily created
     // at the origin and then moved to its eventual position, but the entity at the
@@ -1135,8 +1135,8 @@ TEST_CASE_METHOD(
   {
     auto* brushNode = createBrushNode();
     Model::transformNode(
-      *brushNode, vm::translation_matrix(vm::vec3{0, 0, -32}), document->worldBounds());
-    REQUIRE(brushNode->physicalBounds() == vm::bbox3{{-16, -16, -48}, {16, 16, -16}});
+      *brushNode, vm::translation_matrix(vm::vec3d{0, 0, -32}), document->worldBounds());
+    REQUIRE(brushNode->physicalBounds() == vm::bbox3d{{-16, -16, -48}, {16, 16, -16}});
 
     document->addNodes({{document->parentForNodes(), {brushNode}}});
     document->deselectAll();

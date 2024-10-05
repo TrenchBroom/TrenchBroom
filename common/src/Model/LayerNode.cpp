@@ -83,7 +83,7 @@ const std::string& LayerNode::doGetName() const
   return layer().name();
 }
 
-const vm::bbox3& LayerNode::doGetLogicalBounds() const
+const vm::bbox3d& LayerNode::doGetLogicalBounds() const
 {
   if (!m_boundsValid)
   {
@@ -92,7 +92,7 @@ const vm::bbox3& LayerNode::doGetLogicalBounds() const
   return m_logicalBounds;
 }
 
-const vm::bbox3& LayerNode::doGetPhysicalBounds() const
+const vm::bbox3d& LayerNode::doGetPhysicalBounds() const
 {
   if (!m_boundsValid)
   {
@@ -101,12 +101,12 @@ const vm::bbox3& LayerNode::doGetPhysicalBounds() const
   return m_physicalBounds;
 }
 
-FloatType LayerNode::doGetProjectedArea(const vm::axis::type) const
+double LayerNode::doGetProjectedArea(const vm::axis::type) const
 {
-  return static_cast<FloatType>(0);
+  return static_cast<double>(0);
 }
 
-Node* LayerNode::doClone(const vm::bbox3&) const
+Node* LayerNode::doClone(const vm::bbox3d&) const
 {
   auto result = std::make_unique<LayerNode>(m_layer);
   cloneAttributes(*result);
@@ -149,9 +149,9 @@ bool LayerNode::doSelectable() const
   return false;
 }
 
-void LayerNode::doPick(const EditorContext&, const vm::ray3& /* ray */, PickResult&) {}
+void LayerNode::doPick(const EditorContext&, const vm::ray3d& /* ray */, PickResult&) {}
 
-void LayerNode::doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result)
+void LayerNode::doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result)
 {
   for (auto* child : Node::children())
   {
@@ -176,8 +176,8 @@ void LayerNode::invalidateBounds()
 
 void LayerNode::validateBounds() const
 {
-  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3{0.0});
-  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3{0.0});
+  m_logicalBounds = computeLogicalBounds(children(), vm::bbox3d{0.0});
+  m_physicalBounds = computePhysicalBounds(children(), vm::bbox3d{0.0});
   m_boundsValid = true;
 }
 

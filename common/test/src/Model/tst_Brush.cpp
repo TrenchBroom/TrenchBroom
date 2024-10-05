@@ -19,7 +19,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Texture.h"
-#include "FloatType.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -51,9 +50,9 @@ namespace
 
 bool canMoveBoundary(
   Brush brush,
-  const vm::bbox3& worldBounds,
+  const vm::bbox3d& worldBounds,
   const size_t faceIndex,
-  const vm::vec3& delta)
+  const vm::vec3d& delta)
 {
   return brush.moveBoundary(worldBounds, faceIndex, delta, false)
          | kdl::transform([&]() { return worldBounds.contains(brush.bounds()); })
@@ -61,9 +60,9 @@ bool canMoveBoundary(
 }
 
 void assertCanMoveVertices(
-  Brush brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta)
+  Brush brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
@@ -83,9 +82,9 @@ void assertCanMoveVertices(
 // "Move point" tests
 
 void assertMovingVerticesDeletes(
-  Brush brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta)
+  Brush brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 
@@ -96,41 +95,41 @@ void assertMovingVerticesDeletes(
 }
 
 void assertCanNotMoveVertices(
-  const Brush& brush, const std::vector<vm::vec3> vertexPositions, const vm::vec3 delta)
+  const Brush& brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   CHECK_FALSE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
 }
 
 void assertCanMoveVertex(
-  const Brush& brush, const vm::vec3 vertexPosition, const vm::vec3 delta)
+  const Brush& brush, const vm::vec3d vertexPosition, const vm::vec3d delta)
 {
-  assertCanMoveVertices(brush, std::vector<vm::vec3>{vertexPosition}, delta);
+  assertCanMoveVertices(brush, std::vector<vm::vec3d>{vertexPosition}, delta);
 }
 
 void assertMovingVertexDeletes(
-  const Brush& brush, const vm::vec3 vertexPosition, const vm::vec3 delta)
+  const Brush& brush, const vm::vec3d vertexPosition, const vm::vec3d delta)
 {
-  assertMovingVerticesDeletes(brush, std::vector<vm::vec3>{vertexPosition}, delta);
+  assertMovingVerticesDeletes(brush, std::vector<vm::vec3d>{vertexPosition}, delta);
 }
 
 void assertCanNotMoveVertex(
-  const Brush& brush, const vm::vec3 vertexPosition, const vm::vec3 delta)
+  const Brush& brush, const vm::vec3d vertexPosition, const vm::vec3d delta)
 {
-  assertCanNotMoveVertices(brush, std::vector<vm::vec3>{vertexPosition}, delta);
+  assertCanNotMoveVertices(brush, std::vector<vm::vec3d>{vertexPosition}, delta);
 }
 
 void assertCanNotMoveEdges(
-  const Brush& brush, const std::vector<vm::segment3> edges, const vm::vec3 delta)
+  const Brush& brush, const std::vector<vm::segment3d> edges, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   CHECK_FALSE(brush.canMoveEdges(worldBounds, edges, delta));
 }
 
 void assertCanMoveFaces(
-  Brush brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta)
+  Brush brush, const std::vector<vm::polygon3d> movingFaces, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   const auto expectedMovedFaces =
     movingFaces
@@ -144,38 +143,38 @@ void assertCanMoveFaces(
 }
 
 void assertCanNotMoveFaces(
-  const Brush& brush, const std::vector<vm::polygon3> movingFaces, const vm::vec3 delta)
+  const Brush& brush, const std::vector<vm::polygon3d> movingFaces, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   CHECK_FALSE(brush.canMoveFaces(worldBounds, movingFaces, delta));
 }
 
 void assertCanMoveFace(
-  const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3 delta)
+  const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3d delta)
 {
   REQUIRE(topFaceIndex);
   const auto& topFace = brush.face(*topFaceIndex);
-  assertCanMoveFaces(brush, std::vector<vm::polygon3>{topFace.polygon()}, delta);
+  assertCanMoveFaces(brush, std::vector<vm::polygon3d>{topFace.polygon()}, delta);
 }
 
 void assertCanNotMoveFace(
-  const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3 delta)
+  const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   REQUIRE(topFaceIndex);
   const auto& topFace = brush.face(*topFaceIndex);
   CHECK_FALSE(brush.canMoveFaces(worldBounds, {topFace.polygon()}, delta));
 }
 
-void assertCanMoveTopFace(const Brush& brush, const vm::vec3 delta)
+void assertCanMoveTopFace(const Brush& brush, const vm::vec3d delta)
 {
-  assertCanMoveFace(brush, brush.findFace(vm::vec3{0, 0, 1}), delta);
+  assertCanMoveFace(brush, brush.findFace(vm::vec3d{0, 0, 1}), delta);
 }
 
-void assertCanNotMoveTopFace(const Brush& brush, const vm::vec3 delta)
+void assertCanNotMoveTopFace(const Brush& brush, const vm::vec3d delta)
 {
-  assertCanNotMoveFace(brush, brush.findFace(vm::vec3{0, 0, 1}), delta);
+  assertCanNotMoveFace(brush, brush.findFace(vm::vec3d{0, 0, 1}), delta);
 }
 
 void assertCanNotMoveTopFaceBeyond127UnitsDown(const Brush& brush)
@@ -199,7 +198,7 @@ class UVLockTest
 
 TEST_CASE("BrushTest.constructBrushWithFaces")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   // build a cube with length 16 at the origin
   const auto brush =
@@ -207,66 +206,66 @@ TEST_CASE("BrushTest.constructBrushWithFaces")
       worldBounds,
       {
         // left
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 1, 0}, vm::vec3{0, 0, 1}),
+        createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{0, 1, 0}, vm::vec3d{0, 0, 1}),
         // right
-        createParaxial(vm::vec3{16, 0, 0}, vm::vec3{16, 0, 1}, vm::vec3{16, 1, 0}),
+        createParaxial(vm::vec3d{16, 0, 0}, vm::vec3d{16, 0, 1}, vm::vec3d{16, 1, 0}),
         // front
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 0, 1}, vm::vec3{1, 0, 0}),
+        createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::vec3d{1, 0, 0}),
         // back
-        createParaxial(vm::vec3{0, 16, 0}, vm::vec3{1, 16, 0}, vm::vec3{0, 16, 1}),
+        createParaxial(vm::vec3d{0, 16, 0}, vm::vec3d{1, 16, 0}, vm::vec3d{0, 16, 1}),
         // top
-        createParaxial(vm::vec3{0, 0, 16}, vm::vec3{0, 1, 16}, vm::vec3{1, 0, 16}),
+        createParaxial(vm::vec3d{0, 0, 16}, vm::vec3d{0, 1, 16}, vm::vec3d{1, 0, 16}),
         // bottom
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}),
+        createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}),
       })
     | kdl::value();
 
   REQUIRE(brush.fullySpecified());
   REQUIRE(brush.faceCount() == 6u);
-  CHECK(brush.findFace(vm::vec3{1, 0, 0}));
-  CHECK(brush.findFace(vm::vec3{-1, 0, 0}));
-  CHECK(brush.findFace(vm::vec3{0, 1, 0}));
-  CHECK(brush.findFace(vm::vec3{0, -1, 0}));
-  CHECK(brush.findFace(vm::vec3{0, 0, 1}));
-  CHECK(brush.findFace(vm::vec3{0, 0, -1}));
+  CHECK(brush.findFace(vm::vec3d{1, 0, 0}));
+  CHECK(brush.findFace(vm::vec3d{-1, 0, 0}));
+  CHECK(brush.findFace(vm::vec3d{0, 1, 0}));
+  CHECK(brush.findFace(vm::vec3d{0, -1, 0}));
+  CHECK(brush.findFace(vm::vec3d{0, 0, 1}));
+  CHECK(brush.findFace(vm::vec3d{0, 0, -1}));
 }
 
 TEST_CASE("BrushTest.constructBrushWithRedundantFaces")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   CHECK(Brush::create(
           worldBounds,
           {
-            createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}),
-            createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}),
-            createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}),
+            createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}),
+            createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}),
+            createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}),
           })
           .is_error());
 }
 
 TEST_CASE("BrushTest.clip")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   const auto left =
-    createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 1, 0}, vm::vec3{0, 0, 1});
+    createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{0, 1, 0}, vm::vec3d{0, 0, 1});
   const auto right =
-    createParaxial(vm::vec3{16, 0, 0}, vm::vec3{16, 0, 1}, vm::vec3{16, 1, 0});
+    createParaxial(vm::vec3d{16, 0, 0}, vm::vec3d{16, 0, 1}, vm::vec3d{16, 1, 0});
   const auto front =
-    createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 0, 1}, vm::vec3{1, 0, 0});
+    createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::vec3d{1, 0, 0});
   const auto back =
-    createParaxial(vm::vec3{0, 16, 0}, vm::vec3{1, 16, 0}, vm::vec3{0, 16, 1});
+    createParaxial(vm::vec3d{0, 16, 0}, vm::vec3d{1, 16, 0}, vm::vec3d{0, 16, 1});
   const auto top =
-    createParaxial(vm::vec3{0, 0, 16}, vm::vec3{0, 1, 16}, vm::vec3{1, 0, 16});
+    createParaxial(vm::vec3d{0, 0, 16}, vm::vec3d{0, 1, 16}, vm::vec3d{1, 0, 16});
   const auto bottom =
-    createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0});
+    createParaxial(vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0});
 
   // build a cube with length 16 at the origin
   auto brush =
     Brush::create(worldBounds, {left, right, front, back, top, bottom}) | kdl::value();
 
-  auto clip = createParaxial(vm::vec3{8, 0, 0}, vm::vec3{8, 0, 1}, vm::vec3{8, 1, 0});
+  auto clip = createParaxial(vm::vec3d{8, 0, 0}, vm::vec3d{8, 0, 1}, vm::vec3d{8, 1, 0});
   CHECK(brush.clip(worldBounds, clip).is_success());
 
   CHECK(brush.faceCount() == 6u);
@@ -281,35 +280,38 @@ TEST_CASE("BrushTest.clip")
 
 TEST_CASE("BrushTest.moveBoundary")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   auto brush =
     Brush::create(
       worldBounds,
       {
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 1, 0}, vm::vec3{1, 0, 1}), // left
         createParaxial(
-          vm::vec3{16, 0, 0}, vm::vec3{15, 0, 1}, vm::vec3{16, 1, 0}),           // right
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{0, 0, 1}, vm::vec3{1, 0, 0}), // front
+          vm::vec3d{0, 0, 0}, vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 1}), // left
         createParaxial(
-          vm::vec3{0, 16, 0}, vm::vec3{1, 16, 0}, vm::vec3{0, 16, 1}),           // back
-        createParaxial(vm::vec3{0, 0, 6}, vm::vec3{0, 1, 6}, vm::vec3{1, 0, 6}), // top
-        createParaxial(vm::vec3{0, 0, 0}, vm::vec3{1, 0, 0}, vm::vec3{0, 1, 0}), // bottom
+          vm::vec3d{16, 0, 0}, vm::vec3d{15, 0, 1}, vm::vec3d{16, 1, 0}), // right
+        createParaxial(
+          vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::vec3d{1, 0, 0}), // front
+        createParaxial(
+          vm::vec3d{0, 16, 0}, vm::vec3d{1, 16, 0}, vm::vec3d{0, 16, 1}), // back
+        createParaxial(vm::vec3d{0, 0, 6}, vm::vec3d{0, 1, 6}, vm::vec3d{1, 0, 6}), // top
+        createParaxial(
+          vm::vec3d{0, 0, 0}, vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}), // bottom
       })
     | kdl::value();
 
   REQUIRE(brush.faceCount() == 6u);
 
-  const auto topFaceIndex = brush.findFace(vm::vec3{0, 0, 1});
+  const auto topFaceIndex = brush.findFace(vm::vec3d{0, 0, 1});
   REQUIRE(topFaceIndex);
 
-  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, +16}));
-  CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, -16}));
-  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, +2}));
-  CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, -6}));
-  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, +1}));
-  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3{0, 0, -5}));
+  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, +16}));
+  CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, -16}));
+  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, +2}));
+  CHECK(!canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, -6}));
+  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, +1}));
+  CHECK(canMoveBoundary(brush, worldBounds, *topFaceIndex, vm::vec3d{0, 0, -5}));
 
-  CHECK(brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3{0, 0, 1}, false)
+  CHECK(brush.moveBoundary(worldBounds, *topFaceIndex, vm::vec3d{0, 0, 1}, false)
           .is_success());
   CHECK(worldBounds.contains(brush.bounds()));
 
@@ -319,11 +321,11 @@ TEST_CASE("BrushTest.moveBoundary")
 
 TEST_CASE("BrushTest.resizePastWorldBounds")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
   auto brush1 = builder.createBrush(
-                  std::vector<vm::vec3>{
+                  std::vector<vm::vec3d>{
                     {64, -64, 16},
                     {64, 64, 16},
                     {64, -64, -16},
@@ -334,26 +336,27 @@ TEST_CASE("BrushTest.resizePastWorldBounds")
                   "material")
                 | kdl::value();
 
-  const auto rightFaceIndex = brush1.findFace(vm::vec3{1, 0, 0});
+  const auto rightFaceIndex = brush1.findFace(vm::vec3d{1, 0, 0});
   REQUIRE(rightFaceIndex);
 
-  CHECK(canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3{16, 0, 0}));
-  CHECK(!canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3{8000, 0, 0}));
+  CHECK(canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3d{16, 0, 0}));
+  CHECK(!canMoveBoundary(brush1, worldBounds, *rightFaceIndex, vm::vec3d{8000, 0, 0}));
 }
 
 TEST_CASE("BrushTest.expand")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  auto brush1 = builder.createCuboid(vm::bbox3{{-64, -64, -64}, {64, 64, 64}}, "material")
-                | kdl::value();
+  auto brush1 =
+    builder.createCuboid(vm::bbox3d{{-64, -64, -64}, {64, 64, 64}}, "material")
+    | kdl::value();
   CHECK(brush1.expand(worldBounds, 6, true).is_success());
 
-  const auto expandedBBox = vm::bbox3{{-70, -70, -70}, {70, 70, 70}};
+  const auto expandedBBox = vm::bbox3d{{-70, -70, -70}, {70, 70, 70}};
   const auto expectedVerticesArray = expandedBBox.vertices();
   const auto expectedVertices =
-    std::vector<vm::vec3>{expectedVerticesArray.begin(), expectedVerticesArray.end()};
+    std::vector<vm::vec3d>{expectedVerticesArray.begin(), expectedVerticesArray.end()};
 
   CHECK(brush1.bounds() == expandedBBox);
   CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
@@ -361,17 +364,18 @@ TEST_CASE("BrushTest.expand")
 
 TEST_CASE("BrushTest.contract")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  auto brush1 = builder.createCuboid(vm::bbox3{{-64, -64, -64}, {64, 64, 64}}, "material")
-                | kdl::value();
+  auto brush1 =
+    builder.createCuboid(vm::bbox3d{{-64, -64, -64}, {64, 64, 64}}, "material")
+    | kdl::value();
   CHECK(brush1.expand(worldBounds, -32, true).is_success());
 
-  const auto expandedBBox = vm::bbox3{{-32, -32, -32}, {32, 32, 32}};
+  const auto expandedBBox = vm::bbox3d{{-32, -32, -32}, {32, 32, 32}};
   const auto expectedVerticesArray = expandedBBox.vertices();
   const auto expectedVertices =
-    std::vector<vm::vec3>{expectedVerticesArray.begin(), expectedVerticesArray.end()};
+    std::vector<vm::vec3d>{expectedVerticesArray.begin(), expectedVerticesArray.end()};
 
   CHECK(brush1.bounds() == expandedBBox);
   CHECK_THAT(brush1.vertexPositions(), Catch::UnorderedEquals(expectedVertices));
@@ -379,33 +383,34 @@ TEST_CASE("BrushTest.contract")
 
 TEST_CASE("BrushTest.contractToZero")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  auto brush1 = builder.createCuboid(vm::bbox3{{-64, -64, -64}, {64, 64, 64}}, "material")
-                | kdl::value();
+  auto brush1 =
+    builder.createCuboid(vm::bbox3d{{-64, -64, -64}, {64, 64, 64}}, "material")
+    | kdl::value();
   CHECK(brush1.expand(worldBounds, -64, true).is_error());
 }
 
 TEST_CASE("BrushTest.moveVertex")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
                | kdl::value();
 
-  const auto p1 = vm::vec3{-32, -32, -32};
-  const auto p2 = vm::vec3{-32, -32, +32};
-  const auto p3 = vm::vec3{-32, +32, -32};
-  const auto p4 = vm::vec3{-32, +32, +32};
-  const auto p5 = vm::vec3{+32, -32, -32};
-  const auto p6 = vm::vec3{+32, -32, +32};
-  const auto p7 = vm::vec3{+32, +32, -32};
-  const auto p8 = vm::vec3{+32, +32, +32};
-  const auto p9 = vm::vec3{+16, +16, +32};
+  const auto p1 = vm::vec3d{-32, -32, -32};
+  const auto p2 = vm::vec3d{-32, -32, +32};
+  const auto p3 = vm::vec3d{-32, +32, -32};
+  const auto p4 = vm::vec3d{-32, +32, +32};
+  const auto p5 = vm::vec3d{+32, -32, -32};
+  const auto p6 = vm::vec3d{+32, -32, +32};
+  const auto p7 = vm::vec3d{+32, +32, -32};
+  const auto p8 = vm::vec3d{+32, +32, +32};
+  const auto p9 = vm::vec3d{+16, +16, +32};
 
-  auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p9 - p8).is_success());
   auto newVertexPositions =
     brush.findClosestVertexPositions(oldVertexPositions + (p9 - p8));
@@ -439,11 +444,11 @@ TEST_CASE("BrushTest.moveVertex")
 
 TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto top = vm::vec3{0, 0, 16};
+  const auto top = vm::vec3d{0, 0, 16};
 
-  const auto points = std::vector<vm::vec3>{
+  const auto points = std::vector<vm::vec3d>{
     {-16, -16, 0},
     {+16, -16, 0},
     {0, +16, 0},
@@ -453,36 +458,36 @@ TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(points, "some_material") | kdl::value();
 
-  auto oldVertexPositions = std::vector<vm::vec3>{top};
-  auto delta = vm::vec3{0, 0, -32};
+  auto oldVertexPositions = std::vector<vm::vec3d>{top};
+  auto delta = vm::vec3d{0, 0, -32};
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 
   CHECK(newVertexPositions.size() == 1u);
-  CHECK(newVertexPositions[0] == vm::approx{vm::vec3{0, 0, -16}});
+  CHECK(newVertexPositions[0] == vm::approx{vm::vec3d{0, 0, -16}});
   CHECK(brush.fullySpecified());
 }
 
 TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{+56, +56, +56};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{+56, +56, +56};
 
   const auto originalPositions = std::vector{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -533,24 +538,24 @@ TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
 
 TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{+72, +72, +72};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{+72, +72, +72};
 
   const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -601,24 +606,24 @@ TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
 
 TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+56, +56, +56};
-  const auto p9 = vm::vec3{+56, +56, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+56, +56, +56};
+  const auto p9 = vm::vec3d{+56, +56, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -667,24 +672,24 @@ TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
 
 TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+56, +56, +56};
-  const auto p9 = vm::vec3{+64, +64, +56};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+56, +56, +56};
+  const auto p9 = vm::vec3d{+64, +64, +56};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -731,24 +736,24 @@ TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
 
 TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+56, +56, +56};
-  const auto p9 = vm::vec3{+64, +64, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+56, +56, +56};
+  const auto p9 = vm::vec3d{+64, +64, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>{p8};
+  const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -793,24 +798,24 @@ TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
 
 TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{0, 0, 0};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{0, 0, 0};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p8});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -854,24 +859,24 @@ TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
 
 TEST_CASE("BrushTest.moveVertexUpThroughPlane")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +56};
-  const auto p9 = vm::vec3{+64, +64, +72};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +56};
+  const auto p9 = vm::vec3d{+64, +64, +72};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p8});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -918,24 +923,24 @@ TEST_CASE("BrushTest.moveVertexUpThroughPlane")
 
 TEST_CASE("BrushTest.moveVertexOntoEdge")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, 0};
-  const auto p9 = vm::vec3{0, 0, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, 0};
+  const auto p9 = vm::vec3d{0, 0, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p8});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -979,23 +984,23 @@ TEST_CASE("BrushTest.moveVertexOntoEdge")
 
 TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p8});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
   const auto delta = p7 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -1040,23 +1045,23 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
 
 TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p7});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p7});
   const auto delta = p8 - p7;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -1101,24 +1106,24 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
 
 TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{+80, +64, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{+80, +64, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p6});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p6});
   const auto delta = p9 - p6;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -1163,24 +1168,24 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
 
 TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{+80, -64, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{+80, -64, +64};
 
-  const auto originalPositions = std::vector<vm::vec3>{p1, p2, p3, p4, p5, p6, p7, p8};
+  const auto originalPositions = std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p8});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
   const auto delta = p9 - p8;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -1225,26 +1230,26 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
 
 TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
 {
-  const auto p1 = vm::vec3{-64, -64, -64};
-  const auto p2 = vm::vec3{-64, -64, +64};
-  const auto p3 = vm::vec3{-64, +64, -64};
-  const auto p4 = vm::vec3{-64, +64, +64};
-  const auto p5 = vm::vec3{+64, -64, -64};
-  const auto p6 = vm::vec3{+64, -64, +64};
-  const auto p7 = vm::vec3{+64, +64, -64};
-  const auto p8 = vm::vec3{+64, +64, +64};
-  const auto p9 = vm::vec3{+80, 0, +64};
-  const auto p10 = vm::vec3{+64, 0, +64};
+  const auto p1 = vm::vec3d{-64, -64, -64};
+  const auto p2 = vm::vec3d{-64, -64, +64};
+  const auto p3 = vm::vec3d{-64, +64, -64};
+  const auto p4 = vm::vec3d{-64, +64, +64};
+  const auto p5 = vm::vec3d{+64, -64, -64};
+  const auto p6 = vm::vec3d{+64, -64, +64};
+  const auto p7 = vm::vec3d{+64, +64, -64};
+  const auto p8 = vm::vec3d{+64, +64, +64};
+  const auto p9 = vm::vec3d{+80, 0, +64};
+  const auto p10 = vm::vec3d{+64, 0, +64};
 
   const auto originalPositions =
     std::vector<vm::vec3d>{p1, p2, p3, p4, p5, p6, p7, p8, p9};
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
-  const auto oldVertexPositions = std::vector<vm::vec3>({p9});
+  const auto oldVertexPositions = std::vector<vm::vec3d>({p9});
   const auto delta = p10 - p9;
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   const auto newVertexPositions =
@@ -1288,7 +1293,7 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
 
 TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
 {
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
   const auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
   auto brush = builder.createCube(128.0, "material") | kdl::value();
@@ -1298,53 +1303,55 @@ TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
     | std::views::transform([](const auto* vertex) { return vertex->position(); })
     | kdl::to_vector;
 
-  CHECK(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3{16, 0, 0}));
+  CHECK(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3d{16, 0, 0}));
   CHECK_FALSE(
-    brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3{8192, 0, 0}));
+    brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3d{8192, 0, 0}));
 }
 
 // NOTE: Different than movePolygonRemainingPoint, because in this case we allow
 // point moves that flip the normal of the remaining polygon
 TEST_CASE("BrushTest.movePointRemainingPolygon")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto peakPosition = vm::vec3{0, 0, +64};
-  const auto baseQuadVertexPositions = std::vector<vm::vec3>{
+  const auto peakPosition = vm::vec3d{0, 0, +64};
+  const auto baseQuadVertexPositions = std::vector<vm::vec3d>{
     {-64, -64, -64}, // base quad
     {-64, +64, -64},
     {+64, +64, -64},
     {+64, -64, -64}};
   const auto vertexPositions =
-    kdl::vec_concat(std::vector<vm::vec3>{peakPosition}, baseQuadVertexPositions);
+    kdl::vec_concat(std::vector<vm::vec3d>{peakPosition}, baseQuadVertexPositions);
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
     | kdl::value();
 
-  assertCanMoveVertex(brush, peakPosition, vm::vec3{0, 0, -127});
+  assertCanMoveVertex(brush, peakPosition, vm::vec3d{0, 0, -127});
   assertCanNotMoveVertex(
-    brush, peakPosition, vm::vec3{0, 0, -128}); // Onto the base quad plane
+    brush, peakPosition, vm::vec3d{0, 0, -128}); // Onto the base quad plane
   assertCanMoveVertex(
-    brush, peakPosition, vm::vec3{0, 0, -129}); // Through the other side of the base quad
+    brush,
+    peakPosition,
+    vm::vec3d{0, 0, -129}); // Through the other side of the base quad
 
   // More detailed testing of the last assertion
   {
     auto brushCopy = brush;
     auto temp = baseQuadVertexPositions;
     std::reverse(temp.begin(), temp.end());
-    const auto flippedBaseQuadVertexPositions = std::vector<vm::vec3>{temp};
+    const auto flippedBaseQuadVertexPositions = std::vector<vm::vec3d>{temp};
 
-    const auto delta = vm::vec3{0.0, 0.0, -129.0};
+    const auto delta = vm::vec3d{0.0, 0.0, -129.0};
 
     CHECK(brushCopy.faceCount() == 5u);
-    CHECK(brushCopy.findFace(vm::polygon3{baseQuadVertexPositions}));
-    CHECK_FALSE(brushCopy.findFace(vm::polygon3{flippedBaseQuadVertexPositions}));
-    CHECK(brushCopy.findFace(vm::vec3{0, 0, -1}));
-    CHECK_FALSE(brushCopy.findFace(vm::vec3{0, 0, 1}));
+    CHECK(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
+    CHECK_FALSE(brushCopy.findFace(vm::polygon3d{flippedBaseQuadVertexPositions}));
+    CHECK(brushCopy.findFace(vm::vec3d{0, 0, -1}));
+    CHECK_FALSE(brushCopy.findFace(vm::vec3d{0, 0, 1}));
 
-    const auto oldVertexPositions = std::vector<vm::vec3>{peakPosition};
+    const auto oldVertexPositions = std::vector<vm::vec3d>{peakPosition};
     CHECK(brushCopy.canMoveVertices(worldBounds, oldVertexPositions, delta));
     REQUIRE(brushCopy.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
     const auto newVertexPositions =
@@ -1352,26 +1359,26 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
     CHECK(newVertexPositions == oldVertexPositions + delta);
 
     CHECK(brushCopy.faceCount() == 5u);
-    CHECK_FALSE(brushCopy.findFace(vm::polygon3{baseQuadVertexPositions}));
-    CHECK(brushCopy.findFace(vm::polygon3{flippedBaseQuadVertexPositions}));
-    CHECK_FALSE(brushCopy.findFace(vm::vec3{0, 0, -1}));
-    CHECK(brushCopy.findFace(vm::vec3{0, 0, 1}));
+    CHECK_FALSE(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
+    CHECK(brushCopy.findFace(vm::polygon3d{flippedBaseQuadVertexPositions}));
+    CHECK_FALSE(brushCopy.findFace(vm::vec3d{0, 0, -1}));
+    CHECK(brushCopy.findFace(vm::vec3d{0, 0, 1}));
   }
 
-  assertCanMoveVertex(brush, peakPosition, vm::vec3{256, 0, -127});
+  assertCanMoveVertex(brush, peakPosition, vm::vec3d{256, 0, -127});
   assertCanNotMoveVertex(
-    brush, peakPosition, vm::vec3{256, 0, -128}); // Onto the base quad plane
+    brush, peakPosition, vm::vec3d{256, 0, -128}); // Onto the base quad plane
   assertCanMoveVertex(
-    brush, peakPosition, vm::vec3{256, 0, -129}); // Flips the normal of the base
-                                                  // quad, without moving through it
+    brush, peakPosition, vm::vec3d{256, 0, -129}); // Flips the normal of the base
+                                                   // quad, without moving through it
 }
 
 TEST_CASE("BrushTest.movePointRemainingPolyhedron")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto peakPosition = vm::vec3{0, 0, 128};
-  const auto vertexPositions = std::vector<vm::vec3>{
+  const auto peakPosition = vm::vec3d{0, 0, 128};
+  const auto vertexPositions = std::vector<vm::vec3d>{
     {-64, -64, 0}, // base quad
     {-64, +64, 0},
     {+64, +64, 0},
@@ -1388,15 +1395,15 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
     | kdl::value();
 
   assertMovingVertexDeletes(
-    brush, peakPosition, vm::vec3{0, 0, -65}); // Move inside the remaining cuboid
+    brush, peakPosition, vm::vec3d{0, 0, -65}); // Move inside the remaining cuboid
   assertCanMoveVertex(
     brush,
     peakPosition,
-    vm::vec3{0, 0, -63}); // Slightly above the top of the cuboid is OK
+    vm::vec3d{0, 0, -63}); // Slightly above the top of the cuboid is OK
   assertCanNotMoveVertex(
     brush,
     peakPosition,
-    vm::vec3{0, 0, -129}); // Through and out the other side is disallowed
+    vm::vec3d{0, 0, -129}); // Through and out the other side is disallowed
 }
 
 // add vertex tests
@@ -1407,71 +1414,71 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
 
 TEST_CASE("BrushTest.removeSingleVertex")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createCube(64.0, "asdf") | kdl::value();
 
-  CHECK(brush.removeVertices(worldBounds, {vm::vec3{+32, +32, +32}}).is_success());
+  CHECK(brush.removeVertices(worldBounds, {vm::vec3d{+32, +32, +32}}).is_success());
 
   CHECK(brush.vertexCount() == 7u);
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, +32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, +32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
-  CHECK(brush.removeVertices(worldBounds, {vm::vec3{+32, +32, -32}}).is_success());
+  CHECK(brush.removeVertices(worldBounds, {vm::vec3d{+32, +32, -32}}).is_success());
 
   CHECK(brush.vertexCount() == 6u);
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, +32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, +32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
-  CHECK(brush.removeVertices(worldBounds, {vm::vec3{+32, -32, +32}}).is_success());
+  CHECK(brush.removeVertices(worldBounds, {vm::vec3d{+32, -32, +32}}).is_success());
 
   CHECK(brush.vertexCount() == 5u);
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, -32, +32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, -32, +32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
-  CHECK(brush.removeVertices(worldBounds, {vm::vec3{-32, -32, -32}}).is_success());
+  CHECK(brush.removeVertices(worldBounds, {vm::vec3d{-32, -32, -32}}).is_success());
 
   CHECK(brush.vertexCount() == 4u);
-  CHECK_FALSE(brush.hasVertex(vm::vec3{-32, -32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, -32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, -32}));
-  CHECK(brush.hasVertex(vm::vec3{-32, +32, +32}));
-  CHECK(brush.hasVertex(vm::vec3{+32, -32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, -32, +32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, -32}));
-  CHECK_FALSE(brush.hasVertex(vm::vec3{+32, +32, +32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{-32, -32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, -32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, -32}));
+  CHECK(brush.hasVertex(vm::vec3d{-32, +32, +32}));
+  CHECK(brush.hasVertex(vm::vec3d{+32, -32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, -32, +32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, -32}));
+  CHECK_FALSE(brush.hasVertex(vm::vec3d{+32, +32, +32}));
 
-  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3{-32, -32, +32}}));
-  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3{-32, +32, -32}}));
-  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3{-32, +32, +32}}));
-  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3{+32, -32, -32}}));
+  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, -32, +32}}));
+  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, -32}}));
+  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{-32, +32, +32}}));
+  CHECK_FALSE(brush.canRemoveVertices(worldBounds, {vm::vec3d{+32, -32, -32}}));
 }
 
 TEST_CASE("BrushTest.removeMultipleVertices")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  const auto vertices = std::vector<vm::vec3>{
+  const auto vertices = std::vector<vm::vec3d>{
     {-32, -32, -32},
     {-32, -32, +32},
     {-32, +32, -32},
@@ -1489,7 +1496,7 @@ TEST_CASE("BrushTest.removeMultipleVertices")
       for (size_t k = j + 1; k < 8; ++k)
       {
         const auto toRemove =
-          std::vector<vm::vec3>{vertices[i], vertices[j], vertices[k]};
+          std::vector<vm::vec3d>{vertices[i], vertices[j], vertices[k]};
 
         auto brush = builder.createBrush(vertices, "asdf") | kdl::value();
         CHECK(brush.canRemoveVertices(worldBounds, toRemove));
@@ -1511,22 +1518,22 @@ TEST_CASE("BrushTest.removeMultipleVertices")
 
 TEST_CASE("BrushTest.moveEdge")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
                | kdl::value();
 
-  const auto p1 = vm::vec3{-32, -32, -32};
-  const auto p2 = vm::vec3{-32, -32, +32};
-  const auto p3 = vm::vec3{-32, +32, -32};
-  const auto p4 = vm::vec3{-32, +32, +32};
-  const auto p5 = vm::vec3{+32, -32, -32};
-  const auto p6 = vm::vec3{+32, -32, +32};
-  const auto p7 = vm::vec3{+32, +32, -32};
-  const auto p8 = vm::vec3{+32, +32, +32};
-  const auto p1_2 = vm::vec3{-32, -32, -16};
-  const auto p2_2 = vm::vec3{-32, -32, +48};
+  const auto p1 = vm::vec3d{-32, -32, -32};
+  const auto p2 = vm::vec3d{-32, -32, +32};
+  const auto p3 = vm::vec3d{-32, +32, -32};
+  const auto p4 = vm::vec3d{-32, +32, +32};
+  const auto p5 = vm::vec3d{+32, -32, -32};
+  const auto p6 = vm::vec3d{+32, -32, +32};
+  const auto p7 = vm::vec3d{+32, +32, -32};
+  const auto p8 = vm::vec3d{+32, +32, +32};
+  const auto p1_2 = vm::vec3d{-32, -32, -16};
+  const auto p2_2 = vm::vec3d{-32, -32, +48};
 
   assertMaterial("left", brush, p1, p2, p4, p3);
   assertMaterial("right", brush, p5, p7, p8, p6);
@@ -1536,13 +1543,13 @@ TEST_CASE("BrushTest.moveEdge")
   assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   const auto originalEdge = vm::segment(p1, p2);
-  auto oldEdgePositions = std::vector<vm::segment3>{originalEdge};
+  auto oldEdgePositions = std::vector<vm::segment3d>{originalEdge};
   auto delta = p1_2 - p1;
   CHECK(brush.moveEdges(worldBounds, oldEdgePositions, delta).is_success());
   auto newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
     oldEdgePositions, [&](const auto& s) { return s.translate(delta); }));
 
-  CHECK(newEdgePositions == std::vector<vm::segment3>{{p1_2, p2_2}});
+  CHECK(newEdgePositions == std::vector<vm::segment3d>{{p1_2, p2_2}});
 
   assertMaterial("left", brush, p1_2, p2_2, p4, p3);
   assertMaterial("right", brush, p5, p7, p8, p6);
@@ -1561,7 +1568,7 @@ TEST_CASE("BrushTest.moveEdge")
   newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
     oldEdgePositions, [&](const auto& s) { return s.translate(delta); }));
 
-  CHECK(newEdgePositions == std::vector<vm::segment3>{originalEdge});
+  CHECK(newEdgePositions == std::vector<vm::segment3d>{originalEdge});
 
   assertMaterial("left", brush, p1, p2, p4, p3);
   assertMaterial("right", brush, p5, p7, p8, p6);
@@ -1572,9 +1579,9 @@ TEST_CASE("BrushTest.moveEdge")
 }
 
 static void assertCanMoveEdges(
-  Brush brush, const std::vector<vm::segment3> edges, const vm::vec3 delta)
+  Brush brush, const std::vector<vm::segment3d> edges, const vm::vec3d delta)
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   const auto expectedMovedEdges =
     edges | std::views::transform([&](const auto& edge) { return edge.translate(delta); })
@@ -1589,10 +1596,10 @@ static void assertCanMoveEdges(
 
 TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   // Taller than the cube, starts to the left of the +-64 unit cube
-  const auto edge = vm::segment3{{-128, 0, -128}, {-128, 0, +128}};
+  const auto edge = vm::segment3d{{-128, 0, -128}, {-128, 0, +128}};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
@@ -1614,12 +1621,12 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 // Same as above, but moving 2 edges
 TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   // Taller than the cube, starts to the left of the +-64 unit cube
-  const auto edge1 = vm::segment3{{-128, -32, -128}, {-128, -32, +128}};
-  const auto edge2 = vm::segment3{{-128, +32, -128}, {-128, +32, +128}};
-  const auto movingEdges = std::vector<vm::segment3>{edge1, edge2};
+  const auto edge1 = vm::segment3d{{-128, -32, -128}, {-128, -32, +128}};
+  const auto edge2 = vm::segment3d{{-128, +32, -128}, {-128, +32, +128}};
+  const auto movingEdges = std::vector<vm::segment3d>{edge1, edge2};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
@@ -1644,12 +1651,12 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 
 TEST_CASE("BrushTest.moveFace")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createCube(64.0, "asdf") | kdl::value();
 
-  const auto face = vm::polygon3{
+  const auto face = vm::polygon3d{
     {-32, -32, +32},
     {+32, -32, +32},
     {+32, +32, +32},
@@ -1658,8 +1665,8 @@ TEST_CASE("BrushTest.moveFace")
 
   CHECK(brush.canMoveFaces(worldBounds, {face}, {-16, -16, 0}));
 
-  auto oldFacePositions = std::vector<vm::polygon3>{face};
-  auto delta = vm::vec3{-16, -16, 0};
+  auto oldFacePositions = std::vector<vm::polygon3d>{face};
+  auto delta = vm::vec3d{-16, -16, 0};
   CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
   auto newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
     oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
@@ -1671,7 +1678,7 @@ TEST_CASE("BrushTest.moveFace")
   CHECK(newFacePositions[0].hasVertex({+16, -48, +32}));
 
   oldFacePositions = std::move(newFacePositions);
-  delta = vm::vec3{16, 16, 0};
+  delta = vm::vec3d{16, 16, 0};
   CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
   newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
     oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
@@ -1686,14 +1693,14 @@ TEST_CASE("BrushTest.moveFace")
 
 TEST_CASE("BrushNodeTest.cannotMoveFace")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createCuboid(
-                 vm::vec3{128, 128, 32}, Model::BrushFaceAttributes::NoMaterialName)
+                 vm::vec3d{128, 128, 32}, Model::BrushFaceAttributes::NoMaterialName)
                | kdl::value();
 
-  const auto face = vm::polygon3{
+  const auto face = vm::polygon3d{
     {-64, -64, -16},
     {+64, -64, -16},
     {+64, -64, +16},
@@ -1705,9 +1712,9 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
 
 TEST_CASE("BrushTest.movePolygonRemainingPoint")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto vertexPositions = std::vector<vm::vec3>{
+  const auto vertexPositions = std::vector<vm::vec3d>{
     {-64, -64, +64}, // top quad
     {-64, +64, +64},
     {+64, -64, +64},
@@ -1726,9 +1733,9 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint")
 
 TEST_CASE("BrushTest.movePolygonRemainingEdge")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto vertexPositions = std::vector<vm::vec3>{
+  const auto vertexPositions = std::vector<vm::vec3d>{
     {-64, -64, +64}, // top quad
     {-64, +64, +64},
     {+64, -64, +64},
@@ -1747,7 +1754,7 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge")
 
 TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
@@ -1758,12 +1765,12 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 
 TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   // Same brush as movePolygonRemainingPolygon, but this particular order of vertices
   // triggers a failure in Brush::doCanMoveVertices where the polygon inserted into the
   // "remaining" BrushGeometry gets the wrong normal.
-  const auto vertexPositions = std::vector<vm::vec3>{
+  const auto vertexPositions = std::vector<vm::vec3d>{
     {+64, +64, +64},
     {+64, -64, +64},
     {+64, -64, -64},
@@ -1777,14 +1784,14 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
   auto brush =
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
     | kdl::value();
-  CHECK(brush.bounds() == vm::bbox3{{-64, -64, -64}, {64, 64, 64}});
+  CHECK(brush.bounds() == vm::bbox3d{{-64, -64, -64}, {64, 64, 64}});
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
 
 TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   //       z = +192  //
   // |\              //
@@ -1794,7 +1801,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
   // |___| z = -64   //
   //                 //
 
-  const auto vertexPositions = std::vector<vm::vec3>{
+  const auto vertexPositions = std::vector<vm::vec3d>{
     {-64, -64, +192}, // top quad, slanted
     {-64, +64, +192},
     {+64, -64, +64},
@@ -1806,7 +1813,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
     {+64, +64, -64},
   };
 
-  const auto topFaceNormal = vm::vec3{sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0};
+  const auto topFaceNormal = vm::vec3d{sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
@@ -1814,16 +1821,16 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
     | kdl::value();
 
   const auto topFaceIndex = brush.findFace(topFaceNormal);
-  assertCanMoveFace(brush, topFaceIndex, vm::vec3{0, 0, -127});
+  assertCanMoveFace(brush, topFaceIndex, vm::vec3d{0, 0, -127});
   // Merge 2 verts of the moving polygon with 2 in the remaining polygon, should be
   // allowed
   assertCanMoveFace(brush, topFaceIndex, {0, 0, -128});
-  assertCanNotMoveFace(brush, topFaceIndex, vm::vec3{0, 0, -129});
+  assertCanNotMoveFace(brush, topFaceIndex, vm::vec3d{0, 0, -129});
 }
 
 TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   //   _   z = +64   //
   //  / \            //
@@ -1833,18 +1840,18 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
   // |___| z = -192  //
   //                 //
 
-  const auto smallerTopPolygon = std::vector<vm::vec3>{
+  const auto smallerTopPolygon = std::vector<vm::vec3d>{
     {-32, -32, +64}, // smaller top polygon
     {-32, +32, +64},
     {+32, -32, +64},
     {+32, +32, +64}};
-  const auto cubeTopFace = std::vector<vm::vec3>{
+  const auto cubeTopFace = std::vector<vm::vec3d>{
     {-64, -64, -64}, // top face of cube
     {-64, +64, -64},
     {+64, -64, -64},
     {+64, +64, -64},
   };
-  const auto cubeBottomFace = std::vector<vm::vec3>{
+  const auto cubeBottomFace = std::vector<vm::vec3d>{
     {-64, -64, -192}, // bottom face of cube
     {-64, +64, -192},
     {+64, -64, -192},
@@ -1880,7 +1887,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
 
 TEST_CASE("BrushTest.moveTwoFaces")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   //               //
   // |\    z = 64  //
@@ -1892,21 +1899,21 @@ TEST_CASE("BrushTest.moveTwoFaces")
   //  B    z = -64 //
   //               //
 
-  const auto leftPolygon = std::vector<vm::vec3>{
+  const auto leftPolygon = std::vector<vm::vec3d>{
     // A
     {-32, -32, +64},
     {-32, +32, +64},
     {-32, +32, -64},
     {-32, -32, -64},
   };
-  const auto bottomPolygon = std::vector<vm::vec3>{
+  const auto bottomPolygon = std::vector<vm::vec3d>{
     // B
     {-32, -32, -64},
     {-32, +32, -64},
     {+0, +32, -64},
     {+0, -32, -64},
   };
-  const auto bottomRightPolygon = std::vector<vm::vec3>{
+  const auto bottomRightPolygon = std::vector<vm::vec3d>{
     // C
     {+0, -32, -64},
     {+0, +32, -64},
@@ -1922,25 +1929,25 @@ TEST_CASE("BrushTest.moveTwoFaces")
     builder.createBrush(vertexPositions, Model::BrushFaceAttributes::NoMaterialName)
     | kdl::value();
 
-  CHECK(brush.hasFace(vm::polygon3{leftPolygon}));
-  CHECK(brush.hasFace(vm::polygon3{bottomPolygon}));
-  CHECK(brush.hasFace(vm::polygon3{bottomRightPolygon}));
+  CHECK(brush.hasFace(vm::polygon3d{leftPolygon}));
+  CHECK(brush.hasFace(vm::polygon3d{bottomPolygon}));
+  CHECK(brush.hasFace(vm::polygon3d{bottomRightPolygon}));
 
   assertCanMoveFaces(
-    brush, {vm::polygon3{leftPolygon}, vm::polygon3{bottomPolygon}}, {0, 0, 63});
+    brush, {vm::polygon3d{leftPolygon}, vm::polygon3d{bottomPolygon}}, {0, 0, 63});
   // Merges B and C
   assertCanNotMoveFaces(
-    brush, {vm::polygon3{leftPolygon}, vm::polygon3{bottomPolygon}}, {0, 0, 64});
+    brush, {vm::polygon3d{leftPolygon}, vm::polygon3d{bottomPolygon}}, {0, 0, 64});
 }
 
 // "Move polyhedron" tests
 
 TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   // Edge to the left of the cube, shorter, extends down to Z=-256
-  const auto edge = vm::segment3{{-128, 0, -256}, {-128, 0, 0}};
+  const auto edge = vm::segment3d{{-128, 0, -256}, {-128, 0, 0}};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
@@ -1950,12 +1957,12 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 
   CHECK(brush.vertexCount() == 10u);
 
-  const auto cubeTopIndex = brush.findFace(vm::vec3{0, 0, 1});
-  const auto cubeBottomIndex = brush.findFace(vm::vec3{0, 0, -1});
-  const auto cubeRightIndex = brush.findFace(vm::vec3{1, 0, 0});
-  const auto cubeLeftIndex = brush.findFace(vm::vec3{-1, 0, 0});
-  const auto cubeBackIndex = brush.findFace(vm::vec3{0, 1, 0});
-  const auto cubeFrontIndex = brush.findFace(vm::vec3{0, -1, 0});
+  const auto cubeTopIndex = brush.findFace(vm::vec3d{0, 0, 1});
+  const auto cubeBottomIndex = brush.findFace(vm::vec3d{0, 0, -1});
+  const auto cubeRightIndex = brush.findFace(vm::vec3d{1, 0, 0});
+  const auto cubeLeftIndex = brush.findFace(vm::vec3d{-1, 0, 0});
+  const auto cubeBackIndex = brush.findFace(vm::vec3d{0, 1, 0});
+  const auto cubeFrontIndex = brush.findFace(vm::vec3d{0, -1, 0});
 
   CHECK(cubeTopIndex);
   CHECK_FALSE(cubeBottomIndex); // no face here, part of the wedge connecting to `edge`
@@ -1969,7 +1976,7 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
   const auto& cubeFront = brush.face(*cubeFrontIndex);
   const auto& cubeBack = brush.face(*cubeBackIndex);
 
-  const auto movingFaces = std::vector<vm::polygon3>{
+  const auto movingFaces = std::vector<vm::polygon3d>{
     cubeTop.polygon(),
     cubeRight.polygon(),
     cubeFront.polygon(),
@@ -1997,7 +2004,7 @@ TEST_CASE("moveFaceWithUVLock")
 {
   auto format = GENERATE(MapFormat::Valve, MapFormat::Standard);
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto textureResource = createTextureResource(Assets::Texture{64, 64});
   auto testMaterial = Assets::Material{"testMaterial", std::move(textureResource)};
@@ -2009,9 +2016,9 @@ TEST_CASE("moveFaceWithUVLock")
     face.setMaterial(&testMaterial);
   }
 
-  const auto delta = vm::vec3{+8, 0, 0};
+  const auto delta = vm::vec3d{+8, 0, 0};
   const auto polygonToMove =
-    vm::polygon3{brush.face(*brush.findFace(vm::vec3{0, 0, 1})).vertexPositions()};
+    vm::polygon3d{brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).vertexPositions()};
   CHECK(brush.canMoveFaces(worldBounds, {polygonToMove}, delta));
 
   // move top face by x=+8
@@ -2023,7 +2030,7 @@ TEST_CASE("moveFaceWithUVLock")
     changedWithUVLock.moveFaces(worldBounds, {polygonToMove}, delta, true).is_success());
 
   // The move should be equivalent to shearing by this matrix
-  const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3{0, 0, 1}, delta);
+  const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3d{0, 0, 1}, delta);
 
   for (auto& oldFace : brush.faces())
   {
@@ -2031,7 +2038,7 @@ TEST_CASE("moveFaceWithUVLock")
       oldFace.vertexPositions(), [&](auto x) { return oldFace.uvCoords(x); });
     const auto shearedVertexPositions =
       kdl::vec_transform(oldFace.vertexPositions(), [&](auto x) { return M * x; });
-    const auto shearedPolygon = vm::polygon3{shearedVertexPositions};
+    const auto shearedPolygon = vm::polygon3d{shearedVertexPositions};
 
     const auto normal = oldFace.boundary().normal;
 
@@ -2044,8 +2051,8 @@ TEST_CASE("moveFaceWithUVLock")
       const auto newUVCoords = kdl::vec_transform(
         shearedVertexPositions, [&](auto x) { return newFace.uvCoords(x); });
       if (
-        normal == vm::vec3{0, 0, 1} || normal == vm::vec3{0, 1, 0}
-        || normal == vm::vec3{0, -1, 0})
+        normal == vm::vec3d{0, 0, 1} || normal == vm::vec3d{0, 1, 0}
+        || normal == vm::vec3d{0, -1, 0})
       {
         CHECK_FALSE(uvListsEqual(oldUVCoords, newUVCoords));
         // TODO: actually check the UV's
@@ -2074,7 +2081,7 @@ TEST_CASE("moveFaceWithUVLock")
 
 TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   const auto minuendMaterial = std::string{"minuend"};
   const auto subtrahendMaterial = std::string{"subtrahend"};
@@ -2082,10 +2089,10 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   const auto minuend =
-    builder.createCuboid(vm::bbox3{{-32, -16, -32}, {32, 16, 32}}, minuendMaterial)
+    builder.createCuboid(vm::bbox3d{{-32, -16, -32}, {32, 16, 32}}, minuendMaterial)
     | kdl::value();
   const auto subtrahend =
-    builder.createCuboid(vm::bbox3{{-16, -32, -64}, {16, 32, 0}}, subtrahendMaterial)
+    builder.createCuboid(vm::bbox3d{{-16, -32, -64}, {16, 32, 0}}, subtrahendMaterial)
     | kdl::value();
 
   const auto fragments =
@@ -2099,15 +2106,15 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   for (const auto& brush : fragments)
   {
-    if (brush.findFace(vm::plane3{32.0, vm::vec3{-1, 0, 0}}))
+    if (brush.findFace(vm::plane3d{32.0, vm::vec3d{-1, 0, 0}}))
     {
       left = &brush;
     }
-    else if (brush.findFace(vm::plane3{32.0, vm::vec3{1, 0, 0}}))
+    else if (brush.findFace(vm::plane3d{32.0, vm::vec3d{1, 0, 0}}))
     {
       right = &brush;
     }
-    else if (brush.findFace(vm::plane3{16.0, vm::vec3{-1, 0, 0}}))
+    else if (brush.findFace(vm::plane3d{16.0, vm::vec3d{-1, 0, 0}}))
     {
       top = &brush;
     }
@@ -2119,98 +2126,98 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // left brush faces
   CHECK(left->faceCount() == 6u);
-  CHECK(left->findFace({-16.0, vm::vec3{1, 0, 0}}));
-  CHECK(left->findFace({+32.0, vm::vec3{-1, 0, 0}}));
-  CHECK(left->findFace({+16.0, vm::vec3{0, 1, 0}}));
-  CHECK(left->findFace({+16.0, vm::vec3{0, -1, 0}}));
-  CHECK(left->findFace({+32.0, vm::vec3{0, 0, 1}}));
-  CHECK(left->findFace({+32.0, vm::vec3{0, 0, -1}}));
+  CHECK(left->findFace({-16.0, vm::vec3d{1, 0, 0}}));
+  CHECK(left->findFace({+32.0, vm::vec3d{-1, 0, 0}}));
+  CHECK(left->findFace({+16.0, vm::vec3d{0, 1, 0}}));
+  CHECK(left->findFace({+16.0, vm::vec3d{0, -1, 0}}));
+  CHECK(left->findFace({+32.0, vm::vec3d{0, 0, 1}}));
+  CHECK(left->findFace({+32.0, vm::vec3d{0, 0, -1}}));
 
   // left brush materials
   CHECK(
-    left->face(*left->findFace(vm::vec3{1, 0, 0})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
     == subtrahendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3{-1, 0, 0})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3{0, 1, 0})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3{0, -1, 0})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3{0, 0, 1})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    left->face(*left->findFace(vm::vec3{0, 0, -1})).attributes().materialName()
+    left->face(*left->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
     == minuendMaterial);
 
   // top brush faces
   CHECK(top->faceCount() == 6u);
-  CHECK(top->findFace(vm::plane3{16.0, vm::vec3{1, 0, 0}}));
-  CHECK(top->findFace(vm::plane3{16.0, vm::vec3{-1, 0, 0}}));
-  CHECK(top->findFace(vm::plane3{16.0, vm::vec3{0, 1, 0}}));
-  CHECK(top->findFace(vm::plane3{16.0, vm::vec3{0, -1, 0}}));
-  CHECK(top->findFace(vm::plane3{32.0, vm::vec3{0, 0, 1}}));
-  CHECK(top->findFace(vm::plane3{.0, vm::vec3{0, 0, -1}}));
+  CHECK(top->findFace(vm::plane3d{16.0, vm::vec3d{1, 0, 0}}));
+  CHECK(top->findFace(vm::plane3d{16.0, vm::vec3d{-1, 0, 0}}));
+  CHECK(top->findFace(vm::plane3d{16.0, vm::vec3d{0, 1, 0}}));
+  CHECK(top->findFace(vm::plane3d{16.0, vm::vec3d{0, -1, 0}}));
+  CHECK(top->findFace(vm::plane3d{32.0, vm::vec3d{0, 0, 1}}));
+  CHECK(top->findFace(vm::plane3d{.0, vm::vec3d{0, 0, -1}}));
 
   // top brush materials
   CHECK(
-    top->face(*top->findFace(vm::vec3{1, 0, 0})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
     == subtrahendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3{-1, 0, 0})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
     == subtrahendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3{0, 1, 0})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3{0, -1, 0})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3{0, 0, 1})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    top->face(*top->findFace(vm::vec3{0, 0, -1})).attributes().materialName()
+    top->face(*top->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
     == subtrahendMaterial);
 
   // right brush faces
   CHECK(right->faceCount() == 6u);
-  CHECK(right->findFace({+32.0, vm::vec3{1, 0, 0}}));
-  CHECK(right->findFace({-16.0, vm::vec3{-1, 0, 0}}));
-  CHECK(right->findFace({+16.0, vm::vec3{0, 1, 0}}));
-  CHECK(right->findFace({+16.0, vm::vec3{0, -1, 0}}));
-  CHECK(right->findFace({+32.0, vm::vec3{0, 0, 1}}));
-  CHECK(right->findFace({+32.0, vm::vec3{0, 0, -1}}));
+  CHECK(right->findFace({+32.0, vm::vec3d{1, 0, 0}}));
+  CHECK(right->findFace({-16.0, vm::vec3d{-1, 0, 0}}));
+  CHECK(right->findFace({+16.0, vm::vec3d{0, 1, 0}}));
+  CHECK(right->findFace({+16.0, vm::vec3d{0, -1, 0}}));
+  CHECK(right->findFace({+32.0, vm::vec3d{0, 0, 1}}));
+  CHECK(right->findFace({+32.0, vm::vec3d{0, 0, -1}}));
 
   // right brush materials
   CHECK(
-    right->face(*right->findFace(vm::vec3{1, 0, 0})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{1, 0, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3{-1, 0, 0})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{-1, 0, 0})).attributes().materialName()
     == subtrahendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3{0, 1, 0})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{0, 1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3{0, -1, 0})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{0, -1, 0})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3{0, 0, 1})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{0, 0, 1})).attributes().materialName()
     == minuendMaterial);
   CHECK(
-    right->face(*right->findFace(vm::vec3{0, 0, -1})).attributes().materialName()
+    right->face(*right->findFace(vm::vec3d{0, 0, -1})).attributes().materialName()
     == minuendMaterial);
 }
 
 TEST_CASE("BrushTest.subtractDisjoint")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto brush1Bounds = vm::bbox3{{-8, -8, -8}, {8, 8, 8}};
-  const auto brush2Bounds = vm::bbox3{{124, 124, -4}, {132, 132, +4}};
+  const auto brush1Bounds = vm::bbox3d{{-8, -8, -8}, {8, 8, 8}};
+  const auto brush2Bounds = vm::bbox3d{{124, 124, -4}, {132, 132, +4}};
   CHECK_FALSE(brush1Bounds.intersects(brush2Bounds));
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
@@ -2229,10 +2236,10 @@ TEST_CASE("BrushTest.subtractDisjoint")
 
 TEST_CASE("BrushTest.subtractEnclosed")
 {
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
-  const auto brush1Bounds = vm::bbox3{{-8, -8, -8}, {8, 8, 8}};
-  const auto brush2Bounds = vm::bbox3{{-9, -9, -9}, {9, 9, 9}};
+  const auto brush1Bounds = vm::bbox3d{{-8, -8, -8}, {8, 8, 8}};
+  const auto brush2Bounds = vm::bbox3d{{-9, -9, -9}, {9, 9, 9}};
   CHECK(brush1Bounds.intersects(brush2Bounds));
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};

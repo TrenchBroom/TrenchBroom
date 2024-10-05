@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Model/BrushNode.h"
 #include "Model/HitType.h"
 #include "Model/PickResult.h"
@@ -605,7 +604,7 @@ private:
 /**
  * Manages vertex handles. A vertex handle is a 3D point.
  */
-class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3>
+class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3d>
 {
 public:
   static const Model::HitType::Type HandleHitType;
@@ -624,7 +623,7 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pick(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
 
@@ -647,11 +646,11 @@ private:
  * where the edge handles intersect with a grid plane. Such handles are not added to this
  * manager explicitly, but are computed on the fly.
  */
-class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3>
+class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3d>
 {
 public:
   static const Model::HitType::Type HandleHitType;
-  using HitType = std::tuple<vm::segment3, vm::vec3>;
+  using HitType = std::tuple<vm::segment3d, vm::vec3d>;
 
 public:
   using VertexHandleManagerBase::addHandles;
@@ -669,7 +668,7 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickGridHandle(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     const Grid& grid,
     Model::PickResult& pickResult) const;
@@ -682,7 +681,7 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
 
@@ -705,11 +704,11 @@ private:
  * where the face handles intersect with two grid planes. Such handles are not added to
  * this manager explicitly, but are computed on the fly.
  */
-class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3>
+class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3d>
 {
 public:
   static const Model::HitType::Type HandleHitType;
-  using HitType = std::tuple<vm::polygon3, vm::vec3>;
+  using HitType = std::tuple<vm::polygon3d, vm::vec3d>;
 
 public:
   using VertexHandleManagerBase::addHandles;
@@ -727,7 +726,7 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickGridHandle(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     const Grid& grid,
     Model::PickResult& pickResult) const;
@@ -740,7 +739,7 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3& pickRay,
+    const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
     Model::PickResult& pickResult) const;
 

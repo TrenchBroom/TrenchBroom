@@ -20,7 +20,6 @@
 #include "Assets/EntityDefinition.h"
 #include "Assets/Material.h"
 #include "Assets/MaterialManager.h"
-#include "FloatType.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -51,7 +50,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes")
   auto modifiedBrush = originalBrush;
   REQUIRE(modifiedBrush
             .transform(
-              document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
+              document->worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
             .is_success());
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
@@ -71,7 +70,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
 
   const auto originalPatch = patchNode->patch();
   auto modifiedPatch = originalPatch;
-  modifiedPatch.transform(vm::translation_matrix(vm::vec3{16, 0, 0}));
+  modifiedPatch.transform(vm::translation_matrix(vm::vec3d{16, 0, 0}));
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
   nodesToSwap.emplace_back(patchNode, modifiedPatch);
@@ -100,7 +99,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.materialUsageCount")
   auto modifiedBrush = originalBrush;
   REQUIRE(modifiedBrush
             .transform(
-              document->worldBounds(), vm::translation_matrix(vm::vec3(16, 0, 0)), false)
+              document->worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
             .is_success());
 
   auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
@@ -153,17 +152,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   document->deselectAll();
 
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(vm::vec3(32.0, 0.0, 0.0));
+  document->translateObjects(vm::vec3d(32.0, 0.0, 0.0));
   document->deselectAll();
 
   const auto originalBrushBounds = brushNode->physicalBounds();
 
   document->selectNodes({brushNode});
-  document->translateObjects(vm::vec3(0.0, 16.0, 0.0));
+  document->translateObjects(vm::vec3d(0.0, 16.0, 0.0));
 
   REQUIRE(
     brushNode->physicalBounds()
-    == originalBrushBounds.translate(vm::vec3(0.0, 16.0, 0.0)));
+    == originalBrushBounds.translate(vm::vec3d(0.0, 16.0, 0.0)));
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
   auto* linkedBrushNode =
@@ -205,7 +204,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   const auto originalBrushBounds = brushNode->physicalBounds();
 
   document->selectNodes({brushNode});
-  CHECK_FALSE(document->translateObjects(vm::vec3(0.0, 16.0, 0.0)));
+  CHECK_FALSE(document->translateObjects(vm::vec3d(0.0, 16.0, 0.0)));
 
   REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 

@@ -21,9 +21,9 @@
 
 #include <QWidget>
 
-#include "FloatType.h"
 #include "NotifierConnection.h"
 
+#include "vm/forward.h"
 #include "vm/util.h"
 #include "vm/vec.h" // IWYU pragma: keep
 
@@ -64,8 +64,8 @@ public:
     QWidget* parent = nullptr);
 
   void setAxis(vm::axis::type axis);
-  void setRecentlyUsedCenters(const std::vector<vm::vec3>& centers);
-  void setCurrentCenter(const vm::vec3& center);
+  void setRecentlyUsedCenters(const std::vector<vm::vec3d>& centers);
+  void setCurrentCenter(const vm::vec3d& center);
 
 private:
   void connectObservers();
@@ -81,7 +81,7 @@ private:
   void angleChanged(double value);
   void rotateClicked();
   void updateAnglePropertyAfterTransformClicked();
-  vm::vec3 getAxis() const;
+  vm::vec3d getAxis() const;
 };
 
 } // namespace TrenchBroom::View

@@ -61,7 +61,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1186")
     "skip 1 2 0 -666 470.93310 //TX2\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -97,7 +97,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1185")
     "skip 0 -3 0 666 -470.93310 //TX2\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -288,7 +288,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1697")
     "1851.2 114.289 ) O_METAL1_19AD [ -1 0 0 -16 ] [ 0 0 1 -0 ] 180 1 -1\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -318,7 +318,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1194")
     "-1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -370,7 +370,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1332")
     "1\n"
     "}");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -421,7 +421,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1395")
     "( -67 328 878 ) ( -77 465 890 ) ( -69 515 908 ) rock4_2 -1 33 0 1 1\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -449,7 +449,7 @@ TEST_CASE("BrushNodeTest.buildBrush_1801")
     "( -483 1777 253 ) ( -459 1579 -115 ) ( -183 1692 95 ) *water1 -0 -0 -0 1 1\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{4096.0};
+  const auto worldBounds = vm::bbox3d{4096.0};
 
   auto status = IO::TestParserStatus{};
 
@@ -462,7 +462,7 @@ TEST_CASE("BrushNodeTest.buildBrush_2361")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/pull/2372#issuecomment-432893836
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   const auto data = R"(
 {
@@ -551,7 +551,7 @@ TEST_CASE("BrushNodeTest.buildBrush_2491")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2491
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   const auto data = R"(
             {
@@ -573,7 +573,7 @@ TEST_CASE("BrushNodeTest.buildBrush_2686")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/2686
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   const auto data = R"(
 {
@@ -613,7 +613,7 @@ TEST_CASE("BrushNodeTest.buildBrush_4100")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/4100
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   const auto data = R"(
 {
@@ -766,7 +766,7 @@ TEST_CASE("BrushNodeTest.intersects_1893")
     "}\n"
     "}\n");
 
-  const auto worldBounds = vm::bbox3{8192.0};
+  const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = IO::TestParserStatus{};
 

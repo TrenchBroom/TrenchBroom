@@ -42,9 +42,9 @@ struct PatchGrid
 {
   struct Point
   {
-    vm::vec3 position;
-    vm::vec2 uvCoords;
-    vm::vec3 normal;
+    vm::vec3d position;
+    vm::vec2d uvCoords;
+    vm::vec3d normal;
 
     kdl_reflect_decl(Point, position, uvCoords, normal);
   };
@@ -52,7 +52,7 @@ struct PatchGrid
   size_t pointRowCount;
   size_t pointColumnCount;
   std::vector<Point> points;
-  vm::bbox3 bounds;
+  vm::bbox3d bounds;
 
   const Point& point(size_t row, size_t col) const;
 
@@ -63,7 +63,7 @@ struct PatchGrid
 };
 
 // public for testing
-std::vector<vm::vec3> computeGridNormals(
+std::vector<vm::vec3d> computeGridNormals(
   std::vector<BezierPatch::Point> patchGrid,
   size_t pointRowCount,
   size_t pointColumnCount);
@@ -95,12 +95,12 @@ public:
 
 private: // implement Node interface
   const std::string& doGetName() const override;
-  const vm::bbox3& doGetLogicalBounds() const override;
-  const vm::bbox3& doGetPhysicalBounds() const override;
+  const vm::bbox3d& doGetLogicalBounds() const override;
+  const vm::bbox3d& doGetPhysicalBounds() const override;
 
-  FloatType doGetProjectedArea(vm::axis::type axis) const override;
+  double doGetProjectedArea(vm::axis::type axis) const override;
 
-  Node* doClone(const vm::bbox3& worldBounds) const override;
+  Node* doClone(const vm::bbox3d& worldBounds) const override;
 
   bool doCanAddChild(const Node* child) const override;
   bool doCanRemoveChild(const Node* child) const override;
@@ -112,9 +112,9 @@ private: // implement Node interface
 
   void doPick(
     const EditorContext& editorContext,
-    const vm::ray3& ray,
+    const vm::ray3d& ray,
     PickResult& pickResult) override;
-  void doFindNodesContaining(const vm::vec3& point, std::vector<Node*>& result) override;
+  void doFindNodesContaining(const vm::vec3d& point, std::vector<Node*>& result) override;
 
   void doAccept(NodeVisitor& visitor) override;
   void doAccept(ConstNodeVisitor& visitor) const override;

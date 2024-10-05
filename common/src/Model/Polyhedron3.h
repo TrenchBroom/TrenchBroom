@@ -19,7 +19,6 @@
 
 #pragma once
 
-#include "FloatType.h"
 #include "Polyhedron_DefaultPayload.h"
 #include "Polyhedron_Forward.h"
 
@@ -27,6 +26,6 @@ namespace TrenchBroom::Model
 {
 
 using Polyhedron3 =
-  Polyhedron<FloatType, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
+  Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 
 }

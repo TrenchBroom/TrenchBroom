@@ -25,13 +25,13 @@ namespace TrenchBroom::View
 {
 PickRequest::PickRequest() = default;
 
-PickRequest::PickRequest(const vm::ray3& pickRay, const Renderer::Camera& camera)
+PickRequest::PickRequest(const vm::ray3d& pickRay, const Renderer::Camera& camera)
   : m_pickRay{pickRay}
   , m_camera{&camera}
 {
 }
 
-const vm::ray3& PickRequest::pickRay() const
+const vm::ray3d& PickRequest::pickRay() const
 {
   return m_pickRay;
 }

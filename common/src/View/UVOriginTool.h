@@ -45,7 +45,7 @@ public:
   static const Model::HitType::Type XHandleHitType;
   static const Model::HitType::Type YHandleHitType;
 
-  static const FloatType MaxPickDistance;
+  static const double MaxPickDistance;
   static const float OriginHandleRadius;
 
 private:
