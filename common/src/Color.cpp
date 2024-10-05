@@ -82,31 +82,31 @@ Color::Color(
   const unsigned char b,
   const unsigned char a)
   : vec<float, 4>{
-    float(r) / 255.0f,
-    float(g) / 255.0f,
-    float(b) / 255.0f,
-    float(a) / 255.0f,
-  }
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      float(a) / 255.0f,
+    }
 {
 }
 
 Color::Color(const int r, const int g, const int b, const int a)
   : vec<float, 4>{
-    float(r) / 255.0f,
-    float(g) / 255.0f,
-    float(b) / 255.0f,
-    float(a) / 255.0f,
-  }
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      float(a) / 255.0f,
+    }
 {
 }
 
 Color::Color(const int r, const int g, const int b, const float a)
   : vec<float, 4>{
-    float(r) / 255.0f,
-    float(g) / 255.0f,
-    float(b) / 255.0f,
-    a,
-  }
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      a,
+    }
 {
 }
 

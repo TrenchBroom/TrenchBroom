@@ -117,15 +117,13 @@ void PreferenceDialog::createGui()
   m_stackedWidget->addWidget(new MousePreferencePane{});
   m_stackedWidget->addWidget(new KeyboardPreferencePane{m_document.get()});
 
-  m_buttonBox = new QDialogButtonBox
-  {
+  m_buttonBox = new QDialogButtonBox{
     QDialogButtonBox::RestoreDefaults
 #if !defined __APPLE__
       | QDialogButtonBox::Ok | QDialogButtonBox::Apply | QDialogButtonBox::Cancel
 #endif
-      ,
-      this
-  };
+    ,
+    this};
 
   auto* resetButton = m_buttonBox->button(QDialogButtonBox::RestoreDefaults);
   connect(resetButton, &QPushButton::clicked, this, &PreferenceDialog::resetToDefaults);

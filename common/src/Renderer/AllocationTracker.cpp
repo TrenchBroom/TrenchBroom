@@ -25,7 +25,7 @@
 #include <cassert>
 #include <stdexcept>
 
-//#define EXPENSIVE_CHECKS
+// #define EXPENSIVE_CHECKS
 
 namespace TrenchBroom::Renderer
 {

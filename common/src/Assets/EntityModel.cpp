@@ -507,7 +507,7 @@ std::unique_ptr<Renderer::MaterialRenderer> EntityModelData::buildRenderer(
     }
   }
   return !renderers.empty() ? std::make_unique<Renderer::MultiMaterialIndexRangeRenderer>(
-           std::move(renderers))
+                                std::move(renderers))
                             : nullptr;
 }
 

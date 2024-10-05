@@ -48,9 +48,8 @@ auto makeTextureLoadedState(
   {
     [[maybe_unused]] const auto mipSize = sizeAtMipLevel(width, height, level);
     [[maybe_unused]] const auto numBytes =
-      compressed ? (
-        blockSize * std::max(size_t(1), mipSize.x() / 4)
-        * std::max(size_t(1), mipSize.y() / 4))
+      compressed ? (blockSize * std::max(size_t(1), mipSize.x() / 4)
+                    * std::max(size_t(1), mipSize.y() / 4))
                  : (bytesPerPixel * mipSize.x() * mipSize.y());
     assert(buffers[level].size() >= numBytes);
   }
@@ -206,25 +205,25 @@ Texture::Texture(
   EmbeddedDefaults embeddedDefaults,
   TextureBuffer buffer)
   : Texture{
-    width,
-    height,
-    averageColor,
-    format,
-    mask,
-    std::move(embeddedDefaults),
-    kdl::vec_from(std::move(buffer))}
+      width,
+      height,
+      averageColor,
+      format,
+      mask,
+      std::move(embeddedDefaults),
+      kdl::vec_from(std::move(buffer))}
 {
 }
 
 Texture::Texture(size_t width, size_t height)
   : Texture{
-    width,
-    height,
-    Color{0, 0, 0, 0},
-    GL_RGBA,
-    TextureMask::Off,
-    NoEmbeddedDefaults{},
-    std::vector<TextureBuffer>{}}
+      width,
+      height,
+      Color{0, 0, 0, 0},
+      GL_RGBA,
+      TextureMask::Off,
+      NoEmbeddedDefaults{},
+      std::vector<TextureBuffer>{}}
 {
 }
 
@@ -304,9 +303,10 @@ void Texture::upload(const bool glContextAvailable)
     kdl::overload(
       [&](const TextureLoadedState& textureLoadedState) -> TextureState {
         const auto textureId =
-          glContextAvailable ? uploadTexture(
-            m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
-                             : 0;
+          glContextAvailable
+            ? uploadTexture(
+                m_format, m_mask, textureLoadedState.buffers, m_width, m_height)
+            : 0;
         return TextureReadyState{textureId};
       },
       [](TextureReadyState textureReadyState) -> TextureState {

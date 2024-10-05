@@ -225,7 +225,7 @@ BrushEntityDefinition::BrushEntityDefinition(
   std::string description,
   std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions)
   : EntityDefinition{
-    std::move(name), color, std::move(description), std::move(propertyDefinitions)}
+      std::move(name), color, std::move(description), std::move(propertyDefinitions)}
 {
 }
 

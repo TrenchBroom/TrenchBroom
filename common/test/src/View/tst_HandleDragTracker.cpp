@@ -128,9 +128,7 @@ TEST_CASE("RestrictedDragTracker.constructor")
 
     auto data = TestDelegateData{makeHandlePositionProposer(
       // always returns the same handle position
-      [](const auto&) {
-        return vm::vec3{2, 2, 2};
-      },
+      [](const auto&) { return vm::vec3{2, 2, 2}; },
       makeIdentityHandleSnapper())};
 
     auto tracker = makeHandleTracker(data, initialHandlePosition, initialHitPoint);
@@ -348,9 +346,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
   {
     auto data = TestDelegateData{makeHandlePositionProposer(
       // returns a constant handle position
-      [&](const InputState&) {
-        return vm::vec3{2, 2, 2};
-      },
+      [&](const InputState&) { return vm::vec3{2, 2, 2}; },
       // returns the proposed handle position, but records the arguments
       [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
         initialGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);
@@ -389,9 +385,7 @@ TEST_CASE("RestrictedDragTracker.modifierKeyChange")
 
     auto data = TestDelegateData{makeHandlePositionProposer(
       // returns a constant hit position
-      [&](const InputState&) {
-        return vm::vec3{2, 2, 2};
-      },
+      [&](const InputState&) { return vm::vec3{2, 2, 2}; },
       // returns the proposed handle position, but records the arguments
       [&](const auto&, const auto& dragState, const auto& proposedHandlePosition) {
         initialGetHandlePositionArguments.emplace_back(dragState, proposedHandlePosition);

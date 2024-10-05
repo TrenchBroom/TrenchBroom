@@ -441,8 +441,9 @@ std::optional<plane<T, 3>> from_points(
  * @return the plane if the opints define a valid plane and nullopt otherwise
  */
 template <typename I, typename G = identity>
-auto from_points(I cur, I end, const G& get = G()) -> std::optional<
-  plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
+auto from_points(I cur, I end, const G& get = G())
+  -> std::optional<
+    plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
 {
   if (cur == end)
   {

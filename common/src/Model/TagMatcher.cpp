@@ -361,13 +361,13 @@ void FlagsTagMatcher::appendToStream(std::ostream& str) const
 
 ContentFlagsTagMatcher::ContentFlagsTagMatcher(const int i_flags)
   : FlagsTagMatcher{
-    i_flags,
-    [](const auto& face) { return face.resolvedSurfaceContents(); },
-    [](auto& request, const auto flags) { request.setContentFlags(flags); },
-    [](auto& request, const auto flags) { request.unsetContentFlags(flags); },
-    [](const auto& game, const auto flags) {
-      return game.config().faceAttribsConfig.contentFlags.flagNames(flags);
-    }}
+      i_flags,
+      [](const auto& face) { return face.resolvedSurfaceContents(); },
+      [](auto& request, const auto flags) { request.setContentFlags(flags); },
+      [](auto& request, const auto flags) { request.unsetContentFlags(flags); },
+      [](const auto& game, const auto flags) {
+        return game.config().faceAttribsConfig.contentFlags.flagNames(flags);
+      }}
 {
 }
 
@@ -378,13 +378,13 @@ std::unique_ptr<TagMatcher> ContentFlagsTagMatcher::clone() const
 
 SurfaceFlagsTagMatcher::SurfaceFlagsTagMatcher(const int i_flags)
   : FlagsTagMatcher{
-    i_flags,
-    [](const auto& face) { return face.resolvedSurfaceFlags(); },
-    [](auto& request, const auto flags) { request.setSurfaceFlags(flags); },
-    [](auto& request, const auto flags) { request.unsetSurfaceFlags(flags); },
-    [](const auto& game, const auto flags) {
-      return game.config().faceAttribsConfig.surfaceFlags.flagNames(flags);
-    }}
+      i_flags,
+      [](const auto& face) { return face.resolvedSurfaceFlags(); },
+      [](auto& request, const auto flags) { request.setSurfaceFlags(flags); },
+      [](auto& request, const auto flags) { request.unsetSurfaceFlags(flags); },
+      [](const auto& game, const auto flags) {
+        return game.config().faceAttribsConfig.surfaceFlags.flagNames(flags);
+      }}
 {
 }
 

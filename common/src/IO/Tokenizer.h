@@ -241,7 +241,7 @@ public:
     const size_t line = 1,
     const size_t column = 1)
     : TokenizerBase{
-      str.data(), str.data() + str.size(), escapableChars, escapeChar, line, column}
+        str.data(), str.data() + str.size(), escapableChars, escapeChar, line, column}
   {
   }
 

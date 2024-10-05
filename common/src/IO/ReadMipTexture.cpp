@@ -143,8 +143,7 @@ std::string readMipTextureName(Reader& reader)
 Result<Assets::Texture> readIdMipTexture(
   Reader& reader, const Assets::Palette& palette, const Assets::TextureMask mask)
 {
-  return readMipTexture(
-    reader, [&](Reader&) { return palette; }, mask);
+  return readMipTexture(reader, [&](Reader&) { return palette; }, mask);
 }
 
 Result<Assets::Texture> readHlMipTexture(Reader& reader, const Assets::TextureMask mask)

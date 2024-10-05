@@ -39,16 +39,16 @@ IssueQuickFix::IssueQuickFix(std::string description, MultiIssueFix fix)
 IssueQuickFix::IssueQuickFix(
   IssueType issueType, std::string description, SingleIssueFix fix)
   : IssueQuickFix{
-    std::move(description),
-    [=](MapFacade& facade, const std::vector<const Issue*>& issues) {
-      for (const auto* issue : issues)
-      {
-        if (issue->type() == issueType)
+      std::move(description),
+      [=](MapFacade& facade, const std::vector<const Issue*>& issues) {
+        for (const auto* issue : issues)
         {
-          fix(facade, *issue);
+          if (issue->type() == issueType)
+          {
+            fix(facade, *issue);
+          }
         }
-      }
-    }}
+      }}
 {
 }
 

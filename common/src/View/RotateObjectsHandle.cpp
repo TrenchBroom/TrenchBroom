@@ -53,11 +53,11 @@ std::tuple<vm::vec<T, 3>, vm::vec<T, 3>, vm::vec<T, 3>> computeAxes(
   const auto viewDir = vm::normalize(vm::vec<T, 3>{handlePos} - cameraPos);
   return vm::is_equal(std::abs(viewDir.z()), T(1), vm::constants<T>::almost_zero())
            ? std::
-             tuple{vm::vec<T, 3>{1, 0, 0}, vm::vec<T, 3>{0, 1, 0}, vm::vec<T, 3>{0, 0, -1}}
+               tuple{vm::vec<T, 3>{1, 0, 0}, vm::vec<T, 3>{0, 1, 0}, vm::vec<T, 3>{0, 0, -1}}
            : std::tuple{
-             viewDir.x() > T(0) ? vm::vec<T, 3>{-1, 0, 0} : vm::vec<T, 3>{1, 0, 0},
-             viewDir.y() > T(0) ? vm::vec<T, 3>{0, -1, 0} : vm::vec<T, 3>{0, 1, 0},
-             viewDir.z() > T(0) ? vm::vec<T, 3>{0, 0, -1} : vm::vec<T, 3>{0, 0, 1}};
+               viewDir.x() > T(0) ? vm::vec<T, 3>{-1, 0, 0} : vm::vec<T, 3>{1, 0, 0},
+               viewDir.y() > T(0) ? vm::vec<T, 3>{0, -1, 0} : vm::vec<T, 3>{0, 1, 0},
+               viewDir.z() > T(0) ? vm::vec<T, 3>{0, 0, -1} : vm::vec<T, 3>{0, 0, 1}};
 }
 
 } // namespace

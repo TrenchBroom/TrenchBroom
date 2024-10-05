@@ -2318,8 +2318,8 @@ void MapFrame::dropEvent(QDropEvent* event)
 
   const auto* wadPathsStr = m_document->world()->entity().property(*wadPropertyKey);
   auto wadPaths = wadPathsStr ? kdl::vec_transform(
-                    kdl::str_split(*wadPathsStr, ";"),
-                    [](const auto& s) { return std::filesystem::path{s}; })
+                                  kdl::str_split(*wadPathsStr, ";"),
+                                  [](const auto& s) { return std::filesystem::path{s}; })
                               : std::vector<std::filesystem::path>{};
 
   auto pathDialog = ChoosePathTypeDialog{
@@ -2445,23 +2445,27 @@ DebugPaletteWindow::DebugPaletteWindow(QWidget* parent)
 {
   setWindowTitle(tr("Palette"));
 
-  const auto roles = std::vector<std::pair<QPalette::ColorRole, QString>>
-  {
-    {QPalette::Window, "Window"}, {QPalette::WindowText, "WindowText"},
-      {QPalette::Base, "Base"}, {QPalette::AlternateBase, "AlternateBase"},
-      {QPalette::ToolTipBase, "ToolTipBase"}, {QPalette::ToolTipText, "ToolTipText"},
+  const auto roles = std::vector<std::pair<QPalette::ColorRole, QString>>{
+    {QPalette::Window, "Window"},
+    {QPalette::WindowText, "WindowText"},
+    {QPalette::Base, "Base"},
+    {QPalette::AlternateBase, "AlternateBase"},
+    {QPalette::ToolTipBase, "ToolTipBase"},
+    {QPalette::ToolTipText, "ToolTipText"},
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-      {QPalette::PlaceholderText, "PlaceholderText"},
+    {QPalette::PlaceholderText, "PlaceholderText"},
 #endif
-      {QPalette::Text, "Text"}, {QPalette::Button, "Button"},
-      {QPalette::ButtonText, "ButtonText"}, {QPalette::BrightText, "BrightText"},
-      {QPalette::Light, "Light"}, {QPalette::Midlight, "Midlight"},
-      {QPalette::Dark, "Dark"}, {QPalette::Mid, "Mid"}, {QPalette::Shadow, "Shadow"},
-      {QPalette::Highlight, "Highlight"},
-    {
-      QPalette::HighlightedText, "HighlightedText"
-    }
-  };
+    {QPalette::Text, "Text"},
+    {QPalette::Button, "Button"},
+    {QPalette::ButtonText, "ButtonText"},
+    {QPalette::BrightText, "BrightText"},
+    {QPalette::Light, "Light"},
+    {QPalette::Midlight, "Midlight"},
+    {QPalette::Dark, "Dark"},
+    {QPalette::Mid, "Mid"},
+    {QPalette::Shadow, "Shadow"},
+    {QPalette::Highlight, "Highlight"},
+    {QPalette::HighlightedText, "HighlightedText"}};
 
   const auto groups = std::vector<std::pair<QPalette::ColorGroup, QString>>{
     {QPalette::Disabled, "Disabled"},

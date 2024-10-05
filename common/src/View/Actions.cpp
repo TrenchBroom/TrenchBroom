@@ -145,15 +145,15 @@ Action::Action(
   std::optional<std::filesystem::path> iconPath,
   std::optional<QString> statusTip)
   : Action{
-    std::move(preferencePath),
-    std::move(label),
-    actionContext,
-    defaultShortcut,
-    std::move(execute),
-    std::move(enabled),
-    std::nullopt,
-    std::move(iconPath),
-    std::move(statusTip)}
+      std::move(preferencePath),
+      std::move(label),
+      actionContext,
+      defaultShortcut,
+      std::move(execute),
+      std::move(enabled),
+      std::nullopt,
+      std::move(iconPath),
+      std::move(statusTip)}
 {
 }
 
@@ -164,15 +164,15 @@ Action::Action(
   ExecuteFn execute,
   EnabledFn enabled)
   : Action{
-    std::move(preferencePath),
-    std::move(label),
-    actionContext,
-    QKeySequence{},
-    std::move(execute),
-    std::move(enabled),
-    std::nullopt,
-    std::nullopt,
-    std::nullopt}
+      std::move(preferencePath),
+      std::move(label),
+      actionContext,
+      QKeySequence{},
+      std::move(execute),
+      std::move(enabled),
+      std::nullopt,
+      std::nullopt,
+      std::nullopt}
 {
 }
 

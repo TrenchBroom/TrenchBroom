@@ -395,7 +395,7 @@ Result<Assets::Material> loadMaterial(
   return (iShader != shaders.end()
             ? loadShaderMaterial(*iShader, fs, materialConfig, createResource)
             : loadTextureMaterial(
-              materialPath, fs, materialConfig, createResource, paletteResult))
+                materialPath, fs, materialConfig, createResource, paletteResult))
          | kdl::transform([&](auto material) {
              fs.makeAbsolute(materialPath)
                | kdl::transform([&](auto absPath) { material.setAbsolutePath(absPath); })

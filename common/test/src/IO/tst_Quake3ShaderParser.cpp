@@ -103,7 +103,7 @@ textures/liquids/lavahell2 //path and name of new texture
       {{
         "textures/eerie/lavahell.tga", // map
         {"", ""}                       // blendFunc
-      }}                               // stages
+      }} // stages
     }}));
 }
 
@@ -155,7 +155,7 @@ textures/liquids/lavahell2 //path and name of new texture
       {{
         "textures/eerie/lavahell.tga", // map
         {"", ""}                       // blendFunc
-      }}                               // stages
+      }} // stages
     }}));
 }
 
@@ -215,7 +215,7 @@ textures/eerie/ironcrosslt2_10000
        {
          "textures/gothic_light/ironcrosslt2.blend.tga", // map
          {"GL_ONE", "GL_ONE"}                            // blendFunc
-       }}                                                // stages
+       }} // stages
     }}));
 }
 
@@ -275,7 +275,7 @@ textures/eerie/ironcrosslt2_10000
        {
          "textures/gothic_light/ironcrosslt2.blend.tga", // map
          {"GL_ONE", "GL_ONE"}                            // blendFunc
-       }}                                                // stages
+       }} // stages
     }}));
 }
 
@@ -371,7 +371,7 @@ textures/liquids/lavahell2 //path and name of new texture
          {
            "textures/gothic_light/ironcrosslt2.blend.tga", // map
            {"GL_ONE", "GL_ONE"}                            // blendFunc
-         }}                                                // stages
+         }} // stages
       },
       {
         "textures/liquids/lavahell2",        // shaderPath
@@ -382,7 +382,7 @@ textures/liquids/lavahell2 //path and name of new texture
         {{
           "textures/eerie/lavahell.tga", // map
           {"", ""}                       // blendFunc
-        }}                               // stages
+        }} // stages
       }}));
 }
 

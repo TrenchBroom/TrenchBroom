@@ -427,10 +427,8 @@ auto makeRing(const FloatType angle, const size_t numSides, const RadiusMode rad
   const auto z = std::cos(angle);
   const auto circle = makeUnitCircle(numSides, radiusMode);
   return circle
-         | std::views::transform(
-           [&, t = vm::scaling_matrix(vm::vec2{r, r})](const auto& v) {
-             return vm::vec3{t * v, z};
-           })
+         | std::views::transform([&, t = vm::scaling_matrix(vm::vec2{r, r})](
+                                   const auto& v) { return vm::vec3{t * v, z}; })
          | kdl::to_vector;
 }
 

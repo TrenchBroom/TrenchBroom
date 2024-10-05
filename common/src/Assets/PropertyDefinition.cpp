@@ -149,12 +149,12 @@ StringPropertyDefinition::StringPropertyDefinition(
   const bool readOnly,
   std::optional<std::string> defaultValue)
   : PropertyDefinitionWithDefaultValue{
-    std::move(key),
-    PropertyDefinitionType::StringProperty,
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    std::move(defaultValue)}
+      std::move(key),
+      PropertyDefinitionType::StringProperty,
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly,
+      std::move(defaultValue)}
 {
 }
 
@@ -179,12 +179,12 @@ BooleanPropertyDefinition::BooleanPropertyDefinition(
   const bool readOnly,
   std::optional<bool> defaultValue)
   : PropertyDefinitionWithDefaultValue{
-    std::move(key),
-    PropertyDefinitionType::BooleanProperty,
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    std::move(defaultValue)}
+      std::move(key),
+      PropertyDefinitionType::BooleanProperty,
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly,
+      std::move(defaultValue)}
 {
 }
 
@@ -209,12 +209,12 @@ IntegerPropertyDefinition::IntegerPropertyDefinition(
   const bool readOnly,
   std::optional<int> defaultValue)
   : PropertyDefinitionWithDefaultValue{
-    std::move(key),
-    PropertyDefinitionType::IntegerProperty,
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    std::move(defaultValue)}
+      std::move(key),
+      PropertyDefinitionType::IntegerProperty,
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly,
+      std::move(defaultValue)}
 {
 }
 
@@ -239,12 +239,12 @@ FloatPropertyDefinition::FloatPropertyDefinition(
   const bool readOnly,
   std::optional<float> defaultValue)
   : PropertyDefinitionWithDefaultValue{
-    std::move(key),
-    PropertyDefinitionType::FloatProperty,
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    std::move(defaultValue)}
+      std::move(key),
+      PropertyDefinitionType::FloatProperty,
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly,
+      std::move(defaultValue)}
 {
 }
 
@@ -353,7 +353,7 @@ kdl_reflect_impl(FlagsPropertyOption);
 
 FlagsPropertyDefinition::FlagsPropertyDefinition(std::string key)
   : PropertyDefinition{
-    std::move(key), PropertyDefinitionType::FlagsProperty, "", "", false}
+      std::move(key), PropertyDefinitionType::FlagsProperty, "", "", false}
 {
 }
 
@@ -427,11 +427,11 @@ UnknownPropertyDefinition::UnknownPropertyDefinition(
   const bool readOnly,
   std::optional<std::string> defaultValue)
   : StringPropertyDefinition{
-    std::move(key),
-    std::move(shortDescription),
-    std::move(longDescription),
-    readOnly,
-    std::move(defaultValue)}
+      std::move(key),
+      std::move(shortDescription),
+      std::move(longDescription),
+      readOnly,
+      std::move(defaultValue)}
 {
 }
 

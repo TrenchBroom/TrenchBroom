@@ -37,8 +37,9 @@ struct to_helper
 
 // This actually does the work
 template <typename Container, std::ranges::range R>
-requires std::convertible_to < std::ranges::range_value_t<R>,
-typename Container::value_type > Container operator|(R&& r, to_helper<Container>)
+  requires std::
+    convertible_to<std::ranges::range_value_t<R>, typename Container::value_type>
+  Container operator|(R&& r, to_helper<Container>)
 {
   return Container{get_begin(r), get_end(r)};
 }
@@ -46,7 +47,8 @@ typename Container::value_type > Container operator|(R&& r, to_helper<Container>
 } // namespace detail
 
 template <std::ranges::range Container>
-requires(!std::ranges::view<Container>) auto to()
+  requires(!std::ranges::view<Container>)
+auto to()
 {
   return detail::to_helper<Container>{};
 }

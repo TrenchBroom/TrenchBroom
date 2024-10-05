@@ -175,12 +175,12 @@ Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
     game->config().faceAttribsConfig.defaults};
   return m_parameters.hollow
            ? builder.createHollowCylinder(
-             bounds,
-             m_parameters.thickness,
-             m_parameters.numSides,
-             m_parameters.radiusMode,
-             axis,
-             document.currentMaterialName())
+               bounds,
+               m_parameters.thickness,
+               m_parameters.numSides,
+               m_parameters.radiusMode,
+               axis,
+               document.currentMaterialName())
            : builder
                .createCylinder(
                  bounds,

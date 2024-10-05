@@ -322,9 +322,7 @@ TEST_CASE("result")
       const auto constLValueSuccess =
         result<multi_value<int, float>, Error1, Error2>{multi_value{1, 2.0f}};
       CHECK(constLValueSuccess.visit(overload(
-        [](const multi_value<int, float>& x) {
-          return x == multi_value{1, 2.0f};
-        },
+        [](const multi_value<int, float>& x) { return x == multi_value{1, 2.0f}; },
         [](const auto&) { return false; })));
 
       const auto constLValueError1 =
@@ -344,9 +342,7 @@ TEST_CASE("result")
       auto nonConstLValueSuccess =
         result<multi_value<int, float>, Error1, Error2>{multi_value{1, 2.0f}};
       CHECK(nonConstLValueSuccess.visit(overload(
-        [](multi_value<int, float>& x) {
-          return x == multi_value{1, 2.0f};
-        },
+        [](multi_value<int, float>& x) { return x == multi_value{1, 2.0f}; },
         [](auto&) { return false; })));
 
       auto nonConstLValueError1 =
@@ -370,9 +366,7 @@ TEST_CASE("result")
 
       CHECK(result<multi_value<int, float>, Error1, Error2>{multi_value{1, 2.0f}}.visit(
         overload(
-          [](multi_value<int, float>&& x) {
-            return x == multi_value{1, 2.0f};
-          },
+          [](multi_value<int, float>&& x) { return x == multi_value{1, 2.0f}; },
           [](auto&&) { return false; })));
 
       CHECK(result<multi_value<int, float>, Error1, Error2>{Error1{}}.visit(overload(
@@ -1483,12 +1477,8 @@ TEST_CASE("result")
         result<multi_value<int, float>, Error1, Error2>{Error1{}};
       CHECK(
         constLValueError.transform_error(overload(
-          [](const Error1&) {
-            return multi_value{2, 3.0f};
-          },
-          [](const Error2&) {
-            return multi_value{3, 4.0f};
-          }))
+          [](const Error1&) { return multi_value{2, 3.0f}; },
+          [](const Error2&) { return multi_value{3, 4.0f}; }))
         == result<multi_value<int, float>>{multi_value{2, 3.0f}});
 
       auto nonConstLValueSuccess =
@@ -1502,12 +1492,8 @@ TEST_CASE("result")
         result<multi_value<int, float>, Error1, Error2>{Error1{}};
       CHECK(
         nonConstLValueError.transform_error(overload(
-          [](Error1&) {
-            return multi_value{2, 3.0f};
-          },
-          [](Error2&) {
-            return multi_value{3, 4.0f};
-          }))
+          [](Error1&) { return multi_value{2, 3.0f}; },
+          [](Error2&) { return multi_value{3, 4.0f}; }))
         == result<multi_value<int, float>>{multi_value{2, 3.0f}});
 
       CHECK(result<MoveOnly, Error1, Error2>{MoveOnly{}}.transform_error([](auto&&) {
@@ -1518,12 +1504,8 @@ TEST_CASE("result")
       CHECK(
         result<multi_value<int, float>, Error1, Error2>{Error1{}}.transform_error(
           overload(
-            [](Error1&&) {
-              return multi_value{2, 3.0f};
-            },
-            [](Error2&&) {
-              return multi_value{3, 4.0f};
-            }))
+            [](Error1&&) { return multi_value{2, 3.0f}; },
+            [](Error2&&) { return multi_value{3, 4.0f}; }))
         == result<multi_value<int, float>>{multi_value{2, 3.0f}});
     }
 

@@ -221,14 +221,14 @@ ControlListBox::ControlListBox(
 ControlListBox::ControlListBox(
   const QString& emptyText, const bool showSeparator, QWidget* parent)
   : ControlListBox{
-    emptyText,
-    QMargins{
-      LayoutConstants::MediumHMargin,
-      LayoutConstants::NarrowVMargin,
-      LayoutConstants::MediumHMargin,
-      LayoutConstants::NarrowVMargin},
-    showSeparator,
-    parent}
+      emptyText,
+      QMargins{
+        LayoutConstants::MediumHMargin,
+        LayoutConstants::NarrowVMargin,
+        LayoutConstants::MediumHMargin,
+        LayoutConstants::NarrowVMargin},
+      showSeparator,
+      parent}
 {
 }
 

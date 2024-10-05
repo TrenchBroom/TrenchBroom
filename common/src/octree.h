@@ -172,17 +172,17 @@ public:
 
     inner_node(const detail::node_address i_address, std::vector<U> i_data)
       : inner_node{
-        i_address,
-        std::move(i_data),
-        kdl::vec_from(
-          node{leaf_node{get_child(i_address, 0), {}}},
-          node{leaf_node{get_child(i_address, 1), {}}},
-          node{leaf_node{get_child(i_address, 2), {}}},
-          node{leaf_node{get_child(i_address, 3), {}}},
-          node{leaf_node{get_child(i_address, 4), {}}},
-          node{leaf_node{get_child(i_address, 5), {}}},
-          node{leaf_node{get_child(i_address, 6), {}}},
-          node{leaf_node{get_child(i_address, 7), {}}})}
+          i_address,
+          std::move(i_data),
+          kdl::vec_from(
+            node{leaf_node{get_child(i_address, 0), {}}},
+            node{leaf_node{get_child(i_address, 1), {}}},
+            node{leaf_node{get_child(i_address, 2), {}}},
+            node{leaf_node{get_child(i_address, 3), {}}},
+            node{leaf_node{get_child(i_address, 4), {}}},
+            node{leaf_node{get_child(i_address, 5), {}}},
+            node{leaf_node{get_child(i_address, 6), {}}},
+            node{leaf_node{get_child(i_address, 7), {}}})}
     {
     }
 

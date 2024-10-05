@@ -166,7 +166,7 @@ Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
     return *mapValue == EntityPropertyValues::NoSoftMapBounds
              ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
              : SoftMapBounds{
-               SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
+                 SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
   }
 
   // Not set in map -> use Game value

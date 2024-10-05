@@ -434,11 +434,11 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   writer.writeMap();
 
   const auto expectedMtl = expectedPath ? fmt::format(
-                             R"(newmtl some_material
+                                            R"(newmtl some_material
 map_Kd {}
 
 )",
-                             *expectedPath)
+                                            *expectedPath)
                                         : R"(newmtl some_material
 
 )";
