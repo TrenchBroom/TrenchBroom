@@ -119,11 +119,11 @@ double Grid::intersectWithRay(const vm::ray3d& ray, const size_t skip) const
   }
 
   const auto distX =
-    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_x()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d{1, 0, 0}));
   const auto distY =
-    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_y()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d{0, 1, 0}));
   const auto distZ =
-    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d::pos_z()));
+    vm::intersect_ray_plane(ray, vm::plane3d(planeAnchor, vm::vec3d{0, 0, 1}));
 
   auto dist = distX;
   if (distY && (!dist || std::abs(*distY) < std::abs(*dist)))

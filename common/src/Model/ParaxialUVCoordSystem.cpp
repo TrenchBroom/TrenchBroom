@@ -635,7 +635,7 @@ void ParaxialUVCoordSystem::transform(
 
   // project the UV axes onto the boundary plane along the normal axis
   const auto scale = vm::vec2d{attribs.scale()};
-  const auto boundaryOffset = oldBoundary.project_point(vm::vec3d::zero(), normal());
+  const auto boundaryOffset = oldBoundary.project_point(vm::vec3d{0, 0, 0}, normal());
   const auto oldUAxis = oldBoundary.project_point(m_uAxis * scale.x(), normal());
   const auto oldVAxis = oldBoundary.project_point(m_vAxis * scale.y(), normal());
   if (boundaryOffset && oldUAxis && oldVAxis)

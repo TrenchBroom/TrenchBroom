@@ -112,7 +112,7 @@ const vm::vec3d UVViewHelper::origin() const
 const vm::vec2f UVViewHelper::originInFaceCoords() const
 {
   const auto toFace =
-    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
   return vm::vec2f{toFace * origin()};
 }
 
@@ -128,7 +128,7 @@ const vm::vec2f UVViewHelper::originInUVCoords() const
 void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
 {
   const auto fromFace =
-    face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
@@ -229,9 +229,9 @@ void UVViewHelper::computeOriginHandleVertices(
   assert(valid());
 
   const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
   const auto toWorld =
-    face()->fromUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
   computeLineVertices(vm::vec2d{originInFaceCoords()}, x1, x2, y1, y2, toTex, toWorld);
 }
 
@@ -282,7 +282,7 @@ void UVViewHelper::resetOrigin()
   assert(valid());
 
   const auto toTex =
-    face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
   const auto texVertices = toTex * face()->vertexPositions();
 
   const auto toCam = vm::mat4x4d{m_camera.viewMatrix()};
@@ -313,9 +313,9 @@ void UVViewHelper::resetCamera()
 
   const auto& normal = face()->boundary().normal;
 
-  const auto right = vm::abs(vm::dot(vm::vec3d::pos_z(), normal)) < double(1)
-                       ? vm::normalize(vm::cross(vm::vec3d::pos_z(), normal))
-                       : vm::vec3d::pos_x();
+  const auto right = vm::abs(vm::dot(vm::vec3d{0, 0, 1}, normal)) < double(1)
+                       ? vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal))
+                       : vm::vec3d{1, 0, 0};
   const auto up = vm::normalize(vm::cross(normal, right));
 
   m_camera.setNearPlane(-1.0f);

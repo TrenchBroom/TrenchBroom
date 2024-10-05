@@ -634,7 +634,7 @@ BackSide pickBackSideOfBox(
   // The hit point is the closest point on the pick ray to one of the edges of the face.
   // For face dragging, we'll project the pick ray onto the line through this point and
   // having the face normal.
-  assert(bestNormal != vm::vec3d::zero());
+  assert(bestNormal != vm::vec3d(0, 0, 0));
 
   return {
     bestDistAlongRay,
@@ -655,7 +655,7 @@ void ScaleObjectsTool::pickBackSides(
     // The hit point is the closest point on the pick ray to one of the edges of the face.
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
-    assert(result.pickedSideNormal != vm::vec3d::zero());
+    assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
     pickResult.addHit(Model::Hit{
       ScaleToolSideHitType,
       result.distAlongRay,
@@ -1022,7 +1022,7 @@ void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit)
 
   m_bboxAtDragStart = bounds();
   m_dragStartHit = hit;
-  m_dragCumulativeDelta = vm::vec3d::zero();
+  m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
   auto document = kdl::mem_lock(m_document);
   document->startTransaction("Scale Objects", TransactionScope::LongRunning);

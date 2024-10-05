@@ -209,7 +209,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
   CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
   // 90 degrees CCW about the Z axis through the center of the selection
-  document->rotateObjects(boundsCenter, vm::vec3d::pos_z(), vm::to_radians(90.0));
+  document->rotateObjects(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
@@ -247,7 +247,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   {
     document->selectNodes({brushNode1});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "45");
   }
@@ -256,7 +256,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   {
     document->selectNodes({brushNode1, brushNode2});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");
   }
@@ -269,7 +269,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
     document->deselectAll();
     document->selectNodes({groupNode});
     document->rotateObjects(
-      document->selectionBounds().center(), vm::vec3d::pos_z(), vm::to_radians(90.0));
+      document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");
   }
@@ -303,7 +303,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
     }));
 
   // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3d::neg_y(), vm::vec3d{50, 0, 0}));
+  CHECK(document->shearObjects(initialBBox, vm::vec3d{0, -1, 0}, vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
@@ -349,7 +349,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
     }));
 
   // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3d::pos_z(), vm::vec3d{50, 0, 0}));
+  CHECK(document->shearObjects(initialBBox, vm::vec3d{0, 0, 1}, vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
@@ -384,21 +384,21 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
 
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
-    == vm::plane3d{100.0, vm::vec3d::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
+    == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
 
   // attempting an invalid scale has no effect
   CHECK_FALSE(document->scaleObjects(initialBBox, invalidBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
-    == vm::plane3d{100.0, vm::vec3d::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
+    == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
 
   CHECK(document->scaleObjects(initialBBox, doubleBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
   CHECK(
-    brush.face(*brush.findFace(vm::vec3d::pos_z())).boundary()
-    == vm::plane3d{200.0, vm::vec3d::pos_z()});
+    brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
+    == vm::plane3d{200.0, vm::vec3d{0, 0, 1}});
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
@@ -486,8 +486,8 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   // Brushes in linked groups should have alignment lock forced on
   CHECK(uvListsEqual(
-    getUVCoords(brushNode1, vm::vec3d::pos_z()),
-    getUVCoords(linkedBrushNode, vm::vec3d::pos_z())));
+    getUVCoords(brushNode1, vm::vec3d{0, 0, 1}),
+    getUVCoords(linkedBrushNode, vm::vec3d{0, 0, 1})));
 
   PreferenceManager::instance().resetToDefault(Preferences::AlignmentLock);
 }

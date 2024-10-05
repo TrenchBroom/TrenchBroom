@@ -80,8 +80,8 @@ private:
   using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
-  static constexpr auto CameraDirection = vm::vec3f::neg_x();
-  static constexpr auto CameraUp = vm::vec3f::pos_z();
+  static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};
+  static constexpr auto CameraUp = vm::vec3f{0, 0, 1};
 
   std::weak_ptr<MapDocument> m_document;
   std::optional<EL::ExpressionNode> m_defaultScaleModelExpression;

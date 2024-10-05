@@ -42,7 +42,7 @@ TEST_CASE("EntityTest")
 
     CHECK(entity.classname() == EntityPropertyValues::NoClassname);
     CHECK(entity.pointEntity());
-    CHECK(entity.origin() == vm::vec3d::zero());
+    CHECK(entity.origin() == vm::vec3d{0, 0, 0});
     CHECK(entity.rotation() == vm::mat4x4d::identity());
   }
 
@@ -542,25 +542,25 @@ TEST_CASE("EntityTest")
 
     SECTION("Entities without an origin property return 0,0,0")
     {
-      CHECK(entity.origin() == vm::vec3d::zero());
+      CHECK(entity.origin() == vm::vec3d{0, 0, 0});
     }
 
     SECTION("Entities with invalid origin property return 0,0,0")
     {
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2");
-      CHECK(entity.origin() == vm::vec3d::zero());
+      CHECK(entity.origin() == vm::vec3d{0, 0, 0});
 
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "asdf");
-      CHECK(entity.origin() == vm::vec3d::zero());
+      CHECK(entity.origin() == vm::vec3d{0, 0, 0});
     }
 
     SECTION("Entities with nan origin property return 0,0,0")
     {
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 nan");
-      CHECK(entity.origin() == vm::vec3d::zero());
+      CHECK(entity.origin() == vm::vec3d{0, 0, 0});
 
       entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "nan nan nan");
-      CHECK(entity.origin() == vm::vec3d::zero());
+      CHECK(entity.origin() == vm::vec3d{0, 0, 0});
     }
 
     entity.addOrUpdateProperty(EntityPropertyKeys::Origin, "1 2 3");
@@ -599,7 +599,7 @@ TEST_CASE("EntityTest")
       {}};
 
     auto entity = Entity{};
-    REQUIRE(entity.origin() == vm::vec3d::zero());
+    REQUIRE(entity.origin() == vm::vec3d{0, 0, 0});
 
     entity.setOrigin(vm::vec3d{1, 2, 3});
     CHECK(*entity.property(EntityPropertyKeys::Origin) == "1 2 3");

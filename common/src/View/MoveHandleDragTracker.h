@@ -345,9 +345,9 @@ public:
       renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
 
       const auto stages = std::array<vm::vec3d, 3>{
-        vec * vm::vec3d::pos_x(),
-        vec * vm::vec3d::pos_y(),
-        vec * vm::vec3d::pos_z(),
+        vec * vm::vec3d{1, 0, 0},
+        vec * vm::vec3d{0, 1, 0},
+        vec * vm::vec3d{0, 0, 1},
       };
 
       const auto colors = std::array<Color, 3>{
@@ -371,7 +371,7 @@ public:
       for (size_t i = 0; i < 3; ++i)
       {
         const auto& stage = stages[i];
-        if (stage != vm::vec3d::zero())
+        if (stage != vm::vec3d{0, 0, 0})
         {
           const auto curPos = lastPos + stage;
           const auto midPoint = (lastPos + curPos) / 2.0;
@@ -462,7 +462,7 @@ private:
   {
     assert(inputState.camera().perspectiveProjection());
 
-    const auto axis = vm::vec3d::pos_z();
+    const auto axis = vm::vec3d{0, 0, 1};
     return makeLineHandlePicker(vm::line3d{origin, axis}, handleOffset);
   }
 
@@ -479,7 +479,7 @@ private:
   {
     const auto& camera = inputState.camera();
     const auto axis = camera.perspectiveProjection()
-                        ? vm::vec3d::pos_z()
+                        ? vm::vec3d{0, 0, 1}
                         : vm::vec3d(vm::get_abs_max_component_axis(camera.direction()));
     return makePlaneHandlePicker(vm::plane3d{origin, axis}, handleOffset);
   }

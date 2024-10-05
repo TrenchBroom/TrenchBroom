@@ -129,7 +129,7 @@ TEST_CASE("EntityNodeTest.area")
   auto definition = Assets::PointEntityDefinition(
     "some_name",
     Color(),
-    vm::bbox3d(vm::vec3d::zero(), vm::vec3d(1.0, 2.0, 3.0)),
+    vm::bbox3d(vm::vec3d{0, 0, 0}, vm::vec3d(1.0, 2.0, 3.0)),
     "",
     {},
     {},

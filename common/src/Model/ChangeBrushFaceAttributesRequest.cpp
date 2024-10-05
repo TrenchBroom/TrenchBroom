@@ -193,7 +193,7 @@ void ChangeBrushFaceAttributesRequest::resetAll(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
   resetUVAxes();
-  setOffset(vm::vec2f::zero());
+  setOffset(vm::vec2f{0, 0});
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
 }
@@ -202,7 +202,7 @@ void ChangeBrushFaceAttributesRequest::resetAllToParaxial(
   const BrushFaceAttributes& defaultFaceAttributes)
 {
   resetUVAxesToParaxial();
-  setOffset(vm::vec2f::zero());
+  setOffset(vm::vec2f{0, 0});
   setRotation(0.0f);
   setScale(defaultFaceAttributes.scale());
 }

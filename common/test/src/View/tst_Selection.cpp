@@ -599,11 +599,11 @@ TEST_CASE_METHOD(
   MapDocumentTest, "SelectionCommandTest.faceSelectionUndoAfterTranslationUndo")
 {
   auto* brushNode = createBrushNode();
-  CHECK(brushNode->logicalBounds().center() == vm::vec3d::zero());
+  CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
-  const auto topFaceIndex = brushNode->brush().findFace(vm::vec3d::pos_z());
+  const auto topFaceIndex = brushNode->brush().findFace(vm::vec3d{0, 0, 1});
   REQUIRE(topFaceIndex);
 
   // select the top face
@@ -630,7 +630,7 @@ TEST_CASE_METHOD(
   // Start undoing changes
 
   document->undoCommand();
-  CHECK(brushNode->logicalBounds().center() == vm::vec3d::zero());
+  CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
   CHECK_THAT(
     document->selectedNodes().brushes(),
     Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));

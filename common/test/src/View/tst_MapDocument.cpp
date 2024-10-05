@@ -479,7 +479,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
 
   SECTION("Selected objects are deselect and not translated")
   {
-    auto* existingNode = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+    auto* existingNode =
+      document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
     document->selectNodes({existingNode});
 
     const auto origin = existingNode->entity().origin();

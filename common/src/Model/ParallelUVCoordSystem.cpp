@@ -43,8 +43,8 @@ namespace
 std::tuple<vm::vec3d, vm::vec3d> computeInitialAxes(const vm::vec3d& normal)
 {
   const auto uAxis = vm::find_abs_max_component(normal) == vm::axis::z
-                       ? vm::normalize(vm::cross(vm::vec3d::pos_y(), normal))
-                       : vm::normalize(vm::cross(vm::vec3d::pos_z(), normal));
+                       ? vm::normalize(vm::cross(vm::vec3d{0, 1, 0}, normal))
+                       : vm::normalize(vm::cross(vm::vec3d{0, 0, 1}, normal));
 
   return {uAxis, vm::normalize(vm::cross(uAxis, normal))};
 }
@@ -302,7 +302,7 @@ void ParallelUVCoordSystem::shear(const vm::vec3d& /* normal */, const vm::vec2f
   // clang-format on
 
   const auto toMatrix =
-    vm::coordinate_system_matrix(uAxis(), vAxis(), normal(), vm::vec3d::zero());
+    vm::coordinate_system_matrix(uAxis(), vAxis(), normal(), vm::vec3d{0, 0, 0});
   const auto fromMatrix = vm::invert(toMatrix);
 
   const auto transform = *fromMatrix * shear * toMatrix;
@@ -320,7 +320,7 @@ float ParallelUVCoordSystem::measureAngle(
 {
   const auto vec = vm::vec3f{point - center};
   const auto angleInRadians =
-    vm::measure_angle(vm::normalize(vec), vm::vec3f::pos_x(), vm::vec3f::pos_z());
+    vm::measure_angle(vm::normalize(vec), vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
   return currentAngle + vm::to_degrees(angleInRadians);
 }
 
@@ -419,7 +419,7 @@ void ParallelUVCoordSystem::updateNormalWithRotation(
   const BrushFaceAttributes& /* attribs */)
 {
   const auto cross = vm::cross(oldNormal, newNormal);
-  if (cross == vm::vec3d::zero())
+  if (cross == vm::vec3d{0, 0, 0})
   {
     // oldNormal and newNormal are either the same or opposite.
     // in this case, no need to update the texture axes.

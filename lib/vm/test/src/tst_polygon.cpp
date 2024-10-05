@@ -73,7 +73,7 @@ TEST_CASE("polygon.has_vertex")
     CHECK(p.hasVertex(v));
   }
 
-  CHECK_FALSE(p.hasVertex(vec3d::one()));
+  CHECK_FALSE(p.hasVertex(vec3d{1, 1, 1}));
 }
 
 TEST_CASE("polygon.vertex_count")
@@ -100,7 +100,7 @@ TEST_CASE("polygon.center")
   const auto vertices = std::vector<vec3d>{
     vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)};
   const auto p = polygon3d(vertices);
-  CHECK(p.center() == approx(vec3d::zero()));
+  CHECK(p.center() == approx(vec3d{0, 0, 0}));
 }
 
 TEST_CASE("polygon.invert")
@@ -392,18 +392,18 @@ TEST_CASE("polygon.compare_unoriented_empty_polygon")
 {
   polygon3d p1{};
   CHECK(compareUnoriented(p1, polygon3d{}) == 0);
-  CHECK(compareUnoriented(p1, polygon3d{vec3d::zero()}) == -1);
+  CHECK(compareUnoriented(p1, polygon3d{vec3d{0, 0, 0}}) == -1);
 
-  polygon3d p2{vec3d::zero()};
+  polygon3d p2{vec3d{0, 0, 0}};
   CHECK(compareUnoriented(p2, p1) == +1);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero()}) == 0);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
 }
 
 TEST_CASE("polygon.testBackwardComparePolygonWithOneVertex")
 {
-  polygon3d p2{vec3d::zero()};
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero()}) == 0);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero(), vec3d::zero()}) == -1);
+  polygon3d p2{vec3d{0, 0, 0}};
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}, vec3d{0, 0, 0}}) == -1);
 }
 
 TEST_CASE("polygon.compare_unoriented")

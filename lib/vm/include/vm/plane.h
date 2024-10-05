@@ -477,7 +477,7 @@ auto from_points(I cur, I end, const G& get = G())
 template <typename T>
 constexpr plane<T, 3> horizontal_plane(const vec<T, 3>& position)
 {
-  return plane<T, 3>(position, vec<T, 3>::pos_z());
+  return plane<T, 3>(position, vec<T, 3>{0, 0, 1});
 }
 
 /**

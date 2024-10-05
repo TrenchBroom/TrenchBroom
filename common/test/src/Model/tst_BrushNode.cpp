@@ -287,16 +287,16 @@ TEST_CASE("BrushNodeTest.pick")
 
   PickResult hits1;
   brush.pick(
-    editorContext, vm::ray3d(vm::vec3d(8.0, -8.0, 8.0), vm::vec3d::pos_y()), hits1);
+    editorContext, vm::ray3d(vm::vec3d(8.0, -8.0, 8.0), vm::vec3d{0, 1, 0}), hits1);
   CHECK(hits1.size() == 1u);
 
   Hit hit1 = hits1.all().front();
   CHECK(hit1.distance() == vm::approx(8.0));
-  CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3d::neg_y());
+  CHECK(hitToFaceHandle(hit1)->face().boundary().normal == vm::vec3d{0, -1, 0});
 
   PickResult hits2;
   brush.pick(
-    editorContext, vm::ray3d(vm::vec3d(8.0, -8.0, 8.0), vm::vec3d::neg_y()), hits2);
+    editorContext, vm::ray3d(vm::vec3d(8.0, -8.0, 8.0), vm::vec3d{0, -1, 0}), hits2);
   CHECK(hits2.empty());
 }
 

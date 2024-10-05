@@ -62,8 +62,9 @@ void ScaleObjectsToolPage::connectObservers()
 void ScaleObjectsToolPage::activate()
 {
   const auto document = kdl::mem_lock(m_document);
-  const auto suggestedSize =
-    document->hasSelectedNodes() ? document->selectionBounds().size() : vm::vec3d::zero();
+  const auto suggestedSize = document->hasSelectedNodes()
+                               ? document->selectionBounds().size()
+                               : vm::vec3d{0, 0, 0};
 
   m_sizeTextBox->setText(
     QString::fromStdString(fmt::format("{}", fmt::streamed(suggestedSize))));

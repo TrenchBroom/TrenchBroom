@@ -88,8 +88,8 @@ TEST_CASE_METHOD(
     8000.0f,
     viewport,
     vm::vec3f(0.0f, -160.0f, 64.0f),
-    vm::vec3f::pos_y(),
-    vm::vec3f::pos_z());
+    vm::vec3f{0, 1, 0},
+    vm::vec3f{0, 0, 1});
 
   // The following test places these 2 clip points
   const auto clipPoint1 = vm::vec3d(-16, -16, 52);

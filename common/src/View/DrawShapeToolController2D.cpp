@@ -153,7 +153,7 @@ private:
     if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       const auto viewAxis = vm::abs(vm::vec3d{inputState.camera().direction()});
-      const auto orthoAxes = vm::vec3d::one() - viewAxis;
+      const auto orthoAxes = vm::vec3d{1, 1, 1} - viewAxis;
 
       // The max length of the bounds along any of the ortho axes:
       const auto maxLength = vm::get_abs_max_component(bounds.size() * orthoAxes);
@@ -165,7 +165,7 @@ private:
       // The direction in which the user is dragging per component:
       const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
       bounds = vm::bbox3d{
-        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d::one() - dragDir),
+        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d{1, 1, 1} - dragDir),
         vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
     }
 

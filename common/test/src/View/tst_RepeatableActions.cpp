@@ -79,19 +79,19 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate")
   document->selectNodes({entityNode});
 
   REQUIRE_FALSE(document->canRepeatCommands());
-  document->rotateObjects(vm::vec3d::zero(), vm::vec3d::pos_z(), vm::to_radians(90.0));
+  document->rotateObjects(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
   CHECK(document->canRepeatCommands());
 
   REQUIRE(
     entityNode->entity().origin()
     == vm::approx(
-      vm::rotation_matrix(vm::vec3d::pos_z(), vm::to_radians(90.0))
+      vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(90.0))
       * vm::vec3d(1, 2, 3)));
   document->repeatCommands();
   CHECK(
     entityNode->entity().origin()
     == vm::approx(
-      vm::rotation_matrix(vm::vec3d::pos_z(), vm::to_radians(180.0))
+      vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(180.0))
       * vm::vec3d(1, 2, 3)));
 }
 
@@ -145,7 +145,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects")
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
-  document->shearObjects(originalBounds, vm::vec3d::pos_z(), vm::vec3d(32, 0, 0));
+  document->shearObjects(originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
   REQUIRE(brushNode1->logicalBounds() != originalBounds);
   CHECK(document->canRepeatCommands());
 
@@ -210,7 +210,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears")
   document->selectNodes({entityNode1});
 
   document->repeatCommands();
-  CHECK(entityNode1->entity().origin() == vm::vec3d::zero());
+  CHECK(entityNode1->entity().origin() == vm::vec3d{0, 0, 0});
 
   document->deselectAll();
   document->selectNodes({entityNode1});

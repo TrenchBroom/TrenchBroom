@@ -56,7 +56,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush")
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
   auto pickResult = Model::PickResult{};
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
 
   auto hits = pickResult.all();
   CHECK(hits.size() == 1u);
@@ -64,11 +64,11 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush")
   const auto& brush1 = brushNode1->brush();
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
 
   pickResult.clear();
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::neg_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{-1, 0, 0}}, pickResult);
   CHECK(pickResult.all().empty());
 }
 
@@ -88,7 +88,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleEntity")
     origin + vm::vec3d{-32.0, bounds.size().y() / 2.0, bounds.size().z() / 2.0};
 
   auto pickResult = Model::PickResult{};
-  document->pick(vm::ray3d{rayOrigin, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{rayOrigin, vm::vec3d{1, 0, 0}}, pickResult);
 
   auto hits = pickResult.all();
   CHECK(hits.size() == 1u);
@@ -97,7 +97,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleEntity")
   CHECK(hits.front().distance() == vm::approx{32.0 - bounds.size().x() / 2.0});
 
   pickResult.clear();
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::neg_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{-1, 0, 0}}, pickResult);
   CHECK(pickResult.all().empty());
 }
 
@@ -126,7 +126,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
   auto* group = document->groupSelection("test");
 
   auto pickResult = Model::PickResult{};
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
 
   // picking a grouped object when the containing group is closed should return the
   // object, which is converted to the group when hitsToNodesWithGroupPicking() is used.
@@ -136,7 +136,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
   const auto& brush1 = brushNode1->brush();
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
 
   CHECK_THAT(
@@ -144,7 +144,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
 
   // hitting both objects in the group should return the group only once
   pickResult.clear();
-  document->pick(vm::ray3d{vm::vec3d{32, 32, -32}, vm::vec3d::pos_z()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{32, 32, -32}, vm::vec3d{0, 0, 1}}, pickResult);
 
   hits = pickResult.all(type(Model::BrushNode::BrushHitType));
   CHECK(hits.size() == 2u);
@@ -154,7 +154,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
 
   // hitting the group bounds doesn't count as a hit
   pickResult.clear();
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 96}, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 96}, vm::vec3d{1, 0, 0}}, pickResult);
 
   hits = pickResult.all(type(Model::BrushNode::BrushHitType));
   CHECK(hits.empty());
@@ -164,14 +164,14 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
   document->openGroup(group);
 
   pickResult.clear();
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
 
   hits = pickResult.all(type(Model::BrushNode::BrushHitType));
   CHECK(hits.size() == 1u);
 
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
 
   CHECK_THAT(
@@ -213,8 +213,8 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   document->selectAllNodes();
   auto* outerGroup = document->groupSelection("outer");
 
-  const vm::ray3d highRay(vm::vec3d{-32, 0, 256 + 32}, vm::vec3d::pos_x());
-  const vm::ray3d lowRay(vm::vec3d{-32, 0, +32}, vm::vec3d::pos_x());
+  const vm::ray3d highRay(vm::vec3d{-32, 0, 256 + 32}, vm::vec3d{1, 0, 0});
+  const vm::ray3d lowRay(vm::vec3d{-32, 0, +32}, vm::vec3d{1, 0, 0});
 
   /*
    *          Z
@@ -275,7 +275,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   const auto& brush3 = brushNode3->brush();
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush3.face(*brush3.findFace(vm::vec3d::neg_x())));
+    == brush3.face(*brush3.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
 
   CHECK_THAT(
@@ -293,7 +293,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
   const auto& brush1 = brushNode1->brush();
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
@@ -325,7 +325,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
 
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush3.face(*brush3.findFace(vm::vec3d::neg_x())));
+    == brush3.face(*brush3.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
@@ -340,7 +340,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
 
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
   CHECK_THAT(
     hitsToNodesWithGroupPicking(hits),
@@ -374,7 +374,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
   auto pickResult = Model::PickResult{};
 
   // picking entity brushes should only return the brushes and not the entity
-  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d::pos_x()}, pickResult);
+  document->pick(vm::ray3d{vm::vec3d{-32, 0, 0}, vm::vec3d{1, 0, 0}}, pickResult);
 
   auto hits = pickResult.all();
   CHECK(hits.size() == 1u);
@@ -382,7 +382,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
   const auto& brush1 = brushNode1->brush();
   CHECK(
     Model::hitToFaceHandle(hits.front())->face()
-    == brush1.face(*brush1.findFace(vm::vec3d::neg_x())));
+    == brush1.face(*brush1.findFace(vm::vec3d{-1, 0, 0})));
   CHECK(hits.front().distance() == vm::approx{32.0});
 }
 

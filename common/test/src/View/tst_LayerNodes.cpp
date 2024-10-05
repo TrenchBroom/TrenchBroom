@@ -83,7 +83,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -110,7 +110,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer")
   document->addNodes({{document->world(), {layerNode2}}});
 
   document->setCurrentLayer(layerNode1);
-  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1);
 
@@ -139,7 +139,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
   document->setCurrentLayer(layerNode1);
 
   // Create an entity in layer1
-  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
@@ -155,7 +155,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
 
   // Create another entity in layer1. It will be visible, while entity1 will still be
   // hidden.
-  auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
@@ -212,7 +212,7 @@ TEST_CASE_METHOD(
   document->hideLayers({layerNode1});
 
   // Create entity1 and brush1 in the hidden layer1
-  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   auto* brush1 = createBrushNode();
   document->addNodes({{document->parentForNodes(), {brush1}}});
 
@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   document->setCurrentLayer(layerNode1);
 
   // Create an entity in layer1
-  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity1 = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
@@ -273,7 +273,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
 
   // Create another entity in layer1. It will be unlocked, while entity1 will still be
   // locked (inherited).
-  auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3d::zero());
+  auto* entity2 = document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 

@@ -51,12 +51,12 @@ void PointGuideRenderer::setPosition(const vm::vec3d& position)
     m_spikeRenderer.clear();
 
     auto document = kdl::mem_lock(m_document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_x()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_x()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_y()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_y()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::pos_z()), SpikeLength, document);
-    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d::neg_z()), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{1, 0, 0}), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{-1, 0, 0}), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 1, 0}), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, -1, 0}), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 0, 1}), SpikeLength, document);
+    m_spikeRenderer.add(vm::ray3d(position, vm::vec3d{0, 0, -1}), SpikeLength, document);
 
     m_position = position;
   }

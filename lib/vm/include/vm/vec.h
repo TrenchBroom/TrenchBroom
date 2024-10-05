@@ -308,64 +308,6 @@ public:
 
 public:
   /**
-   * Returns a vector with the first component set to 1 and all other components set to 0.
-   */
-  static constexpr vec<T, S> pos_x()
-  {
-    constexpr auto result = axis(0);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the second component set to 1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> pos_y()
-  {
-    constexpr auto result = axis(1);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the third component set to 1 and all other components set to 0.
-   */
-  static constexpr vec<T, S> pos_z()
-  {
-    constexpr auto result = axis(2);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the first component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_x()
-  {
-    constexpr auto result = -axis(0);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the second component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_y()
-  {
-    constexpr auto result = -axis(1);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the third component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_z()
-  {
-    constexpr auto result = -axis(2);
-    return result;
-  }
-
-  /**
    * Returns a vector with all components set to 0.
    */
   static constexpr vec<T, S> zero()

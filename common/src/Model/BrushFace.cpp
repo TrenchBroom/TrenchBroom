@@ -282,7 +282,7 @@ void BrushFace::copyUVCoordSystemFromFace(
   // Get the UV coords at the refPoint using the source face's attributes and tex coord
   // system
   const auto desriedCoords =
-    m_uvCoordSystem->uvCoords(refPoint, attributes, vm::vec2f::one());
+    m_uvCoordSystem->uvCoords(refPoint, attributes, vm::vec2f{1, 1});
 
   m_uvCoordSystem->setNormal(
     sourceFacePlane.normal, m_boundary.normal, m_attributes, wrapStyle);
@@ -290,7 +290,7 @@ void BrushFace::copyUVCoordSystemFromFace(
   // Adjust the offset on this face so that the UV coordinates at the refPoint stay
   // the same
   const auto currentCoords =
-    m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+    m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
   const auto offsetChange = desriedCoords - currentCoords;
   m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
 }
@@ -586,7 +586,7 @@ void BrushFace::flipUV(
   const vm::direction cameraRelativeFlipDirection)
 {
   const vm::mat4x4d texToWorld =
-    m_uvCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one());
+    m_uvCoordSystem->fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1});
 
   const vm::vec3d texUAxisInWorld =
     vm::normalize((texToWorld * vm::vec4d(1, 0, 0, 0)).xyz());
@@ -686,7 +686,7 @@ Result<void> BrushFace::updatePointsFromVertices()
                // Get the UV coordinates at the refPoint using the old face's attribs
                // and UV coordinage system
                const auto desriedCoords =
-                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
 
                m_uvCoordSystem->setNormal(
                  oldPlane.normal, m_boundary.normal, m_attributes, WrapStyle::Projection);
@@ -694,7 +694,7 @@ Result<void> BrushFace::updatePointsFromVertices()
                // Adjust the offset on this face so that the UV coordinates at the
                // refPoint stay the same
                const auto currentCoords =
-                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+                 m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
                const auto offsetChange = desriedCoords - currentCoords;
                m_attributes.setOffset(
                  correct(modOffset(m_attributes.offset() + offsetChange), 4));
@@ -705,7 +705,7 @@ Result<void> BrushFace::updatePointsFromVertices()
 vm::mat4x4d BrushFace::projectToBoundaryMatrix() const
 {
   const auto texZAxis =
-    m_uvCoordSystem->fromMatrix(vm::vec2f::zero(), vm::vec2f::one()) * vm::vec3d::pos_z();
+    m_uvCoordSystem->fromMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}) * vm::vec3d{0, 0, 1};
   const auto worldToPlaneMatrix =
     vm::plane_projection_matrix(m_boundary.distance, m_boundary.normal, texZAxis);
   const auto planeToWorldMatrix = vm::invert(worldToPlaneMatrix);

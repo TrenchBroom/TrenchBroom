@@ -153,64 +153,64 @@ TEST_CASE("mat.zero")
 TEST_CASE("mat.rotate_x_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_x_cw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_z()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, -1, 0}));
 }
 
 TEST_CASE("mat.rotate_y_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_y_cw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::pos_z()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, 1, 0}));
 }
 
 TEST_CASE("mat.rotate_z_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_z_cw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::pos_x()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{1, 0, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_x_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_x_ccw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::pos_z()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, 1, 0}));
 }
 
 TEST_CASE("mat.rotate_y_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_y_ccw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::neg_z()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, -1, 0}));
 }
 
 TEST_CASE("mat.rotate_z_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_z_ccw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::pos_y()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 1, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_x_180")
 {
   constexpr auto m = mat4x4d::rot_180_x();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_y()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, -1, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_y_180")
 {
   constexpr auto m = mat4x4d::rot_180_y();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::neg_x()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{-1, 0, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_z_180")
 {
   constexpr auto m = mat4x4d::rot_180_z();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_y()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, -1, 0, 0}));
 }
 
 TEST_CASE("mat.mirror_x")

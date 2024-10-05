@@ -107,7 +107,7 @@ void DefaultMaterialRenderFunc::after(const Assets::Material* material)
 std::vector<vm::vec2f> circle2D(const float radius, const size_t segments)
 {
   auto vertices = circle2D(radius, 0.0f, vm::Cf::two_pi(), segments);
-  vertices.push_back(vm::vec2f::zero());
+  vertices.push_back(vm::vec2f{0, 0});
   return vertices;
 }
 
@@ -194,25 +194,25 @@ std::pair<float, float> startAngleAndLength(
   switch (axis)
   {
   case vm::axis::x:
-    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_y(), vm::vec3f::pos_x());
-    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_y(), vm::vec3f::pos_x());
+    angle1 = vm::measure_angle(startAxis, vm::vec3f{0, 1, 0}, vm::vec3f{1, 0, 0});
+    angle2 = vm::measure_angle(endAxis, vm::vec3f{0, 1, 0}, vm::vec3f{1, 0, 0});
     angleLength = vm::min(
-      vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_x()),
-      vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_x()));
+      vm::measure_angle(startAxis, endAxis, vm::vec3f{1, 0, 0}),
+      vm::measure_angle(endAxis, startAxis, vm::vec3f{1, 0, 0}));
     break;
   case vm::axis::y:
-    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_z(), vm::vec3f::pos_y());
-    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_z(), vm::vec3f::pos_y());
+    angle1 = vm::measure_angle(startAxis, vm::vec3f{0, 0, 1}, vm::vec3f{0, 1, 0});
+    angle2 = vm::measure_angle(endAxis, vm::vec3f{0, 0, 1}, vm::vec3f{0, 1, 0});
     angleLength = vm::min(
-      vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_y()),
-      vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_y()));
+      vm::measure_angle(startAxis, endAxis, vm::vec3f{0, 1, 0}),
+      vm::measure_angle(endAxis, startAxis, vm::vec3f{0, 1, 0}));
     break;
   default:
-    angle1 = vm::measure_angle(startAxis, vm::vec3f::pos_x(), vm::vec3f::pos_z());
-    angle2 = vm::measure_angle(endAxis, vm::vec3f::pos_x(), vm::vec3f::pos_z());
+    angle1 = vm::measure_angle(startAxis, vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
+    angle2 = vm::measure_angle(endAxis, vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
     angleLength = vm::min(
-      vm::measure_angle(startAxis, endAxis, vm::vec3f::pos_z()),
-      vm::measure_angle(endAxis, startAxis, vm::vec3f::pos_z()));
+      vm::measure_angle(startAxis, endAxis, vm::vec3f{0, 0, 1}),
+      vm::measure_angle(endAxis, startAxis, vm::vec3f{0, 0, 1}));
     break;
   }
 
@@ -366,7 +366,7 @@ VertsAndNormals circle3D(const float radius, const size_t segments)
   for (size_t i = 0; i < segments; i++)
   {
     vertices.emplace_back(radius * std::sin(a), radius * std::cos(a), 0.0f);
-    normals.push_back(vm::vec3f::pos_z());
+    normals.push_back(vm::vec3f{0, 0, 1});
 
     a += d;
   }

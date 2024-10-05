@@ -62,7 +62,7 @@ const vm::vec3f& PointTrace::currentPoint() const
 
 const vm::vec3f PointTrace::currentDirection() const
 {
-  return m_points.size() <= 1 ? vm::vec3f::pos_x()
+  return m_points.size() <= 1 ? vm::vec3f{1, 0, 0}
          : m_current >= m_points.size() - 1
            ? vm::normalize(m_points[m_points.size() - 1] - m_points[m_points.size() - 2])
            : vm::normalize(m_points[m_current + 1] - m_points[m_current]);

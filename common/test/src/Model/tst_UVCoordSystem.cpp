@@ -36,10 +36,10 @@ TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 {
   BrushFaceAttributes attribs("");
 
-  ParaxialUVCoordSystem paraxial(vm::vec3d::pos_z(), attribs);
+  ParaxialUVCoordSystem paraxial(vm::vec3d{0, 0, 1}, attribs);
   CHECK(paraxial.takeSnapshot() == nullptr);
 
-  ParallelUVCoordSystem parallel(vm::vec3d::pos_y(), vm::vec3d::pos_x());
+  ParallelUVCoordSystem parallel(vm::vec3d{0, 1, 0}, vm::vec3d{1, 0, 0});
   auto parallelSnapshot = parallel.takeSnapshot();
   CHECK(parallelSnapshot != nullptr);
 

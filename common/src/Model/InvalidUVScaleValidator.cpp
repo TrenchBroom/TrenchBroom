@@ -57,7 +57,7 @@ IssueQuickFix makeResetUVScaleQuickFix()
       }
 
       auto request = ChangeBrushFaceAttributesRequest{};
-      request.setScale(vm::vec2f::one());
+      request.setScale(vm::vec2f{1, 1});
 
       facade.deselectAll();
       facade.selectBrushFaces(faceHandles);

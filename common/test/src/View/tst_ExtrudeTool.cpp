@@ -318,14 +318,14 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     kdl::vec_transform(
       tool.proposedDragHandles(),
       [](const auto& h) { return h.faceAtDragStart().normal(); })
-    == std::vector<vm::vec3d>{vm::vec3d::pos_y(), vm::vec3d::pos_y()});
+    == std::vector<vm::vec3d>{vm::vec3d{0, 1, 0}, vm::vec3d{0, 1, 0}});
 
   const auto hit = pickResult.first(type(ExtrudeTool::ExtrudeHitType));
   auto dragState = ExtrudeDragState{
     tool.proposedDragHandles(),
     ExtrudeTool::getDragFaces(tool.proposedDragHandles()),
     false,
-    vm::vec3d::zero()};
+    vm::vec3d{0, 0, 0}};
 
   SECTION("split brushes inwards 32 units towards -Y")
   {

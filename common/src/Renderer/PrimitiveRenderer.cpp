@@ -345,7 +345,7 @@ void PrimitiveRenderer::renderCylinder(
   const auto dir = vec / len;
 
   const auto translation = vm::translation_matrix(start);
-  const auto rotation = vm::rotation_matrix(vm::vec3f::pos_z(), dir);
+  const auto rotation = vm::rotation_matrix(vm::vec3f{0, 0, 1}, dir);
   const auto transform = translation * rotation;
 
   const auto cylinder = Renderer::cylinder(radius, len, segments);

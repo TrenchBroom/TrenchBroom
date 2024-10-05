@@ -257,7 +257,7 @@ void TextRenderer::doRender(RenderContext& renderContext)
     static_cast<float>(viewport.height),
     static_cast<float>(viewport.width),
     static_cast<float>(viewport.y));
-  const auto view = vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y());
+  const auto view = vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
   auto ortho = ReplaceTransformation{renderContext.transformation(), projection, view};
 
   render(m_entries, renderContext);

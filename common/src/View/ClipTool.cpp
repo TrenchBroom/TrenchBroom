@@ -196,11 +196,11 @@ public:
     if (firstIndex % 3 == 2 || nextIndex % 3 == 2)
     {
       // prefer the Z axis if possible:
-      return vm::vec3d::pos_z();
+      return vm::vec3d{0, 0, 1};
     }
 
     // Z axis cannot win, so X and Y axis are a tie, prefer the X axis:
-    return vm::vec3d::pos_x();
+    return vm::vec3d{1, 0, 0};
   }
 
   std::vector<vm::vec3d> combineHelpVectors() const
@@ -432,7 +432,7 @@ public:
   {
   }
 
-  vm::vec3d getHelpVector() const { return vm::vec3d::zero(); }
+  vm::vec3d getHelpVector() const { return vm::vec3d{0, 0, 0}; }
 
   std::optional<vm::vec3d> computeThirdPoint() const override { return std::nullopt; }
 

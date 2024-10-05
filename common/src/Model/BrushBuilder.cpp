@@ -148,38 +148,38 @@ Result<Brush> BrushBuilder::createCuboid(
   return std::vector{
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3d::pos_y(),
-             bounds.min + vm::vec3d::pos_z(),
+             bounds.min + vm::vec3d{0, 1, 0},
+             bounds.min + vm::vec3d{0, 0, 1},
              {leftMaterial, m_defaultAttribs},
              m_mapFormat), // left
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3d::pos_z(),
-             bounds.max + vm::vec3d::pos_y(),
+             bounds.max + vm::vec3d{0, 0, 1},
+             bounds.max + vm::vec3d{0, 1, 0},
              {rightMaterial, m_defaultAttribs},
              m_mapFormat), // right
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3d::pos_z(),
-             bounds.min + vm::vec3d::pos_x(),
+             bounds.min + vm::vec3d{0, 0, 1},
+             bounds.min + vm::vec3d{1, 0, 0},
              {frontMaterial, m_defaultAttribs},
              m_mapFormat), // front
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3d::pos_x(),
-             bounds.max + vm::vec3d::pos_z(),
+             bounds.max + vm::vec3d{1, 0, 0},
+             bounds.max + vm::vec3d{0, 0, 1},
              {backMaterial, m_defaultAttribs},
              m_mapFormat), // back
            BrushFace::create(
              bounds.max,
-             bounds.max + vm::vec3d::pos_y(),
-             bounds.max + vm::vec3d::pos_x(),
+             bounds.max + vm::vec3d{0, 1, 0},
+             bounds.max + vm::vec3d{1, 0, 0},
              {topMaterial, m_defaultAttribs},
              m_mapFormat), // top
            BrushFace::create(
              bounds.min,
-             bounds.min + vm::vec3d::pos_x(),
-             bounds.min + vm::vec3d::pos_y(),
+             bounds.min + vm::vec3d{1, 0, 0},
+             bounds.min + vm::vec3d{0, 1, 0},
              {bottomMaterial, m_defaultAttribs},
              m_mapFormat), // bottom
          }
@@ -249,7 +249,7 @@ Result<Brush> BrushBuilder::createCylinder(
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
+                         * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
 
   const auto cylinder = makeUnitCylinder(numSides, radiusMode);
   const auto vertices =
@@ -351,7 +351,7 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
 {
   ensure(numSides > 2, "cylinder has at least three sides");
 
-  const auto rotation = vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
+  const auto rotation = vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
   const auto rotatedSize = rotation * bounds.size();
 
   const auto outerCircle =
@@ -409,7 +409,7 @@ Result<Brush> BrushBuilder::createCone(
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
-                         * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis));
+                         * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
 
   const auto cone = makeUnitCone(numSides, radiusMode);
   const auto vertices =
@@ -497,7 +497,7 @@ Result<Brush> BrushBuilder::createUVSphere(
                vm::translation_matrix(bounds.min) * vm::scaling_matrix(bounds.size())
                * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
                * vm::translation_matrix(vm::vec3d{1, 1, 1})
-               * vm::rotation_matrix(vm::vec3d::pos_z(), vm::vec3d::axis(axis))
+               * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis))
                * vm::scaling_matrix(vm::vec3d{extraScale, extraScale, 1.0});
              return b.transform(m_worldBounds, transform, false)
                     | kdl::transform([&]() { return std::move(b); });

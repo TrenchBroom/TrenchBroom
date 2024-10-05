@@ -213,7 +213,7 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
     REQUIRE(nodeTree.contains(brushNode));
     REQUIRE(nodeTree.contains(patchNode));
     REQUIRE_THAT(
-      nodeTree.find_containers(vm::vec3d::zero()),
+      nodeTree.find_containers(vm::vec3d{0, 0, 0}),
       Catch::UnorderedEquals(std::vector<Node*>{entityNode, brushNode, patchNode}));
     REQUIRE_THAT(
       nodeTree.find_containers(vm::vec3d{384, 384, 384}),
@@ -230,7 +230,7 @@ TEST_CASE("WorldNodeTest.nodeTreeUpdates")
     CHECK(nodeTree.contains(brushNode));
     CHECK(nodeTree.contains(patchNode));
     CHECK_THAT(
-      nodeTree.find_containers(vm::vec3d::zero()),
+      nodeTree.find_containers(vm::vec3d{0, 0, 0}),
       Catch::UnorderedEquals(std::vector<Node*>{}));
     CHECK_THAT(
       nodeTree.find_containers(vm::vec3d{384, 384, 384}),

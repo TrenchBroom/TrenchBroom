@@ -45,8 +45,8 @@ public:
 private:
   std::string m_materialName;
 
-  vm::vec2f m_offset = vm::vec2f::zero();
-  vm::vec2f m_scale = vm::vec2f::one();
+  vm::vec2f m_offset = vm::vec2f{0, 0};
+  vm::vec2f m_scale = vm::vec2f{1, 1};
   float m_rotation = 0.0f;
 
   std::optional<int> m_surfaceContents;

@@ -89,7 +89,7 @@ public:
       return UpdateDragConfig{
         makeHandlePositionProposer(
           makeLineHandlePicker(
-            vm::line3d{dragState.currentHandlePosition, vm::vec3d::pos_z()},
+            vm::line3d{dragState.currentHandlePosition, vm::vec3d{0, 0, 1}},
             dragState.handleOffset),
           makeIdentityHandleSnapper()),
         ResetInitialHandlePosition::Keep};

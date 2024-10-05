@@ -212,11 +212,11 @@ vm::vec3f FlyModeHelper::moveDelta(const float time)
   }
   if (m_up)
   {
-    delta = delta + vm::vec3f::pos_z() * dist;
+    delta = delta + vm::vec3f{0, 0, 1} * dist;
   }
   if (m_down)
   {
-    delta = delta - vm::vec3f::pos_z() * dist;
+    delta = delta - vm::vec3f{0, 0, 1} * dist;
   }
   return delta;
 }

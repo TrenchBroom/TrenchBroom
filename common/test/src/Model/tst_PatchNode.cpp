@@ -182,11 +182,11 @@ TEST_CASE("PatchNode.pickFlatPatch")
   // clang-format off
   const auto 
   [pickRay,                                        expectedHitPoint  ] = GENERATE(values<T>({
-  {vm::ray3d{vm::vec3d{2, 2,  1}, vm::vec3d::neg_z()}, vm::vec3d{2, 2, 0}},
-  {vm::ray3d{vm::vec3d{2, 2, -1}, vm::vec3d::pos_z()}, vm::vec3d{2, 2, 0}},
-  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d::neg_z()}, vm::vec3d{2, 3, 0}},
-  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d::pos_z()}, std::nullopt     },
-  {vm::ray3d{vm::vec3d{0, -1, 1}, vm::vec3d::neg_z()}, std::nullopt     },
+  {vm::ray3d{vm::vec3d{2, 2,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 2, 0}},
+  {vm::ray3d{vm::vec3d{2, 2, -1}, vm::vec3d{0, 0, 1}}, vm::vec3d{2, 2, 0}},
+  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, -1}}, vm::vec3d{2, 3, 0}},
+  {vm::ray3d{vm::vec3d{2, 3,  1}, vm::vec3d{0, 0, 1}}, std::nullopt     },
+  {vm::ray3d{vm::vec3d{0, -1, 1}, vm::vec3d{0, 0, -1}}, std::nullopt     },
   }));
   // clang-format on
 

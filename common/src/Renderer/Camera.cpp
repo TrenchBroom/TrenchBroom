@@ -159,7 +159,7 @@ const vm::mat4x4f Camera::verticalBillboardMatrix() const
     bbLook[2] = 0.0f;
   }
   bbLook = vm::normalize(bbLook);
-  bbUp = vm::vec3f::pos_z();
+  bbUp = vm::vec3f{0, 0, 1};
   bbRight = vm::cross(bbUp, bbLook);
 
   return vm::mat4x4f(
@@ -384,7 +384,7 @@ void Camera::orbit(const vm::vec3f& center, const float horizontal, const float 
 vm::quatf Camera::clampedRotationFromYawPitch(const float yaw, const float pitch) const
 {
   const auto desiredRotation =
-    vm::quatf{vm::vec3f::pos_z(), yaw} * vm::quatf{m_right, pitch};
+    vm::quatf{vm::vec3f{0, 0, 1}, yaw} * vm::quatf{m_right, pitch};
   return clampRotationToUpright(desiredRotation);
 }
 
@@ -403,7 +403,7 @@ vm::quatf Camera::clampRotationToUpright(const vm::quatf& rotation) const
     auto newUpClamped = vm::normalize(vm::vec3f{newUp.x(), newUp.y(), 0.0f});
     if (vm::is_nan(newUpClamped))
     {
-      newUpClamped = vm::vec3f::pos_x();
+      newUpClamped = vm::vec3f{1, 0, 0};
     }
 
     // how much does newUp need to be rotated to equal newUpClamped?
@@ -459,7 +459,7 @@ std::optional<double> Camera::pickLineSegmentHandle(
 
 Camera::Camera()
 {
-  setDirection(vm::vec3f::pos_x(), vm::vec3f::pos_z());
+  setDirection(vm::vec3f{1, 0, 0}, vm::vec3f{0, 0, 1});
 }
 
 Camera::Camera(

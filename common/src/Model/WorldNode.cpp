@@ -506,12 +506,12 @@ void WorldNode::doPropertiesDidChange(const vm::bbox3d& /* oldBounds */) {}
 
 vm::vec3d WorldNode::doGetLinkSourceAnchor() const
 {
-  return vm::vec3d::zero();
+  return vm::vec3d{0, 0, 0};
 }
 
 vm::vec3d WorldNode::doGetLinkTargetAnchor() const
 {
-  return vm::vec3d::zero();
+  return vm::vec3d{0, 0, 0};
 }
 
 void WorldNode::doAcceptTagVisitor(TagVisitor& visitor)

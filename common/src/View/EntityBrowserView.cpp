@@ -65,8 +65,8 @@ EntityBrowserView::EntityBrowserView(
   , m_document{std::move(i_document)}
   , m_sortOrder{Assets::EntityDefinitionSortOrder::Name}
 {
-  const auto hRotation = vm::quatf{vm::vec3f::pos_z(), vm::to_radians(-30.0f)};
-  const auto vRotation = vm::quatf{vm::vec3f::pos_y(), vm::to_radians(20.0f)};
+  const auto hRotation = vm::quatf{vm::vec3f{0, 0, 1}, vm::to_radians(-30.0f)};
+  const auto vRotation = vm::quatf{vm::vec3f{0, 1, 0}, vm::to_radians(20.0f)};
   m_rotation = vRotation * hRotation;
 
   auto document = kdl::mem_lock(m_document);

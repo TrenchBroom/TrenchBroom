@@ -21,7 +21,7 @@
 
 namespace TrenchBroom::Model
 {
-const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3d::zero(), false);
+const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3d{0, 0, 0}, false);
 
 bool Hit::isMatch() const
 {

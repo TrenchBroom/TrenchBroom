@@ -92,7 +92,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
   const auto toWorld = helper.face()->fromUVCoordSystemMatrix(
     helper.face()->attributes().offset(), helper.face()->attributes().scale(), true);
   const auto toTex =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
 
   return vm::vec2f{
     toTex * toWorld * vm::vec3d{getScaledTranslatedHandlePos(helper, handle)}};
@@ -101,7 +101,7 @@ vm::vec2f getHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
 vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 {
   const auto toTex =
-    helper.face()->toUVCoordSystemMatrix(vm::vec2f::zero(), vm::vec2f::one(), true);
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
 
   const auto vertices = helper.face()->vertices();
   auto distance = std::accumulate(

@@ -397,13 +397,13 @@ auto parseOrigin(const std::string* str)
 {
   if (!str)
   {
-    return vm::vec3d::zero();
+    return vm::vec3d{0, 0, 0};
   }
 
   const auto parsed = vm::parse<double, 3>(*str);
   if (!parsed || vm::is_nan(*parsed))
   {
-    return vm::vec3d::zero();
+    return vm::vec3d{0, 0, 0};
   }
 
   return *parsed;

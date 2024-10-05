@@ -376,7 +376,7 @@ void CellView::renderContents()
 
   const auto transformation = Renderer::Transformation{
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
-    vm::view_matrix(vm::vec3f::neg_z(), vm::vec3f::pos_y())
+    vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0})
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
 
   glAssert(glDisable(GL_DEPTH_TEST));

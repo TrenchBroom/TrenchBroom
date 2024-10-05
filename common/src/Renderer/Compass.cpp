@@ -87,8 +87,8 @@ void Compass::doRender(RenderContext& renderContext)
     viewHeight / 2.0f,
     viewWidth / 2.0f,
     -viewHeight / 2.0f);
-  const auto view = vm::view_matrix(vm::vec3f::pos_y(), vm::vec3f::pos_z())
-                    * vm::translation_matrix(500.0f * vm::vec3f::pos_y());
+  const auto view = vm::view_matrix(vm::vec3f{0, 1, 0}, vm::vec3f{0, 0, 1})
+                    * vm::translation_matrix(500.0f * vm::vec3f{0, 1, 0});
   const auto ortho =
     ReplaceTransformation{renderContext.transformation(), projection, view};
 

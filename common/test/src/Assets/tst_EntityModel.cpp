@@ -70,7 +70,7 @@ TEST_CASE("BSP model intersection test")
         {
           continue;
         }
-        const auto endPoint = vm::vec3f::zero();
+        const auto endPoint = vm::vec3f{0, 0, 0};
         const auto ray = vm::ray3f(startPoint, vm::normalize(endPoint - startPoint));
 
         const auto treeDist = frame.intersect(ray);
@@ -82,7 +82,7 @@ TEST_CASE("BSP model intersection test")
   }
 
   // test a missing ray
-  const auto missRay = vm::ray3f(vm::vec3f(0, -33, -33), vm::vec3f::pos_y());
+  const auto missRay = vm::ray3f(vm::vec3f(0, -33, -33), vm::vec3f{0, 1, 0});
   CHECK(frame.intersect(missRay) == std::nullopt);
   CHECK(vm::intersect_ray_bbox(missRay, box) == std::nullopt);
 }

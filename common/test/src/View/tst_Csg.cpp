@@ -129,13 +129,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto brush1 = builder.createCuboid(
                   vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
                 | kdl::value();
-  brush1.face(*brush1.findFace(vm::vec3d::pos_z()))
+  brush1.face(*brush1.findFace(vm::vec3d{0, 0, 1}))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto brush2 = builder.createCuboid(
                   vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
                 | kdl::value();
-  brush2.face(*brush2.findFace(vm::vec3d::pos_z()))
+  brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
@@ -152,7 +152,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   auto* brushNode3 = static_cast<Model::BrushNode*>(entityNode->children()[0]);
   const auto& brush3 = brushNode3->brush();
 
-  const auto& top = brush3.face(*brush3.findFace(vm::vec3d::pos_z()));
+  const auto& top = brush3.face(*brush3.findFace(vm::vec3d{0, 0, 1}));
   CHECK(top.uAxis() == vm::vec3d{1, 0, 0});
   CHECK(top.vAxis() == vm::vec3d{0, 1, 0});
 }
@@ -175,7 +175,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   auto brush2 = builder.createCuboid(
                   vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 32}}, "material")
                 | kdl::value();
-  brush2.face(*brush2.findFace(vm::vec3d::pos_z()))
+  brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
   auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
@@ -199,7 +199,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
 
   // the material alignment from the top of brush2 should have transferred
   // to the bottom face of brush3
-  const auto& top = brush3.face(*brush3.findFace(vm::vec3d::neg_z()));
+  const auto& top = brush3.face(*brush3.findFace(vm::vec3d{0, 0, -1}));
   CHECK(top.uAxis() == vm::vec3d{1, 0, 0});
   CHECK(top.vAxis() == vm::vec3d{0, 1, 0});
 }

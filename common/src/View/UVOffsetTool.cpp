@@ -49,7 +49,7 @@ vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
     vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
       const auto hitPoint = vm::point_at_distance(ray, distance);
       const auto transform = helper.face()->toUVCoordSystemMatrix(
-        vm::vec2f::zero(), helper.face()->attributes().scale(), true);
+        vm::vec2f{0, 0}, helper.face()->attributes().scale(), true);
       return vm::vec2f{transform * hitPoint};
     });
 }

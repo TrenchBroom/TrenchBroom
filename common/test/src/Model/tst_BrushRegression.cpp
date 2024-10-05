@@ -586,7 +586,7 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
   const vm::vec3d p(192.0, 128.0, 352.0);
 
   auto oldVertexPositions = std::vector<vm::vec3d>({p});
-  auto delta = 4.0 * 16.0 * vm::vec3d::neg_y();
+  auto delta = 4.0 * 16.0 * vm::vec3d{0, -1, 0};
   CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
   auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
 

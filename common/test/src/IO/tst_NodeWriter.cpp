@@ -176,7 +176,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 
   // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
   {
-    auto index = brush1.findFace(vm::vec3d::pos_z());
+    auto index = brush1.findFace(vm::vec3d{0, 0, 1});
     REQUIRE(index);
 
     auto& face = brush1.face(*index);
@@ -189,7 +189,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
   }
   // set -Z face to e1u1/brlava with contents 8, flags 9, value 700
   {
-    auto index = brush1.findFace(vm::vec3d::neg_z());
+    auto index = brush1.findFace(vm::vec3d{0, 0, -1});
     REQUIRE(index);
 
     auto& face = brush1.face(*index);

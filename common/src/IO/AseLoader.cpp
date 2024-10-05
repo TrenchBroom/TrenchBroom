@@ -725,11 +725,11 @@ Result<Assets::EntityModelData> AseLoader::buildModelData(
       const auto v2 = mesh.vertices[fv2.vertexIndex];
 
       const auto uv0 =
-        fv0.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv0.uvIndex];
+        fv0.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f{0, 0} : mesh.uv[fv0.uvIndex];
       const auto uv1 =
-        fv1.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv1.uvIndex];
+        fv1.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f{0, 0} : mesh.uv[fv1.uvIndex];
       const auto uv2 =
-        fv2.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f::zero() : mesh.uv[fv2.uvIndex];
+        fv2.uvIndex == 0u && mesh.uv.empty() ? vm::vec2f{0, 0} : mesh.uv[fv2.uvIndex];
 
       builder.addTriangle(material, Vertex{v2, uv2}, Vertex{v1, uv1}, Vertex{v0, uv0});
     }

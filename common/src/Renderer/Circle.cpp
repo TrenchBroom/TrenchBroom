@@ -109,7 +109,7 @@ void Circle::init2D(
   auto positions = circle2D(radius, startAngle, angleLength, segments);
   if (m_filled)
   {
-    positions.push_back(vm::vec2f::zero());
+    positions.push_back(vm::vec2f{0, 0});
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
@@ -126,7 +126,7 @@ void Circle::init3D(
   auto positions = circle2D(radius, axis, startAngle, angleLength, segments);
   if (m_filled)
   {
-    positions.emplace_back(vm::vec3f::zero());
+    positions.emplace_back(vm::vec3f{0, 0, 0});
   }
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
