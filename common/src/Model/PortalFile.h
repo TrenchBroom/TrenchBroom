@@ -21,7 +21,7 @@
 
 #include "Result.h"
 
-#include "vm/forward.h"
+#include "vm/polygon.h"
 
 #include <filesystem>
 #include <iosfwd>

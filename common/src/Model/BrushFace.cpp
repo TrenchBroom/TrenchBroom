@@ -36,12 +36,9 @@
 #include "vm/bbox.h"
 #include "vm/intersection.h"
 #include "vm/mat.h"
-#include "vm/plane.h"
 #include "vm/plane_io.h" // IWYU pragma: keep
-#include "vm/polygon.h"
 #include "vm/scalar.h"
 #include "vm/util.h"
-#include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <string>

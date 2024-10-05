@@ -20,9 +20,10 @@
 #pragma once
 
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/bbox.h"
+#include "vm/plane.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 namespace TrenchBroom::Renderer
 {

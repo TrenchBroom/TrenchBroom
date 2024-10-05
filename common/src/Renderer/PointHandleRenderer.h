@@ -23,8 +23,6 @@
 #include "Renderer/Circle.h"
 #include "Renderer/Renderable.h"
 
-#include "vm/forward.h"
-
 #include <map>
 
 namespace TrenchBroom::Renderer

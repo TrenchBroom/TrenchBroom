@@ -24,7 +24,6 @@
 #include "kdl/range_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/forward.h"
 #include "vm/plane.h"
 #include "vm/ray.h"
 #include "vm/scalar.h"

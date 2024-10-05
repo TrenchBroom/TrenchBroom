@@ -74,7 +74,7 @@
 #ifdef _WIN32
 #endif
 
-#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/mat.h"
 #include "vm/mat_ext.h"
 
 namespace TrenchBroom::View

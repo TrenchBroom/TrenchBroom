@@ -27,7 +27,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/bbox.h"
 #include "vm/vec.h"
 
 namespace TrenchBroom::Renderer

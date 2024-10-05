@@ -209,4 +209,8 @@ constexpr bool operator!=(const ray<T, S>& lhs, const ray<T, S>& rhs)
 {
   return lhs.origin != rhs.origin || lhs.direction != rhs.direction;
 }
+
+using ray3f = ray<float, 3>;
+using ray3d = ray<double, 3>;
+
 } // namespace vm

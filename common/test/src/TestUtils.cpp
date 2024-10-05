@@ -41,9 +41,9 @@
 
 #include "kdl/result.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 #include "vm/scalar.h"
-#include "vm/segment.h" // IWYU pragma: keep
+#include "vm/segment.h"
 
 #include <string>
 

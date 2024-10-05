@@ -23,6 +23,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
+#include "vm/bbox.h"
+
 #include <vector>
 
 namespace TrenchBroom::Renderer

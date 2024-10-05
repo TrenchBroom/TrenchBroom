@@ -19,7 +19,6 @@
 */
 
 #include "vm/bezier_surface.h"
-#include "vm/forward.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 

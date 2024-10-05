@@ -23,7 +23,8 @@
 #include "NotifierConnection.h"
 #include "View/Tool.h"
 
-#include "vm/forward.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include <map>
 #include <memory>

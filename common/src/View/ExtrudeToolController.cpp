@@ -38,7 +38,7 @@
 #include "View/InputState.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
-#include "vm/plane.h"    // IWYU pragma: keep
+#include "vm/plane.h"
 #include "vm/scalar.h"
 
 namespace TrenchBroom::View

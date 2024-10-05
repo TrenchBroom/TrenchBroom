@@ -24,8 +24,8 @@
 #include "kdl/intrusive_circular_list.h"
 
 #include "vm/bbox.h"
-#include "vm/forward.h"
 #include "vm/plane.h"
+#include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/util.h"
 #include "vm/vec.h"

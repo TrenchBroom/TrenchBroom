@@ -22,7 +22,6 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/quat.h"
 #include "vm/vec.h"

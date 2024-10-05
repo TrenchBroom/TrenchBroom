@@ -20,8 +20,7 @@
 #pragma once
 
 
-#include "vm/forward.h"
-#include "vm/ray.h" // IWYU pragma: keep
+#include "vm/ray.h"
 
 namespace TrenchBroom::Renderer
 {

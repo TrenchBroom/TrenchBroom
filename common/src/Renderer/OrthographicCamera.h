@@ -21,8 +21,7 @@
 
 #include "Renderer/Camera.h"
 
-#include "vm/forward.h"
-#include "vm/ray.h" // IWYU pragma: keep
+#include "vm/ray.h"
 
 #include <vector>
 

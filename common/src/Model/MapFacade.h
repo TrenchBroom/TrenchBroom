@@ -22,8 +22,11 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/EntityColor.h"
 
-#include "vm/forward.h"
+#include "vm/bbox.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 #include "vm/util.h"
+#include "vm/vec.h"
 
 #include <map>
 #include <memory>

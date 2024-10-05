@@ -31,7 +31,7 @@
 #include "kdl/result_fold.h"
 
 #include "vm/approx.h"
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 

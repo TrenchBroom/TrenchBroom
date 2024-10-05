@@ -24,8 +24,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
-
 #include <atomic>
 #include <filesystem>
 #include <memory>

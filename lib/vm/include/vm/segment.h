@@ -378,4 +378,10 @@ constexpr segment<T, S> translate(const segment<T, S>& s, const vec<T, S>& offse
 {
   return s.translate(offset);
 }
+
+using segment3d = segment<double, 3>;
+using segment3f = segment<float, 3>;
+using segment2d = segment<double, 2>;
+using segment2f = segment<float, 2>;
+
 } // namespace vm

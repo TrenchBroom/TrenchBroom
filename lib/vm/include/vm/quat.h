@@ -319,4 +319,8 @@ constexpr vec<T, 3> operator*(const quat<T>& lhs, const vec<T, 3>& rhs)
 {
   return (lhs * quat<T>(T(0.0), rhs) * lhs.conjugate()).v;
 }
+
+using quatf = quat<float>;
+using quatd = quat<double>;
+
 } // namespace vm

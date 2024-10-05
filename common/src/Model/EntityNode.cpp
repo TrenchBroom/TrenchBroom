@@ -33,7 +33,6 @@
 #include "kdl/overload.h"
 
 #include "vm/bbox.h"
-#include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/util.h"

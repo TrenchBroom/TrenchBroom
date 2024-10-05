@@ -28,8 +28,8 @@
 
 #include "kdl/string_utils.h"
 
-#include "vm/line.h"  // IWYU pragma: keep
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/line.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <array>

@@ -22,8 +22,7 @@
 #include "Model/BrushFaceHandle.h"
 #include "Result.h"
 
-#include "vm/forward.h"
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/plane.h"
 
 #include <vector>
 

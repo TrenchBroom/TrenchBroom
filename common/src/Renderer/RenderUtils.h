@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "vm/forward.h"
+#include "vm/bbox.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 

@@ -23,9 +23,10 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
-#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/mat.h"
+#include "vm/plane.h"
 #include "vm/ray.h"
+#include "vm/segment.h"
 #include "vm/vec.h"
 
 #include <optional>

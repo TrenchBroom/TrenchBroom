@@ -21,8 +21,6 @@
 
 #include "Ensure.h"
 
-#include "vm/vec.h"
-
 #include <FreeImage.h>
 #include <algorithm>
 #include <iostream>

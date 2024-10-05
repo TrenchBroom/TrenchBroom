@@ -21,7 +21,6 @@
 
 #include "Renderer/Camera.h"
 
-#include "vm/forward.h"
 
 namespace TrenchBroom::Renderer
 {

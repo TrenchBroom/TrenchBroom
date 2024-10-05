@@ -20,7 +20,6 @@
 */
 
 #include "vm/convex_hull.h"
-#include "vm/forward.h"
 #include "vm/vec.h"
 
 #include <vector>

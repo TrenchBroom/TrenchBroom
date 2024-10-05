@@ -21,7 +21,7 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/ray.h" // IWYU pragma: keep
+#include "vm/ray.h"
 #include "vm/vec.h"
 
 #include <utility>

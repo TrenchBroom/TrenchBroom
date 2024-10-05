@@ -27,9 +27,10 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/line.h"  // IWYU pragma: keep
-#include "vm/plane.h" // IWYU pragma: keep
-#include "vm/vec.h"   // IWYU pragma: keep
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <variant>

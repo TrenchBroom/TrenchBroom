@@ -29,7 +29,7 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 #include "vm/vec_io.h"
 
 namespace TrenchBroom::View

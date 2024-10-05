@@ -29,7 +29,6 @@
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"

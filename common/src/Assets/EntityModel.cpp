@@ -30,7 +30,6 @@
 
 #include "vm/bbox.h"
 #include "vm/bbox_io.h" // IWYU pragma: keep
-#include "vm/forward.h"
 #include "vm/intersection.h"
 
 #include <fmt/format.h>

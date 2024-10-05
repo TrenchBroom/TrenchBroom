@@ -27,6 +27,8 @@
 #include "Model/Object.h"
 #include "Model/TagType.h"
 
+#include "vm/ray.h"
+
 #include <memory>
 #include <optional>
 #include <string>

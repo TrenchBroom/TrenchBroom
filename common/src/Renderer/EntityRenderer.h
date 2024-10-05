@@ -27,8 +27,6 @@
 
 #include "kdl/vector_set.h"
 
-#include "vm/forward.h"
-
 #include <vector>
 
 namespace TrenchBroom

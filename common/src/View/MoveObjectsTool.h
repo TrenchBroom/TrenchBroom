@@ -21,7 +21,7 @@
 
 #include "View/Tool.h"
 
-#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <memory>
 

@@ -24,7 +24,12 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
+#include "vm/bbox.h"
+#include "vm/mat.h"
+#include "vm/plane.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>

@@ -33,7 +33,6 @@
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
 
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"

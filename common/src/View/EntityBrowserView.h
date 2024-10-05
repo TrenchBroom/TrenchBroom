@@ -25,8 +25,7 @@
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 #include "vm/quat.h" // IWYU pragma: keep
 
 #include <optional>

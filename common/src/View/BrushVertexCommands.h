@@ -22,9 +22,9 @@
 #include "Macros.h"
 #include "View/SwapNodeContentsCommand.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/segment.h" // IWYU pragma: keep
-#include "vm/vec.h"     // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <vector>

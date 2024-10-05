@@ -32,7 +32,7 @@
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/plane.h"
 #include "vm/quat.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 

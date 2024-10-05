@@ -31,8 +31,6 @@
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
-#include "vm/forward.h"
-
 #include <functional>
 #include <string>
 

@@ -21,7 +21,7 @@
 
 #include "Model/MapFormat.h"
 
-#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <cassert>
 #include <string>

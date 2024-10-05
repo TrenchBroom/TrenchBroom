@@ -21,7 +21,7 @@
 
 #include "View/VertexToolBase.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 
 #include <memory>
 #include <string>

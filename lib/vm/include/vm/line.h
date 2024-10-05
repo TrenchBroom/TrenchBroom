@@ -204,4 +204,10 @@ constexpr bool operator!=(const line<T, S>& lhs, const line<T, S>& rhs)
   const auto rhsC = rhs.make_canonical();
   return lhsC.point != rhsC.point || lhsC.direction != rhsC.direction;
 }
+
+using line3f = line<float, 3>;
+using line3d = line<double, 3>;
+using line2f = line<float, 2>;
+using line2d = line<double, 2>;
+
 } // namespace vm

@@ -28,9 +28,11 @@
 #include "kdl/reflection_decl.h"
 #include "kdl/transform_range.h"
 
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/plane.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
 #include "vm/util.h"
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include <array>
 #include <memory>

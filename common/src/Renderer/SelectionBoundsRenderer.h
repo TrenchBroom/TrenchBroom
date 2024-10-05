@@ -20,8 +20,7 @@
 #pragma once
 
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 namespace TrenchBroom::Renderer
 {

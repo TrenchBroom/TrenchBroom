@@ -22,7 +22,6 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/line.h"
 #include "vm/line_io.h"
 #include "vm/mat.h"

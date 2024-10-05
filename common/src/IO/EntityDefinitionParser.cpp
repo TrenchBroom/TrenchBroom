@@ -27,8 +27,6 @@
 #include "Macros.h"
 #include "Model/EntityProperties.h"
 
-#include "vm/forward.h"
-
 #include <unordered_map>
 #include <unordered_set>
 

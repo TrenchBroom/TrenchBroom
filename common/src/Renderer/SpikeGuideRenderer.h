@@ -24,6 +24,8 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
+#include "vm/ray.h"
+
 #include <memory>
 #include <vector>
 

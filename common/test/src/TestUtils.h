@@ -24,6 +24,9 @@
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
 
+#include "vm/polygon.h"
+#include "vm/segment.h"
+
 #include <filesystem>
 #include <memory>
 #include <string>

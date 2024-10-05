@@ -27,8 +27,8 @@
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/segment.h" // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 namespace TrenchBroom::View
 {

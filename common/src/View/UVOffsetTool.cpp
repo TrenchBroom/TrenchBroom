@@ -31,7 +31,6 @@
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
 
-#include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/mat.h"
 #include "vm/vec.h"

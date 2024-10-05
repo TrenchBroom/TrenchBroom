@@ -119,7 +119,7 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 #include "vm/util.h"
 #include "vm/vec.h"
 #include "vm/vec_io.h"

@@ -24,10 +24,10 @@
 #include "Model/HitType.h"
 #include "View/Tool.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/vec.h"     // IWYU pragma: keep
+#include "vm/bbox.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>

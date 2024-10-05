@@ -23,8 +23,7 @@
 #include "Assets/ModelDefinition.h"
 #include "Color.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 #include <atomic>
 #include <memory>

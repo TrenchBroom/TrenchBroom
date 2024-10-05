@@ -22,7 +22,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/vec.h"
 

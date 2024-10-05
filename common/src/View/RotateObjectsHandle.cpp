@@ -29,10 +29,8 @@
 #include "Renderer/RenderService.h"
 
 #include "vm/intersection.h"
-#include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/scalar.h"
-#include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>

@@ -18,7 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "vm/forward.h"
 #include "vm/mat_io.h"
 
 #include <sstream>

@@ -510,4 +510,8 @@ constexpr plane<T, 3> aligned_orthogonal_plane(
 {
   return plane<T, 3>(position, get_abs_max_component_axis(direction));
 }
+
+using plane3f = plane<float, 3>;
+using plane3d = plane<double, 3>;
+
 } // namespace vm

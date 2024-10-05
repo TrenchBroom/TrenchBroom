@@ -22,6 +22,8 @@
 #include "Macros.h"
 #include "Model/BrushFaceAttributes.h"
 
+#include "vm/mat.h"
+#include "vm/plane.h"
 #include "vm/vec.h"
 
 #include <memory>

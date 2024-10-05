@@ -2005,4 +2005,33 @@ T measure_angle(const vec<T, 3>& v, const vec<T, 3>& axis, const vec<T, 3>& up)
     return constants<T>::two_pi() - angle;
   }
 }
+
+using vec1f = vec<float, 1>;
+using vec1d = vec<double, 1>;
+using vec1i = vec<int, 1>;
+using vec1l = vec<long, 1>;
+using vec1s = vec<size_t, 1>;
+using vec1b = vec<bool, 1>;
+
+using vec2f = vec<float, 2>;
+using vec2d = vec<double, 2>;
+using vec2i = vec<int, 2>;
+using vec2l = vec<long, 2>;
+using vec2s = vec<size_t, 2>;
+using vec2b = vec<bool, 2>;
+
+using vec3f = vec<float, 3>;
+using vec3d = vec<double, 3>;
+using vec3i = vec<int, 3>;
+using vec3l = vec<long, 3>;
+using vec3s = vec<size_t, 3>;
+using vec3b = vec<bool, 3>;
+
+using vec4f = vec<float, 4>;
+using vec4d = vec<double, 4>;
+using vec4i = vec<int, 4>;
+using vec4l = vec<long, 4>;
+using vec4s = vec<size_t, 4>;
+using vec4b = vec<bool, 4>;
+
 } // namespace vm

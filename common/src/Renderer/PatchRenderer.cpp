@@ -39,7 +39,7 @@
 
 #include "kdl/vector_utils.h"
 
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 namespace TrenchBroom::Renderer
 {

@@ -37,9 +37,9 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/line.h"
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/plane.h"
 #include "vm/polygon.h"
-#include "vm/segment.h" // IWYU pragma: keep
+#include "vm/segment.h"
 
 #include <cassert>
 #include <utility>

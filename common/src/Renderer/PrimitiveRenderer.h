@@ -24,6 +24,8 @@
 #include "Renderer/IndexRangeRenderer.h"
 #include "Renderer/Renderable.h"
 
+#include "vm/bbox.h"
+
 #include <map>
 #include <vector>
 

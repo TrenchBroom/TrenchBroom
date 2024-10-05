@@ -23,7 +23,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include <memory>
 

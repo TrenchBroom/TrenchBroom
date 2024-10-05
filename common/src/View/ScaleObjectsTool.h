@@ -26,9 +26,12 @@
 
 #include "kdl/reflection_decl.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/line.h" // IWYU pragma: keep
-#include "vm/vec.h"  // IWYU pragma: keep
+#include "vm/bbox.h"
+#include "vm/line.h"
+#include "vm/polygon.h"
+#include "vm/ray.h"
+#include "vm/segment.h"
+#include "vm/vec.h"
 
 #include <bitset>
 #include <memory>

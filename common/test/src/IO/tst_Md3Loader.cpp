@@ -31,7 +31,6 @@
 #include "Model/GameConfig.h"
 
 #include "vm/bbox.h"
-#include "vm/forward.h"
 
 #include <filesystem>
 #include <memory>

@@ -26,7 +26,7 @@
 
 #include "kdl/vector_set_forward.h"
 
-#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <string_view>
 #include <tuple>

@@ -33,9 +33,8 @@
 #include "kdl/memory_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/line.h" // IWYU pragma: keep
+#include "vm/line.h"
 #include "vm/plane.h"
-#include "vm/vec.h"
 
 namespace TrenchBroom::View
 {

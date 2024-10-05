@@ -22,8 +22,10 @@
 #include "Color.h"
 #include "Macros.h"
 
+#include "vm/bbox.h"
 #include "vm/constants.h"
-#include "vm/forward.h"
+#include "vm/polygon.h"
+#include "vm/segment.h"
 #include "vm/util.h"
 
 #include <memory>

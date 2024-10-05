@@ -34,7 +34,6 @@
 #include "Renderer/Transformation.h"
 #include "Renderer/VertexArray.h"
 
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"

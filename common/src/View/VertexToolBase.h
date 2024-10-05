@@ -48,8 +48,7 @@
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"    // IWYU pragma: keep
+#include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>

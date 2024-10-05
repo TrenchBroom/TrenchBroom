@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <vector>
 

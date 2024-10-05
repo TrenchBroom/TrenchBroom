@@ -23,7 +23,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/SpikeGuideRenderer.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/bbox.h"
 
 #include <memory>
 

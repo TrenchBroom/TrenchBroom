@@ -26,6 +26,7 @@
 
 #include "kdl/reflection_decl.h"
 
+#include "vm/line.h"
 #include "vm/vec.h"
 
 #include <functional>

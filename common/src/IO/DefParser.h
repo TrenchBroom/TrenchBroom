@@ -25,8 +25,8 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/vec.h"  // IWYU pragma: keep
+#include "vm/bbox.h"
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>

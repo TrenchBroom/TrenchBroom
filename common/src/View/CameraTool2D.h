@@ -22,8 +22,7 @@
 #include "View/Tool.h"
 #include "View/ToolController.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 namespace TrenchBroom::Renderer
 {

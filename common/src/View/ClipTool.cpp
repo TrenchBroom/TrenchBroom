@@ -42,7 +42,6 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/ray.h"
-#include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <fmt/format.h>

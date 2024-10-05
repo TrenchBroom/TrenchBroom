@@ -26,7 +26,6 @@
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"
 
-#include "vm/forward.h"
 #include "vm/vec.h"
 
 namespace TrenchBroom::View

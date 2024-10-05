@@ -32,8 +32,8 @@
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/ray.h"     // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"

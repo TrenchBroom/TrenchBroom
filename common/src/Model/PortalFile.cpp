@@ -25,9 +25,8 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-#include "vm/forward.h"
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/vec.h"     // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/vec.h"
 
 #include <string>
 

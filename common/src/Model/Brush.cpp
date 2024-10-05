@@ -34,10 +34,9 @@
 
 #include "vm/mat_ext.h"
 #include "vm/polygon.h"
-#include "vm/ray.h" // IWYU pragma: keep
+#include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/util.h"
-#include "vm/vec.h"
 #include "vm/vec_ext.h"
 
 #include <iterator>

@@ -29,9 +29,8 @@
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 
-#include "vm/forward.h"
 #include "vm/intersection.h"
-#include "vm/plane.h" // IWYU pragma: keep
+#include "vm/plane.h"
 #include "vm/scalar.h"
 #include "vm/vec.h"
 

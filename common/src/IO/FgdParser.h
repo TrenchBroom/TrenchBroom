@@ -24,7 +24,7 @@
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 #include <filesystem>
 #include <memory>

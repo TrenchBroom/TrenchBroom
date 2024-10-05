@@ -25,8 +25,6 @@
 #include "IO/Tokenizer.h"
 #include "Result.h"
 
-#include "vm/forward.h"
-
 #include <array>
 #include <filesystem>
 #include <functional>

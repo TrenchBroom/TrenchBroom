@@ -19,7 +19,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "vm/forward.h"
 #include "vm/vec_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 

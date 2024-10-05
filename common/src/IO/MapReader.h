@@ -26,8 +26,7 @@
 #include "Model/BrushFace.h"
 #include "Model/EntityProperties.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 #include <optional>
 #include <string_view>

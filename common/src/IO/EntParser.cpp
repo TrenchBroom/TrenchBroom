@@ -33,7 +33,6 @@
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 
-#include "vm/forward.h"
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>

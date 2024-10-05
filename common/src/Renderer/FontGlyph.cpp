@@ -19,11 +19,9 @@
 
 #include "FontGlyph.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h"
-
 namespace TrenchBroom::Renderer
 {
+
 FontGlyph::FontGlyph(
   const size_t x, const size_t y, const size_t w, const size_t h, const size_t a)
   : m_x{static_cast<float>(x)}

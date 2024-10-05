@@ -23,7 +23,7 @@
 #include "Model/Polyhedron3.h"
 #include "Result.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/bbox.h"
 #include "vm/util.h"
 
 #include <string>

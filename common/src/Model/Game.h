@@ -26,7 +26,7 @@
 #include "Model/MapFormat.h"
 #include "Result.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
+#include "vm/bbox.h"
 
 #include <filesystem>
 #include <map>

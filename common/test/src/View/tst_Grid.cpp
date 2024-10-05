@@ -27,7 +27,7 @@
 #include "kdl/result.h"
 
 #include "vm/approx.h"
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 #include "vm/segment.h"
 
 #include <cmath>

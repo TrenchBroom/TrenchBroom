@@ -23,8 +23,7 @@
 
 #include "NotifierConnection.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include <memory>
 #include <optional>

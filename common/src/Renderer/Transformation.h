@@ -19,8 +19,7 @@
 
 #pragma once
 
-#include "vm/forward.h"
-#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/mat.h"
 
 #include <vector>
 

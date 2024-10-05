@@ -37,7 +37,7 @@
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
 
-#include "vm/mat.h" // IWYU pragma: keep
+#include "vm/mat.h"
 
 #include <vector>
 

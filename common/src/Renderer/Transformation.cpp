@@ -21,7 +21,6 @@
 
 #include "Renderer/GL.h"
 
-#include "vm/forward.h"
 #include "vm/mat.h"
 
 #include <cassert>

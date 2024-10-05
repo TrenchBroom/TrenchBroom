@@ -25,7 +25,6 @@
 
 #include "kdl/vector_utils.h"
 
-#include "vm/forward.h"
 #include "vm/vec.h"
 
 #include <string>

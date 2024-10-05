@@ -22,8 +22,7 @@
 #include "NotifierConnection.h"
 #include "View/TabBook.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 #include <memory>
 #include <optional>

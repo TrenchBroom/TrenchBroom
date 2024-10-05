@@ -21,7 +21,7 @@
 
 #include "View/ToolController.h"
 
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include <memory>
 

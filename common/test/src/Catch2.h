@@ -30,7 +30,6 @@
 #include "kdl/result_io.h" // IWYU pragma: export
 
 #include "vm/bbox_io.h"  // IWYU pragma: export
-#include "vm/forward.h"  // IWYU pragma: export
 #include "vm/line_io.h"  // IWYU pragma: export
 #include "vm/mat_io.h"   // IWYU pragma: export
 #include "vm/plane_io.h" // IWYU pragma: export

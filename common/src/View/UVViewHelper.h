@@ -22,8 +22,10 @@
 #include "Model/BrushFaceHandle.h"
 #include "Model/HitType.h"
 
-#include "vm/forward.h"
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/bbox.h"
+#include "vm/mat.h"
+#include "vm/ray.h"
+#include "vm/vec.h"
 
 #include <optional>
 

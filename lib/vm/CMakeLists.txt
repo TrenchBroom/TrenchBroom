@@ -24,7 +24,6 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/constexpr_util.h"
     "${VM_INCLUDE_DIR}/vm/convex_hull.h"
     "${VM_INCLUDE_DIR}/vm/distance.h"
-    "${VM_INCLUDE_DIR}/vm/forward.h"
     "${VM_INCLUDE_DIR}/vm/intersection.h"
     "${VM_INCLUDE_DIR}/vm/line_io.h"
     "${VM_INCLUDE_DIR}/vm/line.h"

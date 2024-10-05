@@ -22,7 +22,7 @@
 #include "IO/ExportOptions.h"
 #include "IO/NodeSerializer.h"
 
-#include "vm/forward.h"
+#include "vm/vec.h"
 
 #include <array>
 #include <iosfwd>

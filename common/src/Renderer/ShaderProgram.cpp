@@ -25,10 +25,6 @@
 
 #include "kdl/result.h"
 
-#include "vm/forward.h"
-#include "vm/mat.h" // IWYU pragma: keep
-#include "vm/vec.h" // IWYU pragma: keep
-
 #include <string>
 
 namespace TrenchBroom::Renderer

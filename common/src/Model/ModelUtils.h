@@ -21,8 +21,7 @@
 
 #include "Model/HitType.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
 
 #include <map>
 #include <vector>

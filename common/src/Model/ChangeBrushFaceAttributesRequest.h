@@ -21,8 +21,6 @@
 
 #include "Color.h"
 
-#include "vm/forward.h"
-
 #include <optional>
 #include <string>
 

@@ -36,9 +36,9 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/line.h"    // IWYU pragma: keep
-#include "vm/plane.h"   // IWYU pragma: keep
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/line.h"
+#include "vm/plane.h"
+#include "vm/polygon.h"
 
 #include <cassert>
 

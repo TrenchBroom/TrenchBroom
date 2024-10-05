@@ -29,7 +29,7 @@
 
 #include "kdl/string_format.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 
 #include <cassert>
 #include <tuple>

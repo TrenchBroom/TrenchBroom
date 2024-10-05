@@ -32,9 +32,8 @@
 #include "Renderer/TextAnchor.h"
 #include "Renderer/TextRenderer.h"
 
-#include "vm/forward.h"
-#include "vm/polygon.h" // IWYU pragma: keep
-#include "vm/segment.h" // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/segment.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 

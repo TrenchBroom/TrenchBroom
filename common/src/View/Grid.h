@@ -23,10 +23,11 @@
 #include "Macros.h"
 #include "Notifier.h"
 
-#include "vm/forward.h"
 #include "vm/intersection.h"
 #include "vm/plane.h"
+#include "vm/polygon.h"
 #include "vm/scalar.h"
+#include "vm/segment.h"
 #include "vm/vec.h"
 
 #include <array>

@@ -19,7 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Matchers.h"
 
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include "Catch2.h"
 

@@ -20,7 +20,7 @@
 #include "IO/DiskIO.h"
 #include "Model/PortalFile.h"
 
-#include "vm/polygon.h" // IWYU pragma: keep
+#include "vm/polygon.h"
 
 #include <filesystem>
 

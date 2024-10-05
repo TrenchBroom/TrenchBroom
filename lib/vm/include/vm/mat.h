@@ -1085,4 +1085,12 @@ constexpr std::optional<mat<T, S, S>> invert(const mat<T, S, S>& m)
   }
   return result;
 }
+
+using mat2x2f = mat<float, 2, 2>;
+using mat3x3f = mat<float, 3, 3>;
+using mat4x4f = mat<float, 4, 4>;
+using mat2x2d = mat<double, 2, 2>;
+using mat3x3d = mat<double, 3, 3>;
+using mat4x4d = mat<double, 4, 4>;
+
 } // namespace vm

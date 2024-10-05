@@ -21,7 +21,6 @@
 
 #include "Renderer/VertexArray.h"
 
-#include "vm/forward.h"
 #include "vm/util.h"
 
 namespace TrenchBroom::Renderer

@@ -21,8 +21,8 @@
 
 #include "View/Tool.h"
 
-#include "vm/bbox.h" // IWYU pragma: keep
-#include "vm/forward.h"
+#include "vm/bbox.h"
+#include "vm/ray.h"
 
 #include <memory>
 #include <string>

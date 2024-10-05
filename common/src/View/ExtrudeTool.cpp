@@ -43,8 +43,8 @@
 #include "vm/distance.h"
 #include "vm/line_io.h"  // IWYU pragma: keep
 #include "vm/plane_io.h" // IWYU pragma: keep
-#include "vm/polygon.h"  // IWYU pragma: keep
-#include "vm/vec_io.h"   // IWYU pragma: keep
+#include "vm/polygon.h"
+#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <map>
 #include <vector>

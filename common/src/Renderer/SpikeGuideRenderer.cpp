@@ -30,9 +30,8 @@
 #include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
 
-#include "vm/forward.h"
 #include "vm/ray.h"
-#include "vm/vec.h" // IWYU pragma: keep
+#include "vm/vec.h"
 
 #include <memory>
 

@@ -20,7 +20,6 @@
 */
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/mat_io.h" // IWYU pragma: keep
