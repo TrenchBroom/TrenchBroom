@@ -26,8 +26,7 @@
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/GroupNode.h"
-#include "Model/PatchNode.h"  // IWYU pragma: keep
-#include "Model/Polyhedron.h" // IWYU pragma: keep
+#include "Model/PatchNode.h" // IWYU pragma: keep
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

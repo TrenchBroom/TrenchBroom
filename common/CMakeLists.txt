@@ -688,7 +688,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_DefaultPayload.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Edge.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Face.h
-        ${COMMON_SOURCE_DIR}/Model/Polyhedron_Forward.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_HalfEdge.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_Instantiation.h
         ${COMMON_SOURCE_DIR}/Model/Polyhedron_IO.h

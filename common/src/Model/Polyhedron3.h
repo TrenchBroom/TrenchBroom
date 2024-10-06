@@ -19,8 +19,8 @@
 
 #pragma once
 
+#include "Polyhedron.h"
 #include "Polyhedron_DefaultPayload.h"
-#include "Polyhedron_Forward.h"
 
 namespace TrenchBroom::Model
 {

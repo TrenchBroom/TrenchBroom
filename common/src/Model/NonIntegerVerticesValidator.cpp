@@ -24,7 +24,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
+#include "Model/Polyhedron.h"
 
 #include <string>
 

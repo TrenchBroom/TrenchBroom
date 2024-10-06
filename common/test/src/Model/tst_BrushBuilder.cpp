@@ -21,7 +21,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/MapFormat.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Model/Polyhedron3.h"
 
 #include "kdl/range_to_vector.h"

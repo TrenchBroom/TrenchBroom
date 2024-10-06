@@ -29,7 +29,7 @@
 #include "Model/EditorContext.h"
 #include "Model/EntityNode.h"
 #include "Model/ModelUtils.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
+#include "Model/Polyhedron.h"
 #include "Model/UVCoordSystem.h"
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"

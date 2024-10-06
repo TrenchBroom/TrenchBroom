@@ -25,7 +25,6 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"

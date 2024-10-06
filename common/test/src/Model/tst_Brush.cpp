@@ -23,7 +23,6 @@
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "TestUtils.h"
 
 #include "kdl/range_to_vector.h"
@@ -33,7 +32,6 @@
 
 #include "vm/approx.h"
 #include "vm/polygon.h"
-#include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"

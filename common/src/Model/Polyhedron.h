@@ -19,8 +19,6 @@
 
 #pragma once
 
-#include "Polyhedron_Forward.h"
-
 #include "kdl/intrusive_circular_list.h"
 
 #include "vm/bbox.h"
@@ -40,6 +38,19 @@
 
 namespace TrenchBroom::Model
 {
+/* ====================== Forward Declarations ====================== */
+
+template <typename T, typename FP, typename VP>
+class Polyhedron;
+template <typename T, typename FP, typename VP>
+class Polyhedron_Vertex;
+template <typename T, typename FP, typename VP>
+class Polyhedron_Edge;
+template <typename T, typename FP, typename VP>
+class Polyhedron_HalfEdge;
+template <typename T, typename FP, typename VP>
+class Polyhedron_Face;
+
 /* ====================== Implementation in Polyhedron_Vertex.h ====================== */
 
 /**
@@ -183,6 +194,11 @@ public:
   void correctPosition(
     std::size_t decimals = 0, T epsilon = vm::constants<T>::correct_epsilon());
 };
+
+template <typename T, typename FP, typename VP>
+using Polyhedron_VertexList = kdl::intrusive_circular_list<
+  Polyhedron_Vertex<T, FP, VP>,
+  Polyhedron_GetVertexLink<T, FP, VP>>;
 
 /* ====================== Implementation in Polyhedron_Edge.h ====================== */
 
@@ -491,6 +507,10 @@ private:
   void setSecondEdge(HalfEdge* second);
 };
 
+template <typename T, typename FP, typename VP>
+using Polyhedron_EdgeList = kdl::
+  intrusive_circular_list<Polyhedron_Edge<T, FP, VP>, Polyhedron_GetEdgeLink<T, FP, VP>>;
+
 /* ====================== Implementation in Polyhedron_HalfEdge.h ======================
  */
 
@@ -724,6 +744,11 @@ private:
    */
   void setAsLeaving();
 };
+
+template <typename T, typename FP, typename VP>
+using Polyhedron_HalfEdgeList = kdl::intrusive_circular_list<
+  Polyhedron_HalfEdge<T, FP, VP>,
+  Polyhedron_GetHalfEdgeLink<T, FP, VP>>;
 
 /* ====================== Implementation in Polyhedron_Face.h ====================== */
 
@@ -1098,6 +1123,10 @@ private:
    */
   std::optional<RayIntersection> intersectWithRay(const vm::ray<T, 3>& ray) const;
 };
+
+template <typename T, typename FP, typename VP>
+using Polyhedron_FaceList = kdl::
+  intrusive_circular_list<Polyhedron_Face<T, FP, VP>, Polyhedron_GetFaceLink<T, FP, VP>>;
 
 template <typename T, typename FP, typename VP>
 class Polyhedron

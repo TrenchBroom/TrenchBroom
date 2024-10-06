@@ -23,7 +23,6 @@
 #include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
-#include "Model/Polyhedron.h" // IWYU pragma: keep
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
