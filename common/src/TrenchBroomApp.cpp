@@ -24,28 +24,28 @@
 #include "Preferences.h"
 #include "Result.h"
 #include "TrenchBroomStackWalker.h"
-#include "View/AboutDialog.h"
-#include "View/Actions.h"
-#include "View/CrashDialog.h"
-#include "View/FrameManager.h"
-#include "View/GLContextManager.h"
-#include "View/GameDialog.h"
-#include "View/GetVersion.h"
-#include "View/MapDocument.h"
-#include "View/MapFrame.h"
-#include "View/MapViewBase.h"
-#include "View/PreferenceDialog.h"
-#include "View/QtUtils.h"
-#include "View/RecentDocuments.h"
-#include "View/WelcomeWindow.h"
 #include "io/DiskIO.h"
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 #include "mdl/GameFactory.h"
 #include "mdl/MapFormat.h"
+#include "ui/AboutDialog.h"
+#include "ui/Actions.h"
+#include "ui/CrashDialog.h"
+#include "ui/FrameManager.h"
+#include "ui/GLContextManager.h"
+#include "ui/GameDialog.h"
+#include "ui/GetVersion.h"
+#include "ui/MapDocument.h"
+#include "ui/MapFrame.h"
+#include "ui/MapViewBase.h"
+#include "ui/PreferenceDialog.h"
+#include "ui/QtUtils.h"
+#include "ui/RecentDocuments.h"
+#include "ui/WelcomeWindow.h"
 #ifdef __APPLE__
-#include "View/ActionBuilder.h"
+#include "ui/ActionBuilder.h"
 #endif
 
 #include <QColor>
@@ -79,7 +79,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tb::View
+namespace tb::ui
 {
 namespace
 {
@@ -560,7 +560,7 @@ bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
   catch (const std::exception& e)
   {
     // Unfortunately we can't portably get the stack trace of the exception itself
-    tb::View::reportCrashAndExit("<uncaught exception>", e.what());
+    tb::ui::reportCrashAndExit("<uncaught exception>", e.what());
   }
 #endif
 }
@@ -779,8 +779,8 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 #else
 static void CrashHandler(int /* signum */)
 {
-  tb::View::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
+  tb::ui::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
 }
 #endif
 
-} // namespace tb::View
+} // namespace tb::ui

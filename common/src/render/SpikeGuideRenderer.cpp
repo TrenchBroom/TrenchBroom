@@ -19,7 +19,6 @@
 
 #include "SpikeGuideRenderer.h"
 
-#include "View/MapDocument.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
@@ -29,6 +28,7 @@
 #include "render/RenderContext.h"
 #include "render/Shaders.h"
 #include "render/VboManager.h"
+#include "ui/MapDocument.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
@@ -45,7 +45,7 @@ void SpikeGuideRenderer::setColor(const Color& color)
 }
 
 void SpikeGuideRenderer::add(
-  const vm::ray3d& ray, const double length, std::shared_ptr<View::MapDocument> document)
+  const vm::ray3d& ray, const double length, std::shared_ptr<ui::MapDocument> document)
 {
   using namespace mdl::HitFilters;
 

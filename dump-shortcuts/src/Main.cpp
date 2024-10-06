@@ -25,13 +25,13 @@
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/Actions.h"
 #include "io/PathQt.h"
+#include "ui/Actions.h"
 
 #include <array>
 #include <tuple>
 
-namespace tb::View
+namespace tb::ui
 {
 namespace
 {
@@ -156,7 +156,7 @@ void printActionShortcuts(QTextStream& out)
 }
 
 } // namespace
-} // namespace tb::View
+} // namespace tb::ui
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -183,9 +183,9 @@ int main(int argc, char* argv[])
   app.setOrganizationName("");
   app.setOrganizationDomain("io.github.trenchbroom");
 
-  tb::View::printKeys(out);
-  tb::View::printMenuShortcuts(out);
-  tb::View::printActionShortcuts(out);
+  tb::ui::printKeys(out);
+  tb::ui::printMenuShortcuts(out);
+  tb::ui::printActionShortcuts(out);
 
   tb::PreferenceManager::destroyInstance();
 

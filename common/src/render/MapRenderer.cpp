@@ -21,8 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/MapDocument.h"
-#include "View/Selection.h"
 #include "asset/EntityModelManager.h"
 #include "asset/MaterialManager.h"
 #include "asset/Resource.h"
@@ -44,6 +42,8 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
+#include "ui/MapDocument.h"
+#include "ui/Selection.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -152,7 +152,7 @@ public:
 };
 
 std::unique_ptr<ObjectRenderer> createDefaultRenderer(
-  std::weak_ptr<View::MapDocument> document)
+  std::weak_ptr<ui::MapDocument> document)
 {
   return std::make_unique<ObjectRenderer>(
     *kdl::mem_lock(document),
@@ -162,7 +162,7 @@ std::unique_ptr<ObjectRenderer> createDefaultRenderer(
 }
 
 std::unique_ptr<ObjectRenderer> createSelectionRenderer(
-  std::weak_ptr<View::MapDocument> document)
+  std::weak_ptr<ui::MapDocument> document)
 {
   return std::make_unique<ObjectRenderer>(
     *kdl::mem_lock(document),
@@ -172,7 +172,7 @@ std::unique_ptr<ObjectRenderer> createSelectionRenderer(
 }
 
 std::unique_ptr<ObjectRenderer> createLockRenderer(
-  std::weak_ptr<View::MapDocument> document)
+  std::weak_ptr<ui::MapDocument> document)
 {
   return std::make_unique<ObjectRenderer>(
     *kdl::mem_lock(document),
@@ -182,14 +182,14 @@ std::unique_ptr<ObjectRenderer> createLockRenderer(
 }
 
 std::unique_ptr<EntityDecalRenderer> createEntityDecalRenderer(
-  std::weak_ptr<View::MapDocument> document)
+  std::weak_ptr<ui::MapDocument> document)
 {
   return std::make_unique<EntityDecalRenderer>(document);
 }
 
 } // namespace
 
-MapRenderer::MapRenderer(std::weak_ptr<View::MapDocument> document)
+MapRenderer::MapRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
   , m_defaultRenderer{createDefaultRenderer(m_document)}
   , m_selectionRenderer{createSelectionRenderer(m_document)}
@@ -687,12 +687,12 @@ void MapRenderer::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapRenderer::preferenceDidChange);
 }
 
-void MapRenderer::documentWasCleared(View::MapDocument*)
+void MapRenderer::documentWasCleared(ui::MapDocument*)
 {
   clear();
 }
 
-void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*)
+void MapRenderer::documentWasNewedOrLoaded(ui::MapDocument*)
 {
   clear();
   updateAllNodes();
@@ -774,7 +774,7 @@ void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& f
   }
 }
 
-void MapRenderer::selectionDidChange(const View::Selection& selection)
+void MapRenderer::selectionDidChange(const ui::Selection& selection)
 {
   for (const auto& face : selection.deselectedBrushFaces())
   {

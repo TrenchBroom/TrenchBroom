@@ -27,7 +27,7 @@
 
 #include <memory>
 
-namespace tb::View
+namespace tb::ui
 {
 class MapDocument;
 }
@@ -42,14 +42,14 @@ class PointGuideRenderer : public DirectRenderable
 private:
   static const double SpikeLength;
 
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
 
   Color m_color;
   vm::vec3d m_position;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
-  explicit PointGuideRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit PointGuideRenderer(std::weak_ptr<ui::MapDocument> document);
 
   void setColor(const Color& color);
   void setPosition(const vm::vec3d& position);

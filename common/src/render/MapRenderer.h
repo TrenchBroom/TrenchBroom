@@ -37,12 +37,12 @@ namespace tb::asset
 class ResourceId;
 }
 
-namespace tb::View
+namespace tb::ui
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
 class Selection;
-} // namespace tb::View
+} // namespace tb::ui
 
 namespace tb::mdl
 {
@@ -65,7 +65,7 @@ class RenderContext;
 class MapRenderer
 {
 private:
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
 
   std::unique_ptr<ObjectRenderer> m_defaultRenderer;
   std::unique_ptr<ObjectRenderer> m_selectionRenderer;
@@ -87,7 +87,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit MapRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit MapRenderer(std::weak_ptr<ui::MapDocument> document);
   ~MapRenderer();
 
   deleteCopyAndMove(MapRenderer);
@@ -133,8 +133,8 @@ private:
 private: // notification
   void connectObservers();
 
-  void documentWasCleared(View::MapDocument* document);
-  void documentWasNewedOrLoaded(View::MapDocument* document);
+  void documentWasCleared(ui::MapDocument* document);
+  void documentWasNewedOrLoaded(ui::MapDocument* document);
 
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
@@ -148,7 +148,7 @@ private: // notification
 
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
 
-  void selectionDidChange(const View::Selection& selection);
+  void selectionDidChange(const ui::Selection& selection);
 
   void resourcesWereProcessed(const std::vector<asset::ResourceId>& resourceIds);
 

@@ -36,11 +36,11 @@ namespace mdl
 class Picker;
 }
 
-namespace View
+namespace ui
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
-} // namespace View
+} // namespace ui
 
 namespace render
 {
@@ -63,7 +63,7 @@ private:
 public:
   void setColor(const Color& color);
   void add(
-    const vm::ray3d& ray, double length, std::shared_ptr<View::MapDocument> document);
+    const vm::ray3d& ray, double length, std::shared_ptr<ui::MapDocument> document);
   void clear();
 
 private:

@@ -20,7 +20,6 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
-#include "View/MapDocument.h"
 #include "asset/DecalDefinition.h"
 #include "asset/Material.h"
 #include "asset/MaterialManager.h"
@@ -33,6 +32,7 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -141,7 +141,7 @@ std::vector<Vertex> createDecalBrushFace(
 
 } // namespace
 
-EntityDecalRenderer::EntityDecalRenderer(std::weak_ptr<View::MapDocument> document)
+EntityDecalRenderer::EntityDecalRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
 {
   clear();

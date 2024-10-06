@@ -21,8 +21,6 @@
 
 #include "Ensure.h"
 #include "TestLogger.h"
-#include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
 #include "asset/Material.h"
 #include "asset/Resource.h"
 #include "asset/Texture.h"
@@ -38,6 +36,8 @@
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
 
@@ -395,7 +395,7 @@ void setLinkId(Node& node, std::string linkId)
 }
 } // namespace mdl
 
-namespace View
+namespace ui
 {
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
@@ -427,7 +427,7 @@ DocumentGameConfig newMapDocument(
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
-} // namespace View
+} // namespace ui
 
 int getComponentOfPixel(
   const asset::Texture& texture,

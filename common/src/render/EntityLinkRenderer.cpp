@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/MapDocument.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
@@ -30,6 +29,7 @@
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -42,7 +42,7 @@
 namespace tb::render
 {
 
-EntityLinkRenderer::EntityLinkRenderer(std::weak_ptr<View::MapDocument> document)
+EntityLinkRenderer::EntityLinkRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
 {
 }
@@ -242,7 +242,7 @@ auto collectSelectedLinks(const mdl::NodeCollection& selectedNodes, Visitor visi
 }
 
 auto getAllLinks(
-  View::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
@@ -270,7 +270,7 @@ auto getAllLinks(
 }
 
 auto getTransitiveSelectedLinks(
-  View::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
 {
   auto visitor = CollectTransitiveSelectedLinksVisitor{
     document.editorContext(), defaultColor, selectedColor, {}};
@@ -278,7 +278,7 @@ auto getTransitiveSelectedLinks(
 }
 
 auto getDirectSelectedLinks(
-  View::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
 {
   auto visitor = CollectDirectSelectedLinksVisitor{
     document.editorContext(), defaultColor, selectedColor};
@@ -286,7 +286,7 @@ auto getDirectSelectedLinks(
 }
 
 auto getLinks(
-  View::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
+  ui::MapDocument& document, const Color& defaultColor, const Color& selectedColor)
 {
   const auto entityLinkMode = pref(Preferences::EntityLinkMode);
   if (entityLinkMode == Preferences::entityLinkModeAll())

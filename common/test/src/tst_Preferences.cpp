@@ -22,10 +22,10 @@
 
 #include "Color.h"
 #include "PreferenceManager.h"
-#include "View/Actions.h"
 #include "asset/EntityDefinition.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"
+#include "ui/Actions.h"
 
 #include "kdl/vector_utils.h"
 
@@ -440,7 +440,7 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
     "Menu/Run/Launch...",
   };
 
-  auto& actionsMap = View::ActionManager::instance().actionsMap();
+  auto& actionsMap = ui::ActionManager::instance().actionsMap();
   for (const auto& preferenceKey : preferenceKeys)
   {
     CAPTURE(preferenceKey);
@@ -456,8 +456,7 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
     asset::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
   const auto defs = std::vector<asset::EntityDefinition*>{&hellKnight};
 
-  const auto actions =
-    View::ActionManager::instance().createEntityDefinitionActions(defs);
+  const auto actions = ui::ActionManager::instance().createEntityDefinitionActions(defs);
   const auto actualPrefPaths = kdl::vec_transform(
     actions, [](const auto& action) { return action.preferencePath(); });
 
@@ -478,7 +477,7 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
 {
   const auto tags = std::vector<mdl::SmartTag>{
     mdl::SmartTag{"Detail", {}, std::make_unique<mdl::ContentFlagsTagMatcher>(1 << 27)}};
-  const auto actions = View::ActionManager::instance().createTagActions(tags);
+  const auto actions = ui::ActionManager::instance().createTagActions(tags);
   const auto actualPrefPaths = kdl::vec_transform(
     actions, [](const auto& action) { return action.preferencePath(); });
 

@@ -27,7 +27,7 @@
 
 #include <memory>
 
-namespace tb::View
+namespace tb::ui
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
@@ -39,14 +39,14 @@ class BoundsGuideRenderer : public DirectRenderable
 private:
   static const double SpikeLength;
 
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
 
   Color m_color;
   vm::bbox3d m_bounds;
   SpikeGuideRenderer m_spikeRenderer;
 
 public:
-  explicit BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit BoundsGuideRenderer(std::weak_ptr<ui::MapDocument> document);
 
   void setColor(const Color& color);
   void setBounds(const vm::bbox3d& bounds);

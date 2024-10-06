@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::View
+namespace tb::ui
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
@@ -36,13 +36,13 @@ namespace tb::render
 
 class EntityLinkRenderer : public LinkRenderer
 {
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
 
   Color m_defaultColor = {0.5f, 1.0f, 0.5f, 1.0f};
   Color m_selectedColor = {1.0f, 0.0f, 0.0f, 1.0f};
 
 public:
-  explicit EntityLinkRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit EntityLinkRenderer(std::weak_ptr<ui::MapDocument> document);
 
   void setDefaultColor(const Color& color);
   void setSelectedColor(const Color& color);

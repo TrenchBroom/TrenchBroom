@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace tb::View
+namespace tb::ui
 {
 
 class KeyStrings
@@ -52,4 +52,4 @@ private:
   void putKey(Qt::Key key);
   void putModifier(int key);
 };
-} // namespace tb::View
+} // namespace tb::ui

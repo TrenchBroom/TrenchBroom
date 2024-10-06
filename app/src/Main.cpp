@@ -25,11 +25,11 @@
 
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
-#include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
-#include "View/MapFrame.h"
 #include "io/SystemPaths.h"
 #include "mdl/GameFactory.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapFrame.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
   tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
-  tb::View::TrenchBroomApp app(argc, argv);
+  tb::ui::TrenchBroomApp app(argc, argv);
 
   app.parseCommandLineAndShowFrame();
   return app.exec();

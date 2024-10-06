@@ -28,7 +28,7 @@ namespace tb
 enum class LogLevel;
 }
 
-namespace tb::View
+namespace tb::ui
 {
 
 class LoggerCache
@@ -56,4 +56,4 @@ public:
   }
 };
 
-} // namespace tb::View
+} // namespace tb::ui

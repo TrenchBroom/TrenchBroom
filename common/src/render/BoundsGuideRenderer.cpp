@@ -29,7 +29,7 @@ namespace tb::render
 {
 const double BoundsGuideRenderer::SpikeLength = 512.0;
 
-BoundsGuideRenderer::BoundsGuideRenderer(std::weak_ptr<View::MapDocument> document)
+BoundsGuideRenderer::BoundsGuideRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
 {
 }

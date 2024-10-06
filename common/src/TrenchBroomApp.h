@@ -35,7 +35,7 @@ namespace tb
 class Logger;
 }
 
-namespace tb::View
+namespace tb::ui
 {
 class FrameManager;
 class RecentDocuments;
@@ -107,4 +107,4 @@ void setCrashReportGUIEnbled(bool guiEnabled);
 bool isReportingCrash();
 
 
-} // namespace tb::View
+} // namespace tb::ui

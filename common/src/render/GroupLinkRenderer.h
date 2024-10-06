@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::View
+namespace tb::ui
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
@@ -35,10 +35,10 @@ namespace tb::render
 
 class GroupLinkRenderer : public LinkRenderer
 {
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
 
 public:
-  explicit GroupLinkRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit GroupLinkRenderer(std::weak_ptr<ui::MapDocument> document);
 
 private:
   std::vector<LinkRenderer::LineVertex> getLinks() override;

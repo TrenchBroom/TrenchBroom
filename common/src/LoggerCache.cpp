@@ -19,7 +19,7 @@
 
 #include "LoggerCache.h"
 
-namespace tb::View
+namespace tb::ui
 {
 
 void LoggerCache::cacheMessage(const LogLevel level, const std::string_view message)
@@ -27,4 +27,4 @@ void LoggerCache::cacheMessage(const LogLevel level, const std::string_view mess
   m_cachedMessages.push_back(Message{level, std::string{message}});
 }
 
-} // namespace tb::View
+} // namespace tb::ui

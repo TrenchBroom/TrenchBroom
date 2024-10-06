@@ -44,10 +44,10 @@ class EntityNode;
 class Node;
 } // namespace tb::mdl
 
-namespace tb::View
+namespace tb::ui
 {
 class MapDocument; // FIXME: Renderer should not depend on View
-} // namespace tb::View
+} // namespace tb::ui
 
 namespace tb::render
 {
@@ -72,7 +72,7 @@ private:
   using EntityWithDependenciesMap =
     std::unordered_map<const mdl::EntityNode*, EntityDecalData>;
 
-  std::weak_ptr<View::MapDocument> m_document;
+  std::weak_ptr<ui::MapDocument> m_document;
   EntityWithDependenciesMap m_entities;
 
   using Vertex = render::GLVertexTypes::P3NT2::Vertex;
@@ -85,7 +85,7 @@ private:
   Color m_faceColor;
 
 public:
-  explicit EntityDecalRenderer(std::weak_ptr<View::MapDocument> document);
+  explicit EntityDecalRenderer(std::weak_ptr<ui::MapDocument> document);
 
   /**
    * Equivalent to updateNode() on all added nodes.

@@ -46,6 +46,6 @@ void tb::ensureFailed(
          << "' failed: " << message;
 
   const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
-  tb::View::reportCrashAndExit(stacktrace, reason.str());
+  tb::ui::reportCrashAndExit(stacktrace, reason.str());
 }
 #endif

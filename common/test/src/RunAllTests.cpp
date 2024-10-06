@@ -30,9 +30,9 @@
 int main(int argc, char** argv)
 {
   tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
-  tb::View::TrenchBroomApp app(argc, argv);
+  tb::ui::TrenchBroomApp app(argc, argv);
 
-  tb::View::setCrashReportGUIEnbled(false);
+  tb::ui::setCrashReportGUIEnbled(false);
 
   ensure(qApp == &app, "invalid app instance");
 

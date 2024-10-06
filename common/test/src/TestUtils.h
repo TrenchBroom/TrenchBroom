@@ -181,7 +181,7 @@ Child* getChildAs(const Node& node)
 
 } // namespace mdl
 
-namespace View
+namespace ui
 {
 class MapDocument;
 
@@ -196,7 +196,7 @@ DocumentGameConfig loadMapDocument(
   const std::string& gameName,
   mdl::MapFormat mapFormat);
 DocumentGameConfig newMapDocument(const std::string& gameName, mdl::MapFormat mapFormat);
-} // namespace View
+} // namespace ui
 
 enum class Component
 {

@@ -21,7 +21,7 @@
 
 #include <QKeySequence>
 
-#include "View/MapViewLayout.h"
+#include "ui/MapViewLayout.h"
 
 #include "vm/util.h"
 
@@ -29,7 +29,7 @@ namespace tb::Preferences
 {
 
 Preference<int> MapViewLayout(
-  "Views/Map view layout", static_cast<int>(View::MapViewLayout::OnePane));
+  "Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane));
 
 QString systemTheme()
 {

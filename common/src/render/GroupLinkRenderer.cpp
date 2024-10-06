@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "View/MapDocument.h"
 #include "mdl/EditorContext.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/ModelUtils.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
 
@@ -34,7 +34,7 @@
 namespace tb::render
 {
 
-GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<View::MapDocument> document)
+GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
 {
 }

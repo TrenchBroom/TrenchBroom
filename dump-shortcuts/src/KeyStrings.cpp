@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-namespace tb::View
+namespace tb::ui
 {
 KeyStrings::KeyStrings()
 {
@@ -279,4 +279,4 @@ void KeyStrings::putModifier(int key)
   m_keys.emplace_back(portableLabel, nativeLabel);
 }
 
-} // namespace tb::View
+} // namespace tb::ui

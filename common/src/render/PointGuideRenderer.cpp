@@ -30,7 +30,7 @@ namespace tb::render
 {
 const double PointGuideRenderer::SpikeLength = 512.0;
 
-PointGuideRenderer::PointGuideRenderer(std::weak_ptr<View::MapDocument> document)
+PointGuideRenderer::PointGuideRenderer(std::weak_ptr<ui::MapDocument> document)
   : m_document{std::move(document)}
 {
 }
