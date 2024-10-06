@@ -19,7 +19,6 @@
 
 #include "Assets/Palette.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "Result.h"
 
 #include "kdl/result.h"

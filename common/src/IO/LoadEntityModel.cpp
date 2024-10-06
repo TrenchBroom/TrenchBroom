@@ -25,7 +25,6 @@
 #include "IO/AssimpLoader.h"
 #include "IO/BspLoader.h"
 #include "IO/DkmLoader.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/ImageSpriteLoader.h"
 #include "IO/Md2Loader.h"

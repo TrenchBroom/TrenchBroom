@@ -21,7 +21,6 @@
 
 #include "Assets/Material.h"
 #include "Assets/Palette.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"

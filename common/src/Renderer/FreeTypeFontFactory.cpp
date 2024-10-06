@@ -21,7 +21,6 @@
 
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/SystemPaths.h"
 #include "Macros.h"

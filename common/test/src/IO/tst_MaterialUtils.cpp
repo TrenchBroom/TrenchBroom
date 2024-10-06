@@ -18,7 +18,6 @@
  */
 
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
 #include "Logger.h"

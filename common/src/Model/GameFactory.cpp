@@ -24,7 +24,6 @@
 #include "IO/CompilationConfigWriter.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/GameConfigParser.h"
 #include "IO/GameEngineConfigParser.h"
 #include "IO/GameEngineConfigWriter.h"

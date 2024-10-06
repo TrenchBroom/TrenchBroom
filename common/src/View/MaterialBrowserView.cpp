@@ -452,9 +452,8 @@ void MaterialBrowserView::doContextMenu(
 {
   if (const auto* cell = layout.cellAt(x, y))
   {
-    const auto& material = cellData(*cell);
     auto menu = QMenu{this};
-    menu.addAction(tr("Select Faces"), this, [&, material = &material]() {
+    menu.addAction(tr("Select Faces"), this, [&, material = &cellData(*cell)]() {
       auto doc = kdl::mem_lock(m_document);
       doc->selectFacesWithMaterial(material);
     });

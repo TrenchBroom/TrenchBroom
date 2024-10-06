@@ -18,7 +18,6 @@
  */
 
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/TestParserStatus.h"
 #include "IO/WorldReader.h"
 #include "Model/BezierPatch.h"

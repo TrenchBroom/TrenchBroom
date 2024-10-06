@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
 

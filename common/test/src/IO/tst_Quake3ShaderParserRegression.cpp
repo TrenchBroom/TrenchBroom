@@ -19,7 +19,6 @@
 
 #include "Assets/Quake3Shader.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Quake3ShaderParser.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"

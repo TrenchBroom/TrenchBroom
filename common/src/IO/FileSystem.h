@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "IO/File.h"
 #include "IO/PathMatcher.h"
 #include "Result.h"
 
@@ -29,7 +30,6 @@
 
 namespace TrenchBroom::IO
 {
-class File;
 class FileSystem;
 enum class PathInfo;
 struct TraversalMode;

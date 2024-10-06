@@ -30,7 +30,6 @@
 #include "IO/EntParser.h"
 #include "IO/ExportOptions.h"
 #include "IO/FgdParser.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/GameConfigParser.h"
 #include "IO/LoadEntityModel.h"
 #include "IO/NodeReader.h"

@@ -22,7 +22,6 @@
 #include "Assets/PropertyDefinition.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"

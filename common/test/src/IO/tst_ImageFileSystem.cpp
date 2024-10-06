@@ -19,7 +19,6 @@
 
 #include "IO/DiskIO.h"
 #include "IO/DkPakFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/IdPakFileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/TraversalMode.h"

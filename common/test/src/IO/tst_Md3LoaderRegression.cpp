@@ -19,7 +19,6 @@
 
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LoadMaterialCollections.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"

@@ -24,7 +24,6 @@
 #include "Assets/Quake3Shader.h"
 #include "Assets/Texture.h"
 #include "Assets/TextureResource.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/FileSystem.h"
 #include "IO/LoadShaders.h"
 #include "IO/MaterialUtils.h"

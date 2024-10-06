@@ -19,7 +19,6 @@
 
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/ReadFreeImageTexture.h"
 #include "TestUtils.h"
 

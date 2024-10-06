@@ -21,7 +21,6 @@
 #include "Assets/Palette.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/MdlLoader.h"
 #include "IO/Reader.h"
 #include "Logger.h"

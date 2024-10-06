@@ -25,7 +25,6 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 

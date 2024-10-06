@@ -106,9 +106,9 @@ public:
     std::optional<std::chrono::milliseconds> timeout = std::nullopt)
   {
     const auto checkTimeout =
-      timeout ? std::function{[timeout = *timeout,
+      timeout ? std::function{[timeout_ = *timeout,
                                startTime = std::chrono::steady_clock::now()]() {
-        return std::chrono::steady_clock::now() - startTime < timeout;
+        return std::chrono::steady_clock::now() - startTime < timeout_;
       }}
               : std::function{[]() { return true; }};
 

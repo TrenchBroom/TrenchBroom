@@ -20,7 +20,6 @@
 #include "Assets/Palette.h"
 #include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/ReadM8Texture.h"
 #include "TestUtils.h"
 

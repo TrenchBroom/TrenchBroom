@@ -19,7 +19,6 @@
 
 #include "EL/Expression.h"
 #include "IO/DiskIO.h"
-#include "IO/File.h" // IWYU pragma: keep
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
 #include "IO/TraversalMode.h"
