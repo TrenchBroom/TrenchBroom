@@ -20,23 +20,6 @@
 #include "GameImpl.h"
 
 #include "Exceptions.h"
-#include "IO/BrushFaceReader.h"
-#include "IO/DefParser.h"
-#include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/EntParser.h"
-#include "IO/ExportOptions.h"
-#include "IO/FgdParser.h"
-#include "IO/GameConfigParser.h"
-#include "IO/LoadEntityModel.h"
-#include "IO/NodeReader.h"
-#include "IO/NodeWriter.h"
-#include "IO/ObjSerializer.h"
-#include "IO/PathInfo.h"
-#include "IO/SimpleParserStatus.h"
-#include "IO/SystemPaths.h"
-#include "IO/TraversalMode.h"
-#include "IO/WorldReader.h"
 #include "Logger.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -48,6 +31,23 @@
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionFileSpec.h"
 #include "asset/MaterialManager.h"
+#include "io/BrushFaceReader.h"
+#include "io/DefParser.h"
+#include "io/DiskFileSystem.h"
+#include "io/DiskIO.h"
+#include "io/EntParser.h"
+#include "io/ExportOptions.h"
+#include "io/FgdParser.h"
+#include "io/GameConfigParser.h"
+#include "io/LoadEntityModel.h"
+#include "io/NodeReader.h"
+#include "io/NodeWriter.h"
+#include "io/ObjSerializer.h"
+#include "io/PathInfo.h"
+#include "io/SimpleParserStatus.h"
+#include "io/SystemPaths.h"
+#include "io/TraversalMode.h"
+#include "io/WorldReader.h"
 
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
@@ -69,7 +69,7 @@ GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& l
 }
 
 Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> GameImpl::
-  loadEntityDefinitions(IO::ParserStatus& status, const std::filesystem::path& path) const
+  loadEntityDefinitions(io::ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = path.extension().string();
   const auto& defaultColor = m_config.entityConfig.defaultColor;
@@ -78,25 +78,25 @@ Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> GameImpl::
   {
     if (kdl::ci::str_is_equal(".fgd", extension))
     {
-      return IO::Disk::openFile(path) | kdl::transform([&](auto file) {
+      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
-               auto parser = IO::FgdParser{reader.stringView(), defaultColor, path};
+               auto parser = io::FgdParser{reader.stringView(), defaultColor, path};
                return parser.parseDefinitions(status);
              });
     }
     if (kdl::ci::str_is_equal(".def", extension))
     {
-      return IO::Disk::openFile(path) | kdl::transform([&](auto file) {
+      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
-               auto parser = IO::DefParser{reader.stringView(), defaultColor};
+               auto parser = io::DefParser{reader.stringView(), defaultColor};
                return parser.parseDefinitions(status);
              });
     }
     if (kdl::ci::str_is_equal(".ent", extension))
     {
-      return IO::Disk::openFile(path) | kdl::transform([&](auto file) {
+      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
-               auto parser = IO::EntParser{reader.stringView(), defaultColor};
+               auto parser = io::EntParser{reader.stringView(), defaultColor};
                return parser.parseDefinitions(status);
              });
     }
@@ -114,7 +114,7 @@ const GameConfig& GameImpl::config() const
   return m_config;
 }
 
-const IO::FileSystem& GameImpl::gameFileSystem() const
+const io::FileSystem& GameImpl::gameFileSystem() const
 {
   return m_fs;
 }
@@ -150,7 +150,7 @@ Game::PathErrors GameImpl::checkAdditionalSearchPaths(
   for (const auto& searchPath : searchPaths)
   {
     const auto absPath = m_gamePath / searchPath;
-    if (!absPath.is_absolute() || IO::Disk::pathInfo(absPath) != IO::PathInfo::Directory)
+    if (!absPath.is_absolute() || io::Disk::pathInfo(absPath) != io::PathInfo::Directory)
     {
       result.emplace(searchPath, "Directory not found: '" + searchPath.string() + "'");
     }
@@ -165,7 +165,7 @@ Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
     return *mapValue == EntityPropertyValues::NoSoftMapBounds
              ? SoftMapBounds{SoftMapBoundsType::Map, std::nullopt}
              : SoftMapBounds{
-                 SoftMapBoundsType::Map, IO::parseSoftMapBoundsString(*mapValue)};
+                 SoftMapBoundsType::Map, io::parseSoftMapBoundsString(*mapValue)};
   }
 
   // Not set in map -> use Game value
@@ -178,7 +178,7 @@ Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
   const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
   if (
     !initialMapFilePath.empty()
-    && IO::Disk::pathInfo(initialMapFilePath) == IO::PathInfo::File)
+    && io::Disk::pathInfo(initialMapFilePath) == io::PathInfo::File)
   {
     return loadMap(format, worldBounds, initialMapFilePath, logger);
   }
@@ -217,8 +217,8 @@ Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
   const std::filesystem::path& path,
   Logger& logger) const
 {
-  auto parserStatus = IO::SimpleParserStatus{logger};
-  return IO::Disk::openFile(path) | kdl::transform([&](auto file) {
+  auto parserStatus = io::SimpleParserStatus{logger};
+  return io::Disk::openFile(path) | kdl::transform([&](auto file) {
            auto fileReader = file->reader().buffer();
            if (format == MapFormat::Unknown)
            {
@@ -227,7 +227,7 @@ Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
                m_config.fileFormats,
                [](const auto& config) { return Model::formatFromName(config.format); });
 
-             return IO::WorldReader::tryRead(
+             return io::WorldReader::tryRead(
                fileReader.stringView(),
                possibleFormats,
                worldBounds,
@@ -236,7 +236,7 @@ Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
            }
 
            auto worldReader =
-             IO::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
+             io::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
            return worldReader.read(worldBounds, parserStatus);
          });
 }
@@ -244,12 +244,12 @@ Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
 Result<void> GameImpl::writeMap(
   WorldNode& world, const std::filesystem::path& path, const bool exporting) const
 {
-  return IO::Disk::withOutputStream(path, [&](auto& stream) {
+  return io::Disk::withOutputStream(path, [&](auto& stream) {
     const auto mapFormatName = formatName(world.mapFormat());
     stream << "// Game: " << config().name << "\n"
            << "// Format: " << mapFormatName << "\n";
 
-    auto writer = IO::NodeWriter{world, stream};
+    auto writer = io::NodeWriter{world, stream};
     writer.setExporting(exporting);
     writer.writeMap();
   });
@@ -260,24 +260,24 @@ Result<void> GameImpl::writeMap(WorldNode& world, const std::filesystem::path& p
   return writeMap(world, path, false);
 }
 
-Result<void> GameImpl::exportMap(WorldNode& world, const IO::ExportOptions& options) const
+Result<void> GameImpl::exportMap(WorldNode& world, const io::ExportOptions& options) const
 {
   return std::visit(
     kdl::overload(
-      [&](const IO::ObjExportOptions& objOptions) {
-        return IO::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+      [&](const io::ObjExportOptions& objOptions) {
+        return io::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
           const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-          return IO::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
-            auto writer = IO::NodeWriter{
+          return io::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+            auto writer = io::NodeWriter{
               world,
-              std::make_unique<IO::ObjSerializer>(
+              std::make_unique<io::ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
             writer.writeMap();
           });
         });
       },
-      [&](const IO::MapExportOptions& mapOptions) {
+      [&](const io::MapExportOptions& mapOptions) {
         return writeMap(world, mapOptions.exportPath, true);
       }),
     options);
@@ -289,8 +289,8 @@ std::vector<Node*> GameImpl::parseNodes(
   const vm::bbox3d& worldBounds,
   Logger& logger) const
 {
-  auto parserStatus = IO::SimpleParserStatus{logger};
-  return IO::NodeReader::read(
+  auto parserStatus = io::SimpleParserStatus{logger};
+  return io::NodeReader::read(
     str, mapFormat, worldBounds, entityPropertyConfig(), parserStatus);
 }
 
@@ -300,22 +300,22 @@ std::vector<BrushFace> GameImpl::parseBrushFaces(
   const vm::bbox3d& worldBounds,
   Logger& logger) const
 {
-  auto parserStatus = IO::SimpleParserStatus{logger};
-  auto reader = IO::BrushFaceReader{str, mapFormat};
+  auto parserStatus = io::SimpleParserStatus{logger};
+  auto reader = io::BrushFaceReader{str, mapFormat};
   return reader.read(worldBounds, parserStatus);
 }
 
 void GameImpl::writeNodesToStream(
   WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
 {
-  auto writer = IO::NodeWriter{world, stream};
+  auto writer = io::NodeWriter{world, stream};
   writer.writeNodes(nodes);
 }
 
 void GameImpl::writeBrushFacesToStream(
   WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
 {
-  auto writer = IO::NodeWriter{world, stream};
+  auto writer = io::NodeWriter{world, stream};
   writer.writeBrushFaces(faces);
 }
 
@@ -334,7 +334,7 @@ void GameImpl::reloadWads(
   const auto searchPaths = std::vector<std::filesystem::path>{
     documentPath.parent_path(), // Search for assets relative to the map file.
     m_gamePath,                 // Search for assets relative to the location of the game.
-    IO::SystemPaths::appDirectory(), // Search for assets relative to the application.
+    io::SystemPaths::appDirectory(), // Search for assets relative to the application.
   };
   m_fs.reloadWads(m_config.materialConfig.root, searchPaths, wadPaths, logger);
 }
@@ -397,22 +397,22 @@ std::filesystem::path GameImpl::findEntityDefinitionFile(
     return path;
   }
 
-  return IO::Disk::resolvePath(searchPaths, path);
+  return io::Disk::resolvePath(searchPaths, path);
 }
 
 Result<std::vector<std::string>> GameImpl::availableMods() const
 {
-  if (m_gamePath.empty() || IO::Disk::pathInfo(m_gamePath) != IO::PathInfo::Directory)
+  if (m_gamePath.empty() || io::Disk::pathInfo(m_gamePath) != io::PathInfo::Directory)
   {
     return Result<std::vector<std::string>>{std::vector<std::string>{}};
   }
 
   const auto& defaultMod = m_config.fileSystemConfig.searchPath.filename().string();
-  const auto fs = IO::DiskFileSystem{m_gamePath};
+  const auto fs = io::DiskFileSystem{m_gamePath};
   return fs.find(
            "",
-           IO::TraversalMode::Flat,
-           IO::makePathInfoPathMatcher({IO::PathInfo::Directory}))
+           io::TraversalMode::Flat,
+           io::makePathInfoPathMatcher({io::PathInfo::Directory}))
          | kdl::transform([](auto subDirs) {
              return kdl::vec_transform(std::move(subDirs), [](auto subDir) {
                return subDir.filename().string();

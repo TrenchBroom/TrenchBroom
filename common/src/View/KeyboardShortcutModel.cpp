@@ -21,10 +21,10 @@
 
 #include <QBrush>
 
-#include "IO/PathQt.h"
 #include "View/ActionContext.h"
 #include "View/Actions.h"
 #include "View/MapDocument.h"
+#include "io/PathQt.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
@@ -167,7 +167,7 @@ void KeyboardShortcutModel::initializeMenuActions()
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
       m_actions.push_back(ActionInfo{
-        currentPath / IO::pathFromQString(actionItem.action.label()), actionItem.action});
+        currentPath / io::pathFromQString(actionItem.action.label()), actionItem.action});
     },
     [&](const auto& thisLambda, const Menu& menu) {
       currentPath = currentPath / menu.name;
@@ -181,7 +181,7 @@ void KeyboardShortcutModel::initializeViewActions()
   const auto& actionManager = ActionManager::instance();
   actionManager.visitMapViewActions([&](const Action& action) {
     m_actions.push_back(
-      ActionInfo{"Map View" / IO::pathFromQString(action.label()), action});
+      ActionInfo{"Map View" / io::pathFromQString(action.label()), action});
   });
 }
 
@@ -189,7 +189,7 @@ void KeyboardShortcutModel::initializeTagActions()
 {
   assert(m_document);
   m_document->visitTagActions([&](const Action& action) {
-    m_actions.push_back(ActionInfo{"Tags" / IO::pathFromQString(action.label()), action});
+    m_actions.push_back(ActionInfo{"Tags" / io::pathFromQString(action.label()), action});
   });
 }
 
@@ -198,7 +198,7 @@ void KeyboardShortcutModel::initializeEntityDefinitionActions()
   assert(m_document);
   m_document->visitEntityDefinitionActions([&](const Action& action) {
     m_actions.push_back(
-      ActionInfo{"Entity Definitions" / IO::pathFromQString(action.label()), action});
+      ActionInfo{"Entity Definitions" / io::pathFromQString(action.label()), action});
   });
 }
 

@@ -22,7 +22,6 @@
 #include <QCheckBox>
 #include <QLabel>
 
-#include "IO/ResourceUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/FormWithSectionsLayout.h"
@@ -30,6 +29,7 @@
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
+#include "io/ResourceUtils.h"
 
 #include <tuple>
 #include <vector>
@@ -91,7 +91,7 @@ void MousePreferencePane::createGui()
          m_upKeyConflictIcon,
          m_downKeyConflictIcon})
   {
-    icon->setPixmap(IO::loadSVGPixmap("Conflict.svg"));
+    icon->setPixmap(io::loadSVGPixmap("Conflict.svg"));
     icon->setVisible(false);
     icon->setToolTip("This shortcut is in conflict");
   }

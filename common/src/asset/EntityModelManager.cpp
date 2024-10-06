@@ -20,10 +20,6 @@
 #include "EntityModelManager.h"
 
 #include "Exceptions.h"
-#include "IO/LoadEntityModel.h"
-#include "IO/LoadMaterialCollections.h"
-#include "IO/LoadShaders.h"
-#include "IO/MaterialUtils.h"
 #include "Logger.h"
 #include "Macros.h"
 #include "Model/Game.h"
@@ -31,6 +27,10 @@
 #include "asset/EntityModel.h"
 #include "asset/Quake3Shader.h"
 #include "asset/Resource.h"
+#include "io/LoadEntityModel.h"
+#include "io/LoadMaterialCollections.h"
+#include "io/LoadShaders.h"
+#include "io/MaterialUtils.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -67,7 +67,7 @@ void EntityModelManager::reloadShaders()
   if (m_game)
   {
     m_shaders =
-      IO::loadShaders(m_game->gameFileSystem(), m_game->config().materialConfig, m_logger)
+      io::loadShaders(m_game->gameFileSystem(), m_game->config().materialConfig, m_logger)
       | kdl::if_error(
         [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
       | kdl::value_or(std::vector<Quake3Shader>{});
@@ -206,13 +206,13 @@ Result<EntityModel> EntityModelManager::loadModel(
     };
 
     const auto loadMaterial = [&](const auto& materialPath) {
-      return IO::loadMaterial(
+      return io::loadMaterial(
                fs, materialConfig, materialPath, createResource, m_shaders, std::nullopt)
-             | kdl::or_else(IO::makeReadMaterialErrorHandler(fs, m_logger))
+             | kdl::or_else(io::makeReadMaterialErrorHandler(fs, m_logger))
              | kdl::value();
     };
 
-    return IO::loadEntityModelAsync(
+    return io::loadEntityModelAsync(
       fs, materialConfig, modelPath, loadMaterial, m_createResource, m_logger);
   }
   return Error{"Game is not set"};

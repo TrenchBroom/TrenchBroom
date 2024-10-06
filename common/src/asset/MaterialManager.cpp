@@ -19,11 +19,11 @@
 
 #include "MaterialManager.h"
 
-#include "IO/LoadMaterialCollections.h"
 #include "Logger.h"
 #include "asset/Material.h"
 #include "asset/MaterialCollection.h"
 #include "asset/Resource.h"
+#include "io/LoadMaterialCollections.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
@@ -46,12 +46,12 @@ MaterialManager::MaterialManager(Logger& logger)
 MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
-  const IO::FileSystem& fs,
+  const io::FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource)
 {
   clear();
-  IO::loadMaterialCollections(fs, materialConfig, createResource, m_logger)
+  io::loadMaterialCollections(fs, materialConfig, createResource, m_logger)
     | kdl::transform([&](auto materialCollections) {
         for (auto& collection : materialCollections)
         {

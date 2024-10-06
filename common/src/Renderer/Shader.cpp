@@ -19,7 +19,7 @@
 
 #include "Shader.h"
 
-#include "IO/DiskIO.h"
+#include "io/DiskIO.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -75,7 +75,7 @@ namespace
 
 Result<std::vector<std::string>> loadSource(const std::filesystem::path& path)
 {
-  return IO::Disk::withInputStream(path, [](auto& stream) {
+  return io::Disk::withInputStream(path, [](auto& stream) {
     std::string line;
     std::vector<std::string> lines;
 

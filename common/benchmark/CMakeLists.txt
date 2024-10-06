@@ -1,8 +1,8 @@
 set(COMMON_BENCHMARK_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(COMMON_BENCHMARK_SOURCE
         "${COMMON_BENCHMARK_SOURCE_DIR}/BenchmarkUtils.h"
-        "${COMMON_BENCHMARK_SOURCE_DIR}/IO/TestParserStatus.h"
-        "${COMMON_BENCHMARK_SOURCE_DIR}/IO/TestParserStatus.cpp"
+        "${COMMON_BENCHMARK_SOURCE_DIR}/io/TestParserStatus.h"
+        "${COMMON_BENCHMARK_SOURCE_DIR}/io/TestParserStatus.cpp"
         "${COMMON_BENCHMARK_SOURCE_DIR}/Main.cpp"
         "${COMMON_BENCHMARK_SOURCE_DIR}/Renderer/BrushRendererBenchmark.cpp"
 )

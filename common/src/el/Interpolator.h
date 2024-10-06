@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "IO/ELParser.h"
 #include "el/EL_Forward.h"
+#include "io/ELParser.h"
 
 #include <string>
 #include <string_view>
@@ -28,7 +28,7 @@
 namespace tb::el
 {
 
-class Interpolator : private IO::ELParser
+class Interpolator : private io::ELParser
 {
 public:
   explicit Interpolator(std::string_view str);

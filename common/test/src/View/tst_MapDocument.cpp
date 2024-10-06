@@ -18,7 +18,6 @@
  */
 
 #include "Exceptions.h"
-#include "IO/WorldReader.h"
 #include "MapDocumentTest.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushNode.h"
@@ -34,6 +33,7 @@
 #include "View/MapDocumentCommandFacade.h"
 #include "asset/EntityDefinition.h"
 #include "asset/PropertyDefinition.h"
+#include "io/WorldReader.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
@@ -161,7 +161,7 @@ TEST_CASE("MapDocumentTest.mixedFormats")
       "fixture/test/View/MapDocumentTest/mixedFormats.map",
       "Quake",
       Model::MapFormat::Unknown),
-    IO::WorldReaderException);
+    io::WorldReaderException);
 }
 
 TEST_CASE("MapDocument.reloadMaterialCollections")

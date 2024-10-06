@@ -19,7 +19,7 @@
 
 #include "PortalFile.h"
 
-#include "IO/DiskIO.h"
+#include "io/DiskIO.h"
 
 #include "kdl/result.h"
 #include "kdl/string_format.h"
@@ -45,7 +45,7 @@ const std::vector<vm::polygon3f>& PortalFile::portals() const
 
 bool canLoadPortalFile(const std::filesystem::path& path)
 {
-  return IO::Disk::withInputStream(
+  return io::Disk::withInputStream(
            path, [](auto& stream) { return stream.is_open() && stream.good(); })
          | kdl::transform_error([](const auto&) { return false; }) | kdl::value();
 }

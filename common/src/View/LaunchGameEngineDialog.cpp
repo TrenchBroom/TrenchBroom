@@ -27,7 +27,6 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "IO/PathQt.h"
 #include "Model/GameConfig.h"
 #include "Model/GameEngineProfile.h"
 #include "Model/GameFactory.h"
@@ -43,6 +42,7 @@
 #include "View/ViewConstants.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
+#include "io/PathQt.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
@@ -247,14 +247,14 @@ void LaunchGameEngineDialog::launchEngine()
     const auto parameters =
       el::interpolate(profile->parameterSpec, el::EvaluationContext{variables()});
 
-    const auto workDir = IO::pathAsQString(profile->path.parent_path());
+    const auto workDir = io::pathAsQString(profile->path.parent_path());
 
 #ifdef __APPLE__
     // We have to launch apps via the 'open' command so that we can properly pass
     // parameters.
     const auto arguments = QStringList{
       "-a",
-      IO::pathAsQString(profile->path),
+      io::pathAsQString(profile->path),
       "--args",
       QString::fromStdString(parameters)};
 
@@ -264,7 +264,7 @@ void LaunchGameEngineDialog::launchEngine()
     }
 #else
     const auto commandAndArgs = QString::fromLatin1("\"%1\" %2")
-                                  .arg(IO::pathAsQString(profile->path))
+                                  .arg(io::pathAsQString(profile->path))
                                   .arg(QString::fromStdString(parameters));
 
     const auto oldWorkDir = QDir::currentPath();

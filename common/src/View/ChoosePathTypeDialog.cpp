@@ -23,13 +23,13 @@
 #include <QLabel>
 #include <QRadioButton>
 
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
 #include "Macros.h"
 #include "View/BorderLine.h"
 #include "View/DialogHeader.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "io/PathQt.h"
+#include "io/SystemPaths.h"
 
 namespace tb::View
 {
@@ -49,7 +49,7 @@ std::filesystem::path convertToPathType(
   case PathType::GameRelative:
     return absPath.lexically_relative(gamePath);
   case PathType::AppRelative:
-    return absPath.lexically_relative(IO::SystemPaths::appDirectory());
+    return absPath.lexically_relative(io::SystemPaths::appDirectory());
     switchDefault();
   }
 }
@@ -92,7 +92,7 @@ void ChoosePathTypeDialog::createGui(
   makeEmphasized(m_absRadio);
   m_absRadio->setChecked(true);
 
-  auto* absolutePathText = makeInfo(new QLabel{IO::pathAsQString(absPath)});
+  auto* absolutePathText = makeInfo(new QLabel{io::pathAsQString(absPath)});
 
   m_docRelativeRadio = new QRadioButton{tr("Relative to map file")};
   makeEmphasized(m_docRelativeRadio);
@@ -100,7 +100,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* mapRelativePathText = makeInfo(new QLabel{
     docRelativePath.empty() ? tr("Could not build a path.")
-                            : IO::pathAsQString(docRelativePath)});
+                            : io::pathAsQString(docRelativePath)});
 
   m_appRelativeRadio = new QRadioButton{tr("Relative to application executable")};
   makeEmphasized(m_appRelativeRadio);
@@ -108,7 +108,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* appRelativePathText = makeInfo(new QLabel{
     appRelativePath.empty() ? tr("Could not build a path.")
-                            : IO::pathAsQString(appRelativePath)});
+                            : io::pathAsQString(appRelativePath)});
 
   m_gameRelativeRadio = new QRadioButton{tr("Relative to game directory")};
   makeEmphasized(m_gameRelativeRadio);
@@ -116,7 +116,7 @@ void ChoosePathTypeDialog::createGui(
 
   auto* gameRelativePathText = makeInfo(new QLabel{
     gameRelativePath.empty() ? tr("Could not build a path.")
-                             : IO::pathAsQString(gameRelativePath)});
+                             : io::pathAsQString(gameRelativePath)});
 
   auto* okCancelButtons =
     new QDialogButtonBox{QDialogButtonBox::Ok | QDialogButtonBox::Cancel};

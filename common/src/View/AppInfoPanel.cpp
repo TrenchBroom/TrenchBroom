@@ -26,11 +26,11 @@
 #include <QStringBuilder>
 #include <QVBoxLayout>
 
-#include "IO/ResourceUtils.h"
 #include "View/BorderLine.h"
 #include "View/ClickableLabel.h"
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
+#include "io/ResourceUtils.h"
 
 namespace tb::View
 {
@@ -43,7 +43,7 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
 
 void AppInfoPanel::createGui()
 {
-  auto appIconImage = IO::loadPixmapResource("AppIcon.png");
+  auto appIconImage = io::loadPixmapResource("AppIcon.png");
   auto* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
 

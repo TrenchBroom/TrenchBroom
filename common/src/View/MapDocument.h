@@ -312,7 +312,7 @@ public: // new, load, save document
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
-  Result<void> exportDocumentAs(const IO::ExportOptions& options);
+  Result<void> exportDocumentAs(const io::ExportOptions& options);
 
 private:
   void doSaveDocument(const std::filesystem::path& path);

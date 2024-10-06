@@ -21,11 +21,11 @@
 
 #include "Ensure.h"
 #include "Exceptions.h"
-#include "IO/File.h"
-#include "IO/ImageLoader.h"
-#include "IO/Reader.h"
 #include "Macros.h"
 #include "asset/TextureBuffer.h"
+#include "io/File.h"
+#include "io/ImageLoader.h"
+#include "io/Reader.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/string_format.h"
@@ -61,7 +61,7 @@ Palette::Palette(std::shared_ptr<PaletteData> data)
 }
 
 bool Palette::indexedToRgba(
-  IO::Reader& reader,
+  io::Reader& reader,
   const size_t pixelCount,
   TextureBuffer& rgbaImage,
   const PaletteTransparency transparency,
@@ -182,14 +182,14 @@ Result<Palette> makePalette(
 namespace
 {
 
-Result<Palette> loadLmp(IO::Reader& reader)
+Result<Palette> loadLmp(io::Reader& reader)
 {
   auto data = std::vector<unsigned char>(reader.size());
   reader.read(data.data(), data.size());
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
-Result<Palette> loadPcx(IO::Reader& reader)
+Result<Palette> loadPcx(io::Reader& reader)
 {
   auto data = std::vector<unsigned char>(768);
   reader.seekFromEnd(data.size());
@@ -197,19 +197,19 @@ Result<Palette> loadPcx(IO::Reader& reader)
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
-Result<Palette> loadBmp(IO::Reader& reader)
+Result<Palette> loadBmp(io::Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   auto imageLoader =
-    IO::ImageLoader{IO::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
+    io::ImageLoader{io::ImageLoader::BMP, bufferedReader.begin(), bufferedReader.end()};
   auto data = imageLoader.hasPalette() ? imageLoader.loadPalette()
-                                       : imageLoader.loadPixels(IO::ImageLoader::RGB);
+                                       : imageLoader.loadPixels(io::ImageLoader::RGB);
   return makePalette(data, PaletteColorFormat::Rgb);
 }
 
 } // namespace
 
-Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path)
+Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& path)
 {
   try
   {
@@ -239,7 +239,7 @@ Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& p
   }
 }
 
-Result<Palette> loadPalette(IO::Reader& reader, const PaletteColorFormat colorFormat)
+Result<Palette> loadPalette(io::Reader& reader, const PaletteColorFormat colorFormat)
 {
   try
   {

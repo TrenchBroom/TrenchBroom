@@ -22,11 +22,11 @@
 #include <QSettings>
 #include <QTextStream>
 
-#include "IO/PathQt.h"
 #include "KeyStrings.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/Actions.h"
+#include "io/PathQt.h"
 
 #include <array>
 #include <tuple>
@@ -112,7 +112,7 @@ void printMenuShortcuts(QTextStream& out)
   actionManager.visitMainMenu(kdl::overload(
     [](const MenuSeparator&) {},
     [&](const MenuAction& actionItem) {
-      out << "    '" << IO::pathAsGenericQString(actionItem.action.preferencePath())
+      out << "    '" << io::pathAsGenericQString(actionItem.action.preferencePath())
           << "': "
           << "{ path: " << toString(currentPath, actionItem.action.label())
           << ", shortcut: " << toString(actionItem.action.keySequence()) << " },\n";
@@ -131,7 +131,7 @@ void printActionShortcuts(QTextStream& out)
   out << "const actions = {\n";
 
   auto printPref = [&out](const auto& prefPath, const auto& keySequence) {
-    out << "    '" << IO::pathAsGenericQString(prefPath) << "': ";
+    out << "    '" << io::pathAsGenericQString(prefPath) << "': ";
     out << toString(keySequence) << ",\n";
   };
 

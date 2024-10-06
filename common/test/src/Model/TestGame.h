@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "IO/VirtualFileSystem.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/Game.h"
 #include "Result.h"
+#include "io/VirtualFileSystem.h"
 
 #include <filesystem>
 #include <memory>
@@ -34,11 +34,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::IO
+namespace tb::io
 {
 class Path;
 class VirtualFileSystem;
-} // namespace tb::IO
+} // namespace tb::io
 
 namespace tb::Model
 {
@@ -46,7 +46,7 @@ class TestGame : public Game
 {
 private:
   GameConfig m_config = {"Test", {}, {}, false, {}, {}, {}, {}, {}, {}, {}, {}};
-  std::unique_ptr<IO::VirtualFileSystem> m_fs;
+  std::unique_ptr<io::VirtualFileSystem> m_fs;
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
 public:
@@ -54,7 +54,7 @@ public:
   ~TestGame() override;
 
   const GameConfig& config() const override;
-  const IO::FileSystem& gameFileSystem() const override;
+  const io::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
   void setGamePath(const std::filesystem::path& gamePath, Logger& logger) override;
@@ -74,7 +74,7 @@ public:
   Result<void> writeMap(
     WorldNode& world, const std::filesystem::path& path) const override;
   Result<void> exportMap(
-    WorldNode& world, const IO::ExportOptions& options) const override;
+    WorldNode& world, const io::ExportOptions& options) const override;
 
   std::vector<Node*> parseNodes(
     const std::string& str,
@@ -117,7 +117,7 @@ public:
   std::string defaultMod() const override;
 
   Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> loadEntityDefinitions(
-    IO::ParserStatus& status, const std::filesystem::path& path) const override;
+    io::ParserStatus& status, const std::filesystem::path& path) const override;
 
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
   void setSmartTags(std::vector<SmartTag> smartTags);

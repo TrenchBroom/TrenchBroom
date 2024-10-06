@@ -23,7 +23,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "IO/PathQt.h"
 #include "Model/Node.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
@@ -32,6 +31,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
+#include "io/PathQt.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -302,7 +302,7 @@ void updateListBox(QListWidget* box, const std::vector<std::filesystem::path>& p
   box->clear();
   for (const auto& path : paths)
   {
-    box->addItem(IO::pathAsQString(path));
+    box->addItem(io::pathAsQString(path));
   }
 }
 

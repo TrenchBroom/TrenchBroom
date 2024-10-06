@@ -27,11 +27,11 @@
 #include <vector>
 
 
-namespace tb::IO
+namespace tb::io
 {
 class EntityDefinitionLoader;
 class ParserStatus;
-} // namespace tb::IO
+} // namespace tb::io
 
 namespace tb::Model
 {
@@ -58,8 +58,8 @@ public:
 
   Result<void> loadDefinitions(
     const std::filesystem::path& path,
-    const IO::EntityDefinitionLoader& loader,
-    IO::ParserStatus& status);
+    const io::EntityDefinitionLoader& loader,
+    io::ParserStatus& status);
   void setDefinitions(std::vector<std::unique_ptr<EntityDefinition>> newDefinitions);
   void clear();
 

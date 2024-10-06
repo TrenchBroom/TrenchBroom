@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/ELParser.h"
 #include "asset/ModelDefinition.h"
 #include "el/Expression.h"
 #include "el/VariableStore.h"
+#include "io/ELParser.h"
 
 #include <map>
 #include <tuple>
@@ -34,7 +34,7 @@ namespace
 
 ModelDefinition makeModelDefinition(const std::string& expression)
 {
-  auto parser = IO::ELParser{IO::ELParser::Mode::Strict, expression};
+  auto parser = io::ELParser{io::ELParser::Mode::Strict, expression};
   return ModelDefinition{parser.parse()};
 }
 
@@ -155,7 +155,7 @@ TEST_CASE("ModelDefinition")
 
     const auto defaultScaleExpression =
       globalScaleExpressionStr
-        ? std::optional<el::ExpressionNode>{IO::ELParser::parseStrict(
+        ? std::optional<el::ExpressionNode>{io::ELParser::parseStrict(
             *globalScaleExpressionStr)}
         : std::nullopt;
 

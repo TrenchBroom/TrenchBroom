@@ -44,7 +44,7 @@ std::string Interpolator::interpolate(const EvaluationContext& context)
       const auto expression = parse();
       result
         << expression.evaluate(context).convertTo(el::ValueType::String).stringValue();
-      expect(IO::ELToken::CBrace, m_tokenizer.nextToken());
+      expect(io::ELToken::CBrace, m_tokenizer.nextToken());
     }
   }
 

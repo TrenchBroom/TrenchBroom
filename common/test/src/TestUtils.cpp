@@ -20,8 +20,6 @@
 #include "TestUtils.h"
 
 #include "Ensure.h"
-#include "IO/DiskIO.h"
-#include "IO/GameConfigParser.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -38,6 +36,8 @@
 #include "asset/Material.h"
 #include "asset/Resource.h"
 #include "asset/Texture.h"
+#include "io/DiskIO.h"
+#include "io/GameConfigParser.h"
 
 #include "kdl/result.h"
 
@@ -158,7 +158,7 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
-namespace IO
+namespace io
 {
 std::string readTextFile(const std::filesystem::path& path)
 {
@@ -172,7 +172,7 @@ std::string readTextFile(const std::filesystem::path& path)
            })
          | kdl::value();
 }
-} // namespace IO
+} // namespace io
 
 namespace Model
 {
@@ -338,8 +338,8 @@ GameAndConfig loadGame(const std::string& gameName)
     std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
     std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
-  const auto configStr = IO::readTextFile(configPath);
-  auto configParser = IO::GameConfigParser(configStr, configPath);
+  const auto configStr = io::readTextFile(configPath);
+  auto configParser = io::GameConfigParser(configStr, configPath);
   auto config = std::make_unique<Model::GameConfig>(configParser.parse());
   auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
 

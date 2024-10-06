@@ -39,7 +39,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 {
   document->deselectAll();
   document->setProperty(
-    Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
+    Model::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
   auto* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});

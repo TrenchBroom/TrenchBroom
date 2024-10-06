@@ -18,10 +18,10 @@
  */
 
 #include "Color.h"
-#include "IO/ELParser.h"
 #include "Model/Entity.h"
 #include "asset/EntityDefinition.h"
 #include "el/Expression.h"
+#include "io/ELParser.h"
 
 #include "Catch2.h"
 
@@ -32,7 +32,7 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
 {
   // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
 
-  const auto modelExpression = IO::ELParser{IO::ELParser::Mode::Strict, R"(
+  const auto modelExpression = io::ELParser{io::ELParser::Mode::Strict, R"(
 {{
     spawnflags & 2 ->   ":maps/b_bh100.bsp",
     spawnflags & 1 ->   ":maps/b_bh10.bsp",

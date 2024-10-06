@@ -21,7 +21,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QTextEdit>
 #include <QtTest/QSignalSpy>
 
-#include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
 #include "ReturnExitCode.h"
@@ -32,6 +31,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "View/CompilationVariables.h"
 #include "View/TextOutputAdapter.h"
 #include "el/VariableStore.h"
+#include "io/TestEnvironment.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -122,7 +122,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsZeroExitCode")
 {
-  auto testEnvironment = IO::TestEnvironment{};
+  auto testEnvironment = io::TestEnvironment{};
   testEnvironment.createFile("test.txt", "hello world");
 
   auto variables = CompilationVariables{document, testEnvironment.dir().string()};
@@ -229,7 +229,7 @@ TEST_CASE_METHOD(
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto testEnvironment = IO::TestEnvironment{};
+  auto testEnvironment = io::TestEnvironment{};
 
   const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto testEnvironment = IO::TestEnvironment{};
+  auto testEnvironment = io::TestEnvironment{};
 
   const auto sourcePath = "my_map.map";
   testEnvironment.createFile(sourcePath, "{}");
@@ -290,7 +290,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto testEnvironment = IO::TestEnvironment{};
+  auto testEnvironment = io::TestEnvironment{};
 
   const auto file1 = "file1.lit";
   const auto file2 = "file2.lit";
@@ -324,7 +324,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
   const auto does_exist = "does_exist.map";
   const auto should_not_exist = "should_not_exist.map";
 
-  auto testEnvironment = IO::TestEnvironment{};
+  auto testEnvironment = io::TestEnvironment{};
   testEnvironment.createFile(does_exist, "");
 
   auto compilationProfile = Model::CompilationProfile{

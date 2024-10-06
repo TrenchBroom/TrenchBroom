@@ -20,11 +20,11 @@
 #include "EntityDefinitionManager.h"
 
 #include "Ensure.h"
-#include "IO/EntityDefinitionLoader.h"
 #include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionGroup.h"
+#include "io/EntityDefinitionLoader.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -42,8 +42,8 @@ EntityDefinitionManager::~EntityDefinitionManager()
 
 Result<void> EntityDefinitionManager::loadDefinitions(
   const std::filesystem::path& path,
-  const IO::EntityDefinitionLoader& loader,
-  IO::ParserStatus& status)
+  const io::EntityDefinitionLoader& loader,
+  io::ParserStatus& status)
 {
   return loader.loadEntityDefinitions(status, path)
          | kdl::transform(

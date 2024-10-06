@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/DiskIO.h"
 #include "Result.h"
 #include "asset/Palette.h"
+#include "io/DiskIO.h"
 
 #include "kdl/result.h"
 
@@ -207,7 +207,7 @@ TEST_CASE("loadPalette")
 
   const auto basePath = std::filesystem::current_path() / "fixture/test/asset/Palette/";
   const auto filePath = basePath / filename;
-  const auto file = IO::Disk::openFile(filePath) | kdl::value();
+  const auto file = io::Disk::openFile(filePath) | kdl::value();
 
   const auto expectedPalette = makePalette(expectedPaletteData, PaletteColorFormat::Rgb);
 

@@ -19,12 +19,12 @@
 
 #include "Autosaver.h"
 
-#include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/FileSystem.h"
-#include "IO/PathInfo.h"
-#include "IO/TraversalMode.h"
 #include "View/MapDocument.h"
+#include "io/DiskFileSystem.h"
+#include "io/DiskIO.h"
+#include "io/FileSystem.h"
+#include "io/PathInfo.h"
+#include "io/TraversalMode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/path_utils.h"
@@ -44,27 +44,27 @@ namespace tb::View
 namespace
 {
 
-Result<IO::WritableDiskFileSystem> createBackupFileSystem(
+Result<io::WritableDiskFileSystem> createBackupFileSystem(
   const std::filesystem::path& mapPath)
 {
   const auto basePath = mapPath.parent_path();
   const auto autosavePath = basePath / "autosave";
 
-  return IO::Disk::createDirectory(autosavePath)
-         | kdl::transform([&](auto) { return IO::WritableDiskFileSystem{autosavePath}; });
+  return io::Disk::createDirectory(autosavePath)
+         | kdl::transform([&](auto) { return io::WritableDiskFileSystem{autosavePath}; });
 }
 
 Result<std::vector<std::filesystem::path>> collectBackups(
-  const IO::FileSystem& fs, const std::filesystem::path& mapBasename)
+  const io::FileSystem& fs, const std::filesystem::path& mapBasename)
 {
-  return fs.find({}, IO::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
+  return fs.find({}, io::TraversalMode::Flat, makeBackupPathMatcher(mapBasename))
          | kdl::transform(
            [](auto backupPaths) { return kdl::vec_sort(std::move(backupPaths)); });
 }
 
 Result<std::vector<std::filesystem::path>> thinBackups(
   Logger& logger,
-  IO::WritableDiskFileSystem& fs,
+  io::WritableDiskFileSystem& fs,
   const std::vector<std::filesystem::path>& backups,
   const size_t maxBackups)
 {
@@ -96,7 +96,7 @@ std::filesystem::path makeBackupName(
 }
 
 Result<void> cleanBackups(
-  IO::WritableDiskFileSystem& fs,
+  io::WritableDiskFileSystem& fs,
   std::vector<std::filesystem::path>& backups,
   const std::filesystem::path& mapBasename)
 {
@@ -113,7 +113,7 @@ Result<void> cleanBackups(
 
 } // namespace
 
-IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
+io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
 {
   return
     [mapBasename = std::move(mapBasename_)](const auto& path, const auto& getPathInfo) {
@@ -122,7 +122,7 @@ IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
       const auto backupExtension = backupName.extension().string();
       const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
 
-      return getPathInfo(path) == IO::PathInfo::File
+      return getPathInfo(path) == io::PathInfo::File
              && kdl::ci::str_is_equal(path.extension().string(), ".map")
              && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
              && kdl::str_to_size(backupNum).value_or(0u) > 0u;
@@ -158,7 +158,7 @@ void Autosaver::triggerAutosave(Logger& logger)
 void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
 {
   const auto& mapPath = document->path();
-  assert(IO::Disk::pathInfo(mapPath) == IO::PathInfo::File);
+  assert(io::Disk::pathInfo(mapPath) == io::PathInfo::File);
 
   const auto mapFilename = mapPath.filename();
   const auto mapBasename = mapPath.stem();

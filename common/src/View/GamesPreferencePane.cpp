@@ -32,9 +32,6 @@
 #include <QWidget>
 
 #include "FileLogger.h"
-#include "IO/DiskIO.h"
-#include "IO/PathQt.h"
-#include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
 #include "View/BorderLine.h"
@@ -44,6 +41,9 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "io/DiskIO.h"
+#include "io/PathQt.h"
+#include "io/ResourceUtils.h"
 
 namespace tb::View
 {
@@ -105,8 +105,8 @@ void GamesPreferencePane::showUserConfigDirClicked()
   auto& gameFactory = Model::GameFactory::instance();
   auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
-  IO::Disk::createDirectory(path) | kdl::transform([&](auto) {
-    const auto url = QUrl::fromLocalFile(IO::pathAsQString(path));
+  io::Disk::createDirectory(path) | kdl::transform([&](auto) {
+    const auto url = QUrl::fromLocalFile(io::pathAsQString(path));
     QDesktopServices::openUrl(url);
   }) | kdl::transform_error([&](auto e) {
     if (m_document)
@@ -195,7 +195,7 @@ void GamePreferencePane::createGui()
       else
       {
         validDirectoryIcon->setToolTip(tr("Directory not found"));
-        validDirectoryIcon->setIcon(IO::loadSVGIcon("IssueBrowser.svg"));
+        validDirectoryIcon->setIcon(io::loadSVGIcon("IssueBrowser.svg"));
       }
     });
 
@@ -238,14 +238,14 @@ void GamePreferencePane::createGui()
     const auto toolName = tool.name;
     auto* edit = new QLineEdit{};
     edit->setText(
-      IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
+      io::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
     if (tool.description)
     {
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
     connect(edit, &QLineEdit::editingFinished, this, [this, toolName, edit]() {
       Model::GameFactory::instance().setCompilationToolPath(
-        m_gameName, toolName, IO::pathFromQString(edit->text()));
+        m_gameName, toolName, io::pathFromQString(edit->text()));
     });
 
     auto* browseButton = new QPushButton{"..."};
@@ -258,7 +258,7 @@ void GamePreferencePane::createGui()
       {
         edit->setText(pathStr);
         if (Model::GameFactory::instance().setCompilationToolPath(
-              m_gameName, toolName, IO::pathFromQString(pathStr)))
+              m_gameName, toolName, io::pathFromQString(pathStr)))
         {
           emit requestUpdate();
         }
@@ -293,7 +293,7 @@ void GamePreferencePane::updateGamePath(const QString& str)
 {
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
-  const auto gamePath = IO::pathFromQString(str);
+  const auto gamePath = io::pathFromQString(str);
   auto& gameFactory = Model::GameFactory::instance();
   if (gameFactory.setGamePath(m_gameName, gamePath))
   {
@@ -320,12 +320,12 @@ void GamePreferencePane::updateControls()
   for (const auto& [toolName, toolPathEditor] : m_toolPathEditors)
   {
     toolPathEditor->setText(
-      IO::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
+      io::pathAsQString(gameFactory.compilationToolPath(m_gameName, toolName)));
   }
 
   // Refresh game path
   const auto gamePath = gameFactory.gamePath(m_gameName);
-  m_gamePathText->setText(IO::pathAsQString(gamePath));
+  m_gamePathText->setText(io::pathAsQString(gamePath));
 }
 
 } // namespace tb::View

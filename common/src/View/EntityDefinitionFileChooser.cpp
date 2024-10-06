@@ -26,7 +26,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -34,6 +33,7 @@
 #include "View/TitledPanel.h"
 #include "View/ViewUtils.h"
 #include "asset/EntityDefinitionFileSpec.h"
+#include "io/PathQt.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -189,7 +189,7 @@ void EntityDefinitionFileChooser::updateControls()
     const auto& path = spec.path();
 
     auto* item = new QListWidgetItem();
-    item->setData(Qt::DisplayRole, IO::pathAsQString(path.filename()));
+    item->setData(Qt::DisplayRole, io::pathAsQString(path.filename()));
     item->setData(Qt::UserRole, QVariant::fromValue(spec));
 
     m_builtin->addItem(item);
@@ -218,7 +218,7 @@ void EntityDefinitionFileChooser::updateControls()
   else
   {
     m_builtin->clearSelection();
-    m_externalLabel->setText(IO::pathAsQString(spec.path()));
+    m_externalLabel->setText(io::pathAsQString(spec.path()));
 
     auto normalPal = QPalette{};
     m_externalLabel->setPalette(normalPal);

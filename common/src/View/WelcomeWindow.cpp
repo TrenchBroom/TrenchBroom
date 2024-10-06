@@ -24,13 +24,13 @@
 #include <QHBoxLayout>
 #include <QPushButton>
 
-#include "IO/PathQt.h"
 #include "TrenchBroomApp.h"
 #include "View/AppInfoPanel.h"
 #include "View/BorderLine.h"
 #include "View/QtUtils.h"
 #include "View/RecentDocumentListBox.h"
 #include "View/ViewConstants.h"
+#include "io/PathQt.h"
 
 namespace tb::View
 {
@@ -139,7 +139,7 @@ void WelcomeWindow::openOtherDocument()
     tr("Open Map"),
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
-  const auto path = IO::pathFromQString(pathStr);
+  const auto path = io::pathFromQString(pathStr);
 
   if (!path.empty())
   {

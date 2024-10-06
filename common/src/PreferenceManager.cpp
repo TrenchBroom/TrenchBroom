@@ -34,9 +34,9 @@
 #include <QStringBuilder>
 #include <QTimer>
 
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
 #include "Preferences.h"
+#include "io/PathQt.h"
+#include "io/SystemPaths.h"
 
 #include <vector>
 
@@ -317,7 +317,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   {
     // FIXME: Log to TB console
     const auto variantValue = jsonValue.toVariant();
-    qDebug() << "Failed to load preference " << IO::pathAsGenericQString(pref.path())
+    qDebug() << "Failed to load preference " << io::pathAsGenericQString(pref.path())
              << " from JSON value: " << variantValue.toString() << " ("
              << variantValue.typeName() << ")";
 
@@ -385,7 +385,7 @@ void togglePref(Preference<bool>& preference)
 
 QString preferenceFilePath()
 {
-  return IO::pathAsQString(IO::SystemPaths::userDataDirectory() / "Preferences.json");
+  return io::pathAsQString(io::SystemPaths::userDataDirectory() / "Preferences.json");
 }
 
 namespace
@@ -479,7 +479,7 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
   auto result = std::map<std::filesystem::path, QJsonValue>{};
   for (auto it = object.constBegin(); it != object.constEnd(); ++it)
   {
-    result[IO::pathFromQString(it.key())] = it.value();
+    result[io::pathFromQString(it.key())] = it.value();
   }
   return result;
 }
@@ -490,7 +490,7 @@ QByteArray writePreferencesToJson(
   auto rootObject = QJsonObject{};
   for (const auto& [key, val] : prefs)
   {
-    rootObject[IO::pathAsGenericQString(key)] = val;
+    rootObject[io::pathAsGenericQString(key)] = val;
   }
 
   auto document = QJsonDocument{rootObject};

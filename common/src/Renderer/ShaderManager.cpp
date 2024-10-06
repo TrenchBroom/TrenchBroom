@@ -20,8 +20,8 @@
 #include "ShaderManager.h"
 
 #include "Ensure.h"
-#include "IO/SystemPaths.h"
 #include "Renderer/ShaderConfig.h"
+#include "io/SystemPaths.h"
 
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -99,7 +99,7 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
   }
 
   const auto shaderPath =
-    IO::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
+    io::SystemPaths::findResourceFile(std::filesystem::path{"shader"} / name);
 
   return Renderer::loadShader(shaderPath, type) | kdl::transform([&](auto shader) {
            const auto [insertIt, inserted] = m_shaders.emplace(name, std::move(shader));

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/VirtualFileSystem.h"
+#include "io/VirtualFileSystem.h"
 
 #include <filesystem>
 #include <vector>
@@ -33,10 +33,10 @@ namespace tb::Model
 {
 struct GameConfig;
 
-class GameFileSystem : public IO::VirtualFileSystem
+class GameFileSystem : public io::VirtualFileSystem
 {
 private:
-  std::vector<IO::VirtualMountPointId> m_wadMountPoints;
+  std::vector<io::VirtualMountPointId> m_wadMountPoints;
 
 public:
   void initialize(

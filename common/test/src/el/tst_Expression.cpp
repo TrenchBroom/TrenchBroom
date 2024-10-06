@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/ELParser.h"
 #include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
+#include "io/ELParser.h"
 
 #include <fmt/ostream.h>
 
@@ -42,13 +42,13 @@ using V = Value;
 Value evaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
-  return IO::ELParser::parseStrict(expression).evaluate(context);
+  return io::ELParser::parseStrict(expression).evaluate(context);
 }
 
 Value tryEvaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
-  return IO::ELParser::parseStrict(expression).evaluate(context);
+  return io::ELParser::parseStrict(expression).evaluate(context);
 }
 
 } // namespace
@@ -833,7 +833,7 @@ TEST_CASE("ExpressionTest.testOptimize")
 
   CAPTURE(expression);
 
-  CHECK(IO::ELParser::parseStrict(expression).optimize() == expectedExpression);
+  CHECK(io::ELParser::parseStrict(expression).optimize() == expectedExpression);
 }
 
 namespace
@@ -842,7 +842,7 @@ std::vector<std::string> preorderVisit(const std::string& str)
 {
   auto result = std::vector<std::string>{};
 
-  IO::ELParser::parseStrict(str).accept(kdl::overload(
+  io::ELParser::parseStrict(str).accept(kdl::overload(
     [&](const LiteralExpression& literalExpression) {
       result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
     },

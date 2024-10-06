@@ -31,10 +31,10 @@ namespace tb
 {
 class Logger;
 
-namespace IO
+namespace io
 {
 class FileSystem;
-} // namespace IO
+} // namespace io
 
 namespace Model
 {
@@ -62,7 +62,7 @@ public:
   ~MaterialManager();
 
   void reload(
-    const IO::FileSystem& fs,
+    const io::FileSystem& fs,
     const Model::MaterialConfig& materialConfig,
     const asset::CreateTextureResource& createResource);
 

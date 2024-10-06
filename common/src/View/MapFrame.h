@@ -23,11 +23,11 @@
 #include <QMainWindow>
 #include <QPointer>
 
-#include "IO/ExportOptions.h"
 #include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 #include "Result.h"
 #include "View/Selection.h"
+#include "io/ExportOptions.h"
 
 #include <chrono>
 #include <filesystem>
@@ -206,7 +206,7 @@ public:
   void revertDocument();
   bool exportDocumentAsObj();
   bool exportDocumentAsMap();
-  bool exportDocument(const IO::ExportOptions& options);
+  bool exportDocument(const io::ExportOptions& options);
 
 private:
   bool confirmOrDiscardChanges();

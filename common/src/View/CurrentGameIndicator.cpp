@@ -22,8 +22,8 @@
 #include <QPixmap>
 #include <QString>
 
-#include "IO/ResourceUtils.h"
 #include "Model/GameFactory.h"
+#include "io/ResourceUtils.h"
 
 #include <filesystem>
 
@@ -42,7 +42,7 @@ CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget*
     iconPath = std::filesystem::path{"DefaultGameIcon.svg"};
   }
 
-  const auto gameIcon = IO::loadPixmapResource(iconPath);
+  const auto gameIcon = io::loadPixmapResource(iconPath);
   set(QString::fromStdString(gameName), gameIcon);
 }
 

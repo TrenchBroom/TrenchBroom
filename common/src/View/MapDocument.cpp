@@ -20,12 +20,6 @@
 #include "View/MapDocument.h"
 
 #include "Exceptions.h"
-#include "IO/DiskIO.h"
-#include "IO/ExportOptions.h"
-#include "IO/GameConfigParser.h"
-#include "IO/PathInfo.h"
-#include "IO/SimpleParserStatus.h"
-#include "IO/SystemPaths.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -105,6 +99,12 @@
 #include "asset/Material.h"
 #include "asset/MaterialManager.h"
 #include "asset/ResourceManager.h"
+#include "io/DiskIO.h"
+#include "io/ExportOptions.h"
+#include "io/GameConfigParser.h"
+#include "io/PathInfo.h"
+#include "io/SimpleParserStatus.h"
+#include "io/SystemPaths.h"
 
 #include "kdl/collection_utils.h"
 #include "kdl/grouped_range.h"
@@ -648,7 +648,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   });
 }
 
-Result<void> MapDocument::exportDocumentAs(const IO::ExportOptions& options)
+Result<void> MapDocument::exportDocumentAs(const io::ExportOptions& options)
 {
   return m_game->exportMap(*m_world, options);
 }
@@ -977,7 +977,7 @@ void MapDocument::loadPointFile(std::filesystem::path path)
     unloadPointFile();
   }
 
-  IO::Disk::withInputStream(path, [&](auto& stream) {
+  io::Disk::withInputStream(path, [&](auto& stream) {
     return Model::loadPointFile(stream) | kdl::transform([&](auto trace) {
              info() << "Loaded point file " << path;
              m_pointFile = PointFile{std::move(trace), std::move(path)};
@@ -1031,7 +1031,7 @@ void MapDocument::loadPortalFile(std::filesystem::path path)
   }
 
 
-  IO::Disk::withInputStream(path, [&](auto& stream) {
+  io::Disk::withInputStream(path, [&](auto& stream) {
     return Model::loadPortalFile(stream) | kdl::transform([&](auto portalFile) {
              info() << "Loaded portal file " << path;
              m_portalFile = {std::move(portalFile), std::move(path)};
@@ -4516,7 +4516,7 @@ void MapDocument::loadEntityDefinitions()
 {
   const auto spec = entityDefinitionFile();
   const auto path = m_game->findEntityDefinitionFile(spec, externalSearchPaths());
-  auto status = IO::SimpleParserStatus{logger()};
+  auto status = io::SimpleParserStatus{logger()};
 
   m_entityDefinitionManager->loadDefinitions(path, *m_game, status)
     | kdl::transform([&]() {
@@ -4801,7 +4801,7 @@ std::vector<std::filesystem::path> MapDocument::externalSearchPaths() const
     searchPaths.push_back(gamePath);
   }
 
-  searchPaths.push_back(IO::SystemPaths::appDirectory());
+  searchPaths.push_back(io::SystemPaths::appDirectory());
   return searchPaths;
 }
 
@@ -4860,7 +4860,7 @@ void MapDocument::setSoftMapBounds(const Model::Game::SoftMapBounds& bounds)
     {
       entity.addOrUpdateProperty(
         Model::EntityPropertyKeys::SoftMapBounds,
-        IO::serializeSoftMapBoundsString(*bounds.bounds));
+        io::serializeSoftMapBoundsString(*bounds.bounds));
     }
     break;
   case Model::Game::SoftMapBoundsType::Game:
@@ -5047,7 +5047,7 @@ void MapDocument::updateAllFaceTags()
 
 bool MapDocument::persistent() const
 {
-  return m_path.is_absolute() && IO::Disk::pathInfo(m_path) == IO::PathInfo::File;
+  return m_path.is_absolute() && io::Disk::pathInfo(m_path) == io::PathInfo::File;
 }
 
 std::string MapDocument::filename() const

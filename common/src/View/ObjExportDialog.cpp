@@ -28,14 +28,14 @@
 #include <QRadioButton>
 
 #include "Ensure.h"
-#include "IO/ExportOptions.h"
-#include "IO/PathQt.h"
 #include "QtUtils.h"
 #include "View/BorderLine.h"
 #include "View/DialogHeader.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/MapDocument.h" // IWYU pragma: keep
 #include "View/MapFrame.h"
+#include "io/ExportOptions.h"
+#include "io/PathQt.h"
 
 #include "kdl/path_utils.h"
 
@@ -139,11 +139,11 @@ void ObjExportDialog::createGui()
     }
   });
   connect(m_exportButton, &QPushButton::clicked, this, [&]() {
-    IO::ObjExportOptions options;
-    options.exportPath = IO::pathFromQString(m_exportPathEdit->text());
+    io::ObjExportOptions options;
+    options.exportPath = io::pathFromQString(m_exportPathEdit->text());
     options.mtlPathMode = m_relativeToGamePathRadioButton->isChecked()
-                            ? IO::ObjMtlPathMode::RelativeToGamePath
-                            : IO::ObjMtlPathMode::RelativeToExportPath;
+                            ? io::ObjMtlPathMode::RelativeToGamePath
+                            : io::ObjMtlPathMode::RelativeToExportPath;
     m_mapFrame->exportDocument(options);
     close();
   });
@@ -154,7 +154,7 @@ void ObjExportDialog::updateExportPath()
   const auto document = m_mapFrame->document();
   const auto& originalPath = document->path();
   const auto objPath = kdl::path_replace_extension(originalPath, ".obj");
-  m_exportPathEdit->setText(IO::pathAsQString(objPath));
+  m_exportPathEdit->setText(io::pathAsQString(objPath));
 }
 
 } // namespace tb::View

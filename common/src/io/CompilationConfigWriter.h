@@ -1,0 +1,59 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include "Macros.h"
+#include "el/EL_Forward.h"
+
+#include <iosfwd>
+#include <string>
+
+namespace tb::Model
+{
+struct CompilationConfig;
+struct CompilationProfile;
+} // namespace tb::Model
+
+namespace tb::io
+{
+
+class CompilationConfigWriter
+{
+private:
+  const Model::CompilationConfig& m_config;
+  std::ostream& m_stream;
+
+public:
+  CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
+
+  void writeConfig();
+
+private:
+  el::Value writeProfiles(const Model::CompilationConfig& config) const;
+  el::Value writeProfile(const Model::CompilationProfile& profile) const;
+
+  el::Value writeTasks(const Model::CompilationProfile& profile) const;
+
+  std::string escape(const std::string& str) const;
+
+  deleteCopyAndMove(CompilationConfigWriter);
+};
+
+} // namespace tb::io

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -34,6 +33,7 @@
 #include "Model/WorldNode.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/NodeWriter.h"
 
 #include "kdl/overload.h"
 #include "kdl/result.h"

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "IO/PathMatcher.h"
+#include "io/PathMatcher.h"
 
 #include <chrono>
 #include <filesystem>
@@ -35,7 +35,7 @@ namespace tb::View
 class Command;
 class MapDocument;
 
-IO::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
+io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename);
 
 class Autosaver
 {

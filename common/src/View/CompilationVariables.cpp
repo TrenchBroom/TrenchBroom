@@ -19,9 +19,9 @@
 
 #include "CompilationVariables.h"
 
-#include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "View/MapDocument.h"
+#include "io/SystemPaths.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/vector_utils.h"
@@ -78,7 +78,7 @@ CommonCompilationVariables::CommonCompilationVariables(
 {
   const auto filename = document->path().filename();
   const auto filePath = document->path().parent_path();
-  const auto appPath = IO::SystemPaths::appDirectory();
+  const auto appPath = io::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
   declare(MAP_FULL_NAME, el::Value{filename.string()});

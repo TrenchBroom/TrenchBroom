@@ -20,9 +20,9 @@
 #include "GameListBox.h"
 
 #include "Ensure.h"
-#include "IO/ResourceUtils.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "io/ResourceUtils.h"
 
 #include <filesystem>
 #include <string>
@@ -100,7 +100,7 @@ GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
 
   return Info{
     gameName,
-    IO::loadPixmapResource(iconPath),
+    io::loadPixmapResource(iconPath),
     QString::fromStdString(gameName + (experimental ? " (experimental)" : "")),
     QString::fromStdString(
       gamePath.empty() ? std::string("Game not found") : gamePath.string())};

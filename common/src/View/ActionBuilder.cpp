@@ -22,8 +22,8 @@
 #include <QMenuBar>
 #include <QToolBar>
 
-#include "IO/ResourceUtils.h"
 #include "View/Actions.h"
+#include "io/ResourceUtils.h"
 
 namespace tb::View
 {
@@ -64,7 +64,7 @@ QAction& findOrCreateQtAction(
   qtAction.setCheckable(tbAction.checkable());
   if (const auto& iconPath = tbAction.iconPath())
   {
-    qtAction.setIcon(IO::loadSVGIcon(*iconPath));
+    qtAction.setIcon(io::loadSVGIcon(*iconPath));
   }
   if (const auto& statusTip = tbAction.statusTip())
   {

@@ -24,7 +24,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QKeySequence>
 
 #include "Color.h"
-#include "IO/PathQt.h"
+#include "io/PathQt.h"
 
 namespace tb
 {
@@ -84,7 +84,7 @@ bool PreferenceSerializer::readFromJson(
     return false;
   }
 
-  out = IO::pathFromQString(in.toString());
+  out = io::pathFromQString(in.toString());
   return true;
 }
 
@@ -153,7 +153,7 @@ QJsonValue PreferenceSerializer::writeToJson(const int in) const
 
 QJsonValue PreferenceSerializer::writeToJson(const std::filesystem::path& in) const
 {
-  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << IO::pathAsQString(rhs); });
+  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << io::pathAsQString(rhs); });
 }
 
 QJsonValue PreferenceSerializer::writeToJson(const QKeySequence& in) const

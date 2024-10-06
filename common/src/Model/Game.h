@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "IO/EntityDefinitionLoader.h"
-#include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Result.h"
 #include "asset/TextureResource.h"
+#include "io/EntityDefinitionLoader.h"
+#include "io/ExportOptions.h"
 
 #include "vm/bbox.h"
 
@@ -46,7 +46,7 @@ class EntityDefinitionFileSpec;
 class MaterialManager;
 } // namespace tb::asset
 
-namespace tb::IO
+namespace tb::io
 {
 class FileSystem;
 }
@@ -63,11 +63,11 @@ class Node;
 class SmartTag;
 class WorldNode;
 
-class Game : public IO::EntityDefinitionLoader
+class Game : public io::EntityDefinitionLoader
 {
 public: // game configuration
   virtual const GameConfig& config() const = 0;
-  virtual const IO::FileSystem& gameFileSystem() const = 0;
+  virtual const io::FileSystem& gameFileSystem() const = 0;
 
   bool isGamePathPreference(const std::filesystem::path& prefPath) const;
 
@@ -113,7 +113,7 @@ public: // loading and writing map files
   virtual Result<void> writeMap(
     WorldNode& world, const std::filesystem::path& path) const = 0;
   virtual Result<void> exportMap(
-    WorldNode& world, const IO::ExportOptions& options) const = 0;
+    WorldNode& world, const io::ExportOptions& options) const = 0;
 
 public: // parsing and serializing objects
   virtual std::vector<Node*> parseNodes(

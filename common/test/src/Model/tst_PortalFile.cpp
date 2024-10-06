@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/DiskIO.h"
 #include "Model/PortalFile.h"
+#include "io/DiskIO.h"
 
 #include "vm/polygon.h"
 
@@ -32,7 +32,7 @@ namespace tb::Model
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1_invalid.prt";
-  CHECK(IO::Disk::withInputStream(path, [](auto& stream) {
+  CHECK(io::Disk::withInputStream(path, [](auto& stream) {
           return Model::loadPortalFile(stream);
         }).is_error());
 }
@@ -62,7 +62,7 @@ TEST_CASE("PortalFileTest.parsePRT1")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1.prt";
   CHECK(
-    (IO::Disk::withInputStream(
+    (io::Disk::withInputStream(
        path, [](auto& stream) { return Model::loadPortalFile(stream); })
      | kdl::value())
       .portals()
@@ -73,7 +73,7 @@ TEST_CASE("PortalFileTest.parsePRT1Q3")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1q3.prt";
   CHECK(
-    (IO::Disk::withInputStream(
+    (io::Disk::withInputStream(
        path, [](auto& stream) { return Model::loadPortalFile(stream); })
      | kdl::value())
       .portals()
@@ -84,7 +84,7 @@ TEST_CASE("PortalFileTest.parsePRT1AM")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt1am.prt";
   CHECK(
-    (IO::Disk::withInputStream(
+    (io::Disk::withInputStream(
        path, [](auto& stream) { return Model::loadPortalFile(stream); })
      | kdl::value())
       .portals()
@@ -95,7 +95,7 @@ TEST_CASE("PortalFileTest.parsePRT2")
 {
   const auto path = "fixture/test/Model/PortalFile/portaltest_prt2.prt";
   CHECK(
-    (IO::Disk::withInputStream(
+    (io::Disk::withInputStream(
        path, [](auto& stream) { return Model::loadPortalFile(stream); })
      | kdl::value())
       .portals()

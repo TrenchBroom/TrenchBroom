@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/NodeReader.h"
-#include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -31,6 +29,8 @@
 #include "TestUtils.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "io/NodeReader.h"
+#include "io/TestParserStatus.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -646,8 +646,8 @@ TEST_CASE("BrushFaceTest.testValveRotation")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto status = io::TestParserStatus{};
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -706,9 +706,9 @@ TEST_CASE("BrushFaceTest.testCopyUVCoordSystem")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(pyramidLight != nullptr);
 
@@ -779,9 +779,9 @@ TEST_CASE("BrushFaceTest.move45DegreeFace")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   CHECK(brushNode != nullptr);
 
@@ -868,9 +868,9 @@ TEST_CASE("BrushFaceTest.flipUV")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
   REQUIRE(brushNode != nullptr);
 

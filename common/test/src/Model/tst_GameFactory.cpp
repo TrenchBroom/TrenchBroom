@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
 #include "Model/GameFactory.h"
+#include "io/TestEnvironment.h"
 
 #include "kdl/vector_utils.h"
 
@@ -38,7 +38,7 @@ const auto gamesPath = std::filesystem::path{"games"};
 const auto userPath = std::filesystem::path{"user"};
 
 void writeGameConfig(
-  IO::TestEnvironment& env, const std::string& gameDirectory, const std::string& gameName)
+  io::TestEnvironment& env, const std::string& gameDirectory, const std::string& gameName)
 {
   env.createDirectory(gamesPath / gameDirectory);
   env.createFile(
@@ -74,7 +74,7 @@ void writeGameConfig(
       gameName));
 }
 
-void writeCompilationProfile(IO::TestEnvironment& env, const std::string& directory)
+void writeCompilationProfile(io::TestEnvironment& env, const std::string& directory)
 {
   env.createDirectory(userPath / directory);
   env.createFile(userPath / directory / "CompilationProfiles.cfg", R"({
@@ -94,7 +94,7 @@ void writeCompilationProfile(IO::TestEnvironment& env, const std::string& direct
 })");
 }
 
-void writeGameEngineProfile(IO::TestEnvironment& env, const std::string& directory)
+void writeGameEngineProfile(io::TestEnvironment& env, const std::string& directory)
 {
   env.createDirectory(userPath / directory);
   env.createFile(userPath / directory / "GameEngineProfiles.cfg", R"({
@@ -109,7 +109,7 @@ void writeGameEngineProfile(IO::TestEnvironment& env, const std::string& directo
 })");
 }
 
-void setupTestEnvironment(IO::TestEnvironment& env)
+void setupTestEnvironment(io::TestEnvironment& env)
 {
   env.createDirectory(gamesPath);
   env.createDirectory(userPath);
@@ -158,7 +158,7 @@ void setupTestEnvironment(IO::TestEnvironment& env)
 
 TEST_CASE("GameFactory")
 {
-  auto env = IO::TestEnvironment{setupTestEnvironment};
+  auto env = io::TestEnvironment{setupTestEnvironment};
   auto& gameFactory = GameFactory::instance();
   gameFactory.reset();
 

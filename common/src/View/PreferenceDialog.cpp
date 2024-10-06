@@ -27,8 +27,8 @@
 #include <QToolBar>
 #include <QToolButton>
 
-#include "IO/ResourceUtils.h"
 #include "PreferenceManager.h"
+#include "io/ResourceUtils.h"
 #if !defined __APPLE__
 #include "View/BorderLine.h"
 #endif
@@ -87,11 +87,11 @@ void PreferenceDialog::closeEvent(QCloseEvent* event)
 
 void PreferenceDialog::createGui()
 {
-  const auto gamesImage = IO::loadSVGIcon("GeneralPreferences.svg");
-  const auto viewImage = IO::loadSVGIcon("ViewPreferences.svg");
-  const auto colorsImage = IO::loadSVGIcon("ColorPreferences.svg");
-  const auto mouseImage = IO::loadSVGIcon("MousePreferences.svg");
-  const auto keyboardImage = IO::loadSVGIcon("KeyboardPreferences.svg");
+  const auto gamesImage = io::loadSVGIcon("GeneralPreferences.svg");
+  const auto viewImage = io::loadSVGIcon("ViewPreferences.svg");
+  const auto colorsImage = io::loadSVGIcon("ColorPreferences.svg");
+  const auto mouseImage = io::loadSVGIcon("MousePreferences.svg");
+  const auto keyboardImage = io::loadSVGIcon("KeyboardPreferences.svg");
 
   m_toolBar = new QToolBar{};
   m_toolBar->setFloatable(false);

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/LoadEntityModel.h"
 #include "Model/Game.h" // IWYU pragma: keep
 #include "Model/GameConfig.h"
 #include "Renderer/IndexRangeMapBuilder.h"
@@ -28,6 +27,7 @@
 #include "asset/Material.h"
 #include "asset/Texture.h"
 #include "asset/TextureResource.h"
+#include "io/LoadEntityModel.h"
 
 #include "vm/approx.h"
 #include "vm/bbox.h"
@@ -49,7 +49,7 @@ TEST_CASE("BSP model intersection test")
     throw std::runtime_error{"should not be called"};
   };
 
-  auto model = IO::loadEntityModelSync(
+  auto model = io::loadEntityModelSync(
     game->gameFileSystem(), game->config().materialConfig, path, loadMaterial, logger);
 
   auto& frame = model.value().data()->frames().at(0);

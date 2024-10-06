@@ -27,7 +27,6 @@
 #include <QString>
 #include <QTimer>
 
-#include "IO/ResourceUtils.h"
 #include "Macros.h"
 #include "Model/Entity.h"
 #include "Model/EntityNodeBase.h"
@@ -40,6 +39,7 @@
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionManager.h"
 #include "asset/PropertyDefinition.h"
+#include "io/ResourceUtils.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -814,14 +814,14 @@ QVariant EntityPropertyModel::data(const QModelIndex& index, const int role) con
     {
       if (!row.keyMutable())
       {
-        return QVariant{IO::loadSVGIcon("Locked_small.svg")};
+        return QVariant{io::loadSVGIcon("Locked_small.svg")};
       }
     }
     else if (index.column() == ColumnValue)
     {
       if (!row.valueMutable())
       {
-        return QVariant{IO::loadSVGIcon("Locked_small.svg")};
+        return QVariant{io::loadSVGIcon("Locked_small.svg")};
       }
     }
     return {};
@@ -1004,7 +1004,7 @@ QVariant EntityPropertyModel::headerData(
   {
     if (section == ColumnProtected)
     {
-      return QVariant{IO::loadSVGIcon("Protected_small.svg")};
+      return QVariant{io::loadSVGIcon("Protected_small.svg")};
     }
   }
   else if (role == Qt::ToolTipRole)

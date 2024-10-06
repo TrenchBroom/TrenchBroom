@@ -40,8 +40,6 @@
 
 #include "Console.h"
 #include "Exceptions.h"
-#include "IO/ExportOptions.h"
-#include "IO/PathQt.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/EditorContext.h"
@@ -91,6 +89,8 @@
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
 #include "asset/Resource.h"
+#include "io/ExportOptions.h"
+#include "io/PathQt.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -235,7 +235,7 @@ void MapFrame::updateTitle()
   setWindowModified(m_document->modified());
   setWindowTitle(
     QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
-  setWindowFilePath(IO::pathAsQString(m_document->path()));
+  setWindowFilePath(io::pathAsQString(m_document->path()));
 }
 
 void MapFrame::updateTitleDelayed()
@@ -964,13 +964,13 @@ bool MapFrame::saveDocumentAs()
     const auto fileName = originalPath.filename();
 
     const auto newFileName = QFileDialog::getSaveFileName(
-      this, tr("Save map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
+      this, tr("Save map file"), io::pathAsQString(originalPath), "Map files (*.map)");
     if (newFileName.isEmpty())
     {
       return false;
     }
 
-    const auto path = IO::pathFromQString(newFileName);
+    const auto path = io::pathFromQString(newFileName);
 
     const auto startTime = std::chrono::high_resolution_clock::now();
     m_document->saveDocumentAs(path);
@@ -1024,17 +1024,17 @@ bool MapFrame::exportDocumentAsMap()
   const auto& originalPath = m_document->path();
 
   const auto newFileName = QFileDialog::getSaveFileName(
-    this, tr("Export Map file"), IO::pathAsQString(originalPath), "Map files (*.map)");
+    this, tr("Export Map file"), io::pathAsQString(originalPath), "Map files (*.map)");
   if (newFileName.isEmpty())
   {
     return false;
   }
 
-  const auto options = IO::MapExportOptions{IO::pathFromQString(newFileName)};
+  const auto options = io::MapExportOptions{io::pathFromQString(newFileName)};
   return exportDocument(options);
 }
 
-bool MapFrame::exportDocument(const IO::ExportOptions& options)
+bool MapFrame::exportDocument(const io::ExportOptions& options)
 {
   const auto exportPath = std::visit([](const auto& o) { return o.exportPath; }, options);
 
@@ -1100,7 +1100,7 @@ bool MapFrame::confirmRevertDocument()
   messageBox.setIcon(QMessageBox::Question);
   messageBox.setText(tr("Revert %1 to %2?")
                        .arg(QString::fromStdString(m_document->filename()))
-                       .arg(IO::pathAsQString(m_document->path())));
+                       .arg(io::pathAsQString(m_document->path())));
   messageBox.setInformativeText(
     tr("This will discard all unsaved changes and reload the document from disk."));
 
@@ -1116,7 +1116,7 @@ bool MapFrame::confirmRevertDocument()
 void MapFrame::loadPointFile()
 {
   const auto defaultDir = !m_document->path().empty()
-                            ? IO::pathAsQString(m_document->path().parent_path())
+                            ? io::pathAsQString(m_document->path().parent_path())
                             : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
@@ -1127,7 +1127,7 @@ void MapFrame::loadPointFile()
 
   if (!fileName.isEmpty())
   {
-    m_document->loadPointFile(IO::pathFromQString(fileName));
+    m_document->loadPointFile(io::pathFromQString(fileName));
   }
 }
 
@@ -1160,7 +1160,7 @@ bool MapFrame::canReloadPointFile() const
 void MapFrame::loadPortalFile()
 {
   const auto defaultDir = !m_document->path().empty()
-                            ? IO::pathAsQString(m_document->path().parent_path())
+                            ? io::pathAsQString(m_document->path().parent_path())
                             : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
@@ -1168,7 +1168,7 @@ void MapFrame::loadPortalFile()
 
   if (!fileName.isEmpty())
   {
-    m_document->loadPortalFile(IO::pathFromQString(fileName));
+    m_document->loadPortalFile(io::pathFromQString(fileName));
   }
 }
 
@@ -2324,7 +2324,7 @@ void MapFrame::dropEvent(QDropEvent* event)
 
   auto pathDialog = ChoosePathTypeDialog{
     window(),
-    IO::pathFromQString(urls.front().toLocalFile()),
+    io::pathFromQString(urls.front().toLocalFile()),
     document()->path(),
     document()->game()->gamePath()};
 
@@ -2337,7 +2337,7 @@ void MapFrame::dropEvent(QDropEvent* event)
   auto wadPathsToAdd = kdl::vec_transform(urls, [&](const auto& url) {
     return convertToPathType(
       pathDialog.pathType(),
-      IO::pathFromQString(url.toLocalFile()),
+      io::pathFromQString(url.toLocalFile()),
       document()->path(),
       document()->game()->gamePath());
   });

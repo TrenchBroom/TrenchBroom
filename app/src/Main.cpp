@@ -23,13 +23,13 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
-#include "IO/SystemPaths.h"
 #include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
+#include "io/SystemPaths.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     {
       if (strcmp(argv[i], "--portable") == 0)
       {
-        tb::IO::SystemPaths::setPortable();
+        tb::io::SystemPaths::setPortable();
         QSettings::setPath(
           QSettings::IniFormat, QSettings::UserScope, QString("./config"));
       }

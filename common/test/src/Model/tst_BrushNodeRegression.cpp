@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/NodeReader.h"
-#include "IO/TestParserStatus.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
@@ -26,6 +24,8 @@
 #include "Model/HitAdapter.h"
 #include "Model/MapFormat.h"
 #include "TestUtils.h"
+#include "io/NodeReader.h"
+#include "io/TestParserStatus.h"
 
 #include "kdl/vector_utils.h"
 
@@ -63,9 +63,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1186")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -99,9 +99,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1185")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -290,9 +290,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1697")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   kdl::vec_clear_and_delete(nodes);
@@ -320,9 +320,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1194")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.empty());
 
   kdl::vec_clear_and_delete(nodes);
@@ -372,9 +372,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1332")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(
+  auto nodes = io::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
@@ -423,9 +423,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1395")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(
+  auto nodes = io::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
@@ -451,9 +451,9 @@ TEST_CASE("BrushNodeTest.buildBrush_1801")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(
+  auto nodes = io::NodeReader::read(
     data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
   kdl::vec_clear_and_delete(nodes);
 }
@@ -542,9 +542,9 @@ TEST_CASE("BrushNodeTest.buildBrush_2361")
 }
 )";
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+  CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_2491")
@@ -564,9 +564,9 @@ TEST_CASE("BrushNodeTest.buildBrush_2491")
             }
             )";
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+  CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_2686")
@@ -604,9 +604,9 @@ TEST_CASE("BrushNodeTest.buildBrush_2686")
 }
             )";
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+  CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
 }
 
 TEST_CASE("BrushNodeTest.buildBrush_4100")
@@ -635,9 +635,9 @@ TEST_CASE("BrushNodeTest.buildBrush_4100")
 ( -0 128 -0 ) ( -1 128 0 ) ( -0 128 1 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
 })";
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  CHECK_NOTHROW(IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+  CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -768,9 +768,9 @@ TEST_CASE("BrushNodeTest.intersects_1893")
 
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
   CHECK(nodes.at(0)->hasChildren());
   CHECK(nodes.at(0)->children().size() == 2u);

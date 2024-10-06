@@ -19,14 +19,14 @@
 
 #include <QString>
 
-#include "IO/DiskFileSystem.h"
-#include "IO/TestEnvironment.h"
 #include "Logger.h"
 #include "Model/BrushNode.h" // IWYU pragma: keep
 #include "Model/EntityNode.h"
 #include "Model/LayerNode.h" // IWYU pragma: keep
 #include "View/Autosaver.h"
 #include "View/MapDocumentTest.h"
+#include "io/DiskFileSystem.h"
+#include "io/TestEnvironment.h"
 
 #include "kdl/vector_utils.h"
 
@@ -43,7 +43,7 @@ namespace tb::View
 namespace
 {
 
-IO::TestEnvironment makeTestEnvironment()
+io::TestEnvironment makeTestEnvironment()
 {
   // have a non-ASCII character in the directory name to help catch
   // filename encoding bugs
@@ -52,7 +52,7 @@ IO::TestEnvironment makeTestEnvironment()
                     + hiraganaLetterSmallA)
                      .toStdString();
 
-  return IO::TestEnvironment{dir, [](auto& env) {
+  return io::TestEnvironment{dir, [](auto& env) {
                                env.createDirectory("dir");
 
                                env.createFile("test.1.map", "some content");
@@ -66,7 +66,7 @@ IO::TestEnvironment makeTestEnvironment()
 TEST_CASE("AutosaverTest.makeBackupPathMatcher")
 {
   const auto env = makeTestEnvironment();
-  auto fs = IO::DiskFileSystem{env.dir()};
+  auto fs = io::DiskFileSystem{env.dir()};
 
   const auto matcher = makeBackupPathMatcher("test");
   const auto getPathInfo = [&](const auto& p) { return fs.pathInfo(p); };
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveUntilSaveInter
 {
   using namespace std::chrono_literals;
 
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   auto logger = NullLogger{};
 
   document->saveDocumentAs(env.dir() / "test.map");
@@ -105,7 +105,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverNoSaveOfUnchangedMap
 {
   using namespace std::chrono_literals;
 
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   auto logger = NullLogger{};
 
   document->saveDocumentAs(env.dir() / "test.map");
@@ -122,7 +122,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAfterSaveInterv
 {
   using namespace std::chrono_literals;
 
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   auto logger = NullLogger{};
 
   document->saveDocumentAs(env.dir() / "test.map");
@@ -145,7 +145,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesAgainAfterSaveI
 {
   using namespace std::chrono_literals;
 
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   auto logger = NullLogger{};
 
   document->saveDocumentAs(env.dir() / "test.map");
@@ -182,7 +182,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
   using namespace std::chrono_literals;
 
   constexpr auto maxBackups = 3u;
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   env.createDirectory("autosave");
 
   SECTION("Files are rotated")
@@ -335,7 +335,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
 
   using namespace std::chrono_literals;
 
-  auto env = IO::TestEnvironment{};
+  auto env = io::TestEnvironment{};
   env.createDirectory("autosave");
   env.createFile("autosave/test.1.map", "some content");
   env.createFile("autosave/test.1-crash.map", "some content again");

@@ -25,17 +25,17 @@
 #include <QtGlobal>
 
 #include "Exceptions.h"
-#include "IO/DiskIO.h"
-#include "IO/ExportOptions.h"
-#include "IO/PathInfo.h"
-#include "IO/PathMatcher.h"
-#include "IO/PathQt.h"
-#include "IO/TraversalMode.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h" // IWYU pragma: keep
+#include "io/DiskIO.h"
+#include "io/ExportOptions.h"
+#include "io/PathInfo.h"
+#include "io/PathMatcher.h"
+#include "io/PathQt.h"
+#include "io/TraversalMode.h"
 
 #include "kdl/functional.h"
 #include "kdl/overload.h"
@@ -94,17 +94,17 @@ void CompilationExportMapTaskRunner::doExecute()
   emit start();
 
   const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
-  m_context << "#### Exporting map file '" << IO::pathAsQString(targetPath) << "'\n";
+  m_context << "#### Exporting map file '" << io::pathAsQString(targetPath) << "'\n";
 
   if (!m_context.test())
   {
-    IO::Disk::createDirectory(targetPath.parent_path()) | kdl::and_then([&](auto) {
-      const auto options = IO::MapExportOptions{targetPath};
+    io::Disk::createDirectory(targetPath.parent_path()) | kdl::and_then([&](auto) {
+      const auto options = io::MapExportOptions{targetPath};
       const auto document = m_context.document();
       return document->exportDocumentAs(options);
     }) | kdl::transform([&]() { emit end(); })
       | kdl::transform_error([&](auto e) {
-          m_context << "#### Could not export map file '" << IO::pathAsQString(targetPath)
+          m_context << "#### Could not export map file '" << io::pathAsQString(targetPath)
                     << "': " << QString::fromStdString(e.msg) << "\n";
           emit error();
         });
@@ -135,24 +135,24 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
   const auto sourceDirPath = sourcePath.parent_path();
   const auto sourcePathMatcher = kdl::lift_and(
-    IO::makePathInfoPathMatcher({IO::PathInfo::File}),
-    IO::makeFilenamePathMatcher(sourcePath.filename().string()));
+    io::makePathInfoPathMatcher({io::PathInfo::File}),
+    io::makeFilenamePathMatcher(sourcePath.filename().string()));
 
-  IO::Disk::find(sourceDirPath, IO::TraversalMode::Flat, sourcePathMatcher)
+  io::Disk::find(sourceDirPath, io::TraversalMode::Flat, sourcePathMatcher)
     | kdl::and_then([&](const auto& pathsToCopy) {
         const auto pathStrsToCopy = kdl::vec_transform(
           pathsToCopy, [](const auto& path) { return "'" + path.string() + "'"; });
 
-        m_context << "#### Copying to '" << IO::pathAsQString(targetPath)
+        m_context << "#### Copying to '" << io::pathAsQString(targetPath)
                   << "/': " << QString::fromStdString(kdl::str_join(pathStrsToCopy, ", "))
                   << "\n";
         if (!m_context.test())
         {
-          return IO::Disk::createDirectory(targetPath) | kdl::and_then([&](auto) {
+          return io::Disk::createDirectory(targetPath) | kdl::and_then([&](auto) {
                    return kdl::vec_transform(
                             pathsToCopy,
                             [&](const auto& pathToCopy) {
-                              return IO::Disk::copyFile(pathToCopy, targetPath);
+                              return io::Disk::copyFile(pathToCopy, targetPath);
                             })
                           | kdl::fold;
                  });
@@ -160,8 +160,8 @@ void CompilationCopyFilesTaskRunner::doExecute()
         return Result<void>{};
       })
     | kdl::transform([&]() { emit end(); }) | kdl::transform_error([&](auto e) {
-        m_context << "#### Could not copy '" << IO::pathAsQString(sourcePath) << "' to '"
-                  << IO::pathAsQString(targetPath)
+        m_context << "#### Could not copy '" << io::pathAsQString(sourcePath) << "' to '"
+                  << io::pathAsQString(targetPath)
                   << "': " << QString::fromStdString(e.msg) << "\n";
         emit error();
       });
@@ -185,15 +185,15 @@ void CompilationRenameFileTaskRunner::doExecute()
   const auto sourcePath = std::filesystem::path{interpolate(m_task.sourceSpec)};
   const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
 
-  m_context << "#### Renaming '" << IO::pathAsQString(sourcePath) << "' to '"
-            << IO::pathAsQString(targetPath) << "'\n";
+  m_context << "#### Renaming '" << io::pathAsQString(sourcePath) << "' to '"
+            << io::pathAsQString(targetPath) << "'\n";
   if (!m_context.test())
   {
-    IO::Disk::createDirectory(targetPath.parent_path())
-      | kdl::and_then([&](auto) { return IO::Disk::moveFile(sourcePath, targetPath); })
+    io::Disk::createDirectory(targetPath.parent_path())
+      | kdl::and_then([&](auto) { return io::Disk::moveFile(sourcePath, targetPath); })
       | kdl::transform([&]() { emit end(); }) | kdl::transform_error([&](auto e) {
-          m_context << "#### Could not rename '" << IO::pathAsQString(sourcePath)
-                    << "' to '" << IO::pathAsQString(targetPath)
+          m_context << "#### Could not rename '" << io::pathAsQString(sourcePath)
+                    << "' to '" << io::pathAsQString(targetPath)
                     << "': " << QString::fromStdString(e.msg) << "\n";
           emit error();
         });
@@ -222,10 +222,10 @@ void CompilationDeleteFilesTaskRunner::doExecute()
   const auto targetPath = std::filesystem::path{interpolate(m_task.targetSpec)};
   const auto targetDirPath = targetPath.parent_path();
   const auto targetPathMatcher = kdl::lift_and(
-    IO::makePathInfoPathMatcher({IO::PathInfo::File}),
-    IO::makeFilenamePathMatcher(targetPath.filename().string()));
+    io::makePathInfoPathMatcher({io::PathInfo::File}),
+    io::makeFilenamePathMatcher(targetPath.filename().string()));
 
-  IO::Disk::find(targetDirPath, IO::TraversalMode::Recursive, targetPathMatcher)
+  io::Disk::find(targetDirPath, io::TraversalMode::Recursive, targetPathMatcher)
     | kdl::transform([&](const auto& pathsToDelete) {
         const auto pathStrsToDelete = kdl::vec_transform(
           pathsToDelete, [](const auto& path) { return "'" + path.string() + "'"; });
@@ -235,12 +235,12 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
         if (!m_context.test())
         {
-          return kdl::vec_transform(pathsToDelete, IO::Disk::deleteFile) | kdl::fold;
+          return kdl::vec_transform(pathsToDelete, io::Disk::deleteFile) | kdl::fold;
         }
         return Result<std::vector<bool>>{std::vector<bool>{}};
       })
     | kdl::transform([&](auto) { emit end(); }) | kdl::transform_error([&](auto e) {
-        m_context << "#### Could not delete '" << IO::pathAsQString(targetPath)
+        m_context << "#### Could not delete '" << io::pathAsQString(targetPath)
                   << "': " << QString::fromStdString(e.msg) << "\n";
         emit error();
       });

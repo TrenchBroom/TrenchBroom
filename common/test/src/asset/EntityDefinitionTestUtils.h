@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace tb::IO
+namespace tb::io
 {
 class EntityDefinitionParser;
 }
@@ -40,7 +40,7 @@ struct DecalSpecification;
 
 void assertModelDefinition(
   const ModelSpecification& expected,
-  IO::EntityDefinitionParser& parser,
+  io::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr = "{}");
 void assertModelDefinition(
   const ModelSpecification& expected,
@@ -65,7 +65,7 @@ void assertModelDefinition(
 
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  IO::EntityDefinitionParser& parser,
+  io::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr = "{}");
 void assertDecalDefinition(
   const DecalSpecification& expected,

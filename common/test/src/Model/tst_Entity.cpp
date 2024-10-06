@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/ELParser.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "asset/EntityDefinition.h"
 #include "asset/PropertyDefinition.h"
 #include "el/Expression.h"
+#include "io/ELParser.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"
@@ -171,7 +171,7 @@ TEST_CASE("EntityTest")
 
   SECTION("modelSpecification")
   {
-    auto modelExpression = IO::ELParser::parseStrict(R"({{ 
+    auto modelExpression = io::ELParser::parseStrict(R"({{ 
       spawnflags == 0 -> "maps/b_shell0.bsp",
       spawnflags == 1 -> "maps/b_shell1.bsp",
                          "maps/b_shell2.bsp"
@@ -200,7 +200,7 @@ TEST_CASE("EntityTest")
 
   SECTION("decalSpecification")
   {
-    auto decalExpression = IO::ELParser::parseStrict(R"({ texture: texture })");
+    auto decalExpression = io::ELParser::parseStrict(R"({ texture: texture })");
 
     auto definition = asset::PointEntityDefinition{
       "some_name",

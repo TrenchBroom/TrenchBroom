@@ -20,15 +20,15 @@
 #include "FreeTypeFontFactory.h"
 
 #include "Exceptions.h"
-#include "IO/DiskIO.h"
-#include "IO/Reader.h"
-#include "IO/SystemPaths.h"
 #include "Macros.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/FontGlyph.h"
 #include "Renderer/FontGlyphBuilder.h"
 #include "Renderer/FontTexture.h"
 #include "Renderer/TextureFont.h"
+#include "io/DiskIO.h"
+#include "io/Reader.h"
+#include "io/SystemPaths.h"
 
 #include <algorithm>
 #include <string>
@@ -54,12 +54,12 @@ auto loadFont(FT_Library library, const FontDescriptor& fontDescriptor)
 {
   const auto fontPath = fontDescriptor.path().is_absolute()
                           ? fontDescriptor.path()
-                          : IO::SystemPaths::findResourceFile(fontDescriptor.path());
+                          : io::SystemPaths::findResourceFile(fontDescriptor.path());
 
-  return IO::Disk::openFile(fontPath)
+  return io::Disk::openFile(fontPath)
          | kdl::and_then(
            [&](
-             auto file) -> Result<std::pair<kdl::resource<FT_Face>, IO::BufferedReader>> {
+             auto file) -> Result<std::pair<kdl::resource<FT_Face>, io::BufferedReader>> {
              auto reader = file->reader().buffer();
 
              auto face = FT_Face{};

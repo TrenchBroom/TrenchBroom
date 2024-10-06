@@ -19,15 +19,6 @@
 
 #include "TestGame.h"
 
-#include "IO/BrushFaceReader.h"
-#include "IO/DiskFileSystem.h"
-#include "IO/DiskIO.h"
-#include "IO/ExportOptions.h"
-#include "IO/NodeReader.h"
-#include "IO/NodeWriter.h"
-#include "IO/TestParserStatus.h"
-#include "IO/VirtualFileSystem.h"
-#include "IO/WadFileSystem.h"
 #include "Model/BrushFace.h"
 #include "Model/Entity.h"
 #include "Model/GameConfig.h"
@@ -36,6 +27,15 @@
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionFileSpec.h"
 #include "asset/MaterialManager.h"
+#include "io/BrushFaceReader.h"
+#include "io/DiskFileSystem.h"
+#include "io/DiskIO.h"
+#include "io/ExportOptions.h"
+#include "io/NodeReader.h"
+#include "io/NodeWriter.h"
+#include "io/TestParserStatus.h"
+#include "io/VirtualFileSystem.h"
+#include "io/WadFileSystem.h"
 
 #include "kdl/result.h"
 
@@ -46,9 +46,9 @@ namespace tb::Model
 {
 
 TestGame::TestGame()
-  : m_fs{std::make_unique<IO::VirtualFileSystem>()}
+  : m_fs{std::make_unique<io::VirtualFileSystem>()}
 {
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
+  m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
 }
 
 TestGame::~TestGame() = default;
@@ -58,7 +58,7 @@ const GameConfig& TestGame::config() const
   return m_config;
 }
 
-const IO::FileSystem& TestGame::gameFileSystem() const
+const io::FileSystem& TestGame::gameFileSystem() const
 {
   return *m_fs;
 }
@@ -108,14 +108,14 @@ Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
 
 Result<void> TestGame::writeMap(WorldNode& world, const std::filesystem::path& path) const
 {
-  return IO::Disk::withOutputStream(path, [&](auto& stream) {
-    auto writer = IO::NodeWriter{world, stream};
+  return io::Disk::withOutputStream(path, [&](auto& stream) {
+    auto writer = io::NodeWriter{world, stream};
     writer.writeMap();
   });
 }
 
 Result<void> TestGame::exportMap(
-  WorldNode& /* world */, const IO::ExportOptions& /* options */) const
+  WorldNode& /* world */, const io::ExportOptions& /* options */) const
 {
   return kdl::void_success;
 }
@@ -126,8 +126,8 @@ std::vector<Node*> TestGame::parseNodes(
   const vm::bbox3d& worldBounds,
   Logger& /* logger */) const
 {
-  auto status = IO::TestParserStatus{};
-  return IO::NodeReader::read(str, mapFormat, worldBounds, {}, status);
+  auto status = io::TestParserStatus{};
+  return io::NodeReader::read(str, mapFormat, worldBounds, {}, status);
 }
 
 std::vector<BrushFace> TestGame::parseBrushFaces(
@@ -136,22 +136,22 @@ std::vector<BrushFace> TestGame::parseBrushFaces(
   const vm::bbox3d& worldBounds,
   Logger& /* logger */) const
 {
-  auto status = IO::TestParserStatus{};
-  auto reader = IO::BrushFaceReader{str, mapFormat};
+  auto status = io::TestParserStatus{};
+  auto reader = io::BrushFaceReader{str, mapFormat};
   return reader.read(worldBounds, status);
 }
 
 void TestGame::writeNodesToStream(
   WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
 {
-  auto writer = IO::NodeWriter{world, stream};
+  auto writer = io::NodeWriter{world, stream};
   writer.writeNodes(nodes);
 }
 
 void TestGame::writeBrushFacesToStream(
   WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
 {
-  auto writer = IO::NodeWriter{world, stream};
+  auto writer = io::NodeWriter{world, stream};
   writer.writeBrushFaces(faces);
 }
 
@@ -177,12 +177,12 @@ void TestGame::reloadWads(
   Logger&)
 {
   m_fs->unmountAll();
-  m_fs->mount("", std::make_unique<IO::DiskFileSystem>(std::filesystem::current_path()));
+  m_fs->mount("", std::make_unique<io::DiskFileSystem>(std::filesystem::current_path()));
 
   for (const auto& wadPath : wadPaths)
   {
     const auto absoluteWadPath = std::filesystem::current_path() / wadPath;
-    m_fs->mount("textures", IO::openFS<IO::WadFileSystem>(absoluteWadPath));
+    m_fs->mount("textures", io::openFS<io::WadFileSystem>(absoluteWadPath));
   }
 }
 
@@ -226,7 +226,7 @@ std::string TestGame::defaultMod() const
 
 Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> TestGame::
   loadEntityDefinitions(
-    IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+    io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
   return std::vector<std::unique_ptr<asset::EntityDefinition>>{};
 }

@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/NodeReader.h"
-#include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -26,6 +24,8 @@
 #include "Model/BrushNode.h"
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
+#include "io/NodeReader.h"
+#include "io/TestParserStatus.h"
 
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -576,10 +576,10 @@ TEST_CASE("BrushTest.moveVertexFail_2158")
 
   const vm::bbox3d worldBounds(4096.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -643,9 +643,9 @@ TEST_CASE("BrushTest.moveVerticesFail_2158")
 }
 )";
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -688,10 +688,10 @@ TEST_CASE("BrushTest.removeVertexWithCorrectMaterials_2082")
 }
 )";
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
   std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -760,10 +760,10 @@ static void assertCannotSnapTo(const std::string& data, const double gridSize)
 {
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -781,10 +781,10 @@ static void assertSnapTo(const std::string& data, const double gridSize)
 {
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1290,9 +1290,9 @@ TEST_CASE("BrushNodeTest.moveEdgesFail_2361")
 }
 )";
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
   REQUIRE(nodes.size() == 1u);
 
   Brush brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -1378,12 +1378,12 @@ TEST_CASE("BrushTest.convexMergeCrash_2789")
 
   const auto path =
     std::filesystem::current_path() / "fixture/test/Model/Brush/curvetut-crash.map";
-  const std::string data = IO::readTextFile(path);
+  const std::string data = io::readTextFile(path);
   REQUIRE(!data.empty());
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
-  auto nodes = IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(!nodes.empty());
 
   std::vector<vm::vec3d> points;
@@ -1445,13 +1445,13 @@ TEST_CASE("BrushTest.convexMergeIncorrectResult_2789")
 
   const auto path =
     std::filesystem::current_path() / "fixture/test/Model/Brush/weirdcurvemerge.map";
-  const std::string data = IO::readTextFile(path);
+  const std::string data = io::readTextFile(path);
   REQUIRE(!data.empty());
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
 
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
   REQUIRE(nodes.size() == 28);
 
   std::vector<vm::vec3d> points;
@@ -1557,11 +1557,11 @@ TEST_CASE("BrushTest.subtractTruncatedCones")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
+    io::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
+    io::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1590,15 +1590,15 @@ TEST_CASE("BrushTest.subtractDome")
 
   const auto subtrahendPath =
     std::filesystem::current_path() / "fixture/test/Model/Brush/subtrahend.map";
-  const auto subtrahendStr = IO::readTextFile(subtrahendPath);
+  const auto subtrahendStr = io::readTextFile(subtrahendPath);
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1694,11 +1694,11 @@ TEST_CASE("BrushTest.subtractPipeFromCubeWithMissingFragments")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> minuendNodes =
-    IO::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
   const std::vector<Node*> subtrahendNodes =
-    IO::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
 
   const Brush& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
   const Brush& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1734,9 +1734,9 @@ TEST_CASE("BrushTest.healEdgesCrash")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
+    io::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1794,9 +1794,9 @@ TEST_CASE("BrushTest.healEdgesCrash2")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1936,9 +1936,9 @@ TEST_CASE("BrushTest.healEdgesCrash3")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
   REQUIRE(brushNode != nullptr);
   const auto brush = brushNode->brush();
@@ -1982,9 +1982,9 @@ TEST_CASE("BrushTest.findInitialEdgeFail")
 
   const vm::bbox3d worldBounds(8192.0);
 
-  IO::TestParserStatus status;
+  io::TestParserStatus status;
   const std::vector<Node*> nodes =
-    IO::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 
   const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
@@ -2034,9 +2034,9 @@ TEST_CASE("BrushTest.headEdgesFail")
 
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
   const auto nodes =
-    IO::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+    io::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
   CHECK(nodes.size() == 1u);
 }
 

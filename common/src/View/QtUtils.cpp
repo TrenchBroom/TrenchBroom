@@ -47,12 +47,12 @@
 
 #include "Color.h"
 #include "Ensure.h"
-#include "IO/ResourceUtils.h"
 #include "Macros.h"
 #include "View/BorderLine.h"
 #include "View/MapFrame.h"
 #include "View/MapTextEncoding.h"
 #include "View/ViewConstants.h"
+#include "io/ResourceUtils.h"
 
 // QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt
 // in 5.10 and above Used in centerOnScreen
@@ -341,7 +341,7 @@ QColor toQColor(const Color& color)
 QToolButton* createBitmapButton(
   const std::string& image, const QString& tooltip, QWidget* parent)
 {
-  return createBitmapButton(IO::loadSVGIcon(image), tooltip, parent);
+  return createBitmapButton(io::loadSVGIcon(image), tooltip, parent);
 }
 
 QToolButton* createBitmapButton(
@@ -455,7 +455,7 @@ void addToMiniToolBarLayout(QBoxLayout*) {}
 void setWindowIconTB(QWidget* window)
 {
   ensure(window != nullptr, "window is null");
-  window->setWindowIcon(QIcon{IO::loadPixmapResource("AppIcon.png")});
+  window->setWindowIcon(QIcon{io::loadPixmapResource("AppIcon.png")});
 }
 
 void setDebugBackgroundColor(QWidget* widget, const QColor& color)
@@ -491,7 +491,7 @@ QLineEdit* createSearchBox()
   widget->setClearButtonEnabled(true);
   widget->setPlaceholderText(QLineEdit::tr("Search..."));
 
-  const auto icon = IO::loadSVGIcon("Search.svg");
+  const auto icon = io::loadSVGIcon("Search.svg");
   widget->addAction(icon, QLineEdit::LeadingPosition);
   return widget;
 }

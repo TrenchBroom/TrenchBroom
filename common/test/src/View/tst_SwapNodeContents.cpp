@@ -86,7 +86,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.materialUsageCount")
 {
   document->deselectAll();
   document->setProperty(
-    Model::EntityPropertyKeys::Wad, "fixture/test/IO/Wad/cr8_czg.wad");
+    Model::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
   constexpr auto MaterialName = "bongs2";
   const auto* material = document->materialManager().material(MaterialName);

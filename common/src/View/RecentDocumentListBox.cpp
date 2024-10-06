@@ -20,9 +20,9 @@
 #include "RecentDocumentListBox.h"
 
 #include "Ensure.h"
-#include "IO/PathQt.h"
-#include "IO/ResourceUtils.h"
 #include "TrenchBroomApp.h"
+#include "io/PathQt.h"
+#include "io/ResourceUtils.h"
 
 #include <cassert>
 
@@ -30,7 +30,7 @@ namespace tb::View
 {
 RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
   : ImageListBox{"No Recent Documents", true, parent}
-  , m_documentIcon{IO::loadPixmapResource("DocIcon.png")}
+  , m_documentIcon{io::loadPixmapResource("DocIcon.png")}
 {
   auto& app = View::TrenchBroomApp::instance();
   connect(
@@ -62,7 +62,7 @@ QString RecentDocumentListBox::title(const size_t index) const
   const auto& app = View::TrenchBroomApp::instance();
   const auto& recentDocuments = app.recentDocuments();
   ensure(index < recentDocuments.size(), "index out of range");
-  return IO::pathAsQString(recentDocuments[index].filename());
+  return io::pathAsQString(recentDocuments[index].filename());
 }
 
 QString RecentDocumentListBox::subtitle(const size_t index) const
@@ -70,7 +70,7 @@ QString RecentDocumentListBox::subtitle(const size_t index) const
   const auto& app = View::TrenchBroomApp::instance();
   const auto& recentDocuments = app.recentDocuments();
   ensure(index < recentDocuments.size(), "index out of range");
-  return IO::pathAsQString(recentDocuments[index]);
+  return io::pathAsQString(recentDocuments[index]);
 }
 
 void RecentDocumentListBox::doubleClicked(const size_t index)

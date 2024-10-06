@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "IO/DiskIO.h"
-#include "IO/ImageFileSystem.h"
 #include "Model/MapFormat.h"
 #include "Model/Node.h"
+#include "io/DiskIO.h"
+#include "io/ImageFileSystem.h"
 
 #include "vm/polygon.h"
 #include "vm/segment.h"
@@ -44,7 +44,7 @@ class Material;
 class Texture;
 } // namespace asset
 
-namespace IO
+namespace io
 {
 
 template <typename FS>
@@ -58,7 +58,7 @@ auto openFS(const std::filesystem::path& path)
 
 std::string readTextFile(const std::filesystem::path& path);
 
-} // namespace IO
+} // namespace io
 
 namespace Model
 {

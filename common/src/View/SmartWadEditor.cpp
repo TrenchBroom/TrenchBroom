@@ -23,7 +23,6 @@
 #include <QListWidget>
 #include <QToolButton>
 
-#include "IO/PathQt.h"
 #include "Model/EntityNodeBase.h"
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
@@ -31,6 +30,7 @@
 #include "View/QtUtils.h"
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
+#include "io/PathQt.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/string_utils.h"
@@ -142,7 +142,7 @@ void SmartWadEditor::addWads()
     updateFileDialogDefaultDirectoryWithFilename(
       FileDialogDir::MaterialCollection, pathQStr);
 
-    const auto absWadPath = IO::pathFromQString(pathQStr);
+    const auto absWadPath = io::pathFromQString(pathQStr);
     auto pathDialog = ChoosePathTypeDialog{
       window(), absWadPath, document()->path(), document()->game()->gamePath()};
 
@@ -277,7 +277,7 @@ void SmartWadEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& n
 
   for (const auto& path : getWadPaths(nodes, propertyKey()))
   {
-    m_wadPaths->addItem(IO::pathAsQString(path));
+    m_wadPaths->addItem(io::pathAsQString(path));
   }
 
   for (const auto& [index, text] : selectedRows)

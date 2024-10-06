@@ -26,12 +26,12 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-#include "IO/DiskIO.h"
-#include "IO/PathInfo.h"
-#include "IO/PathQt.h"
 #include "Model/GameEngineProfile.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "io/DiskIO.h"
+#include "io/PathInfo.h"
+#include "io/PathQt.h"
 
 #include "kdl/string_compare.h"
 
@@ -96,7 +96,7 @@ void GameEngineProfileEditor::updatePath(const QString& str)
   const auto valid = isValidEnginePath(str);
   if (valid)
   {
-    m_profile->path = IO::pathFromQString(str);
+    m_profile->path = io::pathFromQString(str);
     if (m_profile->name.empty())
     {
       m_profile->name = m_profile->path.stem().string();
@@ -125,17 +125,17 @@ void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile)
 void GameEngineProfileEditor::refresh()
 {
   m_nameEdit->setText(m_profile ? QString::fromStdString(m_profile->name) : "");
-  m_pathEdit->setText(m_profile ? IO::pathAsQString(m_profile->path) : "");
+  m_pathEdit->setText(m_profile ? io::pathAsQString(m_profile->path) : "");
 }
 
 bool GameEngineProfileEditor::isValidEnginePath(const QString& str) const
 {
   try
   {
-    const auto path = IO::pathFromQString(str);
-    return IO::Disk::pathInfo(path) == IO::PathInfo::File
+    const auto path = io::pathFromQString(str);
+    return io::Disk::pathInfo(path) == io::PathInfo::File
 #ifdef __APPLE__
-           || (IO::Disk::pathInfo(path) == IO::PathInfo::Directory 
+           || (io::Disk::pathInfo(path) == io::PathInfo::Directory 
            && kdl::ci::str_is_equal(path.extension().string(), ".app"))
 #endif
       ;

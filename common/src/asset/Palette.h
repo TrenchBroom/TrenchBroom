@@ -30,11 +30,11 @@
 #include <memory>
 #include <vector>
 
-namespace tb::IO
+namespace tb::io
 {
 class File;
 class Reader;
-} // namespace tb::IO
+} // namespace tb::io
 
 namespace tb::asset
 {
@@ -95,7 +95,7 @@ public:
    * @throws ReaderException if reader doesn't have pixelCount bytes available
    */
   bool indexedToRgba(
-    IO::Reader& reader,
+    io::Reader& reader,
     size_t pixelCount,
     TextureBuffer& rgbaImage,
     PaletteTransparency transparency,
@@ -109,7 +109,7 @@ public:
 Result<Palette> makePalette(
   const std::vector<unsigned char>& data, PaletteColorFormat colorFormat);
 
-Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
-Result<Palette> loadPalette(IO::Reader& reader, PaletteColorFormat colorFormat);
+Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& path);
+Result<Palette> loadPalette(io::Reader& reader, PaletteColorFormat colorFormat);
 
 } // namespace tb::asset

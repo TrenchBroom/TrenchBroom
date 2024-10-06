@@ -20,8 +20,8 @@
 #include "FileLogger.h"
 
 #include "Ensure.h"
-#include "IO/DiskIO.h"
-#include "IO/SystemPaths.h"
+#include "io/DiskIO.h"
+#include "io/SystemPaths.h"
 
 #include <cassert>
 
@@ -32,7 +32,7 @@ namespace
 
 std::ofstream openLogFile(const std::filesystem::path& path)
 {
-  return IO::Disk::createDirectory(path.parent_path())
+  return io::Disk::createDirectory(path.parent_path())
          | kdl::transform([&](auto) { return std::ofstream{path, std::ios::out}; })
          | kdl::if_error([](const auto& e) {
              throw std::runtime_error{"Could not open log file: " + e.msg};
@@ -50,7 +50,7 @@ FileLogger::FileLogger(const std::filesystem::path& filePath)
 
 FileLogger& FileLogger::instance()
 {
-  static auto Instance = FileLogger{IO::SystemPaths::logFilePath()};
+  static auto Instance = FileLogger{io::SystemPaths::logFilePath()};
   return Instance;
 }
 

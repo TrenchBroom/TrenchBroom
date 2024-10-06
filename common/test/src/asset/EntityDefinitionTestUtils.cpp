@@ -19,13 +19,13 @@
 
 #include "EntityDefinitionTestUtils.h"
 
-#include "IO/ELParser.h"
-#include "IO/EntityDefinitionParser.h"
-#include "IO/TestParserStatus.h"
 #include "asset/EntityDefinition.h"
 #include "el/EvaluationContext.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
+#include "io/ELParser.h"
+#include "io/EntityDefinitionParser.h"
+#include "io/TestParserStatus.h"
 
 #include <string>
 #include <vector>
@@ -36,10 +36,10 @@ namespace tb::asset
 {
 void assertModelDefinition(
   const ModelSpecification& expected,
-  IO::EntityDefinitionParser& parser,
+  io::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
@@ -66,7 +66,7 @@ void assertModelDefinition(
   const ModelDefinition& actual,
   const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
+  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
                                      .evaluate(el::EvaluationContext{})
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
@@ -75,10 +75,10 @@ void assertModelDefinition(
 
 void assertDecalDefinition(
   const DecalSpecification& expected,
-  IO::EntityDefinitionParser& parser,
+  io::EntityDefinitionParser& parser,
   const std::string& entityPropertiesStr)
 {
-  auto status = IO::TestParserStatus{};
+  auto status = io::TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
@@ -105,7 +105,7 @@ void assertDecalDefinition(
   const DecalDefinition& actual,
   const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
+  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
                                      .evaluate(el::EvaluationContext{})
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};

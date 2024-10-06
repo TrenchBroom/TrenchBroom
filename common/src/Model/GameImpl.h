@@ -50,11 +50,11 @@ public:
 
 public: // implement EntityDefinitionLoader interface:
   Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> loadEntityDefinitions(
-    IO::ParserStatus& status, const std::filesystem::path& path) const override;
+    io::ParserStatus& status, const std::filesystem::path& path) const override;
 
 public: // implement Game interface
   const GameConfig& config() const override;
-  const IO::FileSystem& gameFileSystem() const override;
+  const io::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
 
@@ -78,7 +78,7 @@ public: // implement Game interface
   Result<void> writeMap(
     WorldNode& world, const std::filesystem::path& path) const override;
   Result<void> exportMap(
-    WorldNode& world, const IO::ExportOptions& options) const override;
+    WorldNode& world, const io::ExportOptions& options) const override;
 
   std::vector<Node*> parseNodes(
     const std::string& str,

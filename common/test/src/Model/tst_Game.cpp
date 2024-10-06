@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "IO/GameConfigParser.h"
 #include "Logger.h"
 #include "Model/GameImpl.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
+#include "io/GameConfigParser.h"
 
 #include <filesystem>
 
@@ -62,8 +62,8 @@ TEST_CASE("GameTest.newMap")
 
     const auto configPath =
       std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
-    const auto configStr = IO::readTextFile(configPath);
-    auto configParser = IO::GameConfigParser{configStr, configPath};
+    const auto configStr = io::readTextFile(configPath);
+    auto configParser = io::GameConfigParser{configStr, configPath};
     auto config = configParser.parse();
 
     const auto gamePath =
@@ -90,8 +90,8 @@ TEST_CASE("GameTest.loadCorruptPackages")
   {
     const auto configPath =
       std::filesystem::current_path() / "fixture/games/" / game / "GameConfig.cfg";
-    const auto configStr = IO::readTextFile(configPath);
-    auto configParser = IO::GameConfigParser(configStr, configPath);
+    const auto configStr = io::readTextFile(configPath);
+    auto configParser = io::GameConfigParser(configStr, configPath);
     auto config = configParser.parse();
 
     const auto gamePath =
