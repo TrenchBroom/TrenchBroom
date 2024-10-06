@@ -19,13 +19,13 @@
 
 #include "EntityDefinitionTestUtils.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/Value.h"
-#include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
 #include "assets/EntityDefinition.h"
+#include "el/EvaluationContext.h"
+#include "el/Value.h"
+#include "el/VariableStore.h"
 
 #include <string>
 #include <vector>
@@ -67,9 +67,9 @@ void assertModelDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
-                                     .evaluate(EL::EvaluationContext{})
+                                     .evaluate(el::EvaluationContext{})
                                      .mapValue();
-  const auto variableStore = EL::VariableTable{entityPropertiesMap};
+  const auto variableStore = el::VariableTable{entityPropertiesMap};
   CHECK(actual.modelSpecification(variableStore) == expected);
 }
 
@@ -106,9 +106,9 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = IO::ELParser::parseStrict(entityPropertiesStr)
-                                     .evaluate(EL::EvaluationContext{})
+                                     .evaluate(el::EvaluationContext{})
                                      .mapValue();
-  const auto variableStore = EL::VariableTable{entityPropertiesMap};
+  const auto variableStore = el::VariableTable{entityPropertiesMap};
   CHECK(actual.decalSpecification(variableStore) == expected);
 }
 } // namespace tb::assets

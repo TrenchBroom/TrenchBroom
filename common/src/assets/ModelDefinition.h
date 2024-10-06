@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "EL/Expression.h"
 #include "assets/ModelSpecification.h"
+#include "el/Expression.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -47,13 +47,13 @@ constexpr auto Scale = "scale";
 class ModelDefinition
 {
 private:
-  EL::ExpressionNode m_expression;
+  el::ExpressionNode m_expression;
 
 public:
   ModelDefinition();
   explicit ModelDefinition(const FileLocation& location);
 
-  explicit ModelDefinition(EL::ExpressionNode expression);
+  explicit ModelDefinition(el::ExpressionNode expression);
 
   void append(ModelDefinition other);
 
@@ -64,16 +64,16 @@ public:
    * @param variableStore the variable store to use when interpolating variables
    * @return the model specification
    *
-   * @throws EL::Exception if the expression could not be evaluated
+   * @throws el::Exception if the expression could not be evaluated
    */
-  ModelSpecification modelSpecification(const EL::VariableStore& variableStore) const;
+  ModelSpecification modelSpecification(const el::VariableStore& variableStore) const;
 
   /**
    * Evaluates the model expresion.
    *
    * @return the model specification
    *
-   * @throws EL::Exception if the expression could not be evaluated
+   * @throws el::Exception if the expression could not be evaluated
    */
   ModelSpecification defaultModelSpecification() const;
 
@@ -83,11 +83,11 @@ public:
    * expression doesn't have its own scale expression, then the given scale expression is
    * used instead.
    *
-   * @throws EL::Exception if the expression could not be evaluated
+   * @throws el::Exception if the expression could not be evaluated
    */
   vm::vec3d scale(
-    const EL::VariableStore& variableStore,
-    const std::optional<EL::ExpressionNode>& defaultScaleExpression) const;
+    const el::VariableStore& variableStore,
+    const std::optional<el::ExpressionNode>& defaultScaleExpression) const;
 
   kdl_reflect_decl(ModelDefinition, m_expression);
 };
@@ -98,7 +98,7 @@ public:
  */
 vm::vec3d safeGetModelScale(
   const ModelDefinition& definition,
-  const EL::VariableStore& variableStore,
-  const std::optional<EL::ExpressionNode>& defaultScaleExpression);
+  const el::VariableStore& variableStore,
+  const std::optional<el::ExpressionNode>& defaultScaleExpression);
 
 } // namespace tb::assets

@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/Types.h"
+#include "el/Types.h"
 
 // FIXME: try to remove some of these headers
 #include <iosfwd>
@@ -34,7 +34,7 @@ namespace tb
 struct FileLocation;
 }
 
-namespace tb::EL
+namespace tb::el
 {
 
 class NullType
@@ -137,17 +137,17 @@ public:
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
 
-  friend struct std::hash<tb::EL::Value>;
+  friend struct std::hash<tb::el::Value>;
 };
 
-} // namespace tb::EL
+} // namespace tb::el
 
 
 template <>
-struct std::hash<tb::EL::Value>
+struct std::hash<tb::el::Value>
 {
-  std::size_t operator()(const tb::EL::Value& value) const noexcept
+  std::size_t operator()(const tb::el::Value& value) const noexcept
   {
-    return std::hash<std::shared_ptr<tb::EL::Value::VariantType>>{}(value.m_value);
+    return std::hash<std::shared_ptr<tb::el::Value::VariantType>>{}(value.m_value);
   }
 };

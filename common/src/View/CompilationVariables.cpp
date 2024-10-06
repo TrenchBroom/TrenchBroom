@@ -55,11 +55,11 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
   mods = kdl::vec_concat(std::move(mods), document->mods());
 
   using namespace CompilationVariableNames;
-  declare(MAP_BASE_NAME, EL::Value{kdl::path_remove_extension(filename).string()});
-  declare(GAME_DIR_PATH, EL::Value{gamePath.string()});
+  declare(MAP_BASE_NAME, el::Value{kdl::path_remove_extension(filename).string()});
+  declare(GAME_DIR_PATH, el::Value{gamePath.string()});
   declare(
     MODS,
-    EL::Value{kdl::vec_transform(mods, [](const auto& mod) { return EL::Value{mod}; })});
+    el::Value{kdl::vec_transform(mods, [](const auto& mod) { return el::Value{mod}; })});
 
   const auto& factory = Model::GameFactory::instance();
   for (const auto& tool : document->game()->config().compilationTools)
@@ -68,7 +68,7 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
       factory.compilationToolPath(document->game()->config().name, tool.name);
     // e.g. variable name might be "qbsp", and the value is the path to the user's local
     // qbsp executable
-    declare(tool.name, EL::Value{toolPath.string()});
+    declare(tool.name, el::Value{toolPath.string()});
   }
 }
 
@@ -81,9 +81,9 @@ CommonCompilationVariables::CommonCompilationVariables(
   const auto appPath = IO::SystemPaths::appDirectory();
 
   using namespace CompilationVariableNames;
-  declare(MAP_FULL_NAME, EL::Value{filename.string()});
-  declare(MAP_DIR_PATH, EL::Value{filePath.string()});
-  declare(APP_DIR_PATH, EL::Value{appPath.string()});
+  declare(MAP_FULL_NAME, el::Value{filename.string()});
+  declare(MAP_DIR_PATH, el::Value{filePath.string()});
+  declare(APP_DIR_PATH, el::Value{appPath.string()});
 }
 
 CompilationWorkDirVariables::CompilationWorkDirVariables(
@@ -99,8 +99,8 @@ CompilationVariables::CompilationVariables(
   const auto cpuCount = size_t(std::max(std::thread::hardware_concurrency(), 1u));
 
   using namespace CompilationVariableNames;
-  declare(CPU_COUNT, EL::Value{cpuCount});
-  declare(WORK_DIR_PATH, EL::Value{workDir});
+  declare(CPU_COUNT, el::Value{cpuCount});
+  declare(WORK_DIR_PATH, el::Value{workDir});
 }
 
 LaunchGameEngineVariables::LaunchGameEngineVariables(

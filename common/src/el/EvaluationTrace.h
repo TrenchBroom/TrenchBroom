@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "EL/Expression.h"
-#include "EL/Value.h"
 #include "FileLocation.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <optional>
 #include <unordered_map>
 
-namespace tb::EL
+namespace tb::el
 {
 
 class EvaluationTrace
@@ -41,4 +41,4 @@ public:
   void addTrace(const Value& value, const ExpressionNode& expression);
 };
 
-} // namespace tb::EL
+} // namespace tb::el

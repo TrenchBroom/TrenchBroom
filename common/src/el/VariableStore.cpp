@@ -19,8 +19,8 @@
 
 #include "VariableStore.h"
 
-#include "EL/ELExceptions.h"
-#include "EL/Value.h"
+#include "el/ELExceptions.h"
+#include "el/Value.h"
 
 #include "kdl/map_utils.h"
 
@@ -30,7 +30,7 @@
 #include <ostream>
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 void VariableStore::appendToStream(std::ostream& str) const
@@ -146,4 +146,4 @@ void NullVariableStore::declare(const std::string& /* name */, const Value& /* v
 }
 void NullVariableStore::assign(const std::string& /* name */, const Value& /* value */) {}
 
-} // namespace tb::EL
+} // namespace tb::el

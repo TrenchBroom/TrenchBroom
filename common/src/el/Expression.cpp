@@ -19,10 +19,10 @@
 
 #include "Expression.h"
 
-#include "EL/ELExceptions.h"
-#include "EL/EvaluationContext.h"
-#include "EL/EvaluationTrace.h"
 #include "Value.h"
+#include "el/ELExceptions.h"
+#include "el/EvaluationContext.h"
+#include "el/EvaluationTrace.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
@@ -35,7 +35,7 @@
 #include <ranges>
 #include <sstream>
 
-namespace tb::EL
+namespace tb::el
 {
 namespace
 {
@@ -1129,7 +1129,7 @@ Value ExpressionNode::evaluate(
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
-      auto value = EL::evaluate(evaluator, expression, context);
+      auto value = el::evaluate(evaluator, expression, context);
       if (trace)
       {
         trace->addTrace(value, containingNode);
@@ -1151,7 +1151,7 @@ Value ExpressionNode::tryEvaluate(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
       try
       {
-        auto value = EL::evaluate(evaluator, expression, context);
+        auto value = el::evaluate(evaluator, expression, context);
         if (trace)
         {
           trace->addTrace(value, containingNode);
@@ -1517,4 +1517,4 @@ std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs)
   return lhs;
 }
 
-} // namespace tb::EL
+} // namespace tb::el

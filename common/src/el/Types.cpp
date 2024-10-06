@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 kdl_reflect_impl(LeftBoundedRange);
@@ -120,4 +120,4 @@ ValueType typeForName(const std::string& type)
   assert(false);
   return ValueType::Null;
 }
-} // namespace tb::EL
+} // namespace tb::el

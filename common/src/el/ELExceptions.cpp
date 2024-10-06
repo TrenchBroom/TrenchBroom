@@ -19,14 +19,14 @@
 
 #include "ELExceptions.h"
 
-#include "EL/Types.h"
-#include "EL/Value.h"
+#include "el/Types.h"
+#include "el/Value.h"
 
 #include <fmt/format.h>
 
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 ConversionError::ConversionError(
@@ -126,4 +126,4 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
 {
 }
 
-} // namespace tb::EL
+} // namespace tb::el

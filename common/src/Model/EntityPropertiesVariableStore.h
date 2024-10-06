@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "EL/VariableStore.h"
 #include "Macros.h"
+#include "el/VariableStore.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@ namespace tb::Model
 {
 class Entity;
 
-class EntityPropertiesVariableStore : public EL::VariableStore
+class EntityPropertiesVariableStore : public el::VariableStore
 {
 private:
   const Entity& m_entity;
@@ -39,10 +39,10 @@ public:
 
   VariableStore* clone() const override;
   size_t size() const override;
-  EL::Value value(const std::string& name) const override;
+  el::Value value(const std::string& name) const override;
   std::vector<std::string> names() const override;
-  void declare(const std::string& name, const EL::Value& value) override;
-  void assign(const std::string& name, const EL::Value& value) override;
+  void declare(const std::string& name, const el::Value& value) override;
+  void assign(const std::string& name, const el::Value& value) override;
 
   deleteCopyAndMove(EntityPropertiesVariableStore);
 };

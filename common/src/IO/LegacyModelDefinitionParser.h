@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
+#include "el/EL_Forward.h"
 
 #include <string_view>
 
@@ -62,13 +62,13 @@ public:
   TokenizerState tokenizerState() const;
 
 public:
-  EL::ExpressionNode parse(ParserStatus& status);
+  el::ExpressionNode parse(ParserStatus& status);
 
 private:
-  EL::ExpressionNode parseModelDefinition(ParserStatus& status);
-  EL::ExpressionNode parseStaticModelDefinition(ParserStatus& status);
-  EL::ExpressionNode parseDynamicModelDefinition(ParserStatus& status);
-  EL::ExpressionNode parseNamedValue(ParserStatus& status, const std::string& name);
+  el::ExpressionNode parseModelDefinition(ParserStatus& status);
+  el::ExpressionNode parseStaticModelDefinition(ParserStatus& status);
+  el::ExpressionNode parseDynamicModelDefinition(ParserStatus& status);
+  el::ExpressionNode parseNamedValue(ParserStatus& status, const std::string& name);
 
 private:
   TokenNameMap tokenNames() const override;

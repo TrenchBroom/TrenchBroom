@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "EL/VariableStore.h"
 #include "View/TextOutputAdapter.h"
+#include "el/VariableStore.h"
 
 #include <memory>
 #include <string>
@@ -33,7 +33,7 @@ class CompilationContext
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  std::unique_ptr<EL::VariableStore> m_variables;
+  std::unique_ptr<el::VariableStore> m_variables;
 
   TextOutputAdapter m_output;
   bool m_test;
@@ -41,7 +41,7 @@ private:
 public:
   CompilationContext(
     std::weak_ptr<MapDocument> document,
-    const EL::VariableStore& variables,
+    const el::VariableStore& variables,
     TextOutputAdapter output,
     bool test);
 

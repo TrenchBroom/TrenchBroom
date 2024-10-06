@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
 #include "Macros.h"
+#include "el/EL_Forward.h"
 
 #include <iosfwd>
 
@@ -45,8 +45,8 @@ public:
   void writeConfig();
 
 private:
-  EL::Value writeProfiles(const Model::GameEngineConfig& config) const;
-  EL::Value writeProfile(const Model::GameEngineProfile& profile) const;
+  el::Value writeProfiles(const Model::GameEngineConfig& config) const;
+  el::Value writeProfile(const Model::GameEngineProfile& profile) const;
 
   deleteCopyAndMove(GameEngineConfigWriter);
 };

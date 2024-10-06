@@ -19,9 +19,9 @@
 
 #include "EntityPropertiesVariableStore.h"
 
-#include "EL/ELExceptions.h"
-#include "EL/Value.h"
 #include "Model/Entity.h"
+#include "el/ELExceptions.h"
+#include "el/Value.h"
 
 #include <string>
 
@@ -33,7 +33,7 @@ EntityPropertiesVariableStore::EntityPropertiesVariableStore(const Entity& entit
 {
 }
 
-EL::VariableStore* EntityPropertiesVariableStore::clone() const
+el::VariableStore* EntityPropertiesVariableStore::clone() const
 {
   return new EntityPropertiesVariableStore{m_entity};
 }
@@ -43,10 +43,10 @@ size_t EntityPropertiesVariableStore::size() const
   return m_entity.properties().size();
 }
 
-EL::Value EntityPropertiesVariableStore::value(const std::string& name) const
+el::Value EntityPropertiesVariableStore::value(const std::string& name) const
 {
   const auto* value = m_entity.property(name);
-  return value ? EL::Value{*value} : EL::Value{""};
+  return value ? el::Value{*value} : el::Value{""};
 }
 
 std::vector<std::string> EntityPropertiesVariableStore::names() const
@@ -55,15 +55,15 @@ std::vector<std::string> EntityPropertiesVariableStore::names() const
 }
 
 void EntityPropertiesVariableStore::declare(
-  const std::string& /* name */, const EL::Value& /* value */)
+  const std::string& /* name */, const el::Value& /* value */)
 {
-  throw EL::EvaluationError{"Declaring properties directly is unsafe"};
+  throw el::EvaluationError{"Declaring properties directly is unsafe"};
 }
 
 void EntityPropertiesVariableStore::assign(
-  const std::string& /* name */, const EL::Value& /* value */)
+  const std::string& /* name */, const el::Value& /* value */)
 {
-  throw EL::EvaluationError{"Changing properties directly is unsafe"};
+  throw el::EvaluationError{"Changing properties directly is unsafe"};
 }
 
 } // namespace tb::Model

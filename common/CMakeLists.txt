@@ -22,14 +22,14 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/assets/TextureBuffer.cpp
         ${COMMON_SOURCE_DIR}/assets/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
-        ${COMMON_SOURCE_DIR}/EL/ELExceptions.cpp
-        ${COMMON_SOURCE_DIR}/EL/EvaluationContext.cpp
-        ${COMMON_SOURCE_DIR}/EL/EvaluationTrace.cpp
-        ${COMMON_SOURCE_DIR}/EL/Expression.cpp
-        ${COMMON_SOURCE_DIR}/EL/Interpolator.cpp
-        ${COMMON_SOURCE_DIR}/EL/Types.cpp
-        ${COMMON_SOURCE_DIR}/EL/Value.cpp
-        ${COMMON_SOURCE_DIR}/EL/VariableStore.cpp
+        ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
+        ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
+        ${COMMON_SOURCE_DIR}/el/EvaluationTrace.cpp
+        ${COMMON_SOURCE_DIR}/el/Expression.cpp
+        ${COMMON_SOURCE_DIR}/el/Interpolator.cpp
+        ${COMMON_SOURCE_DIR}/el/Types.cpp
+        ${COMMON_SOURCE_DIR}/el/Value.cpp
+        ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
         ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
@@ -516,15 +516,15 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/assets/TextureBuffer.h
         ${COMMON_SOURCE_DIR}/assets/TextureResource.h
         ${COMMON_SOURCE_DIR}/Color.h
-        ${COMMON_SOURCE_DIR}/EL/EL_Forward.h
-        ${COMMON_SOURCE_DIR}/EL/ELExceptions.h
-        ${COMMON_SOURCE_DIR}/EL/EvaluationContext.h
-        ${COMMON_SOURCE_DIR}/EL/EvaluationTrace.h
-        ${COMMON_SOURCE_DIR}/EL/Expression.h
-        ${COMMON_SOURCE_DIR}/EL/Interpolator.h
-        ${COMMON_SOURCE_DIR}/EL/Types.h
-        ${COMMON_SOURCE_DIR}/EL/Value.h
-        ${COMMON_SOURCE_DIR}/EL/VariableStore.h
+        ${COMMON_SOURCE_DIR}/el/EL_Forward.h
+        ${COMMON_SOURCE_DIR}/el/ELExceptions.h
+        ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
+        ${COMMON_SOURCE_DIR}/el/EvaluationTrace.h
+        ${COMMON_SOURCE_DIR}/el/Expression.h
+        ${COMMON_SOURCE_DIR}/el/Interpolator.h
+        ${COMMON_SOURCE_DIR}/el/Types.h
+        ${COMMON_SOURCE_DIR}/el/Value.h
+        ${COMMON_SOURCE_DIR}/el/VariableStore.h
         ${COMMON_SOURCE_DIR}/Ensure.h
         ${COMMON_SOURCE_DIR}/Error.h
         ${COMMON_SOURCE_DIR}/Exceptions.h

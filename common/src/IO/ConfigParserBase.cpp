@@ -19,11 +19,11 @@
 
 #include "ConfigParserBase.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/EvaluationTrace.h"
-#include "EL/Expression.h"
-#include "EL/Value.h"
 #include "Exceptions.h"
+#include "el/EvaluationContext.h"
+#include "el/EvaluationTrace.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <fmt/format.h>
 
@@ -40,13 +40,13 @@ ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::
 
 ConfigParserBase::~ConfigParserBase() = default;
 
-EL::ExpressionNode ConfigParserBase::parseConfigFile()
+el::ExpressionNode ConfigParserBase::parseConfigFile()
 {
   return m_parser.parse();
 }
 
 void expectType(
-  const EL::Value& value, const EL::EvaluationTrace& trace, const EL::ValueType type)
+  const el::Value& value, const el::EvaluationTrace& trace, const el::ValueType type)
 {
   if (value.type() != type)
   {
@@ -54,23 +54,23 @@ void expectType(
       *trace.getLocation(value),
       fmt::format(
         "Expected value of type '{}', but got type '{}'",
-        EL::typeName(type),
+        el::typeName(type),
         value.typeName())};
   }
 }
 
 void expectStructure(
-  const EL::Value& value, const EL::EvaluationTrace& trace, const std::string& structure)
+  const el::Value& value, const el::EvaluationTrace& trace, const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
-  const auto expected = parser.parse().evaluate(EL::EvaluationContext());
-  assert(expected.type() == EL::ValueType::Array);
+  const auto expected = parser.parse().evaluate(el::EvaluationContext());
+  assert(expected.type() == el::ValueType::Array);
 
   const auto mandatory = expected[0];
-  assert(mandatory.type() == EL::ValueType::Map);
+  assert(mandatory.type() == el::ValueType::Map);
 
   const auto optional = expected[1];
-  assert(optional.type() == EL::ValueType::Map);
+  assert(optional.type() == el::ValueType::Map);
 
   // Are all mandatory keys present?
   for (const auto& key : mandatory.keys())
@@ -78,17 +78,17 @@ void expectStructure(
     const auto typeName = mandatory[key].stringValue();
     if (typeName != "*")
     {
-      const auto type = EL::typeForName(typeName);
+      const auto type = el::typeForName(typeName);
       expectMapEntry(value, trace, key, type);
     }
   }
 }
 
 void expectMapEntry(
-  const EL::Value& value,
-  const EL::EvaluationTrace& trace,
+  const el::Value& value,
+  const el::EvaluationTrace& trace,
   const std::string& key,
-  const EL::ValueType type)
+  const el::ValueType type)
 {
   const auto& map = value.mapValue();
   const auto it = map.find(key);

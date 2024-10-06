@@ -19,9 +19,9 @@
 
 #include "CompilationContext.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/Interpolator.h"
-#include "EL/Types.h"
+#include "el/EvaluationContext.h"
+#include "el/Interpolator.h"
+#include "el/Types.h"
 
 #include "kdl/memory_utils.h"
 
@@ -30,7 +30,7 @@ namespace tb::View
 
 CompilationContext::CompilationContext(
   std::weak_ptr<MapDocument> document,
-  const EL::VariableStore& variables,
+  const el::VariableStore& variables,
   TextOutputAdapter output,
   bool test)
   : m_document{std::move(document)}
@@ -52,12 +52,12 @@ bool CompilationContext::test() const
 
 std::string CompilationContext::interpolate(const std::string& input) const
 {
-  return EL::interpolate(input, EL::EvaluationContext{*m_variables});
+  return el::interpolate(input, el::EvaluationContext{*m_variables});
 }
 
 std::string CompilationContext::variableValue(const std::string& variableName) const
 {
-  return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
+  return m_variables->value(variableName).convertTo(el::ValueType::String).stringValue();
 }
 
 } // namespace tb::View

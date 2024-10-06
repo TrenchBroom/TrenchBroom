@@ -19,14 +19,14 @@
 
 #include "FgdParser.h"
 
-#include "EL/ELExceptions.h"
-#include "EL/Expression.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/LegacyModelDefinitionParser.h"
 #include "IO/ParserStatus.h"
 #include "assets/PropertyDefinition.h"
+#include "el/ELExceptions.h"
+#include "el/Expression.h"
 
 #include "kdl/invoke.h"
 #include "kdl/result.h"
@@ -461,11 +461,11 @@ assets::ModelDefinition FgdParser::parseModel(
   {
     m_tokenizer.skipToken();
 
-    auto defaultModel = EL::MapExpression{{
-      {"path", EL::ExpressionNode{EL::VariableExpression{"model"}, location}},
-      {"scale", EL::ExpressionNode{EL::VariableExpression{"scale"}, location}},
+    auto defaultModel = el::MapExpression{{
+      {"path", el::ExpressionNode{el::VariableExpression{"model"}, location}},
+      {"scale", el::ExpressionNode{el::VariableExpression{"scale"}, location}},
     }};
-    auto defaultExp = EL::ExpressionNode{std::move(defaultModel), location};
+    auto defaultExp = el::ExpressionNode{std::move(defaultModel), location};
     return assets::ModelDefinition{std::move(defaultExp)};
   }
 
@@ -510,7 +510,7 @@ assets::ModelDefinition FgdParser::parseModel(
       throw e;
     }
   }
-  catch (const EL::EvaluationError& evaluationError)
+  catch (const el::EvaluationError& evaluationError)
   {
     throw ParserException{location, evaluationError.what()};
   }
@@ -530,9 +530,9 @@ assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
   if (token.hasType(FgdToken::CParenthesis))
   {
     expect(status, FgdToken::CParenthesis, m_tokenizer.nextToken());
-    auto defaultDecal = EL::MapExpression{
-      {{"texture", EL::ExpressionNode{EL::VariableExpression{"texture"}, location}}}};
-    auto defaultExp = EL::ExpressionNode{std::move(defaultDecal), location};
+    auto defaultDecal = el::MapExpression{
+      {{"texture", el::ExpressionNode{el::VariableExpression{"texture"}, location}}}};
+    auto defaultExp = el::ExpressionNode{std::move(defaultDecal), location};
     return assets::DecalDefinition{std::move(defaultExp)};
   }
 
@@ -554,7 +554,7 @@ assets::DecalDefinition FgdParser::parseDecal(ParserStatus& status)
     m_tokenizer.restore(snapshot);
     throw;
   }
-  catch (const EL::EvaluationError& evaluationError)
+  catch (const el::EvaluationError& evaluationError)
   {
     throw ParserException{location, evaluationError.what()};
   }

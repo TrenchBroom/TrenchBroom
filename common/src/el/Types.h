@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
+#include "el/EL_Forward.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -29,7 +29,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::EL
+namespace tb::el
 {
 
 namespace detail
@@ -127,4 +127,4 @@ enum class ValueType
 std::string typeName(ValueType type);
 ValueType typeForName(const std::string& type);
 
-} // namespace tb::EL
+} // namespace tb::el

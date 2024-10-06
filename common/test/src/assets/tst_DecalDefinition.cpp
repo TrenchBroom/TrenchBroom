@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 #include "assets/DecalDefinition.h"
+#include "el/VariableStore.h"
 
 #include <map>
 #include <tuple>
@@ -41,15 +41,15 @@ DecalDefinition makeDecalDefinition(const std::string& expression)
 TEST_CASE("DecalDefinitionTest.append")
 {
   auto d1 = makeDecalDefinition(R"("decal1")");
-  REQUIRE(d1.decalSpecification(EL::NullVariableStore{}) == DecalSpecification{"decal1"});
+  REQUIRE(d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
 
   d1.append(makeDecalDefinition(R"("decal2")"));
-  CHECK(d1.decalSpecification(EL::NullVariableStore{}) == DecalSpecification{"decal1"});
+  CHECK(d1.decalSpecification(el::NullVariableStore{}) == DecalSpecification{"decal1"});
 }
 
 TEST_CASE("DecalDefinitionTest.decalSpecification")
 {
-  using T = std::tuple<std::string, std::map<std::string, EL::Value>, DecalSpecification>;
+  using T = std::tuple<std::string, std::map<std::string, el::Value>, DecalSpecification>;
 
   // clang-format off
   const auto 
@@ -57,7 +57,7 @@ TEST_CASE("DecalDefinitionTest.decalSpecification")
   {R"("decal1")",                              {},        {"decal1"}},
   {R"({ texture: "decal2" })",                 {},        {"decal2"}},
 
-  {R"({ texture: texture })",                  {{"texture", EL::Value{"decal3"}}},
+  {R"({ texture: texture })",                  {{"texture", el::Value{"decal3"}}},
                                                           {"decal3"}},
   
   }));
@@ -67,7 +67,7 @@ TEST_CASE("DecalDefinitionTest.decalSpecification")
 
   const auto decalDefinition = makeDecalDefinition(expression);
   CHECK(
-    decalDefinition.decalSpecification(EL::VariableTable{variables})
+    decalDefinition.decalSpecification(el::VariableTable{variables})
     == expectedDecalSpecification);
 }
 

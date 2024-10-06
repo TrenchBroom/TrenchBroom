@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h" // IWYU pragma: keep
 #include "Model/EntityProperties.h"
 #include "assets/AssetReference.h"
+#include "el/EL_Forward.h" // IWYU pragma: keep
 
 #include "kdl/reflection_decl.h"
 
@@ -153,7 +153,7 @@ public: // property management
   const assets::EntityModelFrame* modelFrame() const;
   assets::ModelSpecification modelSpecification() const;
   const vm::mat4x4d& modelTransformation(
-    const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const;
+    const std::optional<el::ExpressionNode>& defaultModelScaleExpression) const;
 
   assets::DecalSpecification decalSpecification() const;
 

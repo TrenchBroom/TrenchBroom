@@ -19,7 +19,6 @@
 
 #include "DefParser.h"
 
-#include "EL/ELExceptions.h"
 #include "Exceptions.h"
 #include "FileLocation.h"
 #include "IO/ELParser.h"
@@ -29,6 +28,7 @@
 #include "Model/EntityProperties.h"
 #include "assets/ModelDefinition.h"
 #include "assets/PropertyDefinition.h"
+#include "el/ELExceptions.h"
 
 #include "kdl/string_format.h"
 
@@ -437,7 +437,7 @@ assets::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
       throw e;
     }
   }
-  catch (const EL::EvaluationError& evaluationError)
+  catch (const el::EvaluationError& evaluationError)
   {
     throw ParserException{location, evaluationError.what()};
   }

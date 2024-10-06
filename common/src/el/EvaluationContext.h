@@ -22,38 +22,39 @@
 #include "Macros.h"
 #include "el/EL_Forward.h"
 
-#include <iosfwd>
+#include <memory>
 #include <string>
 
-namespace tb::Model
-{
-struct CompilationConfig;
-struct CompilationProfile;
-} // namespace tb::Model
-
-namespace tb::IO
+namespace tb::el
 {
 
-class CompilationConfigWriter
+class EvaluationContext
 {
 private:
-  const Model::CompilationConfig& m_config;
-  std::ostream& m_stream;
+  std::unique_ptr<VariableStore> m_store;
 
 public:
-  CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
+  EvaluationContext();
+  explicit EvaluationContext(const VariableStore& store);
+  virtual ~EvaluationContext();
 
-  void writeConfig();
+  virtual Value variableValue(const std::string& name) const;
+  virtual void declareVariable(const std::string& name, const Value& value);
 
-private:
-  el::Value writeProfiles(const Model::CompilationConfig& config) const;
-  el::Value writeProfile(const Model::CompilationProfile& profile) const;
-
-  el::Value writeTasks(const Model::CompilationProfile& profile) const;
-
-  std::string escape(const std::string& str) const;
-
-  deleteCopyAndMove(CompilationConfigWriter);
+  deleteCopyAndMove(EvaluationContext);
 };
 
-} // namespace tb::IO
+class EvaluationStack : public EvaluationContext
+{
+private:
+  const EvaluationContext& m_next;
+
+public:
+  explicit EvaluationStack(const EvaluationContext& next);
+
+  Value variableValue(const std::string& name) const override;
+
+  deleteCopyAndMove(EvaluationStack);
+};
+
+} // namespace tb::el

@@ -21,7 +21,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QTextEdit>
 #include <QtTest/QSignalSpy>
 
-#include "EL/VariableStore.h"
 #include "IO/TestEnvironment.h"
 #include "MapDocumentTest.h"
 #include "Model/CompilationTask.h"
@@ -32,6 +31,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
 #include "View/TextOutputAdapter.h"
+#include "el/VariableStore.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -103,7 +103,7 @@ public:
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -147,7 +147,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsZeroE
 TEST_CASE_METHOD(
   MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsNonZeroExitCode")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -170,7 +170,7 @@ TEST_CASE_METHOD(
 // the test is unreliable on Windows
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -194,7 +194,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
 // the test is unreliable on macOS in debug mode
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -223,7 +223,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
 TEST_CASE_METHOD(
   MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -252,7 +252,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 {
   const auto overwrite = GENERATE(true, false);
 
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -284,7 +284,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTargetPattern")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
@@ -316,7 +316,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
 {
-  auto variables = EL::NullVariableStore{};
+  auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 

@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 class Value;
 enum class ValueType;
@@ -72,4 +72,4 @@ public:
   IndexOutOfBoundsError(const Value& indexableValue, size_t index);
   IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
 };
-} // namespace tb::EL
+} // namespace tb::el

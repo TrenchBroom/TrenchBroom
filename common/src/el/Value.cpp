@@ -19,7 +19,7 @@
 
 #include "Value.h"
 
-#include "EL/ELExceptions.h"
+#include "el/ELExceptions.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
@@ -32,7 +32,7 @@
 #include <sstream>
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 NullType::NullType() = default;
@@ -131,7 +131,7 @@ bool Value::hasType(ValueType type) const
 
 std::string Value::typeName() const
 {
-  return EL::typeName(type());
+  return el::typeName(type());
 }
 
 std::string Value::describe() const
@@ -1302,4 +1302,4 @@ std::ostream& operator<<(std::ostream& lhs, const Value& rhs)
   return lhs;
 }
 
-} // namespace tb::EL
+} // namespace tb::el

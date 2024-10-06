@@ -19,11 +19,11 @@
 
 #include "DecalDefinition.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/Expression.h"
-#include "EL/Types.h"
-#include "EL/Value.h"
-#include "EL/VariableStore.h"
+#include "el/EvaluationContext.h"
+#include "el/Expression.h"
+#include "el/Types.h"
+#include "el/Value.h"
+#include "el/VariableStore.h"
 
 #include "kdl/reflection_impl.h"
 
@@ -32,26 +32,26 @@ namespace tb::assets
 
 namespace
 {
-std::string materialName(const EL::Value& value)
+std::string materialName(const el::Value& value)
 {
   using namespace std::string_literals;
-  return value.type() == EL::ValueType::String ? value.stringValue() : ""s;
+  return value.type() == el::ValueType::String ? value.stringValue() : ""s;
 }
 
-DecalSpecification convertToDecal(const EL::Value& value)
+DecalSpecification convertToDecal(const el::Value& value)
 {
   switch (value.type())
   {
-  case EL::ValueType::Map:
+  case el::ValueType::Map:
     return {materialName(value[DecalSpecificationKeys::Material])};
-  case EL::ValueType::String:
+  case el::ValueType::String:
     return {materialName(value)};
-  case EL::ValueType::Boolean:
-  case EL::ValueType::Number:
-  case EL::ValueType::Array:
-  case EL::ValueType::Range:
-  case EL::ValueType::Null:
-  case EL::ValueType::Undefined:
+  case el::ValueType::Boolean:
+  case el::ValueType::Number:
+  case el::ValueType::Array:
+  case el::ValueType::Range:
+  case el::ValueType::Null:
+  case el::ValueType::Undefined:
     break;
   }
 
@@ -62,16 +62,16 @@ DecalSpecification convertToDecal(const EL::Value& value)
 kdl_reflect_impl(DecalSpecification);
 
 DecalDefinition::DecalDefinition()
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}}
+  : m_expression{el::LiteralExpression{el::Value::Undefined}}
 {
 }
 
 DecalDefinition::DecalDefinition(const FileLocation& location)
-  : m_expression{EL::LiteralExpression{EL::Value::Undefined}, location}
+  : m_expression{el::LiteralExpression{el::Value::Undefined}, location}
 {
 }
 
-DecalDefinition::DecalDefinition(EL::ExpressionNode expression)
+DecalDefinition::DecalDefinition(el::ExpressionNode expression)
   : m_expression{std::move(expression)}
 {
 }
@@ -81,19 +81,19 @@ void DecalDefinition::append(const DecalDefinition& other)
   const auto location = m_expression.location();
 
   auto cases =
-    std::vector<EL::ExpressionNode>{std::move(m_expression), other.m_expression};
-  m_expression = EL::ExpressionNode{EL::SwitchExpression{std::move(cases)}, location};
+    std::vector<el::ExpressionNode>{std::move(m_expression), other.m_expression};
+  m_expression = el::ExpressionNode{el::SwitchExpression{std::move(cases)}, location};
 }
 
 DecalSpecification DecalDefinition::decalSpecification(
-  const EL::VariableStore& variableStore) const
+  const el::VariableStore& variableStore) const
 {
-  return convertToDecal(m_expression.evaluate(EL::EvaluationContext{variableStore}));
+  return convertToDecal(m_expression.evaluate(el::EvaluationContext{variableStore}));
 }
 
 DecalSpecification DecalDefinition::defaultDecalSpecification() const
 {
-  return decalSpecification(EL::NullVariableStore{});
+  return decalSpecification(el::NullVariableStore{});
 }
 
 kdl_reflect_impl(DecalDefinition);

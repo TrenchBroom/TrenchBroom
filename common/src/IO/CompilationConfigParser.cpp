@@ -19,13 +19,13 @@
 
 #include "CompilationConfigParser.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/EvaluationTrace.h"
-#include "EL/Expression.h"
-#include "EL/Value.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "el/EvaluationContext.h"
+#include "el/EvaluationTrace.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <fmt/format.h>
 
@@ -37,7 +37,7 @@ namespace
 {
 
 Model::CompilationExportMap parseExportTask(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
@@ -47,7 +47,7 @@ Model::CompilationExportMap parseExportTask(
 }
 
 Model::CompilationCopyFiles parseCopyTask(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value,
@@ -60,7 +60,7 @@ Model::CompilationCopyFiles parseCopyTask(
 }
 
 Model::CompilationRenameFile parseRenameTask(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value,
@@ -73,7 +73,7 @@ Model::CompilationRenameFile parseRenameTask(
 }
 
 Model::CompilationDeleteFiles parseDeleteTask(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
@@ -83,7 +83,7 @@ Model::CompilationDeleteFiles parseDeleteTask(
 }
 
 Model::CompilationRunTool parseToolTask(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value,
@@ -104,9 +104,9 @@ Model::CompilationRunTool parseToolTask(
     treatNonZeroResultCodeAsError};
 }
 
-Model::CompilationTask parseTask(const EL::Value& value, const EL::EvaluationTrace& trace)
+Model::CompilationTask parseTask(const el::Value& value, const el::EvaluationTrace& trace)
 {
-  expectMapEntry(value, trace, "type", EL::ValueType::String);
+  expectMapEntry(value, trace, "type", el::ValueType::String);
   const auto typeName = value["type"].stringValue();
 
   if (typeName == "export")
@@ -134,7 +134,7 @@ Model::CompilationTask parseTask(const EL::Value& value, const EL::EvaluationTra
 }
 
 std::vector<Model::CompilationTask> parseTasks(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::CompilationTask>{};
   result.reserve(value.length());
@@ -147,7 +147,7 @@ std::vector<Model::CompilationTask> parseTasks(
 }
 
 Model::CompilationProfile parseProfile(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value, trace, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
@@ -159,7 +159,7 @@ Model::CompilationProfile parseProfile(
 }
 
 std::vector<Model::CompilationProfile> parseProfiles(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::CompilationProfile>{};
   result.reserve(value.length());
@@ -181,11 +181,11 @@ CompilationConfigParser::CompilationConfigParser(
 
 Model::CompilationConfig CompilationConfigParser::parse()
 {
-  const auto context = EL::EvaluationContext{};
-  auto trace = EL::EvaluationTrace{};
+  const auto context = el::EvaluationContext{};
+  auto trace = el::EvaluationTrace{};
 
   const auto root = parseConfigFile().evaluate(context, trace);
-  expectType(root, trace, EL::ValueType::Map);
+  expectType(root, trace, el::ValueType::Map);
 
   expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 

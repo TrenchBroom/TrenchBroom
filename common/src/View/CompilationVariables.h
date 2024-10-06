@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/VariableStore.h"
+#include "el/VariableStore.h"
 
 #include <memory>
 #include <string>
@@ -40,7 +40,7 @@ extern const std::string MODS;
 extern const std::string APP_DIR_PATH;
 } // namespace CompilationVariableNames
 
-class CommonVariables : public EL::VariableTable
+class CommonVariables : public el::VariableTable
 {
 protected:
   explicit CommonVariables(std::shared_ptr<MapDocument> document);

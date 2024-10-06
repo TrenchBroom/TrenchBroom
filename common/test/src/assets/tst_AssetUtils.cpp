@@ -60,7 +60,7 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
   {
     CHECK_NOTHROW(
       actual = safeGetModelSpecification(
-        logger, "", []() -> ModelSpecification { throw EL::Exception(); }));
+        logger, "", []() -> ModelSpecification { throw el::Exception(); }));
     CHECK(logger.countMessages() == 1u);
     CHECK(logger.countMessages(LogLevel::Error) == 1u);
     CHECK(actual.has_value());

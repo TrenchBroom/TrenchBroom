@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "EL/ELExceptions.h"
 #include "Logger.h"
 #include "assets/ModelSpecification.h"
+#include "el/ELExceptions.h"
 
 #include <string_view>
 
@@ -48,7 +48,7 @@ ModelSpecification safeGetModelSpecification(
   {
     return getModelSpec();
   }
-  catch (const EL::Exception& e)
+  catch (const el::Exception& e)
   {
     logger.error() << "Could not get entity model for entity '" << classname
                    << "': " << e.what();

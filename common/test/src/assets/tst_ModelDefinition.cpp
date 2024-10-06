@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/Expression.h"
-#include "EL/VariableStore.h"
 #include "IO/ELParser.h"
 #include "assets/ModelDefinition.h"
+#include "el/Expression.h"
+#include "el/VariableStore.h"
 
 #include <map>
 #include <tuple>
@@ -46,19 +46,19 @@ TEST_CASE("ModelDefinition")
   {
     auto d1 = makeModelDefinition(R"("maps/b_shell0.bsp")");
     REQUIRE(
-      d1.modelSpecification(EL::NullVariableStore{})
+      d1.modelSpecification(el::NullVariableStore{})
       == ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 
     d1.append(makeModelDefinition(R"("maps/b_shell1.bsp")"));
     CHECK(
-      d1.modelSpecification(EL::NullVariableStore{})
+      d1.modelSpecification(el::NullVariableStore{})
       == ModelSpecification{"maps/b_shell0.bsp", 0, 0});
   }
 
   SECTION("modelSpecification")
   {
     using T =
-      std::tuple<std::string, std::map<std::string, EL::Value>, ModelSpecification>;
+      std::tuple<std::string, std::map<std::string, el::Value>, ModelSpecification>;
 
     // clang-format off
     const auto 
@@ -75,12 +75,12 @@ TEST_CASE("ModelDefinition")
     {R"({{
         spawnflags == 1 -> "maps/b_shell0.bsp",
                             "maps/b_shell1.bsp"
-    }})",                                                   {{"spawnflags", EL::Value{1}}},
+    }})",                                                   {{"spawnflags", el::Value{1}}},
                                                                         {"maps/b_shell0.bsp", 0, 0}},
 
-    {R"({path: model, skin: skin, frame: frame})",          {{"model", EL::Value{"maps/b_shell0.bsp"}},
-                                                              {"skin",  EL::Value{1}},
-                                                              {"frame", EL::Value{2}}},
+    {R"({path: model, skin: skin, frame: frame})",          {{"model", el::Value{"maps/b_shell0.bsp"}},
+                                                              {"skin",  el::Value{1}},
+                                                              {"frame", el::Value{2}}},
                                                                         {"maps/b_shell0.bsp", 1, 2}},
     
     }));
@@ -90,7 +90,7 @@ TEST_CASE("ModelDefinition")
 
     const auto modelDefinition = makeModelDefinition(expression);
     CHECK(
-      modelDefinition.modelSpecification(EL::VariableTable{variables})
+      modelDefinition.modelSpecification(el::VariableTable{variables})
       == expectedModelSpecification);
   }
 
@@ -148,14 +148,14 @@ TEST_CASE("ModelDefinition")
     CAPTURE(expression, globalScaleExpressionStr);
 
     const auto modelDefinition = makeModelDefinition(expression);
-    const auto variables = EL::VariableTable{{
-      {"modelscale", EL::Value{4}},
-      {"modelscale_vec", EL::Value{"5, 6, 7"}},
+    const auto variables = el::VariableTable{{
+      {"modelscale", el::Value{4}},
+      {"modelscale_vec", el::Value{"5, 6, 7"}},
     }};
 
     const auto defaultScaleExpression =
       globalScaleExpressionStr
-        ? std::optional<EL::ExpressionNode>{IO::ELParser::parseStrict(
+        ? std::optional<el::ExpressionNode>{IO::ELParser::parseStrict(
             *globalScaleExpressionStr)}
         : std::nullopt;
 

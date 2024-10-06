@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/Expression.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/EntityDefinitionParser.h"
 #include "IO/TestParserStatus.h"
 #include "Model/EntityProperties.h"
 #include "assets/PropertyDefinition.h"
+#include "el/Expression.h"
 
 #include <vector>
 
@@ -315,9 +315,9 @@ TEST_CASE("resolveInheritance")
   SECTION("overrideMembersIfNotPresent")
   {
     const auto baseModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"abc"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto baseDecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"def"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -412,9 +412,9 @@ TEST_CASE("resolveInheritance")
   SECTION("mergeModelDefinitions")
   {
     const auto baseModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"abc"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto pointModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"xyz"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(baseModelDef);
 
@@ -466,9 +466,9 @@ TEST_CASE("resolveInheritance")
   SECTION("mergeDecalDefinitions")
   {
     const auto baseDecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"decal1"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"decal1"}}}};
     const auto pointDecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"decal2"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"decal2"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(baseDecalDef);
 
@@ -646,21 +646,21 @@ TEST_CASE("resolveInheritance")
       std::make_shared<assets::StringPropertyDefinition>("a3", "", "", false);
 
     const auto base1ModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"abc"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto base2ModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"def"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
     const auto pointModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"xyz"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(base2ModelDef);
     mergedModelDef.append(base1ModelDef);
 
     const auto base1DecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec1"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
     const auto base2DecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec2"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
     const auto pointDecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec3"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(base2DecalDef);
     mergedDecalDef.append(base1DecalDef);
@@ -732,21 +732,21 @@ TEST_CASE("resolveInheritance")
       std::make_shared<assets::StringPropertyDefinition>("a3", "", "", false);
 
     const auto base1ModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"abc"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto base2ModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"def"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
     const auto pointModelDef = assets::ModelDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"xyz"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(base1ModelDef);
     mergedModelDef.append(base2ModelDef);
 
     const auto base1DecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec1"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
     const auto base2DecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec2"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
     const auto pointDecalDef = assets::DecalDefinition{
-      EL::ExpressionNode{EL::LiteralExpression{EL::Value{"dec3"}}}};
+      el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(base1DecalDef);
     mergedDecalDef.append(base2DecalDef);

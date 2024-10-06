@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/Expression.h"
+#include "el/Expression.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -48,12 +48,12 @@ struct DecalSpecification
 class DecalDefinition
 {
 private:
-  EL::ExpressionNode m_expression;
+  el::ExpressionNode m_expression;
 
 public:
   DecalDefinition();
   explicit DecalDefinition(const FileLocation& location);
-  explicit DecalDefinition(EL::ExpressionNode expression);
+  explicit DecalDefinition(el::ExpressionNode expression);
 
   void append(const DecalDefinition& other);
 
@@ -64,16 +64,16 @@ public:
    * @param variableStore the variable store to use when interpolating variables
    * @return the decal specification
    *
-   * @throws EL::Exception if the expression could not be evaluated
+   * @throws el::Exception if the expression could not be evaluated
    */
-  DecalSpecification decalSpecification(const EL::VariableStore& variableStore) const;
+  DecalSpecification decalSpecification(const el::VariableStore& variableStore) const;
 
   /**
    * Evaluates the decal expresion.
    *
    * @return the decal specification
    *
-   * @throws EL::Exception if the expression could not be evaluated
+   * @throws el::Exception if the expression could not be evaluated
    */
   DecalSpecification defaultDecalSpecification() const;
 

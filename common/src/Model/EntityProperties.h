@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "EL/Expression.h"
+#include "el/Expression.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -81,7 +81,7 @@ extern const std::string LayerOmitFromExportValue;
 
 struct EntityPropertyConfig
 {
-  std::optional<EL::ExpressionNode> defaultModelScaleExpression;
+  std::optional<el::ExpressionNode> defaultModelScaleExpression;
   bool setDefaultProperties{false};
   bool updateAnglePropertyAfterTransform{true};
 

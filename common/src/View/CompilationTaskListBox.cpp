@@ -28,8 +28,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "EL/EvaluationContext.h"
-#include "EL/Interpolator.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
@@ -39,6 +37,8 @@
 #include "View/TitledPanel.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
+#include "el/EvaluationContext.h"
+#include "el/Interpolator.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -114,9 +114,9 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
   auto workDir = std::string{};
   try
   {
-    workDir = EL::interpolate(
+    workDir = el::interpolate(
       m_profile.workDirSpec,
-      EL::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}});
+      el::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}});
   }
   catch (const Exception&)
   {

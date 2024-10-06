@@ -19,8 +19,6 @@
 
 #include "CompilationRun.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/Interpolator.h"
 #include "Ensure.h"
 #include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
@@ -28,6 +26,8 @@
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h"
 #include "View/TextOutputAdapter.h"
+#include "el/EvaluationContext.h"
+#include "el/Interpolator.h"
 
 #include <memory>
 #include <string>
@@ -112,9 +112,9 @@ std::string CompilationRun::buildWorkDir(
 {
   try
   {
-    return EL::interpolate(
+    return el::interpolate(
       profile.workDirSpec,
-      EL::EvaluationContext{CompilationWorkDirVariables{std::move(document)}});
+      el::EvaluationContext{CompilationWorkDirVariables{std::move(document)}});
   }
   catch (const Exception&)
   {

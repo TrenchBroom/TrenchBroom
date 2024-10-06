@@ -19,7 +19,6 @@
 
 #include "EntityBrowserView.h"
 
-#include "EL/VariableStore.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -41,6 +40,7 @@
 #include "assets/EntityDefinitionManager.h"
 #include "assets/EntityModel.h"
 #include "assets/EntityModelManager.h"
+#include "el/VariableStore.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -81,7 +81,7 @@ EntityBrowserView::~EntityBrowserView()
 }
 
 void EntityBrowserView::setDefaultModelScaleExpression(
-  std::optional<EL::ExpressionNode> defaultScaleExpression)
+  std::optional<el::ExpressionNode> defaultScaleExpression)
 {
   m_defaultScaleModelExpression = std::move(defaultScaleExpression);
 }
@@ -237,7 +237,7 @@ void EntityBrowserView::addEntityToLayout(
 
     const auto modelScale = vm::vec3f{assets::safeGetModelScale(
       definition->modelDefinition(),
-      EL::NullVariableStore{},
+      el::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
     auto* modelRenderer = static_cast<Renderer::MaterialRenderer*>(nullptr);

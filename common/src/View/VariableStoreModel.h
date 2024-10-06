@@ -28,7 +28,7 @@
 class QModelIndex;
 class QVariant;
 
-namespace tb::EL
+namespace tb::el
 {
 class VariableStore;
 }
@@ -40,11 +40,11 @@ class VariableStoreModel : public QAbstractListModel
 {
   Q_OBJECT
 private:
-  std::unique_ptr<EL::VariableStore> m_variables;
+  std::unique_ptr<el::VariableStore> m_variables;
   std::vector<std::string> m_variableNames;
 
 public:
-  explicit VariableStoreModel(const EL::VariableStore& variables);
+  explicit VariableStoreModel(const el::VariableStore& variables);
   ~VariableStoreModel() override;
 
   int rowCount(const QModelIndex& parent) const override;

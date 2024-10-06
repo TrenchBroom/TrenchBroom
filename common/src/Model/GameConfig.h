@@ -20,11 +20,11 @@
 #pragma once
 
 #include "Color.h"
-#include "EL/Expression.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/CompilationConfig.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/Tag.h"
+#include "el/Expression.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -80,7 +80,7 @@ struct EntityConfig
 {
   std::vector<std::filesystem::path> defFilePaths;
   Color defaultColor;
-  std::optional<EL::ExpressionNode> scaleExpression;
+  std::optional<el::ExpressionNode> scaleExpression;
   bool setDefaultProperties;
 
   kdl_reflect_decl(

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/Expression.h"
 #include "IO/DiskIO.h"
 #include "IO/GameConfigParser.h"
 #include "IO/Reader.h"
@@ -25,6 +24,7 @@
 #include "Model/GameConfig.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
+#include "el/Expression.h"
 
 #include <filesystem>
 #include <string>
@@ -742,10 +742,10 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
       Model::EntityConfig{
         {{"Extras.ent"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
-        EL::ExpressionNode{EL::ArrayExpression{{
+        el::ExpressionNode{el::ArrayExpression{{
           // the line numbers are not checked
-          EL::ExpressionNode{EL::VariableExpression{"modelscale"}},
-          EL::ExpressionNode{EL::VariableExpression{"modelscale_vec"}},
+          el::ExpressionNode{el::VariableExpression{"modelscale"}},
+          el::ExpressionNode{el::VariableExpression{"modelscale_vec"}},
         }}},
         false},
       Model::FaceAttribsConfig{

@@ -27,8 +27,6 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "EL/EvaluationContext.h"
-#include "EL/Interpolator.h"
 #include "IO/PathQt.h"
 #include "Model/GameConfig.h"
 #include "Model/GameEngineProfile.h"
@@ -43,6 +41,8 @@
 #include "View/QtUtils.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
+#include "el/EvaluationContext.h"
+#include "el/Interpolator.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
@@ -245,7 +245,7 @@ void LaunchGameEngineDialog::launchEngine()
     ensure(profile != nullptr, "profile is null");
 
     const auto parameters =
-      EL::interpolate(profile->parameterSpec, EL::EvaluationContext{variables()});
+      el::interpolate(profile->parameterSpec, el::EvaluationContext{variables()});
 
     const auto workDir = IO::pathAsQString(profile->path.parent_path());
 

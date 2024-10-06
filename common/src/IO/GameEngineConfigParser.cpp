@@ -19,13 +19,13 @@
 
 #include "GameEngineConfigParser.h"
 
-#include "EL/EvaluationContext.h"
-#include "EL/EvaluationTrace.h"
-#include "EL/Expression.h"
-#include "EL/Value.h"
 #include "Macros.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
+#include "el/EvaluationContext.h"
+#include "el/EvaluationTrace.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <string>
 #include <vector>
@@ -36,7 +36,7 @@ namespace
 {
 
 Model::GameEngineProfile parseProfile(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
     value, trace, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
@@ -48,7 +48,7 @@ Model::GameEngineProfile parseProfile(
 }
 
 std::vector<Model::GameEngineProfile> parseProfiles(
-  const EL::Value& value, const EL::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationTrace& trace)
 {
   auto result = std::vector<Model::GameEngineProfile>{};
   result.reserve(value.length());
@@ -70,11 +70,11 @@ GameEngineConfigParser::GameEngineConfigParser(
 
 Model::GameEngineConfig GameEngineConfigParser::parse()
 {
-  const auto context = EL::EvaluationContext{};
-  auto trace = EL::EvaluationTrace{};
+  const auto context = el::EvaluationContext{};
+  auto trace = el::EvaluationTrace{};
 
   const auto root = parseConfigFile().evaluate(context, trace);
-  expectType(root, trace, EL::ValueType::Map);
+  expectType(root, trace, el::ValueType::Map);
 
   expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 

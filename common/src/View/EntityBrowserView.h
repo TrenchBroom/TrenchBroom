@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "EL/Expression.h"
 #include "NotifierConnection.h"
 #include "Renderer/FontDescriptor.h"
 #include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
+#include "el/Expression.h"
 
 #include "vm/bbox.h"
 #include "vm/quat.h" // IWYU pragma: keep
@@ -84,7 +84,7 @@ private:
   static constexpr auto CameraUp = vm::vec3f{0, 0, 1};
 
   std::weak_ptr<MapDocument> m_document;
-  std::optional<EL::ExpressionNode> m_defaultScaleModelExpression;
+  std::optional<el::ExpressionNode> m_defaultScaleModelExpression;
   vm::quatf m_rotation;
 
   bool m_group = false;
@@ -103,7 +103,7 @@ public:
 
 public:
   void setDefaultModelScaleExpression(
-    std::optional<EL::ExpressionNode> defaultModelScaleExpression);
+    std::optional<el::ExpressionNode> defaultModelScaleExpression);
 
   void setSortOrder(assets::EntityDefinitionSortOrder sortOrder);
   void setGroup(bool group);

@@ -19,11 +19,11 @@
 
 #include "CompilationConfigWriter.h"
 
-#include "EL/Types.h"
-#include "EL/Value.h"
 #include "Model/CompilationConfig.h"
 #include "Model/CompilationProfile.h"
 #include "Model/CompilationTask.h"
+#include "el/Types.h"
+#include "el/Value.h"
 
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"
@@ -44,91 +44,91 @@ CompilationConfigWriter::CompilationConfigWriter(
 
 void CompilationConfigWriter::writeConfig()
 {
-  auto map = EL::MapType{};
-  map["version"] = EL::Value{1.0};
+  auto map = el::MapType{};
+  map["version"] = el::Value{1.0};
   map["profiles"] = writeProfiles(m_config);
-  m_stream << EL::Value{std::move(map)} << "\n";
+  m_stream << el::Value{std::move(map)} << "\n";
 }
 
-EL::Value CompilationConfigWriter::writeProfiles(
+el::Value CompilationConfigWriter::writeProfiles(
   const Model::CompilationConfig& config) const
 {
-  return EL::Value{kdl::vec_transform(
+  return el::Value{kdl::vec_transform(
     config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
-EL::Value CompilationConfigWriter::writeProfile(
+el::Value CompilationConfigWriter::writeProfile(
   const Model::CompilationProfile& profile) const
 {
-  return EL::Value{EL::MapType{
-    {"name", EL::Value{profile.name}},
-    {"workdir", EL::Value{profile.workDirSpec}},
+  return el::Value{el::MapType{
+    {"name", el::Value{profile.name}},
+    {"workdir", el::Value{profile.workDirSpec}},
     {"tasks", writeTasks(profile)},
   }};
 }
 
-EL::Value CompilationConfigWriter::writeTasks(
+el::Value CompilationConfigWriter::writeTasks(
   const Model::CompilationProfile& profile) const
 {
-  return EL::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
+  return el::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
     return std::visit(
       kdl::overload(
         [](const Model::CompilationExportMap& exportMap) {
-          auto map = EL::MapType{};
+          auto map = el::MapType{};
           if (!exportMap.enabled)
           {
-            map["enabled"] = EL::Value{false};
+            map["enabled"] = el::Value{false};
           }
-          map["type"] = EL::Value{"export"};
-          map["target"] = EL::Value{exportMap.targetSpec};
-          return EL::Value{std::move(map)};
+          map["type"] = el::Value{"export"};
+          map["target"] = el::Value{exportMap.targetSpec};
+          return el::Value{std::move(map)};
         },
         [](const Model::CompilationCopyFiles& copyFiles) {
-          auto map = EL::MapType{};
+          auto map = el::MapType{};
           if (!copyFiles.enabled)
           {
-            map["enabled"] = EL::Value{false};
+            map["enabled"] = el::Value{false};
           }
-          map["type"] = EL::Value{"copy"};
-          map["source"] = EL::Value{copyFiles.sourceSpec};
-          map["target"] = EL::Value{copyFiles.targetSpec};
-          return EL::Value{std::move(map)};
+          map["type"] = el::Value{"copy"};
+          map["source"] = el::Value{copyFiles.sourceSpec};
+          map["target"] = el::Value{copyFiles.targetSpec};
+          return el::Value{std::move(map)};
         },
         [](const Model::CompilationRenameFile& renameFile) {
-          auto map = EL::MapType{};
+          auto map = el::MapType{};
           if (!renameFile.enabled)
           {
-            map["enabled"] = EL::Value{false};
+            map["enabled"] = el::Value{false};
           }
-          map["type"] = EL::Value{"rename"};
-          map["source"] = EL::Value{renameFile.sourceSpec};
-          map["target"] = EL::Value{renameFile.targetSpec};
-          return EL::Value{std::move(map)};
+          map["type"] = el::Value{"rename"};
+          map["source"] = el::Value{renameFile.sourceSpec};
+          map["target"] = el::Value{renameFile.targetSpec};
+          return el::Value{std::move(map)};
         },
         [](const Model::CompilationDeleteFiles& deleteFiles) {
-          auto map = EL::MapType{};
+          auto map = el::MapType{};
           if (!deleteFiles.enabled)
           {
-            map["enabled"] = EL::Value{false};
+            map["enabled"] = el::Value{false};
           }
-          map["type"] = EL::Value{"delete"};
-          map["target"] = EL::Value{deleteFiles.targetSpec};
-          return EL::Value{std::move(map)};
+          map["type"] = el::Value{"delete"};
+          map["target"] = el::Value{deleteFiles.targetSpec};
+          return el::Value{std::move(map)};
         },
         [](const Model::CompilationRunTool& runTool) {
-          auto map = EL::MapType{};
+          auto map = el::MapType{};
           if (!runTool.enabled)
           {
-            map["enabled"] = EL::Value{false};
+            map["enabled"] = el::Value{false};
           }
           if (runTool.treatNonZeroResultCodeAsError)
           {
-            map["treatNonZeroResultCodeAsError"] = EL::Value{true};
+            map["treatNonZeroResultCodeAsError"] = el::Value{true};
           }
-          map["type"] = EL::Value{"tool"};
-          map["tool"] = EL::Value{runTool.toolSpec};
-          map["parameters"] = EL::Value{runTool.parameterSpec};
-          return EL::Value{std::move(map)};
+          map["type"] = el::Value{"tool"};
+          map["tool"] = el::Value{runTool.toolSpec};
+          map["parameters"] = el::Value{runTool.parameterSpec};
+          return el::Value{std::move(map)};
         }),
       task);
   })};

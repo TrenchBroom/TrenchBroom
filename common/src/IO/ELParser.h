@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
+#include "el/EL_Forward.h"
 
 #include <cstdint>
 #include <iosfwd>
@@ -113,28 +113,28 @@ public:
   ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
 
-  static EL::ExpressionNode parseStrict(const std::string& str);
-  static EL::ExpressionNode parseLenient(const std::string& str);
+  static el::ExpressionNode parseStrict(const std::string& str);
+  static el::ExpressionNode parseLenient(const std::string& str);
 
-  EL::ExpressionNode parse();
+  el::ExpressionNode parse();
 
 private:
-  EL::ExpressionNode parseExpression();
-  EL::ExpressionNode parseGroupedTerm();
-  EL::ExpressionNode parseTerm();
-  EL::ExpressionNode parseSimpleTermOrSwitch();
-  EL::ExpressionNode parseSimpleTermOrSubscript();
-  EL::ExpressionNode parseSimpleTerm();
-  EL::ExpressionNode parseSubscript(EL::ExpressionNode lhs);
-  EL::ExpressionNode parseVariable();
-  EL::ExpressionNode parseLiteral();
-  EL::ExpressionNode parseArray();
-  EL::ExpressionNode parseExpressionOrBoundedRange();
-  EL::ExpressionNode parseExpressionOrAnyRange();
-  EL::ExpressionNode parseMap();
-  EL::ExpressionNode parseUnaryOperator();
-  EL::ExpressionNode parseSwitch();
-  EL::ExpressionNode parseCompoundTerm(EL::ExpressionNode lhs);
+  el::ExpressionNode parseExpression();
+  el::ExpressionNode parseGroupedTerm();
+  el::ExpressionNode parseTerm();
+  el::ExpressionNode parseSimpleTermOrSwitch();
+  el::ExpressionNode parseSimpleTermOrSubscript();
+  el::ExpressionNode parseSimpleTerm();
+  el::ExpressionNode parseSubscript(el::ExpressionNode lhs);
+  el::ExpressionNode parseVariable();
+  el::ExpressionNode parseLiteral();
+  el::ExpressionNode parseArray();
+  el::ExpressionNode parseExpressionOrBoundedRange();
+  el::ExpressionNode parseExpressionOrAnyRange();
+  el::ExpressionNode parseMap();
+  el::ExpressionNode parseUnaryOperator();
+  el::ExpressionNode parseSwitch();
+  el::ExpressionNode parseCompoundTerm(el::ExpressionNode lhs);
 
 private:
   TokenNameMap tokenNames() const override;

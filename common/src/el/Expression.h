@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
-#include "EL/Value.h"
 #include "FileLocation.h"
+#include "el/EL_Forward.h"
+#include "el/Value.h"
 
 #include <memory>
 #include <optional>
@@ -29,7 +29,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::EL
+namespace tb::el
 {
 
 struct LiteralExpression;
@@ -289,4 +289,4 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
     *m_expression);
 }
 
-} // namespace tb::EL
+} // namespace tb::el

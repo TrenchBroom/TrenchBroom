@@ -19,12 +19,12 @@
 
 #include "VariableStoreModel.h"
 
-#include "EL/VariableStore.h"
+#include "el/VariableStore.h"
 
 namespace tb::View
 {
 
-VariableStoreModel::VariableStoreModel(const EL::VariableStore& variables)
+VariableStoreModel::VariableStoreModel(const el::VariableStore& variables)
   : m_variables{variables.clone()}
 {
   for (const auto& name : m_variables->names())

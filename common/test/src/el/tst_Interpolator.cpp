@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/EvaluationContext.h"
-#include "EL/Interpolator.h"
-#include "EL/Value.h"
+#include "el/EvaluationContext.h"
+#include "el/Interpolator.h"
+#include "el/Value.h"
 
 #include <string>
 
 #include "Catch2.h"
 
-namespace tb::EL
+namespace tb::el
 {
 namespace
 {
@@ -94,4 +94,4 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL")
   CHECK_THROWS(interpolate(" an ${TEST expression", context));
 }
 
-} // namespace tb::EL
+} // namespace tb::el

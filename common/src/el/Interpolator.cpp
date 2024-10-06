@@ -19,13 +19,13 @@
 
 #include "Interpolator.h"
 
-#include "EL/Expression.h"
-#include "EL/Value.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <sstream>
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 Interpolator::Interpolator(const std::string_view str)
@@ -43,7 +43,7 @@ std::string Interpolator::interpolate(const EvaluationContext& context)
     {
       const auto expression = parse();
       result
-        << expression.evaluate(context).convertTo(EL::ValueType::String).stringValue();
+        << expression.evaluate(context).convertTo(el::ValueType::String).stringValue();
       expect(IO::ELToken::CBrace, m_tokenizer.nextToken());
     }
   }
@@ -57,4 +57,4 @@ std::string interpolate(const std::string_view str, const EvaluationContext& con
   return interpolator.interpolate(context);
 }
 
-} // namespace tb::EL
+} // namespace tb::el

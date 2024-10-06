@@ -19,42 +19,23 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
-#include "Macros.h"
+#include "IO/ELParser.h"
+#include "el/EL_Forward.h"
 
-#include <memory>
 #include <string>
+#include <string_view>
 
-namespace tb::EL
+namespace tb::el
 {
 
-class EvaluationContext
+class Interpolator : private IO::ELParser
 {
-private:
-  std::unique_ptr<VariableStore> m_store;
-
 public:
-  EvaluationContext();
-  explicit EvaluationContext(const VariableStore& store);
-  virtual ~EvaluationContext();
+  explicit Interpolator(std::string_view str);
 
-  virtual Value variableValue(const std::string& name) const;
-  virtual void declareVariable(const std::string& name, const Value& value);
-
-  deleteCopyAndMove(EvaluationContext);
+  std::string interpolate(const EvaluationContext& context);
 };
 
-class EvaluationStack : public EvaluationContext
-{
-private:
-  const EvaluationContext& m_next;
+std::string interpolate(std::string_view str, const EvaluationContext& context);
 
-public:
-  explicit EvaluationStack(const EvaluationContext& next);
-
-  Value variableValue(const std::string& name) const override;
-
-  deleteCopyAndMove(EvaluationStack);
-};
-
-} // namespace tb::EL
+} // namespace tb::el

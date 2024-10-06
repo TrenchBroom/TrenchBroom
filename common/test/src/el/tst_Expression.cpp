@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/ELExceptions.h"
-#include "EL/EvaluationContext.h"
-#include "EL/Expression.h"
-#include "EL/Value.h"
-#include "EL/VariableStore.h"
 #include "IO/ELParser.h"
+#include "el/ELExceptions.h"
+#include "el/EvaluationContext.h"
+#include "el/Expression.h"
+#include "el/Value.h"
+#include "el/VariableStore.h"
 
 #include <fmt/ostream.h>
 
@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace tb::EL
+namespace tb::el
 {
 namespace
 {
@@ -904,4 +904,4 @@ TEST_CASE("ExpressionTest.accept")
     == std::vector<std::string>{"{{ x -> 1 }}", "x -> 1", "x", "1"});
 }
 
-} // namespace tb::EL
+} // namespace tb::el

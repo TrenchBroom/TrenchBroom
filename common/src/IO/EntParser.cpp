@@ -19,16 +19,16 @@
 
 #include "EntParser.h"
 
-#include "EL/ELExceptions.h"
-#include "EL/Expression.h"
-#include "EL/Types.h"
-#include "EL/Value.h"
 #include "FileLocation.h"
 #include "IO/ELParser.h"
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
 #include "Model/EntityProperties.h"
 #include "assets/PropertyDefinition.h"
+#include "el/ELExceptions.h"
+#include "el/Expression.h"
+#include "el/Types.h"
+#include "el/Value.h"
 
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
@@ -602,14 +602,14 @@ assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
   catch (const ParserException&)
   {
     const auto lineNum = static_cast<size_t>(element.GetLineNum());
-    auto expression = EL::ExpressionNode{
-      EL::LiteralExpression{EL::Value{EL::MapType{{
-        {assets::ModelSpecificationKeys::Path, EL::Value{model}},
+    auto expression = el::ExpressionNode{
+      el::LiteralExpression{el::Value{el::MapType{{
+        {assets::ModelSpecificationKeys::Path, el::Value{model}},
       }}}},
       FileLocation{lineNum}};
     return assets::ModelDefinition{std::move(expression)};
   }
-  catch (const EL::EvaluationError& evaluationError)
+  catch (const el::EvaluationError& evaluationError)
   {
     const auto line = static_cast<size_t>(element.GetLineNum());
     throw ParserException{FileLocation{line}, evaluationError.what()};

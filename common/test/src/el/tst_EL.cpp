@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/ELExceptions.h"
-#include "EL/Types.h"
-#include "EL/Value.h"
+#include "el/ELExceptions.h"
+#include "el/Types.h"
+#include "el/Value.h"
 
 #include <string>
 
 #include "Catch2.h"
 
-namespace tb::EL
+namespace tb::el
 {
 
 TEST_CASE("ELTest.constructValues")
@@ -202,4 +202,4 @@ TEST_CASE("ELTest.subscriptOperator")
   CHECK_THROWS_AS(mapValue[Value(ArrayType({Value("test"), Value(0)}))], ConversionError);
 }
 
-} // namespace tb::EL
+} // namespace tb::el

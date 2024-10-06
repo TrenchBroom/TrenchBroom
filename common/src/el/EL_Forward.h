@@ -19,23 +19,15 @@
 
 #pragma once
 
-#include "EL/EL_Forward.h"
-#include "IO/ELParser.h"
-
-#include <string>
-#include <string_view>
-
-namespace tb::EL
+namespace tb::el
 {
+class Value;
+enum class ValueType;
 
-class Interpolator : private IO::ELParser
-{
-public:
-  explicit Interpolator(std::string_view str);
+class ExpressionNode;
 
-  std::string interpolate(const EvaluationContext& context);
-};
+class EvaluationContext;
+class EvaluationTrace;
 
-std::string interpolate(std::string_view str, const EvaluationContext& context);
-
-} // namespace tb::EL
+class VariableStore;
+} // namespace tb::el

@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "EL/Expression.h"
-#include "EL/Value.h"
 #include "IO/NodeWriter.h"
 #include "Model/BezierPatch.h"
 #include "Model/BrushBuilder.h"
@@ -34,6 +32,8 @@
 #include "Model/PatchNode.h"
 #include "Model/PickResult.h"
 #include "Model/WorldNode.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include "kdl/overload.h"
 #include "kdl/result.h"
@@ -850,7 +850,7 @@ TEST_CASE("NodeTest.entityPropertyConfig")
   };
 
   const auto config =
-    EntityPropertyConfig{{EL::ExpressionNode{EL::LiteralExpression{EL::Value{2.0}}}}};
+    EntityPropertyConfig{{el::ExpressionNode{el::LiteralExpression{el::Value{2.0}}}}};
   auto root = std::make_unique<RootNode>(config);
   REQUIRE(root->entityPropertyConfig() == config);
 

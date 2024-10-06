@@ -19,7 +19,7 @@
 
 #include "EvaluationTrace.h"
 
-namespace tb::EL
+namespace tb::el
 {
 
 std::optional<ExpressionNode> EvaluationTrace::getExpression(const Value& value) const
@@ -42,4 +42,4 @@ void EvaluationTrace::addTrace(const Value& value, const ExpressionNode& express
   m_data.emplace(value, expression);
 }
 
-} // namespace tb::EL
+} // namespace tb::el

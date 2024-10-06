@@ -19,9 +19,9 @@
 
 #include "GameEngineConfigWriter.h"
 
-#include "EL/Value.h"
 #include "Model/GameEngineConfig.h"
 #include "Model/GameEngineProfile.h"
+#include "el/Value.h"
 
 #include "kdl/vector_utils.h"
 
@@ -40,26 +40,26 @@ GameEngineConfigWriter::GameEngineConfigWriter(
 
 void GameEngineConfigWriter::writeConfig()
 {
-  m_stream << EL::Value{EL::MapType{
-    {"version", EL::Value{1.0}},
+  m_stream << el::Value{el::MapType{
+    {"version", el::Value{1.0}},
     {"profiles", writeProfiles(m_config)},
   }} << "\n";
 }
 
-EL::Value GameEngineConfigWriter::writeProfiles(
+el::Value GameEngineConfigWriter::writeProfiles(
   const Model::GameEngineConfig& config) const
 {
-  return EL::Value{kdl::vec_transform(
+  return el::Value{kdl::vec_transform(
     config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
-EL::Value GameEngineConfigWriter::writeProfile(
+el::Value GameEngineConfigWriter::writeProfile(
   const Model::GameEngineProfile& profile) const
 {
-  return EL::Value{EL::MapType{
-    {"name", EL::Value{profile.name}},
-    {"path", EL::Value{profile.path.string()}},
-    {"parameters", EL::Value{profile.parameterSpec}},
+  return el::Value{el::MapType{
+    {"name", el::Value{profile.name}},
+    {"path", el::Value{profile.path.string()}},
+    {"parameters", el::Value{profile.parameterSpec}},
   }};
 }
 

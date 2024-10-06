@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "EL/Value.h" // required by VariableTable::Table declaration
+#include "el/Value.h" // required by VariableTable::Table declaration
 
 #include <iosfwd>
 #include <map>
 #include <string>
 #include <vector>
 
-namespace tb::EL
+namespace tb::el
 {
 
 class VariableStore
@@ -84,4 +84,4 @@ public:
   void assign(const std::string& name, const Value& value) override;
 };
 
-} // namespace tb::EL
+} // namespace tb::el

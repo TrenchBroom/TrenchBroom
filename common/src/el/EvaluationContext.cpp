@@ -19,12 +19,12 @@
 
 #include "EvaluationContext.h"
 
-#include "EL/Value.h"
-#include "EL/VariableStore.h"
+#include "el/Value.h"
+#include "el/VariableStore.h"
 
 #include <string>
 
-namespace tb::EL
+namespace tb::el
 {
 
 EvaluationContext::EvaluationContext()
@@ -59,4 +59,4 @@ Value EvaluationStack::variableValue(const std::string& name) const
   const auto& value = EvaluationContext::variableValue(name);
   return value != Value::Undefined ? value : m_next.variableValue(name);
 }
-} // namespace tb::EL
+} // namespace tb::el

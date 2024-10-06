@@ -18,10 +18,10 @@
  */
 
 #include "Color.h"
-#include "EL/Expression.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
 #include "assets/EntityDefinition.h"
+#include "el/Expression.h"
 
 #include "Catch2.h"
 
