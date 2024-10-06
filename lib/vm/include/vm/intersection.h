@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -805,7 +805,7 @@ constexpr bool intersect_bbox_polygon(
 
   // 3
   auto edgeIsect = false;
-  bbox.for_each_edge([&, pl = pl](const auto& start, const auto& en) {
+  bbox.for_each_edge([&](const auto& start, const auto& en) {
     const auto dir = en - start;
     const auto ln = line<T, 3>{start, dir};
     const auto d = intersect_line_plane(ln, *pl);

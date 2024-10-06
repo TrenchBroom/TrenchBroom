@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,10 +19,9 @@
 
 #include "Logger.h"
 
-#include <string>
-
-namespace TrenchBroom
+namespace tb
 {
+
 Logger::stream::stream(Logger& logger, const LogLevel logLevel)
   : m_logger{logger}
   , m_logLevel{logLevel}
@@ -82,12 +81,16 @@ void Logger::log(const LogLevel level, const std::string_view message)
 {
 #ifdef NDEBUG
   if (level != LogLevel::Debug)
+  {
 #endif
     doLog(level, message);
+#ifdef NDEBUG
+  }
+#endif
 }
 
 void NullLogger::doLog(const LogLevel /* level */, const std::string_view /* message */)
 {
 }
 
-} // namespace TrenchBroom
+} // namespace tb

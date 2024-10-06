@@ -19,8 +19,9 @@
 
 #include "TestPreferenceManager.h"
 
-namespace TrenchBroom
+namespace tb
 {
+
 void TestPreferenceManager::initialize() {}
 
 bool TestPreferenceManager::saveInstantly() const
@@ -38,4 +39,5 @@ void TestPreferenceManager::validatePreference(PreferenceBase& preference)
 }
 
 void TestPreferenceManager::savePreference(PreferenceBase&) {}
-} // namespace TrenchBroom
+
+} // namespace tb

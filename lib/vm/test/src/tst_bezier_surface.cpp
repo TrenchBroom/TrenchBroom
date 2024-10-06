@@ -19,14 +19,12 @@
 */
 
 #include "vm/bezier_surface.h"
-#include "vm/forward.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <array>
 #include <tuple>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

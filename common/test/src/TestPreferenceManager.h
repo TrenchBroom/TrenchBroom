@@ -21,8 +21,9 @@
 
 #include "PreferenceManager.h"
 
-namespace TrenchBroom
+namespace tb
 {
+
 class TestPreferenceManager : public PreferenceManager
 {
 public:
@@ -38,4 +39,5 @@ private:
   void validatePreference(PreferenceBase&) override;
   void savePreference(PreferenceBase&) override;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

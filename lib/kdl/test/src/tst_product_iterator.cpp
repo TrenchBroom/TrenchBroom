@@ -19,7 +19,6 @@
 */
 
 #include "kdl/product_iterator.h"
-#include "kdl/std_io.h" // IWYU pragma: keep
 
 #include <vector>
 
@@ -27,6 +26,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("product_iterator")
 {
   using Catch::Matchers::UnorderedEquals;
@@ -100,4 +100,5 @@ TEST_CASE("product_iterator")
     CHECK_THAT(v, UnorderedEquals(expected));
   }
 }
+
 } // namespace kdl

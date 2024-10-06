@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,12 +21,10 @@
 #pragma once
 
 #include "kdl/string_compare.h"
-#include "kdl/string_format.h"
-#include "kdl/vector_utils.h"
 
 #include <cassert>
-#include <exception>
 #include <set>
+#include <stdexcept>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -61,8 +59,8 @@ namespace kdl
  *     - { key: "_1, values: { "some value" } }
  *     - { key: "_2, values: { "another value" } }
  *       - { key: "23, values: { "value" } }
- * - { key: "test, values: { "test value" } }
- *   - { key: "ing, values: { "testing testing" } }
+ *   - { key: "test, values: { "test value" } }
+ *     - { key: "ing, values: { "testing testing" } }
  *
  * @tparam V the type of the values associated with each node
  */
@@ -75,7 +73,7 @@ private:
 
   /**
    * To avoid matching the same node multiple times using different partial patterns, we
-   * store tsome state for each node that is encountered during matching. For each node,
+   * store some state for each node that is encountered during matching. For each node,
    * we remember its parent node, whether or not the node was previously matched by a
    * partial pattern, and whether or not all children of the node are already fully
    * matched.
@@ -101,7 +99,7 @@ private:
       /**
        * The number of fully matched children.
        */
-      std::size_t fully_matched_children;
+      std::size_t fully_matched_children = 0;
 
     public:
       /**
@@ -111,9 +109,8 @@ private:
        * @param i_parent the parent, can be null
        */
       explicit node_match_state(const node* i_parent)
-        : parent(i_parent)
-        , node_matched(false)
-        , fully_matched_children(0u)
+        : parent{i_parent}
+        , node_matched{false}
       {
       }
     };
@@ -300,28 +297,31 @@ private:
      */
     void insert(const std::string_view key, const V& value) const
     {
+      // clang-format off
       /*
        Possible cases for insertion:
         index: 01234567 |   | #m_key: 6
         m_key: target   | ^ | #key | conditions              | todo
        =================|===|======|=========================|======
         case:  key:     |   |      |                         |
-           0:  blah     | 0 | 4    | ^ = 0                   | this is the root node, find
-       or create child 'blah' and insert there; ^        |   |      | | 1:  targetli | 6 |
-       8    | ^ < #key AND ^ = #m_key | try insert in all children, if none match, create
-       child 'li' and insert there; ^  |   |      |                         | 2:  tarus |
-       3 | 5    | ^ < #key AND ^ < #m_key | split this node in 'tar' and 'get'; create
-       child 'us' and insert there; ^     |   |      |                         | 3:  tar
-       | 3 | 3    | ^ = #key AND ^ < #m_key | split this node in 'tar' and 'get'; insert
-       here; return true; ^     |   |      | | 4:  target   | 6 | 6    | ^ = #key AND ^ =
-       #m_key | insert here; return true; ^  |   |      |                         |
+           0:  blah     | 0 | 4    | ^ = 0                   | this is the root node, find or create child 'blah' and insert there; 
+               ^        |   |      |                         | 
+           1:  targetli | 6 | 8    | ^ < #key AND ^ = #m_key | try insert in all children, if none match, create child 'li' and insert there; 
+                     ^  |   |      |                         | 
+           2:  tarus    | 3 | 5    | ^ < #key AND ^ < #m_key | split this node in 'tar' and 'get'; create child 'us' and insert there; 
+                  ^     |   |      |                         | 
+           3:  tar      | 3 | 3    | ^ = #key AND ^ < #m_key | split this node in 'tar' and 'get'; insert here; return true; 
+                  ^     |   |      |                         | 
+           4:  target   | 6 | 6    | ^ = #key AND ^ = #m_key | insert here; return true; 
+                     ^  |   |      |                         |
        ==================================================================================
         ^ indicates where key and m_key first differ
        */
+      // clang-format on
 
       // find the index of the first character where the given key and this node's key
       // differ
-      const std::size_t mismatch = kdl::cs::str_mismatch(key, m_key);
+      const auto mismatch = kdl::cs::str_mismatch(key, m_key);
       assert(mismatch > 0u || m_key.empty());
 
       if (mismatch < key.size())
@@ -402,15 +402,14 @@ private:
      * values to the given output iterator.
      *
      * The keys are matched against a suffix of the given pattern starting at the given
-     * position. The matching algorithm uses an auxiliary `match_State` to prevent
-     * matching unnecessarily matching nodes. This state is updated in the following
-     * situations:
+     * position. The matching algorithm uses an auxiliary `match_state` to prevent
+     * unnecessarily matching nodes. This state is updated in the following situations:
      *
      * - a node is visited for the first time
-     * - a node is matches the given pattern (this might also update the node's parent's
-     * states)
+     * - a node matches the given pattern (this might also update the node's parent's
+     *   states)
      * - an entire subtree matches the given pattern (due to a trailing wildcard in the
-     * pattern)
+     *   pattern)
      *
      * Using this information, the algorithm will stop matching a node if every node in
      * its subtree was already matched against the pattern. Furthermore, it will not add a
@@ -439,13 +438,12 @@ private:
 
       match_state.insert(this, parent);
 
-      std::vector<match_task> match_tasks({{0u, pattern_position}});
+      auto match_tasks = std::vector<match_task>{{0u, pattern_position}};
       while (!match_tasks.empty())
       {
         if (match_state.is_fully_matched(this))
         {
-          // this node and all of its subtrees have been fully matched, so we are done
-          // here
+          // this node and all of its subtrees have been fully matched
           return;
         }
 
@@ -492,7 +490,8 @@ private:
             }
             else
             {
-              throw std::invalid_argument("invalid escape sequence in pattern");
+              // MSVC does not accept braces here:
+              throw std::invalid_argument{"invalid escape sequence in pattern"};
             }
           }
           else
@@ -720,10 +719,10 @@ private:
       assert(m_values.empty());
 
       using std::swap;
-      node_set old_children;
+      auto old_children = node_set{};
       swap(old_children, m_children);
 
-      const node& child = *std::begin(old_children);
+      const auto& child = *std::begin(old_children);
       swap(m_children, child.m_children);
       swap(m_values, child.m_values);
 
@@ -793,16 +792,13 @@ private:
   };
 
 private:
-  node m_root;
+  node m_root = node{""};
 
 public:
   /**
    * Creates a new empty trie.
    */
-  compact_trie()
-    : m_root(node(""))
-  {
-  }
+  compact_trie() = default;
 
   /**
    * Inserts the given value under the given key.
@@ -842,8 +838,8 @@ public:
   template <typename O>
   void find_matches(const std::string_view pattern, O out) const
   {
-    match_state match_state;
-    m_root.find_matches(pattern, {0u}, nullptr, match_state, out);
+    auto state = match_state{};
+    m_root.find_matches(pattern, {0u}, nullptr, state, out);
   }
 
   /**
@@ -858,4 +854,5 @@ public:
     m_root.get_keys("", out);
   }
 };
+
 } // namespace kdl

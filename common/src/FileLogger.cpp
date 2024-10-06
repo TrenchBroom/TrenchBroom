@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,26 +20,28 @@
 #include "FileLogger.h"
 
 #include "Ensure.h"
-#include "IO/DiskIO.h"
-#include "IO/SystemPaths.h"
+#include "io/DiskIO.h"
+#include "io/SystemPaths.h"
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
+
 std::ofstream openLogFile(const std::filesystem::path& path)
 {
-  return IO::Disk::createDirectory(path.parent_path()) | kdl::transform([&](auto) {
-           return std::ofstream{path, std::ios::out};
-         })
+  return io::Disk::createDirectory(path.parent_path())
+         | kdl::transform([&](auto) { return std::ofstream{path, std::ios::out}; })
          | kdl::if_error([](const auto& e) {
              throw std::runtime_error{"Could not open log file: " + e.msg};
            })
          | kdl::value();
 }
+
 } // namespace
+
 FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_stream{openLogFile(filePath)}
 {
@@ -48,7 +50,7 @@ FileLogger::FileLogger(const std::filesystem::path& filePath)
 
 FileLogger& FileLogger::instance()
 {
-  static auto Instance = FileLogger{IO::SystemPaths::logFilePath()};
+  static auto Instance = FileLogger{io::SystemPaths::logFilePath()};
   return Instance;
 }
 
@@ -61,4 +63,4 @@ void FileLogger::doLog(const LogLevel /* level */, const std::string_view messag
   }
 }
 
-} // namespace TrenchBroom
+} // namespace tb

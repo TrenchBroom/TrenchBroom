@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,17 +22,14 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <cstdlib>
 #include <ctime>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
@@ -227,26 +224,26 @@ TEST_CASE("mat_ext.rotation_matrix_to_euler_angles")
 TEST_CASE("mat_ext.rotation_matrix_with_axis_and_angle")
 {
   CHECK(
-    rotation_matrix(vec3d::pos_x(), to_radians(90.0)) == approx(mat4x4d::rot_90_x_ccw()));
+    rotation_matrix(vec3d{1, 0, 0}, to_radians(90.0)) == approx(mat4x4d::rot_90_x_ccw()));
   CHECK(
-    rotation_matrix(vec3d::pos_y(), to_radians(90.0)) == approx(mat4x4d::rot_90_y_ccw()));
+    rotation_matrix(vec3d{0, 1, 0}, to_radians(90.0)) == approx(mat4x4d::rot_90_y_ccw()));
   CHECK(
-    rotation_matrix(vec3d::pos_z(), to_radians(90.0)) == approx(mat4x4d::rot_90_z_ccw()));
+    rotation_matrix(vec3d{0, 0, 1}, to_radians(90.0)) == approx(mat4x4d::rot_90_z_ccw()));
   CHECK(
-    rotation_matrix(vec3d::pos_z(), to_radians(90.0)) * vec3d::pos_x()
-    == approx(vec3d::pos_y()));
+    rotation_matrix(vec3d{0, 0, 1}, to_radians(90.0)) * vec3d{1, 0, 0}
+    == approx(vec3d{0, 1, 0}));
 }
 
 TEST_CASE("mat_ext.rotation_matrix_with_quaternion")
 {
   CHECK(
-    rotation_matrix(quatd(vec3d::pos_x(), to_radians(90.0)))
+    rotation_matrix(quatd(vec3d{1, 0, 0}, to_radians(90.0)))
     == approx(mat4x4d::rot_90_x_ccw()));
   CHECK(
-    rotation_matrix(quatd(vec3d::pos_y(), to_radians(90.0)))
+    rotation_matrix(quatd(vec3d{0, 1, 0}, to_radians(90.0)))
     == approx(mat4x4d::rot_90_y_ccw()));
   CHECK(
-    rotation_matrix(quatd(vec3d::pos_z(), to_radians(90.0)))
+    rotation_matrix(quatd(vec3d{0, 0, 1}, to_radians(90.0)))
     == approx(mat4x4d::rot_90_z_ccw()));
 
   std::srand(static_cast<unsigned int>(std::time(nullptr)));
@@ -269,9 +266,9 @@ TEST_CASE("mat_ext.translation_matrix")
   constexpr auto v = vec3d(2, 3, 4);
   constexpr auto t = translation_matrix(v);
 
-  CER_CHECK(vec4d::pos_x() == approx(t[0]));
-  CER_CHECK(vec4d::pos_y() == approx(t[1]));
-  CER_CHECK(vec4d::pos_z() == approx(t[2]));
+  CER_CHECK(vec4d(1, 0, 0, 0) == approx(t[0]));
+  CER_CHECK(vec4d(0, 1, 0, 0) == approx(t[1]));
+  CER_CHECK(vec4d(0, 0, 1, 0) == approx(t[2]));
   CER_CHECK(vec4d(v, 1) == approx(t[3]));
 }
 
@@ -298,26 +295,26 @@ TEST_CASE("mat_ext.mirror_matrix")
   constexpr auto mirY = mirror_matrix<double>(axis::y);
   constexpr auto mirZ = mirror_matrix<double>(axis::z);
 
-  CER_CHECK(mirX * vec3d::pos_x() == vec3d::neg_x());
-  CER_CHECK(mirX * vec3d::pos_y() == vec3d::pos_y());
-  CER_CHECK(mirX * vec3d::pos_z() == vec3d::pos_z());
+  CER_CHECK(mirX * vec3d(1, 0, 0) == vec3d(-1, 0, 0));
+  CER_CHECK(mirX * vec3d(0, 1, 0) == vec3d(0, 1, 0));
+  CER_CHECK(mirX * vec3d(0, 0, 1) == vec3d(0, 0, 1));
 
-  CER_CHECK(mirY * vec3d::pos_x() == vec3d::pos_x());
-  CER_CHECK(mirY * vec3d::pos_y() == vec3d::neg_y());
-  CER_CHECK(mirY * vec3d::pos_z() == vec3d::pos_z());
+  CER_CHECK(mirY * vec3d(1, 0, 0) == vec3d(1, 0, 0));
+  CER_CHECK(mirY * vec3d(0, 1, 0) == vec3d(0, -1, 0));
+  CER_CHECK(mirY * vec3d(0, 0, 1) == vec3d(0, 0, 1));
 
-  CER_CHECK(mirZ * vec3d::pos_x() == vec3d::pos_x());
-  CER_CHECK(mirZ * vec3d::pos_y() == vec3d::pos_y());
-  CER_CHECK(mirZ * vec3d::pos_z() == vec3d::neg_z());
+  CER_CHECK(mirZ * vec3d(1, 0, 0) == vec3d(1, 0, 0));
+  CER_CHECK(mirZ * vec3d(0, 1, 0) == vec3d(0, 1, 0));
+  CER_CHECK(mirZ * vec3d(0, 0, 1) == vec3d(0, 0, -1));
 }
 
 TEST_CASE("mat_ext.coordinateSystemMatrix")
 {
   constexpr auto m = coordinate_system_matrix(
-    vec3d::neg_x(), vec3d::neg_y(), vec3d::neg_z(), vec3d::one());
-  CER_CHECK(m * vec3d::pos_x() == vec3d::neg_x() + vec3d::one());
-  CER_CHECK(m * vec3d::pos_y() == vec3d::neg_y() + vec3d::one());
-  CER_CHECK(m * vec3d::pos_z() == vec3d::neg_z() + vec3d::one());
+    vec3d{-1, 0, 0}, vec3d{0, -1, 0}, vec3d{0, 0, -1}, vec3d{1, 1, 1});
+  CER_CHECK(m * vec3d(1, 0, 0) == vec3d(-1, 0, 0) + vec3d(1, 1, 1));
+  CER_CHECK(m * vec3d(0, 1, 0) == vec3d(0, -1, 0) + vec3d(1, 1, 1));
+  CER_CHECK(m * vec3d(0, 0, 1) == vec3d(0, 0, -1) + vec3d(1, 1, 1));
 }
 
 TEST_CASE("mat_ext.plane_projection_matrix")
@@ -332,14 +329,17 @@ TEST_CASE("mat_ext.plane_projection_matrix")
 TEST_CASE("mat_ext.shear_matrix")
 {
   CER_CHECK(
-    shear_matrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d::pos_z() == vec3d(1, 1, 1));
-  CER_CHECK(shear_matrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d::zero() == vec3d(0, 0, 0));
+    shear_matrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d(0, 0, 1) == vec3d(1, 1, 1));
   CER_CHECK(
-    shear_matrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d::pos_y() == vec3d(1, 1, 1));
-  CER_CHECK(shear_matrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d::zero() == vec3d(0, 0, 0));
+    shear_matrix(0.0, 0.0, 0.0, 0.0, 1.0, 1.0) * vec3d(0, 0, 0) == vec3d(0, 0, 0));
   CER_CHECK(
-    shear_matrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d::pos_x() == vec3d(1, 1, 1));
-  CER_CHECK(shear_matrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d::zero() == vec3d(0, 0, 0));
+    shear_matrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d(0, 1, 0) == vec3d(1, 1, 1));
+  CER_CHECK(
+    shear_matrix(0.0, 0.0, 1.0, 1.0, 0.0, 0.0) * vec3d(0, 0, 0) == vec3d(0, 0, 0));
+  CER_CHECK(
+    shear_matrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d(1, 0, 0) == vec3d(1, 1, 1));
+  CER_CHECK(
+    shear_matrix(1.0, 1.0, 0.0, 0.0, 0.0, 0.0) * vec3d(0, 0, 0) == vec3d(0, 0, 0));
 }
 
 TEST_CASE("mat.points_transformation_matrix")
@@ -348,7 +348,7 @@ TEST_CASE("mat.points_transformation_matrix")
 
   const auto M = translation_matrix(vec3d(100.0, 100.0, 100.0))
                  * scaling_matrix(vec3d(2.0, 2.0, 2.0))
-                 * rotation_matrix(vec3d::pos_z(), to_radians(90.0));
+                 * rotation_matrix(vec3d{0, 0, 1}, to_radians(90.0));
 
   vec3d out[3];
   for (size_t i = 0; i < 3; ++i)

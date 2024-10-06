@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 
 struct Error
@@ -33,4 +33,4 @@ struct Error
   kdl_reflect_decl(Error, msg);
 };
 
-} // namespace TrenchBroom
+} // namespace tb

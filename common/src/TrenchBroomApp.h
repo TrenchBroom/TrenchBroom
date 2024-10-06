@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,8 +21,6 @@
 
 #include <QApplication>
 
-#include "Notifier.h"
-
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -32,12 +30,12 @@ class QMenu;
 class QSettings;
 class QTimer;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::View
+namespace tb::ui
 {
 class FrameManager;
 class RecentDocuments;
@@ -109,4 +107,4 @@ void setCrashReportGUIEnbled(bool guiEnabled);
 bool isReportingCrash();
 
 
-} // namespace TrenchBroom::View
+} // namespace tb::ui

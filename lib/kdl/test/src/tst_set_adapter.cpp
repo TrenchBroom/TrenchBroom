@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -26,6 +26,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("const_set_adapter_test.wrap_set")
 {
   const auto v = std::vector<int>{1, 2, 3, 4};
@@ -493,4 +494,5 @@ TEST_CASE("set_adapter_test.release_data")
   CHECK(s.empty());
   CHECK(v.empty());
 }
+
 } // namespace kdl

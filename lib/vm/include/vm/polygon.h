@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,9 +22,8 @@
 #pragma once
 
 #include "vm/mat.h"
-#include "vm/mat_ext.h"
 #include "vm/vec.h"
-#include "vm/vec_ext.h"
+#include "vm/vec_ext.h" // IWYU pragma: keep
 
 #include <algorithm>
 #include <cstddef>
@@ -501,4 +500,10 @@ int compareUnoriented(
     }
   }
 }
+
+using polygon2f = polygon<float, 2>;
+using polygon2d = polygon<double, 2>;
+using polygon3f = polygon<float, 3>;
+using polygon3d = polygon<double, 3>;
+
 } // namespace vm

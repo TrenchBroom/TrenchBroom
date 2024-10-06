@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("string_format_test.str_select")
 {
   CHECK(str_select(true, "yes", "no") == "yes");
@@ -63,10 +64,8 @@ TEST_CASE("string_format_test.str_to_lower_char")
   constexpr auto expected =
     " !\"#$%&\\'()*+,-./"
     "0123456789:;<=>?@abcdefghijklmnopqrstuvwxyz[\\\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-  for (std::size_t i = 0u; i < 98u; ++i)
-  {
-    CHECK(str_to_lower(input[i]) == expected[i]);
-  }
+
+  CHECK(str_to_lower(input) == expected);
 }
 
 TEST_CASE("string_format_test.str_to_upper_char")
@@ -77,10 +76,7 @@ TEST_CASE("string_format_test.str_to_upper_char")
   constexpr auto expected =
     " !\"#$%&\\'()*+,-./"
     "0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~";
-  for (std::size_t i = 0u; i < 98u; ++i)
-  {
-    CHECK(str_to_upper(input[i]) == expected[i]);
-  }
+  CHECK(str_to_upper(input) == expected);
 }
 
 TEST_CASE("string_format_test.str_to_lower")
@@ -171,4 +167,5 @@ TEST_CASE("string_format_test.str_is_numeric")
   CHECK(str_is_numeric("1"));
   CHECK(str_is_numeric("1234567890"));
 }
+
 } // namespace kdl

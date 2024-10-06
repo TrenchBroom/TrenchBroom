@@ -24,8 +24,9 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace TrenchBroom
+namespace tb
 {
+
 class TestLogger : public Logger
 {
 private:
@@ -38,4 +39,5 @@ public:
 private:
   void doLog(LogLevel level, std::string_view message) override;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,13 +19,14 @@
 
 #pragma once
 
+#include "FileLocation.h"
+
 #include <exception>
 #include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
-struct FileLocation;
 
 class Exception : public std::exception
 {
@@ -88,4 +89,5 @@ class FileFormatException : public Exception
 public:
   using Exception::Exception;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

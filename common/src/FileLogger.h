@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -26,7 +26,7 @@
 #include <fstream>
 #include <string_view>
 
-namespace TrenchBroom
+namespace tb
 {
 
 class FileLogger : public Logger
@@ -44,4 +44,5 @@ private:
 
   deleteCopyAndMove(FileLogger);
 };
-} // namespace TrenchBroom
+
+} // namespace tb

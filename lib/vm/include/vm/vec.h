@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -207,7 +207,7 @@ public:
    * @return the value of the first component
    */
   template <std::size_t SS = S>
-  constexpr T x(typename std::enable_if<SS >= 1>::type* = nullptr) const
+  constexpr T x(typename std::enable_if_t<SS >= 1>* = nullptr) const
   {
     static_assert(S > 0);
     return v[0];
@@ -219,7 +219,7 @@ public:
    * @return the value of the second component
    */
   template <std::size_t SS = S>
-  constexpr T y(typename std::enable_if<SS >= 2>::type* = nullptr) const
+  constexpr T y(typename std::enable_if_t<SS >= 2>* = nullptr) const
   {
     static_assert(S > 1);
     return v[1];
@@ -231,7 +231,7 @@ public:
    * @return the value of the third component
    */
   template <std::size_t SS = S>
-  constexpr T z(typename std::enable_if<SS >= 3>::type* = nullptr) const
+  constexpr T z(typename std::enable_if_t<SS >= 3>* = nullptr) const
   {
     static_assert(S > 2);
     // cppcheck-suppress arrayIndexOutOfBounds
@@ -244,7 +244,7 @@ public:
    * @return the value of the fourth component
    */
   template <std::size_t SS = S>
-  constexpr T w(typename std::enable_if<SS >= 4>::type* = nullptr) const
+  constexpr T w(typename std::enable_if_t<SS >= 4>* = nullptr) const
   {
     static_assert(S > 3);
     // cppcheck-suppress arrayIndexOutOfBounds
@@ -307,64 +307,6 @@ public:
   }
 
 public:
-  /**
-   * Returns a vector with the first component set to 1 and all other components set to 0.
-   */
-  static constexpr vec<T, S> pos_x()
-  {
-    constexpr auto result = axis(0);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the second component set to 1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> pos_y()
-  {
-    constexpr auto result = axis(1);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the third component set to 1 and all other components set to 0.
-   */
-  static constexpr vec<T, S> pos_z()
-  {
-    constexpr auto result = axis(2);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the first component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_x()
-  {
-    constexpr auto result = -axis(0);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the second component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_y()
-  {
-    constexpr auto result = -axis(1);
-    return result;
-  }
-
-  /**
-   * Returns a vector with the third component set to -1 and all other components set to
-   * 0.
-   */
-  static constexpr vec<T, S> neg_z()
-  {
-    constexpr auto result = -axis(2);
-    return result;
-  }
-
   /**
    * Returns a vector with all components set to 0.
    */
@@ -1726,7 +1668,7 @@ constexpr bool is_parallel_c(
 template <typename T, std::size_t S>
 constexpr vec<T, S> floor(const vec<T, S>& v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a float point type");
   vec<T, S> result;
   for (size_t i = 0; i < S; ++i)
   {
@@ -1747,7 +1689,7 @@ constexpr vec<T, S> floor(const vec<T, S>& v)
 template <typename T, std::size_t S>
 constexpr vec<T, S> ceil(const vec<T, S>& v)
 {
-  static_assert(std::is_floating_point<T>::value, "T must be a float point type");
+  static_assert(std::is_floating_point_v<T>, "T must be a float point type");
   vec<T, S> result;
   for (size_t i = 0; i < S; ++i)
   {
@@ -1961,11 +1903,11 @@ constexpr bool is_between_c(
  */
 template <typename I, typename G = identity>
 constexpr auto average(I cur, I end, const G& get = G()) ->
-  typename std::remove_reference<decltype(get(*cur))>::type
+  typename std::remove_reference_t<decltype(get(*cur))>
 {
   assert(cur != end);
 
-  using T = typename std::remove_reference<decltype(get(*cur))>::type::type;
+  using T = typename std::remove_reference_t<decltype(get(*cur))>::type;
 
   auto result = get(*cur++);
   auto count = T(1.0);
@@ -2005,4 +1947,33 @@ T measure_angle(const vec<T, 3>& v, const vec<T, 3>& axis, const vec<T, 3>& up)
     return constants<T>::two_pi() - angle;
   }
 }
+
+using vec1f = vec<float, 1>;
+using vec1d = vec<double, 1>;
+using vec1i = vec<int, 1>;
+using vec1l = vec<long, 1>;
+using vec1s = vec<size_t, 1>;
+using vec1b = vec<bool, 1>;
+
+using vec2f = vec<float, 2>;
+using vec2d = vec<double, 2>;
+using vec2i = vec<int, 2>;
+using vec2l = vec<long, 2>;
+using vec2s = vec<size_t, 2>;
+using vec2b = vec<bool, 2>;
+
+using vec3f = vec<float, 3>;
+using vec3d = vec<double, 3>;
+using vec3i = vec<int, 3>;
+using vec3l = vec<long, 3>;
+using vec3s = vec<size_t, 3>;
+using vec3b = vec<bool, 3>;
+
+using vec4f = vec<float, 4>;
+using vec4d = vec<double, 4>;
+using vec4i = vec<int, 4>;
+using vec4l = vec<long, 4>;
+using vec4s = vec<size_t, 4>;
+using vec4b = vec<bool, 4>;
+
 } // namespace vm

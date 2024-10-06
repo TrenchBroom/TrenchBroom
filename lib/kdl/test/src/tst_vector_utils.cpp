@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -30,6 +30,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("vector_utils_test.vec_at")
 {
   const auto cv = std::vector<int>{1, 2, 3};
@@ -88,29 +89,6 @@ TEST_CASE("vector_utils_test.vec_static_cast")
   const auto vd = std::vector<derived*>{d1.get(), d2.get()};
 
   CHECK(vec_static_cast<base*>(vd) == std::vector<base*>{d1.get(), d2.get()});
-}
-
-TEST_CASE("vector_utils_test.vec_index_of")
-{
-  using vec = std::vector<int>;
-
-  CHECK(vec_index_of(vec{}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 3) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 4) == std::nullopt);
-
-  CHECK(vec_index_of(vec{}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 3; }) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
 }
 
 TEST_CASE("vector_utils_test.vec_contains")
@@ -504,4 +482,5 @@ TEST_CASE("vector_utils_test.vec_clear_and_delete")
   CHECK(d2);
   CHECK(d3);
 }
+
 } // namespace kdl

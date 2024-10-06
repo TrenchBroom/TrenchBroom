@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -682,10 +682,10 @@ mat<T, 4, 4> plane_projection_matrix(
   switch (find_abs_max_component(normal))
   {
   case axis::x:
-    xAxis = normalize(cross(normal, vec<T, 3>::pos_z()));
+    xAxis = normalize(cross(normal, vec<T, 3>{0, 0, 1}));
     break;
   default:
-    xAxis = normalize(cross(normal, vec<T, 3>::pos_x()));
+    xAxis = normalize(cross(normal, vec<T, 3>{1, 0, 0}));
     break;
   }
 
@@ -772,32 +772,32 @@ constexpr mat<T, 4, 4> shear_bbox_matrix(
   // shearMatrix(const T Sxy, const T Sxz, const T Syx, const T Syz, const T Szx, const T
   // Szy) {
   mat<T, 4, 4> shearMat;
-  if (sideToShear == vec<T, 3>::pos_x())
+  if (sideToShear == vec<T, 3>{1, 0, 0})
   {
     const auto relativeDelta = delta / oldSize.x();
     shearMat = shear_matrix(relativeDelta.y(), relativeDelta.z(), 0., 0., 0., 0.);
   }
-  else if (sideToShear == vec<T, 3>::neg_x())
+  else if (sideToShear == vec<T, 3>{-1, 0, 0})
   {
     const auto relativeDelta = delta / oldSize.x();
     shearMat = shear_matrix(-relativeDelta.y(), -relativeDelta.z(), 0., 0., 0., 0.);
   }
-  else if (sideToShear == vec<T, 3>::pos_y())
+  else if (sideToShear == vec<T, 3>{0, 1, 0})
   {
     const auto relativeDelta = delta / oldSize.y();
     shearMat = shear_matrix(0., 0., relativeDelta.x(), relativeDelta.z(), 0., 0.);
   }
-  else if (sideToShear == vec<T, 3>::neg_y())
+  else if (sideToShear == vec<T, 3>{0, -1, 0})
   {
     const auto relativeDelta = delta / oldSize.y();
     shearMat = shear_matrix(0., 0., -relativeDelta.x(), -relativeDelta.z(), 0., 0.);
   }
-  else if (sideToShear == vec<T, 3>::pos_z())
+  else if (sideToShear == vec<T, 3>{0, 0, 1})
   {
     const auto relativeDelta = delta / oldSize.z();
     shearMat = shear_matrix(0., 0., 0., 0., relativeDelta.x(), relativeDelta.y());
   }
-  else if (sideToShear == vec<T, 3>::neg_z())
+  else if (sideToShear == vec<T, 3>{0, 0, -1})
   {
     const auto relativeDelta = delta / oldSize.z();
     shearMat = shear_matrix(0., 0., 0., 0., -relativeDelta.x(), -relativeDelta.y());

@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "kdl/meta_utils.h"
 #include "kdl/overload.h"
 #include "kdl/result.h"
 
@@ -49,9 +48,10 @@ auto fold_results(I cur, I end)
 
     while (cur != end)
     {
-      if (cur->is_error())
+      decltype(*cur) elem = *cur;
+      if (elem.is_error())
       {
-        return *cur;
+        return elem;
       }
       ++cur;
     }
@@ -232,4 +232,5 @@ auto operator|(C&& c, const result_collect&)
 {
   return collect_results(std::forward<C>(c));
 }
+
 } // namespace kdl

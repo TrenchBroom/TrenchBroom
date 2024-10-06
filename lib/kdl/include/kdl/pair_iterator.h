@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "kdl/product_iterator.h"
 #include "kdl/range.h"
 
 #include <cassert>

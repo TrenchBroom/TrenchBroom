@@ -1,6 +1,6 @@
 
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -26,55 +26,53 @@
 
 #include <sstream>
 
-namespace TrenchBroom
+namespace tb
 {
+
 std::optional<Color> Color::parse(const std::string& str)
 {
   if (const auto c4 = vm::parse<float, 4>(str))
   {
-    return Color(c4->x(), c4->y(), c4->z(), c4->w());
+    return Color{c4->x(), c4->y(), c4->z(), c4->w()};
   }
-  else if (const auto c3 = vm::parse<float, 3>(str))
+  if (const auto c3 = vm::parse<float, 3>(str))
   {
-    return Color(c3->x(), c3->y(), c3->z());
+    return Color{c3->x(), c3->y(), c3->z()};
   }
-  else
-  {
-    return std::nullopt;
-  }
+  return std::nullopt;
 }
 
 std::string Color::toString() const
 {
-  std::stringstream ss;
+  auto ss = std::stringstream{};
   if (a() == 1.0f)
   {
-    ss << this->xyz();
+    ss << xyz();
   }
   else
   {
-    ss << this;
+    ss << xyzw();
   }
   return ss.str();
 }
 
 Color::Color()
-  : vec<float, 4>(0.0f, 0.0f, 0.0f, 0.0f)
+  : vec<float, 4>{0.0f, 0.0f, 0.0f, 0.0f}
 {
 }
 
 Color::Color(const vec<float, 4>& i_v)
-  : vec<float, 4>(i_v)
+  : vec<float, 4>{i_v}
 {
 }
 
 Color::Color(const float r, const float g, const float b, const float a)
-  : vec<float, 4>(r, g, b, a)
+  : vec<float, 4>{r, g, b, a}
 {
 }
 
 Color::Color(const Color& color, const float a)
-  : vec<float, 4>(color.r(), color.g(), color.b(), a)
+  : vec<float, 4>{color.r(), color.g(), color.b(), a}
 {
 }
 
@@ -83,29 +81,32 @@ Color::Color(
   const unsigned char g,
   const unsigned char b,
   const unsigned char a)
-  : vec<float, 4>(
-    static_cast<float>(r) / 255.0f,
-    static_cast<float>(g) / 255.0f,
-    static_cast<float>(b) / 255.0f,
-    static_cast<float>(a) / 255.0f)
+  : vec<float, 4>{
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      float(a) / 255.0f,
+    }
 {
 }
 
 Color::Color(const int r, const int g, const int b, const int a)
-  : vec<float, 4>(
-    static_cast<float>(r) / 255.0f,
-    static_cast<float>(g) / 255.0f,
-    static_cast<float>(b) / 255.0f,
-    static_cast<float>(a) / 255.0f)
+  : vec<float, 4>{
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      float(a) / 255.0f,
+    }
 {
 }
 
 Color::Color(const int r, const int g, const int b, const float a)
-  : vec<float, 4>(
-    static_cast<float>(r) / 255.0f,
-    static_cast<float>(g) / 255.0f,
-    static_cast<float>(b) / 255.0f,
-    a)
+  : vec<float, 4>{
+      float(r) / 255.0f,
+      float(g) / 255.0f,
+      float(b) / 255.0f,
+      a,
+    }
 {
 }
 
@@ -136,15 +137,12 @@ void Color::rgbToHSB(
   assert(g >= 0.0f && g <= 1.0f);
   assert(b >= 0.0f && b <= 1.0f);
 
-  const float max = vm::max(r, g, b);
-  const float min = vm::min(r, g, b);
-  const float dist = max - min;
+  const auto max = vm::max(r, g, b);
+  const auto min = vm::min(r, g, b);
+  const auto dist = max - min;
 
   br = max;
-  if (br != 0.0f)
-    s = dist / max;
-  else
-    s = 0.0f;
+  s = br != 0.0f ? dist / max : s;
 
   if (s == 0.0f)
   {
@@ -152,18 +150,16 @@ void Color::rgbToHSB(
   }
   else
   {
-    const float rc = (max - r) / dist;
-    const float gc = (max - g) / dist;
-    const float bc = (max - b) / dist;
-    if (r == max)
-      h = bc - gc;
-    else if (g == max)
-      h = 2.0f + rc - bc;
-    else
-      h = 4.0f + gc - rc;
+    const auto rc = (max - r) / dist;
+    const auto gc = (max - g) / dist;
+    const auto bc = (max - b) / dist;
+    h = r == max ? bc - gc : g == max ? 2.0f + rc - bc : 4.0f + gc - rc;
     h = h / 6.0f;
     if (h < 0)
+    {
       h = h + 1.0f;
+    }
   }
 }
-} // namespace TrenchBroom
+
+} // namespace tb

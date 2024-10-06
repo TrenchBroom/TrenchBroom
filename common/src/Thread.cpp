@@ -24,11 +24,13 @@
 
 #include "Ensure.h"
 
-namespace TrenchBroom
+namespace tb
 {
+
 bool isMainThread()
 {
   ensure(qApp != nullptr, "QApplication must have been created");
   return (qApp->thread() == QThread::currentThread());
 }
-} // namespace TrenchBroom
+
+} // namespace tb

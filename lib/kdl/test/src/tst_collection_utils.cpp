@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -28,6 +28,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("collection_utils_test.compare_cmp")
 {
   using namespace std::string_literals;

@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -378,4 +378,10 @@ constexpr segment<T, S> translate(const segment<T, S>& s, const vec<T, S>& offse
 {
   return s.translate(offset);
 }
+
+using segment3d = segment<double, 3>;
+using segment3f = segment<float, 3>;
+using segment2d = segment<double, 2>;
+using segment2f = segment<float, 2>;
+
 } // namespace vm

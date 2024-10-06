@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -29,10 +29,10 @@
 
 int main(int argc, char** argv)
 {
-  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::TestPreferenceManager>();
-  TrenchBroom::View::TrenchBroomApp app(argc, argv);
+  tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
+  tb::ui::TrenchBroomApp app(argc, argv);
 
-  TrenchBroom::View::setCrashReportGUIEnbled(false);
+  tb::ui::setCrashReportGUIEnbled(false);
 
   ensure(qApp == &app, "invalid app instance");
 

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,34 +19,33 @@
 
 #include "TrenchBroomApp.h"
 
-#include "Error.h"
 #include "Exceptions.h"
-#include "IO/DiskIO.h"
-#include "IO/PathInfo.h"
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
-#include "Model/GameFactory.h"
-#include "Model/MapFormat.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
 #include "TrenchBroomStackWalker.h"
-#include "View/AboutDialog.h"
-#include "View/Actions.h"
-#include "View/CrashDialog.h"
-#include "View/FrameManager.h"
-#include "View/GLContextManager.h"
-#include "View/GameDialog.h"
-#include "View/GetVersion.h"
-#include "View/MapDocument.h"
-#include "View/MapFrame.h"
-#include "View/MapViewBase.h"
-#include "View/PreferenceDialog.h"
-#include "View/QtUtils.h"
-#include "View/RecentDocuments.h"
-#include "View/WelcomeWindow.h"
+#include "io/DiskIO.h"
+#include "io/PathInfo.h"
+#include "io/PathQt.h"
+#include "io/SystemPaths.h"
+#include "mdl/GameFactory.h"
+#include "mdl/MapFormat.h"
+#include "ui/AboutDialog.h"
+#include "ui/Actions.h"
+#include "ui/CrashDialog.h"
+#include "ui/FrameManager.h"
+#include "ui/GLContextManager.h"
+#include "ui/GameDialog.h"
+#include "ui/GetVersion.h"
+#include "ui/MapDocument.h"
+#include "ui/MapFrame.h"
+#include "ui/MapViewBase.h"
+#include "ui/PreferenceDialog.h"
+#include "ui/QtUtils.h"
+#include "ui/RecentDocuments.h"
+#include "ui/WelcomeWindow.h"
 #ifdef __APPLE__
-#include "View/MainMenuBuilder.h"
+#include "ui/ActionBuilder.h"
 #endif
 
 #include <QColor>
@@ -65,7 +64,6 @@
 #include <QUrl>
 
 #include "kdl/path_utils.h"
-#include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
@@ -74,18 +72,18 @@
 #include <clocale>
 #include <csignal>
 #include <cstdlib>
-#include <fstream>
 #include <iostream>
 #include <memory>
 #include <sstream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::ui
 {
-
 namespace
 {
+
 // returns the topmost MapDocument as a shared pointer, or the empty shared pointer
 std::shared_ptr<MapDocument> topDocument()
 {
@@ -98,6 +96,7 @@ std::shared_ptr<MapDocument> topDocument()
   }
   return {};
 }
+
 } // namespace
 
 TrenchBroomApp& TrenchBroomApp::instance()
@@ -116,8 +115,8 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
 {
   using namespace std::chrono_literals;
 
-  // When this flag is enabled, font and palette changes propagate as though the user had
-  // manually called the corresponding QWidget methods.
+  // When this flag is enabled, font and palette changes propagate as though the user
+  // had manually called the corresponding QWidget methods.
   setAttribute(Qt::AA_UseStyleSheetPropagationInWidgetStyles);
 
   // Don't show icons in menus, they are scaled down and don't look very good.
@@ -179,18 +178,14 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   setQuitOnLastWindowClosed(false);
 
   auto* menuBar = new QMenuBar{};
-  auto actionMap = std::map<const Action*, QAction*>{};
+  auto actionMap = std::unordered_map<const Action*, QAction*>{};
 
-  auto menuBuilder =
-    MainMenuBuilder{*menuBar, actionMap, [](const Action& action) {
-                      auto context = ActionExecutionContext{nullptr, nullptr};
-                      action.execute(context);
-                    }};
+  auto menuBuilderResult = populateMenuBar(*menuBar, actionMap, [](const Action& action) {
+    auto context = ActionExecutionContext{nullptr, nullptr};
+    action.execute(context);
+  });
 
-  const auto& actionManager = ActionManager::instance();
-  actionManager.visitMainMenu(menuBuilder);
-
-  addRecentDocumentMenu(*menuBuilder.recentDocumentsMenu);
+  addRecentDocumentMenu(*menuBuilderResult.recentDocumentsMenu);
 
   auto context = ActionExecutionContext{nullptr, nullptr};
   for (auto [tbAction, qtAction] : actionMap)
@@ -201,7 +196,6 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
       qtAction->setChecked(tbAction->checked(context));
     }
   }
-
 #endif
 }
 
@@ -270,8 +264,8 @@ QPalette TrenchBroomApp::darkPalette()
 
 bool TrenchBroomApp::loadStyleSheets()
 {
-  const auto path = IO::SystemPaths::findResourceFile("stylesheets/base.qss");
-  if (auto file = QFile{IO::pathAsQString(path)}; file.exists())
+  const auto path = io::SystemPaths::findResourceFile("stylesheets/base.qss");
+  if (auto file = QFile{io::pathAsQString(path)}; file.exists())
   {
     // closed automatically by destructor
     file.open(QFile::ReadOnly | QFile::Text);
@@ -284,15 +278,15 @@ bool TrenchBroomApp::loadStyleSheets()
 
 void TrenchBroomApp::loadStyle()
 {
-  // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens the
-  // "Debug" menu, Alt+S activates the "Show default properties" checkbox in the entity
-  // inspector. Flying with Alt held down and pressing WASD is a fundamental behaviour in
-  // TB, so we can't have shortcuts randomly activating.
+  // We can't use auto mnemonics in TrenchBroom. e.g. by default with Qt, Alt+D opens
+  // the "Debug" menu, Alt+S activates the "Show default properties" checkbox in the
+  // entity inspector. Flying with Alt held down and pressing WASD is a fundamental
+  // behaviour in TB, so we can't have shortcuts randomly activating.
   //
   // Previously were calling `qt_set_sequence_auto_mnemonic(false);` in main(), but it
-  // turns out we also need to suppress an Alt press followed by release from focusing the
-  // menu bar (https://github.com/TrenchBroom/TrenchBroom/issues/3140), so the following
-  // QProxyStyle disables that completely.
+  // turns out we also need to suppress an Alt press followed by release from focusing
+  // the menu bar (https://github.com/TrenchBroom/TrenchBroom/issues/3140), so the
+  // following QProxyStyle disables that completely.
 
   class TrenchBroomProxyStyle : public QProxyStyle
   {
@@ -358,7 +352,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
     path.is_absolute() ? path : std::filesystem::absolute(path).lexically_normal();
 
   const auto checkFileExists = [&]() {
-    return IO::Disk::pathInfo(absPath) == IO::PathInfo::File
+    return io::Disk::pathInfo(absPath) == io::PathInfo::File
              ? Result<void>{}
              : Result<void>{Error{"'" + path.string() + "' not found"}};
   };
@@ -366,7 +360,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
-    auto& gameFactory = Model::GameFactory::instance();
+    auto& gameFactory = mdl::GameFactory::instance();
     return checkFileExists() | kdl::or_else([&](const auto& e) {
              m_recentDocuments->removePath(absPath);
              return Result<void>{e};
@@ -375,7 +369,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
            | kdl::and_then([&](const auto& gameNameAndMapFormat) {
                auto [gameName, mapFormat] = gameNameAndMapFormat;
 
-               if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
+               if (gameName.empty() || mapFormat == mdl::MapFormat::Unknown)
                {
                  if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
                  {
@@ -434,11 +428,11 @@ void TrenchBroomApp::openAbout()
 
 bool TrenchBroomApp::initializeGameFactory()
 {
-  const auto gamePathConfig = Model::GamePathConfig{
-    IO::SystemPaths::findResourceDirectories("games"),
-    IO::SystemPaths::userDataDirectory() / "games",
+  const auto gamePathConfig = mdl::GamePathConfig{
+    io::SystemPaths::findResourceDirectories("games"),
+    io::SystemPaths::userDataDirectory() / "games",
   };
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   return gameFactory.initialize(gamePathConfig) | kdl::transform([](auto errors) {
            if (!errors.empty())
            {
@@ -462,7 +456,7 @@ bool TrenchBroomApp::newDocument()
   try
   {
     auto gameName = std::string{};
-    auto mapFormat = Model::MapFormat::Unknown;
+    auto mapFormat = mdl::MapFormat::Unknown;
     if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
     {
       return false;
@@ -470,7 +464,7 @@ bool TrenchBroomApp::newDocument()
 
     frame = m_frameManager->newFrame();
 
-    auto& gameFactory = Model::GameFactory::instance();
+    auto& gameFactory = mdl::GameFactory::instance();
     auto game = gameFactory.createGame(gameName, frame->logger());
     ensure(game.get() != nullptr, "game is null");
 
@@ -503,7 +497,7 @@ void TrenchBroomApp::openDocument()
     fileDialogDefaultDirectory(FileDialogDir::Map),
     "Map files (*.map);;Any files (*.*)");
 
-  if (const auto path = IO::pathFromQString(pathStr); !path.empty())
+  if (const auto path = io::pathFromQString(pathStr); !path.empty())
   {
     updateFileDialogDefaultDirectoryWithFilename(FileDialogDir::Map, pathStr);
     openDocument(path);
@@ -512,7 +506,7 @@ void TrenchBroomApp::openDocument()
 
 void TrenchBroomApp::showManual()
 {
-  const auto manualPath = IO::SystemPaths::findResourceFile("manual/index.html");
+  const auto manualPath = io::SystemPaths::findResourceFile("manual/index.html");
   const auto manualPathString = manualPath.string();
   const auto manualPathUrl =
     QUrl::fromLocalFile(QString::fromStdString(manualPathString));
@@ -531,9 +525,9 @@ void TrenchBroomApp::showAboutDialog()
 
 void TrenchBroomApp::debugShowCrashReportDialog()
 {
-  const auto reportPath = IO::SystemPaths::userDataDirectory() / "crashreport.txt";
-  const auto mapPath = IO::SystemPaths::userDataDirectory() / "crashreport.map";
-  const auto logPath = IO::SystemPaths::userDataDirectory() / "crashreport.log";
+  const auto reportPath = io::SystemPaths::userDataDirectory() / "crashreport.txt";
+  const auto mapPath = io::SystemPaths::userDataDirectory() / "crashreport.map";
+  const auto logPath = io::SystemPaths::userDataDirectory() / "crashreport.log";
 
   auto dialog = CrashDialog{"Debug crash", reportPath, mapPath, logPath};
   dialog.exec();
@@ -566,7 +560,7 @@ bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
   catch (const std::exception& e)
   {
     // Unfortunately we can't portably get the stack trace of the exception itself
-    TrenchBroom::View::reportCrashAndExit("<uncaught exception>", e.what());
+    tb::ui::reportCrashAndExit("<uncaught exception>", e.what());
   }
 #endif
 }
@@ -604,7 +598,7 @@ void TrenchBroomApp::openFilesOrWelcomeFrame(const QStringList& fileNames)
   auto anyDocumentOpened = false;
   for (const auto& fileName : filesToOpen)
   {
-    const auto path = IO::pathFromQString(fileName);
+    const auto path = io::pathFromQString(fileName);
     if (!path.empty() && openDocument(path))
     {
       anyDocumentOpened = true;
@@ -676,14 +670,14 @@ std::filesystem::path crashReportBasePath()
   const auto mapPath = savedMapPath();
   const auto crashLogPath = !mapPath.empty()
                               ? mapPath.parent_path() / mapPath.stem() += "-crash.txt"
-                              : IO::pathFromQString(QStandardPaths::writableLocation(
+                              : io::pathFromQString(QStandardPaths::writableLocation(
                                   QStandardPaths::DocumentsLocation))
                                   / "trenchbroom-crash.txt";
 
   // ensure it doesn't exist
   auto index = 0;
   auto testCrashLogPath = crashLogPath;
-  while (IO::Disk::pathInfo(testCrashLogPath) == IO::PathInfo::File)
+  while (io::Disk::pathInfo(testCrashLogPath) == io::PathInfo::File)
   {
     ++index;
 
@@ -722,12 +716,12 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
   const auto basePath = crashReportBasePath();
 
   // ensure the containing directory exists
-  IO::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
+  io::Disk::createDirectory(basePath.parent_path()) | kdl::transform([&](auto) {
     const auto reportPath = kdl::path_add_extension(basePath, ".txt");
     auto logPath = kdl::path_add_extension(basePath, ".log");
     auto mapPath = kdl::path_add_extension(basePath, ".map");
 
-    IO::Disk::withOutputStream(reportPath, [&](auto& stream) {
+    io::Disk::withOutputStream(reportPath, [&](auto& stream) {
       stream << report;
       std::cerr << "wrote crash log to " << reportPath.string() << std::endl;
     }) | kdl::transform_error([](const auto& e) {
@@ -748,7 +742,7 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
 
     // Copy the log file
     if (!QFile::copy(
-          IO::pathAsQString(IO::SystemPaths::logFilePath()), IO::pathAsQString(logPath)))
+          io::pathAsQString(io::SystemPaths::logFilePath()), io::pathAsQString(logPath)))
     {
       logPath = std::filesystem::path{};
     }
@@ -785,10 +779,8 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 #else
 static void CrashHandler(int /* signum */)
 {
-  TrenchBroom::View::reportCrashAndExit(
-    TrenchBroom::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
+  tb::ui::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
 }
 #endif
 
-
-} // namespace TrenchBroom::View
+} // namespace tb::ui

@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("invoke_test.invoke_later_lvalue")
 {
   bool invoked = false;
@@ -46,4 +47,5 @@ TEST_CASE("invoke_test.invoke_later_rvalue")
   }
   CHECK(invoked);
 }
+
 } // namespace kdl

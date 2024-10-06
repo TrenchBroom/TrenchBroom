@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2010 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -24,9 +24,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QKeySequence>
 
 #include "Color.h"
-#include "IO/PathQt.h"
+#include "io/PathQt.h"
 
-namespace TrenchBroom
+namespace tb
 {
 // PreferenceSerializer
 
@@ -84,7 +84,7 @@ bool PreferenceSerializer::readFromJson(
     return false;
   }
 
-  out = IO::pathFromQString(in.toString());
+  out = io::pathFromQString(in.toString());
   return true;
 }
 
@@ -153,7 +153,7 @@ QJsonValue PreferenceSerializer::writeToJson(const int in) const
 
 QJsonValue PreferenceSerializer::writeToJson(const std::filesystem::path& in) const
 {
-  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << IO::pathAsQString(rhs); });
+  return toJson(in, [](auto& lhs, const auto& rhs) { lhs << io::pathAsQString(rhs); });
 }
 
 QJsonValue PreferenceSerializer::writeToJson(const QKeySequence& in) const
@@ -187,4 +187,5 @@ bool operator!=(const PreferenceBase& lhs, const PreferenceBase& rhs)
 PreferenceBase::~PreferenceBase() = default;
 
 DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
-} // namespace TrenchBroom
+
+} // namespace tb

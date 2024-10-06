@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,15 +22,10 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/mat.h"
-#include "vm/mat_io.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
-#include <sstream>
-
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
@@ -156,64 +151,64 @@ TEST_CASE("mat.zero")
 TEST_CASE("mat.rotate_x_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_x_cw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_z()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, -1, 0}));
 }
 
 TEST_CASE("mat.rotate_y_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_y_cw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::pos_z()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, 1, 0}));
 }
 
 TEST_CASE("mat.rotate_z_90_cw")
 {
   constexpr auto m = mat4x4d::rot_90_z_cw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::pos_x()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{1, 0, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_x_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_x_ccw();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::pos_z()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, 1, 0}));
 }
 
 TEST_CASE("mat.rotate_y_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_y_ccw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::neg_z()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 0, -1, 0}));
 }
 
 TEST_CASE("mat.rotate_z_90_ccw")
 {
   constexpr auto m = mat4x4d::rot_90_z_ccw();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::pos_y()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, 1, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_x_180")
 {
   constexpr auto m = mat4x4d::rot_180_x();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_y()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, -1, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_y_180")
 {
   constexpr auto m = mat4x4d::rot_180_y();
-  constexpr auto v = vec4d::pos_x();
-  CER_CHECK(m * v == approx(vec4d::neg_x()));
+  constexpr auto v = vec4d{1, 0, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{-1, 0, 0, 0}));
 }
 
 TEST_CASE("mat.rotate_z_180")
 {
   constexpr auto m = mat4x4d::rot_180_z();
-  constexpr auto v = vec4d::pos_y();
-  CER_CHECK(m * v == approx(vec4d::neg_y()));
+  constexpr auto v = vec4d{0, 1, 0, 0};
+  CER_CHECK(m * v == approx(vec4d{0, -1, 0, 0}));
 }
 
 TEST_CASE("mat.mirror_x")

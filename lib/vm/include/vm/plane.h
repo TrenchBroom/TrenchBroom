@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -441,8 +441,9 @@ std::optional<plane<T, 3>> from_points(
  * @return the plane if the opints define a valid plane and nullopt otherwise
  */
 template <typename I, typename G = identity>
-auto from_points(I cur, I end, const G& get = G()) -> std::optional<
-  plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
+auto from_points(I cur, I end, const G& get = G())
+  -> std::optional<
+    plane<typename std::remove_reference<decltype(get(*cur))>::type::type, 3>>
 {
   if (cur == end)
   {
@@ -476,7 +477,7 @@ auto from_points(I cur, I end, const G& get = G()) -> std::optional<
 template <typename T>
 constexpr plane<T, 3> horizontal_plane(const vec<T, 3>& position)
 {
-  return plane<T, 3>(position, vec<T, 3>::pos_z());
+  return plane<T, 3>(position, vec<T, 3>{0, 0, 1});
 }
 
 /**
@@ -509,4 +510,8 @@ constexpr plane<T, 3> aligned_orthogonal_plane(
 {
   return plane<T, 3>(position, get_abs_max_component_axis(direction));
 }
+
+using plane3f = plane<float, 3>;
+using plane3d = plane<double, 3>;
+
 } // namespace vm

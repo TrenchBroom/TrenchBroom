@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -24,6 +24,7 @@
 
 namespace kdl
 {
+
 /**
  * Type trait that checks if a given type is contained in a template parameter pack.
  *
@@ -80,8 +81,8 @@ struct meta_append_if
   /**
    * The resulting type list.
    */
-  using type = typename std::
-    conditional<B, meta_append_t<T, List...>, meta_type_list<List...>>::type;
+  using type =
+    typename std::conditional_t<B, meta_append_t<T, List...>, meta_type_list<List...>>;
 };
 
 template <bool B, typename T, typename... List>

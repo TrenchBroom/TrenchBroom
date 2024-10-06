@@ -198,5 +198,4 @@ std::ostream& operator<<(std::ostream& lhs, const streamable_default_wrapper<T>&
 }
 
 } // namespace detail
-
 } // namespace kdl

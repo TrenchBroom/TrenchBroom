@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -23,20 +23,16 @@
 
 #include "vm/abstract_line.h"
 #include "vm/approx.h"
-#include "vm/constants.h"
 #include "vm/distance.h"
-#include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/util.h"
 #include "vm/vec.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
 TEST_CASE("distance.distance_ray_point")
 {
-  constexpr auto ray = ray3f(vec3f::zero(), vec3f::pos_z());
+  constexpr auto ray = ray3f(vec3f{0, 0, 0}, vec3f{0, 0, 1});
 
   // point is behind ray
   CER_CHECK(squared_distance(ray, vec3f(-1.0f, -1.0f, -1.0f)).position == approx(0.0f));
@@ -59,7 +55,7 @@ TEST_CASE("distance.distance_ray_point")
 
 TEST_CASE("distance.distance_segment_point")
 {
-  constexpr auto segment = segment3f(vec3f::zero(), vec3f::pos_z());
+  constexpr auto segment = segment3f(vec3f{0, 0, 0}, vec3f{0, 0, 1});
 
   // point is below start
   CHECK(squared_distance(segment, vec3f(-1.0f, -1.0f, -1.0f)).position == approx(0.0f));
@@ -100,7 +96,7 @@ static void line_distance_extra_tests(const A& lhs, const B& rhs)
 
 TEST_CASE("distance.distance_ray_segment")
 {
-  constexpr auto ray = ray3f(vec3f::zero(), vec3f::pos_z());
+  constexpr auto ray = ray3f(vec3f{0, 0, 0}, vec3f{0, 0, 1});
   line_distance<float> segDist;
   segment3f seg;
 
@@ -208,7 +204,7 @@ TEST_CASE("distance.distance_ray_segment")
 
 TEST_CASE("distance.distance_ray_ray")
 {
-  constexpr auto ray1 = ray3f(vec3f::zero(), vec3f::pos_z());
+  constexpr auto ray1 = ray3f(vec3f{0, 0, 0}, vec3f{0, 0, 1});
 
   // parallel, ray with itself
   constexpr auto segDist1 = squared_distance(ray1, ray1);
@@ -219,7 +215,7 @@ TEST_CASE("distance.distance_ray_ray")
   line_distance_extra_tests(ray1, ray1);
 
   // parallel, XY offset
-  constexpr auto segDist2Ray = ray3f(vec3f(1.0f, 1.0, 0.0f), vec3f::pos_z());
+  constexpr auto segDist2Ray = ray3f(vec3f(1.0f, 1.0, 0.0f), vec3f{0, 0, 1});
   constexpr auto segDist2 = squared_distance(ray1, segDist2Ray);
   CER_CHECK(segDist2.parallel);
   CER_CHECK(segDist2.position1 == approx(0.0f));
@@ -255,7 +251,7 @@ TEST_CASE("distance.distance_ray_ray")
   line_distance_extra_tests(ray1, segDist5Ray);
 
   // parallel, second ray is in front
-  constexpr auto segDist6Ray = ray3f(vec3f(1.0f, 1.0, 1.0f), vec3f::pos_z());
+  constexpr auto segDist6Ray = ray3f(vec3f(1.0f, 1.0, 1.0f), vec3f{0, 0, 1});
   constexpr auto segDist6 = squared_distance(ray1, segDist6Ray);
   CER_CHECK(segDist6.parallel);
   CER_CHECK(segDist6.position1 == approx(1.0f));
@@ -264,7 +260,7 @@ TEST_CASE("distance.distance_ray_ray")
   line_distance_extra_tests(ray1, segDist6Ray);
 
   // parallel, second ray is behind
-  constexpr auto segDist7Ray = ray3f(vec3f(1.0f, 1.0, -1.0f), vec3f::pos_z());
+  constexpr auto segDist7Ray = ray3f(vec3f(1.0f, 1.0, -1.0f), vec3f{0, 0, 1});
   constexpr auto segDist7 = squared_distance(ray1, segDist7Ray);
   CER_CHECK(segDist7.parallel);
   CER_CHECK(segDist7.position1 == approx(0.0f));
@@ -275,9 +271,9 @@ TEST_CASE("distance.distance_ray_ray")
 
 TEST_CASE("distance.distance_ray_line")
 {
-  constexpr auto ray = ray3f(vec3f::zero(), vec3f::pos_z());
+  constexpr auto ray = ray3f(vec3f{0, 0, 0}, vec3f{0, 0, 1});
 
-  constexpr auto segDist1Line = line3f(vec3f(0.0f, 0.0f, 0.0f), vec3f::pos_z());
+  constexpr auto segDist1Line = line3f(vec3f(0.0f, 0.0f, 0.0f), vec3f{0, 0, 1});
   constexpr auto segDist1 = squared_distance(ray, segDist1Line);
   CER_CHECK(segDist1.parallel);
   CER_CHECK(segDist1.position1 == approx(0.0f));
@@ -285,7 +281,7 @@ TEST_CASE("distance.distance_ray_line")
   CER_CHECK(segDist1.position2 == approx(0.0f));
   line_distance_extra_tests(ray, segDist1Line);
 
-  constexpr auto segDist2Line = line3f(vec3f(1.0f, 1.0f, 0.0f), vec3f::pos_z());
+  constexpr auto segDist2Line = line3f(vec3f(1.0f, 1.0f, 0.0f), vec3f{0, 0, 1});
   constexpr auto segDist2 = squared_distance(ray, segDist2Line);
   CER_CHECK(segDist2.parallel);
   CER_CHECK(segDist2.position1 == approx(0.0f));
@@ -312,7 +308,7 @@ TEST_CASE("distance.distance_ray_line")
   line_distance_extra_tests(ray, segDist4Line);
 
   // parallel, ray is in front of line
-  constexpr auto segDist5Line = line3f(vec3f(1.0f, 1.0f, -1.0f), vec3f::pos_z());
+  constexpr auto segDist5Line = line3f(vec3f(1.0f, 1.0f, -1.0f), vec3f{0, 0, 1});
   constexpr auto segDist5 = squared_distance(ray, segDist5Line);
   CER_CHECK(segDist5.parallel);
   CER_CHECK(segDist5.position1 == approx(0.0f));
@@ -323,7 +319,7 @@ TEST_CASE("distance.distance_ray_line")
   line_distance_extra_tests(ray, segDist5Line);
 
   // parallel, ray is behind line
-  constexpr auto segDist6Line = line3f(vec3f(1.0f, 1.0f, 1.0f), vec3f::pos_z());
+  constexpr auto segDist6Line = line3f(vec3f(1.0f, 1.0f, 1.0f), vec3f{0, 0, 1});
   constexpr auto segDist6 = squared_distance(ray, segDist6Line);
   CER_CHECK(segDist6.parallel);
   CER_CHECK(segDist6.position1 == approx(0.0f));

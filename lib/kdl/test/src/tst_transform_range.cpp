@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -26,6 +26,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("transform_iterator_test.operator_less_than")
 {
   const auto v1 = std::vector<int>({});
@@ -208,4 +209,5 @@ TEST_CASE("transform_adapter_test.reverse_iterators")
   ++it;
   CHECK(end == it);
 }
+
 } // namespace kdl

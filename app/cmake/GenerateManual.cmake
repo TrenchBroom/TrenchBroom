@@ -46,14 +46,14 @@ if(XVFB_EXE STREQUAL "XVFB_EXE-NOTFOUND")
     add_custom_command(
             OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
-            COMMAND dump-shortcuts ARGS "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND dump-shortcuts ARGS ">" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
             DEPENDS dump-shortcuts
             VERBATIM)
 else()
     add_custom_command(
             OUTPUT "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${DOC_MANUAL_TARGET_DIR}"
-            COMMAND "${XVFB_EXE}" ARGS "-a" "$<TARGET_FILE:dump-shortcuts>" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
+            COMMAND "${XVFB_EXE}" ARGS "-a" "$<TARGET_FILE:dump-shortcuts>" ">" "${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE}"
             DEPENDS dump-shortcuts
             VERBATIM)
 endif()

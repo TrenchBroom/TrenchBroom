@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -25,6 +25,7 @@
 
 namespace kdl
 {
+
 /**
  * Checks whether the given shared pointer is expired. Always returns false.
  *
@@ -78,4 +79,5 @@ std::shared_ptr<T> mem_lock(std::weak_ptr<T> ptr)
   assert(!mem_expired(ptr));
   return ptr.lock();
 }
+
 } // namespace kdl

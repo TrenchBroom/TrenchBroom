@@ -18,14 +18,11 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
-#include "vm/forward.h"
 #include "vm/mat_io.h"
 
 #include <sstream>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

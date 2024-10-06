@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -23,27 +23,23 @@
 
 #include "vm/approx.h"
 #include "vm/constants.h"
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
-#include "vm/scalar.h"
 #include "vm/segment.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <iterator>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
 TEST_CASE("segment.constructor_default")
 {
   constexpr auto s = segment3d();
-  CER_CHECK(s.start() == vec3d::zero());
-  CER_CHECK(s.end() == vec3d::zero());
+  CER_CHECK(s.start() == vec3d(0, 0, 0));
+  CER_CHECK(s.end() == vec3d(0, 0, 0));
 }
 
 TEST_CASE("segment.constructor_convert")
@@ -99,7 +95,7 @@ TEST_CASE("segment.squared_length")
 
 TEST_CASE("segment.contains1")
 {
-  constexpr auto z = vec3d::zero();
+  constexpr auto z = vec3d{0, 0, 0};
   constexpr auto o = vec3d(1.0, 0.0, 0.0);
   constexpr auto h = vec3d(0.5, 0.0, 0.0);
   constexpr auto n = vec3d(0.5, 1.0, 0.0);
@@ -123,7 +119,7 @@ TEST_CASE("segment.transform")
 {
   constexpr auto s = segment3d(vec3d(0, 0, 0), vec3d(4, 0, 0));
   constexpr auto sm = scaling_matrix(vec3d(2, 0.5, 3));
-  constexpr auto tm = translation_matrix(vec3d::one());
+  constexpr auto tm = translation_matrix(vec3d{1, 1, 1});
 
   constexpr auto st = s.transform(sm * tm);
   CER_CHECK(st.start() == approx(sm * tm * s.start()));
@@ -133,9 +129,9 @@ TEST_CASE("segment.transform")
 TEST_CASE("segment.translate")
 {
   constexpr auto s = segment3d(vec3d(0, 0, 0), vec3d(4, 0, 0));
-  constexpr auto st = s.translate(vec3d::one());
-  CER_CHECK(st.start() == approx(s.start() + vec3d::one()));
-  CER_CHECK(st.end() == approx(s.end() + vec3d::one()));
+  constexpr auto st = s.translate(vec3d{1, 1, 1});
+  CER_CHECK(st.start() == approx(s.start() + vec3d{1, 1, 1}));
+  CER_CHECK(st.end() == approx(s.end() + vec3d{1, 1, 1}));
 }
 
 TEST_CASE("segment.center")
@@ -147,7 +143,7 @@ TEST_CASE("segment.center")
 TEST_CASE("segment.direction")
 {
   const auto s = segment3d(vec3d(0, 0, 0), vec3d(4, 0, 0));
-  CHECK(s.direction() == approx(vec3d::pos_x()));
+  CHECK(s.direction() == approx(vec3d{1, 0, 0}));
 }
 
 TEST_CASE("segment.get_vertices")

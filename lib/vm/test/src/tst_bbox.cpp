@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,23 +22,21 @@
 #include "test_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
-#include "vm/forward.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
 #include <sstream>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
 TEST_CASE("bbox.constructor_default")
 {
   constexpr auto bounds = bbox3f();
-  CER_CHECK(bounds.min == vec3f::zero());
-  CER_CHECK(bounds.max == vec3f::zero());
+  CER_CHECK(bounds.min == vec3f(0, 0, 0));
+  CER_CHECK(bounds.max == vec3f(0, 0, 0));
 }
 
 TEST_CASE("bbox.constructor_with_min_max_points")
@@ -92,7 +90,7 @@ TEST_CASE("bbox.merge_all")
 
 TEST_CASE("bbox.is_valid")
 {
-  CER_CHECK(bbox3d::is_valid(vec3d::zero(), vec3d::zero()));
+  CER_CHECK(bbox3d::is_valid(vec3d{0, 0, 0}, vec3d{0, 0, 0}));
   CER_CHECK(bbox3d::is_valid(vec3d(-1, -1, -1), vec3d(+1, +1, +1)));
   CER_CHECK_FALSE(bbox3d::is_valid(vec3d(+1, -1, -1), vec3d(-1, +1, +1)));
   CER_CHECK_FALSE(bbox3d::is_valid(vec3d(-1, +1, -1), vec3d(+1, -1, +1)));
@@ -177,14 +175,14 @@ TEST_CASE("bbox.intersects")
 TEST_CASE("bbox.constrain")
 {
   constexpr auto bounds = bbox3d(1024.0);
-  CER_CHECK(bounds.constrain(vec3d::zero()) == vec3d::zero());
+  CER_CHECK(bounds.constrain(vec3d{0, 0, 0}) == vec3d(0, 0, 0));
   CER_CHECK(bounds.constrain(bounds.min) == bounds.min);
-  CER_CHECK(bounds.constrain(bounds.min + vec3d::neg_x()) == bounds.min);
-  CER_CHECK(bounds.constrain(bounds.min + vec3d::neg_y()) == bounds.min);
-  CER_CHECK(bounds.constrain(bounds.min + vec3d::neg_z()) == bounds.min);
-  CER_CHECK(bounds.constrain(bounds.max + vec3d::pos_x()) == bounds.max);
-  CER_CHECK(bounds.constrain(bounds.max + vec3d::pos_y()) == bounds.max);
-  CER_CHECK(bounds.constrain(bounds.max + vec3d::pos_z()) == bounds.max);
+  CER_CHECK(bounds.constrain(bounds.min + vec3d{-1, 0, 0}) == bounds.min);
+  CER_CHECK(bounds.constrain(bounds.min + vec3d{0, -1, 0}) == bounds.min);
+  CER_CHECK(bounds.constrain(bounds.min + vec3d{0, 0, -1}) == bounds.min);
+  CER_CHECK(bounds.constrain(bounds.max + vec3d{1, 0, 0}) == bounds.max);
+  CER_CHECK(bounds.constrain(bounds.max + vec3d{0, 1, 0}) == bounds.max);
+  CER_CHECK(bounds.constrain(bounds.max + vec3d{0, 0, 1}) == bounds.max);
 }
 
 TEST_CASE("bbox.corner")

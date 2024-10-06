@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,19 +20,16 @@
 #include <QString>
 #include <QTextStream>
 
-#include "Assets/EntityDefinition.h"
 #include "Color.h"
-#include "Model/Tag.h"
-#include "Model/TagMatcher.h"
 #include "PreferenceManager.h"
-#include "Preferences.h"
-#include "QtPrettyPrinters.h"
-#include "View/Actions.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/Tag.h"
+#include "mdl/TagMatcher.h"
+#include "ui/Actions.h"
 
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
-#include "vm/bbox.h"
 
 #include <filesystem>
 #include <iostream>
@@ -41,17 +38,17 @@
 
 #include "Catch2.h"
 
-
 inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
 {
   lhs << rhs.toString().toStdString();
   return lhs;
 }
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
+
 QJsonValue getValue(
   const std::map<std::filesystem::path, QJsonValue>& map,
   const std::filesystem::path& key)
@@ -59,9 +56,8 @@ QJsonValue getValue(
   auto it = map.find(key);
   return it != map.end() ? it->second : QJsonValue{QJsonValue::Undefined};
 }
-} // namespace
 
-static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
+void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   CHECK(getValue(prefs, "Controls/Camera/Field of vision") == QJsonValue{108});
   CHECK(getValue(prefs, "Controls/Camera/Move down") == QJsonValue{"R"});
@@ -92,21 +88,20 @@ static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
   CHECK(
     static_cast<float>(getValue(prefs, "Texture Browser/Icon size").toDouble())
     == vm::approx{1.5f});
-  CHECK(getValue(prefs, "Renderer/Font size") == QJsonValue{14});
-  CHECK(getValue(prefs, "Renderer/Texture mode mag filter") == QJsonValue{9729});
-  CHECK(getValue(prefs, "Renderer/Texture mode min filter") == QJsonValue{9987});
+  CHECK(getValue(prefs, "render/Font size") == QJsonValue{14});
+  CHECK(getValue(prefs, "render/Texture mode mag filter") == QJsonValue{9729});
+  CHECK(getValue(prefs, "render/Texture mode min filter") == QJsonValue{9987});
   CHECK(
-    static_cast<float>(getValue(prefs, "Renderer/Brightness").toDouble())
+    static_cast<float>(getValue(prefs, "render/Brightness").toDouble())
     == vm::approx{0.925f});
-  CHECK(getValue(prefs, "Renderer/Show axes") == QJsonValue{false});
+  CHECK(getValue(prefs, "render/Show axes") == QJsonValue{false});
   CHECK(
-    static_cast<float>(getValue(prefs, "Renderer/Grid/Alpha").toDouble())
+    static_cast<float>(getValue(prefs, "render/Grid/Alpha").toDouble())
     == vm::approx{0.22f});
   CHECK(
-    getValue(prefs, "Renderer/Colors/Edges")
-    == QJsonValue{"0.921569 0.666667 0.45098 1"});
+    getValue(prefs, "render/Colors/Edges") == QJsonValue{"0.921569 0.666667 0.45098 1"});
   CHECK(
-    getValue(prefs, "Renderer/Colors/Background")
+    getValue(prefs, "render/Colors/Background")
     == QJsonValue{"0.321569 0.0470588 0.141176 1"});
   CHECK(
     getValue(prefs, "Rendere/Grid/Color2D")
@@ -185,6 +180,8 @@ static void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
     == QJsonValue{QJsonValue::Undefined});
   CHECK(getValue(prefs, "RecentDocuments/0") == QJsonValue{QJsonValue::Undefined});
 }
+
+} // namespace
 
 TEST_CASE("PreferencesTest.read")
 {
@@ -443,7 +440,7 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
     "Menu/Run/Launch...",
   };
 
-  auto& actionsMap = View::ActionManager::instance().actionsMap();
+  auto& actionsMap = ui::ActionManager::instance().actionsMap();
   for (const auto& preferenceKey : preferenceKeys)
   {
     CAPTURE(preferenceKey);
@@ -456,13 +453,12 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
   auto hellKnight =
-    Assets::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
-  const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
+    mdl::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
+  const auto defs = std::vector<mdl::EntityDefinition*>{&hellKnight};
 
-  const auto actions =
-    View::ActionManager::instance().createEntityDefinitionActions(defs);
+  const auto actions = ui::ActionManager::instance().createEntityDefinitionActions(defs);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return action->preferencePath(); });
+    actions, [](const auto& action) { return action.preferencePath(); });
 
   // example keys from 2019.6 for "monster_hell_knight" entity
   const auto preferenceKeys = std::vector<std::string>{
@@ -479,11 +475,11 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 
 TEST_CASE("PreferencesTest.testWxTagShortcuts")
 {
-  const auto tags = std::vector<Model::SmartTag>{Model::SmartTag{
-    "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)}};
-  const auto actions = View::ActionManager::instance().createTagActions(tags);
+  const auto tags = std::vector<mdl::SmartTag>{
+    mdl::SmartTag{"Detail", {}, std::make_unique<mdl::ContentFlagsTagMatcher>(1 << 27)}};
+  const auto actions = ui::ActionManager::instance().createTagActions(tags);
   const auto actualPrefPaths = kdl::vec_transform(
-    actions, [](const auto& action) { return action->preferencePath(); });
+    actions, [](const auto& action) { return action.preferencePath(); });
 
   // example keys from 2019.6 for "Detail" tag
   const auto preferenceKeys = std::vector<std::string>{
@@ -498,4 +494,5 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
     CHECK(kdl::vec_contains(actualPrefPaths, preferenceKey));
   }
 }
-} // namespace TrenchBroom
+
+} // namespace tb

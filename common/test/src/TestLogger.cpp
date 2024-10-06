@@ -19,7 +19,7 @@
 
 #include "TestLogger.h"
 
-namespace TrenchBroom
+namespace tb
 {
 std::size_t TestLogger::countMessages() const
 {
@@ -38,4 +38,4 @@ void TestLogger::doLog(const LogLevel level, const std::string_view)
   m_messages[level] += 1u;
 }
 
-} // namespace TrenchBroom
+} // namespace tb

@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -767,4 +767,12 @@ constexpr bbox<T, S> intersect(const bbox<T, S>& lhs, const bbox<T, S>& rhs)
     return bbox<T, S>(vec<T, S>::zero(), vec<T, S>::zero());
   }
 }
+
+using bbox1f = bbox<float, 1>;
+using bbox1d = bbox<double, 1>;
+using bbox2f = bbox<float, 2>;
+using bbox2d = bbox<double, 2>;
+using bbox3f = bbox<float, 3>;
+using bbox3d = bbox<double, 3>;
+
 } // namespace vm

@@ -23,12 +23,12 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 enum class LogLevel;
 }
 
-namespace TrenchBroom::View
+namespace tb::ui
 {
 
 class LoggerCache
@@ -56,4 +56,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::ui

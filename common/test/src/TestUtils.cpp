@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,41 +19,39 @@
 
 #include "TestUtils.h"
 
-#include "Assets/Material.h"
-#include "Assets/Resource.h"
-#include "Assets/Texture.h"
 #include "Ensure.h"
-#include "Error.h"
-#include "IO/DiskIO.h"
-#include "IO/GameConfigParser.h"
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GameImpl.h"
-#include "Model/GroupNode.h"
-#include "Model/ParallelUVCoordSystem.h"
-#include "Model/ParaxialUVCoordSystem.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "TestLogger.h"
-#include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
+#include "io/DiskIO.h"
+#include "io/GameConfigParser.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GameImpl.h"
+#include "mdl/GroupNode.h"
+#include "mdl/Material.h"
+#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/PatchNode.h"
+#include "mdl/Resource.h"
+#include "mdl/Texture.h"
+#include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
-#include "kdl/string_compare.h"
 
 #include "vm/polygon.h"
 #include "vm/scalar.h"
 #include "vm/segment.h"
 
-#include <sstream>
 #include <string>
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
+
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 {
   for (size_t i = 0; i < 2; ++i)
@@ -63,7 +61,9 @@ bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 
     if (!(vm::is_equal(distRemainder, 0.0f, vm::Cf::almost_zero())
           || vm::is_equal(distRemainder, 1.0f, vm::Cf::almost_zero())))
+    {
       return false;
+    }
   }
   return true;
 }
@@ -158,7 +158,7 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
-namespace IO
+namespace io
 {
 std::string readTextFile(const std::filesystem::path& path)
 {
@@ -172,14 +172,14 @@ std::string readTextFile(const std::filesystem::path& path)
            })
          | kdl::value();
 }
-} // namespace IO
+} // namespace io
 
-namespace Model
+namespace mdl
 {
 BrushFace createParaxial(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const std::string& materialName)
 {
   const BrushFaceAttributes attributes(materialName);
@@ -192,24 +192,24 @@ BrushFace createParaxial(
          | kdl::value();
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges)
 {
-  std::vector<vm::vec3> result;
-  vm::segment3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::segment3d::get_vertices(
     std::begin(edges), std::end(edges), std::back_inserter(result));
   return result;
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces)
 {
-  std::vector<vm::vec3> result;
-  vm::polygon3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::polygon3d::get_vertices(
     std::begin(faces), std::end(faces), std::back_inserter(result));
   return result;
 }
 
 void assertMaterial(
-  const std::string& expected, const BrushNode* brushNode, const vm::vec3& faceNormal)
+  const std::string& expected, const BrushNode* brushNode, const vm::vec3d& faceNormal)
 {
   assertMaterial(expected, brushNode->brush(), faceNormal);
 }
@@ -250,7 +250,7 @@ void assertMaterial(
 }
 
 void assertMaterial(
-  const std::string& expected, const Brush& brush, const vm::vec3& faceNormal)
+  const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal)
 {
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex);
@@ -297,7 +297,7 @@ void assertMaterial(
 }
 
 void transformNode(
-  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds)
+  Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds)
 {
   node.accept(kdl::overload(
     [](const WorldNode*) {},
@@ -337,42 +337,44 @@ GameAndConfig loadGame(const std::string& gameName)
   const auto configPath =
     std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
-    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
-  const auto configStr = IO::readTextFile(configPath);
-  auto configParser = IO::GameConfigParser(configStr, configPath);
-  auto config = std::make_unique<Model::GameConfig>(configParser.parse());
-  auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
+    std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
+  const auto configStr = io::readTextFile(configPath);
+  auto configParser = io::GameConfigParser(configStr, configPath);
+  auto config = std::make_unique<mdl::GameConfig>(configParser.parse());
+  auto game = std::make_shared<mdl::GameImpl>(*config, gamePath, logger);
 
   // We would ideally just return game, but GameImpl captures a raw reference
   // to the GameConfig.
   return {std::move(game), std::move(config)};
 }
 
-const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces,
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2)
+const mdl::BrushFace* findFaceByPoints(
+  const std::vector<mdl::BrushFace>& faces,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2)
 {
-  for (const Model::BrushFace& face : faces)
+  for (const mdl::BrushFace& face : faces)
   {
     if (
       face.points()[0] == point0 && face.points()[1] == point1
       && face.points()[2] == point2)
+    {
       return &face;
+    }
   }
   return nullptr;
 }
 
-void checkFaceUVCoordSystem(const Model::BrushFace& face, const bool expectParallel)
+void checkFaceUVCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
   auto snapshot = face.takeUVCoordSystemSnapshot();
-  auto* check = dynamic_cast<Model::ParallelUVCoordSystemSnapshot*>(snapshot.get());
+  auto* check = dynamic_cast<mdl::ParallelUVCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);
 }
 
-void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel)
+void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)
 {
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -391,14 +393,14 @@ void setLinkId(Node& node, std::string linkId)
     [](const LayerNode*) {},
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
-} // namespace Model
+} // namespace mdl
 
-namespace View
+namespace ui
 {
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
-  const Model::MapFormat mapFormat)
+  const mdl::MapFormat mapFormat)
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
@@ -409,26 +411,26 @@ DocumentGameConfig loadMapDocument(
     std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  document->processResourcesSync(Assets::ProcessContext{false});
+  document->processResourcesSync(mdl::ProcessContext{false});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
 
 DocumentGameConfig newMapDocument(
-  const std::string& gameName, const Model::MapFormat mapFormat)
+  const std::string& gameName, const mdl::MapFormat mapFormat)
 {
-  auto [game, gameConfig] = Model::loadGame(gameName);
+  auto [game, gameConfig] = mdl::loadGame(gameName);
 
   auto document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(mapFormat, vm::bbox3(8192.0), game)
+  document->newDocument(mapFormat, vm::bbox3d(8192.0), game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
-} // namespace View
+} // namespace ui
 
 int getComponentOfPixel(
-  const Assets::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -486,7 +488,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const Assets::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -519,14 +521,14 @@ void checkColor(
 }
 
 int getComponentOfPixel(
-  const Assets::Material& material, std::size_t x, std::size_t y, Component component)
+  const mdl::Material& material, std::size_t x, std::size_t y, Component component)
 {
   ensure(material.texture(), "expected material to have a texture");
   return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
 void checkColor(
-  const Assets::Material& material,
+  const mdl::Material& material,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -538,4 +540,4 @@ void checkColor(
   ensure(material.texture(), "expected material to have a texture");
   return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
-} // namespace TrenchBroom
+} // namespace tb

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::ui
 {
 
 class KeyStrings
@@ -52,4 +52,4 @@ private:
   void putKey(Qt::Key key);
   void putModifier(int key);
 };
-} // namespace TrenchBroom::View
+} // namespace tb::ui

@@ -20,8 +20,10 @@
 
 #pragma once
 
-#include "vm/forward.h"
+#include "vm/line.h"
+#include "vm/mat.h"
 #include "vm/scalar.h"
+#include "vm/vec.h"
 
 #include <cassert>
 #include <optional>

@@ -9,11 +9,10 @@ endif()
 
 set(VM_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
 add_library(vm INTERFACE)
+target_include_directories(vm INTERFACE
+        $<BUILD_INTERFACE:${VM_INCLUDE_DIR}>
+        $<INSTALL_INTERFACE:vm/include/vm>)
 
 target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/abstract_line.h"
@@ -25,8 +24,6 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/constexpr_util.h"
     "${VM_INCLUDE_DIR}/vm/convex_hull.h"
     "${VM_INCLUDE_DIR}/vm/distance.h"
-    "${VM_INCLUDE_DIR}/vm/forward.h"
-    "${VM_INCLUDE_DIR}/vm/glsh.h"
     "${VM_INCLUDE_DIR}/vm/intersection.h"
     "${VM_INCLUDE_DIR}/vm/line_io.h"
     "${VM_INCLUDE_DIR}/vm/line.h"
@@ -46,10 +43,6 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/vec_io.h"
     "${VM_INCLUDE_DIR}/vm/vec.h"
 )
-
-target_include_directories(vm INTERFACE
-        $<BUILD_INTERFACE:${VM_INCLUDE_DIR}>
-        $<INSTALL_INTERFACE:vm/include/vm>)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(vm INTERFACE -Wall -Wextra -pedantic -Wshadow-all -Wno-c++98-compat -Wno-float-equal)

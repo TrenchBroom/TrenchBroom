@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -23,15 +23,11 @@
 #include <QString>
 #include <QTextStream>
 
-#include "Macros.h"
-#include "View/KeyboardShortcut.h"
-
 #include <filesystem>
-#include <optional>
 
 class QKeySequence;
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 
@@ -123,8 +119,8 @@ private:
   std::filesystem::path m_path;
   T m_defaultValue;
   T m_value;
-  bool m_valid;
-  bool m_readOnly;
+  bool m_valid = false;
+  bool m_readOnly = false;
 
 public:
   Preference(
@@ -132,7 +128,6 @@ public:
     : m_path{std::move(path)}
     , m_defaultValue{defaultValue}
     , m_value{m_defaultValue}
-    , m_valid{false}
     , m_readOnly{readOnly}
   {
   }
@@ -188,4 +183,4 @@ public: // PreferenceManager private
 
   bool isReadOnly() const { return m_readOnly; }
 };
-} // namespace TrenchBroom
+} // namespace tb

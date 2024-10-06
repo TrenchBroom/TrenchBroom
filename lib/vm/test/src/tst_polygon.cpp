@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -19,22 +19,16 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h"
 #include "vm/polygon.h"
-#include "vm/vec.h"
 #include "vm/vec_ext.h"
-#include "vm/vec_io.h"
 
 #include <iterator>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
@@ -77,7 +71,7 @@ TEST_CASE("polygon.has_vertex")
     CHECK(p.hasVertex(v));
   }
 
-  CHECK_FALSE(p.hasVertex(vec3d::one()));
+  CHECK_FALSE(p.hasVertex(vec3d{1, 1, 1}));
 }
 
 TEST_CASE("polygon.vertex_count")
@@ -104,7 +98,7 @@ TEST_CASE("polygon.center")
   const auto vertices = std::vector<vec3d>{
     vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)};
   const auto p = polygon3d(vertices);
-  CHECK(p.center() == approx(vec3d::zero()));
+  CHECK(p.center() == approx(vec3d{0, 0, 0}));
 }
 
 TEST_CASE("polygon.invert")
@@ -396,18 +390,18 @@ TEST_CASE("polygon.compare_unoriented_empty_polygon")
 {
   polygon3d p1{};
   CHECK(compareUnoriented(p1, polygon3d{}) == 0);
-  CHECK(compareUnoriented(p1, polygon3d{vec3d::zero()}) == -1);
+  CHECK(compareUnoriented(p1, polygon3d{vec3d{0, 0, 0}}) == -1);
 
-  polygon3d p2{vec3d::zero()};
+  polygon3d p2{vec3d{0, 0, 0}};
   CHECK(compareUnoriented(p2, p1) == +1);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero()}) == 0);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
 }
 
 TEST_CASE("polygon.testBackwardComparePolygonWithOneVertex")
 {
-  polygon3d p2{vec3d::zero()};
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero()}) == 0);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d::zero(), vec3d::zero()}) == -1);
+  polygon3d p2{vec3d{0, 0, 0}};
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}, vec3d{0, 0, 0}}) == -1);
 }
 
 TEST_CASE("polygon.compare_unoriented")

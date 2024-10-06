@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -22,8 +22,9 @@
 #include <sstream>
 #include <string_view>
 
-namespace TrenchBroom
+namespace tb
 {
+
 enum class LogLevel
 {
   Debug,
@@ -81,4 +82,5 @@ class NullLogger : public Logger
 private:
   void doLog(LogLevel level, std::string_view message) override;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

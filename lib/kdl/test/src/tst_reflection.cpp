@@ -20,7 +20,6 @@
 
 #include "kdl/reflection_decl.h"
 #include "kdl/reflection_impl.h"
-#include "kdl/std_io.h"
 #include "kdl/string_utils.h"
 
 #include <vector>
@@ -31,6 +30,7 @@ namespace kdl
 {
 namespace detail
 {
+
 TEST_CASE("reflection_count_tokens")
 {
   static_assert(reflection_count_tokens("") == 0);
@@ -140,4 +140,5 @@ TEST_CASE("operator<<")
   CHECK(str_to_string(test{1, "asdf"}) == "test{someName: 1, otherName: asdf}");
   CHECK(str_to_string(test_ns::custom{{1, 2, 3}}) == "custom{v: [1,2,3]}");
 }
+
 } // namespace kdl

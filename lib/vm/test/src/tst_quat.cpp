@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,13 +22,11 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/forward.h"
 #include "vm/quat.h"
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
@@ -91,15 +89,15 @@ TEST_CASE("quat.constructor_with_equal_vector_rotation")
 TEST_CASE("quat.angle")
 {
   const auto angle = to_radians(15.0f);
-  const auto q = quatf(vec3f::pos_z(), angle);
+  const auto q = quatf(vec3f{0, 0, 1}, angle);
 
   CHECK(q.angle() == approx(angle, 0.001f));
 }
 
 TEST_CASE("quat.axis")
 {
-  CHECK(quatd().axis() == approx(vec3d::zero()));
-  CHECK(quatd(vec3d::pos_z(), to_radians(45.0)).axis() == approx(vec3d::pos_z()));
+  CHECK(quatd().axis() == approx(vec3d{0, 0, 0}));
+  CHECK(quatd(vec3d{0, 0, 1}, to_radians(45.0)).axis() == approx(vec3d{0, 0, 1}));
   CHECK(
     quatd(normalize(vec3d(1, 1, 0)), to_radians(25.0)).axis()
     == approx(normalize(vec3d(1, 1, 0))));
@@ -196,7 +194,7 @@ TEST_CASE("quat.operator_multiply_quaternions")
   constexpr auto q2 = quatf(0.99619472f, vec3f(0, 0, 0.0871557369f));
   constexpr quatf q = q1 * q2;
 
-  constexpr auto v = vec3f::pos_x();
+  constexpr auto v = vec3f{1, 0, 0};
   constexpr auto w = q * v;
 
   constexpr auto cos_a1_a2 = 0.906307756f; // std::cos(angle1 + angle2)
@@ -210,7 +208,7 @@ TEST_CASE("quat.operator_multiply_vector")
   // constexpr auto angle = to_radians(15.0f);
   // create quaternion with axis pos_z and angle 15.0f to_degrees
   constexpr auto q = quatf(0.991444885f, vec3f(0, 0, 0.1305262f));
-  constexpr auto x = vec3f::pos_x();
+  constexpr auto x = vec3f{1, 0, 0};
 
   constexpr auto cos_a = 0.965925812f; // std::cos(angle);
   constexpr auto sin_a = 0.258819044f; // std::sin(angle);

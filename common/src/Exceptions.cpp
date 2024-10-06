@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,26 +19,13 @@
 
 #include "Exceptions.h"
 
-#include "FileLocation.h"
-
 #include <sstream>
 
-namespace TrenchBroom
+namespace tb
 {
-Exception::Exception() noexcept {}
-
-Exception::Exception(std::string str) noexcept
-  : m_msg(std::move(str))
-{
-}
-
-const char* Exception::what() const noexcept
-{
-  return m_msg.c_str();
-}
-
 namespace
 {
+
 std::string buildMessage(
   const std::optional<FileLocation>& location, const std::string& str)
 {
@@ -61,12 +48,25 @@ std::string buildMessage(
   }
   return msg.str();
 }
+
 } // namespace
 
-ParserException::ParserException(
-  const std::optional<FileLocation>& location, const std::string& str)
-  : Exception(buildMessage(location, str))
+Exception::Exception() noexcept = default;
+
+Exception::Exception(std::string str) noexcept
+  : m_msg{std::move(str)}
 {
 }
 
-} // namespace TrenchBroom
+const char* Exception::what() const noexcept
+{
+  return m_msg.c_str();
+}
+
+ParserException::ParserException(
+  const std::optional<FileLocation>& location, const std::string& str)
+  : Exception{buildMessage(location, str)}
+{
+}
+
+} // namespace tb

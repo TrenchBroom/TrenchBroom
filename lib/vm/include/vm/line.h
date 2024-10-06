@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,7 +21,7 @@
 
 #pragma once
 
-#include "vm/abstract_line.h"
+#include "vm/abstract_line.h" // IWYU pragma: export
 #include "vm/mat.h"
 #include "vm/vec.h"
 
@@ -204,4 +204,10 @@ constexpr bool operator!=(const line<T, S>& lhs, const line<T, S>& rhs)
   const auto rhsC = rhs.make_canonical();
   return lhsC.point != rhsC.point || lhsC.direction != rhsC.direction;
 }
+
+using line3f = line<float, 3>;
+using line3d = line<double, 3>;
+using line2f = line<float, 2>;
+using line2d = line<double, 2>;
+
 } // namespace vm

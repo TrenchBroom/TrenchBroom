@@ -55,15 +55,15 @@ void parallel_for(const size_t count, L&& lambda)
 #ifdef _WIN32
   concurrency::parallel_for<size_t>(0, count, lambda);
 #else
-  size_t numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
+  auto numThreads = static_cast<size_t>(std::thread::hardware_concurrency());
   if (numThreads == 0)
   {
     numThreads = 1;
   }
 
-  std::atomic<size_t> nextIndex(0);
+  auto nextIndex = std::atomic<size_t>{0};
 
-  std::vector<std::future<void>> threads;
+  auto threads = std::vector<std::future<void>>{};
   threads.resize(numThreads);
 
   for (size_t i = 0; i < numThreads; ++i)
@@ -110,7 +110,7 @@ auto vec_parallel_transform(std::vector<T> input, L&& transform)
 {
   using ResultType = std::optional<decltype(transform(std::declval<T&&>()))>;
 
-  std::vector<ResultType> result;
+  auto result = std::vector<ResultType>{};
   result.resize(input.size());
 
   parallel_for(input.size(), [&](const size_t index) {
@@ -119,4 +119,5 @@ auto vec_parallel_transform(std::vector<T> input, L&& transform)
 
   return vec_transform(std::move(result), [](ResultType&& x) { return std::move(*x); });
 }
+
 } // namespace kdl

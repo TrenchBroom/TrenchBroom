@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -27,6 +27,7 @@
 
 namespace kdl
 {
+
 TEST_CASE("string_utils_test.str_split")
 {
   CHECK_THAT(str_split("", " "), Catch::Equals(std::vector<std::string>{}));
@@ -236,4 +237,5 @@ TEST_CASE("string_format_test.str_to_long_double")
   CHECK(str_to_long_double(" ") == std::nullopt);
   CHECK(str_to_long_double("") == std::nullopt);
 }
+
 } // namespace kdl

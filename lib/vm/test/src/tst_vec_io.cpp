@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -19,14 +19,11 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
-#include "vm/forward.h"
 #include "vm/vec_io.h"
 
 #include <sstream>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

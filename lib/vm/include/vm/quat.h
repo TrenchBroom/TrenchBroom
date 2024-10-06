@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -110,16 +110,16 @@ public:
     if (is_equal(+cos, T(1.0), constants<T>::almost_zero()))
     {
       // `from` and `to` are equal.
-      set_rotation(vec<T, 3>::pos_z(), T(0.0));
+      set_rotation(vec<T, 3>{0, 0, 1}, T(0));
     }
     else if (is_equal(-cos, T(1.0), constants<T>::almost_zero()))
     {
       // `from` and `to` are opposite.
       // We need to find a rotation axis that is perpendicular to `from`.
-      auto axis = cross(from, vec<T, 3>::pos_z());
+      auto axis = cross(from, vec<T, 3>{0, 0, 1});
       if (is_zero(squared_length(axis), constants<T>::almost_zero()))
       {
-        axis = cross(from, vec<T, 3>::pos_x());
+        axis = cross(from, vec<T, 3>{1, 0, 0});
       }
       set_rotation(normalize(axis), to_radians(T(180)));
     }
@@ -317,6 +317,10 @@ constexpr quat<T> operator*(const quat<T>& lhs, const quat<T>& rhs)
 template <typename T>
 constexpr vec<T, 3> operator*(const quat<T>& lhs, const vec<T, 3>& rhs)
 {
-  return (lhs * quat<T>(T(0.0), rhs) * lhs.conjugate()).v;
+  return (lhs * quat<T>(T(0), rhs) * lhs.conjugate()).v;
 }
+
+using quatf = quat<float>;
+using quatd = quat<double>;
+
 } // namespace vm

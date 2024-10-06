@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,39 +19,32 @@
 
 #pragma once
 
-#include "FloatType.h"
-#include "IO/DiskIO.h"
-#include "IO/ImageFileSystem.h"
-#include "Model/MapFormat.h"
-#include "Model/Node.h"
+#include "io/DiskIO.h"
+#include "io/ImageFileSystem.h"
+#include "mdl/MapFormat.h"
+#include "mdl/Node.h"
 
-#include "kdl/vector_set.h"
-
-#include "vm/forward.h"
-#include "vm/mat.h"
-#include "vm/mat_io.h"
-#include "vm/vec.h"
-#include "vm/vec_io.h" // enable Catch2 to print vm::vec on test failures
+#include "vm/polygon.h"
+#include "vm/segment.h"
 
 #include <filesystem>
 #include <memory>
-#include <sstream>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
-namespace Assets
-{
-class Material;
-class Texture;
-} // namespace Assets
-
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
 bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
-namespace IO
+namespace mdl
+{
+class Material;
+class Texture;
+} // namespace mdl
+
+namespace io
 {
 
 template <typename FS>
@@ -65,9 +58,9 @@ auto openFS(const std::filesystem::path& path)
 
 std::string readTextFile(const std::filesystem::path& path);
 
-} // namespace IO
+} // namespace io
 
-namespace Model
+namespace mdl
 {
 class Brush;
 class BrushFace;
@@ -78,13 +71,13 @@ class GroupNode;
 class Node;
 
 BrushFace createParaxial(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
   const std::string& materialName = "");
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges);
-std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces);
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges);
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces);
 
 void assertMaterial(
   const std::string& expected, const BrushNode* brush, const vm::vec3d& faceNormal);
@@ -131,22 +124,22 @@ void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices);
 
 void transformNode(
-  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds);
+  Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds);
 
 struct GameAndConfig
 {
-  std::shared_ptr<Model::Game> game;
-  std::unique_ptr<Model::GameConfig> gameConfig;
+  std::shared_ptr<mdl::Game> game;
+  std::unique_ptr<mdl::GameConfig> gameConfig;
 };
 GameAndConfig loadGame(const std::string& gameName);
 
-const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces,
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2);
-void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
-void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
+const mdl::BrushFace* findFaceByPoints(
+  const std::vector<mdl::BrushFace>& faces,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2);
+void checkFaceUVCoordSystem(const mdl::BrushFace& face, bool expectParallel);
+void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, bool expectParallel);
 
 void setLinkId(Node& node, std::string linkId);
 
@@ -186,25 +179,24 @@ Child* getChildAs(const Node& node)
   return getFirstChildOfType<Child>(children);
 }
 
-} // namespace Model
+} // namespace mdl
 
-namespace View
+namespace ui
 {
 class MapDocument;
 
 struct DocumentGameConfig
 {
   std::shared_ptr<MapDocument> document;
-  std::shared_ptr<Model::Game> game;
-  std::unique_ptr<Model::GameConfig> gameConfig;
+  std::shared_ptr<mdl::Game> game;
+  std::unique_ptr<mdl::GameConfig> gameConfig;
 };
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
-  Model::MapFormat mapFormat);
-DocumentGameConfig newMapDocument(
-  const std::string& gameName, Model::MapFormat mapFormat);
-} // namespace View
+  mdl::MapFormat mapFormat);
+DocumentGameConfig newMapDocument(const std::string& gameName, mdl::MapFormat mapFormat);
+} // namespace ui
 
 enum class Component
 {
@@ -221,9 +213,9 @@ enum class ColorMatch
 };
 
 int getComponentOfPixel(
-  const Assets::Texture& texture, std::size_t x, std::size_t y, Component component);
+  const mdl::Texture& texture, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const Assets::Texture& texture,
+  const mdl::Texture& texture,
   std::size_t x,
   std::size_t y,
   int r,
@@ -233,9 +225,9 @@ void checkColor(
   ColorMatch match = ColorMatch::Exact);
 
 int getComponentOfPixel(
-  const Assets::Material& material, std::size_t x, std::size_t y, Component component);
+  const mdl::Material& material, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const Assets::Material& material,
+  const mdl::Material& material,
   std::size_t x,
   std::size_t y,
   int r,
@@ -244,4 +236,4 @@ void checkColor(
   int a,
   ColorMatch match = ColorMatch::Exact);
 
-} // namespace TrenchBroom
+} // namespace tb

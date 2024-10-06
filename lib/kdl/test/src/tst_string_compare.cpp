@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -27,6 +27,7 @@ namespace kdl
 {
 namespace cs
 {
+
 TEST_CASE("string_utils_cs_test.str_mismatch")
 {
   CHECK(str_mismatch("", "") == 0u);
@@ -356,5 +357,6 @@ TEST_CASE("string_utils_ci_test.sort")
       "Zasdf",
     }));
 }
+
 } // namespace ci
 } // namespace kdl

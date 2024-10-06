@@ -28,6 +28,7 @@
 
 namespace kdl
 {
+
 template <typename Value, typename... Errors>
 std::ostream& operator<<(std::ostream& str, const result<Value, Errors...>& result)
 {
@@ -59,4 +60,5 @@ std::ostream& operator<<(std::ostream& str, const result<void, Errors...>& resul
     [&]() { str << "void"; }, [&](const auto& e) { str << make_streamable(e); }));
   return str;
 }
+
 } // namespace kdl

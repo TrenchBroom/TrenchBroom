@@ -1,6 +1,6 @@
 /*
- Copyright 2010-2019 Kristian Duske
- Copyright 2015-2019 Eric Wasylishen
+ Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2015 Eric Wasylishen
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,8 +21,9 @@
 
 #pragma once
 
-#include "vm/abstract_line.h"
+#include "vm/abstract_line.h" // IWYU pragma: export
 #include "vm/mat.h"
+#include "vm/mat_ext.h"
 #include "vm/scalar.h"
 #include "vm/util.h"
 #include "vm/vec.h"
@@ -208,4 +209,8 @@ constexpr bool operator!=(const ray<T, S>& lhs, const ray<T, S>& rhs)
 {
   return lhs.origin != rhs.origin || lhs.direction != rhs.direction;
 }
+
+using ray3f = ray<float, 3>;
+using ray3d = ray<double, 3>;
+
 } // namespace vm

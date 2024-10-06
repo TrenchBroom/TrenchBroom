@@ -28,21 +28,13 @@ namespace kdl
 template <typename T, typename F>
 auto optional_and_then(std::optional<T> o, const F& f) -> decltype(f(*o))
 {
-  if (o)
-  {
-    return f(*o);
-  }
-  return std::nullopt;
+  return o ? f(*o) : std::nullopt;
 }
 
 template <typename T, typename F>
 auto optional_transform(std::optional<T> o, const F& f) -> decltype(std::optional{f(*o)})
 {
-  if (o)
-  {
-    return std::optional{f(*o)};
-  }
-  return std::nullopt;
+  return o ? std::optional{f(*o)} : std::nullopt;
 }
 
 } // namespace kdl
