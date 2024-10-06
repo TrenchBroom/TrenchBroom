@@ -23,7 +23,7 @@
 
 #include <map>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }
@@ -45,7 +45,7 @@ class VertexArray;
 class MaterialIndexRangeMap
 {
 public:
-  using Material = Assets::Material;
+  using Material = assets::Material;
 
 private:
   using MaterialToIndexRangeMap = std::map<const Material*, IndexRangeMap>;

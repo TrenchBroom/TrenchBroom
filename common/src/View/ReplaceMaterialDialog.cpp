@@ -23,7 +23,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "Assets/Material.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -36,6 +35,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/Transaction.h"
+#include "assets/Material.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -190,12 +190,12 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setMinimumSize(650, 450);
 }
 
-void ReplaceMaterialDialog::subjectSelected(const Assets::Material* /* subject */)
+void ReplaceMaterialDialog::subjectSelected(const assets::Material* /* subject */)
 {
   updateReplaceButton();
 }
 
-void ReplaceMaterialDialog::replacementSelected(const Assets::Material* /* replacement */)
+void ReplaceMaterialDialog::replacementSelected(const assets::Material* /* replacement */)
 {
   updateReplaceButton();
 }

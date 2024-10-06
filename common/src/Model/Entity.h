@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Assets/AssetReference.h"
 #include "EL/EL_Forward.h" // IWYU pragma: keep
 #include "Model/EntityProperties.h"
+#include "assets/AssetReference.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -33,14 +33,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 struct DecalSpecification;
 class EntityDefinition;
 class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::Model
 {
@@ -54,7 +54,7 @@ enum class SetDefaultPropertyMode
 };
 
 void setDefaultProperties(
-  const Assets::EntityDefinition& entityDefinition,
+  const assets::EntityDefinition& entityDefinition,
   Entity& entity,
   SetDefaultPropertyMode mode);
 
@@ -102,8 +102,8 @@ private:
    */
   bool m_pointEntity = true;
 
-  Assets::AssetReference<Assets::EntityDefinition> m_definition;
-  const Assets::EntityModel* m_model = nullptr;
+  assets::AssetReference<assets::EntityDefinition> m_definition;
+  const assets::EntityModel* m_model = nullptr;
 
   /**
    * These properties are cached for performance reasons.
@@ -142,20 +142,20 @@ public: // property management
   bool pointEntity() const;
   void setPointEntity(bool pointEntity);
 
-  Assets::EntityDefinition* definition();
-  const Assets::EntityDefinition* definition() const;
+  assets::EntityDefinition* definition();
+  const assets::EntityDefinition* definition() const;
   const vm::bbox3d& definitionBounds() const;
-  void setDefinition(Assets::EntityDefinition* definition);
+  void setDefinition(assets::EntityDefinition* definition);
 
-  const Assets::EntityModel* model() const;
-  void setModel(const Assets::EntityModel* model);
+  const assets::EntityModel* model() const;
+  void setModel(const assets::EntityModel* model);
 
-  const Assets::EntityModelFrame* modelFrame() const;
-  Assets::ModelSpecification modelSpecification() const;
+  const assets::EntityModelFrame* modelFrame() const;
+  assets::ModelSpecification modelSpecification() const;
   const vm::mat4x4d& modelTransformation(
     const std::optional<EL::ExpressionNode>& defaultModelScaleExpression) const;
 
-  Assets::DecalSpecification decalSpecification() const;
+  assets::DecalSpecification decalSpecification() const;
 
   void unsetEntityDefinitionAndModel();
 

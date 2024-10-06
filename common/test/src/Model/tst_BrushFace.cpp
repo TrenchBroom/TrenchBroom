@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "IO/NodeReader.h"
 #include "IO/TestParserStatus.h"
 #include "Model/Brush.h"
@@ -31,6 +29,8 @@
 #include "Model/ParaxialUVCoordSystem.h"
 #include "Model/Polyhedron.h"
 #include "TestUtils.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -498,9 +498,9 @@ TEST_CASE("BrushFaceTest.materialUsageCount")
   const auto p1 = vm::vec3d{1, 0, 4};
   const auto p2 = vm::vec3d{0, -1, 4};
   auto material =
-    Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
+    assets::Material{"testMaterial", createTextureResource(assets::Texture{64, 64})};
   auto material2 =
-    Assets::Material{"testMaterial2", createTextureResource(Assets::Texture{64, 64})};
+    assets::Material{"testMaterial2", createTextureResource(assets::Texture{64, 64})};
 
   CHECK(material.usageCount() == 0u);
   CHECK(material2.usageCount() == 0u);
@@ -568,8 +568,8 @@ TEST_CASE("BrushFaceTest.projectedArea")
 TEST_CASE("BrushFaceTest.testSetRotation_Paraxial")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
-  Assets::Material material(
-    "testMaterial", createTextureResource(Assets::Texture{64, 64}));
+  assets::Material material(
+    "testMaterial", createTextureResource(assets::Texture{64, 64}));
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto cube = builder.createCube(128.0, "") | kdl::value();
@@ -594,7 +594,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Paraxial")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
   auto material =
-    Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
+    assets::Material{"testMaterial", createTextureResource(assets::Texture{64, 64})};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto cube = builder.createCube(128.0, "") | kdl::value();
@@ -613,7 +613,7 @@ TEST_CASE("BrushFaceTest.testAlignmentLock_Parallel")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
   auto material =
-    Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
+    assets::Material{"testMaterial", createTextureResource(assets::Texture{64, 64})};
 
   auto builder = BrushBuilder{MapFormat::Valve, worldBounds};
   auto cube = builder.createCube(128.0, "") | kdl::value();
@@ -812,7 +812,7 @@ TEST_CASE("BrushFaceTest.formatConversion")
   auto valveBuilder = BrushBuilder{MapFormat::Valve, worldBounds};
 
   auto material =
-    Assets::Material{"testMaterial", createTextureResource(Assets::Texture{64, 64})};
+    assets::Material{"testMaterial", createTextureResource(assets::Texture{64, 64})};
 
   const auto startingCube = standardBuilder.createCube(128.0, "")
                             | kdl::transform([&](auto&& brush) {

@@ -25,10 +25,10 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinition;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -39,7 +39,7 @@ class EntityDefinitionLoader
 public:
   virtual ~EntityDefinitionLoader();
 
-  virtual Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>>
+  virtual Result<std::vector<std::unique_ptr<assets::EntityDefinition>>>
   loadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };

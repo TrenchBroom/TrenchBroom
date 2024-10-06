@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
 #include "Exceptions.h"
 #include "IO/DiskIO.h"
 #include "IO/EntParser.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
+#include "assets/EntityDefinition.h"
+#include "assets/PropertyDefinition.h"
 
 #include <filesystem>
 #include <string>
@@ -35,8 +35,8 @@ namespace tb::IO
 
 static void assertPropertyDefinition(
   const std::string& key,
-  const Assets::PropertyDefinitionType expectedType,
-  const Assets::EntityDefinition* entityDefinition)
+  const assets::PropertyDefinitionType expectedType,
+  const assets::EntityDefinition* entityDefinition)
 {
   const auto* propDefinition = entityDefinition->propertyDefinition(key);
   UNSCOPED_INFO("Missing property definition for '" + key + "' key");
@@ -167,7 +167,7 @@ Updated: 2011-03-02
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -195,7 +195,7 @@ Updated: 2011-03-02
   CHECK(angleDefinition != nullptr);
 
   UNSCOPED_INFO("Expected angle property definition to be of String type");
-  CHECK(angleDefinition->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(angleDefinition->type() == assets::PropertyDefinitionType::StringProperty);
 
   UNSCOPED_INFO("Expected matching property definition name");
   CHECK(angleDefinition->key() == "angle");
@@ -211,7 +211,7 @@ Updated: 2011-03-02
   CHECK(anglesDefinition != nullptr);
 
   UNSCOPED_INFO("Expected angles property definition to be of String type");
-  CHECK(anglesDefinition->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(anglesDefinition->type() == assets::PropertyDefinitionType::StringProperty);
 
   UNSCOPED_INFO("Expected matching property definition name");
   CHECK(anglesDefinition->key() == "angles");
@@ -224,13 +224,13 @@ Updated: 2011-03-02
     anglesDefinition->longDescription()
     == "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
 
-  const auto* scaleDefinition = dynamic_cast<const Assets::FloatPropertyDefinition*>(
+  const auto* scaleDefinition = dynamic_cast<const assets::FloatPropertyDefinition*>(
     pointDefinition->propertyDefinition("_scale"));
   UNSCOPED_INFO("Missing property definition for '_scale' key");
   CHECK(scaleDefinition != nullptr);
 
   UNSCOPED_INFO("Expected angles property definition to be of Float type");
-  CHECK(scaleDefinition->type() == Assets::PropertyDefinitionType::FloatProperty);
+  CHECK(scaleDefinition->type() == assets::PropertyDefinitionType::FloatProperty);
 
   UNSCOPED_INFO("Expected matching property definition name");
   CHECK(scaleDefinition->key() == "_scale");
@@ -280,7 +280,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
   CHECK(definitions.size() == 1u);
 
   const auto* brushDefinition =
-    dynamic_cast<const Assets::BrushEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::BrushEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a brush entity definition");
   CHECK(brushDefinition != nullptr);
 
@@ -302,19 +302,19 @@ Target this entity with a misc_model to have the model attached to the entity (s
   UNSCOPED_INFO("Expected seven property definitions");
   CHECK(brushDefinition->propertyDefinitions().size() == 7u);
   assertPropertyDefinition(
-    "noise", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+    "noise", assets::PropertyDefinitionType::StringProperty, brushDefinition);
   assertPropertyDefinition(
-    "model2", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+    "model2", assets::PropertyDefinitionType::StringProperty, brushDefinition);
   assertPropertyDefinition(
-    "color", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+    "color", assets::PropertyDefinitionType::StringProperty, brushDefinition);
   assertPropertyDefinition(
-    "targetname", Assets::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
+    "targetname", assets::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
   assertPropertyDefinition(
-    "_castshadows", Assets::PropertyDefinitionType::IntegerProperty, brushDefinition);
+    "_castshadows", assets::PropertyDefinitionType::IntegerProperty, brushDefinition);
   assertPropertyDefinition(
-    "_celshader", Assets::PropertyDefinitionType::StringProperty, brushDefinition);
+    "_celshader", assets::PropertyDefinitionType::StringProperty, brushDefinition);
   assertPropertyDefinition(
-    "spawnflags", Assets::PropertyDefinitionType::FlagsProperty, brushDefinition);
+    "spawnflags", assets::PropertyDefinitionType::FlagsProperty, brushDefinition);
 
   UNSCOPED_INFO("Expected matching spawnflag definitions");
   const auto* spawnflags = brushDefinition->spawnflags();
@@ -323,7 +323,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
   CHECK(
     spawnflags->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<assets::FlagsPropertyOption>{
       {1, "X_AXIS", "X Axis", false},
       {2, "Y_AXIS", "Y Axis", false},
     });
@@ -361,7 +361,7 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -369,13 +369,13 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
   const auto* colorIndexDefinition =
-    dynamic_cast<const Assets::ChoicePropertyDefinition*>(
+    dynamic_cast<const assets::ChoicePropertyDefinition*>(
       pointDefinition->propertyDefinition("count"));
   UNSCOPED_INFO("Missing property definition for 'count' key");
   CHECK(colorIndexDefinition != nullptr);
 
   UNSCOPED_INFO("Expected count property definition to be of choice type");
-  CHECK(colorIndexDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
+  CHECK(colorIndexDefinition->type() == assets::PropertyDefinitionType::ChoiceProperty);
 
   UNSCOPED_INFO("Expected name value as entity property definition short description");
   CHECK(colorIndexDefinition->shortDescription() == "Text Color");
@@ -395,7 +395,7 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
 
   CHECK(
     colorIndexDefinition->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"0", "white"},
       {"1", "red"},
       {"2", "green"},
@@ -427,12 +427,12 @@ TEST_CASE("EntParserTest.parseBooleanProperty")
   REQUIRE(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   REQUIRE(pointDefinition != nullptr);
 
   const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
     const auto* propertyDefinition =
-      dynamic_cast<const Assets::BooleanPropertyDefinition*>(
+      dynamic_cast<const assets::BooleanPropertyDefinition*>(
         pointDefinition->propertyDefinition(key));
     return propertyDefinition ? std::optional{propertyDefinition->defaultValue()}
                               : std::nullopt;
@@ -467,19 +467,19 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
   UNSCOPED_INFO("Expected one property definitions");
   CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
-  const auto* scaleDefinition = dynamic_cast<const Assets::StringPropertyDefinition*>(
+  const auto* scaleDefinition = dynamic_cast<const assets::StringPropertyDefinition*>(
     pointDefinition->propertyDefinition("_scale"));
   UNSCOPED_INFO("Missing property definition for '_scale' key");
   CHECK(scaleDefinition != nullptr);
   UNSCOPED_INFO("Expected angles property definition to be of Float type");
-  CHECK(scaleDefinition->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(scaleDefinition->type() == assets::PropertyDefinitionType::StringProperty);
 
   UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
   CHECK(scaleDefinition->defaultValue() == "asdf");
@@ -502,7 +502,7 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -528,7 +528,7 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const Assets::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const assets::PointEntityDefinition*>(definitions.front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -555,7 +555,7 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
+  const auto& definition = static_cast<assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 

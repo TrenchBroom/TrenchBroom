@@ -19,8 +19,6 @@
 
 #include "SkinLoader.h"
 
-#include "Assets/Material.h"
-#include "Assets/Palette.h"
 #include "IO/FileSystem.h"
 #include "IO/MaterialUtils.h"
 #include "IO/ReadFreeImageTexture.h"
@@ -28,41 +26,43 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Result.h"
+#include "assets/Material.h"
+#include "assets/Palette.h"
 
 #include "kdl/string_format.h"
 
 namespace tb::IO
 {
 
-Assets::Material loadSkin(
+assets::Material loadSkin(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
-Assets::Material loadSkin(
+assets::Material loadSkin(
   const std::filesystem::path& path,
   const FileSystem& fs,
-  const std::optional<Assets::Palette>& palette,
+  const std::optional<assets::Palette>& palette,
   Logger& logger)
 {
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) -> Result<Assets::Material, ReadMaterialError> {
+         | kdl::and_then([&](auto file) -> Result<assets::Material, ReadMaterialError> {
              const auto extension = kdl::str_to_lower(path.extension().string());
              auto reader = file->reader().buffer();
              return (extension == ".wal" ? readWalTexture(reader, palette)
                                          : readFreeImageTexture(reader))
                     | kdl::transform([&](auto texture) {
                         auto textureResource = createTextureResource(std::move(texture));
-                        return Assets::Material{
+                        return assets::Material{
                           path.stem().string(), std::move(textureResource)};
                       })
                     | kdl::or_else([&](auto e) {
-                        return Result<Assets::Material, ReadMaterialError>{
+                        return Result<assets::Material, ReadMaterialError>{
                           ReadMaterialError{path.stem().string(), std::move(e.msg)}};
                       });
            })
-         | kdl::transform_error([&](auto e) -> Assets::Material {
+         | kdl::transform_error([&](auto e) -> assets::Material {
              logger.error() << "Could not load skin '" << path << "': " << e.msg;
              return loadDefaultMaterial(fs, path.stem().string(), logger);
            })

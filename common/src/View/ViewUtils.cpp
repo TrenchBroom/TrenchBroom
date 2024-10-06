@@ -24,12 +24,12 @@
 #include <QString>
 #include <QWidget>
 
-#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
+#include "assets/EntityDefinitionFileSpec.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -90,7 +90,7 @@ size_t loadEntityDefinitionFile(
       {
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
-        const auto spec = Assets::EntityDefinitionFileSpec::external(path);
+        const auto spec = assets::EntityDefinitionFileSpec::external(path);
         document->setEntityDefinitionFile(spec);
         return static_cast<size_t>(i);
       }

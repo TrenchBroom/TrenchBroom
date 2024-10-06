@@ -19,7 +19,6 @@
 
 #include "EditorContext.h"
 
-#include "Assets/EntityDefinition.h"
 #include "Ensure.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -32,6 +31,7 @@
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
+#include "assets/EntityDefinition.h"
 
 namespace tb::Model
 {
@@ -69,13 +69,13 @@ bool EditorContext::entityDefinitionHidden(const Model::EntityNodeBase* entityNo
 }
 
 bool EditorContext::entityDefinitionHidden(
-  const Assets::EntityDefinition* definition) const
+  const assets::EntityDefinition* definition) const
 {
   return definition && m_hiddenEntityDefinitions[definition->index()];
 }
 
 void EditorContext::setEntityDefinitionHidden(
-  const Assets::EntityDefinition* definition, const bool hidden)
+  const assets::EntityDefinition* definition, const bool hidden)
 {
   if (definition && entityDefinitionHidden(definition) != hidden)
   {

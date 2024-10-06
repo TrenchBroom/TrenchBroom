@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }
@@ -40,7 +40,7 @@ namespace tb::Renderer
 class MaterialIndexArrayMapBuilder
 {
 public:
-  using Material = Assets::Material;
+  using Material = assets::Material;
   using Index = GLuint;
   using IndexList = std::vector<Index>;
 

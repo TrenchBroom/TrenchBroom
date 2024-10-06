@@ -29,7 +29,7 @@
 #include <string>
 #include <string_view>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }

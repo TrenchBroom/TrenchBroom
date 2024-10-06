@@ -21,9 +21,6 @@
 
 #include "AssimpLoader.h"
 
-#include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "IO/File.h"
 #include "IO/FileSystem.h"
 #include "IO/MaterialUtils.h"
@@ -35,6 +32,9 @@
 #include "ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
+#include "assets/EntityModel.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -163,7 +163,7 @@ public:
   }
 };
 
-std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
+std::optional<assets::Texture> loadFallbackTexture(const FileSystem& fs)
 {
   static const auto NoTextureName = Model::BrushFaceAttributes::NoMaterialName;
 
@@ -182,7 +182,7 @@ std::optional<Assets::Texture> loadFallbackTexture(const FileSystem& fs)
          });
 }
 
-Assets::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
+assets::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logger)
 {
   if (auto fallbackTexture = loadFallbackTexture(fs))
   {
@@ -191,7 +191,7 @@ Assets::Texture loadFallbackOrDefaultTexture(const FileSystem& fs, Logger& logge
   return loadDefaultTexture(fs, logger);
 }
 
-Assets::Texture loadTextureFromFileSystem(
+assets::Texture loadTextureFromFileSystem(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return fs.openFile(path) | kdl::and_then([](auto file) {
@@ -201,10 +201,10 @@ Assets::Texture loadTextureFromFileSystem(
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Assets::Texture loadUncompressedEmbeddedTexture(
+assets::Texture loadUncompressedEmbeddedTexture(
   const aiTexel& data, const size_t width, const size_t height)
 {
-  auto buffer = Assets::TextureBuffer{width * height * sizeof(aiTexel)};
+  auto buffer = assets::TextureBuffer{width * height * sizeof(aiTexel)};
   std::memcpy(buffer.data(), &data, width * height * sizeof(aiTexel));
 
   const auto averageColor = getAverageColor(buffer, GL_BGRA);
@@ -213,19 +213,19 @@ Assets::Texture loadUncompressedEmbeddedTexture(
     height,
     averageColor,
     GL_BGRA,
-    Assets::TextureMask::On,
-    Assets::NoEmbeddedDefaults{},
+    assets::TextureMask::On,
+    assets::NoEmbeddedDefaults{},
     std::move(buffer)};
 }
 
-Assets::Texture loadCompressedEmbeddedTexture(
+assets::Texture loadCompressedEmbeddedTexture(
   const aiTexel& data, const size_t size, const FileSystem& fs, Logger& logger)
 {
   return readFreeImageTextureFromMemory(reinterpret_cast<const uint8_t*>(&data), size)
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger)) | kdl::value();
 }
 
-Assets::Texture loadTexture(
+assets::Texture loadTexture(
   const aiTexture* texture,
   const std::filesystem::path& texturePath,
   const std::filesystem::path& modelPath,
@@ -250,14 +250,14 @@ Assets::Texture loadTexture(
   return loadCompressedEmbeddedTexture(*texture->pcData, texture->mWidth, fs, logger);
 }
 
-std::vector<Assets::Texture> loadTexturesForMaterial(
+std::vector<assets::Texture> loadTexturesForMaterial(
   const aiScene& scene,
   const size_t materialIndex,
   const std::filesystem::path& modelPath,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto textures = std::vector<Assets::Texture>{};
+  auto textures = std::vector<assets::Texture>{};
 
   // Is there even a single diffuse texture? If not, fail and load fallback texture.
   const auto textureCount =
@@ -291,7 +291,7 @@ std::vector<Assets::Texture> loadTexturesForMaterial(
 struct AssimpComputedMeshData
 {
   size_t m_meshIndex;
-  std::vector<Assets::EntityModelVertex> m_vertices;
+  std::vector<assets::EntityModelVertex> m_vertices;
   Renderer::IndexRangeMap m_indices;
 };
 
@@ -532,13 +532,13 @@ std::optional<size_t> getBoneIndexByName(
   return std::nullopt;
 }
 
-std::vector<Assets::EntityModelVertex> computeMeshVertices(
+std::vector<assets::EntityModelVertex> computeMeshVertices(
   const aiMesh& mesh,
   const aiMatrix4x4& transform,
   const aiMatrix4x4& axisTransform,
   const std::vector<AssimpBoneInformation>& boneTransforms)
 {
-  auto vertices = std::vector<Assets::EntityModelVertex>{};
+  auto vertices = std::vector<assets::EntityModelVertex>{};
 
   // We pass through the aiProcess_Triangulate flag to assimp, so we know for sure we'll
   // ONLY get triangles in a single mesh. This is just a safety net to make sure we don't
@@ -678,7 +678,7 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
 Result<void> loadSceneFrame(
   const aiScene& scene,
   const size_t frameIndex,
-  Assets::EntityModelData& model,
+  assets::EntityModelData& model,
   const std::string& name)
 {
   // load the animation information for the current "frame" (animation)
@@ -722,7 +722,7 @@ Result<void> loadSceneFrame(
       auto size = Renderer::IndexRangeMap::Size{};
       size.inc(Renderer::PrimType::Triangles, numTriangles);
       auto builder =
-        Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{numIndices, size};
+        Renderer::IndexRangeMapBuilder<assets::EntityModelVertex::Type>{numIndices, size};
 
       for (unsigned int i = 0; i < numTriangles; ++i)
       {
@@ -791,7 +791,7 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-Result<Assets::EntityModelData> AssimpLoader::load(tb::Logger& logger)
+Result<assets::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 {
   try
   {
@@ -816,7 +816,7 @@ Result<Assets::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 
     // Create model data.
     auto data =
-      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+      assets::EntityModelData{assets::PitchType::Normal, assets::Orientation::Oriented};
 
     // create a frame for each animation in the scene
     // if we have no animations, always load 1 frame for the reference model
@@ -838,7 +838,7 @@ Result<Assets::EntityModelData> AssimpLoader::load(tb::Logger& logger)
         loadTexturesForMaterial(*scene, mesh->mMaterialIndex, m_path, m_fs, logger);
       auto materials = kdl::vec_transform(std::move(textures), [](auto texture) {
         auto textureResource = createTextureResource(std::move(texture));
-        return Assets::Material{"", std::move(textureResource)};
+        return assets::Material{"", std::move(textureResource)};
       });
       surface.setSkins(std::move(materials));
     }

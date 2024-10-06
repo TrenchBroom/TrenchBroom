@@ -19,12 +19,12 @@
 
 #pragma once
 
-#include "Assets/TextureResource.h"
 #include "IO/EntityDefinitionLoader.h"
 #include "IO/ExportOptions.h"
 #include "Model/GameConfig.h"
 #include "Model/MapFormat.h"
 #include "Result.h"
+#include "assets/TextureResource.h"
 
 #include "vm/bbox.h"
 
@@ -40,11 +40,11 @@ namespace tb
 class Logger;
 } // namespace tb
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinitionFileSpec;
 class MaterialManager;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -136,8 +136,8 @@ public: // parsing and serializing objects
 
 public: // material collection handling
   virtual void loadMaterialCollections(
-    Assets::MaterialManager& materialManager,
-    const Assets::CreateTextureResource& createResource) const = 0;
+    assets::MaterialManager& materialManager,
+    const assets::CreateTextureResource& createResource) const = 0;
 
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
@@ -146,12 +146,12 @@ public: // material collection handling
 
 public: // entity definition handling
   virtual bool isEntityDefinitionFile(const std::filesystem::path& path) const = 0;
-  virtual std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles()
+  virtual std::vector<assets::EntityDefinitionFileSpec> allEntityDefinitionFiles()
     const = 0;
-  virtual Assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
+  virtual assets::EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const = 0;
   virtual std::filesystem::path findEntityDefinitionFile(
-    const Assets::EntityDefinitionFileSpec& spec,
+    const assets::EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
 public: // mods

@@ -19,8 +19,6 @@
 
 #include "UVView.h"
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushFaceHandle.h"
 #include "PreferenceManager.h"
@@ -46,6 +44,8 @@
 #include "View/UVRotateTool.h"
 #include "View/UVScaleTool.h"
 #include "View/UVShearTool.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/memory_utils.h"
 

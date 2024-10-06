@@ -19,21 +19,21 @@
 
 #pragma once
 
-#include "Assets/Palette.h"
 #include "Result.h"
+#include "assets/Palette.h"
 
 #include <optional>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Texture;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
 class Reader;
 
-Result<Assets::Texture> readWalTexture(
-  Reader& reader, const std::optional<Assets::Palette>& palette);
+Result<assets::Texture> readWalTexture(
+  Reader& reader, const std::optional<assets::Palette>& palette);
 
 } // namespace tb::IO

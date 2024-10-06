@@ -17,9 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/MaterialCollection.h"
-#include "Assets/Resource.h"
-#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/LoadMaterialCollections.h"
 #include "IO/VirtualFileSystem.h"
@@ -27,6 +24,9 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 #include "TestUtils.h"
+#include "assets/MaterialCollection.h"
+#include "assets/Resource.h"
+#include "assets/Texture.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
@@ -60,7 +60,7 @@ struct MaterialCollectionInfo
 };
 
 MaterialCollectionInfo makeMaterialCollectionInfo(
-  const Assets::MaterialCollection& materialCollection)
+  const assets::MaterialCollection& materialCollection)
 {
   return MaterialCollectionInfo{
     materialCollection.path(),
@@ -80,7 +80,7 @@ MaterialCollectionInfo makeMaterialCollectionInfo(
 }
 
 class MaterialCollectionsMatcher
-  : public Catch::MatcherBase<Result<std::vector<Assets::MaterialCollection>>>
+  : public Catch::MatcherBase<Result<std::vector<assets::MaterialCollection>>>
 {
 private:
   std::vector<MaterialCollectionInfo> m_expected;
@@ -91,7 +91,7 @@ public:
   {
   }
 
-  bool match(const Result<std::vector<Assets::MaterialCollection>>& result) const override
+  bool match(const Result<std::vector<assets::MaterialCollection>>& result) const override
   {
     return result | kdl::transform([&](const auto& materialCollections) {
              return std::ranges::equal(
@@ -114,9 +114,9 @@ auto MatchesMaterialCollections(std::vector<MaterialCollectionInfo> expected)
   return MaterialCollectionsMatcher{std::move(expected)};
 }
 
-auto createResource(Assets::ResourceLoader<Assets::Texture> resourceLoader)
+auto createResource(assets::ResourceLoader<assets::Texture> resourceLoader)
 {
-  auto resource = std::make_shared<Assets::TextureResource>(std::move(resourceLoader));
+  auto resource = std::make_shared<assets::TextureResource>(std::move(resourceLoader));
   resource->loadSync();
   return resource;
 }

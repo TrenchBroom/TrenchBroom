@@ -19,17 +19,17 @@
 
 #include "IO/SprLoader.h"
 
-#include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Assets/Palette.h"
-#include "Assets/Texture.h"
-#include "Assets/TextureBuffer.h"
-#include "Assets/TextureResource.h"
 #include "Color.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
+#include "assets/EntityModel.h"
+#include "assets/Material.h"
+#include "assets/Palette.h"
+#include "assets/Texture.h"
+#include "assets/TextureBuffer.h"
+#include "assets/TextureResource.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -42,40 +42,40 @@ namespace
 
 struct SprPicture
 {
-  Assets::Material material;
+  assets::Material material;
   int x;
   int y;
   size_t width;
   size_t height;
 };
 
-SprPicture parsePicture(Reader& reader, const Assets::Palette& palette)
+SprPicture parsePicture(Reader& reader, const assets::Palette& palette)
 {
   const auto xOffset = reader.readInt<int32_t>();
   const auto yOffset = reader.readInt<int32_t>();
   const auto width = reader.readSize<int32_t>();
   const auto height = reader.readSize<int32_t>();
 
-  auto rgbaImage = Assets::TextureBuffer{4 * width * height};
+  auto rgbaImage = assets::TextureBuffer{4 * width * height};
   auto averageColor = Color{};
   palette.indexedToRgba(
     reader,
     width * height,
     rgbaImage,
-    Assets::PaletteTransparency::Index255Transparent,
+    assets::PaletteTransparency::Index255Transparent,
     averageColor);
 
-  auto texture = Assets::Texture{
+  auto texture = assets::Texture{
     width,
     height,
     averageColor,
     GL_RGBA,
-    Assets::TextureMask::On,
-    Assets::NoEmbeddedDefaults{},
+    assets::TextureMask::On,
+    assets::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
   auto textureResource = createTextureResource(std::move(texture));
 
-  auto material = Assets::Material{"", std::move(textureResource)};
+  auto material = assets::Material{"", std::move(textureResource)};
 
   return SprPicture{std::move(material), xOffset, yOffset, width, height};
 }
@@ -90,7 +90,7 @@ void skipPicture(Reader& reader)
   reader.seekForward(width * height);
 }
 
-SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palette)
+SprPicture parsePictureFrame(Reader& reader, const assets::Palette& palette)
 {
   const auto group = reader.readInt<int32_t>();
   if (group == 0)
@@ -111,7 +111,7 @@ SprPicture parsePictureFrame(Reader& reader, const Assets::Palette& palette)
   return picture;
 }
 
-Result<Assets::Orientation> parseSpriteOrientationType(Reader& reader)
+Result<assets::Orientation> parseSpriteOrientationType(Reader& reader)
 {
   const auto type = reader.readInt<int32_t>();
   if (type < 0 || type > 4)
@@ -119,7 +119,7 @@ Result<Assets::Orientation> parseSpriteOrientationType(Reader& reader)
     return Error{"Unknown SPR type: " + std::to_string(type)};
   }
 
-  return static_cast<Assets::Orientation>(type);
+  return static_cast<assets::Orientation>(type);
 }
 
 /**
@@ -202,11 +202,11 @@ std::vector<unsigned char> processGoldsourcePalette(
   return processed;
 }
 
-Result<Assets::Palette> parseEmbeddedPalette(
+Result<assets::Palette> parseEmbeddedPalette(
   Reader& reader,
   const RenderMode renderMode,
   const int version,
-  const Assets::Palette& defaultPalette)
+  const assets::Palette& defaultPalette)
 {
   if (version != 2)
   {
@@ -222,13 +222,13 @@ Result<Assets::Palette> parseEmbeddedPalette(
   auto data = std::vector<unsigned char>(paletteSize * 3);
   reader.read(data.data(), data.size());
   data = processGoldsourcePalette(renderMode, data);
-  return Assets::makePalette(data, Assets::PaletteColorFormat::Rgba);
+  return assets::makePalette(data, assets::PaletteColorFormat::Rgba);
 }
 
 } // namespace
 
 SprLoader::SprLoader(
-  std::string name, const Reader& reader, const Assets::Palette& palette)
+  std::string name, const Reader& reader, const assets::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{palette}
@@ -248,7 +248,7 @@ bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == "IDSP" && (version == 1 || version == 2);
 }
 
-Result<Assets::EntityModelData> SprLoader::load(Logger& /* logger */)
+Result<assets::EntityModelData> SprLoader::load(Logger& /* logger */)
 {
   // see https://www.gamers.org/dEngine/quake/spec/quake-spec34/qkspec_6.htm#CSPRF
 
@@ -286,10 +286,10 @@ Result<Assets::EntityModelData> SprLoader::load(Logger& /* logger */)
         return parseEmbeddedPalette(reader, renderMode, version, m_palette)
           .transform([&](auto palette) {
             auto data =
-              Assets::EntityModelData{Assets::PitchType::Normal, orientationType};
+              assets::EntityModelData{assets::PitchType::Normal, orientationType};
             auto& surface = data.addSurface(m_name, frameCount);
 
-            auto materials = std::vector<Assets::Material>{};
+            auto materials = std::vector<assets::Material>{};
             materials.reserve(frameCount);
 
             for (size_t i = 0; i < frameCount; ++i)
@@ -311,21 +311,21 @@ Result<Assets::EntityModelData> SprLoader::load(Logger& /* logger */)
               auto& modelFrame = data.addFrame(std::to_string(i), {bboxMin, bboxMax});
               modelFrame.setSkinOffset(i);
 
-              const auto triangles = std::vector<Assets::EntityModelVertex>{
-                Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-                Assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
-                Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+              const auto triangles = std::vector<assets::EntityModelVertex>{
+                assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+                assets::EntityModelVertex{{x1, y2, 0}, {0, 0}},
+                assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
 
-                Assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-                Assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
-                Assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+                assets::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+                assets::EntityModelVertex{{x2, y1, 0}, {1, 1}},
+                assets::EntityModelVertex{{x1, y1, 0}, {0, 1}},
               };
 
               auto size = Renderer::IndexRangeMap::Size{};
               size.inc(Renderer::PrimType::Triangles, 2);
 
               auto builder =
-                Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{6, size};
+                Renderer::IndexRangeMapBuilder<assets::EntityModelVertex::Type>{6, size};
               builder.addTriangles(triangles);
 
               surface.addMesh(modelFrame, builder.vertices(), builder.indices());

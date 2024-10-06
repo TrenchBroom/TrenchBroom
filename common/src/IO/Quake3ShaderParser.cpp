@@ -19,9 +19,9 @@
 
 #include "Quake3ShaderParser.h"
 
-#include "Assets/Quake3Shader.h"
 #include "IO/ParserStatus.h"
 #include "Macros.h"
+#include "assets/Quake3Shader.h"
 
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
@@ -123,12 +123,12 @@ Quake3ShaderParser::Quake3ShaderParser(std::string_view str)
 {
 }
 
-std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status)
+std::vector<assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status)
 {
-  auto result = std::vector<Assets::Quake3Shader>{};
+  auto result = std::vector<assets::Quake3Shader>{};
   while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof))
   {
-    auto shader = Assets::Quake3Shader{};
+    auto shader = assets::Quake3Shader{};
     parseTexture(shader, status);
     parseBody(shader, status);
     result.push_back(shader);
@@ -136,7 +136,7 @@ std::vector<Assets::Quake3Shader> Quake3ShaderParser::parse(ParserStatus& status
   return result;
 }
 
-void Quake3ShaderParser::parseBody(Assets::Quake3Shader& shader, ParserStatus& status)
+void Quake3ShaderParser::parseBody(assets::Quake3Shader& shader, ParserStatus& status)
 {
   expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
   auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
@@ -159,7 +159,7 @@ void Quake3ShaderParser::parseBody(Assets::Quake3Shader& shader, ParserStatus& s
   expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
 }
 
-void Quake3ShaderParser::parseStage(Assets::Quake3Shader& shader, ParserStatus& status)
+void Quake3ShaderParser::parseStage(assets::Quake3Shader& shader, ParserStatus& status)
 {
   expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
   auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
@@ -177,7 +177,7 @@ void Quake3ShaderParser::parseStage(Assets::Quake3Shader& shader, ParserStatus& 
 }
 
 void Quake3ShaderParser::parseTexture(
-  Assets::Quake3Shader& shader, ParserStatus& /* status */)
+  assets::Quake3Shader& shader, ParserStatus& /* status */)
 {
   const auto token =
     expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
@@ -194,7 +194,7 @@ void Quake3ShaderParser::parseTexture(
 }
 
 void Quake3ShaderParser::parseBodyEntry(
-  Assets::Quake3Shader& shader, ParserStatus& /* status */)
+  assets::Quake3Shader& shader, ParserStatus& /* status */)
 {
   auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
@@ -221,16 +221,16 @@ void Quake3ShaderParser::parseBodyEntry(
     const auto value = token.data();
     if (kdl::ci::str_is_equal(value, "front"))
     {
-      shader.culling = Assets::Quake3Shader::Culling::Front;
+      shader.culling = assets::Quake3Shader::Culling::Front;
     }
     else if (kdl::ci::str_is_equal(value, "back"))
     {
-      shader.culling = Assets::Quake3Shader::Culling::Back;
+      shader.culling = assets::Quake3Shader::Culling::Back;
     }
     else if (
       kdl::ci::str_is_equal(value, "none") || kdl::ci::str_is_equal(value, "disable"))
     {
-      shader.culling = Assets::Quake3Shader::Culling::None;
+      shader.culling = assets::Quake3Shader::Culling::None;
     }
   }
   else
@@ -240,7 +240,7 @@ void Quake3ShaderParser::parseBodyEntry(
 }
 
 void Quake3ShaderParser::parseStageEntry(
-  Assets::Quake3ShaderStage& stage, ParserStatus& status)
+  assets::Quake3ShaderStage& stage, ParserStatus& status)
 {
   auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
@@ -288,19 +288,19 @@ void Quake3ShaderParser::parseStageEntry(
     {
       if (kdl::ci::str_is_equal(param1, "add"))
       {
-        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::One;
-        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::One;
+        stage.blendFunc.srcFactor = assets::Quake3ShaderStage::BlendFunc::One;
+        stage.blendFunc.destFactor = assets::Quake3ShaderStage::BlendFunc::One;
       }
       else if (kdl::ci::str_is_equal(param1, "filter"))
       {
-        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::DestColor;
-        stage.blendFunc.destFactor = Assets::Quake3ShaderStage::BlendFunc::Zero;
+        stage.blendFunc.srcFactor = assets::Quake3ShaderStage::BlendFunc::DestColor;
+        stage.blendFunc.destFactor = assets::Quake3ShaderStage::BlendFunc::Zero;
       }
       else if (kdl::ci::str_is_equal(param1, "blend"))
       {
-        stage.blendFunc.srcFactor = Assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
+        stage.blendFunc.srcFactor = assets::Quake3ShaderStage::BlendFunc::SrcAlpha;
         stage.blendFunc.destFactor =
-          Assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
+          assets::Quake3ShaderStage::BlendFunc::OneMinusSrcAlpha;
       }
       else
       {

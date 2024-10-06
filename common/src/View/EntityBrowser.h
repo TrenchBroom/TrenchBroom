@@ -32,7 +32,7 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb::Assets
+namespace tb::assets
 {
 class ResourceId;
 };
@@ -82,7 +82,7 @@ private:
   void nodesDidChange(const std::vector<Model::Node*>& nodes);
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<assets::ResourceId>& resources);
 };
 
 } // namespace tb::View

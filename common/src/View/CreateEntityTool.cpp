@@ -19,8 +19,6 @@
 
 #include "CreateEntityTool.h"
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionManager.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/Entity.h"
@@ -33,6 +31,8 @@
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 
@@ -52,7 +52,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
   auto document = kdl::mem_lock(m_document);
   const auto& definitionManager = document->entityDefinitionManager();
   auto* definition = definitionManager.definition(classname);
-  if (!definition || definition->type() != Assets::EntityDefinitionType::PointEntity)
+  if (!definition || definition->type() != assets::EntityDefinitionType::PointEntity)
   {
     return false;
   }
@@ -62,7 +62,7 @@ bool CreateEntityTool::createEntity(const std::string& classname)
   document->startTransaction(
     "Create '" + definition->name() + "'", TransactionScope::LongRunning);
   m_entity = document->createPointEntity(
-    static_cast<Assets::PointEntityDefinition*>(definition), {0, 0, 0});
+    static_cast<assets::PointEntityDefinition*>(definition), {0, 0, 0});
 
   return m_entity != nullptr;
 }

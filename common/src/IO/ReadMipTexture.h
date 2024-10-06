@@ -23,12 +23,12 @@
 
 #include <string>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Palette;
 class Texture;
 enum class TextureMask;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -36,9 +36,9 @@ class Reader;
 
 std::string readMipTextureName(Reader& reader);
 
-Result<Assets::Texture> readIdMipTexture(
-  Reader& reader, const Assets::Palette& palette, Assets::TextureMask mask);
+Result<assets::Texture> readIdMipTexture(
+  Reader& reader, const assets::Palette& palette, assets::TextureMask mask);
 
-Result<Assets::Texture> readHlMipTexture(Reader& reader, Assets::TextureMask mask);
+Result<assets::Texture> readHlMipTexture(Reader& reader, assets::TextureMask mask);
 
 } // namespace tb::IO

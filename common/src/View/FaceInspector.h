@@ -27,7 +27,7 @@
 class QSplitter;
 class QWidget;
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }
@@ -60,7 +60,7 @@ public:
   ~FaceInspector() override;
 
   bool cancelMouseDrag();
-  void revealMaterial(const Assets::Material* material);
+  void revealMaterial(const assets::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);
@@ -68,7 +68,7 @@ private:
   QWidget* createMaterialBrowser(GLContextManager& contextManager);
   QWidget* createMaterialBrowserInfo();
 
-  void materialSelected(const Assets::Material* material);
+  void materialSelected(const assets::Material* material);
 
   void connectObservers();
   void documentWasNewedOrOpened(MapDocument* document);

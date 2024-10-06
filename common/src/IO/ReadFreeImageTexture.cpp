@@ -19,13 +19,13 @@
 
 #include "ReadFreeImageTexture.h"
 
-#include "Assets/Texture.h"
-#include "Assets/TextureBuffer.h"
 #include "Ensure.h"
 #include "FreeImage.h"
 #include "IO/ImageLoaderImpl.h"
 #include "IO/MaterialUtils.h"
 #include "IO/Reader.h"
+#include "assets/Texture.h"
+#include "assets/TextureBuffer.h"
 
 #include "kdl/resource.h"
 #include "kdl/string_utils.h"
@@ -71,7 +71,7 @@ constexpr GLenum freeImage32BPPFormatToGLFormat()
 
 } // namespace
 
-Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
+Color getAverageColor(const assets::TextureBuffer& buffer, const GLenum format)
 {
   ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
 
@@ -99,7 +99,7 @@ Color getAverageColor(const Assets::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-Result<Assets::Texture> readFreeImageTextureFromMemory(
+Result<assets::Texture> readFreeImageTextureFromMemory(
   const uint8_t* begin, const size_t size)
 {
   try
@@ -134,8 +134,8 @@ Result<Assets::Texture> readFreeImageTextureFromMemory(
     constexpr auto mipCount = 1u;
     constexpr auto format = freeImage32BPPFormatToGLFormat();
 
-    auto buffers = Assets::TextureBufferList{mipCount};
-    Assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
+    auto buffers = assets::TextureBufferList{mipCount};
+    assets::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
     if (
       FreeImage_GetColorType(*image) != FIC_RGBALPHA
@@ -165,16 +165,16 @@ Result<Assets::Texture> readFreeImageTextureFromMemory(
       TRUE);
 
 
-    const auto textureMask = masked ? Assets::TextureMask::On : Assets::TextureMask::Off;
+    const auto textureMask = masked ? assets::TextureMask::On : assets::TextureMask::Off;
     const auto averageColor = getAverageColor(buffers.at(0), format);
 
-    return Assets::Texture{
+    return assets::Texture{
       imageWidth,
       imageHeight,
       averageColor,
       format,
       textureMask,
-      Assets::NoEmbeddedDefaults{},
+      assets::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
   catch (const std::exception& e)
@@ -183,7 +183,7 @@ Result<Assets::Texture> readFreeImageTextureFromMemory(
   }
 }
 
-Result<Assets::Texture> readFreeImageTexture(Reader& reader)
+Result<assets::Texture> readFreeImageTexture(Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();

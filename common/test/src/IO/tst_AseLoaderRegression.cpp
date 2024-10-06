@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Palette.h"
 #include "IO/AseLoader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/LoadMaterialCollections.h"
@@ -27,6 +26,7 @@
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
+#include "assets/Palette.h"
 
 #include "Catch2.h"
 

@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "TestUtils.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -2004,8 +2004,8 @@ TEST_CASE("moveFaceWithUVLock")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto textureResource = createTextureResource(Assets::Texture{64, 64});
-  auto testMaterial = Assets::Material{"testMaterial", std::move(textureResource)};
+  auto textureResource = createTextureResource(assets::Texture{64, 64});
+  auto testMaterial = assets::Material{"testMaterial", std::move(textureResource)};
 
   auto builder = BrushBuilder{format, worldBounds};
   auto brush = builder.createCube(64.0, "") | kdl::value();

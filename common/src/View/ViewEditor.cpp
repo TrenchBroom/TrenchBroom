@@ -27,9 +27,6 @@
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionGroup.h"
-#include "Assets/EntityDefinitionManager.h"
 #include "Model/EditorContext.h"
 #include "Model/Game.h"
 #include "Model/Tag.h"
@@ -42,6 +39,9 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionGroup.h"
+#include "assets/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 
@@ -52,7 +52,7 @@ namespace tb::View
 // EntityDefinitionCheckBoxList
 
 EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(
-  Assets::EntityDefinitionManager& entityDefinitionManager,
+  assets::EntityDefinitionManager& entityDefinitionManager,
   Model::EditorContext& editorContext,
   QWidget* parent)
   : QWidget{parent}
@@ -115,7 +115,7 @@ void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool 
 }
 
 void EntityDefinitionCheckBoxList::defCheckBoxChanged(
-  const Assets::EntityDefinition* definition, bool checked)
+  const assets::EntityDefinition* definition, bool checked)
 {
   m_editorContext.setEntityDefinitionHidden(definition, !checked);
   refresh();

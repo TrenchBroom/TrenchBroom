@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Quake3Shader.h"
 #include "IO/Quake3ShaderParser.h"
 #include "IO/TestParserStatus.h"
+#include "assets/Quake3Shader.h"
 
 #include "Catch2.h"
 
@@ -46,11 +46,11 @@ textures/liquids/lavahell2 //path and name of new texture
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "textures/liquids/lavahell2",         // shaderPath
       "",                                   // editorImage
       "",                                   // lightImage
-      Assets::Quake3Shader::Culling::Front, // culling
+      assets::Quake3Shader::Culling::Front, // culling
       {},                                   // surfaceParms
       {}                                    // stages
     }}));
@@ -94,11 +94,11 @@ textures/liquids/lavahell2 //path and name of new texture
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "textures/liquids/lavahell2",        // shaderPath
       "",                                  // editorImage
       "",                                  // lightImage
-      Assets::Quake3Shader::Culling::None, // culling
+      assets::Quake3Shader::Culling::None, // culling
       {"noimpact", "lava", "nolightmap"},  // surfaceParms
       {{
         "textures/eerie/lavahell.tga", // map
@@ -146,11 +146,11 @@ textures/liquids/lavahell2 //path and name of new texture
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "textures/liquids/lavahell2",        // shaderPath
       "textures/eerie/lavahell.tga",       // editorImage
       "",                                  // lightImage
-      Assets::Quake3Shader::Culling::None, // culling
+      assets::Quake3Shader::Culling::None, // culling
       {"noimpact", "lava", "nolightmap"},  // surfaceParms
       {{
         "textures/eerie/lavahell.tga", // map
@@ -198,11 +198,11 @@ textures/eerie/ironcrosslt2_10000
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "textures/eerie/ironcrosslt2_10000",            // shaderPath
       "textures/gothic_light/ironcrosslt2.tga",       // editorImage
       "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-      Assets::Quake3Shader::Culling::Front,           // culling
+      assets::Quake3Shader::Culling::Front,           // culling
       {},                                             // surfaceParms
       {{
          "$lightmap", // map
@@ -258,11 +258,11 @@ textures/eerie/ironcrosslt2_10000
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "textures/eerie/ironcrosslt2_10000",            // shaderPath
       "textures/gothic_light/ironcrosslt2.tga",       // editorImage
       "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-      Assets::Quake3Shader::Culling::Front,           // culling
+      assets::Quake3Shader::Culling::Front,           // culling
       {},                                             // surfaceParms
       {{
          "$lightmap", // map
@@ -353,12 +353,12 @@ textures/liquids/lavahell2 //path and name of new texture
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{
       {
         "textures/eerie/ironcrosslt2_10000",            // shaderPath
         "textures/gothic_light/ironcrosslt2.tga",       // editorImage
         "textures/gothic_light/ironcrosslt2.blend.tga", // lightImage
-        Assets::Quake3Shader::Culling::Front,           // culling
+        assets::Quake3Shader::Culling::Front,           // culling
         {},                                             // surfaceParms
         {{
            "$lightmap", // map
@@ -377,7 +377,7 @@ textures/liquids/lavahell2 //path and name of new texture
         "textures/liquids/lavahell2",        // shaderPath
         "textures/eerie/lavahell.tga",       // editorImage
         "",                                  // lightImage
-        Assets::Quake3Shader::Culling::None, // culling
+        assets::Quake3Shader::Culling::None, // culling
         {"noimpact", "lava", "nolightmap"},  // surfaceParms
         {{
           "textures/eerie/lavahell.tga", // map
@@ -472,18 +472,18 @@ TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
 
             )";
 
-  using BF = Assets::Quake3ShaderStage::BlendFunc;
+  using BF = assets::Quake3ShaderStage::BlendFunc;
 
   auto parser = Quake3ShaderParser{data};
   auto status = TestParserStatus{};
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<Assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
       "waterBubble",                        // shaderPath
       "",                                   // editorImage
       "",                                   // lightImage
-      Assets::Quake3Shader::Culling::Front, // culling
+      assets::Quake3Shader::Culling::Front, // culling
       {},                                   // surfaceParms
       {
         {

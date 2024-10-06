@@ -19,13 +19,13 @@
 
 #include "Md3Loader.h"
 
-#include "Assets/EntityModel.h"
-#include "Assets/Material.h" // IWYU pragma: keep
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "Logger.h"
 #include "Renderer/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "Renderer/PrimType.h"
+#include "assets/EntityModel.h"
+#include "assets/Material.h" // IWYU pragma: keep
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -84,7 +84,7 @@ auto parseShaders(Reader reader, const size_t shaderCount)
 }
 
 void loadSurfaceMaterials(
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelSurface& surface,
   const std::vector<std::filesystem::path>& shaderPaths,
   const LoadMaterialFunc& loadMaterial)
 {
@@ -96,7 +96,7 @@ Result<void> parseSurfaces(
   Reader reader,
   const size_t surfaceCount,
   const size_t frameCount,
-  Assets::EntityModelData& model,
+  assets::EntityModelData& model,
   const LoadMaterialFunc& loadMaterial)
 {
   for (size_t i = 0; i < surfaceCount; ++i)
@@ -134,7 +134,7 @@ Result<void> parseSurfaces(
   return Result<void>{};
 }
 
-auto& parseFrame(Reader reader, Assets::EntityModelData& model)
+auto& parseFrame(Reader reader, assets::EntityModelData& model)
 {
   const auto minBounds = reader.readVec<float, 3>();
   const auto maxBounds = reader.readVec<float, 3>();
@@ -183,7 +183,7 @@ auto buildVertices(
   assert(positions.size() == uvCoords.size());
   const auto vertexCount = positions.size();
 
-  using Vertex = Assets::EntityModelVertex;
+  using Vertex = assets::EntityModelVertex;
   auto vertices = std::vector<Vertex>{};
   vertices.reserve(vertexCount);
 
@@ -212,12 +212,12 @@ auto parseTriangles(Reader reader, const size_t triangleCount)
 }
 
 void buildFrameSurface(
-  Assets::EntityModelFrame& frame,
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelFrame& frame,
+  assets::EntityModelSurface& surface,
   const std::vector<Md3Triangle>& triangles,
-  const std::vector<Assets::EntityModelVertex>& vertices)
+  const std::vector<assets::EntityModelVertex>& vertices)
 {
-  using Vertex = Assets::EntityModelVertex;
+  using Vertex = assets::EntityModelVertex;
 
   auto rangeMap =
     Renderer::IndexRangeMap{Renderer::PrimType::Triangles, 0, 3 * triangles.size()};
@@ -246,7 +246,7 @@ void buildFrameSurface(
 }
 
 Result<void> parseFrameSurfaces(
-  Reader reader, Assets::EntityModelFrame& frame, Assets::EntityModelData& model)
+  Reader reader, assets::EntityModelFrame& frame, assets::EntityModelData& model)
 {
   for (size_t i = 0; i < model.surfaceCount(); ++i)
   {
@@ -320,7 +320,7 @@ bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == Md3Layout::Ident && version == Md3Layout::Version;
 }
 
-Result<Assets::EntityModelData> Md3Loader::load(Logger&)
+Result<assets::EntityModelData> Md3Loader::load(Logger&)
 {
   try
   {
@@ -352,7 +352,7 @@ Result<Assets::EntityModelData> Md3Loader::load(Logger&)
     const auto surfaceOffset = reader.readSize<int32_t>();
 
     auto data =
-      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+      assets::EntityModelData{assets::PitchType::Normal, assets::Orientation::Oriented};
 
     return parseSurfaces(
              reader.subReaderFromBegin(surfaceOffset),

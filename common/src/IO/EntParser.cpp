@@ -19,7 +19,6 @@
 
 #include "EntParser.h"
 
-#include "Assets/PropertyDefinition.h"
 #include "EL/ELExceptions.h"
 #include "EL/Expression.h"
 #include "EL/Types.h"
@@ -29,6 +28,7 @@
 #include "IO/EntityDefinitionClassInfo.h"
 #include "IO/ParserStatus.h"
 #include "Model/EntityProperties.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
@@ -197,13 +197,13 @@ std::optional<vm::bbox3d> parseBounds(
   return std::nullopt;
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseListDeclaration(
+std::unique_ptr<assets::PropertyDefinition> parseListDeclaration(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   if (expectAttribute(element, "name", status))
   {
     auto name = parseString(element, "name");
-    auto options = Assets::ChoicePropertyOption::List{};
+    auto options = assets::ChoicePropertyOption::List{};
 
     const auto* itemElement = element.FirstChildElement("item");
     while (itemElement)
@@ -218,23 +218,23 @@ std::unique_ptr<Assets::PropertyDefinition> parseListDeclaration(
       }
       itemElement = itemElement->NextSiblingElement("item");
     }
-    return std::make_unique<Assets::ChoicePropertyDefinition>(
+    return std::make_unique<assets::ChoicePropertyDefinition>(
       std::move(name), "", "", std::move(options), false);
   }
   return nullptr;
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parsePropertyDeclaration(
+std::unique_ptr<assets::PropertyDefinition> parsePropertyDeclaration(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   return getName(element) == "list" ? parseListDeclaration(element, status) : nullptr;
 }
 
 using PropertyDefinitionFactory =
-  std::function<std::unique_ptr<Assets::PropertyDefinition>(
+  std::function<std::unique_ptr<assets::PropertyDefinition>(
     std::string, std::string, std::string)>;
 
-std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parsePropertyDefinition(
   const tinyxml2::XMLElement& element,
   const PropertyDefinitionFactory& factory,
   ParserStatus& status)
@@ -250,9 +250,9 @@ std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
   return nullptr;
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseDeclaredPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseDeclaredPropertyDefinition(
   const tinyxml2::XMLElement& element,
-  const Assets::PropertyDefinition& propertyDeclaration,
+  const assets::PropertyDefinition& propertyDeclaration,
   ParserStatus& status)
 {
   auto factory = [&propertyDeclaration](
@@ -262,13 +262,13 @@ std::unique_ptr<Assets::PropertyDefinition> parseDeclaredPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseTargetNamePropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseTargetNamePropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
-    return std::make_unique<Assets::PropertyDefinition>(
+    return std::make_unique<assets::PropertyDefinition>(
       std::move(name),
-      Assets::PropertyDefinitionType::TargetSourceProperty,
+      assets::PropertyDefinitionType::TargetSourceProperty,
       std::move(shortDesc),
       std::move(longDesc),
       false);
@@ -276,13 +276,13 @@ std::unique_ptr<Assets::PropertyDefinition> parseTargetNamePropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseTargetPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseTargetPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [](std::string name, std::string shortDesc, std::string longDesc) {
-    return std::make_unique<Assets::PropertyDefinition>(
+    return std::make_unique<assets::PropertyDefinition>(
       std::move(name),
-      Assets::PropertyDefinitionType::TargetDestinationProperty,
+      assets::PropertyDefinitionType::TargetDestinationProperty,
       std::move(shortDesc),
       std::move(longDesc),
       false);
@@ -290,17 +290,17 @@ std::unique_ptr<Assets::PropertyDefinition> parseTargetPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseRealPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseRealPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [&](std::string name, std::string shortDesc, std::string longDesc)
-    -> std::unique_ptr<Assets::PropertyDefinition> {
+    -> std::unique_ptr<assets::PropertyDefinition> {
     if (hasAttribute(element, "value"))
     {
       auto floatDefaultValue = parseFloat(element, "value");
       if (floatDefaultValue)
       {
-        return std::make_unique<Assets::FloatPropertyDefinition>(
+        return std::make_unique<assets::FloatPropertyDefinition>(
           std::move(name),
           std::move(shortDesc),
           std::move(longDesc),
@@ -314,30 +314,30 @@ std::unique_ptr<Assets::PropertyDefinition> parseRealPropertyDefinition(
         fmt::format(
           "Invalid default value '{}' for float property definition", strDefaultValue),
         status);
-      return std::make_unique<Assets::UnknownPropertyDefinition>(
+      return std::make_unique<assets::UnknownPropertyDefinition>(
         std::move(name),
         std::move(shortDesc),
         std::move(longDesc),
         false,
         std::move(strDefaultValue));
     }
-    return std::make_unique<Assets::FloatPropertyDefinition>(
+    return std::make_unique<assets::FloatPropertyDefinition>(
       std::move(name), std::move(shortDesc), std::move(longDesc), false);
   };
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseIntegerPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseIntegerPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [&](std::string name, std::string shortDesc, std::string longDesc)
-    -> std::unique_ptr<Assets::PropertyDefinition> {
+    -> std::unique_ptr<assets::PropertyDefinition> {
     if (hasAttribute(element, "value"))
     {
       auto intDefaultValue = parseInteger(element, "value");
       if (intDefaultValue)
       {
-        return std::make_unique<Assets::IntegerPropertyDefinition>(
+        return std::make_unique<assets::IntegerPropertyDefinition>(
           std::move(name),
           std::move(shortDesc),
           std::move(longDesc),
@@ -351,7 +351,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseIntegerPropertyDefinition(
         fmt::format(
           "Invalid default value '{}' for integer property definition", strDefaultValue),
         status);
-      return std::make_unique<Assets::UnknownPropertyDefinition>(
+      return std::make_unique<assets::UnknownPropertyDefinition>(
         std::move(name),
         std::move(shortDesc),
         std::move(longDesc),
@@ -359,22 +359,22 @@ std::unique_ptr<Assets::PropertyDefinition> parseIntegerPropertyDefinition(
         std::move(strDefaultValue));
     }
 
-    return std::make_unique<Assets::IntegerPropertyDefinition>(
+    return std::make_unique<assets::IntegerPropertyDefinition>(
       std::move(name), std::move(shortDesc), std::move(longDesc), false);
   };
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseBooleanPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseBooleanPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [&](std::string name, std::string shortDesc, std::string longDesc)
-    -> std::unique_ptr<Assets::PropertyDefinition> {
+    -> std::unique_ptr<assets::PropertyDefinition> {
     if (hasAttribute(element, "value"))
     {
       if (const auto boolDefaultValue = parseBoolean(element, "value"))
       {
-        return std::make_unique<Assets::BooleanPropertyDefinition>(
+        return std::make_unique<assets::BooleanPropertyDefinition>(
           std::move(name),
           std::move(shortDesc),
           std::move(longDesc),
@@ -388,7 +388,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseBooleanPropertyDefinition(
         fmt::format(
           "Invalid default value '{}' for boolean property definition", strDefaultValue),
         status);
-      return std::make_unique<Assets::UnknownPropertyDefinition>(
+      return std::make_unique<assets::UnknownPropertyDefinition>(
         std::move(name),
         std::move(shortDesc),
         std::move(longDesc),
@@ -396,20 +396,20 @@ std::unique_ptr<Assets::PropertyDefinition> parseBooleanPropertyDefinition(
         std::move(strDefaultValue));
     }
 
-    return std::make_unique<Assets::BooleanPropertyDefinition>(
+    return std::make_unique<assets::BooleanPropertyDefinition>(
       std::move(name), std::move(shortDesc), std::move(longDesc), false);
   };
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseStringPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseStringPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [&](std::string name, std::string shortDesc, std::string longDesc) {
     auto defaultValue = hasAttribute(element, "value")
                           ? std::optional(parseString(element, "value"))
                           : std::nullopt;
-    return std::make_unique<Assets::StringPropertyDefinition>(
+    return std::make_unique<assets::StringPropertyDefinition>(
       std::move(name),
       std::move(shortDesc),
       std::move(longDesc),
@@ -419,14 +419,14 @@ std::unique_ptr<Assets::PropertyDefinition> parseStringPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parseUnknownPropertyDefinition(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   auto factory = [&](std::string name, std::string shortDesc, std::string longDesc) {
     auto defaultValue = hasAttribute(element, "value")
                           ? std::optional(parseString(element, "value"))
                           : std::nullopt;
-    return std::make_unique<Assets::UnknownPropertyDefinition>(
+    return std::make_unique<assets::UnknownPropertyDefinition>(
       std::move(name),
       std::move(shortDesc),
       std::move(longDesc),
@@ -436,9 +436,9 @@ std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
   return parsePropertyDefinition(element, factory, status);
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
+std::unique_ptr<assets::PropertyDefinition> parsePropertyDefinition(
   const tinyxml2::XMLElement& element,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   ParserStatus& status)
 {
   if (getName(element) == "angle")
@@ -505,12 +505,12 @@ std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
   return nullptr;
 }
 
-std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinitions(
+std::vector<std::shared_ptr<assets::PropertyDefinition>> parsePropertyDefinitions(
   const tinyxml2::XMLElement& parent,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   ParserStatus& status)
 {
-  auto result = std::vector<std::shared_ptr<Assets::PropertyDefinition>>{};
+  auto result = std::vector<std::shared_ptr<assets::PropertyDefinition>>{};
 
   const auto* element = parent.FirstChildElement();
   while (element)
@@ -527,12 +527,12 @@ std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinition
   return result;
 }
 
-std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
+std::unique_ptr<assets::PropertyDefinition> parseSpawnflags(
   const tinyxml2::XMLElement& element, ParserStatus& status)
 {
   if (const auto* flagElement = element.FirstChildElement("flag"))
   {
-    auto result = std::make_unique<Assets::FlagsPropertyDefinition>(
+    auto result = std::make_unique<assets::FlagsPropertyDefinition>(
       Model::EntityPropertyKeys::Spawnflags);
     do
     {
@@ -563,7 +563,7 @@ std::unique_ptr<Assets::PropertyDefinition> parseSpawnflags(
 
 void parsePropertyDefinitions(
   const tinyxml2::XMLElement& element,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   EntityDefinitionClassInfo& classInfo,
   ParserStatus& status)
 {
@@ -584,11 +584,11 @@ void parsePropertyDefinitions(
   }
 }
 
-Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
+assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
 {
   if (!hasAttribute(element, "model"))
   {
-    return Assets::ModelDefinition{};
+    return assets::ModelDefinition{};
   }
 
   const auto model = parseString(element, "model");
@@ -597,17 +597,17 @@ Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
     auto parser = ELParser{ELParser::Mode::Lenient, model};
     auto expression = parser.parse();
     expression.optimize();
-    return Assets::ModelDefinition{std::move(expression)};
+    return assets::ModelDefinition{std::move(expression)};
   }
   catch (const ParserException&)
   {
     const auto lineNum = static_cast<size_t>(element.GetLineNum());
     auto expression = EL::ExpressionNode{
       EL::LiteralExpression{EL::Value{EL::MapType{{
-        {Assets::ModelSpecificationKeys::Path, EL::Value{model}},
+        {assets::ModelSpecificationKeys::Path, EL::Value{model}},
       }}}},
       FileLocation{lineNum}};
-    return Assets::ModelDefinition{std::move(expression)};
+    return assets::ModelDefinition{std::move(expression)};
   }
   catch (const EL::EvaluationError& evaluationError)
   {
@@ -618,7 +618,7 @@ Assets::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
 
 EntityDefinitionClassInfo parsePointClassInfo(
   const tinyxml2::XMLElement& element,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   ParserStatus& status)
 {
   auto classInfo = EntityDefinitionClassInfo{};
@@ -636,7 +636,7 @@ EntityDefinitionClassInfo parsePointClassInfo(
 
 EntityDefinitionClassInfo parseBrushClassInfo(
   const tinyxml2::XMLElement& element,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   ParserStatus& status)
 {
   auto classInfo = EntityDefinitionClassInfo{};
@@ -652,7 +652,7 @@ EntityDefinitionClassInfo parseBrushClassInfo(
 
 std::optional<EntityDefinitionClassInfo> parseClassInfo(
   const tinyxml2::XMLElement& element,
-  const std::vector<std::shared_ptr<Assets::PropertyDefinition>>& propertyDeclarations,
+  const std::vector<std::shared_ptr<assets::PropertyDefinition>>& propertyDeclarations,
   ParserStatus& status)
 {
   if (getName(element) == "point")
@@ -673,7 +673,7 @@ std::vector<EntityDefinitionClassInfo> parseClassInfosFromDocument(
   const tinyxml2::XMLDocument& document, ParserStatus& status)
 {
   auto result = std::vector<EntityDefinitionClassInfo>{};
-  auto propertyDeclarations = std::vector<std::shared_ptr<Assets::PropertyDefinition>>{};
+  auto propertyDeclarations = std::vector<std::shared_ptr<assets::PropertyDefinition>>{};
 
   if (const auto* classesNode = document.FirstChildElement("classes"))
   {

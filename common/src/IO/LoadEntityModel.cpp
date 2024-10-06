@@ -19,8 +19,6 @@
 
 #include "LoadEntityModel.h"
 
-#include "Assets/EntityModel.h"
-#include "Assets/Palette.h"
 #include "IO/AseLoader.h"
 #include "IO/AssimpLoader.h"
 #include "IO/BspLoader.h"
@@ -34,6 +32,8 @@
 #include "IO/SprLoader.h"
 #include "Model/GameConfig.h"
 #include "Result.h"
+#include "assets/EntityModel.h"
+#include "assets/Palette.h"
 
 #include <kdl/result.h>
 
@@ -47,10 +47,10 @@ auto loadPalette(const FileSystem& fs, const Model::MaterialConfig& materialConf
 {
   const auto& path = materialConfig.palette;
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) { return Assets::loadPalette(*file, path); });
+         | kdl::and_then([&](auto file) { return assets::loadPalette(*file, path); });
 }
 
-Result<Assets::EntityModelData> loadEntityModelData(
+Result<assets::EntityModelData> loadEntityModelData(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -58,7 +58,7 @@ Result<Assets::EntityModelData> loadEntityModelData(
   Logger& logger)
 {
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) -> Result<Assets::EntityModelData> {
+         | kdl::and_then([&](auto file) -> Result<assets::EntityModelData> {
              const auto modelName = path.filename().string();
              auto reader = file->reader().buffer();
 
@@ -124,7 +124,7 @@ Result<Assets::EntityModelData> loadEntityModelData(
            });
 }
 
-Assets::ResourceLoader<Assets::EntityModelData> makeEntityModelDataResourceLoader(
+assets::ResourceLoader<assets::EntityModelData> makeEntityModelDataResourceLoader(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -138,7 +138,7 @@ Assets::ResourceLoader<Assets::EntityModelData> makeEntityModelDataResourceLoade
 
 } // namespace
 
-Result<Assets::EntityModel> loadEntityModelSync(
+Result<assets::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -149,24 +149,24 @@ Result<Assets::EntityModel> loadEntityModelSync(
          | kdl::transform([&](auto modelData) {
              auto modelName = path.filename().string();
              auto modelResource =
-               Assets::createEntityModelDataResource(std::move(modelData));
-             return Assets::EntityModel{std::move(modelName), std::move(modelResource)};
+               assets::createEntityModelDataResource(std::move(modelData));
+             return assets::EntityModel{std::move(modelName), std::move(modelResource)};
            });
 }
 
-Assets::EntityModel loadEntityModelAsync(
+assets::EntityModel loadEntityModelAsync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
-  const Assets::CreateEntityModelDataResource& createResource,
+  const assets::CreateEntityModelDataResource& createResource,
   Logger& logger)
 {
   auto name = path.filename().string();
   auto loader =
     makeEntityModelDataResourceLoader(fs, materialConfig, path, loadMaterial, logger);
   auto resource = createResource(std::move(loader));
-  return Assets::EntityModel{std::move(name), std::move(resource)};
+  return assets::EntityModel{std::move(name), std::move(resource)};
 }
 
 } // namespace tb::IO

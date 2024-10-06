@@ -19,7 +19,6 @@
 
 #include "BrushRenderer.h"
 
-#include "Assets/Material.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -30,6 +29,7 @@
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
+#include "assets/Material.h"
 
 #include <cassert>
 #include <cstring>
@@ -189,10 +189,10 @@ void BrushRenderer::invalidate()
 }
 
 void BrushRenderer::invalidateMaterials(
-  const std::vector<const Assets::Material*>& materials)
+  const std::vector<const assets::Material*>& materials)
 {
   const auto materialSet =
-    std::unordered_set<const Assets::Material*>{materials.begin(), materials.end()};
+    std::unordered_set<const assets::Material*>{materials.begin(), materials.end()};
   for (auto* brush : m_allBrushes)
   {
     for (const auto& face : brush->brush().faces())

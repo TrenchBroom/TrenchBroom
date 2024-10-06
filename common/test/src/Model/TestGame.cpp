@@ -19,9 +19,6 @@
 
 #include "TestGame.h"
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionFileSpec.h"
-#include "Assets/MaterialManager.h"
 #include "IO/BrushFaceReader.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/DiskIO.h"
@@ -36,6 +33,9 @@
 #include "Model/GameConfig.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionFileSpec.h"
+#include "assets/MaterialManager.h"
 
 #include "kdl/result.h"
 
@@ -156,8 +156,8 @@ void TestGame::writeBrushFacesToStream(
 }
 
 void TestGame::loadMaterialCollections(
-  Assets::MaterialManager& materialManager,
-  const Assets::CreateTextureResource& createResource) const
+  assets::MaterialManager& materialManager,
+  const assets::CreateTextureResource& createResource) const
 {
   const auto materialConfig = Model::MaterialConfig{
     "textures",
@@ -191,19 +191,19 @@ bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) c
   return false;
 }
 
-std::vector<Assets::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
+std::vector<assets::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
 {
   return {};
 }
 
-Assets::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
+assets::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
   const Entity& /* entity */) const
 {
   return {};
 }
 
 std::filesystem::path TestGame::findEntityDefinitionFile(
-  const Assets::EntityDefinitionFileSpec& /* spec */,
+  const assets::EntityDefinitionFileSpec& /* spec */,
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return {};
@@ -224,11 +224,11 @@ std::string TestGame::defaultMod() const
   return "";
 }
 
-Result<std::vector<std::unique_ptr<Assets::EntityDefinition>>> TestGame::
+Result<std::vector<std::unique_ptr<assets::EntityDefinition>>> TestGame::
   loadEntityDefinitions(
     IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return std::vector<std::unique_ptr<Assets::EntityDefinition>>{};
+  return std::vector<std::unique_ptr<assets::EntityDefinition>>{};
 }
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)

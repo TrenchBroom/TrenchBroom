@@ -19,13 +19,13 @@
 
 #include "Entity.h"
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityModel.h"
-#include "Assets/ModelDefinition.h"
-#include "Assets/PropertyDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityPropertiesVariableStore.h"
 #include "Model/EntityRotation.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityModel.h"
+#include "assets/ModelDefinition.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/string_utils.h"
@@ -42,14 +42,14 @@ namespace tb::Model
 {
 
 void setDefaultProperties(
-  const Assets::EntityDefinition& entityDefinition,
+  const assets::EntityDefinition& entityDefinition,
   Entity& entity,
   const SetDefaultPropertyMode mode)
 {
   for (const auto& propertyDefinition : entityDefinition.propertyDefinitions())
   {
     if (const auto defaultValue =
-          Assets::PropertyDefinition::defaultValue(*propertyDefinition);
+          assets::PropertyDefinition::defaultValue(*propertyDefinition);
         !defaultValue.empty())
     {
       const auto hasProperty = entity.hasProperty(propertyDefinition->key());
@@ -126,42 +126,42 @@ void Entity::setPointEntity(const bool pointEntity)
   m_cachedModelTransformation = std::nullopt;
 }
 
-Assets::EntityDefinition* Entity::definition()
+assets::EntityDefinition* Entity::definition()
 {
   return m_definition.get();
 }
 
-const Assets::EntityDefinition* Entity::definition() const
+const assets::EntityDefinition* Entity::definition() const
 {
   return m_definition.get();
 }
 
 const vm::bbox3d& Entity::definitionBounds() const
 {
-  return definition() && definition()->type() == Assets::EntityDefinitionType::PointEntity
-           ? static_cast<const Assets::PointEntityDefinition*>(definition())->bounds()
+  return definition() && definition()->type() == assets::EntityDefinitionType::PointEntity
+           ? static_cast<const assets::PointEntityDefinition*>(definition())->bounds()
            : DefaultBounds;
 }
 
-void Entity::setDefinition(Assets::EntityDefinition* definition)
+void Entity::setDefinition(assets::EntityDefinition* definition)
 {
   if (m_definition.get() == definition)
   {
     return;
   }
 
-  m_definition = Assets::AssetReference{definition};
+  m_definition = assets::AssetReference{definition};
 
   m_cachedRotation = std::nullopt;
   m_cachedModelTransformation = std::nullopt;
 }
 
-const Assets::EntityModel* Entity::model() const
+const assets::EntityModel* Entity::model() const
 {
   return m_model;
 }
 
-void Entity::setModel(const Assets::EntityModel* model)
+void Entity::setModel(const assets::EntityModel* model)
 {
   if (m_model == model)
   {
@@ -174,25 +174,25 @@ void Entity::setModel(const Assets::EntityModel* model)
   m_cachedModelTransformation = std::nullopt;
 }
 
-const Assets::EntityModelFrame* Entity::modelFrame() const
+const assets::EntityModelFrame* Entity::modelFrame() const
 {
   return m_model && m_model->data()
            ? m_model->data()->frame(modelSpecification().frameIndex)
            : nullptr;
 }
 
-Assets::ModelSpecification Entity::modelSpecification() const
+assets::ModelSpecification Entity::modelSpecification() const
 {
   if (
     const auto* pointDefinition =
-      dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
+      dynamic_cast<const assets::PointEntityDefinition*>(m_definition.get()))
   {
     const auto variableStore = EntityPropertiesVariableStore{*this};
     return pointDefinition->modelDefinition().modelSpecification(variableStore);
   }
   else
   {
-    return Assets::ModelSpecification{};
+    return assets::ModelSpecification{};
   }
 }
 
@@ -203,10 +203,10 @@ const vm::mat4x4d& Entity::modelTransformation(
   {
     if (
       const auto* pointDefinition =
-        dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
+        dynamic_cast<const assets::PointEntityDefinition*>(m_definition.get()))
     {
       const auto variableStore = EntityPropertiesVariableStore{*this};
-      const auto scale = Assets::safeGetModelScale(
+      const auto scale = assets::safeGetModelScale(
         pointDefinition->modelDefinition(), variableStore, defaultModelScaleExpression);
       m_cachedModelTransformation =
         vm::translation_matrix(origin()) * rotation() * vm::scaling_matrix(scale);
@@ -219,18 +219,18 @@ const vm::mat4x4d& Entity::modelTransformation(
   return *m_cachedModelTransformation;
 }
 
-Assets::DecalSpecification Entity::decalSpecification() const
+assets::DecalSpecification Entity::decalSpecification() const
 {
   if (
     const auto* pointDefinition =
-      dynamic_cast<const Assets::PointEntityDefinition*>(m_definition.get()))
+      dynamic_cast<const assets::PointEntityDefinition*>(m_definition.get()))
   {
     const auto variableStore = EntityPropertiesVariableStore{*this};
     return pointDefinition->decalDefinition().decalSpecification(variableStore);
   }
   else
   {
-    return Assets::DecalSpecification{};
+    return assets::DecalSpecification{};
   }
 }
 
@@ -241,7 +241,7 @@ void Entity::unsetEntityDefinitionAndModel()
     return;
   }
 
-  m_definition = Assets::AssetReference<Assets::EntityDefinition>{};
+  m_definition = assets::AssetReference<assets::EntityDefinition>{};
   m_model = nullptr;
   m_cachedRotation = std::nullopt;
   m_cachedModelTransformation = std::nullopt;

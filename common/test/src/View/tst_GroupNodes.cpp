@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
 #include "Macros.h"
 #include "Model/BrushBuilder.h"
 #include "Model/BrushFace.h"
@@ -34,6 +33,7 @@
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 #include "View/PasteType.h"
+#include "assets/EntityDefinition.h"
 
 #include "kdl/result.h"
 

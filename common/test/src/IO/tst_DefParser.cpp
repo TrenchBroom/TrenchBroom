@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionTestUtils.h"
-#include "Assets/PropertyDefinition.h"
 #include "IO/DefParser.h"
 #include "IO/DiskIO.h"
 #include "IO/PathMatcher.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
 #include "Model/EntityProperties.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionTestUtils.h"
+#include "assets/PropertyDefinition.h"
 
 #include "Catch2.h"
 
@@ -152,7 +152,7 @@ Set sounds to the cd track to play.
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "worldspawn");
   CHECK(definition.color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
   CHECK(definition.description() == R"(Only used for the world entity. 
@@ -179,7 +179,7 @@ TEST_CASE("DefParserTest.parsePointClass")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "monster_zombie");
   CHECK(definition.color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
   CHECK(
@@ -187,7 +187,7 @@ TEST_CASE("DefParserTest.parsePointClass")
     == R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)");
 
   const auto& pointDefinition =
-    static_cast<const Assets::PointEntityDefinition&>(definition);
+    static_cast<const assets::PointEntityDefinition&>(definition);
   CHECK(
     pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
@@ -195,7 +195,7 @@ TEST_CASE("DefParserTest.parsePointClass")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == assets::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -203,7 +203,7 @@ TEST_CASE("DefParserTest.parsePointClass")
 
   CHECK(
     spawnflags->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<assets::FlagsPropertyOption>{
       {1, "Crucified", "", false},
       {2, "ambush", "", false},
     });
@@ -223,13 +223,13 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
   CHECK(definition.description() == "some desc");
 
   const auto& pointDefinition =
-    static_cast<const Assets::PointEntityDefinition&>(definition);
+    static_cast<const assets::PointEntityDefinition&>(definition);
   CHECK(
     pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
@@ -237,7 +237,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == assets::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -245,7 +245,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 
   CHECK(
     spawnflags->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<assets::FlagsPropertyOption>{
       {1, "", "", false},
       {2, "SUSPENDED", "", false},
       {4, "SPIN", "", false},
@@ -268,7 +268,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
   CHECK(definition.description() == "some desc");
@@ -277,7 +277,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == Assets::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == assets::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -285,7 +285,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
 
   CHECK(
     spawnflags->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<assets::FlagsPropertyOption>{
       {1, "SUSPENDED", "", false},
       {2, "SPIN", "", false},
       {4, "", "", false},
@@ -333,7 +333,7 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "light");
 
   CHECK(definition.propertyDefinitions().size() == 2u);
@@ -342,7 +342,7 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   CHECK(stylePropertyDefinition != nullptr);
   CHECK(stylePropertyDefinition->key() == "style");
   CHECK(
-    stylePropertyDefinition->type() == Assets::PropertyDefinitionType::ChoiceProperty);
+    stylePropertyDefinition->type() == assets::PropertyDefinitionType::ChoiceProperty);
 
   const auto* spawnflagsPropertyDefinition =
     definition.propertyDefinition(Model::EntityPropertyKeys::Spawnflags);
@@ -350,14 +350,14 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   CHECK(spawnflagsPropertyDefinition->key() == Model::EntityPropertyKeys::Spawnflags);
   CHECK(
     spawnflagsPropertyDefinition->type()
-    == Assets::PropertyDefinitionType::FlagsProperty);
+    == assets::PropertyDefinitionType::FlagsProperty);
 
   const auto* choice =
-    static_cast<const Assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
+    static_cast<const assets::ChoicePropertyDefinition*>(stylePropertyDefinition);
 
   CHECK(
     choice->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"0", "normal"},
       {"1", "flicker (first variety)"},
       {"2", "slow strong pulse"},
@@ -380,7 +380,7 @@ static const auto DefModelDefinitionTemplate = R"(
   }
   */)";
 
-using Assets::assertModelDefinition;
+using assets::assertModelDefinition;
 
 TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
@@ -388,11 +388,11 @@ TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -404,12 +404,12 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -421,7 +421,7 @@ TEST_CASE("DefParserTest.parseELModelDefinition")
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<DefParser>(
-    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
 }
@@ -445,7 +445,7 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto& definition = static_cast<Assets::PointEntityDefinition&>(*definitions[0]);
+  const auto& definition = static_cast<assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
 

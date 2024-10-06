@@ -19,12 +19,12 @@
 
 #include "EmptyBrushEntityValidator.h"
 
-#include "Assets/EntityDefinition.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
+#include "assets/EntityDefinition.h"
 
 #include <string>
 
@@ -45,7 +45,7 @@ void EmptyBrushEntityValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   const auto* definition =
-    dynamic_cast<const Assets::BrushEntityDefinition*>(entityNode.entity().definition());
+    dynamic_cast<const assets::BrushEntityDefinition*>(entityNode.entity().definition());
   if (definition && !entityNode.hasChildren())
   {
     issues.push_back(std::make_unique<Issue>(

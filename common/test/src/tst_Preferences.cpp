@@ -20,12 +20,12 @@
 #include <QString>
 #include <QTextStream>
 
-#include "Assets/EntityDefinition.h"
 #include "Color.h"
 #include "Model/Tag.h"
 #include "Model/TagMatcher.h"
 #include "PreferenceManager.h"
 #include "View/Actions.h"
+#include "assets/EntityDefinition.h"
 
 #include "kdl/vector_utils.h"
 
@@ -454,8 +454,8 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
   auto hellKnight =
-    Assets::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
-  const auto defs = std::vector<Assets::EntityDefinition*>{&hellKnight};
+    assets::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
+  const auto defs = std::vector<assets::EntityDefinition*>{&hellKnight};
 
   const auto actions =
     View::ActionManager::instance().createEntityDefinitionActions(defs);

@@ -47,7 +47,7 @@ namespace tb
 class Color;
 } // namespace tb
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinition;
 class EntityDefinitionFileSpec;
@@ -58,7 +58,7 @@ class MaterialManager;
 struct ProcessContext;
 class ResourceId;
 class ResourceManager;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::Model
 {
@@ -121,10 +121,10 @@ protected:
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
 
-  std::unique_ptr<Assets::ResourceManager> m_resourceManager;
-  std::unique_ptr<Assets::EntityDefinitionManager> m_entityDefinitionManager;
-  std::unique_ptr<Assets::EntityModelManager> m_entityModelManager;
-  std::unique_ptr<Assets::MaterialManager> m_materialManager;
+  std::unique_ptr<assets::ResourceManager> m_resourceManager;
+  std::unique_ptr<assets::EntityDefinitionManager> m_entityDefinitionManager;
+  std::unique_ptr<assets::EntityModelManager> m_entityModelManager;
+  std::unique_ptr<assets::MaterialManager> m_materialManager;
   std::unique_ptr<Model::TagManager> m_tagManager;
 
   std::unique_ptr<Model::EditorContext> m_editorContext;
@@ -196,7 +196,7 @@ public: // notification
 
   Notifier<const std::vector<Model::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<const std::vector<Assets::ResourceId>> resourcesWereProcessedNotifier;
+  Notifier<const std::vector<assets::ResourceId>> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
@@ -261,9 +261,9 @@ public:
 
   Model::EditorContext& editorContext() const;
 
-  Assets::EntityDefinitionManager& entityDefinitionManager() override;
-  Assets::EntityModelManager& entityModelManager() override;
-  Assets::MaterialManager& materialManager() override;
+  assets::EntityDefinitionManager& entityDefinitionManager() override;
+  assets::EntityModelManager& entityModelManager() override;
+  assets::MaterialManager& materialManager() override;
 
   Grid& grid() const;
 
@@ -407,7 +407,7 @@ public: // selection
   void selectNodes(const std::vector<Model::Node*>& nodes) override;
   void selectBrushFaces(const std::vector<Model::BrushFaceHandle>& handles) override;
   void convertToFaceSelection() override;
-  void selectFacesWithMaterial(const Assets::Material* material);
+  void selectFacesWithMaterial(const assets::Material* material);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
@@ -453,9 +453,9 @@ public:
 
 public: // entity management
   Model::EntityNode* createPointEntity(
-    const Assets::PointEntityDefinition* definition, const vm::vec3d& delta) override;
+    const assets::PointEntityDefinition* definition, const vm::vec3d& delta) override;
   Model::EntityNode* createBrushEntity(
-    const Assets::BrushEntityDefinition* definition) override;
+    const assets::BrushEntityDefinition* definition) override;
 
 public: // group management
   Model::GroupNode* groupSelection(const std::string& name);
@@ -592,7 +592,7 @@ public: // modifying entity properties, declared in MapFacade interface
   bool removeProperty(const std::string& key) override;
 
   bool convertEntityColorRange(
-    const std::string& key, Assets::ColorRange::Type range) override;
+    const std::string& key, assets::ColorRange::Type range) override;
   bool updateSpawnflag(const std::string& key, size_t flagIndex, bool setFlag) override;
 
   bool setProtectedProperty(const std::string& key, bool value);
@@ -686,8 +686,8 @@ private: // subclassing interface for command processing
     std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
-  void processResourcesSync(const Assets::ProcessContext& processContext);
-  void processResourcesAsync(const Assets::ProcessContext& processContext);
+  void processResourcesSync(const assets::ProcessContext& processContext);
+  void processResourcesAsync(const assets::ProcessContext& processContext);
   bool needsResourceProcessing();
 
 public: // picking
@@ -707,13 +707,13 @@ private: // world management
   void clearWorld();
 
 public: // asset management
-  Assets::EntityDefinitionFileSpec entityDefinitionFile() const;
-  std::vector<Assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-  void setEntityDefinitionFile(const Assets::EntityDefinitionFileSpec& spec);
+  assets::EntityDefinitionFileSpec entityDefinitionFile() const;
+  std::vector<assets::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
+  void setEntityDefinitionFile(const assets::EntityDefinitionFileSpec& spec);
 
   // For testing
   void setEntityDefinitions(
-    std::vector<std::unique_ptr<Assets::EntityDefinition>> definitions);
+    std::vector<std::unique_ptr<assets::EntityDefinition>> definitions);
 
   void reloadMaterialCollections();
   void reloadEntityDefinitions();

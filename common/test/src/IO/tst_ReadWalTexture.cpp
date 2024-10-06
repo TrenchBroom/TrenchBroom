@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ReadWalTexture.h"
+#include "assets/Palette.h"
+#include "assets/Texture.h"
 
 #include "kdl/result.h"
 
@@ -40,23 +40,23 @@ TEST_CASE("readWalTexture")
   const auto palettePath = "fixture/test/colormap.pcx";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/colormap.pcx") | kdl::value();
-  const auto palette = Assets::loadPalette(*paletteFile, palettePath) | kdl::value();
+  const auto palette = assets::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   using TexInfo =
-    std::tuple<std::filesystem::path, size_t, size_t, Assets::EmbeddedDefaults>;
+    std::tuple<std::filesystem::path, size_t, size_t, assets::EmbeddedDefaults>;
 
   // clang-format off
   const auto 
   [path,                  width, height, embeddedDefaults] = GENERATE(values<TexInfo>({
-  { "rtz/b_pv_v1a1.wal",  128,   256,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_pv_v1a2.wal",  128,   256,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_pv_v1a3.wal",  128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v16.wal",   128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v16w.wal",  128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v28.wal",   128,    64,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "rtz/b_rc_v4.wal",    128,   128,    Assets::Q2EmbeddedDefaults{0, 0, 0} },
-  { "lavatest.wal",       64,     64,    Assets::Q2EmbeddedDefaults{9, 8, 700} },
-  { "watertest.wal",      64,     64,    Assets::Q2EmbeddedDefaults{9, 32, 120} },
+  { "rtz/b_pv_v1a1.wal",  128,   256,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a2.wal",  128,   256,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_pv_v1a3.wal",  128,   128,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16.wal",   128,   128,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v16w.wal",  128,   128,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v28.wal",   128,    64,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "rtz/b_rc_v4.wal",    128,   128,    assets::Q2EmbeddedDefaults{0, 0, 0} },
+  { "lavatest.wal",       64,     64,    assets::Q2EmbeddedDefaults{9, 8, 700} },
+  { "watertest.wal",      64,     64,    assets::Q2EmbeddedDefaults{9, 32, 120} },
   }));
   // clang-format on
 

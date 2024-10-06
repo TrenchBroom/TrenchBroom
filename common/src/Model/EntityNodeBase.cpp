@@ -19,8 +19,8 @@
 
 #include "EntityNodeBase.h"
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
+#include "assets/EntityDefinition.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/vector_utils.h"
 
@@ -53,21 +53,21 @@ const auto* select(const std::vector<T*> ts, const Eq& eq = Eq{})
 }
 } // namespace
 
-const Assets::EntityDefinition* selectEntityDefinition(
+const assets::EntityDefinition* selectEntityDefinition(
   const std::vector<EntityNodeBase*>& nodes)
 {
   return select(kdl::vec_transform(
     nodes, [](const auto* node) { return node->entity().definition(); }));
 }
 
-const Assets::PropertyDefinition* propertyDefinition(
+const assets::PropertyDefinition* propertyDefinition(
   const EntityNodeBase* node, const std::string& key)
 {
   const auto* definition = node->entity().definition();
   return definition ? definition->propertyDefinition(key) : nullptr;
 }
 
-const Assets::PropertyDefinition* selectPropertyDefinition(
+const assets::PropertyDefinition* selectPropertyDefinition(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes)
 {
   return select(kdl::vec_transform(
@@ -109,7 +109,7 @@ Entity EntityNodeBase::setEntity(Entity entity)
   return oldEntity;
 }
 
-void EntityNodeBase::setDefinition(Assets::EntityDefinition* definition)
+void EntityNodeBase::setDefinition(assets::EntityDefinition* definition)
 {
   if (m_entity.definition() == definition)
   {

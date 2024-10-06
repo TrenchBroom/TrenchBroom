@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Assets/Material.h"
 #include "IO/EntityModelLoader.h"
 #include "IO/Parser.h"
 #include "IO/Tokenizer.h"
 #include "Result.h"
+#include "assets/Material.h"
 
 #include <array>
 #include <filesystem>
@@ -37,10 +37,10 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityModelData;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -59,7 +59,7 @@ static const Type Colon = 1 << 8;        // colon: :
 static const Type Eof = 1 << 12;         // end of file
 } // namespace AseToken
 
-using LoadMaterialFunc = std::function<Assets::Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<assets::Material(const std::filesystem::path&)>;
 
 class AseTokenizer : public Tokenizer<AseToken::Type>
 {
@@ -127,7 +127,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path);
 
-  Result<Assets::EntityModelData> load(Logger& logger) override;
+  Result<assets::EntityModelData> load(Logger& logger) override;
 
 private: // parsing
   void parseAseFile(Logger& logger, Scene& scene);
@@ -181,7 +181,7 @@ private: // parsing
   TokenNameMap tokenNames() const override;
 
 private: // model construction
-  Result<Assets::EntityModelData> buildModelData(
+  Result<assets::EntityModelData> buildModelData(
     Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;
 

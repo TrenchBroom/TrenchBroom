@@ -25,14 +25,14 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/PropertyDefinition.h"
 #include "Model/EntityNodeBase.h"
 #include "View/EntityPropertyGrid.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/SmartPropertyEditorManager.h"
 #include "View/Splitter.h"
+#include "assets/EntityDefinition.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 
@@ -108,15 +108,15 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 }
 
 QString EntityPropertyEditor::optionDescriptions(
-  const Assets::PropertyDefinition& definition)
+  const assets::PropertyDefinition& definition)
 {
   static const auto bullet = QString{" "} + QChar{0x2022} + QString{" "};
 
   switch (definition.type())
   {
-  case Assets::PropertyDefinitionType::ChoiceProperty: {
+  case assets::PropertyDefinitionType::ChoiceProperty: {
     const auto& choiceDef =
-      dynamic_cast<const Assets::ChoicePropertyDefinition&>(definition);
+      dynamic_cast<const assets::ChoicePropertyDefinition&>(definition);
 
     auto result = QString{};
     auto stream = QTextStream{&result};
@@ -131,9 +131,9 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case Assets::PropertyDefinitionType::FlagsProperty: {
+  case assets::PropertyDefinitionType::FlagsProperty: {
     const auto& flagsDef =
-      dynamic_cast<const Assets::FlagsPropertyDefinition&>(definition);
+      dynamic_cast<const assets::FlagsPropertyDefinition&>(definition);
 
     // The options are not necessarily sorted by value, so we sort the descriptions here
     // by inserting into a map sorted by the flag value.
@@ -159,12 +159,12 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case Assets::PropertyDefinitionType::StringProperty:
-  case Assets::PropertyDefinitionType::BooleanProperty:
-  case Assets::PropertyDefinitionType::IntegerProperty:
-  case Assets::PropertyDefinitionType::FloatProperty:
-  case Assets::PropertyDefinitionType::TargetSourceProperty:
-  case Assets::PropertyDefinitionType::TargetDestinationProperty:
+  case assets::PropertyDefinitionType::StringProperty:
+  case assets::PropertyDefinitionType::BooleanProperty:
+  case assets::PropertyDefinitionType::IntegerProperty:
+  case assets::PropertyDefinitionType::FloatProperty:
+  case assets::PropertyDefinitionType::TargetSourceProperty:
+  case assets::PropertyDefinitionType::TargetDestinationProperty:
     return {};
     switchDefault();
   }

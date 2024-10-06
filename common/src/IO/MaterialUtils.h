@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Result.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -36,11 +36,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 enum class TextureMask;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -66,7 +66,7 @@ inline auto makeReadTextureErrorHandler(const FileSystem& fs, Logger& logger)
 {
   return [&](Error e) {
     logger.error() << "Could not open texture file: " << e.msg;
-    return Result<Assets::Texture>{loadDefaultTexture(fs, logger)};
+    return Result<assets::Texture>{loadDefaultTexture(fs, logger)};
   };
 }
 
@@ -75,14 +75,14 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
   return kdl::overload(
     [&](Error e) {
       logger.error() << "Could not open material file: " << e.msg;
-      return Result<Assets::Material>{loadDefaultMaterial(fs, "", logger)};
+      return Result<assets::Material>{loadDefaultMaterial(fs, "", logger)};
     },
     [&](ReadMaterialError e) {
       logger.error() << "Could not read material '" << e.materialName << "': " << e.msg;
-      return Result<Assets::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
+      return Result<assets::Material>{loadDefaultMaterial(fs, e.materialName, logger)};
     });
 }
 
-Assets::TextureMask getTextureMaskFromName(std::string_view name);
+assets::TextureMask getTextureMaskFromName(std::string_view name);
 
 } // namespace tb::IO

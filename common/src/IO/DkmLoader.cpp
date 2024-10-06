@@ -19,7 +19,6 @@
 
 #include "DkmLoader.h"
 
-#include "Assets/EntityModel.h"
 #include "IO/FileSystem.h"
 #include "IO/PathInfo.h"
 #include "IO/Reader.h"
@@ -30,6 +29,7 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
+#include "assets/EntityModel.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -420,7 +420,7 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
 }
 
 Result<void> loadSkins(
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
   const FileSystem& fs,
   Logger& logger)
@@ -441,13 +441,13 @@ auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVe
 {
   return kdl::vec_transform(meshVertices, [&](const auto& meshVertex) {
     const auto position = frame.vertex(meshVertex.vertexIndex);
-    return Assets::EntityModelVertex{position, meshVertex.uv};
+    return assets::EntityModelVertex{position, meshVertex.uv};
   });
 }
 
 void buildFrame(
-  Assets::EntityModelData& model,
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelData& model,
+  assets::EntityModelSurface& surface,
   const DkmFrame& frame,
   const std::vector<DkmMesh>& meshes)
 {
@@ -463,7 +463,7 @@ void buildFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{vertexCount, size};
+    Renderer::IndexRangeMapBuilder<assets::EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
   {
     if (!mesh.vertices.empty())
@@ -512,7 +512,7 @@ bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModelData> DkmLoader::load(Logger& logger)
+Result<assets::EntityModelData> DkmLoader::load(Logger& logger)
 {
   try
   {
@@ -553,7 +553,7 @@ Result<Assets::EntityModelData> DkmLoader::load(Logger& logger)
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
     auto data =
-      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+      assets::EntityModelData{assets::PitchType::Normal, assets::Orientation::Oriented};
 
     auto& surface = data.addSurface(m_name, frameCount);
     return loadSkins(surface, skins, m_fs, logger).transform([&]() {

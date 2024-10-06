@@ -26,7 +26,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "Assets/EntityDefinitionFileSpec.h"
 #include "IO/PathQt.h"
 #include "Model/Game.h"
 #include "View/BorderLine.h"
@@ -34,6 +33,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewUtils.h"
+#include "assets/EntityDefinitionFileSpec.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -237,7 +237,7 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
   {
 
     auto* item = m_builtin->selectedItems().first();
-    auto spec = item->data(Qt::UserRole).value<Assets::EntityDefinitionFileSpec>();
+    auto spec = item->data(Qt::UserRole).value<assets::EntityDefinitionFileSpec>();
 
     auto document = kdl::mem_lock(m_document);
     if (document->entityDefinitionFile() != spec)

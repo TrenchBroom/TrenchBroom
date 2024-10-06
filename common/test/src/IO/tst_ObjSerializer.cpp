@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "IO/ExportOptions.h"
 #include "IO/NodeWriter.h"
 #include "IO/ObjSerializer.h"
@@ -29,6 +27,8 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 #include "kdl/result.h"
 
@@ -391,8 +391,8 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   // must outlive map
-  auto textureResource = createTextureResource(Assets::Texture{16, 16});
-  auto material = Assets::Material{"some_material", std::move(textureResource)};
+  auto textureResource = createTextureResource(assets::Texture{16, 16});
+  auto material = assets::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};

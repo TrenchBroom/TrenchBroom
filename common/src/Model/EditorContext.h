@@ -24,7 +24,7 @@
 
 #include "kdl/bitset.h"
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinition;
 }
@@ -64,8 +64,8 @@ public:
   void setHiddenTags(TagType::Type hiddenTags);
 
   bool entityDefinitionHidden(const Model::EntityNodeBase* entityNode) const;
-  bool entityDefinitionHidden(const Assets::EntityDefinition* definition) const;
-  void setEntityDefinitionHidden(const Assets::EntityDefinition* definition, bool hidden);
+  bool entityDefinitionHidden(const assets::EntityDefinition* definition) const;
+  void setEntityDefinitionHidden(const assets::EntityDefinition* definition, bool hidden);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);

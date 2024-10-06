@@ -17,10 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
-#include "Assets/MaterialCollection.h"
-#include "Assets/MaterialManager.h"
-#include "Assets/Texture.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/ChangeBrushFaceAttributesRequest.h"
@@ -30,6 +26,10 @@
 #include "Model/TestGame.h" // IWYU pragma: keep
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
+#include "assets/Material.h"
+#include "assets/MaterialCollection.h"
+#include "assets/MaterialManager.h"
+#include "assets/Texture.h"
 
 #include "kdl/vector_utils.h"
 
@@ -45,20 +45,20 @@ namespace
 class TagManagementTest : public MapDocumentTest
 {
 protected:
-  Assets::Material* m_materialA = nullptr;
-  Assets::Material* m_materialB = nullptr;
-  Assets::Material* m_materialC = nullptr;
-  const Assets::MaterialCollection* m_materialCollection = nullptr;
+  assets::Material* m_materialA = nullptr;
+  assets::Material* m_materialB = nullptr;
+  assets::Material* m_materialC = nullptr;
+  const assets::MaterialCollection* m_materialCollection = nullptr;
 
 private:
   void SetUp()
   {
     auto materialA =
-      Assets::Material{"some_material", createTextureResource(Assets::Texture{16, 16})};
+      assets::Material{"some_material", createTextureResource(assets::Texture{16, 16})};
     auto materialB =
-      Assets::Material{"other_material", createTextureResource(Assets::Texture{32, 32})};
-    auto materialC = Assets::Material{
-      "yet_another_material", createTextureResource(Assets::Texture{64, 64})};
+      assets::Material{"other_material", createTextureResource(assets::Texture{32, 32})};
+    auto materialC = assets::Material{
+      "yet_another_material", createTextureResource(assets::Texture{64, 64})};
 
     const auto singleParam = std::string{"some_parm"};
     const auto multiParams = std::set<std::string>{"parm1", "parm2"};
@@ -69,7 +69,7 @@ private:
     auto materials =
       kdl::vec_from(std::move(materialA), std::move(materialB), std::move(materialC));
 
-    auto collections = kdl::vec_from(Assets::MaterialCollection{std::move(materials)});
+    auto collections = kdl::vec_from(assets::MaterialCollection{std::move(materials)});
 
     auto& materialManager = document->materialManager();
     materialManager.setMaterialCollections(std::move(collections));

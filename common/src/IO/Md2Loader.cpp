@@ -19,9 +19,6 @@
 
 #include "Md2Loader.h"
 
-#include "Assets/EntityModel.h"
-#include "Assets/Material.h"
-#include "Assets/Palette.h"
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
 #include "IO/SkinLoader.h"
@@ -29,6 +26,9 @@
 #include "Renderer/IndexRangeMap.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
+#include "assets/EntityModel.h"
+#include "assets/Material.h"
+#include "assets/Palette.h"
 
 #include "kdl/path_utils.h"
 
@@ -329,13 +329,13 @@ auto parseMeshes(Reader reader, const size_t /* commandCount */)
 }
 
 void loadSkins(
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
-  const Assets::Palette& palette,
+  const assets::Palette& palette,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto materials = std::vector<Assets::Material>{};
+  auto materials = std::vector<assets::Material>{};
   materials.reserve(skins.size());
 
   for (const auto& skin : skins)
@@ -348,7 +348,7 @@ void loadSkins(
 
 auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVertices)
 {
-  auto vertices = std::vector<Assets::EntityModelVertex>{};
+  auto vertices = std::vector<assets::EntityModelVertex>{};
   vertices.reserve(meshVertices.size());
 
   for (const auto& md2MeshVertex : meshVertices)
@@ -363,8 +363,8 @@ auto getVertices(const Md2Frame& frame, const std::vector<Md2MeshVertex>& meshVe
 }
 
 void buildFrame(
-  Assets::EntityModelData& model,
-  Assets::EntityModelSurface& surface,
+  assets::EntityModelData& model,
+  assets::EntityModelSurface& surface,
   const Md2Frame& frame,
   const std::vector<Md2Mesh>& meshes)
 {
@@ -379,7 +379,7 @@ void buildFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    Renderer::IndexRangeMapBuilder<Assets::EntityModelVertex::Type>{vertexCount, size};
+    Renderer::IndexRangeMapBuilder<assets::EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
   {
     if (!md2Mesh.vertices.empty())
@@ -411,7 +411,7 @@ void buildFrame(
 Md2Loader::Md2Loader(
   std::string name,
   const Reader& reader,
-  const Assets::Palette& palette,
+  const assets::Palette& palette,
   const FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
@@ -434,7 +434,7 @@ bool Md2Loader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<Assets::EntityModelData> Md2Loader::load(Logger& logger)
+Result<assets::EntityModelData> Md2Loader::load(Logger& logger)
 {
   try
   {
@@ -472,7 +472,7 @@ Result<Assets::EntityModelData> Md2Loader::load(Logger& logger)
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
     auto data =
-      Assets::EntityModelData{Assets::PitchType::Normal, Assets::Orientation::Oriented};
+      assets::EntityModelData{assets::PitchType::Normal, assets::Orientation::Oriented};
 
     auto& surface = data.addSurface(m_name, frameCount);
     loadSkins(surface, skins, m_palette, m_fs, logger);

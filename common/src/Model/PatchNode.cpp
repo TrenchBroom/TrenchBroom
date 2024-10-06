@@ -340,7 +340,7 @@ BezierPatch PatchNode::setPatch(BezierPatch patch)
   return previousPatch;
 }
 
-void PatchNode::setMaterial(Assets::Material* material)
+void PatchNode::setMaterial(assets::Material* material)
 {
   m_patch.setMaterial(material);
 }

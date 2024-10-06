@@ -17,13 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityModel.h"
-#include "Assets/PropertyDefinition.h"
 #include "Macros.h"
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityRotation.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityModel.h"
+#include "assets/PropertyDefinition.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
@@ -42,12 +42,12 @@ namespace
 
 struct EntityDefinitionInfo
 {
-  Assets::EntityDefinitionType type;
-  std::vector<std::shared_ptr<Assets::PropertyDefinition>> propertyDefinitions;
+  assets::EntityDefinitionType type;
+  std::vector<std::shared_ptr<assets::PropertyDefinition>> propertyDefinitions;
   vm::bbox3d bounds = vm::bbox3d{16.0};
 };
 
-std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
+std::unique_ptr<assets::EntityDefinition> createEntityDefinition(
   const std::optional<EntityDefinitionInfo>& info)
 {
   if (!info.has_value())
@@ -57,17 +57,17 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
 
   switch (info->type)
   {
-  case Assets::EntityDefinitionType::PointEntity:
-    return std::make_unique<Assets::PointEntityDefinition>(
+  case assets::EntityDefinitionType::PointEntity:
+    return std::make_unique<assets::PointEntityDefinition>(
       "",
       Color{},
       info->bounds,
       "",
       info->propertyDefinitions,
-      Assets::ModelDefinition{},
-      Assets::DecalDefinition{});
-  case Assets::EntityDefinitionType::BrushEntity:
-    return std::make_unique<Assets::BrushEntityDefinition>(
+      assets::ModelDefinition{},
+      assets::DecalDefinition{});
+  case assets::EntityDefinitionType::BrushEntity:
+    return std::make_unique<assets::BrushEntityDefinition>(
       "", Color{}, "", info->propertyDefinitions);
     switchDefault();
   }
@@ -77,7 +77,7 @@ std::unique_ptr<Assets::EntityDefinition> createEntityDefinition(
 
 TEST_CASE("entityRotationInfo")
 {
-  using namespace Assets;
+  using namespace assets;
 
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);

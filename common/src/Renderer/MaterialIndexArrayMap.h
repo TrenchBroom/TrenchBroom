@@ -23,7 +23,7 @@
 
 #include <unordered_map>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }
@@ -41,7 +41,7 @@ class MaterialRenderFunc;
 class MaterialIndexArrayMap
 {
 public:
-  using Material = Assets::Material;
+  using Material = assets::Material;
 
 private:
   using MaterialToIndexArrayMap = std::unordered_map<const Material*, IndexArrayMap>;

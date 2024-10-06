@@ -25,11 +25,11 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Assets/PropertyDefinition.h"
 #include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/set_temp.h"
 
@@ -104,7 +104,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
   m_comboBox->clear();
 
   if (
-    const auto* choiceDef = dynamic_cast<const Assets::ChoicePropertyDefinition*>(
+    const auto* choiceDef = dynamic_cast<const assets::ChoicePropertyDefinition*>(
       Model::selectPropertyDefinition(propertyKey(), nodes)))
   {
     m_comboBox->setDisabled(false);

@@ -37,11 +37,11 @@ namespace tb
 struct FileLocation;
 };
 
-namespace tb::Assets
+namespace tb::assets
 {
 class DecalDefinition;
 class ModelDefinition;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::IO
 {
@@ -123,33 +123,33 @@ private:
   void skipMainClass(ParserStatus& status);
 
   std::vector<std::string> parseSuperClasses(ParserStatus& status);
-  Assets::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
-  Assets::DecalDefinition parseDecal(ParserStatus& status);
+  assets::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
+  assets::DecalDefinition parseDecal(ParserStatus& status);
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
 
-  std::vector<std::shared_ptr<Assets::PropertyDefinition>> parsePropertyDefinitions(
+  std::vector<std::shared_ptr<assets::PropertyDefinition>> parsePropertyDefinitions(
     ParserStatus& status);
-  std::unique_ptr<Assets::PropertyDefinition> parsePropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parsePropertyDefinition(
     ParserStatus& status,
     std::string propertyKey,
     const std::string& typeName,
     const FileLocation& location);
-  std::unique_ptr<Assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseTargetDestinationPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseStringPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseStringPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseIntegerPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseIntegerPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseFloatPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseFloatPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseChoicesPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseChoicesPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseFlagsPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseFlagsPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<Assets::PropertyDefinition> parseUnknownPropertyDefinition(
+  std::unique_ptr<assets::PropertyDefinition> parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 
   bool parseReadOnlyFlag(ParserStatus& status);

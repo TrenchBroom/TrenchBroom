@@ -19,9 +19,6 @@
 
 #include "MapRenderer.h"
 
-#include "Assets/EntityModelManager.h"
-#include "Assets/MaterialManager.h"
-#include "Assets/Resource.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -44,6 +41,9 @@
 #include "Renderer/RenderUtils.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
+#include "assets/EntityModelManager.h"
+#include "assets/MaterialManager.h"
+#include "assets/Resource.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -800,7 +800,7 @@ void MapRenderer::selectionDidChange(const View::Selection& selection)
 }
 
 void MapRenderer::resourcesWereProcessed(
-  const std::vector<Assets::ResourceId>& resourceIds)
+  const std::vector<assets::ResourceId>& resourceIds)
 {
   const auto document = kdl::mem_lock(m_document);
   const auto& materialManager = document->materialManager();

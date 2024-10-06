@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Assets/AssetReference.h"
 #include "Model/BrushFaceAttributes.h"
 #include "Model/BrushGeometry.h"
 #include "Model/Tag.h"
 #include "Result.h"
+#include "assets/AssetReference.h"
 
 #include "kdl/reflection_decl.h"
 #include "kdl/transform_range.h"
@@ -39,7 +39,7 @@
 #include <optional>
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class Material;
 }
@@ -92,7 +92,7 @@ private:
   vm::plane3d m_boundary;
   BrushFaceAttributes m_attributes;
 
-  Assets::AssetReference<Assets::Material> m_materialReference;
+  assets::AssetReference<assets::Material> m_materialReference;
   std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
@@ -208,11 +208,11 @@ public:
   void resetUVCoordSystemCache();
   const UVCoordSystem& uvCoordSystem() const;
 
-  const Assets::Material* material() const;
+  const assets::Material* material() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setMaterial(Assets::Material* material);
+  bool setMaterial(assets::Material* material);
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;

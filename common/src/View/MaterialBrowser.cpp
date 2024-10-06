@@ -26,14 +26,14 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Assets/Material.h"
-#include "Assets/MaterialManager.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
 #include "View/MaterialBrowserView.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "assets/Material.h"
+#include "assets/MaterialManager.h"
 
 #include "kdl/memory_utils.h"
 
@@ -54,17 +54,17 @@ MaterialBrowser::MaterialBrowser(
   reload();
 }
 
-const Assets::Material* MaterialBrowser::selectedMaterial() const
+const assets::Material* MaterialBrowser::selectedMaterial() const
 {
   return m_view->selectedMaterial();
 }
 
-void MaterialBrowser::setSelectedMaterial(const Assets::Material* selectedMaterial)
+void MaterialBrowser::setSelectedMaterial(const assets::Material* selectedMaterial)
 {
   m_view->setSelectedMaterial(selectedMaterial);
 }
 
-void MaterialBrowser::revealMaterial(const Assets::Material* material)
+void MaterialBrowser::revealMaterial(const assets::Material* material)
 {
   setFilterText("");
   m_view->revealMaterial(material);

@@ -34,11 +34,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityModel;
 class EntityModelManager;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::Model
 {
@@ -53,7 +53,7 @@ class AttrString;
 class EntityRenderer
 {
 private:
-  Assets::EntityModelManager& m_entityModelManager;
+  assets::EntityModelManager& m_entityModelManager;
   const Model::EditorContext& m_editorContext;
   kdl::vector_set<const Model::EntityNode*> m_entities;
 
@@ -81,7 +81,7 @@ private:
 public:
   EntityRenderer(
     Logger& logger,
-    Assets::EntityModelManager& entityModelManager,
+    assets::EntityModelManager& entityModelManager,
     const Model::EditorContext& editorContext);
 
   /**
@@ -114,7 +114,7 @@ public:
    * the given models.
    */
   void invalidateEntityModels(
-    const std::vector<const Assets::EntityModel*>& entityModels);
+    const std::vector<const assets::EntityModel*>& entityModels);
 
   void setShowOverlays(bool showOverlays);
   void setOverlayTextColor(const Color& overlayTextColor);

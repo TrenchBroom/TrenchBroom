@@ -37,14 +37,14 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinition;
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 class PointEntityDefinition;
 class ResourceId;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::Renderer
 {
@@ -62,9 +62,9 @@ using EntityGroupData = std::string;
 struct EntityCellData
 {
   using EntityRenderer = Renderer::MaterialRenderer;
-  const Assets::PointEntityDefinition* entityDefinition;
+  const assets::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
-  Assets::Orientation modelOrientation;
+  assets::Orientation modelOrientation;
   Renderer::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
   vm::vec3f modelScale;
@@ -89,7 +89,7 @@ private:
 
   bool m_group = false;
   bool m_hideUnused = false;
-  Assets::EntityDefinitionSortOrder m_sortOrder;
+  assets::EntityDefinitionSortOrder m_sortOrder;
   std::string m_filterText;
 
   NotifierConnection m_notifierConnection;
@@ -105,7 +105,7 @@ public:
   void setDefaultModelScaleExpression(
     std::optional<EL::ExpressionNode> defaultModelScaleExpression);
 
-  void setSortOrder(Assets::EntityDefinitionSortOrder sortOrder);
+  void setSortOrder(assets::EntityDefinitionSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
@@ -117,15 +117,15 @@ private:
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
 
-  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<assets::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,
-    const std::vector<Assets::EntityDefinition*>& definitions,
+    const std::vector<assets::EntityDefinition*>& definitions,
     const Renderer::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
-    const Assets::PointEntityDefinition* definition,
+    const assets::PointEntityDefinition* definition,
     const Renderer::FontDescriptor& font);
 
   void doClear() override;

@@ -17,9 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/Material.h"
-#include "Assets/MaterialManager.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushNode.h"
@@ -33,6 +30,9 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
+#include "assets/EntityDefinition.h"
+#include "assets/Material.h"
+#include "assets/MaterialManager.h"
 
 #include <memory>
 

@@ -22,7 +22,6 @@
 #include <QStackedLayout>
 #include <QWidget>
 
-#include "Assets/PropertyDefinition.h"
 #include "Macros.h"
 #include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
@@ -32,6 +31,7 @@
 #include "View/SmartFlagsEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartWadEditor.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -46,7 +46,7 @@ namespace
  * is of the type passed to the constructor.
  */
 SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
-  const Assets::PropertyDefinitionType type)
+  const assets::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
@@ -61,7 +61,7 @@ SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
  * is of the type passed to the constructor, and these property definitions are all equal.
  */
 SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
-  const Assets::PropertyDefinitionType type)
+  const assets::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     const auto* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
@@ -114,14 +114,14 @@ void SmartPropertyEditorManager::createEditors()
   assert(m_editors.empty());
 
   m_editors.emplace_back(
-    makeSmartTypeEditorMatcher(Assets::PropertyDefinitionType::FlagsProperty),
+    makeSmartTypeEditorMatcher(assets::PropertyDefinitionType::FlagsProperty),
     new SmartFlagsEditor{m_document});
   m_editors.emplace_back(
     makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
     new SmartColorEditor{m_document});
   m_editors.emplace_back(
     makeSmartTypeWithSameDefinitionEditorMatcher(
-      Assets::PropertyDefinitionType::ChoiceProperty),
+      assets::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
     [&](const auto& propertyKey, const auto& nodes) {

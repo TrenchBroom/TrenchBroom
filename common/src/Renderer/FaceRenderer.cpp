@@ -19,8 +19,6 @@
 
 #include "FaceRenderer.h"
 
-#include "Assets/Material.h"
-#include "Assets/Texture.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -31,6 +29,8 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
+#include "assets/Material.h"
+#include "assets/Texture.h"
 
 namespace tb::Renderer
 {
@@ -62,7 +62,7 @@ public:
   {
   }
 
-  void before(const Assets::Material* material) override
+  void before(const assets::Material* material) override
   {
     if (const auto* texture = getTexture(material))
     {
@@ -77,7 +77,7 @@ public:
     }
   }
 
-  void after(const Assets::Material* material) override
+  void after(const assets::Material* material) override
   {
     if (material)
     {
@@ -189,7 +189,7 @@ void FaceRenderer::doRender(RenderContext& context)
       if (brushIndexHolderPtr->hasValidIndices())
       {
         const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == Assets::TextureMask::On;
+        const auto enableMasked = texture && texture->mask() == assets::TextureMask::On;
 
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));

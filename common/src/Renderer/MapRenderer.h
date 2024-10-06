@@ -32,7 +32,7 @@ namespace tb
 class Color;
 }
 
-namespace tb::Assets
+namespace tb::assets
 {
 class ResourceId;
 }
@@ -150,7 +150,7 @@ private: // notification
 
   void selectionDidChange(const View::Selection& selection);
 
-  void resourcesWereProcessed(const std::vector<Assets::ResourceId>& resourceIds);
+  void resourcesWereProcessed(const std::vector<assets::ResourceId>& resourceIds);
 
   void materialCollectionsWillChange();
   void entityDefinitionsDidChange();

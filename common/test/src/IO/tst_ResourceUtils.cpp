@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Material.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
+#include "assets/Material.h"
 
 #include <filesystem>
 #include <memory>

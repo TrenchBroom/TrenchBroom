@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionTestUtils.h"
-#include "Assets/PropertyDefinition.h"
 #include "IO/DiskIO.h"
 #include "IO/FgdParser.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
 #include "IO/TraversalMode.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionTestUtils.h"
+#include "assets/PropertyDefinition.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -151,7 +151,7 @@ TEST_CASE("FgdParserTest.parseSolidClass")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::BrushEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "worldspawn");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "World entity");
@@ -179,7 +179,7 @@ TEST_CASE("FgdParserTest.parsePointClass")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -243,7 +243,7 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -272,7 +272,7 @@ TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -297,7 +297,7 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -307,7 +307,7 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
 
   auto propertyDefinition = propertyDefinitions[0];
   CHECK(
-    propertyDefinition->type() == Assets::PropertyDefinitionType::TargetSourceProperty);
+    propertyDefinition->type() == assets::PropertyDefinitionType::TargetSourceProperty);
   CHECK(propertyDefinition->key() == "targetname");
   CHECK(propertyDefinition->shortDescription() == "Source");
   CHECK(propertyDefinition->longDescription() == "A long description");
@@ -329,7 +329,7 @@ TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -340,7 +340,7 @@ TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
   auto propertyDefinition = propertyDefinitions[0];
   CHECK(
     propertyDefinition->type()
-    == Assets::PropertyDefinitionType::TargetDestinationProperty);
+    == assets::PropertyDefinitionType::TargetDestinationProperty);
   CHECK(propertyDefinition->key() == "target");
   CHECK(propertyDefinition->shortDescription() == "Target");
   CHECK(propertyDefinition->longDescription().empty());
@@ -363,7 +363,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -372,10 +372,10 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
 
   const auto* propertyDefinition1 = definition.propertyDefinition("message");
   CHECK(propertyDefinition1 != nullptr);
-  CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(propertyDefinition1->type() == assets::PropertyDefinitionType::StringProperty);
 
   const auto* stringPropertyDefinition1 =
-    static_cast<const Assets::StringPropertyDefinition*>(propertyDefinition1);
+    static_cast<const assets::StringPropertyDefinition*>(propertyDefinition1);
   CHECK(stringPropertyDefinition1->key() == "message");
   CHECK(stringPropertyDefinition1->shortDescription() == "Text on entering the world");
   CHECK(stringPropertyDefinition1->longDescription() == "Long description 1");
@@ -383,10 +383,10 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
 
   const auto* propertyDefinition2 = definition.propertyDefinition("message2");
   CHECK(propertyDefinition2 != nullptr);
-  CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(propertyDefinition2->type() == assets::PropertyDefinitionType::StringProperty);
 
   const auto* stringPropertyDefinition2 =
-    static_cast<const Assets::StringPropertyDefinition*>(propertyDefinition2);
+    static_cast<const assets::StringPropertyDefinition*>(propertyDefinition2);
   CHECK(stringPropertyDefinition2->key() == "message2");
   CHECK(stringPropertyDefinition2->shortDescription() == "With a default value");
   CHECK(stringPropertyDefinition2->longDescription() == "Long description 2");
@@ -414,7 +414,7 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -423,10 +423,10 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
 
   const auto* propertyDefinition1 = definition.propertyDefinition("name");
   CHECK(propertyDefinition1 != nullptr);
-  CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(propertyDefinition1->type() == assets::PropertyDefinitionType::StringProperty);
 
   const auto* stringPropertyDefinition1 =
-    static_cast<const Assets::StringPropertyDefinition*>(propertyDefinition1);
+    static_cast<const assets::StringPropertyDefinition*>(propertyDefinition1);
   CHECK(stringPropertyDefinition1->key() == "name");
   CHECK(stringPropertyDefinition1->shortDescription() == "Description");
   CHECK(stringPropertyDefinition1->longDescription().empty());
@@ -435,10 +435,10 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
 
   const auto* propertyDefinition2 = definition.propertyDefinition("other");
   CHECK(propertyDefinition2 != nullptr);
-  CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::StringProperty);
+  CHECK(propertyDefinition2->type() == assets::PropertyDefinitionType::StringProperty);
 
   const auto* stringPropertyDefinition2 =
-    static_cast<const Assets::StringPropertyDefinition*>(propertyDefinition2);
+    static_cast<const assets::StringPropertyDefinition*>(propertyDefinition2);
   CHECK(stringPropertyDefinition2->key() == "other");
   CHECK(stringPropertyDefinition2->shortDescription().empty());
   CHECK(stringPropertyDefinition2->longDescription().empty());
@@ -462,7 +462,7 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   CHECK(definition.description() == "Wildcard entity");
@@ -471,10 +471,10 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
 
   const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
   CHECK(propertyDefinition1 != nullptr);
-  CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::IntegerProperty);
+  CHECK(propertyDefinition1->type() == assets::PropertyDefinitionType::IntegerProperty);
 
   const auto* intPropertyDefinition1 =
-    static_cast<const Assets::IntegerPropertyDefinition*>(propertyDefinition1);
+    static_cast<const assets::IntegerPropertyDefinition*>(propertyDefinition1);
   CHECK(intPropertyDefinition1->key() == "sounds");
   CHECK(intPropertyDefinition1->shortDescription() == "CD track to play");
   CHECK(intPropertyDefinition1->longDescription() == "Longer description");
@@ -482,10 +482,10 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
 
   const auto* propertyDefinition2 = definition.propertyDefinition("sounds2");
   CHECK(propertyDefinition2 != nullptr);
-  CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::IntegerProperty);
+  CHECK(propertyDefinition2->type() == assets::PropertyDefinitionType::IntegerProperty);
 
   const auto* intPropertyDefinition2 =
-    static_cast<const Assets::IntegerPropertyDefinition*>(propertyDefinition2);
+    static_cast<const assets::IntegerPropertyDefinition*>(propertyDefinition2);
   CHECK(intPropertyDefinition2->key() == "sounds2");
   CHECK(intPropertyDefinition2->shortDescription() == "CD track to play with default");
   CHECK(intPropertyDefinition2->longDescription() == "Longer description");
@@ -536,7 +536,7 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
@@ -546,10 +546,10 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
 
   const auto* propertyDefinition1 = definition.propertyDefinition("test");
   CHECK(propertyDefinition1 != nullptr);
-  CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::FloatProperty);
+  CHECK(propertyDefinition1->type() == assets::PropertyDefinitionType::FloatProperty);
 
   const auto* floatPropertyDefinition1 =
-    static_cast<const Assets::FloatPropertyDefinition*>(propertyDefinition1);
+    static_cast<const assets::FloatPropertyDefinition*>(propertyDefinition1);
   CHECK(floatPropertyDefinition1->key() == "test");
   CHECK(floatPropertyDefinition1->shortDescription() == "Some test propertyDefinition");
   CHECK(floatPropertyDefinition1->longDescription() == "Longer description 1");
@@ -557,10 +557,10 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
 
   const auto* propertyDefinition2 = definition.propertyDefinition("test2");
   CHECK(propertyDefinition2 != nullptr);
-  CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::FloatProperty);
+  CHECK(propertyDefinition2->type() == assets::PropertyDefinitionType::FloatProperty);
 
   const auto* floatPropertyDefinition2 =
-    static_cast<const Assets::FloatPropertyDefinition*>(propertyDefinition2);
+    static_cast<const assets::FloatPropertyDefinition*>(propertyDefinition2);
   CHECK(floatPropertyDefinition2->key() == "test2");
   CHECK(
     floatPropertyDefinition2->shortDescription()
@@ -614,7 +614,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
@@ -624,10 +624,10 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   const auto* propertyDefinition1 = definition.propertyDefinition("worldtype");
   CHECK(propertyDefinition1 != nullptr);
-  CHECK(propertyDefinition1->type() == Assets::PropertyDefinitionType::ChoiceProperty);
+  CHECK(propertyDefinition1->type() == assets::PropertyDefinitionType::ChoiceProperty);
 
   const auto* choicePropertyDefinition1 =
-    static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition1);
+    static_cast<const assets::ChoicePropertyDefinition*>(propertyDefinition1);
   CHECK(choicePropertyDefinition1->key() == "worldtype");
   CHECK(choicePropertyDefinition1->shortDescription() == "Ambience");
   CHECK(choicePropertyDefinition1->longDescription() == "Long description 1");
@@ -635,7 +635,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition1->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"0", "Medieval"},
       {"1", "Metal (runic)"},
       {"2", "Base"},
@@ -643,10 +643,10 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   const auto* propertyDefinition2 = definition.propertyDefinition("worldtype2");
   CHECK(propertyDefinition2 != nullptr);
-  CHECK(propertyDefinition2->type() == Assets::PropertyDefinitionType::ChoiceProperty);
+  CHECK(propertyDefinition2->type() == assets::PropertyDefinitionType::ChoiceProperty);
 
   const auto* choicePropertyDefinition2 =
-    static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition2);
+    static_cast<const assets::ChoicePropertyDefinition*>(propertyDefinition2);
   CHECK(choicePropertyDefinition2->key() == "worldtype2");
   CHECK(choicePropertyDefinition2->shortDescription() == "Ambience with default");
   CHECK(choicePropertyDefinition2->longDescription() == "Long description 2");
@@ -655,14 +655,14 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition2->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"0", "Medieval"},
       {"1", "Metal (runic)"},
     });
 
   const auto* propertyDefinition3 = definition.propertyDefinition("puzzle_id");
   const auto* choicePropertyDefinition3 =
-    static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition3);
+    static_cast<const assets::ChoicePropertyDefinition*>(propertyDefinition3);
   CHECK(choicePropertyDefinition3->key() == "puzzle_id");
   CHECK(choicePropertyDefinition3->shortDescription() == "Puzzle id");
   CHECK(choicePropertyDefinition3->longDescription().empty());
@@ -671,7 +671,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition3->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"keep3", "Mill key"},
       {"cskey", "Castle key"},
       {"scrol", "Disrupt Magic Scroll"},
@@ -679,7 +679,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   const auto* propertyDefinition4 = definition.propertyDefinition("floaty");
   const auto* choicePropertyDefinition4 =
-    static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition4);
+    static_cast<const assets::ChoicePropertyDefinition*>(propertyDefinition4);
   CHECK(choicePropertyDefinition4->key() == "floaty");
   CHECK(choicePropertyDefinition4->shortDescription() == "Floaty");
   CHECK(choicePropertyDefinition4->longDescription().empty());
@@ -688,7 +688,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition4->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"1.0", "Something"},
       {"2.3", "Something else"},
       {"0.1", "Yet more"},
@@ -696,7 +696,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   const auto* propertyDefinition5 = definition.propertyDefinition("negative");
   const auto* choicePropertyDefinition5 =
-    static_cast<const Assets::ChoicePropertyDefinition*>(propertyDefinition5);
+    static_cast<const assets::ChoicePropertyDefinition*>(propertyDefinition5);
   CHECK(choicePropertyDefinition5->key() == "negative");
   CHECK(choicePropertyDefinition5->shortDescription() == "Negative values");
   CHECK(choicePropertyDefinition5->longDescription().empty());
@@ -705,7 +705,7 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   CHECK(
     choicePropertyDefinition5->options()
-    == std::vector<Assets::ChoicePropertyOption>{
+    == std::vector<assets::ChoicePropertyOption>{
       {"-2", "Something"},
       {"-1", "Something else"},
       {"1", "Yet more"},
@@ -734,7 +734,7 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == Assets::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == assets::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
   ;
@@ -744,17 +744,17 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 
   const auto* propertyDefinition = definition.propertyDefinition("spawnflags");
   CHECK(propertyDefinition != nullptr);
-  CHECK(propertyDefinition->type() == Assets::PropertyDefinitionType::FlagsProperty);
+  CHECK(propertyDefinition->type() == assets::PropertyDefinitionType::FlagsProperty);
 
   const auto* flagsPropertyDefinition =
-    static_cast<const Assets::FlagsPropertyDefinition*>(propertyDefinition);
+    static_cast<const assets::FlagsPropertyDefinition*>(propertyDefinition);
   CHECK(flagsPropertyDefinition->key() == "spawnflags");
   CHECK(flagsPropertyDefinition->shortDescription().empty());
   CHECK(flagsPropertyDefinition->defaultValue() == 2560);
 
   CHECK(
     flagsPropertyDefinition->options()
-    == std::vector<Assets::FlagsPropertyOption>{
+    == std::vector<assets::FlagsPropertyOption>{
       {256, "Not on Easy", "", false},
       {512, "Not on Normal", "", true},
       {1024, "Not on Hard", "", false},
@@ -765,7 +765,7 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 static const auto FgdModelDefinitionTemplate =
   R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 
-using Assets::assertModelDefinition;
+using assets::assertModelDefinition;
 
 TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition")
 {
@@ -773,11 +773,11 @@ TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition")
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate);
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -789,12 +789,12 @@ TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition")
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
+    assets::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
     ModelDefinition,
     FgdModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -806,7 +806,7 @@ TEST_CASE("FgdParserTest.parseELModelDefinition")
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    assets::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     FgdModelDefinitionTemplate);
 }
@@ -833,14 +833,14 @@ TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
 static const auto FgdDecalDefinitionTemplate =
   R"(@PointClass decal(${DECAL}) = infodecal : "Decal" [])";
 
-using Assets::assertDecalDefinition;
+using assets::assertDecalDefinition;
 
 TEST_CASE("FgdParserTest.parseEmptyDecalDefinition")
 {
   static const auto DecalDefinition = "";
 
   assertDecalDefinition<FgdParser>(
-    Assets::DecalSpecification{"decal1"},
+    assets::DecalSpecification{"decal1"},
     DecalDefinition,
     FgdDecalDefinitionTemplate,
     R"({ "texture": "decal1" })");
@@ -851,7 +851,7 @@ TEST_CASE("FgdParserTest.parseELDecalDefinition")
   static const auto DecalDefinition = R"({ texture: "decal1" })";
 
   assertDecalDefinition<FgdParser>(
-    Assets::DecalSpecification{"decal1"}, DecalDefinition, FgdDecalDefinitionTemplate);
+    assets::DecalSpecification{"decal1"}, DecalDefinition, FgdDecalDefinitionTemplate);
 }
 
 static const auto FgdSpriteDefinitionTemplate =
@@ -862,7 +862,7 @@ TEST_CASE("FgdParserTest.parseEmptySpriteDefinition")
   static const auto SpriteDefinition = "";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    assets::ModelSpecification{"spritex.spr", 0, 0},
     SpriteDefinition,
     FgdSpriteDefinitionTemplate,
     R"({ "model": "spritex.spr" })");
@@ -873,7 +873,7 @@ TEST_CASE("FgdParserTest.parseELSpriteDefinition")
   static const auto SpriteDefinition = R"({ path: "spritex.spr" })";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    assets::ModelSpecification{"spritex.spr", 0, 0},
     SpriteDefinition,
     FgdSpriteDefinitionTemplate);
 }
@@ -883,7 +883,7 @@ TEST_CASE("FgdParserTest.parseELSpriteDefinitionShorthand")
   static const auto SpriteDefinition = R"("spritex.spr")";
 
   assertModelDefinition<FgdParser>(
-    Assets::ModelSpecification{"spritex.spr", 0, 0},
+    assets::ModelSpecification{"spritex.spr", 0, 0},
     SpriteDefinition,
     FgdSpriteDefinitionTemplate);
 }
@@ -902,7 +902,7 @@ decor_goddess_statue : "Goddess Statue" []
   CHECK(definitions.size() == 1u);
 
   const auto& definition =
-    static_cast<const Assets::PointEntityDefinition&>(*definitions[0]);
+    static_cast<const assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 
@@ -919,7 +919,7 @@ decor_goddess_statue : "Goddess Statue" [])";
   CHECK(definitions.size() == 1u);
 
   const auto& definition =
-    static_cast<const Assets::PointEntityDefinition&>(*definitions[0]);
+    static_cast<const assets::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-32.0, -32.0, 0.0}, {32.0, 32.0, 256.0}});
 }
 

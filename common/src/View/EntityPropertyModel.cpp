@@ -27,9 +27,6 @@
 #include <QString>
 #include <QTimer>
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionManager.h"
-#include "Assets/PropertyDefinition.h"
 #include "IO/ResourceUtils.h"
 #include "Macros.h"
 #include "Model/Entity.h"
@@ -40,6 +37,9 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionManager.h"
+#include "assets/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -267,7 +267,7 @@ PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
   }
   else if (definition != nullptr)
   {
-    m_value = Assets::PropertyDefinition::defaultValue(*definition);
+    m_value = assets::PropertyDefinition::defaultValue(*definition);
     m_valueType = ValueType::Unset;
   }
   else

@@ -28,20 +28,20 @@
 #include <string>
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace tb::Assets
+} // namespace tb::assets
 
 namespace tb::Model
 {
 
-const Assets::EntityDefinition* selectEntityDefinition(
+const assets::EntityDefinition* selectEntityDefinition(
   const std::vector<EntityNodeBase*>& nodes);
-const Assets::PropertyDefinition* propertyDefinition(
+const assets::PropertyDefinition* propertyDefinition(
   const EntityNodeBase* node, const std::string& key);
-const Assets::PropertyDefinition* selectPropertyDefinition(
+const assets::PropertyDefinition* selectPropertyDefinition(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes);
 std::string selectPropertyValue(
   const std::string& key, const std::vector<EntityNodeBase*>& nodes);
@@ -66,7 +66,7 @@ public: // entity access
   Entity setEntity(Entity entity);
 
 public: // definition
-  void setDefinition(Assets::EntityDefinition* definition);
+  void setDefinition(assets::EntityDefinition* definition);
 
 private: // property management internals
   class NotifyPropertyChange

@@ -19,7 +19,6 @@
 
 #include "MapDocumentCommandFacade.h"
 
-#include "Assets/EntityDefinitionFileSpec.h"
 #include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
@@ -40,6 +39,7 @@
 #include "View/CommandProcessor.h"
 #include "View/Selection.h"
 #include "View/UndoableCommand.h"
+#include "assets/EntityDefinitionFileSpec.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"

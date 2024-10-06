@@ -22,7 +22,6 @@
 #include <QKeySequence>
 #include <QString>
 
-#include "Assets/EntityDefinition.h"
 #include "Model/EntityProperties.h"
 #include "Model/Tag.h"
 #include "PreferenceManager.h"
@@ -33,6 +32,7 @@
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
+#include "assets/EntityDefinition.h"
 
 #include "vm/util.h"
 
@@ -306,7 +306,7 @@ std::vector<Action> ActionManager::createTagActions(
 }
 
 std::vector<Action> ActionManager::createEntityDefinitionActions(
-  const std::vector<Assets::EntityDefinition*>& entityDefinitions) const
+  const std::vector<assets::EntityDefinition*>& entityDefinitions) const
 {
   std::vector<Action> result;
 

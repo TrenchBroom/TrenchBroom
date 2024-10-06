@@ -35,7 +35,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::Assets
+namespace tb::assets
 {
 class EntityDefinition;
 }
@@ -236,7 +236,7 @@ public:
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
   std::vector<Action> createEntityDefinitionActions(
-    const std::vector<Assets::EntityDefinition*>& entityDefinitions) const;
+    const std::vector<assets::EntityDefinition*>& entityDefinitions) const;
 
   template <typename MenuVisitor>
   void visitMainMenu(const MenuVisitor& visitor) const

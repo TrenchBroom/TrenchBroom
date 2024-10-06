@@ -36,7 +36,7 @@ MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
 }
 
 MaterialIndexRangeRenderer::MaterialIndexRangeRenderer(
-  VertexArray vertexArray, const Assets::Material* material, IndexRangeMap indexRange)
+  VertexArray vertexArray, const assets::Material* material, IndexRangeMap indexRange)
   : m_vertexArray{std::move(vertexArray)}
   , m_indexRange{material, std::move(indexRange)}
 {

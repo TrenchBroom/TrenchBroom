@@ -26,9 +26,6 @@
 #include <QString>
 #include <QtGlobal>
 
-#include "Assets/EntityDefinition.h"
-#include "Assets/EntityDefinitionGroup.h"
-#include "Assets/EntityDefinitionManager.h"
 #include "Logger.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
@@ -70,6 +67,9 @@
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
 #include "View/Transaction.h"
+#include "assets/EntityDefinition.h"
+#include "assets/EntityDefinitionGroup.h"
+#include "assets/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -634,10 +634,10 @@ void MapViewBase::createPointEntity()
   auto document = kdl::mem_lock(m_document);
   const auto index = action->data().toUInt();
   const auto* definition =
-    findEntityDefinition(Assets::EntityDefinitionType::PointEntity, index);
+    findEntityDefinition(assets::EntityDefinitionType::PointEntity, index);
   ensure(definition != nullptr, "definition is null");
-  assert(definition->type() == Assets::EntityDefinitionType::PointEntity);
-  createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+  assert(definition->type() == assets::EntityDefinitionType::PointEntity);
+  createPointEntity(static_cast<const assets::PointEntityDefinition*>(definition));
 }
 
 void MapViewBase::createBrushEntity()
@@ -646,20 +646,20 @@ void MapViewBase::createBrushEntity()
   auto document = kdl::mem_lock(m_document);
   const auto index = action->data().toUInt();
   const auto* definition =
-    findEntityDefinition(Assets::EntityDefinitionType::BrushEntity, index);
+    findEntityDefinition(assets::EntityDefinitionType::BrushEntity, index);
   ensure(definition != nullptr, "definition is null");
-  assert(definition->type() == Assets::EntityDefinitionType::BrushEntity);
-  createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+  assert(definition->type() == assets::EntityDefinitionType::BrushEntity);
+  createBrushEntity(static_cast<const assets::BrushEntityDefinition*>(definition));
 }
 
-Assets::EntityDefinition* MapViewBase::findEntityDefinition(
-  const Assets::EntityDefinitionType type, const size_t index) const
+assets::EntityDefinition* MapViewBase::findEntityDefinition(
+  const assets::EntityDefinitionType type, const size_t index) const
 {
   size_t count = 0;
   for (const auto& group : kdl::mem_lock(m_document)->entityDefinitionManager().groups())
   {
     const auto definitions =
-      group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
+      group.definitions(type, assets::EntityDefinitionSortOrder::Name);
     if (index < count + definitions.size())
     {
       return definitions[index - count];
@@ -669,7 +669,7 @@ Assets::EntityDefinition* MapViewBase::findEntityDefinition(
   return nullptr;
 }
 
-void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definition)
+void MapViewBase::createPointEntity(const assets::PointEntityDefinition* definition)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -678,7 +678,7 @@ void MapViewBase::createPointEntity(const Assets::PointEntityDefinition* definit
   document->createPointEntity(definition, delta);
 }
 
-void MapViewBase::createBrushEntity(const Assets::BrushEntityDefinition* definition)
+void MapViewBase::createBrushEntity(const assets::BrushEntityDefinition* definition)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -772,7 +772,7 @@ void MapViewBase::makeStructural()
 }
 
 void MapViewBase::toggleEntityDefinitionVisible(
-  const Assets::EntityDefinition* definition)
+  const assets::EntityDefinition* definition)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -781,16 +781,16 @@ void MapViewBase::toggleEntityDefinitionVisible(
     definition, !editorContext.entityDefinitionHidden(definition));
 }
 
-void MapViewBase::createEntity(const Assets::EntityDefinition* definition)
+void MapViewBase::createEntity(const assets::EntityDefinition* definition)
 {
   auto document = kdl::mem_lock(m_document);
-  if (definition->type() == Assets::EntityDefinitionType::PointEntity)
+  if (definition->type() == assets::EntityDefinitionType::PointEntity)
   {
-    createPointEntity(static_cast<const Assets::PointEntityDefinition*>(definition));
+    createPointEntity(static_cast<const assets::PointEntityDefinition*>(definition));
   }
   else if (canCreateBrushEntity())
   {
-    createBrushEntity(static_cast<const Assets::BrushEntityDefinition*>(definition));
+    createBrushEntity(static_cast<const assets::BrushEntityDefinition*>(definition));
   }
 }
 
@@ -1346,8 +1346,8 @@ void MapViewBase::showPopupMenuLater()
     menu.addSeparator();
   }
 
-  menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::PointEntity));
-  menu.addMenu(makeEntityGroupsMenu(Assets::EntityDefinitionType::BrushEntity));
+  menu.addMenu(makeEntityGroupsMenu(assets::EntityDefinitionType::PointEntity));
+  menu.addMenu(makeEntityGroupsMenu(assets::EntityDefinitionType::BrushEntity));
 
   menu.exec(QCursor::pos());
 
@@ -1407,16 +1407,16 @@ void MapViewBase::dropEvent(QDropEvent* dropEvent)
   dropEvent->acceptProposedAction();
 }
 
-QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinitionType type)
+QMenu* MapViewBase::makeEntityGroupsMenu(const assets::EntityDefinitionType type)
 {
   auto* menu = new QMenu{};
 
   switch (type)
   {
-  case Assets::EntityDefinitionType::PointEntity:
+  case assets::EntityDefinitionType::PointEntity:
     menu->setTitle(tr("Create Point Entity"));
     break;
-  case Assets::EntityDefinitionType::BrushEntity:
+  case assets::EntityDefinitionType::BrushEntity:
     menu->setTitle(tr("Create Brush Entity"));
     break;
   }
@@ -1428,7 +1428,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinitionType type
   for (const auto& group : document->entityDefinitionManager().groups())
   {
     const auto definitions =
-      group.definitions(type, Assets::EntityDefinitionSortOrder::Name);
+      group.definitions(type, assets::EntityDefinitionSortOrder::Name);
 
     const auto filteredDefinitions = kdl::vec_filter(definitions, [](auto* definition) {
       return !kdl::cs::str_is_equal(
@@ -1447,12 +1447,12 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const Assets::EntityDefinitionType type
 
         switch (type)
         {
-        case Assets::EntityDefinitionType::PointEntity: {
+        case assets::EntityDefinitionType::PointEntity: {
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createPointEntity));
           break;
         }
-        case Assets::EntityDefinitionType::BrushEntity: {
+        case assets::EntityDefinitionType::BrushEntity: {
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createBrushEntity));
           action->setEnabled(enableMakeBrushEntity);

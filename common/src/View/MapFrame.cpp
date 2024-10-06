@@ -38,7 +38,6 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Assets/Resource.h"
 #include "Console.h"
 #include "Exceptions.h"
 #include "IO/ExportOptions.h"
@@ -91,6 +90,7 @@
 #include "View/SwitchableMapViewContainer.h"
 #include "View/VertexTool.h"
 #include "View/ViewUtils.h"
+#include "assets/Resource.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -2093,7 +2093,7 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const Assets::Material* materialToReveal(std::shared_ptr<MapDocument> document)
+const assets::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 {
   const auto* firstMaterial = document->allSelectedBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalMaterial = kdl::all_of(
@@ -2118,7 +2118,7 @@ void MapFrame::revealMaterial()
   }
 }
 
-void MapFrame::revealMaterial(const Assets::Material* material)
+void MapFrame::revealMaterial(const assets::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealMaterial(material);
@@ -2435,7 +2435,7 @@ void MapFrame::triggerAutosave()
 void MapFrame::triggerProcessResources()
 {
   auto document = kdl::mem_lock(m_document);
-  document->processResourcesAsync(Assets::ProcessContext{true});
+  document->processResourcesAsync(assets::ProcessContext{true});
 }
 
 // DebugPaletteWindow

@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/Palette.h"
-#include "Assets/Texture.h"
 #include "IO/DiskFileSystem.h"
 #include "IO/ReadM8Texture.h"
 #include "TestUtils.h"
+#include "assets/Palette.h"
+#include "assets/Texture.h"
 
 #include "kdl/result.h"
 

@@ -19,13 +19,13 @@
 
 #include "ObjSerializer.h"
 
-#include "Assets/Material.h"
 #include "Ensure.h"
 #include "IO/ExportOptions.h"
 #include "Model/BrushFace.h"
 #include "Model/BrushNode.h"
 #include "Model/PatchNode.h"
 #include "Model/Polyhedron.h"
+#include "assets/Material.h"
 
 #include "kdl/overload.h"
 
@@ -107,7 +107,7 @@ static void writeMtlFile(
   const std::vector<ObjSerializer::Object>& objects,
   const IO::ObjExportOptions& options)
 {
-  auto usedMaterials = std::map<std::string, const Assets::Material*>{};
+  auto usedMaterials = std::map<std::string, const assets::Material*>{};
 
   for (const auto& object : objects)
   {

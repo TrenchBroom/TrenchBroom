@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
 #include "Model/BezierPatch.h"
 #include "Model/Brush.h"
 #include "Model/BrushBuilder.h"
@@ -33,6 +32,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
+#include "assets/EntityDefinition.h"
 
 #include "kdl/result.h"
 
@@ -126,7 +126,7 @@ TEST_CASE("EntityNodeTest.setPointEntity")
 
 TEST_CASE("EntityNodeTest.area")
 {
-  auto definition = Assets::PointEntityDefinition(
+  auto definition = assets::PointEntityDefinition(
     "some_name",
     Color(),
     vm::bbox3d(vm::vec3d{0, 0, 0}, vm::vec3d(1.0, 2.0, 3.0)),

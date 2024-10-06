@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Assets/EntityDefinition.h"
 #include "Color.h"
 #include "EL/Expression.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
+#include "assets/EntityDefinition.h"
 
 #include "Catch2.h"
 
@@ -40,13 +40,13 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
 }})"}
                                  .parse();
 
-  auto definition = Assets::PointEntityDefinition{
+  auto definition = assets::PointEntityDefinition{
     "some_name",
     Color{},
     vm::bbox3d{32.0},
     "",
     {},
-    Assets::ModelDefinition{modelExpression},
+    assets::ModelDefinition{modelExpression},
     {}};
 
   auto entity = Entity{};
