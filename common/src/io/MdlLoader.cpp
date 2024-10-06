@@ -19,16 +19,16 @@
 
 #include "MdlLoader.h"
 
-#include "io/Reader.h"
-#include "io/ReaderException.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
 #include "asset/EntityModel.h"
 #include "asset/Material.h"
 #include "asset/Palette.h"
 #include "asset/Texture.h"
 #include "asset/TextureBuffer.h"
 #include "asset/TextureResource.h"
+#include "io/Reader.h"
+#include "io/ReaderException.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/string_format.h"
 
@@ -322,10 +322,10 @@ void doParseFrame(
   const auto frameTriangles =
     makeFrameTriangles(triangles, vertices, positions, skinWidth, skinHeight);
 
-  auto size = Renderer::IndexRangeMap::Size{};
-  size.inc(Renderer::PrimType::Triangles, frameTriangles.size());
+  auto size = render::IndexRangeMap::Size{};
+  size.inc(render::PrimType::Triangles, frameTriangles.size());
 
-  auto builder = Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{
+  auto builder = render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{
     frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 

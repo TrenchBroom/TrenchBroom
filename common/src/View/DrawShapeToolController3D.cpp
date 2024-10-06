@@ -19,7 +19,6 @@
 
 #include "DrawShapeToolController3D.h"
 
-#include "Renderer/Camera.h"
 #include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
@@ -29,6 +28,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
 
 #include "kdl/memory_utils.h"
 
@@ -127,8 +127,8 @@ public:
   void render(
     const InputState&,
     const DragState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_tool.render(renderContext, renderBatch);
   }

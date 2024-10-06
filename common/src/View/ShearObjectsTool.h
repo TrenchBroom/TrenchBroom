@@ -37,7 +37,7 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -70,15 +70,15 @@ public:
 
   void pickBackSides(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:

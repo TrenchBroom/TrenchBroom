@@ -34,7 +34,7 @@ namespace tb::View
 ThreePaneMapView::ThreePaneMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
@@ -51,7 +51,7 @@ ThreePaneMapView::~ThreePaneMapView()
 
 void ThreePaneMapView::createGui(
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};

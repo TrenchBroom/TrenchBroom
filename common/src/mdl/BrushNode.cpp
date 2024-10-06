@@ -19,7 +19,6 @@
 
 #include "BrushNode.h"
 
-#include "Renderer/BrushRendererBrushCache.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
@@ -34,6 +33,7 @@
 #include "mdl/TagVisitor.h"
 #include "mdl/Validator.h"
 #include "mdl/WorldNode.h"
+#include "render/BrushRendererBrushCache.h"
 
 #include "kdl/overload.h"
 
@@ -50,7 +50,7 @@ namespace tb::mdl
 const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
 BrushNode::BrushNode(Brush brush)
-  : m_brushRendererBrushCache(std::make_unique<Renderer::BrushRendererBrushCache>())
+  : m_brushRendererBrushCache(std::make_unique<render::BrushRendererBrushCache>())
   , m_brush(std::move(brush))
 {
   clearSelectedFaces();
@@ -398,7 +398,7 @@ void BrushNode::invalidateVertexCache()
   m_brushRendererBrushCache->invalidateVertexCache();
 }
 
-Renderer::BrushRendererBrushCache& BrushNode::brushRendererBrushCache() const
+render::BrushRendererBrushCache& BrushNode::brushRendererBrushCache() const
 {
   return *m_brushRendererBrushCache;
 }

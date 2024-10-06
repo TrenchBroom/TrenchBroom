@@ -19,11 +19,6 @@
 
 #include "UVScaleTool.h"
 
-#include "Renderer/EdgeRenderer.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -36,6 +31,11 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/EdgeRenderer.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -123,7 +123,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
   return position - distance;
 }
 
-using EdgeVertex = Renderer::GLVertexTypes::P3::Vertex;
+using EdgeVertex = render::GLVertexTypes::P3::Vertex;
 
 std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2i& handle, const vm::vec2b& selector)
@@ -156,13 +156,13 @@ void renderHighlight(
   const UVViewHelper& helper,
   const vm::vec2i& handle,
   const vm::vec2b& selector,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderBatch& renderBatch)
 {
   static const auto color = Color{1.0f, 0.0f, 0.0f, 1.0f};
 
-  auto handleRenderer = Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(getHandleVertices(helper, handle, selector)),
-    Renderer::PrimType::Lines};
+  auto handleRenderer = render::DirectEdgeRenderer{
+    render::VertexArray::move(getHandleVertices(helper, handle, selector)),
+    render::PrimType::Lines};
   handleRenderer.render(renderBatch, color, 1.0f);
 }
 
@@ -246,10 +246,8 @@ public:
 
   void cancel() override { m_document.cancelTransaction(); }
 
-  void render(
-    const InputState&,
-    Renderer::RenderContext&,
-    Renderer::RenderBatch& renderBatch) const override
+  void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
+    const override
   {
     renderHighlight(m_helper, m_handle, m_selector, renderBatch);
   }
@@ -322,9 +320,7 @@ std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& i
 }
 
 void UVScaleTool::render(
-  const InputState& inputState,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch& renderBatch)
+  const InputState& inputState, render::RenderContext&, render::RenderBatch& renderBatch)
 {
   using namespace mdl::HitFilters;
 

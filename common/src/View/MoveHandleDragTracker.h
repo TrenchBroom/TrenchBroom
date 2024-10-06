@@ -21,10 +21,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
-#include "Renderer/TextAnchor.h"
 #include "View/HandleDragTracker.h"
+#include "render/Camera.h"
+#include "render/RenderService.h"
+#include "render/TextAnchor.h"
 
 #include "kdl/string_utils.h"
 
@@ -112,7 +112,7 @@ struct MoveHandleDragTrackerDelegate
    * @param renderContext the render context of the view being rendered
    */
   virtual void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+    const InputState& inputState, render::RenderContext& renderContext) const;
 
   /**
    * Called once in a render pass. The given input state, render context and render batch
@@ -127,8 +127,8 @@ struct MoveHandleDragTrackerDelegate
   virtual void render(
     const InputState& inputState,
     const DragState& dragState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const;
 
   /**
    * Returns a handle snapper. This is called once when the move start and when a modifier
@@ -322,7 +322,7 @@ public:
    * Forwards to the delegate's setRenderOptions() function.
    */
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override
+    const InputState& inputState, render::RenderContext& renderContext) const override
   {
     m_delegate.setRenderOptions(inputState, renderContext);
   }
@@ -333,14 +333,14 @@ public:
   void render(
     const InputState& inputState,
     const DragState& dragState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     if (dragState.currentHandlePosition != dragState.initialHandlePosition)
     {
       const auto vec = dragState.currentHandlePosition - dragState.initialHandlePosition;
 
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setShowOccludedObjects();
       renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
 
@@ -384,8 +384,7 @@ public:
           renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
           renderService.renderString(
             str,
-            Renderer::SimpleTextAnchor{
-              vm::vec3f{midPoint}, Renderer::TextAlignment::Bottom});
+            render::SimpleTextAnchor{vm::vec3f{midPoint}, render::TextAlignment::Bottom});
 
           lastPos = curPos;
         }
@@ -414,7 +413,7 @@ private:
 
   static bool isVerticalMove(const InputState& inputState)
   {
-    const Renderer::Camera& camera = inputState.camera();
+    const render::Camera& camera = inputState.camera();
     return camera.perspectiveProjection()
            && inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::MKAlt);
   }

@@ -25,7 +25,7 @@ namespace tb::View
 {
 PickRequest::PickRequest() = default;
 
-PickRequest::PickRequest(const vm::ray3d& pickRay, const Renderer::Camera& camera)
+PickRequest::PickRequest(const vm::ray3d& pickRay, const render::Camera& camera)
   : m_pickRay{pickRay}
   , m_camera{&camera}
 {
@@ -36,7 +36,7 @@ const vm::ray3d& PickRequest::pickRay() const
   return m_pickRay;
 }
 
-const Renderer::Camera& PickRequest::camera() const
+const render::Camera& PickRequest::camera() const
 {
   ensure(m_camera != nullptr, "camera is null");
   return *m_camera;

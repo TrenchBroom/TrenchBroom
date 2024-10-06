@@ -30,11 +30,11 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -64,8 +64,8 @@ private:
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 };

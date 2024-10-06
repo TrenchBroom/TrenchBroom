@@ -27,11 +27,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/GL.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/QtUtils.h"
 #include "View/SliderWithLabel.h"
 #include "View/ViewConstants.h"
+#include "render/GL.h"
 
 #include "kdl/range_utils.h"
 

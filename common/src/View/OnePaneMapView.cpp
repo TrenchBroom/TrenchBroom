@@ -29,7 +29,7 @@ namespace tb::View
 OnePaneMapView::OnePaneMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
@@ -40,7 +40,7 @@ OnePaneMapView::OnePaneMapView(
 
 void OnePaneMapView::createGui(
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
   m_mapView = new CyclingMapView{

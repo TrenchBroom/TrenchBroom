@@ -71,12 +71,10 @@ bool ToolController::shouldAcceptDrop(const InputState&, const std::string&) con
   return false;
 }
 
-void ToolController::setRenderOptions(const InputState&, Renderer::RenderContext&) const
-{
-}
+void ToolController::setRenderOptions(const InputState&, render::RenderContext&) const {}
 
 void ToolController::render(
-  const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&)
+  const InputState&, render::RenderContext&, render::RenderBatch&)
 {
 }
 
@@ -161,15 +159,15 @@ std::unique_ptr<DropTracker> ToolControllerGroup::acceptDrop(
 }
 
 void ToolControllerGroup::setRenderOptions(
-  const InputState& inputState, Renderer::RenderContext& renderContext) const
+  const InputState& inputState, render::RenderContext& renderContext) const
 {
   m_chain.setRenderOptions(inputState, renderContext);
 }
 
 void ToolControllerGroup::render(
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   m_chain.render(inputState, renderContext, renderBatch);
 }

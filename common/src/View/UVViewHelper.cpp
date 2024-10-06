@@ -19,13 +19,13 @@
 
 #include "UVViewHelper.h"
 
-#include "Renderer/OrthographicCamera.h"
 #include "View/UVView.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "render/OrthographicCamera.h"
 
 #include "vm/intersection.h"
 #include "vm/mat.h"
@@ -35,7 +35,7 @@
 namespace tb::View
 {
 
-UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera)
+UVViewHelper::UVViewHelper(render::OrthographicCamera& camera)
   : m_camera{camera}
 {
 }
@@ -132,7 +132,7 @@ void UVViewHelper::setOriginInFaceCoords(const vm::vec2f& originInFaceCoords)
   m_origin = fromFace * vm::vec3d{originInFaceCoords};
 }
 
-const Renderer::OrthographicCamera& UVViewHelper::camera() const
+const render::OrthographicCamera& UVViewHelper::camera() const
 {
   return m_camera;
 }

@@ -29,12 +29,12 @@ namespace tb::mdl
 class BrushNode;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class BrushRenderer;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -48,7 +48,7 @@ protected:
 
 private:
   std::vector<std::unique_ptr<mdl::BrushNode>> m_brushNodes;
-  std::unique_ptr<Renderer::BrushRenderer> m_brushRenderer;
+  std::unique_ptr<render::BrushRenderer> m_brushRenderer;
 
 public:
   CreateBrushesToolBase(bool initiallyActive, std::weak_ptr<MapDocument> document);
@@ -61,7 +61,7 @@ public:
   void clearBrushes();
   void cancel();
 
-  void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void render(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
 protected:
   void updateBrushes(std::vector<std::unique_ptr<mdl::BrushNode>> brushNodes);

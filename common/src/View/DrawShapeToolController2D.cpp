@@ -19,12 +19,12 @@
 
 #include "DrawShapeToolController2D.h"
 
-#include "Renderer/Camera.h"
 #include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "render/Camera.h"
 
 #include "kdl/memory_utils.h"
 
@@ -112,8 +112,8 @@ public:
   void render(
     const InputState&,
     const DragState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_tool.render(renderContext, renderBatch);
   }

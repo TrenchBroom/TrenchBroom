@@ -27,12 +27,12 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -65,8 +65,8 @@ public:
   void setRotationCenter(const vm::vec3d& position);
   void resetRotationCenter();
 
-  double majorHandleRadius(const Renderer::Camera& camera) const;
-  double minorHandleRadius(const Renderer::Camera& camera) const;
+  double majorHandleRadius(const render::Camera& camera) const;
+  double minorHandleRadius(const render::Camera& camera) const;
 
   void beginRotation();
   void commitRotation();
@@ -75,22 +75,22 @@ public:
   double snapRotationAngle(double angle) const;
   void applyRotation(const vm::vec3d& center, const vm::vec3d& axis, double angle);
 
-  mdl::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
-  mdl::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const render::Camera& camera);
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const render::Camera& camera);
 
   vm::vec3d rotationAxis(RotateObjectsHandle::HitArea area) const;
 
   void renderHandle2D(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderHandle3D(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderHighlight2D(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area);
   void renderHighlight3D(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area);
 
 private:

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Renderer/Camera.h"
 #include "mdl/BrushNode.h"
 #include "mdl/HitType.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
 
 #include "kdl/vector_set.h"
 
@@ -30,7 +30,7 @@
 #include <map>
 #include <vector>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -624,7 +624,7 @@ public:
    */
   void pick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:
@@ -669,7 +669,7 @@ public:
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     const Grid& grid,
     mdl::PickResult& pickResult) const;
 
@@ -682,7 +682,7 @@ public:
    */
   void pickCenterHandle(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:
@@ -727,7 +727,7 @@ public:
    */
   void pickGridHandle(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     const Grid& grid,
     mdl::PickResult& pickResult) const;
 
@@ -740,7 +740,7 @@ public:
    */
   void pickCenterHandle(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:

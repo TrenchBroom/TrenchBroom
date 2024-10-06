@@ -22,7 +22,7 @@
 #include <QCursor>
 
 #include "Macros.h"
-#include "Renderer/Camera.h"
+#include "render/Camera.h"
 
 #include "vm/vec.h"
 
@@ -293,7 +293,7 @@ const vm::vec3d InputState::defaultPointUnderMouse() const
   return vm::vec3d{camera().defaultPoint(pickRay())};
 }
 
-const Renderer::Camera& InputState::camera() const
+const render::Camera& InputState::camera() const
 {
   return m_pickRequest.camera();
 }

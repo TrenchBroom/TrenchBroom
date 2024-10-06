@@ -130,7 +130,7 @@ bool ToolBoxConnector::cancel()
   return m_toolBox->cancel(*m_toolChain);
 }
 
-void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext)
+void ToolBoxConnector::setRenderOptions(render::RenderContext& renderContext)
 {
   ensure(m_toolBox, "toolBox is set");
   m_inputState.setAnyToolDragging(m_toolBox->dragging());
@@ -138,7 +138,7 @@ void ToolBoxConnector::setRenderOptions(Renderer::RenderContext& renderContext)
 }
 
 void ToolBoxConnector::renderTools(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   ensure(m_toolBox, "toolBox is set");
   m_inputState.setAnyToolDragging(m_toolBox->dragging());

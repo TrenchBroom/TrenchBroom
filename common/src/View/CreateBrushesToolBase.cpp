@@ -21,11 +21,11 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/BrushRenderer.h"
-#include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
 #include "View/Transaction.h"
 #include "mdl/BrushNode.h"
+#include "render/BrushRenderer.h"
+#include "render/SelectionBoundsRenderer.h"
 
 #include "kdl/memory_utils.h"
 
@@ -36,7 +36,7 @@ CreateBrushesToolBase::CreateBrushesToolBase(
   const bool initiallyActive, std::weak_ptr<MapDocument> document)
   : Tool{initiallyActive}
   , m_document{std::move(document)}
-  , m_brushRenderer{std::make_unique<Renderer::BrushRenderer>()}
+  , m_brushRenderer{std::make_unique<render::BrushRenderer>()}
 {
 }
 
@@ -78,7 +78,7 @@ void CreateBrushesToolBase::cancel()
 }
 
 void CreateBrushesToolBase::render(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_brushRenderer->clear();
 
@@ -104,7 +104,7 @@ void CreateBrushesToolBase::render(
     }
     m_brushRenderer->render(renderContext, renderBatch);
 
-    auto boundsRenderer = Renderer::SelectionBoundsRenderer{boundsBuilder.bounds()};
+    auto boundsRenderer = render::SelectionBoundsRenderer{boundsBuilder.bounds()};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }

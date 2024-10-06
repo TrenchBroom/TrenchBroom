@@ -25,7 +25,7 @@
 
 class QSplitter;
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MapRenderer;
 }
@@ -52,7 +52,7 @@ public:
   TwoPaneMapView(
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
   ~TwoPaneMapView() override;
@@ -60,7 +60,7 @@ public:
 private:
   void createGui(
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface

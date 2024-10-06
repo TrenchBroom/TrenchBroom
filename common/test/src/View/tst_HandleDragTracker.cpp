@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/OrthographicCamera.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/OrthographicCamera.h"
 
 #include "vm/approx.h"
 
@@ -490,7 +490,7 @@ TEST_CASE("makeLineHandlePicker")
 
   CAPTURE(line, handleOffset, pickRay);
 
-  const auto camera = Renderer::OrthographicCamera{};
+  const auto camera = render::OrthographicCamera{};
   auto inputState = InputState{};
   inputState.setPickRequest(PickRequest{pickRay, camera});
 
@@ -512,7 +512,7 @@ TEST_CASE("makePlaneHandlePicker")
 
   CAPTURE(plane, handleOffset, pickRay);
 
-  const auto camera = Renderer::OrthographicCamera{};
+  const auto camera = render::OrthographicCamera{};
   auto inputState = InputState{};
   inputState.setPickRequest(PickRequest{pickRay, camera});
 
@@ -535,7 +535,7 @@ TEST_CASE("makeCircleHandlePicker")
 
   CAPTURE(center, normal, radius, handleOffset, pickRay);
 
-  const auto camera = Renderer::OrthographicCamera{};
+  const auto camera = render::OrthographicCamera{};
   auto inputState = InputState{};
   inputState.setPickRequest(PickRequest{pickRay, camera});
 
@@ -569,7 +569,7 @@ TEST_CASE("makeSurfaceHandlePicker")
 
   CAPTURE(handleOffset, pickRay);
 
-  const auto camera = Renderer::OrthographicCamera{};
+  const auto camera = render::OrthographicCamera{};
   auto inputState = InputState{};
   inputState.setPickRequest(PickRequest{pickRay, camera});
 

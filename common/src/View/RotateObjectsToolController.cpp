@@ -21,13 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/Circle.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/Shaders.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MoveHandleDragTracker.h"
@@ -36,6 +29,13 @@
 #include "View/ToolController.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
+#include "render/ActiveShader.h"
+#include "render/Circle.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/RenderService.h"
+#include "render/Renderable.h"
+#include "render/Shaders.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"
@@ -52,11 +52,11 @@ namespace tb::View
 namespace
 {
 
-class AngleIndicatorRenderer : public Renderer::DirectRenderable
+class AngleIndicatorRenderer : public render::DirectRenderable
 {
 private:
   vm::vec3d m_position;
-  Renderer::Circle m_circle;
+  render::Circle m_circle;
 
 public:
   AngleIndicatorRenderer(
@@ -71,12 +71,12 @@ public:
   }
 
 private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  void doPrepareVertices(render::VboManager& vboManager) override
   {
     m_circle.prepare(vboManager);
   }
 
-  void doRender(Renderer::RenderContext& renderContext) override
+  void doRender(render::RenderContext& renderContext) override
   {
     glAssert(glDisable(GL_DEPTH_TEST));
 
@@ -84,10 +84,10 @@ private:
     glAssert(glDisable(GL_CULL_FACE));
     glAssert(glPolygonMode(GL_FRONT_AND_BACK, GL_FILL));
 
-    auto translation = Renderer::MultiplyModelMatrix{
+    auto translation = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::translation_matrix(vm::vec3f{m_position})};
-    auto shader = Renderer::ActiveShader{
-      renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
+    auto shader = render::ActiveShader{
+      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
     shader.set("Color", Color(1.0f, 1.0f, 1.0f, 0.2f));
     m_circle.render();
 
@@ -98,8 +98,8 @@ private:
 
 using RenderHighlight = std::function<void(
   const InputState&,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch&,
+  render::RenderContext&,
+  render::RenderBatch&,
   RotateObjectsHandle::HitArea)>;
 
 class RotateObjectsDragDelegate : public HandleDragTrackerDelegate
@@ -155,7 +155,7 @@ public:
   void cancel(const DragState&) override { m_tool.cancelRotation(); }
 
   void setRenderOptions(
-    const InputState&, Renderer::RenderContext& renderContext) const override
+    const InputState&, render::RenderContext& renderContext) const override
   {
     renderContext.setForceShowSelectionGuide();
   }
@@ -163,8 +163,8 @@ public:
   void render(
     const InputState& inputState,
     const DragState& dragState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_renderHighlight(inputState, renderContext, renderBatch, m_area);
     renderAngleIndicator(renderContext, renderBatch, dragState.initialHandlePosition);
@@ -173,8 +173,8 @@ public:
 
 private:
   void renderAngleIndicator(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& initialHandlePosition) const
   {
     const auto center = m_tool.rotationCenter();
@@ -189,11 +189,11 @@ private:
   }
 
   void renderAngleText(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
     const auto center = m_tool.rotationCenter();
 
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
 
     renderService.setForegroundColor(pref(Preferences::SelectedInfoOverlayTextColor));
     renderService.setBackgroundColor(
@@ -310,8 +310,8 @@ private:
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override
   {
     using namespace mdl::HitFilters;
 
@@ -339,8 +339,8 @@ private:
 private:
   virtual void doRenderHighlight(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) = 0;
 };
 
@@ -374,8 +374,8 @@ public:
   void render(
     const InputState& inputState,
     const DragState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_renderHighlight(
       inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
@@ -445,8 +445,8 @@ protected:
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override
   {
     using namespace mdl::HitFilters;
 
@@ -470,8 +470,8 @@ protected:
 private:
   virtual void doRenderHighlight(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) = 0;
 };
 
@@ -486,8 +486,8 @@ public:
 private:
   void doRenderHighlight(
     const InputState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) override
   {
     m_tool.renderHighlight2D(renderContext, renderBatch, area);
@@ -505,8 +505,8 @@ public:
 private:
   void doRenderHighlight(
     const InputState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) override
   {
     m_tool.renderHighlight2D(renderContext, renderBatch, area);
@@ -524,8 +524,8 @@ public:
 private:
   void doRenderHighlight(
     const InputState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) override
   {
     m_tool.renderHighlight3D(renderContext, renderBatch, area);
@@ -543,8 +543,8 @@ public:
 private:
   void doRenderHighlight(
     const InputState&,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area) override
   {
     m_tool.renderHighlight3D(renderContext, renderBatch, area);
@@ -581,7 +581,7 @@ void RotateObjectsToolController::pick(
 }
 
 void RotateObjectsToolController::setRenderOptions(
-  const InputState& inputState, Renderer::RenderContext& renderContext) const
+  const InputState& inputState, render::RenderContext& renderContext) const
 {
   using namespace mdl::HitFilters;
   if (inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType)).isMatch())
@@ -592,8 +592,8 @@ void RotateObjectsToolController::setRenderOptions(
 
 void RotateObjectsToolController::render(
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   doRenderHandle(renderContext, renderBatch);
   ToolControllerGroup::render(inputState, renderContext, renderBatch);
@@ -617,7 +617,7 @@ mdl::Hit RotateObjectsToolController2D::doPick(const InputState& inputState)
 }
 
 void RotateObjectsToolController2D::doRenderHandle(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_tool.renderHandle2D(renderContext, renderBatch);
 }
@@ -635,7 +635,7 @@ mdl::Hit RotateObjectsToolController3D::doPick(const InputState& inputState)
 }
 
 void RotateObjectsToolController3D::doRenderHandle(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_tool.renderHandle3D(renderContext, renderBatch);
 }

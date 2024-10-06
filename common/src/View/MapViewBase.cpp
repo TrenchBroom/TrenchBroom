@@ -29,15 +29,6 @@
 #include "Logger.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/Compass.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/FontManager.h"
-#include "Renderer/MapRenderer.h"
-#include "Renderer/PrimitiveRenderer.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
 #include "View/Actions.h"
 #include "View/Animation.h"
 #include "View/EnableDisableTagCallback.h"
@@ -70,6 +61,15 @@
 #include "mdl/PointTrace.h"
 #include "mdl/PortalFile.h"
 #include "mdl/WorldNode.h"
+#include "render/Camera.h"
+#include "render/Compass.h"
+#include "render/FontDescriptor.h"
+#include "render/FontManager.h"
+#include "render/MapRenderer.h"
+#include "render/PrimitiveRenderer.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/RenderService.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -88,7 +88,7 @@ const int MapViewBase::DefaultCameraAnimationDuration = 250;
 MapViewBase::MapViewBase(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& renderer,
+  render::MapRenderer& renderer,
   GLContextManager& contextManager)
   : RenderView{contextManager}
   , m_document{std::move(document)}
@@ -104,7 +104,7 @@ MapViewBase::MapViewBase(
   setAcceptDrops(true);
 }
 
-void MapViewBase::setCompass(std::unique_ptr<Renderer::Compass> compass)
+void MapViewBase::setCompass(std::unique_ptr<render::Compass> compass)
 {
   m_compass = std::move(compass);
 }
@@ -981,13 +981,13 @@ void MapViewBase::renderContents()
 
   const auto& fontPath = pref(Preferences::RendererFontPath());
   const auto fontSize = static_cast<size_t>(pref(Preferences::RendererFontSize));
-  const auto fontDescriptor = Renderer::FontDescriptor{fontPath, fontSize};
+  const auto fontDescriptor = render::FontDescriptor{fontPath, fontSize};
 
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
 
   auto renderContext =
-    Renderer::RenderContext{renderMode(), camera(), fontManager(), shaderManager()};
+    render::RenderContext{renderMode(), camera(), fontManager(), shaderManager()};
   renderContext.setFilterMode(
     pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
   renderContext.setShowMaterials(
@@ -1014,7 +1014,7 @@ void MapViewBase::renderContents()
   setupGL(renderContext);
   setRenderOptions(renderContext);
 
-  auto renderBatch = Renderer::RenderBatch{vboManager()};
+  auto renderBatch = render::RenderBatch{vboManager()};
 
   renderGrid(renderContext, renderBatch);
   renderMap(m_renderer, renderContext, renderBatch);
@@ -1037,9 +1037,9 @@ void MapViewBase::renderContents()
 
 void MapViewBase::preRender() {}
 
-void MapViewBase::renderGrid(Renderer::RenderContext&, Renderer::RenderBatch&) {}
+void MapViewBase::renderGrid(render::RenderContext&, render::RenderBatch&) {}
 
-void MapViewBase::setupGL(Renderer::RenderContext& context)
+void MapViewBase::setupGL(render::RenderContext& context)
 {
   const auto& viewport = context.camera().viewport();
   const auto r = devicePixelRatioF();
@@ -1063,36 +1063,34 @@ void MapViewBase::setupGL(Renderer::RenderContext& context)
 }
 
 void MapViewBase::renderCoordinateSystem(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   if (pref(Preferences::ShowAxes))
   {
     auto document = kdl::mem_lock(m_document);
     const auto& worldBounds = document->worldBounds();
 
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.renderCoordinateSystem(vm::bbox3f{worldBounds});
   }
 }
 
-void MapViewBase::renderSoftWorldBounds(Renderer::RenderContext&, Renderer::RenderBatch&)
-{
-}
+void MapViewBase::renderSoftWorldBounds(render::RenderContext&, render::RenderBatch&) {}
 
 void MapViewBase::renderPointFile(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   auto document = kdl::mem_lock(m_document);
   if (const auto* pointFile = document->pointFile())
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::PointFileColor));
     renderService.renderLineStrip(pointFile->points());
   }
 }
 
 void MapViewBase::renderPortalFile(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   if (!m_portalFileRenderer)
   {
@@ -1107,10 +1105,10 @@ void MapViewBase::invalidatePortalFileRenderer()
   m_portalFileRenderer = nullptr;
 }
 
-void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&)
+void MapViewBase::validatePortalFileRenderer(render::RenderContext&)
 {
   assert(m_portalFileRenderer == nullptr);
-  m_portalFileRenderer = std::make_unique<Renderer::PrimitiveRenderer>();
+  m_portalFileRenderer = std::make_unique<render::PrimitiveRenderer>();
 
   auto document = kdl::mem_lock(m_document);
   auto* portalFile = document->portalFile();
@@ -1120,21 +1118,21 @@ void MapViewBase::validatePortalFileRenderer(Renderer::RenderContext&)
     {
       m_portalFileRenderer->renderFilledPolygon(
         pref(Preferences::PortalFileFillColor),
-        Renderer::PrimitiveRendererOcclusionPolicy::Hide,
-        Renderer::PrimitiveRendererCullingPolicy::ShowBackfaces,
+        render::PrimitiveRendererOcclusionPolicy::Hide,
+        render::PrimitiveRendererCullingPolicy::ShowBackfaces,
         poly.vertices());
 
       const auto lineWidth = 4.0f;
       m_portalFileRenderer->renderPolygon(
         pref(Preferences::PortalFileBorderColor),
         lineWidth,
-        Renderer::PrimitiveRendererOcclusionPolicy::Hide,
+        render::PrimitiveRendererOcclusionPolicy::Hide,
         poly.vertices());
     }
   }
 }
 
-void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch)
+void MapViewBase::renderCompass(render::RenderBatch& renderBatch)
 {
   if (m_compass != nullptr)
   {
@@ -1143,11 +1141,11 @@ void MapViewBase::renderCompass(Renderer::RenderBatch& renderBatch)
 }
 
 void MapViewBase::renderFPS(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   if (pref(Preferences::ShowFPS))
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.renderHeadsUp(m_currentFPS);
   }
 }

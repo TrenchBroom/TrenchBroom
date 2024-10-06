@@ -22,11 +22,11 @@
 #include <QShortcut>
 #include <QStackedLayout>
 
-#include "Renderer/Camera.h"
 #include "View/MapDocument.h"
 #include "View/MapView2D.h"
 #include "View/MapView3D.h"
 #include "View/MapViewActivationTracker.h"
+#include "render/Camera.h"
 
 #include "vm/scalar.h"
 
@@ -36,7 +36,7 @@ namespace tb::View
 CyclingMapView::CyclingMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   const int views,
   QWidget* parent)
@@ -49,7 +49,7 @@ CyclingMapView::CyclingMapView(
 
 void CyclingMapView::createGui(
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   const int views)
 {
@@ -135,7 +135,7 @@ void CyclingMapView::selectTall()
   m_currentMapView->selectTall();
 }
 
-void CyclingMapView::reset2dCameras(const Renderer::Camera& masterCamera, bool animate)
+void CyclingMapView::reset2dCameras(const render::Camera& masterCamera, bool animate)
 {
   for (auto* mapView : m_mapViews)
   {

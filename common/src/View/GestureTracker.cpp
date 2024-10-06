@@ -32,12 +32,10 @@ void GestureTracker::modifierKeyChange(const InputState&) {}
 
 void GestureTracker::mouseScroll(const InputState&) {}
 
-void GestureTracker::setRenderOptions(const InputState&, Renderer::RenderContext&) const
-{
-}
+void GestureTracker::setRenderOptions(const InputState&, render::RenderContext&) const {}
 
 void GestureTracker::render(
-  const InputState&, Renderer::RenderContext&, Renderer::RenderBatch&) const
+  const InputState&, render::RenderContext&, render::RenderBatch&) const
 {
 }
 

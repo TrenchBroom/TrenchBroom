@@ -38,14 +38,14 @@ template <typename T, typename U>
 class octree;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 enum class PrimType;
 class IndexRangeMap;
 class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::asset
 {
@@ -161,7 +161,7 @@ public:
    */
   void addToSpacialTree(
     const std::vector<EntityModelVertex>& vertices,
-    Renderer::PrimType primType,
+    render::PrimType primType,
     size_t index,
     size_t count);
 };
@@ -225,7 +225,7 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    Renderer::IndexRangeMap indices);
+    render::IndexRangeMap indices);
 
   /**
    * Adds a new material mesh to this surface.
@@ -237,7 +237,7 @@ public:
   void addMesh(
     EntityModelFrame& frame,
     std::vector<EntityModelVertex> vertices,
-    Renderer::MaterialIndexRangeMap indices);
+    render::MaterialIndexRangeMap indices);
 
   /**
    * Sets the given materials as skins to this surface.
@@ -277,7 +277,7 @@ public:
    */
   const Material* skin(size_t index) const;
 
-  std::unique_ptr<Renderer::MaterialIndexRangeRenderer> buildRenderer(
+  std::unique_ptr<render::MaterialIndexRangeRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 };
 
@@ -320,7 +320,7 @@ public:
    * @param frameIndex the index of the frame to render
    * @return the renderer
    */
-  std::unique_ptr<Renderer::MaterialRenderer> buildRenderer(
+  std::unique_ptr<render::MaterialRenderer> buildRenderer(
     size_t skinIndex, size_t frameIndex) const;
 
   /**

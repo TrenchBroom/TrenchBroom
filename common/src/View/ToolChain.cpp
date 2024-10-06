@@ -221,7 +221,7 @@ std::unique_ptr<DropTracker> ToolChain::dragEnter(
 }
 
 void ToolChain::setRenderOptions(
-  const InputState& inputState, Renderer::RenderContext& renderContext) const
+  const InputState& inputState, render::RenderContext& renderContext) const
 {
   assert(checkInvariant());
   if (!chainEndsHere())
@@ -236,8 +236,8 @@ void ToolChain::setRenderOptions(
 
 void ToolChain::render(
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   assert(checkInvariant());
   if (!chainEndsHere())

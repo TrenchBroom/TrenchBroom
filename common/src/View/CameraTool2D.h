@@ -24,7 +24,7 @@
 
 #include "vm/vec.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class OrthographicCamera;
 }
@@ -36,11 +36,11 @@ class GestureTracker;
 class CameraTool2D : public ToolController, public Tool
 {
 private:
-  Renderer::OrthographicCamera& m_camera;
+  render::OrthographicCamera& m_camera;
   vm::vec2f m_lastMousePos;
 
 public:
-  explicit CameraTool2D(Renderer::OrthographicCamera& camera);
+  explicit CameraTool2D(render::OrthographicCamera& camera);
 
 private:
   Tool& tool() override;

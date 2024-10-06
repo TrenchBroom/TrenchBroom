@@ -52,7 +52,7 @@ class NodeCollection;
 class SmartTag;
 } // namespace tb::mdl
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class Compass;
@@ -61,7 +61,7 @@ class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -87,13 +87,13 @@ public:
 protected:
   std::weak_ptr<MapDocument> m_document;
   MapViewToolBox& m_toolBox;
-  Renderer::MapRenderer& m_renderer;
+  render::MapRenderer& m_renderer;
 
   std::unique_ptr<AnimationManager> m_animationManager;
 
 private:
-  std::unique_ptr<Renderer::Compass> m_compass;
-  std::unique_ptr<Renderer::PrimitiveRenderer> m_portalFileRenderer;
+  std::unique_ptr<render::Compass> m_compass;
+  std::unique_ptr<render::PrimitiveRenderer> m_portalFileRenderer;
 
   /**
    * Tracks whether this map view has most recently gotten the focus. This is tracked and
@@ -112,10 +112,10 @@ protected:
   MapViewBase(
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& renderer,
+    render::MapRenderer& renderer,
     GLContextManager& contextManager);
 
-  void setCompass(std::unique_ptr<Renderer::Compass> compass);
+  void setCompass(std::unique_ptr<render::Compass> compass);
 
   /**
    * Perform tasks that are needed for a fully initialized MapViewBase.
@@ -136,7 +136,7 @@ public:
 public:
   void setIsCurrent(bool isCurrent);
 
-  virtual Renderer::Camera& camera() = 0;
+  virtual render::Camera& camera() = 0;
 
 private:
   void bindEvents();
@@ -321,35 +321,34 @@ private: // implement RenderView interface
   void renderContents() override;
 
   virtual void preRender();
-  virtual Renderer::RenderMode renderMode() = 0;
+  virtual render::RenderMode renderMode() = 0;
 
   virtual void renderGrid(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   virtual void renderMap(
-    Renderer::MapRenderer& renderer,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) = 0;
+    render::MapRenderer& renderer,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) = 0;
   virtual void renderTools(
     MapViewToolBox& toolBox,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) = 0;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) = 0;
 
-  void setupGL(Renderer::RenderContext& renderContext);
+  void setupGL(render::RenderContext& renderContext);
   void renderCoordinateSystem(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   virtual void renderSoftWorldBounds(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderPointFile(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
   void renderPortalFile(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void invalidatePortalFileRenderer();
-  void validatePortalFileRenderer(Renderer::RenderContext& renderContext);
+  void validatePortalFileRenderer(render::RenderContext& renderContext);
 
-  void renderCompass(Renderer::RenderBatch& renderBatch);
-  void renderFPS(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderCompass(render::RenderBatch& renderBatch);
+  void renderFPS(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;

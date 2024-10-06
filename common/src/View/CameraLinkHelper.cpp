@@ -21,7 +21,7 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
+#include "render/Camera.h"
 
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"
@@ -30,7 +30,7 @@
 
 namespace tb::View
 {
-void CameraLinkHelper::addCamera(Renderer::Camera* camera)
+void CameraLinkHelper::addCamera(render::Camera* camera)
 {
   ensure(camera != nullptr, "camera is null");
   assert(!kdl::vec_contains(m_cameras, camera));
@@ -39,7 +39,7 @@ void CameraLinkHelper::addCamera(Renderer::Camera* camera)
     camera->cameraDidChangeNotifier.connect(this, &CameraLinkHelper::cameraDidChange);
 }
 
-void CameraLinkHelper::updateCameras(const Renderer::Camera* masterCamera)
+void CameraLinkHelper::updateCameras(const render::Camera* masterCamera)
 {
   for (auto* camera : m_cameras)
   {
@@ -57,7 +57,7 @@ void CameraLinkHelper::updateCameras(const Renderer::Camera* masterCamera)
   }
 }
 
-void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera)
+void CameraLinkHelper::cameraDidChange(const render::Camera* camera)
 {
   if (!m_ignoreNotifications && pref(Preferences::Link2DCameras))
   {

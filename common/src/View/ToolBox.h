@@ -38,11 +38,11 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -134,14 +134,12 @@ public: // tool management
 
 public: // rendering
   void setRenderOptions(
-    ToolChain& chain,
-    const InputState& inputState,
-    Renderer::RenderContext& renderContext);
+    ToolChain& chain, const InputState& inputState, render::RenderContext& renderContext);
   void renderTools(
     ToolChain& chain,
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch);
 
 private:
   void activateTool(Tool& tool);

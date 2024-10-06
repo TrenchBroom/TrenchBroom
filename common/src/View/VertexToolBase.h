@@ -22,8 +22,6 @@
 #include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderService.h"
 #include "View/BrushVertexCommands.h"
 #include "View/Lasso.h"
 #include "View/MapDocument.h"
@@ -39,6 +37,8 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
 #include "mdl/WorldNode.h"
+#include "render/RenderBatch.h"
+#include "render/RenderService.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -62,7 +62,7 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -160,7 +160,7 @@ public:
 
   virtual void pick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const = 0;
 
 public: // Handle selection
@@ -373,9 +373,9 @@ public:
 
 public: // rendering
   void renderHandles(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     if (!handleManager().allSelected())
     {
       renderHandles(
@@ -393,7 +393,7 @@ public: // rendering
   }
 
   void renderDragHandle(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
     renderHandle(
       renderContext,
@@ -404,21 +404,21 @@ public: // rendering
 
   template <typename HH>
   void renderHandle(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const HH& handle) const
   {
     renderHandle(renderContext, renderBatch, handle, pref(Preferences::HandleColor));
   }
 
   void renderDragHighlight(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
     renderHighlight(renderContext, renderBatch, m_dragHandlePosition);
   }
 
   void renderDragGuide(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
   {
     renderGuide(renderContext, renderBatch, m_dragHandlePosition);
   }
@@ -426,7 +426,7 @@ public: // rendering
   template <typename HH>
   void renderHandles(
     const std::vector<HH>& handles,
-    Renderer::RenderService& renderService,
+    render::RenderService& renderService,
     const Color& color) const
   {
     renderService.setForegroundColor(color);
@@ -435,33 +435,33 @@ public: // rendering
 
   template <typename HH>
   void renderHandle(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const HH& handle,
     const Color& color) const
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(color);
     renderService.renderHandle(typename HH::float_type(handle));
   }
 
   template <typename HH>
   void renderHighlight(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const HH& handle) const
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
     renderService.renderHandleHighlight(typename HH::float_type(handle));
   }
 
   void renderHighlight(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& handle) const
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
     renderService.renderHandleHighlight(vm::vec3f{handle});
 
@@ -473,14 +473,12 @@ public: // rendering
 
   template <typename HH>
   void renderGuide(
-    Renderer::RenderContext&, Renderer::RenderBatch&, const HH& /* position */) const
+    render::RenderContext&, render::RenderBatch&, const HH& /* position */) const
   {
   }
 
   virtual void renderGuide(
-    Renderer::RenderContext&,
-    Renderer::RenderBatch&,
-    const vm::vec3d& /* position */) const
+    render::RenderContext&, render::RenderBatch&, const vm::vec3d& /* position */) const
   {
   }
 

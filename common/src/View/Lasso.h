@@ -25,12 +25,12 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -38,13 +38,13 @@ namespace tb::View
 class Lasso
 {
 private:
-  const Renderer::Camera& m_camera;
+  const render::Camera& m_camera;
   const double m_distance;
   const vm::vec3d m_start;
   vm::vec3d m_cur;
 
 public:
-  Lasso(const Renderer::Camera& camera, double distance, const vm::vec3d& point);
+  Lasso(const render::Camera& camera, double distance, const vm::vec3d& point);
 
   void update(const vm::vec3d& point);
 
@@ -75,7 +75,7 @@ private:
 
 public:
   void render(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const;
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) const;
 
 private:
   vm::plane3d getPlane() const;

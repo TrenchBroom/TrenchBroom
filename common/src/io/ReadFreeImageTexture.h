@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
-#include "Renderer/GL.h"
 #include "Result.h"
+#include "render/GL.h"
 
 #include <string_view>
 

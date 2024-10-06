@@ -20,12 +20,12 @@
 #include "GLContextManager.h"
 
 #include "Exceptions.h"
-#include "Renderer/FontManager.h"
-#include "Renderer/GL.h"
-#include "Renderer/ShaderManager.h"
-#include "Renderer/ShaderProgram.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/VboManager.h"
+#include "render/FontManager.h"
+#include "render/GL.h"
+#include "render/ShaderManager.h"
+#include "render/ShaderProgram.h"
+#include "render/Shaders.h"
+#include "render/VboManager.h"
 
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -42,9 +42,9 @@ std::string GLContextManager::GLRenderer = "unknown";
 std::string GLContextManager::GLVersion = "unknown";
 
 GLContextManager::GLContextManager()
-  : m_shaderManager{std::make_unique<Renderer::ShaderManager>()}
-  , m_vboManager{std::make_unique<Renderer::VboManager>(*m_shaderManager)}
-  , m_fontManager{std::make_unique<Renderer::FontManager>()}
+  : m_shaderManager{std::make_unique<render::ShaderManager>()}
+  , m_vboManager{std::make_unique<render::VboManager>(*m_shaderManager)}
+  , m_fontManager{std::make_unique<render::FontManager>()}
 {
 }
 
@@ -68,7 +68,7 @@ static void initializeGlew()
 
 bool GLContextManager::initialize()
 {
-  using namespace Renderer::Shaders;
+  using namespace render::Shaders;
 
   if (!m_initialized)
   {
@@ -80,7 +80,7 @@ bool GLContextManager::initialize()
     GLRenderer = reinterpret_cast<const char*>(glGetString(GL_RENDERER));
     GLVersion = reinterpret_cast<const char*>(glGetString(GL_VERSION));
 
-    const auto shaders = std::vector<Renderer::ShaderConfig>{
+    const auto shaders = std::vector<render::ShaderConfig>{
       Grid2DShader,
       VaryingPCShader,
       VaryingPUniformCShader,
@@ -114,17 +114,17 @@ bool GLContextManager::initialize()
   return false;
 }
 
-Renderer::VboManager& GLContextManager::vboManager()
+render::VboManager& GLContextManager::vboManager()
 {
   return *m_vboManager;
 }
 
-Renderer::FontManager& GLContextManager::fontManager()
+render::FontManager& GLContextManager::fontManager()
 {
   return *m_fontManager;
 }
 
-Renderer::ShaderManager& GLContextManager::shaderManager()
+render::ShaderManager& GLContextManager::shaderManager()
 {
   return *m_shaderManager;
 }

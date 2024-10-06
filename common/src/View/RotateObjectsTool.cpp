@@ -95,12 +95,12 @@ void RotateObjectsTool::resetRotationCenter()
   setRotationCenter(position);
 }
 
-double RotateObjectsTool::majorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsTool::majorHandleRadius(const render::Camera& camera) const
 {
   return m_handle.majorHandleRadius(camera);
 }
 
-double RotateObjectsTool::minorHandleRadius(const Renderer::Camera& camera) const
+double RotateObjectsTool::minorHandleRadius(const render::Camera& camera) const
 {
   return m_handle.minorHandleRadius(camera);
 }
@@ -138,14 +138,12 @@ void RotateObjectsTool::applyRotation(
   document->rotateObjects(center, axis, angle);
 }
 
-mdl::Hit RotateObjectsTool::pick2D(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera)
+mdl::Hit RotateObjectsTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
 {
   return m_handle.pick2D(pickRay, camera);
 }
 
-mdl::Hit RotateObjectsTool::pick3D(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera)
+mdl::Hit RotateObjectsTool::pick3D(const vm::ray3d& pickRay, const render::Camera& camera)
 {
   return m_handle.pick3D(pickRay, camera);
 }
@@ -156,27 +154,27 @@ vm::vec3d RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea are
 }
 
 void RotateObjectsTool::renderHandle2D(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle.renderHandle2D(renderContext, renderBatch);
 }
 
 void RotateObjectsTool::renderHandle3D(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle.renderHandle3D(renderContext, renderBatch);
 }
 
 void RotateObjectsTool::renderHighlight2D(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const RotateObjectsHandle::HitArea area)
 {
   m_handle.renderHighlight2D(renderContext, renderBatch, area);
 }
 void RotateObjectsTool::renderHighlight3D(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const RotateObjectsHandle::HitArea area)
 {
   m_handle.renderHighlight3D(renderContext, renderBatch, area);

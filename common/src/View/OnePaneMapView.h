@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MapRenderer;
 }
@@ -46,14 +46,14 @@ public:
   explicit OnePaneMapView(
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
 private:
   void createGui(
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager);
 
 private: // implement MultiPaneMapView subclassing interface

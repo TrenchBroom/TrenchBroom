@@ -88,21 +88,20 @@ void testPrefs(const std::map<std::filesystem::path, QJsonValue>& prefs)
   CHECK(
     static_cast<float>(getValue(prefs, "Texture Browser/Icon size").toDouble())
     == vm::approx{1.5f});
-  CHECK(getValue(prefs, "Renderer/Font size") == QJsonValue{14});
-  CHECK(getValue(prefs, "Renderer/Texture mode mag filter") == QJsonValue{9729});
-  CHECK(getValue(prefs, "Renderer/Texture mode min filter") == QJsonValue{9987});
+  CHECK(getValue(prefs, "render/Font size") == QJsonValue{14});
+  CHECK(getValue(prefs, "render/Texture mode mag filter") == QJsonValue{9729});
+  CHECK(getValue(prefs, "render/Texture mode min filter") == QJsonValue{9987});
   CHECK(
-    static_cast<float>(getValue(prefs, "Renderer/Brightness").toDouble())
+    static_cast<float>(getValue(prefs, "render/Brightness").toDouble())
     == vm::approx{0.925f});
-  CHECK(getValue(prefs, "Renderer/Show axes") == QJsonValue{false});
+  CHECK(getValue(prefs, "render/Show axes") == QJsonValue{false});
   CHECK(
-    static_cast<float>(getValue(prefs, "Renderer/Grid/Alpha").toDouble())
+    static_cast<float>(getValue(prefs, "render/Grid/Alpha").toDouble())
     == vm::approx{0.22f});
   CHECK(
-    getValue(prefs, "Renderer/Colors/Edges")
-    == QJsonValue{"0.921569 0.666667 0.45098 1"});
+    getValue(prefs, "render/Colors/Edges") == QJsonValue{"0.921569 0.666667 0.45098 1"});
   CHECK(
-    getValue(prefs, "Renderer/Colors/Background")
+    getValue(prefs, "render/Colors/Background")
     == QJsonValue{"0.321569 0.0470588 0.141176 1"});
   CHECK(
     getValue(prefs, "Rendere/Grid/Color2D")

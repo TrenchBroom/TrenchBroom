@@ -28,7 +28,7 @@
 
 class QKeyEvent;
 
-namespace tb::Renderer
+namespace tb::render
 {
 class PerspectiveCamera;
 }
@@ -41,7 +41,7 @@ class MapView3D : public MapViewBase
 {
   Q_OBJECT
 private:
-  std::unique_ptr<Renderer::PerspectiveCamera> m_camera;
+  std::unique_ptr<render::PerspectiveCamera> m_camera;
   std::unique_ptr<FlyModeHelper> m_flyModeHelper;
   bool m_ignoreCameraChangeEvents = false;
 
@@ -51,7 +51,7 @@ public:
   MapView3D(
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& renderer,
+    render::MapRenderer& renderer,
     GLContextManager& contextManager);
   ~MapView3D() override;
 
@@ -61,7 +61,7 @@ private:
 
 private: // notification
   void connectObservers();
-  void cameraDidChange(const Renderer::Camera* camera);
+  void cameraDidChange(const render::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
 protected: // QWidget overrides
@@ -94,7 +94,7 @@ private: // implement MapView interface
   bool canSelectTall() override;
   void selectTall() override;
 
-  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
 
   vm::vec3f focusCameraOnObjectsPosition(const std::vector<mdl::Node*>& nodes);
@@ -110,7 +110,7 @@ private: // implement MapView interface
   void moveCameraToCurrentTracePoint() override;
 
 private: // implement MapViewBase interface
-  Renderer::Camera& camera() override;
+  render::Camera& camera() override;
 
   vm::vec3d moveDirection(vm::direction direction) const override;
   size_t flipAxis(vm::direction direction) const override;
@@ -119,16 +119,16 @@ private: // implement MapViewBase interface
   ActionContext::Type viewActionContext() const override;
 
   void preRender() override;
-  Renderer::RenderMode renderMode() override;
+  render::RenderMode renderMode() override;
 
   void renderMap(
-    Renderer::MapRenderer& renderer,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::MapRenderer& renderer,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
   void renderTools(
     MapViewToolBox& toolBox,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   void beforePopupMenu() override;
 

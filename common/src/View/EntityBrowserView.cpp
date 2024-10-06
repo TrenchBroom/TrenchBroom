@@ -21,17 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/FontManager.h"
-#include "Renderer/GL.h"
-#include "Renderer/MaterialIndexRangeRenderer.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/RenderUtils.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/TextureFont.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 #include "View/MapFrame.h"
 #include "asset/AssetUtils.h"
@@ -41,6 +30,17 @@
 #include "asset/EntityModel.h"
 #include "asset/EntityModelManager.h"
 #include "el/VariableStore.h"
+#include "render/ActiveShader.h"
+#include "render/FontDescriptor.h"
+#include "render/FontManager.h"
+#include "render/GL.h"
+#include "render/MaterialIndexRangeRenderer.h"
+#include "render/PrimType.h"
+#include "render/RenderUtils.h"
+#include "render/Shaders.h"
+#include "render/TextureFont.h"
+#include "render/Transformation.h"
+#include "render/VertexArray.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -145,7 +145,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
 
   const auto document = kdl::mem_lock(m_document);
   const auto& entityDefinitionManager = document->entityDefinitionManager();
-  const auto font = Renderer::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
+  const auto font = render::FontDescriptor{fontPath, static_cast<size_t>(fontSize)};
 
   if (m_group)
   {
@@ -192,7 +192,7 @@ void EntityBrowserView::resourcesWereProcessed(const std::vector<asset::Resource
 void EntityBrowserView::addEntitiesToLayout(
   Layout& layout,
   const std::vector<asset::EntityDefinition*>& definitions,
-  const Renderer::FontDescriptor& font)
+  const render::FontDescriptor& font)
 {
   for (const auto* definition : definitions)
   {
@@ -217,7 +217,7 @@ bool matchesFilterText(
 void EntityBrowserView::addEntityToLayout(
   Layout& layout,
   const asset::PointEntityDefinition* definition,
-  const Renderer::FontDescriptor& font)
+  const render::FontDescriptor& font)
 {
   if (
     (!m_hideUnused || definition->usageCount() > 0)
@@ -240,7 +240,7 @@ void EntityBrowserView::addEntityToLayout(
       el::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
-    auto* modelRenderer = static_cast<Renderer::MaterialRenderer*>(nullptr);
+    auto* modelRenderer = static_cast<render::MaterialRenderer*>(nullptr);
     auto rotatedBounds = vm::bbox3f{};
     auto modelOrientation = asset::Orientation::Oriented;
 
@@ -301,7 +301,7 @@ void EntityBrowserView::doRender(Layout& layout, const float y, const float heig
     vm::ortho_matrix(-1024.0f, 1024.0f, viewLeft, viewTop, viewRight, viewBottom);
   const auto view =
     vm::view_matrix(CameraDirection, CameraUp) * vm::translation_matrix(CameraPosition);
-  auto transformation = Renderer::Transformation{projection, view};
+  auto transformation = render::Transformation{projection, view};
 
   renderBounds(layout, y, height);
   renderModels(layout, y, height, transformation);
@@ -319,7 +319,7 @@ const Color& EntityBrowserView::getBackgroundColor()
 
 void EntityBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
-  using BoundsVertex = Renderer::GLVertexTypes::P3C4::Vertex;
+  using BoundsVertex = render::GLVertexTypes::P3C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
@@ -351,19 +351,18 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
     }
   }
 
-  auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::VaryingPCShader};
-  auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
+  auto shader = render::ActiveShader{shaderManager(), render::Shaders::VaryingPCShader};
+  auto vertexArray = render::VertexArray::move(std::move(vertices));
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(Renderer::PrimType::Lines);
+  vertexArray.render(render::PrimType::Lines);
 }
 
 void EntityBrowserView::renderModels(
   Layout& layout,
   const float y,
   const float height,
-  Renderer::Transformation& transformation)
+  render::Transformation& transformation)
 {
   glAssert(glFrontFace(GL_CW));
 
@@ -371,8 +370,7 @@ void EntityBrowserView::renderModels(
   auto& entityModelManager = document->entityModelManager();
   entityModelManager.prepare(vboManager());
 
-  auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::EntityModelShader};
+  auto shader = render::ActiveShader{shaderManager(), render::Shaders::EntityModelShader};
   shader.set("ApplyTinting", false);
   shader.set("Brightness", pref(Preferences::Brightness));
   shader.set("GrayScale", false);
@@ -402,9 +400,9 @@ void EntityBrowserView::renderModels(
               shader.set("ModelMatrix", itemTrans);
 
               const auto multMatrix =
-                Renderer::MultiplyModelMatrix{transformation, itemTrans};
+                render::MultiplyModelMatrix{transformation, itemTrans};
 
-              auto renderFunc = Renderer::DefaultMaterialRenderFunc{
+              auto renderFunc = render::DefaultMaterialRenderFunc{
                 pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter)};
               modelRenderer->render(renderFunc);
             }

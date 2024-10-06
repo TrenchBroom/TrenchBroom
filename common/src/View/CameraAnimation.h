@@ -23,7 +23,7 @@
 
 #include "vm/vec.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -35,7 +35,7 @@ class CameraAnimation : public Animation
 private:
   static const Type AnimationType;
 
-  Renderer::Camera& m_camera;
+  render::Camera& m_camera;
 
   const vm::vec3f m_startPosition;
   const vm::vec3f m_startDirection;
@@ -48,7 +48,7 @@ private:
 
 public:
   CameraAnimation(
-    Renderer::Camera& camera,
+    render::Camera& camera,
     const vm::vec3f& targetPosition,
     const vm::vec3f& targetDirection,
     const vm::vec3f& targetUp,

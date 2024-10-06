@@ -39,13 +39,13 @@ class Node;
 class PickResult;
 } // namespace tb::mdl
 
-namespace tb::Renderer
+namespace tb::render
 {
 class BrushRenderer;
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -77,8 +77,8 @@ private:
   std::map<mdl::Node*, std::vector<mdl::Node*>> m_frontBrushes;
   std::map<mdl::Node*, std::vector<mdl::Node*>> m_backBrushes;
 
-  std::unique_ptr<Renderer::BrushRenderer> m_remainingBrushRenderer;
-  std::unique_ptr<Renderer::BrushRenderer> m_clippedBrushRenderer;
+  std::unique_ptr<render::BrushRenderer> m_remainingBrushRenderer;
+  std::unique_ptr<render::BrushRenderer> m_clippedBrushRenderer;
 
   bool m_ignoreNotifications = false;
   bool m_dragging = false;
@@ -94,27 +94,25 @@ public:
   void toggleSide();
 
   void pick(
-    const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
-    mdl::PickResult& pickResult);
+    const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult);
 
   void render(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult& pickResult);
 
 private:
   void renderBrushes(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderStrategy(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult& pickResult);
 
 public:
   void renderFeedback(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& point) const;
 
 public:
@@ -158,7 +156,7 @@ private:
   void updateRenderers();
   void addBrushesToRenderer(
     const std::map<mdl::Node*, std::vector<mdl::Node*>>& map,
-    Renderer::BrushRenderer& renderer);
+    render::BrushRenderer& renderer);
 
   bool keepFrontBrushes() const;
   bool keepBackBrushes() const;

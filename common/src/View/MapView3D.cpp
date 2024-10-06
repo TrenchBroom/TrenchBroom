@@ -21,13 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/BoundsGuideRenderer.h"
-#include "Renderer/Compass3D.h"
-#include "Renderer/MapRenderer.h"
-#include "Renderer/PerspectiveCamera.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/SelectionBoundsRenderer.h"
 #include "View/AssembleBrushToolController3D.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraTool3D.h"
@@ -62,6 +55,13 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
+#include "render/BoundsGuideRenderer.h"
+#include "render/Compass3D.h"
+#include "render/MapRenderer.h"
+#include "render/PerspectiveCamera.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/SelectionBoundsRenderer.h"
 
 #include "kdl/set_temp.h"
 
@@ -73,10 +73,10 @@ namespace tb::View
 MapView3D::MapView3D(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& renderer,
+  render::MapRenderer& renderer,
   GLContextManager& contextManager)
   : MapViewBase{std::move(document), toolBox, renderer, contextManager}
-  , m_camera{std::make_unique<Renderer::PerspectiveCamera>()}
+  , m_camera{std::make_unique<render::PerspectiveCamera>()}
   , m_flyModeHelper{std::make_unique<FlyModeHelper>(*m_camera)}
 {
   bindEvents();
@@ -129,7 +129,7 @@ void MapView3D::connectObservers()
     prefs.preferenceDidChangeNotifier.connect(this, &MapView3D::preferenceDidChange);
 }
 
-void MapView3D::cameraDidChange(const Renderer::Camera* /* camera */)
+void MapView3D::cameraDidChange(const render::Camera* /* camera */)
 {
   if (!m_ignoreCameraChangeEvents)
   {
@@ -178,7 +178,7 @@ void MapView3D::focusOutEvent(QFocusEvent* event)
 void MapView3D::initializeGL()
 {
   MapViewBase::initializeGL();
-  setCompass(std::make_unique<Renderer::Compass3D>());
+  setCompass(std::make_unique<render::Compass3D>());
 }
 
 void MapView3D::bindEvents()
@@ -271,7 +271,7 @@ bool MapView3D::canSelectTall()
 
 void MapView3D::selectTall() {}
 
-void MapView3D::reset2dCameras(const Renderer::Camera&, const bool)
+void MapView3D::reset2dCameras(const render::Camera&, const bool)
 {
   // nothing to do
 }
@@ -332,7 +332,7 @@ vm::vec3f computeCameraTargetPosition(const std::vector<mdl::Node*>& nodes)
 }
 
 float computeCameraOffset(
-  const Renderer::Camera& camera, const std::vector<mdl::Node*>& nodes)
+  const render::Camera& camera, const std::vector<mdl::Node*>& nodes)
 {
   vm::plane3f frustumPlanes[4];
   camera.frustumPlanes(
@@ -445,7 +445,7 @@ void MapView3D::moveCameraToCurrentTracePoint()
   }
 }
 
-Renderer::Camera& MapView3D::camera()
+render::Camera& MapView3D::camera()
 {
   return *m_camera;
 }
@@ -514,7 +514,7 @@ vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
   }
   else
   {
-    const auto newPosition = Renderer::Camera::defaultPoint(pickRay());
+    const auto newPosition = render::Camera::defaultPoint(pickRay());
     const auto defCenter = bounds.center();
     return grid.moveDeltaForPoint(defCenter, newPosition - defCenter);
   }
@@ -530,15 +530,15 @@ void MapView3D::preRender()
   m_flyModeHelper->pollAndUpdate();
 }
 
-Renderer::RenderMode MapView3D::renderMode()
+render::RenderMode MapView3D::renderMode()
 {
-  return Renderer::RenderMode::Render3D;
+  return render::RenderMode::Render3D;
 }
 
 void MapView3D::renderMap(
-  Renderer::MapRenderer& renderer,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::MapRenderer& renderer,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   renderer.render(renderContext, renderBatch);
 
@@ -546,10 +546,10 @@ void MapView3D::renderMap(
   if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
   {
     const auto& bounds = document->selectionBounds();
-    auto boundsRenderer = Renderer::SelectionBoundsRenderer{bounds};
+    auto boundsRenderer = render::SelectionBoundsRenderer{bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
-    auto* guideRenderer = new Renderer::BoundsGuideRenderer{m_document};
+    auto* guideRenderer = new render::BoundsGuideRenderer{m_document};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
     guideRenderer->setBounds(bounds);
     renderBatch.addOneShot(guideRenderer);
@@ -558,8 +558,8 @@ void MapView3D::renderMap(
 
 void MapView3D::renderTools(
   MapViewToolBox& /* toolBox */,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   ToolBoxConnector::renderTools(renderContext, renderBatch);
 }

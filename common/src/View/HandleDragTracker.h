@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Renderer/Camera.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "mdl/HitFilter.h"
+#include "render/Camera.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -194,7 +194,7 @@ struct HandleDragTrackerDelegate
    * @param renderContext the render context of the view being rendered
    */
   virtual void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+    const InputState& inputState, render::RenderContext& renderContext) const;
 
   /**
    * Called once in a render pass. The given input state, render context and render batch
@@ -209,8 +209,8 @@ struct HandleDragTrackerDelegate
   virtual void render(
     const InputState& inputState,
     const DragState& dragState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const;
 };
 
 /**
@@ -349,7 +349,7 @@ public:
    * Called during the drag to allow the delegate to set render options.
    */
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override
+    const InputState& inputState, render::RenderContext& renderContext) const override
   {
     m_delegate.setRenderOptions(inputState, renderContext);
   }
@@ -359,8 +359,8 @@ public:
    */
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_delegate.render(inputState, m_dragState, renderContext, renderBatch);
   }

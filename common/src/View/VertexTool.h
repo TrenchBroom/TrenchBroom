@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Renderer/PointGuideRenderer.h"
 #include "View/VertexHandleManager.h"
 #include "View/VertexToolBase.h"
+#include "render/PointGuideRenderer.h"
 
 #include <memory>
 #include <string>
@@ -32,13 +32,13 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderContext;
 class RenderBatch;
 class RenderService;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -63,7 +63,7 @@ private:
   std::unique_ptr<EdgeHandleManager> m_edgeHandles;
   std::unique_ptr<FaceHandleManager> m_faceHandles;
 
-  mutable Renderer::PointGuideRenderer m_guideRenderer;
+  mutable render::PointGuideRenderer m_guideRenderer;
 
 public:
   explicit VertexTool(std::weak_ptr<MapDocument> document);
@@ -79,7 +79,7 @@ private:
 public:
   void pick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const override;
 
 public: // Handle selection
@@ -107,8 +107,8 @@ public: // Vertex moving
 
 public: // Rendering
   void renderGuide(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& position) const override;
 
 private: // Tool interface

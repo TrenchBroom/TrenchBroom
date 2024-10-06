@@ -21,8 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
 #include "View/AssembleBrushTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
@@ -36,6 +34,8 @@
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
+#include "render/Camera.h"
+#include "render/RenderService.h"
 
 #include "kdl/vector_utils.h"
 
@@ -365,15 +365,15 @@ bool AssembleBrushToolController3D::doShouldHandleMouseDrag(
 
 void AssembleBrushToolController3D::render(
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   m_tool.render(renderContext, renderBatch);
 
   const auto& polyhedron = m_tool.polyhedron();
   if (!polyhedron.empty())
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::HandleColor));
     renderService.setLineWidth(2.0f);
 

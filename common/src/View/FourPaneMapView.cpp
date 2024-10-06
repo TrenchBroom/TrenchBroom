@@ -33,7 +33,7 @@ namespace tb::View
 FourPaneMapView::FourPaneMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
@@ -51,7 +51,7 @@ FourPaneMapView::~FourPaneMapView()
 
 void FourPaneMapView::createGui(
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
   m_hSplitter = new Splitter{DrawKnob::No};

@@ -42,7 +42,7 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -220,7 +220,7 @@ struct BackSide
  * to the selected face, as well as that face's normal.
  */
 BackSide pickBackSideOfBox(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, const vm::bbox3d& box);
+  const vm::ray3d& pickRay, const render::Camera& camera, const vm::bbox3d& box);
 
 class ScaleObjectsTool : public Tool
 {
@@ -252,15 +252,15 @@ public:
 
   void pickBackSides(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const;
 
 public:

@@ -22,10 +22,10 @@
 #include "Macros.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/RenderBatch.h"
 #include "View/BrushVertexCommands.h"
 #include "View/MapDocument.h"
 #include "mdl/BrushNode.h"
+#include "render/RenderBatch.h"
 
 #include "kdl/string_format.h"
 
@@ -68,7 +68,7 @@ std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
 
 void VertexTool::pick(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   auto document = kdl::mem_lock(m_document);
@@ -267,8 +267,8 @@ void VertexTool::removeSelection()
 }
 
 void VertexTool::renderGuide(
-  Renderer::RenderContext&,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext&,
+  render::RenderBatch& renderBatch,
   const vm::vec3d& position) const
 {
   m_guideRenderer.setPosition(position);

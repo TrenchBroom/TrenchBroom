@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Renderer/GL.h"
+#include "render/GL.h"
 
 #include "vm/vec.h"
 

@@ -21,7 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/RenderContext.h"
 #include "View/GestureTracker.h"
 #include "View/Grid.h"
 #include "View/InputState.h"
@@ -37,6 +36,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
+#include "render/RenderContext.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -567,7 +567,7 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
 }
 
 void SelectionTool::setRenderOptions(
-  const InputState& inputState, Renderer::RenderContext& renderContext) const
+  const InputState& inputState, render::RenderContext& renderContext) const
 {
   using namespace mdl::HitFilters;
 

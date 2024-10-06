@@ -23,7 +23,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/MapRenderer.h"
 #include "View/FourPaneMapView.h"
 #include "View/GLContextManager.h"
 #include "View/Inspector.h"
@@ -38,6 +37,7 @@
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
 #include "mdl/PointTrace.h"
+#include "render/MapRenderer.h"
 
 #include "kdl/memory_utils.h"
 
@@ -50,7 +50,7 @@ SwitchableMapViewContainer::SwitchableMapViewContainer(
   , m_contextManager{contextManager}
   , m_mapViewBar{new MapViewBar(m_document)}
   , m_toolBox{std::make_unique<MapViewToolBox>(m_document, m_mapViewBar->toolBook())}
-  , m_mapRenderer{std::make_unique<Renderer::MapRenderer>(m_document)}
+  , m_mapRenderer{std::make_unique<render::MapRenderer>(m_document)}
   , m_activationTracker{std::make_unique<MapViewActivationTracker>()}
 {
   setObjectName("SwitchableMapViewContainer");
@@ -391,7 +391,7 @@ vm::vec3d SwitchableMapViewContainer::pasteObjectsDelta(
 }
 
 void SwitchableMapViewContainer::reset2dCameras(
-  const Renderer::Camera& masterCamera, const bool animate)
+  const render::Camera& masterCamera, const bool animate)
 {
   m_mapView->reset2dCameras(masterCamera, animate);
 }

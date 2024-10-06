@@ -22,14 +22,14 @@
 #include <QWidget>
 
 #include "Color.h"
-#include "Renderer/MapRenderer.h"
+#include "render/MapRenderer.h"
 
 namespace tb::View
 {
 const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
 FlashSelectionAnimation::FlashSelectionAnimation(
-  Renderer::MapRenderer& renderer, QWidget* view, const double duration)
+  render::MapRenderer& renderer, QWidget* view, const double duration)
   : Animation{AnimationType, Curve::EaseInEaseOut, duration}
   , m_renderer{renderer}
   , m_view{view}

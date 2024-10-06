@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
-#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "asset/EntityModel.h"
 #include "asset/Quake3Shader.h"
 #include "asset/Resource.h"
@@ -31,6 +30,7 @@
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
 #include "mdl/Game.h"
+#include "render/MaterialIndexRangeRenderer.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -81,7 +81,7 @@ void EntityModelManager::setGame(const mdl::Game* game)
   reloadShaders();
 }
 
-Renderer::MaterialRenderer* EntityModelManager::renderer(
+render::MaterialRenderer* EntityModelManager::renderer(
   const asset::ModelSpecification& spec) const
 {
   if (auto* entityModel = safeGetModel(spec.path))
@@ -218,12 +218,12 @@ Result<EntityModel> EntityModelManager::loadModel(
   return Error{"Game is not set"};
 }
 
-void EntityModelManager::prepare(Renderer::VboManager& vboManager)
+void EntityModelManager::prepare(render::VboManager& vboManager)
 {
   prepareRenderers(vboManager);
 }
 
-void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
+void EntityModelManager::prepareRenderers(render::VboManager& vboManager)
 {
   for (auto* renderer : m_unpreparedRenderers)
   {

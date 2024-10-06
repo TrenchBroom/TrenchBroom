@@ -34,12 +34,12 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -85,9 +85,9 @@ public: // cancel
   bool cancel();
 
 protected: // rendering
-  void setRenderOptions(Renderer::RenderContext& renderContext);
+  void setRenderOptions(render::RenderContext& renderContext);
   void renderTools(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
 private:
   ModifierKeyState modifierKeys();

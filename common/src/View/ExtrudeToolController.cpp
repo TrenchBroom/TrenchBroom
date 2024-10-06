@@ -21,12 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/EdgeRenderer.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/VertexArray.h"
 #include "View/ExtrudeTool.h"
 #include "View/GestureTracker.h"
 #include "View/Grid.h"
@@ -36,6 +30,12 @@
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "render/Camera.h"
+#include "render/EdgeRenderer.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/RenderContext.h"
+#include "render/VertexArray.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
 #include "vm/plane.h"
@@ -93,7 +93,7 @@ namespace
 {
 auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
 {
-  using Vertex = Renderer::GLVertexTypes::P3::Vertex;
+  using Vertex = render::GLVertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
 
   for (const auto& dragHandle : dragHandles)
@@ -106,8 +106,8 @@ auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
     }
   }
 
-  return Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(std::move(vertices)), Renderer::PrimType::Lines};
+  return render::DirectEdgeRenderer{
+    render::VertexArray::move(std::move(vertices)), render::PrimType::Lines};
 }
 
 auto buildEdgeRenderer(const std::vector<ExtrudeDragHandle>& dragHandles)
@@ -257,7 +257,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
   void cancel(const DragState&) override { m_tool.cancel(); }
 
   void setRenderOptions(
-    const InputState&, Renderer::RenderContext& renderContext) const override
+    const InputState&, render::RenderContext& renderContext) const override
   {
     renderContext.setForceShowSelectionGuide();
   }
@@ -265,8 +265,8 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
   void render(
     const InputState&,
     const DragState&,
-    Renderer::RenderContext&,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext&,
+    render::RenderBatch& renderBatch) const override
   {
     auto edgeRenderer = buildEdgeRenderer(m_extrudeDragState.currentDragFaces);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
@@ -349,7 +349,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
   void cancel(const DragState&) override { m_tool.cancel(); }
 
   void setRenderOptions(
-    const InputState&, Renderer::RenderContext& renderContext) const override
+    const InputState&, render::RenderContext& renderContext) const override
   {
     renderContext.setForceShowSelectionGuide();
   }
@@ -357,8 +357,8 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
   void render(
     const InputState&,
     const DragState&,
-    Renderer::RenderContext&,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext&,
+    render::RenderBatch& renderBatch) const override
   {
     auto edgeRenderer = buildEdgeRenderer(m_moveDragState.currentDragFaces);
     edgeRenderer.renderOnTop(renderBatch, pref(Preferences::ExtrudeHandleColor));
@@ -422,9 +422,7 @@ std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
 }
 
 void ExtrudeToolController::render(
-  const InputState& inputState,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch& renderBatch)
+  const InputState& inputState, render::RenderContext&, render::RenderBatch& renderBatch)
 {
   const auto proposedDragHandles = m_tool.proposedDragHandles();
   if (!inputState.anyToolDragging() && !proposedDragHandles.empty())

@@ -23,7 +23,7 @@
 
 class QWidget;
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MapRenderer;
 }
@@ -35,12 +35,11 @@ class FlashSelectionAnimation : public Animation
 private:
   static const Type AnimationType;
 
-  Renderer::MapRenderer& m_renderer;
+  render::MapRenderer& m_renderer;
   QWidget* m_view;
 
 public:
-  FlashSelectionAnimation(
-    Renderer::MapRenderer& renderer, QWidget* view, double duration);
+  FlashSelectionAnimation(render::MapRenderer& renderer, QWidget* view, double duration);
 
 private:
   void doUpdate(double progress) override;

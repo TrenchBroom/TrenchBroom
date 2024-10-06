@@ -23,8 +23,6 @@
 
 #include "Logger.h"
 #include "ReaderException.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
 #include "asset/EntityModel.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
@@ -35,6 +33,8 @@
 #include "io/ReadFreeImageTexture.h"
 #include "io/ResourceUtils.h"
 #include "mdl/BrushFaceAttributes.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -292,7 +292,7 @@ struct AssimpComputedMeshData
 {
   size_t m_meshIndex;
   std::vector<asset::EntityModelVertex> m_vertices;
-  Renderer::IndexRangeMap m_indices;
+  render::IndexRangeMap m_indices;
 };
 
 struct AssimpBoneInformation
@@ -719,10 +719,10 @@ Result<void> loadSceneFrame(
       const auto numTriangles = mesh.m_mesh->mNumFaces;
       const auto numIndices = numTriangles * 3;
 
-      auto size = Renderer::IndexRangeMap::Size{};
-      size.inc(Renderer::PrimType::Triangles, numTriangles);
+      auto size = render::IndexRangeMap::Size{};
+      size.inc(render::PrimType::Triangles, numTriangles);
       auto builder =
-        Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{numIndices, size};
+        render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{numIndices, size};
 
       for (unsigned int i = 0; i < numTriangles; ++i)
       {

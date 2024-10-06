@@ -19,18 +19,18 @@
 
 #include "BspLoader.h"
 
+#include "Logger.h"
+#include "asset/EntityModel.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadMipTexture.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "io/ResourceUtils.h"
-#include "Logger.h"
-#include "Renderer/MaterialIndexRangeMap.h"
-#include "Renderer/MaterialIndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
+#include "render/MaterialIndexRangeMap.h"
+#include "render/MaterialIndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/result.h"
 #include "kdl/string_format.h"
@@ -218,7 +218,7 @@ void parseFrame(
   const auto modelFaceIndex = reader.readSize<int32_t>();
   const auto modelFaceCount = reader.readSize<int32_t>();
   auto totalVertexCount = size_t(0);
-  auto size = Renderer::MaterialIndexRangeMap::Size{};
+  auto size = render::MaterialIndexRangeMap::Size{};
 
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
@@ -227,7 +227,7 @@ void parseFrame(
     if (const auto* skin = surface.skin(materialInfo.materialIndex))
     {
       const auto faceVertexCount = faceInfo.edgeCount;
-      size.inc(skin, Renderer::PrimType::Polygon, faceVertexCount);
+      size.inc(skin, render::PrimType::Polygon, faceVertexCount);
       totalVertexCount += faceVertexCount;
     }
   }
@@ -235,7 +235,7 @@ void parseFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    Renderer::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+    render::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (size_t i = 0; i < modelFaceCount; ++i)
   {
     const auto& faceInfo = faceInfos[modelFaceIndex + i];

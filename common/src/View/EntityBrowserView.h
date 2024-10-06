@@ -20,10 +20,10 @@
 #pragma once
 
 #include "NotifierConnection.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/GLVertexType.h"
 #include "View/CellView.h"
 #include "el/Expression.h"
+#include "render/FontDescriptor.h"
+#include "render/GLVertexType.h"
 
 #include "vm/bbox.h"
 #include "vm/quat.h" // IWYU pragma: keep
@@ -46,12 +46,12 @@ class PointEntityDefinition;
 class ResourceId;
 } // namespace tb::asset
 
-namespace tb::Renderer
+namespace tb::render
 {
 class FontDescriptor;
 class MaterialRenderer;
 class Transformation;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -61,11 +61,11 @@ using EntityGroupData = std::string;
 
 struct EntityCellData
 {
-  using EntityRenderer = Renderer::MaterialRenderer;
+  using EntityRenderer = render::MaterialRenderer;
   const asset::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
   asset::Orientation modelOrientation;
-  Renderer::FontDescriptor fontDescriptor;
+  render::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
   vm::vec3f modelScale;
 };
@@ -74,10 +74,10 @@ class EntityBrowserView : public CellView
 {
   Q_OBJECT
 private:
-  using EntityRenderer = Renderer::MaterialRenderer;
+  using EntityRenderer = render::MaterialRenderer;
 
-  using TextVertex = Renderer::GLVertexTypes::P2UV2C4::Vertex;
-  using StringMap = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>;
+  using TextVertex = render::GLVertexTypes::P2UV2C4::Vertex;
+  using StringMap = std::map<render::FontDescriptor, std::vector<TextVertex>>;
 
   static constexpr auto CameraPosition = vm::vec3f{256.0f, 0.0f, 0.0f};
   static constexpr auto CameraDirection = vm::vec3f{-1, 0, 0};
@@ -122,11 +122,11 @@ private:
   void addEntitiesToLayout(
     Layout& layout,
     const std::vector<asset::EntityDefinition*>& definitions,
-    const Renderer::FontDescriptor& font);
+    const render::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
     const asset::PointEntityDefinition* definition,
-    const Renderer::FontDescriptor& font);
+    const render::FontDescriptor& font);
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -137,7 +137,7 @@ private:
 
   class MeshFunc;
   void renderModels(
-    Layout& layout, float y, float height, Renderer::Transformation& transformation);
+    Layout& layout, float y, float height, render::Transformation& transformation);
 
   vm::mat4x4f itemTransformation(
     const Cell& cell, float y, float height, bool applyModelScale) const;

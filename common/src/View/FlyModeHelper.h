@@ -25,7 +25,7 @@
 
 class QKeyEvent;
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -36,7 +36,7 @@ namespace tb::View
 class FlyModeHelper
 {
 private:
-  Renderer::Camera& m_camera;
+  render::Camera& m_camera;
 
   bool m_forward = false;
   bool m_backward = false;
@@ -50,7 +50,7 @@ private:
   int64_t m_lastPollTime;
 
 public:
-  explicit FlyModeHelper(Renderer::Camera& camera);
+  explicit FlyModeHelper(render::Camera& camera);
 
   void pollAndUpdate();
 

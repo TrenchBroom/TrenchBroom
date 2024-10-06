@@ -39,7 +39,7 @@ const mdl::HitType::Type VertexHandleManager::HandleHitType = mdl::HitType::free
 
 void VertexHandleManager::pick(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
@@ -89,7 +89,7 @@ const mdl::HitType::Type EdgeHandleManager::HandleHitType = mdl::HitType::freeTy
 
 void EdgeHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   const Grid& grid,
   mdl::PickResult& pickResult) const
 {
@@ -118,7 +118,7 @@ void EdgeHandleManager::pickGridHandle(
 
 void EdgeHandleManager::pickCenterHandle(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
@@ -170,7 +170,7 @@ const mdl::HitType::Type FaceHandleManager::HandleHitType = mdl::HitType::freeTy
 
 void FaceHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   const Grid& grid,
   mdl::PickResult& pickResult) const
 {
@@ -200,7 +200,7 @@ void FaceHandleManager::pickGridHandle(
 
 void FaceHandleManager::pickCenterHandle(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)

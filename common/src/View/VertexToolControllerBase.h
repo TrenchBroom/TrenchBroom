@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "Renderer/Camera.h"
-#include "Renderer/RenderContext.h"
 #include "View/HandleDragTracker.h"
 #include "View/Lasso.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/ToolController.h"
 #include "mdl/HitType.h"
+#include "render/Camera.h"
+#include "render/RenderContext.h"
 
 #include "vm/intersection.h"
 
@@ -164,8 +164,8 @@ protected:
     void render(
       const InputState&,
       const DragState&,
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) const override
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch) const override
     {
       m_lasso->render(renderContext, renderBatch);
     }
@@ -248,15 +248,15 @@ protected:
 
   protected:
     void setRenderOptions(
-      const InputState&, Renderer::RenderContext& renderContext) const override
+      const InputState&, render::RenderContext& renderContext) const override
     {
       renderContext.setForceHideSelectionGuide();
     }
 
     void render(
       const InputState& inputState,
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) override
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch) override
     {
       m_tool.renderHandles(renderContext, renderBatch);
       if (!inputState.anyToolDragging())
@@ -360,8 +360,8 @@ protected:
     void render(
       const InputState&,
       const DragState&,
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) const override
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch) const override
     {
       m_tool.renderDragHandle(renderContext, renderBatch);
       m_tool.renderDragHighlight(renderContext, renderBatch);

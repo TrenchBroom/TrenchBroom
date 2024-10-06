@@ -177,8 +177,8 @@ private:
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override
   {
     MovePartBase::render(inputState, renderContext, renderBatch);
 

@@ -32,7 +32,7 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MapRenderer;
 }
@@ -67,7 +67,7 @@ public:
   CyclingMapView(
     std::weak_ptr<MapDocument> document,
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     int views,
     QWidget* parent = nullptr);
@@ -75,7 +75,7 @@ public:
 private:
   void createGui(
     MapViewToolBox& toolBox,
-    Renderer::MapRenderer& mapRenderer,
+    render::MapRenderer& mapRenderer,
     GLContextManager& contextManager,
     int views);
   void addMapView(MapViewBase* mapView);
@@ -92,7 +92,7 @@ public: // implement MapView interface
   MapViewBase* firstMapViewBase() override;
   bool canSelectTall() override;
   void selectTall() override;
-  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void moveCameraToCurrentTracePoint() override;

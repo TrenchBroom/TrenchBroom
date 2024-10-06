@@ -20,8 +20,6 @@
 #include "ClipToolController.h"
 
 #include "Ensure.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
@@ -35,6 +33,8 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "render/Camera.h"
+#include "render/RenderContext.h"
 
 #include "kdl/optional_utils.h"
 #include "kdl/vector_utils.h"
@@ -109,8 +109,8 @@ public:
 
   void renderFeedback(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch)
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch)
   {
     if (inputState.anyToolDragging())
     {
@@ -434,8 +434,8 @@ private:
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override
   {
     m_delegate->renderFeedback(inputState, renderContext, renderBatch);
   }
@@ -554,7 +554,7 @@ void ClipToolControllerBase::pick(
 }
 
 void ClipToolControllerBase::setRenderOptions(
-  const InputState&, Renderer::RenderContext& renderContext) const
+  const InputState&, render::RenderContext& renderContext) const
 {
   if (m_tool.hasBrushes())
   {
@@ -565,8 +565,8 @@ void ClipToolControllerBase::setRenderOptions(
 
 void ClipToolControllerBase::render(
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   m_tool.render(renderContext, renderBatch, inputState.pickResult());
   ToolControllerGroup::render(inputState, renderContext, renderBatch);

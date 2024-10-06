@@ -19,13 +19,13 @@
 
 #include "Md3Loader.h"
 
-#include "io/Reader.h"
-#include "io/ReaderException.h"
 #include "Logger.h"
-#include "Renderer/IndexRangeMapBuilder.h" // IWYU pragma: keep
-#include "Renderer/PrimType.h"
 #include "asset/EntityModel.h"
 #include "asset/Material.h" // IWYU pragma: keep
+#include "io/Reader.h"
+#include "io/ReaderException.h"
+#include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
+#include "render/PrimType.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -220,7 +220,7 @@ void buildFrameSurface(
   using Vertex = asset::EntityModelVertex;
 
   auto rangeMap =
-    Renderer::IndexRangeMap{Renderer::PrimType::Triangles, 0, 3 * triangles.size()};
+    render::IndexRangeMap{render::PrimType::Triangles, 0, 3 * triangles.size()};
   auto frameVertices = std::vector<Vertex>{};
   frameVertices.reserve(3 * triangles.size());
 

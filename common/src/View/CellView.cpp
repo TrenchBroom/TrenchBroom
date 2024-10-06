@@ -27,17 +27,17 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/FontDescriptor.h"
-#include "Renderer/FontManager.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/TextureFont.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "View/CellLayout.h"
 #include "View/RenderView.h"
+#include "render/ActiveShader.h"
+#include "render/FontDescriptor.h"
+#include "render/FontManager.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/Shaders.h"
+#include "render/TextureFont.h"
+#include "render/Transformation.h"
+#include "render/VertexArray.h"
 
 #include "kdl/skip_iterator.h"
 
@@ -374,7 +374,7 @@ void CellView::renderContents()
   const auto viewRight = float(size().width());
   const auto viewBottom = float(0);
 
-  const auto transformation = Renderer::Transformation{
+  const auto transformation = render::Transformation{
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
     vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0})
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
@@ -405,7 +405,7 @@ void CellView::setupGL()
 
 void CellView::renderTitleBackgrounds(float y, float height)
 {
-  using Vertex = Renderer::GLVertexTypes::P2::Vertex;
+  using Vertex = render::GLVertexTypes::P2::Vertex;
   auto vertices = std::vector<Vertex>{};
 
   for (const auto& group : m_layout.groups())
@@ -425,32 +425,29 @@ void CellView::renderTitleBackgrounds(float y, float height)
   }
 
   auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
+    render::ActiveShader{shaderManager(), render::Shaders::VaryingPUniformCShader};
   shader.set("Color", pref(Preferences::BrowserGroupBackgroundColor));
 
-  auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
+  auto vertexArray = render::VertexArray::move(std::move(vertices));
   vertexArray.prepare(vboManager());
-  vertexArray.render(Renderer::PrimType::Quads);
+  vertexArray.render(render::PrimType::Quads);
 }
 
 namespace
 {
 
 auto collectStringVertices(
-  CellLayout& layout,
-  const float y,
-  const float height,
-  Renderer::FontManager& fontManager)
+  CellLayout& layout, const float y, const float height, render::FontManager& fontManager)
 {
-  using TextVertex = Renderer::GLVertexTypes::P2UV2C4::Vertex;
+  using TextVertex = render::GLVertexTypes::P2UV2C4::Vertex;
 
-  auto defaultFont = Renderer::FontDescriptor{
+  auto defaultFont = render::FontDescriptor{
     pref(Preferences::RendererFontPath()), size_t(pref(Preferences::BrowserFontSize))};
 
   const auto textColor = std::vector<Color>{pref(Preferences::BrowserTextColor)};
   const auto subTextColor = std::vector<Color>{pref(Preferences::BrowserSubTextColor)};
 
-  auto stringVertices = std::map<Renderer::FontDescriptor, std::vector<TextVertex>>{};
+  auto stringVertices = std::map<render::FontDescriptor, std::vector<TextVertex>>{};
   for (const auto& group : layout.groups())
   {
     if (group.intersectsY(y, height))
@@ -516,25 +513,24 @@ auto collectStringVertices(
 
 void CellView::renderTitleStrings(float y, float height)
 {
-  using StringRendererMap = std::map<Renderer::FontDescriptor, Renderer::VertexArray>;
+  using StringRendererMap = std::map<render::FontDescriptor, render::VertexArray>;
   auto stringRenderers = StringRendererMap{};
 
   for (const auto& [descriptor, vertices] :
        collectStringVertices(m_layout, y, height, fontManager()))
   {
-    stringRenderers[descriptor] = Renderer::VertexArray::ref(vertices);
+    stringRenderers[descriptor] = render::VertexArray::ref(vertices);
     stringRenderers[descriptor].prepare(vboManager());
   }
 
-  auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::ColoredTextShader};
+  auto shader = render::ActiveShader{shaderManager(), render::Shaders::ColoredTextShader};
   shader.set("Texture", 0);
 
   for (auto& [descriptor, vertexArray] : stringRenderers)
   {
     auto& font = fontManager().font(descriptor);
     font.activate();
-    vertexArray.render(Renderer::PrimType::Quads);
+    vertexArray.render(render::PrimType::Quads);
     font.deactivate();
   }
 }

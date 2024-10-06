@@ -21,15 +21,15 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VboManager.h"
-#include "Renderer/VertexArray.h"
 #include "TrenchBroomApp.h"
 #include "View/GLContextManager.h"
 #include "View/InputEvent.h"
 #include "View/QtUtils.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/Transformation.h"
+#include "render/VboManager.h"
+#include "render/VertexArray.h"
 
 #include <fmt/format.h>
 
@@ -222,17 +222,17 @@ void RenderView::paintGL()
   }
 }
 
-Renderer::VboManager& RenderView::vboManager()
+render::VboManager& RenderView::vboManager()
 {
   return m_glContext->vboManager();
 }
 
-Renderer::FontManager& RenderView::fontManager()
+render::FontManager& RenderView::fontManager()
 {
   return m_glContext->fontManager();
 }
 
-Renderer::ShaderManager& RenderView::shaderManager()
+render::ShaderManager& RenderView::shaderManager()
 {
   return m_glContext->shaderManager();
 }
@@ -302,12 +302,12 @@ void RenderView::renderFocusIndicator()
     const auto t = 1.0f;
 
     const auto projection = vm::ortho_matrix(-1.0f, 1.0f, 0.0f, 0.0f, float(w), float(h));
-    auto transformation = Renderer::Transformation{projection, vm::mat4x4f::identity()};
+    auto transformation = render::Transformation{projection, vm::mat4x4f::identity()};
 
     glAssert(glDisable(GL_DEPTH_TEST));
 
-    using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
-    auto array = Renderer::VertexArray::move(std::vector{
+    using Vertex = render::GLVertexTypes::P3C4::Vertex;
+    auto array = render::VertexArray::move(std::vector{
       // top
       Vertex{{0.0f, 0.0f, 0.0f}, outer},
       Vertex{{w, 0.0f, 0.0f}, outer},
@@ -334,7 +334,7 @@ void RenderView::renderFocusIndicator()
     });
 
     array.prepare(vboManager());
-    array.render(Renderer::PrimType::Quads);
+    array.render(render::PrimType::Quads);
     glAssert(glEnable(GL_DEPTH_TEST));
   }
 }

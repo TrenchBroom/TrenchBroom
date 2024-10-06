@@ -19,8 +19,8 @@
 
 #include "Lasso.h"
 
-#include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
+#include "render/Camera.h"
+#include "render/RenderService.h"
 
 #include "kdl/optional_utils.h"
 
@@ -33,8 +33,7 @@
 namespace tb::View
 {
 
-Lasso::Lasso(
-  const Renderer::Camera& camera, const double distance, const vm::vec3d& point)
+Lasso::Lasso(const render::Camera& camera, const double distance, const vm::vec3d& point)
   : m_camera{camera}
   , m_distance{distance}
   , m_start{point}
@@ -81,7 +80,7 @@ std::optional<vm::vec3d> Lasso::project(
 }
 
 void Lasso::render(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) const
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
 {
   const auto transform = getTransform();
   const auto inverseTransform = vm::invert(transform);
@@ -94,7 +93,7 @@ void Lasso::render(
     vm::vec3f{*inverseTransform * vm::vec3d{box.max.x(), box.min.y(), 0.0}},
   };
 
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(Color(1.0f, 1.0f, 1.0f, 1.0f));
   renderService.setLineWidth(2.0f);
   renderService.renderPolygonOutline(polygon);

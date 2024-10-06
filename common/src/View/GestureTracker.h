@@ -19,11 +19,11 @@
 
 #pragma once
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -68,15 +68,15 @@ public:
    * Called prior to a rendering pass.
    */
   virtual void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+    const InputState& inputState, render::RenderContext& renderContext) const;
 
   /**
    * Called once during every render pass.
    */
   virtual void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const;
 };
 
 } // namespace tb::View

@@ -20,12 +20,6 @@
 #include "MapView2D.h"
 
 #include "Macros.h"
-#include "Renderer/Compass2D.h"
-#include "Renderer/GridRenderer.h"
-#include "Renderer/MapRenderer.h"
-#include "Renderer/OrthographicCamera.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/SelectionBoundsRenderer.h"
 #include "View/CameraAnimation.h"
 #include "View/CameraLinkHelper.h"
 #include "View/CameraTool2D.h"
@@ -56,6 +50,12 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/PickResult.h"
 #include "mdl/PointTrace.h"
+#include "render/Compass2D.h"
+#include "render/GridRenderer.h"
+#include "render/MapRenderer.h"
+#include "render/OrthographicCamera.h"
+#include "render/RenderContext.h"
+#include "render/SelectionBoundsRenderer.h"
 
 #include "vm/util.h"
 
@@ -65,11 +65,11 @@ namespace tb::View
 MapView2D::MapView2D(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& renderer,
+  render::MapRenderer& renderer,
   GLContextManager& contextManager,
   ViewPlane viewPlane)
   : MapViewBase{std::move(document), toolBox, renderer, contextManager}
-  , m_camera{std::make_unique<Renderer::OrthographicCamera>()}
+  , m_camera{std::make_unique<render::OrthographicCamera>()}
 {
   connectObservers();
   initializeCamera(viewPlane);
@@ -144,7 +144,7 @@ void MapView2D::connectObservers()
     m_camera->cameraDidChangeNotifier.connect(this, &MapView2D::cameraDidChange);
 }
 
-void MapView2D::cameraDidChange(const Renderer::Camera*)
+void MapView2D::cameraDidChange(const render::Camera*)
 {
   update();
 }
@@ -168,7 +168,7 @@ mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 void MapView2D::initializeGL()
 {
   MapViewBase::initializeGL();
-  setCompass(std::make_unique<Renderer::Compass2D>());
+  setCompass(std::make_unique<render::Compass2D>());
 }
 
 void MapView2D::updateViewport(
@@ -208,7 +208,7 @@ void MapView2D::selectTall()
   document->selectTall(cameraAxis);
 }
 
-void MapView2D::reset2dCameras(const Renderer::Camera& masterCamera, const bool animate)
+void MapView2D::reset2dCameras(const render::Camera& masterCamera, const bool animate)
 {
   const auto oldPosition = m_camera->position();
   const auto factors = vm::vec3f{1, 1, 1} - vm::abs(masterCamera.direction())
@@ -279,7 +279,7 @@ void MapView2D::moveCameraToCurrentTracePoint()
   }
 }
 
-Renderer::Camera& MapView2D::camera()
+render::Camera& MapView2D::camera()
 {
   return *m_camera;
 }
@@ -365,48 +365,48 @@ ActionContext::Type MapView2D::viewActionContext() const
   return ActionContext::View2D;
 }
 
-Renderer::RenderMode MapView2D::renderMode()
+render::RenderMode MapView2D::renderMode()
 {
-  return Renderer::RenderMode::Render2D;
+  return render::RenderMode::Render2D;
 }
 
-void MapView2D::renderGrid(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void MapView2D::renderGrid(render::RenderContext&, render::RenderBatch& renderBatch)
 {
   auto document = kdl::mem_lock(m_document);
-  renderBatch.addOneShot(new Renderer::GridRenderer(*m_camera, document->worldBounds()));
+  renderBatch.addOneShot(new render::GridRenderer(*m_camera, document->worldBounds()));
 }
 
 void MapView2D::renderMap(
-  Renderer::MapRenderer& renderer,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::MapRenderer& renderer,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   renderer.render(renderContext, renderBatch);
 
   auto document = kdl::mem_lock(m_document);
   if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
   {
-    auto boundsRenderer = Renderer::SelectionBoundsRenderer{document->selectionBounds()};
+    auto boundsRenderer = render::SelectionBoundsRenderer{document->selectionBounds()};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }
 
 void MapView2D::renderTools(
   MapViewToolBox& /* toolBox */,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   ToolBoxConnector::renderTools(renderContext, renderBatch);
 }
 
 void MapView2D::renderSoftWorldBounds(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   if (!renderContext.softMapBounds().is_empty())
   {
     auto document = kdl::mem_lock(m_document);
 
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SoftMapBoundsColor));
     renderService.renderBounds(renderContext.softMapBounds());
   }

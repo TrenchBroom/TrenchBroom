@@ -20,16 +20,16 @@
 #include "io/SprLoader.h"
 
 #include "Color.h"
-#include "io/Reader.h"
-#include "io/ReaderException.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
 #include "asset/EntityModel.h"
 #include "asset/Material.h"
 #include "asset/Palette.h"
 #include "asset/Texture.h"
 #include "asset/TextureBuffer.h"
 #include "asset/TextureResource.h"
+#include "io/Reader.h"
+#include "io/ReaderException.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -320,11 +320,11 @@ Result<asset::EntityModelData> SprLoader::load(Logger& /* logger */)
                 asset::EntityModelVertex{{x1, y1, 0}, {0, 1}},
               };
 
-              auto size = Renderer::IndexRangeMap::Size{};
-              size.inc(Renderer::PrimType::Triangles, 2);
+              auto size = render::IndexRangeMap::Size{};
+              size.inc(render::PrimType::Triangles, 2);
 
               auto builder =
-                Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{6, size};
+                render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{6, size};
               builder.addTriangles(triangles);
 
               surface.addMesh(modelFrame, builder.vertices(), builder.indices());

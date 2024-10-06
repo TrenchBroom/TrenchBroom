@@ -19,13 +19,13 @@
 
 #include "MoveObjectsToolController.h"
 
-#include "Renderer/RenderContext.h"
 #include "View/GestureTracker.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/MoveObjectsTool.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/ModelUtils.h"
+#include "render/RenderContext.h"
 
 #include <cassert>
 
@@ -71,7 +71,7 @@ public:
   void cancel(const DragState&) override { m_tool.cancelMove(); }
 
   void setRenderOptions(
-    const InputState&, Renderer::RenderContext& renderContext) const override
+    const InputState&, render::RenderContext& renderContext) const override
   {
     renderContext.setForceShowSelectionGuide();
   }

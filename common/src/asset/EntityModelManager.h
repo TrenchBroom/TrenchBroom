@@ -42,11 +42,11 @@ class EntityNode;
 class Game;
 } // namespace tb::mdl
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MaterialRenderer;
 class VboManager;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::asset
 {
@@ -67,11 +67,11 @@ private:
 
   mutable std::unordered_map<std::filesystem::path, EntityModel, kdl::path_hash> m_models;
   mutable std::
-    unordered_map<ModelSpecification, std::unique_ptr<Renderer::MaterialRenderer>>
+    unordered_map<ModelSpecification, std::unique_ptr<render::MaterialRenderer>>
       m_renderers;
   mutable std::unordered_set<ModelSpecification> m_rendererMismatches;
 
-  mutable std::vector<Renderer::MaterialRenderer*> m_unpreparedRenderers;
+  mutable std::vector<render::MaterialRenderer*> m_unpreparedRenderers;
 
 public:
   EntityModelManager(asset::CreateEntityModelDataResource createResource, Logger& logger);
@@ -82,7 +82,7 @@ public:
 
   void setGame(const mdl::Game* game);
 
-  Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
+  render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 
   const EntityModelFrame* frame(const ModelSpecification& spec) const;
   const EntityModel* model(const std::filesystem::path& path) const;
@@ -95,10 +95,10 @@ private:
   Result<EntityModel> loadModel(const std::filesystem::path& path) const;
 
 public:
-  void prepare(Renderer::VboManager& vboManager);
+  void prepare(render::VboManager& vboManager);
 
 private:
-  void prepareRenderers(Renderer::VboManager& vboManager);
+  void prepareRenderers(render::VboManager& vboManager);
 };
 
 } // namespace tb::asset

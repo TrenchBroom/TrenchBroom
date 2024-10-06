@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Renderer/GLVertexType.h"
+#include "render/GLVertexType.h"
 
 namespace tb::asset
 {
@@ -28,5 +28,5 @@ class EntityModelData;
 class EntityModelLoadedFrame;
 class EntityModelSurface;
 
-using EntityModelVertex = Renderer::GLVertexTypes::P3UV2::Vertex;
+using EntityModelVertex = render::GLVertexTypes::P3UV2::Vertex;
 } // namespace tb::asset

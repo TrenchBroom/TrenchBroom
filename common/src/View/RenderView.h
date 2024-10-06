@@ -33,12 +33,12 @@
 #undef Status
 #undef CursorShape
 
-namespace tb::Renderer
+namespace tb::render
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -80,9 +80,9 @@ protected: // QWindow overrides
   bool event(QEvent* event) override;
 
 protected:
-  Renderer::VboManager& vboManager();
-  Renderer::FontManager& fontManager();
-  Renderer::ShaderManager& shaderManager();
+  render::VboManager& vboManager();
+  render::FontManager& fontManager();
+  render::ShaderManager& shaderManager();
 
   int depthBits() const;
   bool multisample() const;

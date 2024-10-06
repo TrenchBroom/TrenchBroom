@@ -22,7 +22,7 @@
 #include "View/PickRequest.h"
 #include "mdl/PickResult.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -162,7 +162,7 @@ public:
   const vm::ray3d& pickRay() const;
   const vm::vec3d defaultPoint() const;
   const vm::vec3d defaultPointUnderMouse() const;
-  const Renderer::Camera& camera() const;
+  const render::Camera& camera() const;
   void setPickRequest(const PickRequest& pickRequest);
 
   const mdl::PickResult& pickResult() const;

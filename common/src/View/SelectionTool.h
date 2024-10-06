@@ -30,7 +30,7 @@ namespace tb::mdl
 class Node;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderContext;
 }
@@ -65,7 +65,7 @@ public:
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+    const InputState& inputState, render::RenderContext& renderContext) const override;
 
   bool cancel() override;
 };

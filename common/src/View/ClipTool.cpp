@@ -21,9 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/BrushRenderer.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderService.h"
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 #include "View/Transaction.h"
@@ -33,6 +30,9 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
+#include "render/BrushRenderer.h"
+#include "render/Camera.h"
+#include "render/RenderService.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
@@ -61,15 +61,15 @@ public:
 
   virtual void pick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const = 0;
   virtual void render(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult& pickResult) = 0;
   virtual void renderFeedback(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& point) const = 0;
 
   virtual std::optional<vm::vec3d> computeThirdPoint() const = 0;
@@ -119,7 +119,7 @@ private:
 public:
   void pick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) const override
   {
     for (size_t i = 0; i < m_points.size(); ++i)
@@ -136,8 +136,8 @@ public:
   }
 
   void render(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult& pickResult) override
   {
     renderPoints(renderContext, renderBatch);
@@ -145,11 +145,11 @@ public:
   }
 
   void renderFeedback(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const vm::vec3d& point) const override
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
     renderService.renderHandle(vm::vec3f{point});
   }
@@ -330,9 +330,9 @@ public:
 
 private:
   void renderPoints(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch)
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::ClipHandleColor));
     renderService.setShowOccludedObjects();
 
@@ -363,8 +363,8 @@ private:
   }
 
   void renderHighlight(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult& pickResult)
   {
     if (m_dragState)
@@ -385,11 +385,11 @@ private:
   }
 
   void renderHighlight(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const size_t index)
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
     renderService.renderHandleHighlight(vm::vec3f(m_points[index].point));
   }
@@ -401,16 +401,16 @@ private:
   std::optional<mdl::BrushFaceHandle> m_faceHandle;
 
 public:
-  void pick(const vm::ray3d&, const Renderer::Camera&, mdl::PickResult&) const override {}
+  void pick(const vm::ray3d&, const render::Camera&, mdl::PickResult&) const override {}
 
   void render(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch,
     const mdl::PickResult&) override
   {
     if (m_faceHandle)
     {
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
 
       const auto positions = kdl::vec_transform(
         m_faceHandle->face().vertices(),
@@ -425,7 +425,7 @@ public:
   }
 
   void renderFeedback(
-    Renderer::RenderContext&, Renderer::RenderBatch&, const vm::vec3d&) const override
+    render::RenderContext&, render::RenderBatch&, const vm::vec3d&) const override
   {
   }
 
@@ -481,8 +481,8 @@ public:
 ClipTool::ClipTool(std::weak_ptr<MapDocument> document)
   : Tool{false}
   , m_document{std::move(document)}
-  , m_remainingBrushRenderer{std::make_unique<Renderer::BrushRenderer>()}
-  , m_clippedBrushRenderer{std::make_unique<Renderer::BrushRenderer>()}
+  , m_remainingBrushRenderer{std::make_unique<render::BrushRenderer>()}
+  , m_clippedBrushRenderer{std::make_unique<render::BrushRenderer>()}
 {
 }
 
@@ -518,7 +518,7 @@ void ClipTool::toggleSide()
 }
 
 void ClipTool::pick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
 {
   if (m_strategy)
   {
@@ -527,8 +527,8 @@ void ClipTool::pick(
 }
 
 void ClipTool::render(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const mdl::PickResult& pickResult)
 {
   renderBrushes(renderContext, renderBatch);
@@ -536,7 +536,7 @@ void ClipTool::render(
 }
 
 void ClipTool::renderBrushes(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_remainingBrushRenderer->setFaceColor(pref(Preferences::FaceColor));
   m_remainingBrushRenderer->setEdgeColor(pref(Preferences::SelectedEdgeColor));
@@ -558,8 +558,8 @@ void ClipTool::renderBrushes(
 }
 
 void ClipTool::renderStrategy(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const mdl::PickResult& pickResult)
 {
   if (m_strategy)
@@ -569,8 +569,8 @@ void ClipTool::renderStrategy(
 }
 
 void ClipTool::renderFeedback(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const vm::vec3d& point) const
 {
   if (m_strategy)
@@ -905,7 +905,7 @@ void ClipTool::updateRenderers()
 
 void ClipTool::addBrushesToRenderer(
   const std::map<mdl::Node*, std::vector<mdl::Node*>>& map,
-  Renderer::BrushRenderer& renderer)
+  render::BrushRenderer& renderer)
 {
   for (const auto& [parent, nodes] : map)
   {

@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/OrthographicCamera.h"
 #include "View/InputState.h"
 #include "View/MapDocumentTest.h"
 #include "View/PickRequest.h"
@@ -33,6 +32,7 @@
 #include "mdl/GroupNode.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
+#include "render/OrthographicCamera.h"
 
 #include "kdl/result.h"
 
@@ -61,7 +61,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
     document->addNodes({{document->parentForNodes(), {groupNode}}});
     document->addNodes({{groupNode, {brushNode, entityNode}}});
 
-    auto camera = Renderer::OrthographicCamera{};
+    auto camera = render::OrthographicCamera{};
 
     AND_GIVEN("A pick ray that points at the top face of the brush")
     {
@@ -129,7 +129,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
     document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
 
-    auto camera = Renderer::OrthographicCamera{};
+    auto camera = render::OrthographicCamera{};
 
     AND_GIVEN("A pick ray that points at the top face of the brush")
     {

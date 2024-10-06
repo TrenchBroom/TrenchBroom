@@ -21,19 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/Camera.h"
-#include "Renderer/EdgeRenderer.h"
-#include "Renderer/FaceRenderer.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderUtils.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/VboManager.h"
-#include "Renderer/VertexArray.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/UVCameraTool.h"
@@ -46,6 +33,19 @@
 #include "asset/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
+#include "render/ActiveShader.h"
+#include "render/Camera.h"
+#include "render/EdgeRenderer.h"
+#include "render/FaceRenderer.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/RenderUtils.h"
+#include "render/Renderable.h"
+#include "render/Shaders.h"
+#include "render/VboManager.h"
+#include "render/VertexArray.h"
 
 #include "kdl/memory_utils.h"
 
@@ -59,18 +59,18 @@ namespace tb::View
 namespace
 {
 
-class RenderMaterial : public Renderer::DirectRenderable
+class RenderMaterial : public render::DirectRenderable
 {
 private:
-  using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
+  using Vertex = render::GLVertexTypes::P3NT2::Vertex;
 
   const UVViewHelper& m_helper;
-  Renderer::VertexArray m_vertexArray;
+  render::VertexArray m_vertexArray;
 
 public:
   explicit RenderMaterial(const UVViewHelper& helper)
     : m_helper{helper}
-    , m_vertexArray{Renderer::VertexArray::move(getVertices())}
+    , m_vertexArray{render::VertexArray::move(getVertices())}
   {
   }
 
@@ -102,12 +102,12 @@ private:
   }
 
 private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  void doPrepareVertices(render::VboManager& vboManager) override
   {
     m_vertexArray.prepare(vboManager);
   }
 
-  void doRender(Renderer::RenderContext& renderContext) override
+  void doRender(render::RenderContext& renderContext) override
   {
     const auto& offset = m_helper.face()->attributes().offset();
     const auto& scale = m_helper.face()->attributes().scale();
@@ -121,14 +121,14 @@ private:
 
     material->activate(renderContext.minFilterMode(), renderContext.magFilterMode());
 
-    auto shader = Renderer::ActiveShader{
-      renderContext.shaderManager(), Renderer::Shaders::UVViewShader};
+    auto shader =
+      render::ActiveShader{renderContext.shaderManager(), render::Shaders::UVViewShader};
     shader.set("ApplyMaterial", true);
     shader.set("Color", texture->averageColor());
     shader.set("Brightness", pref(Preferences::Brightness));
     shader.set("RenderGrid", true);
     shader.set("GridSizes", texture->sizef());
-    shader.set("GridColor", vm::vec4f{Renderer::gridColorForMaterial(material), 0.6f});
+    shader.set("GridColor", vm::vec4f{render::gridColorForMaterial(material), 0.6f});
     shader.set("DpiScale", renderContext.dpiScale());
     shader.set("GridScales", scale);
     shader.set("GridMatrix", vm::mat4x4f{toTex});
@@ -136,7 +136,7 @@ private:
     shader.set("CameraZoom", m_helper.cameraZoom());
     shader.set("Material", 0);
 
-    m_vertexArray.render(Renderer::PrimType::Quads);
+    m_vertexArray.render(render::PrimType::Quads);
 
     material->deactivate();
   }
@@ -257,7 +257,7 @@ void UVView::preferenceDidChange(const std::filesystem::path&)
   update();
 }
 
-void UVView::cameraDidChange(const Renderer::Camera*)
+void UVView::cameraDidChange(const render::Camera*)
 {
   update();
 }
@@ -274,12 +274,12 @@ void UVView::renderContents()
 {
   if (m_helper.valid())
   {
-    auto renderContext = Renderer::RenderContext{
-      Renderer::RenderMode::Render2D, m_camera, fontManager(), shaderManager()};
+    auto renderContext = render::RenderContext{
+      render::RenderMode::Render2D, m_camera, fontManager(), shaderManager()};
     renderContext.setFilterMode(
       pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
-    auto renderBatch = Renderer::RenderBatch{vboManager()};
+    auto renderBatch = render::RenderBatch{vboManager()};
     renderContext.setDpiScale(float(window()->devicePixelRatioF()));
 
     setupGL(renderContext);
@@ -302,7 +302,7 @@ const Color& UVView::getBackgroundColor()
   return pref(Preferences::BrowserBackgroundColor);
 }
 
-void UVView::setupGL(Renderer::RenderContext& renderContext)
+void UVView::setupGL(render::RenderContext& renderContext)
 {
   const auto& viewport = renderContext.camera().viewport();
   const auto r = devicePixelRatioF();
@@ -328,7 +328,7 @@ void UVView::setupGL(Renderer::RenderContext& renderContext)
   glAssert(glDisable(GL_DEPTH_TEST));
 }
 
-void UVView::renderMaterial(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void UVView::renderMaterial(render::RenderContext&, render::RenderBatch& renderBatch)
 {
   if (getTexture(m_helper.face()->material()))
   {
@@ -336,9 +336,9 @@ void UVView::renderMaterial(Renderer::RenderContext&, Renderer::RenderBatch& ren
   }
 }
 
-void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void UVView::renderFace(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = Renderer::GLVertexTypes::P3::Vertex;
+  using Vertex = render::GLVertexTypes::P3::Vertex;
 
   assert(m_helper.valid());
 
@@ -346,16 +346,16 @@ void UVView::renderFace(Renderer::RenderContext&, Renderer::RenderBatch& renderB
     m_helper.face()->vertices(),
     [](const auto* vertex) { return Vertex{vm::vec3f(vertex->position())}; });
 
-  auto edgeRenderer = Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(std::move(edgeVertices)), Renderer::PrimType::LineLoop};
+  auto edgeRenderer = render::DirectEdgeRenderer{
+    render::VertexArray::move(std::move(edgeVertices)), render::PrimType::LineLoop};
 
   const auto edgeColor = Color{1.0f, 1.0f, 1.0f, 1.0f};
   edgeRenderer.renderOnTop(renderBatch, edgeColor, 2.5f);
 }
 
-void UVView::renderUVAxes(Renderer::RenderContext&, Renderer::RenderBatch& renderBatch)
+void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBatch)
 {
-  using Vertex = Renderer::GLVertexTypes::P3C4::Vertex;
+  using Vertex = render::GLVertexTypes::P3C4::Vertex;
 
   assert(m_helper.valid());
 
@@ -368,19 +368,19 @@ void UVView::renderUVAxes(Renderer::RenderContext&, Renderer::RenderBatch& rende
 
   const auto length = 32.0f / m_helper.cameraZoom();
 
-  auto edgeRenderer = Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(std::vector{
+  auto edgeRenderer = render::DirectEdgeRenderer{
+    render::VertexArray::move(std::vector{
       Vertex{center, pref(Preferences::XAxisColor)},
       Vertex{center + length * xAxis, pref(Preferences::XAxisColor)},
       Vertex{center, pref(Preferences::YAxisColor)},
       Vertex{center + length * yAxis, pref(Preferences::YAxisColor)},
     }),
-    Renderer::PrimType::Lines};
+    render::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);
 }
 
 void UVView::renderToolBox(
-  Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   renderTools(renderContext, renderBatch);
 }

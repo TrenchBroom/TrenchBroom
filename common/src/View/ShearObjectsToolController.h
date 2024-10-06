@@ -24,12 +24,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -57,7 +57,7 @@ private:
   void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
   virtual void doPick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) = 0;
 
   void mouseMove(const InputState& inputState) override;
@@ -65,12 +65,12 @@ private:
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+    const InputState& inputState, render::RenderContext& renderContext) const override;
 
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 };
@@ -84,7 +84,7 @@ public:
 private:
   void doPick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) override;
 };
 
@@ -97,7 +97,7 @@ public:
 private:
   void doPick(
     const vm::ray3d& pickRay,
-    const Renderer::Camera& camera,
+    const render::Camera& camera,
     mdl::PickResult& pickResult) override;
 };
 

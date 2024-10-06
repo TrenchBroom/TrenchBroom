@@ -19,15 +19,15 @@
 
 #include "ImageSpriteLoader.h"
 
+#include "asset/EntityModel.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 #include "io/File.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ReaderException.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/result.h"
 
@@ -81,11 +81,10 @@ void createFrame(asset::EntityModelData& modelData)
       asset::EntityModelVertex{{x1, y1, 0}, {0, 1}},
     };
 
-    auto size = Renderer::IndexRangeMap::Size{};
-    size.inc(Renderer::PrimType::Triangles, 2);
+    auto size = render::IndexRangeMap::Size{};
+    size.inc(render::PrimType::Triangles, 2);
 
-    auto builder =
-      Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{6, size};
+    auto builder = render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
     surface.addMesh(frame, builder.vertices(), builder.indices());

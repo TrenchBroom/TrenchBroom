@@ -34,13 +34,13 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class ActiveShader;
 class Camera;
 class OrthographicCamera;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::mdl
 {
@@ -54,7 +54,7 @@ namespace tb::View
 class UVViewHelper
 {
 private:
-  Renderer::OrthographicCamera& m_camera;
+  render::OrthographicCamera& m_camera;
   bool m_zoomValid = false;
 
   std::optional<mdl::BrushFaceHandle> m_faceHandle;
@@ -67,7 +67,7 @@ private:
   vm::vec3d m_origin;
 
 public:
-  explicit UVViewHelper(Renderer::OrthographicCamera& camera);
+  explicit UVViewHelper(render::OrthographicCamera& camera);
 
   bool valid() const;
   const mdl::BrushFace* face() const;
@@ -84,7 +84,7 @@ public:
   const vm::vec2f originInUVCoords() const;
   void setOriginInFaceCoords(const vm::vec2f& originInFaceCoords);
 
-  const Renderer::OrthographicCamera& camera() const;
+  const render::OrthographicCamera& camera() const;
   float cameraZoom() const;
 
   void pickUVGrid(

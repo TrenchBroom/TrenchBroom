@@ -27,7 +27,7 @@
 
 #include <memory>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class MapRenderer;
 }
@@ -57,7 +57,7 @@ private:
   MapViewBar* m_mapViewBar = nullptr;
   std::unique_ptr<MapViewToolBox> m_toolBox;
 
-  std::unique_ptr<Renderer::MapRenderer> m_mapRenderer;
+  std::unique_ptr<render::MapRenderer> m_mapRenderer;
 
   MultiPaneMapView* m_mapView = nullptr;
   std::unique_ptr<MapViewActivationTracker> m_activationTracker;
@@ -136,7 +136,7 @@ public: // implement MapView interface
   void selectTall() override;
   vm::vec3d pasteObjectsDelta(
     const vm::bbox3d& bounds, const vm::bbox3d& referenceBounds) const override;
-  void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
+  void reset2dCameras(const render::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void moveCameraToCurrentTracePoint() override;

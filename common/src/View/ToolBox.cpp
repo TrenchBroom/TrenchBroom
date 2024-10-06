@@ -334,7 +334,7 @@ void ToolBox::disable()
 }
 
 void ToolBox::setRenderOptions(
-  ToolChain& chain, const InputState& inputState, Renderer::RenderContext& renderContext)
+  ToolChain& chain, const InputState& inputState, render::RenderContext& renderContext)
 {
   chain.setRenderOptions(inputState, renderContext);
   if (m_gestureTracker)
@@ -346,8 +346,8 @@ void ToolBox::setRenderOptions(
 void ToolBox::renderTools(
   ToolChain& chain,
   const InputState& inputState,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   chain.render(inputState, renderContext, renderBatch);
   if (m_gestureTracker)

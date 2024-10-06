@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/OrthographicCamera.h"
-#include "Renderer/PerspectiveCamera.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/PickRequest.h"
+#include "render/OrthographicCamera.h"
+#include "render/PerspectiveCamera.h"
 
 #include "vm/approx.h"
 
@@ -132,8 +132,8 @@ struct TestDelegate : public MoveHandleDragTrackerDelegate
   void render(
     const InputState& inputState,
     const DragState& dragState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) const override
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) const override
   {
     m_render(inputState, dragState, renderContext, renderBatch);
   }
@@ -158,11 +158,10 @@ auto makeMoveTracker(
   };
   auto end = [](const InputState&, const DragState&) {};
   auto cancel = [](const DragState&) {};
-  auto render = [](
-                  const InputState&,
-                  const DragState&,
-                  Renderer::RenderContext&,
-                  Renderer::RenderBatch&) {};
+  auto render =
+    [](
+      const InputState&, const DragState&, render::RenderContext&, render::RenderBatch&) {
+    };
   auto makeDragHandleSnapper = [](const InputState&, const SnapMode) {
     return [](const InputState&, const DragState&, const vm::vec3d& currentHitPosition) {
       return currentHitPosition;
@@ -191,7 +190,7 @@ auto makeMoveTracker(
 auto makeInputState(
   const vm::vec3d& rayOrigin,
   const vm::vec3d& rayDirection,
-  Renderer::Camera& camera,
+  render::Camera& camera,
   ModifierKeyState modifierKeys = ModifierKeys::None)
 {
   auto inputState = InputState{};
@@ -211,7 +210,7 @@ TEST_CASE("MoveDragTracker.constructor")
 
   GIVEN("A 3D camera")
   {
-    auto camera3d = Renderer::PerspectiveCamera{};
+    auto camera3d = render::PerspectiveCamera{};
 
     WHEN("A tracker is created without any modifier keys pressed")
     {
@@ -263,7 +262,7 @@ TEST_CASE("MoveDragTracker.constructor")
 
   GIVEN("A 2D camera")
   {
-    auto camera2d = Renderer::OrthographicCamera{};
+    auto camera2d = render::OrthographicCamera{};
     camera2d.moveTo(vm::vec3f{0, 0, 64});
     camera2d.lookAt(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
 
@@ -323,7 +322,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
 
   GIVEN("A tracker created with a 3D camera")
   {
-    auto camera3d = Renderer::PerspectiveCamera{};
+    auto camera3d = render::PerspectiveCamera{};
     auto tracker = makeMoveTracker(
       makeInputState(vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera3d),
       initialHandlePosition,
@@ -444,7 +443,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
 
   GIVEN("A tracker created with a 3D camera")
   {
-    auto camera2d = Renderer::OrthographicCamera{};
+    auto camera2d = render::OrthographicCamera{};
     camera2d.moveTo(vm::vec3f{0, 0, 64});
     camera2d.lookAt(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0});
 

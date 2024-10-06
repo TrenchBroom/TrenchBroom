@@ -18,7 +18,6 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Renderer/PerspectiveCamera.h"
 #include "View/ClipTool.h"
 #include "View/ClipToolController.h"
 #include "View/Grid.h"
@@ -26,6 +25,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/WorldNode.h"
+#include "render/PerspectiveCamera.h"
 
 #include "Catch2.h"
 
@@ -35,7 +35,7 @@ namespace
 {
 
 void updatePickState(
-  InputState& inputState, const Renderer::Camera& camera, const MapDocument& document)
+  InputState& inputState, const render::Camera& camera, const MapDocument& document)
 {
   mdl::PickResult pickResult = mdl::PickResult::byDistance();
   const PickRequest pickRequest(
@@ -79,10 +79,10 @@ TEST_CASE_METHOD(
 
   document->grid().setSize(2); // 2^2, so this sets it to grid 4
 
-  const auto viewport = Renderer::Camera::Viewport{0, 0, 1920, 1080};
+  const auto viewport = render::Camera::Viewport{0, 0, 1920, 1080};
 
   // Camera at 0 -160 64 looking towards +y
-  Renderer::PerspectiveCamera camera(
+  render::PerspectiveCamera camera(
     90.0f,
     1.0f,
     8000.0f,

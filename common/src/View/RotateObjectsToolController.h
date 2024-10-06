@@ -21,11 +21,11 @@
 
 #include "View/ToolController.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -49,18 +49,18 @@ private:
   void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+    const InputState& inputState, render::RenderContext& renderContext) const override;
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 
 private: // subclassing interface
   virtual mdl::Hit doPick(const InputState& inputState) = 0;
   virtual void doRenderHandle(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) = 0;
 };
 
 class RotateObjectsToolController2D : public RotateObjectsToolController
@@ -71,7 +71,7 @@ public:
 private:
   mdl::Hit doPick(const InputState& inputState) override;
   void doRenderHandle(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) override;
 };
 
 class RotateObjectsToolController3D : public RotateObjectsToolController
@@ -82,7 +82,7 @@ public:
 private:
   mdl::Hit doPick(const InputState& inputState) override;
   void doRenderHandle(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch) override;
 };
 
 } // namespace tb::View

@@ -21,14 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/Circle.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VboManager.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -40,6 +32,14 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "render/ActiveShader.h"
+#include "render/Circle.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/Renderable.h"
+#include "render/Shaders.h"
+#include "render/Transformation.h"
+#include "render/VboManager.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -101,20 +101,20 @@ float snapAngle(const UVViewHelper& helper, const float angle)
   return angle;
 }
 
-Renderer::Circle makeCircle(
+render::Circle makeCircle(
   const UVViewHelper& helper, const float radius, const size_t segments, const bool fill)
 {
   const auto zoom = helper.cameraZoom();
-  return Renderer::Circle{radius / zoom, segments, fill};
+  return render::Circle{radius / zoom, segments, fill};
 }
 
-class Render : public Renderer::DirectRenderable
+class Render : public render::DirectRenderable
 {
 private:
   const UVViewHelper& m_helper;
   bool m_highlight;
-  Renderer::Circle m_center;
-  Renderer::Circle m_outer;
+  render::Circle m_center;
+  render::Circle m_outer;
 
 public:
   Render(
@@ -130,13 +130,13 @@ public:
   }
 
 private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  void doPrepareVertices(render::VboManager& vboManager) override
   {
     m_center.prepare(vboManager);
     m_outer.prepare(vboManager);
   }
 
-  void doRender(Renderer::RenderContext& renderContext) override
+  void doRender(render::RenderContext& renderContext) override
   {
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -152,13 +152,13 @@ private:
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
-    auto shader = Renderer::ActiveShader{
-      renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
-    const auto toWorldTransform = Renderer::MultiplyModelMatrix{
+    auto shader = render::ActiveShader{
+      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
+    const auto toWorldTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     {
       const auto translation = vm::translation_matrix(vm::vec3d{originPosition});
-      const auto centerTransform = Renderer::MultiplyModelMatrix{
+      const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", m_highlight ? highlightColor : handleColor);
       m_outer.render();
@@ -166,7 +166,7 @@ private:
 
     {
       const auto translation = vm::translation_matrix(vm::vec3d{faceCenterPosition});
-      const auto centerTransform = Renderer::MultiplyModelMatrix{
+      const auto centerTransform = render::MultiplyModelMatrix{
         renderContext.transformation(), vm::mat4x4f{translation}};
       shader.set("Color", highlightColor);
       m_center.render();
@@ -239,10 +239,8 @@ public:
 
   void cancel() override { m_document.cancelTransaction(); }
 
-  void render(
-    const InputState&,
-    Renderer::RenderContext&,
-    Renderer::RenderBatch& renderBatch) const override
+  void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
+    const override
   {
     renderBatch.addOneShot(
       new Render{m_helper, float(CenterHandleRadius), float(RotateHandleRadius), true});
@@ -372,9 +370,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
 }
 
 void UVRotateTool::render(
-  const InputState& inputState,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch& renderBatch)
+  const InputState& inputState, render::RenderContext&, render::RenderBatch& renderBatch)
 {
   using namespace mdl::HitFilters;
 

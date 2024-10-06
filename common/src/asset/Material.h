@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Renderer/GL.h"
 #include "asset/TextureResource.h"
+#include "render/GL.h"
 
 #include "kdl/reflection_decl.h"
 

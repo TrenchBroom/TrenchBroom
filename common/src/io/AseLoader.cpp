@@ -20,13 +20,13 @@
 #include "AseLoader.h"
 
 #include "FileLocation.h"
-#include "io/ResourceUtils.h"
 #include "Logger.h"
-#include "Renderer/MaterialIndexRangeMap.h"
-#include "Renderer/MaterialIndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
 #include "Result.h"
 #include "asset/EntityModel.h"
+#include "io/ResourceUtils.h"
+#include "render/MaterialIndexRangeMap.h"
+#include "render/MaterialIndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
@@ -676,7 +676,7 @@ Result<asset::EntityModelData> AseLoader::buildModelData(
   // Count vertices and build bounds
   auto bounds = vm::bbox3f::builder();
   auto totalVertexCount = size_t(0);
-  auto size = Renderer::MaterialIndexRangeMap::Size{};
+  auto size = render::MaterialIndexRangeMap::Size{};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;
@@ -692,7 +692,7 @@ Result<asset::EntityModelData> AseLoader::buildModelData(
     const auto* material = surface.skin(materialIndex);
 
     const auto vertexCount = mesh.faces.size() * 3;
-    size.inc(material, Renderer::PrimType::Triangles, vertexCount);
+    size.inc(material, render::PrimType::Triangles, vertexCount);
     totalVertexCount += vertexCount;
   }
 
@@ -700,7 +700,7 @@ Result<asset::EntityModelData> AseLoader::buildModelData(
 
   // Collect vertex data
   auto builder =
-    Renderer::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
+    render::MaterialIndexRangeMapBuilder<Vertex::Type>{totalVertexCount, size};
   for (const auto& geomObject : scene.geomObjects)
   {
     const auto& mesh = geomObject.mesh;

@@ -21,7 +21,6 @@
 #include "ShearObjectsTool.h"
 
 #include "Ensure.h"
-#include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
@@ -29,6 +28,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
 
 #include "kdl/memory_utils.h"
 
@@ -61,7 +61,7 @@ bool ShearObjectsTool::applies() const
 
 void ShearObjectsTool::pickBackSides(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   // select back sides. Used for both 2D and 3D.
@@ -83,7 +83,7 @@ void ShearObjectsTool::pickBackSides(
 
 void ShearObjectsTool::pick2D(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
@@ -107,7 +107,7 @@ void ShearObjectsTool::pick2D(
 
 void ShearObjectsTool::pick3D(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;

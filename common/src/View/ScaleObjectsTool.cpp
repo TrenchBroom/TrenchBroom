@@ -22,7 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
@@ -30,6 +29,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -599,7 +599,7 @@ bool ScaleObjectsTool::applies() const
 }
 
 BackSide pickBackSideOfBox(
-  const vm::ray3d& pickRay, const Renderer::Camera& /* camera */, const vm::bbox3d& box)
+  const vm::ray3d& pickRay, const render::Camera& /* camera */, const vm::bbox3d& box)
 {
   auto closestDistToRay = std::numeric_limits<double>::max();
   auto bestDistAlongRay = std::numeric_limits<double>::max();
@@ -644,7 +644,7 @@ BackSide pickBackSideOfBox(
 
 void ScaleObjectsTool::pickBackSides(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   // select back sides. Used for both 2D and 3D.
@@ -666,7 +666,7 @@ void ScaleObjectsTool::pickBackSides(
 
 void ScaleObjectsTool::pick2D(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;
@@ -714,7 +714,7 @@ void ScaleObjectsTool::pick2D(
 
 void ScaleObjectsTool::pick3D(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   using namespace mdl::HitFilters;

@@ -21,16 +21,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/Circle.h"
-#include "Renderer/EdgeRenderer.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/RenderBatch.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/Renderable.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/Transformation.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
@@ -39,6 +29,16 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "render/ActiveShader.h"
+#include "render/Circle.h"
+#include "render/EdgeRenderer.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/RenderBatch.h"
+#include "render/RenderContext.h"
+#include "render/Renderable.h"
+#include "render/Shaders.h"
+#include "render/Transformation.h"
 
 #include "kdl/optional_utils.h"
 
@@ -157,7 +157,7 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
   return helper.snapDelta(delta, -distanceInFaceCoords);
 }
 
-using EdgeVertex = Renderer::GLVertexTypes::P3C4::Vertex;
+using EdgeVertex = render::GLVertexTypes::P3C4::Vertex;
 
 std::vector<EdgeVertex> getHandleVertices(
   const UVViewHelper& helper, const vm::vec2b& highlightHandle)
@@ -180,20 +180,20 @@ std::vector<EdgeVertex> getHandleVertices(
 void renderLineHandles(
   const UVViewHelper& helper,
   const vm::vec2b& highlightHandles,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderBatch& renderBatch)
 {
-  auto edgeRenderer = Renderer::DirectEdgeRenderer{
-    Renderer::VertexArray::move(getHandleVertices(helper, highlightHandles)),
-    Renderer::PrimType::Lines};
+  auto edgeRenderer = render::DirectEdgeRenderer{
+    render::VertexArray::move(getHandleVertices(helper, highlightHandles)),
+    render::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 0.5f);
 }
 
-class RenderOrigin : public Renderer::DirectRenderable
+class RenderOrigin : public render::DirectRenderable
 {
 private:
   const UVViewHelper& m_helper;
   bool m_highlight;
-  Renderer::Circle m_originHandle;
+  render::Circle m_originHandle;
 
 public:
   RenderOrigin(const UVViewHelper& helper, const float originRadius, const bool highlight)
@@ -204,23 +204,23 @@ public:
   }
 
 private:
-  static Renderer::Circle makeCircle(
+  static render::Circle makeCircle(
     const UVViewHelper& helper,
     const float radius,
     const size_t segments,
     const bool fill)
   {
     const float zoom = helper.cameraZoom();
-    return Renderer::Circle{radius / zoom, segments, fill};
+    return render::Circle{radius / zoom, segments, fill};
   }
 
 private:
-  void doPrepareVertices(Renderer::VboManager& vboManager) override
+  void doPrepareVertices(render::VboManager& vboManager) override
   {
     m_originHandle.prepare(vboManager);
   }
 
-  void doRender(Renderer::RenderContext& renderContext) override
+  void doRender(render::RenderContext& renderContext) override
   {
     const auto fromFace =
       m_helper.face()->fromUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -234,21 +234,21 @@ private:
     const auto& handleColor = pref(Preferences::HandleColor);
     const auto& highlightColor = pref(Preferences::SelectedHandleColor);
 
-    const auto toWorldTransform = Renderer::MultiplyModelMatrix{
+    const auto toWorldTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{*fromPlane}};
     const auto translation = vm::translation_matrix(vm::vec3d{originPosition});
-    const auto centerTransform = Renderer::MultiplyModelMatrix{
+    const auto centerTransform = render::MultiplyModelMatrix{
       renderContext.transformation(), vm::mat4x4f{translation}};
 
-    auto shader = Renderer::ActiveShader{
-      renderContext.shaderManager(), Renderer::Shaders::VaryingPUniformCShader};
+    auto shader = render::ActiveShader{
+      renderContext.shaderManager(), render::Shaders::VaryingPUniformCShader};
     shader.set("Color", m_highlight ? highlightColor : handleColor);
     m_originHandle.render();
   }
 };
 
 void renderOriginHandle(
-  const UVViewHelper& helper, const bool highlight, Renderer::RenderBatch& renderBatch)
+  const UVViewHelper& helper, const bool highlight, render::RenderBatch& renderBatch)
 {
   renderBatch.addOneShot(
     new RenderOrigin{helper, UVOriginTool::OriginHandleRadius, highlight});
@@ -289,10 +289,8 @@ public:
   void end(const InputState&) override {}
   void cancel() override {}
 
-  void render(
-    const InputState&,
-    Renderer::RenderContext&,
-    Renderer::RenderBatch& renderBatch) const override
+  void render(const InputState&, render::RenderContext&, render::RenderBatch& renderBatch)
+    const override
   {
     const auto highlightHandles = vm::vec2b{m_selector.x() > 0.0, m_selector.y() > 0.0};
 
@@ -400,9 +398,7 @@ std::unique_ptr<GestureTracker> UVOriginTool::acceptMouseDrag(
 }
 
 void UVOriginTool::render(
-  const InputState& inputState,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch& renderBatch)
+  const InputState& inputState, render::RenderContext&, render::RenderBatch& renderBatch)
 {
   using namespace mdl::HitFilters;
 

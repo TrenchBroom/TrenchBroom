@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class OrthographicCamera;
 }
@@ -36,10 +36,10 @@ class GestureTracker;
 class UVCameraTool : public ToolController, public Tool
 {
 private:
-  Renderer::OrthographicCamera& m_camera;
+  render::OrthographicCamera& m_camera;
 
 public:
-  explicit UVCameraTool(Renderer::OrthographicCamera& camera);
+  explicit UVCameraTool(render::OrthographicCamera& camera);
 
 private:
   Tool& tool() override;

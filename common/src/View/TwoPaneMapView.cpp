@@ -32,7 +32,7 @@ namespace tb::View
 TwoPaneMapView::TwoPaneMapView(
   std::weak_ptr<MapDocument> document,
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager,
   QWidget* parent)
   : MultiPaneMapView{parent}
@@ -48,7 +48,7 @@ TwoPaneMapView::~TwoPaneMapView()
 
 void TwoPaneMapView::createGui(
   MapViewToolBox& toolBox,
-  Renderer::MapRenderer& mapRenderer,
+  render::MapRenderer& mapRenderer,
   GLContextManager& contextManager)
 {
   // See comment in CyclingMapView::createGui

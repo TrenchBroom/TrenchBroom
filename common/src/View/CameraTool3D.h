@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class PerspectiveCamera;
 }
@@ -36,10 +36,10 @@ class GestureTracker;
 class CameraTool3D : public ToolController, public Tool
 {
 private:
-  Renderer::PerspectiveCamera& m_camera;
+  render::PerspectiveCamera& m_camera;
 
 public:
-  explicit CameraTool3D(Renderer::PerspectiveCamera& camera);
+  explicit CameraTool3D(render::PerspectiveCamera& camera);
 
 private:
   Tool& tool() override;

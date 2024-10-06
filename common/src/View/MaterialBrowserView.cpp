@@ -24,19 +24,19 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/ActiveShader.h"
-#include "Renderer/FontManager.h"
-#include "Renderer/GLVertexType.h"
-#include "Renderer/PrimType.h"
-#include "Renderer/Shaders.h"
-#include "Renderer/TextureFont.h"
-#include "Renderer/Transformation.h"
-#include "Renderer/VertexArray.h"
 #include "View/MapDocument.h"
 #include "asset/Material.h"
 #include "asset/MaterialCollection.h"
 #include "asset/MaterialManager.h"
 #include "asset/Texture.h"
+#include "render/ActiveShader.h"
+#include "render/FontManager.h"
+#include "render/GLVertexType.h"
+#include "render/PrimType.h"
+#include "render/Shaders.h"
+#include "render/TextureFont.h"
+#include "render/Transformation.h"
+#include "render/VertexArray.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -160,7 +160,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
   const auto fontSize = pref(Preferences::BrowserFontSize);
   assert(fontSize > 0);
 
-  const auto font = Renderer::FontDescriptor{fontPath, size_t(fontSize)};
+  const auto font = render::FontDescriptor{fontPath, size_t(fontSize)};
 
   if (m_group)
   {
@@ -179,7 +179,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
 void MaterialBrowserView::addMaterialsToLayout(
   Layout& layout,
   const std::vector<const asset::Material*>& materials,
-  const Renderer::FontDescriptor& font)
+  const render::FontDescriptor& font)
 {
   for (const auto* material : materials)
   {
@@ -188,7 +188,7 @@ void MaterialBrowserView::addMaterialsToLayout(
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const asset::Material& material, const Renderer::FontDescriptor& font)
+  Layout& layout, const asset::Material& material, const render::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
@@ -296,7 +296,7 @@ void MaterialBrowserView::doRender(Layout& layout, const float y, const float he
   const auto viewRight = float(size().width());
   const auto viewBottom = float(0);
 
-  const auto transformation = Renderer::Transformation{
+  const auto transformation = render::Transformation{
     vm::ortho_matrix(-1.0f, 1.0f, viewLeft, viewTop, viewRight, viewBottom),
     vm::view_matrix(vm::vec3f{0, 0, -1}, vm::vec3f{0, 1, 0})
       * vm::translation_matrix(vm::vec3f{0.0f, 0.0f, 0.1f})};
@@ -317,7 +317,7 @@ const Color& MaterialBrowserView::getBackgroundColor()
 
 void MaterialBrowserView::renderBounds(Layout& layout, const float y, const float height)
 {
-  using BoundsVertex = Renderer::GLVertexTypes::P2C4::Vertex;
+  using BoundsVertex = render::GLVertexTypes::P2C4::Vertex;
   auto vertices = std::vector<BoundsVertex>{};
 
   for (const auto& group : layout.groups())
@@ -350,12 +350,12 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
     }
   }
 
-  auto vertexArray = Renderer::VertexArray::move(std::move(vertices));
-  auto shader = Renderer::ActiveShader{
-    shaderManager(), Renderer::Shaders::MaterialBrowserBorderShader};
+  auto vertexArray = render::VertexArray::move(std::move(vertices));
+  auto shader =
+    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserBorderShader};
 
   vertexArray.prepare(vboManager());
-  vertexArray.render(Renderer::PrimType::Quads);
+  vertexArray.render(render::PrimType::Quads);
 }
 
 const Color& MaterialBrowserView::materialColor(const asset::Material& material) const
@@ -374,10 +374,10 @@ const Color& MaterialBrowserView::materialColor(const asset::Material& material)
 void MaterialBrowserView::renderMaterials(
   Layout& layout, const float y, const float height)
 {
-  using Vertex = Renderer::GLVertexTypes::P2UV2::Vertex;
+  using Vertex = render::GLVertexTypes::P2UV2::Vertex;
 
   auto shader =
-    Renderer::ActiveShader{shaderManager(), Renderer::Shaders::MaterialBrowserShader};
+    render::ActiveShader{shaderManager(), render::Shaders::MaterialBrowserShader};
   shader.set("ApplyTinting", false);
   shader.set("Material", 0);
   shader.set("Brightness", pref(Preferences::Brightness));
@@ -395,7 +395,7 @@ void MaterialBrowserView::renderMaterials(
             const auto& bounds = cell.itemBounds();
             const auto& material = cellData(cell);
 
-            auto vertexArray = Renderer::VertexArray::move(std::vector<Vertex>{
+            auto vertexArray = render::VertexArray::move(std::vector<Vertex>{
               Vertex{{bounds.left(), height - (bounds.top() - y)}, {0, 0}},
               Vertex{{bounds.left(), height - (bounds.bottom() - y)}, {0, 1}},
               Vertex{{bounds.right(), height - (bounds.bottom() - y)}, {1, 1}},
@@ -406,7 +406,7 @@ void MaterialBrowserView::renderMaterials(
               pref(Preferences::TextureMinFilter), pref(Preferences::TextureMagFilter));
 
             vertexArray.prepare(vboManager());
-            vertexArray.render(Renderer::PrimType::Quads);
+            vertexArray.render(render::PrimType::Quads);
 
             material.deactivate();
           }

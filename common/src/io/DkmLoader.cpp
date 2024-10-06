@@ -19,17 +19,17 @@
 
 #include "DkmLoader.h"
 
+#include "asset/EntityModel.h"
 #include "io/FileSystem.h"
 #include "io/PathInfo.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "io/SkinLoader.h"
 #include "io/TraversalMode.h"
-#include "Renderer/GLVertex.h"
-#include "Renderer/IndexRangeMap.h"
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/PrimType.h"
-#include "asset/EntityModel.h"
+#include "render/GLVertex.h"
+#include "render/IndexRangeMap.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/PrimType.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -260,7 +260,7 @@ struct DkmMeshVertex
 
 struct DkmMesh
 {
-  Renderer::PrimType type;
+  render::PrimType type;
   std::vector<DkmMeshVertex> vertices;
 };
 
@@ -375,8 +375,8 @@ auto parseMeshes(Reader reader, const size_t /* commandCount */)
     /* const auto skinIndex    = */ reader.readSize<int32_t>();
     /* const auto surfaceIndex = */ reader.readSize<int32_t>();
 
-    const auto type = vertexCount < 0 ? Renderer::PrimType::TriangleFan
-                                      : Renderer::PrimType::TriangleStrip;
+    const auto type =
+      vertexCount < 0 ? render::PrimType::TriangleFan : render::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
     meshes.push_back({type, std::move(vertices)});
 
@@ -452,7 +452,7 @@ void buildFrame(
   const std::vector<DkmMesh>& meshes)
 {
   size_t vertexCount = 0;
-  auto size = Renderer::IndexRangeMap::Size{};
+  auto size = render::IndexRangeMap::Size{};
 
   for (const auto& mesh : meshes)
   {
@@ -463,7 +463,7 @@ void buildFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{vertexCount, size};
+    render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
   {
     if (!mesh.vertices.empty())
@@ -471,12 +471,12 @@ void buildFrame(
       vertexCount += mesh.vertices.size();
       const auto vertices = getVertices(frame, mesh.vertices);
 
-      bounds.add(vertices.begin(), vertices.end(), Renderer::GetVertexComponent<0>());
-      if (mesh.type == Renderer::PrimType::TriangleStrip)
+      bounds.add(vertices.begin(), vertices.end(), render::GetVertexComponent<0>());
+      if (mesh.type == render::PrimType::TriangleStrip)
       {
         builder.addTriangleStrip(vertices);
       }
-      else if (mesh.type == Renderer::PrimType::TriangleFan)
+      else if (mesh.type == render::PrimType::TriangleFan)
       {
         builder.addTriangleFan(vertices);
       }

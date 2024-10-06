@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Renderer/IndexRangeMapBuilder.h"
-#include "Renderer/MaterialIndexRangeRenderer.h"
 #include "TestLogger.h"
 #include "TestUtils.h"
 #include "asset/EntityModel.h"
@@ -28,6 +26,8 @@
 #include "io/LoadEntityModel.h"
 #include "mdl/Game.h" // IWYU pragma: keep
 #include "mdl/GameConfig.h"
+#include "render/IndexRangeMapBuilder.h"
+#include "render/MaterialIndexRangeRenderer.h"
 
 #include "vm/approx.h"
 #include "vm/bbox.h"
@@ -93,12 +93,12 @@ static Material makeDummyMaterial(std::string name)
   return Material{std::move(name), std::move(textureResource)};
 }
 
-static Renderer::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
+static render::IndexRangeMapBuilder<EntityModelVertex::Type> makeDummyBuilder()
 {
-  auto size = Renderer::IndexRangeMap::Size{};
-  size.inc(Renderer::PrimType::Triangles, 1);
+  auto size = render::IndexRangeMap::Size{};
+  size.inc(render::PrimType::Triangles, 1);
 
-  auto builder = Renderer::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
+  auto builder = render::IndexRangeMapBuilder<EntityModelVertex::Type>{3, size};
   builder.addTriangle(EntityModelVertex{}, EntityModelVertex{}, EntityModelVertex{});
 
   return builder;

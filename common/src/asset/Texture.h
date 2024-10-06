@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Color.h"
-#include "Renderer/GL.h"
 #include "asset/TextureBuffer.h"
+#include "render/GL.h"
 
 #include "kdl/reflection_decl.h"
 

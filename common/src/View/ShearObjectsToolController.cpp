@@ -22,9 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -33,6 +30,9 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
+#include "render/RenderContext.h"
+#include "render/RenderService.h"
 
 #include "kdl/memory_utils.h"
 
@@ -259,19 +259,19 @@ std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
 }
 
 void ShearObjectsToolController::setRenderOptions(
-  const InputState&, Renderer::RenderContext& renderContext) const
+  const InputState&, render::RenderContext& renderContext) const
 {
   renderContext.setForceHideSelectionGuide();
 }
 
 void ShearObjectsToolController::render(
   const InputState&,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   // render sheared box
   {
-    auto renderService = Renderer::RenderService{renderContext, renderBatch};
+    auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
     const auto mat = m_tool.bboxShearMatrix();
     const auto op = [&](const vm::vec3d& start, const vm::vec3d& end) {
@@ -285,7 +285,7 @@ void ShearObjectsToolController::render(
   {
     // fill
     {
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setShowBackfaces();
       renderService.setForegroundColor(pref(Preferences::ShearFillColor));
       renderService.renderFilledPolygon(poly->vertices());
@@ -293,7 +293,7 @@ void ShearObjectsToolController::render(
 
     // outline
     {
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setLineWidth(2.0);
       renderService.setForegroundColor(pref(Preferences::ShearOutlineColor));
       renderService.renderPolygonOutline(poly->vertices());
@@ -315,7 +315,7 @@ ShearObjectsToolController2D::ShearObjectsToolController2D(
 }
 
 void ShearObjectsToolController2D::doPick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -329,7 +329,7 @@ ShearObjectsToolController3D::ShearObjectsToolController3D(
 }
 
 void ShearObjectsToolController3D::doPick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
+  const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

@@ -22,9 +22,6 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "Renderer/Camera.h"
-#include "Renderer/RenderContext.h"
-#include "Renderer/RenderService.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
@@ -32,6 +29,9 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "render/Camera.h"
+#include "render/RenderContext.h"
+#include "render/RenderService.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -261,27 +261,27 @@ std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
 }
 
 void ScaleObjectsToolController::setRenderOptions(
-  const InputState&, Renderer::RenderContext& renderContext) const
+  const InputState&, render::RenderContext& renderContext) const
 {
   renderContext.setForceHideSelectionGuide();
 }
 
 static void renderBounds(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const vm::bbox3d& bounds)
 {
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::SelectionBoundsColor));
   renderService.renderBounds(vm::bbox3f{bounds});
 }
 
 static void renderCornerHandles(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const std::vector<vm::vec3d>& corners)
 {
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
 
   for (const auto& corner : corners)
@@ -291,8 +291,8 @@ static void renderCornerHandles(
 }
 
 static void renderDragSideHighlights(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const std::vector<vm::polygon3f>& sides)
 {
   // Highlight all sides that will be moving as a result of the Shift/Alt modifiers
@@ -300,7 +300,7 @@ static void renderDragSideHighlights(
   for (const auto& side : sides)
   {
     {
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setShowBackfaces();
       renderService.setForegroundColor(pref(Preferences::ScaleFillColor));
       renderService.renderFilledPolygon(side.vertices());
@@ -310,7 +310,7 @@ static void renderDragSideHighlights(
     // looking at it from an edge
     if (renderContext.camera().orthographicProjection())
     {
-      auto renderService = Renderer::RenderService{renderContext, renderBatch};
+      auto renderService = render::RenderService{renderContext, renderBatch};
       renderService.setLineWidth(2.0);
       renderService.setForegroundColor(Color{
         pref(Preferences::ScaleOutlineColor), pref(Preferences::ScaleOutlineDimAlpha)});
@@ -320,25 +320,25 @@ static void renderDragSideHighlights(
 }
 
 static void renderDragSide(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const vm::polygon3f& side)
 {
   // draw the main highlighted handle
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
   renderService.setLineWidth(2.0);
   renderService.setForegroundColor(pref(Preferences::ScaleOutlineColor));
   renderService.renderPolygonOutline(side.vertices());
 }
 
 static void renderDragEdge(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const vm::segment3f& edge)
 {
   const auto& camera = renderContext.camera();
 
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
   if (
     camera.orthographicProjection()
     && vm::is_parallel(edge.direction(), camera.direction()))
@@ -358,11 +358,11 @@ static void renderDragEdge(
 }
 
 static void renderDragCorner(
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch,
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch,
   const vm::vec3f& corner)
 {
-  auto renderService = Renderer::RenderService{renderContext, renderBatch};
+  auto renderService = render::RenderService{renderContext, renderBatch};
 
   // the filled circular handle
   renderService.setForegroundColor(pref(Preferences::ScaleHandleColor));
@@ -374,7 +374,7 @@ static void renderDragCorner(
 }
 
 static std::vector<vm::vec3d> visibleCornerHandles(
-  const ScaleObjectsTool& tool, const Renderer::Camera& camera)
+  const ScaleObjectsTool& tool, const render::Camera& camera)
 {
   using namespace mdl::HitFilters;
 
@@ -404,8 +404,8 @@ static std::vector<vm::vec3d> visibleCornerHandles(
 
 void ScaleObjectsToolController::render(
   const InputState&,
-  Renderer::RenderContext& renderContext,
-  Renderer::RenderBatch& renderBatch)
+  render::RenderContext& renderContext,
+  render::RenderBatch& renderBatch)
 {
   if (!m_tool.bounds().is_empty())
   {
@@ -448,7 +448,7 @@ ScaleObjectsToolController2D::ScaleObjectsToolController2D(
 
 void ScaleObjectsToolController2D::doPick(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   m_tool.pick2D(pickRay, camera, pickResult);
@@ -464,7 +464,7 @@ ScaleObjectsToolController3D::ScaleObjectsToolController3D(
 
 void ScaleObjectsToolController3D::doPick(
   const vm::ray3d& pickRay,
-  const Renderer::Camera& camera,
+  const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
   m_tool.pick3D(pickRay, camera, pickResult);

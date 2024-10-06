@@ -19,9 +19,9 @@
 
 #include "UVCameraTool.h"
 
-#include "Renderer/OrthographicCamera.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
+#include "render/OrthographicCamera.h"
 
 #include "vm/vec.h"
 
@@ -33,10 +33,10 @@ namespace
 class UVCameraToolDragTracker : public GestureTracker
 {
 private:
-  Renderer::Camera& m_camera;
+  render::Camera& m_camera;
 
 public:
-  explicit UVCameraToolDragTracker(Renderer::Camera& camera)
+  explicit UVCameraToolDragTracker(render::Camera& camera)
     : m_camera{camera}
   {
   }
@@ -60,7 +60,7 @@ public:
 
 } // namespace
 
-UVCameraTool::UVCameraTool(Renderer::OrthographicCamera& camera)
+UVCameraTool::UVCameraTool(render::OrthographicCamera& camera)
   : ToolController{}
   , Tool{true}
   , m_camera{camera}

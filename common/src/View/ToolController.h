@@ -31,11 +31,11 @@ class Hit;
 class PickResult;
 } // namespace tb::mdl
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -73,11 +73,11 @@ public:
     const InputState& inputState, const std::string& payload);
 
   virtual void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+    const InputState& inputState, render::RenderContext& renderContext) const;
   virtual void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch);
 
   virtual bool cancel();
 
@@ -114,11 +114,11 @@ public:
     const InputState& inputState, const std::string& payload) override;
 
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const override;
+    const InputState& inputState, render::RenderContext& renderContext) const override;
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch) override;
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch) override;
 
   bool cancel() override;
 

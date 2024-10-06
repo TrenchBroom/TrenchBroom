@@ -27,12 +27,12 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -61,26 +61,25 @@ private:
     virtual ~Handle();
 
     virtual mdl::Hit pick(
-      const vm::ray3d& pickRay, const Renderer::Camera& camera) const = 0;
+      const vm::ray3d& pickRay, const render::Camera& camera) const = 0;
     virtual void renderHandle(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) const = 0;
+      render::RenderContext& renderContext, render::RenderBatch& renderBatch) const = 0;
     virtual void renderHighlight(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch,
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch,
       HitArea area) const = 0;
 
-    double scalingFactor(const Renderer::Camera& camera) const;
+    double scalingFactor(const render::Camera& camera) const;
     static double majorRadius();
     static double minorRadius();
 
   protected:
     mdl::Hit pickCenterHandle(
-      const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
+      const vm::ray3d& pickRay, const render::Camera& camera) const;
     virtual mdl::Hit pickRotateHandle(
-      const vm::ray3d& pickRay, const Renderer::Camera& camera, HitArea area) const;
+      const vm::ray3d& pickRay, const render::Camera& camera, HitArea area) const;
 
-    vm::mat4x4d handleTransform(const Renderer::Camera& camera, HitArea area) const;
+    vm::mat4x4d handleTransform(const render::Camera& camera, HitArea area) const;
   };
 
   class Handle2D : public Handle
@@ -88,20 +87,19 @@ private:
   public:
     using Handle::Handle;
 
-    mdl::Hit pick(
-      const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
+    mdl::Hit pick(const vm::ray3d& pickRay, const render::Camera& camera) const override;
     void renderHandle(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) const override;
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch) const override;
     void renderHighlight(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch,
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch,
       HitArea area) const override;
 
   protected:
     mdl::Hit pickRotateHandle(
       const vm::ray3d& pickRay,
-      const Renderer::Camera& camera,
+      const render::Camera& camera,
       HitArea area) const override;
 
     deleteCopyAndMove(Handle2D);
@@ -112,20 +110,19 @@ private:
   public:
     using Handle::Handle;
 
-    mdl::Hit pick(
-      const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
+    mdl::Hit pick(const vm::ray3d& pickRay, const render::Camera& camera) const override;
     void renderHandle(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch) const override;
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch) const override;
     void renderHighlight(
-      Renderer::RenderContext& renderContext,
-      Renderer::RenderBatch& renderBatch,
+      render::RenderContext& renderContext,
+      render::RenderBatch& renderBatch,
       HitArea area) const override;
 
   protected:
     mdl::Hit pickRotateHandle(
       const vm::ray3d& pickRay,
-      const Renderer::Camera& camera,
+      const render::Camera& camera,
       HitArea area) const override;
 
     deleteCopyAndMove(Handle3D);
@@ -142,27 +139,23 @@ public:
   const vm::vec3d& position() const;
   void setPosition(const vm::vec3d& position);
 
-  mdl::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
-  mdl::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const render::Camera& camera) const;
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const render::Camera& camera) const;
 
-  double majorHandleRadius(const Renderer::Camera& camera) const;
-  double minorHandleRadius(const Renderer::Camera& camera) const;
+  double majorHandleRadius(const render::Camera& camera) const;
+  double minorHandleRadius(const render::Camera& camera) const;
 
   vm::vec3d rotationAxis(HitArea area) const;
 
 public:
   void renderHandle2D(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderHandle3D(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderHighlight2D(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
-    HitArea area);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch, HitArea area);
   void renderHighlight3D(
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch,
-    HitArea area);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch, HitArea area);
 };
 
 } // namespace tb::View

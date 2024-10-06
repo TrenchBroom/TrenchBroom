@@ -46,7 +46,7 @@ class Node;
 class PickResult;
 } // namespace mdl
 
-namespace Renderer
+namespace render
 {
 class Camera;
 }

@@ -50,15 +50,12 @@ std::optional<UpdateDragConfig> HandleDragTrackerDelegate::modifierKeyChange(
 void HandleDragTrackerDelegate::mouseScroll(const InputState&, const DragState&) {}
 
 void HandleDragTrackerDelegate::setRenderOptions(
-  const InputState&, Renderer::RenderContext&) const
+  const InputState&, render::RenderContext&) const
 {
 }
 
 void HandleDragTrackerDelegate::render(
-  const InputState&,
-  const DragState&,
-  Renderer::RenderContext&,
-  Renderer::RenderBatch&) const
+  const InputState&, const DragState&, render::RenderContext&, render::RenderBatch&) const
 {
 }
 

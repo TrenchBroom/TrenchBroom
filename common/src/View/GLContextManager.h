@@ -24,12 +24,12 @@
 #include <memory>
 #include <string>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -46,9 +46,9 @@ private:
   std::string m_glRenderer;
   std::string m_glVersion;
 
-  std::unique_ptr<Renderer::ShaderManager> m_shaderManager;
-  std::unique_ptr<Renderer::VboManager> m_vboManager;
-  std::unique_ptr<Renderer::FontManager> m_fontManager;
+  std::unique_ptr<render::ShaderManager> m_shaderManager;
+  std::unique_ptr<render::VboManager> m_vboManager;
+  std::unique_ptr<render::FontManager> m_fontManager;
 
   bool m_initialized = false;
 
@@ -59,9 +59,9 @@ public:
   bool initialized() const;
   bool initialize();
 
-  Renderer::VboManager& vboManager();
-  Renderer::FontManager& fontManager();
-  Renderer::ShaderManager& shaderManager();
+  render::VboManager& vboManager();
+  render::FontManager& fontManager();
+  render::ShaderManager& shaderManager();
 
   deleteCopyAndMove(GLContextManager);
 };

@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace tb::Renderer
+namespace tb::render
 {
 class Camera;
 }
@@ -34,16 +34,16 @@ namespace tb::View
 class CameraLinkHelper
 {
 private:
-  std::vector<Renderer::Camera*> m_cameras;
+  std::vector<render::Camera*> m_cameras;
   bool m_ignoreNotifications = false;
   NotifierConnection m_notifierConnection;
 
 public:
-  void addCamera(Renderer::Camera* camera);
-  void updateCameras(const Renderer::Camera* masterCamera);
+  void addCamera(render::Camera* camera);
+  void updateCameras(const render::Camera* masterCamera);
 
 private:
-  void cameraDidChange(const Renderer::Camera* camera);
+  void cameraDidChange(const render::Camera* camera);
 };
 
 class CameraLinkableView

@@ -20,13 +20,13 @@
 #pragma once
 
 #include "NotifierConnection.h"
-#include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
 #include "mdl/HitType.h"
 #include "mdl/PickResult.h"
+#include "render/OrthographicCamera.h"
 
 #include <filesystem>
 #include <memory>
@@ -40,12 +40,12 @@ class BrushFaceHandle;
 class Node;
 } // namespace tb::mdl
 
-namespace tb::Renderer
+namespace tb::render
 {
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -72,7 +72,7 @@ public:
 private:
   std::weak_ptr<MapDocument> m_document;
 
-  Renderer::OrthographicCamera m_camera;
+  render::OrthographicCamera m_camera;
   UVViewHelper m_helper;
 
   ToolBox m_toolBox;
@@ -96,7 +96,7 @@ private:
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void gridDidChange();
-  void cameraDidChange(const Renderer::Camera* camera);
+  void cameraDidChange(const render::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
 
   void updateViewport(int x, int y, int width, int height) override;
@@ -104,17 +104,16 @@ private:
   bool shouldRenderFocusIndicator() const override;
   const Color& getBackgroundColor() override;
 
-  void setupGL(Renderer::RenderContext& renderContext);
+  void setupGL(render::RenderContext& renderContext);
 
   void renderMaterial(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
-  void renderFace(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+  void renderFace(render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderUVAxes(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
   void renderToolBox(
-    Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext, render::RenderBatch& renderBatch);
 
 public: // implement InputEventProcessor interface
   void processEvent(const KeyEvent& event) override;

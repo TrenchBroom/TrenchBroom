@@ -27,11 +27,11 @@ namespace tb::mdl
 class PickResult;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class RenderBatch;
 class RenderContext;
-} // namespace tb::Renderer
+} // namespace tb::render
 
 namespace tb::View
 {
@@ -71,11 +71,11 @@ public:
     const InputState& inputState, const std::string& payload);
 
   void setRenderOptions(
-    const InputState& inputState, Renderer::RenderContext& renderContext) const;
+    const InputState& inputState, render::RenderContext& renderContext) const;
   void render(
     const InputState& inputState,
-    Renderer::RenderContext& renderContext,
-    Renderer::RenderBatch& renderBatch);
+    render::RenderContext& renderContext,
+    render::RenderBatch& renderBatch);
 
   bool cancel();
 

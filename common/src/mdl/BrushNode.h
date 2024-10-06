@@ -39,7 +39,7 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Renderer
+namespace tb::render
 {
 class BrushRendererBrushCache;
 }
@@ -62,7 +62,7 @@ public:
   using EdgeList = BrushEdgeList;
 
 private:
-  mutable std::unique_ptr<Renderer::BrushRendererBrushCache>
+  mutable std::unique_ptr<render::BrushRendererBrushCache>
     m_brushRendererBrushCache; // unique_ptr for breaking header dependencies
   Brush m_brush;               // must be destroyed before the brush renderer cache
   size_t m_selectedFaceCount = 0u;
@@ -131,7 +131,7 @@ public: // renderer cache
    * Only exposed to be called by BrushFace
    */
   void invalidateVertexCache();
-  Renderer::BrushRendererBrushCache& brushRendererBrushCache() const;
+  render::BrushRendererBrushCache& brushRendererBrushCache() const;
 
 private: // implement Taggable interface
 public:
