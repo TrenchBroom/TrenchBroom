@@ -19,7 +19,6 @@
 */
 
 #include "kdl/product_iterator.h"
-#include "kdl/std_io.h" // IWYU pragma: keep
 
 #include <vector>
 

@@ -24,7 +24,6 @@
 #include "Model/Hit.h"
 #include "Model/HitFilter.h"
 #include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"

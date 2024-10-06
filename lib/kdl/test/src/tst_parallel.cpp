@@ -18,8 +18,6 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "test_utils.h"
-
 #include "kdl/parallel.h"
 
 #include <array>

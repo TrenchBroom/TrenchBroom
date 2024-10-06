@@ -22,7 +22,6 @@
 #include "Ensure.h"
 #include "Model/Brush.h"
 #include "Model/BrushFace.h"
-#include "Model/Polyhedron.h"
 #include "Renderer/RenderUtils.h"
 
 #include "kdl/range_to_vector.h"

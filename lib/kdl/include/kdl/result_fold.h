@@ -20,7 +20,6 @@
 
 #pragma once
 
-#include "kdl/meta_utils.h"
 #include "kdl/overload.h"
 #include "kdl/result.h"
 

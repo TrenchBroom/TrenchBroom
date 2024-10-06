@@ -19,7 +19,6 @@
 */
 
 #include "kdl/grouped_range.h"
-#include "kdl/range_io.h" // IWYU pragma: keep
 
 #include <vector>
 
