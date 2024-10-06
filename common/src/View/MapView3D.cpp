@@ -67,7 +67,7 @@
 
 #include "vm/util.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapView3D::MapView3D(
@@ -577,4 +577,4 @@ void MapView3D::beforePopupMenu()
 
 void MapView3D::linkCamera(CameraLinkHelper& /* helper */) {}
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

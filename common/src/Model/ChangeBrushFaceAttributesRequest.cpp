@@ -27,7 +27,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace
@@ -449,4 +449,4 @@ void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
   setColor(attributes.color());
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

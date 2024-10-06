@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocumentCommandFacade;
 
@@ -53,4 +53,4 @@ private:
   deleteCopyAndMove(UpdateLinkedGroupsCommandBase);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

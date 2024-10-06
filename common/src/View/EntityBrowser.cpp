@@ -38,9 +38,9 @@
 #include "kdl/memory_utils.h"
 
 // for use in QVariant
-Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionSortOrder)
+Q_DECLARE_METATYPE(tb::Assets::EntityDefinitionSortOrder)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityBrowser::EntityBrowser(
@@ -199,4 +199,4 @@ void EntityBrowser::resourcesWereProcessed(const std::vector<Assets::ResourceId>
   reload();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

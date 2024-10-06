@@ -32,22 +32,22 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 template <typename T, typename U>
 class octree;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 enum class PrimType;
 class IndexRangeMap;
 class MaterialIndexRangeMap;
 class MaterialIndexRangeRenderer;
 class MaterialRenderer;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 class MaterialCollection;
@@ -459,4 +459,4 @@ public:
   const EntityModelDataResource& dataResource() const;
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

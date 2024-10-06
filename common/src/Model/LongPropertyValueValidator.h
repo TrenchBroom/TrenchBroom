@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class LongPropertyValueValidator : public Validator
 {
@@ -37,4 +37,4 @@ private:
   void doValidate(EntityNodeBase& entityNode, std::vector<std::unique_ptr<Issue>>& issues)
     const override;
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

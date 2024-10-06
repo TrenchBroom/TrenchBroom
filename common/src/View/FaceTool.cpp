@@ -23,7 +23,7 @@
 #include "kdl/string_format.h"
 
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
@@ -97,4 +97,4 @@ void FaceTool::removeSelection()
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

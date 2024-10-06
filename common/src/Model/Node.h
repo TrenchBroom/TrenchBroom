@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class EditorContext;
@@ -569,4 +569,4 @@ private: // subclassing interface
     EntityNodeBase* node, const std::string& key, const std::string& value);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

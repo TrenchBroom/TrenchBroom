@@ -19,7 +19,7 @@
 
 #include "BrushFacePredicates.h"
 
-namespace TrenchBroom::Model::BrushFacePredicates
+namespace tb::Model::BrushFacePredicates
 {
 
 bool True::operator()(
@@ -34,4 +34,4 @@ bool False::operator()(
   return false;
 }
 
-} // namespace TrenchBroom::Model::BrushFacePredicates
+} // namespace tb::Model::BrushFacePredicates

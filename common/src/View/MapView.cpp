@@ -21,7 +21,7 @@
 
 #include "View/MapViewContainer.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 MapView::~MapView() = default;
 
@@ -38,4 +38,4 @@ void MapView::cycleMapView()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,12 +25,12 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace DecalSpecificationKeys
@@ -80,4 +80,4 @@ public:
   kdl_reflect_decl(DecalDefinition, m_expression);
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

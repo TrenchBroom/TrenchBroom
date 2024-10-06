@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -194,4 +194,4 @@ TEST_CASE("BrushBuilderTest.createHollowCylinder")
   CHECK(cylinder.value().size() == 8);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

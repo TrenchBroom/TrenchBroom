@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
 class Issue;
@@ -39,4 +39,4 @@ private:
     GroupNode& groupNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

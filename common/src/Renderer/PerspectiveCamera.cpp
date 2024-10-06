@@ -36,7 +36,7 @@
 #include <limits>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 PerspectiveCamera::PerspectiveCamera() = default;
@@ -243,4 +243,4 @@ bool PerspectiveCamera::isValidZoom(const float zoom) const
 
 void PerspectiveCamera::doUpdateZoom() {}
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

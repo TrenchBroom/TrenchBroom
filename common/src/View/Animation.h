@@ -28,7 +28,7 @@
 
 class QTimer;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class AnimationCurve
@@ -119,4 +119,4 @@ public:
 private:
   void onTimerTick();
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

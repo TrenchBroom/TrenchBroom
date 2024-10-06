@@ -49,7 +49,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 LaunchGameEngineDialog::LaunchGameEngineDialog(
@@ -303,4 +303,4 @@ void LaunchGameEngineDialog::saveConfig()
   gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

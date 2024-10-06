@@ -22,7 +22,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 template <typename T>
@@ -102,4 +102,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

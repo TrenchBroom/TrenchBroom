@@ -46,7 +46,7 @@
 #include <algorithm>
 #include <map>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void CellView::updateScrollBar()
@@ -571,4 +571,4 @@ void CellView::processEvent(const ScrollEvent& /* event */) {}
 void CellView::processEvent(const GestureEvent& /* event */) {}
 void CellView::processEvent(const CancelEvent& /* event */) {}
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

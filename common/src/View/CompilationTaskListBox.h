@@ -32,12 +32,12 @@ class QLayout;
 class QLineEdit;
 class QWidget;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationProfile;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class MultiCompletionLineEdit;
@@ -207,4 +207,4 @@ signals:
   void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

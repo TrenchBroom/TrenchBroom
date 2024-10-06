@@ -24,7 +24,7 @@
 #include <QDesktopWidget>
 #include <QWindow>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // PopupWindow
 
@@ -97,4 +97,4 @@ void PopupWindow::showEvent(QShowEvent*)
   emit visibilityChanged(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

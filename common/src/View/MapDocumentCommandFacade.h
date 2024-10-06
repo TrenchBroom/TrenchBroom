@@ -28,13 +28,13 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 enum class LockState;
 enum class VisibilityState;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CommandProcessor;
 
@@ -133,4 +133,4 @@ private: // implement MapDocument interface
     std::unique_ptr<UndoableCommand> command) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

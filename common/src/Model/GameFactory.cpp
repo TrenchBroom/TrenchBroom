@@ -46,7 +46,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -524,4 +524,4 @@ void GameFactory::writeGameEngineConfig(
     logger.error() << "Could not write game engine config: " << e.msg;
   });
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

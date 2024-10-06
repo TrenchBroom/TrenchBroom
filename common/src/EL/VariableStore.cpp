@@ -30,7 +30,7 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 void VariableStore::appendToStream(std::ostream& str) const
@@ -146,4 +146,4 @@ void NullVariableStore::declare(const std::string& /* name */, const Value& /* v
 }
 void NullVariableStore::assign(const std::string& /* name */, const Value& /* value */) {}
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

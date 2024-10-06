@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class TagAttribute;
 
@@ -28,4 +28,4 @@ namespace TagAttributes
 extern const TagAttribute Transparency;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -33,7 +33,7 @@
 #include <vector>
 
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 EntityDefinition::~EntityDefinition() {}
 
@@ -234,4 +234,4 @@ EntityDefinitionType BrushEntityDefinition::type() const
   return EntityDefinitionType::BrushEntity;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

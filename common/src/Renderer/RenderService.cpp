@@ -37,7 +37,7 @@
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -380,4 +380,4 @@ void RenderService::flush()
   m_renderBatch.addOneShot(m_textRenderer.release());
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

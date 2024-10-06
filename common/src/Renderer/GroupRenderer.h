@@ -25,13 +25,13 @@
 
 #include "kdl/vector_set.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EditorContext;
 class GroupNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -111,4 +111,4 @@ private:
   Color groupColor(const Model::GroupNode& group) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

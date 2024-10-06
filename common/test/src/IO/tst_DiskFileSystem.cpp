@@ -33,7 +33,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -223,7 +223,7 @@ TEST_CASE("WritableDiskFileSystemTest")
 
     const auto fs = WritableDiskFileSystem{env.dir() / "anotherDir/.."};
     CHECK(fs.makeAbsolute("") == (env.dir() / "anotherDir/..").lexically_normal());
-  } // namespace TrenchBroom::IO
+  } // namespace tb::IO
 
   SECTION("createDirectory")
   {
@@ -420,4 +420,4 @@ TEST_CASE("WritableDiskFileSystemTest")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -30,7 +30,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 PointHandleRenderer::PointHandleRenderer()
@@ -127,4 +127,4 @@ void PointHandleRenderer::clear()
   m_highlights.clear();
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

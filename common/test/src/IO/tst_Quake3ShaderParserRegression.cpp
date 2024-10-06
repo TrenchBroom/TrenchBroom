@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("Quake3ShaderParserTest.parseShadersWithCommentTerminatingBlockEntry")
@@ -124,4 +124,4 @@ textures/evil3_floors/cemtiledrk_mhbrk
   CHECK_NOTHROW(parser.parse(status));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

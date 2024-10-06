@@ -24,12 +24,12 @@
 
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 /**
  * Builds index array map by recording rendering primitives. The corded data can be used
@@ -193,4 +193,4 @@ private:
   void add(const Material* material, PrimType primType, const IndexList& indices);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

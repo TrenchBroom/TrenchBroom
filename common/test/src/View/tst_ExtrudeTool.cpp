@@ -49,7 +49,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -480,4 +480,4 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

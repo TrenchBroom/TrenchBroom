@@ -45,7 +45,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 using namespace std::string_literals;
@@ -1964,4 +1964,4 @@ TEST_CASE("WorldReader.parseUnknownFormatEmptyMap")
   CHECK(world->mapFormat() == Model::MapFormat::Standard);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -32,7 +32,7 @@
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 AppInfoPanel::AppInfoPanel(QWidget* parent)
@@ -95,4 +95,4 @@ void AppInfoPanel::versionInfoClicked()
   clipboard->setText(str);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

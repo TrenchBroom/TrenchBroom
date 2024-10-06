@@ -23,10 +23,10 @@
 
 #include "kdl/result.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 template <typename Value, typename FirstError = Error, typename... MoreErrors>
 using Result = kdl::result<Value, FirstError, MoreErrors...>;
 
-} // namespace TrenchBroom
+} // namespace tb

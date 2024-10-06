@@ -21,7 +21,7 @@
 
 #include "Assets/Texture.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 std::shared_ptr<TextureResource> createTextureResource(Texture texture)
@@ -29,4 +29,4 @@ std::shared_ptr<TextureResource> createTextureResource(Texture texture)
   return std::make_shared<TextureResource>(std::move(texture));
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

@@ -30,7 +30,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 PortalFile::PortalFile(std::vector<vm::polygon3f> portals)
@@ -143,4 +143,4 @@ Result<PortalFile> loadPortalFile(std::istream& stream)
 }
 
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

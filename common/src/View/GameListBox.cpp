@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GameListBox::GameListBox(QWidget* parent)
@@ -146,4 +146,4 @@ void GameListBox::doubleClicked(const size_t index)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

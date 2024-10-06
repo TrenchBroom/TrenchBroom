@@ -44,7 +44,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -207,4 +207,4 @@ void ReplaceMaterialDialog::updateReplaceButton()
   m_replaceButton->setEnabled(subject && replacement);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

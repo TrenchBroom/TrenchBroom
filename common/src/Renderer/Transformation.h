@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class Transformation
@@ -111,4 +111,4 @@ private:
   ReplaceModelMatrix& operator=(const ReplaceTransformation& other);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

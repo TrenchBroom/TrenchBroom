@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct DefaultPolyhedronPayload
@@ -28,4 +28,4 @@ struct DefaultPolyhedronPayload
   static Type defaultValue() { return '0'; }
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

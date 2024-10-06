@@ -42,12 +42,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 class EntityDefinitionFileSpec;
@@ -58,9 +58,9 @@ class MaterialManager;
 struct ProcessContext;
 class ResourceId;
 class ResourceManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Brush;
 class BrushFace;
@@ -79,9 +79,9 @@ class TagManager;
 class UVCoordSystemSnapshot;
 class WorldNode;
 enum class WrapStyle;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Command;
 class CommandResult;
@@ -828,4 +828,4 @@ private: // observers
   void transactionUndone(const std::string& name);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

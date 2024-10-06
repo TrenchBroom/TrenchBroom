@@ -34,7 +34,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("LayerNodeTest.canAddChild")
@@ -91,4 +91,4 @@ TEST_CASE("LayerNodeTest.canRemoveChild")
   CHECK(layerNode.canRemoveChild(&patchNode));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

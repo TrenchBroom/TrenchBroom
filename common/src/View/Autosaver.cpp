@@ -38,7 +38,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace
@@ -186,4 +186,4 @@ void Autosaver::autosave(Logger& logger, std::shared_ptr<MapDocument> document)
   });
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

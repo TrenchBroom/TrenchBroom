@@ -25,12 +25,12 @@
 #include <filesystem>
 #include <optional>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
@@ -43,4 +43,4 @@ Assets::Material loadSkin(
   const std::optional<Assets::Palette>& palette,
   Logger& logger);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

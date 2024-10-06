@@ -35,7 +35,7 @@
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 EntityModelManager::EntityModelManager(
   Assets::CreateEntityModelDataResource createResource, Logger& logger)
@@ -231,4 +231,4 @@ void EntityModelManager::prepareRenderers(Renderer::VboManager& vboManager)
   }
   m_unpreparedRenderers.clear();
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

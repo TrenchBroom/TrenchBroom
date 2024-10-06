@@ -23,7 +23,7 @@
 #include <QPaintEvent>
 #include <QPainter>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SplitterHandle::SplitterHandle(
@@ -100,4 +100,4 @@ void Splitter::doSplitterMoved()
 }
 #endif
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

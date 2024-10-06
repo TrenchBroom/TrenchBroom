@@ -24,13 +24,13 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 struct EntityDefinitionClassInfo;
 class ParserStatus;
@@ -56,4 +56,4 @@ private:
     ParserStatus& status) = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

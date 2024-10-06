@@ -33,7 +33,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class EntityNode;
@@ -44,9 +44,9 @@ class LayerNode;
 enum class MapFormat;
 class Node;
 class WorldNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class ParserStatus;
@@ -215,4 +215,4 @@ private: // subclassing interface - these will be called in the order that nodes
   virtual void onBrushFace(Model::BrushFace face, ParserStatus& status);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

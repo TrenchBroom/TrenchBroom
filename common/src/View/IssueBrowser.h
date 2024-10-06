@@ -29,14 +29,14 @@ class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceHandle;
 class Issue;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FlagsPopupEditor;
 class IssueBrowserView;
@@ -79,4 +79,4 @@ private:
   void filterChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

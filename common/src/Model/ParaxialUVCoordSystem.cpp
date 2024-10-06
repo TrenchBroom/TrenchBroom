@@ -32,7 +32,7 @@
 #include <cmath>
 #include <optional>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -801,4 +801,4 @@ void ParaxialUVCoordSystem::updateNormalWithRotation(
   updateNormalWithProjection(newNormal, attribs);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

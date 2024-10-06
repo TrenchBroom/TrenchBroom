@@ -26,13 +26,13 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
@@ -58,4 +58,4 @@ private:
   deleteCopyAndMove(ReparentNodesCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

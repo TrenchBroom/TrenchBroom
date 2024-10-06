@@ -28,7 +28,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -59,4 +59,4 @@ void NonIntegerVerticesValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -43,7 +43,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 /*
@@ -2040,4 +2040,4 @@ TEST_CASE("BrushTest.headEdgesFail")
   CHECK(nodes.size() == 1u);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

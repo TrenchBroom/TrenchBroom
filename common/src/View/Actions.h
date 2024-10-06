@@ -35,17 +35,17 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class SmartTag;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class MapFrame;
@@ -285,4 +285,4 @@ private:
 
 std::vector<size_t> findConflicts(const std::vector<const Action*>& actions);
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

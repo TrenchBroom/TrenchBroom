@@ -34,7 +34,7 @@
 #include <algorithm>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(
@@ -104,4 +104,4 @@ std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

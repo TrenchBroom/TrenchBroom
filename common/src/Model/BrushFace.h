@@ -39,12 +39,12 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class UVCoordSystem;
 class UVCoordSystemSnapshot;
@@ -286,4 +286,4 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

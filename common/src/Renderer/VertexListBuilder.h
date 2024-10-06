@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 template <typename VertexSpec>
@@ -182,4 +182,4 @@ private:
   size_t currentIndex() const { return vertexCount(); }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

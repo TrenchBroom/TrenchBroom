@@ -29,7 +29,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 Quake3ShaderTokenizer::Quake3ShaderTokenizer(const std::string_view str)
@@ -342,4 +342,4 @@ Quake3ShaderParser::TokenNameMap Quake3ShaderParser::tokenNames() const
   };
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

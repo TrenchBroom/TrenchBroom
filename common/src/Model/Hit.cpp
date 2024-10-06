@@ -19,7 +19,7 @@
 
 #include "Hit.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 const Hit Hit::NoHit = Hit(HitType::NoType, 0.0, vm::vec3d{0, 0, 0}, false);
 
@@ -70,4 +70,4 @@ Hit selectClosest(const Hit& first, const Hit& second)
   return second;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

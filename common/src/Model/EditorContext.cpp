@@ -33,7 +33,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 EditorContext::EditorContext()
@@ -320,4 +320,4 @@ bool EditorContext::inOpenGroup(const Model::Object* object) const
   return object->containingGroupOpened();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

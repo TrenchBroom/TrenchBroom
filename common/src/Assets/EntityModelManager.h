@@ -31,24 +31,24 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNode;
 class Game;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MaterialRenderer;
 class VboManager;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModelFrame;
 enum class Orientation;
@@ -102,4 +102,4 @@ private:
   void prepareRenderers(Renderer::VboManager& vboManager);
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

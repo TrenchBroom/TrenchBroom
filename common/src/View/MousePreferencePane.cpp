@@ -34,7 +34,7 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MousePreferencePane::MousePreferencePane(QWidget* parent)
@@ -481,4 +481,4 @@ void MousePreferencePane::updateConflicts()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 /**
@@ -117,4 +117,4 @@ private:
   size_t freeTagIndex();
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

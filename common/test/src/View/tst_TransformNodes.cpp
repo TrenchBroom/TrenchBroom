@@ -42,7 +42,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -491,4 +491,4 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   PreferenceManager::instance().resetToDefault(Preferences::AlignmentLock);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

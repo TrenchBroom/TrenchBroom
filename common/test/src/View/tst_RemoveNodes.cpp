@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
@@ -223,4 +223,4 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursi
   CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

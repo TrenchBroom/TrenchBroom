@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -88,15 +88,15 @@ TEST_CASE("Actions")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View
 
 namespace Catch
 {
 
 template <>
-struct StringMaker<TrenchBroom::View::ActionConflict>
+struct StringMaker<tb::View::ActionConflict>
 {
-  static std::string convert(const TrenchBroom::View::ActionConflict& value)
+  static std::string convert(const tb::View::ActionConflict& value)
   {
     const auto& [action1, action2] = value;
     auto str = std::stringstream{};

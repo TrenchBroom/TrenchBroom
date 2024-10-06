@@ -19,9 +19,9 @@
 
 #include "MapParser.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 MapParser::~MapParser() = default;
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

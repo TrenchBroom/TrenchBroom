@@ -21,7 +21,7 @@
 
 #include "View/VertexToolControllerBase.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FaceTool;
 
@@ -35,4 +35,4 @@ public:
   explicit FaceToolController(FaceTool& tool);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

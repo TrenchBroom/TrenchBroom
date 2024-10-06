@@ -24,7 +24,7 @@
 #include "Color.h"
 #include "Preference.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ColorModel : public QAbstractTableModel
@@ -56,4 +56,4 @@ private:
   bool checkIndex(const QModelIndex& index) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

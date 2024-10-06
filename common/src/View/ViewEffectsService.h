@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ViewEffectsService
@@ -29,4 +29,4 @@ public:
   virtual void flashSelection() = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

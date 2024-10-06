@@ -37,7 +37,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -167,4 +167,4 @@ bool UVOffsetTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

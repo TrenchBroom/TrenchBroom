@@ -40,7 +40,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("ObjSerializer.writeBrush")
@@ -446,4 +446,4 @@ map_Kd {}
   CHECK(mtlStream.str() == expectedMtl);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

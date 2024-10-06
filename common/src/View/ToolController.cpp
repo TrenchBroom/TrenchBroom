@@ -24,7 +24,7 @@
 #include "View/GestureTracker.h"
 #include "View/Tool.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ToolController::~ToolController() = default;
@@ -191,4 +191,4 @@ bool ToolControllerGroup::doShouldAcceptDrop(
   return m_chain.shouldAcceptDrop(inputState, payload);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

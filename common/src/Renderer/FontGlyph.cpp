@@ -19,7 +19,7 @@
 
 #include "FontGlyph.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 FontGlyph::FontGlyph(
@@ -78,4 +78,4 @@ int FontGlyph::advance() const
   return m_a;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CommandResult::CommandResult(const bool success)
@@ -62,4 +62,4 @@ std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade& docu
   return result;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

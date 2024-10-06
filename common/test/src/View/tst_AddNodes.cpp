@@ -31,7 +31,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
@@ -147,4 +147,4 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails")
   CHECK(linkedGroupNode->childCount() == 0u);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

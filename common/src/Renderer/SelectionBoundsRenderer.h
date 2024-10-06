@@ -22,7 +22,7 @@
 
 #include "vm/bbox.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -45,4 +45,4 @@ private:
   void renderMinMax(RenderContext& renderContext, RenderBatch& renderBatch);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

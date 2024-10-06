@@ -37,17 +37,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class MapDocument;
@@ -307,4 +307,4 @@ private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

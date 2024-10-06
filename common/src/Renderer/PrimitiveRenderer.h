@@ -29,7 +29,7 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class ActiveShader;
 template <typename VertexSpec>
@@ -175,4 +175,4 @@ private:
   void renderLines(RenderContext& renderContext);
   void renderTriangles(RenderContext& renderContext);
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

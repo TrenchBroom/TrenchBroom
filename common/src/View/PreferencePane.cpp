@@ -19,7 +19,7 @@
 
 #include "PreferencePane.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 PreferencePane::PreferencePane(QWidget* parent)
@@ -35,4 +35,4 @@ void PreferencePane::resetToDefaults()
   updateControls();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

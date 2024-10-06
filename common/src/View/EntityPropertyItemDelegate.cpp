@@ -29,7 +29,7 @@
 #include "View/EntityPropertyModel.h"
 #include "View/EntityPropertyTable.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityPropertyItemDelegate::EntityPropertyItemDelegate(
@@ -112,4 +112,4 @@ QStringList EntityPropertyItemDelegate::getCompletions(const QModelIndex& index)
   return completions;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

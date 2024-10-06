@@ -29,7 +29,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 struct LiteralExpression;
@@ -289,4 +289,4 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
     *m_expression);
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -156,4 +156,4 @@ TEST_CASE("isSupportedFreeImageExtension")
   CHECK_FALSE(isSupportedFreeImageExtension("jpg"));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

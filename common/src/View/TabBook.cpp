@@ -25,7 +25,7 @@
 #include "Ensure.h"
 #include "View/TabBar.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TabBookPage::TabBookPage(QWidget* parent)
@@ -77,4 +77,4 @@ void TabBook::switchToPage(const int index)
   m_tabBook->setCurrentIndex(index);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

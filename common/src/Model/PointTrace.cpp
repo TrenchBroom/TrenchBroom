@@ -31,7 +31,7 @@
 #include <cassert>
 #include <istream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 PointTrace::PointTrace(std::vector<vm::vec3f> points)
@@ -177,4 +177,4 @@ Result<PointTrace> loadPointFile(std::istream& stream)
   return PointTrace{std::move(points)};
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

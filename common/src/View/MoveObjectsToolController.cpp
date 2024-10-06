@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -138,4 +138,4 @@ bool MoveObjectsToolController::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

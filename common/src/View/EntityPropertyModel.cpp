@@ -56,7 +56,7 @@
 
 #define MODEL_LOG(x)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -1151,4 +1151,4 @@ bool EntityPropertyModel::lessThan(const size_t rowIndexA, const size_t rowIndex
   return rowA.key() < rowB.key();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,7 +25,7 @@ class QLabel;
 class QPixmap;
 class QString;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class DialogHeader : public QWidget
@@ -47,4 +47,4 @@ private:
   void createGui();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

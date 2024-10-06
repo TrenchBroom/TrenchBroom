@@ -27,7 +27,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -57,4 +57,4 @@ void EmptyPropertyValueValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

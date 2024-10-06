@@ -25,7 +25,7 @@
 #include "View/IssueBrowser.h"
 #include "View/TabBook.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 InfoPanel::InfoPanel(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -50,4 +50,4 @@ Console* InfoPanel::console() const
   return m_console;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

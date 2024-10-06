@@ -21,11 +21,11 @@
 
 #include <QString>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 QString getBuildVersion();
 QString getBuildIdStr();
 QString getBuildType();
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

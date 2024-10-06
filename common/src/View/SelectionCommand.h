@@ -26,16 +26,16 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceReference;
 class BrushNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SelectionCommand : public UndoableCommand
@@ -81,4 +81,4 @@ private:
   deleteCopyAndMove(SelectionCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

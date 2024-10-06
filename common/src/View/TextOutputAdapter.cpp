@@ -26,7 +26,7 @@
 
 #include "Ensure.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TextOutputAdapter::TextOutputAdapter(QTextEdit* textEdit)
@@ -103,4 +103,4 @@ void TextOutputAdapter::appendString(const QString& string)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

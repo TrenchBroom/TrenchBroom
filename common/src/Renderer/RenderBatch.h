@@ -21,7 +21,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Renderable;
 class DirectRenderable;
@@ -70,4 +70,4 @@ private:
   void renderRenderables(RenderContext& renderContext);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

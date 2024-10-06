@@ -25,12 +25,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class VboManager;
 class MaterialRenderFunc;
@@ -81,4 +81,4 @@ public:
   void render(MaterialRenderFunc& func) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

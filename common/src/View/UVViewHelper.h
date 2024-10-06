@@ -29,26 +29,26 @@
 
 #include <optional>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class ActiveShader;
 class Camera;
 class OrthographicCamera;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class UVViewHelper
@@ -127,4 +127,4 @@ private:
   vm::vec3d transformFromCamera(const vm::vec3d& point) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

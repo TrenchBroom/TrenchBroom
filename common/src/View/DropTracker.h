@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class InputState;
 
@@ -33,4 +33,4 @@ public:
   virtual void leave(const InputState& inputState) = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,7 +25,7 @@ class QWidget;
 class QTableView;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class KeyboardShortcutModel;
 class MapDocument;
@@ -48,4 +48,4 @@ private:
   bool validate() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

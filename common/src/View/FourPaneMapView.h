@@ -25,12 +25,12 @@
 
 class QSplitter;
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GLContextManager;
 class MapDocument;
@@ -76,4 +76,4 @@ private: // implement MultiPaneMapView subclassing interface
   void restoreViews() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

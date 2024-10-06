@@ -21,7 +21,7 @@
 
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class VboManager;
 
@@ -38,4 +38,4 @@ public:
   void render();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

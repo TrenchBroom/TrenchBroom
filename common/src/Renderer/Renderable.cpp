@@ -19,7 +19,7 @@
 
 #include "Renderable.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 Renderable::Renderable() = default;
@@ -41,4 +41,4 @@ DirectRenderable::~DirectRenderable() = default;
 IndexedRenderable::IndexedRenderable() = default;
 IndexedRenderable::~IndexedRenderable() = default;
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -53,12 +53,12 @@ class QToolButton;
 class QVBoxLayout;
 class QWidget;
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 enum class MapTextEncoding;
 
@@ -261,4 +261,4 @@ std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string
  */
 QString nativeModifierLabel(int modifier);
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

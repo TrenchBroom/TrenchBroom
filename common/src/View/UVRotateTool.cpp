@@ -51,7 +51,7 @@
 
 #include <optional>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -397,4 +397,4 @@ bool UVRotateTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

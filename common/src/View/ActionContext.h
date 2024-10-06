@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace ActionContext
@@ -62,4 +62,4 @@ enum class ActionView
 
 static const size_t NumActionViews = 2;
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

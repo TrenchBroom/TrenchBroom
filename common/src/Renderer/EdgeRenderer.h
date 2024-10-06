@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BrushIndexArray;
 class BrushVertexArray;
@@ -174,4 +174,4 @@ private:
   void doRender(RenderBatch& renderBatch, const EdgeRenderer::Params& params) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -34,7 +34,7 @@
 #include <functional>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 AseTokenizer::AseTokenizer(const std::string_view str)
@@ -774,4 +774,4 @@ std::filesystem::path AseLoader::fixMaterialPath(std::filesystem::path path) con
   return path;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

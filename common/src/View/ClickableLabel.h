@@ -21,7 +21,7 @@
 
 #include <QLabel>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ClickableLabel : public QLabel
@@ -37,4 +37,4 @@ signals:
   void clicked();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

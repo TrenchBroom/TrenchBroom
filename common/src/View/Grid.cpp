@@ -30,7 +30,7 @@
 
 #include <cmath>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 Grid::Grid(const int size)
@@ -311,4 +311,4 @@ vm::vec3d Grid::referencePoint(const vm::bbox3d& bounds) const
   return snap(bounds.center());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -53,7 +53,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace
@@ -429,4 +429,4 @@ Model::PickResult UVView::pick(const vm::ray3d& pickRay) const
   return pickResult;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

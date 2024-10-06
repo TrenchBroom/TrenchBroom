@@ -39,7 +39,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -530,4 +530,4 @@ const Color& EntityRenderer::boundsColor(const Model::EntityNode* entityNode) co
   return m_boundsColor;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 EntityDefinitionGroup::EntityDefinitionGroup(
@@ -56,4 +56,4 @@ std::vector<EntityDefinition*> EntityDefinitionGroup::definitions(
   return EntityDefinition::filterAndSort(m_definitions, type, order);
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

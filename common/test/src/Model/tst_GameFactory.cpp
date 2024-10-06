@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -262,4 +262,4 @@ TEST_CASE("GameFactory")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

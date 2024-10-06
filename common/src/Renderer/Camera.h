@@ -31,12 +31,12 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -226,4 +226,4 @@ private:
   virtual void doUpdateZoom() = 0;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

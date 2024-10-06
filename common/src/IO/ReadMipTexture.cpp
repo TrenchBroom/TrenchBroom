@@ -31,7 +31,7 @@
 
 #include <fmt/format.h>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace MipLayout
 {
@@ -151,4 +151,4 @@ Result<Assets::Texture> readHlMipTexture(Reader& reader, const Assets::TextureMa
   return readMipTexture(reader, readHlMipPalette, mask);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -23,7 +23,7 @@
 #include <QMetaMethod>
 #include <QTimer>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SignalDelayer::SignalDelayer(QObject* parent)
@@ -52,4 +52,4 @@ void SignalDelayer::queueSignal()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

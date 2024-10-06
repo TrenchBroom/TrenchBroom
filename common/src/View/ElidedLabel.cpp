@@ -23,7 +23,7 @@
 #include <QLabel>
 #include <QResizeEvent>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ElidedLabel::ElidedLabel(
@@ -78,4 +78,4 @@ void ElidedLabel::resizeEvent(QResizeEvent* event)
   m_label->setGeometry(contentsRect());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

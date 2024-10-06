@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -708,4 +708,4 @@ std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds)
   result << bounds.min << " " << bounds.max;
   return result.str();
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

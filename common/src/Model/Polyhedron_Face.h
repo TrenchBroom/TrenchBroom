@@ -34,7 +34,7 @@
 
 #include <unordered_set>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -544,4 +544,4 @@ Polyhedron_Face<T, FP, VP>::intersectWithRay(const vm::ray<T, 3>& ray) const
   });
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

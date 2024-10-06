@@ -47,7 +47,7 @@
 
 #include <ranges>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 RotateObjectsToolPage::RotateObjectsToolPage(
@@ -264,4 +264,4 @@ vm::vec3d RotateObjectsToolPage::getAxis() const
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

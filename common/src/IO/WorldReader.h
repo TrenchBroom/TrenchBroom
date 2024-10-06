@@ -27,13 +27,13 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct EntityPropertyConfig;
 class WorldNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -89,4 +89,4 @@ private: // implement MapReader interface
     ParserStatus& status) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -28,7 +28,7 @@
 #include "View/MapDocument.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 DrawShapeToolPage::DrawShapeToolPage(
@@ -78,4 +78,4 @@ void DrawShapeToolPage::currentExtensionDidChange(size_t index)
   m_extensionPages->setCurrentIndex(m_extensions->currentIndex());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

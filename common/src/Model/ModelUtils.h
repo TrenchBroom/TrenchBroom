@@ -26,7 +26,7 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class BrushFaceHandle;
@@ -80,4 +80,4 @@ vm::bbox3d computePhysicalBounds(
 std::vector<BrushNode*> filterBrushNodes(const std::vector<Node*>& nodes);
 std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

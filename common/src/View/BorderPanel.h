@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class BorderPanel : public QWidget
@@ -49,4 +49,4 @@ protected:
   void paintEvent(QPaintEvent* event) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

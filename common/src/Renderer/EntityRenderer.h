@@ -29,24 +29,24 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModel;
 class EntityModelManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EditorContext;
 class EntityNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class AttrString;
 
@@ -155,4 +155,4 @@ private:
   const Color& boundsColor(const Model::EntityNode* entityNode) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

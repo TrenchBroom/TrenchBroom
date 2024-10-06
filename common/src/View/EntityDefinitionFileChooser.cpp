@@ -39,7 +39,7 @@
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // SingleSelectionListWidget
 
@@ -272,4 +272,4 @@ void EntityDefinitionFileChooser::reloadExternalClicked()
   document->reloadEntityDefinitions();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

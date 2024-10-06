@@ -41,7 +41,7 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CompilationDialog::CompilationDialog(MapFrame* mapFrame)
@@ -258,4 +258,4 @@ void CompilationDialog::saveProfile()
     gameName, m_profileManager->config(), m_mapFrame->logger());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

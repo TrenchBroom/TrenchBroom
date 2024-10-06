@@ -27,7 +27,7 @@
 #include <ostream>
 
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 kdl_reflect_impl(MapExportOptions);
@@ -55,4 +55,4 @@ std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

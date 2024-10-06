@@ -39,7 +39,7 @@
 #include <filesystem>
 #include <ranges>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace
@@ -302,4 +302,4 @@ void SmartWadEditor::updateButtons()
   m_reloadWadsButton->setEnabled(canReloadWads());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

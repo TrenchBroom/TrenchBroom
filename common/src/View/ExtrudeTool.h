@@ -36,7 +36,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace Model
 {
@@ -163,4 +163,4 @@ private:
   void selectionDidChange(const Selection& selection);
 };
 } // namespace View
-} // namespace TrenchBroom
+} // namespace tb

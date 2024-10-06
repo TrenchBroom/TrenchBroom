@@ -22,12 +22,12 @@
 #include "Assets/EntityModel.h"
 #include "Result.h"
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class EntityModelLoader
@@ -38,4 +38,4 @@ public:
   virtual Result<Assets::EntityModelData> load(Logger& logger) = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

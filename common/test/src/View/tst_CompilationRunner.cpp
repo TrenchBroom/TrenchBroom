@@ -40,7 +40,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 using namespace std::chrono_literals;
 
@@ -377,4 +377,4 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
   CHECK(interpolated == expected);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

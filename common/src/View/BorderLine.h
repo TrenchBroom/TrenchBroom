@@ -21,7 +21,7 @@
 
 #include <QFrame>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class BorderLine : public QFrame
@@ -41,4 +41,4 @@ public:
     QWidget* parent = nullptr);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

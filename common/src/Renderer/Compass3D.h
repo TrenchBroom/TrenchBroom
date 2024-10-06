@@ -21,7 +21,7 @@
 
 #include "Renderer/Compass.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class Compass3D : public Compass
@@ -31,4 +31,4 @@ private:
     RenderContext& renderContext, const vm::mat4x4f& transform) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -25,12 +25,12 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Palette;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 class Reader;
@@ -56,4 +56,4 @@ public:
   Result<Assets::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

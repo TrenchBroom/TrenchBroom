@@ -24,7 +24,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
@@ -103,4 +103,4 @@ void Transaction::begin()
   m_document.startTransaction(m_name, TransactionScope::Oneshot);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

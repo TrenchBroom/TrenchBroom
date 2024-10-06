@@ -21,7 +21,7 @@
 
 #include "kdl/string_utils.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 ColorRange::Type detectColorRange(const std::vector<std::string>& components)
@@ -59,4 +59,4 @@ ColorRange::Type detectColorRange(const std::string& str)
   return detectColorRange(kdl::str_split(str, " "));
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 ValidatorRegistry::~ValidatorRegistry() = default;
@@ -64,4 +64,4 @@ void ValidatorRegistry::unregisterAllValidators()
   m_validators.clear();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

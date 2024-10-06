@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("GameEngineConfigParserTest.parseBlankConfig")
@@ -115,4 +115,4 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
        {"glquake", R"(C:\Quake\glquake.exe)", "-flag3 -flag4"}}});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

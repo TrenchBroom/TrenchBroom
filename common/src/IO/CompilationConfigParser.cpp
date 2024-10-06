@@ -31,7 +31,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -196,4 +196,4 @@ Model::CompilationConfig CompilationConfigParser::parse()
   return Model::CompilationConfig{parseProfiles(root["profiles"], trace)};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

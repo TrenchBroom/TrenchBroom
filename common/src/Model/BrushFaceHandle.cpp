@@ -26,7 +26,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 BrushFaceHandle::BrushFaceHandle(BrushNode* node, const size_t faceIndex)
   : m_node{node}
@@ -69,4 +69,4 @@ std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode)
   return result;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

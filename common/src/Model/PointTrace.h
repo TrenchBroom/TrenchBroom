@@ -28,7 +28,7 @@
 #include <iosfwd>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PointTrace
 {
@@ -54,4 +54,4 @@ public:
 
 Result<PointTrace> loadPointFile(std::istream& stream);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

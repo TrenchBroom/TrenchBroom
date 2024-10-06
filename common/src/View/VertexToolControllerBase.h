@@ -32,12 +32,12 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Tool;
 
@@ -452,4 +452,4 @@ private:
   const Tool& tool() const override { return m_tool; }
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

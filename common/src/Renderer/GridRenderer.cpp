@@ -30,7 +30,7 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 GridRenderer::GridRenderer(
   const OrthographicCamera& camera, const vm::bbox3d& worldBounds)
@@ -95,4 +95,4 @@ void GridRenderer::doRender(RenderContext& renderContext)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

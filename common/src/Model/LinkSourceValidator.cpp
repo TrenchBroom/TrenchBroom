@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -52,4 +52,4 @@ void LinkSourceValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

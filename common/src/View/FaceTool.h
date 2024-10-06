@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FaceHandleManager;
 
@@ -66,4 +66,4 @@ public:
   void removeSelection();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -74,4 +74,4 @@ TEST_CASE("readWalTexture")
   CHECK(texture.embeddedDefaults() == embeddedDefaults);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

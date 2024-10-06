@@ -25,12 +25,12 @@
 
 class QKeyEvent;
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class FlyModeHelper
@@ -68,4 +68,4 @@ private:
   float moveSpeed() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

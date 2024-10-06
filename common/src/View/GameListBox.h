@@ -26,7 +26,7 @@
 
 class QPixmap;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GameListBox : public ImageListBox
@@ -68,4 +68,4 @@ signals:
   void selectCurrentGame(const QString& gameName);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

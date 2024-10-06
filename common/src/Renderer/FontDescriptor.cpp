@@ -22,7 +22,7 @@
 #include <cassert>
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 FontDescriptor::FontDescriptor(
   std::filesystem::path path,
@@ -83,4 +83,4 @@ unsigned char FontDescriptor::charCount() const
   return static_cast<unsigned char>(m_maxChar - m_minChar + 1);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

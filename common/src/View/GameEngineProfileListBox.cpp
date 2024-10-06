@@ -27,7 +27,7 @@
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // GameEngineProfileItemRenderer
 
@@ -135,4 +135,4 @@ void GameEngineProfileListBox::doubleClicked(const size_t index)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -29,7 +29,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 HitType::Type nodeHitType()
@@ -380,4 +380,4 @@ std::vector<EntityNode*> filterEntityNodes(const std::vector<Node*>& nodes)
   return result;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

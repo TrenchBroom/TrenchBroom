@@ -22,7 +22,7 @@
 #include <iosfwd>
 #include <optional>
 
-namespace TrenchBroom
+namespace tb
 {
 
 struct FileLocation
@@ -40,4 +40,4 @@ bool operator>=(const FileLocation& lhs, const FileLocation& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs);
 
-} // namespace TrenchBroom
+} // namespace tb

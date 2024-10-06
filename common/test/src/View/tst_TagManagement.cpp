@@ -37,7 +37,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -716,4 +716,4 @@ TEST_CASE_METHOD(TagManagementTest, "TagManagementTest.tagUpdateBrushFaceTags")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

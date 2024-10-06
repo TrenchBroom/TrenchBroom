@@ -26,20 +26,20 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class BrushEntityDefinition;
 class PointEntityDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Brush;
 class PatchNode;
 class TestGame;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class MapDocumentTest
@@ -82,4 +82,4 @@ public:
   Quake3MapDocumentTest();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

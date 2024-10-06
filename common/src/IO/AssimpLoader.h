@@ -31,12 +31,12 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
@@ -61,4 +61,4 @@ public:
   Result<Assets::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

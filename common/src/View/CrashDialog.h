@@ -24,7 +24,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class CrashDialog : public QDialog
@@ -45,4 +45,4 @@ private:
     const std::filesystem::path& logPath);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

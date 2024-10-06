@@ -27,18 +27,18 @@
 #include <vector>
 
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class EntityDefinitionLoader;
 class ParserStatus;
-} // namespace TrenchBroom::IO
+} // namespace tb::IO
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 class EntityDefinitionGroup;
@@ -78,4 +78,4 @@ private:
   void clearCache();
   void clearGroups();
 };
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

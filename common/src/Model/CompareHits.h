@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Hit;
 
@@ -78,4 +78,4 @@ private:
   double getSize(const Hit& hit) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

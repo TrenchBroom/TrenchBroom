@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class MapDocument;
@@ -65,4 +65,4 @@ private:
   bool canCopyAttributesFromSelection(const InputState& inputState) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

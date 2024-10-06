@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     {
       if (strcmp(argv[i], "--portable") == 0)
       {
-        TrenchBroom::IO::SystemPaths::setPortable();
+        tb::IO::SystemPaths::setPortable();
         QSettings::setPath(
           QSettings::IniFormat, QSettings::UserScope, QString("./config"));
       }
@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
   }
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
-  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
-  TrenchBroom::View::TrenchBroomApp app(argc, argv);
+  tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
+  tb::View::TrenchBroomApp app(argc, argv);
 
   app.parseCommandLineAndShowFrame();
   return app.exec();

@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 
 using GLIndices = std::vector<GLint>;
@@ -164,4 +164,4 @@ GLenum glType()
   return GLEnum<T>::Value;
 }
 
-} // namespace TrenchBroom
+} // namespace tb

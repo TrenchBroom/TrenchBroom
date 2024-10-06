@@ -28,7 +28,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ThreePaneMapView::ThreePaneMapView(
@@ -128,4 +128,4 @@ void ThreePaneMapView::restoreViews()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

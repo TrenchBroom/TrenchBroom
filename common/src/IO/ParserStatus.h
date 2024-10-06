@@ -21,14 +21,14 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 class Logger;
 enum class LogLevel;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus
 {
@@ -69,4 +69,4 @@ private:
   virtual void doLog(LogLevel level, const std::string& str);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

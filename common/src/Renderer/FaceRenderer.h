@@ -25,12 +25,12 @@
 #include <memory>
 #include <unordered_map>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BrushIndexArray;
 class BrushVertexArray;
@@ -69,4 +69,4 @@ private:
   void doRender(RenderContext& context) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

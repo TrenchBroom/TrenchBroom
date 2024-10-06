@@ -32,19 +32,19 @@ class QCheckBox;
 class QWidget;
 class QButtonGroup;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 class EntityDefinitionManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EditorContext;
 class SmartTag;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class PopupButton;
@@ -167,4 +167,4 @@ public:
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

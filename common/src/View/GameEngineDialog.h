@@ -26,7 +26,7 @@
 class QKeyEvent;
 class QCloseEvent;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GameEngineProfileManager;
@@ -51,4 +51,4 @@ private:
   void saveConfig();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

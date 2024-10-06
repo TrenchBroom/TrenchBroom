@@ -38,7 +38,7 @@
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void combineFlags(
@@ -165,4 +165,4 @@ std::string queryLayerName(QWidget* parent, const std::string& suggestion)
   return queryObjectName(parent, QObject::tr("Layer"), suggestion);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -23,7 +23,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("Quake3ShaderParserTest.parseEmptyShader")
@@ -538,4 +538,4 @@ TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
     }}));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

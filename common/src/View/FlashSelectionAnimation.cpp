@@ -24,7 +24,7 @@
 #include "Color.h"
 #include "Renderer/MapRenderer.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 const Animation::Type FlashSelectionAnimation::AnimationType = Animation::freeType();
 
@@ -56,4 +56,4 @@ void FlashSelectionAnimation::doUpdate(const double progress)
   m_view->update();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -35,7 +35,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -126,4 +126,4 @@ TEST_CASE("Issue.addSelectableNodes")
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{patchNode}));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

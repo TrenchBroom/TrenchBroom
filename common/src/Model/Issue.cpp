@@ -32,7 +32,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 Issue::Issue(const IssueType type, Node& node, std::string description)
@@ -164,4 +164,4 @@ const std::string& EntityPropertyIssue::propertyValue() const
   return value ? *value : NoValue;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

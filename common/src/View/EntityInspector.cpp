@@ -29,7 +29,7 @@
 #include "View/Splitter.h"
 #include "View/SwitchableTitledPanel.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityInspector::EntityInspector(
@@ -96,4 +96,4 @@ QWidget* EntityInspector::createEntityBrowser(
   return panel;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

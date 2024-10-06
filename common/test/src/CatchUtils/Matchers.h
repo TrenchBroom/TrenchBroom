@@ -35,7 +35,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 template <typename M, typename T, typename... E>
@@ -276,9 +276,9 @@ UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
   return UnorderedApproxVecMatcher(actual, epsilon);
 }
 
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 
@@ -310,4 +310,4 @@ public:
 
 NodeMatcher MatchesNodeVector(std::vector<Node*> expected);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

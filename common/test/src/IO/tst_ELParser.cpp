@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 static auto evaluate(
@@ -423,4 +423,4 @@ TEST_CASE("ELParserTest.testParseGrouping")
   CHECK(evaluate("(2+1)*((1+1)*2)") == EL::Value{12.0});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

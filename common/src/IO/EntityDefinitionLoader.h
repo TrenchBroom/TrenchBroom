@@ -25,12 +25,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -43,4 +43,4 @@ public:
   loadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

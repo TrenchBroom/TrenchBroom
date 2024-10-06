@@ -31,7 +31,7 @@
 #include <array>
 #include <tuple>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -156,7 +156,7 @@ void printActionShortcuts(QTextStream& out)
 }
 
 } // namespace
-} // namespace TrenchBroom::View
+} // namespace tb::View
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -173,7 +173,7 @@ int main(int argc, char* argv[])
   auto out = QTextStream{stdout};
   out.setCodec("UTF-8");
 
-  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
+  tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
 
   // QKeySequence requires that an application instance is created!
   auto app = QApplication{argc, argv};
@@ -183,11 +183,11 @@ int main(int argc, char* argv[])
   app.setOrganizationName("");
   app.setOrganizationDomain("io.github.trenchbroom");
 
-  TrenchBroom::View::printKeys(out);
-  TrenchBroom::View::printMenuShortcuts(out);
-  TrenchBroom::View::printActionShortcuts(out);
+  tb::View::printKeys(out);
+  tb::View::printMenuShortcuts(out);
+  tb::View::printActionShortcuts(out);
 
-  TrenchBroom::PreferenceManager::destroyInstance();
+  tb::PreferenceManager::destroyInstance();
 
   out.flush();
   return out.status() == QTextStream::Ok ? 0 : 1;

@@ -35,7 +35,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 void SpikeGuideRenderer::setColor(const Color& color)
@@ -120,4 +120,4 @@ void SpikeGuideRenderer::validate()
   m_valid = true;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

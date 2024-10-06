@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("EntityTest.modelScaleExpressionThrows")
@@ -57,4 +57,4 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
   CHECK_NOTHROW(entity.addOrUpdateProperty("spawnflags", "a"));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

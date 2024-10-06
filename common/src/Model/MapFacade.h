@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class BrushEntityDefinition;
 class EntityDefinitionManager;
@@ -41,9 +41,9 @@ class EntityModelManager;
 class Material;
 class PointEntityDefinition;
 class MaterialManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushNode;
@@ -190,4 +190,4 @@ public: // search paths and mods
   virtual void setMods(const std::vector<std::string>& mods) = 0;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

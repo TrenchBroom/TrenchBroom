@@ -35,23 +35,23 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinitionFileSpec;
 class MaterialManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 class BrushFace;
@@ -159,4 +159,4 @@ public: // mods
   virtual std::vector<std::string> extractEnabledMods(const Entity& entity) const = 0;
   virtual std::string defaultMod() const = 0;
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

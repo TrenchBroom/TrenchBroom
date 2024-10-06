@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 void assertModelDefinition(
   const ModelSpecification& expected,
@@ -111,4 +111,4 @@ void assertDecalDefinition(
   const auto variableStore = EL::VariableTable{entityPropertiesMap};
   CHECK(actual.decalSpecification(variableStore) == expected);
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

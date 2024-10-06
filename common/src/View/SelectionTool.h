@@ -25,17 +25,17 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class MapDocument;
@@ -71,4 +71,4 @@ public:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

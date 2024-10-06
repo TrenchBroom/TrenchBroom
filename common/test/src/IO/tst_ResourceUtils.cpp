@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("ResourceUtilsTest.loadDefaultMaterial")
@@ -40,4 +40,4 @@ TEST_CASE("ResourceUtilsTest.loadDefaultMaterial")
   CHECK(material.name() == "some_name");
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

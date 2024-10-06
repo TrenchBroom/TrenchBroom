@@ -26,7 +26,7 @@
 
 #define TABLE_LOG(x)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityPropertyTable::EntityPropertyTable(QWidget* parent)
@@ -187,4 +187,4 @@ void EntityPropertyTable::mouseReleaseEvent(QMouseEvent* event)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

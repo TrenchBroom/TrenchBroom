@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(MapFormatConfig);
@@ -119,4 +119,4 @@ std::filesystem::path GameConfig::findConfigFile(
   return path.parent_path() / filePath;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -23,7 +23,7 @@
 
 #include "kdl/reflection_decl.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct CompilationConfig
@@ -33,4 +33,4 @@ struct CompilationConfig
   kdl_reflect_decl(CompilationConfig, profiles);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

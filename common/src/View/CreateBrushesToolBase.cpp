@@ -29,7 +29,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CreateBrushesToolBase::CreateBrushesToolBase(
@@ -117,4 +117,4 @@ void CreateBrushesToolBase::updateBrushes(
 
 void CreateBrushesToolBase::doBrushesWereCreated() {}
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

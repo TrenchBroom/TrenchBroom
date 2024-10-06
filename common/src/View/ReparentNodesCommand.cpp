@@ -21,7 +21,7 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
@@ -57,4 +57,4 @@ std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

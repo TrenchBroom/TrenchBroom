@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 class TextureBuffer
@@ -63,4 +63,4 @@ void setMipBufferSize(
 void resizeMips(
   TextureBufferList& buffers, const vm::vec2s& oldSize, const vm::vec2s& newSize);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

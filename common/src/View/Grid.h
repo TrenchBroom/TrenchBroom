@@ -34,12 +34,12 @@
 #include <optional>
 
 // FIXME: should this be moved to Model?
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class Grid
@@ -454,4 +454,4 @@ public:
   vm::vec3d referencePoint(const vm::bbox3d& bounds) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

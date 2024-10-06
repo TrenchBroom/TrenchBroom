@@ -24,14 +24,14 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GLContextManager
@@ -66,4 +66,4 @@ public:
   deleteCopyAndMove(GLContextManager);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

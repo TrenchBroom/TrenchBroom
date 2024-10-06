@@ -23,7 +23,7 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class IndexArray;
 
@@ -159,4 +159,4 @@ public:
   void render(IndexArray& indexArray) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

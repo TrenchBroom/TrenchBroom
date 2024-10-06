@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class AttrString
@@ -74,4 +74,4 @@ public:
   void appendCentered(std::string string);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

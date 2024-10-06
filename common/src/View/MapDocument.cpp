@@ -134,7 +134,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace
@@ -5216,4 +5216,4 @@ void MapDocument::transactionUndone(const std::string& name)
   debug() << "Transaction '" << name << "' undone";
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

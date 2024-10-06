@@ -26,7 +26,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 InputState::InputState()
@@ -312,4 +312,4 @@ void InputState::setPickResult(Model::PickResult pickResult)
 {
   m_pickResult = std::move(pickResult);
 }
-} // namespace TrenchBroom::View
+} // namespace tb::View

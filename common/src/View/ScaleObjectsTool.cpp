@@ -47,7 +47,7 @@
 #include <ranges>
 #include <set>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -1078,4 +1078,4 @@ QWidget* ScaleObjectsTool::doCreatePage(QWidget* parent)
   return m_toolPage;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

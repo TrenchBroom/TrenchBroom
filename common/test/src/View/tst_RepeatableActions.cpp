@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat")
@@ -337,4 +337,4 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo")
   CHECK(!document->canRepeatCommands());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

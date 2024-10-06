@@ -36,7 +36,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -218,4 +218,4 @@ void WorldReader::onNode(
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

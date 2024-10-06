@@ -45,7 +45,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace
@@ -1149,4 +1149,4 @@ TEST_CASE_METHOD(
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 MaterialIndexArrayMapBuilder::MaterialIndexArrayMapBuilder(
@@ -167,4 +167,4 @@ void MaterialIndexArrayMapBuilder::add(
   std::copy(std::begin(indices), std::end(indices), dest);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -23,15 +23,15 @@
 #include "kdl/path_hash.h"
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 kdl_reflect_impl(ModelSpecification);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-std::size_t std::hash<TrenchBroom::Assets::ModelSpecification>::operator()(
-  const TrenchBroom::Assets::ModelSpecification& spec) const noexcept
+std::size_t std::hash<tb::Assets::ModelSpecification>::operator()(
+  const tb::Assets::ModelSpecification& spec) const noexcept
 {
   return kdl::combine_hash(
     kdl::path_hash{}(spec.path), kdl::hash(spec.skinIndex, spec.frameIndex));

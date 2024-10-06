@@ -26,13 +26,13 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocumentCommandFacade;
 
@@ -78,4 +78,4 @@ private:
   void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

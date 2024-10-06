@@ -23,7 +23,7 @@
 
 #include <functional>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Hit;
 
@@ -44,4 +44,4 @@ HitFilter operator&&(HitFilter lhs, HitFilter rhs);
 HitFilter operator||(HitFilter lhs, HitFilter rhs);
 HitFilter operator!(HitFilter filter);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

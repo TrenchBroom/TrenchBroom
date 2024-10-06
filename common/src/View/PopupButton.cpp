@@ -26,7 +26,7 @@
 #include "View/PopupWindow.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 PopupButton::PopupButton(const QString& caption, QWidget* parent)
@@ -77,4 +77,4 @@ void PopupButton::popupVisibilityChanged(bool visible)
   m_button->setChecked(visible);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

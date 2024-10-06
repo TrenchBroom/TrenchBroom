@@ -25,7 +25,7 @@
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -179,4 +179,4 @@ bool CameraTool2D::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

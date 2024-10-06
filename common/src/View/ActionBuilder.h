@@ -26,7 +26,7 @@ class QMenu;
 class QMenuBar;
 class QToolBar;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Action;
 
@@ -53,4 +53,4 @@ void populateToolBar(
   std::unordered_map<const Action*, QAction*>& actionMap,
   const TriggerFn& triggerFn);
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -29,7 +29,7 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 EdgeRenderer::Params::Params(
@@ -274,4 +274,4 @@ void IndexedEdgeRenderer::doRender(
   renderBatch.addOneShot(new Render{params, m_vertexArray, m_indexArray});
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

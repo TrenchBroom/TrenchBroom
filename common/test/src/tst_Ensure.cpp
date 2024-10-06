@@ -21,7 +21,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Ensure
+namespace tb::Ensure
 {
 
 TEST_CASE("EnsureTest.successfulEnsure")
@@ -45,4 +45,4 @@ TEST_CASE("EnsureTest.failingEnsure")
 #pragma clang diagnostic pop
 #endif
 
-} // namespace TrenchBroom::Ensure
+} // namespace tb::Ensure

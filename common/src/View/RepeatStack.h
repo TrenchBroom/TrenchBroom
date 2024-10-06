@@ -22,7 +22,7 @@
 #include <functional>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 /**
@@ -129,4 +129,4 @@ public: // transactions
   void rollbackTransaction();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

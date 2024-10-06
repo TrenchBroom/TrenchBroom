@@ -63,7 +63,7 @@
 #include <QDesktopWidget>
 #endif
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SyncHeightEventFilter::SyncHeightEventFilter(
@@ -624,4 +624,4 @@ QString nativeModifierLabel(const int modifier)
   return nativeLabel;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -44,7 +44,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("ModelUtils.findContainingLayer")
@@ -642,4 +642,4 @@ TEST_CASE("ModelUtils.filterNodes")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

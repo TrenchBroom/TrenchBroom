@@ -21,7 +21,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE("actionContextMatches_WithMask")
@@ -115,4 +115,4 @@ TEST_CASE("actionContextMatches")
   CHECK(actionContextMatches(lhs, rhs) == expected);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

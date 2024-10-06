@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 NodeReader::NodeReader(
@@ -157,4 +157,4 @@ void NodeReader::onNode(
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

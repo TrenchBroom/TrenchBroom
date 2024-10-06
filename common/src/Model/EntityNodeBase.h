@@ -28,13 +28,13 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 const Assets::EntityDefinition* selectEntityDefinition(
@@ -185,4 +185,4 @@ private: // hide copy constructor and assignment operator
 bool operator==(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
 bool operator!=(const EntityNodeBase& lhs, const EntityNodeBase& rhs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

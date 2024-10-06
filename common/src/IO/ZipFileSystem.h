@@ -26,7 +26,7 @@
 
 #include <mutex>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class CFile;
 
@@ -43,4 +43,4 @@ public:
 private:
   Result<void> doReadDirectory() override;
 };
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

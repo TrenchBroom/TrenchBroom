@@ -27,14 +27,14 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class MapDocument;
@@ -100,4 +100,4 @@ private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

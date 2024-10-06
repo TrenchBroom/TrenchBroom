@@ -41,7 +41,7 @@
 #include <cassert>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 const size_t Compass::m_segments = 32;
 const float Compass::m_shaftLength = 28.0f;
@@ -258,4 +258,4 @@ void Compass::renderAxis(RenderContext& renderContext, const vm::mat4x4f& transf
   m_arrowRenderer.render();
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

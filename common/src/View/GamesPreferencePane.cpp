@@ -45,7 +45,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GamesPreferencePane::GamesPreferencePane(MapDocument* document, QWidget* parent)
@@ -328,4 +328,4 @@ void GamePreferencePane::updateControls()
   m_gamePathText->setText(IO::pathAsQString(gamePath));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

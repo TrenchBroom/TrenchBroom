@@ -24,7 +24,7 @@
 
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 EvaluationContext::EvaluationContext()
@@ -59,4 +59,4 @@ Value EvaluationStack::variableValue(const std::string& name) const
   const auto& value = EvaluationContext::variableValue(name);
   return value != Value::Undefined ? value : m_next.variableValue(name);
 }
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

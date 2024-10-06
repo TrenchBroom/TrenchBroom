@@ -26,7 +26,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 /**
  * User defined vertex attribute types.
@@ -240,4 +240,4 @@ using UV02 = GLVertexAttributeUVCoord0<GL_FLOAT, 2>;
 using C4 = GLVertexAttributeColor<GL_FLOAT, 4>;
 } // namespace GLVertexAttributeTypes
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

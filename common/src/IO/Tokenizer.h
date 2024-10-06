@@ -30,7 +30,7 @@
 #include <string_view>
 #include <tuple>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 struct TokenizerState
@@ -550,4 +550,4 @@ protected:
   virtual Token emitToken() = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

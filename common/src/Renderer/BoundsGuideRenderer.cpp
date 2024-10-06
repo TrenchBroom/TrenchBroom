@@ -25,7 +25,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 const double BoundsGuideRenderer::SpikeLength = 512.0;
 
@@ -232,4 +232,4 @@ void BoundsGuideRenderer::doRender(RenderContext& renderContext)
   m_spikeRenderer.render(renderContext);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -23,15 +23,15 @@
 
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 class Value;
 enum class ValueType;
 
-class Exception : public TrenchBroom::Exception
+class Exception : public tb::Exception
 {
 public:
-  using TrenchBroom::Exception::Exception;
+  using tb::Exception::Exception;
 };
 
 class ConversionError : public Exception
@@ -72,4 +72,4 @@ public:
   IndexOutOfBoundsError(const Value& indexableValue, size_t index);
   IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
 };
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -82,4 +82,4 @@ void LongPropertyValueValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

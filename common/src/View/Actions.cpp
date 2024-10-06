@@ -40,7 +40,7 @@
 #include <string>
 #include <unordered_set>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // ActionExecutionContext
 
@@ -2253,4 +2253,4 @@ std::vector<size_t> findConflicts(const std::vector<const Action*>& actions)
   return conflicts;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

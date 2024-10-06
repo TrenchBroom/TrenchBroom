@@ -38,7 +38,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 NodeSerializer::~NodeSerializer() = default;
@@ -376,4 +376,4 @@ std::string NodeSerializer::escapeEntityProperties(const std::string& str) const
   return kdl::str_escape_if_necessary(str, "\"");
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

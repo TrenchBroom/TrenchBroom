@@ -35,7 +35,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct MapFormatConfig
@@ -173,4 +173,4 @@ struct GameConfig
   std::filesystem::path findConfigFile(const std::filesystem::path& filePath) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -29,10 +29,10 @@
 
 int main(int argc, char** argv)
 {
-  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::TestPreferenceManager>();
-  TrenchBroom::View::TrenchBroomApp app(argc, argv);
+  tb::PreferenceManager::createInstance<tb::TestPreferenceManager>();
+  tb::View::TrenchBroomApp app(argc, argv);
 
-  TrenchBroom::View::setCrashReportGUIEnbled(false);
+  tb::View::setCrashReportGUIEnbled(false);
 
   ensure(qApp == &app, "invalid app instance");
 

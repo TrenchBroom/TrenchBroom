@@ -28,7 +28,7 @@
 class QAbstractButton;
 class QLineEdit;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class Selection;
@@ -59,4 +59,4 @@ private:
   void applyMove();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

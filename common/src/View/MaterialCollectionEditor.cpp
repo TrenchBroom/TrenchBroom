@@ -38,7 +38,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MaterialCollectionEditor::MaterialCollectionEditor(
@@ -332,4 +332,4 @@ std::vector<std::filesystem::path> MaterialCollectionEditor::enabledMaterialColl
   return document->enabledMaterialCollections();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

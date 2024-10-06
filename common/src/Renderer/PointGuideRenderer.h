@@ -27,12 +27,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -59,4 +59,4 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

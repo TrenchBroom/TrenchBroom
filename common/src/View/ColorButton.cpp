@@ -25,7 +25,7 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ColorButton::ColorButton(QWidget* parent)
@@ -71,4 +71,4 @@ void ColorButton::setColor(const QColor& color)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

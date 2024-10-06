@@ -27,7 +27,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 SpinControl::SpinControl(QWidget* parent)
   : QDoubleSpinBox{parent}
@@ -102,4 +102,4 @@ void SpinControl::updateTooltip()
                .arg(QString::fromStdString(kdl::str_to_string(m_ctrlIncrement))));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

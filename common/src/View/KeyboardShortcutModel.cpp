@@ -31,7 +31,7 @@
 
 #include <ranges>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 KeyboardShortcutModel::KeyboardShortcutModel(MapDocument* document, QObject* parent)
@@ -234,4 +234,4 @@ bool KeyboardShortcutModel::checkIndex(const QModelIndex& index) const
   return index.isValid() && index.column() < 3 && index.row() < totalActionCount();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

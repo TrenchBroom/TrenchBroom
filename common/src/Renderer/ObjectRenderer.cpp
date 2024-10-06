@@ -23,7 +23,7 @@
 
 #include "kdl/overload.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 void ObjectRenderer::addNode(Model::Node* node)
@@ -221,4 +221,4 @@ void ObjectRenderer::renderTransparent(
   m_brushRenderer.renderTransparent(renderContext, renderBatch);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

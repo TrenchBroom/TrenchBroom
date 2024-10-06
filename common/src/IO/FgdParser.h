@@ -32,18 +32,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 };
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class DecalDefinition;
 class ModelDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 struct EntityDefinitionClassInfo;
@@ -169,4 +169,4 @@ private:
     ParserStatus& status, const std::filesystem::path& path);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

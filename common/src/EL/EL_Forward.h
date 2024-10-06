@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 class Value;
 enum class ValueType;
@@ -30,4 +30,4 @@ class EvaluationContext;
 class EvaluationTrace;
 
 class VariableStore;
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

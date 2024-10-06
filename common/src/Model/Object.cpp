@@ -22,7 +22,7 @@
 #include "Model/GroupNode.h"
 #include "Uuid.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 Object::Object()
@@ -88,4 +88,4 @@ bool Object::containingGroupOpened() const
   return group == nullptr || group->opened();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -25,7 +25,7 @@ class QLineEdit;
 class QPushButton;
 class QStackedWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GameListBox;
 class GamePreferencePane;
@@ -95,4 +95,4 @@ signals:
   void requestUpdate();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

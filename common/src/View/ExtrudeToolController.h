@@ -21,13 +21,13 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class ExtrudeTool;
@@ -92,4 +92,4 @@ private:
   bool doHandleInput(const InputState& inputState) const override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

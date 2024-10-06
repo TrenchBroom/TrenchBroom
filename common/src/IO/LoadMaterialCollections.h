@@ -28,23 +28,23 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 class MaterialCollection;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct MaterialConfig;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
@@ -62,4 +62,4 @@ Result<std::vector<Assets::MaterialCollection>> loadMaterialCollections(
   const Assets::CreateTextureResource& createResource,
   Logger& logger);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

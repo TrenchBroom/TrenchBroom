@@ -26,7 +26,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 
@@ -72,4 +72,4 @@ std::vector<BrushFaceReference> createRefs(const std::vector<BrushFaceHandle>& h
 Result<std::vector<BrushFaceHandle>> resolveAllRefs(
   const std::vector<BrushFaceReference>& faceRefs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

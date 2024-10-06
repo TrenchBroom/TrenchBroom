@@ -23,7 +23,7 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(Layer);
@@ -99,4 +99,4 @@ int Layer::defaultLayerSortIndex()
   return -1;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

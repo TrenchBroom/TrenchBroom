@@ -34,20 +34,20 @@
 
 class QWidget;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class ActiveShader;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class Selection;
@@ -128,4 +128,4 @@ private:
   Model::PickResult pick(const vm::ray3d& pickRay) const override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

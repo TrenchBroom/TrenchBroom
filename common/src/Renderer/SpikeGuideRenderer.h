@@ -29,7 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace Model
 {
@@ -77,4 +77,4 @@ private:
   void validate();
 };
 } // namespace Renderer
-} // namespace TrenchBroom
+} // namespace tb

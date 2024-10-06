@@ -30,13 +30,13 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class File;
 class Reader;
-} // namespace TrenchBroom::IO
+} // namespace tb::IO
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class TextureBuffer;
 
@@ -112,4 +112,4 @@ Result<Palette> makePalette(
 Result<Palette> loadPalette(const IO::File& file, const std::filesystem::path& path);
 Result<Palette> loadPalette(IO::Reader& reader, PaletteColorFormat colorFormat);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

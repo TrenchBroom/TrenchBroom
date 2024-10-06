@@ -28,7 +28,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace PakLayout
 {
@@ -79,4 +79,4 @@ Result<void> IdPakFileSystem::doReadDirectory()
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

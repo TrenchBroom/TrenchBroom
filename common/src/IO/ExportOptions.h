@@ -25,7 +25,7 @@
 #include <filesystem>
 #include <variant>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 struct MapExportOptions
@@ -55,4 +55,4 @@ using ExportOptions = std::variant<MapExportOptions, ObjExportOptions>;
 
 std::ostream& operator<<(std::ostream& lhs, const ExportOptions& rhs);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

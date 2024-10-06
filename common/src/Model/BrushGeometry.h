@@ -22,7 +22,7 @@
 #include "Model/Polyhedron.h"
 #include "Model/Polyhedron_BrushGeometryPayload.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 using BrushGeometry = Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
@@ -38,4 +38,4 @@ using BrushEdgeList = Polyhedron_EdgeList<double, BrushFacePayload, BrushVertexP
 using BrushHalfEdgeList =
   Polyhedron_HalfEdgeList<double, BrushFacePayload, BrushVertexPayload>;
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

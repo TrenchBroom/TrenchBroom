@@ -33,7 +33,7 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ToolBox::ToolBox() = default;
@@ -397,4 +397,4 @@ void ToolBox::deactivateTool(Tool& tool)
   toolDeactivatedNotifier(tool);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

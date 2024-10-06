@@ -51,7 +51,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -694,4 +694,4 @@ std::unique_ptr<CommandResult> MapDocumentCommandFacade::doExecuteAndStore(
   return m_commandProcessor->executeAndStore(std::move(command));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -37,7 +37,7 @@
 
 #include <kdl/result.h>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -169,4 +169,4 @@ Assets::EntityModel loadEntityModelAsync(
   return Assets::EntityModel{std::move(name), std::move(resource)};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

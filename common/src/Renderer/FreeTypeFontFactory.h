@@ -28,7 +28,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontDescriptor;
 class TextureFont;
@@ -46,4 +46,4 @@ private:
     const FontDescriptor& fontDescriptor) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

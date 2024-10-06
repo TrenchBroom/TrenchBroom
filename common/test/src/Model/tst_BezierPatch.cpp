@@ -24,7 +24,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("BezierPatch.evaluate")
@@ -70,4 +70,4 @@ TEST_CASE("BezierPatch.transform")
   // clang-format on
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

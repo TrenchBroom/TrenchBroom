@@ -35,7 +35,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -129,4 +129,4 @@ Result<Assets::EntityModelData> ImageSpriteLoader::load(Logger& logger)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -24,7 +24,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 Tool::Tool(const bool initiallyActive)
@@ -100,4 +100,4 @@ QWidget* Tool::doCreatePage(QWidget* parent)
   return new QWidget{parent};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -41,7 +41,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 WorldNode::WorldNode(
@@ -524,4 +524,4 @@ void WorldNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
   visitor.visit(*this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

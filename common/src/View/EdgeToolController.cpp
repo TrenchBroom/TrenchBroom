@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class EdgeToolController::SelectEdgePart : public SelectPartBase<vm::segment3d>
@@ -57,4 +57,4 @@ EdgeToolController::EdgeToolController(EdgeTool& tool)
   addController(std::make_unique<SelectEdgePart>(tool));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

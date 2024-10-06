@@ -21,7 +21,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 
@@ -77,4 +77,4 @@ private:
   TextAlignment::Type alignment() const override;
   vm::vec2f extraOffsets(TextAlignment::Type a) const override;
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

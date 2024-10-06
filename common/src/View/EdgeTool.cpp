@@ -22,7 +22,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
@@ -97,4 +97,4 @@ void EdgeTool::removeSelection()
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(vertexPositions));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

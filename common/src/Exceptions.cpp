@@ -21,7 +21,7 @@
 
 #include <sstream>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
@@ -69,4 +69,4 @@ ParserException::ParserException(
 {
 }
 
-} // namespace TrenchBroom
+} // namespace tb

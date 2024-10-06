@@ -23,7 +23,7 @@
 
 #include <optional>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Hit;
 class Node;
@@ -31,4 +31,4 @@ class Node;
 Node* hitToNode(const Hit& hit);
 std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

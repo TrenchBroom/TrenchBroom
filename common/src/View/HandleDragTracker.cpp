@@ -36,7 +36,7 @@
 #include "vm/quat.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 kdl_reflect_impl(DragState);
@@ -230,4 +230,4 @@ HandlePositionProposer makeHandlePositionProposer(
   };
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

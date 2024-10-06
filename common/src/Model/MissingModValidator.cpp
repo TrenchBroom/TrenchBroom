@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -130,4 +130,4 @@ void MissingModValidator::doValidate(
   m_lastMods = std::move(mods);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

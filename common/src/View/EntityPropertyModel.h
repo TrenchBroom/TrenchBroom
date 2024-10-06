@@ -29,12 +29,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -207,4 +207,4 @@ public: // EntityPropertyGrid helpers
   bool lessThan(size_t rowIndexA, size_t rowIndexB) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

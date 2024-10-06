@@ -21,7 +21,7 @@
 
 #include "Polyhedron.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 template <typename T, typename FP, typename VP>
 kdl::intrusive_circular_link<Polyhedron_HalfEdge<T, FP, VP>>& Polyhedron_GetHalfEdgeLink<
@@ -207,4 +207,4 @@ void Polyhedron_HalfEdge<T, FP, VP>::setAsLeaving()
   m_origin->setLeaving(this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

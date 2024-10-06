@@ -27,7 +27,7 @@
 
 class QKeySequence;
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 
@@ -183,4 +183,4 @@ public: // PreferenceManager private
 
   bool isReadOnly() const { return m_readOnly; }
 };
-} // namespace TrenchBroom
+} // namespace tb

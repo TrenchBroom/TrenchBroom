@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Issue;
 class MapFacade;
@@ -59,4 +59,4 @@ IssueQuickFix makeTransformEntityPropertiesQuickFix(
   std::function<std::string(const std::string&)> keyTransform,
   std::function<std::string(const std::string&)> valueTransform);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

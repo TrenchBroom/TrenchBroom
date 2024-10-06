@@ -21,7 +21,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 MaterialRenderer::~MaterialRenderer() = default;
@@ -99,4 +99,4 @@ void MultiMaterialIndexRangeRenderer::render(MaterialRenderFunc& func)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

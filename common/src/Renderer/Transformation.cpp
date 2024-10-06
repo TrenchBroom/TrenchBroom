@@ -25,7 +25,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 Transformation::Transformation(
@@ -164,4 +164,4 @@ ReplaceModelMatrix::~ReplaceModelMatrix()
   m_transformation.popModelMatrix();
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

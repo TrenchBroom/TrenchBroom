@@ -51,7 +51,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -865,4 +865,4 @@ void MapRenderer::preferenceDidChange(const std::filesystem::path& path)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

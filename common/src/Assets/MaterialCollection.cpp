@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 kdl_reflect_impl(MaterialCollection);
@@ -94,4 +94,4 @@ Material* MaterialCollection::materialByName(const std::string& name)
     const_cast<const MaterialCollection*>(this)->materialByName(name));
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

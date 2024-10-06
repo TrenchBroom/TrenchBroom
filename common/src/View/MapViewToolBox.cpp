@@ -34,7 +34,7 @@
 #include "View/ShearObjectsTool.h"
 #include "View/VertexTool.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapViewToolBox::MapViewToolBox(
@@ -375,4 +375,4 @@ void MapViewToolBox::updateToolPage()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

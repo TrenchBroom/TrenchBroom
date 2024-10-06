@@ -44,7 +44,7 @@
 #include <ranges>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ModEditor::ModEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -327,4 +327,4 @@ void ModEditor::filterBoxChanged()
   updateMods();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

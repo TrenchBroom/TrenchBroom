@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("NodeReaderTest.parseFaceAsNode")
@@ -142,4 +142,4 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
   CHECK(nodes.size() == 1);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

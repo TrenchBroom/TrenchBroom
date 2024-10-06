@@ -55,7 +55,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -439,4 +439,4 @@ Result<std::vector<Assets::MaterialCollection>> loadMaterialCollections(
            });
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

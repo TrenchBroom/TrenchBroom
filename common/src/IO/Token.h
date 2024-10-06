@@ -26,7 +26,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 template <typename Type>
@@ -93,4 +93,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

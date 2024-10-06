@@ -25,12 +25,12 @@
 
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -292,4 +292,4 @@ private:
   }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

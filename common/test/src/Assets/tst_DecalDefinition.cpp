@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace
@@ -92,4 +92,4 @@ TEST_CASE("DecalDefinitionTest.defaultDecalSpecification")
   CHECK(decalDefinition.defaultDecalSpecification() == expectedDecalSpecification);
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

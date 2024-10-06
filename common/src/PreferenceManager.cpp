@@ -40,7 +40,7 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 // PreferenceManager
 
@@ -497,4 +497,4 @@ QByteArray writePreferencesToJson(
   return document.toJson(QJsonDocument::Indented);
 }
 
-} // namespace TrenchBroom
+} // namespace tb

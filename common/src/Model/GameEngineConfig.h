@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct GameEngineConfig
@@ -35,4 +35,4 @@ struct GameEngineConfig
   kdl_reflect_decl(GameEngineConfig, profiles);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

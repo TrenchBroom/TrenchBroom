@@ -28,7 +28,7 @@
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 FrameManager::FrameManager(const bool singleFrame)
@@ -124,4 +124,4 @@ void FrameManager::removeFrame(MapFrame* frame)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

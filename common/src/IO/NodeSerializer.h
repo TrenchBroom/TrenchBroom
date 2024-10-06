@@ -25,7 +25,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace Model
 {
@@ -155,4 +155,4 @@ private:
   virtual void doPatch(const Model::PatchNode* patchNode) = 0;
 };
 } // namespace IO
-} // namespace TrenchBroom
+} // namespace tb

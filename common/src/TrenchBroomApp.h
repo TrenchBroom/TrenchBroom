@@ -30,12 +30,12 @@ class QMenu;
 class QSettings;
 class QTimer;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FrameManager;
 class RecentDocuments;
@@ -107,4 +107,4 @@ void setCrashReportGUIEnbled(bool guiEnabled);
 bool isReportingCrash();
 
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

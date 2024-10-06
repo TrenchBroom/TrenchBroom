@@ -25,12 +25,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -65,4 +65,4 @@ private:
   virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -27,7 +27,7 @@
 #include <functional>
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class VertexArray;
 
@@ -165,4 +165,4 @@ public:
     std::function<void(PrimType, size_t index, size_t count)> func) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

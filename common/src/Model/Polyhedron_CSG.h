@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace detail
 {
@@ -346,4 +346,4 @@ std::vector<Polyhedron<T, FP, VP>> Polyhedron<T, FP, VP>::subtract(
   return subtract.result();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

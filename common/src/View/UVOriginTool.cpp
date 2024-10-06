@@ -51,7 +51,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -426,4 +426,4 @@ bool UVOriginTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

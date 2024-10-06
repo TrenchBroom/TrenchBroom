@@ -21,7 +21,7 @@
 
 #include "Model/EntityNodeBase.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(
@@ -35,4 +35,4 @@ void SmartDefaultPropertyEditor::doUpdateVisual(
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -19,7 +19,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #pragma once
 
-namespace TrenchBroom
+namespace tb
 {
 [[noreturn]] void ensureFailed(
   const char* file, int line, const char* condition, const char* message);
@@ -35,7 +35,6 @@ namespace TrenchBroom
   {                                                                                      \
     if (!(condition))                                                                    \
     {                                                                                    \
-      TrenchBroom::ensureFailed(                                                         \
-        __FILE__, __LINE__, stringification2(condition), message);                       \
+      tb::ensureFailed(__FILE__, __LINE__, stringification2(condition), message);        \
     }                                                                                    \
   } while (false)

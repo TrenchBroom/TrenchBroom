@@ -24,12 +24,12 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 class Reader;
@@ -51,4 +51,4 @@ public:
   Result<Assets::EntityModelData> load(Logger& logger) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

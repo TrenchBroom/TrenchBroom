@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 class Quake3ShaderStage
@@ -91,4 +91,4 @@ public:
 
 std::ostream& operator<<(std::ostream& lhs, Quake3Shader::Culling rhs);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

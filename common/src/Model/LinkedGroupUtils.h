@@ -37,7 +37,7 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 std::vector<Node*> collectNodesWithLinkId(
@@ -149,4 +149,4 @@ Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
 std::vector<Error> copyAndSetLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

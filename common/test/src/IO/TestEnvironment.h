@@ -28,7 +28,7 @@
 #include <functional>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class TestEnvironment
@@ -78,4 +78,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -40,7 +40,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class EditorContextTest
@@ -1203,4 +1203,4 @@ TEST_CASE_METHOD(EditorContextTest, "EditorContextTest.testGroupedNodes")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

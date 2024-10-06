@@ -30,7 +30,7 @@
 #include "View/ViewConstants.h"
 #include "View/ViewEditor.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapViewBar::MapViewBar(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -71,4 +71,4 @@ void MapViewBar::createGui(std::weak_ptr<MapDocument> document)
   setLayout(layout);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

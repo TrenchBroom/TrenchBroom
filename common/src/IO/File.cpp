@@ -25,7 +25,7 @@
 #include <cstdio>
 #include <cstring>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 File::File() = default;
@@ -209,4 +209,4 @@ size_t FileView::size() const
 {
   return m_length;
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

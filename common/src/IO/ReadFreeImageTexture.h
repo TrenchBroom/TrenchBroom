@@ -25,13 +25,13 @@
 
 #include <string_view>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Texture;
 class TextureBuffer;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class Reader;
@@ -44,4 +44,4 @@ Result<Assets::Texture> readFreeImageTexture(Reader& reader);
 
 bool isSupportedFreeImageExtension(std::string_view extension);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

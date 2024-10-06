@@ -40,7 +40,7 @@
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CompilationProfileEditor::CompilationProfileEditor(
@@ -343,4 +343,4 @@ void CompilationProfileEditor::refresh()
     && m_taskList->currentRow() < static_cast<int>(m_profile->tasks.size()) - 1);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

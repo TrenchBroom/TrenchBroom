@@ -29,7 +29,7 @@
 #include <memory>
 #include <mutex>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 /**
  * Represents an opened (logical) file. A logical file can be backed by a physical file on
@@ -190,4 +190,4 @@ public:
    */
   const T& object() const { return m_object; }
 };
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

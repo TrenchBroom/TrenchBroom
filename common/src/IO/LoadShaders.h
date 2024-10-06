@@ -23,26 +23,26 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Quake3Shader;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct MaterialConfig;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
 Result<std::vector<Assets::Quake3Shader>> loadShaders(
   const FileSystem& fs, const Model::MaterialConfig& materialConfig, Logger& logger);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

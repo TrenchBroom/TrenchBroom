@@ -45,7 +45,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 const HitType::Type BrushNode::BrushHitType = HitType::freeType();
 
@@ -490,4 +490,4 @@ bool operator!=(const BrushNode& lhs, const BrushNode& rhs)
   return !(lhs == rhs);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -31,7 +31,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -68,4 +68,4 @@ TEST_CASE("ReadDdsTextureTest.testLoadDds")
   assertTexture("dds_bc3.dds", 128, 128, GL_COMPRESSED_RGBA_S3TC_DXT5_EXT);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

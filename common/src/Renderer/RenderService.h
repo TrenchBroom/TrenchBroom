@@ -31,7 +31,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class AttrString;
 class PointHandleRenderer;
@@ -142,4 +142,4 @@ private:
   void flush();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

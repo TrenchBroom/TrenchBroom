@@ -46,7 +46,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -589,4 +589,4 @@ bool SelectionTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

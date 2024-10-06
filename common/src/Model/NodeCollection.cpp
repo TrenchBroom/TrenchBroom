@@ -34,7 +34,7 @@
 #include <algorithm>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(NodeCollection);
@@ -304,4 +304,4 @@ void NodeCollection::clear()
   m_patches.clear();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

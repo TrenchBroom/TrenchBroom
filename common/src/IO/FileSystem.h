@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 enum class PathInfo;
@@ -105,4 +105,4 @@ private:
     const std::filesystem::path& sourcePath, const std::filesystem::path& destPath) = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

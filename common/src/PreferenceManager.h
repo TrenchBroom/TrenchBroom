@@ -43,7 +43,7 @@
 class QTextStream;
 class QFileSystemWatcher;
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 
@@ -303,4 +303,4 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData);
 QByteArray writePreferencesToJson(
   const std::map<std::filesystem::path, QJsonValue>& prefs);
 
-} // namespace TrenchBroom
+} // namespace tb

@@ -29,10 +29,10 @@
 namespace vm
 {
 template <>
-class approx<TrenchBroom::View::DragState>
+class approx<tb::View::DragState>
 {
 private:
-  using DragState = TrenchBroom::View::DragState;
+  using DragState = tb::View::DragState;
   DragState m_value;
   double m_epsilon;
 
@@ -81,7 +81,7 @@ public:
 
 } // namespace vm
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -474,4 +474,4 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     }
   }
 }
-} // namespace TrenchBroom::View
+} // namespace tb::View

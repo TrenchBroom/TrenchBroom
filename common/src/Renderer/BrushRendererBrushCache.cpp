@@ -26,7 +26,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 BrushRendererBrushCache::CachedFace::CachedFace(
@@ -150,4 +150,4 @@ const std::vector<BrushRendererBrushCache::CachedEdge>& BrushRendererBrushCache:
   return m_cachedEdges;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

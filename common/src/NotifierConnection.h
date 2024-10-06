@@ -22,7 +22,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class NotifierStateBase;
 
@@ -71,4 +71,4 @@ public:
   void disconnect();
 };
 
-} // namespace TrenchBroom
+} // namespace tb

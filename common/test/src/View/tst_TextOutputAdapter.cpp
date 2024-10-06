@@ -23,7 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE("TextOutputAdapterTest.test")
@@ -75,4 +75,4 @@ TEST_CASE("TextOutputAdapterTest.test")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

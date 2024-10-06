@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
@@ -101,4 +101,4 @@ bool UpdateLinkedGroupsCommandBase::collateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

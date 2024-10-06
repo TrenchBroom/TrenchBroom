@@ -22,15 +22,15 @@
 
 #include "Result.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Texture;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class Reader;
 
 Result<Assets::Texture> readDdsTexture(Reader& reader);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

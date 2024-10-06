@@ -35,7 +35,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -284,4 +284,4 @@ TEST_CASE("applyEntityRotation")
   CHECK(applyEntityRotation(properties, info, transform) == expectedProperty);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

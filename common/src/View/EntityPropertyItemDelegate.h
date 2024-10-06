@@ -24,7 +24,7 @@
 class QLineEdit;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class EntityPropertyModel;
 class EntityPropertyTable;
@@ -55,4 +55,4 @@ private:
   QStringList getCompletions(const QModelIndex& index) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

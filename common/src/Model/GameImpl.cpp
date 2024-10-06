@@ -59,7 +59,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger)
   : m_config{config}
@@ -491,4 +491,4 @@ std::string GameImpl::readLongAttribute(
 
   return valueStr.str();
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

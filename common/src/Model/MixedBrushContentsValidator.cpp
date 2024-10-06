@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -61,4 +61,4 @@ void MixedBrushContentsValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

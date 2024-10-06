@@ -36,7 +36,7 @@
 #include <ranges>
 #include <unordered_set>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -163,4 +163,4 @@ void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(
     std::move(m_state));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

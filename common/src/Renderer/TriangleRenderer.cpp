@@ -26,7 +26,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 TriangleRenderer::TriangleRenderer() = default;
 
@@ -81,4 +81,4 @@ void TriangleRenderer::doRender(RenderContext& context)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

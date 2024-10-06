@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 // AnimationCurve
@@ -179,4 +179,4 @@ void AnimationManager::onTimerTick()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

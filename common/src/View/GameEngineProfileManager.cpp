@@ -32,7 +32,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GameEngineProfileManager::GameEngineProfileManager(
@@ -129,4 +129,4 @@ void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* p
   m_removeProfileButton->setEnabled(profile != nullptr);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -21,7 +21,7 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 const TraversalMode TraversalMode::Flat = TraversalMode{0};
@@ -38,4 +38,4 @@ std::optional<TraversalMode> TraversalMode::reduceDepth(size_t depthToSubtract) 
 }
 
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

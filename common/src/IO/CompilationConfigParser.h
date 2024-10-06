@@ -25,7 +25,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class CompilationConfigParser : public ConfigParserBase
@@ -38,4 +38,4 @@ public:
   deleteCopyAndMove(CompilationConfigParser);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

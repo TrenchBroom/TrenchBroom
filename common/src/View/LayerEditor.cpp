@@ -45,7 +45,7 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -471,4 +471,4 @@ void LayerEditor::updateButtons()
   m_moveLayerDownButton->setEnabled(canMoveLayer(1));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

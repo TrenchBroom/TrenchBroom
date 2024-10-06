@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Brush;
 class ModelFactory;
@@ -126,4 +126,4 @@ public:
   Result<Brush> createBrush(
     const Polyhedron3& polyhedron, const std::string& materialName) const;
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

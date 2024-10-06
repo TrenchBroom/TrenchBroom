@@ -25,7 +25,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -137,4 +137,4 @@ void RenderBatch::renderRenderables(RenderContext& renderContext)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

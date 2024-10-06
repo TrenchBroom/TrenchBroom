@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("ReadM8TextureTest.testBasicLoading")
@@ -61,4 +61,4 @@ TEST_CASE("ReadM8TextureTest.testBasicLoading")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

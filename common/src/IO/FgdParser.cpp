@@ -42,7 +42,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 FgdTokenizer::FgdTokenizer(const std::string_view str)
@@ -1098,4 +1098,4 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
          | kdl::value();
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

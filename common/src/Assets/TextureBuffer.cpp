@@ -25,7 +25,7 @@
 #include <algorithm>
 #include <iostream>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 TextureBuffer::TextureBuffer() = default;
@@ -162,4 +162,4 @@ void resizeMips(
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

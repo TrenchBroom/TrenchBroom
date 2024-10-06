@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace WalLayout
 {
@@ -246,4 +246,4 @@ Result<Assets::Texture> readWalTexture(
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

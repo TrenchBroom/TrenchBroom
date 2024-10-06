@@ -37,7 +37,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 TEST_CASE("BSP model intersection test")
 {
@@ -146,4 +146,4 @@ TEST_CASE("EntityModelTest.buildRenderer.defaultSkinIndex")
   CHECK(renderer1 != nullptr);
   CHECK(renderer2 != nullptr);
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

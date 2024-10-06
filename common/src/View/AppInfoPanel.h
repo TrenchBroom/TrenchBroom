@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class AppInfoPanel : public QWidget
@@ -36,4 +36,4 @@ private:
   void versionInfoClicked();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

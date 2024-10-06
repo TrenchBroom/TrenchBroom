@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -150,4 +150,4 @@ TEST_CASE_METHOD(
     brush->logicalBounds() == vm::bbox3d(vm::vec3d(-16, -16, 52), vm::vec3d(20, 16, 72)));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

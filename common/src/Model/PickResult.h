@@ -28,7 +28,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class CompareHits;
 
@@ -62,4 +62,4 @@ public:
   void clear();
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

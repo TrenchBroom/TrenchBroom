@@ -46,7 +46,7 @@
 #include <memory>
 #include <optional>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -607,4 +607,4 @@ ClipToolController3D::ClipToolController3D(ClipTool& tool)
     std::make_unique<AddClipPointPart>(std::make_unique<PartDelegate3D>(tool)));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

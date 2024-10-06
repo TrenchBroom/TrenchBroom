@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 struct ShaderConfig
@@ -32,4 +32,4 @@ struct ShaderConfig
   std::vector<std::string> fragmentShaders;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

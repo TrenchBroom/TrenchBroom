@@ -27,19 +27,19 @@
 
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModel;
 class EntityModelManager;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class EditorContext;
@@ -47,9 +47,9 @@ class EntityNode;
 class GroupNode;
 class Node;
 class PatchNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontManager;
 class RenderBatch;
@@ -123,4 +123,4 @@ public: // rendering
   deleteCopy(ObjectRenderer);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

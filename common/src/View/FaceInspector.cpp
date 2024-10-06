@@ -41,7 +41,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 FaceInspector::FaceInspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
@@ -203,4 +203,4 @@ void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
   m_materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

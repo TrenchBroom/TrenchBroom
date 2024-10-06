@@ -28,12 +28,12 @@
 
 #include <optional>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace ModelSpecificationKeys
@@ -101,4 +101,4 @@ vm::vec3d safeGetModelScale(
   const EL::VariableStore& variableStore,
   const std::optional<EL::ExpressionNode>& defaultScaleExpression);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

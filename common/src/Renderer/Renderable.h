@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 class VboManager;
@@ -65,4 +65,4 @@ public:
   defineCopyAndMove(IndexedRenderable);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

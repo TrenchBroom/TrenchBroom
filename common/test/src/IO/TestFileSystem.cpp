@@ -25,7 +25,7 @@
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 kdl_reflect_impl(Object);
@@ -140,4 +140,4 @@ Result<std::shared_ptr<File>> TestFileSystem::doOpenFile(
   return Error{};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

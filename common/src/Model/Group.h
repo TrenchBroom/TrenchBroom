@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class Group
@@ -49,4 +49,4 @@ public:
   void transform(const vm::mat4x4d& transformation);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

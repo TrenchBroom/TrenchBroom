@@ -33,13 +33,13 @@ class QShortcut;
 class QSortFilterProxyModel;
 class QToolButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class EntityPropertyModel;
 class EntityPropertyTable;
@@ -112,4 +112,4 @@ signals:
   void currentRowChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

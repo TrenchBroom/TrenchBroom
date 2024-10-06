@@ -21,7 +21,7 @@
 
 #include <QKeyEvent>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 LimitedKeySequenceEdit::LimitedKeySequenceEdit(QWidget* parent)
@@ -59,4 +59,4 @@ void LimitedKeySequenceEdit::resetCount()
   m_count = 0;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

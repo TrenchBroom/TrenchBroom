@@ -24,7 +24,7 @@
 
 #include "Ensure.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 bool isMainThread()
@@ -33,4 +33,4 @@ bool isMainThread()
   return (qApp->thread() == QThread::currentThread());
 }
 
-} // namespace TrenchBroom
+} // namespace tb

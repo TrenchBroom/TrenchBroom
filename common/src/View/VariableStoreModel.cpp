@@ -21,7 +21,7 @@
 
 #include "EL/VariableStore.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 VariableStoreModel::VariableStoreModel(const EL::VariableStore& variables)
@@ -57,4 +57,4 @@ QVariant VariableStoreModel::data(const QModelIndex& index, const int role) cons
            : QString::fromStdString(m_variables->value(name).stringValue());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

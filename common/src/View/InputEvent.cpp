@@ -29,7 +29,7 @@
 #include <iostream>
 #include <string_view>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void KeyEvent::processWith(InputEventProcessor& processor) const
@@ -555,4 +555,4 @@ MouseEvent::Button InputEventRecorder::getButton(const QMouseEvent& qEvent)
 
 InputEventProcessor::~InputEventProcessor() = default;
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

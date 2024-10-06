@@ -28,7 +28,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -70,4 +70,4 @@ void WorldBoundsValidator::doValidate(
   validateInternal(m_bounds, patchNode, issues);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

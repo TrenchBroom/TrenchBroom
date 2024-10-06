@@ -24,12 +24,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class OrthographicCamera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 
@@ -52,4 +52,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

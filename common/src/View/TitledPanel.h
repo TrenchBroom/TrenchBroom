@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class TitleBar;
 
@@ -45,4 +45,4 @@ public:
   QWidget* getPanel() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

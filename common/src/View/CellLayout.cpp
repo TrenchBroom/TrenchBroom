@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 float LayoutBounds::left() const
@@ -947,4 +947,4 @@ void CellLayout::validate()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

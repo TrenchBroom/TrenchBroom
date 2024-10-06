@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class LayerNode : public Node
@@ -100,4 +100,4 @@ private:
   deleteCopyAndMove(LayerNode);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

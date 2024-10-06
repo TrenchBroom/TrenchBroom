@@ -26,7 +26,7 @@
 
 #include "kdl/map_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
@@ -131,4 +131,4 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

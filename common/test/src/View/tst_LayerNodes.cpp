@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -534,4 +534,4 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation")
   CHECK(document->currentLayer() == layerNode2);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

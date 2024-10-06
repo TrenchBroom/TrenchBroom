@@ -24,7 +24,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 MultiPaneMapView::MultiPaneMapView(QWidget* parent)
   : MapViewContainer{parent}
@@ -178,4 +178,4 @@ void MultiPaneMapView::cycleChildMapView(MapView*)
   // only CyclingMapView support cycling
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

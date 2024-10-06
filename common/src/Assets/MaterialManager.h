@@ -27,7 +27,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 
@@ -88,4 +88,4 @@ private:
   void updateMaterials();
 };
 } // namespace Assets
-} // namespace TrenchBroom
+} // namespace tb

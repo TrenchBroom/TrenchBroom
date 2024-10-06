@@ -24,14 +24,14 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class MapDocument;
@@ -101,4 +101,4 @@ private:
     Model::PickResult& pickResult) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -24,7 +24,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class File;
 class FileSystem;
@@ -43,4 +43,4 @@ public:
 
   Result<Assets::EntityModelData> load(Logger& logger) override;
 };
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -29,12 +29,12 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 
@@ -129,4 +129,4 @@ private: // implement Taggable interface
   void doAcceptTagVisitor(ConstTagVisitor& visitor) const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -54,7 +54,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityBrowserView::EntityBrowserView(
@@ -448,4 +448,4 @@ const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const
   return cell.itemAs<EntityCellData>();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

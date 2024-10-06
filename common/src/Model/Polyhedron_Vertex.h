@@ -23,7 +23,7 @@
 
 #include "kdl/intrusive_circular_list.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -145,4 +145,4 @@ void Polyhedron_Vertex<T, FP, VP>::correctPosition(const size_t decimals, const 
   m_position = vm::correct(m_position, decimals, epsilon);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

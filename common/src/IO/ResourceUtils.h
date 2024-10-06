@@ -25,18 +25,18 @@
 class QIcon;
 class QPixmap;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 class Texture;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
@@ -72,4 +72,4 @@ QPixmap loadSVGPixmap(const std::filesystem::path& imagePath);
  */
 QIcon loadSVGIcon(const std::filesystem::path& imagePath);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

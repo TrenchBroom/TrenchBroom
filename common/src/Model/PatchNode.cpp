@@ -42,7 +42,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 constexpr static size_t DefaultSubdivisionsPerSurface = 3u;
@@ -486,4 +486,4 @@ void PatchNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
   visitor.visit(*this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

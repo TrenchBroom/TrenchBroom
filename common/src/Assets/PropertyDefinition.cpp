@@ -27,7 +27,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 PropertyDefinition::PropertyDefinition(
@@ -449,4 +449,4 @@ std::unique_ptr<PropertyDefinition> UnknownPropertyDefinition::doClone(
     m_defaultValue);
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

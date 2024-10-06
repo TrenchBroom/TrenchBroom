@@ -42,7 +42,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace DkmLayout
@@ -580,4 +580,4 @@ Result<Assets::EntityModelData> DkmLoader::load(Logger& logger)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

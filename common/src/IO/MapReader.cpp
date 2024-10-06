@@ -55,7 +55,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -999,4 +999,4 @@ void MapReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
   brush.faces.push_back(std::move(face));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

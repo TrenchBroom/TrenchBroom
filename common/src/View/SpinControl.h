@@ -21,7 +21,7 @@ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDoubleSpinBox>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SpinControl : public QDoubleSpinBox
@@ -51,4 +51,4 @@ private:
   void updateTooltip();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

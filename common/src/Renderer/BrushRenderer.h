@@ -32,14 +32,14 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
 class EditorContext;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class BrushRenderer
@@ -314,4 +314,4 @@ private:
   deleteCopyAndMove(BrushRenderer);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

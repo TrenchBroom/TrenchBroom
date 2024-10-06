@@ -24,7 +24,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 IndexRangeMap::IndicesAndCounts::IndicesAndCounts() = default;
@@ -201,4 +201,4 @@ void IndexRangeMap::forEachPrimitive(
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

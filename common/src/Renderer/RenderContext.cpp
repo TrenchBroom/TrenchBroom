@@ -21,7 +21,7 @@
 
 #include "Renderer/Camera.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 RenderContext::RenderContext(
@@ -307,4 +307,4 @@ void RenderContext::setShowSelectionGuide(const ShowSelectionGuide showSelection
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

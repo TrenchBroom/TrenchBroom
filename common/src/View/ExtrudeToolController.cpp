@@ -41,7 +41,7 @@
 #include "vm/plane.h"
 #include "vm/scalar.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ExtrudeToolController::ExtrudeToolController(ExtrudeTool& tool)
@@ -484,4 +484,4 @@ bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const
     || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

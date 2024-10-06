@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 TEST_CASE("makePalette")
@@ -214,4 +214,4 @@ TEST_CASE("loadPalette")
   CHECK(loadPalette(*file, filePath) == expectedPalette);
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

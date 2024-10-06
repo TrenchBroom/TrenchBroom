@@ -25,7 +25,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -79,4 +79,4 @@ private: // implement MapReader interface
     ParserStatus& status) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

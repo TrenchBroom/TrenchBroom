@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("getMaterialNameFromPathSuffix")
@@ -69,4 +69,4 @@ TEST_CASE("makeReadTextureErrorHandler")
   CHECK(defaultTexture.height() == 32);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

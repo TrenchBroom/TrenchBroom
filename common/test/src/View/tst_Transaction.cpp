@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "Transaction")
@@ -86,4 +86,4 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

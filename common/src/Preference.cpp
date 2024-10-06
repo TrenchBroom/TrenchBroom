@@ -26,7 +26,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "Color.h"
 #include "IO/PathQt.h"
 
-namespace TrenchBroom
+namespace tb
 {
 // PreferenceSerializer
 
@@ -188,4 +188,4 @@ PreferenceBase::~PreferenceBase() = default;
 
 DynamicPreferencePatternBase::~DynamicPreferencePatternBase() = default;
 
-} // namespace TrenchBroom
+} // namespace tb

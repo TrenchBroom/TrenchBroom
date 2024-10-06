@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 const std::string BrushFaceAttributes::NoMaterialName = "__TB_empty";
@@ -252,4 +252,4 @@ bool BrushFaceAttributes::setColor(const std::optional<Color>& color)
   return false;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -30,7 +30,7 @@
 
 #include "vm/intersection.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -250,4 +250,4 @@ bool DrawShapeToolController2D::cancel()
   return m_tool.cancel();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

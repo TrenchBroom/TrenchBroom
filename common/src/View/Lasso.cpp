@@ -30,7 +30,7 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 Lasso::Lasso(
@@ -129,4 +129,4 @@ vm::bbox2d Lasso::getBox(const vm::mat4x4d& transform) const
   return vm::bbox2d{vm::vec2d{min}, vm::vec2d{max}};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

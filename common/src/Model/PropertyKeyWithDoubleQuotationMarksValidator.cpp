@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -66,4 +66,4 @@ void PropertyKeyWithDoubleQuotationMarksValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -29,7 +29,7 @@ class QWidget;
 class QPushButton;
 class QRadioButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ColorButton;
 class ColorTable;
@@ -66,4 +66,4 @@ private:
   void colorTableSelected(QColor color);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

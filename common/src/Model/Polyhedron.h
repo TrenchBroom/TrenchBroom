@@ -36,7 +36,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 /* ====================== Forward Declarations ====================== */
 
@@ -2399,4 +2399,4 @@ private: // invariants and checks
   bool checkEdgeLengths(T minLength = MinEdgeLength) const;
   bool checkLeavingEdges(const Vertex* v) const;
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

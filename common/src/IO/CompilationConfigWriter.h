@@ -25,13 +25,13 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class CompilationConfigWriter
@@ -56,4 +56,4 @@ private:
   deleteCopyAndMove(CompilationConfigWriter);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

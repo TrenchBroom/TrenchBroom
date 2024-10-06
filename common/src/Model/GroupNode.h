@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 /**
@@ -143,4 +143,4 @@ private:
 
 bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

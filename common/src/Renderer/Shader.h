@@ -26,7 +26,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class Shader
@@ -51,4 +51,4 @@ public:
 
 Result<Shader> loadShader(const std::filesystem::path& path, GLenum type);
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

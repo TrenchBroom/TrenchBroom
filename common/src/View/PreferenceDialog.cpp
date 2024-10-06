@@ -42,7 +42,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 enum class PreferenceDialog::PrefPane
 {
@@ -186,4 +186,4 @@ bool PreferenceDialog::eventFilter(QObject* o, QEvent* e)
   return e->type() != QEvent::ToolTip ? QDialog::eventFilter(o, e) : true;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
@@ -31,9 +31,9 @@ class EntityNode;
 class LayerNode;
 class Node;
 class WorldNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class NodeSerializer;
 
@@ -69,4 +69,4 @@ public:
   void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -23,12 +23,12 @@
 #include "Renderer/Renderable.h"
 
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
@@ -76,4 +76,4 @@ private:
     RenderContext& renderContext, const vm::mat4x4f& cameraTransformation) = 0;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

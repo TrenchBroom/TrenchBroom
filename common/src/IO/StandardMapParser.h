@@ -32,12 +32,12 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -160,4 +160,4 @@ private: // implement Parser interface
   TokenNameMap tokenNames() const override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

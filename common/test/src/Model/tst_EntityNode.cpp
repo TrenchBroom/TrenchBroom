@@ -44,7 +44,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("EntityNodeTest.canAddChild")
@@ -208,4 +208,4 @@ TEST_CASE_METHOD(EntityNodeTest, "EntityNodeTest.originUpdateInWorld")
   CHECK(m_entity->logicalBounds() == newBounds);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

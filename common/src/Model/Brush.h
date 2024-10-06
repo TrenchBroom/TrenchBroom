@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 template <typename P>
 class PolyhedronMatcher;
@@ -369,4 +369,4 @@ private:
 bool operator==(const Brush& lhs, const Brush& rhs);
 bool operator!=(const Brush& lhs, const Brush& rhs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

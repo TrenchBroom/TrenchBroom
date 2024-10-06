@@ -27,7 +27,7 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace
@@ -98,4 +98,4 @@ DecalSpecification DecalDefinition::defaultDecalSpecification() const
 
 kdl_reflect_impl(DecalDefinition);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

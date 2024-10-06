@@ -21,7 +21,7 @@
 
 #include "Renderer/ShaderManager.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 ActiveShader::ActiveShader(ShaderManager& shaderManager, const ShaderConfig& shaderConfig)
@@ -36,4 +36,4 @@ ActiveShader::~ActiveShader()
   m_program.deactivate(m_shaderManager);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

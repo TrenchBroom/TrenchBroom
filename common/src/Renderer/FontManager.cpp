@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 FontManager::FontManager()
@@ -68,4 +68,4 @@ FontDescriptor FontManager::selectFontSize(
   return actualDescriptor;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

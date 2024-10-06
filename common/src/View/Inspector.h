@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FaceInspector;
 class EntityInspector;
@@ -64,4 +64,4 @@ public:
   FaceInspector* faceInspector();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

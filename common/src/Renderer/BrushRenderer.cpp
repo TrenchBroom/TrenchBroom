@@ -35,7 +35,7 @@
 #include <cstring>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 namespace
@@ -746,4 +746,4 @@ void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
   m_brushInfo.erase(it);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

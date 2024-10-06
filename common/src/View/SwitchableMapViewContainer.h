@@ -27,12 +27,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ClipTool;
 class EdgeTool;
@@ -149,4 +149,4 @@ public: // implement ViewEffectsService interface
   deleteCopyAndMove(SwitchableMapViewContainer);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

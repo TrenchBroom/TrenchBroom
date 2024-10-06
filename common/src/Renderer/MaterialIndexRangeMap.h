@@ -23,12 +23,12 @@
 
 #include <map>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MaterialRenderFunc;
 class VertexArray;
@@ -189,4 +189,4 @@ private:
   bool isCurrent(const Material* material) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

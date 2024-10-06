@@ -27,7 +27,7 @@ class QAbstractButton;
 class QListWidget;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -65,4 +65,4 @@ private slots:
   void updateButtons();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

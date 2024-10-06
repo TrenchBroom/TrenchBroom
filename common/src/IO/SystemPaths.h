@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom::IO::SystemPaths
+namespace tb::IO::SystemPaths
 {
 /**
  * Returns the directory containing the TrenchBroom executable (this will be inside the
@@ -49,4 +49,4 @@ std::vector<std::filesystem::path> findResourceDirectories(
 void setPortable();
 void setPortable(bool newState);
 bool isPortable();
-} // namespace TrenchBroom::IO::SystemPaths
+} // namespace tb::IO::SystemPaths

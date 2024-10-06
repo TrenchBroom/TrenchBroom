@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 /**
@@ -373,4 +373,4 @@ std::string_view BufferedReader::stringView() const
 {
   return std::string_view{begin(), size()};
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

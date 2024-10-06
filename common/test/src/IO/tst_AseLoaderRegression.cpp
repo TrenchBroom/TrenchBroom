@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 TEST_CASE("AseLoaderTest")
 {
@@ -156,4 +156,4 @@ TEST_CASE("AseLoaderTest")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

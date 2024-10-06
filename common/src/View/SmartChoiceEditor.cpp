@@ -35,7 +35,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SmartChoiceEditor::SmartChoiceEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -125,4 +125,4 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

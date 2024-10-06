@@ -28,7 +28,7 @@
 
 #include "vm/util.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 CompareHits::~CompareHits() = default;
 
@@ -91,4 +91,4 @@ double CompareHitsBySize::getSize(const Hit& hit) const
   return 0.0;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

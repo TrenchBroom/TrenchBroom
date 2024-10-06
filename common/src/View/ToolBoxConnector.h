@@ -29,19 +29,19 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class PickRequest;
 class ToolController;
@@ -137,4 +137,4 @@ private:
   deleteCopyAndMove(ToolBoxConnector);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

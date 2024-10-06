@@ -31,13 +31,13 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FlagsPopupEditor;
 class GLContextManager;
@@ -139,4 +139,4 @@ private:
   std::tuple<QList<int>, QStringList, QStringList> getContentFlags() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

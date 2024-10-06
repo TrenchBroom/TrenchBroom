@@ -34,7 +34,7 @@
 #include <iostream>
 #include <utility>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 std::ostream& operator<<(std::ostream& str, const ObjSerializer::IndexedVertex& vertex)
@@ -305,4 +305,4 @@ void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
   m_objects.emplace_back(std::move(patchObject));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

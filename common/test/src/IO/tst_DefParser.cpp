@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("DefParserTest.parseIncludedDefFiles")
@@ -449,4 +449,4 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
   CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

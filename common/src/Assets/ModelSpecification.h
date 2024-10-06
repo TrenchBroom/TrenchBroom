@@ -23,7 +23,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 struct ModelSpecification
@@ -35,12 +35,11 @@ struct ModelSpecification
   kdl_reflect_decl(ModelSpecification, path, skinIndex, frameIndex);
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
 
 template <>
-struct std::hash<TrenchBroom::Assets::ModelSpecification>
+struct std::hash<tb::Assets::ModelSpecification>
 {
-  std::size_t operator()(
-    const TrenchBroom::Assets::ModelSpecification& spec) const noexcept;
+  std::size_t operator()(const tb::Assets::ModelSpecification& spec) const noexcept;
 };

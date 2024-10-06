@@ -23,7 +23,7 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class TabBar;
 
@@ -55,4 +55,4 @@ signals:
   void pageChanged(int page);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

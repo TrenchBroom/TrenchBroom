@@ -25,12 +25,12 @@
 #include <filesystem>
 #include <memory>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Command;
 class MapDocument;
@@ -77,4 +77,4 @@ private:
   void autosave(Logger& logger, std::shared_ptr<View::MapDocument> document);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

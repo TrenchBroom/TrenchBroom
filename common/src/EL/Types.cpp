@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 kdl_reflect_impl(LeftBoundedRange);
@@ -120,4 +120,4 @@ ValueType typeForName(const std::string& type)
   assert(false);
   return ValueType::Null;
 }
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

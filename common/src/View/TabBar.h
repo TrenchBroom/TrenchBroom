@@ -29,7 +29,7 @@ class QHBoxLayout;
 class QLabel;
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class TabBook;
 class TabBookPage;
@@ -82,4 +82,4 @@ private:
   void tabBookPageChanged(int newIndex);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

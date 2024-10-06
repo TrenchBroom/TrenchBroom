@@ -29,13 +29,13 @@ class QLabel;
 class QAbstractButton;
 class QListWidget;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class LayerNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -118,4 +118,4 @@ signals:
   void layerLockToggled(Model::LayerNode* layer);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

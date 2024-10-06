@@ -19,13 +19,13 @@
 
 #pragma once
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class InputState;
 
@@ -79,4 +79,4 @@ public:
     Renderer::RenderBatch& renderBatch) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

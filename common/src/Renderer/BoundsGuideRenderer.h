@@ -27,12 +27,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BoundsGuideRenderer : public DirectRenderable
 {
@@ -56,4 +56,4 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

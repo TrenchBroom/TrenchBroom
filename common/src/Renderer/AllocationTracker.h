@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -153,4 +153,4 @@ public:
   void checkInvariants() const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

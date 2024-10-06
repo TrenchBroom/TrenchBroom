@@ -21,7 +21,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 IndexRangeRenderer::IndexRangeRenderer() = default;
@@ -46,4 +46,4 @@ void IndexRangeRenderer::render()
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

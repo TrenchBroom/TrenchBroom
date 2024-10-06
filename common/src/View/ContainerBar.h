@@ -23,7 +23,7 @@
 
 #include "View/BorderPanel.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ContainerBar : public BorderPanel
@@ -33,4 +33,4 @@ public:
   explicit ContainerBar(Sides borders, QWidget* parent = nullptr);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

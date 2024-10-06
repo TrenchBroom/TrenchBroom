@@ -36,7 +36,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // LayerListBoxWidget
 
@@ -319,4 +319,4 @@ std::vector<Model::LayerNode*> LayerListBox::layers() const
          | kdl::to_vector;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

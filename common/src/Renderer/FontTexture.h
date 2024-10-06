@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontGlyphBuilder;
 
@@ -53,4 +53,4 @@ private:
   size_t computeTextureSize(size_t cellCount, size_t cellSize, size_t margin) const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

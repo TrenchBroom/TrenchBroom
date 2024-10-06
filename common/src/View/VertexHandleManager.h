@@ -30,12 +30,12 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 
@@ -753,4 +753,4 @@ private:
   bool isIncident(const Handle& handle, const Model::BrushNode* brushNode) const override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

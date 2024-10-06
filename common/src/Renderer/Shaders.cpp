@@ -19,7 +19,7 @@
 
 #include "Shaders.h"
 
-namespace TrenchBroom::Renderer::Shaders
+namespace tb::Renderer::Shaders
 {
 
 const ShaderConfig Grid2DShader = ShaderConfig{
@@ -154,4 +154,4 @@ const ShaderConfig UVViewShader = ShaderConfig{
   {"UVView.fragsh"},
 };
 
-} // namespace TrenchBroom::Renderer::Shaders
+} // namespace tb::Renderer::Shaders

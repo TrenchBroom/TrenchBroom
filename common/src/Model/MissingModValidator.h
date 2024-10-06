@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Game;
 
@@ -42,4 +42,4 @@ private:
     const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -31,7 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeIndex;
 class IssueQuickFix;
@@ -188,4 +188,4 @@ private:
   deleteCopyAndMove(WorldNode);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -31,18 +31,18 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 enum class TextureMask;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class File;
 class FileSystem;
@@ -85,4 +85,4 @@ inline auto makeReadMaterialErrorHandler(const FileSystem& fs, Logger& logger)
 
 Assets::TextureMask getTextureMaskFromName(std::string_view name);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

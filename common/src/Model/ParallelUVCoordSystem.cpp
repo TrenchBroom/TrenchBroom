@@ -30,7 +30,7 @@
 #include <algorithm>
 #include <cstddef>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace
@@ -448,4 +448,4 @@ float ParallelUVCoordSystem::computeRotationAngle(
   return float(angle);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

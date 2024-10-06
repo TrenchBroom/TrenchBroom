@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 Shader::Shader(std::string name, const GLenum type, const GLuint shaderId)
@@ -139,4 +139,4 @@ Result<Shader> loadShader(const std::filesystem::path& path, const GLenum type)
          });
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

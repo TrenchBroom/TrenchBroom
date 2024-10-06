@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 const std::string Quake3ShaderStage::BlendFunc::One = "GL_ONE";
 const std::string Quake3ShaderStage::BlendFunc::Zero = "GL_ZERO";
@@ -158,4 +158,4 @@ std::ostream& operator<<(std::ostream& lhs, const Quake3Shader::Culling rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

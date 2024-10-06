@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 EntityNodeIndexQuery EntityNodeIndexQuery::exact(std::string pattern)
@@ -197,4 +197,4 @@ std::vector<std::string> EntityNodeIndex::allValuesForKeys(
   return result;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

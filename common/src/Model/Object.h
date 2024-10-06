@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class GroupNode;
@@ -60,4 +60,4 @@ private: // subclassing interface
   virtual GroupNode* doGetContainingGroup() = 0;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

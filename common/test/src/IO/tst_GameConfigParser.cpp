@@ -31,7 +31,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("GameConfigParserTest.parseIncludedGameConfigs")
@@ -935,4 +935,4 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
     });
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

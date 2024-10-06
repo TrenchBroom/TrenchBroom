@@ -22,7 +22,7 @@
 #include <QString>
 #include <QTableView>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 /**
@@ -55,4 +55,4 @@ signals:
   void removeRowsShortcutTriggered();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

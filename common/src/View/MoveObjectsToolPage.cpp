@@ -32,7 +32,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MoveObjectsToolPage::MoveObjectsToolPage(
@@ -93,4 +93,4 @@ void MoveObjectsToolPage::applyMove()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

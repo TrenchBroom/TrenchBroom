@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -110,4 +110,4 @@ Result<void> ZipFileSystem::doReadDirectory()
   return kdl::void_success;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

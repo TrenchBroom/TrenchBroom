@@ -25,7 +25,7 @@
 #include <string>
 #include <variant>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationExportMap
 {
@@ -81,4 +81,4 @@ using CompilationTask = std::variant<
 
 std::ostream& operator<<(std::ostream& lhs, const CompilationTask& rhs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -38,7 +38,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
@@ -440,4 +440,4 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

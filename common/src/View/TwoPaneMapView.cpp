@@ -27,7 +27,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 TwoPaneMapView::TwoPaneMapView(
   std::weak_ptr<MapDocument> document,
@@ -101,4 +101,4 @@ void TwoPaneMapView::restoreViews()
   m_mapView2D->show();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

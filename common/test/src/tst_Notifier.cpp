@@ -24,7 +24,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
@@ -424,4 +424,4 @@ TEST_CASE("NotifyBeforeAndAfter")
   }
 }
 
-} // namespace TrenchBroom
+} // namespace tb

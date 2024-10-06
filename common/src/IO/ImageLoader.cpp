@@ -21,7 +21,7 @@
 
 #include "IO/ImageLoaderImpl.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 ImageLoader::ImageLoader(const Format format, const std::filesystem::path& path)
@@ -96,4 +96,4 @@ std::vector<unsigned char> ImageLoader::loadPixels(const PixelFormat format) con
   return m_impl->loadPixels(format);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

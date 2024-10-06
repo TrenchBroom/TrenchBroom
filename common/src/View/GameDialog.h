@@ -31,7 +31,7 @@ class QComboBox;
 class QPushButton;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GameListBox;
 
@@ -86,4 +86,4 @@ private:
   void preferenceDidChange(const std::filesystem::path& path);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

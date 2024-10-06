@@ -35,7 +35,7 @@
 #include <ranges>
 #include <sstream>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 namespace
 {
@@ -1517,4 +1517,4 @@ std::ostream& operator<<(std::ostream& lhs, const SwitchExpression& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -34,7 +34,7 @@
 
 #include "vm/intersection.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 const Model::HitType::Type ShearObjectsTool::ShearToolSideHitType =
@@ -280,4 +280,4 @@ void ShearObjectsTool::setConstrainVertical(const bool constrainVertical)
   m_constrainVertical = constrainVertical;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

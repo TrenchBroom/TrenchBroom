@@ -31,7 +31,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("EntityTest")
@@ -750,4 +750,4 @@ TEST_CASE("EntityTest")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

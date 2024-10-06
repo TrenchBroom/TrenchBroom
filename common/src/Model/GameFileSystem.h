@@ -24,12 +24,12 @@
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct GameConfig;
 
@@ -68,4 +68,4 @@ private:
     Logger& logger);
   void unmountWads();
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

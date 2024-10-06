@@ -32,7 +32,7 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 namespace
@@ -210,4 +210,4 @@ void FaceRenderer::doRender(RenderContext& context)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

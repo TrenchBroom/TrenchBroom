@@ -29,7 +29,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::path path)
@@ -100,4 +100,4 @@ void expectMapEntry(
   expectType(it->second, trace, type);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

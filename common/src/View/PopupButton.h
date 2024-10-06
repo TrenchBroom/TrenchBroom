@@ -23,7 +23,7 @@
 
 class QToolButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class PopupWindow;
 
@@ -44,4 +44,4 @@ private:
   void popupVisibilityChanged(bool visible);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

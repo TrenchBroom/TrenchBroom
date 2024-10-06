@@ -27,7 +27,7 @@ class QFocusEvent;
 class QMouseEvent;
 class QWindow;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapViewBase;
 
@@ -176,4 +176,4 @@ private:
   void clearFocusCursor(MapViewBase* mapView);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

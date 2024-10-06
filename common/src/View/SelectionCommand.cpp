@@ -30,7 +30,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 enum class SelectionCommand::Action
 {
@@ -219,4 +219,4 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

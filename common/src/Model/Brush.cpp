@@ -45,7 +45,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(Brush);
@@ -1347,4 +1347,4 @@ bool operator!=(const Brush& lhs, const Brush& rhs)
   return !(lhs == rhs);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -30,7 +30,7 @@
 #include <set>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 enum class TextureType
@@ -165,4 +165,4 @@ public:
 const Texture* getTexture(const Material* material);
 Texture* getTexture(Material* material);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

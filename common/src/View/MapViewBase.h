@@ -36,23 +36,23 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class BrushEntityDefinition;
 class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
 class Node;
 class NodeCollection;
 class SmartTag;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class Compass;
@@ -61,9 +61,9 @@ class PrimitiveRenderer;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Action;
 class AnimationManager;
@@ -382,4 +382,4 @@ private:
   bool canMakeStructural() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

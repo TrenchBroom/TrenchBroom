@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
@@ -88,4 +88,4 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

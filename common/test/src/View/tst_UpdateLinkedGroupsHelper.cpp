@@ -34,7 +34,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE("checkLinkedGroupsToUpdate")
@@ -557,4 +557,4 @@ TEST_CASE_METHOD(
     == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

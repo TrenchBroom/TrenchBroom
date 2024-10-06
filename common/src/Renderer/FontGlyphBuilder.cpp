@@ -26,7 +26,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 FontGlyphBuilder::FontGlyphBuilder(
@@ -83,4 +83,4 @@ void FontGlyphBuilder::drawGlyph(
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

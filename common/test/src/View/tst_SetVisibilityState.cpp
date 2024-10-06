@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
@@ -167,4 +167,4 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

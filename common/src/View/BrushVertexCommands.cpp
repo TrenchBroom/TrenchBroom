@@ -26,7 +26,7 @@
 
 #include <ranges>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 BrushVertexCommandBase::BrushVertexCommandBase(
@@ -221,4 +221,4 @@ void BrushFaceCommand::selectOldHandlePositions(
   manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

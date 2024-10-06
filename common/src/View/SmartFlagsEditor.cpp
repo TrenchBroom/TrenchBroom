@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SmartFlagsEditor::SmartFlagsEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -176,4 +176,4 @@ void SmartFlagsEditor::flagChanged(
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

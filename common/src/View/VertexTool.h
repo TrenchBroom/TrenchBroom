@@ -27,20 +27,20 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderContext;
 class RenderBatch;
 class RenderService;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class BrushVertexCommandBase;
 class Grid;
@@ -126,4 +126,4 @@ private: // General helper methods
   void resetModeAfterDeselection();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -21,7 +21,7 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class AssembleBrushTool;
@@ -51,4 +51,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

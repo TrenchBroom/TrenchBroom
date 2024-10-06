@@ -19,7 +19,7 @@
 
 #include "octree.h"
 
-namespace TrenchBroom::detail
+namespace tb::detail
 {
 namespace
 {
@@ -149,4 +149,4 @@ node_address get_container(const node_address& address1, const node_address& add
   return container;
 }
 
-} // namespace TrenchBroom::detail
+} // namespace tb::detail

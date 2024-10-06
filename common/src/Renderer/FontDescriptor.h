@@ -22,7 +22,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontDescriptor
 {
@@ -49,4 +49,4 @@ public:
   unsigned char maxChar() const;
   unsigned char charCount() const;
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

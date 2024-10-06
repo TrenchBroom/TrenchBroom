@@ -30,7 +30,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(BezierPatch);
@@ -332,4 +332,4 @@ std::vector<BezierPatch::Point> BezierPatch::evaluate(
   return grid;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

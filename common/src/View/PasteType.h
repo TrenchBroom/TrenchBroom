@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class PasteType
@@ -29,4 +29,4 @@ enum class PasteType
   Failed
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

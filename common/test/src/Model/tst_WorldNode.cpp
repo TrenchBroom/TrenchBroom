@@ -36,7 +36,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("WorldNodeTest.canAddChild")
@@ -423,4 +423,4 @@ TEST_CASE("WorldNodeTest.setPersistentIdsWhenAddingLayersAndGroups")
   CHECK(groupNode->persistentId() == 2u);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

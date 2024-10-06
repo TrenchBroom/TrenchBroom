@@ -36,9 +36,9 @@
 #include <cassert>
 #include <string>
 
-Q_DECLARE_METATYPE(TrenchBroom::Model::MapFormat)
+Q_DECLARE_METATYPE(tb::Model::MapFormat)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 bool GameDialog::showNewDocumentDialog(
@@ -286,4 +286,4 @@ void GameDialog::preferenceDidChange(const std::filesystem::path&)
   m_okButton->setEnabled(!currentGameName().empty());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

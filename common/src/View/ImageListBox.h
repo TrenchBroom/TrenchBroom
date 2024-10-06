@@ -24,7 +24,7 @@
 class QLabel;
 class QPixmap;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ElidedLabel;
 
@@ -60,4 +60,4 @@ private:
   virtual QString subtitle(size_t index) const = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

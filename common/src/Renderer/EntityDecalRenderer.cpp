@@ -41,7 +41,7 @@
 
 #include <cstring>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -427,4 +427,4 @@ void EntityDecalRenderer::render(RenderContext&, RenderBatch& renderBatch)
   m_faceRenderer.render(renderBatch);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -32,7 +32,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class GroupRenderer::GroupNameAnchor : public TextAnchor3D
 {
@@ -265,4 +265,4 @@ Color GroupRenderer::groupColor(const Model::GroupNode&) const
   return pref(Preferences::DefaultGroupColor);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

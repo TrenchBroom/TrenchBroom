@@ -49,7 +49,7 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 // DragHandle
@@ -682,4 +682,4 @@ void ExtrudeTool::selectionDidChange(const Selection&)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

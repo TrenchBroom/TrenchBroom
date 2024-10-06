@@ -26,7 +26,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -108,4 +108,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

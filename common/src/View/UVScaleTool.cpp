@@ -47,7 +47,7 @@
 #include <numeric>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -359,4 +359,4 @@ bool UVScaleTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

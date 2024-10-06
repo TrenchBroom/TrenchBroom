@@ -44,7 +44,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -863,4 +863,4 @@ TEST_CASE("NodeTest.entityPropertyConfig")
   CHECK(nodePtr->entityPropertyConfig() == config);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

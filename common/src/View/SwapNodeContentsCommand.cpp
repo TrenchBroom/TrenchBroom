@@ -24,7 +24,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SwapNodeContentsCommand::SwapNodeContentsCommand(
@@ -68,4 +68,4 @@ bool SwapNodeContentsCommand::doCollateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

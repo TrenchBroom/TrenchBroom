@@ -27,7 +27,7 @@ class QLabel;
 class QPushButton;
 class QTextEdit;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CompilationProfileManager;
 class MapFrame;
@@ -70,4 +70,4 @@ private:
   void saveProfile();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

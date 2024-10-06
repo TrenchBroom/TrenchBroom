@@ -38,7 +38,7 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
@@ -571,4 +571,4 @@ Result<Brush> BrushBuilder::createBrush(
              return Brush::create(m_worldBounds, std::move(faces));
            });
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

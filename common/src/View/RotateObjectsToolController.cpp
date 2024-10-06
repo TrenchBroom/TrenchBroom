@@ -47,7 +47,7 @@
 #include <memory>
 #include <sstream>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -640,4 +640,4 @@ void RotateObjectsToolController3D::doRenderHandle(
   m_tool.renderHandle3D(renderContext, renderBatch);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

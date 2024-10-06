@@ -26,7 +26,7 @@
 class QCheckBox;
 class QComboBox;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class SliderWithLabel;
 
@@ -76,4 +76,4 @@ private slots:
   void rendererFontSizeChanged(const QString& text);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

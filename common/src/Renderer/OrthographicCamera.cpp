@@ -24,7 +24,7 @@
 #include "vm/plane.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 OrthographicCamera::OrthographicCamera()
@@ -132,4 +132,4 @@ void OrthographicCamera::doUpdateZoom()
   };
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

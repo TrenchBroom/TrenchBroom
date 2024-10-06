@@ -23,7 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
@@ -42,4 +42,4 @@ TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
     (V{{1, 1, 1}}), !UnorderedApproxVecMatches(V{{1.05, 1.01, 1.01}}, 0.02)); // too far
 }
 
-} // namespace TrenchBroom
+} // namespace tb

@@ -23,12 +23,12 @@
 
 #include <memory>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Console;
 class IssueBrowser;
@@ -48,4 +48,4 @@ public:
   Console* console() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

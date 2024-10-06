@@ -40,7 +40,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace detail
 {
@@ -642,4 +642,4 @@ private:
   }
 };
 
-} // namespace TrenchBroom
+} // namespace tb

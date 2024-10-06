@@ -25,7 +25,7 @@
 
 class QPushButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class RecentDocumentListBox;
 
@@ -49,4 +49,4 @@ private slots:
   void openDocument(const std::filesystem::path& path);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

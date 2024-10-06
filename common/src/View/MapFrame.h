@@ -45,24 +45,24 @@ class QSplitter;
 class QTimer;
 class QToolBar;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Game;
 class GroupNode;
 class LayerNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Action;
 class Autosaver;
@@ -184,7 +184,7 @@ private: // notification handlers
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const Selection& selection);
-  void currentLayerDidChange(const TrenchBroom::Model::LayerNode* layer);
+  void currentLayerDidChange(const tb::Model::LayerNode* layer);
   void groupWasOpened(Model::GroupNode* group);
   void groupWasClosed(Model::GroupNode* group);
   void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
@@ -435,4 +435,4 @@ public:
   ~DebugPaletteWindow() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -21,7 +21,7 @@
 
 #include <QDialog>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class AboutDialog : public QDialog
@@ -41,4 +41,4 @@ private:
   void createGui();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

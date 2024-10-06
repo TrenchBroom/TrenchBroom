@@ -25,7 +25,7 @@ class QLabel;
 class QListWidget;
 class QListWidgetItem;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ControlListBoxItemRenderer : public QWidget
@@ -132,4 +132,4 @@ signals:
   void itemSelectionChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

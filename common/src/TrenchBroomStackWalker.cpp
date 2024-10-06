@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 #ifdef _WIN32
 #ifdef _MSC_VER
@@ -124,4 +124,4 @@ std::string TrenchBroomStackWalker::getStackTrace()
 }
 #endif
 
-} // namespace TrenchBroom
+} // namespace tb

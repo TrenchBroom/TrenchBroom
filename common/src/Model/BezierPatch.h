@@ -29,12 +29,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class BezierPatch
@@ -100,4 +100,4 @@ public: // control points:
   std::vector<Point> evaluate(size_t subdivisionsPerSurface) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

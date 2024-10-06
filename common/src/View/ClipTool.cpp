@@ -49,7 +49,7 @@
 #include <algorithm>
 #include <optional>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 const Model::HitType::Type ClipTool::PointHitType = Model::HitType::freeType();
@@ -1008,4 +1008,4 @@ void ClipTool::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

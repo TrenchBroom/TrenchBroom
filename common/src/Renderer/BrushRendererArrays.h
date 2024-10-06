@@ -32,7 +32,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 struct DirtyRangeTracker
 {
@@ -377,4 +377,4 @@ public:
   bool prepared() const;
   void prepare(VboManager& vboManager);
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

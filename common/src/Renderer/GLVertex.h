@@ -22,7 +22,7 @@
 #include <cstddef>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 template <typename... AttrTypes>
 struct GLVertexType;
@@ -297,4 +297,4 @@ const auto& getVertexComponent(const GLVertex<Attrs...>& v)
   return GetVertexComponent<I>::get(v);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

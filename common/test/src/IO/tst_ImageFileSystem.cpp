@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 const auto cr8_czg_03_contents = std::vector<unsigned char>{
@@ -1012,4 +1012,4 @@ TEST_CASE("WadFileSystem")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

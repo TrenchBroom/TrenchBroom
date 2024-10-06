@@ -31,7 +31,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 enum class PrimType;
 
@@ -327,4 +327,4 @@ public:
 private:
   explicit VertexArray(std::shared_ptr<BaseHolder> holder);
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.lockStateChanges")
@@ -173,4 +173,4 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -26,7 +26,7 @@
 
 class QObject;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Action;
 class MapDocument;
@@ -82,4 +82,4 @@ private:
   bool checkIndex(const QModelIndex& index) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,12 +25,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument; // FIXME: Renderer should not depend on View
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class GroupLinkRenderer : public LinkRenderer
@@ -46,4 +46,4 @@ private:
   deleteCopy(GroupLinkRenderer);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

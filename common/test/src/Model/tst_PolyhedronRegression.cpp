@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 using Polyhedron3d =
@@ -644,4 +644,4 @@ TEST_CASE("PolyhedronTest.addVertexToPolygonAndAllFacesCoplanar")
     0.0));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

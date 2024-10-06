@@ -24,7 +24,7 @@
 
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 BorderPanel::BorderPanel(const Sides borders, const int thickness, QWidget* parent)
@@ -70,4 +70,4 @@ void BorderPanel::paintEvent(QPaintEvent* /*event*/)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

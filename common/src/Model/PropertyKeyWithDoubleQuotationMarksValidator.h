@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class PropertyKeyWithDoubleQuotationMarksValidator : public Validator
@@ -36,4 +36,4 @@ private:
     const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

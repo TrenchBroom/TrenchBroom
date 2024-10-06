@@ -23,13 +23,13 @@
 
 class QPoint;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ElidedLabel;
 
@@ -72,4 +72,4 @@ signals:
     const QPoint& globalPos, Model::CompilationProfile& profile);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

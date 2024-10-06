@@ -23,7 +23,7 @@
 #include "Model/BrushNode.h"
 #include "Model/WorldNode.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 BrushFaceReader::BrushFaceReader(
@@ -61,4 +61,4 @@ void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status
   m_brushFaces.push_back(std::move(face));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

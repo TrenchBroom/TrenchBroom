@@ -29,7 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 class ResourceWrapperBase
@@ -139,4 +139,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

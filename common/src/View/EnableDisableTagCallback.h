@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class EnableDisableTagCallback : public QObject, public Model::TagMatcherCallback
@@ -41,4 +41,4 @@ public:
   size_t selectOption(const std::vector<std::string>& options) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

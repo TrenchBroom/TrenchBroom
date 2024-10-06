@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 NullLogger TestParserStatus::_logger;
@@ -45,4 +45,4 @@ void TestParserStatus::doLog(const LogLevel level, const std::string& /* str */)
   m_statusCounts[level]++;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

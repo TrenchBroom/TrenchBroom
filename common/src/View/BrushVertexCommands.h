@@ -29,7 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class VertexHandleManagerBase;
@@ -154,4 +154,4 @@ private:
   deleteCopyAndMove(BrushFaceCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -23,7 +23,7 @@
 
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class BorderLine;
 class ClickableTitleBar;
@@ -55,4 +55,4 @@ private:
   void updateExpanded();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

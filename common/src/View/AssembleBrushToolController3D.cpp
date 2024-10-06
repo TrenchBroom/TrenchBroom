@@ -47,7 +47,7 @@
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -420,4 +420,4 @@ bool AssembleBrushToolController3D::cancel()
   return true;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

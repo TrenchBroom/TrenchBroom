@@ -24,7 +24,7 @@
 #include "View/CyclingMapView.h"
 #include "View/MapDocument.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 OnePaneMapView::OnePaneMapView(
   std::weak_ptr<MapDocument> document,
@@ -63,4 +63,4 @@ void OnePaneMapView::restoreViews()
   // nothing to do
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

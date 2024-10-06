@@ -25,7 +25,7 @@
 
 #include "vm/bbox.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class FontManager;
@@ -166,4 +166,4 @@ private:
   void setShowSelectionGuide(ShowSelectionGuide showSelectionGuide);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

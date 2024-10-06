@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class KeyStrings
@@ -52,4 +52,4 @@ private:
   void putKey(Qt::Key key);
   void putModifier(int key);
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

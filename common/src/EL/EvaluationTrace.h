@@ -26,7 +26,7 @@
 #include <optional>
 #include <unordered_map>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 class EvaluationTrace
@@ -41,4 +41,4 @@ public:
   void addTrace(const Value& value, const ExpressionNode& expression);
 };
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -34,7 +34,7 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 kdl_reflect_impl(PaletteData);
@@ -254,4 +254,4 @@ Result<Palette> loadPalette(IO::Reader& reader, const PaletteColorFormat colorFo
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

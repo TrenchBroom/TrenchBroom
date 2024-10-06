@@ -26,21 +26,21 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 class OrthographicCamera;
 class RenderBatch;
 class RenderContext;
 enum class RenderMode;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class MapView2D : public MapViewBase
@@ -132,4 +132,4 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

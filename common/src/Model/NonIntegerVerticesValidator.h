@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class NonIntegerVerticesValidator : public Validator
@@ -36,4 +36,4 @@ private:
     BrushNode& brushNode, std::vector<std::unique_ptr<Issue>>& issues) const override;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

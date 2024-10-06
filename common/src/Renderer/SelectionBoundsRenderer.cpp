@@ -34,7 +34,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -508,4 +508,4 @@ void SelectionBoundsRenderer::renderMinMax(
     MinMaxTextAnchor3D{m_bounds, vm::bbox3d::Corner::max, renderContext.camera()});
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

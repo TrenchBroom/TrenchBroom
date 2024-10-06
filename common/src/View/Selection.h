@@ -23,12 +23,12 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class Selection
@@ -51,4 +51,4 @@ public:
   void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

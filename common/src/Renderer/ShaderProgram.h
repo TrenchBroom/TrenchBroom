@@ -29,7 +29,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class ShaderManager;
@@ -85,4 +85,4 @@ private:
 
 Result<ShaderProgram> createShaderProgram(std::string name);
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -22,7 +22,7 @@
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions_)
@@ -56,4 +56,4 @@ bool matchAnyPath(const std::filesystem::path&, const GetPathInfo&)
   return true;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

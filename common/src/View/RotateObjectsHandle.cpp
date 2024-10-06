@@ -38,7 +38,7 @@
 
 #include <tuple>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -450,4 +450,4 @@ void RotateObjectsHandle::renderHighlight3D(
   m_handle3D.renderHighlight(renderContext, renderBatch, area);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

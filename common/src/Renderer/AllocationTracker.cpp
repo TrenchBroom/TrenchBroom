@@ -27,7 +27,7 @@
 
 // #define EXPENSIVE_CHECKS
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 AllocationTracker::Range::Range(Index p, Index s)
@@ -599,4 +599,4 @@ void AllocationTracker::checkInvariants() const
 #endif
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

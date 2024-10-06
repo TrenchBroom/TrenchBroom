@@ -33,7 +33,7 @@
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CompilationProfileManager::CompilationProfileManager(
@@ -187,4 +187,4 @@ void CompilationProfileManager::profileSelectionChanged()
   emit selectedProfileChanged();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

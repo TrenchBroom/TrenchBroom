@@ -27,12 +27,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 enum class RadiusMode;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -197,4 +197,4 @@ private:
 
 std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions();
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -28,12 +28,12 @@
 
 class QKeyEvent;
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class PerspectiveCamera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FlyModeHelper;
 
@@ -136,4 +136,4 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

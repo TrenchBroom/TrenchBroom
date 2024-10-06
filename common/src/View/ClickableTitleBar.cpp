@@ -25,7 +25,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ClickableTitleBar::ClickableTitleBar(
@@ -49,4 +49,4 @@ void ClickableTitleBar::mousePressEvent(QMouseEvent* /* event */)
   emit titleBarClicked();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -24,7 +24,7 @@
 #include "Model/EntityNode.h"
 #include "Model/PatchNode.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 Node* hitToNode(const Hit& hit)
@@ -53,4 +53,4 @@ std::optional<BrushFaceHandle> hitToFaceHandle(const Hit& hit)
   return std::nullopt;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

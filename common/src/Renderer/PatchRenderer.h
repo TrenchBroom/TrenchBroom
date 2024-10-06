@@ -26,13 +26,13 @@
 
 #include "kdl/vector_set.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EditorContext;
 class PatchNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
@@ -123,4 +123,4 @@ private: // implement IndexedRenderable interface
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -30,7 +30,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 static const auto DefaultSize = vm::bbox3d(-8, +8);
 
@@ -471,4 +471,4 @@ std::vector<std::unique_ptr<Assets::EntityDefinition>> EntityDefinitionParser::
   return createDefinitions(status, classInfos, m_defaultEntityColor);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

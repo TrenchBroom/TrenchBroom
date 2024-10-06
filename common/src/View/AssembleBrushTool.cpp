@@ -31,7 +31,7 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
@@ -89,4 +89,4 @@ void AssembleBrushTool::doBrushesWereCreated()
   update(Model::Polyhedron3{});
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 class MaterialCollection
@@ -65,4 +65,4 @@ public:
   Material* materialByName(const std::string& name);
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

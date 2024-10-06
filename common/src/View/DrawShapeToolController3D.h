@@ -25,7 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class DrawShapeTool;
@@ -52,4 +52,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

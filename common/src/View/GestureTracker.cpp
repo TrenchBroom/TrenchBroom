@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GestureTracker::~GestureTracker() = default;
@@ -41,4 +41,4 @@ void GestureTracker::render(
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

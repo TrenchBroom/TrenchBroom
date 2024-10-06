@@ -40,7 +40,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace BspLayout
 {
@@ -380,4 +380,4 @@ Result<Assets::EntityModelData> BspLoader::load(Logger& logger)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

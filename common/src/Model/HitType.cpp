@@ -23,7 +23,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom::Model::HitType
+namespace tb::Model::HitType
 {
 
 Type freeType()
@@ -35,4 +35,4 @@ Type freeType()
   return Type(1) << currentShift++;
 }
 
-} // namespace TrenchBroom::Model::HitType
+} // namespace tb::Model::HitType

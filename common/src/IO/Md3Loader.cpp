@@ -38,7 +38,7 @@
 #include <ranges>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace Md3Layout
@@ -381,4 +381,4 @@ Result<Assets::EntityModelData> Md3Loader::load(Logger&)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -35,7 +35,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace MdxLayout
 {
@@ -493,4 +493,4 @@ Result<Assets::EntityModelData> MdxLoader::load(Logger& logger)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

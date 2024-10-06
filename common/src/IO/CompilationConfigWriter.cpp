@@ -31,7 +31,7 @@
 #include <cassert>
 #include <ostream>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 CompilationConfigWriter::CompilationConfigWriter(
@@ -134,4 +134,4 @@ EL::Value CompilationConfigWriter::writeTasks(
   })};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

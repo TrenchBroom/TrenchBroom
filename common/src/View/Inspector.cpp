@@ -29,7 +29,7 @@
 #include "View/TabBar.h"
 #include "View/TabBook.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 Inspector::Inspector(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
@@ -77,4 +77,4 @@ FaceInspector* Inspector::faceInspector()
   return m_faceInspector;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

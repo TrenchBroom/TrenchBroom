@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(
@@ -316,4 +316,4 @@ LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenName
     {Eof, "end of file"},
   };
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

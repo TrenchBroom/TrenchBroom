@@ -25,14 +25,14 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class Lasso
@@ -83,4 +83,4 @@ private:
   vm::bbox2d getBox(const vm::mat4x4d& transform) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

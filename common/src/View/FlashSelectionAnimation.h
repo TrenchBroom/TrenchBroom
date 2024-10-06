@@ -23,12 +23,12 @@
 
 class QWidget;
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FlashSelectionAnimation : public Animation
 {
@@ -47,4 +47,4 @@ private:
 };
 
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

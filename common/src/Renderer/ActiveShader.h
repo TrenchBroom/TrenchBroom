@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 struct ShaderConfig;
 class ShaderManager;
@@ -45,4 +45,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

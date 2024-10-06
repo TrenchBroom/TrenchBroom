@@ -19,7 +19,7 @@
 
 #include "Logger.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 Logger::stream::stream(Logger& logger, const LogLevel logLevel)
@@ -93,4 +93,4 @@ void NullLogger::doLog(const LogLevel /* level */, const std::string_view /* mes
 {
 }
 
-} // namespace TrenchBroom
+} // namespace tb

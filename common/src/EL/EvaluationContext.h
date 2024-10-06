@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 class EvaluationContext
@@ -57,4 +57,4 @@ public:
   deleteCopyAndMove(EvaluationStack);
 };
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

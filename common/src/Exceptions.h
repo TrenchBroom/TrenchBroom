@@ -25,7 +25,7 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 
 class Exception : public std::exception
@@ -90,4 +90,4 @@ public:
   using Exception::Exception;
 };
 
-} // namespace TrenchBroom
+} // namespace tb

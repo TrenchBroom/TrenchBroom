@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class SetVisibilityCommand::Action
@@ -113,4 +113,4 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

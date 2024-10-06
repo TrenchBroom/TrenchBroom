@@ -27,17 +27,17 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GLContextManager;
 class MapDocument;
@@ -115,4 +115,4 @@ public: // implement CameraLinkableView interface
   void linkCamera(CameraLinkHelper& linkHelper) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

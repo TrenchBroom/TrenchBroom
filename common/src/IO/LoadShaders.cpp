@@ -38,7 +38,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -99,4 +99,4 @@ Result<std::vector<Assets::Quake3Shader>> loadShaders(
            });
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

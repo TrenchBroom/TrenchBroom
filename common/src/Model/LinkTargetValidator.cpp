@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -62,4 +62,4 @@ void LinkTargetValidator::doValidate(
   validateInternal(entityNode, entityNode.findMissingKillTargets(), issues);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

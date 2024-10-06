@@ -29,7 +29,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 RotateObjectsTool::RotateObjectsTool(std::weak_ptr<MapDocument> document)
@@ -197,4 +197,4 @@ QWidget* RotateObjectsTool::doCreatePage(QWidget* parent)
   return m_toolPage;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

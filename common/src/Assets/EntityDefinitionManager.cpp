@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 EntityDefinitionManager::~EntityDefinitionManager()
@@ -147,4 +147,4 @@ void EntityDefinitionManager::clearGroups()
   m_groups.clear();
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

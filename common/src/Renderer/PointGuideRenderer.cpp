@@ -26,7 +26,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 const double PointGuideRenderer::SpikeLength = 512.0;
 
@@ -72,4 +72,4 @@ void PointGuideRenderer::doRender(RenderContext& renderContext)
   m_spikeRenderer.render(renderContext);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

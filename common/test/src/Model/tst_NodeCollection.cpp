@@ -37,7 +37,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("NodeCollection.empty")
@@ -504,4 +504,4 @@ TEST_CASE("NodeCollection.clear")
   CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

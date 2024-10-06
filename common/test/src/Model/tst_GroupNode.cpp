@@ -38,7 +38,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("GroupNode.openAndClose")
@@ -163,4 +163,4 @@ TEST_CASE("GroupNode.canRemoveChild")
   CHECK(groupNode.canRemoveChild(&patchNode));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

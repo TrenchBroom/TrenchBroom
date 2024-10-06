@@ -41,7 +41,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 EntityModelRenderer::EntityModelRenderer(
@@ -220,4 +220,4 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

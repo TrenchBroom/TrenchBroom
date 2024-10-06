@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 class EntityProperty;
@@ -86,4 +86,4 @@ public:
   std::vector<std::string> allValuesForKeys(const EntityNodeIndexQuery& keyQuery) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

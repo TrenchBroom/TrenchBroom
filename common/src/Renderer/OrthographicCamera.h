@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class OrthographicCamera : public Camera
@@ -68,4 +68,4 @@ private:
   void doUpdateZoom() override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

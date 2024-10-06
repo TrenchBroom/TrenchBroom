@@ -24,16 +24,16 @@
 
 #include <optional>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Texture;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class Reader;
 
 Result<Assets::Texture> readWalTexture(
   Reader& reader, const std::optional<Assets::Palette>& palette);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

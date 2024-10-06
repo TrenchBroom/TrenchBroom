@@ -27,7 +27,7 @@
 #include <QShortcut>
 #include <QtGlobal>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MultiCompletionLineEdit::MultiCompletionLineEdit(QWidget* parent)
@@ -213,4 +213,4 @@ void MultiCompletionLineEdit::insertCompletion(const QString& string)
   setCursorPosition(leftBoundary + string.length());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

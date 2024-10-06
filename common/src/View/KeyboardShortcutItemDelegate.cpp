@@ -23,7 +23,7 @@
 
 #include "View/KeySequenceEdit.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate()
@@ -58,4 +58,4 @@ void KeyboardShortcutItemDelegate::commitAndCloseEditor()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

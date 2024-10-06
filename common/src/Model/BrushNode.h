@@ -34,17 +34,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BrushRendererBrushCache;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class GroupNode;
@@ -173,4 +173,4 @@ private:
 bool operator==(const BrushNode& lhs, const BrushNode& rhs);
 bool operator!=(const BrushNode& lhs, const BrushNode& rhs);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

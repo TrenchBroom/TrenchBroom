@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(NodePath);
@@ -967,4 +967,4 @@ void Node::doRemoveFromIndex(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

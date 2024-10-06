@@ -19,7 +19,7 @@
 
 #include "NodeVisitor.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 NodeVisitor::NodeVisitor() = default;
@@ -28,4 +28,4 @@ NodeVisitor::~NodeVisitor() = default;
 ConstNodeVisitor::ConstNodeVisitor() = default;
 ConstNodeVisitor::~ConstNodeVisitor() = default;
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

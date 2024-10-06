@@ -38,7 +38,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 EntityPropertyEditor::EntityPropertyEditor(
   std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -318,4 +318,4 @@ void EntityPropertyEditor::updateMinimumSize()
   updateGeometry();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

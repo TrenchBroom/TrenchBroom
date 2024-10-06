@@ -23,7 +23,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 const Animation::Type CameraAnimation::AnimationType = Animation::freeType();
 
@@ -62,4 +62,4 @@ void CameraAnimation::doUpdate(const double progress)
   m_camera.setZoom(zoom);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

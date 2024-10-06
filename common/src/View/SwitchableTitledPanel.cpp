@@ -27,7 +27,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SwitchableTitledPanel::SwitchableTitledPanel(
@@ -94,4 +94,4 @@ bool SwitchableTitledPanel::restoreState(const QByteArray& state)
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

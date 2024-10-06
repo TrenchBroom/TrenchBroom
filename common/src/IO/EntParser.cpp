@@ -45,7 +45,7 @@
 #include <string>
 #include <tinyxml2.h>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -735,4 +735,4 @@ std::vector<EntityDefinitionClassInfo> EntParser::parseClassInfos(ParserStatus& 
 }
 
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -34,7 +34,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct TrueNodePredicate
@@ -442,4 +442,4 @@ std::vector<BrushFaceHandle> collectBrushFaces(
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

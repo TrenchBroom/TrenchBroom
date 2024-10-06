@@ -34,12 +34,12 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CollapsibleTitledPanel;
 class MapDocument;
@@ -99,4 +99,4 @@ private:
   void updateGui();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

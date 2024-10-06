@@ -19,7 +19,7 @@
 
 #include "MapFacade.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 MapFacade::~MapFacade() = default;
@@ -31,4 +31,4 @@ MapFacade::MoveVerticesResult::MoveVerticesResult(
 {
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

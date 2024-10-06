@@ -43,7 +43,7 @@
 #include "kdl/overload.h"
 #include "kdl/vector_set.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -241,4 +241,4 @@ void SmartColorEditor::colorTableSelected(QColor color)
   setColor(color);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -24,7 +24,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 PushSelection::PushSelection(MapFacade* facade)
@@ -52,4 +52,4 @@ PushSelection::~PushSelection()
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

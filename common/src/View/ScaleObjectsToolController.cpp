@@ -44,7 +44,7 @@
 #include <cassert>
 #include <utility>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 ScaleObjectsToolController::ScaleObjectsToolController(
   ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document)
@@ -470,4 +470,4 @@ void ScaleObjectsToolController3D::doPick(
   m_tool.pick3D(pickRay, camera, pickResult);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

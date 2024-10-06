@@ -30,7 +30,7 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
@@ -71,4 +71,4 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
   return new DrawShapeToolPage{m_document, m_extensionManager, parent};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

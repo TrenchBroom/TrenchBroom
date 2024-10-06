@@ -21,7 +21,7 @@
 
 #include "View/VertexToolControllerBase.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class EdgeTool;
 
@@ -35,4 +35,4 @@ public:
   explicit EdgeToolController(EdgeTool& tool);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -21,13 +21,13 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class RotateObjectsTool;
 
@@ -85,4 +85,4 @@ private:
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -42,7 +42,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("BrushNodeTest.entity")
@@ -350,4 +350,4 @@ TEST_CASE("BrushNodeTest.clone")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

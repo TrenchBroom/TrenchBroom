@@ -24,7 +24,7 @@
 #include <cassert>
 #include <cstring>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 FontTexture::FontTexture() = default;
@@ -116,4 +116,4 @@ size_t FontTexture::computeTextureSize(
   return textureSize;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

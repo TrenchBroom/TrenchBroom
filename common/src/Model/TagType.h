@@ -21,10 +21,10 @@
 
 #include <cstdint>
 
-namespace TrenchBroom::Model::TagType
+namespace tb::Model::TagType
 {
 using Type = uint64_t;
 
 constexpr Type NoType = 0u;
 constexpr Type AnyType = ~NoType;
-} // namespace TrenchBroom::Model::TagType
+} // namespace tb::Model::TagType

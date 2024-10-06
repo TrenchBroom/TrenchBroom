@@ -25,7 +25,7 @@
 
 #include <string_view>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 /**
@@ -56,4 +56,4 @@ ModelSpecification safeGetModelSpecification(
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

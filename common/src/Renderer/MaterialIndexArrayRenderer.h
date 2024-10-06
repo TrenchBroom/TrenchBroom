@@ -23,12 +23,12 @@
 #include "Renderer/MaterialIndexArrayMap.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class VboManager;
 class MaterialRenderFunc;
@@ -51,4 +51,4 @@ public:
   void render(MaterialRenderFunc& func);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

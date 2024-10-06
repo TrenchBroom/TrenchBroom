@@ -53,7 +53,7 @@
 
 #define GRID_LOG(x)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EntityPropertyGrid::EntityPropertyGrid(
@@ -468,4 +468,4 @@ std::string EntityPropertyGrid::selectedRowName() const
   return rowModel ? rowModel->key() : "";
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

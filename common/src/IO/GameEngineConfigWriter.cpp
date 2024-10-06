@@ -27,7 +27,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 GameEngineConfigWriter::GameEngineConfigWriter(
@@ -63,4 +63,4 @@ EL::Value GameEngineConfigWriter::writeProfile(
   }};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

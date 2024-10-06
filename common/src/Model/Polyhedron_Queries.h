@@ -29,7 +29,7 @@
 #include "vm/segment.h"
 #include "vm/util.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -506,4 +506,4 @@ vm::plane_status Polyhedron<T, FP, VP>::pointStatus(
   return above > 0u ? vm::plane_status::above : vm::plane_status::below;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

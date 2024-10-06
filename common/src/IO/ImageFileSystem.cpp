@@ -29,7 +29,7 @@
 #include <cassert>
 #include <memory>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -281,4 +281,4 @@ Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
     Result<std::shared_ptr<File>>{Error{"'" + path.string() + "' not found"}});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

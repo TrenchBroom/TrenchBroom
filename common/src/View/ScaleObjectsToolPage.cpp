@@ -39,7 +39,7 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ScaleObjectsToolPage::ScaleObjectsToolPage(
@@ -162,4 +162,4 @@ void ScaleObjectsToolPage::applyScale()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -36,7 +36,7 @@
 #include "vm/intersection.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -222,4 +222,4 @@ bool UVShearTool::cancel()
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

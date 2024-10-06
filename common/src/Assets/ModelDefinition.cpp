@@ -33,7 +33,7 @@
 #include "vm/scalar.h"
 #include "vm/vec_io.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 ModelDefinition::ModelDefinition()
@@ -218,4 +218,4 @@ vm::vec3d safeGetModelScale(
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

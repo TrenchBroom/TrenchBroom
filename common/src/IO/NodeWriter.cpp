@@ -37,7 +37,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -205,4 +205,4 @@ void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace>& faces)
   m_serializer->endFile();
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -24,7 +24,7 @@
 class QLabel;
 class QSlider;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SliderWithLabel : public QWidget
@@ -48,4 +48,4 @@ signals:
   void valueChanged(int value);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

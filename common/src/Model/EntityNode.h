@@ -30,14 +30,14 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 enum class PitchType;
 class EntityModel;
 struct ModelSpecification;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct EntityPropertyConfig;
@@ -119,4 +119,4 @@ private:
   deleteCopyAndMove(EntityNode);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

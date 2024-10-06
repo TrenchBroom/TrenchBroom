@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -103,4 +103,4 @@ ShaderManager& VboManager::shaderManager()
   return m_shaderManager;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

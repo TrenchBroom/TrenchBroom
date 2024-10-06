@@ -25,7 +25,7 @@ class QCheckBox;
 class QKeySequence;
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class KeySequenceEdit;
 class SliderWithLabel;
@@ -100,4 +100,4 @@ private:
   void updateConflicts();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

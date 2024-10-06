@@ -28,7 +28,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 enum class TextureMask
@@ -161,4 +161,4 @@ private:
   void setFilterMode(int minFilter, int magFilter) const;
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

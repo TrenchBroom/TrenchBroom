@@ -28,7 +28,7 @@
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
-namespace TrenchBroom::IO::Disk
+namespace tb::IO::Disk
 {
 namespace
 {
@@ -313,4 +313,4 @@ std::filesystem::path resolvePath(
   return {};
 }
 
-} // namespace TrenchBroom::IO::Disk
+} // namespace tb::IO::Disk

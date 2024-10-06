@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -137,4 +137,4 @@ std::unique_ptr<DropTracker> CreateEntityToolController3D::createDropTracker(
     });
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

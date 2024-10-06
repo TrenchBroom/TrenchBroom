@@ -34,7 +34,7 @@
 #include <algorithm>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 LayerNode::LayerNode(Layer layer)
@@ -191,4 +191,4 @@ void LayerNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
   visitor.visit(*this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

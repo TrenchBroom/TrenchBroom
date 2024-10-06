@@ -27,7 +27,7 @@
 #include <iosfwd>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace ELToken
 {
@@ -140,4 +140,4 @@ private:
   TokenNameMap tokenNames() const override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

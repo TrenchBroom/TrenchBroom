@@ -22,12 +22,12 @@
 #include "Model/PickResult.h"
 #include "View/PickRequest.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 using ModifierKeyState = unsigned int;
 namespace ModifierKeys
@@ -169,4 +169,4 @@ public:
   void setPickResult(Model::PickResult pickResult);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

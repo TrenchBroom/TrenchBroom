@@ -31,7 +31,7 @@
 #include "View/GetVersion.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CrashDialog::CrashDialog(
@@ -105,4 +105,4 @@ void CrashDialog::createGui(
   // TODO: needs spacing tweaks
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

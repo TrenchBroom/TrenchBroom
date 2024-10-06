@@ -30,7 +30,7 @@
 class QWidget;
 class QTableView;
 
-namespace TrenchBroom
+namespace tb
 {
 namespace Model
 {
@@ -120,4 +120,4 @@ public: // QAbstractTableModel overrides
   QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
 };
 } // namespace View
-} // namespace TrenchBroom
+} // namespace tb

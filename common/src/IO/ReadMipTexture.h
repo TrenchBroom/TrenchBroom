@@ -23,14 +23,14 @@
 
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Palette;
 class Texture;
 enum class TextureMask;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class Reader;
 
@@ -41,4 +41,4 @@ Result<Assets::Texture> readIdMipTexture(
 
 Result<Assets::Texture> readHlMipTexture(Reader& reader, Assets::TextureMask mask);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

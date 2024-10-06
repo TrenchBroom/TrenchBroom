@@ -29,7 +29,7 @@
 #include <cassert>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 Validator::~Validator() = default;
@@ -89,4 +89,4 @@ void Validator::doValidate(BrushNode&, std::vector<std::unique_ptr<Issue>>&) con
 void Validator::doValidate(PatchNode&, std::vector<std::unique_ptr<Issue>>&) const {}
 void Validator::doValidate(EntityNodeBase&, std::vector<std::unique_ptr<Issue>>&) const {}
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

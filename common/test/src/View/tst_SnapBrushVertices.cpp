@@ -24,7 +24,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 
 {
 // see https://github.com/TrenchBroom/TrenchBroom/issues/2244
@@ -55,4 +55,4 @@ TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244"
   CHECK_NOTHROW(document->snapVertices(document->grid().actualSize()));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

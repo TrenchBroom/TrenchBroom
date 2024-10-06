@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class FaceToolController::SelectFacePart : public SelectPartBase<vm::polygon3d>
@@ -58,4 +58,4 @@ FaceToolController::FaceToolController(FaceTool& tool)
   addController(std::make_unique<SelectFacePart>(tool));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

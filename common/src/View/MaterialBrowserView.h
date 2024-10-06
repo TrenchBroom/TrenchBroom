@@ -29,14 +29,14 @@
 
 class QScrollBar;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 class MaterialCollection;
 class ResourceId;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GLContextManager;
@@ -125,4 +125,4 @@ signals:
   void materialSelected(const Assets::Material* material);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

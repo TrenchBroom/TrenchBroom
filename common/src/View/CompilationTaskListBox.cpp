@@ -43,7 +43,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // CompilationTaskEditorBase
 
@@ -608,4 +608,4 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
   return renderer;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

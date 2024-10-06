@@ -29,7 +29,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -451,4 +451,4 @@ bool ToolBoxConnector::cancelDrag()
 
 void ToolBoxConnector::doShowPopupMenu() {}
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

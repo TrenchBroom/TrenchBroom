@@ -38,9 +38,9 @@
 #include "kdl/memory_utils.h"
 
 // for use in QVariant
-Q_DECLARE_METATYPE(TrenchBroom::View::MaterialSortOrder)
+Q_DECLARE_METATYPE(tb::View::MaterialSortOrder)
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MaterialBrowser::MaterialBrowser(
@@ -280,4 +280,4 @@ void MaterialBrowser::updateSelectedMaterial()
   m_view->setSelectedMaterial(material);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

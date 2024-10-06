@@ -28,7 +28,7 @@
 #include "View/ColorModel.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ColorsPreferencePane::ColorsPreferencePane(QWidget* parent)
@@ -111,4 +111,4 @@ bool ColorsPreferencePane::validate()
   return true;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

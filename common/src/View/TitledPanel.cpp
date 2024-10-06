@@ -25,7 +25,7 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TitledPanel::TitledPanel(
@@ -63,4 +63,4 @@ QWidget* TitledPanel::getPanel() const
   return m_panel;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

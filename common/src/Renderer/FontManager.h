@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontDescriptor;
 class FontFactory;
@@ -52,4 +52,4 @@ public:
   deleteCopyAndMove(FontManager);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

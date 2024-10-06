@@ -23,12 +23,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class MapRenderer;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CyclingMapView;
 class GLContextManager;
@@ -61,4 +61,4 @@ private: // implement MultiPaneMapView subclassing interface
   void restoreViews() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

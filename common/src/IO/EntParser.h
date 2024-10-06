@@ -24,7 +24,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 struct EntityDefinitionClassInfo;
 class ParserStatus;
@@ -41,4 +41,4 @@ private:
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

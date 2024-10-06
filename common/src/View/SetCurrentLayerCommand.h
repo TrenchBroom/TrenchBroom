@@ -24,12 +24,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class LayerNode;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class SetCurrentLayerCommand : public UndoableCommand
 {
@@ -52,4 +52,4 @@ private:
   deleteCopyAndMove(SetCurrentLayerCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

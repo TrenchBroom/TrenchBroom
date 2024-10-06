@@ -26,7 +26,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class DiskFileSystem : public virtual FileSystem
@@ -82,4 +82,4 @@ private:
 #pragma warning(pop)
 #endif
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -29,7 +29,7 @@
 #include <string>
 #include <variant>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 struct Object
@@ -80,4 +80,4 @@ private:
     const std::filesystem::path& path) const override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

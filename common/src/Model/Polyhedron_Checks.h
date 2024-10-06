@@ -19,7 +19,7 @@
 
 #include "Polyhedron.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 template <typename T, typename FP, typename VP>
 bool Polyhedron<T, FP, VP>::checkInvariant() const
@@ -464,4 +464,4 @@ bool Polyhedron<T, FP, VP>::checkLeavingEdges(const Vertex* v) const
   return true;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

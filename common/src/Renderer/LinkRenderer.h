@@ -23,7 +23,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 class RenderBatch;
@@ -76,4 +76,4 @@ private:
   deleteCopy(LinkRenderer);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -36,7 +36,7 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -85,4 +85,4 @@ void SoftMapBoundsValidator::doValidate(
   validateInternal(kdl::mem_lock(m_game), m_world, patchNode, issues);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

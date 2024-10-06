@@ -21,7 +21,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 void IndexArray::BaseHolder::render(
@@ -109,4 +109,4 @@ IndexArray::IndexArray(BaseHolder::Ptr holder)
 {
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

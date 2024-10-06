@@ -35,7 +35,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 MaterialManager::MaterialManager(Logger& logger)
@@ -148,4 +148,4 @@ void MaterialManager::updateMaterials()
     return const_cast<const Material*>(t);
   });
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

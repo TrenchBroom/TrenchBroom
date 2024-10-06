@@ -37,7 +37,7 @@
 #include <algorithm>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 std::ostream& operator<<(std::ostream& lhs, const PitchType rhs)
@@ -629,4 +629,4 @@ const EntityModelDataResource& EntityModel::dataResource() const
   return *m_dataResource;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
@@ -68,4 +68,4 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

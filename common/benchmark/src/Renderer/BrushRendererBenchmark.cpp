@@ -36,7 +36,7 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -149,4 +149,4 @@ TEST_CASE("BrushRendererBenchmark.benchBrushRenderer")
     "validate remaining brushes");
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

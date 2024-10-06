@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 
@@ -43,4 +43,4 @@ const std::string convertEntityColor(
 Color parseEntityColor(const std::string& str);
 std::string entityColorAsString(const Color& color, Assets::ColorRange::Type colorRange);
 } // namespace Model
-} // namespace TrenchBroom
+} // namespace tb

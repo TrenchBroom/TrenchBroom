@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class ConstTagVisitor;
 class TagManager;
@@ -447,4 +447,4 @@ public:
 
   void appendToStream(std::ostream& str) const override;
 };
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

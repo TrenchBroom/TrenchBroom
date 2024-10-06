@@ -25,12 +25,12 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class EntityDefinitionParser;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 class ModelDefinition;
@@ -87,4 +87,4 @@ void assertDecalDefinition(
   auto parser = Parser{defStr, Color{1, 1, 1, 1}};
   assertDecalDefinition(expected, parser, entityPropertiesStr);
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

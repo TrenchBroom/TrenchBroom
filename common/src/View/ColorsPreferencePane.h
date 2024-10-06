@@ -25,7 +25,7 @@ class QWidget;
 class QTableView;
 class QSortFilterProxyModel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ColorModel;
 
@@ -47,4 +47,4 @@ private:
   bool validate() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

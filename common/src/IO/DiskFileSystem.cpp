@@ -31,7 +31,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 DiskFileSystem::DiskFileSystem(const std::filesystem::path& root)
@@ -128,4 +128,4 @@ Result<void> WritableDiskFileSystem::doRenameDirectory(
          | kdl::and_then(Disk::renameDirectory);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

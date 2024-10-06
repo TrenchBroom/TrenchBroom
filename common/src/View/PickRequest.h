@@ -22,12 +22,12 @@
 
 #include "vm/ray.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class PickRequest
 {
@@ -43,4 +43,4 @@ public:
   const Renderer::Camera& camera() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

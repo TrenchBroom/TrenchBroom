@@ -21,7 +21,7 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(
@@ -60,4 +60,4 @@ bool SetCurrentLayerCommand::doCollateWith(UndoableCommand& command)
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

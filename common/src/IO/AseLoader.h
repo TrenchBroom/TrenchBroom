@@ -32,17 +32,17 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModelData;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace AseToken
 {
@@ -188,4 +188,4 @@ private: // model construction
   std::filesystem::path fixMaterialPath(std::filesystem::path path) const;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

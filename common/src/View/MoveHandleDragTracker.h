@@ -37,7 +37,7 @@
 #include <memory>
 #include <type_traits>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 enum class SnapMode
 {
@@ -509,4 +509,4 @@ createMoveHandleDragTracker(
  */
 DragHandleSnapper makeDragHandleSnapperFromSnapMode(const Grid& grid, SnapMode snapMode);
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

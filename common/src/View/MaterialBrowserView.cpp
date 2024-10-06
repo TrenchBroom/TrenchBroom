@@ -50,7 +50,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MaterialBrowserView::MaterialBrowserView(
@@ -466,4 +466,4 @@ const Assets::Material& MaterialBrowserView::cellData(const Cell& cell) const
   return *cell.itemAs<const Assets::Material*>();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -24,7 +24,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -181,4 +181,4 @@ private:
   void add(PrimType primType, const IndexList& indices);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

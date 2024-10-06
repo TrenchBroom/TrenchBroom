@@ -32,7 +32,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 const std::string& ELTokenizer::NumberDelim() const
@@ -702,4 +702,4 @@ ELParser::TokenNameMap ELParser::tokenNames() const
   };
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

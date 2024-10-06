@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 namespace
 {
@@ -904,4 +904,4 @@ TEST_CASE("ExpressionTest.accept")
     == std::vector<std::string>{"{{ x -> 1 }}", "x -> 1", "x", "1"});
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

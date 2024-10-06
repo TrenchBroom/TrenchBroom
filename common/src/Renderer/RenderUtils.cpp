@@ -23,7 +23,7 @@
 #include "Assets/Texture.h"
 #include "Renderer/GL.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -450,4 +450,4 @@ VertsAndNormals cone(const float radius, const float length, const size_t segmen
   return {std::move(vertices), std::move(normals)};
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

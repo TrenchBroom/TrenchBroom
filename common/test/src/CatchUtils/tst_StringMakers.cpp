@@ -33,7 +33,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("convertToString")
@@ -113,4 +113,4 @@ TEST_CASE("convertToString")
 })");
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

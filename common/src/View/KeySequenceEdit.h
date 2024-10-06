@@ -24,7 +24,7 @@
 class QKeySequence;
 class QAbstractButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class LimitedKeySequenceEdit;
 
@@ -50,4 +50,4 @@ signals:
   void keySequenceChanged(const QKeySequence& keySequence);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

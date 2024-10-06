@@ -24,12 +24,12 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
@@ -45,4 +45,4 @@ public:
   deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

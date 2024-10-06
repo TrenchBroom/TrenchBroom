@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CreateEntityTool;
 
@@ -74,4 +74,4 @@ private:
     const InputState& inputState) const override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

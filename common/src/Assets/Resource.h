@@ -33,7 +33,7 @@
 #include <memory>
 #include <variant>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 template <typename T>
@@ -375,12 +375,12 @@ std::ostream& operator<<(std::ostream& lhs, const std::shared_ptr<Resource<T>>& 
   return lhs;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
 template <>
-struct std::hash<TrenchBroom::Assets::ResourceId>
+struct std::hash<tb::Assets::ResourceId>
 {
-  std::size_t operator()(const TrenchBroom::Assets::ResourceId& resourceId) const noexcept
+  std::size_t operator()(const tb::Assets::ResourceId& resourceId) const noexcept
   {
     return std::hash<std::string>{}(resourceId.m_id);
   }

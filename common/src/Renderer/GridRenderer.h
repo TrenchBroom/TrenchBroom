@@ -27,7 +27,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class OrthographicCamera;
 class RenderContext;
@@ -50,4 +50,4 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

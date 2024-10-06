@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class VirtualMountPointId
@@ -109,4 +109,4 @@ private:
     const std::filesystem::path& destPath) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

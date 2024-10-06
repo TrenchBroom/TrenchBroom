@@ -28,7 +28,7 @@ class QStackedWidget;
 class QToolBar;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class PreferencePane;
@@ -59,4 +59,4 @@ private:
 private slots:
   void resetToDefaults();
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

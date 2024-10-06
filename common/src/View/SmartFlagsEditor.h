@@ -28,7 +28,7 @@ class QString;
 class QWidget;
 class QScrollArea;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class FlagsEditor;
 class MapDocument;
@@ -66,4 +66,4 @@ private:
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

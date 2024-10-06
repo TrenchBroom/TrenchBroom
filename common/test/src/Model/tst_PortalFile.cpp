@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("PortalFileTest.parseInvalidPRT1")
@@ -102,4 +102,4 @@ TEST_CASE("PortalFileTest.parsePRT2")
     == ExpectedPortals);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

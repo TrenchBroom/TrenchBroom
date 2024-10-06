@@ -29,7 +29,7 @@ class QSpinBox;
 class QWidget;
 class QAbstractButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Selection;
 class GLContextManager;
@@ -82,4 +82,4 @@ private:
   void subDivisionChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

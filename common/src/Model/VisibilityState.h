@@ -21,7 +21,7 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 enum class VisibilityState
@@ -33,4 +33,4 @@ enum class VisibilityState
 
 std::ostream& operator<<(std::ostream& str, VisibilityState state);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

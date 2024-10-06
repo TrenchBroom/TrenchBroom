@@ -38,7 +38,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 void setDefaultProperties(
@@ -481,4 +481,4 @@ void Entity::transform(const vm::mat4x4d& transformation, const bool updateAngle
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

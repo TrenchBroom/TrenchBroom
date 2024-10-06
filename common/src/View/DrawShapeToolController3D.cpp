@@ -36,7 +36,7 @@
 #include "vm/line.h"
 #include "vm/plane.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -282,4 +282,4 @@ bool DrawShapeToolController3D::cancel()
   return m_tool.cancel();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

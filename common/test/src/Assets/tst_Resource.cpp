@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 struct MockResource
 {
@@ -746,4 +746,4 @@ TEST_CASE("Resource")
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

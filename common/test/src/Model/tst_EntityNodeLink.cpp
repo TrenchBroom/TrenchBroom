@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("EntityNodeLinkTest.testCreateLink")
@@ -422,4 +422,4 @@ TEST_CASE("EntityNodeLinkTest.testRemoveKillLinkByRemovingTarget")
   delete targetNode;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

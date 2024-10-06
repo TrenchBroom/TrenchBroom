@@ -34,7 +34,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -122,4 +122,4 @@ void Console::logCachedMessages()
   });
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

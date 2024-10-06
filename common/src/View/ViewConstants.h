@@ -21,7 +21,7 @@
 
 #include <QFont>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace LayoutConstants
 {
@@ -98,4 +98,4 @@ namespace Fonts
 QFont fixedWidthFont();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

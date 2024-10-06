@@ -31,23 +31,23 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushFaceHandle;
 class Node;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BrushRenderer;
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class MapDocument;
@@ -176,4 +176,4 @@ private:
   void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& nodes);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

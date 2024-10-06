@@ -40,7 +40,7 @@
 #include <array>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -454,4 +454,4 @@ void ViewPreferencePane::rendererFontSizeChanged(const QString& str)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

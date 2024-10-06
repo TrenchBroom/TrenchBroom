@@ -21,7 +21,7 @@
 
 #include <QKeySequenceEdit>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class LimitedKeySequenceEdit : public QKeySequenceEdit
@@ -44,4 +44,4 @@ private slots:
   void resetCount();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class TransactionScope
@@ -30,4 +30,4 @@ enum class TransactionScope
   LongRunning,
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

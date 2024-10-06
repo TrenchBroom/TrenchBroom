@@ -25,18 +25,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class EdgeTool : public VertexToolBase<vm::segment3d>
 {
@@ -73,4 +73,4 @@ public:
   void removeSelection();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

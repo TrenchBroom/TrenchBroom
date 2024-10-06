@@ -29,7 +29,7 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 /**
  * This template is used to match the faces of two polyhedra. The two polyhedra are
@@ -539,4 +539,4 @@ private:
   }
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

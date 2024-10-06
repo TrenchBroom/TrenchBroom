@@ -39,7 +39,7 @@
 #include <ostream>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace
@@ -528,4 +528,4 @@ bool EntityClassNameTagMatcher::matchesClassname(const std::string& classname) c
   return kdl::ci::str_matches_glob(classname, m_pattern);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

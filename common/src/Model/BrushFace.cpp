@@ -44,7 +44,7 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 const BrushVertex* BrushFace::TransformHalfEdgeToVertex::operator()(
   const BrushHalfEdge* halfEdge) const
@@ -879,4 +879,4 @@ void BrushFace::doAcceptTagVisitor(ConstTagVisitor& visitor) const
 {
   visitor.visit(*this);
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

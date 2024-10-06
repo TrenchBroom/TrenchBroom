@@ -24,7 +24,7 @@
 #include <ostream>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 MapFormat formatFromName(const std::string& formatName)
@@ -182,4 +182,4 @@ bool isParallelUVCoordSystem(const MapFormat format)
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

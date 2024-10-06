@@ -25,7 +25,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 class EntityDefinitionFileSpec
@@ -68,8 +68,8 @@ private:
   EntityDefinitionFileSpec(Type type, std::filesystem::path path);
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
 
 // Allow storing this class in a QVariant
-Q_DECLARE_METATYPE(TrenchBroom::Assets::EntityDefinitionFileSpec)
+Q_DECLARE_METATYPE(tb::Assets::EntityDefinitionFileSpec)

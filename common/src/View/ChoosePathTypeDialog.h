@@ -26,7 +26,7 @@
 class QRadioButton;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class PathType
@@ -68,4 +68,4 @@ public:
   PathType pathType() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

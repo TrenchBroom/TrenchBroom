@@ -31,7 +31,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 Result<void> ShaderManager::loadProgram(const ShaderConfig& config)
@@ -111,4 +111,4 @@ Result<std::reference_wrapper<Shader>> ShaderManager::loadShader(
          });
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

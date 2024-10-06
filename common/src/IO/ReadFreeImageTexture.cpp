@@ -38,7 +38,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -230,4 +230,4 @@ bool isSupportedFreeImageExtension(const std::string_view extension)
   return kdl::vec_contains(extensions, kdl::str_to_lower(extension));
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

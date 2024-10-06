@@ -34,7 +34,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -397,4 +397,4 @@ TEST_CASE("GridTest.snapMoveDeltaForFace")
     grid.snapMoveDistanceForFace(face, moveDistance) == vm::approx{expectedMoveDistance});
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

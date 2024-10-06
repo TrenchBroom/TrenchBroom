@@ -32,7 +32,7 @@
 #include "View/RecentDocumentListBox.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 WelcomeWindow::WelcomeWindow()
@@ -157,4 +157,4 @@ void WelcomeWindow::openDocument(const std::filesystem::path& path)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

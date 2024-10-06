@@ -31,7 +31,7 @@
 
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -63,4 +63,4 @@ private:
   size_t m_currentExtensionIndex = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

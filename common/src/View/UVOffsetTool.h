@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class MapDocument;
@@ -48,4 +48,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

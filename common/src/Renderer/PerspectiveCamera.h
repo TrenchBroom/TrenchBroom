@@ -22,7 +22,7 @@
 #include "Renderer/Camera.h"
 
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class PerspectiveCamera : public Camera
@@ -75,4 +75,4 @@ private:
   void doUpdateZoom() override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

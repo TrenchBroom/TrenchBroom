@@ -25,7 +25,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -124,4 +124,4 @@ bool UVCameraTool::cancel()
 {
   return false;
 }
-} // namespace TrenchBroom::View
+} // namespace tb::View

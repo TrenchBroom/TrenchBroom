@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 std::string generateUuid();
 }

@@ -19,9 +19,9 @@
 
 #include "EntityModelLoader.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 EntityModelLoader::~EntityModelLoader() = default;
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

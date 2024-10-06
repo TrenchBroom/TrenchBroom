@@ -35,7 +35,7 @@
 #include <string_view>
 #include <unordered_map>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 std::vector<Node*> collectNodesWithLinkId(
@@ -754,4 +754,4 @@ std::vector<Error> copyAndSetLinkIds(
   return errors;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

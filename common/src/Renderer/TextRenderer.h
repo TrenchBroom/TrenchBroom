@@ -29,7 +29,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class AttrString;
 class RenderContext;
@@ -131,4 +131,4 @@ private:
   void clear();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

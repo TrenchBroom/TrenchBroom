@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class PopupWindow : public QWidget
@@ -39,4 +39,4 @@ signals:
   void visibilityChanged(bool visible);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

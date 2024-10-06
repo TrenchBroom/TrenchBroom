@@ -23,7 +23,7 @@
 
 #include "kdl/overload.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 NodeContents::NodeContents(
@@ -55,4 +55,4 @@ std::variant<Layer, Group, Entity, Brush, BezierPatch>& NodeContents::get()
   return m_contents;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

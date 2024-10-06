@@ -33,18 +33,18 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceHandle;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GLContextManager;
 class MapDocument;
@@ -102,4 +102,4 @@ private:
   void updateSelectedMaterial();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -35,7 +35,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 IssueBrowser::IssueBrowser(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -163,4 +163,4 @@ void IssueBrowser::filterChanged(
   m_view->setHiddenIssueTypes(~setFlag);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

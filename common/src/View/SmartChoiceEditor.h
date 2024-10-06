@@ -29,12 +29,12 @@ class QWidget;
 class QLabel;
 class QWidget;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class ChoicePropertyDefinition;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -57,4 +57,4 @@ private:
   void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

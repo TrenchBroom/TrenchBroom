@@ -24,7 +24,7 @@
 
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ElidedLabel : public QWidget
@@ -54,4 +54,4 @@ protected:
   void resizeEvent(QResizeEvent* event) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

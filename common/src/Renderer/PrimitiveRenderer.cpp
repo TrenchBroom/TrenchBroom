@@ -29,7 +29,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(
   const Color& color,
@@ -410,4 +410,4 @@ void PrimitiveRenderer::renderTriangles(RenderContext& renderContext)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

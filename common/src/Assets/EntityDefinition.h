@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class PropertyDefinition;
 class FlagsPropertyDefinition;
@@ -129,4 +129,4 @@ public:
     std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
   EntityDefinitionType type() const override;
 };
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

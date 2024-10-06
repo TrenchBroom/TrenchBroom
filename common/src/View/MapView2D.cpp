@@ -59,7 +59,7 @@
 
 #include "vm/util.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapView2D::MapView2D(
@@ -418,4 +418,4 @@ void MapView2D::linkCamera(CameraLinkHelper& helper)
   helper.addCamera(m_camera.get());
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

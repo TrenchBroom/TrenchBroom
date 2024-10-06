@@ -24,7 +24,7 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class BrushFace;
@@ -171,4 +171,4 @@ public:
   void setAllExceptContentFlags(const Model::BrushFaceAttributes& attributes);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

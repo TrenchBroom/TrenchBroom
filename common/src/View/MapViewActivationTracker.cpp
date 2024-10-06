@@ -28,7 +28,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 bool MapViewActivationTracker::active() const
@@ -233,4 +233,4 @@ void MapViewActivationTracker::clearFocusCursor(MapViewBase* mapView)
   mapView->setCursor(Qt::ArrowCursor);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

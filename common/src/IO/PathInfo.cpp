@@ -23,7 +23,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs)
@@ -44,4 +44,4 @@ std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -35,7 +35,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
@@ -104,4 +104,4 @@ TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
   kdl::vec_clear_and_delete(validators);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -34,7 +34,7 @@
 #include <unordered_set>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace detail
@@ -1006,4 +1006,4 @@ bool Polyhedron<T, FP, VP>::mergeCoplanarIncidentFaces(
   return true;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -21,7 +21,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 TEST_CASE("StackWalkerTest.testStackTraceSymbols")
 
@@ -32,4 +32,4 @@ TEST_CASE("StackWalkerTest.testStackTraceSymbols")
   // EXPECT_THAT(stackTrace, HasSubstr("testStackTraceSymbols"));
 }
 
-} // namespace TrenchBroom
+} // namespace tb

@@ -30,7 +30,7 @@
 // Undefine this symbol since it interferes somehow with our enums.
 #undef None
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class InputEventProcessor;
@@ -461,4 +461,4 @@ public:
    */
   virtual void processEvent(const CancelEvent& event) = 0;
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

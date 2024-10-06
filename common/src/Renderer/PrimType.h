@@ -21,7 +21,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 enum class PrimType
 {
@@ -55,4 +55,4 @@ constexpr PrimType PrimTypeValues[PrimTypeCount] = {
  */
 unsigned int toGL(PrimType primType);
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

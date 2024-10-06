@@ -25,7 +25,7 @@
 
 #include <string_view>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -74,4 +74,4 @@ private:
   TokenNameMap tokenNames() const override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -49,7 +49,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
@@ -540,4 +540,4 @@ void checkColor(
   ensure(material.texture(), "expected material to have a texture");
   return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
-} // namespace TrenchBroom
+} // namespace tb

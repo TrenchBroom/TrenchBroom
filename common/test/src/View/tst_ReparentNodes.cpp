@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.reparentLayerToLayer")
@@ -401,4 +401,4 @@ TEST_CASE_METHOD(
   CHECK(linkedGroupNode->childCount() == 1u);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

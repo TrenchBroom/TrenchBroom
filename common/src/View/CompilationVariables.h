@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -70,4 +70,4 @@ public:
   explicit LaunchGameEngineVariables(std::shared_ptr<MapDocument> document);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

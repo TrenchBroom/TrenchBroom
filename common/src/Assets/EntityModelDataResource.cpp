@@ -21,7 +21,7 @@
 
 #include "Assets/EntityModel.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 std::shared_ptr<EntityModelDataResource> createEntityModelDataResource(
@@ -30,4 +30,4 @@ std::shared_ptr<EntityModelDataResource> createEntityModelDataResource(
   return std::make_shared<EntityModelDataResource>(std::move(entityModelData));
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

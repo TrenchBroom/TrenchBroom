@@ -25,19 +25,19 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Hit;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GestureTracker;
 class DropTracker;
@@ -128,4 +128,4 @@ private: // subclassing interface
     const InputState& inputState, const std::string& payload) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

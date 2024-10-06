@@ -25,7 +25,7 @@
 #include <string>
 
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec() = default;
@@ -126,4 +126,4 @@ EntityDefinitionFileSpec::EntityDefinitionFileSpec(
   assert(valid());
   assert(!m_path.empty());
 }
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

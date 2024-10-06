@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 template <typename T>
 class Resource;
@@ -35,4 +35,4 @@ using CreateEntityModelDataResource = CreateResource<EntityModelData>;
 std::shared_ptr<EntityModelDataResource> createEntityModelDataResource(
   EntityModelData entityModelData);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

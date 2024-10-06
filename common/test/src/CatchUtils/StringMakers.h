@@ -28,138 +28,138 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 
 std::string convertToString(const Node& node);
 
 std::string convertToString(const Node* node);
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
 namespace Catch
 {
 template <>
-struct StringMaker<TrenchBroom::Model::Node>
+struct StringMaker<tb::Model::Node>
 {
-  static std::string convert(const TrenchBroom::Model::Node& value)
+  static std::string convert(const tb::Model::Node& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::WorldNode>
+struct StringMaker<tb::Model::WorldNode>
 {
-  static std::string convert(const TrenchBroom::Model::WorldNode& value)
+  static std::string convert(const tb::Model::WorldNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::LayerNode>
+struct StringMaker<tb::Model::LayerNode>
 {
-  static std::string convert(const TrenchBroom::Model::LayerNode& value)
+  static std::string convert(const tb::Model::LayerNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::GroupNode>
+struct StringMaker<tb::Model::GroupNode>
 {
-  static std::string convert(const TrenchBroom::Model::GroupNode& value)
+  static std::string convert(const tb::Model::GroupNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::EntityNode>
+struct StringMaker<tb::Model::EntityNode>
 {
-  static std::string convert(const TrenchBroom::Model::EntityNode& value)
+  static std::string convert(const tb::Model::EntityNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::BrushNode>
+struct StringMaker<tb::Model::BrushNode>
 {
-  static std::string convert(const TrenchBroom::Model::BrushNode& value)
+  static std::string convert(const tb::Model::BrushNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<TrenchBroom::Model::PatchNode>
+struct StringMaker<tb::Model::PatchNode>
 {
-  static std::string convert(const TrenchBroom::Model::PatchNode& value)
+  static std::string convert(const tb::Model::PatchNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::Node*>
+struct StringMaker<const tb::Model::Node*>
 {
-  static std::string convert(const TrenchBroom::Model::Node* value)
+  static std::string convert(const tb::Model::Node* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::WorldNode*>
+struct StringMaker<const tb::Model::WorldNode*>
 {
-  static std::string convert(const TrenchBroom::Model::WorldNode* value)
+  static std::string convert(const tb::Model::WorldNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::LayerNode*>
+struct StringMaker<const tb::Model::LayerNode*>
 {
-  static std::string convert(const TrenchBroom::Model::LayerNode* value)
+  static std::string convert(const tb::Model::LayerNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::GroupNode*>
+struct StringMaker<const tb::Model::GroupNode*>
 {
-  static std::string convert(const TrenchBroom::Model::GroupNode* value)
+  static std::string convert(const tb::Model::GroupNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::EntityNode*>
+struct StringMaker<const tb::Model::EntityNode*>
 {
-  static std::string convert(const TrenchBroom::Model::EntityNode* value)
+  static std::string convert(const tb::Model::EntityNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::BrushNode*>
+struct StringMaker<const tb::Model::BrushNode*>
 {
-  static std::string convert(const TrenchBroom::Model::BrushNode* value)
+  static std::string convert(const tb::Model::BrushNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const TrenchBroom::Model::PatchNode*>
+struct StringMaker<const tb::Model::PatchNode*>
 {
-  static std::string convert(const TrenchBroom::Model::PatchNode* value)
+  static std::string convert(const tb::Model::PatchNode* value)
   {
     return convertToString(value);
   }

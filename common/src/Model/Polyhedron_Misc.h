@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -1179,4 +1179,4 @@ std::string Polyhedron<T, FP, VP>::exportObjSelectedFaces(
   return ss.str();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

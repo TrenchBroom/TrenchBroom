@@ -29,13 +29,13 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class Selection;
@@ -82,4 +82,4 @@ private:
   void updateEditor();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

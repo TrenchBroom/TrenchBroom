@@ -25,7 +25,7 @@
 
 #include <map>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class ActiveShader;
 class RenderContext;
@@ -57,4 +57,4 @@ private:
   void clear();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

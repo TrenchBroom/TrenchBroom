@@ -45,7 +45,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class QuakeFileSerializer : public MapFileSerializer
@@ -516,4 +516,4 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(
   return PrecomputedString{stream.str(), lineCount};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

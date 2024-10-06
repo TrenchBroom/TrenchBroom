@@ -35,7 +35,7 @@
 #include <ranges>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 std::string GLContextManager::GLVendor = "unknown";
 std::string GLContextManager::GLRenderer = "unknown";
@@ -129,4 +129,4 @@ Renderer::ShaderManager& GLContextManager::shaderManager()
   return *m_shaderManager;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

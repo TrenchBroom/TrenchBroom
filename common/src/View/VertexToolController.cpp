@@ -25,7 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 /*
@@ -222,4 +222,4 @@ VertexToolController::VertexToolController(VertexTool& tool)
   addController(std::make_unique<SelectVertexPart>(tool));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

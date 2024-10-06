@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 /**
@@ -50,4 +50,4 @@ signals:
   void processSignal();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

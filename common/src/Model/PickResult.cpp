@@ -32,7 +32,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class PickResult::CompareWrapper
@@ -160,4 +160,4 @@ void PickResult::clear()
   m_hits.clear();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

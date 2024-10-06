@@ -36,7 +36,7 @@
 
 #include <sstream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -169,4 +169,4 @@ std::string convertToString(const Node* node)
   return node ? convertToString(*node) : "nullptr";
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -30,12 +30,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationProfile;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CompilationContext;
 
@@ -208,4 +208,4 @@ signals:
   deleteCopyAndMove(CompilationRunner);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -31,7 +31,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -1368,4 +1368,4 @@ TEST_CASE("PolyhedronTest.intersection_polygon_polyhedron_any_orientation")
     cube));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -41,7 +41,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 static const std::string TransferFaceAttributesTransactionName =
@@ -433,4 +433,4 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
   return hit.isMatch();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

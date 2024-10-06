@@ -23,7 +23,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 /**
  * Appends a textual representation of the given vertices' position to the given stream.
@@ -92,4 +92,4 @@ std::ostream& operator<<(std::ostream& stream, const Polyhedron_Face<T, FP, VP>&
   return stream;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

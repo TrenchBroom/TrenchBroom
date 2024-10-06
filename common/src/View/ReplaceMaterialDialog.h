@@ -26,17 +26,17 @@
 
 class QPushButton;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceHandle;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GLContextManager;
@@ -69,4 +69,4 @@ private slots:
   void updateReplaceButton();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

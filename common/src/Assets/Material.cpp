@@ -27,7 +27,7 @@
 #include <cassert>
 #include <ostream>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 std::ostream& operator<<(std::ostream& lhs, const TextureType& rhs)
@@ -289,4 +289,4 @@ Texture* getTexture(Material* material)
   return material ? material->texture() : nullptr;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

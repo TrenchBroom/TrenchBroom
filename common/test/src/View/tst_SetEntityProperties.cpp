@@ -37,7 +37,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname")
@@ -445,4 +445,4 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   CHECK(*brushEntNode->entity().property("spawnflags") == "2");
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

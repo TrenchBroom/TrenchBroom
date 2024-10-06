@@ -21,7 +21,7 @@
 
 #include "Renderer/IndexArray.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 IndexArrayMap::IndexArrayRange::IndexArrayRange(
@@ -107,4 +107,4 @@ void IndexArrayMap::render(IndexArray& indexArray) const
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

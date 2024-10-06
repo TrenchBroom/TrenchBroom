@@ -27,13 +27,13 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 enum class LockState;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class SetLockStateCommand : public UndoableCommand
 {
@@ -59,4 +59,4 @@ private:
   deleteCopyAndMove(SetLockStateCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 MaterialIndexRangeMap::Size::Size()
@@ -177,4 +177,4 @@ bool MaterialIndexRangeMap::isCurrent(const Material* material) const
   const auto* currentMaterial = m_current->first;
   return !cmp(material, currentMaterial) && !cmp(currentMaterial, material);
 }
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

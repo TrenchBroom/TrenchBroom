@@ -35,7 +35,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 KeyboardPreferencePane::KeyboardPreferencePane(MapDocument* document, QWidget* parent)
@@ -129,4 +129,4 @@ bool KeyboardPreferencePane::validate()
   return true;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

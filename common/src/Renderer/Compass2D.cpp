@@ -24,7 +24,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 void Compass2D::doRenderCompass(
@@ -54,4 +54,4 @@ void Compass2D::doRenderCompass(
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

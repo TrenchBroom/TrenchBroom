@@ -23,7 +23,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 template <typename T>
 using CreateResource = std::function<std::shared_ptr<Resource<T>>(ResourceLoader<T>)>;
@@ -36,4 +36,4 @@ auto createResourceSync(ResourceLoader<T> resourceLoader)
   return resource;
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

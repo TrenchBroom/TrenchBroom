@@ -26,7 +26,7 @@
 class QStackedLayout;
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class ViewPopupEditor;
@@ -46,4 +46,4 @@ public:
 private:
   void createGui(std::weak_ptr<MapDocument> document);
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

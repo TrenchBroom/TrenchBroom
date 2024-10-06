@@ -24,19 +24,19 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class BrushRenderer;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class MapDocument;
@@ -72,4 +72,4 @@ private:
   deleteCopyAndMove(CreateBrushesToolBase);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

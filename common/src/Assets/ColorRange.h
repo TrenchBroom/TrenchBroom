@@ -23,7 +23,7 @@
 #include <vector>
 
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace ColorRange
@@ -38,4 +38,4 @@ static const Type Mixed = Float | Byte;
 ColorRange::Type detectColorRange(const std::vector<std::string>& components);
 ColorRange::Type detectColorRange(const std::string& str);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

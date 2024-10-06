@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class AttrString;
 class FontGlyph;
@@ -78,4 +78,4 @@ public:
   void deactivate();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -27,7 +27,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 ParserStatus::ParserStatus(Logger& logger, std::string prefix)
   : m_logger{logger}
@@ -134,4 +134,4 @@ void ParserStatus::doLog(const LogLevel level, const std::string& str)
   m_logger.log(level, str);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

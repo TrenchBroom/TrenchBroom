@@ -33,7 +33,7 @@ class QListWidget;
 class QWidget;
 class QAbstractButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -85,4 +85,4 @@ private:
   void filterBoxChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

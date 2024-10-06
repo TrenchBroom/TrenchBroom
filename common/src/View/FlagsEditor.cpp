@@ -28,7 +28,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 FlagsEditor::FlagsEditor(const size_t numCols, QWidget* parent)
@@ -185,4 +185,4 @@ int FlagsEditor::lineHeight() const
   return m_checkBoxes.front()->frameSize().height();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

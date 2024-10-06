@@ -44,7 +44,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 IssueBrowserView::IssueBrowserView(std::weak_ptr<MapDocument> document, QWidget* parent)
@@ -428,4 +428,4 @@ QVariant IssueBrowserModel::headerData(
   return QVariant{};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

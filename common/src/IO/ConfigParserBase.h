@@ -25,7 +25,7 @@
 #include <filesystem>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class ConfigParserBase
@@ -55,4 +55,4 @@ void expectMapEntry(
   const EL::EvaluationTrace& trace,
   const std::string& key,
   EL::ValueType type);
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -19,7 +19,7 @@
 
 #include "CachingLogger.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void CachingLogger::setParentLogger(Logger* parentLogger)
@@ -56,4 +56,4 @@ bool CachingLogger::cacheMessage(const LogLevel level, const std::string_view me
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -28,7 +28,7 @@ class QScrollBar;
 class QDrag;
 class QMimeData;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GLContextManager;
 
@@ -138,4 +138,4 @@ public: // implement InputEventProcessor interface
   void processEvent(const CancelEvent& event) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

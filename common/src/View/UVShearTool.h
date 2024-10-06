@@ -25,7 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GestureTracker;
@@ -56,4 +56,4 @@ private:
   bool cancel() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

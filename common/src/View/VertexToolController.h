@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Tool;
 class VertexTool;
@@ -44,4 +44,4 @@ public:
   explicit VertexToolController(VertexTool& tool);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

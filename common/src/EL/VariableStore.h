@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 class VariableStore
@@ -84,4 +84,4 @@ public:
   void assign(const std::string& name, const Value& value) override;
 };
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

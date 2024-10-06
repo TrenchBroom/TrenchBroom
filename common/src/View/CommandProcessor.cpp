@@ -32,7 +32,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -474,4 +474,4 @@ std::unique_ptr<UndoableCommand> CommandProcessor::popFromRedoStack()
   return kdl::vec_pop_back(m_redoStack);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

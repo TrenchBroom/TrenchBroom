@@ -30,7 +30,7 @@
 
 #include "vm/scalar.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CyclingMapView::CyclingMapView(
@@ -223,4 +223,4 @@ void CyclingMapView::cycleChildMapView(MapView* after)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

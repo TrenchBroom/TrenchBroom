@@ -23,7 +23,7 @@
 
 #include "vm/mat_io.h" // IWYU pragma: keep
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(Group);
@@ -58,4 +58,4 @@ void Group::transform(const vm::mat4x4d& transformation)
   m_transformation = transformation * m_transformation;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

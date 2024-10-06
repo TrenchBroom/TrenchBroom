@@ -31,7 +31,7 @@
 
 #include "Catch2.h" // IWYU pragma: keep
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -738,4 +738,4 @@ TEST_CASE("makeCircleHandleSnapper")
     == vm::approx{radius * expectedHandlePosition});
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

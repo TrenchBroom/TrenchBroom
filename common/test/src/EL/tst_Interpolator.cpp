@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 namespace
 {
@@ -94,4 +94,4 @@ TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL")
   CHECK_THROWS(interpolate(" an ${TEST expression", context));
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class AssembleBrushTool : public CreateBrushesToolBase
@@ -44,4 +44,4 @@ private:
   void doBrushesWereCreated() override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

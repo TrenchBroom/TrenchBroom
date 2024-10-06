@@ -24,7 +24,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("GroupTest.transform")
@@ -42,4 +42,4 @@ TEST_CASE("GroupTest.transform")
          * vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -21,7 +21,7 @@
 
 #include <QStyledItemDelegate>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class KeyboardShortcutItemDelegate : public QStyledItemDelegate
@@ -37,4 +37,4 @@ private slots:
   void commitAndCloseEditor();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

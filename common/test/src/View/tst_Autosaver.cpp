@@ -38,7 +38,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -355,4 +355,4 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverSavesWhenCrashFilesP
   CHECK(env.fileExists("autosave/test.2.map"));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

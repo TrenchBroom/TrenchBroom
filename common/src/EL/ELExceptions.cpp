@@ -26,7 +26,7 @@
 
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 ConversionError::ConversionError(
@@ -126,4 +126,4 @@ IndexOutOfBoundsError::IndexOutOfBoundsError(
 {
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 FileSystem::~FileSystem() = default;
@@ -156,4 +156,4 @@ Result<void> WritableFileSystem::renameDirectory(
   return doRenameDirectory(sourcePath, destPath);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

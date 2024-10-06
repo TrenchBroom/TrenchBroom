@@ -45,7 +45,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("collectLinkedGroups")
@@ -1109,4 +1109,4 @@ TEST_CASE("resetLinkIds")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

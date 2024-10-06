@@ -25,7 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class InputState;
@@ -62,4 +62,4 @@ private:
   QWidget* doCreatePage(QWidget* parent) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

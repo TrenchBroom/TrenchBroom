@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class SimpleParserStatus : public ParserStatus
@@ -35,4 +35,4 @@ private:
   void doProgress(double progress) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -27,7 +27,7 @@
 #include <iosfwd>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class PortalFile
@@ -44,4 +44,4 @@ public:
 bool canLoadPortalFile(const std::filesystem::path& path);
 Result<PortalFile> loadPortalFile(std::istream& stream);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

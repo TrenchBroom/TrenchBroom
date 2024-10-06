@@ -24,7 +24,7 @@
 #include "Renderer/Renderable.h"
 #include "Renderer/VertexArray.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderContext;
 
@@ -57,4 +57,4 @@ private:
   void doRender(RenderContext& context) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

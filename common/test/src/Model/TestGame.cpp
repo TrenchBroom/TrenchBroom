@@ -42,7 +42,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TestGame::TestGame()
@@ -247,4 +247,4 @@ void TestGame::setDefaultFaceAttributes(
   m_config.faceAttribsConfig.defaults = defaultFaceAttributes;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -31,7 +31,7 @@
 #include <iostream>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type)
@@ -70,4 +70,4 @@ bool addPropertyDefinition(
   return true;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

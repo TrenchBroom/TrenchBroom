@@ -24,7 +24,7 @@
 class QWidget;
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Tool
 {
@@ -63,4 +63,4 @@ private:
   virtual QWidget* doCreatePage(QWidget* parent);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

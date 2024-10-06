@@ -107,7 +107,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapFrame::MapFrame(FrameManager& frameManager, std::shared_ptr<MapDocument> document)
@@ -813,7 +813,7 @@ void MapFrame::selectionDidChange(const Selection&)
   updateStatusBarDelayed();
 }
 
-void MapFrame::currentLayerDidChange(const TrenchBroom::Model::LayerNode*)
+void MapFrame::currentLayerDidChange(const tb::Model::LayerNode*)
 {
   updateStatusBarDelayed();
 }
@@ -2517,4 +2517,4 @@ DebugPaletteWindow::DebugPaletteWindow(QWidget* parent)
 
 DebugPaletteWindow::~DebugPaletteWindow() = default;
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

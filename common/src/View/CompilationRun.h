@@ -26,17 +26,17 @@
 
 class QTextEdit;
 
-namespace TrenchBroom
+namespace tb
 {
 class VariableTable;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationProfile;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CompilationRunner;
 class MapDocument;
@@ -78,4 +78,4 @@ signals:
   void compilationEnded();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

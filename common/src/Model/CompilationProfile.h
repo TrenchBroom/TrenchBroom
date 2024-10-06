@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct CompilationProfile
@@ -37,4 +37,4 @@ struct CompilationProfile
   kdl_reflect_decl(CompilationProfile, name, workDirSpec, tasks);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -36,7 +36,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("Md3LoaderTest.loadValidMd3")
@@ -108,4 +108,4 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
   CHECK(skin2 != nullptr);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

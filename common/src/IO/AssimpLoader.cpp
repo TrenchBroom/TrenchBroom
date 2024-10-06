@@ -54,7 +54,7 @@
 #include <string_view>
 #include <utility>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -791,7 +791,7 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
     supportedExtensions, kdl::str_to_lower(path.extension().string()));
 }
 
-Result<Assets::EntityModelData> AssimpLoader::load(TrenchBroom::Logger& logger)
+Result<Assets::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 {
   try
   {
@@ -860,4 +860,4 @@ Result<Assets::EntityModelData> AssimpLoader::load(TrenchBroom::Logger& logger)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

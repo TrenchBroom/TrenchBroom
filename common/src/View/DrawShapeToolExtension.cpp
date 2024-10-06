@@ -23,7 +23,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
@@ -59,4 +59,4 @@ bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExten
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

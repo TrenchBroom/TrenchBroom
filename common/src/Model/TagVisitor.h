@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
@@ -57,4 +57,4 @@ public:
   virtual void visit(const PatchNode& patch);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

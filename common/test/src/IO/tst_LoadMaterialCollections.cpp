@@ -36,7 +36,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -351,4 +351,4 @@ TEST_CASE("loadMaterialCollections")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

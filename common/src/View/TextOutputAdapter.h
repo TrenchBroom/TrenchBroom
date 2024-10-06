@@ -25,7 +25,7 @@
 
 class QTextEdit;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 /**
@@ -61,4 +61,4 @@ private:
   void appendString(const QString& string);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

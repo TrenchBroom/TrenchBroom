@@ -30,7 +30,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::IO::SystemPaths
+namespace tb::IO::SystemPaths
 {
 
 bool portableState = false;
@@ -123,4 +123,4 @@ std::vector<std::filesystem::path> findResourceDirectories(
   }
   return result;
 }
-} // namespace TrenchBroom::IO::SystemPaths
+} // namespace tb::IO::SystemPaths

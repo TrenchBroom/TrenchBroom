@@ -27,12 +27,12 @@
 class QSplitter;
 class QWidget;
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CollapsibleTitledPanel;
 class FaceAttribsEditor;
@@ -74,4 +74,4 @@ private:
   void documentWasNewedOrOpened(MapDocument* document);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -28,7 +28,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -230,4 +230,4 @@ float FlyModeHelper::moveSpeed() const
                   : pref(Preferences::CameraFlyMoveSpeed);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

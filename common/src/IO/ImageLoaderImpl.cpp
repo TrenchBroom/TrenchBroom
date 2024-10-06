@@ -23,7 +23,7 @@
 #include "Exceptions.h"
 #include "Macros.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 InitFreeImage::InitFreeImage()
@@ -252,4 +252,4 @@ size_t ImageLoaderImpl::pixelSize(const ImageLoader::PixelFormat format)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

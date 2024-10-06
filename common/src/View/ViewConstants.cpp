@@ -21,7 +21,7 @@
 
 #include <QFontDatabase>
 
-namespace TrenchBroom::View::Fonts
+namespace tb::View::Fonts
 {
 
 QFont fixedWidthFont()
@@ -35,4 +35,4 @@ QFont fixedWidthFont()
 #endif
 }
 
-} // namespace TrenchBroom::View::Fonts
+} // namespace tb::View::Fonts

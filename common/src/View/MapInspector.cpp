@@ -45,7 +45,7 @@
 
 #include <optional>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -397,4 +397,4 @@ void MapPropertiesEditor::updateGui()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

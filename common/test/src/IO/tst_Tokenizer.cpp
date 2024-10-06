@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace SimpleToken
 {
@@ -257,4 +257,4 @@ TEST_CASE("TokenizerTest.simpleLanguageBlockWithNegativeDecimalAttribute")
   CHECK(tokenizer.nextToken().type() == SimpleToken::Eof);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

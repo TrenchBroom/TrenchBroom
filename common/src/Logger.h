@@ -22,7 +22,7 @@
 #include <sstream>
 #include <string_view>
 
-namespace TrenchBroom
+namespace tb
 {
 
 enum class LogLevel
@@ -83,4 +83,4 @@ private:
   void doLog(LogLevel level, std::string_view message) override;
 };
 
-} // namespace TrenchBroom
+} // namespace tb

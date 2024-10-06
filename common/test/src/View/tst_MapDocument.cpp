@@ -43,7 +43,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MapDocumentTest::MapDocumentTest()
@@ -841,4 +841,4 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

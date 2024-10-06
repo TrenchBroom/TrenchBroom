@@ -30,12 +30,12 @@
 class QListWidget;
 class QAbstractButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -89,4 +89,4 @@ private:
   std::vector<std::filesystem::path> enabledMaterialCollections() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

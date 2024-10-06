@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -58,4 +58,4 @@ private:
   void begin();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

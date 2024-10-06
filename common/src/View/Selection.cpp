@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 const std::vector<Model::Node*>& Selection::selectedNodes() const
@@ -66,4 +66,4 @@ void Selection::addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle
   m_deselectedBrushFaces = kdl::vec_concat(std::move(m_deselectedBrushFaces), faces);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

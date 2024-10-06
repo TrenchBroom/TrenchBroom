@@ -45,7 +45,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -916,4 +916,4 @@ TEST_CASE("BrushFaceTest.flipUV")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

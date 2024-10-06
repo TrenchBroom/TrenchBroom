@@ -32,7 +32,7 @@ class QCheckBox;
 class QComboBox;
 class QPushButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class RotateObjectsTool;
@@ -83,4 +83,4 @@ private:
   vm::vec3d getAxis() const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

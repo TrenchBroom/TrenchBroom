@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 Assets::ColorRange::Type detectColorRange(
@@ -115,4 +115,4 @@ std::string entityColorAsString(
   return result.str();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -25,7 +25,7 @@
 #include "View/AppInfoPanel.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 AboutDialog* AboutDialog::instance = nullptr;
@@ -131,4 +131,4 @@ Font Awesome 5 Free (Icons)<br />)");
   setLayout(layout);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

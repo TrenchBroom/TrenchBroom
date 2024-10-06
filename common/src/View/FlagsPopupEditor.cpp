@@ -28,7 +28,7 @@
 #include "View/PopupButton.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 FlagsPopupEditor::FlagsPopupEditor(
@@ -156,4 +156,4 @@ void FlagsPopupEditor::updateFlagsText()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

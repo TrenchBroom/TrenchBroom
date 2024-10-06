@@ -30,26 +30,26 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 struct DecalSpecification;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushNode;
 class EntityNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument; // FIXME: Renderer should not depend on View
-} // namespace TrenchBroom::View
+} // namespace tb::View
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class EntityDecalRenderer
@@ -124,4 +124,4 @@ public: // rendering
   deleteCopy(EntityDecalRenderer);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

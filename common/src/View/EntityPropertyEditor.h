@@ -30,7 +30,7 @@
 class QTextEdit;
 class QSplitter;
 
-namespace TrenchBroom
+namespace tb
 {
 namespace Assets
 {
@@ -95,4 +95,4 @@ private:
   void updateMinimumSize();
 };
 } // namespace View
-} // namespace TrenchBroom
+} // namespace tb

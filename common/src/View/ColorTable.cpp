@@ -27,7 +27,7 @@
 #include <algorithm>
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ColorTable::ColorTable(const int cellSize, QWidget* parent)
@@ -141,4 +141,4 @@ int ColorTable::computeHeight(const int rows) const
   return m_cellSpacing + rows * (m_cellSize + m_cellSpacing);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

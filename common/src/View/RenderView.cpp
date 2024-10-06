@@ -77,7 +77,7 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 RenderView::RenderView(GLContextManager& contextManager, QWidget* parent)
@@ -199,7 +199,7 @@ bool RenderView::event(QEvent* event)
 
 void RenderView::paintGL()
 {
-  if (TrenchBroom::View::isReportingCrash())
+  if (tb::View::isReportingCrash())
   {
     return;
   }
@@ -349,4 +349,4 @@ void RenderView::updateViewport(
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

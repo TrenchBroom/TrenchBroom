@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ImageLoaderImpl;
 class Path;
@@ -72,4 +72,4 @@ private:
   ImageLoader& operator=(const ImageLoader& other);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

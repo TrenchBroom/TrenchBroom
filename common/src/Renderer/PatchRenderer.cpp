@@ -41,7 +41,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 PatchRenderer::PatchRenderer(const Model::EditorContext& editorContext)
@@ -424,4 +424,4 @@ void PatchRenderer::doRender(RenderContext& context)
   */
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 namespace
 {
@@ -77,4 +77,4 @@ TEST_CASE("VertexTest.memoryLayoutVertexList")
   REQUIRE(std::memcmp(expected.data(), actual.data(), sizeof(TestVertex) * 3) == 0);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

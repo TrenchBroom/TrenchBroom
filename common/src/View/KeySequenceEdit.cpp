@@ -27,7 +27,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 KeySequenceEdit::KeySequenceEdit(QWidget* parent)
@@ -80,4 +80,4 @@ void KeySequenceEdit::clear()
   m_keySequenceEdit->clear();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

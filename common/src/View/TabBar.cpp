@@ -28,7 +28,7 @@
 #include "View/TabBook.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // TabBarButton
 
@@ -149,4 +149,4 @@ void TabBar::tabBookPageChanged(const int newIndex)
   m_barBook->setCurrentIndex(newIndex);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

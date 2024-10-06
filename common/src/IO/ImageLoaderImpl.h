@@ -25,7 +25,7 @@
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class InitFreeImage
@@ -71,4 +71,4 @@ private:
   static size_t pixelSize(ImageLoader::PixelFormat format);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

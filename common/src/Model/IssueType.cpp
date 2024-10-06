@@ -21,7 +21,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 IssueType freeIssueType()
@@ -30,4 +30,4 @@ IssueType freeIssueType()
   return std::exchange(type, type << 1);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -23,7 +23,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 TextAnchor::~TextAnchor() = default;
@@ -101,4 +101,4 @@ SimpleTextAnchor::SimpleTextAnchor(
 {
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 IndexArrayMapBuilder::IndexArrayMapBuilder(const IndexArrayMap::Size& size)
   : m_ranges{size}
@@ -153,4 +153,4 @@ void IndexArrayMapBuilder::add(const PrimType primType, const IndexList& indices
   std::advance(dest, static_cast<IndexList::iterator::difference_type>(offset));
   std::copy(std::begin(indices), std::end(indices), dest);
 }
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

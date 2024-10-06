@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Command;
 class CommandResult;
@@ -390,4 +390,4 @@ private:
   std::unique_ptr<UndoableCommand> popFromRedoStack();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

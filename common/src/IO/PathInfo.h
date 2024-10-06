@@ -21,7 +21,7 @@
 
 #include <iosfwd>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 enum class PathInfo
@@ -33,4 +33,4 @@ enum class PathInfo
 
 std::ostream& operator<<(std::ostream& lhs, const PathInfo& rhs);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -33,7 +33,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
@@ -649,4 +649,4 @@ TEST_CASE_METHOD(
     Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

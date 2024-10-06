@@ -42,7 +42,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -334,4 +334,4 @@ void ShearObjectsToolController3D::doPick(
   m_tool.pick3D(pickRay, camera, pickResult);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

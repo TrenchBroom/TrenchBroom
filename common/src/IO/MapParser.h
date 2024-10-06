@@ -27,18 +27,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityProperty;
 class BrushFaceAttributes;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -84,4 +84,4 @@ protected: // subclassing interface for users of the parser
     ParserStatus& status) = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

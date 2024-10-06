@@ -36,7 +36,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 std::ostream& operator<<(std::ostream& lhs, const EntityRotationType& rhs)
@@ -409,4 +409,4 @@ void applyEntityRotation(Entity& entity, const vm::mat4x4d& transformation)
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

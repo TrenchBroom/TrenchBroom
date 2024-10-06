@@ -32,7 +32,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 NullType::NullType() = default;
@@ -1302,4 +1302,4 @@ std::ostream& operator<<(std::ostream& lhs, const Value& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

@@ -21,7 +21,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 TEST_CASE("CameraTest.testInvalidUp")
@@ -70,4 +70,4 @@ TEST_CASE("CameraTest.testYawWhenPitchedDown")
   CHECK_FALSE(vm::is_nan(c.up()));
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

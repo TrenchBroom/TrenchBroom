@@ -35,7 +35,7 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 VertexTool::VertexTool(std::weak_ptr<MapDocument> document)
@@ -336,4 +336,4 @@ void VertexTool::resetModeAfterDeselection()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

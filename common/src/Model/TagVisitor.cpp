@@ -19,7 +19,7 @@
 
 #include "TagVisitor.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TagVisitor::~TagVisitor() = default;
@@ -40,4 +40,4 @@ void ConstTagVisitor::visit(const BrushNode&) {}
 void ConstTagVisitor::visit(const BrushFace&) {}
 void ConstTagVisitor::visit(const PatchNode&) {}
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

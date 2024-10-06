@@ -27,14 +27,14 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class RotateObjectsHandle
 {
@@ -165,4 +165,4 @@ public:
     HitArea area);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

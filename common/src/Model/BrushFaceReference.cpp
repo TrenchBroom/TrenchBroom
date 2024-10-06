@@ -29,7 +29,7 @@
 #include <cassert>
 #include <ranges>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 BrushFaceReference::BrushFaceReference(BrushNode* node, const BrushFace& face)
@@ -63,4 +63,4 @@ Result<std::vector<BrushFaceHandle>> resolveAllRefs(
          | std::views::transform([](const auto& faceRef) { return faceRef.resolve(); })
          | kdl::to_vector | kdl::fold;
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

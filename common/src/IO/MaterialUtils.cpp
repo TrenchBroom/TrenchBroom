@@ -25,7 +25,7 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/string_compare.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 std::string getMaterialNameFromPathSuffix(
@@ -56,4 +56,4 @@ Assets::TextureMask getTextureMaskFromName(std::string_view name)
                                            : Assets::TextureMask::Off;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

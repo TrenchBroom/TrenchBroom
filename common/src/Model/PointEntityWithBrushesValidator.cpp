@@ -31,7 +31,7 @@
 #include <map>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -79,4 +79,4 @@ void PointEntityWithBrushesValidator::doValidate(
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

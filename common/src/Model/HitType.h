@@ -21,7 +21,7 @@
 
 #include <cstdint>
 
-namespace TrenchBroom::Model::HitType
+namespace tb::Model::HitType
 {
 
 using Type = uint64_t;
@@ -30,4 +30,4 @@ constexpr Type AnyType = ~NoType;
 
 Type freeType();
 
-} // namespace TrenchBroom::Model::HitType
+} // namespace tb::Model::HitType

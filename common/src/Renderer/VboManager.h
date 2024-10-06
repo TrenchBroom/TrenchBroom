@@ -21,7 +21,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Vbo;
 class ShaderManager;
@@ -62,4 +62,4 @@ public:
   ShaderManager& shaderManager();
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -23,7 +23,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 NotifierConnection::NotifierConnection() = default;
@@ -66,4 +66,4 @@ void NotifierConnection::disconnect()
   m_connections.clear();
 }
 
-} // namespace TrenchBroom
+} // namespace tb

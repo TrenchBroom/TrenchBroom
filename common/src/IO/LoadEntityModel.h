@@ -25,23 +25,23 @@
 #include <filesystem>
 #include <functional>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModel;
 class Material;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct MaterialConfig;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class FileSystem;
 
@@ -62,4 +62,4 @@ Assets::EntityModel loadEntityModelAsync(
   const Assets::CreateEntityModelDataResource& createResource,
   Logger& logger);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -31,7 +31,7 @@
 #include <optional>
 #include <unordered_map>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -360,4 +360,4 @@ Result<void> WritableVirtualFileSystem::doRenameDirectory(
   return m_writableFs.renameDirectory(sourcePath, destPath);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

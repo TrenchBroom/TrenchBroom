@@ -24,12 +24,12 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class GroupNode;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CurrentGroupCommand : public UndoableCommand
 {
@@ -50,4 +50,4 @@ private:
   deleteCopyAndMove(CurrentGroupCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

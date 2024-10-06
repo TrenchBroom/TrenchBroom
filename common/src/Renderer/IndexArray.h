@@ -29,7 +29,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 /**
  * Represents an array of indices. Optionally, multiple instances of this class can share
@@ -302,4 +302,4 @@ public:
 private:
   explicit IndexArray(BaseHolder::Ptr holder);
 };
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -26,7 +26,7 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 LinkRenderer::LinkRenderer() = default;
@@ -159,4 +159,4 @@ void LinkRenderer::validate()
   m_valid = true;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

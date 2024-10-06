@@ -22,7 +22,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional")
@@ -343,4 +343,4 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge")
       AnchorPos::Opposite)
     == exp1);
 }
-} // namespace TrenchBroom::View
+} // namespace tb::View

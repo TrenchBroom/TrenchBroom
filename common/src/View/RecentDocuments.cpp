@@ -28,7 +28,7 @@
 
 #include "kdl/vector_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::vector<std::filesystem::path> loadRecentDocuments(const size_t max)
@@ -187,4 +187,4 @@ void RecentDocuments::createMenuItems(QMenu& menu)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

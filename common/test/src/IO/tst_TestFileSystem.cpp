@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("TestFileSystem")
@@ -159,4 +159,4 @@ TEST_CASE("TestFileSystem")
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -33,7 +33,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 UVEditor::UVEditor(
@@ -212,4 +212,4 @@ void UVEditor::subDivisionChanged()
   m_uvView->setSubDivisions(vm::vec2i(x, y));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

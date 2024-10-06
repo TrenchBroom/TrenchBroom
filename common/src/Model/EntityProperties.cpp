@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace EntityPropertyKeys
 {
@@ -213,4 +213,4 @@ const std::string& findEntityPropertyOrDefault(
   return it != std::end(properties) ? it->value() : defaultValue;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

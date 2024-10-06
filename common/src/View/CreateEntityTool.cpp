@@ -38,7 +38,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document)
@@ -140,4 +140,4 @@ void CreateEntityTool::updateEntityPosition3D(
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 size_t RepeatStack::size() const
@@ -122,4 +122,4 @@ void RepeatStack::rollbackTransaction()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

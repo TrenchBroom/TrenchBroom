@@ -24,7 +24,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
@@ -32,9 +32,9 @@ class EntityProperty;
 class LayerNode;
 enum class MapFormat;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -62,4 +62,4 @@ private: // implement MapReader interface
   void onBrushFace(Model::BrushFace face, ParserStatus& status) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

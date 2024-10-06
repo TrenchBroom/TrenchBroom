@@ -27,13 +27,13 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
 enum class VisibilityState;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SetVisibilityCommand : public UndoableCommand
@@ -64,4 +64,4 @@ private:
   deleteCopyAndMove(SetVisibilityCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -29,7 +29,7 @@
 #include <memory>
 #include <tuple>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class ParallelUVCoordSystem;
 class ParaxialUVCoordSystem;
@@ -160,4 +160,4 @@ protected:
   deleteCopyAndMove(UVCoordSystem);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

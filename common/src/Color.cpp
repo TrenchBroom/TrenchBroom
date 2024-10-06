@@ -26,7 +26,7 @@
 
 #include <sstream>
 
-namespace TrenchBroom
+namespace tb
 {
 
 std::optional<Color> Color::parse(const std::string& str)
@@ -162,4 +162,4 @@ void Color::rgbToHSB(
   }
 }
 
-} // namespace TrenchBroom
+} // namespace tb

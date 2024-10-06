@@ -27,13 +27,13 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNode;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -56,4 +56,4 @@ public:
     const vm::ray3d& pickRay, const Model::PickResult& pickResult);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

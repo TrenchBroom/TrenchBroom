@@ -21,20 +21,20 @@
 
 #include "View/ToolController.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushNode;
 class PickResult;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 class RenderContext;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ClipTool;
 
@@ -75,4 +75,4 @@ public:
   explicit ClipToolController3D(ClipTool& tool);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

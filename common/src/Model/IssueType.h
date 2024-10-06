@@ -19,11 +19,11 @@
 
 #pragma once
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 using IssueType = int;
 
 IssueType freeIssueType();
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

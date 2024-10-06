@@ -55,7 +55,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 FaceAttribsEditor::FaceAttribsEditor(
@@ -930,4 +930,4 @@ std::tuple<QList<int>, QStringList, QStringList> FaceAttribsEditor::getContentFl
   return getFlags(contentFlags.flags);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

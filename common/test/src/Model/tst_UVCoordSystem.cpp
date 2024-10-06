@@ -23,7 +23,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 // Disable a clang warning when using ASSERT_DEATH
@@ -53,4 +53,4 @@ TEST_CASE("UVCoordSystemTest.testSnapshotTypeSafety")
 #pragma clang diagnostic pop
 #endif
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

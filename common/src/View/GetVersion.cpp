@@ -21,7 +21,7 @@
 
 #include "Version.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 QString getBuildVersion()
@@ -39,4 +39,4 @@ QString getBuildType()
   return BUILD_TYPE;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

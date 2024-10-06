@@ -29,7 +29,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("MdlLoaderTest.loadValidMdl")
@@ -78,4 +78,4 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
     == Result<Assets::EntityModelData>{Error{"Unknown MDL model version: 538976288"}});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

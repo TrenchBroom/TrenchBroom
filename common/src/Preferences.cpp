@@ -25,7 +25,7 @@
 
 #include "vm/util.h"
 
-namespace TrenchBroom::Preferences
+namespace tb::Preferences
 {
 
 Preference<int> MapViewLayout(
@@ -486,4 +486,4 @@ const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns()
   return list;
 }
 
-} // namespace TrenchBroom::Preferences
+} // namespace tb::Preferences

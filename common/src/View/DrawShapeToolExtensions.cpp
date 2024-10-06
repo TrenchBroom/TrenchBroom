@@ -30,7 +30,7 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
@@ -342,4 +342,4 @@ std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensio
 }
 
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

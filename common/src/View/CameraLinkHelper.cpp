@@ -28,7 +28,7 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 void CameraLinkHelper::addCamera(Renderer::Camera* camera)
 {
@@ -68,4 +68,4 @@ void CameraLinkHelper::cameraDidChange(const Renderer::Camera* camera)
 
 CameraLinkableView::~CameraLinkableView() = default;
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -23,12 +23,12 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class CameraLinkHelper
@@ -53,4 +53,4 @@ public:
   virtual void linkCamera(CameraLinkHelper& linkHelper) = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

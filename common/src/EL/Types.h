@@ -29,7 +29,7 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 namespace detail
@@ -127,4 +127,4 @@ enum class ValueType
 std::string typeName(ValueType type);
 ValueType typeForName(const std::string& type);
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

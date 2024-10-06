@@ -30,7 +30,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 enum class PathInfo;
 struct TraversalMode;
@@ -137,4 +137,4 @@ std::filesystem::path resolvePath(
   const std::filesystem::path& path);
 
 } // namespace Disk
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

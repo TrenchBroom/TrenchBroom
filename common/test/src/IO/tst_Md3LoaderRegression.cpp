@@ -33,7 +33,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("Md3LoaderTest.loadFailure_2659")
@@ -82,4 +82,4 @@ TEST_CASE("Md3LoaderTest.loadFailure_2659")
   CHECK(modelData.value().surfaceCount() == 2u);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

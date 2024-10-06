@@ -39,7 +39,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush")
@@ -386,4 +386,4 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
   CHECK(hits.front().distance() == vm::approx{32.0});
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

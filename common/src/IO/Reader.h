@@ -26,7 +26,7 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class BufferedReader;
 class BufferReaderSource;
@@ -434,4 +434,4 @@ public:
    */
   std::string_view stringView() const;
 };
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

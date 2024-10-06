@@ -27,7 +27,7 @@
 
 class QMenu;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::vector<std::filesystem::path> loadRecentDocuments(size_t max);
@@ -76,4 +76,4 @@ signals:
   void didChange();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

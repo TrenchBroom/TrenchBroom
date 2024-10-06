@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class MapTextEncoding
@@ -29,4 +29,4 @@ enum class MapTextEncoding
   Utf8
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

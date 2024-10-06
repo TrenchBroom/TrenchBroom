@@ -25,7 +25,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CompilationContext::CompilationContext(
@@ -60,4 +60,4 @@ std::string CompilationContext::variableValue(const std::string& variableName) c
   return m_variables->value(variableName).convertTo(EL::ValueType::String).stringValue();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

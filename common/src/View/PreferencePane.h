@@ -21,7 +21,7 @@
 
 #include <QWidget>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class PreferencePane : public QWidget
@@ -45,4 +45,4 @@ private:
   virtual void doResetToDefaults() = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

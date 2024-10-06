@@ -41,7 +41,7 @@
 #include <optional>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 const HitType::Type EntityNode::EntityHitType = HitType::freeType();
@@ -327,4 +327,4 @@ void EntityNode::doAcceptTagVisitor(ConstTagVisitor& visitor) const
   visitor.visit(*this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

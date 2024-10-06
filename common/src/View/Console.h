@@ -31,7 +31,7 @@ class QTextEdit;
 class QTimer;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Console : public TabBookPage, public Logger
 {
@@ -53,4 +53,4 @@ private:
   void logCachedMessages();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

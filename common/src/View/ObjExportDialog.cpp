@@ -41,7 +41,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ObjExportDialog::ObjExportDialog(MapFrame* mapFrame)
@@ -157,4 +157,4 @@ void ObjExportDialog::updateExportPath()
   m_exportPathEdit->setText(IO::pathAsQString(objPath));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

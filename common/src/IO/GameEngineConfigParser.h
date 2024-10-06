@@ -26,7 +26,7 @@
 #include <filesystem>
 #include <string_view>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class GameEngineConfigParser : public ConfigParserBase
@@ -39,4 +39,4 @@ public:
   deleteCopyAndMove(GameEngineConfigParser);
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

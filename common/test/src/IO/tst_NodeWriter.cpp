@@ -43,7 +43,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("NodeWriterTest.writeEmptyMap")
@@ -1102,4 +1102,4 @@ TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash")
   CHECK(actual == expected);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

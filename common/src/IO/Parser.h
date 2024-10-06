@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class ParserStatus;
 
@@ -139,4 +139,4 @@ private:
   virtual TokenNameMap tokenNames() const = 0;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

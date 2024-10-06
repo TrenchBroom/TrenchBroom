@@ -31,7 +31,7 @@
 
 #include "kdl/string_format.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 Assets::Material loadSkin(
@@ -69,4 +69,4 @@ Assets::Material loadSkin(
          | kdl::value();
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

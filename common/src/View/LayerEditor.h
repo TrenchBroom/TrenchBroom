@@ -25,12 +25,12 @@
 
 class QAbstractButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class LayerNode;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class LayerListBox;
 class MapDocument;
@@ -102,4 +102,4 @@ private slots:
   void updateButtons();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

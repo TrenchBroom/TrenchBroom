@@ -21,7 +21,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 Vbo::Vbo(const GLenum type, const size_t capacity, const GLenum usage)
@@ -69,4 +69,4 @@ void Vbo::unbind() const
   glAssert(glBindBuffer(m_type, 0));
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

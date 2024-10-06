@@ -35,7 +35,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("NodeQueries")
@@ -207,4 +207,4 @@ TEST_CASE("collectBrushFaces")
     Catch::Matchers::UnorderedEquals(toHandles(brushNode)));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

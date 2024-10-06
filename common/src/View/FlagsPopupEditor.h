@@ -23,7 +23,7 @@
 
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ElidedLabel;
 class FlagsEditor;
@@ -60,4 +60,4 @@ signals:
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

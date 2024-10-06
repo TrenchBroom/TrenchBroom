@@ -21,7 +21,7 @@
 
 #include <cstddef>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 using IdType = std::size_t;

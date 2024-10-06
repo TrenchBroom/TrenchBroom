@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 UndoableCommand::UndoableCommand(std::string name, const bool updateModificationCount)
@@ -91,4 +91,4 @@ void UndoableCommand::resetModificationCount(MapDocumentCommandFacade& document)
   document.decModificationCount(m_modificationCount);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

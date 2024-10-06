@@ -21,7 +21,7 @@
 
 #include "Model/Tag.h"
 
-namespace TrenchBroom::Model::TagAttributes
+namespace tb::Model::TagAttributes
 {
 
 const TagAttribute Transparency = TagAttribute{1, "transparent"};

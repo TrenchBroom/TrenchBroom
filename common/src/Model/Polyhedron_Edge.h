@@ -28,7 +28,7 @@
 #include "vm/segment.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -341,4 +341,4 @@ void Polyhedron_Edge<T, FP, VP>::setSecondEdge(HalfEdge* second)
   m_second->setEdge(this);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

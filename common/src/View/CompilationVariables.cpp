@@ -30,7 +30,7 @@
 #include <string>
 #include <thread>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 namespace CompilationVariableNames
@@ -109,4 +109,4 @@ LaunchGameEngineVariables::LaunchGameEngineVariables(
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

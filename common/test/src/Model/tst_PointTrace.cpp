@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("PointTrace")
@@ -118,4 +118,4 @@ TEST_CASE("loadPointFile")
   CHECK(loadPointFile(stream) == expectedTrace);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

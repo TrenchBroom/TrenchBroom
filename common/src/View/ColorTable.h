@@ -25,7 +25,7 @@
 
 class QColor;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class ColorTable : public QWidget
@@ -60,4 +60,4 @@ signals:
   void colorTableSelected(QColor color);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

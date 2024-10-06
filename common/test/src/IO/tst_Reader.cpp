@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -229,4 +229,4 @@ TEST_CASE("FileReaderTest.subReader")
 {
   subReader(file()->reader());
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

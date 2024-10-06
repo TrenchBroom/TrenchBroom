@@ -25,12 +25,12 @@
 
 class QAbstractButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct GameEngineProfile;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class GameEngineProfileEditor;
@@ -59,4 +59,4 @@ private slots:
   void currentProfileChanged(Model::GameEngineProfile* profile);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

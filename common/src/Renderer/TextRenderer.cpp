@@ -35,7 +35,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 const float TextRenderer::DefaultMaxViewDistance = 768.0f;
@@ -288,4 +288,4 @@ void TextRenderer::render(EntryCollection& collection, RenderContext& renderCont
   font.deactivate();
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

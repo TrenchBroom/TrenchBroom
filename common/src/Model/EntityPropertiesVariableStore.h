@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Entity;
 
@@ -47,4 +47,4 @@ public:
   deleteCopyAndMove(EntityPropertiesVariableStore);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

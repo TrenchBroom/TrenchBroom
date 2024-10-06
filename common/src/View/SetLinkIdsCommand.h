@@ -27,12 +27,12 @@
 #include <tuple>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SetLinkIdsCommand : public UndoableCommand
@@ -54,4 +54,4 @@ public:
   deleteCopyAndMove(SetLinkIdsCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

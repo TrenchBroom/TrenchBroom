@@ -28,7 +28,7 @@
 
 #include <fmt/format.h>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -264,4 +264,4 @@ Result<Assets::Texture> readDdsTexture(Reader& reader)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

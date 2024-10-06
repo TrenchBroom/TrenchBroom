@@ -28,12 +28,12 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFaceAttributes;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class GameConfigParser : public ConfigParserBase
@@ -52,4 +52,4 @@ public:
 std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string);
 std::string serializeSoftMapBoundsString(const vm::bbox3d& bounds);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

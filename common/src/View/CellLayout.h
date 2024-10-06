@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 struct LayoutBounds
@@ -309,4 +309,4 @@ private:
   void validate();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

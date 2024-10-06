@@ -35,7 +35,7 @@
 
 #include "kdl/string_compare.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GameEngineProfileEditor::GameEngineProfileEditor(QWidget* parent)
@@ -172,4 +172,4 @@ void GameEngineProfileEditor::changePathClicked()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

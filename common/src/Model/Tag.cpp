@@ -28,7 +28,7 @@
 #include <string>
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TagAttribute::TagAttribute(const AttributeType type, std::string name)
@@ -374,4 +374,4 @@ void SmartTag::appendToStream(std::ostream& str) const
                           << "m_index" << m_index << "m_name" << m_name << "m_attributes"
                           << m_attributes << "m_matcher" << *m_matcher;
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

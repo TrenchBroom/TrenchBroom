@@ -23,12 +23,12 @@
 
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CameraAnimation : public Animation
 {
@@ -59,4 +59,4 @@ private:
   void doUpdate(double progress) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

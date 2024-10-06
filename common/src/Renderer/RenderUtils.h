@@ -28,12 +28,12 @@
 #include <utility>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 vm::vec3f gridColorForMaterial(const Assets::Material* material);
@@ -203,4 +203,4 @@ VertsAndNormals circle3D(float radius, size_t segments);
 VertsAndNormals cylinder(float radius, float length, size_t segments);
 VertsAndNormals cone(float radius, float length, size_t segments);
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

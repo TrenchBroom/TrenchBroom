@@ -25,7 +25,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
@@ -63,4 +63,4 @@ void FileLogger::doLog(const LogLevel /* level */, const std::string_view messag
   }
 }
 
-} // namespace TrenchBroom
+} // namespace tb

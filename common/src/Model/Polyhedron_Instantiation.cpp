@@ -35,7 +35,7 @@
 #include "Polyhedron_DefaultPayload.h"
 // clang-format on
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template struct Polyhedron_GetVertexLink<
@@ -89,4 +89,4 @@ template class Polyhedron_Face<double, BrushFacePayload, BrushVertexPayload>;
 template class Polyhedron<double, DefaultPolyhedronPayload, DefaultPolyhedronPayload>;
 template class Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

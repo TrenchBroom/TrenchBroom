@@ -23,7 +23,7 @@
 #include "Polyhedron_BrushGeometryPayload.h"
 #include "Polyhedron_DefaultPayload.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 extern template class Polyhedron_Vertex<
@@ -56,4 +56,4 @@ extern template class Polyhedron<
   DefaultPolyhedronPayload>;
 extern template class Polyhedron<double, BrushFacePayload, BrushVertexPayload>;
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -23,7 +23,7 @@
 
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class TitleBar : public QWidget
@@ -42,4 +42,4 @@ public:
     const QString& title, int hMargin = 0, int vMargin = 0, bool boldTitle = true);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

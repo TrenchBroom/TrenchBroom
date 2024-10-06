@@ -24,7 +24,7 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 
 class Color : public vm::vec<float, 4>
@@ -72,4 +72,4 @@ public:
   static void rgbToHSB(float r, float g, float b, float& h, float& s, float& br);
 };
 
-} // namespace TrenchBroom
+} // namespace tb

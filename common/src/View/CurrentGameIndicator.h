@@ -23,7 +23,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class CurrentGameIndicator : public DialogHeader
@@ -33,4 +33,4 @@ public:
   explicit CurrentGameIndicator(const std::string& gameName, QWidget* parent = nullptr);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

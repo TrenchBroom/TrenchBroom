@@ -33,7 +33,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("readIdMipTexture")
@@ -116,4 +116,4 @@ TEST_CASE("readHlMipTexture")
   CHECK(texture.height() == height);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

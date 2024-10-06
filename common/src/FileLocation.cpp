@@ -21,7 +21,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom
+namespace tb
 {
 
 bool operator==(const FileLocation& lhs, const FileLocation& rhs)
@@ -64,4 +64,4 @@ std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom
+} // namespace tb

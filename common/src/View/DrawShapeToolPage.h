@@ -28,7 +28,7 @@
 class QComboBox;
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class DrawShapeToolExtensionManager;
 class MapDocument;
@@ -55,4 +55,4 @@ private:
   void currentExtensionDidChange(size_t index);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

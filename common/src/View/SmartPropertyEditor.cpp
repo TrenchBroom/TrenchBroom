@@ -26,7 +26,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SmartPropertyEditor::SmartPropertyEditor(
@@ -83,4 +83,4 @@ void SmartPropertyEditor::addOrUpdateProperty(const std::string& value)
   document()->setProperty(m_propertyKey, value);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

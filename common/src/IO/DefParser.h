@@ -33,7 +33,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO::DefToken
+namespace tb::IO::DefToken
 {
 using Type = unsigned int;
 static const Type Integer = 1 << 0;      // integer number
@@ -52,9 +52,9 @@ static const Type Comma = 1 << 13;       // comma: ,
 static const Type Equality = 1 << 14;    // equality sign: =
 static const Type Minus = 1 << 15;       // minus sign: -
 static const Type Eof = 1 << 16;         // end of file
-} // namespace TrenchBroom::IO::DefToken
+} // namespace tb::IO::DefToken
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class DefTokenizer : public Tokenizer<DefToken::Type>
@@ -102,4 +102,4 @@ private:
   Token nextTokenIgnoringNewlines();
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

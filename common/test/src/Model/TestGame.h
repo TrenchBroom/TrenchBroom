@@ -29,18 +29,18 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class Path;
 class VirtualFileSystem;
-} // namespace TrenchBroom::IO
+} // namespace tb::IO
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class TestGame : public Game
 {
@@ -124,4 +124,4 @@ public:
   void setDefaultFaceAttributes(const Model::BrushFaceAttributes& newDefaults);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -36,7 +36,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
@@ -345,4 +345,4 @@ TEST_CASE("CsgTest.csgHollow")
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

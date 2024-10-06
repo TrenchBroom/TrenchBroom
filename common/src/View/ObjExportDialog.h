@@ -26,7 +26,7 @@ class QLineEdit;
 class QPushButton;
 class QRadioButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapFrame;
 
@@ -52,4 +52,4 @@ private:
   void createGui();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

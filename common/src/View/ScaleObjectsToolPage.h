@@ -34,7 +34,7 @@ class QLineEdit;
 class QComboBox;
 class QAbstractButton;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class Selection;
@@ -73,4 +73,4 @@ private:
   void applyScale();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

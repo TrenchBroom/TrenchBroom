@@ -28,21 +28,21 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 
 template <typename T>
 class Preference;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class Path;
 class WritableVirtualFileSystem;
-} // namespace TrenchBroom::IO
+} // namespace tb::IO
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationConfig;
 class Game;
@@ -174,4 +174,4 @@ private:
     GameConfig& gameConfig, GameEngineConfig gameEngineConfig, Logger& logger);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

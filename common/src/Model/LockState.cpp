@@ -23,7 +23,7 @@
 
 #include <iostream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 std::ostream& operator<<(std::ostream& str, const LockState state)
@@ -44,4 +44,4 @@ std::ostream& operator<<(std::ostream& str, const LockState state)
   return str;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

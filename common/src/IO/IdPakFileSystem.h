@@ -22,7 +22,7 @@
 #include "IO/ImageFileSystem.h"
 #include "Result.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class CFile;
 
@@ -35,4 +35,4 @@ private:
   Result<void> doReadDirectory() override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

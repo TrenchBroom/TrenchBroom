@@ -27,12 +27,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
@@ -54,4 +54,4 @@ public:
   deleteCopyAndMove(SwapNodeContentsCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

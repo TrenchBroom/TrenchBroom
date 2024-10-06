@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EntityNodeBase;
 class BrushNode;
@@ -75,4 +75,4 @@ private:
     EntityNodeBase& node, std::vector<std::unique_ptr<Issue>>& issues) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

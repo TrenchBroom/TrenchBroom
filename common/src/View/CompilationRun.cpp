@@ -32,7 +32,7 @@
 #include <memory>
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 CompilationRun::~CompilationRun()
@@ -133,4 +133,4 @@ void CompilationRun::cleanup()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

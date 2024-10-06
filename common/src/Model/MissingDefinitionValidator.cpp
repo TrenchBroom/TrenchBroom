@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace
 {
@@ -49,4 +49,4 @@ void MissingDefinitionValidator::doValidate(
       Type, entityNode, entityNode.name() + " not found in entity definitions"));
   }
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

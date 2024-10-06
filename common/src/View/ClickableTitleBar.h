@@ -25,7 +25,7 @@
 
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class BorderLine;
 
@@ -47,4 +47,4 @@ protected:
   void mousePressEvent(QMouseEvent* event) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

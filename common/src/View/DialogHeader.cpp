@@ -24,7 +24,7 @@
 
 #include "QtUtils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 DialogHeader::DialogHeader(QWidget* parent)
@@ -79,4 +79,4 @@ void DialogHeader::createGui()
   setLayout(layout);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

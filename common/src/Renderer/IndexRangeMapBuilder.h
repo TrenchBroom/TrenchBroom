@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 /**
@@ -253,4 +253,4 @@ private:
   }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -21,7 +21,7 @@
 
 #include "Exceptions.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class ReaderException : public Exception
@@ -30,4 +30,4 @@ public:
   using Exception::Exception;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

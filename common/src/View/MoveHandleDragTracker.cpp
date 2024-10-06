@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MoveHandleDragTrackerDelegate::~MoveHandleDragTrackerDelegate() = default;
@@ -54,4 +54,4 @@ DragHandleSnapper makeDragHandleSnapperFromSnapMode(
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

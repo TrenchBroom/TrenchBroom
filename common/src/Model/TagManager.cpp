@@ -26,7 +26,7 @@
 #include <stdexcept>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 bool TagManager::TagCmp::operator()(const SmartTag& lhs, const SmartTag& rhs) const
@@ -131,4 +131,4 @@ size_t TagManager::freeTagIndex()
   return index;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

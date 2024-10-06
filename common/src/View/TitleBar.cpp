@@ -26,7 +26,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 TitleBar::TitleBar(
@@ -60,4 +60,4 @@ TitleBar::TitleBar(
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

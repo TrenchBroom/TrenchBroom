@@ -81,7 +81,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 const int MapViewBase::DefaultCameraAnimationDuration = 250;
 
@@ -1715,4 +1715,4 @@ bool MapViewBase::canMakeStructural() const
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

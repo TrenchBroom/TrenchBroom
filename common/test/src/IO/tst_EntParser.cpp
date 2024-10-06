@@ -30,7 +30,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 static void assertPropertyDefinition(
@@ -559,4 +559,4 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

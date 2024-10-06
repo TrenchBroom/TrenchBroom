@@ -44,7 +44,7 @@ inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
   return lhs;
 }
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
@@ -497,4 +497,4 @@ TEST_CASE("PreferencesTest.testWxTagShortcuts")
   }
 }
 
-} // namespace TrenchBroom
+} // namespace tb

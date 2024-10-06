@@ -32,7 +32,7 @@
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 UVViewHelper::UVViewHelper(Renderer::OrthographicCamera& camera)
@@ -382,4 +382,4 @@ vm::bbox3d UVViewHelper::computeFaceBoundsInCameraCoords() const
   return result;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -25,7 +25,7 @@
 
 class QSplitter;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class EntityBrowser;
 class EntityPropertyEditor;
@@ -56,4 +56,4 @@ private:
     GLContextManager& contextManager);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

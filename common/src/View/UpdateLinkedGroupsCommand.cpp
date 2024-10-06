@@ -21,7 +21,7 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
@@ -45,4 +45,4 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -21,7 +21,7 @@
 
 #include <QUuid>
 
-namespace TrenchBroom
+namespace tb
 {
 
 std::string generateUuid()
@@ -29,4 +29,4 @@ std::string generateUuid()
   return QUuid::createUuid().toString().toStdString();
 }
 
-} // namespace TrenchBroom
+} // namespace tb

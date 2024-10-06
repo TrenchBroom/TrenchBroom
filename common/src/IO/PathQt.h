@@ -23,7 +23,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 QString pathAsQString(const std::filesystem::path& path);
@@ -31,4 +31,4 @@ QString pathAsGenericQString(const std::filesystem::path& path);
 
 std::filesystem::path pathFromQString(const QString& path);
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

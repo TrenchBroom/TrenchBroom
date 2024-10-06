@@ -25,7 +25,7 @@
 #include "IO/ResourceUtils.h"
 #include "View/Actions.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void updateActionKeySequence(QAction& qAction, const Action& tAction)
@@ -154,4 +154,4 @@ void populateToolBar(
     [](const auto& thisLambda, const Menu& menu) { menu.visitEntries(thisLambda); }));
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -32,17 +32,17 @@
 #include <memory>
 #include <optional>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class MapDocument;
@@ -106,4 +106,4 @@ public:
   void setConstrainVertical(bool constrainVertical);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

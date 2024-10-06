@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("resolveInheritance")
@@ -1118,4 +1118,4 @@ TEST_CASE("resolveInheritance")
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

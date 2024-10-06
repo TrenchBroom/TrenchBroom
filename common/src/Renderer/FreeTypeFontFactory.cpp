@@ -33,7 +33,7 @@
 #include <algorithm>
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 namespace
@@ -155,4 +155,4 @@ std::unique_ptr<TextureFont> FreeTypeFontFactory::doCreateFont(
   return font;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

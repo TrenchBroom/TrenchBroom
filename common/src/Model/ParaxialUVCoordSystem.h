@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class ParaxialUVCoordSystem : public UVCoordSystem
@@ -117,4 +117,4 @@ private:
   deleteCopyAndMove(ParaxialUVCoordSystem);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

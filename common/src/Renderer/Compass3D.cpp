@@ -24,7 +24,7 @@
 
 #include "vm/mat.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 void Compass3D::doRenderCompass(
@@ -42,4 +42,4 @@ void Compass3D::doRenderCompass(
     prefs.get(Preferences::YAxisColor));
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

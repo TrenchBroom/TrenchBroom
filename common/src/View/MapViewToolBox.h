@@ -28,7 +28,7 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class ClipTool;
 class AssembleBrushTool;
@@ -133,4 +133,4 @@ private: // notification
   void updateToolPage();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

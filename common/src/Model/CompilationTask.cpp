@@ -23,7 +23,7 @@
 
 #include <ostream>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(CompilationExportMap);
@@ -42,4 +42,4 @@ std::ostream& operator<<(std::ostream& lhs, const CompilationTask& rhs)
   return lhs;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

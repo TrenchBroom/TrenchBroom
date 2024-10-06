@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 template <typename T>
@@ -140,4 +140,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

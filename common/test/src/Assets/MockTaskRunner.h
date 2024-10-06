@@ -26,7 +26,7 @@
 #include <future>
 #include <memory>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 struct MockTaskRunner
@@ -54,4 +54,4 @@ struct MockTaskRunner
   std::vector<std::tuple<std::promise<std::unique_ptr<TaskResult>>, Task>> tasks;
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

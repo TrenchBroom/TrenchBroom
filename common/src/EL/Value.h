@@ -29,12 +29,12 @@
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 struct FileLocation;
 }
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 class NullType
@@ -137,18 +137,17 @@ public:
 
   friend std::ostream& operator<<(std::ostream& lhs, const Value& rhs);
 
-  friend struct std::hash<TrenchBroom::EL::Value>;
+  friend struct std::hash<tb::EL::Value>;
 };
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL
 
 
 template <>
-struct std::hash<TrenchBroom::EL::Value>
+struct std::hash<tb::EL::Value>
 {
-  std::size_t operator()(const TrenchBroom::EL::Value& value) const noexcept
+  std::size_t operator()(const tb::EL::Value& value) const noexcept
   {
-    return std::hash<std::shared_ptr<TrenchBroom::EL::Value::VariantType>>{}(
-      value.m_value);
+    return std::hash<std::shared_ptr<tb::EL::Value::VariantType>>{}(value.m_value);
   }
 };

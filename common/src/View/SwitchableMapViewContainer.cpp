@@ -41,7 +41,7 @@
 
 #include "kdl/memory_utils.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 SwitchableMapViewContainer::SwitchableMapViewContainer(
   std::weak_ptr<MapDocument> document, GLContextManager& contextManager, QWidget* parent)
@@ -427,4 +427,4 @@ void SwitchableMapViewContainer::refreshViews()
   m_mapView->refreshViews();
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

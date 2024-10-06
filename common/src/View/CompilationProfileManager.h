@@ -28,12 +28,12 @@
 class QAbstractButton;
 class QPoint;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct CompilationProfile;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class CompilationProfileListBox;
 class CompilationProfileEditor;
@@ -85,4 +85,4 @@ signals:
   void profileChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

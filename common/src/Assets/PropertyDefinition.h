@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 enum class PropertyDefinitionType
@@ -294,4 +294,4 @@ private:
     bool readOnly) const override;
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

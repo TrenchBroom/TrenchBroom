@@ -23,7 +23,7 @@
 
 #include <algorithm>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 AttrString::LineFunc::~LineFunc() = default;
@@ -124,4 +124,4 @@ void AttrString::appendCentered(std::string string)
   m_lines.emplace_back(std::move(string), Justify::Center);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

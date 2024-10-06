@@ -26,7 +26,7 @@
 #include <optional>
 #include <string>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class Layer
@@ -62,4 +62,4 @@ public:
   static int defaultLayerSortIndex();
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

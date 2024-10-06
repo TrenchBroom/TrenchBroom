@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 void glCheckError(const std::string& msg)
 {
@@ -141,4 +141,4 @@ std::string glGetEnumName(const GLenum enum_)
     return "Unknown OpenGL enum";
   }
 }
-} // namespace TrenchBroom
+} // namespace tb

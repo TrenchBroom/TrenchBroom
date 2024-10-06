@@ -25,7 +25,7 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 class Interpolator : private IO::ELParser
@@ -38,4 +38,4 @@ public:
 
 std::string interpolate(std::string_view str, const EvaluationContext& context);
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

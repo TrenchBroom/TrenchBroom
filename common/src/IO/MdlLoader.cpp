@@ -37,7 +37,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace MdlLayout
@@ -573,4 +573,4 @@ Result<Assets::EntityModelData> MdlLoader::load(Logger& /* logger */)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

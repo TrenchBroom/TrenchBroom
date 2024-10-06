@@ -35,7 +35,7 @@
 
 #include <ranges>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -106,4 +106,4 @@ bool SetLinkIdsCommand::doCollateWith(UndoableCommand&)
   return false;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

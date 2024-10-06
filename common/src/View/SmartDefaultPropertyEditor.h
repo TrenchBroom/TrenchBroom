@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -42,4 +42,4 @@ private:
   void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

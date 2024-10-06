@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 namespace
 {
@@ -288,4 +288,4 @@ TEST_CASE("ResourceManager")
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

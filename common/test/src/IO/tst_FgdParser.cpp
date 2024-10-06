@@ -32,7 +32,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
@@ -1038,4 +1038,4 @@ TEST_CASE("FgdParserTest.parseStringContinuations")
     == R"(This is an example description for this example entity. It will appear in the help dialog for this entity)");
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

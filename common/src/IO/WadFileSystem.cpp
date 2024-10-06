@@ -27,7 +27,7 @@
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace WadLayout
 {
@@ -128,4 +128,4 @@ Result<void> WadFileSystem::doReadDirectory()
     return Error{e.what()};
   }
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

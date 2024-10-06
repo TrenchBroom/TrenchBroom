@@ -33,7 +33,7 @@
 
 #include <string>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 GameEngineDialog::GameEngineDialog(std::string gameName, QWidget* parent)
@@ -85,4 +85,4 @@ void GameEngineDialog::saveConfig()
   gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config(), logger);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

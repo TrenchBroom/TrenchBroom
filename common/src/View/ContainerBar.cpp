@@ -19,7 +19,7 @@
 
 #include "ContainerBar.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ContainerBar::ContainerBar(const Sides borders, QWidget* parent)
@@ -27,4 +27,4 @@ ContainerBar::ContainerBar(const Sides borders, QWidget* parent)
 {
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

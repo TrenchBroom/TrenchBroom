@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 namespace
 {
@@ -163,4 +163,4 @@ TEST_CASE("ModelDefinition")
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

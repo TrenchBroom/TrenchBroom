@@ -26,7 +26,7 @@
 
 // BrushIndexArray
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 // DirtyRangeTracker
@@ -237,4 +237,4 @@ void BrushVertexArray::prepare(VboManager& vboManager)
   assert(m_vertexHolder.prepared());
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

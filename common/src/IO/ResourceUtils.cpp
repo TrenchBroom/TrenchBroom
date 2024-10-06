@@ -46,7 +46,7 @@
 #include <map>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 Assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
@@ -270,4 +270,4 @@ QIcon loadSVGIcon(const std::filesystem::path& imagePath)
   return result;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

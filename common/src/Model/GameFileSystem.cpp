@@ -37,7 +37,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 void GameFileSystem::initialize(
@@ -212,4 +212,4 @@ void GameFileSystem::unmountWads()
   m_wadMountPoints.clear();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

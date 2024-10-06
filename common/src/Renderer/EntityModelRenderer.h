@@ -24,23 +24,23 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityModelManager;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class EditorContext;
 class EntityNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class RenderBatch;
 struct ShaderConfig;
@@ -115,4 +115,4 @@ private:
   void doRender(RenderContext& renderContext) override;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -25,7 +25,7 @@
 #include "Model/Hit.h"
 #include "Model/HitAdapter.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 namespace HitFilters
 {
@@ -99,4 +99,4 @@ HitFilter operator!(HitFilter filter_)
   return [filter = std::move(filter_)](const Hit& hit) { return !filter(hit); };
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

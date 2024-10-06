@@ -47,7 +47,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // EntityDefinitionCheckBoxList
 
@@ -758,4 +758,4 @@ ViewPopupEditor::ViewPopupEditor(std::weak_ptr<MapDocument> document, QWidget* p
   setLayout(sizer);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

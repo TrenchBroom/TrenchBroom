@@ -26,7 +26,7 @@
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 void FormWithSectionsLayout::addSection(const QString& title, const QString& info)
@@ -148,4 +148,4 @@ void FormWithSectionsLayout::insertRow(int row, QLayout* field)
   QFormLayout::insertRow(row, layout);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

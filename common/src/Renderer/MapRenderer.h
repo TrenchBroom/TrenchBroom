@@ -27,33 +27,33 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Color;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class ResourceId;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
 class Selection;
-} // namespace TrenchBroom::View
+} // namespace tb::View
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class EntityDecalRenderer;
 class EntityLinkRenderer;
@@ -161,4 +161,4 @@ private: // notification
   void preferenceDidChange(const std::filesystem::path& path);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

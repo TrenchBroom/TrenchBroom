@@ -32,7 +32,7 @@
 #include <unordered_map>
 #include <variant>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 class CFile;
 class File;
@@ -108,4 +108,4 @@ Result<std::unique_ptr<T>> createImageFileSystem(Args&&... args)
   return fs->reload() | kdl::transform([&]() { return std::move(fs); });
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

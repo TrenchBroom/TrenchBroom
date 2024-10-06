@@ -35,7 +35,7 @@
 
 #include "kdl/string_compare.h"
 
-namespace TrenchBroom
+namespace tb
 {
 
 GlobMatcher::GlobMatcher(std::string glob)
@@ -60,9 +60,9 @@ GlobMatcher MatchesGlob(std::string glob)
   return GlobMatcher{std::move(glob)};
 }
 
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace
@@ -168,4 +168,4 @@ std::string NodeVectorMatcher::describe() const
   return str.str();
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

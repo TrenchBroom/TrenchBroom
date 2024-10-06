@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 namespace
@@ -718,4 +718,4 @@ bool operator!=(const EntityNodeBase& lhs, const EntityNodeBase& rhs)
   return !(lhs == rhs);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

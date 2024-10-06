@@ -25,7 +25,7 @@
 #include <sstream>
 #include <string>
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 Interpolator::Interpolator(const std::string_view str)
@@ -57,4 +57,4 @@ std::string interpolate(const std::string_view str, const EvaluationContext& con
   return interpolator.interpolate(context);
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

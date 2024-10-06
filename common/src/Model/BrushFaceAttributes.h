@@ -29,12 +29,12 @@
 #include <string>
 #include <string_view>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class BrushFaceAttributes
@@ -107,4 +107,4 @@ public:
   bool setColor(const std::optional<Color>& color);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

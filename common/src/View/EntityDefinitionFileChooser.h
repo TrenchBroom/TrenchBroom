@@ -29,7 +29,7 @@ class QPushButton;
 class QListWidget;
 class QLabel;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class MapDocument;
@@ -86,4 +86,4 @@ private:
   void reloadExternalClicked();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

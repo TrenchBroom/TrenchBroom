@@ -27,7 +27,7 @@
 
 #include "vm/vec_io.h" // IWYU pragma: keep
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 namespace
@@ -365,4 +365,4 @@ void Texture::setFilterMode(const int minFilter, const int magFilter) const
   }
 }
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

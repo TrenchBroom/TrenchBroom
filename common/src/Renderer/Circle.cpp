@@ -29,7 +29,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 Circle::Circle(const float radius, const size_t segments, const bool filled)
   : m_filled{filled}
@@ -131,4 +131,4 @@ void Circle::init3D(
   m_array = VertexArray::move(Vertex::toList(positions.size(), std::begin(positions)));
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

@@ -32,10 +32,10 @@
 namespace vm
 {
 template <>
-class approx<TrenchBroom::Model::PatchGrid::Point>
+class approx<tb::Model::PatchGrid::Point>
 {
 private:
-  using GP = TrenchBroom::Model::PatchGrid::Point;
+  using GP = tb::Model::PatchGrid::Point;
   const GP m_value;
   const double m_epsilon;
 
@@ -82,7 +82,7 @@ public:
 
 } // namespace vm
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("PatchNode.computeGridNormals") {}
@@ -209,4 +209,4 @@ TEST_CASE("PatchNode.pickFlatPatch")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

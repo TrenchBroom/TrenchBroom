@@ -29,7 +29,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 TextureFont::TextureFont(
@@ -276,4 +276,4 @@ void TextureFont::deactivate()
   m_texture->deactivate();
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

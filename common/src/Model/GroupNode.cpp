@@ -36,7 +36,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 GroupNode::GroupNode(Group group)
@@ -320,4 +320,4 @@ bool compareGroupNodesByLinkId(const GroupNode* lhs, const GroupNode* rhs)
 {
   return lhs->linkId() < rhs->linkId();
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

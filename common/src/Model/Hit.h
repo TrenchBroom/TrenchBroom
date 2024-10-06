@@ -25,7 +25,7 @@
 
 #include <any>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Hit
 {
@@ -76,4 +76,4 @@ Hit selectClosest(const Hit& first, const Hits&... rest)
 {
   return selectClosest(first, selectClosest(rest...));
 }
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

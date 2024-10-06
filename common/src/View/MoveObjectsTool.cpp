@@ -32,7 +32,7 @@
 #include <cassert>
 #include <utility>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document)
@@ -104,4 +104,4 @@ QWidget* MoveObjectsTool::doCreatePage(QWidget* parent)
   return new MoveObjectsToolPage{m_document, parent};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

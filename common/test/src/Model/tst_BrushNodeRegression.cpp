@@ -34,7 +34,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("BrushNodeTest.buildBrush_1186")
@@ -784,4 +784,4 @@ TEST_CASE("BrushNodeTest.intersects_1893")
   kdl::vec_clear_and_delete(nodes);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

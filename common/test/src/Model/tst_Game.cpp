@@ -27,7 +27,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("GameTest.newMap")
@@ -103,4 +103,4 @@ TEST_CASE("GameTest.loadCorruptPackages")
   }
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

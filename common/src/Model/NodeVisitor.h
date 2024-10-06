@@ -21,7 +21,7 @@
 
 #include <optional>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class BrushNode;
@@ -266,4 +266,4 @@ private:
 #pragma warning(pop)
 #endif
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

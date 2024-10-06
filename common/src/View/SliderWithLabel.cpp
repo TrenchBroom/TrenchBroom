@@ -28,7 +28,7 @@
 
 #include <cmath>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 SliderWithLabel::SliderWithLabel(const int minimum, const int maximum, QWidget* parent)
@@ -80,4 +80,4 @@ void SliderWithLabel::valueChangedInternal(const int value)
   emit valueChanged(value);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

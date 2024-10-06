@@ -31,7 +31,7 @@
 
 #include <utility>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<View::MapDocument> document)
@@ -77,4 +77,4 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
   return links;
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

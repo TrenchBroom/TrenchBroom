@@ -33,16 +33,16 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 struct DecalSpecification;
 class EntityDefinition;
 class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Entity;
 
@@ -189,4 +189,4 @@ public: // property management
   void transform(const vm::mat4x4d& transformation, bool updateAngleProperty);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

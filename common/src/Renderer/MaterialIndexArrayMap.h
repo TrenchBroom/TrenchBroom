@@ -23,12 +23,12 @@
 
 #include <unordered_map>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class IndexArray;
 class MaterialRenderFunc;
@@ -141,4 +141,4 @@ public:
   void render(IndexArray& indexArray, MaterialRenderFunc& func);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

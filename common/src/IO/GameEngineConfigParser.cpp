@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace
 {
@@ -85,4 +85,4 @@ Model::GameEngineConfig GameEngineConfigParser::parse()
   return {parseProfiles(root["profiles"], trace)};
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

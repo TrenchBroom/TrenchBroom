@@ -24,7 +24,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("CompilationConfigParserTest.parseBlankConfig")
@@ -457,4 +457,4 @@ TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
     }});
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -29,7 +29,7 @@
 
 #include <filesystem>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 ColorModel::ColorModel(QObject* parent)
   : QAbstractTableModel{parent}
@@ -195,4 +195,4 @@ bool ColorModel::checkIndex(const QModelIndex& index) const
   return index.isValid() && index.column() < 3 && index.row() < m_colorsCount;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

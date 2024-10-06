@@ -22,7 +22,7 @@
 #include "Polyhedron.h"
 #include "Polyhedron_DefaultPayload.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 using Polyhedron3 =

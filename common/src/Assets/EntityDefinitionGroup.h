@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 enum class EntityDefinitionSortOrder;
@@ -45,4 +45,4 @@ public:
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;
 };
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

@@ -24,7 +24,7 @@
 
 class QCompleter;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class MultiCompletionLineEdit : public QLineEdit
@@ -61,4 +61,4 @@ private slots:
   void insertCompletion(const QString& string);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

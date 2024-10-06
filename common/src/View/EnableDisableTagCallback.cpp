@@ -21,7 +21,7 @@
 
 #include <QMenu>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 EnableDisableTagCallback::EnableDisableTagCallback() = default;
@@ -42,4 +42,4 @@ size_t EnableDisableTagCallback::selectOption(const std::vector<std::string>& op
   return m_selectedOption;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -30,7 +30,7 @@
 #include "vm/ray.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 VertexHandleManagerBase::~VertexHandleManagerBase() = default;
@@ -248,4 +248,4 @@ bool FaceHandleManager::isIncident(
   return brush.hasFace(handle);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

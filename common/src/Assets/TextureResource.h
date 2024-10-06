@@ -25,7 +25,7 @@
 
 #include <memory>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 
 using TextureResource = Resource<Texture>;
@@ -33,4 +33,4 @@ using CreateTextureResource = CreateResource<Texture>;
 
 std::shared_ptr<TextureResource> createTextureResource(Texture texture);
 
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets

@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 MapViewContainer::MapViewContainer(QWidget* parent)
   : QWidget{parent}
@@ -38,4 +38,4 @@ vm::vec3d MapViewContainer::pasteObjectsDelta(
   return current->pasteObjectsDelta(bounds, referenceBounds);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

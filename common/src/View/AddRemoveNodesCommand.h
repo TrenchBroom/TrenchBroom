@@ -26,12 +26,12 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class Node;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -71,4 +71,4 @@ private:
   deleteCopyAndMove(AddRemoveNodesCommand);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

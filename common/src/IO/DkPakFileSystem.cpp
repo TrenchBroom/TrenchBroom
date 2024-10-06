@@ -29,7 +29,7 @@
 #include <cstring>
 #include <memory>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace DkPakLayout
 {
@@ -158,4 +158,4 @@ Result<void> DkPakFileSystem::doReadDirectory()
     return Error{e.what()};
   }
 }
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

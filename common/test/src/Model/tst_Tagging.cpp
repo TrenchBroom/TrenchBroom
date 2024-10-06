@@ -28,7 +28,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 TEST_CASE("TaggingTest.testTagBrush")
@@ -65,4 +65,4 @@ TEST_CASE("TaggingTest.testTagBrush")
   CHECK_FALSE(brushNode->hasTag(tag2));
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

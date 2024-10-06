@@ -24,12 +24,12 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapViewActivationTracker;
 class MapViewBase;
@@ -75,4 +75,4 @@ public:
    */
   virtual void refreshViews() = 0;
 };
-} // namespace TrenchBroom::View
+} // namespace tb::View

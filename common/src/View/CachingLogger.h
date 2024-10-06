@@ -25,7 +25,7 @@
 #include <mutex>
 #include <string_view>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 class CachingLogger : public Logger
@@ -44,4 +44,4 @@ private:
   bool cacheMessage(LogLevel level, std::string_view message);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

@@ -32,28 +32,28 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
 }
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class EntityDefinition;
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 class PointEntityDefinition;
 class ResourceId;
-} // namespace TrenchBroom::Assets
+} // namespace tb::Assets
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontDescriptor;
 class MaterialRenderer;
 class Transformation;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 
@@ -147,4 +147,4 @@ private:
   const EntityCellData& cellData(const Cell& cell) const;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

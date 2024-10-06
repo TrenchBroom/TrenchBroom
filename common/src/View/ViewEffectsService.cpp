@@ -19,9 +19,9 @@
 
 #include "ViewEffectsService.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ViewEffectsService::~ViewEffectsService() {}
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

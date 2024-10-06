@@ -38,7 +38,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 DefTokenizer::DefTokenizer(std::string_view str)
@@ -504,4 +504,4 @@ DefParser::Token DefParser::nextTokenIgnoringNewlines()
   return token;
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

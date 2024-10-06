@@ -28,7 +28,7 @@
 #include <memory>
 #include <tuple>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 class ParallelUVCoordSystemSnapshot : public UVCoordSystemSnapshot
@@ -136,4 +136,4 @@ private:
   deleteCopyAndMove(ParallelUVCoordSystem);
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

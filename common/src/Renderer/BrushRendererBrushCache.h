@@ -23,18 +23,18 @@
 
 #include <vector>
 
-namespace TrenchBroom::Assets
+namespace tb::Assets
 {
 class Material;
 }
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class BrushRendererBrushCache
@@ -93,4 +93,4 @@ public:
   const std::vector<CachedEdge>& cachedEdges() const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

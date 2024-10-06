@@ -29,7 +29,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 /**
  * Base class for notifier state. This is only necessary so that NotifierConnection is
@@ -363,4 +363,4 @@ template <typename... AA, typename... NA>
 NotifyBeforeAndAfter(Notifier<AA...>&, Notifier<AA...>&, NA&&...)
   -> NotifyBeforeAndAfter<AA...>;
 
-} // namespace TrenchBroom
+} // namespace tb

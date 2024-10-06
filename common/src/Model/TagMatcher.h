@@ -32,7 +32,7 @@
 #include <string_view>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
@@ -153,4 +153,4 @@ private:
   bool matchesClassname(const std::string& classname) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

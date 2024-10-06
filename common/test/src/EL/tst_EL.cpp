@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::EL
+namespace tb::EL
 {
 
 TEST_CASE("ELTest.constructValues")
@@ -202,4 +202,4 @@ TEST_CASE("ELTest.subscriptOperator")
   CHECK_THROWS_AS(mapValue[Value(ArrayType({Value("test"), Value(0)}))], ConversionError);
 }
 
-} // namespace TrenchBroom::EL
+} // namespace tb::EL

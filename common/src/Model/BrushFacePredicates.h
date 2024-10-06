@@ -21,13 +21,13 @@
 
 #include <utility>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushFace;
 class BrushNode;
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
 
-namespace TrenchBroom::Model::BrushFacePredicates
+namespace tb::Model::BrushFacePredicates
 {
 
 struct True
@@ -98,4 +98,4 @@ public:
   }
 };
 
-} // namespace TrenchBroom::Model::BrushFacePredicates
+} // namespace tb::Model::BrushFacePredicates

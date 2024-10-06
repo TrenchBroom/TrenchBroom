@@ -23,7 +23,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 enum class MapFormat
@@ -100,4 +100,4 @@ std::string formatName(MapFormat format);
 std::vector<MapFormat> compatibleFormats(MapFormat format);
 bool isParallelUVCoordSystem(MapFormat format);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

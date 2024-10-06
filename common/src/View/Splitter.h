@@ -21,7 +21,7 @@
 
 #include <QSplitter>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 enum class DrawKnob
@@ -69,4 +69,4 @@ private slots:
 #endif
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

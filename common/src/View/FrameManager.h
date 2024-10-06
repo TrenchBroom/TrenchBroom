@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MapDocument;
 class MapFrame;
@@ -56,4 +56,4 @@ private:
   friend class MapFrame;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

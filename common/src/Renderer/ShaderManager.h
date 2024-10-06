@@ -27,7 +27,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 struct ShaderConfig;
 
@@ -53,4 +53,4 @@ private:
   Result<std::reference_wrapper<Shader>> loadShader(const std::string& name, GLenum type);
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

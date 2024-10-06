@@ -57,17 +57,17 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class PickResult;
 }
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class Camera;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class Grid;
 class Lasso;
@@ -662,4 +662,4 @@ protected:
   }
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

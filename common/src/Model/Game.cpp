@@ -21,7 +21,7 @@
 
 #include "Model/GameFactory.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
@@ -30,4 +30,4 @@ bool Game::isGamePathPreference(const std::filesystem::path& prefPath) const
   return gameFactory.isGamePathPreference(config().name, prefPath);
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

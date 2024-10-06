@@ -33,14 +33,14 @@
 #undef Status
 #undef CursorShape
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 class FontManager;
 class ShaderManager;
 class VboManager;
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GLContextManager;
 
@@ -109,4 +109,4 @@ private:
   virtual void renderContents() = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

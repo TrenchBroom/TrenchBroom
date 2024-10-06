@@ -28,7 +28,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 ImageListBoxItemRenderer::ImageListBoxItemRenderer(
@@ -94,4 +94,4 @@ QPixmap ImageListBox::image(const size_t /* index */) const
   return {};
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

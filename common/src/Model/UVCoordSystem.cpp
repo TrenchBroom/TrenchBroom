@@ -24,7 +24,7 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 UVCoordSystemSnapshot::~UVCoordSystemSnapshot() = default;
@@ -203,4 +203,4 @@ vm::vec2f UVCoordSystem::computeUVCoords(
     float(vm::dot(point, safeScaleAxis(vAxis(), scale.y())))};
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

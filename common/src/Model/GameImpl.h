@@ -28,12 +28,12 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
-} // namespace TrenchBroom
+} // namespace tb
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct EntityPropertyConfig;
 
@@ -136,4 +136,4 @@ private:
     const EntityNodeBase& node, const std::string& baseName) const;
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

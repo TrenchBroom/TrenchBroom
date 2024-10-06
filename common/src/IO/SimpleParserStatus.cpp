@@ -21,7 +21,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
@@ -31,4 +31,4 @@ SimpleParserStatus::SimpleParserStatus(Logger& logger, std::string prefix)
 
 void SimpleParserStatus::doProgress(const double /* progress */) {}
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

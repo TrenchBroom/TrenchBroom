@@ -19,7 +19,7 @@
 
 #include "MaterialIndexArrayRenderer.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 MaterialIndexArrayRenderer::MaterialIndexArrayRenderer() = default;
@@ -56,4 +56,4 @@ void MaterialIndexArrayRenderer::render(MaterialRenderFunc& func)
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

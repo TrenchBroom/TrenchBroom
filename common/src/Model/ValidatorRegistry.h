@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class IssueQuickFix;
 class Validator;
@@ -44,4 +44,4 @@ public:
   void unregisterAllValidators();
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

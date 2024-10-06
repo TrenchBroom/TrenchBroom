@@ -36,7 +36,7 @@
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -221,4 +221,4 @@ void SmartPropertyEditorManager::updateEditor()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

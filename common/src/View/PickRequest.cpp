@@ -21,7 +21,7 @@
 
 #include "Ensure.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 PickRequest::PickRequest() = default;
 
@@ -42,4 +42,4 @@ const Renderer::Camera& PickRequest::camera() const
   return *m_camera;
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

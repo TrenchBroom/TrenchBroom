@@ -23,7 +23,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 VertexArray::BaseHolder::~BaseHolder() = default;
@@ -154,4 +154,4 @@ VertexArray::VertexArray(std::shared_ptr<BaseHolder> holder)
 {
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

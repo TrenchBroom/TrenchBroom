@@ -27,7 +27,7 @@
 #include "vm/plane.h"
 #include "vm/util.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 template <typename T, typename FP, typename VP>
@@ -504,4 +504,4 @@ typename Polyhedron<T, FP, VP>::HalfEdge* Polyhedron<T, FP, VP>::findNextInterse
   return nullptr;
 }
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -26,7 +26,7 @@
 
 #include <cassert>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 RecentDocumentListBox::RecentDocumentListBox(QWidget* parent)
   : ImageListBox{"No Recent Documents", true, parent}
@@ -85,4 +85,4 @@ void RecentDocumentListBox::doubleClicked(const size_t index)
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

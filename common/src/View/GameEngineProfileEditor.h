@@ -24,12 +24,12 @@
 class QLineEdit;
 class QStackedWidget;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct GameEngineProfile;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 /**
  * Editor widget for a single game engine profile.
@@ -68,4 +68,4 @@ signals:
   void profileChanged();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

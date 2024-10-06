@@ -27,7 +27,7 @@
 class QWidget;
 class QWidget;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class MultiPaneMapView : public MapViewContainer
 {
@@ -79,4 +79,4 @@ private: // subclassing interface
   virtual void restoreViews() = 0;
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

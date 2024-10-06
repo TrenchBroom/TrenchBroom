@@ -39,7 +39,7 @@
 #include <cassert>
 #include <unordered_set>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 EntityLinkRenderer::EntityLinkRenderer(std::weak_ptr<View::MapDocument> document)
@@ -311,4 +311,4 @@ std::vector<LinkRenderer::LineVertex> EntityLinkRenderer::getLinks()
   return Renderer::getLinks(*kdl::mem_lock(m_document), m_defaultColor, m_selectedColor);
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

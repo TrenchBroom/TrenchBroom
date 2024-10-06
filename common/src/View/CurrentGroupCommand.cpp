@@ -21,7 +21,7 @@
 
 #include "View/MapDocumentCommandFacade.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 
 std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(Model::GroupNode* group)
@@ -72,4 +72,4 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
   return std::make_unique<CommandResult>(true);
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

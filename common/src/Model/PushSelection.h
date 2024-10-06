@@ -24,7 +24,7 @@
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 struct BrushNodeFacePair;
@@ -51,4 +51,4 @@ public:
   ~PushSelection();
 };
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

@@ -26,7 +26,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("WorldReaderTest.parseFailure_1424")
@@ -147,4 +147,4 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3")
   checkBrushUVCoordSystem(brush, false);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

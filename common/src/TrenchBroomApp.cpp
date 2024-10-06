@@ -79,7 +79,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 namespace
 {
@@ -560,7 +560,7 @@ bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
   catch (const std::exception& e)
   {
     // Unfortunately we can't portably get the stack trace of the exception itself
-    TrenchBroom::View::reportCrashAndExit("<uncaught exception>", e.what());
+    tb::View::reportCrashAndExit("<uncaught exception>", e.what());
   }
 #endif
 }
@@ -779,9 +779,8 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 #else
 static void CrashHandler(int /* signum */)
 {
-  TrenchBroom::View::reportCrashAndExit(
-    TrenchBroom::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
+  tb::View::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
 }
 #endif
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

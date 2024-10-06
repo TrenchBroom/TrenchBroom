@@ -34,7 +34,7 @@
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 namespace
@@ -344,4 +344,4 @@ Result<Assets::EntityModelData> SprLoader::load(Logger& /* logger */)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

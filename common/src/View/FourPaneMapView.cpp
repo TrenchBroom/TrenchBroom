@@ -28,7 +28,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 FourPaneMapView::FourPaneMapView(
   std::weak_ptr<MapDocument> document,
@@ -179,4 +179,4 @@ void FourPaneMapView::restoreViews()
   }
 }
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

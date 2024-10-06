@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 TEST_CASE("AllocationTrackerTest.constructor")
@@ -396,4 +396,4 @@ TEST_CASE("AllocationTrackerTest.benchmarkAllocAndExpand")
   }
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

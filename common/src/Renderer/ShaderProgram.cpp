@@ -27,7 +27,7 @@
 
 #include <string>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 ShaderProgram::ShaderProgram(std::string name, const GLuint programId)
@@ -242,4 +242,4 @@ Result<ShaderProgram> createShaderProgram(std::string name)
   return ShaderProgram{std::move(name), programId};
 }
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

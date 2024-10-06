@@ -23,7 +23,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include <vector>
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 class BrushNode;
 class BrushFace;
@@ -79,4 +79,4 @@ std::vector<BrushNode*> toNodes(const std::vector<BrushFaceHandle>& handles);
  */
 std::vector<BrushFaceHandle> toHandles(BrushNode* brushNode);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model

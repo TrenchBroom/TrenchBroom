@@ -25,7 +25,7 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 TEST_CASE("AssimpLoaderTest.loadBlenderModel")
@@ -78,4 +78,4 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
   CHECK(modelData.value().frameCount() == 3);
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 const std::string& QuakeMapTokenizer::NumberDelim()
@@ -771,4 +771,4 @@ StandardMapParser::TokenNameMap StandardMapParser::tokenNames() const
   };
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

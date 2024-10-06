@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace TrenchBroom::Renderer
+namespace tb::Renderer
 {
 
 class FontGlyph
@@ -47,4 +47,4 @@ public:
   int advance() const;
 };
 
-} // namespace TrenchBroom::Renderer
+} // namespace tb::Renderer

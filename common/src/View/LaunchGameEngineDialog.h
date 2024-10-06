@@ -28,12 +28,12 @@
 
 class QPushButton;
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 struct GameEngineProfile;
 }
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class GameEngineProfileListBox;
 class MultiCompletionLineEdit;
@@ -75,4 +75,4 @@ private:
   void saveConfig();
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

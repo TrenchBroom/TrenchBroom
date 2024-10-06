@@ -29,7 +29,7 @@
 
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 namespace M8Layout
 {
@@ -132,4 +132,4 @@ Result<Assets::Texture> readM8Texture(Reader& reader)
   }
 }
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

@@ -25,7 +25,7 @@
 #include <map>
 #include <string>
 
-namespace TrenchBroom::IO
+namespace tb::IO
 {
 
 class TestParserStatus : public ParserStatus
@@ -46,4 +46,4 @@ private:
   void doLog(LogLevel level, const std::string& str) override;
 };
 
-} // namespace TrenchBroom::IO
+} // namespace tb::IO

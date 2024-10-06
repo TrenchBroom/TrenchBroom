@@ -25,7 +25,7 @@
 
 class QStackedLayout;
 
-namespace TrenchBroom::View
+namespace tb::View
 {
 class BorderLine;
 class ClickableTitleBar;
@@ -60,4 +60,4 @@ public:
   bool restoreState(const QByteArray& state);
 };
 
-} // namespace TrenchBroom::View
+} // namespace tb::View

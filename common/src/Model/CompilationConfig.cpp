@@ -21,9 +21,9 @@
 
 #include "kdl/reflection_impl.h"
 
-namespace TrenchBroom::Model
+namespace tb::Model
 {
 
 kdl_reflect_impl(CompilationConfig);
 
-} // namespace TrenchBroom::Model
+} // namespace tb::Model
