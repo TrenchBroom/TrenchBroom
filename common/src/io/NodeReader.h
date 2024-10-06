@@ -35,7 +35,7 @@ class ParserStatus;
 class NodeReader : public MapReader
 {
 private:
-  std::vector<Model::Node*> m_nodes;
+  std::vector<mdl::Node*> m_nodes;
 
 public:
   /**
@@ -49,33 +49,33 @@ public:
    */
   NodeReader(
     std::string_view str,
-    Model::MapFormat sourceMapFormat,
-    Model::MapFormat targetMapFormat,
-    const Model::EntityPropertyConfig& entityPropertyConfig);
+    mdl::MapFormat sourceMapFormat,
+    mdl::MapFormat targetMapFormat,
+    const mdl::EntityPropertyConfig& entityPropertyConfig);
 
-  static std::vector<Model::Node*> read(
+  static std::vector<mdl::Node*> read(
     const std::string& str,
-    Model::MapFormat preferredMapFormat,
+    mdl::MapFormat preferredMapFormat,
     const vm::bbox3d& worldBounds,
-    const Model::EntityPropertyConfig& entityPropertyConfig,
+    const mdl::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
 private:
-  static std::vector<Model::Node*> readAsFormat(
-    Model::MapFormat sourceMapFormat,
-    Model::MapFormat targetMapFormat,
+  static std::vector<mdl::Node*> readAsFormat(
+    mdl::MapFormat sourceMapFormat,
+    mdl::MapFormat targetMapFormat,
     const std::string& str,
     const vm::bbox3d& worldBounds,
-    const Model::EntityPropertyConfig& entityPropertyConfig,
+    const mdl::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
 private: // implement MapReader interface
-  Model::Node* onWorldNode(
-    std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
-  void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) override;
+  mdl::Node* onWorldNode(
+    std::unique_ptr<mdl::WorldNode> worldNode, ParserStatus& status) override;
+  void onLayerNode(std::unique_ptr<mdl::Node> layerNode, ParserStatus& status) override;
   void onNode(
-    Model::Node* parentNode,
-    std::unique_ptr<Model::Node> node,
+    mdl::Node* parentNode,
+    std::unique_ptr<mdl::Node> node,
     ParserStatus& status) override;
 };
 

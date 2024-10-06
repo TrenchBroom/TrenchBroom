@@ -26,8 +26,6 @@
 #include <QStackedWidget>
 #include <QToolButton>
 
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
 #include "View/CompilationTaskListBox.h"
 #include "View/CompilationVariables.h"
@@ -35,6 +33,8 @@
 #include "View/QtUtils.h"
 #include "View/VariableStoreModel.h"
 #include "View/ViewConstants.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/CompilationTask.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -131,7 +131,7 @@ Variables are allowed.)");
     m_taskList,
     &CompilationTaskListBox::taskContextMenuRequested,
     this,
-    [&](const QPoint& globalPos, const Model::CompilationTask& task) {
+    [&](const QPoint& globalPos, const mdl::CompilationTask& task) {
       const auto index = static_cast<int>(*kdl::index_of(m_profile->tasks, task));
 
       auto menu = QMenu{this};
@@ -201,27 +201,27 @@ void CompilationProfileEditor::addTask()
   auto* deleteFilesAction = menu.addAction("Delete Files");
   auto* runToolAction = menu.addAction("Run Tool");
 
-  auto task = [&](const auto* chosenAction) -> std::optional<Model::CompilationTask> {
+  auto task = [&](const auto* chosenAction) -> std::optional<mdl::CompilationTask> {
     if (chosenAction == exportMapAction)
     {
-      return Model::CompilationExportMap{
+      return mdl::CompilationExportMap{
         true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}-compile.map"};
     }
     if (chosenAction == copyFilesAction)
     {
-      return Model::CompilationCopyFiles{true, "", ""};
+      return mdl::CompilationCopyFiles{true, "", ""};
     }
     if (chosenAction == renameFileAction)
     {
-      return Model::CompilationRenameFile{true, "", ""};
+      return mdl::CompilationRenameFile{true, "", ""};
     }
     if (chosenAction == deleteFilesAction)
     {
-      return Model::CompilationDeleteFiles{true, ""};
+      return mdl::CompilationDeleteFiles{true, ""};
     }
     if (chosenAction == runToolAction)
     {
-      return Model::CompilationRunTool{true, "", "", false};
+      return mdl::CompilationRunTool{true, "", "", false};
     }
     {
       return std::nullopt;
@@ -314,7 +314,7 @@ void CompilationProfileEditor::taskSelectionChanged()
   refresh();
 }
 
-void CompilationProfileEditor::setProfile(Model::CompilationProfile* profile)
+void CompilationProfileEditor::setProfile(mdl::CompilationProfile* profile)
 {
   m_profile = profile;
   m_taskList->setProfile(profile);

@@ -20,8 +20,8 @@
 #include "SetVisibilityCommand.h"
 
 #include "Macros.h"
-#include "Model/VisibilityState.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/VisibilityState.h"
 
 #include <string>
 
@@ -37,31 +37,31 @@ enum class SetVisibilityCommand::Action
 };
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Show);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Hide);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Ensure);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Reset);
 }
 
 SetVisibilityCommand::SetVisibilityCommand(
-  std::vector<Model::Node*> nodes, const Action action)
+  std::vector<mdl::Node*> nodes, const Action action)
   : UndoableCommand{makeName(action), false}
   , m_nodes{std::move(nodes)}
   , m_action{action}
@@ -90,13 +90,13 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
   switch (m_action)
   {
   case Action::Reset:
-    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Inherited);
+    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Inherited);
     break;
   case Action::Hide:
-    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Hidden);
+    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Hidden);
     break;
   case Action::Show:
-    m_oldState = document.setVisibilityState(m_nodes, Model::VisibilityState::Shown);
+    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Shown);
     break;
   case Action::Ensure:
     m_oldState = document.setVisibilityEnsured(m_nodes);

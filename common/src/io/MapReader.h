@@ -21,10 +21,10 @@
 
 #include "FileLocation.h"
 #include "io/StandardMapParser.h"
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/EntityProperties.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
+#include "mdl/EntityProperties.h"
 
 #include "vm/bbox.h"
 
@@ -33,7 +33,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class EntityNode;
@@ -44,7 +44,7 @@ class LayerNode;
 enum class MapFormat;
 class Node;
 class WorldNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -73,14 +73,14 @@ class MapReader : public StandardMapParser
 public: // only public so that helper methods can see these declarations
   struct EntityInfo
   {
-    std::vector<Model::EntityProperty> properties;
+    std::vector<mdl::EntityProperty> properties;
     FileLocation startLocation;
     std::optional<FileLocation> endLocation;
   };
 
   struct BrushInfo
   {
-    std::vector<Model::BrushFace> faces;
+    std::vector<mdl::BrushFace> faces;
     FileLocation startLocation;
     std::optional<FileLocation> endLocation;
     std::optional<size_t> parentIndex;
@@ -90,7 +90,7 @@ public: // only public so that helper methods can see these declarations
   {
     size_t rowCount;
     size_t columnCount;
-    std::vector<Model::BezierPatch::Point> controlPoints;
+    std::vector<mdl::BezierPatch::Point> controlPoints;
     std::string materialName;
     FileLocation startLocation;
     std::optional<FileLocation> endLocation;
@@ -100,7 +100,7 @@ public: // only public so that helper methods can see these declarations
   using ObjectInfo = std::variant<EntityInfo, BrushInfo, PatchInfo>;
 
 private:
-  Model::EntityPropertyConfig m_entityPropertyConfig;
+  mdl::EntityPropertyConfig m_entityPropertyConfig;
   vm::bbox3d m_worldBounds;
 
 private: // data populated in response to MapParser callbacks
@@ -120,9 +120,9 @@ protected:
    */
   MapReader(
     std::string_view str,
-    Model::MapFormat sourceMapFormat,
-    Model::MapFormat targetMapFormat,
-    Model::EntityPropertyConfig entityPropertyConfig);
+    mdl::MapFormat sourceMapFormat,
+    mdl::MapFormat targetMapFormat,
+    mdl::EntityPropertyConfig entityPropertyConfig);
 
   /**
    * Attempts to parse as one or more entities.
@@ -146,33 +146,33 @@ protected:
 protected: // implement MapParser interface
   void onBeginEntity(
     const FileLocation& location,
-    std::vector<Model::EntityProperty> properties,
+    std::vector<mdl::EntityProperty> properties,
     ParserStatus& status) override;
   void onEndEntity(const FileLocation& endLocation, ParserStatus& status) override;
   void onBeginBrush(const FileLocation& location, ParserStatus& status) override;
   void onEndBrush(const FileLocation& endLocation, ParserStatus& status) override;
   void onStandardBrushFace(
     const FileLocation& location,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
-    const Model::BrushFaceAttributes& attribs,
+    const mdl::BrushFaceAttributes& attribs,
     ParserStatus& status) override;
   void onValveBrushFace(
     const FileLocation& location,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
-    const Model::BrushFaceAttributes& attribs,
+    const mdl::BrushFaceAttributes& attribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     ParserStatus& status) override;
   void onPatch(
     const FileLocation& startLocation,
     const FileLocation& endLocation,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,
     std::vector<vm::vec<double, 5>> controlPoints,
@@ -194,25 +194,25 @@ private: // subclassing interface - these will be called in the order that nodes
    * Returns a pointer to a node which should become the parent of any node that belongs
    * to the world. This could be the default layer of the world node, or a dummy entity.
    */
-  virtual Model::Node* onWorldNode(
-    std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) = 0;
+  virtual mdl::Node* onWorldNode(
+    std::unique_ptr<mdl::WorldNode> worldNode, ParserStatus& status) = 0;
 
   /**
    * Called for each custom layer.
    */
   virtual void onLayerNode(
-    std::unique_ptr<Model::Node> layerNode, ParserStatus& status) = 0;
+    std::unique_ptr<mdl::Node> layerNode, ParserStatus& status) = 0;
 
   /**
    * Called for each group, entity entity or brush node. The given parent can be null.
    */
   virtual void onNode(
-    Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus& status) = 0;
+    mdl::Node* parentNode, std::unique_ptr<mdl::Node> node, ParserStatus& status) = 0;
 
   /**
    * Called for each brush face.
    */
-  virtual void onBrushFace(Model::BrushFace face, ParserStatus& status);
+  virtual void onBrushFace(mdl::BrushFace face, ParserStatus& status);
 };
 
 } // namespace tb::io

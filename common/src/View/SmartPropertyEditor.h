@@ -25,7 +25,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNodeBase;
 }
@@ -41,7 +41,7 @@ private:
   std::weak_ptr<MapDocument> m_document;
 
   std::string m_propertyKey;
-  std::vector<Model::EntityNodeBase*> m_nodes;
+  std::vector<mdl::EntityNodeBase*> m_nodes;
   bool m_active = false;
 
 public:
@@ -52,17 +52,17 @@ public:
   bool usesPropertyKey(const std::string& propertyKey) const;
 
   void activate(const std::string& propertyKey);
-  void update(const std::vector<Model::EntityNodeBase*>& nodes);
+  void update(const std::vector<mdl::EntityNodeBase*>& nodes);
   void deactivate();
 
 protected:
   std::shared_ptr<MapDocument> document() const;
   const std::string& propertyKey() const;
-  const std::vector<Model::EntityNodeBase*> nodes() const;
+  const std::vector<mdl::EntityNodeBase*> nodes() const;
   void addOrUpdateProperty(const std::string& value);
 
 private:
-  virtual void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) = 0;
+  virtual void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) = 0;
 };
 
 } // namespace tb::View

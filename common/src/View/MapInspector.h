@@ -34,7 +34,7 @@ class QLabel;
 class QLineEdit;
 class QRadioButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 }
@@ -95,7 +95,7 @@ private:
 
   void documentWasNewed(MapDocument* document);
   void documentWasLoaded(MapDocument* document);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void updateGui();
 };
 

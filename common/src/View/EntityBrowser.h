@@ -37,7 +37,7 @@ namespace tb::asset
 class ResourceId;
 };
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 }
@@ -79,7 +79,7 @@ private:
   void documentWasLoaded(MapDocument* document);
 
   void modsDidChange();
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
   void resourcesWereProcessed(const std::vector<asset::ResourceId>& resources);

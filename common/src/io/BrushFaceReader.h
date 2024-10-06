@@ -24,7 +24,7 @@
 #include <string_view>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
@@ -32,7 +32,7 @@ class EntityProperty;
 class LayerNode;
 enum class MapFormat;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -44,22 +44,22 @@ class ParserStatus;
 class BrushFaceReader : public MapReader
 {
 private:
-  std::vector<Model::BrushFace> m_brushFaces;
+  std::vector<mdl::BrushFace> m_brushFaces;
 
 public:
-  BrushFaceReader(std::string_view str, Model::MapFormat sourceAndTargetMapFormat);
+  BrushFaceReader(std::string_view str, mdl::MapFormat sourceAndTargetMapFormat);
 
-  std::vector<Model::BrushFace> read(const vm::bbox3d& worldBounds, ParserStatus& status);
+  std::vector<mdl::BrushFace> read(const vm::bbox3d& worldBounds, ParserStatus& status);
 
 private: // implement MapReader interface
-  Model::Node* onWorldNode(
-    std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
-  void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) override;
+  mdl::Node* onWorldNode(
+    std::unique_ptr<mdl::WorldNode> worldNode, ParserStatus& status) override;
+  void onLayerNode(std::unique_ptr<mdl::Node> layerNode, ParserStatus& status) override;
   void onNode(
-    Model::Node* parentNode,
-    std::unique_ptr<Model::Node> node,
+    mdl::Node* parentNode,
+    std::unique_ptr<mdl::Node> node,
     ParserStatus& status) override;
-  void onBrushFace(Model::BrushFace face, ParserStatus& status) override;
+  void onBrushFace(mdl::BrushFace face, ParserStatus& status) override;
 };
 
 } // namespace tb::io

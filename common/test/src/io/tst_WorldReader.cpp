@@ -17,20 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "io/DiskIO.h"
 #include "io/TestParserStatus.h"
 #include "io/WorldReader.h"
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceAttributes.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
-#include "TestUtils.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceAttributes.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -56,7 +56,7 @@ TEST_CASE("WorldReader.parseEmptyMap")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -71,7 +71,7 @@ TEST_CASE("WorldReader.parseMapWithEmptyEntity")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -92,17 +92,17 @@ TEST_CASE("WorldReader.parseMapWithWorldspawn")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
   CHECK(worldNode != nullptr);
   CHECK(worldNode->childCount() == 1u);
-  auto* defaultLayer = dynamic_cast<Model::LayerNode*>(worldNode->children().at(0));
+  auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
   REQUIRE(defaultLayer != nullptr);
   REQUIRE(!defaultLayer->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
   CHECK(*worldNode->entity().property("message") == "yay");
 
@@ -127,13 +127,13 @@ TEST_CASE("WorldReader.parseDefaultLayerProperties")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   REQUIRE(world != nullptr);
   REQUIRE(world->childCount() == 1u);
-  auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().at(0));
+  auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
   REQUIRE(defaultLayer != nullptr);
 
   CHECK(defaultLayer->layer().color() == Color(0.0f, 1.0f, 0.0f));
@@ -159,23 +159,22 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneMoreEntity")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
   CHECK(worldNode != nullptr);
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
   CHECK(*worldNode->entity().property("message") == "yay");
 
   CHECK(worldNode->childCount() == 1u);
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().front());
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children().front());
   CHECK(defaultLayerNode != nullptr);
   CHECK(defaultLayerNode->childCount() == 1u);
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
 
-  auto* entityNode =
-    static_cast<Model::EntityNode*>(defaultLayerNode->children().front());
+  auto* entityNode = static_cast<mdl::EntityNode*>(defaultLayerNode->children().front());
   CHECK(entityNode->entity().hasProperty("classname"));
   CHECK(*entityNode->entity().property("classname") == "info_player_deathmatch");
   CHECK(entityNode->entity().hasProperty("origin"));
@@ -201,7 +200,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -209,7 +208,7 @@ TEST_CASE("WorldReader.parseMapWithWorldspawnAndOneBrush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -281,7 +280,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -289,7 +288,7 @@ TEST_CASE("WorldReader.parseMapAndCheckFaceFlags")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -324,7 +323,7 @@ TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -332,7 +331,7 @@ TEST_CASE("WorldReader.parseBrushWithCurlyBraceInMaterialName")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -398,14 +397,14 @@ TEST_CASE("WorldReader.parseValveBrush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Valve, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, true);
 }
 
@@ -426,14 +425,14 @@ TEST_CASE("WorldReader.parseQuake2Brush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, false);
 
   SECTION("surface attributes for face attribsExplicit")
@@ -495,14 +494,14 @@ TEST_CASE("WorldReader.parseQuake2ValveBrush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2_Valve, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2_Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, true);
 }
 
@@ -525,14 +524,14 @@ TEST_CASE("WorldReader.parseQuake3ValveBrush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake3_Valve, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake3_Valve, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, true);
 }
 
@@ -553,7 +552,7 @@ TEST_CASE("WorldReader.parseDaikatanaBrush")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -561,8 +560,7 @@ TEST_CASE("WorldReader.parseDaikatanaBrush")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  const auto* brushNode =
-    static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  const auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brushNode, false);
   const auto& brush = brushNode->brush();
 
@@ -616,14 +614,14 @@ TEST_CASE("WorldReader.parseDaikatanaMapHeader")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Daikatana, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, false);
 }
 
@@ -644,14 +642,14 @@ TEST_CASE("WorldReader.parseQuakeBrushWithNumericalMaterialName")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, false);
 }
 
@@ -694,18 +692,18 @@ TEST_CASE("WorldReader.parseBrushesWithLayer")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 2u);
 
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  auto* myLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+  auto* myLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
   CHECK(defaultLayerNode != nullptr);
   CHECK(myLayerNode != nullptr);
 
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
   // The layer didn't have a sort index (saved in an older version of TB), so it's
   // assigned 0
   CHECK(myLayerNode->layer().sortIndex() == 0);
@@ -742,16 +740,16 @@ TEST_CASE("WorldReader.parseLayersWithReverseSort")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   REQUIRE(world->childCount() == 3u);
 
   // NOTE: They are listed in world->children() in file order, not sort index order
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  auto* sortNode1 = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-  auto* sortNode0 = dynamic_cast<Model::LayerNode*>(world->children().at(2));
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+  auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+  auto* sortNode0 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
 
   REQUIRE(defaultLayerNode != nullptr);
   REQUIRE(sortNode0 != nullptr);
@@ -760,7 +758,7 @@ TEST_CASE("WorldReader.parseLayersWithReverseSort")
   CHECK(sortNode0->name() == "Sort Index 0");
   CHECK(sortNode1->name() == "Sort Index 1");
 
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
   CHECK(sortNode0->layer().sortIndex() == 0);
   CHECK(sortNode1->layer().sortIndex() == 1);
 
@@ -804,17 +802,17 @@ TEST_CASE("WorldReader.parseLayersWithReversedSortIndicesWithGaps")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 4u);
 
   // NOTE: They are listed in world->children() in file order, not sort index order
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  auto* sortNode5 = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-  auto* sortNode3 = dynamic_cast<Model::LayerNode*>(world->children().at(2));
-  auto* sortNode1 = dynamic_cast<Model::LayerNode*>(world->children().at(3));
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+  auto* sortNode5 = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+  auto* sortNode3 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
+  auto* sortNode1 = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
 
   REQUIRE(nullptr != defaultLayerNode);
   REQUIRE(nullptr != sortNode1);
@@ -825,7 +823,7 @@ TEST_CASE("WorldReader.parseLayersWithReversedSortIndicesWithGaps")
   CHECK(sortNode3->name() == "Sort Index 3");
   CHECK(sortNode5->name() == "Sort Index 5");
 
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
   // We allow gaps in sort indices so they remain 1, 3, 5
   CHECK(sortNode1->layer().sortIndex() == 1);
   CHECK(sortNode3->layer().sortIndex() == 3);
@@ -883,20 +881,20 @@ TEST_CASE("WorldReader.parseLayersWithSortIndicesWithGapsAndDuplicates")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 7u);
 
   // NOTE: They are listed in world->children() in file order, not sort index order
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  auto* sortMinusOneNode = dynamic_cast<Model::LayerNode*>(world->children().at(1));
-  auto* sortNode8 = dynamic_cast<Model::LayerNode*>(world->children().at(2));
-  auto* sortNode8second = dynamic_cast<Model::LayerNode*>(world->children().at(3));
-  auto* sortNode10 = dynamic_cast<Model::LayerNode*>(world->children().at(4));
-  auto* sortNode10second = dynamic_cast<Model::LayerNode*>(world->children().at(5));
-  auto* sortNode12 = dynamic_cast<Model::LayerNode*>(world->children().at(6));
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+  auto* sortMinusOneNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
+  auto* sortNode8 = dynamic_cast<mdl::LayerNode*>(world->children().at(2));
+  auto* sortNode8second = dynamic_cast<mdl::LayerNode*>(world->children().at(3));
+  auto* sortNode10 = dynamic_cast<mdl::LayerNode*>(world->children().at(4));
+  auto* sortNode10second = dynamic_cast<mdl::LayerNode*>(world->children().at(5));
+  auto* sortNode12 = dynamic_cast<mdl::LayerNode*>(world->children().at(6));
 
   REQUIRE(nullptr != defaultLayerNode);
   REQUIRE(nullptr != sortMinusOneNode);
@@ -913,7 +911,7 @@ TEST_CASE("WorldReader.parseLayersWithSortIndicesWithGapsAndDuplicates")
   CHECK(sortNode10second->name() == "Sort Index 10 (second)");
   CHECK(sortNode12->name() == "Sort Index 12");
 
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
 
   // This one was invalid so it got moved to the end
   CHECK(sortMinusOneNode->layer().sortIndex() == 13);
@@ -979,7 +977,7 @@ TEST_CASE("WorldReader.parseEntitiesAndBrushesWithLayer")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1055,7 +1053,7 @@ TEST_CASE("WorldReader.parseEntitiesAndBrushesWithGroup")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1100,22 +1098,21 @@ TEST_CASE("WorldReader.parseLayersAndGroupsAndRetainIds")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 2u);
 
   // NOTE: They are listed in world->children() in file order, not sort index order
-  auto* defaultLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(0));
-  auto* customLayerNode = dynamic_cast<Model::LayerNode*>(world->children().at(1));
+  auto* defaultLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(0));
+  auto* customLayerNode = dynamic_cast<mdl::LayerNode*>(world->children().at(1));
 
   REQUIRE(defaultLayerNode != nullptr);
   REQUIRE(customLayerNode != nullptr);
 
-  auto* groupNode1 = dynamic_cast<Model::GroupNode*>(customLayerNode->children().front());
-  auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(defaultLayerNode->children().front());
+  auto* groupNode1 = dynamic_cast<mdl::GroupNode*>(customLayerNode->children().front());
+  auto* groupNode2 = dynamic_cast<mdl::GroupNode*>(defaultLayerNode->children().front());
 
   REQUIRE(groupNode1 != nullptr);
   REQUIRE(groupNode2 != nullptr);
@@ -1147,7 +1144,7 @@ TEST_CASE("WorldReader.parseBrushPrimitive")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1184,7 +1181,7 @@ brushDef
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -1215,14 +1212,14 @@ common/caulk
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake3, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->defaultLayer()->childCount() == 1u);
 
   const auto* patchNode =
-    dynamic_cast<Model::PatchNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<mdl::PatchNode*>(world->defaultLayer()->children().front());
   CHECK(patchNode != nullptr);
 
   const auto& patch = patchNode->patch();
@@ -1232,7 +1229,7 @@ common/caulk
 
   CHECK_THAT(
     patch.controlPoints(),
-    Catch::Equals(std::vector<Model::BezierPatch::Point>{
+    Catch::Equals(std::vector<mdl::BezierPatch::Point>{
       {-64, -64, 4, 0, 0},
       {-64, 0, 4, 0, -0.25},
       {-64, 64, 4, 0, -0.5},
@@ -1264,7 +1261,7 @@ TEST_CASE("WorldReader.parseMultipleClassnames")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Quake2, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
   CHECK_NOTHROW(reader.read(worldBounds, status));
 }
@@ -1279,7 +1276,7 @@ TEST_CASE("WorldReader.parseEscapedDoubleQuotationMarks")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1287,7 +1284,7 @@ TEST_CASE("WorldReader.parseEscapedDoubleQuotationMarks")
   CHECK(worldNode->childCount() == 1u);
   CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
   CHECK(*worldNode->entity().property("message") == "yay \\\"Mr. Robot!\\\"");
 }
@@ -1302,7 +1299,7 @@ TEST_CASE("WorldReader.parsePropertyWithUnescapedPathAndTrailingBackslash")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1310,7 +1307,7 @@ TEST_CASE("WorldReader.parsePropertyWithUnescapedPathAndTrailingBackslash")
   CHECK(worldNode->childCount() == 1u);
   CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("path"));
   CHECK(*worldNode->entity().property("path") == "c:\\a\\b\\c\\");
 }
@@ -1325,7 +1322,7 @@ TEST_CASE("WorldReader.parsePropertyWithEscapedPathAndTrailingBackslash")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1333,7 +1330,7 @@ TEST_CASE("WorldReader.parsePropertyWithEscapedPathAndTrailingBackslash")
   CHECK(worldNode->childCount() == 1u);
   CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("path"));
   CHECK(*worldNode->entity().property("path") == "c:\\\\a\\\\b\\\\c\\\\");
 }
@@ -1348,7 +1345,7 @@ TEST_CASE("WorldReader.parsePropertyTrailingEscapedBackslash")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1356,7 +1353,7 @@ TEST_CASE("WorldReader.parsePropertyTrailingEscapedBackslash")
   CHECK(worldNode->childCount() == 1u);
   CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
   CHECK(*worldNode->entity().property("message") == "test\\\\");
 }
@@ -1372,7 +1369,7 @@ TEST_CASE("WorldReader.parsePropertyNewlineEscapeSequence")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
 
@@ -1380,7 +1377,7 @@ TEST_CASE("WorldReader.parsePropertyNewlineEscapeSequence")
   CHECK(worldNode->childCount() == 1u);
   CHECK_FALSE(worldNode->children().front()->hasChildren());
 
-  CHECK(worldNode->entity().hasProperty(Model::EntityPropertyKeys::Classname));
+  CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
   CHECK(worldNode->entity().hasProperty("message"));
   CHECK(*worldNode->entity().property("message") == "vm::line1\\nvm::line2d");
 }
@@ -1408,26 +1405,26 @@ TEST_CASE("WorldReader.parseIssueIgnoreFlags") {
     vm::bbox3d worldBounds(-8192, 8192);
 
     using namespace testing;
-    Model::MockGameSPtr game = Model::MockGame::newGame();
+    mdl::MockGameSPtr game = mdl::MockGame::newGame();
     EXPECT_CALL(*game,
-doBrushContentTypes()).WillOnce(ReturnRef(Model::BrushContentType::EmptyList));
+doBrushContentTypes()).WillOnce(ReturnRef(mdl::BrushContentType::EmptyList));
 
     StandardMapParser parser(data, game.get());
-    Model::Map* map = parser.parseMap(worldBounds);
+    mdl::Map* map = parser.parseMap(worldBounds);
 
-    const Model::EntityList& entities = map->entities();
+    const mdl::EntityList& entities = map->entities();
     CHECK(entities.size() == 2u);
 
-    const Model::EntityNode* firstEntity = entities[0];
+    const mdl::EntityNode* firstEntity = entities[0];
     CHECK(firstEntity->hiddenIssues() == 0u);
 
-    const Model::BrushList& brushes = firstEntity->brushes();
+    const mdl::BrushList& brushes = firstEntity->brushes();
     CHECK(brushes.size() == 1u);
 
-    const Model::BrushNode* brush = brushes[0];
+    const mdl::BrushNode* brush = brushes[0];
     CHECK(brush->hiddenIssues() == 2u);
 
-    const Model::EntityNode* secondEntity = entities[1];
+    const mdl::EntityNode* secondEntity = entities[1];
     CHECK(secondEntity->hiddenIssues() == 3u);
 }
  */
@@ -1440,7 +1437,7 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   auto fileReader = file->reader().buffer();
 
   auto status = TestParserStatus{};
-  auto worldReader = WorldReader{fileReader.stringView(), Model::MapFormat::Quake2, {}};
+  auto worldReader = WorldReader{fileReader.stringView(), mdl::MapFormat::Quake2, {}};
 
   const auto worldBounds = vm::bbox3d{8192.0};
   auto worldNode = worldReader.read(worldBounds, status);
@@ -1448,11 +1445,11 @@ TEST_CASE("WorldReader.parseHeretic2QuarkMap")
   REQUIRE(worldNode != nullptr);
   REQUIRE(1u == worldNode->childCount());
 
-  auto* layerNode = dynamic_cast<Model::LayerNode*>(worldNode->children().at(0));
+  auto* layerNode = dynamic_cast<mdl::LayerNode*>(worldNode->children().at(0));
   REQUIRE(layerNode != nullptr);
   REQUIRE(1u == layerNode->childCount());
 
-  auto* brushNode = dynamic_cast<Model::BrushNode*>(layerNode->children().at(0));
+  auto* brushNode = dynamic_cast<mdl::BrushNode*>(layerNode->children().at(0));
   REQUIRE(brushNode != nullptr);
 
   CHECK(brushNode->logicalBounds() == vm::bbox3d{{-512, -512, -64}, {512, 512, 0}});
@@ -1482,23 +1479,23 @@ TEST_CASE("WorldReader.parseTBEmptyMaterialName")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   REQUIRE(world->childCount() == 1u);
 
-  auto* defaultLayer = dynamic_cast<Model::LayerNode*>(world->children().front());
+  auto* defaultLayer = dynamic_cast<mdl::LayerNode*>(world->children().front());
   REQUIRE(defaultLayer != nullptr);
   REQUIRE(defaultLayer->childCount() == 1u);
 
-  auto* brush = dynamic_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = dynamic_cast<mdl::BrushNode*>(defaultLayer->children().front());
   REQUIRE(brush != nullptr);
 
   for (const auto& face : brush->brush().faces())
   {
     CHECK(!face.attributes().materialName().empty());
-    CHECK(face.attributes().materialName() == Model::BrushFaceAttributes::NoMaterialName);
+    CHECK(face.attributes().materialName() == mdl::BrushFaceAttributes::NoMaterialName);
   }
 }
 
@@ -1539,19 +1536,19 @@ TEST_CASE("WorldReader.parseQuotedMaterialNames")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto worldNode = reader.read(worldBounds, status);
   REQUIRE(worldNode != nullptr);
   REQUIRE(worldNode->childCount() == 1u);
 
   const auto* defaultLayerNode =
-    dynamic_cast<Model::LayerNode*>(worldNode->children().front());
+    dynamic_cast<mdl::LayerNode*>(worldNode->children().front());
   REQUIRE(defaultLayerNode != nullptr);
   REQUIRE(defaultLayerNode->childCount() == 1u);
 
   const auto* brushNode =
-    dynamic_cast<Model::BrushNode*>(defaultLayerNode->children().front());
+    dynamic_cast<mdl::BrushNode*>(defaultLayerNode->children().front());
   REQUIRE(brushNode != nullptr);
 
   CHECK(brushNode->brush().face(0).attributes().materialName() == expectedName);
@@ -1584,16 +1581,16 @@ TEST_CASE("WorldReader.parseLinkedGroups")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   CHECK(world->defaultLayer()->childCount() == 2u);
 
   auto* groupNode1 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
   auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().back());
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().back());
 
   REQUIRE(groupNode1 != nullptr);
   REQUIRE(groupNode2 != nullptr);
@@ -1628,14 +1625,14 @@ TEST_CASE("WorldReader.parseOrphanedLinkedGroups")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   CHECK(world->defaultLayer()->childCount() == 1);
 
   auto* groupNode =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
 
   CHECK(groupNode != nullptr);
   CHECK(groupNode->linkId() == "abcd");
@@ -1677,18 +1674,15 @@ TEST_CASE("WorldReader.parseLinkedGroupsWithMissingTransformation")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   CHECK(world->defaultLayer()->childCount() == 3u);
 
-  auto* groupNode1 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
-  auto* groupNode2 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
-  auto* groupNode3 =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
+  auto* groupNode1 = dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[0]);
+  auto* groupNode2 = dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[1]);
+  auto* groupNode3 = dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[2]);
 
   REQUIRE(groupNode1 != nullptr);
   REQUIRE(groupNode2 != nullptr);
@@ -1725,14 +1719,14 @@ TEST_CASE("WorldReader.parseGroupWithUnnecessaryTransformation")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   CHECK(world->defaultLayer()->childCount() == 1u);
 
   auto* groupNode =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children().front());
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children().front());
   CHECK(groupNode != nullptr);
 
   CHECK(groupNode->group().transformation() == vm::mat4x4d{});
@@ -1823,39 +1817,39 @@ TEST_CASE("WorldReader.parseRecursiveLinkedGroups")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
   REQUIRE(world->defaultLayer()->childCount() == 4u);
 
   const auto* groupNode_1_abcd =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[0]);
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[0]);
 
   REQUIRE(groupNode_1_abcd->childCount() == 1u);
   const auto* groupNode_1_2_abcd =
-    dynamic_cast<Model::GroupNode*>(groupNode_1_abcd->children().front());
+    dynamic_cast<mdl::GroupNode*>(groupNode_1_abcd->children().front());
 
   const auto* groupNode_2_xyz =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[1]);
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[1]);
 
   REQUIRE(groupNode_2_xyz->childCount() == 1u);
   const auto* groupNode_2_1_xyz =
-    dynamic_cast<Model::GroupNode*>(groupNode_2_xyz->children().front());
+    dynamic_cast<mdl::GroupNode*>(groupNode_2_xyz->children().front());
 
   const auto* groupNode_3_xyz =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[2]);
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[2]);
 
   const auto* groupNode_4_fgh =
-    dynamic_cast<Model::GroupNode*>(world->defaultLayer()->children()[3]);
+    dynamic_cast<mdl::GroupNode*>(world->defaultLayer()->children()[3]);
 
   REQUIRE(groupNode_4_fgh->childCount() == 1u);
   const auto* groupNode_4_1 =
-    dynamic_cast<Model::GroupNode*>(groupNode_4_fgh->children().front());
+    dynamic_cast<mdl::GroupNode*>(groupNode_4_fgh->children().front());
 
   REQUIRE(groupNode_4_1->childCount() == 1u);
   const auto* groupNode_4_1_1_fgh =
-    dynamic_cast<Model::GroupNode*>(groupNode_4_1->children().front());
+    dynamic_cast<mdl::GroupNode*>(groupNode_4_1->children().front());
 
   CHECK(groupNode_1_abcd->linkId() == "abcd");
   CHECK(
@@ -1907,7 +1901,7 @@ TEST_CASE("WorldReader.parseProtectedEntityProperties")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   REQUIRE(world != nullptr);
@@ -1916,7 +1910,7 @@ TEST_CASE("WorldReader.parseProtectedEntityProperties")
   SECTION("Empty list")
   {
     auto* entityNode =
-      dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[0]);
+      dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[0]);
     REQUIRE(entityNode != nullptr);
 
     CHECK_THAT(
@@ -1927,7 +1921,7 @@ TEST_CASE("WorldReader.parseProtectedEntityProperties")
   SECTION("Two protected properties")
   {
     auto* entityNode =
-      dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[1]);
+      dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[1]);
     REQUIRE(entityNode != nullptr);
 
     CHECK_THAT(
@@ -1938,7 +1932,7 @@ TEST_CASE("WorldReader.parseProtectedEntityProperties")
   SECTION("Escaped semicolon")
   {
     auto* entityNode =
-      dynamic_cast<Model::EntityNode*>(world->defaultLayer()->children()[2]);
+      dynamic_cast<mdl::EntityNode*>(world->defaultLayer()->children()[2]);
     REQUIRE(entityNode != nullptr);
 
     CHECK_THAT(
@@ -1959,9 +1953,9 @@ TEST_CASE("WorldReader.parseUnknownFormatEmptyMap")
 
   auto status = TestParserStatus{};
   auto world = WorldReader::tryRead(
-    data, {Model::MapFormat::Standard, Model::MapFormat::Valve}, worldBounds, {}, status);
+    data, {mdl::MapFormat::Standard, mdl::MapFormat::Valve}, worldBounds, {}, status);
   REQUIRE(world != nullptr);
-  CHECK(world->mapFormat() == Model::MapFormat::Standard);
+  CHECK(world->mapFormat() == mdl::MapFormat::Standard);
 }
 
 } // namespace tb::io

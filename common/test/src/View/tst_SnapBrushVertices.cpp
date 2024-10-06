@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/NodeCollection.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "mdl/NodeCollection.h"
 
 #include "Catch2.h"
 

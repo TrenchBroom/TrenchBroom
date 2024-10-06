@@ -26,7 +26,7 @@
 
 #include <memory>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -77,7 +77,7 @@ private: // notification
 
 private: // implement ToolBoxConnector interface
   PickRequest pickRequest(float x, float y) const override;
-  Model::PickResult pick(const vm::ray3d& pickRay) const override;
+  mdl::PickResult pick(const vm::ray3d& pickRay) const override;
 
 protected: // QOpenGLWidget overrides
   void initializeGL() override;

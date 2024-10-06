@@ -19,9 +19,9 @@
 
 #include "GameEngineConfigWriter.h"
 
-#include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
 #include "el/Value.h"
+#include "mdl/GameEngineConfig.h"
+#include "mdl/GameEngineProfile.h"
 
 #include "kdl/vector_utils.h"
 
@@ -31,7 +31,7 @@ namespace tb::io
 {
 
 GameEngineConfigWriter::GameEngineConfigWriter(
-  const Model::GameEngineConfig& config, std::ostream& stream)
+  const mdl::GameEngineConfig& config, std::ostream& stream)
   : m_config{config}
   , m_stream{stream}
 {
@@ -46,15 +46,14 @@ void GameEngineConfigWriter::writeConfig()
   }} << "\n";
 }
 
-el::Value GameEngineConfigWriter::writeProfiles(
-  const Model::GameEngineConfig& config) const
+el::Value GameEngineConfigWriter::writeProfiles(const mdl::GameEngineConfig& config) const
 {
   return el::Value{kdl::vec_transform(
     config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
 el::Value GameEngineConfigWriter::writeProfile(
-  const Model::GameEngineProfile& profile) const
+  const mdl::GameEngineProfile& profile) const
 {
   return el::Value{el::MapType{
     {"name", el::Value{profile.name}},

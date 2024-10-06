@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 }
@@ -47,7 +47,7 @@ protected:
   std::weak_ptr<MapDocument> m_document;
 
 private:
-  std::vector<std::unique_ptr<Model::BrushNode>> m_brushNodes;
+  std::vector<std::unique_ptr<mdl::BrushNode>> m_brushNodes;
   std::unique_ptr<Renderer::BrushRenderer> m_brushRenderer;
 
 public:
@@ -64,7 +64,7 @@ public:
   void render(Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch);
 
 protected:
-  void updateBrushes(std::vector<std::unique_ptr<Model::BrushNode>> brushNodes);
+  void updateBrushes(std::vector<std::unique_ptr<mdl::BrushNode>> brushNodes);
 
 private:
   virtual void doBrushesWereCreated();

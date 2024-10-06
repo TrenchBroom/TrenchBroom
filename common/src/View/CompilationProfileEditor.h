@@ -27,10 +27,10 @@ class QAbstractButton;
 class QLineEdit;
 class QStackedWidget;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -46,7 +46,7 @@ class CompilationProfileEditor : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile{nullptr};
+  mdl::CompilationProfile* m_profile{nullptr};
   QStackedWidget* m_stackedWidget{nullptr};
   QLineEdit* m_nameTxt{nullptr};
   MultiCompletionLineEdit* m_workDirTxt{nullptr};
@@ -79,7 +79,7 @@ private slots:
   void taskSelectionChanged();
 
 public:
-  void setProfile(Model::CompilationProfile* profile);
+  void setProfile(mdl::CompilationProfile* profile);
 
 private:
   void refresh();

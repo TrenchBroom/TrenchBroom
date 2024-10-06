@@ -20,7 +20,6 @@
 #include "CompilationRun.h"
 
 #include "Ensure.h"
-#include "Model/CompilationProfile.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationRunner.h"
 #include "View/CompilationVariables.h"
@@ -28,6 +27,7 @@
 #include "View/TextOutputAdapter.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
+#include "mdl/CompilationProfile.h"
 
 #include <memory>
 #include <string>
@@ -49,7 +49,7 @@ bool CompilationRun::running() const
 }
 
 void CompilationRun::run(
-  const Model::CompilationProfile& profile,
+  const mdl::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput)
 {
@@ -57,7 +57,7 @@ void CompilationRun::run(
 }
 
 void CompilationRun::test(
-  const Model::CompilationProfile& profile,
+  const mdl::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput)
 {
@@ -78,7 +78,7 @@ bool CompilationRun::doIsRunning() const
 }
 
 void CompilationRun::run(
-  const Model::CompilationProfile& profile,
+  const mdl::CompilationProfile& profile,
   std::shared_ptr<MapDocument> document,
   QTextEdit* currentOutput,
   const bool test)
@@ -108,7 +108,7 @@ void CompilationRun::run(
 }
 
 std::string CompilationRun::buildWorkDir(
-  const Model::CompilationProfile& profile, std::shared_ptr<MapDocument> document)
+  const mdl::CompilationProfile& profile, std::shared_ptr<MapDocument> document)
 {
   try
   {

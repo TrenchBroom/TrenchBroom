@@ -20,12 +20,12 @@
 #include "GameEngineConfigParser.h"
 
 #include "Macros.h"
-#include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "mdl/GameEngineConfig.h"
+#include "mdl/GameEngineProfile.h"
 
 #include <string>
 #include <vector>
@@ -35,7 +35,7 @@ namespace tb::io
 namespace
 {
 
-Model::GameEngineProfile parseProfile(
+mdl::GameEngineProfile parseProfile(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -47,10 +47,10 @@ Model::GameEngineProfile parseProfile(
     value["parameters"].stringValue()};
 }
 
-std::vector<Model::GameEngineProfile> parseProfiles(
+std::vector<mdl::GameEngineProfile> parseProfiles(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  auto result = std::vector<Model::GameEngineProfile>{};
+  auto result = std::vector<mdl::GameEngineProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -68,7 +68,7 @@ GameEngineConfigParser::GameEngineConfigParser(
 {
 }
 
-Model::GameEngineConfig GameEngineConfigParser::parse()
+mdl::GameEngineConfig GameEngineConfigParser::parse()
 {
   const auto context = el::EvaluationContext{};
   auto trace = el::EvaluationTrace{};

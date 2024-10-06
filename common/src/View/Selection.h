@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Model/BrushFaceHandle.h"
+#include "mdl/BrushFaceHandle.h"
 
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 }
@@ -34,21 +34,21 @@ namespace tb::View
 class Selection
 {
 private:
-  std::vector<Model::Node*> m_selectedNodes;
-  std::vector<Model::Node*> m_deselectedNodes;
-  std::vector<Model::BrushFaceHandle> m_selectedBrushFaces;
-  std::vector<Model::BrushFaceHandle> m_deselectedBrushFaces;
+  std::vector<mdl::Node*> m_selectedNodes;
+  std::vector<mdl::Node*> m_deselectedNodes;
+  std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
+  std::vector<mdl::BrushFaceHandle> m_deselectedBrushFaces;
 
 public:
-  const std::vector<Model::Node*>& selectedNodes() const;
-  const std::vector<Model::Node*>& deselectedNodes() const;
-  const std::vector<Model::BrushFaceHandle>& selectedBrushFaces() const;
-  const std::vector<Model::BrushFaceHandle>& deselectedBrushFaces() const;
+  const std::vector<mdl::Node*>& selectedNodes() const;
+  const std::vector<mdl::Node*>& deselectedNodes() const;
+  const std::vector<mdl::BrushFaceHandle>& selectedBrushFaces() const;
+  const std::vector<mdl::BrushFaceHandle>& deselectedBrushFaces() const;
 
-  void addSelectedNodes(const std::vector<Model::Node*>& nodes);
-  void addDeselectedNodes(const std::vector<Model::Node*>& nodes);
-  void addSelectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
-  void addDeselectedBrushFaces(const std::vector<Model::BrushFaceHandle>& faces);
+  void addSelectedNodes(const std::vector<mdl::Node*>& nodes);
+  void addDeselectedNodes(const std::vector<mdl::Node*>& nodes);
+  void addSelectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces);
+  void addDeselectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces);
 };
 
 } // namespace tb::View

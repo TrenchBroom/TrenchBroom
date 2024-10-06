@@ -21,11 +21,11 @@
 #include <QTextStream>
 
 #include "Color.h"
-#include "Model/Tag.h"
-#include "Model/TagMatcher.h"
 #include "PreferenceManager.h"
 #include "View/Actions.h"
 #include "asset/EntityDefinition.h"
+#include "mdl/Tag.h"
+#include "mdl/TagMatcher.h"
 
 #include "kdl/vector_utils.h"
 
@@ -477,8 +477,8 @@ TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 
 TEST_CASE("PreferencesTest.testWxTagShortcuts")
 {
-  const auto tags = std::vector<Model::SmartTag>{Model::SmartTag{
-    "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)}};
+  const auto tags = std::vector<mdl::SmartTag>{
+    mdl::SmartTag{"Detail", {}, std::make_unique<mdl::ContentFlagsTagMatcher>(1 << 27)}};
   const auto actions = View::ActionManager::instance().createTagActions(tags);
   const auto actualPrefPaths = kdl::vec_transform(
     actions, [](const auto& action) { return action.preferencePath(); });

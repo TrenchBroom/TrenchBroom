@@ -19,7 +19,6 @@
 
 #include "MapViewToolBox.h"
 
-#include "Model/EditorContext.h"
 #include "View/AssembleBrushTool.h"
 #include "View/ClipTool.h"
 #include "View/CreateEntityTool.h"
@@ -33,6 +32,7 @@
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
 #include "View/VertexTool.h"
+#include "mdl/EditorContext.h"
 
 namespace tb::View
 {
@@ -344,7 +344,7 @@ void MapViewToolBox::toolDeactivated(Tool&)
 void MapViewToolBox::updateEditorContext()
 {
   auto document = kdl::mem_lock(m_document);
-  Model::EditorContext& editorContext = document->editorContext();
+  mdl::EditorContext& editorContext = document->editorContext();
   editorContext.setBlockSelection(assembleBrushToolActive());
 }
 

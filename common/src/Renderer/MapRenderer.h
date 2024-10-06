@@ -44,14 +44,14 @@ class MapDocument;
 class Selection;
 } // namespace tb::View
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -82,7 +82,7 @@ private:
     All = Default | Selection | Locked
   };
 
-  std::unordered_map<Model::Node*, int> m_trackedNodes;
+  std::unordered_map<mdl::Node*, int> m_trackedNodes;
 
   NotifierConnection m_notifierConnection;
 
@@ -117,11 +117,11 @@ private:
   void setupSelectionRenderer(ObjectRenderer& renderer);
   void setupLockedRenderer(ObjectRenderer& renderer);
 
-  static int determineDesiredRenderers(Model::Node* node);
-  void updateAndInvalidateNode(Model::Node* node);
-  void updateAndInvalidateNodeRecursive(Model::Node* node);
-  void removeNode(Model::Node* node);
-  void removeNodeRecursive(Model::Node* node);
+  static int determineDesiredRenderers(mdl::Node* node);
+  void updateAndInvalidateNode(mdl::Node* node);
+  void updateAndInvalidateNodeRecursive(mdl::Node* node);
+  void removeNode(mdl::Node* node);
+  void removeNodeRecursive(mdl::Node* node);
   void updateAllNodes();
 
   void invalidateRenderers(Renderer renderers);
@@ -136,17 +136,17 @@ private: // notification
   void documentWasCleared(View::MapDocument* document);
   void documentWasNewedOrLoaded(View::MapDocument* document);
 
-  void nodesWereAdded(const std::vector<Model::Node*>& nodes);
-  void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
-  void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
-  void nodeLockingDidChange(const std::vector<Model::Node*>& nodes);
+  void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
+  void nodeLockingDidChange(const std::vector<mdl::Node*>& nodes);
 
-  void groupWasOpened(Model::GroupNode* group);
-  void groupWasClosed(Model::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode* group);
+  void groupWasClosed(mdl::GroupNode* group);
 
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
 
   void selectionDidChange(const View::Selection& selection);
 

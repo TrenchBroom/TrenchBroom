@@ -27,11 +27,11 @@
 #include <tuple>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct EntityPropertyConfig;
 class WorldNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -42,7 +42,7 @@ class WorldReaderException : public Exception
 public:
   WorldReaderException();
   explicit WorldReaderException(
-    const std::vector<std::tuple<Model::MapFormat, std::string>>& parserExceptions);
+    const std::vector<std::tuple<mdl::MapFormat, std::string>>& parserExceptions);
 };
 
 /**
@@ -50,15 +50,15 @@ public:
  */
 class WorldReader : public MapReader
 {
-  std::unique_ptr<Model::WorldNode> m_worldNode;
+  std::unique_ptr<mdl::WorldNode> m_worldNode;
 
 public:
   WorldReader(
     std::string_view str,
-    Model::MapFormat sourceAndTargetMapFormat,
-    const Model::EntityPropertyConfig& entityPropertyConfig);
+    mdl::MapFormat sourceAndTargetMapFormat,
+    const mdl::EntityPropertyConfig& entityPropertyConfig);
 
-  std::unique_ptr<Model::WorldNode> read(
+  std::unique_ptr<mdl::WorldNode> read(
     const vm::bbox3d& worldBounds, ParserStatus& status);
 
   /**
@@ -72,20 +72,20 @@ public:
    * @return the world node
    * @throws WorldReaderException if `str` can't be parsed by any of the given formats
    */
-  static std::unique_ptr<Model::WorldNode> tryRead(
+  static std::unique_ptr<mdl::WorldNode> tryRead(
     std::string_view str,
-    const std::vector<Model::MapFormat>& mapFormatsToTry,
+    const std::vector<mdl::MapFormat>& mapFormatsToTry,
     const vm::bbox3d& worldBounds,
-    const Model::EntityPropertyConfig& entityPropertyConfig,
+    const mdl::EntityPropertyConfig& entityPropertyConfig,
     ParserStatus& status);
 
 private: // implement MapReader interface
-  Model::Node* onWorldNode(
-    std::unique_ptr<Model::WorldNode> worldNode, ParserStatus& status) override;
-  void onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus& status) override;
+  mdl::Node* onWorldNode(
+    std::unique_ptr<mdl::WorldNode> worldNode, ParserStatus& status) override;
+  void onLayerNode(std::unique_ptr<mdl::Node> layerNode, ParserStatus& status) override;
   void onNode(
-    Model::Node* parentNode,
-    std::unique_ptr<Model::Node> node,
+    mdl::Node* parentNode,
+    std::unique_ptr<mdl::Node> node,
     ParserStatus& status) override;
 };
 

@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionTestUtils.h"
+#include "asset/PropertyDefinition.h"
 #include "io/DefParser.h"
 #include "io/DiskIO.h"
 #include "io/PathMatcher.h"
 #include "io/TestParserStatus.h"
 #include "io/TraversalMode.h"
-#include "Model/EntityProperties.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionTestUtils.h"
-#include "asset/PropertyDefinition.h"
+#include "mdl/EntityProperties.h"
 
 #include "Catch2.h"
 
@@ -344,9 +344,9 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   CHECK(stylePropertyDefinition->type() == asset::PropertyDefinitionType::ChoiceProperty);
 
   const auto* spawnflagsPropertyDefinition =
-    definition.propertyDefinition(Model::EntityPropertyKeys::Spawnflags);
+    definition.propertyDefinition(mdl::EntityPropertyKeys::Spawnflags);
   CHECK(spawnflagsPropertyDefinition != nullptr);
-  CHECK(spawnflagsPropertyDefinition->key() == Model::EntityPropertyKeys::Spawnflags);
+  CHECK(spawnflagsPropertyDefinition->key() == mdl::EntityPropertyKeys::Spawnflags);
   CHECK(
     spawnflagsPropertyDefinition->type() == asset::PropertyDefinitionType::FlagsProperty);
 

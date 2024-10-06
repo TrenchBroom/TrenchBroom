@@ -27,7 +27,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 enum class RadiusMode;
 }
@@ -53,7 +53,7 @@ class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 public:
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<Model::Brush>> createBrushes(
+  Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -62,7 +62,7 @@ public:
 struct CircularShapeParameters
 {
   size_t numSides;
-  Model::RadiusMode radiusMode;
+  mdl::RadiusMode radiusMode;
 };
 
 class DrawShapeToolCircularShapeExtensionPage : public DrawShapeToolExtensionPage
@@ -103,7 +103,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<Model::Brush>> createBrushes(
+  Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -119,7 +119,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<Model::Brush>> createBrushes(
+  Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -152,7 +152,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<Model::Brush>> createBrushes(
+  Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;
@@ -186,7 +186,7 @@ public:
 
   const std::string& name() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<Model::Brush>> createBrushes(
+  Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
     vm::axis::type axis,
     const MapDocument& document) const override;

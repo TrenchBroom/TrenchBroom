@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include "Model/Hit.h"
-#include "Model/HitType.h"
 #include "View/Tool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitType.h"
 
 #include "vm/bbox.h"
 #include "vm/polygon.h"
@@ -32,7 +32,7 @@
 #include <memory>
 #include <optional>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -50,14 +50,14 @@ class MapDocument;
 class ShearObjectsTool : public Tool
 {
 public:
-  static const Model::HitType::Type ShearToolSideHitType;
+  static const mdl::HitType::Type ShearToolSideHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
   bool m_resizing = false;
   bool m_constrainVertical = false;
   vm::bbox3d m_bboxAtDragStart;
-  Model::Hit m_dragStartHit = Model::Hit::NoHit;
+  mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
   vm::vec3d m_dragCumulativeDelta;
 
 public:
@@ -71,15 +71,15 @@ public:
   void pickBackSides(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
 
 public:
   vm::bbox3d bounds() const;
@@ -90,17 +90,17 @@ public:
    */
   vm::bbox3d bboxAtDragStart() const;
 
-  void startShearWithHit(const Model::Hit& hit);
+  void startShearWithHit(const mdl::Hit& hit);
   void commitShear();
   void cancelShear();
   void shearByDelta(const vm::vec3d& delta);
 
-  const Model::Hit& dragStartHit() const;
+  const mdl::Hit& dragStartHit() const;
 
   vm::mat4x4d bboxShearMatrix() const;
   std::optional<vm::polygon3f> shearHandle() const;
 
-  void updatePickedSide(const Model::PickResult& pickResult);
+  void updatePickedSide(const mdl::PickResult& pickResult);
 
   bool constrainVertical() const;
   void setConstrainVertical(bool constrainVertical);

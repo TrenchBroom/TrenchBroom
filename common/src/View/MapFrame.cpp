@@ -40,21 +40,6 @@
 
 #include "Console.h"
 #include "Exceptions.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityNodeBase.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/MapFormat.h"
-#include "Model/ModelUtils.h"
-#include "Model/Node.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
@@ -91,6 +76,21 @@
 #include "asset/Resource.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/EntityNodeBase.h"
+#include "mdl/Game.h"
+#include "mdl/GameFactory.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/MapFormat.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/Node.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -451,7 +451,7 @@ void MapFrame::createStatusBar()
 namespace
 {
 template <typename T>
-const Model::EntityNodeBase* commonEntityForNodeList(const std::vector<T*>& nodes)
+const mdl::EntityNodeBase* commonEntityForNodeList(const std::vector<T*>& nodes)
 {
   return !nodes.empty()
              && kdl::all_of(
@@ -464,7 +464,7 @@ const Model::EntityNodeBase* commonEntityForNodeList(const std::vector<T*>& node
 }
 
 std::optional<std::string> commonClassnameForEntityList(
-  const std::vector<Model::EntityNode*>& nodes)
+  const std::vector<mdl::EntityNode*>& nodes)
 {
   return !nodes.empty()
              && kdl::all_of(
@@ -491,11 +491,11 @@ QString describeSelection(const MapDocument& document)
 
   pipeSeparatedSections << QString::fromStdString(document.game()->config().name)
                         << QString::fromStdString(
-                             Model::formatName(document.world()->mapFormat()))
+                             mdl::formatName(document.world()->mapFormat()))
                         << QString::fromStdString(document.currentLayer()->name());
 
   // open groups
-  auto groups = std::vector<Model::GroupNode*>{};
+  auto groups = std::vector<mdl::GroupNode*>{};
   for (auto* group = document.currentGroup(); group != nullptr;
        group = group->containingGroup())
   {
@@ -573,7 +573,7 @@ QString describeSelection(const MapDocument& document)
 
   // get the layers of the selected nodes
   const auto selectedObjectLayers =
-    Model::collectContainingLayersUserSorted(selectedNodes.nodes());
+    mdl::collectContainingLayersUserSorted(selectedNodes.nodes());
   auto layersDescription = QString{};
   if (selectedObjectLayers.size() == 1)
   {
@@ -603,33 +603,33 @@ QString describeSelection(const MapDocument& document)
 
   const auto& editorContext = document.editorContext();
   document.world()->accept(kdl::overload(
-    [](auto&& thisLambda, const Model::WorldNode* world) {
+    [](auto&& thisLambda, const mdl::WorldNode* world) {
       world->visitChildren(thisLambda);
     },
-    [](auto&& thisLambda, const Model::LayerNode* layer) {
+    [](auto&& thisLambda, const mdl::LayerNode* layer) {
       layer->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const Model::GroupNode* group) {
+    [&](auto&& thisLambda, const mdl::GroupNode* group) {
       if (!editorContext.visible(group))
       {
         ++hiddenGroups;
       }
       group->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const Model::EntityNode* entity) {
+    [&](auto&& thisLambda, const mdl::EntityNode* entity) {
       if (!editorContext.visible(entity))
       {
         ++hiddenEntities;
       }
       entity->visitChildren(thisLambda);
     },
-    [&](const Model::BrushNode* brush) {
+    [&](const mdl::BrushNode* brush) {
       if (!editorContext.visible(brush))
       {
         ++hiddenBrushes;
       }
     },
-    [&](const Model::PatchNode* patch) {
+    [&](const mdl::PatchNode* patch) {
       if (!editorContext.visible(patch))
       {
         ++hiddenPatches;
@@ -813,22 +813,22 @@ void MapFrame::selectionDidChange(const Selection&)
   updateStatusBarDelayed();
 }
 
-void MapFrame::currentLayerDidChange(const tb::Model::LayerNode*)
+void MapFrame::currentLayerDidChange(const tb::mdl::LayerNode*)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened(Model::GroupNode*)
+void MapFrame::groupWasOpened(mdl::GroupNode*)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed(Model::GroupNode*)
+void MapFrame::groupWasClosed(mdl::GroupNode*)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::nodeVisibilityDidChange(const std::vector<Model::Node*>&)
+void MapFrame::nodeVisibilityDidChange(const std::vector<mdl::Node*>&)
 {
   updateStatusBarDelayed();
 }
@@ -889,7 +889,7 @@ void MapFrame::bindEvents()
 }
 
 Result<bool> MapFrame::newDocument(
-  std::shared_ptr<Model::Game> game, const Model::MapFormat mapFormat)
+  std::shared_ptr<mdl::Game> game, const mdl::MapFormat mapFormat)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())
   {
@@ -901,8 +901,8 @@ Result<bool> MapFrame::newDocument(
 }
 
 Result<bool> MapFrame::openDocument(
-  std::shared_ptr<Model::Game> game,
-  const Model::MapFormat mapFormat,
+  std::shared_ptr<mdl::Game> game,
+  const mdl::MapFormat mapFormat,
   const std::filesystem::path& path)
 {
   if (!confirmOrDiscardChanges() || !closeCompileDialog())

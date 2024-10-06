@@ -27,11 +27,11 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 enum class VisibilityState;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -41,18 +41,18 @@ class SetVisibilityCommand : public UndoableCommand
 private:
   enum class Action;
 
-  std::vector<Model::Node*> m_nodes;
+  std::vector<mdl::Node*> m_nodes;
   Action m_action;
-  std::map<Model::Node*, Model::VisibilityState> m_oldState;
+  std::map<mdl::Node*, mdl::VisibilityState> m_oldState;
 
 public:
-  static std::unique_ptr<SetVisibilityCommand> show(std::vector<Model::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> show(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<mdl::Node*> nodes);
   static std::unique_ptr<SetVisibilityCommand> ensureVisible(
-    std::vector<Model::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<Model::Node*> nodes);
+    std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<mdl::Node*> nodes);
 
-  SetVisibilityCommand(std::vector<Model::Node*> nodes, Action action);
+  SetVisibilityCommand(std::vector<mdl::Node*> nodes, Action action);
 
 private:
   static std::string makeName(Action action);

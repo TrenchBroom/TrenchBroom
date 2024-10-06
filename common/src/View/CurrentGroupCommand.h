@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class GroupNode;
 }
@@ -34,13 +34,13 @@ namespace tb::View
 class CurrentGroupCommand : public UndoableCommand
 {
 private:
-  Model::GroupNode* m_group;
+  mdl::GroupNode* m_group;
 
 public:
-  static std::unique_ptr<CurrentGroupCommand> push(Model::GroupNode* group);
+  static std::unique_ptr<CurrentGroupCommand> push(mdl::GroupNode* group);
   static std::unique_ptr<CurrentGroupCommand> pop();
 
-  explicit CurrentGroupCommand(Model::GroupNode* group);
+  explicit CurrentGroupCommand(mdl::GroupNode* group);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

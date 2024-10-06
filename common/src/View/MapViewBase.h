@@ -44,13 +44,13 @@ enum class EntityDefinitionType;
 class PointEntityDefinition;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class GroupNode;
 class Node;
 class NodeCollection;
 class SmartTag;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -144,7 +144,7 @@ private:
 
   void createActionsAndUpdatePicking();
 
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void toolChanged(Tool& tool);
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
@@ -219,11 +219,11 @@ public: // misc actions
 public: // reparenting objects
   void addSelectedObjectsToGroup();
   void removeSelectedObjectsFromGroup();
-  Model::Node* findNewGroupForObjects(const std::vector<Model::Node*>& nodes) const;
+  mdl::Node* findNewGroupForObjects(const std::vector<mdl::Node*>& nodes) const;
 
   void mergeSelectedGroups();
-  Model::GroupNode* findGroupToMergeGroupsInto(
-    const Model::NodeCollection& selectedNodes) const;
+  mdl::GroupNode* findGroupToMergeGroupsInto(
+    const mdl::NodeCollection& selectedNodes) const;
 
   /**
    * Checks whether the given node can be reparented under the given new parent.
@@ -233,14 +233,13 @@ public: // reparenting objects
    * @return true if the given node can be reparented under the given new parent, and
    * false otherwise
    */
-  bool canReparentNode(const Model::Node* node, const Model::Node* newParent) const;
+  bool canReparentNode(const mdl::Node* node, const mdl::Node* newParent) const;
 
   void moveSelectedBrushesToEntity();
-  Model::Node* findNewParentEntityForBrushes(
-    const std::vector<Model::Node*>& nodes) const;
+  mdl::Node* findNewParentEntityForBrushes(const std::vector<mdl::Node*>& nodes) const;
 
   bool canReparentNodes(
-    const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
+    const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const;
   /**
    * Reparents nodes, and deselects everything as a side effect.
    *
@@ -251,11 +250,9 @@ public: // reparenting objects
    * brushes listed in `nodes` are reparented, not any parent entities.
    */
   void reparentNodes(
-    const std::vector<Model::Node*>& nodes,
-    Model::Node* newParent,
-    bool preserveEntities);
-  std::vector<Model::Node*> collectReparentableNodes(
-    const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const;
+    const std::vector<mdl::Node*>& nodes, mdl::Node* newParent, bool preserveEntities);
+  std::vector<mdl::Node*> collectReparentableNodes(
+    const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const;
 
   void createPointEntity();
   void createBrushEntity();
@@ -268,9 +265,9 @@ public: // reparenting objects
   bool canCreateBrushEntity();
 
 public: // tags
-  void toggleTagVisible(const Model::SmartTag& tag);
-  void enableTag(const Model::SmartTag& tag);
-  void disableTag(const Model::SmartTag& tag);
+  void toggleTagVisible(const mdl::SmartTag& tag);
+  void enableTag(const mdl::SmartTag& tag);
+  void disableTag(const mdl::SmartTag& tag);
 
 public: // make structural
   void makeStructural();

@@ -19,20 +19,20 @@
 
 #pragma once
 
-#include "Model/HitType.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/HandleDragTracker.h"
 #include "View/Lasso.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/ToolController.h"
+#include "mdl/HitType.h"
 
 #include "vm/intersection.h"
 
 #include <unordered_set>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 }
@@ -52,10 +52,10 @@ protected:
   {
   protected:
     T& m_tool;
-    Model::HitType::Type m_hitType;
+    mdl::HitType::Type m_hitType;
 
   protected:
-    PartBase(T& tool, const Model::HitType::Type hitType)
+    PartBase(T& tool, const mdl::HitType::Type hitType)
       : m_tool{tool}
       , m_hitType{hitType}
     {
@@ -65,33 +65,33 @@ protected:
     virtual ~PartBase() = default;
 
   protected:
-    Model::Hit findDraggableHandle(const InputState& inputState) const
+    mdl::Hit findDraggableHandle(const InputState& inputState) const
     {
       return doFindDraggableHandle(inputState);
     }
 
-    std::vector<Model::Hit> findDraggableHandles(const InputState& inputState) const
+    std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const
     {
       return doFindDraggableHandles(inputState);
     }
 
   private:
-    virtual Model::Hit doFindDraggableHandle(const InputState& inputState) const
+    virtual mdl::Hit doFindDraggableHandle(const InputState& inputState) const
     {
       return findDraggableHandle(inputState, m_hitType);
     }
 
-    virtual std::vector<Model::Hit> doFindDraggableHandles(
+    virtual std::vector<mdl::Hit> doFindDraggableHandles(
       const InputState& inputState) const
     {
       return findDraggableHandles(inputState, m_hitType);
     }
 
   public:
-    Model::Hit findDraggableHandle(
-      const InputState& inputState, const Model::HitType::Type hitType) const
+    mdl::Hit findDraggableHandle(
+      const InputState& inputState, const mdl::HitType::Type hitType) const
     {
-      using namespace Model::HitFilters;
+      using namespace mdl::HitFilters;
 
       const auto hits = inputState.pickResult().all(type(hitType));
       if (!hits.empty())
@@ -105,13 +105,13 @@ protected:
         }
         return inputState.pickResult().first(type(hitType));
       }
-      return Model::Hit::NoHit;
+      return mdl::Hit::NoHit;
     }
 
-    std::vector<Model::Hit> findDraggableHandles(
-      const InputState& inputState, const Model::HitType::Type hitType) const
+    std::vector<mdl::Hit> findDraggableHandles(
+      const InputState& inputState, const mdl::HitType::Type hitType) const
     {
-      using namespace Model::HitFilters;
+      using namespace mdl::HitFilters;
       return inputState.pickResult().all(type(hitType));
     }
   };
@@ -175,7 +175,7 @@ protected:
   class SelectPartBase : public ToolController, public PartBase
   {
   protected:
-    SelectPartBase(T& tool, const Model::HitType::Type hitType)
+    SelectPartBase(T& tool, const mdl::HitType::Type hitType)
       : PartBase{tool, hitType}
     {
     }
@@ -190,7 +190,7 @@ protected:
 
     const Tool& tool() const override { return m_tool; }
 
-    void pick(const InputState& inputState, Model::PickResult& pickResult) override
+    void pick(const InputState& inputState, mdl::PickResult& pickResult) override
     {
       m_tool.pick(inputState.pickRay(), inputState.camera(), pickResult);
     }
@@ -276,12 +276,12 @@ protected:
     }
 
   protected:
-    std::vector<Model::Hit> firstHits(const Model::PickResult& pickResult) const
+    std::vector<mdl::Hit> firstHits(const mdl::PickResult& pickResult) const
     {
-      using namespace Model::HitFilters;
+      using namespace mdl::HitFilters;
 
-      auto result = std::vector<Model::Hit>{};
-      auto visitedBrushes = std::unordered_set<Model::BrushNode*>{};
+      auto result = std::vector<mdl::Hit>{};
+      auto visitedBrushes = std::unordered_set<mdl::BrushNode*>{};
 
       const auto& first = pickResult.first(type(m_hitType));
       if (first.isMatch())
@@ -307,7 +307,7 @@ protected:
     }
 
     bool allIncidentBrushesVisited(
-      const H& handle, std::unordered_set<Model::BrushNode*>& visitedBrushes) const
+      const H& handle, std::unordered_set<mdl::BrushNode*>& visitedBrushes) const
     {
       auto result = true;
       for (auto brush : m_tool.findIncidentBrushes(handle))
@@ -380,7 +380,7 @@ protected:
   class MovePartBase : public ToolController, public PartBase
   {
   protected:
-    MovePartBase(T& tool, const Model::HitType::Type hitType)
+    MovePartBase(T& tool, const mdl::HitType::Type hitType)
       : PartBase{tool, hitType}
     {
     }

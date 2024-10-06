@@ -21,12 +21,12 @@
 
 #include "View/ToolController.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 class BrushNode;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -51,7 +51,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;

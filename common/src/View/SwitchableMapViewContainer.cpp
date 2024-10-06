@@ -21,7 +21,6 @@
 
 #include <QGridLayout>
 
-#include "Model/PointTrace.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/MapRenderer.h"
@@ -38,6 +37,7 @@
 #include "View/QtUtils.h"
 #include "View/ThreePaneMapView.h"
 #include "View/TwoPaneMapView.h"
+#include "mdl/PointTrace.h"
 
 #include "kdl/memory_utils.h"
 

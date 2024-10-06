@@ -19,11 +19,6 @@
 
 #include "UVOriginTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -39,6 +34,11 @@
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/UVViewHelper.h"
+#include "mdl/BrushFace.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
 
 #include "kdl/optional_utils.h"
 
@@ -72,7 +72,7 @@ std::tuple<vm::line3d, vm::line3d> computeOriginHandles(const UVViewHelper& help
 
 vm::vec2f getSelector(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& xHandleHit =
     inputState.pickResult().first(type(UVOriginTool::XHandleHitType));
@@ -303,8 +303,8 @@ public:
 
 } // namespace
 
-const Model::HitType::Type UVOriginTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVOriginTool::YHandleHitType = Model::HitType::freeType();
+const mdl::HitType::Type UVOriginTool::XHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UVOriginTool::YHandleHitType = mdl::HitType::freeType();
 const double UVOriginTool::MaxPickDistance = 5.0;
 const float UVOriginTool::OriginHandleRadius = 5.0f;
 
@@ -325,7 +325,7 @@ const Tool& UVOriginTool::tool() const
   return *this;
 }
 
-void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+void UVOriginTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (m_helper.valid())
   {
@@ -342,9 +342,9 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
       <= static_cast<double>(OriginHandleRadius / m_helper.cameraZoom()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, oDistance.position);
-      pickResult.addHit(Model::Hit{
+      pickResult.addHit(mdl::Hit{
         XHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
-      pickResult.addHit(Model::Hit{
+      pickResult.addHit(mdl::Hit{
         YHandleHitType, oDistance.position, hitPoint, xHandle, oDistance.distance});
     }
     else
@@ -360,14 +360,14 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
       if (xDistance.distance <= maxDistance)
       {
         const auto hitPoint = vm::point_at_distance(pickRay, xDistance.position1);
-        pickResult.addHit(Model::Hit{
+        pickResult.addHit(mdl::Hit{
           XHandleHitType, xDistance.position1, hitPoint, xHandle, xDistance.distance});
       }
 
       if (yDistance.distance <= maxDistance)
       {
         const auto hitPoint = vm::point_at_distance(pickRay, yDistance.position1);
-        pickResult.addHit(Model::Hit{
+        pickResult.addHit(mdl::Hit{
           YHandleHitType, yDistance.position1, hitPoint, yHandle, yDistance.distance});
       }
     }
@@ -377,7 +377,7 @@ void UVOriginTool::pick(const InputState& inputState, Model::PickResult& pickRes
 std::unique_ptr<GestureTracker> UVOriginTool::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   assert(m_helper.valid());
 
@@ -404,7 +404,7 @@ void UVOriginTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (m_helper.valid() && !inputState.anyToolDragging())
   {

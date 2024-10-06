@@ -19,13 +19,13 @@
 
 #include "MoveObjectsToolController.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/ModelUtils.h"
 #include "Renderer/RenderContext.h"
 #include "View/GestureTracker.h"
 #include "View/MoveHandleDragTracker.h"
 #include "View/MoveObjectsTool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/ModelUtils.h"
 
 #include <cassert>
 
@@ -105,7 +105,7 @@ const Tool& MoveObjectsToolController::tool() const
 std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::None)
@@ -119,8 +119,8 @@ std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
   // The transitivelySelected() lets the hit query match entities/brushes inside a
   // selected group, even though the entities/brushes aren't selected themselves.
 
-  if (const auto& hit = inputState.pickResult().first(
-        type(Model::nodeHitType()) && transitivelySelected());
+  if (const auto& hit =
+        inputState.pickResult().first(type(mdl::nodeHitType()) && transitivelySelected());
       hit.isMatch())
   {
     if (m_tool.startMove(inputState))

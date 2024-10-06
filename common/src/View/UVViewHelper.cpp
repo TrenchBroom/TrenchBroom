@@ -19,13 +19,13 @@
 
 #include "UVViewHelper.h"
 
-#include "Model/BrushFace.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/UVView.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "mdl/BrushFace.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
 
 #include "vm/intersection.h"
 #include "vm/mat.h"
@@ -45,7 +45,7 @@ bool UVViewHelper::valid() const
   return m_faceHandle.has_value();
 }
 
-const Model::BrushFace* UVViewHelper::face() const
+const mdl::BrushFace* UVViewHelper::face() const
 {
   return valid() ? &m_faceHandle->face() : nullptr;
 }
@@ -55,7 +55,7 @@ const asset::Material* UVViewHelper::material() const
   return valid() ? face()->material() : nullptr;
 }
 
-void UVViewHelper::setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle)
+void UVViewHelper::setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle)
 {
   if (faceHandle != m_faceHandle)
   {
@@ -144,8 +144,8 @@ float UVViewHelper::cameraZoom() const
 
 void UVViewHelper::pickUVGrid(
   const vm::ray3d& ray,
-  const Model::HitType::Type hitTypes[2],
-  Model::PickResult& pickResult) const
+  const mdl::HitType::Type hitTypes[2],
+  mdl::PickResult& pickResult) const
 {
   assert(valid());
 

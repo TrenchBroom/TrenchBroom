@@ -22,11 +22,6 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceAttributes.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/FaceAttribsEditor.h"
 #include "View/MapDocument.h"
@@ -36,6 +31,11 @@
 #include "View/Splitter.h"
 #include "View/SwitchableTitledPanel.h"
 #include "asset/Material.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceAttributes.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Game.h"
+#include "mdl/GameFactory.h"
 
 #include "kdl/memory_utils.h"
 
@@ -170,10 +170,10 @@ void FaceInspector::materialSelected(const asset::Material* material)
 
       const auto materialNameToSet = !allFacesHaveMaterial
                                        ? material->name()
-                                       : Model::BrushFaceAttributes::NoMaterialName;
+                                       : mdl::BrushFaceAttributes::NoMaterialName;
 
       document->setCurrentMaterialName(materialNameToSet);
-      auto request = Model::ChangeBrushFaceAttributesRequest{};
+      auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setMaterialName(materialNameToSet);
       document->setFaceAttributes(request);
     }
@@ -182,7 +182,7 @@ void FaceInspector::materialSelected(const asset::Material* material)
       document->setCurrentMaterialName(
         document->currentMaterialName() != material->name()
           ? material->name()
-          : Model::BrushFaceAttributes::NoMaterialName);
+          : mdl::BrushFaceAttributes::NoMaterialName);
     }
   }
 }
@@ -199,7 +199,7 @@ void FaceInspector::connectObservers()
 void FaceInspector::documentWasNewedOrOpened(MapDocument* document)
 {
   const auto& game = *document->game();
-  const auto& gameConfig = Model::GameFactory::instance().gameConfig(game.config().name);
+  const auto& gameConfig = mdl::GameFactory::instance().gameConfig(game.config().name);
   m_materialBrowserInfo->setVisible(gameConfig.materialConfig.property != std::nullopt);
 }
 

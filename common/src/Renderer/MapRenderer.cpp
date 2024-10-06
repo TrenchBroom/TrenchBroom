@@ -19,16 +19,6 @@
 
 #include "MapRenderer.h"
 
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/Node.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BrushRenderer.h"
@@ -44,6 +34,16 @@
 #include "asset/EntityModelManager.h"
 #include "asset/MaterialManager.h"
 #include "asset/Resource.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/Node.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -59,12 +59,12 @@ namespace
 class SelectedBrushRendererFilter : public BrushRenderer::DefaultFilter
 {
 public:
-  explicit SelectedBrushRendererFilter(const Model::EditorContext& context)
+  explicit SelectedBrushRendererFilter(const mdl::EditorContext& context)
     : DefaultFilter{context}
   {
   }
 
-  RenderSettings markFaces(const Model::BrushNode& brushNode) const override
+  RenderSettings markFaces(const mdl::BrushNode& brushNode) const override
   {
     if (!(visible(brushNode) && editable(brushNode)))
     {
@@ -84,12 +84,12 @@ public:
 class LockedBrushRendererFilter : public BrushRenderer::DefaultFilter
 {
 public:
-  explicit LockedBrushRendererFilter(const Model::EditorContext& context)
+  explicit LockedBrushRendererFilter(const mdl::EditorContext& context)
     : DefaultFilter{context}
   {
   }
 
-  RenderSettings markFaces(const Model::BrushNode& brushNode) const override
+  RenderSettings markFaces(const mdl::BrushNode& brushNode) const override
   {
     if (!visible(brushNode))
     {
@@ -109,12 +109,12 @@ public:
 class UnselectedBrushRendererFilter : public BrushRenderer::DefaultFilter
 {
 public:
-  explicit UnselectedBrushRendererFilter(const Model::EditorContext& context)
+  explicit UnselectedBrushRendererFilter(const mdl::EditorContext& context)
     : DefaultFilter{context}
   {
   }
 
-  RenderSettings markFaces(const Model::BrushNode& brushNode) const override
+  RenderSettings markFaces(const mdl::BrushNode& brushNode) const override
   {
     const auto brushVisible = visible(brushNode);
     const auto brushEditable = editable(brushNode);
@@ -404,19 +404,19 @@ void MapRenderer::setupLockedRenderer(ObjectRenderer& renderer)
   renderer.setBrushEdgeColor(pref(Preferences::LockedEdgeColor));
 }
 
-static bool selected(const Model::Node* node)
+static bool selected(const mdl::Node* node)
 {
   return node->selected() || node->descendantSelected() || node->parentSelected();
 }
 
-int MapRenderer::determineDesiredRenderers(Model::Node* node)
+int MapRenderer::determineDesiredRenderers(mdl::Node* node)
 {
   int result = 0;
 
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [&](Model::GroupNode* group) {
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [&](mdl::GroupNode* group) {
       if (group->locked())
       {
         result = int(Renderer::Locked);
@@ -430,7 +430,7 @@ int MapRenderer::determineDesiredRenderers(Model::Node* node)
         result = int(Renderer::Default);
       }
     },
-    [&](Model::EntityNode* entity) {
+    [&](mdl::EntityNode* entity) {
       if (entity->locked())
       {
         result = int(Renderer::Locked);
@@ -444,7 +444,7 @@ int MapRenderer::determineDesiredRenderers(Model::Node* node)
         result = int(Renderer::Default);
       }
     },
-    [&](Model::BrushNode* brush) {
+    [&](mdl::BrushNode* brush) {
       if (brush->locked())
       {
         result = int(Renderer::Locked);
@@ -458,7 +458,7 @@ int MapRenderer::determineDesiredRenderers(Model::Node* node)
         result |= int(Renderer::Default);
       }
     },
-    [&](Model::PatchNode* patchNode) {
+    [&](mdl::PatchNode* patchNode) {
       if (patchNode->locked())
       {
         result = int(Renderer::Locked);
@@ -481,7 +481,7 @@ int MapRenderer::determineDesiredRenderers(Model::Node* node)
  * - Add to desired renderers, if not already present
  * - Invalidate, for any renderers it was already present in
  */
-void MapRenderer::updateAndInvalidateNode(Model::Node* node)
+void MapRenderer::updateAndInvalidateNode(mdl::Node* node)
 {
   const auto desiredRenderers = determineDesiredRenderers(node);
   int currentRenderers = 0;
@@ -519,21 +519,21 @@ void MapRenderer::updateAndInvalidateNode(Model::Node* node)
   m_entityDecalRenderer->updateNode(node);
 }
 
-void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node)
+void MapRenderer::updateAndInvalidateNodeRecursive(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, Model::GroupNode* group) {
+    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [&](auto&& thisLambda, mdl::GroupNode* group) {
       updateAndInvalidateNode(group);
       group->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, Model::EntityNode* entity) {
+    [&](auto&& thisLambda, mdl::EntityNode* entity) {
       updateAndInvalidateNode(entity);
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) { updateAndInvalidateNode(brush); },
-    [&](Model::PatchNode* patchNode) { updateAndInvalidateNode(patchNode); }));
+    [&](mdl::BrushNode* brush) { updateAndInvalidateNode(brush); },
+    [&](mdl::PatchNode* patchNode) { updateAndInvalidateNode(patchNode); }));
 
   // Due to the definition of `selected()` above, we also need to update the parent.
   // (not recursively, though, so this has little performance impact.)
@@ -545,7 +545,7 @@ void MapRenderer::updateAndInvalidateNodeRecursive(Model::Node* node)
   }
 }
 
-void MapRenderer::removeNode(Model::Node* node)
+void MapRenderer::removeNode(mdl::Node* node)
 {
   if (auto it = m_trackedNodes.find(node); it != m_trackedNodes.end())
   {
@@ -574,21 +574,21 @@ void MapRenderer::removeNode(Model::Node* node)
   }
 }
 
-void MapRenderer::removeNodeRecursive(Model::Node* node)
+void MapRenderer::removeNodeRecursive(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, Model::GroupNode* group) {
+    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [&](auto&& thisLambda, mdl::GroupNode* group) {
       removeNode(group);
       group->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, Model::EntityNode* entity) {
+    [&](auto&& thisLambda, mdl::EntityNode* entity) {
       removeNode(entity);
       entity->visitChildren(thisLambda);
     },
-    [&](Model::BrushNode* brush) { removeNode(brush); },
-    [&](Model::PatchNode* patchNode) { removeNode(patchNode); }));
+    [&](mdl::BrushNode* brush) { removeNode(brush); },
+    [&](mdl::PatchNode* patchNode) { removeNode(patchNode); }));
 }
 
 /**
@@ -699,7 +699,7 @@ void MapRenderer::documentWasNewedOrLoaded(View::MapDocument*)
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes)
+void MapRenderer::nodesWereAdded(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
@@ -711,7 +711,7 @@ void MapRenderer::nodesWereAdded(const std::vector<Model::Node*>& nodes)
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes)
+void MapRenderer::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
@@ -723,7 +723,7 @@ void MapRenderer::nodesWereRemoved(const std::vector<Model::Node*>& nodes)
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes)
+void MapRenderer::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
@@ -736,7 +736,7 @@ void MapRenderer::nodesDidChange(const std::vector<Model::Node*>& nodes)
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes)
+void MapRenderer::nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
@@ -745,7 +745,7 @@ void MapRenderer::nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes)
+void MapRenderer::nodeLockingDidChange(const std::vector<mdl::Node*>& nodes)
 {
   for (auto* node : nodes)
   {
@@ -754,19 +754,19 @@ void MapRenderer::nodeLockingDidChange(const std::vector<Model::Node*>& nodes)
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasOpened(Model::GroupNode*)
+void MapRenderer::groupWasOpened(mdl::GroupNode*)
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::groupWasClosed(Model::GroupNode*)
+void MapRenderer::groupWasClosed(mdl::GroupNode*)
 {
   invalidateGroupLinkRenderer();
   invalidateEntityLinkRenderer();
 }
 
-void MapRenderer::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces)
+void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces)
 {
   for (const auto& face : faces)
   {

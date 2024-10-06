@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Game.h" // IWYU pragma: keep
-#include "Model/GameConfig.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "TestLogger.h"
@@ -28,6 +26,8 @@
 #include "asset/Texture.h"
 #include "asset/TextureResource.h"
 #include "io/LoadEntityModel.h"
+#include "mdl/Game.h" // IWYU pragma: keep
+#include "mdl/GameConfig.h"
 
 #include "vm/approx.h"
 #include "vm/bbox.h"
@@ -42,7 +42,7 @@ namespace tb::asset
 TEST_CASE("BSP model intersection test")
 {
   auto logger = TestLogger{};
-  auto [game, gameConfig] = Model::loadGame("Quake");
+  auto [game, gameConfig] = mdl::loadGame("Quake");
 
   const auto path = std::filesystem::path{"cube.bsp"};
   const auto loadMaterial = [](auto) -> asset::Material {

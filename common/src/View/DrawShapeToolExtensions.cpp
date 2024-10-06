@@ -25,10 +25,10 @@
 #include <QSpinBox>
 #include <QToolButton>
 
-#include "Model/BrushBuilder.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/WorldNode.h"
 
 namespace tb::View
 {
@@ -61,11 +61,11 @@ QWidget* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
   return new QWidget{parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolCuboidExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
   const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
-  const auto builder = Model::BrushBuilder{
+  const auto builder = mdl::BrushBuilder{
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};
@@ -88,14 +88,14 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
     createBitmapToggleButton("RadiusModeEdge.svg", tr("Radius is to edge"));
   radiusModeEdgeButton->setIconSize({24, 24});
   radiusModeEdgeButton->setObjectName("backgroundChecked");
-  radiusModeEdgeButton->setChecked(m_parameters.radiusMode == Model::RadiusMode::ToEdge);
+  radiusModeEdgeButton->setChecked(m_parameters.radiusMode == mdl::RadiusMode::ToEdge);
 
   auto* radiusModeVertexButton =
     createBitmapToggleButton("RadiusModeVertex.svg", tr("Radius is to vertex"));
   radiusModeVertexButton->setIconSize({24, 24});
   radiusModeVertexButton->setObjectName("backgroundChecked");
   radiusModeVertexButton->setChecked(
-    m_parameters.radiusMode == Model::RadiusMode::ToVertex);
+    m_parameters.radiusMode == mdl::RadiusMode::ToVertex);
 
   auto* radiusModeButtonGroup = new QButtonGroup{};
   radiusModeButtonGroup->addButton(radiusModeEdgeButton);
@@ -107,10 +107,10 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
     this,
     [&](const auto numSides) { m_parameters.numSides = size_t(numSides); });
   connect(radiusModeEdgeButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = Model::RadiusMode::ToEdge;
+    m_parameters.radiusMode = mdl::RadiusMode::ToEdge;
   });
   connect(radiusModeVertexButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = Model::RadiusMode::ToVertex;
+    m_parameters.radiusMode = mdl::RadiusMode::ToVertex;
   });
 
   addWidget(numSidesLabel);
@@ -150,7 +150,7 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge, false, 16.0}
+  : m_parameters{8, mdl::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
@@ -165,11 +165,11 @@ QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
   return new DrawShapeToolCylinderShapeExtensionPage{m_parameters, parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
   const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
-  const auto builder = Model::BrushBuilder{
+  const auto builder = mdl::BrushBuilder{
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};
@@ -192,7 +192,7 @@ Result<std::vector<Model::Brush>> DrawShapeToolCylinderExtension::createBrushes(
 }
 
 DrawShapeToolConeExtension::DrawShapeToolConeExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge}
+  : m_parameters{8, mdl::RadiusMode::ToEdge}
 {
 }
 
@@ -207,11 +207,11 @@ QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
   return new DrawShapeToolCircularShapeExtensionPage{m_parameters, parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolConeExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
-  const auto builder = Model::BrushBuilder{
+  const auto builder = mdl::BrushBuilder{
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};
@@ -261,11 +261,11 @@ QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
   return new DrawShapeToolIcoSphereShapeExtensionPage{m_parameters, parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
   const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
 {
   const auto game = document.game();
-  const auto builder = Model::BrushBuilder{
+  const auto builder = mdl::BrushBuilder{
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};
@@ -296,7 +296,7 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension()
-  : m_parameters{8, Model::RadiusMode::ToEdge, 8}
+  : m_parameters{8, mdl::RadiusMode::ToEdge, 8}
 {
 }
 
@@ -311,11 +311,11 @@ QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)
   return new DrawShapeToolUVSphereShapeExtensionPage{m_parameters, parent};
 }
 
-Result<std::vector<Model::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
+Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
 {
   const auto game = document.game();
-  const auto builder = Model::BrushBuilder{
+  const auto builder = mdl::BrushBuilder{
     document.world()->mapFormat(),
     document.worldBounds(),
     game->config().faceAttribsConfig.defaults};

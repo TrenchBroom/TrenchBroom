@@ -19,7 +19,7 @@
 
 #include "SmartDefaultPropertyEditor.h"
 
-#include "Model/EntityNodeBase.h"
+#include "mdl/EntityNodeBase.h"
 
 namespace tb::View
 {
@@ -31,7 +31,7 @@ SmartDefaultPropertyEditor::SmartDefaultPropertyEditor(
 }
 
 void SmartDefaultPropertyEditor::doUpdateVisual(
-  const std::vector<Model::EntityNodeBase*>& /* nodes */)
+  const std::vector<mdl::EntityNodeBase*>& /* nodes */)
 {
 }
 

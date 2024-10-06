@@ -82,7 +82,7 @@ private: // other events
 
 private: // implement ToolBoxConnector interface
   PickRequest pickRequest(float x, float y) const override;
-  Model::PickResult pick(const vm::ray3d& pickRay) const override;
+  mdl::PickResult pick(const vm::ray3d& pickRay) const override;
 
 private: // implement RenderView interface
   void updateViewport(int x, int y, int width, int height) override;
@@ -97,7 +97,7 @@ private: // implement MapView interface
   void reset2dCameras(const Renderer::Camera& masterCamera, bool animate) override;
   void focusCameraOnSelection(bool animate) override;
 
-  vm::vec3f focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes);
+  vm::vec3f focusCameraOnObjectsPosition(const std::vector<mdl::Node*>& nodes);
 
   void moveCameraToPosition(const vm::vec3f& position, bool animate) override;
   void animateCamera(

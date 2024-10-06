@@ -23,8 +23,6 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "Model/Node.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
@@ -32,6 +30,8 @@
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
 #include "io/PathQt.h"
+#include "mdl/Node.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -250,7 +250,7 @@ void MaterialCollectionEditor::documentWasNewedOrLoaded(MapDocument*)
   updateButtons();
 }
 
-void MaterialCollectionEditor::nodesDidChange(const std::vector<Model::Node*>& nodes)
+void MaterialCollectionEditor::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
   auto document = kdl::mem_lock(m_document);
   if (kdl::vec_contains(nodes, document->world()))

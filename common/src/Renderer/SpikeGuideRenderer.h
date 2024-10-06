@@ -31,7 +31,7 @@
 
 namespace tb
 {
-namespace Model
+namespace mdl
 {
 class Picker;
 }

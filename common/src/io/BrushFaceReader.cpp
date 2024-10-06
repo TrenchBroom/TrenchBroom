@@ -19,20 +19,20 @@
 
 #include "BrushFaceReader.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/WorldNode.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/WorldNode.h"
 
 namespace tb::io
 {
 
 BrushFaceReader::BrushFaceReader(
-  const std::string_view str, const Model::MapFormat sourceAndTargetMapFormat)
+  const std::string_view str, const mdl::MapFormat sourceAndTargetMapFormat)
   : MapReader{str, sourceAndTargetMapFormat, sourceAndTargetMapFormat, {}}
 {
 }
 
-std::vector<Model::BrushFace> BrushFaceReader::read(
+std::vector<mdl::BrushFace> BrushFaceReader::read(
   const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   try
@@ -46,17 +46,16 @@ std::vector<Model::BrushFace> BrushFaceReader::read(
   }
 }
 
-Model::Node* BrushFaceReader::onWorldNode(
-  std::unique_ptr<Model::WorldNode>, ParserStatus&)
+mdl::Node* BrushFaceReader::onWorldNode(std::unique_ptr<mdl::WorldNode>, ParserStatus&)
 {
   return nullptr;
 }
 
-void BrushFaceReader::onLayerNode(std::unique_ptr<Model::Node>, ParserStatus&) {}
+void BrushFaceReader::onLayerNode(std::unique_ptr<mdl::Node>, ParserStatus&) {}
 
-void BrushFaceReader::onNode(Model::Node*, std::unique_ptr<Model::Node>, ParserStatus&) {}
+void BrushFaceReader::onNode(mdl::Node*, std::unique_ptr<mdl::Node>, ParserStatus&) {}
 
-void BrushFaceReader::onBrushFace(Model::BrushFace face, ParserStatus& /* status */)
+void BrushFaceReader::onBrushFace(mdl::BrushFace face, ParserStatus& /* status */)
 {
   m_brushFaces.push_back(std::move(face));
 }

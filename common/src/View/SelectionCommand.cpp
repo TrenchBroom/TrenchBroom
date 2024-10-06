@@ -20,9 +20,9 @@
 #include "SelectionCommand.h"
 
 #include "Macros.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushFaceReference.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushFaceReference.h"
 
 #include "kdl/result.h"
 #include "kdl/string_format.h"
@@ -44,74 +44,71 @@ enum class SelectionCommand::Action
   DeselectAll
 };
 
-std::unique_ptr<SelectionCommand> SelectionCommand::select(
-  std::vector<Model::Node*> nodes)
+std::unique_ptr<SelectionCommand> SelectionCommand::select(std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SelectionCommand>(
-    Action::SelectNodes, std::move(nodes), std::vector<Model::BrushFaceHandle>{});
+    Action::SelectNodes, std::move(nodes), std::vector<mdl::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::select(
-  std::vector<Model::BrushFaceHandle> faces)
+  std::vector<mdl::BrushFaceHandle> faces)
 {
   return std::make_unique<SelectionCommand>(
-    Action::SelectFaces, std::vector<Model::Node*>{}, std::move(faces));
+    Action::SelectFaces, std::vector<mdl::Node*>{}, std::move(faces));
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::convertToFaces()
 {
   return std::make_unique<SelectionCommand>(
     Action::ConvertToFaces,
-    std::vector<Model::Node*>{},
-    std::vector<Model::BrushFaceHandle>{});
+    std::vector<mdl::Node*>{},
+    std::vector<mdl::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::selectAllNodes()
 {
   return std::make_unique<SelectionCommand>(
     Action::SelectAllNodes,
-    std::vector<Model::Node*>{},
-    std::vector<Model::BrushFaceHandle>{});
+    std::vector<mdl::Node*>{},
+    std::vector<mdl::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::selectAllFaces()
 {
   return std::make_unique<SelectionCommand>(
     Action::SelectAllFaces,
-    std::vector<Model::Node*>{},
-    std::vector<Model::BrushFaceHandle>{});
+    std::vector<mdl::Node*>{},
+    std::vector<mdl::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselect(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
   return std::make_unique<SelectionCommand>(
-    Action::DeselectNodes, std::move(nodes), std::vector<Model::BrushFaceHandle>{});
+    Action::DeselectNodes, std::move(nodes), std::vector<mdl::BrushFaceHandle>{});
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselect(
-  std::vector<Model::BrushFaceHandle> faces)
+  std::vector<mdl::BrushFaceHandle> faces)
 {
   return std::make_unique<SelectionCommand>(
-    Action::DeselectFaces, std::vector<Model::Node*>{}, std::move(faces));
+    Action::DeselectFaces, std::vector<mdl::Node*>{}, std::move(faces));
 }
 
 std::unique_ptr<SelectionCommand> SelectionCommand::deselectAll()
 {
   return std::make_unique<SelectionCommand>(
-    Action::DeselectAll,
-    std::vector<Model::Node*>{},
-    std::vector<Model::BrushFaceHandle>{});
+    Action::DeselectAll, std::vector<mdl::Node*>{}, std::vector<mdl::BrushFaceHandle>{});
 }
 
 SelectionCommand::SelectionCommand(
   const Action action,
-  std::vector<Model::Node*> nodes,
-  std::vector<Model::BrushFaceHandle> faces)
+  std::vector<mdl::Node*> nodes,
+  std::vector<mdl::BrushFaceHandle> faces)
   : UndoableCommand{makeName(action, nodes.size(), faces.size()), false}
   , m_action{action}
   , m_nodes{std::move(nodes)}
-  , m_faceRefs{Model::createRefs(faces)}
+  , m_faceRefs{mdl::createRefs(faces)}
 {
 }
 
@@ -159,7 +156,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
   MapDocumentCommandFacade& document)
 {
   m_previouslySelectedNodes = document.selectedNodes().nodes();
-  m_previouslySelectedFaceRefs = Model::createRefs(document.selectedBrushFaces());
+  m_previouslySelectedFaceRefs = mdl::createRefs(document.selectedBrushFaces());
 
   switch (m_action)
   {
@@ -168,7 +165,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
     return std::make_unique<CommandResult>(true);
   case Action::SelectFaces:
     return std::make_unique<CommandResult>(
-      Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
+      mdl::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
         document.performSelect(faceHandles);
       })
       | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
@@ -187,7 +184,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
     return std::make_unique<CommandResult>(true);
   case Action::DeselectFaces:
     return std::make_unique<CommandResult>(
-      Model::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
+      mdl::resolveAllRefs(m_faceRefs) | kdl::transform([&](const auto& faceHandles) {
         document.performDeselect(faceHandles);
       })
       | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })
@@ -210,7 +207,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
   if (!m_previouslySelectedFaceRefs.empty())
   {
     return std::make_unique<CommandResult>(
-      Model::resolveAllRefs(m_previouslySelectedFaceRefs)
+      mdl::resolveAllRefs(m_previouslySelectedFaceRefs)
       | kdl::transform(
         [&](const auto& faceHandles) { document.performSelect(faceHandles); })
       | kdl::transform_error([&](const auto& e) { document.error() << e.msg; })

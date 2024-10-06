@@ -34,7 +34,7 @@ bool ToolController::toolActive() const
   return tool().active();
 }
 
-void ToolController::pick(const InputState&, Model::PickResult&) {}
+void ToolController::pick(const InputState&, mdl::PickResult&) {}
 
 void ToolController::modifierKeyChange(const InputState&) {}
 
@@ -106,8 +106,7 @@ void ToolControllerGroup::addController(std::unique_ptr<ToolController> controll
   m_chain.append(std::move(controller));
 }
 
-void ToolControllerGroup::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+void ToolControllerGroup::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   m_chain.pick(inputState, pickResult);
 }

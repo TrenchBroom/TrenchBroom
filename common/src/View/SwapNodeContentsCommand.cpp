@@ -19,8 +19,8 @@
 
 #include "SwapNodeContentsCommand.h"
 
-#include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/Node.h"
 
 #include "kdl/vector_utils.h"
 
@@ -28,7 +28,7 @@ namespace tb::View
 {
 
 SwapNodeContentsCommand::SwapNodeContentsCommand(
-  std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes)
+  std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes)
   : UpdateLinkedGroupsCommandBase{std::move(name), true}
   , m_nodes{std::move(nodes)}
 {

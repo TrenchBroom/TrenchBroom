@@ -25,7 +25,7 @@
 
 class QAbstractButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class LayerNode;
 }
@@ -51,23 +51,23 @@ public:
   explicit LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
 private:
-  void onSetCurrentLayer(Model::LayerNode* layer);
-  bool canSetCurrentLayer(Model::LayerNode* layer) const;
+  void onSetCurrentLayer(mdl::LayerNode* layer);
+  bool canSetCurrentLayer(mdl::LayerNode* layer) const;
 
-  void onLayerRightClick(Model::LayerNode* layer);
+  void onLayerRightClick(mdl::LayerNode* layer);
 
   void onMoveSelectionToLayer();
   bool canMoveSelectionToLayer() const;
 
   bool canToggleLayerVisible() const;
-  void toggleLayerVisible(Model::LayerNode* layer);
+  void toggleLayerVisible(mdl::LayerNode* layer);
 
   bool canToggleLayerLocked() const;
-  void toggleLayerLocked(Model::LayerNode* layer);
+  void toggleLayerLocked(mdl::LayerNode* layer);
 
-  void toggleOmitLayerFromExport(Model::LayerNode* layer);
+  void toggleOmitLayerFromExport(mdl::LayerNode* layer);
 
-  void isolateLayer(Model::LayerNode* layer);
+  void isolateLayer(mdl::LayerNode* layer);
 
   void onSelectAllInLayer();
   bool canSelectAllInLayer() const;
@@ -93,10 +93,10 @@ private:
   bool canUnlockAllLayers() const;
 
   bool canMoveLayer(int direction) const;
-  void moveLayer(Model::LayerNode* layer, int direction);
+  void moveLayer(mdl::LayerNode* layer, int direction);
 
 private:
-  Model::LayerNode* findVisibleAndUnlockedLayer(const Model::LayerNode* except) const;
+  mdl::LayerNode* findVisibleAndUnlockedLayer(const mdl::LayerNode* except) const;
   void createGui();
 private slots:
   void updateButtons();

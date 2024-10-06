@@ -19,14 +19,14 @@
 
 #include "../../test/src/Catch2.h"
 #include "BenchmarkUtils.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/MapFormat.h"
-#include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/MapFormat.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -61,9 +61,9 @@ auto makeBrushes()
   // make brushes, cycling through the materials for each face
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto builder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
+  auto builder = mdl::BrushBuilder{mdl::MapFormat::Standard, worldBounds};
 
-  auto result = std::vector<std::unique_ptr<Model::BrushNode>>{};
+  auto result = std::vector<std::unique_ptr<mdl::BrushNode>>{};
   size_t currentMaterialIndex = 0;
   for (size_t i = 0; i < NumBrushes; ++i)
   {
@@ -72,7 +72,7 @@ auto makeBrushes()
     {
       face.setMaterial(&materials.at((currentMaterialIndex++) % NumMaterials));
     }
-    result.push_back(std::make_unique<Model::BrushNode>(std::move(brush)));
+    result.push_back(std::make_unique<mdl::BrushNode>(std::move(brush)));
   }
 
   // ensure the brushes have their vertices cached.

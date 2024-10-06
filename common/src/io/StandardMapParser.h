@@ -22,7 +22,7 @@
 #include "io/MapParser.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
-#include "Model/MapFormat.h"
+#include "mdl/MapFormat.h"
 
 #include "kdl/vector_set_forward.h"
 
@@ -86,8 +86,8 @@ private:
   QuakeMapTokenizer m_tokenizer;
 
 protected:
-  Model::MapFormat m_sourceMapFormat;
-  Model::MapFormat m_targetMapFormat;
+  mdl::MapFormat m_sourceMapFormat;
+  mdl::MapFormat m_targetMapFormat;
 
 public:
   /**
@@ -99,9 +99,7 @@ public:
    * @param targetMapFormat the format to convert the created objects to
    */
   StandardMapParser(
-    std::string_view str,
-    Model::MapFormat sourceMapFormat,
-    Model::MapFormat targetMapFormat);
+    std::string_view str, mdl::MapFormat sourceMapFormat, mdl::MapFormat targetMapFormat);
 
   ~StandardMapParser() override;
 
@@ -115,7 +113,7 @@ protected:
 private:
   void parseEntity(ParserStatus& status);
   void parseEntityProperty(
-    std::vector<Model::EntityProperty>& properties,
+    std::vector<mdl::EntityProperty>& properties,
     EntityPropertyKeys& keys,
     ParserStatus& status);
 

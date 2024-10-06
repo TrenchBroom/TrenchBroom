@@ -19,11 +19,11 @@
 
 #include "CompilationConfigWriter.h"
 
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 #include "el/Types.h"
 #include "el/Value.h"
+#include "mdl/CompilationConfig.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/CompilationTask.h"
 
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"
@@ -35,7 +35,7 @@ namespace tb::io
 {
 
 CompilationConfigWriter::CompilationConfigWriter(
-  const Model::CompilationConfig& config, std::ostream& stream)
+  const mdl::CompilationConfig& config, std::ostream& stream)
   : m_config{config}
   , m_stream{stream}
 {
@@ -51,14 +51,14 @@ void CompilationConfigWriter::writeConfig()
 }
 
 el::Value CompilationConfigWriter::writeProfiles(
-  const Model::CompilationConfig& config) const
+  const mdl::CompilationConfig& config) const
 {
   return el::Value{kdl::vec_transform(
     config.profiles, [&](const auto& profile) { return writeProfile(profile); })};
 }
 
 el::Value CompilationConfigWriter::writeProfile(
-  const Model::CompilationProfile& profile) const
+  const mdl::CompilationProfile& profile) const
 {
   return el::Value{el::MapType{
     {"name", el::Value{profile.name}},
@@ -68,12 +68,12 @@ el::Value CompilationConfigWriter::writeProfile(
 }
 
 el::Value CompilationConfigWriter::writeTasks(
-  const Model::CompilationProfile& profile) const
+  const mdl::CompilationProfile& profile) const
 {
   return el::Value{kdl::vec_transform(profile.tasks, [](const auto& task) {
     return std::visit(
       kdl::overload(
-        [](const Model::CompilationExportMap& exportMap) {
+        [](const mdl::CompilationExportMap& exportMap) {
           auto map = el::MapType{};
           if (!exportMap.enabled)
           {
@@ -83,7 +83,7 @@ el::Value CompilationConfigWriter::writeTasks(
           map["target"] = el::Value{exportMap.targetSpec};
           return el::Value{std::move(map)};
         },
-        [](const Model::CompilationCopyFiles& copyFiles) {
+        [](const mdl::CompilationCopyFiles& copyFiles) {
           auto map = el::MapType{};
           if (!copyFiles.enabled)
           {
@@ -94,7 +94,7 @@ el::Value CompilationConfigWriter::writeTasks(
           map["target"] = el::Value{copyFiles.targetSpec};
           return el::Value{std::move(map)};
         },
-        [](const Model::CompilationRenameFile& renameFile) {
+        [](const mdl::CompilationRenameFile& renameFile) {
           auto map = el::MapType{};
           if (!renameFile.enabled)
           {
@@ -105,7 +105,7 @@ el::Value CompilationConfigWriter::writeTasks(
           map["target"] = el::Value{renameFile.targetSpec};
           return el::Value{std::move(map)};
         },
-        [](const Model::CompilationDeleteFiles& deleteFiles) {
+        [](const mdl::CompilationDeleteFiles& deleteFiles) {
           auto map = el::MapType{};
           if (!deleteFiles.enabled)
           {
@@ -115,7 +115,7 @@ el::Value CompilationConfigWriter::writeTasks(
           map["target"] = el::Value{deleteFiles.targetSpec};
           return el::Value{std::move(map)};
         },
-        [](const Model::CompilationRunTool& runTool) {
+        [](const mdl::CompilationRunTool& runTool) {
           auto map = el::MapType{};
           if (!runTool.enabled)
           {

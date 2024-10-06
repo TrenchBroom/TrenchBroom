@@ -17,22 +17,22 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/PickResult.h"
-#include "Model/WorldNode.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/InputState.h"
 #include "View/MapDocumentTest.h"
 #include "View/PickRequest.h"
 #include "View/SelectionTool.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/PickResult.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -44,7 +44,7 @@ namespace tb::View
 TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 {
   const auto* world = document->world();
-  auto builder = Model::BrushBuilder{
+  auto builder = mdl::BrushBuilder{
     world->mapFormat(),
     document->worldBounds(),
     document->game()->config().faceAttribsConfig.defaults};
@@ -54,9 +54,9 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
   GIVEN("A group node")
   {
     auto* brushNode =
-      new Model::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
-    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
-    auto* groupNode = new Model::GroupNode(Model::Group{"some_group"});
+      new mdl::BrushNode{builder.createCube(32.0, "some_face") | kdl::value()};
+    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
+    auto* groupNode = new mdl::GroupNode(mdl::Group{"some_group"});
 
     document->addNodes({{document->parentForNodes(), {groupNode}}});
     document->addNodes({{groupNode, {brushNode, entityNode}}});
@@ -70,7 +70,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
-      auto pickResult = Model::PickResult{};
+      auto pickResult = mdl::PickResult{};
       document->pick(pickRay, pickResult);
       REQUIRE(pickResult.all().size() == 1);
 
@@ -89,7 +89,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("The group gets selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == Model::NodeCollection{{groupNode}});
+          CHECK(document->selectedNodes() == mdl::NodeCollection{{groupNode}});
         }
       }
 
@@ -120,12 +120,12 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
                    "top_face",
                    "bottom_face")
                  | kdl::value();
-    auto* brushNode = new Model::BrushNode{std::move(brush)};
+    auto* brushNode = new mdl::BrushNode{std::move(brush)};
 
     const auto topFaceIndex = *brushNode->brush().findFace("top_face");
     const auto frontFaceIndex = *brushNode->brush().findFace("front_face");
 
-    auto* entityNode = new Model::EntityNode{Model::Entity{{{"origin", "64 0 0"}}}};
+    auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"origin", "64 0 0"}}}};
 
     document->addNodes({{document->parentForNodes(), {brushNode, entityNode}}});
 
@@ -138,7 +138,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
       const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
 
-      auto pickResult = Model::PickResult{};
+      auto pickResult = mdl::PickResult{};
       document->pick(pickRay, pickResult);
       REQUIRE(pickResult.all().size() == 1);
 
@@ -159,7 +159,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         {
           CHECK(
             document->selectedBrushFaces()
-            == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+            == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
           CHECK(document->selectedNodes().empty());
         }
 
@@ -174,7 +174,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK(
               document->selectedBrushFaces()
-              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
@@ -203,7 +203,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("The brush gets selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
+          CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
         }
 
         AND_WHEN("I click on the selected brushagain")
@@ -215,7 +215,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush remains selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
+            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
           }
         }
 
@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         {
           CHECK(document->selectedBrushFaces().empty());
           CHECK(
-            document->selectedNodes() == Model::NodeCollection{{brushNode, entityNode}});
+            document->selectedNodes() == mdl::NodeCollection{{brushNode, entityNode}});
         }
       }
 
@@ -277,7 +277,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK(
               document->selectedBrushFaces()
-              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
@@ -293,7 +293,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK_THAT(
               document->selectedBrushFaces(),
-              Catch::Matchers::UnorderedEquals(std::vector<Model::BrushFaceHandle>{
+              Catch::Matchers::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
                 {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
             CHECK(document->selectedNodes().empty());
           }
@@ -308,7 +308,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
+            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
           }
         }
 
@@ -322,7 +322,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
+            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
           }
         }
       }
@@ -342,7 +342,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK(
               document->selectedBrushFaces()
-              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
@@ -358,7 +358,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK(
               document->selectedBrushFaces()
-              == std::vector<Model::BrushFaceHandle>{{brushNode, topFaceIndex}});
+              == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
             CHECK(document->selectedNodes().empty());
           }
         }
@@ -372,7 +372,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == Model::NodeCollection{{brushNode}});
+            CHECK(document->selectedNodes() == mdl::NodeCollection{{brushNode}});
           }
         }
 
@@ -387,8 +387,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           {
             CHECK(document->selectedBrushFaces().empty());
             CHECK(
-              document->selectedNodes()
-              == Model::NodeCollection{{entityNode, brushNode}});
+              document->selectedNodes() == mdl::NodeCollection{{entityNode, brushNode}});
           }
         }
       }
@@ -396,12 +395,12 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
       AND_GIVEN("The top face is hidden")
       {
 
-        auto hiddenTag = Model::Tag{"hidden", {}};
+        auto hiddenTag = mdl::Tag{"hidden", {}};
 
         auto newBrush = brushNode->brush();
         newBrush.face(topFaceIndex).addTag(hiddenTag);
         document->swapNodeContents(
-          "Set Tag", {{brushNode, Model::NodeContents{std::move(newBrush)}}});
+          "Set Tag", {{brushNode, mdl::NodeContents{std::move(newBrush)}}});
 
         REQUIRE(brushNode->brush().face(topFaceIndex).hasTag(hiddenTag));
 

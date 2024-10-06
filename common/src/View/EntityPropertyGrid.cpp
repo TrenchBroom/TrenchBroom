@@ -33,8 +33,6 @@
 #include <QToolButton>
 
 #include "Macros.h"
-#include "Model/EntityNodeBase.h" // IWYU pragma: keep
-#include "Model/Node.h"
 #include "View/BorderLine.h"
 #include "View/EntityPropertyItemDelegate.h"
 #include "View/EntityPropertyModel.h"
@@ -43,6 +41,8 @@
 #include "View/QtUtils.h"
 #include "View/Transaction.h"
 #include "View/ViewConstants.h"
+#include "mdl/EntityNodeBase.h" // IWYU pragma: keep
+#include "mdl/Node.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
@@ -235,7 +235,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   m_proxyModel = new EntitySortFilterProxyModel{this};
   m_proxyModel->setSourceModel(m_model);
 
-  // NOTE: must be column 0, because EntitySortFilterProxyModel::lessThan ignores the
+  // NOTE: must be column 0, because EntitySortFilterProxymdl::lessThan ignores the
   // column part of the QModelIndex
   m_proxyModel->sort(0);
   m_table->setModel(m_proxyModel);
@@ -286,15 +286,15 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   auto* setDefaultPropertiesMenu = new QMenu{this};
   setDefaultPropertiesMenu->addAction(tr("Set existing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
+      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetExisting);
   });
   setDefaultPropertiesMenu->addAction(tr("Set missing default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
   setDefaultPropertiesMenu->addAction(tr("Set all default properties"), this, [&]() {
     kdl::mem_lock(m_document)
-      ->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+      ->setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
   });
 
   m_setDefaultPropertiesButton =
@@ -406,7 +406,7 @@ void EntityPropertyGrid::documentWasLoaded(MapDocument*)
   updateControls();
 }
 
-void EntityPropertyGrid::nodesDidChange(const std::vector<Model::Node*>&)
+void EntityPropertyGrid::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   updateControls();
 }
@@ -452,7 +452,7 @@ void EntityPropertyGrid::updateControlsEnabled()
   auto document = kdl::mem_lock(m_document);
   const auto nodes = document->allSelectedEntityNodes();
   const auto canUpdateLinkedGroups =
-    document->canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(nodes));
+    document->canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(nodes));
   m_table->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_addPropertyButton->setEnabled(!nodes.empty() && canUpdateLinkedGroups);
   m_removePropertiesButton->setEnabled(

@@ -22,7 +22,6 @@
 #include "AssimpLoader.h"
 
 #include "Logger.h"
-#include "Model/BrushFaceAttributes.h"
 #include "ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
@@ -35,6 +34,7 @@
 #include "io/PathInfo.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ResourceUtils.h"
+#include "mdl/BrushFaceAttributes.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/result.h"
@@ -165,7 +165,7 @@ public:
 
 std::optional<asset::Texture> loadFallbackTexture(const FileSystem& fs)
 {
-  static const auto NoTextureName = Model::BrushFaceAttributes::NoMaterialName;
+  static const auto NoTextureName = mdl::BrushFaceAttributes::NoMaterialName;
 
   static const auto texturePaths = std::vector<std::filesystem::path>{
     "textures" / kdl::path_add_extension(NoTextureName, ".png"),

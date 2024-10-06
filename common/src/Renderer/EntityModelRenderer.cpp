@@ -20,9 +20,6 @@
 #include "EntityModelRenderer.h"
 
 #include "Logger.h"
-#include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -36,6 +33,9 @@
 #include "asset/AssetUtils.h"
 #include "asset/EntityModel.h"
 #include "asset/EntityModelManager.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 
 #include "vm/mat.h"
 
@@ -47,7 +47,7 @@ namespace tb::Renderer
 EntityModelRenderer::EntityModelRenderer(
   Logger& logger,
   asset::EntityModelManager& entityModelManager,
-  const Model::EditorContext& editorContext)
+  const mdl::EditorContext& editorContext)
   : m_logger{logger}
   , m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
@@ -59,7 +59,7 @@ EntityModelRenderer::~EntityModelRenderer()
   clear();
 }
 
-void EntityModelRenderer::addEntity(const Model::EntityNode* entityNode)
+void EntityModelRenderer::addEntity(const mdl::EntityNode* entityNode)
 {
   const auto modelSpec =
     asset::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
@@ -73,12 +73,12 @@ void EntityModelRenderer::addEntity(const Model::EntityNode* entityNode)
   }
 }
 
-void EntityModelRenderer::removeEntity(const Model::EntityNode* entityNode)
+void EntityModelRenderer::removeEntity(const mdl::EntityNode* entityNode)
 {
   m_entities.erase(entityNode);
 }
 
-void EntityModelRenderer::updateEntity(const Model::EntityNode* entityNode)
+void EntityModelRenderer::updateEntity(const mdl::EntityNode* entityNode)
 {
   const auto modelSpec =
     asset::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {

@@ -19,8 +19,6 @@
 
 #include "UVView.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -46,6 +44,8 @@
 #include "View/UVShearTool.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
 
 #include "kdl/memory_utils.h"
 
@@ -144,7 +144,7 @@ private:
 
 } // namespace
 
-const Model::HitType::Type UVView::FaceHitType = Model::HitType::freeType();
+const mdl::HitType::Type UVView::FaceHitType = mdl::HitType::freeType();
 
 UVView::UVView(std::weak_ptr<MapDocument> document, GLContextManager& contextManager)
   : RenderView{contextManager}
@@ -237,12 +237,12 @@ void UVView::documentWasCleared(MapDocument*)
   update();
 }
 
-void UVView::nodesDidChange(const std::vector<Model::Node*>&)
+void UVView::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   update();
 }
 
-void UVView::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void UVView::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
 {
   update();
 }
@@ -415,9 +415,9 @@ PickRequest UVView::pickRequest(const float x, const float y) const
   return PickRequest{vm::ray3d{m_camera.pickRay(x, y)}, m_camera};
 }
 
-Model::PickResult UVView::pick(const vm::ray3d& pickRay) const
+mdl::PickResult UVView::pick(const vm::ray3d& pickRay) const
 {
-  auto pickResult = Model::PickResult::byDistance();
+  auto pickResult = mdl::PickResult::byDistance();
   if (m_helper.valid())
   {
     if (const auto distance = m_helper.face()->intersectWithRay(pickRay))

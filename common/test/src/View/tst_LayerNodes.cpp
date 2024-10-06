@@ -19,16 +19,16 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/LockState.h"
-#include "Model/ModelUtils.h"
-#include "Model/PatchNode.h"
-#include "Model/VisibilityState.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/LockState.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/PatchNode.h"
+#include "mdl/VisibilityState.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
@@ -37,7 +37,7 @@ namespace tb::View
 namespace
 {
 
-void setLayerSortIndex(Model::LayerNode& layerNode, int sortIndex)
+void setLayerSortIndex(mdl::LayerNode& layerNode, int sortIndex)
 {
   auto layer = layerNode.layer();
   layer.setSortIndex(sortIndex);
@@ -51,7 +51,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.defaultLayerSortIndexImmutable"
   auto* defaultLayerNode = document->world()->defaultLayer();
   setLayerSortIndex(*defaultLayerNode, 555);
 
-  CHECK(defaultLayerNode->layer().sortIndex() == Model::Layer::defaultLayerSortIndex());
+  CHECK(defaultLayerNode->layer().sortIndex() == mdl::Layer::defaultLayerSortIndex());
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer")
@@ -60,7 +60,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.renameLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode = new mdl::LayerNode{mdl::Layer{"test1"}};
   document->addNodes({{document->world(), {layerNode}}});
   CHECK(layerNode->name() == "test1");
 
@@ -77,8 +77,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
@@ -104,8 +104,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
@@ -116,12 +116,12 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newGroupGoesIntoSourceLayer")
 
   document->setCurrentLayer(layerNode2);
   document->selectNodes({entity});
-  Model::GroupNode* newGroup =
+  mdl::GroupNode* newGroup =
     document->groupSelection("Group in Layer 1"); // the new group should stay in layer1
 
   CHECK(entity->parent() == newGroup);
-  CHECK(Model::findContainingLayer(entity) == layerNode1);
-  CHECK(Model::findContainingLayer(newGroup) == layerNode1);
+  CHECK(mdl::findContainingLayer(entity) == layerNode1);
+  CHECK(mdl::findContainingLayer(newGroup) == layerNode1);
   CHECK(document->currentLayer() == layerNode2);
 }
 
@@ -131,8 +131,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
@@ -143,14 +143,14 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(entity1->visible());
 
   // Hide layer1. If any nodes in the layer were Visibility_Shown they would be reset to
   // Visibility_Inherited
   document->hideLayers({layerNode1});
 
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity1->visible());
 
   // Create another entity in layer1. It will be visible, while entity1 will still be
@@ -159,40 +159,40 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInHiddenLayerAreVisib
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity1->visible());
-  CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
+  CHECK(entity2->visibilityState() == mdl::VisibilityState::Shown);
   CHECK(entity2->visible());
 
   // Change to layer2. This hides all objects in layer1
   document->setCurrentLayer(layerNode2);
 
   CHECK(document->currentLayer() == layerNode2);
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity1->visible());
-  CHECK(entity2->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity2->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity2->visible());
 
   // Undo (Switch current layer back to layer1)
   document->undoCommand();
 
   CHECK(document->currentLayer() == layerNode1);
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity1->visible());
-  CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
+  CHECK(entity2->visibilityState() == mdl::VisibilityState::Shown);
   CHECK(entity2->visible());
 
   // Undo (entity2 creation)
   document->undoCommand();
 
   CHECK(layerNode1->childCount() == 1u);
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(!entity1->visible());
 
   // Undo (hiding layer1)
   document->undoCommand();
 
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Inherited);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Inherited);
   CHECK(entity1->visible());
 }
 
@@ -205,7 +205,7 @@ TEST_CASE_METHOD(
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
   document->addNodes({{document->world(), {layerNode1}}});
 
   document->setCurrentLayer(layerNode1);
@@ -220,8 +220,8 @@ TEST_CASE_METHOD(
   CHECK(brush1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
-  CHECK(entity1->visibilityState() == Model::VisibilityState::Shown);
-  CHECK(brush1->visibilityState() == Model::VisibilityState::Shown);
+  CHECK(entity1->visibilityState() == mdl::VisibilityState::Shown);
+  CHECK(brush1->visibilityState() == mdl::VisibilityState::Shown);
   CHECK(entity1->visible());
   CHECK(brush1->visible());
 
@@ -237,10 +237,10 @@ TEST_CASE_METHOD(
   CHECK(entity2 != entity1);
   CHECK(brush2 != brush1);
 
-  CHECK(entity2->visibilityState() == Model::VisibilityState::Shown);
+  CHECK(entity2->visibilityState() == mdl::VisibilityState::Shown);
   CHECK(entity2->visible());
 
-  CHECK(brush2->visibilityState() == Model::VisibilityState::Shown);
+  CHECK(brush2->visibilityState() == mdl::VisibilityState::Shown);
   CHECK(brush2->visible());
 }
 
@@ -250,8 +250,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
 
@@ -262,13 +262,13 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   CHECK(entity1->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 1u);
 
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(!entity1->locked());
 
   // Lock layer1
   document->lock({layerNode1});
 
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(entity1->locked());
 
   // Create another entity in layer1. It will be unlocked, while entity1 will still be
@@ -277,9 +277,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   CHECK(entity2->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2u);
 
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(entity1->locked());
-  CHECK(entity2->lockState() == Model::LockState::Unlocked);
+  CHECK(entity2->lockState() == mdl::LockState::Unlocked);
   CHECK(!entity2->locked());
 
   // Change to layer2. This causes the Lock_Unlocked objects in layer1 to be degraded to
@@ -287,31 +287,31 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.newObjectsInLockedLayerAreUnloc
   document->setCurrentLayer(layerNode2);
 
   CHECK(document->currentLayer() == layerNode2);
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(entity1->locked());
-  CHECK(entity2->lockState() == Model::LockState::Inherited);
+  CHECK(entity2->lockState() == mdl::LockState::Inherited);
   CHECK(entity2->locked());
 
   // Undo (Switch current layer back to layer1)
   document->undoCommand();
 
   CHECK(document->currentLayer() == layerNode1);
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(entity1->locked());
-  CHECK(entity2->lockState() == Model::LockState::Unlocked);
+  CHECK(entity2->lockState() == mdl::LockState::Unlocked);
   CHECK(!entity2->locked());
 
   // Undo entity2 creation
   document->undoCommand();
 
   CHECK(layerNode1->childCount() == 1u);
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(entity1->locked());
 
   // Undo locking layer1
   document->undoCommand();
 
-  CHECK(entity1->lockState() == Model::LockState::Inherited);
+  CHECK(entity1->lockState() == mdl::LockState::Inherited);
   CHECK(!entity1->locked());
 }
 
@@ -321,9 +321,9 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* layerNode0 = new Model::LayerNode{Model::Layer{"layer0"}};
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"layer1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"layer2"}};
+  auto* layerNode0 = new mdl::LayerNode{mdl::Layer{"layer0"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"layer1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"layer2"}};
 
   setLayerSortIndex(*layerNode0, 0);
   setLayerSortIndex(*layerNode1, 1);
@@ -383,28 +383,28 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
   document->selectAllNodes();
   document->deleteObjects();
 
-  auto* customLayer = new Model::LayerNode{Model::Layer{"layer"}};
+  auto* customLayer = new mdl::LayerNode{mdl::Layer{"layer"}};
   document->addNodes({{document->world(), {customLayer}}});
 
   auto* defaultLayer = document->world()->defaultLayer();
 
   GIVEN("A top level node")
   {
-    using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+    using CreateNode = std::function<mdl::Node*(const MapDocumentTest&)>;
     const auto createNode = GENERATE_COPY(
       CreateNode{[](const auto& test) {
-        auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+        auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
         groupNode->addChild(test.createBrushNode());
         return groupNode;
       }},
-      CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+      CreateNode{[](const auto&) { return new mdl::EntityNode{mdl::Entity{}}; }},
       CreateNode{[](const auto& test) { return test.createBrushNode(); }},
       CreateNode{[](const auto& test) { return test.createPatchNode(); }});
 
     auto* node = createNode(*this);
     document->addNodes({{document->parentForNodes(), {node}}});
 
-    REQUIRE(Model::findContainingLayer(node) == defaultLayer);
+    REQUIRE(mdl::findContainingLayer(node) == defaultLayer);
 
     WHEN("The node is moved to another layer")
     {
@@ -413,11 +413,11 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
       THEN("The group node is in the target layer")
       {
-        CHECK(Model::findContainingLayer(node) == customLayer);
+        CHECK(mdl::findContainingLayer(node) == customLayer);
 
         AND_THEN("The node is selected")
         {
-          CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+          CHECK(document->selectedNodes().nodes() == std::vector<mdl::Node*>{node});
         }
       }
 
@@ -427,11 +427,11 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
         THEN("The node is back in the original layer")
         {
-          CHECK(Model::findContainingLayer(node) == defaultLayer);
+          CHECK(mdl::findContainingLayer(node) == defaultLayer);
 
           AND_THEN("The node is selected")
           {
-            CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{node});
+            CHECK(document->selectedNodes().nodes() == std::vector<mdl::Node*>{node});
           }
         }
       }
@@ -440,14 +440,14 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
   GIVEN("A brush entity node")
   {
-    auto* entityNode = new Model::EntityNode{Model::Entity{}};
+    auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
     auto* childNode1 = createBrushNode();
     auto* childNode2 = createPatchNode();
 
     entityNode->addChildren({childNode1, childNode2});
     document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-    REQUIRE(Model::findContainingLayer(entityNode) == defaultLayer);
+    REQUIRE(mdl::findContainingLayer(entityNode) == defaultLayer);
 
     WHEN("Any child node is selected and moved to another layer")
     {
@@ -473,7 +473,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
       THEN("The brush entity node is moved to the target layer")
       {
-        CHECK(Model::findContainingLayer(entityNode) == customLayer);
+        CHECK(mdl::findContainingLayer(entityNode) == customLayer);
         CHECK(childNode1->parent() == entityNode);
         CHECK(childNode2->parent() == entityNode);
 
@@ -489,7 +489,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
         THEN("The brush entity node is back in the original layer")
         {
-          CHECK(Model::findContainingLayer(entityNode) == defaultLayer);
+          CHECK(mdl::findContainingLayer(entityNode) == defaultLayer);
           CHECK(childNode1->parent() == entityNode);
           CHECK(childNode2->parent() == entityNode);
 
@@ -512,8 +512,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.setCurrentLayerCollation")
   document->deleteObjects();
 
   auto* defaultLayerNode = document->world()->defaultLayer();
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"test1"}};
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"test2"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"test1"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"test2"}};
   document->addNodes({{document->world(), {layerNode1}}});
   document->addNodes({{document->world(), {layerNode2}}});
   CHECK(document->currentLayer() == defaultLayerNode);

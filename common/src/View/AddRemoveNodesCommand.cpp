@@ -21,8 +21,8 @@
 
 #include "Ensure.h"
 #include "Macros.h"
-#include "Model/Node.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/Node.h"
 
 #include "kdl/map_utils.h"
 
@@ -30,23 +30,23 @@ namespace tb::View
 {
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  Model::Node* parent, const std::vector<Model::Node*>& children)
+  mdl::Node* parent, const std::vector<mdl::Node*>& children)
 {
   ensure(parent != nullptr, "parent is null");
-  auto nodes = std::map<Model::Node*, std::vector<Model::Node*>>{};
+  auto nodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
   nodes[parent] = children;
 
   return add(nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
 {
   return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
 {
   return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
 }
@@ -57,7 +57,7 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand()
 }
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
-  const Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes)
+  const Action action, const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
   : UpdateLinkedGroupsCommandBase{makeName(action), true}
   , m_action{action}
 {

@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "io/TestParserStatus.h"
 #include "io/WorldReader.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/WorldNode.h"
-#include "TestUtils.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
@@ -48,7 +48,7 @@ TEST_CASE("WorldReaderTest.parseFailure_1424")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
   CHECK(world != nullptr);
@@ -71,7 +71,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
@@ -79,7 +79,7 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1")
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
 
-  auto* brushNode = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brushNode, false);
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -108,14 +108,14 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, false);
 }
 
@@ -136,14 +136,14 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, Model::MapFormat::Standard, {}};
+  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
   auto world = reader.read(worldBounds, status);
 
   CHECK(world->childCount() == 1u);
   auto* defaultLayer = world->children().front();
   CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<Model::BrushNode*>(defaultLayer->children().front());
+  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
   checkBrushUVCoordSystem(brush, false);
 }
 

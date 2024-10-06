@@ -19,10 +19,10 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/PatchNode.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/PatchNode.h"
 
 #include "Catch2.h"
 
@@ -37,21 +37,21 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
 
   GIVEN("An unrelated top level node")
   {
-    auto* nodeToHide = new Model::EntityNode{Model::Entity{}};
+    auto* nodeToHide = new mdl::EntityNode{mdl::Entity{}};
     document->addNodes({{document->parentForNodes(), {nodeToHide}}});
 
     REQUIRE(!nodeToHide->hidden());
 
     AND_GIVEN("Another top level node that should be isolated")
     {
-      using CreateNode = std::function<Model::Node*(const MapDocumentTest&)>;
+      using CreateNode = std::function<mdl::Node*(const MapDocumentTest&)>;
       const auto createNode = GENERATE_COPY(
         CreateNode{[](const auto& test) {
-          auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+          auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
           groupNode->addChild(test.createBrushNode());
           return groupNode;
         }},
-        CreateNode{[](const auto&) { return new Model::EntityNode{Model::Entity{}}; }},
+        CreateNode{[](const auto&) { return new mdl::EntityNode{mdl::Entity{}}; }},
         CreateNode{[](const auto& test) { return test.createBrushNode(); }},
         CreateNode{[](const auto& test) { return test.createPatchNode(); }});
 
@@ -96,7 +96,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
       auto* childNode1 = createBrushNode();
       auto* childNode2 = createPatchNode();
 
-      auto* entityNode = new Model::EntityNode{Model::Entity{}};
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
       entityNode->addChildren({childNode1, childNode2});
 
       document->addNodes({{document->parentForNodes(), {entityNode}}});

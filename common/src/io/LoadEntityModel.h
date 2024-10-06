@@ -36,7 +36,7 @@ class EntityModel;
 class Material;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct MaterialConfig;
 }
@@ -49,14 +49,14 @@ using LoadMaterialFunc = std::function<asset::Material(const std::filesystem::pa
 
 Result<asset::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger);
 
 asset::EntityModel loadEntityModelAsync(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   const asset::CreateEntityModelDataResource& createResource,

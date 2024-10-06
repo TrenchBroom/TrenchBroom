@@ -36,13 +36,13 @@ class Material;
 struct DecalSpecification;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 class BrushNode;
 class EntityNode;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -57,7 +57,7 @@ class EntityDecalRenderer
 private:
   struct EntityDecalData
   {
-    std::vector<const Model::BrushNode*> brushes;
+    std::vector<const mdl::BrushNode*> brushes;
 
     /* will only be true if the brushes array has been calculated since the last change
      * and the decal geometry is stored in the VBO */
@@ -70,7 +70,7 @@ private:
   };
 
   using EntityWithDependenciesMap =
-    std::unordered_map<const Model::EntityNode*, EntityDecalData>;
+    std::unordered_map<const mdl::EntityNode*, EntityDecalData>;
 
   std::weak_ptr<View::MapDocument> m_document;
   EntityWithDependenciesMap m_entities;
@@ -100,23 +100,22 @@ public:
   /**
    * Adds a node if its not already present and invalidates it.
    */
-  void updateNode(Model::Node* node);
+  void updateNode(mdl::Node* node);
 
   /**
    * Removes a node. Calling with an unknown node is allowed, but ignored.
    */
-  void removeNode(Model::Node* node);
+  void removeNode(mdl::Node* node);
 
 private:
-  void updateEntity(const Model::EntityNode* entityNode);
-  void removeEntity(const Model::EntityNode* entityNode);
-  void updateBrush(const Model::BrushNode* brushNode);
-  void removeBrush(const Model::BrushNode* brushNode);
+  void updateEntity(const mdl::EntityNode* entityNode);
+  void removeEntity(const mdl::EntityNode* entityNode);
+  void updateBrush(const mdl::BrushNode* brushNode);
+  void removeBrush(const mdl::BrushNode* brushNode);
 
   void invalidateDecalData(EntityDecalData& data) const;
 
-  void validateDecalData(
-    const Model::EntityNode* entityNode, EntityDecalData& data) const;
+  void validateDecalData(const mdl::EntityNode* entityNode, EntityDecalData& data) const;
 
 public: // rendering
   void render(RenderContext& renderContext, RenderBatch& renderBatch);

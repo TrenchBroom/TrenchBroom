@@ -21,14 +21,14 @@
 
 #include <QWidget>
 
-#include "Model/GameEngineConfig.h"
+#include "mdl/GameEngineConfig.h"
 
 class QAbstractButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct GameEngineProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -43,20 +43,20 @@ class GameEngineProfileManager : public QWidget
 {
   Q_OBJECT
 private:
-  Model::GameEngineConfig m_config;
+  mdl::GameEngineConfig m_config;
   GameEngineProfileListBox* m_profileList = nullptr;
   GameEngineProfileEditor* m_profileEditor = nullptr;
   QAbstractButton* m_removeProfileButton = nullptr;
 
 public:
   explicit GameEngineProfileManager(
-    Model::GameEngineConfig config, QWidget* parent = nullptr);
-  const Model::GameEngineConfig& config() const;
+    mdl::GameEngineConfig config, QWidget* parent = nullptr);
+  const mdl::GameEngineConfig& config() const;
 private slots:
   void addProfile();
   void removeProfile();
 
-  void currentProfileChanged(Model::GameEngineProfile* profile);
+  void currentProfileChanged(mdl::GameEngineProfile* profile);
 };
 
 } // namespace tb::View

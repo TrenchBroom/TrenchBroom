@@ -32,7 +32,7 @@ FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-std::vector<Model::BrushNode*> FaceTool::findIncidentBrushes(
+std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
   const vm::polygon3d& handle) const
 {
   return findIncidentBrushes(*m_faceHandles, handle);
@@ -41,7 +41,7 @@ std::vector<Model::BrushNode*> FaceTool::findIncidentBrushes(
 void FaceTool::pick(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   m_faceHandles->pickCenterHandle(pickRay, camera, pickResult);
 }
@@ -57,7 +57,7 @@ const FaceHandleManager& FaceTool::handleManager() const
 }
 
 std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
-  const std::vector<Model::Hit>& hits) const
+  const std::vector<mdl::Hit>& hits) const
 {
   assert(!hits.empty());
 

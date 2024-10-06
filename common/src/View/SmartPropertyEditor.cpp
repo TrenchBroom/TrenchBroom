@@ -45,7 +45,7 @@ void SmartPropertyEditor::activate(const std::string& propertyKey)
   m_active = true;
 }
 
-void SmartPropertyEditor::update(const std::vector<Model::EntityNodeBase*>& nodes)
+void SmartPropertyEditor::update(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   m_nodes = nodes;
   doUpdateVisual(m_nodes);
@@ -72,7 +72,7 @@ const std::string& SmartPropertyEditor::propertyKey() const
   return m_propertyKey;
 }
 
-const std::vector<Model::EntityNodeBase*> SmartPropertyEditor::nodes() const
+const std::vector<mdl::EntityNodeBase*> SmartPropertyEditor::nodes() const
 {
   return m_nodes;
 }

@@ -54,11 +54,11 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
   virtual void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) = 0;
+    mdl::PickResult& pickResult) = 0;
 
   void mouseMove(const InputState& inputState) override;
 
@@ -85,7 +85,7 @@ private:
   void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) override;
+    mdl::PickResult& pickResult) override;
 };
 
 class ShearObjectsToolController3D : public ShearObjectsToolController
@@ -98,7 +98,7 @@ private:
   void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) override;
+    mdl::PickResult& pickResult) override;
 };
 
 } // namespace tb::View

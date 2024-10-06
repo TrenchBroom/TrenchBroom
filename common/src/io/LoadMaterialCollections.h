@@ -39,7 +39,7 @@ class Material;
 class MaterialCollection;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct MaterialConfig;
 }
@@ -50,7 +50,7 @@ class FileSystem;
 
 Result<asset::Material> loadMaterial(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
   const asset::CreateTextureResource& createResource,
   const std::vector<asset::Quake3Shader>& shaders,
@@ -58,7 +58,7 @@ Result<asset::Material> loadMaterial(
 
 Result<std::vector<asset::MaterialCollection>> loadMaterialCollections(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource,
   Logger& logger);
 

@@ -19,12 +19,12 @@
 
 #include "RotateObjectsTool.h"
 
-#include "Model/Hit.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsToolPage.h"
 #include "View/TransactionScope.h"
+#include "mdl/Hit.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -138,13 +138,13 @@ void RotateObjectsTool::applyRotation(
   document->rotateObjects(center, axis, angle);
 }
 
-Model::Hit RotateObjectsTool::pick2D(
+mdl::Hit RotateObjectsTool::pick2D(
   const vm::ray3d& pickRay, const Renderer::Camera& camera)
 {
   return m_handle.pick2D(pickRay, camera);
 }
 
-Model::Hit RotateObjectsTool::pick3D(
+mdl::Hit RotateObjectsTool::pick3D(
   const vm::ray3d& pickRay, const Renderer::Camera& camera)
 {
   return m_handle.pick3D(pickRay, camera);

@@ -21,14 +21,14 @@
 
 #include "Exceptions.h"
 #include "FileLocation.h"
+#include "asset/ModelDefinition.h"
+#include "asset/PropertyDefinition.h"
+#include "el/ELExceptions.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParserStatus.h"
-#include "Model/EntityProperties.h"
-#include "asset/ModelDefinition.h"
-#include "asset/PropertyDefinition.h"
-#include "el/ELExceptions.h"
+#include "mdl/EntityProperties.h"
 
 #include "kdl/string_format.h"
 
@@ -267,8 +267,8 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
 std::unique_ptr<asset::PropertyDefinition> DefParser::parseSpawnflags(
   ParserStatus& /* status */)
 {
-  auto definition = std::make_unique<asset::FlagsPropertyDefinition>(
-    Model::EntityPropertyKeys::Spawnflags);
+  auto definition =
+    std::make_unique<asset::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
   size_t numOptions = 0;
 
   auto token = m_tokenizer.peekToken();

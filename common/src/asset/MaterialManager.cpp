@@ -47,7 +47,7 @@ MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
   const io::FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource)
 {
   clear();

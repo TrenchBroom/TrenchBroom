@@ -21,8 +21,8 @@
 
 #include <QWidget>
 
-#include "Model/TagType.h"
 #include "NotifierConnection.h"
+#include "mdl/TagType.h"
 
 #include <filesystem>
 #include <memory>
@@ -38,11 +38,11 @@ class EntityDefinition;
 class EntityDefinitionManager;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EditorContext;
 class SmartTag;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -54,7 +54,7 @@ class EntityDefinitionCheckBoxList : public QWidget
   Q_OBJECT
 private:
   asset::EntityDefinitionManager& m_entityDefinitionManager;
-  Model::EditorContext& m_editorContext;
+  mdl::EditorContext& m_editorContext;
 
   std::vector<QCheckBox*> m_groupCheckBoxes;
   std::vector<QCheckBox*> m_defCheckBoxes;
@@ -62,7 +62,7 @@ private:
 public:
   EntityDefinitionCheckBoxList(
     asset::EntityDefinitionManager& entityDefinitionManager,
-    Model::EditorContext& editorContext,
+    mdl::EditorContext& editorContext,
     QWidget* parent = nullptr);
 
   void refresh();
@@ -97,7 +97,7 @@ private:
   EntityDefinitionCheckBoxList* m_entityDefinitionCheckBoxList = nullptr;
 
   QCheckBox* m_showBrushesCheckBox = nullptr;
-  std::vector<std::pair<Model::TagType::Type, QCheckBox*>> m_tagCheckBoxes;
+  std::vector<std::pair<mdl::TagType::Type, QCheckBox*>> m_tagCheckBoxes;
 
   QButtonGroup* m_renderModeRadioGroup = nullptr;
   QCheckBox* m_shadeFacesCheckBox = nullptr;
@@ -128,7 +128,7 @@ private:
   QWidget* createBrushesPanel(QWidget* parent);
   void createTagFilter(QWidget* parent);
   void createEmptyTagFilter(QWidget* parent);
-  void createTagFilter(QWidget* parent, const std::vector<Model::SmartTag>& tags);
+  void createTagFilter(QWidget* parent, const std::vector<mdl::SmartTag>& tags);
 
   QWidget* createRendererPanel(QWidget* parent);
 
@@ -145,7 +145,7 @@ private:
   void showPointEntitiesChanged(bool checked);
   void showPointEntityModelsChanged(bool checked);
   void showBrushesChanged(bool checked);
-  void showTagChanged(bool checked, Model::TagType::Type tagType);
+  void showTagChanged(bool checked, mdl::TagType::Type tagType);
   void faceRenderModeChanged(int id);
   void shadeFacesChanged(bool checked);
   void showFogChanged(bool checked);

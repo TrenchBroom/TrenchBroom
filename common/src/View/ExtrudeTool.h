@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Model/Brush.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/HitType.h"
 #include "NotifierConnection.h"
 #include "View/Tool.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/HitType.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -38,13 +38,13 @@
 
 namespace tb
 {
-namespace Model
+namespace mdl
 {
 class BrushFace;
 class Hit;
 class Node;
 class PickResult;
-} // namespace Model
+} // namespace mdl
 
 namespace Renderer
 {
@@ -58,18 +58,18 @@ class MapDocument;
 class Selection;
 
 /**
- * Similar to Model::BrushFaceHandle but caches the Brush state at the beginning of the
+ * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
  * drag. We need this to be able to make decisions about the drag before reverting the
  * transaction.
  */
 struct ExtrudeDragHandle
 {
-  Model::BrushFaceHandle faceHandle;
-  Model::Brush brushAtDragStart;
+  mdl::BrushFaceHandle faceHandle;
+  mdl::Brush brushAtDragStart;
 
-  explicit ExtrudeDragHandle(Model::BrushFaceHandle faceHandle);
+  explicit ExtrudeDragHandle(mdl::BrushFaceHandle faceHandle);
 
-  const Model::BrushFace& faceAtDragStart() const;
+  const mdl::BrushFace& faceAtDragStart() const;
   vm::vec3d faceNormal() const;
 
   kdl_reflect_decl(ExtrudeDragHandle, faceHandle);
@@ -80,7 +80,7 @@ struct ExtrudeDragState
   /** The drag handles when the drag started. */
   std::vector<ExtrudeDragHandle> initialDragHandles;
   /** The faces being dragged. */
-  std::vector<Model::BrushFaceHandle> currentDragFaces;
+  std::vector<mdl::BrushFaceHandle> currentDragFaces;
 
   /** Whether or not to create new brushes by splitting the selected brushes. */
   bool splitBrushes = false;
@@ -93,7 +93,7 @@ struct ExtrudeDragState
 
 struct ExtrudeHitData
 {
-  Model::BrushFaceHandle face;
+  mdl::BrushFaceHandle face;
   std::variant<vm::plane3d, vm::line3d> dragReference;
   vm::vec3d initialHandlePosition;
 
@@ -110,7 +110,7 @@ struct ExtrudeHitData
 class ExtrudeTool : public Tool
 {
 public:
-  static const Model::HitType::Type ExtrudeHitType;
+  static const mdl::HitType::Type ExtrudeHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -131,8 +131,8 @@ public:
 
   const Grid& grid() const;
 
-  Model::Hit pick2D(const vm::ray3d& pickRay, const Model::PickResult& pickResult) const;
-  Model::Hit pick3D(const vm::ray3d& pickRay, const Model::PickResult& pickResult) const;
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;
 
   /**
    * Returns the current proposed drag handles as per the last call to
@@ -143,9 +143,9 @@ public:
   /**
    * Updates the proposed drag handles according to the given picking result.
    */
-  void updateProposedDragHandles(const Model::PickResult& pickResult);
+  void updateProposedDragHandles(const mdl::PickResult& pickResult);
 
-  static std::vector<Model::BrushFaceHandle> getDragFaces(
+  static std::vector<mdl::BrushFaceHandle> getDragFaces(
     const std::vector<ExtrudeDragHandle>& dragHandles);
 
   void beginExtrude();
@@ -159,7 +159,7 @@ public:
 
 private:
   void connectObservers();
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionDidChange(const Selection& selection);
 };
 } // namespace View

@@ -19,15 +19,6 @@
 
 #include "AssembleBrushToolController3D.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
-#include "Model/Polyhedron3.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -36,6 +27,15 @@
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
+#include "mdl/Polyhedron3.h"
 
 #include "kdl/vector_utils.h"
 
@@ -56,7 +56,7 @@ class Part
 {
 protected:
   AssembleBrushTool& m_tool;
-  Model::Polyhedron3 m_oldPolyhedron;
+  mdl::Polyhedron3 m_oldPolyhedron;
 
 protected:
   explicit Part(AssembleBrushTool& tool)
@@ -73,7 +73,7 @@ class DrawFaceDragDelegate : public HandleDragTrackerDelegate
 private:
   AssembleBrushTool& m_tool;
   vm::plane3d m_plane;
-  const Model::Polyhedron3 m_oldPolyhedron;
+  const mdl::Polyhedron3 m_oldPolyhedron;
 
 public:
   DrawFaceDragDelegate(AssembleBrushTool& tool, const vm::plane3d plane)
@@ -88,12 +88,12 @@ public:
     const vm::vec3d& initialHandlePosition,
     const vm::vec3d& handleOffset) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     updatePolyhedron(initialHandlePosition, initialHandlePosition);
 
     return makeHandlePositionProposer(
-      makeSurfaceHandlePicker(type(Model::BrushNode::BrushHitType), handleOffset),
+      makeSurfaceHandlePicker(type(mdl::BrushNode::BrushHitType), handleOffset),
       makeIdentityHandleSnapper());
   }
 
@@ -135,8 +135,8 @@ private:
       vm::unswizzle(vm::vec3d{bottomLeft2, swizzledPlane.zAt(bottomLeft2)}, axis),
       vm::unswizzle(vm::vec3d{bottomRight2, swizzledPlane.zAt(bottomRight2)}, axis)};
 
-    m_tool.update(Model::Polyhedron3{
-      kdl::vec_concat(newVertices, m_oldPolyhedron.vertexPositions())});
+    m_tool.update(
+      mdl::Polyhedron3{kdl::vec_concat(newVertices, m_oldPolyhedron.vertexPositions())});
   }
 };
 
@@ -158,15 +158,15 @@ private:
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
       return nullptr;
     }
 
-    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-    const auto faceHandle = Model::hitToFaceHandle(hit);
+    const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+    const auto faceHandle = mdl::hitToFaceHandle(hit);
     if (!faceHandle)
     {
       return nullptr;
@@ -189,7 +189,7 @@ class DuplicateFaceDragDelegate : public HandleDragTrackerDelegate
 private:
   AssembleBrushTool& m_tool;
   vm::vec3d m_dragDir;
-  const Model::Polyhedron3 m_oldPolyhedron;
+  const mdl::Polyhedron3 m_oldPolyhedron;
 
 public:
   DuplicateFaceDragDelegate(AssembleBrushTool& tool, const vm::vec3d dragDir)
@@ -204,7 +204,7 @@ public:
     const vm::vec3d& initialHandlePosition,
     const vm::vec3d& handleOffset) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     const auto line = vm::line3d{initialHandlePosition, m_dragDir};
     return makeHandlePositionProposer(
@@ -226,7 +226,7 @@ public:
     const auto points = face->vertexPositions() + delta;
 
     m_tool.update(
-      Model::Polyhedron3{kdl::vec_concat(points, m_oldPolyhedron.vertexPositions())});
+      mdl::Polyhedron3{kdl::vec_concat(points, m_oldPolyhedron.vertexPositions())});
 
     return DragStatus::Continue;
   }
@@ -253,7 +253,7 @@ private:
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (!inputState.modifierKeysDown(ModifierKeys::Shift))
     {
@@ -312,16 +312,16 @@ bool AssembleBrushToolController3D::mouseClick(const InputState& inputState)
     return false;
   }
 
-  using namespace Model::HitFilters;
-  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  using namespace mdl::HitFilters;
+  const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& grid = m_tool.grid();
 
     const auto& face = faceHandle->face();
     const auto snapped = grid.snap(hit.hitPoint(), face.boundary());
 
-    m_tool.update(Model::Polyhedron3{kdl::vec_concat(
+    m_tool.update(mdl::Polyhedron3{kdl::vec_concat(
       std::vector<vm::vec3d>{snapped}, m_tool.polyhedron().vertexPositions())});
 
     return true;
@@ -340,13 +340,13 @@ bool AssembleBrushToolController3D::mouseDoubleClick(const InputState& inputStat
     return false;
   }
 
-  using namespace Model::HitFilters;
-  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  using namespace mdl::HitFilters;
+  const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
 
-    m_tool.update(Model::Polyhedron3{
+    m_tool.update(mdl::Polyhedron3{
       kdl::vec_concat(face.vertexPositions(), m_tool.polyhedron().vertexPositions())});
 
     return true;
@@ -416,7 +416,7 @@ bool AssembleBrushToolController3D::cancel()
     return false;
   }
 
-  m_tool.update(Model::Polyhedron3{});
+  m_tool.update(mdl::Polyhedron3{});
   return true;
 }
 

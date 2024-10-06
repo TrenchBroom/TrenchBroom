@@ -19,13 +19,13 @@
 
 #include "io/NodeReader.h"
 #include "io/TestParserStatus.h"
-#include "Model/BrushNode.h"
-#include "Model/GroupNode.h"
-#include "Model/ParaxialUVCoordSystem.h"
+#include "mdl/BrushNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/ParaxialUVCoordSystem.h"
 
 #include "Catch2.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 
 TEST_CASE("NodeReaderTest.parseFaceAsNode")
@@ -142,4 +142,4 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
   CHECK(nodes.size() == 1);
 }
 
-} // namespace tb::Model
+} // namespace tb::mdl

@@ -36,11 +36,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNode;
 class Game;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -60,7 +60,7 @@ private:
   asset::CreateEntityModelDataResource m_createResource;
   Logger& m_logger;
 
-  const Model::Game* m_game = nullptr;
+  const mdl::Game* m_game = nullptr;
 
   // Cache Quake 3 shaders to use when loading models
   std::vector<Quake3Shader> m_shaders;
@@ -80,7 +80,7 @@ public:
   void clear();
   void reloadShaders();
 
-  void setGame(const Model::Game* game);
+  void setGame(const mdl::Game* game);
 
   Renderer::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 

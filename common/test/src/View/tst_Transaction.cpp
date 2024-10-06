@@ -18,9 +18,9 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
 #include "View/Transaction.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 
 #include "vm/mat_ext.h"
 
@@ -37,7 +37,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
 
   REQUIRE(document->selectedNodes().empty());
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
 
   auto transaction = Transaction{document};
   CHECK(transaction.state() == Transaction::State::Running);

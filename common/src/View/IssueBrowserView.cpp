@@ -25,17 +25,17 @@
 #include <QMenu>
 #include <QTableView>
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/Issue.h"
-#include "Model/IssueQuickFix.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/Transaction.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/Issue.h"
+#include "mdl/IssueQuickFix.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -112,7 +112,7 @@ void IssueBrowserView::updateSelection()
 {
   auto document = kdl::mem_lock(m_document);
 
-  auto nodes = std::vector<Model::Node*>{};
+  auto nodes = std::vector<mdl::Node*>{};
   for (const auto* issue : collectIssues(getSelection()))
   {
     if (!issue->addSelectableNodes(nodes))
@@ -133,7 +133,7 @@ void IssueBrowserView::updateIssues()
   {
     const auto validators = document->world()->registeredValidators();
 
-    auto issues = std::vector<const Model::Issue*>{};
+    auto issues = std::vector<const mdl::Issue*>{};
     const auto collectIssues = [&](auto* node) {
       for (auto* issue : node->issues(validators))
       {
@@ -147,24 +147,24 @@ void IssueBrowserView::updateIssues()
     };
 
     document->world()->accept(kdl::overload(
-      [&](auto&& thisLambda, Model::WorldNode* world) {
+      [&](auto&& thisLambda, mdl::WorldNode* world) {
         collectIssues(world);
         world->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::LayerNode* layer) {
+      [&](auto&& thisLambda, mdl::LayerNode* layer) {
         collectIssues(layer);
         layer->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::GroupNode* group) {
+      [&](auto&& thisLambda, mdl::GroupNode* group) {
         collectIssues(group);
         group->visitChildren(thisLambda);
       },
-      [&](auto&& thisLambda, Model::EntityNode* entity) {
+      [&](auto&& thisLambda, mdl::EntityNode* entity) {
         collectIssues(entity);
         entity->visitChildren(thisLambda);
       },
-      [&](Model::BrushNode* brush) { collectIssues(brush); },
-      [&](Model::PatchNode* patch) { collectIssues(patch); }));
+      [&](mdl::BrushNode* brush) { collectIssues(brush); },
+      [&](mdl::PatchNode* patch) { collectIssues(patch); }));
 
     issues = kdl::vec_sort(std::move(issues), [](const auto* lhs, const auto* rhs) {
       return lhs->seqId() > rhs->seqId();
@@ -173,7 +173,7 @@ void IssueBrowserView::updateIssues()
   }
 }
 
-void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix)
+void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
 {
   auto document = kdl::mem_lock(m_document);
   const auto issues = collectIssues(getSelection());
@@ -185,13 +185,13 @@ void IssueBrowserView::applyQuickFix(const Model::IssueQuickFix& quickFix)
   transaction.commit();
 }
 
-std::vector<const Model::Issue*> IssueBrowserView::collectIssues(
+std::vector<const mdl::Issue*> IssueBrowserView::collectIssues(
   const QList<QModelIndex>& indices) const
 {
   // Use a vector_set to filter out duplicates.
   // The QModelIndex list returned by getSelection() contains duplicates
   // (not sure why, current row and selected row?)
-  auto result = kdl::vector_set<const Model::Issue*>{};
+  auto result = kdl::vector_set<const mdl::Issue*>{};
   result.reserve(static_cast<size_t>(indices.size()));
   for (const auto& index : indices)
   {
@@ -204,7 +204,7 @@ std::vector<const Model::Issue*> IssueBrowserView::collectIssues(
   return result.release_data();
 }
 
-std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
+std::vector<const mdl::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
   const QList<QModelIndex>& indices) const
 {
   if (indices.empty())
@@ -212,7 +212,7 @@ std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
     return {};
   }
 
-  auto issueTypes = ~static_cast<Model::IssueType>(0);
+  auto issueTypes = ~static_cast<mdl::IssueType>(0);
   for (const auto& index : indices)
   {
     if (!index.isValid())
@@ -228,9 +228,9 @@ std::vector<const Model::IssueQuickFix*> IssueBrowserView::collectQuickFixes(
   return world->quickFixes(issueTypes);
 }
 
-Model::IssueType IssueBrowserView::issueTypeMask() const
+mdl::IssueType IssueBrowserView::issueTypeMask() const
 {
-  auto result = ~static_cast<Model::IssueType>(0);
+  auto result = ~static_cast<mdl::IssueType>(0);
   for (const auto* issue : collectIssues(getSelection()))
   {
     result &= issue->type();
@@ -344,14 +344,14 @@ IssueBrowserModel::IssueBrowserModel(QObject* parent)
 {
 }
 
-void IssueBrowserModel::setIssues(std::vector<const Model::Issue*> issues)
+void IssueBrowserModel::setIssues(std::vector<const mdl::Issue*> issues)
 {
   beginResetModel();
   m_issues = std::move(issues);
   endResetModel();
 }
 
-const std::vector<const Model::Issue*>& IssueBrowserModel::issues()
+const std::vector<const mdl::Issue*>& IssueBrowserModel::issues()
 {
   return m_issues;
 }

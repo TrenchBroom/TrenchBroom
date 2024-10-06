@@ -19,18 +19,18 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/PatchNode.h" // IWYU pragma: keep
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TestUtils.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/PatchNode.h" // IWYU pragma: keep
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -82,7 +82,7 @@ void checkBrushIntegral(const auto* brush)
 }
 
 void checkTransformation(
-  const Model::Node& node, const Model::Node& original, const vm::mat4x4d& transformation)
+  const mdl::Node& node, const mdl::Node& original, const vm::mat4x4d& transformation)
 {
   CHECK(node.physicalBounds() == original.physicalBounds().transform(transformation));
 
@@ -99,11 +99,11 @@ void checkTransformation(
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
 {
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 = new Model::BrushNode{
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
@@ -129,27 +129,27 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
 
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
 {
-  using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+  using CreateNode = std::function<mdl::Node*(const MapDocumentTest& test)>;
   const auto createNode = GENERATE_COPY(
-    CreateNode{[](const auto& test) -> Model::Node* {
-      auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+    CreateNode{[](const auto& test) -> mdl::Node* {
+      auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
       auto* brushNode = test.createBrushNode();
       auto* patchNode = test.createPatchNode();
-      auto* entityNode = new Model::EntityNode{Model::Entity{}};
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
       groupNode->addChildren({brushNode, patchNode, entityNode});
       return groupNode;
     }},
     CreateNode{
-      [](const auto&) -> Model::Node* { return new Model::EntityNode{Model::Entity{}}; }},
-    CreateNode{[](const auto& test) -> Model::Node* {
-      auto* entityNode = new Model::EntityNode{Model::Entity{}};
+      [](const auto&) -> mdl::Node* { return new mdl::EntityNode{mdl::Entity{}}; }},
+    CreateNode{[](const auto& test) -> mdl::Node* {
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
       auto* brushNode = test.createBrushNode();
       auto* patchNode = test.createPatchNode();
       entityNode->addChildren({brushNode, patchNode});
       return entityNode;
     }},
-    CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
-    CreateNode{[](const auto& test) -> Model::Node* { return test.createPatchNode(); }});
+    CreateNode{[](const auto& test) -> mdl::Node* { return test.createBrushNode(); }},
+    CreateNode{[](const auto& test) -> mdl::Node* { return test.createPatchNode(); }});
 
   GIVEN("A node to transform")
   {
@@ -159,7 +159,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
     document->addNodes({{document->parentForNodes(), {node}}});
 
     const auto originalNode =
-      std::unique_ptr<Model::Node>{node->cloneRecursively(document->worldBounds())};
+      std::unique_ptr<mdl::Node>{node->cloneRecursively(document->worldBounds())};
     const auto transformation = vm::translation_matrix(vm::vec3d{1, 2, 3});
 
     WHEN("The node is transformed")
@@ -188,11 +188,11 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
 {
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 = new Model::BrushNode{
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
@@ -224,15 +224,15 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
 TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
 {
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 = new Model::BrushNode{
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
     | kdl::value()};
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
     | kdl::value()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{{
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{
     {"classname", "func_door"},
     {"angle", "45"},
   }}};
@@ -279,9 +279,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
   const auto initialBBox = vm::bbox3d{{100, 100, 100}, {200, 200, 200}};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -325,9 +325,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
   const auto initialBBox = vm::bbox3d{{0, 0, 0}, {100, 100, 400}};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -373,9 +373,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
   const auto invalidBBox = vm::bbox3d{{0, -100, -100}, {0, 100, 100}};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
   const auto& brush = brushNode->brush();
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -407,9 +407,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
   const auto invalidBBox = vm::bbox3d{{0, -100, -100}, {0, 100, 100}};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -429,9 +429,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
   const auto expectedBBox = vm::bbox3d{{-50, 0, 0}, {150, 100, 400}};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode =
-    new Model::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(initialBBox, "material") | kdl::value()};
 
   document->addNodes({{document->parentForNodes(), {brushNode}}});
   document->selectNodes({brushNode});
@@ -449,11 +449,11 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
@@ -465,9 +465,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   document->selectNodes({linkedGroup});
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{linkedGroup}));
+    Catch::UnorderedEquals(std::vector<mdl::Node*>{linkedGroup}));
 
-  auto* linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroup->children().at(0));
+  auto* linkedBrushNode = dynamic_cast<mdl::BrushNode*>(linkedGroup->children().at(0));
   REQUIRE(linkedBrushNode != nullptr);
 
   setPref(Preferences::AlignmentLock, false);
@@ -477,7 +477,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 
   auto getUVCoords =
     [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {
-    const Model::BrushFace& face =
+    const mdl::BrushFace& face =
       brushNode->brush().face(*brushNode->brush().findFace(normal));
     return kdl::vec_transform(
       face.vertexPositions(), [&](auto x) { return face.uvCoords(x); });

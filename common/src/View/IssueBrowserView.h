@@ -22,7 +22,7 @@
 #include <QAbstractItemModel>
 #include <QWidget>
 
-#include "Model/IssueType.h"
+#include "mdl/IssueType.h"
 
 #include <memory>
 #include <vector>
@@ -32,11 +32,11 @@ class QTableView;
 
 namespace tb
 {
-namespace Model
+namespace mdl
 {
 class Issue;
 class IssueQuickFix;
-} // namespace Model
+} // namespace mdl
 
 namespace View
 {
@@ -74,10 +74,10 @@ public:
 private:
   void updateIssues();
 
-  std::vector<const Model::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
-  std::vector<const Model::IssueQuickFix*> collectQuickFixes(
+  std::vector<const mdl::Issue*> collectIssues(const QList<QModelIndex>& indices) const;
+  std::vector<const mdl::IssueQuickFix*> collectQuickFixes(
     const QList<QModelIndex>& indices) const;
-  Model::IssueType issueTypeMask() const;
+  mdl::IssueType issueTypeMask() const;
 
   void setIssueVisibility(bool show);
 
@@ -89,7 +89,7 @@ private:
   void itemSelectionChanged();
   void showIssues();
   void hideIssues();
-  void applyQuickFix(const Model::IssueQuickFix& quickFix);
+  void applyQuickFix(const mdl::IssueQuickFix& quickFix);
 
 private:
   void invalidate();
@@ -105,13 +105,13 @@ class IssueBrowserModel : public QAbstractTableModel
 {
   Q_OBJECT
 private:
-  std::vector<const Model::Issue*> m_issues;
+  std::vector<const mdl::Issue*> m_issues;
 
 public:
   explicit IssueBrowserModel(QObject* parent);
 
-  void setIssues(std::vector<const Model::Issue*> issues);
-  const std::vector<const Model::Issue*>& issues();
+  void setIssues(std::vector<const mdl::Issue*> issues);
+  const std::vector<const mdl::Issue*>& issues();
 
 public: // QAbstractTableModel overrides
   int rowCount(const QModelIndex& parent) const override;

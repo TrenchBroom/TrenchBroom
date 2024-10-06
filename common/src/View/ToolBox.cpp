@@ -47,7 +47,7 @@ void ToolBox::addTool(Tool& tool)
 }
 
 void ToolBox::pick(
-  ToolChain& chain, const InputState& inputState, Model::PickResult& pickResult)
+  ToolChain& chain, const InputState& inputState, mdl::PickResult& pickResult)
 {
   chain.pick(inputState, pickResult);
 }

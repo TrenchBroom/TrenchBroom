@@ -19,13 +19,6 @@
 
 #pragma once
 
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/Game.h"
-#include "Model/Hit.h"
-#include "Model/Polyhedron.h"
-#include "Model/Polyhedron3.h"
-#include "Model/WorldNode.h"
 #include "NotifierConnection.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -39,6 +32,13 @@
 #include "View/Transaction.h"
 #include "View/TransactionScope.h"
 #include "View/VertexHandleManager.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Game.h"
+#include "mdl/Hit.h"
+#include "mdl/Polyhedron.h"
+#include "mdl/Polyhedron3.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -57,7 +57,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -109,7 +109,7 @@ public:
 public:
   const Grid& grid() const { return kdl::mem_lock(m_document)->grid(); }
 
-  const std::vector<Model::BrushNode*>& selectedBrushes() const
+  const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {
     auto document = kdl::mem_lock(m_document);
     return document->selectedNodes().brushes();
@@ -117,12 +117,12 @@ public:
 
 public:
   template <typename M, typename I>
-  std::map<typename M::Handle, std::vector<Model::BrushNode*>> buildBrushMap(
+  std::map<typename M::Handle, std::vector<mdl::BrushNode*>> buildBrushMap(
     const M& manager, I cur, I end) const
   {
     using H2 = typename M::Handle;
 
-    auto result = std::map<H2, std::vector<Model::BrushNode*>>{};
+    auto result = std::map<H2, std::vector<mdl::BrushNode*>>{};
     while (cur != end)
     {
       const auto& handle = *cur++;
@@ -133,7 +133,7 @@ public:
 
   // FIXME: use vector_set
   template <typename M, typename H2>
-  std::vector<Model::BrushNode*> findIncidentBrushes(
+  std::vector<mdl::BrushNode*> findIncidentBrushes(
     const M& manager, const H2& handle) const
   {
     const auto& brushes = selectedBrushes();
@@ -142,10 +142,10 @@ public:
 
   // FIXME: use vector_set
   template <typename M, typename I>
-  std::vector<Model::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const
   {
     const auto& brushes = selectedBrushes();
-    auto result = kdl::vector_set<Model::BrushNode*>{};
+    auto result = kdl::vector_set<mdl::BrushNode*>{};
     auto out = std::inserter(result, std::end(result));
 
     while (cur != end)
@@ -161,10 +161,10 @@ public:
   virtual void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const = 0;
+    mdl::PickResult& pickResult) const = 0;
 
 public: // Handle selection
-  bool select(const std::vector<Model::Hit>& hits, const bool addToSelection)
+  bool select(const std::vector<mdl::Hit>& hits, const bool addToSelection)
   {
     assert(!hits.empty());
     if (const auto& firstHit = hits.front(); firstHit.type() == handleManager().hitType())
@@ -221,7 +221,7 @@ public: // Handle selection
     notifyToolHandleSelectionChanged();
   }
 
-  bool selected(const Model::Hit& hit) const
+  bool selected(const mdl::Hit& hit) const
   {
     return handleManager().selected(hit.target<H>());
   }
@@ -245,9 +245,9 @@ public:
 
 public: // performing moves
   virtual std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
-    const std::vector<Model::Hit>& hits) const = 0;
+    const std::vector<mdl::Hit>& hits) const = 0;
 
-  virtual bool startMove(const std::vector<Model::Hit>& hits)
+  virtual bool startMove(const std::vector<mdl::Hit>& hits)
   {
     assert(!hits.empty());
 
@@ -315,7 +315,7 @@ public: // csg convex merge
     const auto handles = handleManager().selectedHandles();
     H::get_vertices(std::begin(handles), std::end(handles), std::back_inserter(vertices));
 
-    const auto polyhedron = Model::Polyhedron3{vertices};
+    const auto polyhedron = mdl::Polyhedron3{vertices};
     if (!polyhedron.polyhedron() || !polyhedron.closed())
     {
       return;
@@ -324,7 +324,7 @@ public: // csg convex merge
     auto document = kdl::mem_lock(m_document);
     auto game = document->game();
 
-    const auto builder = Model::BrushBuilder{
+    const auto builder = mdl::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
       game->config().faceAttribsConfig.defaults};
@@ -338,7 +338,7 @@ public: // csg convex merge
           auto* newParent = document->parentForNodes(document->selectedNodes().nodes());
           auto transaction = Transaction{document, "CSG Convex Merge"};
           deselectAll();
-          if (document->addNodes({{newParent, {new Model::BrushNode{std::move(b)}}}})
+          if (document->addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}})
                 .empty())
           {
             transaction.cancel();
@@ -350,7 +350,7 @@ public: // csg convex merge
         [&](auto e) { document->error() << "Could not create brush: " << e.msg; });
   }
 
-  virtual H getHandlePosition(const Model::Hit& hit) const
+  virtual H getHandlePosition(const mdl::Hit& hit) const
   {
     assert(hit.isMatch());
     assert(hit.hasType(handleManager().hitType()));
@@ -490,7 +490,7 @@ protected: // Tool interface
     m_changeCount = 0;
     connectObservers();
 
-    const std::vector<Model::BrushNode*>& brushes = selectedBrushes();
+    const std::vector<mdl::BrushNode*>& brushes = selectedBrushes();
     handleManager().clear();
     handleManager().addHandles(std::begin(brushes), std::end(brushes));
 
@@ -576,7 +576,7 @@ private: // Observers and state management
     removeHandles(selection.deselectedNodes());
   }
 
-  void nodesWillChange(const std::vector<Model::Node*>& nodes)
+  void nodesWillChange(const std::vector<mdl::Node*>& nodes)
   {
     if (m_ignoreChangeNotifications == 0u)
     {
@@ -586,7 +586,7 @@ private: // Observers and state management
     }
   }
 
-  void nodesDidChange(const std::vector<Model::Node*>& nodes)
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes)
   {
     if (m_ignoreChangeNotifications == 0u)
     {
@@ -621,42 +621,42 @@ protected:
 
   template <typename HT>
   void addHandles(
-    const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
+    const std::vector<mdl::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
   {
     for (const auto* node : nodes)
     {
       node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [](const Model::GroupNode*) {},
-        [](const Model::EntityNode*) {},
-        [&](const Model::BrushNode* brush) { handleManager.addHandles(brush); },
-        [](const Model::PatchNode*) {}));
+        [](const mdl::WorldNode*) {},
+        [](const mdl::LayerNode*) {},
+        [](const mdl::GroupNode*) {},
+        [](const mdl::EntityNode*) {},
+        [&](const mdl::BrushNode* brush) { handleManager.addHandles(brush); },
+        [](const mdl::PatchNode*) {}));
     }
   }
 
   template <typename HT>
   void removeHandles(
-    const std::vector<Model::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
+    const std::vector<mdl::Node*>& nodes, VertexHandleManagerBaseT<HT>& handleManager)
   {
     for (const auto* node : nodes)
     {
       node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [](const Model::GroupNode*) {},
-        [](const Model::EntityNode*) {},
-        [&](const Model::BrushNode* brush) { handleManager.removeHandles(brush); },
-        [](const Model::PatchNode*) {}));
+        [](const mdl::WorldNode*) {},
+        [](const mdl::LayerNode*) {},
+        [](const mdl::GroupNode*) {},
+        [](const mdl::EntityNode*) {},
+        [&](const mdl::BrushNode* brush) { handleManager.removeHandles(brush); },
+        [](const mdl::PatchNode*) {}));
     }
   }
 
-  virtual void addHandles(const std::vector<Model::Node*>& nodes)
+  virtual void addHandles(const std::vector<mdl::Node*>& nodes)
   {
     addHandles(nodes, handleManager());
   }
 
-  virtual void removeHandles(const std::vector<Model::Node*>& nodes)
+  virtual void removeHandles(const std::vector<mdl::Node*>& nodes)
   {
     removeHandles(nodes, handleManager());
   }

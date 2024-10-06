@@ -25,11 +25,11 @@
 #include <QVBoxLayout>
 #include <QtGlobal>
 
-#include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 #include "asset/PropertyDefinition.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/set_temp.h"
 
@@ -96,7 +96,7 @@ void SmartChoiceEditor::createGui()
   setLayout(layout);
 }
 
-void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes)
+void SmartChoiceEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   ensure(m_comboBox != nullptr, "comboBox is null");
 
@@ -105,7 +105,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
 
   if (
     const auto* choiceDef = dynamic_cast<const asset::ChoicePropertyDefinition*>(
-      Model::selectPropertyDefinition(propertyKey(), nodes)))
+      mdl::selectPropertyDefinition(propertyKey(), nodes)))
   {
     m_comboBox->setDisabled(false);
     const auto& options = choiceDef->options();
@@ -116,7 +116,7 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>
         document()->encoding(), option.value() + " : " + option.description()));
     }
 
-    const auto value = Model::selectPropertyValue(propertyKey(), nodes);
+    const auto value = mdl::selectPropertyValue(propertyKey(), nodes);
     m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
   }
   else

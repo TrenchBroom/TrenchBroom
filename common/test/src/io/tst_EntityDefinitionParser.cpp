@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "asset/PropertyDefinition.h"
+#include "el/Expression.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/EntityDefinitionParser.h"
 #include "io/TestParserStatus.h"
-#include "Model/EntityProperties.h"
-#include "asset/PropertyDefinition.h"
-#include "el/Expression.h"
+#include "mdl/EntityProperties.h"
 
 #include <vector>
 
@@ -574,12 +574,12 @@ TEST_CASE("resolveInheritance")
   SECTION("mergeSpawnflagsSimpleInheritance")
   {
     auto a1 = std::make_shared<asset::FlagsPropertyDefinition>(
-      Model::EntityPropertyKeys::Spawnflags);
+      mdl::EntityPropertyKeys::Spawnflags);
     a1->addOption(1 << 1, "a1_1", "", true);
     a1->addOption(1 << 2, "a1_2", "", false);
 
     auto a2 = std::make_shared<asset::FlagsPropertyDefinition>(
-      Model::EntityPropertyKeys::Spawnflags);
+      mdl::EntityPropertyKeys::Spawnflags);
     a2->addOption(1 << 2, "a2_2", "", true);
     a2->addOption(1 << 4, "a2_4", "", false);
 
@@ -622,7 +622,7 @@ TEST_CASE("resolveInheritance")
 
     const auto& flagsPropertyDefinition =
       static_cast<const asset::FlagsPropertyDefinition&>(*propertyDefinition.get());
-    CHECK(flagsPropertyDefinition.key() == Model::EntityPropertyKeys::Spawnflags);
+    CHECK(flagsPropertyDefinition.key() == mdl::EntityPropertyKeys::Spawnflags);
 
     const auto& options = flagsPropertyDefinition.options();
     CHECK_THAT(

@@ -19,17 +19,17 @@
 
 #include "EntityLinkRenderer.h"
 
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityNodeBase.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
+#include "mdl/EntityNodeBase.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -69,8 +69,8 @@ namespace
 {
 
 void addLink(
-  const Model::EntityNodeBase& source,
-  const Model::EntityNodeBase& target,
+  const mdl::EntityNodeBase& source,
+  const mdl::EntityNodeBase& target,
   const Color& defaultColor,
   const Color& selectedColor,
   std::vector<LinkRenderer::LineVertex>& links)
@@ -86,12 +86,12 @@ void addLink(
 
 struct CollectAllLinksVisitor
 {
-  const Model::EditorContext& editorContext;
+  const mdl::EditorContext& editorContext;
   Color defaultColor;
   Color selectedColor;
 
   void visit(
-    const Model::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
+    const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
   {
     if (editorContext.visible(&node))
     {
@@ -101,11 +101,11 @@ struct CollectAllLinksVisitor
   }
 
   void addTargets(
-    const Model::EntityNodeBase& source,
-    const std::vector<Model::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& source,
+    const std::vector<mdl::EntityNodeBase*>& targets,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (const Model::EntityNodeBase* target : targets)
+    for (const mdl::EntityNodeBase* target : targets)
     {
       if (editorContext.visible(target))
       {
@@ -117,14 +117,14 @@ struct CollectAllLinksVisitor
 
 struct CollectTransitiveSelectedLinksVisitor
 {
-  const Model::EditorContext& editorContext;
+  const mdl::EditorContext& editorContext;
   Color defaultColor;
   Color selectedColor;
 
-  std::unordered_set<const Model::Node*> visited;
+  std::unordered_set<const mdl::Node*> visited;
 
   void visit(
-    const Model::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
+    const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
   {
     if (editorContext.visible(&node))
     {
@@ -139,8 +139,8 @@ struct CollectTransitiveSelectedLinksVisitor
   }
 
   void addSources(
-    const std::vector<Model::EntityNodeBase*>& sources,
-    const Model::EntityNodeBase& target,
+    const std::vector<mdl::EntityNodeBase*>& sources,
+    const mdl::EntityNodeBase& target,
     std::vector<LinkRenderer::LineVertex>& links)
   {
     for (auto* source : sources)
@@ -154,8 +154,8 @@ struct CollectTransitiveSelectedLinksVisitor
   }
 
   void addTargets(
-    const Model::EntityNodeBase& source,
-    const std::vector<Model::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& source,
+    const std::vector<mdl::EntityNodeBase*>& targets,
     std::vector<LinkRenderer::LineVertex>& links)
   {
     for (auto* target : targets)
@@ -171,12 +171,12 @@ struct CollectTransitiveSelectedLinksVisitor
 
 struct CollectDirectSelectedLinksVisitor
 {
-  const Model::EditorContext& editorContext;
+  const mdl::EditorContext& editorContext;
   Color defaultColor;
   Color selectedColor;
 
   void visit(
-    const Model::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
+    const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
   {
     if (node.selected() || node.descendantSelected())
     {
@@ -188,8 +188,8 @@ struct CollectDirectSelectedLinksVisitor
   }
 
   void addSources(
-    const std::vector<Model::EntityNodeBase*>& sources,
-    const Model::EntityNodeBase& target,
+    const std::vector<mdl::EntityNodeBase*>& sources,
+    const mdl::EntityNodeBase& target,
     std::vector<LinkRenderer::LineVertex>& links)
   {
     for (const auto* source : sources)
@@ -204,8 +204,8 @@ struct CollectDirectSelectedLinksVisitor
   }
 
   void addTargets(
-    const Model::EntityNodeBase& source,
-    const std::vector<Model::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& source,
+    const std::vector<mdl::EntityNodeBase*>& targets,
     std::vector<LinkRenderer::LineVertex>& links)
   {
     for (const auto* target : targets)
@@ -219,21 +219,21 @@ struct CollectDirectSelectedLinksVisitor
 };
 
 template <typename Visitor>
-auto collectSelectedLinks(const Model::NodeCollection& selectedNodes, Visitor visitor)
+auto collectSelectedLinks(const mdl::NodeCollection& selectedNodes, Visitor visitor)
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
   for (auto* node : selectedNodes)
   {
     node->accept(kdl::overload(
-      [](const Model::WorldNode*) {},
-      [](const Model::LayerNode*) {},
-      [](const Model::GroupNode*) {},
-      [&](const Model::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
-      [](auto&& thisLambda, const Model::BrushNode* brushNode) {
+      [](const mdl::WorldNode*) {},
+      [](const mdl::LayerNode*) {},
+      [](const mdl::GroupNode*) {},
+      [&](const mdl::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
+      [](auto&& thisLambda, const mdl::BrushNode* brushNode) {
         brushNode->visitParent(thisLambda);
       },
-      [](auto&& thisLambda, const Model::PatchNode* patchNode) {
+      [](auto&& thisLambda, const mdl::PatchNode* patchNode) {
         patchNode->visitParent(thisLambda);
       }));
   }
@@ -252,18 +252,18 @@ auto getAllLinks(
       CollectAllLinksVisitor{document.editorContext(), defaultColor, selectedColor};
 
     document.world()->accept(kdl::overload(
-      [](auto&& thisLambda, const Model::WorldNode* worldNode) {
+      [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
         worldNode->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, const Model::LayerNode* layerNode) {
+      [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
         layerNode->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, const Model::GroupNode* groupNode) {
+      [](auto&& thisLambda, const mdl::GroupNode* groupNode) {
         groupNode->visitChildren(thisLambda);
       },
-      [&](const Model::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
-      [](const Model::BrushNode*) {},
-      [](const Model::PatchNode*) {}));
+      [&](const mdl::EntityNode* entityNode) { visitor.visit(*entityNode, links); },
+      [](const mdl::BrushNode*) {},
+      [](const mdl::PatchNode*) {}));
   }
 
   return links;

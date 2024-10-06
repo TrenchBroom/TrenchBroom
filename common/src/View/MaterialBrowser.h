@@ -38,11 +38,11 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceHandle;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -90,10 +90,10 @@ private:
 
   void documentWasNewed(MapDocument* document);
   void documentWasLoaded(MapDocument* document);
-  void nodesWereAdded(const std::vector<Model::Node*>& nodes);
-  void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
+  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void materialCollectionsDidChange();
   void currentMaterialNameDidChange(const std::string& materialName);
   void preferenceDidChange(const std::filesystem::path& path);

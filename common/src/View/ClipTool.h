@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Model/HitType.h"
 #include "NotifierConnection.h"
 #include "View/Tool.h"
+#include "mdl/HitType.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
@@ -31,13 +31,13 @@
 #include <optional>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 class BrushFaceHandle;
 class Node;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -58,7 +58,7 @@ class ClipStrategy;
 class ClipTool : public Tool
 {
 public:
-  static const Model::HitType::Type PointHitType;
+  static const mdl::HitType::Type PointHitType;
 
 private:
   enum class ClipSide
@@ -74,8 +74,8 @@ private:
   ClipSide m_clipSide = ClipSide::Front;
   std::unique_ptr<ClipStrategy> m_strategy;
 
-  std::map<Model::Node*, std::vector<Model::Node*>> m_frontBrushes;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_backBrushes;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_frontBrushes;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_backBrushes;
 
   std::unique_ptr<Renderer::BrushRenderer> m_remainingBrushRenderer;
   std::unique_ptr<Renderer::BrushRenderer> m_clippedBrushRenderer;
@@ -96,12 +96,12 @@ public:
   void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult);
+    mdl::PickResult& pickResult);
 
   void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult& pickResult);
+    const mdl::PickResult& pickResult);
 
 private:
   void renderBrushes(
@@ -109,7 +109,7 @@ private:
   void renderStrategy(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult& pickResult);
+    const mdl::PickResult& pickResult);
 
 public:
   void renderFeedback(
@@ -123,7 +123,7 @@ public:
   void performClip();
 
 private:
-  std::map<Model::Node*, std::vector<Model::Node*>> clipBrushes();
+  std::map<mdl::Node*, std::vector<mdl::Node*>> clipBrushes();
 
 public:
   vm::vec3d defaultClipPointPos() const;
@@ -135,13 +135,13 @@ public:
   bool removeLastPoint();
 
   std::optional<std::tuple<vm::vec3d, vm::vec3d>> beginDragPoint(
-    const Model::PickResult& pickResult);
+    const mdl::PickResult& pickResult);
   void beginDragLastPoint();
   bool dragPoint(const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors);
   void endDragPoint();
   void cancelDragPoint();
 
-  void setFace(const Model::BrushFaceHandle& face);
+  void setFace(const mdl::BrushFaceHandle& face);
   bool reset();
 
 private:
@@ -152,12 +152,12 @@ private:
   void updateBrushes();
 
   void setFaceAttributes(
-    const std::vector<Model::BrushFace>& faces, Model::BrushFace& toSet) const;
+    const std::vector<mdl::BrushFace>& faces, mdl::BrushFace& toSet) const;
 
   void clearRenderers();
   void updateRenderers();
   void addBrushesToRenderer(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& map,
+    const std::map<mdl::Node*, std::vector<mdl::Node*>>& map,
     Renderer::BrushRenderer& renderer);
 
   bool keepFrontBrushes() const;
@@ -171,9 +171,9 @@ private:
 
   void connectObservers();
   void selectionDidChange(const Selection& selection);
-  void nodesWillChange(const std::vector<Model::Node*>& nodes);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& nodes);
+  void nodesWillChange(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);
 };
 
 } // namespace tb::View

@@ -22,7 +22,7 @@
 #include <memory>
 #include <string>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -52,7 +52,7 @@ public:
 
   void append(std::unique_ptr<ToolController> controller);
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult);
+  void pick(const InputState& inputState, mdl::PickResult& pickResult);
 
   void modifierKeyChange(const InputState& inputState);
 

@@ -19,13 +19,13 @@
 
 #include "CompilationConfigParser.h"
 
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "mdl/CompilationConfig.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/CompilationTask.h"
 
 #include <fmt/format.h>
 
@@ -36,7 +36,7 @@ namespace tb::io
 namespace
 {
 
-Model::CompilationExportMap parseExportTask(
+mdl::CompilationExportMap parseExportTask(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -46,7 +46,7 @@ Model::CompilationExportMap parseExportTask(
   return {enabled, value["target"].stringValue()};
 }
 
-Model::CompilationCopyFiles parseCopyTask(
+mdl::CompilationCopyFiles parseCopyTask(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -59,7 +59,7 @@ Model::CompilationCopyFiles parseCopyTask(
   return {enabled, value["source"].stringValue(), value["target"].stringValue()};
 }
 
-Model::CompilationRenameFile parseRenameTask(
+mdl::CompilationRenameFile parseRenameTask(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -72,7 +72,7 @@ Model::CompilationRenameFile parseRenameTask(
   return {enabled, value["source"].stringValue(), value["target"].stringValue()};
 }
 
-Model::CompilationDeleteFiles parseDeleteTask(
+mdl::CompilationDeleteFiles parseDeleteTask(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -82,7 +82,7 @@ Model::CompilationDeleteFiles parseDeleteTask(
   return {enabled, value["target"].stringValue()};
 }
 
-Model::CompilationRunTool parseToolTask(
+mdl::CompilationRunTool parseToolTask(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -104,7 +104,7 @@ Model::CompilationRunTool parseToolTask(
     treatNonZeroResultCodeAsError};
 }
 
-Model::CompilationTask parseTask(const el::Value& value, const el::EvaluationTrace& trace)
+mdl::CompilationTask parseTask(const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectMapEntry(value, trace, "type", el::ValueType::String);
   const auto typeName = value["type"].stringValue();
@@ -133,10 +133,10 @@ Model::CompilationTask parseTask(const el::Value& value, const el::EvaluationTra
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
-std::vector<Model::CompilationTask> parseTasks(
+std::vector<mdl::CompilationTask> parseTasks(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  auto result = std::vector<Model::CompilationTask>{};
+  auto result = std::vector<mdl::CompilationTask>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -146,7 +146,7 @@ std::vector<Model::CompilationTask> parseTasks(
   return result;
 }
 
-Model::CompilationProfile parseProfile(
+mdl::CompilationProfile parseProfile(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -158,10 +158,10 @@ Model::CompilationProfile parseProfile(
     parseTasks(value["tasks"], trace)};
 }
 
-std::vector<Model::CompilationProfile> parseProfiles(
+std::vector<mdl::CompilationProfile> parseProfiles(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  auto result = std::vector<Model::CompilationProfile>{};
+  auto result = std::vector<mdl::CompilationProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -179,7 +179,7 @@ CompilationConfigParser::CompilationConfigParser(
 {
 }
 
-Model::CompilationConfig CompilationConfigParser::parse()
+mdl::CompilationConfig CompilationConfigParser::parse()
 {
   const auto context = el::EvaluationContext{};
   auto trace = el::EvaluationTrace{};
@@ -193,7 +193,7 @@ Model::CompilationConfig CompilationConfigParser::parse()
   unused(version);
   assert(version == 1.0);
 
-  return Model::CompilationConfig{parseProfiles(root["profiles"], trace)};
+  return mdl::CompilationConfig{parseProfiles(root["profiles"], trace)};
 }
 
 } // namespace tb::io

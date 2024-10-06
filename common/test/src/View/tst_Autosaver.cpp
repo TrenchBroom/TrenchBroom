@@ -20,13 +20,13 @@
 #include <QString>
 
 #include "Logger.h"
-#include "Model/BrushNode.h" // IWYU pragma: keep
-#include "Model/EntityNode.h"
-#include "Model/LayerNode.h" // IWYU pragma: keep
 #include "View/Autosaver.h"
 #include "View/MapDocumentTest.h"
 #include "io/DiskFileSystem.h"
 #include "io/TestEnvironment.h"
+#include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/EntityNode.h"
+#include "mdl/LayerNode.h" // IWYU pragma: keep
 
 #include "kdl/vector_utils.h"
 
@@ -214,7 +214,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
     auto autosaver = Autosaver{document, 100ms, maxBackups};
 
     // modify the map
-    auto* entity = new Model::EntityNode{{}};
+    auto* entity = new mdl::EntityNode{{}};
     document->addNodes({{document->currentLayer(), {entity}}});
 
     std::this_thread::sleep_for(100ms);
@@ -239,7 +239,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
       });
 
     // modify the map again
-    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+    document->addNodes({{document->currentLayer(), {new mdl::EntityNode{{}}}}});
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave(logger);
@@ -300,7 +300,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
     auto autosaver = Autosaver{document, 100ms, maxBackups};
 
     // modify the map
-    document->addNodes({{document->currentLayer(), {new Model::EntityNode{{}}}}});
+    document->addNodes({{document->currentLayer(), {new mdl::EntityNode{{}}}}});
 
     std::this_thread::sleep_for(100ms);
     autosaver.triggerAutosave(logger);

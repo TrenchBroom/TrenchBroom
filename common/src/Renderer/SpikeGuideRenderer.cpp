@@ -19,16 +19,16 @@
 
 #include "SpikeGuideRenderer.h"
 
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "Renderer/ActiveShader.h"
 #include "Renderer/PrimType.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VboManager.h"
 #include "View/MapDocument.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "vm/ray.h"
 #include "vm/vec.h"
@@ -47,13 +47,13 @@ void SpikeGuideRenderer::setColor(const Color& color)
 void SpikeGuideRenderer::add(
   const vm::ray3d& ray, const double length, std::shared_ptr<View::MapDocument> document)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
-  auto pickResult = Model::PickResult::byDistance();
+  auto pickResult = mdl::PickResult::byDistance();
   document->pick(ray, pickResult);
 
   if (const auto& hit =
-        pickResult.first(type(Model::BrushNode::BrushHitType) && minDistance(1.0));
+        pickResult.first(type(mdl::BrushNode::BrushHitType) && minDistance(1.0));
       hit.isMatch())
   {
     if (hit.distance() <= length)

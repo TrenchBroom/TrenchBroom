@@ -50,18 +50,16 @@ public:
 
 private:
   void createGui();
-  void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
+  void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) override;
   void resetScrollPos();
 
   void getFlags(
-    const std::vector<Model::EntityNodeBase*>& nodes,
+    const std::vector<mdl::EntityNodeBase*>& nodes,
     QStringList& labels,
     QStringList& tooltips) const;
   void getFlagValues(
-    const std::vector<Model::EntityNodeBase*>& nodes,
-    int& setFlags,
-    int& mixedFlags) const;
-  int getFlagValue(const Model::EntityNodeBase* node) const;
+    const std::vector<mdl::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const;
+  int getFlagValue(const mdl::EntityNodeBase* node) const;
 
   void flagChanged(size_t index, int value, int setFlag, int mixedFlag);
 };

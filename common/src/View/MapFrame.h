@@ -23,11 +23,11 @@
 #include <QMainWindow>
 #include <QPointer>
 
-#include "Model/MapFormat.h"
 #include "NotifierConnection.h"
 #include "Result.h"
 #include "View/Selection.h"
 #include "io/ExportOptions.h"
+#include "mdl/MapFormat.h"
 
 #include <chrono>
 #include <filesystem>
@@ -55,12 +55,12 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Game;
 class GroupNode;
 class LayerNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -184,10 +184,10 @@ private: // notification handlers
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const Selection& selection);
-  void currentLayerDidChange(const tb::Model::LayerNode* layer);
-  void groupWasOpened(Model::GroupNode* group);
-  void groupWasClosed(Model::GroupNode* group);
-  void nodeVisibilityDidChange(const std::vector<Model::Node*>& nodes);
+  void currentLayerDidChange(const tb::mdl::LayerNode* layer);
+  void groupWasOpened(mdl::GroupNode* group);
+  void groupWasClosed(mdl::GroupNode* group);
+  void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void editorContextDidChange();
   void pointFileDidChange();
   void portalFileDidChange();
@@ -196,10 +196,10 @@ private: // menu event handlers
   void bindEvents();
 
 public:
-  Result<bool> newDocument(std::shared_ptr<Model::Game> game, Model::MapFormat mapFormat);
+  Result<bool> newDocument(std::shared_ptr<mdl::Game> game, mdl::MapFormat mapFormat);
   Result<bool> openDocument(
-    std::shared_ptr<Model::Game> game,
-    Model::MapFormat mapFormat,
+    std::shared_ptr<mdl::Game> game,
+    mdl::MapFormat mapFormat,
     const std::filesystem::path& path);
   bool saveDocument();
   bool saveDocumentAs();

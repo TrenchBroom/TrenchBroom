@@ -31,7 +31,7 @@ EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(
+std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
   const vm::segment3d& handle) const
 {
   return findIncidentBrushes(*m_edgeHandles, handle);
@@ -40,7 +40,7 @@ std::vector<Model::BrushNode*> EdgeTool::findIncidentBrushes(
 void EdgeTool::pick(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   m_edgeHandles->pickCenterHandle(pickRay, camera, pickResult);
 }
@@ -56,7 +56,7 @@ const EdgeHandleManager& EdgeTool::handleManager() const
 }
 
 std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
-  const std::vector<Model::Hit>& hits) const
+  const std::vector<mdl::Hit>& hits) const
 {
   assert(!hits.empty());
 

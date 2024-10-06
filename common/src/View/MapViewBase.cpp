@@ -27,21 +27,6 @@
 #include <QtGlobal>
 
 #include "Logger.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityProperties.h"
-#include "Model/GroupNode.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/LayerNode.h"
-#include "Model/ModelUtils.h"
-#include "Model/PatchNode.h"
-#include "Model/PointTrace.h"
-#include "Model/PortalFile.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -70,6 +55,21 @@
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionGroup.h"
 #include "asset/EntityDefinitionManager.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/GroupNode.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/LayerNode.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/PatchNode.h"
+#include "mdl/PointTrace.h"
+#include "mdl/PortalFile.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -201,7 +201,7 @@ void MapViewBase::createActionsAndUpdatePicking()
   updatePickResult();
 }
 
-void MapViewBase::nodesDidChange(const std::vector<Model::Node*>&)
+void MapViewBase::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   updatePickResult();
   update();
@@ -568,7 +568,7 @@ void MapViewBase::flipUV(const vm::direction direction)
 
 void MapViewBase::resetUV()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   request.resetAll(document->game()->config().faceAttribsConfig.defaults);
@@ -577,7 +577,7 @@ void MapViewBase::resetUV()
 
 void MapViewBase::resetUVToWorld()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   request.resetAllToParaxial(document->game()->config().faceAttribsConfig.defaults);
@@ -692,18 +692,18 @@ bool MapViewBase::canCreateBrushEntity()
   return document->selectedNodes().hasOnlyBrushes();
 }
 
-void MapViewBase::toggleTagVisible(const Model::SmartTag& tag)
+void MapViewBase::toggleTagVisible(const mdl::SmartTag& tag)
 {
   const auto tagIndex = tag.index();
 
   auto document = kdl::mem_lock(m_document);
   auto& editorContext = document->editorContext();
   auto hiddenTags = editorContext.hiddenTags();
-  hiddenTags ^= Model::TagType::Type{1} << tagIndex;
+  hiddenTags ^= mdl::TagType::Type{1} << tagIndex;
   editorContext.setHiddenTags(hiddenTags);
 }
 
-void MapViewBase::enableTag(const Model::SmartTag& tag)
+void MapViewBase::enableTag(const mdl::SmartTag& tag)
 {
   assert(tag.canEnable());
   auto document = kdl::mem_lock(m_document);
@@ -714,7 +714,7 @@ void MapViewBase::enableTag(const Model::SmartTag& tag)
   transaction.commit();
 }
 
-void MapViewBase::disableTag(const Model::SmartTag& tag)
+void MapViewBase::disableTag(const mdl::SmartTag& tag)
 {
   assert(tag.canDisable());
   auto document = kdl::mem_lock(m_document);
@@ -732,7 +732,7 @@ void MapViewBase::makeStructural()
     return;
   }
 
-  auto toReparent = std::vector<Model::Node*>{};
+  auto toReparent = std::vector<mdl::Node*>{};
   const auto& selectedBrushes = document->selectedNodes().brushes();
   std::copy_if(
     selectedBrushes.begin(),
@@ -1246,7 +1246,7 @@ void MapViewBase::showPopupMenuLater()
 
   // Layer operations
 
-  const auto selectedObjectLayers = Model::collectContainingLayersUserSorted(nodes);
+  const auto selectedObjectLayers = mdl::collectContainingLayersUserSorted(nodes);
 
   auto* moveSelectionTo = menu.addMenu(tr("Move to Layer"));
   for (auto* layerNode : document->world()->allLayersUserSorted())
@@ -1311,12 +1311,12 @@ void MapViewBase::showPopupMenuLater()
     moveToWorldAction->setEnabled(canMakeStructural());
 
     const auto isEntity = newBrushParent->accept(kdl::overload(
-      [](const Model::WorldNode*) { return false; },
-      [](const Model::LayerNode*) { return false; },
-      [](const Model::GroupNode*) { return false; },
-      [](const Model::EntityNode*) { return true; },
-      [](const Model::BrushNode*) { return false; },
-      [](const Model::PatchNode*) { return false; }));
+      [](const mdl::WorldNode*) { return false; },
+      [](const mdl::LayerNode*) { return false; },
+      [](const mdl::GroupNode*) { return false; },
+      [](const mdl::EntityNode*) { return true; },
+      [](const mdl::BrushNode*) { return false; },
+      [](const mdl::PatchNode*) { return false; }));
 
     if (isEntity)
     {
@@ -1330,9 +1330,9 @@ void MapViewBase::showPopupMenuLater()
 
   menu.addSeparator();
 
-  using namespace Model::HitFilters;
-  const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
-  const auto faceHandle = Model::hitToFaceHandle(hit);
+  using namespace mdl::HitFilters;
+  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
+  const auto faceHandle = mdl::hitToFaceHandle(hit);
   if (faceHandle)
   {
     const auto* material = faceHandle->face().material();
@@ -1431,7 +1431,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const asset::EntityDefinitionType type)
 
     const auto filteredDefinitions = kdl::vec_filter(definitions, [](auto* definition) {
       return !kdl::cs::str_is_equal(
-        definition->name(), Model::EntityPropertyValues::WorldspawnClassname);
+        definition->name(), mdl::EntityPropertyValues::WorldspawnClassname);
     });
 
     if (!filteredDefinitions.empty())
@@ -1502,15 +1502,14 @@ void MapViewBase::removeSelectedObjectsFromGroup()
   transaction.commit();
 }
 
-Model::Node* MapViewBase::findNewGroupForObjects(
-  const std::vector<Model::Node*>& nodes) const
+mdl::Node* MapViewBase::findNewGroupForObjects(const std::vector<mdl::Node*>& nodes) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
-  const auto hits = pickResult().all(type(Model::nodeHitType()));
+  const auto hits = pickResult().all(type(mdl::nodeHitType()));
   if (!hits.empty())
   {
-    auto* newGroup = Model::findOutermostClosedGroup(Model::hitToNode(hits.front()));
+    auto* newGroup = mdl::findOutermostClosedGroup(mdl::hitToNode(hits.front()));
     if (newGroup && canReparentNodes(nodes, newGroup))
     {
       return newGroup;
@@ -1530,10 +1529,10 @@ void MapViewBase::mergeSelectedGroups()
   transaction.commit();
 }
 
-Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
-  const Model::NodeCollection& selectedNodes) const
+mdl::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
+  const mdl::NodeCollection& selectedNodes) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2))
   {
@@ -1541,10 +1540,10 @@ Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
   }
 
   auto document = kdl::mem_lock(m_document);
-  const auto hits = pickResult().all(type(Model::nodeHitType()));
+  const auto hits = pickResult().all(type(mdl::nodeHitType()));
   if (!hits.empty())
   {
-    if (auto* mergeTarget = findOutermostClosedGroup(Model::hitToNode(hits.front())))
+    if (auto* mergeTarget = findOutermostClosedGroup(mdl::hitToNode(hits.front())))
     {
       if (kdl::all_of(selectedNodes.nodes(), [&](const auto* node) {
             return node == mergeTarget || canReparentNode(node, mergeTarget);
@@ -1558,8 +1557,7 @@ Model::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
   return nullptr;
 }
 
-bool MapViewBase::canReparentNode(
-  const Model::Node* node, const Model::Node* newParent) const
+bool MapViewBase::canReparentNode(const mdl::Node* node, const mdl::Node* newParent) const
 {
   return newParent != node && newParent != node->parent() && newParent->canAddChild(node);
 }
@@ -1580,14 +1578,14 @@ void MapViewBase::moveSelectedBrushesToEntity()
   transaction.commit();
 }
 
-Model::Node* MapViewBase::findNewParentEntityForBrushes(
-  const std::vector<Model::Node*>& nodes) const
+mdl::Node* MapViewBase::findNewParentEntityForBrushes(
+  const std::vector<mdl::Node*>& nodes) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
-  const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     auto* brush = faceHandle->node();
     auto* newParent = brush->entity();
@@ -1602,12 +1600,12 @@ Model::Node* MapViewBase::findNewParentEntityForBrushes(
   {
     auto* lastNode = nodes.back();
 
-    if (auto* group = Model::findContainingGroup(lastNode))
+    if (auto* group = mdl::findContainingGroup(lastNode))
     {
       return group;
     }
 
-    if (auto* layer = Model::findContainingLayer(lastNode))
+    if (auto* layer = mdl::findContainingLayer(lastNode))
     {
       return layer;
     }
@@ -1617,7 +1615,7 @@ Model::Node* MapViewBase::findNewParentEntityForBrushes(
 }
 
 bool MapViewBase::canReparentNodes(
-  const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const
+  const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const
 {
   return std::any_of(nodes.begin(), nodes.end(), [&](const auto* node) {
     return canReparentNode(node, newParent);
@@ -1628,10 +1626,10 @@ bool MapViewBase::canReparentNodes(
  * Return the given nodes, but replace all entity brushes with the parent entity (with
  * duplicates removed).
  */
-static std::vector<Model::Node*> collectEntitiesForNodes(
-  const std::vector<Model::Node*>& selectedNodes, const Model::WorldNode* world)
+static std::vector<mdl::Node*> collectEntitiesForNodes(
+  const std::vector<mdl::Node*>& selectedNodes, const mdl::WorldNode* world)
 {
-  auto result = std::vector<Model::Node*>{};
+  auto result = std::vector<mdl::Node*>{};
   const auto addNode = [&](auto&& thisLambda, auto* node) {
     if (node->entity() == world)
     {
@@ -1643,22 +1641,20 @@ static std::vector<Model::Node*> collectEntitiesForNodes(
     }
   };
 
-  Model::Node::visitAll(
+  mdl::Node::visitAll(
     selectedNodes,
     kdl::overload(
-      [](Model::WorldNode*) {},
-      [](Model::LayerNode*) {},
-      [&](Model::GroupNode* group) { result.push_back(group); },
-      [&](Model::EntityNode* entity) { result.push_back(entity); },
-      [&](auto&& thisLambda, Model::BrushNode* brush) { addNode(thisLambda, brush); },
-      [&](auto&& thisLambda, Model::PatchNode* patch) { addNode(thisLambda, patch); }));
+      [](mdl::WorldNode*) {},
+      [](mdl::LayerNode*) {},
+      [&](mdl::GroupNode* group) { result.push_back(group); },
+      [&](mdl::EntityNode* entity) { result.push_back(entity); },
+      [&](auto&& thisLambda, mdl::BrushNode* brush) { addNode(thisLambda, brush); },
+      [&](auto&& thisLambda, mdl::PatchNode* patch) { addNode(thisLambda, patch); }));
   return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 void MapViewBase::reparentNodes(
-  const std::vector<Model::Node*>& nodes,
-  Model::Node* newParent,
-  const bool preserveEntities)
+  const std::vector<mdl::Node*>& nodes, mdl::Node* newParent, const bool preserveEntities)
 {
   ensure(newParent != nullptr, "newParent is null");
 
@@ -1684,8 +1680,8 @@ void MapViewBase::reparentNodes(
   transaction.commit();
 }
 
-std::vector<Model::Node*> MapViewBase::collectReparentableNodes(
-  const std::vector<Model::Node*>& nodes, const Model::Node* newParent) const
+std::vector<mdl::Node*> MapViewBase::collectReparentableNodes(
+  const std::vector<mdl::Node*>& nodes, const mdl::Node* newParent) const
 {
   return kdl::vec_filter(nodes, [&](const auto* node) {
     return newParent != node && newParent != node->parent()

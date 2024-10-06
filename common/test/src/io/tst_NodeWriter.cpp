@@ -17,20 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/NodeWriter.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceAttributes.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/LockState.h"
-#include "Model/MapFormat.h"
-#include "Model/VisibilityState.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
+#include "io/NodeWriter.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceAttributes.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/LockState.h"
+#include "mdl/MapFormat.h"
+#include "mdl/VisibilityState.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -48,7 +48,7 @@ namespace tb::io
 
 TEST_CASE("NodeWriterTest.writeEmptyMap")
 {
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -66,7 +66,7 @@ TEST_CASE("NodeWriterTest.writeEmptyMap")
 
 TEST_CASE("NodeWriterTest.writeWorldspawn")
 {
-  auto map = Model::WorldNode{{}, {{"message", "holy damn"}}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {{"message", "holy damn"}}, mdl::MapFormat::Standard};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -85,9 +85,9 @@ TEST_CASE("NodeWriterTest.writeWorldspawn")
 
 TEST_CASE("NodeWriterTest.writeDefaultLayerProperties")
 {
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
-  map.defaultLayer()->setVisibilityState(Model::VisibilityState::Hidden);
-  map.defaultLayer()->setLockState(Model::LockState::Locked);
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
+  map.defaultLayer()->setVisibilityState(mdl::VisibilityState::Hidden);
+  map.defaultLayer()->setLockState(mdl::LockState::Locked);
 
   auto layer = map.defaultLayer()->layer();
   layer.setColor(Color(0.25f, 0.75f, 1.0f));
@@ -116,9 +116,9 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Daikatana};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Daikatana};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
   auto brush1 = builder.createCube(64.0, "none") | kdl::value();
   for (auto& face : brush1.faces())
   {
@@ -126,11 +126,10 @@ TEST_CASE("NodeWriterTest.writeDaikatanaMap")
     attributes.setColor(Color{1.0f, 2.0f, 3.0f});
     face.setAttributes(attributes);
   }
-  auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
+  auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};
   map.defaultLayer()->addChild(brushNode1);
 
-  auto* brushNode2 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto* brushNode2 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode2);
 
   auto str = std::stringstream{};
@@ -169,9 +168,9 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake2_Valve};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake2_Valve};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
   auto brush1 = builder.createCube(64.0, "e1u1/alarm0") | kdl::value();
 
   // set +Z face to e1u1/brwater with contents 0, flags 0, value 0
@@ -202,7 +201,7 @@ TEST_CASE("NodeWriterTest.writeQuake2ValveMap")
   }
   // other faces are e1u1/alarm0 with unset contents/flags/value
 
-  auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
+  auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};
   map.defaultLayer()->addChild(brushNode1);
 
   auto str = std::stringstream{};
@@ -233,11 +232,10 @@ TEST_CASE("NodeWriterTest.writeQuake3ValveMap")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3_Valve};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3_Valve};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode1 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode1 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode1);
 
   auto str = std::stringstream{};
@@ -268,10 +266,10 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInDefaultLayer")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -301,17 +299,17 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto layer = Model::Layer{"Custom Layer"};
-  REQUIRE(layer.sortIndex() == Model::Layer::invalidSortIndex());
+  auto layer = mdl::Layer{"Custom Layer"};
+  REQUIRE(layer.sortIndex() == mdl::Layer::invalidSortIndex());
   layer.setSortIndex(0);
 
-  auto* layerNode = new Model::LayerNode{std::move(layer)};
+  auto* layerNode = new mdl::LayerNode{std::move(layer)};
   map.addChild(layerNode);
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   layerNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -348,15 +346,15 @@ TEST_CASE("NodeWriterTest.writeWorldspawnWithBrushInCustomLayer")
 
 TEST_CASE("NodeWriterTest.writeWorldspawnWithCustomLayerWithSortIndex")
 {
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto layer = Model::Layer{"Custom Layer"};
+  auto layer = mdl::Layer{"Custom Layer"};
   layer.setSortIndex(1);
   layer.setOmitFromExport(true);
 
-  auto* layerNode = new Model::LayerNode{std::move(layer)};
-  layerNode->setLockState(Model::LockState::Locked);
-  layerNode->setVisibilityState(Model::VisibilityState::Hidden);
+  auto* layerNode = new mdl::LayerNode{std::move(layer)};
+  layerNode->setLockState(mdl::LockState::Locked);
+  layerNode->setVisibilityState(mdl::VisibilityState::Hidden);
 
   map.addChild(layerNode);
 
@@ -390,14 +388,14 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInDefaultLayer")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
-  Model::setLinkId(*groupNode, "group_link_id");
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"Group"}};
+  mdl::setLinkId(*groupNode, "group_link_id");
   map.defaultLayer()->addChild(groupNode);
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   groupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -436,17 +434,17 @@ TEST_CASE("NodeWriterTest.writeMapWithGroupInCustomLayer")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* layerNode = new Model::LayerNode{Model::Layer{"Custom Layer"}};
+  auto* layerNode = new mdl::LayerNode{mdl::Layer{"Custom Layer"}};
   map.addChild(layerNode);
 
-  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
-  Model::setLinkId(*groupNode, "group_link_id");
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"Group"}};
+  mdl::setLinkId(*groupNode, "group_link_id");
   layerNode->addChild(groupNode);
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   groupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -494,21 +492,21 @@ TEST_CASE("NodeWriterTest.writeMapWithNestedGroupInCustomLayer")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* layerNode = new Model::LayerNode{Model::Layer{"Custom Layer"}};
+  auto* layerNode = new mdl::LayerNode{mdl::Layer{"Custom Layer"}};
   map.addChild(layerNode);
 
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
-  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"Outer Group"}};
+  mdl::setLinkId(*outerGroupNode, "outer_group_link_id");
   layerNode->addChild(outerGroupNode);
 
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
-  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"Inner Group"}};
+  mdl::setLinkId(*innerGroupNode, "inner_group_link_id");
   outerGroupNode->addChild(innerGroupNode);
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   innerGroupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -566,28 +564,28 @@ TEST_CASE("NodeWriterTest.ensureLayerAndGroupPersistentIDs")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* layerNode1 = new Model::LayerNode{Model::Layer{"Custom Layer 1"}};
+  auto* layerNode1 = new mdl::LayerNode{mdl::Layer{"Custom Layer 1"}};
   layerNode1->setPersistentId(1u);
   map.addChild(layerNode1);
 
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"Outer Group"}};
   outerGroupNode->setPersistentId(21u);
-  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
+  mdl::setLinkId(*outerGroupNode, "outer_group_link_id");
   layerNode1->addChild(outerGroupNode);
 
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"Inner Group"}};
   innerGroupNode->setPersistentId(7u);
-  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
+  mdl::setLinkId(*innerGroupNode, "inner_group_link_id");
   outerGroupNode->addChild(innerGroupNode);
 
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"Custom Layer 2"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"Custom Layer 2"}};
   layerNode2->setPersistentId(12u);
   map.addChild(layerNode2);
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
   innerGroupNode->addChild(brushNode);
 
   auto str = std::stringstream{};
@@ -649,8 +647,8 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
 
   // default layer (omit from export)
   auto defaultLayer = map.defaultLayer()->layer();
@@ -658,38 +656,38 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
   map.defaultLayer()->setLayer(std::move(defaultLayer));
 
   auto* defaultLayerPointEntityNode =
-    new Model::EntityNode{Model::Entity{{{"classname", "defaultLayerPointEntity"}}}};
+    new mdl::EntityNode{mdl::Entity{{{"classname", "defaultLayerPointEntity"}}}};
 
   auto* defaultLayerBrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "defaultMaterial") | kdl::value()};
   map.defaultLayer()->addChild(defaultLayerPointEntityNode);
   map.defaultLayer()->addChild(defaultLayerBrushNode);
 
   // layer1 (omit from export)
-  auto layer1 = Model::Layer{"Custom Layer 1"};
+  auto layer1 = mdl::Layer{"Custom Layer 1"};
   layer1.setOmitFromExport(true);
 
-  auto* layerNode1 = new Model::LayerNode{std::move(layer1)};
+  auto* layerNode1 = new mdl::LayerNode{std::move(layer1)};
   map.addChild(layerNode1);
 
   auto* layer1PointEntityNode =
-    new Model::EntityNode{Model::Entity{{{"classname", "layer1PointEntity"}}}};
+    new mdl::EntityNode{mdl::Entity{{{"classname", "layer1PointEntity"}}}};
   layerNode1->addChild(layer1PointEntityNode);
 
   auto* layer1BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer1Material") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "layer1Material") | kdl::value()};
   layerNode1->addChild(layer1BrushNode);
 
   // layer2
-  auto* layerNode2 = new Model::LayerNode{Model::Layer{"Custom Layer 2"}};
+  auto* layerNode2 = new mdl::LayerNode{mdl::Layer{"Custom Layer 2"}};
   map.addChild(layerNode2);
 
   auto* layer2PointEntityNode =
-    new Model::EntityNode{Model::Entity{{{"classname", "layer2PointEntity"}}}};
+    new mdl::EntityNode{mdl::Entity{{{"classname", "layer2PointEntity"}}}};
   layerNode2->addChild(layer2PointEntityNode);
 
   auto* layer2BrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "layer2Material") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "layer2Material") | kdl::value()};
   layerNode2->addChild(layer2BrushNode);
 
   auto str = std::stringstream{};
@@ -731,9 +729,9 @@ TEST_CASE("NodeWriterTest.exportMapWithOmittedLayers")
 
 TEST_CASE("NodeWriterTest.writeMapWithInheritedLock")
 {
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* layerNode = new Model::LayerNode{Model::Layer{"Custom Layer"}};
+  auto* layerNode = new mdl::LayerNode{mdl::Layer{"Custom Layer"}};
   map.addChild(layerNode);
 
   // WorldNode's lock state is not persisted.
@@ -741,9 +739,9 @@ TEST_CASE("NodeWriterTest.writeMapWithInheritedLock")
   // So this should result in both the default layer and custom layer being written
   // unlocked.
 
-  map.setLockState(Model::LockState::Locked);
-  map.defaultLayer()->setLockState(Model::LockState::Inherited);
-  layerNode->setLockState(Model::LockState::Inherited);
+  map.setLockState(mdl::LockState::Locked);
+  map.defaultLayer()->setLockState(mdl::LockState::Inherited);
+  layerNode->setLockState(mdl::LockState::Inherited);
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -770,19 +768,19 @@ TEST_CASE("NodeWriterTest.writeNodesWithNestedGroup")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
 
   auto* worldBrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some") | kdl::value()};
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"Outer Group"}};
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"Inner Group"}};
+    new mdl::BrushNode{builder.createCube(64.0, "some") | kdl::value()};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"Outer Group"}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"Inner Group"}};
   auto* innerBrushNode =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
-  Model::setLinkId(*outerGroupNode, "outer_group_link_id");
-  Model::setLinkId(*innerGroupNode, "inner_group_link_id");
+  mdl::setLinkId(*outerGroupNode, "outer_group_link_id");
+  mdl::setLinkId(*innerGroupNode, "inner_group_link_id");
 
   innerGroupNode->addChild(innerBrushNode);
   outerGroupNode->addChild(innerGroupNode);
@@ -834,10 +832,10 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto worldNode = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
-  Model::setLinkId(*groupNode, "group_link_id");
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"Group"}};
+  mdl::setLinkId(*groupNode, "group_link_id");
   worldNode.defaultLayer()->addChild(groupNode);
 
   SECTION("Group node with identity transformation does not write transformation")
@@ -867,7 +865,7 @@ TEST_CASE("NodeWriterTest.writeMapWithLinkedGroups")
 
   SECTION("Group node with changed transformation writes transformation")
   {
-    Model::transformNode(
+    mdl::transformNode(
       *groupNode, vm::translation_matrix(vm::vec3d{32, 0, 0}), worldBounds);
 
     auto str = std::stringstream{};
@@ -899,17 +897,17 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto worldNode = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
-  auto* groupNode = new Model::GroupNode{Model::Group{"Group"}};
-  Model::setLinkId(*groupNode, "asdf");
-  Model::transformNode(
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"Group"}};
+  mdl::setLinkId(*groupNode, "asdf");
+  mdl::transformNode(
     *groupNode, vm::translation_matrix(vm::vec3d(32.0, 0.0, 0.0)), worldBounds);
   worldNode.defaultLayer()->addChild(groupNode);
 
   auto* groupNodeClone =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(worldBounds));
-  Model::transformNode(
+    static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(worldBounds));
+  mdl::transformNode(
     *groupNodeClone, vm::translation_matrix(vm::vec3d(0.0, 16.0, 0.0)), worldBounds);
 
   worldNode.defaultLayer()->addChild(groupNodeClone);
@@ -937,13 +935,13 @@ TEST_CASE("NodeWriterTest.writeNodesWithLinkedGroup")
 
 TEST_CASE("NodeWriterTest.writeProtectedEntityProperties")
 {
-  auto worldNode = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
+  auto worldNode = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
   SECTION("No protected properties")
   {
-    auto entity = Model::Entity{};
+    auto entity = mdl::Entity{};
     entity.setProtectedProperties({});
-    auto* entityNode = new Model::EntityNode{std::move(entity)};
+    auto* entityNode = new mdl::EntityNode{std::move(entity)};
     worldNode.defaultLayer()->addChild(entityNode);
 
     auto str = std::stringstream{};
@@ -961,9 +959,9 @@ TEST_CASE("NodeWriterTest.writeProtectedEntityProperties")
 
   SECTION("Some protected properties")
   {
-    auto entity = Model::Entity{};
+    auto entity = mdl::Entity{};
     entity.setProtectedProperties({"asdf", "some", "with;semicolon"});
-    auto* entityNode = new Model::EntityNode{std::move(entity)};
+    auto* entityNode = new mdl::EntityNode{std::move(entity)};
     worldNode.defaultLayer()->addChild(entityNode);
 
     auto str = std::stringstream{};
@@ -985,9 +983,9 @@ TEST_CASE("NodeWriterTest.writeFaces")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Standard};
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* brushNode = new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* brushNode = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -1010,8 +1008,8 @@ TEST_CASE("NodeWriterTest.writeFaces")
 
 TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks")
 {
-  Model::WorldNode map(
-    {}, {{"message", "\"holy damn\", he said"}}, Model::MapFormat::Standard);
+  mdl::WorldNode map(
+    {}, {{"message", "\"holy damn\", he said"}}, mdl::MapFormat::Standard);
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -1031,8 +1029,8 @@ TEST_CASE("NodeWriterTest.writePropertiesWithQuotationMarks")
 
 TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks")
 {
-  auto map = Model::WorldNode{
-    {}, {{"message", R"(\"holy damn\", he said)"}}, Model::MapFormat::Standard};
+  auto map = mdl::WorldNode{
+    {}, {{"message", R"(\"holy damn\", he said)"}}, mdl::MapFormat::Standard};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -1053,8 +1051,8 @@ TEST_CASE("NodeWriterTest.writePropertiesWithEscapedQuotationMarks")
 // https://github.com/TrenchBroom/TrenchBroom/issues/1739
 TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence")
 {
-  auto map = Model::WorldNode{
-    {}, {{"message", "holy damn\\nhe said"}}, Model::MapFormat::Standard};
+  auto map =
+    mdl::WorldNode{{}, {{"message", "holy damn\\nhe said"}}, mdl::MapFormat::Standard};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};
@@ -1075,14 +1073,14 @@ TEST_CASE("NodeWriterTest.writePropertiesWithNewlineEscapeSequence")
 // https://github.com/TrenchBroom/TrenchBroom/issues/2556
 TEST_CASE("NodeWriterTest.writePropertiesWithTrailingBackslash")
 {
-  auto map = Model::WorldNode{
+  auto map = mdl::WorldNode{
     {},
     {
       {R"(message\)", R"(holy damn\)"},
       {R"(message2)", R"(holy damn\\)"},
       {R"(message3)", R"(holy damn\\\)"},
     },
-    Model::MapFormat::Standard};
+    mdl::MapFormat::Standard};
 
   auto str = std::stringstream{};
   auto writer = NodeWriter{map, str};

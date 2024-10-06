@@ -40,11 +40,11 @@ class EntityModel;
 class EntityModelManager;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EditorContext;
 class EntityNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -54,8 +54,8 @@ class EntityRenderer
 {
 private:
   asset::EntityModelManager& m_entityModelManager;
-  const Model::EditorContext& m_editorContext;
-  kdl::vector_set<const Model::EntityNode*> m_entities;
+  const mdl::EditorContext& m_editorContext;
+  kdl::vector_set<const mdl::EntityNode*> m_entities;
 
   DirectEdgeRenderer m_pointEntityWireframeBoundsRenderer;
   DirectEdgeRenderer m_brushEntityWireframeBoundsRenderer;
@@ -82,7 +82,7 @@ public:
   EntityRenderer(
     Logger& logger,
     asset::EntityModelManager& entityModelManager,
-    const Model::EditorContext& editorContext);
+    const mdl::EditorContext& editorContext);
 
   /**
    * Equivalent to invalidateEntity() on all added entities.
@@ -98,16 +98,16 @@ public:
    * Adds an entity. Calling with an already-added entity is allowed, but ignored (not
    * guaranteed to invalidate it).
    */
-  void addEntity(const Model::EntityNode* entity);
+  void addEntity(const mdl::EntityNode* entity);
   /**
    * Removes an entity. Calling with an unknown entity is allowed, but ignored.
    */
-  void removeEntity(const Model::EntityNode* entity);
+  void removeEntity(const mdl::EntityNode* entity);
   /**
    * Causes cached renderer data to be rebuilt for the given entity (on the next render()
    * call).
    */
-  void invalidateEntity(const Model::EntityNode* entity);
+  void invalidateEntity(const mdl::EntityNode* entity);
 
   /**
    * Invalidates cached renderer data to be result for any entity that references any of
@@ -150,8 +150,8 @@ private:
   void invalidateBounds();
   void validateBounds();
 
-  AttrString entityString(const Model::EntityNode* entityNode) const;
-  const Color& boundsColor(const Model::EntityNode* entityNode) const;
+  AttrString entityString(const mdl::EntityNode* entityNode) const;
+  const Color& boundsColor(const mdl::EntityNode* entityNode) const;
 };
 
 } // namespace tb::Renderer

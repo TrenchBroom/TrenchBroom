@@ -38,7 +38,7 @@ class PropertyDefinition;
 class EntityDefinition;
 } // namespace asset
 
-namespace Model
+namespace mdl
 {
 class Node;
 }
@@ -78,7 +78,7 @@ private:
   void connectObservers();
 
   void selectionDidChange(const Selection& selection);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   void updateIfSelectedEntityDefinitionChanged();
   void updateDocumentationAndSmartEditor();

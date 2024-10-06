@@ -19,147 +19,147 @@
 
 #pragma once
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 
 std::string convertToString(const Node& node);
 
 std::string convertToString(const Node* node);
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace Catch
 {
 template <>
-struct StringMaker<tb::Model::Node>
+struct StringMaker<tb::mdl::Node>
 {
-  static std::string convert(const tb::Model::Node& value)
+  static std::string convert(const tb::mdl::Node& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::WorldNode>
+struct StringMaker<tb::mdl::WorldNode>
 {
-  static std::string convert(const tb::Model::WorldNode& value)
+  static std::string convert(const tb::mdl::WorldNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::LayerNode>
+struct StringMaker<tb::mdl::LayerNode>
 {
-  static std::string convert(const tb::Model::LayerNode& value)
+  static std::string convert(const tb::mdl::LayerNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::GroupNode>
+struct StringMaker<tb::mdl::GroupNode>
 {
-  static std::string convert(const tb::Model::GroupNode& value)
+  static std::string convert(const tb::mdl::GroupNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::EntityNode>
+struct StringMaker<tb::mdl::EntityNode>
 {
-  static std::string convert(const tb::Model::EntityNode& value)
+  static std::string convert(const tb::mdl::EntityNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::BrushNode>
+struct StringMaker<tb::mdl::BrushNode>
 {
-  static std::string convert(const tb::Model::BrushNode& value)
+  static std::string convert(const tb::mdl::BrushNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<tb::Model::PatchNode>
+struct StringMaker<tb::mdl::PatchNode>
 {
-  static std::string convert(const tb::Model::PatchNode& value)
+  static std::string convert(const tb::mdl::PatchNode& value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::Node*>
+struct StringMaker<const tb::mdl::Node*>
 {
-  static std::string convert(const tb::Model::Node* value)
+  static std::string convert(const tb::mdl::Node* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::WorldNode*>
+struct StringMaker<const tb::mdl::WorldNode*>
 {
-  static std::string convert(const tb::Model::WorldNode* value)
+  static std::string convert(const tb::mdl::WorldNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::LayerNode*>
+struct StringMaker<const tb::mdl::LayerNode*>
 {
-  static std::string convert(const tb::Model::LayerNode* value)
+  static std::string convert(const tb::mdl::LayerNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::GroupNode*>
+struct StringMaker<const tb::mdl::GroupNode*>
 {
-  static std::string convert(const tb::Model::GroupNode* value)
+  static std::string convert(const tb::mdl::GroupNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::EntityNode*>
+struct StringMaker<const tb::mdl::EntityNode*>
 {
-  static std::string convert(const tb::Model::EntityNode* value)
+  static std::string convert(const tb::mdl::EntityNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::BrushNode*>
+struct StringMaker<const tb::mdl::BrushNode*>
 {
-  static std::string convert(const tb::Model::BrushNode* value)
+  static std::string convert(const tb::mdl::BrushNode* value)
   {
     return convertToString(value);
   }
 };
 
 template <>
-struct StringMaker<const tb::Model::PatchNode*>
+struct StringMaker<const tb::mdl::PatchNode*>
 {
-  static std::string convert(const tb::Model::PatchNode* value)
+  static std::string convert(const tb::mdl::PatchNode* value)
   {
     return convertToString(value);
   }

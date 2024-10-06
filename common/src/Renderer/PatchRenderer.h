@@ -26,11 +26,11 @@
 
 #include "kdl/vector_set.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EditorContext;
 class PatchNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -41,10 +41,10 @@ class VboManager;
 class PatchRenderer : public IndexedRenderable
 {
 private:
-  const Model::EditorContext& m_editorContext;
+  const mdl::EditorContext& m_editorContext;
 
   bool m_valid = true;
-  kdl::vector_set<const Model::PatchNode*> m_patchNodes;
+  kdl::vector_set<const mdl::PatchNode*> m_patchNodes;
 
   MaterialIndexArrayRenderer m_patchMeshRenderer;
   DirectEdgeRenderer m_edgeRenderer;
@@ -61,7 +61,7 @@ private:
   Color m_occludedEdgeColor;
 
 public:
-  explicit PatchRenderer(const Model::EditorContext& editorContext);
+  explicit PatchRenderer(const mdl::EditorContext& editorContext);
 
   void setDefaultColor(const Color& faceColor);
   void setGrayscale(bool grayscale);
@@ -102,16 +102,16 @@ public:
    * Adds a patch. Calling with an already-added patch is allowed, but ignored (not
    * guaranteed to invalidate it).
    */
-  void addPatch(const Model::PatchNode* patchNode);
+  void addPatch(const mdl::PatchNode* patchNode);
   /**
    * Removes a patch. Calling with an unknown patch is allowed, but ignored.
    */
-  void removePatch(const Model::PatchNode* patchNode);
+  void removePatch(const mdl::PatchNode* patchNode);
   /**
    * Causes cached renderer data to be rebuilt for the given patch (on the next render()
    * call).
    */
-  void invalidatePatch(const Model::PatchNode* patchNode);
+  void invalidatePatch(const mdl::PatchNode* patchNode);
 
   void render(RenderContext& renderContext, RenderBatch& renderBatch);
 

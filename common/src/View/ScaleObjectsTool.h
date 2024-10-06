@@ -20,9 +20,9 @@
 
 #pragma once
 
-#include "Model/Hit.h"
-#include "Model/HitType.h"
 #include "View/Tool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitType.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -37,7 +37,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -188,7 +188,7 @@ vm::bbox3d moveBBoxEdge(
  *
  * Only looks at the hit type (corner/edge/side), and which particular corner/edge/side.
  */
-vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit& hit);
+vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& hit);
 
 /**
  * Wrapper around moveBBoxSide/moveBBoxEdge/moveBBoxCorner.
@@ -198,7 +198,7 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit&
  */
 vm::bbox3d moveBBoxForHit(
   const vm::bbox3d& bboxAtDragStart,
-  const Model::Hit& dragStartHit,
+  const mdl::Hit& dragStartHit,
   const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   AnchorPos anchor);
@@ -225,9 +225,9 @@ BackSide pickBackSideOfBox(
 class ScaleObjectsTool : public Tool
 {
 public:
-  static const Model::HitType::Type ScaleToolSideHitType;
-  static const Model::HitType::Type ScaleToolEdgeHitType;
-  static const Model::HitType::Type ScaleToolCornerHitType;
+  static const mdl::HitType::Type ScaleToolSideHitType;
+  static const mdl::HitType::Type ScaleToolEdgeHitType;
+  static const mdl::HitType::Type ScaleToolCornerHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -235,7 +235,7 @@ private:
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
   vm::bbox3d m_bboxAtDragStart;
-  Model::Hit m_dragStartHit = Model::Hit::NoHit;
+  mdl::Hit m_dragStartHit = mdl::Hit::NoHit;
   vm::vec3d m_dragCumulativeDelta;
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
@@ -247,21 +247,21 @@ public:
 
   const Grid& grid() const;
 
-  const Model::Hit& dragStartHit() const;
+  const mdl::Hit& dragStartHit() const;
   bool applies() const;
 
   void pickBackSides(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
   void pick2D(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
   void pick3D(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const;
+    mdl::PickResult& pickResult) const;
 
 public:
   vm::bbox3d bounds() const;
@@ -289,7 +289,7 @@ public:
 
   std::vector<vm::vec3d> cornerHandles() const;
 
-  void updatePickedHandle(const Model::PickResult& pickResult);
+  void updatePickedHandle(const mdl::PickResult& pickResult);
 
   void setAnchorPos(AnchorPos pos);
   AnchorPos anchorPos() const;
@@ -298,7 +298,7 @@ public:
   const ProportionalAxes& proportionalAxes() const;
 
 public:
-  void startScaleWithHit(const Model::Hit& hit);
+  void startScaleWithHit(const mdl::Hit& hit);
   void scaleByDelta(const vm::vec3d& delta);
   void commitScale();
   void cancelScale();

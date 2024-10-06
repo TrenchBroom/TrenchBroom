@@ -19,21 +19,21 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/Game.h"
-#include "Model/LayerNode.h"
-#include "Model/ModelUtils.h"
-#include "Model/NodeQueries.h"
-#include "Model/PickResult.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/ExtrudeTool.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Game.h"
+#include "mdl/LayerNode.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/NodeQueries.h"
+#include "mdl/PickResult.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -68,9 +68,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
   auto tool = ExtrudeTool{document};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});
@@ -79,7 +79,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick2D")
   {
     constexpr auto pickRay = vm::ray3d{{0, 0, 32}, {0, 0, -1}};
 
-    auto pickResult = Model::PickResult{};
+    auto pickResult = mdl::PickResult{};
     document->pick(pickRay, pickResult);
 
     REQUIRE(pickResult.all().size() == 1);
@@ -128,9 +128,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
   auto tool = ExtrudeTool{document};
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
 
   document->addNodes({{document->currentLayer(), {brushNode1}}});
   document->selectNodes({brushNode1});
@@ -139,7 +139,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
   {
     const auto pickRay = vm::ray3d{{0, 0, 24}, vm::normalize(vm::vec3d{-1, 0, -1})};
 
-    auto pickResult = Model::PickResult{};
+    auto pickResult = mdl::PickResult{};
     document->pick(pickRay, pickResult);
 
     REQUIRE(pickResult.all().size() == 1);
@@ -195,10 +195,10 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ExtrudeToolTest.pick3D")
 /**
  * Boilerplate to perform picking
  */
-static Model::PickResult performPick(
+static mdl::PickResult performPick(
   View::MapDocument& document, ExtrudeTool& tool, const vm::ray3d& pickRay)
 {
-  auto pickResult = Model::PickResult::byDistance();
+  auto pickResult = mdl::PickResult::byDistance();
   document.pick(pickRay, pickResult); // populate pickResult
 
   const auto hit = tool.pick3D(pickRay, pickResult);
@@ -232,7 +232,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
 
   const auto mapPath = "fixture/test/View/ExtrudeToolTest" / mapName;
   auto [document, game, gameConfig] =
-    View::loadMapDocument(mapPath, "Quake", Model::MapFormat::Valve);
+    View::loadMapDocument(mapPath, "Quake", mdl::MapFormat::Valve);
 
   document->selectAllNodes();
 
@@ -240,7 +240,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
   REQUIRE(brushes.size() == 2);
 
   const auto brushIt = std::find_if(
-    std::begin(brushes), std::end(brushes), [](const Model::BrushNode* brushNode) {
+    std::begin(brushes), std::end(brushes), [](const mdl::BrushNode* brushNode) {
       return brushNode->brush().findFace("larger_top_face").has_value();
     });
   REQUIRE(brushIt != std::end(brushes));
@@ -264,7 +264,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
 
   const auto pickResult = performPick(*document, tool, pickRay);
   REQUIRE(
-    pickResult.all().front().target<Model::BrushFaceHandle>().face() == largerTopFace);
+    pickResult.all().front().target<mdl::BrushFaceHandle>().face() == largerTopFace);
 
   CHECK_THAT(
     kdl::vec_transform(
@@ -275,12 +275,10 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
 
 TEST_CASE("ExtrudeToolTest.splitBrushes")
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto [document, game, gameConfig] = View::loadMapDocument(
-    "fixture/test/View/ExtrudeToolTest/splitBrushes.map",
-    "Quake",
-    Model::MapFormat::Valve);
+    "fixture/test/View/ExtrudeToolTest/splitBrushes.map", "Quake", mdl::MapFormat::Valve);
 
   document->selectAllNodes();
 
@@ -300,7 +298,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
   const auto* funcDetailNode =
     kdl::vec_filter(
-      Model::filterEntityNodes(Model::collectDescendants({document->world()})),
+      mdl::filterEntityNodes(mdl::collectDescendants({document->world()})),
       [](const auto* node) { return node->entity().classname() == "func_detail"; })
       .front();
 
@@ -341,7 +339,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 2 resulting worldspawn brushes")
     {
-      const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+      const auto nodes = mdl::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -351,7 +349,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 2 resulting func_detail brushes")
     {
-      const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+      const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -380,7 +378,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 2 resulting worldspawn brushes")
     {
-      const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+      const auto nodes = mdl::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -390,7 +388,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 1 resulting func_detail brush")
     {
-      const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+      const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds =
@@ -413,7 +411,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 1 resulting worldspawn brushes")
     {
-      const auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+      const auto nodes = mdl::filterBrushNodes(document->currentLayer()->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds = std::vector<vm::bbox3d>{
@@ -424,7 +422,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 1 resulting func_detail brush")
     {
-      const auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+      const auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
       const auto bounds =
         kdl::vec_transform(nodes, [](const auto* node) { return node->logicalBounds(); });
       const auto expectedBounds =
@@ -447,7 +445,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 1 resulting worldspawn brush")
     {
-      auto nodes = Model::filterBrushNodes(document->currentLayer()->children());
+      auto nodes = mdl::filterBrushNodes(document->currentLayer()->children());
       nodes = kdl::vec_filter(
         std::move(nodes), [](const auto* node) { return node->selected(); });
 
@@ -461,7 +459,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     SECTION("check 1 resulting func_detail brush")
     {
-      auto nodes = Model::filterBrushNodes(funcDetailNode->children());
+      auto nodes = mdl::filterBrushNodes(funcDetailNode->children());
       nodes = kdl::vec_filter(
         std::move(nodes), [](const auto* node) { return node->selected(); });
 

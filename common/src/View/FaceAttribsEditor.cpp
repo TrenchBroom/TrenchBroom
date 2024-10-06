@@ -26,13 +26,6 @@
 #include <QtGlobal>
 
 #include "Color.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Game.h"
-#include "Model/GameConfig.h"
-#include "Model/MapFormat.h"
-#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/Grid.h"
@@ -45,6 +38,13 @@
 #include "View/ViewUtils.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Game.h"
+#include "mdl/GameConfig.h"
+#include "mdl/MapFormat.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"
@@ -83,7 +83,7 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXOffset(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -99,7 +99,7 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYOffset(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -115,7 +115,7 @@ void FaceAttribsEditor::rotationChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setRotation(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -131,7 +131,7 @@ void FaceAttribsEditor::xScaleChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setXScale(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -147,7 +147,7 @@ void FaceAttribsEditor::yScaleChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setYScale(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -164,7 +164,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   if (setFlag & value)
   {
     request.setSurfaceFlags(value);
@@ -188,7 +188,7 @@ void FaceAttribsEditor::contentFlagChanged(
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   if (setFlag & value)
   {
     request.setContentFlags(value);
@@ -211,7 +211,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(float(value));
   if (!document->setFaceAttributes(request))
   {
@@ -232,7 +232,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   {
     if (const auto color = Color::parse(str))
     {
-      auto request = Model::ChangeBrushFaceAttributesRequest{};
+      auto request = mdl::ChangeBrushFaceAttributesRequest{};
       request.setColor(*color);
       if (!document->setFaceAttributes(request))
       {
@@ -242,7 +242,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
   }
   else
   {
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setColor(Color());
     if (!document->setFaceAttributes(request))
     {
@@ -259,7 +259,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceSurfaceFlags(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -275,7 +275,7 @@ void FaceAttribsEditor::contentFlagsUnset()
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.replaceContentFlags(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -291,7 +291,7 @@ void FaceAttribsEditor::surfaceValueUnset()
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setSurfaceValue(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -307,7 +307,7 @@ void FaceAttribsEditor::colorValueUnset()
     return;
   }
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setColor(std::nullopt);
   if (!document->setFaceAttributes(request))
   {
@@ -589,12 +589,12 @@ void FaceAttribsEditor::documentWasLoaded(MapDocument*)
   updateControls();
 }
 
-void FaceAttribsEditor::nodesDidChange(const std::vector<Model::Node*>&)
+void FaceAttribsEditor::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void FaceAttribsEditor::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
 {
   updateControlsDelayed();
 }
@@ -748,7 +748,7 @@ void FaceAttribsEditor::updateControls()
     }
     else
     {
-      if (materialName == Model::BrushFaceAttributes::NoMaterialName)
+      if (materialName == mdl::BrushFaceAttributes::NoMaterialName)
       {
         m_materialName->setText("none");
         m_materialName->setEnabled(false);
@@ -877,7 +877,7 @@ void FaceAttribsEditor::hideContentFlagsEditor()
 bool FaceAttribsEditor::hasColorAttribs() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->world()->mapFormat() == Model::MapFormat::Daikatana;
+  return document->world()->mapFormat() == mdl::MapFormat::Daikatana;
 }
 
 void FaceAttribsEditor::showColorAttribEditor()
@@ -895,7 +895,7 @@ void FaceAttribsEditor::hideColorAttribEditor()
 namespace
 {
 std::tuple<QList<int>, QStringList, QStringList> getFlags(
-  const std::vector<Model::FlagConfig>& flags)
+  const std::vector<mdl::FlagConfig>& flags)
 {
   auto values = QList<int>{};
   auto names = QStringList{};

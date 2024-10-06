@@ -19,13 +19,13 @@
 
 #include "EntityDefinitionParser.h"
 
-#include "io/EntityDefinitionClassInfo.h"
-#include "io/ParserStatus.h"
 #include "Macros.h"
-#include "Model/EntityProperties.h"
 #include "asset/EntityDefinition.h"
 #include "asset/ModelDefinition.h"
 #include "asset/PropertyDefinition.h"
+#include "io/EntityDefinitionClassInfo.h"
+#include "io/ParserStatus.h"
+#include "mdl/EntityProperties.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -51,8 +51,8 @@ static std::shared_ptr<asset::PropertyDefinition> mergeAttributes(
   if (
     superClassAttribute.type() == asset::PropertyDefinitionType::FlagsProperty
     && inheritingClassAttribute.type() == asset::PropertyDefinitionType::FlagsProperty
-    && superClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags
-    && inheritingClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags)
+    && superClassAttribute.key() == mdl::EntityPropertyKeys::Spawnflags
+    && inheritingClassAttribute.key() == mdl::EntityPropertyKeys::Spawnflags)
   {
 
     const auto& name = inheritingClassAttribute.key();

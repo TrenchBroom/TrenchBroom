@@ -37,13 +37,13 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -143,17 +143,17 @@ public:
     ObjExportOptions options);
 
 private:
-  void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
+  void doBeginFile(const std::vector<const mdl::Node*>& rootNodes) override;
   void doEndFile() override;
 
-  void doBeginEntity(const Model::Node* node) override;
-  void doEndEntity(const Model::Node* node) override;
-  void doEntityProperty(const Model::EntityProperty& property) override;
+  void doBeginEntity(const mdl::Node* node) override;
+  void doEndEntity(const mdl::Node* node) override;
+  void doEntityProperty(const mdl::EntityProperty& property) override;
 
-  void doBrush(const Model::BrushNode* brush) override;
-  void doBrushFace(const Model::BrushFace& face) override;
+  void doBrush(const mdl::BrushNode* brush) override;
+  void doBrushFace(const mdl::BrushFace& face) override;
 
-  void doPatch(const Model::PatchNode* patchNode) override;
+  void doPatch(const mdl::PatchNode* patchNode) override;
 };
 
 } // namespace tb::io

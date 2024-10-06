@@ -46,7 +46,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void setRenderOptions(
     const InputState& inputState, Renderer::RenderContext& renderContext) const override;
@@ -58,7 +58,7 @@ private:
   bool cancel() override;
 
 private: // subclassing interface
-  virtual Model::Hit doPick(const InputState& inputState) = 0;
+  virtual mdl::Hit doPick(const InputState& inputState) = 0;
   virtual void doRenderHandle(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) = 0;
 };
@@ -69,7 +69,7 @@ public:
   explicit RotateObjectsToolController2D(RotateObjectsTool& tool);
 
 private:
-  Model::Hit doPick(const InputState& inputState) override;
+  mdl::Hit doPick(const InputState& inputState) override;
   void doRenderHandle(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 };
@@ -80,7 +80,7 @@ public:
   explicit RotateObjectsToolController3D(RotateObjectsTool& tool);
 
 private:
-  Model::Hit doPick(const InputState& inputState) override;
+  mdl::Hit doPick(const InputState& inputState) override;
   void doRenderHandle(
     Renderer::RenderContext& renderContext, Renderer::RenderBatch& renderBatch) override;
 };

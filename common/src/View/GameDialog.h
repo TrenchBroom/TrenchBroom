@@ -21,8 +21,8 @@
 
 #include <QDialog>
 
-#include "Model/MapFormat.h"
 #include "NotifierConnection.h"
+#include "mdl/MapFormat.h"
 
 #include <filesystem>
 #include <string>
@@ -57,12 +57,12 @@ protected:
 public:
   // FIXME: return a tuple instead of taking in/out parameters
   static bool showNewDocumentDialog(
-    QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+    QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat);
   static bool showOpenDocumentDialog(
-    QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat);
+    QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat);
 
   std::string currentGameName() const;
-  Model::MapFormat currentMapFormat() const;
+  mdl::MapFormat currentMapFormat() const;
 private slots:
   void currentGameChanged(const QString& gameName);
   void gameSelected(const QString& gameName);

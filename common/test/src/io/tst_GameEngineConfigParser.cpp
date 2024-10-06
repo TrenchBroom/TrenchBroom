@@ -19,7 +19,7 @@
 
 #include "Exceptions.h"
 #include "io/GameEngineConfigParser.h"
-#include "Model/GameEngineConfig.h"
+#include "mdl/GameEngineConfig.h"
 
 #include <filesystem>
 
@@ -67,7 +67,7 @@ TEST_CASE("GameEngineConfigParserTest.parseEmptyProfiles")
 {
   const auto config = R"(  { 'version': 1, 'profiles': [] } )";
   auto parser = GameEngineConfigParser{config, {}};
-  CHECK(parser.parse() == Model::GameEngineConfig{});
+  CHECK(parser.parse() == mdl::GameEngineConfig{});
 }
 
 TEST_CASE("GameEngineConfigParserTest.parseOneProfileWithMissingAttributes")
@@ -110,7 +110,7 @@ TEST_CASE("GameEngineConfigParserTest.parseTwoProfiles")
   auto parser = GameEngineConfigParser{config, {}};
   CHECK(
     parser.parse()
-    == Model::GameEngineConfig{
+    == mdl::GameEngineConfig{
       {{"winquake", R"(C:\Quake\winquake.exe)", "-flag1 -flag2"},
        {"glquake", R"(C:\Quake\glquake.exe)", "-flag3 -flag4"}}});
 }

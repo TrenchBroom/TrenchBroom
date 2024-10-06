@@ -23,7 +23,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
@@ -31,7 +31,7 @@ class EntityNode;
 class LayerNode;
 class Node;
 class WorldNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -40,14 +40,14 @@ class NodeSerializer;
 class NodeWriter
 {
 private:
-  using EntityBrushesMap = std::map<Model::EntityNode*, std::vector<Model::BrushNode*>>;
+  using EntityBrushesMap = std::map<mdl::EntityNode*, std::vector<mdl::BrushNode*>>;
 
-  const Model::WorldNode& m_world;
+  const mdl::WorldNode& m_world;
   std::unique_ptr<NodeSerializer> m_serializer;
 
 public:
-  NodeWriter(const Model::WorldNode& world, std::ostream& stream);
-  NodeWriter(const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
+  NodeWriter(const mdl::WorldNode& world, std::ostream& stream);
+  NodeWriter(const mdl::WorldNode& world, std::unique_ptr<NodeSerializer> serializer);
   ~NodeWriter();
 
   void setExporting(bool exporting);
@@ -56,17 +56,17 @@ public:
 private:
   void writeDefaultLayer();
   void writeCustomLayers();
-  void writeCustomLayer(const Model::LayerNode* layer);
+  void writeCustomLayer(const mdl::LayerNode* layer);
 
 public:
-  void writeNodes(const std::vector<Model::Node*>& nodes);
+  void writeNodes(const std::vector<mdl::Node*>& nodes);
 
 private:
-  void writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes);
+  void writeWorldBrushes(const std::vector<mdl::BrushNode*>& brushes);
   void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
 
 public:
-  void writeBrushFaces(const std::vector<Model::BrushFace>& faces);
+  void writeBrushFaces(const std::vector<mdl::BrushFace>& faces);
 };
 
 } // namespace tb::io

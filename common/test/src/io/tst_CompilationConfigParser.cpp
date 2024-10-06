@@ -19,8 +19,8 @@
 
 #include "Exceptions.h"
 #include "io/CompilationConfigParser.h"
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationTask.h"
+#include "mdl/CompilationConfig.h"
+#include "mdl/CompilationTask.h"
 
 #include "Catch2.h"
 
@@ -66,7 +66,7 @@ TEST_CASE("CompilationConfigParserTest.parseEmptyProfiles")
 {
   const auto config = "  { 'version': 1, 'profiles': [] } ";
   auto parser = CompilationConfigParser{config};
-  CHECK(parser.parse() == Model::CompilationConfig{{}});
+  CHECK(parser.parse() == mdl::CompilationConfig{{}});
 }
 
 TEST_CASE("CompilationConfigParserTest.parseOneProfileWithMissingNameAndMissingTasks")
@@ -132,7 +132,7 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndEmptyTasks")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile", "", {}},
     }});
 }
@@ -247,11 +247,11 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneCopyTask")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile",
        "",
        {
-         Model::CompilationCopyFiles{true, "the source", "the target"},
+         mdl::CompilationCopyFiles{true, "the source", "the target"},
        }},
     }});
 }
@@ -273,11 +273,11 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneRenameTask")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile",
        "",
        {
-         Model::CompilationRenameFile{true, "the source", "the target"},
+         mdl::CompilationRenameFile{true, "the source", "the target"},
        }},
     }});
 }
@@ -299,11 +299,11 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneDeleteTask")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile",
        "",
        {
-         Model::CompilationDeleteFiles{true, "the target"},
+         mdl::CompilationDeleteFiles{true, "the target"},
        }},
     }});
 }
@@ -369,11 +369,11 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndOneToolTask")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile",
        "",
        {
-         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that", false},
+         mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", false},
        }},
     }});
 }
@@ -415,14 +415,14 @@ TEST_CASE("CompilationConfigParserTest.parseOneProfileWithNameAndFourTasks")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"A profile",
        "",
        {
-         Model::CompilationRunTool{true, "tyrbsp.exe", "this and that", true},
-         Model::CompilationCopyFiles{false, "the source", "the target"},
-         Model::CompilationRenameFile{true, "the source", "the target"},
-         Model::CompilationDeleteFiles{false, "some other target"},
+         mdl::CompilationRunTool{true, "tyrbsp.exe", "this and that", true},
+         mdl::CompilationCopyFiles{false, "the source", "the target"},
+         mdl::CompilationRenameFile{true, "the source", "the target"},
+         mdl::CompilationDeleteFiles{false, "some other target"},
        }},
     }});
 }
@@ -447,11 +447,11 @@ TEST_CASE("CompilationConfigParserTest.parseUnescapedBackslashes")
   auto parser = CompilationConfigParser{config};
   CHECK(
     parser.parse()
-    == Model::CompilationConfig{{
+    == mdl::CompilationConfig{{
       {"Full Compile",
        "${MAP_DIR_PATH}",
        {
-         Model::CompilationCopyFiles{
+         mdl::CompilationCopyFiles{
            true, "${WORK_DIR_PATH}/${MAP_BASE_NAME}.bsp", R"(C:\quake2\chaos\maps\)"},
        }},
     }});

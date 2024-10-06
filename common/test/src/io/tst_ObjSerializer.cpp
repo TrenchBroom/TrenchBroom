@@ -17,18 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "asset/Material.h"
+#include "asset/Texture.h"
 #include "io/ExportOptions.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -47,11 +47,11 @@ TEST_CASE("ObjSerializer.writeBrush")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   auto objStream = std::ostringstream{};
@@ -114,10 +114,10 @@ TEST_CASE("ObjSerializer.writePatch")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
-  auto* patchNode = new Model::PatchNode{Model::BezierPatch{
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
+  auto* patchNode = new mdl::PatchNode{mdl::BezierPatch{
     3,
     3,
     {{0, 0, 0},
@@ -395,11 +395,11 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   auto material = asset::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
-  auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};
+  auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
-  auto builder = Model::BrushBuilder{map.mapFormat(), worldBounds};
+  auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
   auto* brushNode =
-    new Model::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
+    new mdl::BrushNode{builder.createCube(64.0, "some_material") | kdl::value()};
   map.defaultLayer()->addChild(brushNode);
 
   for (size_t i = 0; i < brushNode->brush().faceCount(); ++i)

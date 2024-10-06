@@ -20,12 +20,12 @@
 #include "ObjSerializer.h"
 
 #include "Ensure.h"
-#include "io/ExportOptions.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/PatchNode.h"
-#include "Model/Polyhedron.h"
 #include "asset/Material.h"
+#include "io/ExportOptions.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/Polyhedron.h"
 
 #include "kdl/overload.h"
 
@@ -100,7 +100,7 @@ ObjSerializer::ObjSerializer(
   ensure(m_mtlStream.good(), "mtl stream is good");
 }
 
-void ObjSerializer::doBeginFile(const std::vector<const Model::Node*>& /* rootNodes */) {}
+void ObjSerializer::doBeginFile(const std::vector<const mdl::Node*>& /* rootNodes */) {}
 
 static void writeMtlFile(
   std::ostream& str,
@@ -224,11 +224,11 @@ void ObjSerializer::doEndFile()
     m_objects);
 }
 
-void ObjSerializer::doBeginEntity(const Model::Node*) {}
-void ObjSerializer::doEndEntity(const Model::Node*) {}
-void ObjSerializer::doEntityProperty(const Model::EntityProperty&) {}
+void ObjSerializer::doBeginEntity(const mdl::Node*) {}
+void ObjSerializer::doEndEntity(const mdl::Node*) {}
+void ObjSerializer::doEntityProperty(const mdl::EntityProperty&) {}
 
-void ObjSerializer::doBrush(const Model::BrushNode* brush)
+void ObjSerializer::doBrush(const mdl::BrushNode* brush)
 {
   m_currentBrush = BrushObject{entityNo(), brushNo(), {}};
   m_currentBrush->faces.reserve(brush->brush().faceCount());
@@ -245,7 +245,7 @@ void ObjSerializer::doBrush(const Model::BrushNode* brush)
   m_currentBrush = std::nullopt;
 }
 
-void ObjSerializer::doBrushFace(const Model::BrushFace& face)
+void ObjSerializer::doBrushFace(const mdl::BrushFace& face)
 {
   const auto& normal = face.boundary().normal;
   const auto normalIndex = m_normals.index(normal);
@@ -268,7 +268,7 @@ void ObjSerializer::doBrushFace(const Model::BrushFace& face)
     std::move(indexedVertices), face.attributes().materialName(), face.material()});
 }
 
-void ObjSerializer::doPatch(const Model::PatchNode* patchNode)
+void ObjSerializer::doPatch(const mdl::PatchNode* patchNode)
 {
   const auto& patch = patchNode->patch();
   auto patchObject =

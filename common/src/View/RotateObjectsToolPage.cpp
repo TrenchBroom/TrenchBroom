@@ -27,14 +27,14 @@
 #include <QPushButton>
 #include <QtGlobal>
 
-#include "Model/EntityProperties.h"
-#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/RotateObjectsTool.h"
 #include "View/SpinControl.h"
 #include "View/ViewConstants.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to.h"

@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -69,9 +69,9 @@ public:
   explicit VertexTool(std::weak_ptr<MapDocument> document);
 
 public:
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::vec3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
@@ -80,7 +80,7 @@ public:
   void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override;
+    mdl::PickResult& pickResult) const override;
 
 public: // Handle selection
   bool deselectAll() override;
@@ -91,16 +91,16 @@ public:
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
-    const std::vector<Model::Hit>& hits) const override;
+    const std::vector<mdl::Hit>& hits) const override;
 
-  bool startMove(const std::vector<Model::Hit>& hits) override;
+  bool startMove(const std::vector<mdl::Hit>& hits) override;
   MoveResult move(const vm::vec3d& delta) override;
   void endMove() override;
   void cancelMove() override;
 
   bool allowAbsoluteSnapping() const override;
 
-  vm::vec3d getHandlePosition(const Model::Hit& hit) const override;
+  vm::vec3d getHandlePosition(const mdl::Hit& hit) const override;
   std::string actionName() const override;
 
   void removeSelection();
@@ -116,8 +116,8 @@ private: // Tool interface
   bool doDeactivate() override;
 
 private:
-  void addHandles(const std::vector<Model::Node*>& nodes) override;
-  void removeHandles(const std::vector<Model::Node*>& nodes) override;
+  void addHandles(const std::vector<mdl::Node*>& nodes) override;
+  void removeHandles(const std::vector<mdl::Node*>& nodes) override;
 
   void addHandles(BrushVertexCommandBase* command) override;
   void removeHandles(BrushVertexCommandBase* command) override;

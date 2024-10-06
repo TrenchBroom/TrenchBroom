@@ -39,7 +39,7 @@ protected:
   UpdateLinkedGroupsCommandBase(
     std::string name,
     bool updateModificationCount,
-    std::vector<Model::GroupNode*> changedLinkedGroups = {});
+    std::vector<mdl::GroupNode*> changedLinkedGroups = {});
 
 public:
   ~UpdateLinkedGroupsCommandBase() override;

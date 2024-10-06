@@ -19,15 +19,15 @@
 
 #include "CameraTool3D.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/ModelUtils.h"
-#include "Model/PickResult.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/PickResult.h"
 
 #include "vm/intersection.h"
 #include "vm/plane.h"
@@ -321,12 +321,12 @@ void CameraTool3D::mouseUp(const InputState& inputState)
 std::unique_ptr<GestureTracker> CameraTool3D::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (shouldOrbit(inputState))
   {
     const auto& hit =
-      inputState.pickResult().first(type(Model::nodeHitType()) && minDistance(3.0));
+      inputState.pickResult().first(type(mdl::nodeHitType()) && minDistance(3.0));
     const auto orbitCenter = vm::vec3f{
       hit.isMatch() ? hit.hitPoint() : m_camera.defaultPoint(inputState.pickRay())};
     return std::make_unique<OrbitDragTracker>(m_camera, orbitCenter);

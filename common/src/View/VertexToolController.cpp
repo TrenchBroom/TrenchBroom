@@ -19,9 +19,9 @@
 
 #include "VertexToolController.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
 #include "View/VertexTool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
 
 #include <memory>
 
@@ -34,10 +34,10 @@ namespace tb::View
  * separate common base class for the two parts to contain this method due to the call to
  * the inherited findDraggableHandle method.
  */
-Model::Hit VertexToolController::findHandleHit(
+mdl::Hit VertexToolController::findHandleHit(
   const InputState& inputState, const VertexToolController::PartBase& base)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (const auto vertexHit =
         base.findDraggableHandle(inputState, VertexHandleManager::HandleHitType);
@@ -55,13 +55,13 @@ Model::Hit VertexToolController::findHandleHit(
       return anyHit;
     }
   }
-  return Model::Hit::NoHit;
+  return mdl::Hit::NoHit;
 }
 
-std::vector<Model::Hit> VertexToolController::findHandleHits(
+std::vector<mdl::Hit> VertexToolController::findHandleHits(
   const InputState& inputState, const VertexToolController::PartBase& base)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
 
   if (const auto vertexHits =
@@ -106,12 +106,12 @@ public:
   }
 
 private:
-  Model::Hit doFindDraggableHandle(const InputState& inputState) const override
+  mdl::Hit doFindDraggableHandle(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<Model::Hit> doFindDraggableHandles(
+  std::vector<mdl::Hit> doFindDraggableHandles(
     const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
@@ -203,12 +203,12 @@ private:
   }
 
 private:
-  Model::Hit doFindDraggableHandle(const InputState& inputState) const override
+  mdl::Hit doFindDraggableHandle(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<Model::Hit> doFindDraggableHandles(
+  std::vector<mdl::Hit> doFindDraggableHandles(
     const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);

@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/MapFormat.h"
-#include "Model/WorldNode.h"
 #include "View/Grid.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/MapFormat.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -387,7 +387,7 @@ TEST_CASE("GridTest.snapMoveDeltaForFace")
 
   const auto grid = Grid{4};
 
-  const auto brushBuilder = Model::BrushBuilder{Model::MapFormat::Standard, worldBounds};
+  const auto brushBuilder = mdl::BrushBuilder{mdl::MapFormat::Standard, worldBounds};
   const auto brush = brushBuilder.createBrush(points, "material") | kdl::value();
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex.has_value());

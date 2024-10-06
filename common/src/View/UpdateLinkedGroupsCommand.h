@@ -24,10 +24,10 @@
 
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class GroupNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -35,7 +35,7 @@ namespace tb::View
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
 public:
-  explicit UpdateLinkedGroupsCommand(std::vector<Model::GroupNode*> changedLinkedGroups);
+  explicit UpdateLinkedGroupsCommand(std::vector<mdl::GroupNode*> changedLinkedGroups);
   ~UpdateLinkedGroupsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

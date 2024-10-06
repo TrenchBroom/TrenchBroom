@@ -25,7 +25,7 @@ namespace tb::View
 {
 
 UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
-  std::vector<Model::GroupNode*> changedLinkedGroups)
+  std::vector<mdl::GroupNode*> changedLinkedGroups)
   : UpdateLinkedGroupsCommandBase{
       "Update Linked Groups", true, std::move(changedLinkedGroups)}
 {

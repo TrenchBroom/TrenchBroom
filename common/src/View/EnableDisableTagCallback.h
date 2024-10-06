@@ -21,7 +21,7 @@
 
 #include <QObject>
 
-#include "Model/Tag.h"
+#include "mdl/Tag.h"
 
 #include <string>
 #include <vector>
@@ -29,7 +29,7 @@
 namespace tb::View
 {
 
-class EnableDisableTagCallback : public QObject, public Model::TagMatcherCallback
+class EnableDisableTagCallback : public QObject, public mdl::TagMatcherCallback
 {
   Q_OBJECT
 private:

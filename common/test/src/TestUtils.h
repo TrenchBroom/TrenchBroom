@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Model/MapFormat.h"
-#include "Model/Node.h"
 #include "io/DiskIO.h"
 #include "io/ImageFileSystem.h"
+#include "mdl/MapFormat.h"
+#include "mdl/Node.h"
 
 #include "vm/polygon.h"
 #include "vm/segment.h"
@@ -60,7 +60,7 @@ std::string readTextFile(const std::filesystem::path& path);
 
 } // namespace io
 
-namespace Model
+namespace mdl
 {
 class Brush;
 class BrushFace;
@@ -128,18 +128,18 @@ void transformNode(
 
 struct GameAndConfig
 {
-  std::shared_ptr<Model::Game> game;
-  std::unique_ptr<Model::GameConfig> gameConfig;
+  std::shared_ptr<mdl::Game> game;
+  std::unique_ptr<mdl::GameConfig> gameConfig;
 };
 GameAndConfig loadGame(const std::string& gameName);
 
-const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces,
+const mdl::BrushFace* findFaceByPoints(
+  const std::vector<mdl::BrushFace>& faces,
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2);
-void checkFaceUVCoordSystem(const Model::BrushFace& face, bool expectParallel);
-void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, bool expectParallel);
+void checkFaceUVCoordSystem(const mdl::BrushFace& face, bool expectParallel);
+void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, bool expectParallel);
 
 void setLinkId(Node& node, std::string linkId);
 
@@ -179,7 +179,7 @@ Child* getChildAs(const Node& node)
   return getFirstChildOfType<Child>(children);
 }
 
-} // namespace Model
+} // namespace mdl
 
 namespace View
 {
@@ -188,15 +188,14 @@ class MapDocument;
 struct DocumentGameConfig
 {
   std::shared_ptr<MapDocument> document;
-  std::shared_ptr<Model::Game> game;
-  std::unique_ptr<Model::GameConfig> gameConfig;
+  std::shared_ptr<mdl::Game> game;
+  std::unique_ptr<mdl::GameConfig> gameConfig;
 };
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
-  Model::MapFormat mapFormat);
-DocumentGameConfig newMapDocument(
-  const std::string& gameName, Model::MapFormat mapFormat);
+  mdl::MapFormat mapFormat);
+DocumentGameConfig newMapDocument(const std::string& gameName, mdl::MapFormat mapFormat);
 } // namespace View
 
 enum class Component

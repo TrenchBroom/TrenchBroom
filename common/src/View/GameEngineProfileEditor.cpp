@@ -26,12 +26,12 @@
 #include <QPushButton>
 #include <QStackedWidget>
 
-#include "Model/GameEngineProfile.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
 #include "io/DiskIO.h"
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
+#include "mdl/GameEngineProfile.h"
 
 #include "kdl/string_compare.h"
 
@@ -115,7 +115,7 @@ void GameEngineProfileEditor::updatePath(const QString& str)
   }
 }
 
-void GameEngineProfileEditor::setProfile(Model::GameEngineProfile* profile)
+void GameEngineProfileEditor::setProfile(mdl::GameEngineProfile* profile)
 {
   m_profile = profile;
   m_stackedWidget->setCurrentIndex(m_profile ? 1 : 0);

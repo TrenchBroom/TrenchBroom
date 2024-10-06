@@ -23,11 +23,11 @@
 
 class QPoint;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -37,13 +37,13 @@ class CompilationProfileItemRenderer : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  Model::CompilationProfile& m_profile;
+  mdl::CompilationProfile& m_profile;
   ElidedLabel* m_nameText = nullptr;
   ElidedLabel* m_taskCountText = nullptr;
 
 public:
   explicit CompilationProfileItemRenderer(
-    Model::CompilationProfile& profile, QWidget* parent = nullptr);
+    mdl::CompilationProfile& profile, QWidget* parent = nullptr);
   ~CompilationProfileItemRenderer() override;
 
 private:
@@ -54,11 +54,11 @@ class CompilationProfileListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  Model::CompilationConfig& m_config;
+  mdl::CompilationConfig& m_config;
 
 public:
   explicit CompilationProfileListBox(
-    Model::CompilationConfig& config, QWidget* parent = nullptr);
+    mdl::CompilationConfig& config, QWidget* parent = nullptr);
 
 public:
   void reloadProfiles();
@@ -69,7 +69,7 @@ private:
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
   void profileContextMenuRequested(
-    const QPoint& globalPos, Model::CompilationProfile& profile);
+    const QPoint& globalPos, mdl::CompilationProfile& profile);
 };
 
 } // namespace tb::View

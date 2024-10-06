@@ -28,9 +28,6 @@
 #include <QTextEdit>
 
 #include "Ensure.h"
-#include "Model/CompilationProfile.h"
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/CompilationProfileManager.h"
 #include "View/CompilationRunner.h"
 #include "View/LaunchGameEngineDialog.h"
@@ -40,6 +37,9 @@
 #include "View/Splitter.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/Game.h"
+#include "mdl/GameFactory.h"
 
 namespace tb::View
 {
@@ -253,7 +253,7 @@ void CompilationDialog::saveProfile()
 {
   auto document = m_mapFrame->document();
   const auto& gameName = document->game()->config().name;
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   gameFactory.saveCompilationConfig(
     gameName, m_profileManager->config(), m_mapFrame->logger());
 }

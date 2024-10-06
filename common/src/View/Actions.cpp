@@ -22,8 +22,6 @@
 #include <QKeySequence>
 #include <QString>
 
-#include "Model/EntityProperties.h"
-#include "Model/Tag.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
@@ -33,6 +31,8 @@
 #include "View/MapFrame.h"
 #include "View/MapViewBase.h"
 #include "asset/EntityDefinition.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/Tag.h"
 
 #include "vm/util.h"
 
@@ -270,7 +270,7 @@ const ActionManager& ActionManager::instance()
 }
 
 std::vector<Action> ActionManager::createTagActions(
-  const std::vector<Model::SmartTag>& tags) const
+  const std::vector<mdl::SmartTag>& tags) const
 {
   std::vector<Action> result;
 
@@ -320,7 +320,7 @@ std::vector<Action> ActionManager::createEntityDefinitionActions(
         context.view()->toggleEntityDefinitionVisible(definition);
       },
       [](const auto& context) { return context.hasDocument(); });
-    if (definition->name() != Model::EntityPropertyValues::WorldspawnClassname)
+    if (definition->name() != mdl::EntityPropertyValues::WorldspawnClassname)
     {
       result.emplace_back(
         std::filesystem::path{"Entities/" + definition->name() + "/Create"},

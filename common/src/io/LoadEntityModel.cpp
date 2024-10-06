@@ -19,6 +19,9 @@
 
 #include "LoadEntityModel.h"
 
+#include "Result.h"
+#include "asset/EntityModel.h"
+#include "asset/Palette.h"
 #include "io/AseLoader.h"
 #include "io/AssimpLoader.h"
 #include "io/BspLoader.h"
@@ -30,10 +33,7 @@
 #include "io/MdlLoader.h"
 #include "io/MdxLoader.h"
 #include "io/SprLoader.h"
-#include "Model/GameConfig.h"
-#include "Result.h"
-#include "asset/EntityModel.h"
-#include "asset/Palette.h"
+#include "mdl/GameConfig.h"
 
 #include <kdl/result.h>
 
@@ -43,7 +43,7 @@ namespace tb::io
 namespace
 {
 
-auto loadPalette(const FileSystem& fs, const Model::MaterialConfig& materialConfig)
+auto loadPalette(const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   const auto& path = materialConfig.palette;
   return fs.openFile(path)
@@ -52,7 +52,7 @@ auto loadPalette(const FileSystem& fs, const Model::MaterialConfig& materialConf
 
 Result<asset::EntityModelData> loadEntityModelData(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger)
@@ -126,7 +126,7 @@ Result<asset::EntityModelData> loadEntityModelData(
 
 asset::ResourceLoader<asset::EntityModelData> makeEntityModelDataResourceLoader(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger)
@@ -140,7 +140,7 @@ asset::ResourceLoader<asset::EntityModelData> makeEntityModelDataResourceLoader(
 
 Result<asset::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger)
@@ -156,7 +156,7 @@ Result<asset::EntityModel> loadEntityModelSync(
 
 asset::EntityModel loadEntityModelAsync(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   const asset::CreateEntityModelDataResource& createResource,

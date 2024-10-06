@@ -39,7 +39,7 @@ class EntityModel;
 class EntityModelManager;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class EditorContext;
@@ -47,7 +47,7 @@ class EntityNode;
 class GroupNode;
 class Node;
 class PatchNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -67,7 +67,7 @@ public:
   ObjectRenderer(
     Logger& logger,
     asset::EntityModelManager& entityModelManager,
-    const Model::EditorContext& editorContext,
+    const mdl::EditorContext& editorContext,
     const BrushFilterT& brushFilter)
     : m_groupRenderer{editorContext}
     , m_entityRenderer{logger, entityModelManager, editorContext}
@@ -77,11 +77,11 @@ public:
   }
 
 public: // object management
-  void addNode(Model::Node* node);
-  void removeNode(Model::Node* node);
+  void addNode(mdl::Node* node);
+  void removeNode(mdl::Node* node);
   void invalidateMaterials(const std::vector<const asset::Material*>& materials);
   void invalidateEntityModels(const std::vector<const asset::EntityModel*>& entityModels);
-  void invalidateNode(Model::Node* node);
+  void invalidateNode(mdl::Node* node);
   void invalidate();
   void clear();
   void reloadModels();

@@ -19,12 +19,6 @@
 
 #include "UVScaleTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
@@ -36,6 +30,12 @@
 #include "View/TransactionScope.h"
 #include "View/UVOriginTool.h"
 #include "View/UVViewHelper.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushGeometry.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -52,7 +52,7 @@ namespace tb::View
 namespace
 {
 
-vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit)
+vm::vec2i getScaleHandle(const mdl::Hit& xHit, const mdl::Hit& yHit)
 {
   const auto x = xHit.isMatch() ? xHit.target<int>() : 0;
   const auto y = yHit.isMatch() ? yHit.target<int>() : 0;
@@ -61,7 +61,7 @@ vm::vec2i getScaleHandle(const Model::Hit& xHit, const Model::Hit& yHit)
 
 std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& xHit = inputState.pickResult().first(type(UVScaleTool::XHandleHitType));
   const auto& yHit = inputState.pickResult().first(type(UVScaleTool::YHandleHitType));
@@ -107,7 +107,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
     std::begin(vertices),
     std::end(vertices),
     vm::vec2f::max(),
-    [&](const vm::vec2f& current, const Model::BrushVertex* vertex) {
+    [&](const vm::vec2f& current, const mdl::BrushVertex* vertex) {
       const auto vertex2 = vm::vec2f{toTex * vertex->position()};
       return vm::abs_min(current, position - vertex2);
     });
@@ -225,7 +225,7 @@ public:
     }
     newScale = vm::correct(newScale, 4, 0.0f);
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setScale(newScale);
     m_document.setFaceAttributes(request);
 
@@ -257,8 +257,8 @@ public:
 
 } // namespace
 
-const Model::HitType::Type UVScaleTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVScaleTool::YHandleHitType = Model::HitType::freeType();
+const mdl::HitType::Type UVScaleTool::XHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UVScaleTool::YHandleHitType = mdl::HitType::freeType();
 
 UVScaleTool::UVScaleTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
   : ToolController{}
@@ -278,9 +278,9 @@ const Tool& UVScaleTool::tool() const
   return *this;
 }
 
-void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+void UVScaleTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
-  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
+  static const mdl::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
     m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
@@ -289,7 +289,7 @@ void UVScaleTool::pick(const InputState& inputState, Model::PickResult& pickResu
 
 std::unique_ptr<GestureTracker> UVScaleTool::acceptMouseDrag(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   assert(m_helper.valid());
 
@@ -326,7 +326,7 @@ void UVScaleTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (
     inputState.anyToolDragging() || !m_helper.valid()

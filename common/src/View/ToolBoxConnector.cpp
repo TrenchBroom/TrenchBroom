@@ -60,7 +60,7 @@ const vm::ray3d& ToolBoxConnector::pickRay() const
   return m_inputState.pickRay();
 }
 
-const Model::PickResult& ToolBoxConnector::pickResult() const
+const mdl::PickResult& ToolBoxConnector::pickResult() const
 {
   return m_inputState.pickResult();
 }

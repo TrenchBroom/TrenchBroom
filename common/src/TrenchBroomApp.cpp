@@ -20,8 +20,6 @@
 #include "TrenchBroomApp.h"
 
 #include "Exceptions.h"
-#include "Model/GameFactory.h"
-#include "Model/MapFormat.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Result.h"
@@ -44,6 +42,8 @@
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
+#include "mdl/GameFactory.h"
+#include "mdl/MapFormat.h"
 #ifdef __APPLE__
 #include "View/ActionBuilder.h"
 #endif
@@ -360,7 +360,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
-    auto& gameFactory = Model::GameFactory::instance();
+    auto& gameFactory = mdl::GameFactory::instance();
     return checkFileExists() | kdl::or_else([&](const auto& e) {
              m_recentDocuments->removePath(absPath);
              return Result<void>{e};
@@ -369,7 +369,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
            | kdl::and_then([&](const auto& gameNameAndMapFormat) {
                auto [gameName, mapFormat] = gameNameAndMapFormat;
 
-               if (gameName.empty() || mapFormat == Model::MapFormat::Unknown)
+               if (gameName.empty() || mapFormat == mdl::MapFormat::Unknown)
                {
                  if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
                  {
@@ -428,11 +428,11 @@ void TrenchBroomApp::openAbout()
 
 bool TrenchBroomApp::initializeGameFactory()
 {
-  const auto gamePathConfig = Model::GamePathConfig{
+  const auto gamePathConfig = mdl::GamePathConfig{
     io::SystemPaths::findResourceDirectories("games"),
     io::SystemPaths::userDataDirectory() / "games",
   };
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   return gameFactory.initialize(gamePathConfig) | kdl::transform([](auto errors) {
            if (!errors.empty())
            {
@@ -456,7 +456,7 @@ bool TrenchBroomApp::newDocument()
   try
   {
     auto gameName = std::string{};
-    auto mapFormat = Model::MapFormat::Unknown;
+    auto mapFormat = mdl::MapFormat::Unknown;
     if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
     {
       return false;
@@ -464,7 +464,7 @@ bool TrenchBroomApp::newDocument()
 
     frame = m_frameManager->newFrame();
 
-    auto& gameFactory = Model::GameFactory::instance();
+    auto& gameFactory = mdl::GameFactory::instance();
     auto game = gameFactory.createGame(gameName, frame->logger());
     ensure(game.get() != nullptr, "game is null");
 

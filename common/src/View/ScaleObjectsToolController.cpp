@@ -20,9 +20,6 @@
 
 #include "ScaleObjectsToolController.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -32,6 +29,9 @@
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -66,7 +66,7 @@ const Tool& ScaleObjectsToolController::tool() const
 }
 
 void ScaleObjectsToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+  const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (m_tool.applies())
   {
@@ -77,7 +77,7 @@ void ScaleObjectsToolController::pick(
 static HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const Grid& grid,
-  const Model::Hit& dragStartHit,
+  const mdl::Hit& dragStartHit,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
 {
@@ -222,7 +222,7 @@ public:
 } // namespace
 
 static std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
-  const vm::bbox3d& bboxAtDragStart, const Model::Hit& dragStartHit)
+  const vm::bbox3d& bboxAtDragStart, const mdl::Hit& dragStartHit)
 {
   const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
   return {handleLine.get_origin(), dragStartHit.hitPoint()};
@@ -231,7 +231,7 @@ static std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
 std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
@@ -376,7 +376,7 @@ static void renderDragCorner(
 static std::vector<vm::vec3d> visibleCornerHandles(
   const ScaleObjectsTool& tool, const Renderer::Camera& camera)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto cornerHandles = tool.cornerHandles();
   if (!camera.perspectiveProjection())
@@ -387,7 +387,7 @@ static std::vector<vm::vec3d> visibleCornerHandles(
   return kdl::vec_filter(cornerHandles, [&](const auto& corner) {
     const auto ray = vm::ray3d{camera.pickRay(vm::vec3f{corner})};
 
-    auto pr = Model::PickResult{};
+    auto pr = mdl::PickResult{};
     if (camera.orthographicProjection())
     {
       tool.pick2D(ray, camera, pr);
@@ -449,7 +449,7 @@ ScaleObjectsToolController2D::ScaleObjectsToolController2D(
 void ScaleObjectsToolController2D::doPick(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -465,7 +465,7 @@ ScaleObjectsToolController3D::ScaleObjectsToolController3D(
 void ScaleObjectsToolController3D::doPick(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

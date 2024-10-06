@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
+#include "mdl/HitType.h"
 
 #include <memory>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -45,7 +45,7 @@ class UVViewHelper;
 class UVRotateTool : public ToolController, public Tool
 {
 public:
-  static const Model::HitType::Type AngleHandleHitType;
+  static const mdl::HitType::Type AngleHandleHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -58,7 +58,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 

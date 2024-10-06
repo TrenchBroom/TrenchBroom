@@ -19,8 +19,6 @@
 
 #include "RotateObjectsToolController.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -36,6 +34,8 @@
 #include "View/RotateObjectsHandle.h"
 #include "View/RotateObjectsTool.h"
 #include "View/ToolController.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"
@@ -229,7 +229,7 @@ private:
 
   bool mouseClick(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (!inputState.mouseButtonsPressed(MouseButtons::Left))
     {
@@ -255,7 +255,7 @@ private:
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (
       inputState.mouseButtons() != MouseButtons::Left
@@ -313,7 +313,7 @@ private:
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (!inputState.anyToolDragging())
     {
@@ -405,7 +405,7 @@ protected:
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (
       !inputState.mouseButtonsPressed(MouseButtons::Left)
@@ -448,7 +448,7 @@ protected:
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     if (!inputState.anyToolDragging())
     {
@@ -571,7 +571,7 @@ const Tool& RotateObjectsToolController::tool() const
 }
 
 void RotateObjectsToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+  const InputState& inputState, mdl::PickResult& pickResult)
 {
   const auto hit = doPick(inputState);
   if (hit.isMatch())
@@ -583,7 +583,7 @@ void RotateObjectsToolController::pick(
 void RotateObjectsToolController::setRenderOptions(
   const InputState& inputState, Renderer::RenderContext& renderContext) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
   if (inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType)).isMatch())
   {
     renderContext.setForceShowSelectionGuide();
@@ -611,7 +611,7 @@ RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool& 
   addController(std::make_unique<RotateObjectsPart2D>(tool));
 }
 
-Model::Hit RotateObjectsToolController2D::doPick(const InputState& inputState)
+mdl::Hit RotateObjectsToolController2D::doPick(const InputState& inputState)
 {
   return m_tool.pick2D(inputState.pickRay(), inputState.camera());
 }
@@ -629,7 +629,7 @@ RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool& 
   addController(std::make_unique<RotateObjectsPart3D>(tool));
 }
 
-Model::Hit RotateObjectsToolController3D::doPick(const InputState& inputState)
+mdl::Hit RotateObjectsToolController3D::doPick(const InputState& inputState)
 {
   return m_tool.pick3D(inputState.pickRay(), inputState.camera());
 }

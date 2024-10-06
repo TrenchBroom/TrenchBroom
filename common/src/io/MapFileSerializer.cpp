@@ -22,15 +22,15 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "Macros.h"
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityProperties.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 #include "kdl/parallel.h"
@@ -57,7 +57,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -65,9 +65,9 @@ private:
   }
 
 protected:
-  void writeFacePoints(std::ostream& stream, const Model::BrushFace& face) const
+  void writeFacePoints(std::ostream& stream, const mdl::BrushFace& face) const
   {
-    const Model::BrushFace::Points& points = face.points();
+    const mdl::BrushFace::Points& points = face.points();
 
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
@@ -94,10 +94,10 @@ protected:
     return "\"" + kdl::str_escape(materialName, "\"") + "\"";
   }
 
-  void writeMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
+  void writeMaterialInfo(std::ostream& stream, const mdl::BrushFace& face) const
   {
     const std::string& materialName = face.attributes().materialName().empty()
-                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        ? mdl::BrushFaceAttributes::NoMaterialName
                                         : face.attributes().materialName();
 
     fmt::format_to(
@@ -112,10 +112,10 @@ protected:
       face.attributes().yScale());
   }
 
-  void writeValveMaterialInfo(std::ostream& stream, const Model::BrushFace& face) const
+  void writeValveMaterialInfo(std::ostream& stream, const mdl::BrushFace& face) const
   {
     const std::string& materialName = face.attributes().materialName().empty()
-                                        ? Model::BrushFaceAttributes::NoMaterialName
+                                        ? mdl::BrushFaceAttributes::NoMaterialName
                                         : face.attributes().materialName();
     const vm::vec3d uAxis = face.uAxis();
     const vm::vec3d vAxis = face.vAxis();
@@ -151,7 +151,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -165,7 +165,7 @@ private:
   }
 
 protected:
-  void writeSurfaceAttributes(std::ostream& stream, const Model::BrushFace& face) const
+  void writeSurfaceAttributes(std::ostream& stream, const mdl::BrushFace& face) const
   {
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
@@ -185,7 +185,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
@@ -212,7 +212,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -230,7 +230,7 @@ private:
   }
 
 protected:
-  void writeSurfaceColor(std::ostream& stream, const Model::BrushFace& face) const
+  void writeSurfaceColor(std::ostream& stream, const mdl::BrushFace& face) const
   {
     fmt::format_to(
       std::ostreambuf_iterator<char>(stream),
@@ -250,7 +250,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeMaterialInfo(stream, face);
@@ -268,7 +268,7 @@ public:
   }
 
 private:
-  void doWriteBrushFace(std::ostream& stream, const Model::BrushFace& face) const override
+  void doWriteBrushFace(std::ostream& stream, const mdl::BrushFace& face) const override
   {
     writeFacePoints(stream, face);
     writeValveMaterialInfo(stream, face);
@@ -277,27 +277,27 @@ private:
 };
 
 std::unique_ptr<NodeSerializer> MapFileSerializer::create(
-  const Model::MapFormat format, std::ostream& stream)
+  const mdl::MapFormat format, std::ostream& stream)
 {
   switch (format)
   {
-  case Model::MapFormat::Standard:
+  case mdl::MapFormat::Standard:
     return std::make_unique<QuakeFileSerializer>(stream);
-  case Model::MapFormat::Quake2:
+  case mdl::MapFormat::Quake2:
     // TODO 2427: Implement Quake3 serializers and use them
-  case Model::MapFormat::Quake3:
-  case Model::MapFormat::Quake3_Legacy:
+  case mdl::MapFormat::Quake3:
+  case mdl::MapFormat::Quake3_Legacy:
     return std::make_unique<Quake2FileSerializer>(stream);
-  case Model::MapFormat::Quake2_Valve:
-  case Model::MapFormat::Quake3_Valve:
+  case mdl::MapFormat::Quake2_Valve:
+  case mdl::MapFormat::Quake3_Valve:
     return std::make_unique<Quake2ValveFileSerializer>(stream);
-  case Model::MapFormat::Daikatana:
+  case mdl::MapFormat::Daikatana:
     return std::make_unique<DaikatanaFileSerializer>(stream);
-  case Model::MapFormat::Valve:
+  case mdl::MapFormat::Valve:
     return std::make_unique<ValveFileSerializer>(stream);
-  case Model::MapFormat::Hexen2:
+  case mdl::MapFormat::Hexen2:
     return std::make_unique<Hexen2FileSerializer>(stream);
-  case Model::MapFormat::Unknown:
+  case mdl::MapFormat::Unknown:
     throw FileFormatException("Unknown map file format");
     switchDefault();
   }
@@ -309,45 +309,45 @@ MapFileSerializer::MapFileSerializer(std::ostream& stream)
 {
 }
 
-void MapFileSerializer::doBeginFile(const std::vector<const Model::Node*>& rootNodes)
+void MapFileSerializer::doBeginFile(const std::vector<const mdl::Node*>& rootNodes)
 {
   ensure(m_nodeToPrecomputedString.empty(), "MapFileSerializer may not be reused");
 
   // collect nodes
-  std::vector<std::variant<const Model::BrushNode*, const Model::PatchNode*>>
+  std::vector<std::variant<const mdl::BrushNode*, const mdl::PatchNode*>>
     nodesToSerialize;
   nodesToSerialize.reserve(rootNodes.size());
 
-  Model::Node::visitAll(
+  mdl::Node::visitAll(
     rootNodes,
     kdl::overload(
-      [](auto&& thisLambda, const Model::WorldNode* world) {
+      [](auto&& thisLambda, const mdl::WorldNode* world) {
         world->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, const Model::LayerNode* layer) {
+      [](auto&& thisLambda, const mdl::LayerNode* layer) {
         layer->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, const Model::GroupNode* group) {
+      [](auto&& thisLambda, const mdl::GroupNode* group) {
         group->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, const Model::EntityNode* entity) {
+      [](auto&& thisLambda, const mdl::EntityNode* entity) {
         entity->visitChildren(thisLambda);
       },
-      [&](const Model::BrushNode* brush) { nodesToSerialize.emplace_back(brush); },
-      [&](const Model::PatchNode* patchNode) {
+      [&](const mdl::BrushNode* brush) { nodesToSerialize.emplace_back(brush); },
+      [&](const mdl::PatchNode* patchNode) {
         nodesToSerialize.emplace_back(patchNode);
       }));
 
   // serialize brushes to strings in parallel
-  using Entry = std::pair<const Model::Node*, PrecomputedString>;
+  using Entry = std::pair<const mdl::Node*, PrecomputedString>;
   std::vector<Entry> result =
     kdl::vec_parallel_transform(std::move(nodesToSerialize), [&](const auto& node) {
       return std::visit(
         kdl::overload(
-          [&](const Model::BrushNode* brushNode) {
+          [&](const mdl::BrushNode* brushNode) {
             return Entry{brushNode, writeBrushFaces(brushNode->brush())};
           },
-          [&](const Model::PatchNode* patchNode) {
+          [&](const mdl::PatchNode* patchNode) {
             return Entry{patchNode, writePatch(patchNode->patch())};
           }),
         node);
@@ -362,7 +362,7 @@ void MapFileSerializer::doBeginFile(const std::vector<const Model::Node*>& rootN
 
 void MapFileSerializer::doEndFile() {}
 
-void MapFileSerializer::doBeginEntity(const Model::Node* /* node */)
+void MapFileSerializer::doBeginEntity(const mdl::Node* /* node */)
 {
   fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// entity {}\n", entityNo());
   ++m_line;
@@ -371,14 +371,14 @@ void MapFileSerializer::doBeginEntity(const Model::Node* /* node */)
   ++m_line;
 }
 
-void MapFileSerializer::doEndEntity(const Model::Node* node)
+void MapFileSerializer::doEndEntity(const mdl::Node* node)
 {
   fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "}}\n");
   ++m_line;
   setFilePosition(node);
 }
 
-void MapFileSerializer::doEntityProperty(const Model::EntityProperty& attribute)
+void MapFileSerializer::doEntityProperty(const mdl::EntityProperty& attribute)
 {
   fmt::format_to(
     std::ostreambuf_iterator<char>(m_stream),
@@ -388,7 +388,7 @@ void MapFileSerializer::doEntityProperty(const Model::EntityProperty& attribute)
   ++m_line;
 }
 
-void MapFileSerializer::doBrush(const Model::BrushNode* brush)
+void MapFileSerializer::doBrush(const mdl::BrushNode* brush)
 {
   fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// brush {}\n", brushNo());
   ++m_line;
@@ -410,7 +410,7 @@ void MapFileSerializer::doBrush(const Model::BrushNode* brush)
   setFilePosition(brush);
 }
 
-void MapFileSerializer::doBrushFace(const Model::BrushFace& face)
+void MapFileSerializer::doBrushFace(const mdl::BrushFace& face)
 {
   const size_t lines = 1u;
   doWriteBrushFace(m_stream, face);
@@ -418,7 +418,7 @@ void MapFileSerializer::doBrushFace(const Model::BrushFace& face)
   m_line += lines;
 }
 
-void MapFileSerializer::doPatch(const Model::PatchNode* patchNode)
+void MapFileSerializer::doPatch(const mdl::PatchNode* patchNode)
 {
   fmt::format_to(std::ostreambuf_iterator<char>(m_stream), "// brush {}\n", brushNo());
   ++m_line;
@@ -436,7 +436,7 @@ void MapFileSerializer::doPatch(const Model::PatchNode* patchNode)
   setFilePosition(patchNode);
 }
 
-void MapFileSerializer::setFilePosition(const Model::Node* node)
+void MapFileSerializer::setFilePosition(const mdl::Node* node)
 {
   const size_t start = startLine();
   node->setFilePosition(start, m_line - start);
@@ -454,10 +454,10 @@ size_t MapFileSerializer::startLine()
  * Threadsafe
  */
 MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(
-  const Model::Brush& brush) const
+  const mdl::Brush& brush) const
 {
   std::stringstream stream;
-  for (const Model::BrushFace& face : brush.faces())
+  for (const mdl::BrushFace& face : brush.faces())
   {
     doWriteBrushFace(stream, face);
   }
@@ -465,7 +465,7 @@ MapFileSerializer::PrecomputedString MapFileSerializer::writeBrushFaces(
 }
 
 MapFileSerializer::PrecomputedString MapFileSerializer::writePatch(
-  const Model::BezierPatch& patch) const
+  const mdl::BezierPatch& patch) const
 {
   size_t lineCount = 0u;
   std::stringstream stream;

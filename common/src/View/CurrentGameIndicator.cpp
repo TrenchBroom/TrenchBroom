@@ -22,8 +22,8 @@
 #include <QPixmap>
 #include <QString>
 
-#include "Model/GameFactory.h"
 #include "io/ResourceUtils.h"
+#include "mdl/GameFactory.h"
 
 #include <filesystem>
 
@@ -33,7 +33,7 @@ namespace tb::View
 CurrentGameIndicator::CurrentGameIndicator(const std::string& gameName, QWidget* parent)
   : DialogHeader{parent}
 {
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
 
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);

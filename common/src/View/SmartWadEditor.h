@@ -59,7 +59,7 @@ public:
 
 private:
   void createGui();
-  void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
+  void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) override;
 
 private slots:
   void updateButtons();

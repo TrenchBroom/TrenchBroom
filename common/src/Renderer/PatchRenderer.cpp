@@ -19,8 +19,6 @@
 
 #include "PatchRenderer.h"
 
-#include "Model/EditorContext.h"
-#include "Model/PatchNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -36,6 +34,8 @@
 #include "Renderer/VertexArray.h"
 #include "asset/Material.h"
 #include "asset/Texture.h"
+#include "mdl/EditorContext.h"
+#include "mdl/PatchNode.h"
 
 #include "kdl/vector_utils.h"
 
@@ -44,7 +44,7 @@
 namespace tb::Renderer
 {
 
-PatchRenderer::PatchRenderer(const Model::EditorContext& editorContext)
+PatchRenderer::PatchRenderer(const mdl::EditorContext& editorContext)
   : m_editorContext{editorContext}
 {
 }
@@ -105,7 +105,7 @@ void PatchRenderer::clear()
   invalidate();
 }
 
-void PatchRenderer::addPatch(const Model::PatchNode* patchNode)
+void PatchRenderer::addPatch(const mdl::PatchNode* patchNode)
 {
   if (m_patchNodes.insert(patchNode).second)
   {
@@ -113,7 +113,7 @@ void PatchRenderer::addPatch(const Model::PatchNode* patchNode)
   }
 }
 
-void PatchRenderer::removePatch(const Model::PatchNode* patchNode)
+void PatchRenderer::removePatch(const mdl::PatchNode* patchNode)
 {
   if (auto it = m_patchNodes.find(patchNode); it != std::end(m_patchNodes))
   {
@@ -122,7 +122,7 @@ void PatchRenderer::removePatch(const Model::PatchNode* patchNode)
   }
 }
 
-void PatchRenderer::invalidatePatch(const Model::PatchNode*)
+void PatchRenderer::invalidatePatch(const mdl::PatchNode*)
 {
   invalidate();
 }
@@ -150,8 +150,8 @@ void PatchRenderer::render(RenderContext& renderContext, RenderBatch& renderBatc
 }
 
 static MaterialIndexArrayRenderer buildMeshRenderer(
-  const std::vector<const Model::PatchNode*>& patchNodes,
-  const Model::EditorContext& editorContext)
+  const std::vector<const mdl::PatchNode*>& patchNodes,
+  const mdl::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
   auto indexArrayMapSize = MaterialIndexArrayMap::Size{};
@@ -224,8 +224,8 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
 }
 
 static DirectEdgeRenderer buildEdgeRenderer(
-  const std::vector<const Model::PatchNode*>& patchNodes,
-  const Model::EditorContext& editorContext)
+  const std::vector<const mdl::PatchNode*>& patchNodes,
+  const mdl::EditorContext& editorContext)
 {
   size_t vertexCount = 0u;
   auto indexRangeMapSize = IndexRangeMap::Size{};

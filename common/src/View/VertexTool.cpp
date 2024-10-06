@@ -20,12 +20,12 @@
 #include "VertexTool.h"
 
 #include "Macros.h"
-#include "Model/BrushNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/RenderBatch.h"
 #include "View/BrushVertexCommands.h"
 #include "View/MapDocument.h"
+#include "mdl/BrushNode.h"
 
 #include "kdl/string_format.h"
 
@@ -48,19 +48,19 @@ VertexTool::VertexTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(
+std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::vec3d& handle) const
 {
   return findIncidentBrushes(*m_vertexHandles, handle);
 }
 
-std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(
+std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::segment3d& handle) const
 {
   return findIncidentBrushes(*m_edgeHandles, handle);
 }
 
-std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(
+std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::polygon3d& handle) const
 {
   return findIncidentBrushes(*m_faceHandles, handle);
@@ -69,7 +69,7 @@ std::vector<Model::BrushNode*> VertexTool::findIncidentBrushes(
 void VertexTool::pick(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
@@ -100,7 +100,7 @@ const VertexHandleManager& VertexTool::handleManager() const
 }
 
 std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
-  const std::vector<Model::Hit>& hits) const
+  const std::vector<mdl::Hit>& hits) const
 {
   assert(!hits.empty());
 
@@ -118,7 +118,7 @@ std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
   return {position, hit.hitPoint()};
 }
 
-bool VertexTool::startMove(const std::vector<Model::Hit>& hits)
+bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
 {
   const auto& hit = hits.front();
   if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
@@ -171,7 +171,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     return MoveResult::Deny;
   }
 
-  auto brushes = std::vector<Model::BrushNode*>{};
+  auto brushes = std::vector<mdl::BrushNode*>{};
   if (m_mode == Mode::SplitEdge)
   {
     if (m_edgeHandles->selectedHandleCount() == 1)
@@ -228,7 +228,7 @@ bool VertexTool::allowAbsoluteSnapping() const
   return true;
 }
 
-vm::vec3d VertexTool::getHandlePosition(const Model::Hit& hit) const
+vm::vec3d VertexTool::getHandlePosition(const mdl::Hit& hit) const
 {
   assert(hit.isMatch());
   assert(hit.hasType(
@@ -300,14 +300,14 @@ bool VertexTool::doDeactivate()
   return true;
 }
 
-void VertexTool::addHandles(const std::vector<Model::Node*>& nodes)
+void VertexTool::addHandles(const std::vector<mdl::Node*>& nodes)
 {
   VertexToolBase::addHandles(nodes, *m_vertexHandles);
   VertexToolBase::addHandles(nodes, *m_edgeHandles);
   VertexToolBase::addHandles(nodes, *m_faceHandles);
 }
 
-void VertexTool::removeHandles(const std::vector<Model::Node*>& nodes)
+void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
 {
   VertexToolBase::removeHandles(nodes, *m_vertexHandles);
   VertexToolBase::removeHandles(nodes, *m_edgeHandles);

@@ -21,11 +21,11 @@
 
 #include "View/ControlListBox.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -35,13 +35,13 @@ class GameEngineProfileItemRenderer : public ControlListBoxItemRenderer
 {
   Q_OBJECT
 private:
-  Model::GameEngineProfile* m_profile;
+  mdl::GameEngineProfile* m_profile;
   ElidedLabel* m_nameLabel{nullptr};
   ElidedLabel* m_pathLabel{nullptr};
 
 public:
   explicit GameEngineProfileItemRenderer(
-    Model::GameEngineProfile& profile, QWidget* parent = nullptr);
+    mdl::GameEngineProfile& profile, QWidget* parent = nullptr);
 
   void updateItem() override;
 
@@ -56,16 +56,16 @@ class GameEngineProfileListBox : public ControlListBox
 {
   Q_OBJECT
 private:
-  Model::GameEngineConfig* m_config;
+  mdl::GameEngineConfig* m_config;
 
 public:
   explicit GameEngineProfileListBox(
-    Model::GameEngineConfig& config, QWidget* parent = nullptr);
+    mdl::GameEngineConfig& config, QWidget* parent = nullptr);
 
-  Model::GameEngineProfile* selectedProfile();
+  mdl::GameEngineProfile* selectedProfile();
 
 public:
-  void setConfig(Model::GameEngineConfig& config);
+  void setConfig(mdl::GameEngineConfig& config);
   void reloadProfiles();
   void updateProfiles();
 
@@ -78,11 +78,11 @@ signals:
   /**
    * Emitted when the selection changes.
    */
-  void currentProfileChanged(Model::GameEngineProfile* profile);
+  void currentProfileChanged(mdl::GameEngineProfile* profile);
   /**
    * Emitted when a profile is double-clicked.
    */
-  void profileSelected(Model::GameEngineProfile& profile);
+  void profileSelected(mdl::GameEngineProfile& profile);
 };
 
 } // namespace tb::View

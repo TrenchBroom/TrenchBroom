@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Game.h"
-#include "Model/LayerNode.h"
-#include "Model/TestGame.h" // IWYU pragma: keep
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushNode.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Game.h"
+#include "mdl/LayerNode.h"
+#include "mdl/TestGame.h" // IWYU pragma: keep
+#include "mdl/WorldNode.h"
 
 #include <filesystem>
 
@@ -48,7 +48,7 @@ TEST_CASE_METHOD(
 
   document->selectBrushFaces({{brushNode, faceIndex}});
 
-  auto rotate = Model::ChangeBrushFaceAttributesRequest{};
+  auto rotate = mdl::ChangeBrushFaceAttributesRequest{};
   rotate.addRotation(2.0);
   for (size_t i = 0; i < 5; ++i)
   {
@@ -58,12 +58,12 @@ TEST_CASE_METHOD(
   CHECK(brushNode->brush().face(faceIndex).attributes().rotation() == 10.0f);
 
   auto defaultFaceAttrs =
-    Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName};
+    mdl::BrushFaceAttributes{mdl::BrushFaceAttributes::NoMaterialName};
   defaultFaceAttrs.setXScale(0.5f);
   defaultFaceAttrs.setYScale(2.0f);
   game->setDefaultFaceAttributes(defaultFaceAttrs);
 
-  auto reset = Model::ChangeBrushFaceAttributesRequest{};
+  auto reset = mdl::ChangeBrushFaceAttributesRequest{};
   reset.resetAll(defaultFaceAttrs);
 
   document->setFaceAttributes(reset);
@@ -94,7 +94,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
 
   document->selectNodes({brushNode});
 
-  auto setMaterial1 = Model::ChangeBrushFaceAttributesRequest{};
+  auto setMaterial1 = mdl::ChangeBrushFaceAttributesRequest{};
   setMaterial1.setMaterialName("material1");
   document->setFaceAttributes(setMaterial1);
   for (const auto& face : brushNode->brush().faces())
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.undoRedo")
     REQUIRE(face.attributes().materialName() == "material1");
   }
 
-  auto setMaterial2 = Model::ChangeBrushFaceAttributesRequest{};
+  auto setMaterial2 = mdl::ChangeBrushFaceAttributesRequest{};
   setMaterial2.setMaterialName("material2");
   document->setFaceAttributes(setMaterial2);
   for (const auto& face : brushNode->brush().faces())
@@ -135,7 +135,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->deselectAll();
   document->selectBrushFaces({{brushNode, firstFaceIndex}});
 
-  auto setFirstFace = Model::ChangeBrushFaceAttributesRequest{};
+  auto setFirstFace = mdl::ChangeBrushFaceAttributesRequest{};
   setFirstFace.setMaterialName("first");
   setFirstFace.setXOffset(32.0f);
   setFirstFace.setYOffset(64.0f);
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->deselectAll();
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
 
-  auto setSecondFace = Model::ChangeBrushFaceAttributesRequest{};
+  auto setSecondFace = mdl::ChangeBrushFaceAttributesRequest{};
   setSecondFace.setMaterialName("second");
   setSecondFace.setXOffset(16.0f);
   setSecondFace.setYOffset(48.0f);
@@ -195,7 +195,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->deselectAll();
   document->selectBrushFaces({{brushNode, thirdFaceIndex}});
 
-  auto copySecondToThirdFace = Model::ChangeBrushFaceAttributesRequest{};
+  auto copySecondToThirdFace = mdl::ChangeBrushFaceAttributesRequest{};
   copySecondToThirdFace.setAll(brushNode->brush().face(secondFaceIndex));
   document->setFaceAttributes(copySecondToThirdFace);
 
@@ -209,7 +209,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
   document->deselectAll();
   document->selectBrushFaces({{brushNode, secondFaceIndex}});
 
-  auto copyFirstToSecondFace = Model::ChangeBrushFaceAttributesRequest{};
+  auto copyFirstToSecondFace = mdl::ChangeBrushFaceAttributesRequest{};
   copyFirstToSecondFace.setAll(brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToSecondFace);
 
@@ -219,7 +219,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ChangeBrushFaceAttributesTest.setAll")
 
   document->deselectAll();
   document->selectBrushFaces({{brushNode, thirdFaceIndex}});
-  Model::ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
+  mdl::ChangeBrushFaceAttributesRequest copyFirstToThirdFaceNoContents;
   copyFirstToThirdFaceNoContents.setAllExceptContentFlags(
     brushNode->brush().face(firstFaceIndex));
   document->setFaceAttributes(copyFirstToThirdFaceNoContents);
@@ -249,7 +249,7 @@ TEST_CASE_METHOD(
   document->selectNodes({brushNode});
   CHECK(!brushNode->brush().face(0).attributes().hasSurfaceAttributes());
 
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setMaterialName("something_else");
   document->setFaceAttributes(request);
 
@@ -265,11 +265,11 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/ChangeBrushFaceAttributesTest/lavaAndWater.map",
     "Quake2",
-    Model::MapFormat::Unknown);
+    mdl::MapFormat::Unknown);
   REQUIRE(document->currentLayer() != nullptr);
 
   auto* lavabrush =
-    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+    dynamic_cast<mdl::BrushNode*>(document->currentLayer()->children().at(0));
   REQUIRE(lavabrush);
   CHECK(!lavabrush->brush().face(0).attributes().hasSurfaceAttributes());
   CHECK(
@@ -277,7 +277,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
     == LavaFlag); // comes from the .wal texture
 
   auto* waterbrush =
-    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+    dynamic_cast<mdl::BrushNode*>(document->currentLayer()->children().at(1));
   REQUIRE(waterbrush);
   CHECK(!waterbrush->brush().face(0).attributes().hasSurfaceAttributes());
   CHECK(
@@ -306,7 +306,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
   {
     document->selectNodes({lavabrush});
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setContentFlags(WaterFlag);
     CHECK(document->setFaceAttributes(request));
 

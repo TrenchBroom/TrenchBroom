@@ -25,24 +25,24 @@
 #include <QLabel>
 #include <QPushButton>
 
-#include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "View/BorderLine.h"
 #include "View/GameListBox.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "mdl/GameFactory.h"
 
 #include <cassert>
 #include <string>
 
-Q_DECLARE_METATYPE(tb::Model::MapFormat)
+Q_DECLARE_METATYPE(tb::mdl::MapFormat)
 
 namespace tb::View
 {
 
 bool GameDialog::showNewDocumentDialog(
-  QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat)
+  QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat)
 {
   auto dialog = GameDialog{
     "Select Game",
@@ -61,7 +61,7 @@ bool GameDialog::showNewDocumentDialog(
 }
 
 bool GameDialog::showOpenDocumentDialog(
-  QWidget* parent, std::string& gameName, Model::MapFormat& mapFormat)
+  QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat)
 {
   auto dialog = GameDialog{
     "Select Game",
@@ -84,18 +84,18 @@ std::string GameDialog::currentGameName() const
   return m_gameListBox->selectedGameName();
 }
 
-static Model::MapFormat formatFromUserData(const QVariant& variant)
+static mdl::MapFormat formatFromUserData(const QVariant& variant)
 {
-  return variant.canConvert<Model::MapFormat>() ? variant.value<Model::MapFormat>()
-                                                : Model::MapFormat::Unknown;
+  return variant.canConvert<mdl::MapFormat>() ? variant.value<mdl::MapFormat>()
+                                              : mdl::MapFormat::Unknown;
 }
 
-static QVariant formatToUserData(const Model::MapFormat format)
+static QVariant formatToUserData(const mdl::MapFormat format)
 {
   return QVariant::fromValue(format);
 }
 
-Model::MapFormat GameDialog::currentMapFormat() const
+mdl::MapFormat GameDialog::currentMapFormat() const
 {
   const auto userData = m_mapFormatComboBox->currentData();
   assert(userData.isValid());
@@ -248,7 +248,7 @@ QWidget* GameDialog::createSelectionPanel()
 
 void GameDialog::updateMapFormats(const std::string& gameName)
 {
-  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameFactory = mdl::GameFactory::instance();
   const auto fileFormats =
     gameName.empty() ? std::vector<std::string>{} : gameFactory.fileFormats(gameName);
 
@@ -256,12 +256,12 @@ void GameDialog::updateMapFormats(const std::string& gameName)
   if (m_dialogType == DialogType::Open)
   {
     m_mapFormatComboBox->addItem(
-      tr("Autodetect"), formatToUserData(Model::MapFormat::Unknown));
+      tr("Autodetect"), formatToUserData(mdl::MapFormat::Unknown));
   }
 
   for (const auto& fileFormat : fileFormats)
   {
-    const auto mapFormat = Model::formatFromName(fileFormat);
+    const auto mapFormat = mdl::formatFromName(fileFormat);
     m_mapFormatComboBox->addItem(
       QString::fromStdString(fileFormat), formatToUserData(mapFormat));
   }

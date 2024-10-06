@@ -26,11 +26,11 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class GroupNode;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -38,17 +38,17 @@ namespace tb::View
 class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
 {
 private:
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToAdd;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<ReparentNodesCommand> reparent(
-    std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-    std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove);
+    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
+    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove);
 
   ReparentNodesCommand(
-    std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-    std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove);
+    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
+    std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

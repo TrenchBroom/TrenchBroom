@@ -31,7 +31,7 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceHandle;
 }
@@ -61,7 +61,7 @@ public:
 
 private:
   void accept() override;
-  std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
+  std::vector<mdl::BrushFaceHandle> getApplicableFaces() const;
   void createGui(GLContextManager& contextManager);
 private slots:
   void subjectSelected(const asset::Material* subject);

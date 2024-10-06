@@ -27,30 +27,30 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 enum class LockState;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
 class SetLockStateCommand : public UndoableCommand
 {
 private:
-  std::vector<Model::Node*> m_nodes;
-  Model::LockState m_lockState;
-  std::map<Model::Node*, Model::LockState> m_oldLockState;
+  std::vector<mdl::Node*> m_nodes;
+  mdl::LockState m_lockState;
+  std::map<mdl::Node*, mdl::LockState> m_oldLockState;
 
 public:
-  static std::unique_ptr<SetLockStateCommand> lock(std::vector<Model::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<Model::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> reset(std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> lock(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> reset(std::vector<mdl::Node*> nodes);
 
-  SetLockStateCommand(std::vector<Model::Node*> nodes, Model::LockState lockState);
+  SetLockStateCommand(std::vector<mdl::Node*> nodes, mdl::LockState lockState);
 
 private:
-  static std::string makeName(Model::LockState lockState);
+  static std::string makeName(mdl::LockState lockState);
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(

@@ -25,11 +25,11 @@
 #include <memory>
 #include <string>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Hit;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -53,7 +53,7 @@ public:
   virtual const Tool& tool() const = 0;
   bool toolActive() const;
 
-  virtual void pick(const InputState& inputState, Model::PickResult& pickResult);
+  virtual void pick(const InputState& inputState, mdl::PickResult& pickResult);
 
   virtual void modifierKeyChange(const InputState& inputState);
 
@@ -98,7 +98,7 @@ protected:
   void addController(std::unique_ptr<ToolController> controller);
 
 public:
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void modifierKeyChange(const InputState& inputState) override;
 

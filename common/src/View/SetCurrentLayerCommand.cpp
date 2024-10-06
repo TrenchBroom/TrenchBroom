@@ -24,13 +24,12 @@
 namespace tb::View
 {
 
-std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(
-  Model::LayerNode* layer)
+std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(mdl::LayerNode* layer)
 {
   return std::make_unique<SetCurrentLayerCommand>(layer);
 }
 
-SetCurrentLayerCommand::SetCurrentLayerCommand(Model::LayerNode* layer)
+SetCurrentLayerCommand::SetCurrentLayerCommand(mdl::LayerNode* layer)
   : UndoableCommand{"Set Current Layer", false}
   , m_currentLayer{layer}
 {

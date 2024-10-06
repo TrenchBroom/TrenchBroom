@@ -32,8 +32,6 @@
 #include <QWidget>
 
 #include "FileLogger.h"
-#include "Model/GameConfig.h"
-#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/FormWithSectionsLayout.h"
 #include "View/GameEngineDialog.h"
@@ -44,6 +42,8 @@
 #include "io/DiskIO.h"
 #include "io/PathQt.h"
 #include "io/ResourceUtils.h"
+#include "mdl/GameConfig.h"
+#include "mdl/GameFactory.h"
 
 namespace tb::View
 {
@@ -102,7 +102,7 @@ void GamesPreferencePane::createGui()
 
 void GamesPreferencePane::showUserConfigDirClicked()
 {
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   auto path = gameFactory.userGameConfigsPath().lexically_normal();
 
   io::Disk::createDirectory(path) | kdl::transform([&](auto) {
@@ -230,7 +230,7 @@ void GamePreferencePane::createGui()
 
   layout->addSection(tr("Compilation Tools"));
 
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   const auto& gameConfig = gameFactory.gameConfig(m_gameName);
 
   for (auto& tool : gameConfig.compilationTools)
@@ -244,7 +244,7 @@ void GamePreferencePane::createGui()
       edit->setToolTip(QString::fromStdString(*tool.description));
     }
     connect(edit, &QLineEdit::editingFinished, this, [this, toolName, edit]() {
-      Model::GameFactory::instance().setCompilationToolPath(
+      mdl::GameFactory::instance().setCompilationToolPath(
         m_gameName, toolName, io::pathFromQString(edit->text()));
     });
 
@@ -257,7 +257,7 @@ void GamePreferencePane::createGui()
       if (!pathStr.isEmpty())
       {
         edit->setText(pathStr);
-        if (Model::GameFactory::instance().setCompilationToolPath(
+        if (mdl::GameFactory::instance().setCompilationToolPath(
               m_gameName, toolName, io::pathFromQString(pathStr)))
         {
           emit requestUpdate();
@@ -294,7 +294,7 @@ void GamePreferencePane::updateGamePath(const QString& str)
   updateFileDialogDefaultDirectoryWithDirectory(FileDialogDir::GamePath, str);
 
   const auto gamePath = io::pathFromQString(str);
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   if (gameFactory.setGamePath(m_gameName, gamePath))
   {
     emit requestUpdate();
@@ -314,7 +314,7 @@ const std::string& GamePreferencePane::gameName() const
 
 void GamePreferencePane::updateControls()
 {
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
 
   // Refresh tool paths from preferences
   for (const auto& [toolName, toolPathEditor] : m_toolPathEditors)

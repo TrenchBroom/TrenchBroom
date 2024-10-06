@@ -19,13 +19,13 @@
 
 #include "CreateBrushesToolBase.h"
 
-#include "Model/BrushNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BrushRenderer.h"
 #include "Renderer/SelectionBoundsRenderer.h"
 #include "View/MapDocument.h"
 #include "View/Transaction.h"
+#include "mdl/BrushNode.h"
 
 #include "kdl/memory_utils.h"
 
@@ -53,7 +53,7 @@ void CreateBrushesToolBase::createBrushes()
   {
     auto document = kdl::mem_lock(m_document);
     auto nodesToAdd = kdl::vec_transform(std::move(m_brushNodes), [](auto brushNode) {
-      return static_cast<Model::Node*>(brushNode.release());
+      return static_cast<mdl::Node*>(brushNode.release());
     });
     clearBrushes();
 
@@ -110,7 +110,7 @@ void CreateBrushesToolBase::render(
 }
 
 void CreateBrushesToolBase::updateBrushes(
-  std::vector<std::unique_ptr<Model::BrushNode>> brushNodes)
+  std::vector<std::unique_ptr<mdl::BrushNode>> brushNodes)
 {
   m_brushNodes = std::move(brushNodes);
 }

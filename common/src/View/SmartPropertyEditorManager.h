@@ -29,11 +29,11 @@
 
 class QStackedLayout;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNodeBase;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -42,7 +42,7 @@ class Selection;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =
-  std::function<bool(const std::string&, const std::vector<Model::EntityNodeBase*>&)>;
+  std::function<bool(const std::string&, const std::vector<mdl::EntityNodeBase*>&)>;
 
 class SmartPropertyEditorManager : public QWidget
 {
@@ -60,7 +60,7 @@ public:
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
   void switchEditor(
-    const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes);
+    const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes);
   bool isDefaultEditorActive() const;
 
 private:
@@ -70,11 +70,10 @@ private:
   void connectObservers();
 
   void selectionDidChange(const Selection& selection);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   SmartPropertyEditor* selectEditor(
-    const std::string& propertyKey,
-    const std::vector<Model::EntityNodeBase*>& nodes) const;
+    const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes) const;
   SmartPropertyEditor* defaultEditor() const;
 
   void activateEditor(SmartPropertyEditor* editor, const std::string& propertyKey);

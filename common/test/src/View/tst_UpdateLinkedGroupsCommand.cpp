@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h" // IWYU pragma: keep
-#include "Model/GroupNode.h" // IWYU pragma: keep
 #include "View/CurrentGroupCommand.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsCommand.h"
+#include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/GroupNode.h" // IWYU pragma: keep
 
 #include "Catch2.h"
 

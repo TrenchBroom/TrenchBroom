@@ -75,8 +75,8 @@ public:
   double snapRotationAngle(double angle) const;
   void applyRotation(const vm::vec3d& center, const vm::vec3d& axis, double angle);
 
-  Model::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
-  Model::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera);
 
   vm::vec3d rotationAxis(RotateObjectsHandle::HitArea area) const;
 

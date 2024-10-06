@@ -21,14 +21,14 @@
 
 #include <QWidget>
 
-#include "Model/CompilationConfig.h"
+#include "mdl/CompilationConfig.h"
 
 #include <memory>
 
 class QAbstractButton;
 class QPoint;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationProfile;
 }
@@ -42,14 +42,14 @@ class MapDocument;
 /**
  * Editor widget for all profiles in a compilation config.
  *
- * The UI updates our Model::CompilationConfig m_config; calling code can
+ * The UI updates our mdl::CompilationConfig m_config; calling code can
  * read the modified config with `config()` and save it to disk.
  */
 class CompilationProfileManager : public QWidget
 {
   Q_OBJECT
 private:
-  Model::CompilationConfig m_config;
+  mdl::CompilationConfig m_config;
   CompilationProfileListBox* m_profileList = nullptr;
   CompilationProfileEditor* m_profileEditor = nullptr;
   QAbstractButton* m_removeProfileButton = nullptr;
@@ -57,11 +57,11 @@ private:
 public:
   CompilationProfileManager(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationConfig config,
+    mdl::CompilationConfig config,
     QWidget* parent = nullptr);
 
-  const Model::CompilationProfile* selectedProfile() const;
-  const Model::CompilationConfig& config() const;
+  const mdl::CompilationProfile* selectedProfile() const;
+  const mdl::CompilationConfig& config() const;
 
 private:
   void updateGui();
@@ -69,10 +69,10 @@ private slots:
   void addProfile();
   void removeProfile();
   void removeProfile(size_t index);
-  void removeProfile(const Model::CompilationProfile& profile);
-  void duplicateProfile(const Model::CompilationProfile& profile);
+  void removeProfile(const mdl::CompilationProfile& profile);
+  void duplicateProfile(const mdl::CompilationProfile& profile);
   void profileContextMenuRequested(
-    const QPoint& globalPos, Model::CompilationProfile& profile);
+    const QPoint& globalPos, mdl::CompilationProfile& profile);
   void profileSelectionChanged();
 signals:
   /**

@@ -20,9 +20,9 @@
 #include "GameListBox.h"
 
 #include "Ensure.h"
-#include "Model/GameConfig.h"
-#include "Model/GameFactory.h"
 #include "io/ResourceUtils.h"
+#include "mdl/GameConfig.h"
+#include "mdl/GameFactory.h"
 
 #include <filesystem>
 #include <string>
@@ -39,7 +39,7 @@ GameListBox::GameListBox(QWidget* parent)
 
 std::string GameListBox::selectedGameName() const
 {
-  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameFactory = mdl::GameFactory::instance();
   const auto& gameList = gameFactory.gameList();
 
   const auto index = currentRow();
@@ -59,7 +59,7 @@ void GameListBox::reloadGameInfos()
 
   m_gameInfos.clear();
 
-  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameFactory = mdl::GameFactory::instance();
   for (const auto& gameName : gameFactory.gameList())
   {
     m_gameInfos.push_back(makeGameInfo(gameName));
@@ -89,7 +89,7 @@ void GameListBox::updateGameInfos()
 
 GameListBox::Info GameListBox::makeGameInfo(const std::string& gameName) const
 {
-  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(gameName);
   auto iconPath = gameFactory.iconPath(gameName);
   if (iconPath.empty())

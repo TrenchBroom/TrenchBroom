@@ -25,16 +25,16 @@ namespace tb::View
 {
 
 std::unique_ptr<ReparentNodesCommand> ReparentNodesCommand::reparent(
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove)
+  std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
+  std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove)
 {
   return std::make_unique<ReparentNodesCommand>(
     std::move(nodesToAdd), std::move(nodesToRemove));
 }
 
 ReparentNodesCommand::ReparentNodesCommand(
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToAdd,
-  std::map<Model::Node*, std::vector<Model::Node*>> nodesToRemove)
+  std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToAdd,
+  std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove)
   : UpdateLinkedGroupsCommandBase{"Reparent Objects", true}
   , m_nodesToAdd{std::move(nodesToAdd)}
   , m_nodesToRemove{std::move(nodesToRemove)}

@@ -20,8 +20,8 @@
 #pragma once
 
 #include "Macros.h"
-#include "Model/Hit.h"
-#include "Model/HitType.h"
+#include "mdl/Hit.h"
+#include "mdl/HitType.h"
 
 #include "vm/mat.h"
 #include "vm/ray.h"
@@ -39,7 +39,7 @@ namespace tb::View
 class RotateObjectsHandle
 {
 public:
-  static const Model::HitType::Type HandleHitType;
+  static const mdl::HitType::Type HandleHitType;
 
   enum class HitArea
   {
@@ -60,7 +60,7 @@ private:
     explicit Handle(const vm::vec3d& position);
     virtual ~Handle();
 
-    virtual Model::Hit pick(
+    virtual mdl::Hit pick(
       const vm::ray3d& pickRay, const Renderer::Camera& camera) const = 0;
     virtual void renderHandle(
       Renderer::RenderContext& renderContext,
@@ -75,9 +75,9 @@ private:
     static double minorRadius();
 
   protected:
-    Model::Hit pickCenterHandle(
+    mdl::Hit pickCenterHandle(
       const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
-    virtual Model::Hit pickRotateHandle(
+    virtual mdl::Hit pickRotateHandle(
       const vm::ray3d& pickRay, const Renderer::Camera& camera, HitArea area) const;
 
     vm::mat4x4d handleTransform(const Renderer::Camera& camera, HitArea area) const;
@@ -88,7 +88,7 @@ private:
   public:
     using Handle::Handle;
 
-    Model::Hit pick(
+    mdl::Hit pick(
       const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
     void renderHandle(
       Renderer::RenderContext& renderContext,
@@ -99,7 +99,7 @@ private:
       HitArea area) const override;
 
   protected:
-    Model::Hit pickRotateHandle(
+    mdl::Hit pickRotateHandle(
       const vm::ray3d& pickRay,
       const Renderer::Camera& camera,
       HitArea area) const override;
@@ -112,7 +112,7 @@ private:
   public:
     using Handle::Handle;
 
-    Model::Hit pick(
+    mdl::Hit pick(
       const vm::ray3d& pickRay, const Renderer::Camera& camera) const override;
     void renderHandle(
       Renderer::RenderContext& renderContext,
@@ -123,7 +123,7 @@ private:
       HitArea area) const override;
 
   protected:
-    Model::Hit pickRotateHandle(
+    mdl::Hit pickRotateHandle(
       const vm::ray3d& pickRay,
       const Renderer::Camera& camera,
       HitArea area) const override;
@@ -142,8 +142,8 @@ public:
   const vm::vec3d& position() const;
   void setPosition(const vm::vec3d& position);
 
-  Model::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
-  Model::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
+  mdl::Hit pick2D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
+  mdl::Hit pick3D(const vm::ray3d& pickRay, const Renderer::Camera& camera) const;
 
   double majorHandleRadius(const Renderer::Camera& camera) const;
   double minorHandleRadius(const Renderer::Camera& camera) const;

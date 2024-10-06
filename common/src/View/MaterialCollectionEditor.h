@@ -30,7 +30,7 @@
 class QListWidget;
 class QAbstractButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 }
@@ -76,7 +76,7 @@ private:
   void connectObservers();
 
   void documentWasNewedOrLoaded(MapDocument*);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void materialCollectionsDidChange();
   void modsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);

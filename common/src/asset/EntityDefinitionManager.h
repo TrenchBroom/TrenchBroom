@@ -33,7 +33,7 @@ class EntityDefinitionLoader;
 class ParserStatus;
 } // namespace tb::io
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNodeBase;
 }
@@ -63,7 +63,7 @@ public:
   void setDefinitions(std::vector<std::unique_ptr<EntityDefinition>> newDefinitions);
   void clear();
 
-  EntityDefinition* definition(const Model::EntityNodeBase* node) const;
+  EntityDefinition* definition(const mdl::EntityNodeBase* node) const;
   EntityDefinition* definition(const std::string& classname) const;
   std::vector<EntityDefinition*> definitions(
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;

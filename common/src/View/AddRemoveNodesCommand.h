@@ -26,10 +26,10 @@
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -43,19 +43,19 @@ private:
   };
 
   Action m_action;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToAdd;
-  std::map<Model::Node*, std::vector<Model::Node*>> m_nodesToRemove;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToAdd;
+  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    Model::Node* parent, const std::vector<Model::Node*>& children);
+    mdl::Node* parent, const std::vector<mdl::Node*>& children);
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
 
   AddRemoveNodesCommand(
-    Action action, const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+    Action action, const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
   ~AddRemoveNodesCommand() override;
 
 private:

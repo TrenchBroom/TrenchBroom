@@ -53,9 +53,9 @@ public:
 
 private:
   void createGui();
-  void doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes) override;
+  void doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes) override;
 
-  void updateColorRange(const std::vector<Model::EntityNodeBase*>& nodes);
+  void updateColorRange(const std::vector<mdl::EntityNodeBase*>& nodes);
   void updateColorHistory();
 
   void setColor(const QColor& wxColor) const;

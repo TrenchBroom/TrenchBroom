@@ -22,13 +22,13 @@
 #include <QMenu>
 #include <QToolButton>
 
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
 #include "View/BorderLine.h"
 #include "View/CompilationProfileEditor.h"
 #include "View/CompilationProfileListBox.h"
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
+#include "mdl/CompilationConfig.h"
+#include "mdl/CompilationProfile.h"
 
 #include "kdl/range_utils.h"
 #include "kdl/vector_utils.h"
@@ -37,7 +37,7 @@ namespace tb::View
 {
 
 CompilationProfileManager::CompilationProfileManager(
-  std::weak_ptr<MapDocument> document, Model::CompilationConfig config, QWidget* parent)
+  std::weak_ptr<MapDocument> document, mdl::CompilationConfig config, QWidget* parent)
   : QWidget{parent}
   , m_config{std::move(config)}
 {
@@ -110,21 +110,20 @@ CompilationProfileManager::CompilationProfileManager(
   }
 }
 
-const Model::CompilationProfile* CompilationProfileManager::selectedProfile() const
+const mdl::CompilationProfile* CompilationProfileManager::selectedProfile() const
 {
   const auto index = m_profileList->currentRow();
   return index >= 0 ? &m_config.profiles[size_t(index)] : nullptr;
 }
 
-const Model::CompilationConfig& CompilationProfileManager::config() const
+const mdl::CompilationConfig& CompilationProfileManager::config() const
 {
   return m_config;
 }
 
 void CompilationProfileManager::addProfile()
 {
-  m_config.profiles.push_back(
-    Model::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});
+  m_config.profiles.push_back(mdl::CompilationProfile{"unnamed", "${MAP_DIR_PATH}", {}});
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
@@ -147,13 +146,13 @@ void CompilationProfileManager::removeProfile(const size_t index)
   }
 }
 
-void CompilationProfileManager::removeProfile(const Model::CompilationProfile& profile)
+void CompilationProfileManager::removeProfile(const mdl::CompilationProfile& profile)
 {
   const auto index = kdl::index_of(m_config.profiles, profile);
   removeProfile(*index);
 }
 
-void CompilationProfileManager::duplicateProfile(const Model::CompilationProfile& profile)
+void CompilationProfileManager::duplicateProfile(const mdl::CompilationProfile& profile)
 {
   m_config.profiles.push_back(profile);
   m_profileList->reloadProfiles();
@@ -161,7 +160,7 @@ void CompilationProfileManager::duplicateProfile(const Model::CompilationProfile
 }
 
 void CompilationProfileManager::profileContextMenuRequested(
-  const QPoint& globalPos, Model::CompilationProfile& profile)
+  const QPoint& globalPos, mdl::CompilationProfile& profile)
 {
   auto menu = QMenu{this};
   menu.addAction(tr("Duplicate"), this, [&]() { duplicateProfile(profile); });

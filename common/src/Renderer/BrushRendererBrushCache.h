@@ -28,11 +28,11 @@ namespace tb::asset
 class Material;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -46,18 +46,17 @@ public:
   struct CachedFace
   {
     const asset::Material* material;
-    const Model::BrushFace* face;
+    const mdl::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;
 
-    CachedFace(
-      const Model::BrushFace* i_face, size_t i_indexOfFirstVertexRelativeToBrush);
+    CachedFace(const mdl::BrushFace* i_face, size_t i_indexOfFirstVertexRelativeToBrush);
   };
 
   struct CachedEdge
   {
-    const Model::BrushFace* face1;
-    const Model::BrushFace* face2;
+    const mdl::BrushFace* face1;
+    const mdl::BrushFace* face2;
     size_t vertexIndex1RelativeToBrush;
     size_t vertexIndex2RelativeToBrush;
   };
@@ -83,7 +82,7 @@ public:
    * different rendering styles (default/selected/locked), or need to re-evaluate the
    * BrushRenderer::Filter to exclude certain faces/edges.
    */
-  void validateVertexCache(const Model::BrushNode& brushNode);
+  void validateVertexCache(const mdl::BrushNode& brushNode);
 
   /**
    * Returns all vertices for all faces of the brush.

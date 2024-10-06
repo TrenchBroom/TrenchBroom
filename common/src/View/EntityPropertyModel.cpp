@@ -28,18 +28,18 @@
 #include <QTimer>
 
 #include "Macros.h"
-#include "Model/Entity.h"
-#include "Model/EntityNodeBase.h"
-#include "Model/EntityNodeIndex.h"
-#include "Model/EntityProperties.h"
-#include "Model/ModelUtils.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionManager.h"
 #include "asset/PropertyDefinition.h"
 #include "io/ResourceUtils.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNodeBase.h"
+#include "mdl/EntityNodeIndex.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -61,66 +61,62 @@ namespace tb::View
 namespace
 {
 
-bool isPropertyKeyMutable(const Model::Entity& entity, const std::string& key)
+bool isPropertyKeyMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!Model::isGroup(entity.classname(), entity.properties()));
-  assert(!Model::isLayer(entity.classname(), entity.properties()));
+  assert(!mdl::isGroup(entity.classname(), entity.properties()));
+  assert(!mdl::isLayer(entity.classname(), entity.properties()));
 
-  if (Model::isWorldspawn(entity.classname()))
+  if (mdl::isWorldspawn(entity.classname()))
   {
     return !(
-      key == Model::EntityPropertyKeys::Classname
-      || key == Model::EntityPropertyKeys::Mods
-      || key == Model::EntityPropertyKeys::EntityDefinitions
-      || key == Model::EntityPropertyKeys::Wad
-      || key == Model::EntityPropertyKeys::EnabledMaterialCollections
-      || key == Model::EntityPropertyKeys::SoftMapBounds
-      || key == Model::EntityPropertyKeys::LayerColor
-      || key == Model::EntityPropertyKeys::LayerLocked
-      || key == Model::EntityPropertyKeys::LayerHidden
-      || key == Model::EntityPropertyKeys::LayerOmitFromExport);
+      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::Mods
+      || key == mdl::EntityPropertyKeys::EntityDefinitions
+      || key == mdl::EntityPropertyKeys::Wad
+      || key == mdl::EntityPropertyKeys::EnabledMaterialCollections
+      || key == mdl::EntityPropertyKeys::SoftMapBounds
+      || key == mdl::EntityPropertyKeys::LayerColor
+      || key == mdl::EntityPropertyKeys::LayerLocked
+      || key == mdl::EntityPropertyKeys::LayerHidden
+      || key == mdl::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   return true;
 }
 
-bool isPropertyValueMutable(const Model::Entity& entity, const std::string& key)
+bool isPropertyValueMutable(const mdl::Entity& entity, const std::string& key)
 {
-  assert(!Model::isGroup(entity.classname(), entity.properties()));
-  assert(!Model::isLayer(entity.classname(), entity.properties()));
+  assert(!mdl::isGroup(entity.classname(), entity.properties()));
+  assert(!mdl::isLayer(entity.classname(), entity.properties()));
 
-  if (Model::isWorldspawn(entity.classname()))
+  if (mdl::isWorldspawn(entity.classname()))
   {
     return !(
-      key == Model::EntityPropertyKeys::Classname
-      || key == Model::EntityPropertyKeys::Mods
-      || key == Model::EntityPropertyKeys::EntityDefinitions
-      || key == Model::EntityPropertyKeys::Wad
-      || key == Model::EntityPropertyKeys::SoftMapBounds
-      || key == Model::EntityPropertyKeys::LayerColor
-      || key == Model::EntityPropertyKeys::LayerLocked
-      || key == Model::EntityPropertyKeys::LayerHidden
-      || key == Model::EntityPropertyKeys::LayerOmitFromExport);
+      key == mdl::EntityPropertyKeys::Classname || key == mdl::EntityPropertyKeys::Mods
+      || key == mdl::EntityPropertyKeys::EntityDefinitions
+      || key == mdl::EntityPropertyKeys::Wad
+      || key == mdl::EntityPropertyKeys::SoftMapBounds
+      || key == mdl::EntityPropertyKeys::LayerColor
+      || key == mdl::EntityPropertyKeys::LayerLocked
+      || key == mdl::EntityPropertyKeys::LayerHidden
+      || key == mdl::EntityPropertyKeys::LayerOmitFromExport);
   }
 
   return true;
 }
 
-bool isPropertyProtectable(
-  const Model::EntityNodeBase& entityNode, const std::string& key)
+bool isPropertyProtectable(const mdl::EntityNodeBase& entityNode, const std::string& key)
 {
-  return Model::findContainingGroup(&entityNode)
-         && key != Model::EntityPropertyKeys::Origin;
+  return mdl::findContainingGroup(&entityNode) && key != mdl::EntityPropertyKeys::Origin;
 }
 
 PropertyProtection isPropertyProtected(
-  const Model::EntityNodeBase& entityNode, const std::string& key)
+  const mdl::EntityNodeBase& entityNode, const std::string& key)
 {
   if (isPropertyProtectable(entityNode, key))
   {
     for (const auto& protectedKey : entityNode.entity().protectedProperties())
     {
-      if (Model::isNumberedProperty(protectedKey, key))
+      if (mdl::isNumberedProperty(protectedKey, key))
       {
         return PropertyProtection::Protected;
       }
@@ -131,7 +127,7 @@ PropertyProtection isPropertyProtected(
 }
 
 PropertyRow rowForEntityNodes(
-  const std::string& key, const std::vector<Model::EntityNodeBase*>& nodes)
+  const std::string& key, const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   ensure(!nodes.empty(), "rowForEntityNodes requries a non-empty node list");
 
@@ -139,14 +135,14 @@ PropertyRow rowForEntityNodes(
     std::next(nodes.begin()),
     nodes.end(),
     PropertyRow{key, nodes.front()},
-    [](PropertyRow lhs, const Model::EntityNodeBase* rhs) {
+    [](PropertyRow lhs, const mdl::EntityNodeBase* rhs) {
       lhs.merge(rhs);
       return lhs;
     });
 }
 
 std::vector<std::string> allKeys(
-  const std::vector<Model::EntityNodeBase*>& nodes,
+  const std::vector<mdl::EntityNodeBase*>& nodes,
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
@@ -186,7 +182,7 @@ std::vector<std::string> allKeys(
 }
 
 std::map<std::string, PropertyRow> rowsForEntityNodes(
-  const std::vector<Model::EntityNodeBase*>& nodes,
+  const std::vector<mdl::EntityNodeBase*>& nodes,
   const bool showDefaultRows,
   const bool showProtectedProperties)
 {
@@ -232,7 +228,7 @@ std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs)
   }
 }
 
-std::string newPropertyKeyForEntityNodes(const std::vector<Model::EntityNodeBase*>& nodes)
+std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   const auto rows = rowsForEntityNodes(nodes, true, false);
 
@@ -255,10 +251,10 @@ PropertyRow::PropertyRow()
 {
 }
 
-PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
+PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
   : m_key{std::move(key)}
 {
-  const auto* definition = Model::propertyDefinition(node, m_key);
+  const auto* definition = mdl::propertyDefinition(node, m_key);
 
   if (const auto* value = node->entity().property(m_key))
   {
@@ -286,7 +282,7 @@ PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
   }
 }
 
-void PropertyRow::merge(const Model::EntityNodeBase* other)
+void PropertyRow::merge(const mdl::EntityNodeBase* other)
 {
   const auto* otherValue = other->entity().property(m_key);
 
@@ -612,17 +608,17 @@ QStringList EntityPropertyModel::getCompletions(const QModelIndex& index) const
   else if (index.column() == ColumnValue)
   {
     if (
-      key == Model::EntityPropertyKeys::Target
-      || key == Model::EntityPropertyKeys::Killtarget)
+      key == mdl::EntityPropertyKeys::Target
+      || key == mdl::EntityPropertyKeys::Killtarget)
     {
-      result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Targetname});
+      result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Targetname});
     }
-    else if (key == Model::EntityPropertyKeys::Targetname)
+    else if (key == mdl::EntityPropertyKeys::Targetname)
     {
       result = getAllValuesForPropertyKeys(
-        {Model::EntityPropertyKeys::Target, Model::EntityPropertyKeys::Killtarget});
+        {mdl::EntityPropertyKeys::Target, mdl::EntityPropertyKeys::Killtarget});
     }
-    else if (key == Model::EntityPropertyKeys::Classname)
+    else if (key == mdl::EntityPropertyKeys::Classname)
     {
       result = getAllClassnames();
     }
@@ -687,8 +683,7 @@ std::vector<std::string> EntityPropertyModel::getAllValuesForPropertyKeys(
 
   for (const auto& key : propertyKeys)
   {
-    const auto values =
-      index.allValuesForKeys(Model::EntityNodeIndexQuery::numbered(key));
+    const auto values = index.allValuesForKeys(mdl::EntityNodeIndexQuery::numbered(key));
     for (const auto& value : values)
     {
       resultSet.insert(value);
@@ -705,7 +700,7 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
   auto document = kdl::mem_lock(m_document);
 
   // start with currently used classnames
-  auto result = getAllValuesForPropertyKeys({Model::EntityPropertyKeys::Classname});
+  auto result = getAllValuesForPropertyKeys({mdl::EntityPropertyKeys::Classname});
   auto resultSet = kdl::wrap_set(result);
 
   // add keys from all loaded entity definitions
@@ -720,10 +715,10 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
 }
 
 static bool computeShouldShowProtectedProperties(
-  const std::vector<Model::EntityNodeBase*>& entityNodes)
+  const std::vector<mdl::EntityNodeBase*>& entityNodes)
 {
   return !entityNodes.empty() && kdl::all_of(entityNodes, [](const auto* entityNode) {
-    return Model::findContainingGroup(entityNode);
+    return mdl::findContainingGroup(entityNode);
   });
 }
 
@@ -1041,7 +1036,7 @@ bool EntityPropertyModel::hasRowWithPropertyKey(const std::string& propertyKey) 
 bool EntityPropertyModel::renameProperty(
   const size_t rowIndex,
   const std::string& newKey,
-  const std::vector<Model::EntityNodeBase*>& /* nodes */)
+  const std::vector<mdl::EntityNodeBase*>& /* nodes */)
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 
@@ -1089,7 +1084,7 @@ bool EntityPropertyModel::renameProperty(
 bool EntityPropertyModel::updateProperty(
   const size_t rowIndex,
   const std::string& newValue,
-  const std::vector<Model::EntityNodeBase*>& nodes)
+  const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   ensure(rowIndex < m_rows.size(), "row index out of bounds");
 

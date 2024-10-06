@@ -19,19 +19,19 @@
 
 #include "Matchers.h"
 
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/Layer.h"
-#include "Model/LayerNode.h"
-#include "Model/Node.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "StringMakers.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/Layer.h"
+#include "mdl/LayerNode.h"
+#include "mdl/Node.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/string_compare.h"
 
@@ -62,7 +62,7 @@ GlobMatcher MatchesGlob(std::string glob)
 
 } // namespace tb
 
-namespace tb::Model
+namespace tb::mdl
 {
 
 namespace
@@ -168,4 +168,4 @@ std::string NodeVectorMatcher::describe() const
   return str.str();
 }
 
-} // namespace tb::Model
+} // namespace tb::mdl

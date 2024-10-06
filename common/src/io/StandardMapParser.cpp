@@ -21,8 +21,8 @@
 
 #include "FileLocation.h"
 #include "io/ParserStatus.h"
-#include "Model/BrushFace.h"
-#include "Model/EntityProperties.h"
+#include "mdl/BrushFace.h"
+#include "mdl/EntityProperties.h"
 
 #include "vm/vec.h"
 
@@ -150,14 +150,14 @@ const std::string StandardMapParser::PatchId = "patchDef2";
 
 StandardMapParser::StandardMapParser(
   const std::string_view str,
-  const Model::MapFormat sourceMapFormat,
-  const Model::MapFormat targetMapFormat)
+  const mdl::MapFormat sourceMapFormat,
+  const mdl::MapFormat targetMapFormat)
   : m_tokenizer{str}
   , m_sourceMapFormat{sourceMapFormat}
   , m_targetMapFormat{targetMapFormat}
 {
-  assert(m_sourceMapFormat != Model::MapFormat::Unknown);
-  assert(targetMapFormat != Model::MapFormat::Unknown);
+  assert(m_sourceMapFormat != mdl::MapFormat::Unknown);
+  assert(targetMapFormat != mdl::MapFormat::Unknown);
 }
 
 StandardMapParser::~StandardMapParser() = default;
@@ -213,7 +213,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
 
   auto beginEntityCalled = false;
 
-  auto properties = std::vector<Model::EntityProperty>();
+  auto properties = std::vector<mdl::EntityProperty>();
   auto propertyKeys = EntityPropertyKeys();
 
   const auto startLocation = token.location();
@@ -257,7 +257,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
 }
 
 void StandardMapParser::parseEntityProperty(
-  std::vector<Model::EntityProperty>& properties,
+  std::vector<mdl::EntityProperty>& properties,
   EntityPropertyKeys& keys,
   ParserStatus& status)
 {
@@ -296,7 +296,7 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
   const auto startLocation = token.location();
 
   token = m_tokenizer.peekToken();
-  if (m_sourceMapFormat == Model::MapFormat::Quake3)
+  if (m_sourceMapFormat == mdl::MapFormat::Quake3)
   {
     // We expect either a brush primitive, a patch or a regular brush.
     expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
@@ -318,8 +318,8 @@ void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
     }
   }
   else if (
-    m_sourceMapFormat == Model::MapFormat::Quake3_Valve
-    || m_sourceMapFormat == Model::MapFormat::Quake3_Legacy)
+    m_sourceMapFormat == mdl::MapFormat::Quake3_Valve
+    || m_sourceMapFormat == mdl::MapFormat::Quake3_Legacy)
   {
     // We expect either a patch or a regular brush.
     expect(QuakeMapToken::String | QuakeMapToken::OParenthesis, token);
@@ -403,27 +403,27 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
 {
   switch (m_sourceMapFormat)
   {
-  case Model::MapFormat::Standard:
+  case mdl::MapFormat::Standard:
     parseQuakeFace(status);
     break;
-  case Model::MapFormat::Quake2:
-  case Model::MapFormat::Quake3_Legacy:
+  case mdl::MapFormat::Quake2:
+  case mdl::MapFormat::Quake3_Legacy:
     parseQuake2Face(status);
     break;
-  case Model::MapFormat::Quake2_Valve:
-  case Model::MapFormat::Quake3_Valve:
+  case mdl::MapFormat::Quake2_Valve:
+  case mdl::MapFormat::Quake3_Valve:
     parseQuake2ValveFace(status);
     break;
-  case Model::MapFormat::Hexen2:
+  case mdl::MapFormat::Hexen2:
     parseHexen2Face(status);
     break;
-  case Model::MapFormat::Daikatana:
+  case mdl::MapFormat::Daikatana:
     parseDaikatanaFace(status);
     break;
-  case Model::MapFormat::Valve:
+  case mdl::MapFormat::Valve:
     parseValveFace(status);
     break;
-  case Model::MapFormat::Quake3:
+  case mdl::MapFormat::Quake3:
     if (primitive)
     {
       parsePrimitiveFace(status);
@@ -433,7 +433,7 @@ void StandardMapParser::parseFace(ParserStatus& status, const bool primitive)
       parseQuake2Face(status);
     }
     break;
-  case Model::MapFormat::Unknown:
+  case mdl::MapFormat::Unknown:
     // cannot happen
     break;
     switchDefault();
@@ -447,7 +447,7 @@ void StandardMapParser::parseQuakeFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -464,7 +464,7 @@ void StandardMapParser::parseQuake2Face(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -493,7 +493,7 @@ void StandardMapParser::parseQuake2ValveFace(ParserStatus& status)
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
@@ -521,7 +521,7 @@ void StandardMapParser::parseHexen2Face(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -546,7 +546,7 @@ void StandardMapParser::parseDaikatanaFace(ParserStatus& status)
   const auto [p1, p2, p3] = parseFacePoints(status);
   const auto materialName = parseMaterialName(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(parseFloat());
   attribs.setYOffset(parseFloat());
   attribs.setRotation(parseFloat());
@@ -580,7 +580,7 @@ void StandardMapParser::parseValveFace(ParserStatus& status)
 
   const auto [uAxis, uOffset, vAxis, vOffset] = parseValveUVAxes(status);
 
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
   attribs.setXOffset(uOffset);
   attribs.setYOffset(vOffset);
   attribs.setRotation(parseFloat());
@@ -605,7 +605,7 @@ void StandardMapParser::parsePrimitiveFace(ParserStatus& status)
   const auto materialName = parseMaterialName(status);
 
   // TODO 2427: what to set for offset, rotation, scale?!
-  auto attribs = Model::BrushFaceAttributes{materialName};
+  auto attribs = mdl::BrushFaceAttributes{materialName};
 
   // Quake 2 extra info is optional
   if (!check(

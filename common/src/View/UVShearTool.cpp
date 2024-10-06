@@ -19,16 +19,16 @@
 
 #include "UVShearTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 #include "View/UVViewHelper.h"
+#include "mdl/BrushFace.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -125,7 +125,7 @@ public:
       * origin};
     const auto newOffset = m_helper.face()->attributes().offset() + oldCoords - newCoords;
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setOffset(newOffset);
     m_document.setFaceAttributes(request);
 
@@ -140,8 +140,8 @@ public:
 
 } // namespace
 
-const Model::HitType::Type UVShearTool::XHandleHitType = Model::HitType::freeType();
-const Model::HitType::Type UVShearTool::YHandleHitType = Model::HitType::freeType();
+const mdl::HitType::Type UVShearTool::XHandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type UVShearTool::YHandleHitType = mdl::HitType::freeType();
 
 UVShearTool::UVShearTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
   : ToolController{}
@@ -161,9 +161,9 @@ const Tool& UVShearTool::tool() const
   return *this;
 }
 
-void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+void UVShearTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
-  static const Model::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
+  static const mdl::HitType::Type HitTypes[] = {XHandleHitType, YHandleHitType};
   if (m_helper.valid())
   {
     m_helper.pickUVGrid(inputState.pickRay(), HitTypes, pickResult);
@@ -172,7 +172,7 @@ void UVShearTool::pick(const InputState& inputState, Model::PickResult& pickResu
 
 std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   assert(m_helper.valid());
 

@@ -27,11 +27,11 @@
 #include <memory>
 #include <string>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNode;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -41,7 +41,7 @@ class CreateEntityTool : public Tool
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::EntityNode* m_entity = nullptr;
+  mdl::EntityNode* m_entity = nullptr;
   vm::bbox3d m_referenceBounds;
 
 public:
@@ -53,7 +53,7 @@ public:
 
   void updateEntityPosition2D(const vm::ray3d& pickRay);
   void updateEntityPosition3D(
-    const vm::ray3d& pickRay, const Model::PickResult& pickResult);
+    const vm::ray3d& pickRay, const mdl::PickResult& pickResult);
 };
 
 } // namespace tb::View

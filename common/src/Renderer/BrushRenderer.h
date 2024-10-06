@@ -21,10 +21,10 @@
 
 #include "Color.h"
 #include "Macros.h"
-#include "Model/BrushGeometry.h"
 #include "Renderer/AllocationTracker.h"
 #include "Renderer/EdgeRenderer.h"
 #include "Renderer/FaceRenderer.h"
+#include "mdl/BrushGeometry.h"
 
 #include <memory>
 #include <tuple>
@@ -32,12 +32,12 @@
 #include <unordered_set>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
 class EditorContext;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -76,7 +76,7 @@ public:
      * Otherwise, markFaces() should call BrushFace::setMarked() on *all* faces, passing
      * true or false as needed to select the faces to be rendered.
      */
-    virtual RenderSettings markFaces(const Model::BrushNode& brush) const = 0;
+    virtual RenderSettings markFaces(const mdl::BrushNode& brush) const = 0;
 
   protected:
     /**
@@ -88,32 +88,32 @@ public:
   class DefaultFilter : public Filter
   {
   private:
-    const Model::EditorContext& m_context;
+    const mdl::EditorContext& m_context;
 
   public:
     ~DefaultFilter() override;
 
   protected:
-    explicit DefaultFilter(const Model::EditorContext& context);
+    explicit DefaultFilter(const mdl::EditorContext& context);
 
-    bool visible(const Model::BrushNode& brush) const;
-    bool visible(const Model::BrushNode& brush, const Model::BrushFace& face) const;
-    bool visible(const Model::BrushNode& brush, const Model::BrushEdge& edge) const;
+    bool visible(const mdl::BrushNode& brush) const;
+    bool visible(const mdl::BrushNode& brush, const mdl::BrushFace& face) const;
+    bool visible(const mdl::BrushNode& brush, const mdl::BrushEdge& edge) const;
 
-    bool editable(const Model::BrushNode& brush) const;
-    bool editable(const Model::BrushNode& brush, const Model::BrushFace& face) const;
+    bool editable(const mdl::BrushNode& brush) const;
+    bool editable(const mdl::BrushNode& brush, const mdl::BrushFace& face) const;
 
-    bool selected(const Model::BrushNode& brush) const;
-    bool selected(const Model::BrushNode& brush, const Model::BrushFace& face) const;
-    bool selected(const Model::BrushNode& brush, const Model::BrushEdge& edge) const;
-    bool hasSelectedFaces(const Model::BrushNode& brush) const;
+    bool selected(const mdl::BrushNode& brush) const;
+    bool selected(const mdl::BrushNode& brush, const mdl::BrushFace& face) const;
+    bool selected(const mdl::BrushNode& brush, const mdl::BrushEdge& edge) const;
+    bool hasSelectedFaces(const mdl::BrushNode& brush) const;
   };
 
   class NoFilter : public Filter
   {
   public:
     using Filter::Filter;
-    RenderSettings markFaces(const Model::BrushNode& brushNode) const override;
+    RenderSettings markFaces(const mdl::BrushNode& brushNode) const override;
   };
 
 private:
@@ -132,7 +132,7 @@ private:
    * Tracks all brushes that are stored in the VBO, with the information necessary to
    * remove them from the VBO later.
    */
-  std::unordered_map<const Model::BrushNode*, BrushInfo> m_brushInfo;
+  std::unordered_map<const mdl::BrushNode*, BrushInfo> m_brushInfo;
 
   /**
    * If a brush is in the VBO, it's always valid.
@@ -140,8 +140,8 @@ private:
    *
    * Do not attempt to use vector_set here, it turns out to be slower.
    */
-  std::unordered_set<const Model::BrushNode*> m_allBrushes;
-  std::unordered_set<const Model::BrushNode*> m_invalidBrushes;
+  std::unordered_set<const mdl::BrushNode*> m_allBrushes;
+  std::unordered_set<const mdl::BrushNode*> m_invalidBrushes;
 
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
@@ -199,7 +199,7 @@ public:
    */
   void invalidate();
   void invalidateMaterials(const std::vector<const asset::Material*>& materials);
-  void invalidateBrush(const Model::BrushNode* brush);
+  void invalidateBrush(const mdl::BrushNode* brush);
   void invalidateMaterial(const asset::Material& material);
   bool valid() const;
 
@@ -288,19 +288,19 @@ public:
 
 private:
   bool shouldDrawFaceInTransparentPass(
-    const Model::BrushNode& brushNode, const Model::BrushFace& face) const;
-  void validateBrush(const Model::BrushNode& brushNode);
+    const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const;
+  void validateBrush(const mdl::BrushNode& brushNode);
 
 public:
   /**
    * Adds a brush. Calling with an already-added brush is allowed, but ignored (not
    * guaranteed to invalidate it).
    */
-  void addBrush(const Model::BrushNode* brushNode);
+  void addBrush(const mdl::BrushNode* brushNode);
   /**
    * Removes a brush. Calling with an unknown brush is allowed, but ignored.
    */
-  void removeBrush(const Model::BrushNode* brushNode);
+  void removeBrush(const mdl::BrushNode* brushNode);
 
 private:
   /**
@@ -309,7 +309,7 @@ private:
    * longer draw). The brush's "valid" state is not touched inside here, but the
    * m_brushInfo is updated.
    */
-  void removeBrushFromVbo(const Model::BrushNode& brush);
+  void removeBrushFromVbo(const mdl::BrushNode& brush);
 
   deleteCopyAndMove(BrushRenderer);
 };

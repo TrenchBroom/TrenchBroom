@@ -21,17 +21,17 @@
 
 #include <QBoxLayout>
 
-#include "Model/CompilationConfig.h"
-#include "Model/CompilationProfile.h"
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
+#include "mdl/CompilationConfig.h"
+#include "mdl/CompilationProfile.h"
 
 namespace tb::View
 {
 // CompilationProfileItemRenderer
 
 CompilationProfileItemRenderer::CompilationProfileItemRenderer(
-  Model::CompilationProfile& profile, QWidget* parent)
+  mdl::CompilationProfile& profile, QWidget* parent)
   : ControlListBoxItemRenderer{parent}
   , m_profile{profile}
 {
@@ -64,7 +64,7 @@ void CompilationProfileItemRenderer::updateItem()
 // CompilationProfileListBox
 
 CompilationProfileListBox::CompilationProfileListBox(
-  Model::CompilationConfig& config, QWidget* parent)
+  mdl::CompilationConfig& config, QWidget* parent)
   : ControlListBox{"Click the '+' button to create a compilation profile.", true, parent}
   , m_config{config}
 {

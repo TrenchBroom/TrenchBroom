@@ -53,7 +53,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void modifierKeyChange(const InputState& inputState) override;
 
@@ -74,7 +74,7 @@ private:
   virtual void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const = 0;
+    mdl::PickResult& pickResult) const = 0;
 };
 
 class ScaleObjectsToolController2D : public ScaleObjectsToolController
@@ -87,7 +87,7 @@ private:
   void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override;
+    mdl::PickResult& pickResult) const override;
 };
 
 class ScaleObjectsToolController3D : public ScaleObjectsToolController
@@ -100,7 +100,7 @@ private:
   void doPick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override;
+    mdl::PickResult& pickResult) const override;
 };
 
 } // namespace tb::View

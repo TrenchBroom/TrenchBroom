@@ -20,11 +20,11 @@
 #include "EntityDefinitionManager.h"
 
 #include "Ensure.h"
-#include "Model/Entity.h"
-#include "Model/EntityNodeBase.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionGroup.h"
 #include "io/EntityDefinitionLoader.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -69,7 +69,7 @@ void EntityDefinitionManager::clear()
 }
 
 EntityDefinition* EntityDefinitionManager::definition(
-  const Model::EntityNodeBase* node) const
+  const mdl::EntityNodeBase* node) const
 {
   ensure(node != nullptr, "node is null");
   return definition(node->entity().classname());

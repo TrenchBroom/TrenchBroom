@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "Model/MapFormat.h"
+#include "mdl/MapFormat.h"
 
 #include "vm/vec.h"
 
@@ -32,11 +32,11 @@ namespace tb
 struct FileLocation;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityProperty;
 class BrushFaceAttributes;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -50,33 +50,33 @@ public:
 protected: // subclassing interface for users of the parser
   virtual void onBeginEntity(
     const FileLocation& startLocation,
-    std::vector<Model::EntityProperty> properties,
+    std::vector<mdl::EntityProperty> properties,
     ParserStatus& status) = 0;
   virtual void onEndEntity(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onBeginBrush(const FileLocation& location, ParserStatus& status) = 0;
   virtual void onEndBrush(const FileLocation& endLocation, ParserStatus& status) = 0;
   virtual void onStandardBrushFace(
     const FileLocation& location,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
-    const Model::BrushFaceAttributes& attribs,
+    const mdl::BrushFaceAttributes& attribs,
     ParserStatus& status) = 0;
   virtual void onValveBrushFace(
     const FileLocation& location,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     const vm::vec3d& point1,
     const vm::vec3d& point2,
     const vm::vec3d& point3,
-    const Model::BrushFaceAttributes& attribs,
+    const mdl::BrushFaceAttributes& attribs,
     const vm::vec3d& uAxis,
     const vm::vec3d& vAxis,
     ParserStatus& status) = 0;
   virtual void onPatch(
     const FileLocation& startLocation,
     const FileLocation& endLocation,
-    Model::MapFormat targetMapFormat,
+    mdl::MapFormat targetMapFormat,
     size_t rowCount,
     size_t columnCount,
     std::vector<vm::vec<double, 5>> controlPoints,

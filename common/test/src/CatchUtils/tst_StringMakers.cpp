@@ -17,23 +17,23 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "StringMakers.h"
 #include "TestUtils.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 
 TEST_CASE("convertToString")
@@ -113,4 +113,4 @@ TEST_CASE("convertToString")
 })");
 }
 
-} // namespace tb::Model
+} // namespace tb::mdl

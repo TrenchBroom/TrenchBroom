@@ -21,18 +21,18 @@
 
 #include <QBoxLayout>
 
-#include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
 #include "View/ElidedLabel.h"
 #include "View/QtUtils.h"
 #include "io/PathQt.h"
+#include "mdl/GameEngineConfig.h"
+#include "mdl/GameEngineProfile.h"
 
 namespace tb::View
 {
 // GameEngineProfileItemRenderer
 
 GameEngineProfileItemRenderer::GameEngineProfileItemRenderer(
-  Model::GameEngineProfile& profile, QWidget* parent)
+  mdl::GameEngineProfile& profile, QWidget* parent)
   : ControlListBoxItemRenderer{parent}
   , m_profile{&profile}
 {
@@ -80,21 +80,21 @@ void GameEngineProfileItemRenderer::profileDidChange()
 // GameEngineProfileListBox
 
 GameEngineProfileListBox::GameEngineProfileListBox(
-  Model::GameEngineConfig& config, QWidget* parent)
+  mdl::GameEngineConfig& config, QWidget* parent)
   : ControlListBox{"Click the '+' button to create a game engine profile.", true, parent}
   , m_config{&config}
 {
   reload();
 }
 
-Model::GameEngineProfile* GameEngineProfileListBox::selectedProfile()
+mdl::GameEngineProfile* GameEngineProfileListBox::selectedProfile()
 {
   return (currentRow() >= 0 && size_t(currentRow()) < m_config->profiles.size())
            ? &m_config->profiles[size_t(currentRow())]
            : nullptr;
 }
 
-void GameEngineProfileListBox::setConfig(Model::GameEngineConfig& config)
+void GameEngineProfileListBox::setConfig(mdl::GameEngineConfig& config)
 {
   m_config = &config;
   reload();

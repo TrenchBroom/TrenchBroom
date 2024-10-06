@@ -28,8 +28,6 @@
 #include <QLineEdit>
 #include <QPushButton>
 
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/MultiCompletionLineEdit.h"
@@ -39,6 +37,8 @@
 #include "View/ViewConstants.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/CompilationTask.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -50,8 +50,8 @@ namespace tb::View
 CompilationTaskEditorBase::CompilationTaskEditorBase(
   QString title,
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : ControlListBoxItemRenderer{parent}
   , m_title{std::move(title)}
@@ -130,12 +130,12 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 
 CompilationExportMapTaskEditor::CompilationExportMapTaskEditor(
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : CompilationTaskEditorBase{"Export Map", std::move(document), profile, task, parent}
 {
-  assert(std::holds_alternative<Model::CompilationExportMap>(task));
+  assert(std::holds_alternative<mdl::CompilationExportMap>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -172,11 +172,11 @@ void CompilationExportMapTaskEditor::updateItem()
   }
 }
 
-Model::CompilationExportMap& CompilationExportMapTaskEditor::task()
+mdl::CompilationExportMap& CompilationExportMapTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return std::get<Model::CompilationExportMap>(m_task);
+  return std::get<mdl::CompilationExportMap>(m_task);
 }
 
 void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
@@ -186,12 +186,12 @@ void CompilationExportMapTaskEditor::targetSpecChanged(const QString& text)
 
 CompilationCopyFilesTaskEditor::CompilationCopyFilesTaskEditor(
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : CompilationTaskEditorBase{"Copy Files", std::move(document), profile, task, parent}
 {
-  assert(std::holds_alternative<Model::CompilationCopyFiles>(task));
+  assert(std::holds_alternative<mdl::CompilationCopyFiles>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -251,11 +251,11 @@ void CompilationCopyFilesTaskEditor::updateItem()
   }
 }
 
-Model::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task()
+mdl::CompilationCopyFiles& CompilationCopyFilesTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return std::get<Model::CompilationCopyFiles>(m_task);
+  return std::get<mdl::CompilationCopyFiles>(m_task);
 }
 
 void CompilationCopyFilesTaskEditor::sourceSpecChanged(const QString& text)
@@ -270,12 +270,12 @@ void CompilationCopyFilesTaskEditor::targetSpecChanged(const QString& text)
 
 CompilationRenameFileTaskEditor::CompilationRenameFileTaskEditor(
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : CompilationTaskEditorBase{"Rename File", std::move(document), profile, task, parent}
 {
-  assert(std::holds_alternative<Model::CompilationRenameFile>(task));
+  assert(std::holds_alternative<mdl::CompilationRenameFile>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -336,11 +336,11 @@ void CompilationRenameFileTaskEditor::updateItem()
   }
 }
 
-Model::CompilationRenameFile& CompilationRenameFileTaskEditor::task()
+mdl::CompilationRenameFile& CompilationRenameFileTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return std::get<Model::CompilationRenameFile>(m_task);
+  return std::get<mdl::CompilationRenameFile>(m_task);
 }
 
 void CompilationRenameFileTaskEditor::sourceSpecChanged(const QString& text)
@@ -355,12 +355,12 @@ void CompilationRenameFileTaskEditor::targetSpecChanged(const QString& text)
 
 CompilationDeleteFilesTaskEditor::CompilationDeleteFilesTaskEditor(
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : CompilationTaskEditorBase{"Delete Files", std::move(document), profile, task, parent}
 {
-  assert(std::holds_alternative<Model::CompilationDeleteFiles>(task));
+  assert(std::holds_alternative<mdl::CompilationDeleteFiles>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -399,11 +399,11 @@ void CompilationDeleteFilesTaskEditor::updateItem()
   }
 }
 
-Model::CompilationDeleteFiles& CompilationDeleteFilesTaskEditor::task()
+mdl::CompilationDeleteFiles& CompilationDeleteFilesTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return std::get<Model::CompilationDeleteFiles>(m_task);
+  return std::get<mdl::CompilationDeleteFiles>(m_task);
 }
 
 void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
@@ -415,12 +415,12 @@ void CompilationDeleteFilesTaskEditor::targetSpecChanged(const QString& text)
 
 CompilationRunToolTaskEditor::CompilationRunToolTaskEditor(
   std::weak_ptr<MapDocument> document,
-  Model::CompilationProfile& profile,
-  Model::CompilationTask& task,
+  mdl::CompilationProfile& profile,
+  mdl::CompilationTask& task,
   QWidget* parent)
   : CompilationTaskEditorBase{"Run Tool", std::move(document), profile, task, parent}
 {
-  assert(std::holds_alternative<Model::CompilationRunTool>(task));
+  assert(std::holds_alternative<mdl::CompilationRunTool>(task));
 
   auto* formLayout = new QFormLayout{};
   formLayout->setContentsMargins(
@@ -513,11 +513,11 @@ void CompilationRunToolTaskEditor::updateItem()
   }
 }
 
-Model::CompilationRunTool& CompilationRunToolTaskEditor::task()
+mdl::CompilationRunTool& CompilationRunToolTaskEditor::task()
 {
   // This is safe because we know what type of task the editor was initialized with.
   // We have to do this to avoid using a template as the base class.
-  return std::get<Model::CompilationRunTool>(m_task);
+  return std::get<mdl::CompilationRunTool>(m_task);
 }
 
 void CompilationRunToolTaskEditor::browseTool()
@@ -558,7 +558,7 @@ CompilationTaskListBox::CompilationTaskListBox(
 {
 }
 
-void CompilationTaskListBox::setProfile(Model::CompilationProfile* profile)
+void CompilationTaskListBox::setProfile(mdl::CompilationProfile* profile)
 {
   m_profile = profile;
   reload();
@@ -582,19 +582,19 @@ ControlListBoxItemRenderer* CompilationTaskListBox::createItemRenderer(
   auto& task = m_profile->tasks[index];
   auto* renderer = std::visit(
     kdl::overload(
-      [&](const Model::CompilationExportMap&) -> ControlListBoxItemRenderer* {
+      [&](const mdl::CompilationExportMap&) -> ControlListBoxItemRenderer* {
         return new CompilationExportMapTaskEditor{m_document, *m_profile, task, parent};
       },
-      [&](const Model::CompilationCopyFiles&) -> ControlListBoxItemRenderer* {
+      [&](const mdl::CompilationCopyFiles&) -> ControlListBoxItemRenderer* {
         return new CompilationCopyFilesTaskEditor{m_document, *m_profile, task, parent};
       },
-      [&](const Model::CompilationRenameFile&) -> ControlListBoxItemRenderer* {
+      [&](const mdl::CompilationRenameFile&) -> ControlListBoxItemRenderer* {
         return new CompilationRenameFileTaskEditor{m_document, *m_profile, task, parent};
       },
-      [&](const Model::CompilationDeleteFiles&) -> ControlListBoxItemRenderer* {
+      [&](const mdl::CompilationDeleteFiles&) -> ControlListBoxItemRenderer* {
         return new CompilationDeleteFilesTaskEditor(m_document, *m_profile, task, parent);
       },
-      [&](const Model::CompilationRunTool&) -> ControlListBoxItemRenderer* {
+      [&](const mdl::CompilationRunTool&) -> ControlListBoxItemRenderer* {
         return new CompilationRunToolTaskEditor{m_document, *m_profile, task, parent};
       }),
     task);

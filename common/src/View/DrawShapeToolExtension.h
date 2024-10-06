@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Model/Brush.h"
 #include "Notifier.h"
 #include "Result.h"
+#include "mdl/Brush.h"
 
 #include "vm/util.h"
 
@@ -41,7 +41,7 @@ public:
   virtual ~DrawShapeToolExtension();
   virtual const std::string& name() const = 0;
   virtual QWidget* createToolPage(QWidget* parent = nullptr) = 0;
-  virtual Result<std::vector<Model::Brush>> createBrushes(
+  virtual Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const = 0;
 };
 

@@ -40,7 +40,7 @@ namespace tb::asset
 class EntityDefinition;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class SmartTag;
 }
@@ -231,7 +231,7 @@ public:
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
-  std::vector<Action> createTagActions(const std::vector<Model::SmartTag>& tags) const;
+  std::vector<Action> createTagActions(const std::vector<mdl::SmartTag>& tags) const;
   /**
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */

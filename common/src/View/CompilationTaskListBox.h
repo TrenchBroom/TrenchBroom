@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Model/CompilationTask.h"
 #include "View/ControlListBox.h"
+#include "mdl/CompilationTask.h"
 
 #include <memory>
 #include <vector>
@@ -32,10 +32,10 @@ class QLayout;
 class QLineEdit;
 class QWidget;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -49,8 +49,8 @@ class CompilationTaskEditorBase : public ControlListBoxItemRenderer
 protected:
   const QString m_title;
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile& m_profile;
-  Model::CompilationTask& m_task;
+  mdl::CompilationProfile& m_profile;
+  mdl::CompilationTask& m_task;
   QCheckBox* m_enabledCheckbox = nullptr;
   QHBoxLayout* m_taskLayout = nullptr;
 
@@ -60,8 +60,8 @@ protected:
   CompilationTaskEditorBase(
     QString title,
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent);
 
 protected:
@@ -84,13 +84,13 @@ private:
 public:
   CompilationExportMapTaskEditor(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
-  Model::CompilationExportMap& task();
+  mdl::CompilationExportMap& task();
 private slots:
   void targetSpecChanged(const QString& text);
 };
@@ -105,13 +105,13 @@ private:
 public:
   CompilationCopyFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
-  Model::CompilationCopyFiles& task();
+  mdl::CompilationCopyFiles& task();
 private slots:
   void sourceSpecChanged(const QString& text);
   void targetSpecChanged(const QString& text);
@@ -127,13 +127,13 @@ private:
 public:
   CompilationRenameFileTaskEditor(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
-  Model::CompilationRenameFile& task();
+  mdl::CompilationRenameFile& task();
 private slots:
   void sourceSpecChanged(const QString& text);
   void targetSpecChanged(const QString& text);
@@ -148,13 +148,13 @@ private:
 public:
   CompilationDeleteFilesTaskEditor(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
-  Model::CompilationDeleteFiles& task();
+  mdl::CompilationDeleteFiles& task();
 private slots:
   void targetSpecChanged(const QString& text);
 };
@@ -170,13 +170,13 @@ private:
 public:
   CompilationRunToolTaskEditor(
     std::weak_ptr<MapDocument> document,
-    Model::CompilationProfile& profile,
-    Model::CompilationTask& task,
+    mdl::CompilationProfile& profile,
+    mdl::CompilationTask& task,
     QWidget* parent = nullptr);
 
 private:
   void updateItem() override;
-  Model::CompilationRunTool& task();
+  mdl::CompilationRunTool& task();
 private slots:
   void browseTool();
   void toolSpecChanged(const QString& text);
@@ -189,13 +189,13 @@ class CompilationTaskListBox : public ControlListBox
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  Model::CompilationProfile* m_profile = nullptr;
+  mdl::CompilationProfile* m_profile = nullptr;
 
 public:
   explicit CompilationTaskListBox(
     std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
 
-  void setProfile(Model::CompilationProfile* profile);
+  void setProfile(mdl::CompilationProfile* profile);
 
 public:
   void reloadTasks();
@@ -204,7 +204,7 @@ private:
   size_t itemCount() const override;
   ControlListBoxItemRenderer* createItemRenderer(QWidget* parent, size_t index) override;
 signals:
-  void taskContextMenuRequested(const QPoint& globalPos, Model::CompilationTask& task);
+  void taskContextMenuRequested(const QPoint& globalPos, mdl::CompilationTask& task);
 };
 
 } // namespace tb::View

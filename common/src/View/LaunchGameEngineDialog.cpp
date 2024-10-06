@@ -27,9 +27,6 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "Model/GameConfig.h"
-#include "Model/GameEngineProfile.h"
-#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/CompilationVariables.h"
 #include "View/CurrentGameIndicator.h"
@@ -43,6 +40,9 @@
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
 #include "io/PathQt.h"
+#include "mdl/GameConfig.h"
+#include "mdl/GameEngineProfile.h"
+#include "mdl/GameFactory.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_utils.h"
@@ -71,7 +71,7 @@ void LaunchGameEngineDialog::createGui()
 
   auto* midPanel = new QWidget{this};
 
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   const auto& gameConfig = gameFactory.gameConfig(gameName);
   m_config = gameConfig.gameEngineConfig;
   m_gameEngineList = new GameEngineProfileListBox{m_config};
@@ -182,7 +182,7 @@ void LaunchGameEngineDialog::reloadConfig()
   auto document = kdl::mem_lock(m_document);
   const auto& gameName = document->game()->config().name;
 
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   const auto& gameConfig = gameFactory.gameConfig(gameName);
   m_config = gameConfig.gameEngineConfig;
 
@@ -299,7 +299,7 @@ void LaunchGameEngineDialog::saveConfig()
 {
   auto document = kdl::mem_lock(m_document);
   const auto& gameName = document->game()->config().name;
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   gameFactory.saveGameEngineConfig(gameName, m_config, document->logger());
 }
 

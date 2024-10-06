@@ -19,10 +19,6 @@
 
 #include "ExtrudeToolController.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -36,6 +32,10 @@
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
 
 #include "vm/distance.h" // IWYU pragma: keep
 #include "vm/plane.h"
@@ -62,7 +62,7 @@ const Tool& ExtrudeToolController::tool() const
 }
 
 void ExtrudeToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+  const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (handleInput(inputState))
   {
@@ -91,7 +91,7 @@ void ExtrudeToolController::mouseMove(const InputState& inputState)
 
 namespace
 {
-auto buildEdgeRenderer(const std::vector<Model::BrushFaceHandle>& dragHandles)
+auto buildEdgeRenderer(const std::vector<mdl::BrushFaceHandle>& dragHandles)
 {
   using Vertex = Renderer::GLVertexTypes::P3::Vertex;
   auto vertices = std::vector<Vertex>{};
@@ -177,7 +177,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
     const vm::vec3d& initialHandlePosition,
     const vm::vec3d& handleOffset)
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
     assert(hit.isMatch());
@@ -274,10 +274,7 @@ struct ExtrudeDragDelegate : public HandleDragTrackerDelegate
 };
 
 auto createExtrudeDragTracker(
-  ExtrudeTool& tool,
-  const InputState& inputState,
-  const Model::Hit& hit,
-  const bool split)
+  ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit, const bool split)
 {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
@@ -369,7 +366,7 @@ struct MoveDragDelegate : public HandleDragTrackerDelegate
 };
 
 auto createMoveDragTracker(
-  ExtrudeTool& tool, const InputState& inputState, const Model::Hit& hit)
+  ExtrudeTool& tool, const InputState& inputState, const mdl::Hit& hit)
 {
   const auto initialHandlePosition = hit.target<ExtrudeHitData>().initialHandlePosition;
 
@@ -387,7 +384,7 @@ auto createMoveDragTracker(
 std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!handleInput(inputState))
   {
@@ -452,8 +449,8 @@ ExtrudeToolController2D::ExtrudeToolController2D(ExtrudeTool& tool)
 {
 }
 
-Model::Hit ExtrudeToolController2D::doPick(
-  const vm::ray3d& pickRay, const Model::PickResult& pickResult)
+mdl::Hit ExtrudeToolController2D::doPick(
+  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
 {
   return m_tool.pick2D(pickRay, pickResult);
 }
@@ -471,8 +468,8 @@ ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
 {
 }
 
-Model::Hit ExtrudeToolController3D::doPick(
-  const vm::ray3d& pickRay, const Model::PickResult& pickResult)
+mdl::Hit ExtrudeToolController3D::doPick(
+  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
 {
   return m_tool.pick3D(pickRay, pickResult);
 }

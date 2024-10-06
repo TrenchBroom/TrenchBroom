@@ -24,12 +24,12 @@
 #include <QDialogButtonBox>
 
 #include "FileLogger.h"
-#include "Model/GameConfig.h"
-#include "Model/GameFactory.h"
 #include "View/BorderLine.h"
 #include "View/CurrentGameIndicator.h"
 #include "View/GameEngineProfileManager.h"
 #include "View/QtUtils.h"
+#include "mdl/GameConfig.h"
+#include "mdl/GameFactory.h"
 
 #include <string>
 
@@ -49,7 +49,7 @@ void GameEngineDialog::createGui()
 {
   auto* gameIndicator = new CurrentGameIndicator{m_gameName};
 
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   auto& gameConfig = gameFactory.gameConfig(m_gameName);
   m_profileManager = new GameEngineProfileManager{gameConfig.gameEngineConfig};
 
@@ -81,7 +81,7 @@ void GameEngineDialog::done(const int r)
 void GameEngineDialog::saveConfig()
 {
   auto& logger = FileLogger::instance();
-  auto& gameFactory = Model::GameFactory::instance();
+  auto& gameFactory = mdl::GameFactory::instance();
   gameFactory.saveGameEngineConfig(m_gameName, m_profileManager->config(), logger);
 }
 

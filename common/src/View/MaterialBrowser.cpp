@@ -217,22 +217,22 @@ void MaterialBrowser::documentWasLoaded(MapDocument*)
   reload();
 }
 
-void MaterialBrowser::nodesWereAdded(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesWereAdded(const std::vector<mdl::Node*>&)
 {
   reload();
 }
 
-void MaterialBrowser::nodesWereRemoved(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesWereRemoved(const std::vector<mdl::Node*>&)
 {
   reload();
 }
 
-void MaterialBrowser::nodesDidChange(const std::vector<Model::Node*>&)
+void MaterialBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   reload();
 }
 
-void MaterialBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void MaterialBrowser::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
 {
   reload();
 }

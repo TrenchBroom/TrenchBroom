@@ -24,7 +24,7 @@
 namespace tb::View
 {
 
-std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(Model::GroupNode* group)
+std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(mdl::GroupNode* group)
 {
   return std::make_unique<CurrentGroupCommand>(group);
 }
@@ -34,7 +34,7 @@ std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::pop()
   return std::make_unique<CurrentGroupCommand>(nullptr);
 }
 
-CurrentGroupCommand::CurrentGroupCommand(Model::GroupNode* group)
+CurrentGroupCommand::CurrentGroupCommand(mdl::GroupNode* group)
   : UndoableCommand{group ? "Push Group" : "Pop Group", false}
   , m_group{group}
 {

@@ -23,7 +23,6 @@
 #include <QWidget>
 
 #include "Macros.h"
-#include "Model/EntityNodeBase.h"
 #include "View/MapDocument.h"
 #include "View/SmartChoiceEditor.h"
 #include "View/SmartColorEditor.h"
@@ -32,6 +31,7 @@
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartWadEditor.h"
 #include "asset/PropertyDefinition.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -50,7 +50,7 @@ SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
-      const auto* propDef = Model::propertyDefinition(node, propertyKey);
+      const auto* propDef = mdl::propertyDefinition(node, propertyKey);
       return propDef && propDef->type() == type;
     });
   };
@@ -64,7 +64,7 @@ SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
   const asset::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
-    const auto* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
+    const auto* propDef = mdl::selectPropertyDefinition(propertyKey, nodes);
     return propDef && propDef->type() == type;
   };
 }
@@ -92,7 +92,7 @@ SmartPropertyEditorManager::SmartPropertyEditorManager(
 }
 
 void SmartPropertyEditorManager::switchEditor(
-  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes)
+  const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   auto* editor = selectEditor(propertyKey, nodes);
   activateEditor(editor, propertyKey);
@@ -129,7 +129,7 @@ void SmartPropertyEditorManager::createEditors()
                == kdl::mem_lock(m_document)->game()->config().materialConfig.property
              && nodes.size() == 1
              && nodes.front()->entity().classname()
-                  == Model::EntityPropertyValues::WorldspawnClassname;
+                  == mdl::EntityPropertyValues::WorldspawnClassname;
     },
     new SmartWadEditor{m_document});
   m_editors.emplace_back(
@@ -160,14 +160,14 @@ void SmartPropertyEditorManager::selectionDidChange(const Selection&)
   switchEditor(m_propertyKey, document->allSelectedEntityNodes());
 }
 
-void SmartPropertyEditorManager::nodesDidChange(const std::vector<Model::Node*>&)
+void SmartPropertyEditorManager::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   auto document = kdl::mem_lock(m_document);
   switchEditor(m_propertyKey, document->allSelectedEntityNodes());
 }
 
 SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
-  const std::string& propertyKey, const std::vector<Model::EntityNodeBase*>& nodes) const
+  const std::string& propertyKey, const std::vector<mdl::EntityNodeBase*>& nodes) const
 {
   for (const auto& [matcher, editor] : m_editors)
   {

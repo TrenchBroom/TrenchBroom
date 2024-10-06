@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Model/PickResult.h"
 #include "View/PickRequest.h"
+#include "mdl/PickResult.h"
 
 namespace tb::Renderer
 {
@@ -93,7 +93,7 @@ private:
 
   bool m_anyToolDragging = false;
   PickRequest m_pickRequest;
-  Model::PickResult m_pickResult;
+  mdl::PickResult m_pickResult;
 
 public:
   InputState();
@@ -165,8 +165,8 @@ public:
   const Renderer::Camera& camera() const;
   void setPickRequest(const PickRequest& pickRequest);
 
-  const Model::PickResult& pickResult() const;
-  void setPickResult(Model::PickResult pickResult);
+  const mdl::PickResult& pickResult() const;
+  void setPickResult(mdl::PickResult pickResult);
 };
 
 } // namespace tb::View

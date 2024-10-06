@@ -19,17 +19,6 @@
 
 #include "MapView3D.h"
 
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/PickResult.h"
-#include "Model/PointTrace.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BoundsGuideRenderer.h"
@@ -62,6 +51,17 @@
 #include "View/ShearObjectsToolController.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/PickResult.h"
+#include "mdl/PointTrace.h"
 
 #include "kdl/set_temp.h"
 
@@ -205,10 +205,10 @@ PickRequest MapView3D::pickRequest(const float x, const float y) const
   return {vm::ray3d{m_camera->pickRay(x, y)}, *m_camera};
 }
 
-Model::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
+mdl::PickResult MapView3D::pick(const vm::ray3d& pickRay) const
 {
   auto document = kdl::mem_lock(m_document);
-  auto pickResult = Model::PickResult::byDistance();
+  auto pickResult = mdl::PickResult::byDistance();
 
   document->pick(pickRay, pickResult);
   return pickResult;
@@ -223,7 +223,7 @@ void MapView3D::updateViewport(
 vm::vec3d MapView3D::pasteObjectsDelta(
   const vm::bbox3d& bounds, const vm::bbox3d& /* referenceBounds */) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
@@ -235,12 +235,12 @@ vm::vec3d MapView3D::pasteObjectsDelta(
   {
     const auto pickRay =
       vm::ray3d{m_camera->pickRay(float(clientCoords.x()), float(clientCoords.y()))};
-    auto pickResult = Model::PickResult::byDistance();
+    auto pickResult = mdl::PickResult::byDistance();
 
     document->pick(pickRay, pickResult);
 
-    const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto& face = faceHandle->face();
       return grid.moveDeltaForBounds(
@@ -289,7 +289,7 @@ void MapView3D::focusCameraOnSelection(const bool animate)
 namespace
 {
 
-vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
+vm::vec3f computeCameraTargetPosition(const std::vector<mdl::Node*>& nodes)
 {
   auto center = vm::vec3f{};
   size_t count = 0u;
@@ -299,16 +299,13 @@ vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
     ++count;
   };
 
-  Model::Node::visitAll(
+  mdl::Node::visitAll(
     nodes,
     kdl::overload(
-      [](
-        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-      [](
-        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](
-        auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, Model::EntityNode* entity) {
+      [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
+      [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
+      [](auto&& thisLambda, mdl::GroupNode* group) { group->visitChildren(thisLambda); },
+      [&](auto&& thisLambda, mdl::EntityNode* entity) {
         if (!entity->hasChildren())
         {
           entity->logicalBounds().for_each_vertex(handlePoint);
@@ -318,13 +315,13 @@ vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
           entity->visitChildren(thisLambda);
         }
       },
-      [&](Model::BrushNode* brush) {
+      [&](mdl::BrushNode* brush) {
         for (const auto* vertex : brush->brush().vertices())
         {
           handlePoint(vertex->position());
         }
       },
-      [&](Model::PatchNode* patchNode) {
+      [&](mdl::PatchNode* patchNode) {
         for (const auto& controlPoint : patchNode->patch().controlPoints())
         {
           handlePoint(controlPoint.xyz());
@@ -335,7 +332,7 @@ vm::vec3f computeCameraTargetPosition(const std::vector<Model::Node*>& nodes)
 }
 
 float computeCameraOffset(
-  const Renderer::Camera& camera, const std::vector<Model::Node*>& nodes)
+  const Renderer::Camera& camera, const std::vector<mdl::Node*>& nodes)
 {
   vm::plane3f frustumPlanes[4];
   camera.frustumPlanes(
@@ -352,16 +349,13 @@ float computeCameraOffset(
     }
   };
 
-  Model::Node::visitAll(
+  mdl::Node::visitAll(
     nodes,
     kdl::overload(
-      [](
-        auto&& thisLambda, Model::WorldNode* world) { world->visitChildren(thisLambda); },
-      [](
-        auto&& thisLambda, Model::LayerNode* layer) { layer->visitChildren(thisLambda); },
-      [](
-        auto&& thisLambda, Model::GroupNode* group) { group->visitChildren(thisLambda); },
-      [&](auto&& thisLambda, Model::EntityNode* entity) {
+      [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
+      [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
+      [](auto&& thisLambda, mdl::GroupNode* group) { group->visitChildren(thisLambda); },
+      [&](auto&& thisLambda, mdl::EntityNode* entity) {
         if (!entity->hasChildren())
         {
           for (size_t i = 0u; i < 4u; ++i)
@@ -375,7 +369,7 @@ float computeCameraOffset(
           entity->visitChildren(thisLambda);
         }
       },
-      [&](Model::BrushNode* brush) {
+      [&](mdl::BrushNode* brush) {
         for (const auto* vertex : brush->brush().vertices())
         {
           for (size_t i = 0u; i < 4u; ++i)
@@ -384,7 +378,7 @@ float computeCameraOffset(
           }
         }
       },
-      [&](Model::PatchNode* patchNode) {
+      [&](mdl::PatchNode* patchNode) {
         for (const auto& controlPoint : patchNode->patch().controlPoints())
         {
           for (size_t i = 0u; i < 4u; ++i)
@@ -399,7 +393,7 @@ float computeCameraOffset(
 
 } // namespace
 
-vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<Model::Node*>& nodes)
+vm::vec3f MapView3D::focusCameraOnObjectsPosition(const std::vector<mdl::Node*>& nodes)
 {
   const auto newPosition = computeCameraTargetPosition(nodes);
 
@@ -505,15 +499,15 @@ size_t MapView3D::flipAxis(const vm::direction direction) const
 
 vm::vec3d MapView3D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
 
   auto& grid = document->grid();
   const auto& worldBounds = document->worldBounds();
 
-  const auto& hit = pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType));
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
     return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

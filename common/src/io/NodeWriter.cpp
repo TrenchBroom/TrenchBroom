@@ -21,14 +21,14 @@
 
 #include "io/MapFileSerializer.h"
 #include "io/NodeSerializer.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/Node.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/Node.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 #include "kdl/string_format.h"
@@ -44,10 +44,10 @@ namespace
 
 void doWriteNodes(
   NodeSerializer& serializer,
-  const std::vector<Model::Node*>& nodes,
-  const Model::Node* parent = nullptr)
+  const std::vector<mdl::Node*>& nodes,
+  const mdl::Node* parent = nullptr)
 {
-  auto parentStack = std::vector<const Model::Node*>{parent};
+  auto parentStack = std::vector<const mdl::Node*>{parent};
   const auto parentProperties = [&]() {
     assert(!parentStack.empty());
     return serializer.parentProperties(parentStack.back());
@@ -56,16 +56,16 @@ void doWriteNodes(
   for (const auto* node : nodes)
   {
     node->accept(kdl::overload(
-      [](const Model::WorldNode*) {},
-      [](const Model::LayerNode*) {},
-      [&](auto&& thisLambda, const Model::GroupNode* group) {
+      [](const mdl::WorldNode*) {},
+      [](const mdl::LayerNode*) {},
+      [&](auto&& thisLambda, const mdl::GroupNode* group) {
         serializer.group(group, parentProperties());
 
         parentStack.push_back(group);
         group->visitChildren(thisLambda);
         parentStack.pop_back();
       },
-      [&](const Model::EntityNode* entityNode) {
+      [&](const mdl::EntityNode* entityNode) {
         auto extraProperties = parentProperties();
         const auto& protectedProperties = entityNode->entity().protectedProperties();
         if (!protectedProperties.empty())
@@ -74,26 +74,26 @@ void doWriteNodes(
             protectedProperties,
             [](const auto& key) { return kdl::str_escape(key, ";"); });
           extraProperties.emplace_back(
-            Model::EntityPropertyKeys::ProtectedEntityProperties,
+            mdl::EntityPropertyKeys::ProtectedEntityProperties,
             kdl::str_join(escapedProperties, ";"));
         }
         serializer.entity(
           entityNode, entityNode->entity().properties(), extraProperties, entityNode);
       },
-      [](const Model::BrushNode*) {},
-      [](const Model::PatchNode*) {}));
+      [](const mdl::BrushNode*) {},
+      [](const mdl::PatchNode*) {}));
   }
 }
 
 } // namespace
 
-NodeWriter::NodeWriter(const Model::WorldNode& world, std::ostream& stream)
+NodeWriter::NodeWriter(const mdl::WorldNode& world, std::ostream& stream)
   : NodeWriter{world, MapFileSerializer::create(world.mapFormat(), stream)}
 {
 }
 
 NodeWriter::NodeWriter(
-  const Model::WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
+  const mdl::WorldNode& world, std::unique_ptr<NodeSerializer> serializer)
   : m_world{world}
   , m_serializer{std::move(serializer)}
 {
@@ -126,14 +126,14 @@ void NodeWriter::writeDefaultLayer()
 
 void NodeWriter::writeCustomLayers()
 {
-  const std::vector<const Model::LayerNode*> customLayers = m_world.customLayers();
+  const std::vector<const mdl::LayerNode*> customLayers = m_world.customLayers();
   for (auto* layer : customLayers)
   {
     writeCustomLayer(layer);
   }
 }
 
-void NodeWriter::writeCustomLayer(const Model::LayerNode* layerNode)
+void NodeWriter::writeCustomLayer(const mdl::LayerNode* layerNode)
 {
   if (!(m_serializer->exporting() && layerNode->layer().omitFromExport()))
   {
@@ -142,26 +142,26 @@ void NodeWriter::writeCustomLayer(const Model::LayerNode* layerNode)
   }
 }
 
-void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes)
+void NodeWriter::writeNodes(const std::vector<mdl::Node*>& nodes)
 {
-  m_serializer->beginFile(kdl::vec_static_cast<const Model::Node*>(nodes));
+  m_serializer->beginFile(kdl::vec_static_cast<const mdl::Node*>(nodes));
 
   // Assort nodes according to their type and, in case of brushes, whether they are entity
   // or world brushes.
-  std::vector<Model::Node*> groups;
-  std::vector<Model::Node*> entities;
-  std::vector<Model::BrushNode*> worldBrushes;
+  std::vector<mdl::Node*> groups;
+  std::vector<mdl::Node*> entities;
+  std::vector<mdl::BrushNode*> worldBrushes;
   EntityBrushesMap entityBrushes;
 
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
-      [](Model::WorldNode*) {},
-      [](Model::LayerNode*) {},
-      [&](Model::GroupNode* group) { groups.push_back(group); },
-      [&](Model::EntityNode* entity) { entities.push_back(entity); },
-      [&](Model::BrushNode* brush) {
-        if (auto* entity = dynamic_cast<Model::EntityNode*>(brush->parent()))
+      [](mdl::WorldNode*) {},
+      [](mdl::LayerNode*) {},
+      [&](mdl::GroupNode* group) { groups.push_back(group); },
+      [&](mdl::EntityNode* entity) { entities.push_back(entity); },
+      [&](mdl::BrushNode* brush) {
+        if (auto* entity = dynamic_cast<mdl::EntityNode*>(brush->parent()))
         {
           entityBrushes[entity].push_back(brush);
         }
@@ -170,7 +170,7 @@ void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes)
           worldBrushes.push_back(brush);
         }
       },
-      [](Model::PatchNode*) {}));
+      [](mdl::PatchNode*) {}));
   }
 
   writeWorldBrushes(worldBrushes);
@@ -182,7 +182,7 @@ void NodeWriter::writeNodes(const std::vector<Model::Node*>& nodes)
   m_serializer->endFile();
 }
 
-void NodeWriter::writeWorldBrushes(const std::vector<Model::BrushNode*>& brushes)
+void NodeWriter::writeWorldBrushes(const std::vector<mdl::BrushNode*>& brushes)
 {
   if (!brushes.empty())
   {
@@ -198,7 +198,7 @@ void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes)
   }
 }
 
-void NodeWriter::writeBrushFaces(const std::vector<Model::BrushFace>& faces)
+void NodeWriter::writeBrushFaces(const std::vector<mdl::BrushFace>& faces)
 {
   m_serializer->beginFile({});
   m_serializer->brushFaces(faces);

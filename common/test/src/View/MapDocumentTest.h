@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Model/MapFormat.h"
 #include "View/MapDocument.h"
+#include "mdl/MapFormat.h"
 
 #include <functional>
 #include <memory>
@@ -32,12 +32,12 @@ class BrushEntityDefinition;
 class PointEntityDefinition;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Brush;
 class PatchNode;
 class TestGame;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -45,17 +45,17 @@ namespace tb::View
 class MapDocumentTest
 {
 private:
-  Model::MapFormat m_mapFormat;
+  mdl::MapFormat m_mapFormat;
 
 protected:
-  std::shared_ptr<Model::TestGame> game;
+  std::shared_ptr<mdl::TestGame> game;
   std::shared_ptr<MapDocument> document;
   asset::PointEntityDefinition* m_pointEntityDef = nullptr;
   asset::BrushEntityDefinition* m_brushEntityDef = nullptr;
 
 protected:
   MapDocumentTest();
-  explicit MapDocumentTest(Model::MapFormat mapFormat);
+  explicit MapDocumentTest(mdl::MapFormat mapFormat);
 
 private:
   void SetUp();
@@ -64,10 +64,10 @@ protected:
   virtual ~MapDocumentTest();
 
 public:
-  Model::BrushNode* createBrushNode(
+  mdl::BrushNode* createBrushNode(
     const std::string& materialName = "material",
-    const std::function<void(Model::Brush&)>& brushFunc = [](Model::Brush&) {}) const;
-  Model::PatchNode* createPatchNode(const std::string& materialName = "material") const;
+    const std::function<void(mdl::Brush&)>& brushFunc = [](mdl::Brush&) {}) const;
+  mdl::PatchNode* createPatchNode(const std::string& materialName = "material") const;
 };
 
 class ValveMapDocumentTest : public MapDocumentTest

@@ -19,9 +19,9 @@
 
 #include "Grid.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
-#include "Model/Polyhedron.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushGeometry.h"
+#include "mdl/Polyhedron.h"
 
 #include "vm/intersection.h"
 #include "vm/ray.h"
@@ -265,9 +265,9 @@ double Grid::snapToGridPlane(const vm::line3d& line, const double distance) cons
 }
 
 double Grid::snapMoveDistanceForFace(
-  const Model::BrushFace& face, const double moveDistance) const
+  const mdl::BrushFace& face, const double moveDistance) const
 {
-  const auto isBoundaryEdge = [&](const Model::BrushEdge* edge) {
+  const auto isBoundaryEdge = [&](const mdl::BrushEdge* edge) {
     return edge->firstFace() == face.geometry() || edge->secondFace() == face.geometry();
   };
 

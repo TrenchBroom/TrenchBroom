@@ -17,6 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
+#include "asset/Palette.h"
 #include "io/AseLoader.h"
 #include "io/DiskFileSystem.h"
 #include "io/LoadMaterialCollections.h"
@@ -24,9 +26,7 @@
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/VirtualFileSystem.h"
-#include "Logger.h"
-#include "Model/GameConfig.h"
-#include "asset/Palette.h"
+#include "mdl/GameConfig.h"
 
 #include "Catch2.h"
 
@@ -36,7 +36,7 @@ TEST_CASE("AseLoaderTest")
 {
   auto logger = NullLogger{};
 
-  const auto materialConfig = Model::MaterialConfig{
+  const auto materialConfig = mdl::MaterialConfig{
     {},
     {".tga", ".png", ".jpg", ".jpeg"},
     {},

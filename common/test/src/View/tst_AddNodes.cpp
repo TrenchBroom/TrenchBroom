@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 
@@ -38,7 +38,7 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
 {
   SECTION("Update linked groups")
   {
-    auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+    auto* groupNode = new mdl::GroupNode{mdl::Group{"test"}};
     auto* brushNode = createBrushNode();
     groupNode->addChild(brushNode);
     document->addNodes({{document->parentForNodes(), {groupNode}}});
@@ -47,14 +47,12 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
     auto* linkedGroupNode = document->createLinkedDuplicate();
     document->deselectAll();
 
-    using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+    using CreateNode = std::function<mdl::Node*(const MapDocumentTest& test)>;
     CreateNode createNode = GENERATE_COPY(
-      CreateNode{[](const auto&) -> Model::Node* {
-        return new Model::EntityNode{Model::Entity{}};
-      }},
-      CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
       CreateNode{
-        [](const auto& test) -> Model::Node* { return test.createPatchNode(); }});
+        [](const auto&) -> mdl::Node* { return new mdl::EntityNode{mdl::Entity{}}; }},
+      CreateNode{[](const auto& test) -> mdl::Node* { return test.createBrushNode(); }},
+      CreateNode{[](const auto& test) -> mdl::Node* { return test.createPatchNode(); }});
 
     auto* nodeToAdd = createNode(*this);
     document->addNodes({{groupNode, {nodeToAdd}}});
@@ -63,21 +61,21 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
 
     auto* linkedNode = linkedGroupNode->children().back();
     linkedNode->accept(kdl::overload(
-      [](const Model::WorldNode*) {},
-      [](const Model::LayerNode*) {},
-      [](const Model::GroupNode*) {},
-      [&](const Model::EntityNode* linkedEntityNode) {
-        const auto* originalEntityNode = dynamic_cast<Model::EntityNode*>(nodeToAdd);
+      [](const mdl::WorldNode*) {},
+      [](const mdl::LayerNode*) {},
+      [](const mdl::GroupNode*) {},
+      [&](const mdl::EntityNode* linkedEntityNode) {
+        const auto* originalEntityNode = dynamic_cast<mdl::EntityNode*>(nodeToAdd);
         REQUIRE(originalEntityNode);
         CHECK(originalEntityNode->entity() == linkedEntityNode->entity());
       },
-      [&](const Model::BrushNode* linkedBrushNode) {
-        const auto* originalBrushNode = dynamic_cast<Model::BrushNode*>(nodeToAdd);
+      [&](const mdl::BrushNode* linkedBrushNode) {
+        const auto* originalBrushNode = dynamic_cast<mdl::BrushNode*>(nodeToAdd);
         REQUIRE(originalBrushNode);
         CHECK(originalBrushNode->brush() == linkedBrushNode->brush());
       },
-      [&](const Model::PatchNode* linkedPatchNode) {
-        const auto* originalPatchNode = dynamic_cast<Model::PatchNode*>(nodeToAdd);
+      [&](const mdl::PatchNode* linkedPatchNode) {
+        const auto* originalPatchNode = dynamic_cast<mdl::PatchNode*>(nodeToAdd);
         REQUIRE(originalPatchNode);
         CHECK(originalPatchNode->patch() == linkedPatchNode->patch());
       }));
@@ -91,7 +89,7 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.addNodes")
 
 TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
   document->selectNodes({groupNode});
@@ -109,7 +107,7 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups")
   CHECK(linkedGroupNode->childCount() == 1u);
 
   auto* linkedBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
   CHECK(linkedBrushNode != nullptr);
 
   CHECK(
@@ -127,7 +125,7 @@ TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroups")
 
 TEST_CASE_METHOD(MapDocumentTest, "AddNodesTest.updateLinkedGroupsFails")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
   document->selectNodes({groupNode});

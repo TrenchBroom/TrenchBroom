@@ -20,21 +20,21 @@
 #include "ClipToolController.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushGeometry.h"
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderContext.h"
 #include "View/ClipTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushGeometry.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
 
 #include "kdl/optional_utils.h"
 #include "kdl/vector_utils.h"
@@ -87,9 +87,9 @@ public:
 
   bool setClipFace(const InputState& inputState)
   {
-    using namespace Model::HitFilters;
-    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    using namespace mdl::HitFilters;
+    const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       m_tool.setFace(*faceHandle);
       return true;
@@ -179,16 +179,14 @@ public:
   }
 };
 
-std::vector<const Model::BrushFace*> selectIncidentFaces(
-  const Model::BrushNode* brushNode,
-  const Model::BrushFace& face,
-  const vm::vec3d& hitPoint)
+std::vector<const mdl::BrushFace*> selectIncidentFaces(
+  const mdl::BrushNode* brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
 {
   static const auto MaxDistance = vm::constants<double>::almost_zero();
 
   // First, try to see if the clip point is almost equal to a vertex:
   double closestVertexDistance = MaxDistance;
-  const Model::BrushVertex* closestVertex = nullptr;
+  const mdl::BrushVertex* closestVertex = nullptr;
   for (const auto* vertex : face.vertices())
   {
     const auto distance = vm::distance(vertex->position(), hitPoint);
@@ -201,13 +199,13 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
 
   if (closestVertex != nullptr)
   {
-    const Model::Brush& brush = brushNode->brush();
+    const mdl::Brush& brush = brushNode->brush();
     return brush.incidentFaces(closestVertex);
   }
 
   // Next, try the edges:
   double closestEdgeDistance = MaxDistance;
-  const Model::BrushEdge* closestEdge = nullptr;
+  const mdl::BrushEdge* closestEdge = nullptr;
   for (const auto* edge : face.edges())
   {
     const auto distance = vm::distance(edge->segment(), hitPoint).distance;
@@ -235,12 +233,10 @@ std::vector<const Model::BrushFace*> selectIncidentFaces(
 }
 
 std::vector<vm::vec3d> selectHelpVectors(
-  const Model::BrushNode* brushNode,
-  const Model::BrushFace& face,
-  const vm::vec3d& hitPoint)
+  const mdl::BrushNode* brushNode, const mdl::BrushFace& face, const vm::vec3d& hitPoint)
 {
   auto result = std::vector<vm::vec3d>{};
-  for (const Model::BrushFace* incidentFace :
+  for (const mdl::BrushFace* incidentFace :
        selectIncidentFaces(brushNode, face, hitPoint))
   {
     const vm::vec3d& normal = incidentFace->boundary().normal;
@@ -269,15 +265,15 @@ public:
   std::vector<vm::vec3d> getHelpVectors(
     const InputState& inputState, const vm::vec3d& clipPoint) const override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     auto hit =
-      inputState.pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
+      inputState.pickResult().first(type(mdl::BrushNode::BrushHitType) && selected());
     if (!hit.isMatch())
     {
-      hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+      hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
     }
-    const auto faceHandle = Model::hitToFaceHandle(hit);
+    const auto faceHandle = mdl::hitToFaceHandle(hit);
     ensure(faceHandle, "hit is not a match");
 
     return selectHelpVectors(faceHandle->node(), faceHandle->face(), clipPoint);
@@ -286,10 +282,10 @@ public:
   std::optional<std::tuple<vm::vec3d, vm::vec3d>> doGetNewClipPointPositionAndHitPoint(
     const InputState& inputState) const override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
-    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto& grid = m_tool.grid();
       const auto position = grid.snap(hit.hitPoint(), faceHandle->face().boundary());
@@ -552,7 +548,7 @@ const Tool& ClipToolControllerBase::tool() const
 }
 
 void ClipToolControllerBase::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+  const InputState& inputState, mdl::PickResult& pickResult)
 {
   m_tool.pick(inputState.pickRay(), inputState.camera(), pickResult);
 }

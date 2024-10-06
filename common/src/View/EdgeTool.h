@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushNode;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -47,7 +47,7 @@ public:
   explicit EdgeTool(std::weak_ptr<MapDocument> document);
 
 public:
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::segment3d& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
@@ -56,7 +56,7 @@ public:
   void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override;
+    mdl::PickResult& pickResult) const override;
 
 public:
   EdgeHandleManager& handleManager() override;
@@ -64,7 +64,7 @@ public:
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
-    const std::vector<Model::Hit>& hits) const override;
+    const std::vector<mdl::Hit>& hits) const override;
 
   MoveResult move(const vm::vec3d& delta) override;
 

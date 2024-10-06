@@ -22,13 +22,13 @@
 #include <QBoxLayout>
 #include <QToolButton>
 
-#include "Model/GameEngineConfig.h"
-#include "Model/GameEngineProfile.h"
 #include "View/BorderLine.h"
 #include "View/GameEngineProfileEditor.h"
 #include "View/GameEngineProfileListBox.h"
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
+#include "mdl/GameEngineConfig.h"
+#include "mdl/GameEngineProfile.h"
 
 #include "kdl/vector_utils.h"
 
@@ -36,7 +36,7 @@ namespace tb::View
 {
 
 GameEngineProfileManager::GameEngineProfileManager(
-  Model::GameEngineConfig config, QWidget* parent)
+  mdl::GameEngineConfig config, QWidget* parent)
   : QWidget{parent}
   , m_config{std::move(config)}
 {
@@ -98,14 +98,14 @@ GameEngineProfileManager::GameEngineProfileManager(
   });
 }
 
-const Model::GameEngineConfig& GameEngineProfileManager::config() const
+const mdl::GameEngineConfig& GameEngineProfileManager::config() const
 {
   return m_config;
 }
 
 void GameEngineProfileManager::addProfile()
 {
-  m_config.profiles.push_back(Model::GameEngineProfile{"", {}, ""});
+  m_config.profiles.push_back(mdl::GameEngineProfile{"", {}, ""});
   m_profileList->reloadProfiles();
   m_profileList->setCurrentRow(int(m_config.profiles.size() - 1));
 }
@@ -123,7 +123,7 @@ void GameEngineProfileManager::removeProfile()
   m_profileList->setCurrentRow(index >= m_profileList->count() ? index - 1 : index);
 }
 
-void GameEngineProfileManager::currentProfileChanged(Model::GameEngineProfile* profile)
+void GameEngineProfileManager::currentProfileChanged(mdl::GameEngineProfile* profile)
 {
   m_profileEditor->setProfile(profile);
   m_removeProfileButton->setEnabled(profile != nullptr);

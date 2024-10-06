@@ -17,16 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/DiskFileSystem.h"
-#include "io/LoadMaterialCollections.h"
-#include "io/VirtualFileSystem.h"
-#include "io/WadFileSystem.h"
 #include "Logger.h"
-#include "Model/GameConfig.h"
 #include "TestUtils.h"
 #include "asset/MaterialCollection.h"
 #include "asset/Resource.h"
 #include "asset/Texture.h"
+#include "io/DiskFileSystem.h"
+#include "io/LoadMaterialCollections.h"
+#include "io/VirtualFileSystem.h"
+#include "io/WadFileSystem.h"
+#include "mdl/GameConfig.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
@@ -136,7 +136,7 @@ TEST_CASE("loadMaterialCollections")
     fs.mount("", std::make_unique<DiskFileSystem>(workDir)); // to find the palette
     fs.mount("textures", openFS<WadFileSystem>(wadPath));
 
-    const auto materialConfig = Model::MaterialConfig{
+    const auto materialConfig = mdl::MaterialConfig{
       "textures",
       {".D"},
       "fixture/test/palette.lmp",
@@ -186,7 +186,7 @@ TEST_CASE("loadMaterialCollections")
         const auto testDir = workDir / "fixture/test/io/Shader/loader/shader_with_image";
         fs.mount("", std::make_unique<DiskFileSystem>(testDir));
 
-        const auto materialConfig = Model::MaterialConfig{
+        const auto materialConfig = mdl::MaterialConfig{
           "textures",
           {".tga", ".png", ".jpg", ".jpeg"},
           "",
@@ -214,7 +214,7 @@ TEST_CASE("loadMaterialCollections")
           workDir / "fixture/test/io/Shader/loader/shader_with_image_same_name";
         fs.mount("", std::make_unique<DiskFileSystem>(testDir));
 
-        const auto materialConfig = Model::MaterialConfig{
+        const auto materialConfig = mdl::MaterialConfig{
           "textures",
           {".tga", ".png", ".jpg", ".jpeg"},
           "",
@@ -248,7 +248,7 @@ TEST_CASE("loadMaterialCollections")
         fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
         fs.mount("", std::make_unique<DiskFileSystem>(testDir));
 
-        const auto materialConfig = Model::MaterialConfig{
+        const auto materialConfig = mdl::MaterialConfig{
           "textures",
           {".tga", ".png", ".jpg", ".jpeg"},
           "",
@@ -281,7 +281,7 @@ TEST_CASE("loadMaterialCollections")
       const auto testDir = workDir / "fixture/test/io/Shader/loader/malformed_shader";
       fs.mount("", std::make_unique<DiskFileSystem>(testDir));
 
-      const auto materialConfig = Model::MaterialConfig{
+      const auto materialConfig = mdl::MaterialConfig{
         "textures",
         {".tga", ".png", ".jpg", ".jpeg"},
         "",
@@ -313,7 +313,7 @@ TEST_CASE("loadMaterialCollections")
       fs.mount("", std::make_unique<DiskFileSystem>(fallbackDir));
       fs.mount("", std::make_unique<DiskFileSystem>(testDir));
 
-      const auto materialConfig = Model::MaterialConfig{
+      const auto materialConfig = mdl::MaterialConfig{
         "textures",
         {".tga", ".png", ".jpg", ".jpeg"},
         "",

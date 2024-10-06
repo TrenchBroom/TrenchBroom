@@ -20,12 +20,12 @@
 #include "AssembleBrushTool.h"
 
 #include "Error.h" // IWYU pragma: keep
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/Game.h"
-#include "Model/Polyhedron.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Game.h"
+#include "mdl/Polyhedron.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
@@ -36,30 +36,30 @@ namespace tb::View
 
 AssembleBrushTool::AssembleBrushTool(std::weak_ptr<MapDocument> document)
   : CreateBrushesToolBase{false, std::move(document)}
-  , m_polyhedron{std::make_unique<Model::Polyhedron3>()}
+  , m_polyhedron{std::make_unique<mdl::Polyhedron3>()}
 {
 }
 
-const Model::Polyhedron3& AssembleBrushTool::polyhedron() const
+const mdl::Polyhedron3& AssembleBrushTool::polyhedron() const
 {
   return *m_polyhedron;
 }
 
-void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
+void AssembleBrushTool::update(const mdl::Polyhedron3& polyhedron)
 {
   *m_polyhedron = polyhedron;
   if (m_polyhedron->closed())
   {
     auto document = kdl::mem_lock(m_document);
     const auto game = document->game();
-    const auto builder = Model::BrushBuilder{
+    const auto builder = mdl::BrushBuilder{
       document->world()->mapFormat(),
       document->worldBounds(),
       game->config().faceAttribsConfig.defaults};
 
     builder.createBrush(*m_polyhedron, document->currentMaterialName())
       | kdl::transform([&](auto b) {
-          updateBrushes(kdl::vec_from(std::make_unique<Model::BrushNode>(std::move(b))));
+          updateBrushes(kdl::vec_from(std::make_unique<mdl::BrushNode>(std::move(b))));
         })
       | kdl::transform_error([&](auto e) {
           clearBrushes();
@@ -74,19 +74,19 @@ void AssembleBrushTool::update(const Model::Polyhedron3& polyhedron)
 
 bool AssembleBrushTool::doActivate()
 {
-  update(Model::Polyhedron3{});
+  update(mdl::Polyhedron3{});
   return true;
 }
 
 bool AssembleBrushTool::doDeactivate()
 {
-  update(Model::Polyhedron3{});
+  update(mdl::Polyhedron3{});
   return true;
 }
 
 void AssembleBrushTool::doBrushesWereCreated()
 {
-  update(Model::Polyhedron3{});
+  update(mdl::Polyhedron3{});
 }
 
 } // namespace tb::View

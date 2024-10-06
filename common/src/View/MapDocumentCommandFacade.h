@@ -19,20 +19,20 @@
 
 #pragma once
 
-#include "Model/NodeContents.h"
 #include "NotifierConnection.h"
 #include "View/MapDocument.h"
+#include "mdl/NodeContents.h"
 
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 enum class LockState;
 enum class VisibilityState;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -60,49 +60,47 @@ public:
   ~MapDocumentCommandFacade() override;
 
 public: // selection modification
-  void performSelect(const std::vector<Model::Node*>& nodes);
-  void performSelect(const std::vector<Model::BrushFaceHandle>& faces);
+  void performSelect(const std::vector<mdl::Node*>& nodes);
+  void performSelect(const std::vector<mdl::BrushFaceHandle>& faces);
   void performSelectAllNodes();
   void performSelectAllBrushFaces();
   void performConvertToBrushFaceSelection();
 
-  void performDeselect(const std::vector<Model::Node*>& nodes);
-  void performDeselect(const std::vector<Model::BrushFaceHandle>& faces);
+  void performDeselect(const std::vector<mdl::Node*>& nodes);
+  void performDeselect(const std::vector<mdl::BrushFaceHandle>& faces);
   void performDeselectAll();
 
 public: // adding and removing nodes
-  void performAddNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
-  void performRemoveNodes(const std::map<Model::Node*, std::vector<Model::Node*>>& nodes);
+  void performAddNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
+  void performRemoveNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
 
-  std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>
+  std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
   performReplaceChildren(
-    std::vector<std::pair<Model::Node*, std::vector<std::unique_ptr<Model::Node>>>>
-      nodes);
+    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes);
 
 public: // swapping node contents
   void performSwapNodeContents(
-    std::vector<std::pair<Model::Node*, Model::NodeContents>>& nodesToSwap);
+    std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap);
 
 public: // Node Visibility
-  std::map<Model::Node*, Model::VisibilityState> setVisibilityState(
-    const std::vector<Model::Node*>& nodes, Model::VisibilityState visibilityState);
-  std::map<Model::Node*, Model::VisibilityState> setVisibilityEnsured(
-    const std::vector<Model::Node*>& nodes);
-  void restoreVisibilityState(
-    const std::map<Model::Node*, Model::VisibilityState>& nodes);
-  std::map<Model::Node*, Model::LockState> setLockState(
-    const std::vector<Model::Node*>& nodes, Model::LockState lockState);
-  void restoreLockState(const std::map<Model::Node*, Model::LockState>& nodes);
+  std::map<mdl::Node*, mdl::VisibilityState> setVisibilityState(
+    const std::vector<mdl::Node*>& nodes, mdl::VisibilityState visibilityState);
+  std::map<mdl::Node*, mdl::VisibilityState> setVisibilityEnsured(
+    const std::vector<mdl::Node*>& nodes);
+  void restoreVisibilityState(const std::map<mdl::Node*, mdl::VisibilityState>& nodes);
+  std::map<mdl::Node*, mdl::LockState> setLockState(
+    const std::vector<mdl::Node*>& nodes, mdl::LockState lockState);
+  void restoreLockState(const std::map<mdl::Node*, mdl::LockState>& nodes);
 
 public: // layers
   using MapDocument::performSetCurrentLayer;
 
 public:
-  void performPushGroup(Model::GroupNode* group);
+  void performPushGroup(mdl::GroupNode* group);
   void performPopGroup();
 
 private:
-  void doSetIssueHidden(const Model::Issue& issue, bool hidden) override;
+  void doSetIssueHidden(const mdl::Issue& issue, bool hidden) override;
 
 public: // modification count
   void incModificationCount(size_t delta = 1);

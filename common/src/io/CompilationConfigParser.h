@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "io/ConfigParserBase.h"
 #include "Macros.h"
-#include "Model/CompilationConfig.h"
+#include "io/ConfigParserBase.h"
+#include "mdl/CompilationConfig.h"
 
 #include <filesystem>
 
@@ -33,7 +33,7 @@ class CompilationConfigParser : public ConfigParserBase
 public:
   explicit CompilationConfigParser(std::string_view str, std::filesystem::path path = {});
 
-  Model::CompilationConfig parse();
+  mdl::CompilationConfig parse();
 
   deleteCopyAndMove(CompilationConfigParser);
 };

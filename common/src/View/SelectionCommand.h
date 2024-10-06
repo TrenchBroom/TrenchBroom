@@ -26,14 +26,14 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 class BrushFaceHandle;
 class BrushFaceReference;
 class BrushNode;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -45,30 +45,30 @@ private:
 
   Action m_action;
 
-  std::vector<Model::Node*> m_nodes;
-  std::vector<Model::BrushFaceReference> m_faceRefs;
+  std::vector<mdl::Node*> m_nodes;
+  std::vector<mdl::BrushFaceReference> m_faceRefs;
 
-  std::vector<Model::Node*> m_previouslySelectedNodes;
-  std::vector<Model::BrushFaceReference> m_previouslySelectedFaceRefs;
+  std::vector<mdl::Node*> m_previouslySelectedNodes;
+  std::vector<mdl::BrushFaceReference> m_previouslySelectedFaceRefs;
 
 public:
-  static std::unique_ptr<SelectionCommand> select(std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SelectionCommand> select(std::vector<mdl::Node*> nodes);
   static std::unique_ptr<SelectionCommand> select(
-    std::vector<Model::BrushFaceHandle> faces);
+    std::vector<mdl::BrushFaceHandle> faces);
 
   static std::unique_ptr<SelectionCommand> convertToFaces();
   static std::unique_ptr<SelectionCommand> selectAllNodes();
   static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-  static std::unique_ptr<SelectionCommand> deselect(std::vector<Model::Node*> nodes);
+  static std::unique_ptr<SelectionCommand> deselect(std::vector<mdl::Node*> nodes);
   static std::unique_ptr<SelectionCommand> deselect(
-    std::vector<Model::BrushFaceHandle> faces);
+    std::vector<mdl::BrushFaceHandle> faces);
   static std::unique_ptr<SelectionCommand> deselectAll();
 
   SelectionCommand(
     Action action,
-    std::vector<Model::Node*> nodes,
-    std::vector<Model::BrushFaceHandle> faces);
+    std::vector<mdl::Node*> nodes,
+    std::vector<mdl::BrushFaceHandle> faces);
   ~SelectionCommand() override;
 
 private:

@@ -19,16 +19,16 @@
 
 #include "DrawShapeToolController3D.h"
 
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/DrawShapeTool.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 
@@ -247,7 +247,7 @@ const Tool& DrawShapeToolController3D::tool() const
 std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
@@ -266,7 +266,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
     return nullptr;
   }
 
-  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
   const auto initialHandlePosition =
     hit.isMatch() ? hit.hitPoint() : inputState.defaultPointUnderMouse();
 

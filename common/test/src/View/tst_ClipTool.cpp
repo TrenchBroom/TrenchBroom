@@ -19,12 +19,12 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushNode.h"
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
 #include "View/ClipTool.h"
 #include "View/ClipToolController.h"
 #include "View/PasteType.h"
+#include "mdl/BrushNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
@@ -57,7 +57,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
     const auto* defaultLayer = document->world()->defaultLayer();
 
     const auto* originalBrushNode =
-      dynamic_cast<const Model::BrushNode*>(defaultLayer->children().front());
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
     REQUIRE(originalBrushNode);
 
     const auto originalLinkId = originalBrushNode->linkId();
@@ -75,9 +75,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
 
     REQUIRE(defaultLayer->childCount() == 2);
     const auto* clippedBrushNode1 =
-      dynamic_cast<const Model::BrushNode*>(defaultLayer->children().front());
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().front());
     const auto* clippedBrushNode2 =
-      dynamic_cast<const Model::BrushNode*>(defaultLayer->children().back());
+      dynamic_cast<const mdl::BrushNode*>(defaultLayer->children().back());
 
     REQUIRE(clippedBrushNode1);
     REQUIRE(clippedBrushNode2);

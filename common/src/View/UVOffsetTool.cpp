@@ -19,14 +19,14 @@
 
 #include "UVOffsetTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Polyhedron.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 #include "View/UVView.h"
+#include "mdl/BrushFace.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Polyhedron.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -111,7 +111,7 @@ public:
       return true;
     }
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setOffset(corrected);
 
     m_document.setFaceAttributes(request);

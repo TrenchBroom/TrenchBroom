@@ -47,7 +47,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   void modifierKeyChange(const InputState& inputState) override;
 
@@ -66,8 +66,8 @@ private:
 
 private:
   virtual bool doHandleInput(const InputState& inputState) const = 0;
-  virtual Model::Hit doPick(
-    const vm::ray3d& pickRay, const Model::PickResult& pickResult) = 0;
+  virtual mdl::Hit doPick(
+    const vm::ray3d& pickRay, const mdl::PickResult& pickResult) = 0;
 };
 
 class ExtrudeToolController2D : public ExtrudeToolController
@@ -76,8 +76,7 @@ public:
   explicit ExtrudeToolController2D(ExtrudeTool& tool);
 
 private:
-  Model::Hit doPick(
-    const vm::ray3d& pickRay, const Model::PickResult& pickResult) override;
+  mdl::Hit doPick(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 
@@ -87,8 +86,7 @@ public:
   explicit ExtrudeToolController3D(ExtrudeTool& tool);
 
 private:
-  Model::Hit doPick(
-    const vm::ray3d& pickRay, const Model::PickResult& pickResult) override;
+  mdl::Hit doPick(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) override;
   bool doHandleInput(const InputState& inputState) const override;
 };
 

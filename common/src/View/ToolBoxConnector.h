@@ -29,7 +29,7 @@
 #include <optional>
 #include <string>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -67,7 +67,7 @@ public:
 
 public:
   const vm::ray3d& pickRay() const;
-  const Model::PickResult& pickResult() const;
+  const mdl::PickResult& pickResult() const;
 
   void updatePickResult();
 
@@ -131,7 +131,7 @@ public:
 
 private:
   virtual PickRequest pickRequest(float x, float y) const = 0;
-  virtual Model::PickResult pick(const vm::ray3d& pickRay) const = 0;
+  virtual mdl::PickResult pick(const vm::ray3d& pickRay) const = 0;
   virtual void doShowPopupMenu();
 
   deleteCopyAndMove(ToolBoxConnector);

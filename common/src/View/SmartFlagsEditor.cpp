@@ -22,13 +22,13 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-#include "Model/Entity.h"
-#include "Model/EntityNodeBase.h"
 #include "View/FlagsEditor.h"
 #include "View/MapDocument.h"
 #include "View/ViewUtils.h"
 #include "asset/EntityDefinition.h"
 #include "asset/PropertyDefinition.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
@@ -63,7 +63,7 @@ void SmartFlagsEditor::createGui()
   setLayout(layout);
 }
 
-void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes)
+void SmartFlagsEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   assert(!nodes.empty());
   if (!m_ignoreUpdates)
@@ -80,7 +80,7 @@ void SmartFlagsEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>&
 }
 
 void SmartFlagsEditor::getFlags(
-  const std::vector<Model::EntityNodeBase*>& nodes,
+  const std::vector<mdl::EntityNodeBase*>& nodes,
   QStringList& labels,
   QStringList& tooltips) const
 {
@@ -133,7 +133,7 @@ void SmartFlagsEditor::getFlags(
 }
 
 void SmartFlagsEditor::getFlagValues(
-  const std::vector<Model::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const
+  const std::vector<mdl::EntityNodeBase*>& nodes, int& setFlags, int& mixedFlags) const
 {
   if (nodes.empty())
   {
@@ -153,7 +153,7 @@ void SmartFlagsEditor::getFlagValues(
   }
 }
 
-int SmartFlagsEditor::getFlagValue(const Model::EntityNodeBase* node) const
+int SmartFlagsEditor::getFlagValue(const mdl::EntityNodeBase* node) const
 {
   if (const auto* value = node->entity().property(propertyKey()))
   {

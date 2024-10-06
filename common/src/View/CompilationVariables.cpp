@@ -19,9 +19,9 @@
 
 #include "CompilationVariables.h"
 
-#include "Model/GameFactory.h"
 #include "View/MapDocument.h"
 #include "io/SystemPaths.h"
+#include "mdl/GameFactory.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/vector_utils.h"
@@ -61,7 +61,7 @@ CommonVariables::CommonVariables(std::shared_ptr<MapDocument> document)
     MODS,
     el::Value{kdl::vec_transform(mods, [](const auto& mod) { return el::Value{mod}; })});
 
-  const auto& factory = Model::GameFactory::instance();
+  const auto& factory = mdl::GameFactory::instance();
   for (const auto& tool : document->game()->config().compilationTools)
   {
     const auto toolPath =

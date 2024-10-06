@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/Expression.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
 #include "io/Reader.h"
 #include "io/TraversalMode.h"
-#include "Model/GameConfig.h"
-#include "Model/Tag.h"
-#include "Model/TagMatcher.h"
-#include "el/Expression.h"
+#include "mdl/GameConfig.h"
+#include "mdl/Tag.h"
+#include "mdl/TagMatcher.h"
 
 #include <filesystem>
 #include <string>
@@ -134,16 +134,16 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
 
   CHECK(
     GameConfigParser(config).parse()
-    == Model::GameConfig{
+    == mdl::GameConfig{
       "Quake",
       {},
       {"Icon.png"},
       false,
       {// map formats
-       Model::MapFormatConfig{"Standard", {}},
-       Model::MapFormatConfig{"Valve", {}}},
-      Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::MaterialConfig{
+       mdl::MapFormatConfig{"Standard", {}},
+       mdl::MapFormatConfig{"Valve", {}}},
+      mdl::FileSystemConfig{{"id1"}, mdl::PackageFormatConfig{{".pak"}, "idpak"}},
+      mdl::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},
@@ -151,31 +151,31 @@ TEST_CASE("GameConfigParserTest.parseQuakeConfig")
         {},
         {},
       },
-      Model::EntityConfig{
+      mdl::EntityConfig{
         {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {},
         false},
-      Model::FaceAttribsConfig{},
+      mdl::FaceAttribsConfig{},
       {
-        Model::SmartTag{
+        mdl::SmartTag{
           "Trigger",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::EntityClassNameTagMatcher>("trigger*", "")},
+        mdl::SmartTag{
           "Clip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("clip")},
+        mdl::SmartTag{
           "Skip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("skip")},
+        mdl::SmartTag{
           "Hint",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
-        Model::SmartTag{
-          "Liquid", {}, std::make_unique<Model::MaterialNameTagMatcher>("\\**")},
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("hint*")},
+        mdl::SmartTag{
+          "Liquid", {}, std::make_unique<mdl::MaterialNameTagMatcher>("\\**")},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
@@ -395,14 +395,14 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
 
   CHECK(
     GameConfigParser(config).parse()
-    == Model::GameConfig{
+    == mdl::GameConfig{
       "Quake 2",
       {},
       {"Icon.png"},
       false,
-      {Model::MapFormatConfig{"Quake2", {}}},
-      Model::FileSystemConfig{{"baseq2"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::MaterialConfig{
+      {mdl::MapFormatConfig{"Quake2", {}}},
+      mdl::FileSystemConfig{{"baseq2"}, mdl::PackageFormatConfig{{".pak"}, "idpak"}},
+      mdl::MaterialConfig{
         {"textures"},
         {".wal"},
         {"pics/colormap.pcx"},
@@ -410,8 +410,8 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
         {},
         {},
       },
-      Model::EntityConfig{{{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
-      Model::FaceAttribsConfig{
+      mdl::EntityConfig{{{"Quake2.fgd"}}, Color{0.6f, 0.6f, 0.6f, 1.0f}, {}, false},
+      mdl::FaceAttribsConfig{
         {{{"light",
            "Emit light from the surface, brightness is specified in the 'value' field",
            1 << 0},
@@ -459,35 +459,34 @@ TEST_CASE("GameConfigParserTest.parseQuake2Config")
           {"ladder",
            "Brushes with this flag allow a player to move up and down a vertical surface",
            1 << 29}}},
-        Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName}},
+        mdl::BrushFaceAttributes{mdl::BrushFaceAttributes::NoMaterialName}},
       {
-        Model::SmartTag{
+        mdl::SmartTag{
           "Trigger",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::EntityClassNameTagMatcher>("trigger*", "trigger")},
+        mdl::SmartTag{
           "Clip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("clip")},
+        mdl::SmartTag{
           "Skip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("skip")},
+        mdl::SmartTag{
           "Hint",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
-        Model::SmartTag{
-          "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("hint*")},
+        mdl::SmartTag{
+          "Detail", {}, std::make_unique<mdl::ContentFlagsTagMatcher>(1 << 27)},
+        mdl::SmartTag{
           "Liquid",
           {},
-          std::make_unique<Model::ContentFlagsTagMatcher>(
-            (1 << 3) | (1 << 4) | (1 << 5))},
-        Model::SmartTag{
+          std::make_unique<mdl::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
+        mdl::SmartTag{
           "trans",
           {},
-          std::make_unique<Model::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))},
+          std::make_unique<mdl::SurfaceFlagsTagMatcher>((1 << 4) | (1 << 5))},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
@@ -713,7 +712,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 }
 )%");
 
-  Model::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
+  mdl::BrushFaceAttributes expectedBrushFaceAttributes("defaultMaterial");
   expectedBrushFaceAttributes.setOffset(vm::vec2f(0.0f, 0.0f));
   expectedBrushFaceAttributes.setScale(vm::vec2f(0.5f, 0.5f));
   expectedBrushFaceAttributes.setRotation(0.0f);
@@ -724,14 +723,14 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
 
   CHECK(
     GameConfigParser(config).parse()
-    == Model::GameConfig{
+    == mdl::GameConfig{
       "Extras",
       {},
       {},
       false,
-      {Model::MapFormatConfig{"Quake3", {}}},
-      Model::FileSystemConfig{{"baseq3"}, Model::PackageFormatConfig{{".pk3"}, "zip"}},
-      Model::MaterialConfig{
+      {mdl::MapFormatConfig{"Quake3", {}}},
+      mdl::FileSystemConfig{{"baseq3"}, mdl::PackageFormatConfig{{".pk3"}, "zip"}},
+      mdl::MaterialConfig{
         {"textures"},
         {""},
         {},
@@ -739,7 +738,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
         {"scripts"},
         {"*_norm", "*_gloss"},
       },
-      Model::EntityConfig{
+      mdl::EntityConfig{
         {{"Extras.ent"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         el::ExpressionNode{el::ArrayExpression{{
@@ -748,7 +747,7 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
           el::ExpressionNode{el::VariableExpression{"modelscale_vec"}},
         }}},
         false},
-      Model::FaceAttribsConfig{
+      mdl::FaceAttribsConfig{
         {{{"light",
            "Emit light from the surface, brightness is specified in the 'value' field",
            1 << 0},
@@ -798,29 +797,28 @@ TEST_CASE("GameConfigParserTest.parseExtrasConfig")
            1 << 29}}},
         expectedBrushFaceAttributes},
       {
-        Model::SmartTag{
+        mdl::SmartTag{
           "Trigger",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::EntityClassNameTagMatcher>("trigger*", "trigger")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::EntityClassNameTagMatcher>("trigger*", "trigger")},
+        mdl::SmartTag{
           "Clip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("clip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("clip")},
+        mdl::SmartTag{
           "Skip",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("skip")},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("skip")},
+        mdl::SmartTag{
           "Hint",
-          {Model::TagAttribute{1u, "transparent"}},
-          std::make_unique<Model::MaterialNameTagMatcher>("hint*")},
-        Model::SmartTag{
-          "Detail", {}, std::make_unique<Model::ContentFlagsTagMatcher>(1 << 27)},
-        Model::SmartTag{
+          {mdl::TagAttribute{1u, "transparent"}},
+          std::make_unique<mdl::MaterialNameTagMatcher>("hint*")},
+        mdl::SmartTag{
+          "Detail", {}, std::make_unique<mdl::ContentFlagsTagMatcher>(1 << 27)},
+        mdl::SmartTag{
           "Liquid",
           {},
-          std::make_unique<Model::ContentFlagsTagMatcher>(
-            (1 << 3) | (1 << 4) | (1 << 5))},
+          std::make_unique<mdl::ContentFlagsTagMatcher>((1 << 3) | (1 << 4) | (1 << 5))},
       },            // smart tags
       std::nullopt, // soft map bounds
       {}            // compilation tools
@@ -908,14 +906,14 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
 
   CHECK(
     GameConfigParser(config).parse()
-    == Model::GameConfig{
+    == mdl::GameConfig{
       "Quake",
       {},
       {"Icon.png"},
       false,
-      {Model::MapFormatConfig{"Standard", {}}},
-      Model::FileSystemConfig{{"id1"}, Model::PackageFormatConfig{{".pak"}, "idpak"}},
-      Model::MaterialConfig{
+      {mdl::MapFormatConfig{"Standard", {}}},
+      mdl::FileSystemConfig{{"id1"}, mdl::PackageFormatConfig{{".pak"}, "idpak"}},
+      mdl::MaterialConfig{
         {"textures"},
         {".D"},
         {"gfx/palette.lmp"},
@@ -923,12 +921,12 @@ TEST_CASE("GameConfigParserTest.parseSetDefaultProperties")
         {},
         {},
       },
-      Model::EntityConfig{
+      mdl::EntityConfig{
         {{"Quake.fgd"}, {"Quoth2.fgd"}, {"Rubicon2.def"}, {"Teamfortress.fgd"}},
         Color{0.6f, 0.6f, 0.6f, 1.0f},
         {},
         true}, // setDefaultProperties
-      Model::FaceAttribsConfig{},
+      mdl::FaceAttribsConfig{},
       {},
       std::nullopt, // soft map bounds
       {}            // compilation tools

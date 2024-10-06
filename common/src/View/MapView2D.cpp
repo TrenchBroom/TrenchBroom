@@ -20,14 +20,6 @@
 #include "MapView2D.h"
 
 #include "Macros.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/ModelUtils.h"
-#include "Model/PickResult.h"
-#include "Model/PointTrace.h"
 #include "Renderer/Compass2D.h"
 #include "Renderer/GridRenderer.h"
 #include "Renderer/MapRenderer.h"
@@ -56,6 +48,14 @@
 #include "View/ShearObjectsToolController.h"
 #include "View/VertexTool.h"
 #include "View/VertexToolController.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/PickResult.h"
+#include "mdl/PointTrace.h"
 
 #include "vm/util.h"
 
@@ -154,12 +154,12 @@ PickRequest MapView2D::pickRequest(const float x, const float y) const
   return {vm::ray3d{m_camera->pickRay(x, y)}, *m_camera};
 }
 
-Model::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
+mdl::PickResult MapView2D::pick(const vm::ray3d& pickRay) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto axis = vm::find_abs_max_component(pickRay.direction);
 
-  auto pickResult = Model::PickResult::bySize(axis);
+  auto pickResult = mdl::PickResult::bySize(axis);
   document->pick(pickRay, pickResult);
 
   return pickResult;
@@ -330,16 +330,15 @@ size_t MapView2D::flipAxis(const vm::direction direction) const
 
 vm::vec3d MapView2D::computePointEntityPosition(const vm::bbox3d& bounds) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
 
   const auto& grid = document->grid();
   const auto& worldBounds = document->worldBounds();
 
-  const auto& hit =
-    pickResult().first(type(Model::BrushNode::BrushHitType) && selected());
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  const auto& hit = pickResult().first(type(mdl::BrushNode::BrushHitType) && selected());
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
     return grid.moveDeltaForBounds(face.boundary(), bounds, worldBounds, pickRay());

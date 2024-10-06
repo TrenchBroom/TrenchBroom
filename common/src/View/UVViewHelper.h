@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "Model/BrushFaceHandle.h"
-#include "Model/HitType.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/HitType.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"
@@ -42,11 +42,11 @@ class OrthographicCamera;
 class RenderContext;
 } // namespace tb::Renderer
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 class PickResult;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -57,7 +57,7 @@ private:
   Renderer::OrthographicCamera& m_camera;
   bool m_zoomValid = false;
 
-  std::optional<Model::BrushFaceHandle> m_faceHandle;
+  std::optional<mdl::BrushFaceHandle> m_faceHandle;
 
   vm::vec2i m_subDivisions = {1, 1};
 
@@ -70,9 +70,9 @@ public:
   explicit UVViewHelper(Renderer::OrthographicCamera& camera);
 
   bool valid() const;
-  const Model::BrushFace* face() const;
+  const mdl::BrushFace* face() const;
   const asset::Material* material() const;
-  void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
+  void setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 
   const vm::vec2i& subDivisions() const;
@@ -89,8 +89,8 @@ public:
 
   void pickUVGrid(
     const vm::ray3d& ray,
-    const Model::HitType::Type hitTypes[2],
-    Model::PickResult& pickResult) const;
+    const mdl::HitType::Type hitTypes[2],
+    mdl::PickResult& pickResult) const;
 
   vm::vec2f snapDelta(const vm::vec2f& delta, const vm::vec2f& distance) const;
   vm::vec2f computeDistanceFromUVGrid(const vm::vec3d& position) const;

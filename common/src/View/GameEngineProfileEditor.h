@@ -24,7 +24,7 @@
 class QLineEdit;
 class QStackedWidget;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct GameEngineProfile;
 }
@@ -38,7 +38,7 @@ class GameEngineProfileEditor : public QWidget
 {
   Q_OBJECT
 private:
-  Model::GameEngineProfile* m_profile = nullptr;
+  mdl::GameEngineProfile* m_profile = nullptr;
   QStackedWidget* m_stackedWidget = nullptr;
   QLineEdit* m_nameEdit = nullptr;
   QLineEdit* m_pathEdit = nullptr;
@@ -51,7 +51,7 @@ private:
   void updatePath(const QString& str);
 
 public:
-  void setProfile(Model::GameEngineProfile* profile);
+  void setProfile(mdl::GameEngineProfile* profile);
 
 private:
   void refresh();

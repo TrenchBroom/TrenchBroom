@@ -19,10 +19,10 @@
 
 #include "BrushRendererBrushCache.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushGeometry.h"
-#include "Model/BrushNode.h"
-#include "Model/Polyhedron.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushGeometry.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Polyhedron.h"
 
 #include <algorithm>
 
@@ -30,7 +30,7 @@ namespace tb::Renderer
 {
 
 BrushRendererBrushCache::CachedFace::CachedFace(
-  const Model::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
+  const mdl::BrushFace* i_face, const size_t i_indexOfFirstVertexRelativeToBrush)
   : material{i_face->material()}
   , face{i_face}
   , vertexCount{i_face->vertexCount()}
@@ -51,7 +51,7 @@ void BrushRendererBrushCache::invalidateVertexCache()
   m_cachedFacesSortedByMaterial.clear();
 }
 
-void BrushRendererBrushCache::validateVertexCache(const Model::BrushNode& brushNode)
+void BrushRendererBrushCache::validateVertexCache(const mdl::BrushNode& brushNode)
 {
   if (m_rendererCacheValid)
   {

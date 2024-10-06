@@ -22,7 +22,6 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QtTest/QSignalSpy>
 
 #include "MapDocumentTest.h"
-#include "Model/CompilationTask.h"
 #include "ReturnExitCode.h"
 #include "TestUtils.h"
 #include "TrenchBroomApp.h"
@@ -32,6 +31,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "View/TextOutputAdapter.h"
 #include "el/VariableStore.h"
 #include "io/TestEnvironment.h"
+#include "mdl/CompilationTask.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -109,7 +109,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto task = Model::CompilationRunTool{true, "", "", false};
+  auto task = mdl::CompilationRunTool{true, "", "", false};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
   auto exec = ExecuteTask{runner};
@@ -132,7 +132,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsZeroE
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
   const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = Model::CompilationRunTool{
+  auto task = mdl::CompilationRunTool{
     true, RETURN_EXITCODE_PATH, "--exit 0", treatNonZeroResultCodeAsError};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
@@ -154,7 +154,7 @@ TEST_CASE_METHOD(
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
   const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = Model::CompilationRunTool{
+  auto task = mdl::CompilationRunTool{
     true, RETURN_EXITCODE_PATH, "--exit 1", treatNonZeroResultCodeAsError};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
@@ -177,7 +177,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
   const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = Model::CompilationRunTool{
+  auto task = mdl::CompilationRunTool{
     true, RETURN_EXITCODE_PATH, "--abort", treatNonZeroResultCodeAsError};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
@@ -201,7 +201,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
   const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = Model::CompilationRunTool{
+  auto task = mdl::CompilationRunTool{
     true, RETURN_EXITCODE_PATH, "--crash", treatNonZeroResultCodeAsError};
   auto runner = CompilationRunToolTaskRunner{context, task};
 
@@ -236,7 +236,7 @@ TEST_CASE_METHOD(
 
   const auto targetPath = std::filesystem::path{"some/other/path"};
 
-  auto task = Model::CompilationCopyFiles{
+  auto task = mdl::CompilationCopyFiles{
     true,
     (testEnvironment.dir() / sourcePath).string(),
     (testEnvironment.dir() / targetPath).string()};
@@ -271,7 +271,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
     REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
   }
 
-  auto task = Model::CompilationRenameFile{
+  auto task = mdl::CompilationRenameFile{
     true,
     (testEnvironment.dir() / sourcePath).string(),
     (testEnvironment.dir() / targetPath).string()};
@@ -303,7 +303,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
   testEnvironment.createDirectory(dir);
 
   auto task =
-    Model::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
+    mdl::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
   auto runner = CompilationDeleteFilesTaskRunner{context, task};
 
   REQUIRE_NOTHROW(runner.execute());
@@ -327,12 +327,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
   auto testEnvironment = io::TestEnvironment{};
   testEnvironment.createFile(does_exist, "");
 
-  auto compilationProfile = Model::CompilationProfile{
+  auto compilationProfile = mdl::CompilationProfile{
     "name",
     testEnvironment.dir().string(),
     {
-      Model::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
-      Model::CompilationCopyFiles{true, does_exist, should_not_exist},
+      mdl::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
+      mdl::CompilationCopyFiles{true, does_exist, should_not_exist},
     }};
 
   auto runner = CompilationRunner{
@@ -357,7 +357,7 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
-    Model::MapFormat::Unknown);
+    mdl::MapFormat::Unknown);
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{document, testWorkDir};
   auto output = QTextEdit{};

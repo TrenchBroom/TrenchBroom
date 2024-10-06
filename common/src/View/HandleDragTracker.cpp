@@ -19,12 +19,12 @@
 
 #include "View/HandleDragTracker.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitAdapter.h"
 #include "View/Grid.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitAdapter.h"
 
 #include "kdl/optional_utils.h"
 #include "kdl/reflection_impl.h"
@@ -107,7 +107,7 @@ DragHandlePicker makeCircleHandlePicker(
 }
 
 DragHandlePicker makeSurfaceHandlePicker(
-  Model::HitFilter filter_, const vm::vec3d& handleOffset)
+  mdl::HitFilter filter_, const vm::vec3d& handleOffset)
 {
   return [filter = std::move(filter_),
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3d> {
@@ -198,21 +198,21 @@ DragHandleSnapper makeCircleHandleSnapper(
 
 HandlePositionProposer makeBrushFaceHandleProposer(const Grid& grid)
 {
-  return [&grid](
-           const InputState& inputState, const DragState&) -> std::optional<vm::vec3d> {
-    using namespace Model::HitFilters;
+  return
+    [&grid](const InputState& inputState, const DragState&) -> std::optional<vm::vec3d> {
+      using namespace mdl::HitFilters;
 
-    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-    if (!hit.isMatch())
-    {
-      return std::nullopt;
-    }
+      const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+      if (!hit.isMatch())
+      {
+        return std::nullopt;
+      }
 
-    const auto faceHandle = Model::hitToFaceHandle(hit);
-    ensure(faceHandle, "invalid hit type");
+      const auto faceHandle = mdl::hitToFaceHandle(hit);
+      ensure(faceHandle, "invalid hit type");
 
-    return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
-  };
+      return grid.snap(hit.hitPoint(), faceHandle->face().boundary());
+    };
 }
 
 HandlePositionProposer makeHandlePositionProposer(

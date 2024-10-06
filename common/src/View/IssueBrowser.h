@@ -29,12 +29,12 @@ class QCheckBox;
 class QStackedLayout;
 class QWidget;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceHandle;
 class Issue;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -67,11 +67,11 @@ private:
   void connectObservers();
   void documentWasNewedOrLoaded(MapDocument* document);
   void documentWasSaved(MapDocument* document);
-  void nodesWereAdded(const std::vector<Model::Node*>& nodes);
-  void nodesWereRemoved(const std::vector<Model::Node*>& nodes);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
-  void issueIgnoreChanged(Model::Issue* issue);
+  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
+  void issueIgnoreChanged(mdl::Issue* issue);
 
   void updateFilterFlags();
 

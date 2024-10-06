@@ -20,12 +20,12 @@
 #include "NodeReader.h"
 
 #include "io/ParserStatus.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/EntityProperties.h"
-#include "Model/LayerNode.h"
-#include "Model/LinkedGroupUtils.h"
-#include "Model/WorldNode.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/EntityProperties.h"
+#include "mdl/LayerNode.h"
+#include "mdl/LinkedGroupUtils.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/vector_utils.h"
 
@@ -37,22 +37,22 @@ namespace tb::io
 
 NodeReader::NodeReader(
   const std::string_view str,
-  const Model::MapFormat sourceMapFormat,
-  const Model::MapFormat targetMapFormat,
-  const Model::EntityPropertyConfig& entityPropertyConfig)
+  const mdl::MapFormat sourceMapFormat,
+  const mdl::MapFormat targetMapFormat,
+  const mdl::EntityPropertyConfig& entityPropertyConfig)
   : MapReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig}
 {
 }
 
-std::vector<Model::Node*> NodeReader::read(
+std::vector<mdl::Node*> NodeReader::read(
   const std::string& str,
-  const Model::MapFormat preferredMapFormat,
+  const mdl::MapFormat preferredMapFormat,
   const vm::bbox3d& worldBounds,
-  const Model::EntityPropertyConfig& entityPropertyConfig,
+  const mdl::EntityPropertyConfig& entityPropertyConfig,
   ParserStatus& status)
 {
   // Try preferred format first
-  for (const auto compatibleMapFormat : Model::compatibleFormats(preferredMapFormat))
+  for (const auto compatibleMapFormat : mdl::compatibleFormats(preferredMapFormat))
   {
     if (auto result = readAsFormat(
           compatibleMapFormat,
@@ -63,7 +63,7 @@ std::vector<Model::Node*> NodeReader::read(
           status);
         !result.empty())
     {
-      for (const auto& error : Model::initializeLinkIds(result))
+      for (const auto& error : mdl::initializeLinkIds(result))
       {
         status.error("Could not restore linked groups: " + error.msg);
       }
@@ -84,12 +84,12 @@ std::vector<Model::Node*> NodeReader::read(
  *
  * @returns the parsed nodes; caller is responsible for freeing them.
  */
-std::vector<Model::Node*> NodeReader::readAsFormat(
-  const Model::MapFormat sourceMapFormat,
-  const Model::MapFormat targetMapFormat,
+std::vector<mdl::Node*> NodeReader::readAsFormat(
+  const mdl::MapFormat sourceMapFormat,
+  const mdl::MapFormat targetMapFormat,
   const std::string& str,
   const vm::bbox3d& worldBounds,
-  const Model::EntityPropertyConfig& entityPropertyConfig,
+  const mdl::EntityPropertyConfig& entityPropertyConfig,
   ParserStatus& status)
 {
   {
@@ -98,13 +98,13 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
     {
       reader.readEntities(worldBounds, status);
       status.info(
-        "Parsed successfully as " + Model::formatName(sourceMapFormat) + " entities");
+        "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " entities");
       return reader.m_nodes;
     }
     catch (const ParserException& e)
     {
       status.info(
-        "Couldn't parse as " + Model::formatName(sourceMapFormat)
+        "Couldn't parse as " + mdl::formatName(sourceMapFormat)
         + " entities: " + e.what());
       kdl::vec_clear_and_delete(reader.m_nodes);
     }
@@ -116,13 +116,13 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
     {
       reader.readBrushes(worldBounds, status);
       status.info(
-        "Parsed successfully as " + Model::formatName(sourceMapFormat) + " brushes");
+        "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " brushes");
       return reader.m_nodes;
     }
     catch (const ParserException& e)
     {
       status.info(
-        "Couldn't parse as " + Model::formatName(sourceMapFormat)
+        "Couldn't parse as " + mdl::formatName(sourceMapFormat)
         + " brushes: " + e.what());
       kdl::vec_clear_and_delete(reader.m_nodes);
     }
@@ -130,22 +130,22 @@ std::vector<Model::Node*> NodeReader::readAsFormat(
   return {};
 }
 
-Model::Node* NodeReader::onWorldNode(std::unique_ptr<Model::WorldNode>, ParserStatus&)
+mdl::Node* NodeReader::onWorldNode(std::unique_ptr<mdl::WorldNode>, ParserStatus&)
 {
   // we create a fake layer node instead of using a proper world node
   // layers can contain any node we might parse
-  auto* layerNode = new Model::LayerNode{Model::Layer{""}};
+  auto* layerNode = new mdl::LayerNode{mdl::Layer{""}};
   m_nodes.insert(std::begin(m_nodes), layerNode);
   return layerNode;
 }
 
-void NodeReader::onLayerNode(std::unique_ptr<Model::Node> layerNode, ParserStatus&)
+void NodeReader::onLayerNode(std::unique_ptr<mdl::Node> layerNode, ParserStatus&)
 {
   m_nodes.push_back(layerNode.release());
 }
 
 void NodeReader::onNode(
-  Model::Node* parentNode, std::unique_ptr<Model::Node> node, ParserStatus&)
+  mdl::Node* parentNode, std::unique_ptr<mdl::Node> node, ParserStatus&)
 {
   if (parentNode != nullptr)
   {

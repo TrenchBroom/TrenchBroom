@@ -21,14 +21,14 @@
 #include "ShearObjectsTool.h"
 
 #include "Ensure.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/TransactionScope.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 
@@ -37,8 +37,8 @@
 namespace tb::View
 {
 
-const Model::HitType::Type ShearObjectsTool::ShearToolSideHitType =
-  Model::HitType::freeType();
+const mdl::HitType::Type ShearObjectsTool::ShearToolSideHitType =
+  mdl::HitType::freeType();
 
 ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document)
   : Tool{false}
@@ -62,7 +62,7 @@ bool ShearObjectsTool::applies() const
 void ShearObjectsTool::pickBackSides(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   // select back sides. Used for both 2D and 3D.
   if (pickResult.empty())
@@ -73,7 +73,7 @@ void ShearObjectsTool::pickBackSides(
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
     assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
-    pickResult.addHit(Model::Hit{
+    pickResult.addHit(mdl::Hit{
       ShearToolSideHitType,
       result.distAlongRay,
       vm::point_at_distance(pickRay, result.distAlongRay),
@@ -84,9 +84,9 @@ void ShearObjectsTool::pickBackSides(
 void ShearObjectsTool::pick2D(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& myBounds = bounds();
 
@@ -96,7 +96,7 @@ void ShearObjectsTool::pick2D(
     return;
   }
 
-  auto localPickResult = Model::PickResult{};
+  auto localPickResult = mdl::PickResult{};
   pickBackSides(pickRay, camera, localPickResult);
 
   if (!localPickResult.empty())
@@ -108,9 +108,9 @@ void ShearObjectsTool::pick2D(
 void ShearObjectsTool::pick3D(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& myBounds = bounds();
 
@@ -120,7 +120,7 @@ void ShearObjectsTool::pick3D(
     return;
   }
 
-  auto localPickResult = Model::PickResult{};
+  auto localPickResult = mdl::PickResult{};
 
   // these handles only work in 3D.
   assert(camera.perspectiveProjection());
@@ -135,7 +135,7 @@ void ShearObjectsTool::pick3D(
         vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(Model::Hit{ShearToolSideHitType, *dist, hitPoint, side});
+      localPickResult.addHit(mdl::Hit{ShearToolSideHitType, *dist, hitPoint, side});
     }
   }
 
@@ -159,7 +159,7 @@ vm::bbox3d ShearObjectsTool::bboxAtDragStart() const
   return m_resizing ? m_bboxAtDragStart : bounds();
 }
 
-void ShearObjectsTool::startShearWithHit(const Model::Hit& hit)
+void ShearObjectsTool::startShearWithHit(const mdl::Hit& hit)
 {
   ensure(hit.isMatch(), "must start with matching hit");
   ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
@@ -215,7 +215,7 @@ void ShearObjectsTool::shearByDelta(const vm::vec3d& delta)
   }
 }
 
-const Model::Hit& ShearObjectsTool::dragStartHit() const
+const mdl::Hit& ShearObjectsTool::dragStartHit() const
 {
   return m_dragStartHit;
 }
@@ -249,9 +249,9 @@ std::optional<vm::polygon3f> ShearObjectsTool::shearHandle() const
   return vm::polygon3f{handle};
 }
 
-void ShearObjectsTool::updatePickedSide(const Model::PickResult& pickResult)
+void ShearObjectsTool::updatePickedSide(const mdl::PickResult& pickResult)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& hit = pickResult.first(type(ShearToolSideHitType));
 

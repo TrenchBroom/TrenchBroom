@@ -19,20 +19,20 @@
 
 #include "CreateEntityTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/WorldNode.h"
 #include "Renderer/Camera.h"
 #include "View/Grid.h"
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionManager.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 
@@ -109,9 +109,9 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 }
 
 void CreateEntityTool::updateEntityPosition3D(
-  const vm::ray3d& pickRay, const Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const mdl::PickResult& pickResult)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   ensure(m_entity != nullptr, "entity is not null");
 
@@ -119,8 +119,8 @@ void CreateEntityTool::updateEntityPosition3D(
 
   auto delta = vm::vec3d{};
   const auto& grid = document->grid();
-  const auto& hit = pickResult.first(type(Model::BrushNode::BrushHitType));
-  if (const auto faceHandle = Model::hitToFaceHandle(hit))
+  const auto& hit = pickResult.first(type(mdl::BrushNode::BrushHitType));
+  if (const auto faceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto& face = faceHandle->face();
     delta = grid.moveDeltaForBounds(

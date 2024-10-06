@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/Grid.h"
 #include "View/HandleDragTracker.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "vm/approx.h"
 
@@ -546,16 +546,16 @@ TEST_CASE("makeCircleHandlePicker")
 
 TEST_CASE("makeSurfaceHandlePicker")
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
-  static const auto HitType = Model::HitType::freeType();
-  static const auto OtherHitType = Model::HitType::freeType();
+  static const auto HitType = mdl::HitType::freeType();
+  static const auto OtherHitType = mdl::HitType::freeType();
   static const auto BothTypes = HitType | OtherHitType;
 
-  const auto hit = Model::Hit{HitType, 10.0, vm::vec3d{0, 0, 10}, size_t{1}};
-  const auto otherHit = Model::Hit{OtherHitType, 12.0, vm::vec3d{0, 0, 12}, size_t{2}};
+  const auto hit = mdl::Hit{HitType, 10.0, vm::vec3d{0, 0, 10}, size_t{1}};
+  const auto otherHit = mdl::Hit{OtherHitType, 12.0, vm::vec3d{0, 0, 12}, size_t{2}};
 
-  using T = std::tuple<Model::HitFilter, vm::vec3d, vm::ray3d, vm::vec3d>;
+  using T = std::tuple<mdl::HitFilter, vm::vec3d, vm::ray3d, vm::vec3d>;
 
   // clang-format off
   const auto
@@ -573,7 +573,7 @@ TEST_CASE("makeSurfaceHandlePicker")
   auto inputState = InputState{};
   inputState.setPickRequest(PickRequest{pickRay, camera});
 
-  auto pickResult = Model::PickResult{};
+  auto pickResult = mdl::PickResult{};
   pickResult.addHit(hit);
   pickResult.addHit(otherHit);
   inputState.setPickResult(std::move(pickResult));

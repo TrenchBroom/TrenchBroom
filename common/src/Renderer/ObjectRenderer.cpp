@@ -19,33 +19,33 @@
 
 #include "ObjectRenderer.h"
 
-#include "Model/GroupNode.h"
+#include "mdl/GroupNode.h"
 
 #include "kdl/overload.h"
 
 namespace tb::Renderer
 {
 
-void ObjectRenderer::addNode(Model::Node* node)
+void ObjectRenderer::addNode(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [&](Model::GroupNode* group) { m_groupRenderer.addGroup(group); },
-    [&](Model::EntityNode* entity) { m_entityRenderer.addEntity(entity); },
-    [&](Model::BrushNode* brush) { m_brushRenderer.addBrush(brush); },
-    [&](Model::PatchNode* patch) { m_patchRenderer.addPatch(patch); }));
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [&](mdl::GroupNode* group) { m_groupRenderer.addGroup(group); },
+    [&](mdl::EntityNode* entity) { m_entityRenderer.addEntity(entity); },
+    [&](mdl::BrushNode* brush) { m_brushRenderer.addBrush(brush); },
+    [&](mdl::PatchNode* patch) { m_patchRenderer.addPatch(patch); }));
 }
 
-void ObjectRenderer::removeNode(Model::Node* node)
+void ObjectRenderer::removeNode(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [&](Model::GroupNode* group) { m_groupRenderer.removeGroup(group); },
-    [&](Model::EntityNode* entity) { m_entityRenderer.removeEntity(entity); },
-    [&](Model::BrushNode* brush) { m_brushRenderer.removeBrush(brush); },
-    [&](Model::PatchNode* patch) { m_patchRenderer.removePatch(patch); }));
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [&](mdl::GroupNode* group) { m_groupRenderer.removeGroup(group); },
+    [&](mdl::EntityNode* entity) { m_entityRenderer.removeEntity(entity); },
+    [&](mdl::BrushNode* brush) { m_brushRenderer.removeBrush(brush); },
+    [&](mdl::PatchNode* patch) { m_patchRenderer.removePatch(patch); }));
 }
 
 void ObjectRenderer::invalidateMaterials(
@@ -61,15 +61,15 @@ void ObjectRenderer::invalidateEntityModels(
   m_entityRenderer.invalidateEntityModels(entityModels);
 }
 
-void ObjectRenderer::invalidateNode(Model::Node* node)
+void ObjectRenderer::invalidateNode(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [&](Model::GroupNode* group) { m_groupRenderer.invalidateGroup(group); },
-    [&](Model::EntityNode* entity) { m_entityRenderer.invalidateEntity(entity); },
-    [&](Model::BrushNode* brush) { m_brushRenderer.invalidateBrush(brush); },
-    [&](Model::PatchNode* patch) { m_patchRenderer.invalidatePatch(patch); }));
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [&](mdl::GroupNode* group) { m_groupRenderer.invalidateGroup(group); },
+    [&](mdl::EntityNode* entity) { m_entityRenderer.invalidateEntity(entity); },
+    [&](mdl::BrushNode* brush) { m_brushRenderer.invalidateBrush(brush); },
+    [&](mdl::PatchNode* patch) { m_patchRenderer.invalidatePatch(patch); }));
 }
 
 void ObjectRenderer::invalidate()

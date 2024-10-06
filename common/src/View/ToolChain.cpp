@@ -50,7 +50,7 @@ void ToolChain::append(std::unique_ptr<ToolController> tool)
   assert(checkInvariant());
 }
 
-void ToolChain::pick(const InputState& inputState, Model::PickResult& pickResult)
+void ToolChain::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   assert(checkInvariant());
   if (!chainEndsHere())

@@ -20,15 +20,15 @@
 #include "EntParser.h"
 
 #include "FileLocation.h"
-#include "io/ELParser.h"
-#include "io/EntityDefinitionClassInfo.h"
-#include "io/ParserStatus.h"
-#include "Model/EntityProperties.h"
 #include "asset/PropertyDefinition.h"
 #include "el/ELExceptions.h"
 #include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"
+#include "io/ELParser.h"
+#include "io/EntityDefinitionClassInfo.h"
+#include "io/ParserStatus.h"
+#include "mdl/EntityProperties.h"
 
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
@@ -533,7 +533,7 @@ std::unique_ptr<asset::PropertyDefinition> parseSpawnflags(
   if (const auto* flagElement = element.FirstChildElement("flag"))
   {
     auto result = std::make_unique<asset::FlagsPropertyDefinition>(
-      Model::EntityPropertyKeys::Spawnflags);
+      mdl::EntityPropertyKeys::Spawnflags);
     do
     {
       const auto bit = parseSize(*flagElement, "bit");

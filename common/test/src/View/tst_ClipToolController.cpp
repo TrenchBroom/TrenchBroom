@@ -18,14 +18,14 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushNode.h"
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
 #include "Renderer/PerspectiveCamera.h"
 #include "View/ClipTool.h"
 #include "View/ClipToolController.h"
 #include "View/Grid.h"
 #include "View/PasteType.h"
+#include "mdl/BrushNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/WorldNode.h"
 
 #include "Catch2.h"
 
@@ -37,7 +37,7 @@ namespace
 void updatePickState(
   InputState& inputState, const Renderer::Camera& camera, const MapDocument& document)
 {
-  Model::PickResult pickResult = Model::PickResult::byDistance();
+  mdl::PickResult pickResult = mdl::PickResult::byDistance();
   const PickRequest pickRequest(
     vm::ray3d(camera.pickRay(
       static_cast<float>(inputState.mouseX()), static_cast<float>(inputState.mouseY()))),
@@ -139,11 +139,10 @@ TEST_CASE_METHOD(
 
   // Check the clip result
   // TODO: would be better to check the clip plane but it's not public
-  const std::vector<Model::Node*>& objects =
-    document->world()->defaultLayer()->children();
+  const std::vector<mdl::Node*>& objects = document->world()->defaultLayer()->children();
   REQUIRE(objects.size() == 1u);
 
-  auto* brush = dynamic_cast<Model::BrushNode*>(objects.at(0));
+  auto* brush = dynamic_cast<mdl::BrushNode*>(objects.at(0));
   REQUIRE(brush != nullptr);
 
   CHECK(

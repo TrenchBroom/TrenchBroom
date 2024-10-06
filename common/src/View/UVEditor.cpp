@@ -25,11 +25,11 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-#include "Model/ChangeBrushFaceAttributesRequest.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/UVView.h"
 #include "View/ViewConstants.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
 
 #include "kdl/memory_utils.h"
 
@@ -154,7 +154,7 @@ void UVEditor::connectObservers()
 
 void UVEditor::resetUVClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   document->setFaceAttributes(request);
@@ -162,7 +162,7 @@ void UVEditor::resetUVClicked()
 
 void UVEditor::resetUVToWorldClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
   request.resetAllToParaxial(document->game()->config().faceAttribsConfig.defaults);
@@ -171,7 +171,7 @@ void UVEditor::resetUVToWorldClicked()
 
 void UVEditor::flipUVHClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.mulXScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -180,7 +180,7 @@ void UVEditor::flipUVHClicked()
 
 void UVEditor::flipUVVClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.mulYScale(-1.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -189,7 +189,7 @@ void UVEditor::flipUVVClicked()
 
 void UVEditor::rotateUVCCWClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.addRotation(90.0f);
 
   auto document = kdl::mem_lock(m_document);
@@ -198,7 +198,7 @@ void UVEditor::rotateUVCCWClicked()
 
 void UVEditor::rotateUVCWClicked()
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.addRotation(-90.0f);
 
   auto document = kdl::mem_lock(m_document);

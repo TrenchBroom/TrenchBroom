@@ -36,7 +36,7 @@ namespace io
 class FileSystem;
 } // namespace io
 
-namespace Model
+namespace mdl
 {
 struct MaterialConfig;
 }
@@ -63,7 +63,7 @@ public:
 
   void reload(
     const io::FileSystem& fs,
-    const Model::MaterialConfig& materialConfig,
+    const mdl::MaterialConfig& materialConfig,
     const asset::CreateTextureResource& createResource);
 
   // for testing

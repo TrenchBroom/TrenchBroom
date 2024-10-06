@@ -23,17 +23,17 @@
 #include <QProcess>
 
 #include "Macros.h"
-#include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
+#include "mdl/CompilationTask.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -72,11 +72,11 @@ class CompilationExportMapTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
 private:
-  Model::CompilationExportMap m_task;
+  mdl::CompilationExportMap m_task;
 
 public:
   CompilationExportMapTaskRunner(
-    CompilationContext& context, Model::CompilationExportMap task);
+    CompilationContext& context, mdl::CompilationExportMap task);
   ~CompilationExportMapTaskRunner() override;
 
 private:
@@ -90,11 +90,11 @@ class CompilationCopyFilesTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
 private:
-  Model::CompilationCopyFiles m_task;
+  mdl::CompilationCopyFiles m_task;
 
 public:
   CompilationCopyFilesTaskRunner(
-    CompilationContext& context, Model::CompilationCopyFiles task);
+    CompilationContext& context, mdl::CompilationCopyFiles task);
   ~CompilationCopyFilesTaskRunner() override;
 
 private:
@@ -108,11 +108,11 @@ class CompilationRenameFileTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
 private:
-  Model::CompilationRenameFile m_task;
+  mdl::CompilationRenameFile m_task;
 
 public:
   CompilationRenameFileTaskRunner(
-    CompilationContext& context, Model::CompilationRenameFile task);
+    CompilationContext& context, mdl::CompilationRenameFile task);
   ~CompilationRenameFileTaskRunner() override;
 
 private:
@@ -126,11 +126,11 @@ class CompilationDeleteFilesTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
 private:
-  Model::CompilationDeleteFiles m_task;
+  mdl::CompilationDeleteFiles m_task;
 
 public:
   CompilationDeleteFilesTaskRunner(
-    CompilationContext& context, Model::CompilationDeleteFiles task);
+    CompilationContext& context, mdl::CompilationDeleteFiles task);
   ~CompilationDeleteFilesTaskRunner() override;
 
 private:
@@ -144,13 +144,12 @@ class CompilationRunToolTaskRunner : public CompilationTaskRunner
 {
   Q_OBJECT
 private:
-  Model::CompilationRunTool m_task;
+  mdl::CompilationRunTool m_task;
   QProcess* m_process{nullptr};
   bool m_terminated{false};
 
 public:
-  CompilationRunToolTaskRunner(
-    CompilationContext& context, Model::CompilationRunTool task);
+  CompilationRunToolTaskRunner(CompilationContext& context, mdl::CompilationRunTool task);
   ~CompilationRunToolTaskRunner() override;
 
 private:
@@ -182,13 +181,13 @@ private:
 public:
   CompilationRunner(
     CompilationContext context,
-    const Model::CompilationProfile& profile,
+    const mdl::CompilationProfile& profile,
     QObject* parent = nullptr);
   ~CompilationRunner() override;
 
 private:
   static TaskRunnerList createTaskRunners(
-    CompilationContext& context, const Model::CompilationProfile& profile);
+    CompilationContext& context, const mdl::CompilationProfile& profile);
 
 public:
   void execute();

@@ -19,6 +19,12 @@
 
 #include "LoadMaterialCollections.h"
 
+#include "Logger.h"
+#include "asset/MaterialCollection.h"
+#include "asset/Palette.h"
+#include "asset/Quake3Shader.h"
+#include "asset/Texture.h"
+#include "asset/TextureResource.h"
 #include "io/FileSystem.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
@@ -31,13 +37,7 @@
 #include "io/ReadWalTexture.h"
 #include "io/ResourceUtils.h"
 #include "io/TraversalMode.h"
-#include "Logger.h"
-#include "Model/GameConfig.h"
-#include "asset/MaterialCollection.h"
-#include "asset/Palette.h"
-#include "asset/Quake3Shader.h"
-#include "asset/Texture.h"
-#include "asset/TextureResource.h"
+#include "mdl/GameConfig.h"
 
 #include "kdl/functional.h"
 #include "kdl/grouped_range.h"
@@ -62,7 +62,7 @@ namespace
 {
 
 Result<asset::Palette> loadPalette(
-  const FileSystem& fs, const Model::MaterialConfig& materialConfig)
+  const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   if (materialConfig.palette.empty())
   {
@@ -83,7 +83,7 @@ bool shouldExclude(
 }
 
 Result<std::vector<std::filesystem::path>> findTexturePaths(
-  const FileSystem& fs, const Model::MaterialConfig& materialConfig)
+  const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   return fs.find(
            materialConfig.root,
@@ -98,7 +98,7 @@ Result<std::vector<std::filesystem::path>> findTexturePaths(
 
 Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::vector<asset::Quake3Shader>& shaders)
 {
   return findTexturePaths(fs, materialConfig)
@@ -122,7 +122,7 @@ Result<std::vector<std::filesystem::path>> findAllMaterialPaths(
 Result<std::filesystem::path> findShaderTexture(
   const std::filesystem::path& texturePath,
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig)
+  const mdl::MaterialConfig& materialConfig)
 {
   if (texturePath.empty())
   {
@@ -157,7 +157,7 @@ Result<std::filesystem::path> findShaderTexture(
 Result<std::filesystem::path> findShaderTexture(
   const std::vector<asset::Quake3ShaderStage>& stages,
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig)
+  const mdl::MaterialConfig& materialConfig)
 {
   auto path = stages | kdl::first([&](const auto& stage) {
                 return findShaderTexture(stage.map, fs, materialConfig);
@@ -172,7 +172,7 @@ Result<std::filesystem::path> findShaderTexture(
 Result<std::filesystem::path> findShaderTexture(
   const asset::Quake3Shader& shader,
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig)
+  const mdl::MaterialConfig& materialConfig)
 {
   return findShaderTexture(shader.editorImage, fs, materialConfig)
          | kdl::or_else(
@@ -187,7 +187,7 @@ Result<std::filesystem::path> findShaderTexture(
 Result<asset::Material> loadShaderMaterial(
   const asset::Quake3Shader& shader,
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource)
 {
   return findShaderTexture(shader, fs, materialConfig) | kdl::transform([&](auto path_) {
@@ -322,7 +322,7 @@ asset::ResourceLoader<asset::Texture> makeTextureResourceLoader(
 Result<asset::Material> loadTextureMaterial(
   const std::filesystem::path& texturePath,
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource,
   const std::optional<Result<asset::Palette>>& paletteResult)
 {
@@ -338,7 +338,7 @@ Result<asset::Material> loadTextureMaterial(
 }
 
 std::vector<asset::MaterialCollection> groupMaterialsIntoCollections(
-  std::vector<asset::Material> materials, const Model::MaterialConfig& materialConfig)
+  std::vector<asset::Material> materials, const mdl::MaterialConfig& materialConfig)
 {
   const auto getMaterialCollectionPath = [&](const auto& materialName) {
     return materialConfig.root / std::filesystem::path{materialName}.parent_path();
@@ -379,7 +379,7 @@ std::vector<asset::MaterialCollection> groupMaterialsIntoCollections(
 
 Result<asset::Material> loadMaterial(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
   const asset::CreateTextureResource& createResource,
   const std::vector<asset::Quake3Shader>& shaders,
@@ -406,7 +406,7 @@ Result<asset::Material> loadMaterial(
 
 Result<std::vector<asset::MaterialCollection>> loadMaterialCollections(
   const FileSystem& fs,
-  const Model::MaterialConfig& materialConfig,
+  const mdl::MaterialConfig& materialConfig,
   const asset::CreateTextureResource& createResource,
   Logger& logger)
 {

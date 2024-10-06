@@ -278,7 +278,7 @@ UnorderedApproxVecMatcher<T, S> UnorderedApproxVecMatches(
 
 } // namespace tb
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
 
@@ -310,4 +310,4 @@ public:
 
 NodeMatcher MatchesNodeVector(std::vector<Node*> expected);
 
-} // namespace tb::Model
+} // namespace tb::mdl

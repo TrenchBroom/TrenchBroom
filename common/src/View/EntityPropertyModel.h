@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNodeBase;
 }
@@ -74,8 +74,7 @@ std::ostream& operator<<(std::ostream& lhs, const PropertyProtection& rhs);
 /**
  * Suggests a new, unused property name of the form "property X".
  */
-std::string newPropertyKeyForEntityNodes(
-  const std::vector<Model::EntityNodeBase*>& nodes);
+std::string newPropertyKeyForEntityNodes(const std::vector<mdl::EntityNodeBase*>& nodes);
 
 /**
  * Viewmodel (as in MVVM) for a single row in the table
@@ -94,9 +93,9 @@ private:
 
 public:
   PropertyRow();
-  PropertyRow(std::string key, const Model::EntityNodeBase* node);
+  PropertyRow(std::string key, const mdl::EntityNodeBase* node);
 
-  void merge(const Model::EntityNodeBase* other);
+  void merge(const mdl::EntityNodeBase* other);
 
   const std::string& key() const;
   std::string value() const;
@@ -190,11 +189,11 @@ private: // helpers
   bool renameProperty(
     size_t rowIndex,
     const std::string& newKey,
-    const std::vector<Model::EntityNodeBase*>& nodes);
+    const std::vector<mdl::EntityNodeBase*>& nodes);
   bool updateProperty(
     size_t rowIndex,
     const std::string& newValue,
-    const std::vector<Model::EntityNodeBase*>& nodes);
+    const std::vector<mdl::EntityNodeBase*>& nodes);
   bool setProtectedProperty(size_t rowIndex, bool newValue);
 
 public: // EntityPropertyGrid helpers

@@ -25,11 +25,11 @@
 
 #include "kdl/vector_set.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EditorContext;
 class GroupNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -41,8 +41,8 @@ class GroupRenderer
 private:
   class GroupNameAnchor;
 
-  const Model::EditorContext& m_editorContext;
-  kdl::vector_set<const Model::GroupNode*> m_groups;
+  const mdl::EditorContext& m_editorContext;
+  kdl::vector_set<const mdl::GroupNode*> m_groups;
 
   DirectEdgeRenderer m_boundsRenderer;
   bool m_boundsValid = false;
@@ -57,7 +57,7 @@ private:
   Color m_occludedBoundsColor;
 
 public:
-  explicit GroupRenderer(const Model::EditorContext& editorContext);
+  explicit GroupRenderer(const mdl::EditorContext& editorContext);
 
   /**
    * Equivalent to invalidateGroup() on all added groups.
@@ -72,16 +72,16 @@ public:
    * Adds a group. Calling with an already-added group is allowed, but ignored (not
    * guaranteed to invalidate it).
    */
-  void addGroup(const Model::GroupNode* group);
+  void addGroup(const mdl::GroupNode* group);
   /**
    * Removes a group. Calling with an unknown group is allowed, but ignored.
    */
-  void removeGroup(const Model::GroupNode* group);
+  void removeGroup(const mdl::GroupNode* group);
   /**
    * Causes cached renderer data to be rebuilt for the given group (on the next render()
    * call).
    */
-  void invalidateGroup(const Model::GroupNode* group);
+  void invalidateGroup(const mdl::GroupNode* group);
 
   void setOverrideColors(bool overrideColors);
 
@@ -105,10 +105,10 @@ private:
   void invalidateBounds();
   void validateBounds();
 
-  bool shouldRenderGroup(const Model::GroupNode& group) const;
+  bool shouldRenderGroup(const mdl::GroupNode& group) const;
 
-  AttrString groupString(const Model::GroupNode& group) const;
-  Color groupColor(const Model::GroupNode& group) const;
+  AttrString groupString(const mdl::GroupNode& group) const;
+  Color groupColor(const mdl::GroupNode& group) const;
 };
 
 } // namespace tb::Renderer

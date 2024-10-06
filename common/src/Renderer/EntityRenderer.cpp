@@ -20,9 +20,6 @@
 #include "EntityRenderer.h"
 
 #include "AttrString.h"
-#include "Model/EditorContext.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
 #include "Renderer/Camera.h"
 #include "Renderer/GLVertexType.h"
 #include "Renderer/PrimType.h"
@@ -32,6 +29,9 @@
 #include "Renderer/TextAnchor.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityModelManager.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -47,10 +47,10 @@ namespace
 class EntityClassnameAnchor : public TextAnchor3D
 {
 private:
-  const Model::EntityNode* m_entity;
+  const mdl::EntityNode* m_entity;
 
 public:
-  explicit EntityClassnameAnchor(const Model::EntityNode* entity)
+  explicit EntityClassnameAnchor(const mdl::EntityNode* entity)
     : m_entity{entity}
   {
   }
@@ -70,7 +70,7 @@ private:
 EntityRenderer::EntityRenderer(
   Logger& logger,
   asset::EntityModelManager& entityModelManager,
-  const Model::EditorContext& editorContext)
+  const mdl::EditorContext& editorContext)
   : m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
   , m_modelRenderer{logger, m_entityModelManager, m_editorContext}
@@ -97,7 +97,7 @@ void EntityRenderer::reloadModels()
   m_modelRenderer.updateEntities(std::begin(m_entities), std::end(m_entities));
 }
 
-void EntityRenderer::addEntity(const Model::EntityNode* entity)
+void EntityRenderer::addEntity(const mdl::EntityNode* entity)
 {
   if (m_entities.insert(entity).second)
   {
@@ -106,7 +106,7 @@ void EntityRenderer::addEntity(const Model::EntityNode* entity)
   }
 }
 
-void EntityRenderer::removeEntity(const Model::EntityNode* entity)
+void EntityRenderer::removeEntity(const mdl::EntityNode* entity)
 {
   if (auto it = m_entities.find(entity); it != std::end(m_entities))
   {
@@ -116,7 +116,7 @@ void EntityRenderer::removeEntity(const Model::EntityNode* entity)
   }
 }
 
-void EntityRenderer::invalidateEntity(const Model::EntityNode* entity)
+void EntityRenderer::invalidateEntity(const mdl::EntityNode* entity)
 {
   m_modelRenderer.updateEntity(entity);
   invalidateBounds();
@@ -508,11 +508,11 @@ void EntityRenderer::validateBounds()
   m_boundsValid = true;
 }
 
-AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) const
+AttrString EntityRenderer::entityString(const mdl::EntityNode* entityNode) const
 {
   const auto& classname = entityNode->entity().classname();
-  // const Model::AttributeValue& targetname =
-  // entity->attribute(Model::AttributeNames::Targetname);
+  // const mdl::AttributeValue& targetname =
+  // entity->attribute(mdl::AttributeNames::Targetname);
 
   auto str = AttrString{};
   str.appendCentered(classname);
@@ -521,7 +521,7 @@ AttrString EntityRenderer::entityString(const Model::EntityNode* entityNode) con
   return str;
 }
 
-const Color& EntityRenderer::boundsColor(const Model::EntityNode* entityNode) const
+const Color& EntityRenderer::boundsColor(const mdl::EntityNode* entityNode) const
 {
   if (const auto* definition = entityNode->entity().definition())
   {

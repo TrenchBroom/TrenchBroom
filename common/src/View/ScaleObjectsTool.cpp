@@ -20,9 +20,6 @@
 
 #include "ScaleObjectsTool.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -30,6 +27,9 @@
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsToolPage.h"
 #include "View/TransactionScope.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -130,12 +130,12 @@ std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)
 
 } // namespace
 
-const Model::HitType::Type ScaleObjectsTool::ScaleToolSideHitType =
-  Model::HitType::freeType();
-const Model::HitType::Type ScaleObjectsTool::ScaleToolEdgeHitType =
-  Model::HitType::freeType();
-const Model::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType =
-  Model::HitType::freeType();
+const mdl::HitType::Type ScaleObjectsTool::ScaleToolSideHitType =
+  mdl::HitType::freeType();
+const mdl::HitType::Type ScaleObjectsTool::ScaleToolEdgeHitType =
+  mdl::HitType::freeType();
+const mdl::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType =
+  mdl::HitType::freeType();
 
 // Scale tool helper functions
 
@@ -488,7 +488,7 @@ vm::bbox3d moveBBoxEdge(
   return !result.is_empty() ? result : vm::bbox3d{};
 }
 
-vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit& hit)
+vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& hit)
 {
   auto handleLine = vm::line3d{};
 
@@ -536,7 +536,7 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const Model::Hit&
 
 vm::bbox3d moveBBoxForHit(
   const vm::bbox3d& bboxAtDragStart,
-  const Model::Hit& dragStartHit,
+  const mdl::Hit& dragStartHit,
   const vm::vec3d& delta,
   const ProportionalAxes& proportional,
   const AnchorPos anchor)
@@ -587,7 +587,7 @@ const Grid& ScaleObjectsTool::grid() const
   return kdl::mem_lock(m_document)->grid();
 }
 
-const Model::Hit& ScaleObjectsTool::dragStartHit() const
+const mdl::Hit& ScaleObjectsTool::dragStartHit() const
 {
   return m_dragStartHit;
 }
@@ -645,7 +645,7 @@ BackSide pickBackSideOfBox(
 void ScaleObjectsTool::pickBackSides(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
   // select back sides. Used for both 2D and 3D.
   if (pickResult.empty())
@@ -656,7 +656,7 @@ void ScaleObjectsTool::pickBackSides(
     // For face dragging, we'll project the pick ray onto the line through this point and
     // having the face normal.
     assert(result.pickedSideNormal != vm::vec3d(0, 0, 0));
-    pickResult.addHit(Model::Hit{
+    pickResult.addHit(mdl::Hit{
       ScaleToolSideHitType,
       result.distAlongRay,
       vm::point_at_distance(pickRay, result.distAlongRay),
@@ -667,9 +667,9 @@ void ScaleObjectsTool::pickBackSides(
 void ScaleObjectsTool::pick2D(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& myBounds = bounds();
 
@@ -679,7 +679,7 @@ void ScaleObjectsTool::pick2D(
     return;
   }
 
-  auto localPickResult = Model::PickResult{};
+  auto localPickResult = mdl::PickResult{};
 
   // bbox corners in 2d views
   assert(camera.orthographicProjection());
@@ -698,7 +698,7 @@ void ScaleObjectsTool::pick2D(
             pickRay, point, double(pref(Preferences::HandleRadius))))
         {
           const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-          localPickResult.addHit(Model::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
+          localPickResult.addHit(mdl::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
         }
       }
     }
@@ -715,9 +715,9 @@ void ScaleObjectsTool::pick2D(
 void ScaleObjectsTool::pick3D(
   const vm::ray3d& pickRay,
   const Renderer::Camera& camera,
-  Model::PickResult& pickResult) const
+  mdl::PickResult& pickResult) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& myBounds = bounds();
 
@@ -727,7 +727,7 @@ void ScaleObjectsTool::pick3D(
     return;
   }
 
-  auto localPickResult = Model::PickResult{};
+  auto localPickResult = mdl::PickResult{};
 
   // these handles only work in 3D.
   assert(camera.perspectiveProjection());
@@ -743,7 +743,7 @@ void ScaleObjectsTool::pick3D(
     if (const auto dist = camera.pickPointHandle(pickRay, point, cornerRadius))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(Model::Hit{ScaleToolCornerHitType, *dist, hitPoint, corner});
+      localPickResult.addHit(mdl::Hit{ScaleToolCornerHitType, *dist, hitPoint, corner});
     }
   }
 
@@ -757,7 +757,7 @@ void ScaleObjectsTool::pick3D(
         pickRay, points, double(pref(Preferences::HandleRadius))))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(Model::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
+      localPickResult.addHit(mdl::Hit{ScaleToolEdgeHitType, *dist, hitPoint, edge});
     }
   }
 
@@ -771,7 +771,7 @@ void ScaleObjectsTool::pick3D(
         vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
-      localPickResult.addHit(Model::Hit{ScaleToolSideHitType, *dist, hitPoint, side});
+      localPickResult.addHit(mdl::Hit{ScaleToolSideHitType, *dist, hitPoint, side});
     }
   }
 
@@ -951,9 +951,9 @@ std::vector<vm::vec3d> ScaleObjectsTool::cornerHandles() const
   return result;
 }
 
-void ScaleObjectsTool::updatePickedHandle(const Model::PickResult& pickResult)
+void ScaleObjectsTool::updatePickedHandle(const mdl::PickResult& pickResult)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& hit = pickResult.first(
     type(ScaleToolSideHitType | ScaleToolEdgeHitType | ScaleToolCornerHitType));
@@ -1011,7 +1011,7 @@ const ProportionalAxes& ScaleObjectsTool::proportionalAxes() const
   return m_proportionalAxes;
 }
 
-void ScaleObjectsTool::startScaleWithHit(const Model::Hit& hit)
+void ScaleObjectsTool::startScaleWithHit(const mdl::Hit& hit)
 {
   ensure(hit.isMatch(), "must start with matching hit");
   ensure(

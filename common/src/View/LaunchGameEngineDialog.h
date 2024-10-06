@@ -21,14 +21,14 @@
 
 #include <QDialog>
 
-#include "Model/GameEngineConfig.h"
 #include "View/CompilationVariables.h"
+#include "mdl/GameEngineConfig.h"
 
 #include <memory>
 
 class QPushButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct GameEngineProfile;
 }
@@ -52,8 +52,8 @@ private:
   GameEngineProfileListBox* m_gameEngineList{nullptr};
   MultiCompletionLineEdit* m_parameterText{nullptr};
   QPushButton* m_launchButton{nullptr};
-  Model::GameEngineProfile* m_lastProfile{nullptr};
-  Model::GameEngineConfig m_config;
+  mdl::GameEngineProfile* m_lastProfile{nullptr};
+  mdl::GameEngineConfig m_config;
 
 public:
   explicit LaunchGameEngineDialog(

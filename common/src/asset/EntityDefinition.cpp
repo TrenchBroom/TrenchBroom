@@ -20,8 +20,8 @@
 #include "EntityDefinition.h"
 
 #include "Macros.h"
-#include "Model/EntityProperties.h"
 #include "asset/PropertyDefinition.h"
+#include "mdl/EntityProperties.h"
 
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
@@ -91,7 +91,7 @@ void EntityDefinition::decUsageCount()
 
 const FlagsPropertyDefinition* EntityDefinition::spawnflags() const
 {
-  return safeGetFlagsPropertyDefinition(this, Model::EntityPropertyKeys::Spawnflags);
+  return safeGetFlagsPropertyDefinition(this, mdl::EntityPropertyKeys::Spawnflags);
 }
 
 const std::vector<std::shared_ptr<PropertyDefinition>>& EntityDefinition::

@@ -19,10 +19,10 @@
 
 #pragma once
 
-#include "Model/HitFilter.h"
 #include "Renderer/Camera.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
+#include "mdl/HitFilter.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -451,7 +451,7 @@ DragHandlePicker makeCircleHandlePicker(
  * that hit's hit point is returned, corrected by the given handle offset.
  */
 DragHandlePicker makeSurfaceHandlePicker(
-  Model::HitFilter filter, const vm::vec3d& handleOffset);
+  mdl::HitFilter filter, const vm::vec3d& handleOffset);
 
 /**
  * Snaps a proposed handle position to its final position.

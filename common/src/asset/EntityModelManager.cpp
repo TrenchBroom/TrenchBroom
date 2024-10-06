@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "Logger.h"
 #include "Macros.h"
-#include "Model/Game.h"
 #include "Renderer/MaterialIndexRangeRenderer.h"
 #include "asset/EntityModel.h"
 #include "asset/Quake3Shader.h"
@@ -31,6 +30,7 @@
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
 #include "io/MaterialUtils.h"
+#include "mdl/Game.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -74,7 +74,7 @@ void EntityModelManager::reloadShaders()
   }
 }
 
-void EntityModelManager::setGame(const Model::Game* game)
+void EntityModelManager::setGame(const mdl::Game* game)
 {
   clear();
   m_game = game;

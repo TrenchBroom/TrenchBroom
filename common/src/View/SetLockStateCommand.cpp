@@ -20,14 +20,14 @@
 #include "SetLockStateCommand.h"
 
 #include "Macros.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/LockState.h"
-#include "Model/Node.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/LockState.h"
+#include "mdl/Node.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 
@@ -38,53 +38,53 @@ namespace tb::View
 {
 
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
-  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Locked);
+  return std::make_unique<SetLockStateCommand>(nodes, mdl::LockState::Locked);
 }
 
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::unlock(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
-  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Unlocked);
+  return std::make_unique<SetLockStateCommand>(nodes, mdl::LockState::Unlocked);
 }
 
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::reset(
-  std::vector<Model::Node*> nodes)
+  std::vector<mdl::Node*> nodes)
 {
-  return std::make_unique<SetLockStateCommand>(nodes, Model::LockState::Inherited);
+  return std::make_unique<SetLockStateCommand>(nodes, mdl::LockState::Inherited);
 }
 
-static bool shouldUpdateModificationCount(const std::vector<Model::Node*>& nodes)
+static bool shouldUpdateModificationCount(const std::vector<mdl::Node*>& nodes)
 {
   return std::ranges::any_of(nodes, [](const auto* node) {
     return node->accept(kdl::overload(
-      [](const Model::WorldNode*) { return false; },
-      [](const Model::LayerNode*) { return true; },
-      [](const Model::GroupNode*) { return false; },
-      [](const Model::EntityNode*) { return false; },
-      [](const Model::BrushNode*) { return false; },
-      [](const Model::PatchNode*) { return false; }));
+      [](const mdl::WorldNode*) { return false; },
+      [](const mdl::LayerNode*) { return true; },
+      [](const mdl::GroupNode*) { return false; },
+      [](const mdl::EntityNode*) { return false; },
+      [](const mdl::BrushNode*) { return false; },
+      [](const mdl::PatchNode*) { return false; }));
   });
 }
 
 SetLockStateCommand::SetLockStateCommand(
-  std::vector<Model::Node*> nodes, const Model::LockState lockState)
+  std::vector<mdl::Node*> nodes, const mdl::LockState lockState)
   : UndoableCommand(makeName(lockState), shouldUpdateModificationCount(nodes))
   , m_nodes{std::move(nodes)}
   , m_lockState{lockState}
 {
 }
 
-std::string SetLockStateCommand::makeName(const Model::LockState state)
+std::string SetLockStateCommand::makeName(const mdl::LockState state)
 {
   switch (state)
   {
-  case Model::LockState::Inherited:
+  case mdl::LockState::Inherited:
     return "Reset Locking";
-  case Model::LockState::Locked:
+  case mdl::LockState::Locked:
     return "Lock Objects";
-  case Model::LockState::Unlocked:
+  case mdl::LockState::Unlocked:
     return "Unlock Objects";
     switchDefault();
   }

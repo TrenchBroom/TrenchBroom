@@ -33,7 +33,7 @@ class QWindow;
 class QFocusEvent;
 class QMouseEvent;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -82,8 +82,7 @@ protected:
   void addTool(Tool& tool);
 
 public: // picking
-  void pick(
-    ToolChain& chain, const InputState& inputState, Model::PickResult& pickResult);
+  void pick(ToolChain& chain, const InputState& inputState, mdl::PickResult& pickResult);
 
 public: // event handling
   bool dragEnter(ToolChain& chain, const InputState& inputState, const std::string& text);

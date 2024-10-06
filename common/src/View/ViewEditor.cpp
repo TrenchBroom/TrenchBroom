@@ -27,10 +27,6 @@
 #include <QRadioButton>
 #include <QScrollArea>
 
-#include "Model/EditorContext.h"
-#include "Model/Game.h"
-#include "Model/Tag.h"
-#include "Model/TagType.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/BorderPanel.h"
@@ -42,6 +38,10 @@
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionGroup.h"
 #include "asset/EntityDefinitionManager.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Game.h"
+#include "mdl/Tag.h"
+#include "mdl/TagType.h"
 
 #include "kdl/memory_utils.h"
 
@@ -53,7 +53,7 @@ namespace tb::View
 
 EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(
   asset::EntityDefinitionManager& entityDefinitionManager,
-  Model::EditorContext& editorContext,
+  mdl::EditorContext& editorContext,
   QWidget* parent)
   : QWidget{parent}
   , m_entityDefinitionManager{entityDefinitionManager}
@@ -419,8 +419,7 @@ void ViewEditor::createEmptyTagFilter(QWidget* parent)
   parent->setLayout(layout);
 }
 
-void ViewEditor::createTagFilter(
-  QWidget* parent, const std::vector<Model::SmartTag>& tags)
+void ViewEditor::createTagFilter(QWidget* parent, const std::vector<mdl::SmartTag>& tags)
 {
   assert(!tags.empty());
 
@@ -638,7 +637,7 @@ void ViewEditor::showBrushesChanged(const bool checked)
   setPref(Preferences::ShowBrushes, checked);
 }
 
-void ViewEditor::showTagChanged(const bool checked, const Model::TagType::Type tagType)
+void ViewEditor::showTagChanged(const bool checked, const mdl::TagType::Type tagType)
 {
   auto document = kdl::mem_lock(m_document);
   auto& editorContext = document->editorContext();

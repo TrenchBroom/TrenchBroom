@@ -17,14 +17,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/WorldNode.h"
 
 #include "CatchUtils/Matchers.h"
 
@@ -37,17 +37,15 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
 {
   SECTION("Update linked groups")
   {
-    auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+    auto* groupNode = new mdl::GroupNode{mdl::Group{"test"}};
     auto* brushNode = createBrushNode();
 
-    using CreateNode = std::function<Model::Node*(const MapDocumentTest& test)>;
+    using CreateNode = std::function<mdl::Node*(const MapDocumentTest& test)>;
     CreateNode createNode = GENERATE_COPY(
-      CreateNode{[](const auto&) -> Model::Node* {
-        return new Model::EntityNode{Model::Entity{}};
-      }},
-      CreateNode{[](const auto& test) -> Model::Node* { return test.createBrushNode(); }},
       CreateNode{
-        [](const auto& test) -> Model::Node* { return test.createPatchNode(); }});
+        [](const auto&) -> mdl::Node* { return new mdl::EntityNode{mdl::Entity{}}; }},
+      CreateNode{[](const auto& test) -> mdl::Node* { return test.createBrushNode(); }},
+      CreateNode{[](const auto& test) -> mdl::Node* { return test.createPatchNode(); }});
 
     auto* nodeToRemove = createNode(*this);
     groupNode->addChildren({brushNode, nodeToRemove});
@@ -70,7 +68,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeNodes")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer")
 {
-  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
+  auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
   document->removeNodes({layer});
@@ -82,10 +80,10 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeLayer")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity")
 {
-  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
+  auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  auto* entity = new Model::EntityNode{Model::Entity{}};
+  auto* entity = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{layer, {entity}}});
 
   auto* brush = createBrushNode();
@@ -102,7 +100,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyBrushEntity")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup")
 {
-  auto* group = new Model::GroupNode{Model::Group{"group"}};
+  auto* group = new mdl::GroupNode{mdl::Group{"group"}};
   document->addNodes({{document->parentForNodes(), {group}}});
 
   document->openGroup(group);
@@ -123,12 +121,12 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.removeEmptyGroup")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups")
 {
-  auto* outer = new Model::GroupNode{Model::Group{"outer"}};
+  auto* outer = new mdl::GroupNode{mdl::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {outer}}});
 
   document->openGroup(outer);
 
-  auto* inner = new Model::GroupNode{Model::Group{"inner"}};
+  auto* inner = new mdl::GroupNode{mdl::Group{"inner"}};
   document->addNodes({{document->parentForNodes(), {inner}}});
 
   document->openGroup(inner);
@@ -151,13 +149,13 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.recursivelyRemoveEmptyGroups"
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"outer"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {groupNode}}});
 
   document->openGroup(groupNode);
 
-  auto* entityNode1 = new Model::EntityNode{Model::Entity{}};
-  auto* entityNode2 = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode1 = new mdl::EntityNode{mdl::Entity{}};
+  auto* entityNode2 = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode1, entityNode2}}});
 
   document->closeGroup();
@@ -181,18 +179,18 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroups")
 
 TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursiveDelete")
 {
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outer"}};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outer"}};
   document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
 
   document->openGroup(outerGroupNode);
 
-  auto* outerEntityNode = new Model::EntityNode{Model::Entity{}};
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
+  auto* outerEntityNode = new mdl::EntityNode{mdl::Entity{}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"inner"}};
   document->addNodes({{document->parentForNodes(), {outerEntityNode, innerGroupNode}}});
 
   document->openGroup(innerGroupNode);
 
-  auto* innerEntityNode = new Model::EntityNode{Model::Entity{}};
+  auto* innerEntityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {innerEntityNode}}});
 
   document->closeGroup();
@@ -205,22 +203,22 @@ TEST_CASE_METHOD(MapDocumentTest, "RemoveNodesTest.updateLinkedGroupsWithRecursi
 
   REQUIRE(
     outerGroupNode->children()
-    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
-  REQUIRE_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
+    == std::vector<mdl::Node*>{outerEntityNode, innerGroupNode});
+  REQUIRE_THAT(*linkedOuterGroupNode, mdl::MatchesNode(*outerGroupNode));
 
   document->removeNodes({innerEntityNode});
-  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
-  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
+  REQUIRE(outerGroupNode->children() == std::vector<mdl::Node*>{outerEntityNode});
+  CHECK_THAT(*linkedOuterGroupNode, mdl::MatchesNode(*outerGroupNode));
 
   document->undoCommand();
   REQUIRE(
     outerGroupNode->children()
-    == std::vector<Model::Node*>{outerEntityNode, innerGroupNode});
-  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
+    == std::vector<mdl::Node*>{outerEntityNode, innerGroupNode});
+  CHECK_THAT(*linkedOuterGroupNode, mdl::MatchesNode(*outerGroupNode));
 
   document->redoCommand();
-  REQUIRE(outerGroupNode->children() == std::vector<Model::Node*>{outerEntityNode});
-  CHECK_THAT(*linkedOuterGroupNode, Model::MatchesNode(*outerGroupNode));
+  REQUIRE(outerGroupNode->children() == std::vector<mdl::Node*>{outerEntityNode});
+  CHECK_THAT(*linkedOuterGroupNode, mdl::MatchesNode(*outerGroupNode));
 }
 
 } // namespace tb::View

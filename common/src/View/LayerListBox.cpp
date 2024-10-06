@@ -27,11 +27,11 @@
 #include <QToolButton>
 #include <QtGlobal>
 
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
+#include "mdl/LayerNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -41,7 +41,7 @@ namespace tb::View
 // LayerListBoxWidget
 
 LayerListBoxWidget::LayerListBoxWidget(
-  std::weak_ptr<MapDocument> document, Model::LayerNode* layer, QWidget* parent)
+  std::weak_ptr<MapDocument> document, mdl::LayerNode* layer, QWidget* parent)
   : ControlListBoxItemRenderer(parent)
   , m_document{std::move(document)}
   , m_layer{layer}
@@ -134,7 +134,7 @@ void LayerListBoxWidget::updateLayerItem()
   m_omitFromExportButton->setChecked(m_layer->layer().omitFromExport());
 }
 
-Model::LayerNode* LayerListBoxWidget::layer() const
+mdl::LayerNode* LayerListBoxWidget::layer() const
 {
   return m_layer;
 }
@@ -171,12 +171,12 @@ LayerListBox::LayerListBox(std::weak_ptr<MapDocument> document, QWidget* parent)
   connectObservers();
 }
 
-Model::LayerNode* LayerListBox::selectedLayer() const
+mdl::LayerNode* LayerListBox::selectedLayer() const
 {
   return layerForRow(currentRow());
 }
 
-void LayerListBox::setSelectedLayer(Model::LayerNode* layer)
+void LayerListBox::setSelectedLayer(mdl::LayerNode* layer)
 {
   for (int i = 0; i < count(); ++i)
   {
@@ -217,7 +217,7 @@ void LayerListBox::documentDidChange(MapDocument*)
   reload();
 }
 
-void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&)
+void LayerListBox::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   const auto documentLayers = kdl::mem_lock(m_document)->world()->allLayersUserSorted();
 
@@ -233,7 +233,7 @@ void LayerListBox::nodesDidChange(const std::vector<Model::Node*>&)
   updateItems();
 }
 
-void LayerListBox::currentLayerDidChange(const Model::LayerNode*)
+void LayerListBox::currentLayerDidChange(const mdl::LayerNode*)
 {
   updateItems();
 }
@@ -301,7 +301,7 @@ const LayerListBoxWidget* LayerListBox::widgetAtRow(const int row) const
   return static_cast<const LayerListBoxWidget*>(renderer(row));
 }
 
-Model::LayerNode* LayerListBox::layerForRow(const int row) const
+mdl::LayerNode* LayerListBox::layerForRow(const int row) const
 {
   if (const auto* widget = widgetAtRow(row))
   {
@@ -310,7 +310,7 @@ Model::LayerNode* LayerListBox::layerForRow(const int row) const
   return nullptr;
 }
 
-std::vector<Model::LayerNode*> LayerListBox::layers() const
+std::vector<mdl::LayerNode*> LayerListBox::layers() const
 {
   const auto rowCount = count();
 

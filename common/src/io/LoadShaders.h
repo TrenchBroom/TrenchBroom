@@ -33,7 +33,7 @@ namespace tb::asset
 class Quake3Shader;
 } // namespace tb::asset
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct MaterialConfig;
 }
@@ -43,6 +43,6 @@ namespace tb::io
 class FileSystem;
 
 Result<std::vector<asset::Quake3Shader>> loadShaders(
-  const FileSystem& fs, const Model::MaterialConfig& materialConfig, Logger& logger);
+  const FileSystem& fs, const mdl::MaterialConfig& materialConfig, Logger& logger);
 
 } // namespace tb::io

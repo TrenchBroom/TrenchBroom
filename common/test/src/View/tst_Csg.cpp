@@ -19,14 +19,14 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/LayerNode.h"
-#include "Model/ParallelUVCoordSystem.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -42,16 +42,16 @@ namespace tb::View
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* brushNode1 = new Model::BrushNode{
+  auto* brushNode1 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
     | kdl::value()};
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
@@ -71,16 +71,16 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeBrushes")
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* brushNode1 = new Model::BrushNode{
+  auto* brushNode1 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 64, 64}}, "material")
     | kdl::value()};
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{32, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
@@ -117,13 +117,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgConvexMergeFaces")
 TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTexturing")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment =
-    Model::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
+  auto texAlignment = mdl::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 = builder.createCuboid(
@@ -138,8 +137,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
-  auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
-  auto* brushNode2 = new Model::BrushNode{std::move(brush2)};
+  auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};
+  auto* brushNode2 = new mdl::BrushNode{std::move(brush2)};
 
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{entityNode, {brushNode2}}});
@@ -149,7 +148,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
   CHECK(document->csgConvexMerge());
   CHECK(entityNode->children().size() == 1u);
 
-  auto* brushNode3 = static_cast<Model::BrushNode*>(entityNode->children()[0]);
+  auto* brushNode3 = static_cast<mdl::BrushNode*>(entityNode->children()[0]);
   const auto& brush3 = brushNode3->brush();
 
   const auto& top = brush3.face(*brush3.findFace(vm::vec3d{0, 0, 1}));
@@ -160,13 +159,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgConvexMergeTextu
 TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturing")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto texAlignment =
-    Model::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
+  auto texAlignment = mdl::ParallelUVCoordSystem{vm::vec3d{1, 0, 0}, vm::vec3d{0, 1, 0}};
   auto texAlignmentSnapshot = texAlignment.takeSnapshot();
 
   auto brush1 = builder.createCuboid(
@@ -178,8 +176,8 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   brush2.face(*brush2.findFace(vm::vec3d{0, 0, 1}))
     .restoreUVCoordSystemSnapshot(*texAlignmentSnapshot);
 
-  auto* brushNode1 = new Model::BrushNode{std::move(brush1)};
-  auto* brushNode2 = new Model::BrushNode{std::move(brush2)};
+  auto* brushNode1 = new mdl::BrushNode{std::move(brush1)};
+  auto* brushNode2 = new mdl::BrushNode{std::move(brush2)};
 
   document->addNodes({{entityNode, {brushNode1}}});
   document->addNodes({{entityNode, {brushNode2}}});
@@ -190,7 +188,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
   CHECK(document->csgSubtract());
   CHECK(entityNode->children().size() == 1u);
 
-  auto* brushNode3 = static_cast<Model::BrushNode*>(entityNode->children()[0]);
+  auto* brushNode3 = static_cast<mdl::BrushNode*>(entityNode->children()[0]);
   const auto& brush3 = brushNode3->brush();
 
   CHECK(
@@ -207,20 +205,20 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ValveMapDocumentTest.csgSubtractTexturin
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* minuendNode = new Model::BrushNode{
+  auto* minuendNode = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
-  auto* subtrahendNode1 = new Model::BrushNode{
+  auto* subtrahendNode1 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{32, 32, 64}}, "material")
     | kdl::value()};
-  auto* subtrahendNode2 = new Model::BrushNode{
+  auto* subtrahendNode2 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{32, 32, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
@@ -233,8 +231,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
   CHECK(document->csgSubtract());
   CHECK(entityNode->children().size() == 2u);
 
-  auto* remainderNode1 = dynamic_cast<Model::BrushNode*>(entityNode->children()[0]);
-  auto* remainderNode2 = dynamic_cast<Model::BrushNode*>(entityNode->children()[1]);
+  auto* remainderNode1 = dynamic_cast<mdl::BrushNode*>(entityNode->children()[0]);
+  auto* remainderNode2 = dynamic_cast<mdl::BrushNode*>(entityNode->children()[1]);
   CHECK(remainderNode1 != nullptr);
   CHECK(remainderNode2 != nullptr);
 
@@ -253,12 +251,12 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractMultipleBrushes")
 TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 {
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
-  auto* subtrahend1 = new Model::BrushNode{
+  auto* subtrahend1 = new mdl::BrushNode{
     builder.createCuboid(
       vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}}, "material")
     | kdl::value()};
@@ -275,7 +273,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   CHECK(document->selectedNodes().hasOnlyBrushes());
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{subtrahend1}));
+    Catch::Equals(std::vector<mdl::BrushNode*>{subtrahend1}));
 }
 
 // Test for https://github.com/TrenchBroom/TrenchBroom/issues/3755
@@ -284,11 +282,11 @@ TEST_CASE("CsgTest.csgSubtractFailure")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/csgSubtractFailure.map",
     "Quake",
-    Model::MapFormat::Valve);
+    mdl::MapFormat::Valve);
 
   REQUIRE(document->currentLayer()->childCount() == 2);
   auto* subtrahendNode =
-    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(1));
+    dynamic_cast<mdl::BrushNode*>(document->currentLayer()->children().at(1));
   REQUIRE(subtrahendNode);
   REQUIRE(subtrahendNode->brush().findFace("clip").has_value());
 
@@ -298,7 +296,7 @@ TEST_CASE("CsgTest.csgSubtractFailure")
 
   REQUIRE(document->currentLayer()->childCount() == 1);
   auto* result =
-    dynamic_cast<Model::BrushNode*>(document->currentLayer()->children().at(0));
+    dynamic_cast<mdl::BrushNode*>(document->currentLayer()->children().at(0));
 
   CHECK_THAT(
     result->brush().vertexPositions(),
@@ -318,7 +316,7 @@ TEST_CASE("CsgTest.csgSubtractFailure")
 TEST_CASE("CsgTest.csgHollow")
 {
   auto [document, game, gameConfig] = View::loadMapDocument(
-    "fixture/test/View/MapDocumentTest/csgHollow.map", "Quake", Model::MapFormat::Valve);
+    "fixture/test/View/MapDocumentTest/csgHollow.map", "Quake", mdl::MapFormat::Valve);
 
   REQUIRE(document->currentLayer()->childCount() == 2);
   REQUIRE(!document->modified());

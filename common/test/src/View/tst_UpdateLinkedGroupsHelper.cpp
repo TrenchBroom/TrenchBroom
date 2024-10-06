@@ -17,18 +17,18 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapDocumentTest.h"
 #include "View/UpdateLinkedGroupsHelper.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 
@@ -39,12 +39,12 @@ namespace tb::View
 
 TEST_CASE("checkLinkedGroupsToUpdate")
 {
-  auto groupNode1 = Model::GroupNode{Model::Group{"test"}};
-  auto linkedGroupNode = Model::GroupNode{Model::Group{"test"}};
+  auto groupNode1 = mdl::GroupNode{mdl::Group{"test"}};
+  auto linkedGroupNode = mdl::GroupNode{mdl::Group{"test"}};
   setLinkId(groupNode1, "asdf");
   setLinkId(linkedGroupNode, "asdf");
 
-  auto groupNode2 = Model::GroupNode{Model::Group{"test"}};
+  auto groupNode2 = mdl::GroupNode{mdl::Group{"test"}};
   setLinkId(groupNode2, "fdsa");
 
   CHECK(checkLinkedGroupsToUpdate({}));
@@ -60,13 +60,13 @@ class UpdateLinkedGroupsHelperTest : public MapDocumentTest
 
 TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 {
-  class TestNode : public Model::EntityNode
+  class TestNode : public mdl::EntityNode
   {
   private:
     bool& m_deleted;
 
   public:
-    TestNode(Model::Entity entity, bool& deleted)
+    TestNode(mdl::Entity entity, bool& deleted)
       : EntityNode(std::move(entity))
       , m_deleted(deleted)
     {
@@ -76,15 +76,15 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
     ~TestNode() override { m_deleted = true; };
   };
 
-  auto* groupNode = new Model::GroupNode{Model::Group{""}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{""}};
   setLinkId(*groupNode, "asdf");
 
   bool deleted = false;
-  auto* entityNode = new TestNode{Model::Entity{}, deleted};
+  auto* entityNode = new TestNode{mdl::Entity{}, deleted};
   groupNode->addChild(entityNode);
 
   auto* linkedNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+    static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedNode}}});
 
@@ -121,18 +121,18 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 
 TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"test"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"test"}};
   setLinkId(*groupNode, "asdf");
 
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
 
   auto* linkedGroupNode =
-    static_cast<Model::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+    static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
 
   REQUIRE(linkedGroupNode->children().size() == 1u);
   auto* linkedBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   transformNode(
@@ -211,24 +211,23 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
   CHECK_THAT(
-    linkedGroupNode->children(),
-    Catch::Equals(std::vector<Model::Node*>{linkedBrushNode}));
+    linkedGroupNode->children(), Catch::Equals(std::vector<mdl::Node*>{linkedBrushNode}));
   CHECK(linkedBrushNode->parent() == linkedGroupNode);
   CHECK(
     linkedBrushNode->physicalBounds()
     == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 }
 
-static void setGroupName(Model::GroupNode& groupNode, const std::string& name)
+static void setGroupName(mdl::GroupNode& groupNode, const std::string& name)
 {
   auto group = groupNode.group();
   group.setName(name);
   groupNode.setGroup(std::move(group));
 }
 
-static Model::GroupNode* findGroupByName(Model::Node& node, const std::string& name)
+static mdl::GroupNode* findGroupByName(mdl::Node& node, const std::string& name)
 {
-  const auto visitChildren = [&](auto&& lambda, Model::Node* n) -> Model::GroupNode* {
+  const auto visitChildren = [&](auto&& lambda, mdl::Node* n) -> mdl::GroupNode* {
     for (auto* child : n->children())
     {
       if (auto* result = child->accept(lambda))
@@ -239,22 +238,22 @@ static Model::GroupNode* findGroupByName(Model::Node& node, const std::string& n
     return nullptr;
   };
   return node.accept(kdl::overload(
-    [&](auto&& thisLambda, Model::WorldNode* worldNode) -> Model::GroupNode* {
+    [&](auto&& thisLambda, mdl::WorldNode* worldNode) -> mdl::GroupNode* {
       return visitChildren(thisLambda, worldNode);
     },
-    [&](auto&& thisLambda, Model::LayerNode* layerNode) -> Model::GroupNode* {
+    [&](auto&& thisLambda, mdl::LayerNode* layerNode) -> mdl::GroupNode* {
       return visitChildren(thisLambda, layerNode);
     },
-    [&](auto&& thisLambda, Model::GroupNode* groupNode) -> Model::GroupNode* {
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) -> mdl::GroupNode* {
       if (groupNode->name() == name)
       {
         return groupNode;
       }
       return visitChildren(thisLambda, groupNode);
     },
-    [](Model::EntityNode*) -> Model::GroupNode* { return nullptr; },
-    [](Model::BrushNode*) -> Model::GroupNode* { return nullptr; },
-    [](Model::PatchNode*) -> Model::GroupNode* { return nullptr; }));
+    [](mdl::EntityNode*) -> mdl::GroupNode* { return nullptr; },
+    [](mdl::BrushNode*) -> mdl::GroupNode* { return nullptr; },
+    [](mdl::PatchNode*) -> mdl::GroupNode* { return nullptr; }));
 }
 
 TEST_CASE_METHOD(
@@ -262,10 +261,10 @@ TEST_CASE_METHOD(
 {
   document->deselectAll();
 
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outerGroupNode"}};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outerGroupNode"}};
   setLinkId(*outerGroupNode, "outerGroupNode");
 
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"innerGroupNode"}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"innerGroupNode"}};
   setLinkId(*innerGroupNode, "innerGroupNode");
 
   auto* brushNode = createBrushNode();
@@ -276,14 +275,14 @@ TEST_CASE_METHOD(
 
   // create a linked group of the inner group node so that cloning the outer group node
   // will create a linked clone of the inner group node
-  auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
+  auto* linkedInnerGroupNode = static_cast<mdl::GroupNode*>(
     innerGroupNode->cloneRecursively(document->worldBounds()));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
   REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
-  auto* linkedOuterGroupNode = static_cast<Model::GroupNode*>(
+  auto* linkedOuterGroupNode = static_cast<mdl::GroupNode*>(
     outerGroupNode->cloneRecursively(document->worldBounds()));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
   REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
@@ -291,7 +290,7 @@ TEST_CASE_METHOD(
   document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
   auto* nestedLinkedInnerGroupNode =
-    static_cast<Model::GroupNode*>(linkedOuterGroupNode->children().front());
+    static_cast<mdl::GroupNode*>(linkedOuterGroupNode->children().front());
   setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
   REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
@@ -499,7 +498,7 @@ TEST_CASE_METHOD(
 
   SECTION("Propagate both changes at once")
   {
-    auto groupNodes = std::vector<Model::GroupNode*>{outerGroupNode, innerGroupNode};
+    auto groupNodes = std::vector<mdl::GroupNode*>{outerGroupNode, innerGroupNode};
     std::sort(std::begin(groupNodes), std::end(groupNodes));
 
     // The following code generates both permutations of the group nodes

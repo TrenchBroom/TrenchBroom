@@ -26,7 +26,6 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "Model/Game.h"
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
@@ -34,6 +33,7 @@
 #include "View/ViewUtils.h"
 #include "asset/EntityDefinitionFileSpec.h"
 #include "io/PathQt.h"
+#include "mdl/Game.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"

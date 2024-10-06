@@ -19,21 +19,21 @@
 
 #include "Exceptions.h"
 #include "MapDocumentTest.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/TestGame.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "asset/EntityDefinition.h"
 #include "asset/PropertyDefinition.h"
 #include "io/WorldReader.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/TestGame.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
@@ -47,11 +47,11 @@ namespace tb::View
 {
 
 MapDocumentTest::MapDocumentTest()
-  : MapDocumentTest{Model::MapFormat::Standard}
+  : MapDocumentTest{mdl::MapFormat::Standard}
 {
 }
 
-MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat)
+MapDocumentTest::MapDocumentTest(const mdl::MapFormat mapFormat)
   : m_mapFormat{mapFormat}
 {
   SetUp();
@@ -59,7 +59,7 @@ MapDocumentTest::MapDocumentTest(const Model::MapFormat mapFormat)
 
 void MapDocumentTest::SetUp()
 {
-  game = std::make_shared<Model::TestGame>();
+  game = std::make_shared<mdl::TestGame>();
   document = MapDocumentCommandFacade::newMapDocument();
   document->newDocument(m_mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
@@ -81,25 +81,25 @@ MapDocumentTest::~MapDocumentTest()
   m_brushEntityDef = nullptr;
 }
 
-Model::BrushNode* MapDocumentTest::createBrushNode(
+mdl::BrushNode* MapDocumentTest::createBrushNode(
   const std::string& materialName,
-  const std::function<void(Model::Brush&)>& brushFunc) const
+  const std::function<void(mdl::Brush&)>& brushFunc) const
 {
   const auto* worldNode = document->world();
-  auto builder = Model::BrushBuilder{
+  auto builder = mdl::BrushBuilder{
     worldNode->mapFormat(),
     document->worldBounds(),
     document->game()->config().faceAttribsConfig.defaults};
 
   auto brush = builder.createCube(32.0, materialName) | kdl::value();
   brushFunc(brush);
-  return new Model::BrushNode{std::move(brush)};
+  return new mdl::BrushNode{std::move(brush)};
 }
 
-Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& materialName) const
+mdl::PatchNode* MapDocumentTest::createPatchNode(const std::string& materialName) const
 {
   // clang-format off
-  return new Model::PatchNode{Model::BezierPatch{3, 3, {
+  return new mdl::PatchNode{mdl::BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, materialName}};
@@ -107,12 +107,12 @@ Model::PatchNode* MapDocumentTest::createPatchNode(const std::string& materialNa
 }
 
 ValveMapDocumentTest::ValveMapDocumentTest()
-  : MapDocumentTest{Model::MapFormat::Valve}
+  : MapDocumentTest{mdl::MapFormat::Valve}
 {
 }
 
 Quake3MapDocumentTest::Quake3MapDocumentTest()
-  : MapDocumentTest{Model::MapFormat::Quake3}
+  : MapDocumentTest{mdl::MapFormat::Quake3}
 {
 }
 
@@ -126,8 +126,8 @@ TEST_CASE("MapDocumentTest.detectValveFormatMap")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
-    Model::MapFormat::Unknown);
-  CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
+    mdl::MapFormat::Unknown);
+  CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
@@ -136,8 +136,8 @@ TEST_CASE("MapDocumentTest.detectStandardFormatMap")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
     "Quake",
-    Model::MapFormat::Unknown);
-  CHECK(document->world()->mapFormat() == Model::MapFormat::Standard);
+    mdl::MapFormat::Unknown);
+  CHECK(document->world()->mapFormat() == mdl::MapFormat::Standard);
   CHECK(document->world()->defaultLayer()->childCount() == 1);
 }
 
@@ -146,10 +146,10 @@ TEST_CASE("MapDocumentTest.detectEmptyMap")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/emptyMapWithoutFormatTag.map",
     "Quake",
-    Model::MapFormat::Unknown);
+    mdl::MapFormat::Unknown);
   // an empty map detects as Valve because Valve is listed first in the Quake game
   // config
-  CHECK(document->world()->mapFormat() == Model::MapFormat::Valve);
+  CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
   CHECK(document->world()->defaultLayer()->childCount() == 0);
 }
 
@@ -160,7 +160,7 @@ TEST_CASE("MapDocumentTest.mixedFormats")
     View::loadMapDocument(
       "fixture/test/View/MapDocumentTest/mixedFormats.map",
       "Quake",
-      Model::MapFormat::Unknown),
+      mdl::MapFormat::Unknown),
     io::WorldReaderException);
 }
 
@@ -169,12 +169,12 @@ TEST_CASE("MapDocument.reloadMaterialCollections")
   auto [document, game, gameConfig] = View::loadMapDocument(
     "fixture/test/View/MapDocumentTest/reloadMaterialCollectionsQ2.map",
     "Quake2",
-    Model::MapFormat::Quake2);
+    mdl::MapFormat::Quake2);
 
 
   const auto faces = kdl::vec_transform(
     document->world()->defaultLayer()->children(), [&](const auto* node) {
-      const auto* brushNode = dynamic_cast<const Model::BrushNode*>(node);
+      const auto* brushNode = dynamic_cast<const mdl::BrushNode*>(node);
       REQUIRE(brushNode);
       return &brushNode->brush().faces().front();
     });
@@ -203,11 +203,11 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
   auto* brushNodeInGroup = createBrushNode("brushNodeInGroup");
   auto* brushNodeInNestedGroup = createBrushNode("brushNodeInNestedGroup");
 
-  auto* customLayerNode = new Model::LayerNode{Model::Layer{"customLayerNode"}};
-  auto* brushEntityNode = new Model::EntityNode{Model::Entity{}};
-  auto* pointEntityNode = new Model::EntityNode{Model::Entity{}};
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outerGroupNode"}};
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"outerGroupNode"}};
+  auto* customLayerNode = new mdl::LayerNode{mdl::Layer{"customLayerNode"}};
+  auto* brushEntityNode = new mdl::EntityNode{mdl::Entity{}};
+  auto* pointEntityNode = new mdl::EntityNode{mdl::Entity{}};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outerGroupNode"}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"outerGroupNode"}};
 
   document->addNodes(
     {{document->world()->defaultLayer(),
@@ -222,11 +222,11 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
 
   document->addNodes({{innerGroupNode, {brushNodeInNestedGroup}}});
 
-  const auto getPath = [&](const Model::Node* node) {
+  const auto getPath = [&](const mdl::Node* node) {
     return node->pathFrom(*document->world());
   };
-  const auto resolvePaths = [&](const std::vector<Model::NodePath>& paths) {
-    auto result = std::vector<Model::Node*>{};
+  const auto resolvePaths = [&](const std::vector<mdl::NodePath>& paths) {
+    auto result = std::vector<mdl::Node*>{};
     for (const auto& path : paths)
     {
       result.push_back(document->world()->resolvePath(path));
@@ -236,7 +236,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
 
   SECTION("allSelectedBrushNodes")
   {
-    using T = std::vector<Model::NodePath>;
+    using T = std::vector<mdl::NodePath>;
 
     // clang-format off
     const auto 
@@ -251,7 +251,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
     // clang-format on
 
     const auto nodes = resolvePaths(paths);
-    const auto brushNodes = kdl::vec_static_cast<Model::BrushNode*>(nodes);
+    const auto brushNodes = kdl::vec_static_cast<mdl::BrushNode*>(nodes);
 
     document->selectNodes(nodes);
 
@@ -261,12 +261,12 @@ TEST_CASE_METHOD(MapDocumentTest, "Brush Node Selection")
 
   SECTION("hasAnySelectedBrushNodes")
   {
-    using T = std::tuple<std::vector<Model::NodePath>, bool>;
+    using T = std::tuple<std::vector<mdl::NodePath>, bool>;
 
     // clang-format off
     const auto 
     [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
-    {std::vector<Model::NodePath>{},     false},
+    {std::vector<mdl::NodePath>{},     false},
     {{getPath(pointEntityNode)},         false},
     {{getPath(brushEntityNode)},         true},
     {{getPath(outerGroupNode)},          true},
@@ -304,16 +304,16 @@ TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
   */
 
   auto* brush = createBrushNode("brush");
-  auto* pointEntity = new Model::EntityNode{Model::Entity{}};
+  auto* pointEntity = new mdl::EntityNode{mdl::Entity{}};
   auto* patch = createPatchNode("patch");
 
-  auto* brushEntity = new Model::EntityNode{Model::Entity{}};
+  auto* brushEntity = new mdl::EntityNode{mdl::Entity{}};
   auto* brushInEntity1 = createBrushNode("brushInEntity1");
   auto* brushInEntity2 = createBrushNode("brushInEntity2");
 
-  auto* outerGroup = new Model::GroupNode{Model::Group{"outerGroup"}};
+  auto* outerGroup = new mdl::GroupNode{mdl::Group{"outerGroup"}};
   auto* brushInOuterGroup = createBrushNode("brushInOuterGroup");
-  auto* innerGroup = new Model::GroupNode{Model::Group{"innerGroup"}};
+  auto* innerGroup = new mdl::GroupNode{mdl::Group{"innerGroup"}};
   auto* brushInInnerGroup = createBrushNode("brushInInnerGroup");
 
   brush->setFilePosition(4, 2);
@@ -327,7 +327,7 @@ TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
   innerGroup->setFilePosition(39, 10);
   brushInInnerGroup->setFilePosition(43, 5);
 
-  const auto map = std::map<const Model::Node*, std::string>{
+  const auto map = std::map<const mdl::Node*, std::string>{
     {brush, "brush"},
     {pointEntity, "pointEntity"},
     {patch, "patch"},
@@ -341,7 +341,7 @@ TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
   };
 
   const auto mapNodeNames = [&](const auto& nodes) {
-    return kdl::vec_transform(nodes, [&](const Model::Node* node) {
+    return kdl::vec_transform(nodes, [&](const mdl::Node* node) {
       return kdl::map_find_or_default(map, node, std::string{"<unknown>"});
     });
   };
@@ -433,18 +433,18 @@ TEST_CASE_METHOD(MapDocumentTest, "selectByLineNumber")
 
 TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
 {
-  auto* innerGroupNode = new Model::GroupNode{Model::Group{"inner"}};
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"inner"}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   innerGroupNode->addChild(entityNode);
 
-  auto* linkedInnerGroupNode = static_cast<Model::GroupNode*>(
+  auto* linkedInnerGroupNode = static_cast<mdl::GroupNode*>(
     innerGroupNode->cloneRecursively(document->worldBounds()));
 
   auto* linkedEntityNode =
-    dynamic_cast<Model::EntityNode*>(linkedInnerGroupNode->children().front());
+    dynamic_cast<mdl::EntityNode*>(linkedInnerGroupNode->children().front());
   REQUIRE(linkedEntityNode != nullptr);
 
-  auto* outerGroupNode = new Model::GroupNode{Model::Group{"outer"}};
+  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outer"}};
   outerGroupNode->addChildren({innerGroupNode, linkedInnerGroupNode});
 
   document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
@@ -454,12 +454,12 @@ TEST_CASE_METHOD(MapDocumentTest, "canUpdateLinkedGroups")
   REQUIRE_THAT(
     entityNodes,
     Catch::UnorderedEquals(
-      std::vector<Model::EntityNodeBase*>{entityNode, linkedEntityNode}));
+      std::vector<mdl::EntityNodeBase*>{entityNode, linkedEntityNode}));
 
   CHECK(document->canUpdateLinkedGroups({entityNode}));
   CHECK(document->canUpdateLinkedGroups({linkedEntityNode}));
   CHECK_FALSE(
-    document->canUpdateLinkedGroups(kdl::vec_static_cast<Model::Node*>(entityNodes)));
+    document->canUpdateLinkedGroups(kdl::vec_static_cast<mdl::Node*>(entityNodes)));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
@@ -474,7 +474,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
     CHECK(entityNode != nullptr);
     CHECK(entityNode->entity().definition() == m_pointEntityDef);
     CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
-    CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{entityNode});
+    CHECK(document->selectedNodes().nodes() == std::vector<mdl::Node*>{entityNode});
   }
 
   SECTION("Selected objects are deselect and not translated")
@@ -492,11 +492,11 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
   SECTION("Default entity properties")
   {
     // set up a document with an entity config having setDefaultProperties set to true
-    game->setWorldNodeToLoad(std::make_unique<Model::WorldNode>(
-      Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
-      Model::Entity{},
-      Model::MapFormat::Standard));
-    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
+    game->setWorldNodeToLoad(std::make_unique<mdl::WorldNode>(
+      mdl::EntityPropertyConfig{{}, true(setDefaultProperties)},
+      mdl::Entity{},
+      mdl::MapFormat::Standard));
+    document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<asset::PointEntityDefinition>(
@@ -519,8 +519,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
     REQUIRE(entityNode != nullptr);
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
-        {Model::EntityPropertyKeys::Classname, "some_name"},
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
+        {mdl::EntityPropertyKeys::Classname, "some_name"},
         {"some_default_prop", "value"},
       }));
   }
@@ -540,7 +540,7 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
     auto* entityNode = document->createBrushEntity(m_brushEntityDef);
     CHECK(entityNode != nullptr);
     CHECK(entityNode->entity().definition() == m_brushEntityDef);
-    CHECK(document->selectedNodes().nodes() == std::vector<Model::Node*>{brushNode});
+    CHECK(document->selectedNodes().nodes() == std::vector<mdl::Node*>{brushNode});
   }
 
   SECTION("Copies properties from existing brush entity")
@@ -568,11 +568,11 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
   SECTION("Default entity properties")
   {
     // set up a document with an entity config having setDefaultProperties set to true
-    game->setWorldNodeToLoad(std::make_unique<Model::WorldNode>(
-      Model::EntityPropertyConfig{{}, true(setDefaultProperties)},
-      Model::Entity{},
-      Model::MapFormat::Standard));
-    document->loadDocument(Model::MapFormat::Standard, document->worldBounds(), game, "")
+    game->setWorldNodeToLoad(std::make_unique<mdl::WorldNode>(
+      mdl::EntityPropertyConfig{{}, true(setDefaultProperties)},
+      mdl::Entity{},
+      mdl::MapFormat::Standard));
+    document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<asset::BrushEntityDefinition>(
@@ -597,8 +597,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
     REQUIRE(entityNode != nullptr);
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
-        {Model::EntityPropertyKeys::Classname, "some_name"},
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
+        {mdl::EntityPropertyKeys::Classname, "some_name"},
         {"some_default_prop", "value"},
       }));
   }
@@ -630,7 +630,7 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
     std::move(definitionWithDefaultsOwner)));
 
-  auto* entityNodeWithoutDefinition = new Model::EntityNode{Model::Entity{{
+  auto* entityNodeWithoutDefinition = new mdl::EntityNode{mdl::Entity{{
     {"classname", "some_class"},
   }}};
   document->addNodes({{document->parentForNodes(), {entityNodeWithoutDefinition}}});
@@ -676,32 +676,32 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
 
   REQUIRE_THAT(
     entityNodeWithoutDefinition->entity().properties(),
-    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"classname", "some_class"},
       {"some_prop", "some_value"},
     }));
   REQUIRE_THAT(
     entityNodeWithProp->entity().properties(),
-    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"classname", "some_name"},
       {"some_prop", "some_value"},
     }));
   REQUIRE_THAT(
     entityNodeWithPropA->entity().properties(),
-    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"classname", "some_name"},
       {"some_prop", "some_value"},
       {"default_prop_a", "default_value_a"},
     }));
   REQUIRE_THAT(
     entityNodeWithPropAWithValueChanged->entity().properties(),
-    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"classname", "some_name"},
       {"default_prop_a", "some_other_value"},
     }));
   REQUIRE_THAT(
     entityNodeWithPropsAB->entity().properties(),
-    Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"classname", "some_name"},
       {"some_prop", "some_value"},
       {"default_prop_a", "default_value_a"},
@@ -717,36 +717,36 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
 
   SECTION("Set Existing Default Properties")
   {
-    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetExisting);
+    document->setDefaultProperties(mdl::SetDefaultPropertyMode::SetExisting);
 
     CHECK_THAT(
       entityNodeWithoutDefinition->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_class"},
         {"some_prop", "some_value"},
       }));
     CHECK_THAT(
       entityNodeWithProp->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
       }));
     CHECK_THAT(
       entityNodeWithPropA->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
       }));
     CHECK_THAT(
       entityNodeWithPropAWithValueChanged->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"default_prop_a", "default_value_a"},
       }));
     CHECK_THAT(
       entityNodeWithPropsAB->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -756,17 +756,17 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
 
   SECTION("Set Missing Default Properties")
   {
-    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetMissing);
+    document->setDefaultProperties(mdl::SetDefaultPropertyMode::SetMissing);
 
     CHECK_THAT(
       entityNodeWithoutDefinition->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_class"},
         {"some_prop", "some_value"},
       }));
     CHECK_THAT(
       entityNodeWithProp->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -774,7 +774,7 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       }));
     CHECK_THAT(
       entityNodeWithPropA->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -782,14 +782,14 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       }));
     CHECK_THAT(
       entityNodeWithPropAWithValueChanged->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"default_prop_a", "some_other_value"},
         {"default_prop_b", "default_value_b"},
       }));
     CHECK_THAT(
       entityNodeWithPropsAB->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -799,17 +799,17 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
 
   SECTION("Set All Default Properties")
   {
-    document->setDefaultProperties(Model::SetDefaultPropertyMode::SetAll);
+    document->setDefaultProperties(mdl::SetDefaultPropertyMode::SetAll);
 
     CHECK_THAT(
       entityNodeWithoutDefinition->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_class"},
         {"some_prop", "some_value"},
       }));
     CHECK_THAT(
       entityNodeWithProp->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -817,7 +817,7 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       }));
     CHECK_THAT(
       entityNodeWithPropA->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},
@@ -825,14 +825,14 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
       }));
     CHECK_THAT(
       entityNodeWithPropAWithValueChanged->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"default_prop_a", "default_value_a"},
         {"default_prop_b", "default_value_b"},
       }));
     CHECK_THAT(
       entityNodeWithPropsAB->entity().properties(),
-      Catch::Matchers::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"classname", "some_name"},
         {"some_prop", "some_value"},
         {"default_prop_a", "default_value_a"},

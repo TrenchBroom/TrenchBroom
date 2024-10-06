@@ -24,12 +24,12 @@
 #include <QString>
 #include <QWidget>
 
-#include "Model/Game.h"
-#include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
 #include "asset/EntityDefinitionFileSpec.h"
 #include "io/PathQt.h"
+#include "mdl/Game.h"
+#include "mdl/GameFactory.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -74,7 +74,7 @@ size_t loadEntityDefinitionFile(
 
   auto document = kdl::mem_lock(i_document);
   auto game = document->game();
-  const auto& gameFactory = Model::GameFactory::instance();
+  const auto& gameFactory = mdl::GameFactory::instance();
   const auto gamePath = gameFactory.gamePath(game->config().name);
   const auto docPath = document->path();
 

@@ -20,14 +20,14 @@
 #include "GameConfigParser.h"
 
 #include "Exceptions.h"
-#include "Model/GameConfig.h"
-#include "Model/Tag.h"
-#include "Model/TagAttribute.h"
-#include "Model/TagMatcher.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "mdl/GameConfig.h"
+#include "mdl/Tag.h"
+#include "mdl/TagAttribute.h"
+#include "mdl/TagMatcher.h"
 
 #include "kdl/vector_utils.h"
 
@@ -74,7 +74,7 @@ void checkVersion(const el::Value& version, const el::EvaluationTrace& trace)
   }
 }
 
-std::vector<Model::CompilationTool> parseCompilationTools(
+std::vector<mdl::CompilationTool> parseCompilationTools(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   if (value == el::Value::Null)
@@ -84,7 +84,7 @@ std::vector<Model::CompilationTool> parseCompilationTools(
 
   expectType(value, trace, el::typeForName("Array"));
 
-  auto result = std::vector<Model::CompilationTool>{};
+  auto result = std::vector<mdl::CompilationTool>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -99,14 +99,14 @@ std::vector<Model::CompilationTool> parseCompilationTools(
 
     if (value[i]["description"] != el::Value::Null)
     {
-      result.push_back(Model::CompilationTool{
+      result.push_back(mdl::CompilationTool{
         value[i]["name"].stringValue(),
         value[i]["description"].stringValue(),
       });
     }
     else
     {
-      result.push_back(Model::CompilationTool{
+      result.push_back(mdl::CompilationTool{
         value[i]["name"].stringValue(),
         std::nullopt,
       });
@@ -135,10 +135,10 @@ std::optional<vm::bbox3d> parseSoftMapBounds(
   return bounds;
 }
 
-std::vector<Model::TagAttribute> parseTagAttributes(
+std::vector<mdl::TagAttribute> parseTagAttributes(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  auto result = std::vector<Model::TagAttribute>{};
+  auto result = std::vector<mdl::TagAttribute>{};
   if (value == el::Value::Null)
   {
     return result;
@@ -150,9 +150,9 @@ std::vector<Model::TagAttribute> parseTagAttributes(
     const auto& entry = value[i];
     const auto& name = entry.stringValue();
 
-    if (name == Model::TagAttributes::Transparency.name())
+    if (name == mdl::TagAttributes::Transparency.name())
     {
-      result.push_back(Model::TagAttributes::Transparency);
+      result.push_back(mdl::TagAttributes::Transparency);
     }
     else
     {
@@ -164,7 +164,7 @@ std::vector<Model::TagAttribute> parseTagAttributes(
   return result;
 }
 
-int parseFlagValue(const el::Value& value, const Model::FlagsConfig& flags)
+int parseFlagValue(const el::Value& value, const mdl::FlagsConfig& flags)
 {
   const auto flagSet = value.asStringSet();
   int flagValue = 0;
@@ -179,7 +179,7 @@ int parseFlagValue(const el::Value& value, const Model::FlagsConfig& flags)
 void checkTagName(
   const el::Value& nameValue,
   const el::EvaluationTrace& trace,
-  const std::vector<Model::SmartTag>& tags)
+  const std::vector<mdl::SmartTag>& tags)
 {
   const auto& name = nameValue.stringValue();
   for (const auto& tag : tags)
@@ -196,18 +196,18 @@ void parseSurfaceParmTag(
   std::string name,
   const el::Value& value,
   const el::EvaluationTrace& trace,
-  std::vector<Model::SmartTag>& result)
+  std::vector<mdl::SmartTag>& result)
 {
   auto attribs = parseTagAttributes(value["attribs"], trace);
-  auto matcher = std::unique_ptr<Model::SurfaceParmTagMatcher>{};
+  auto matcher = std::unique_ptr<mdl::SurfaceParmTagMatcher>{};
   if (value["pattern"].type() == el::ValueType::String)
   {
     matcher =
-      std::make_unique<Model::SurfaceParmTagMatcher>(value["pattern"].stringValue());
+      std::make_unique<mdl::SurfaceParmTagMatcher>(value["pattern"].stringValue());
   }
   else if (value["pattern"].type() == el::ValueType::Array)
   {
-    matcher = std::make_unique<Model::SurfaceParmTagMatcher>(
+    matcher = std::make_unique<mdl::SurfaceParmTagMatcher>(
       kdl::vector_set{value["pattern"].asStringSet()});
   }
   else
@@ -223,8 +223,8 @@ void parseSurfaceParmTag(
 void parseFaceTags(
   const el::Value& value,
   const el::EvaluationTrace& trace,
-  const Model::FaceAttribsConfig& faceAttribsConfig,
-  std::vector<Model::SmartTag>& result)
+  const mdl::FaceAttribsConfig& faceAttribsConfig,
+  std::vector<mdl::SmartTag>& result)
 {
   if (value == el::Value::Null)
   {
@@ -251,7 +251,7 @@ void parseFaceTags(
       result.emplace_back(
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<Model::MaterialNameTagMatcher>(entry["pattern"].stringValue()));
+        std::make_unique<mdl::MaterialNameTagMatcher>(entry["pattern"].stringValue()));
     }
     else if (match == "surfaceparm")
     {
@@ -263,7 +263,7 @@ void parseFaceTags(
       result.emplace_back(
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<Model::ContentFlagsTagMatcher>(
+        std::make_unique<mdl::ContentFlagsTagMatcher>(
           parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags)));
     }
     else if (match == "surfaceflag")
@@ -272,7 +272,7 @@ void parseFaceTags(
       result.emplace_back(
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<Model::SurfaceFlagsTagMatcher>(
+        std::make_unique<mdl::SurfaceFlagsTagMatcher>(
           parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags)));
     }
     else
@@ -287,7 +287,7 @@ void parseFaceTags(
 void parseBrushTags(
   const el::Value& value,
   const el::EvaluationTrace& trace,
-  std::vector<Model::SmartTag>& result)
+  std::vector<mdl::SmartTag>& result)
 {
   if (value == el::Value::Null)
   {
@@ -313,7 +313,7 @@ void parseBrushTags(
       result.emplace_back(
         entry["name"].stringValue(),
         parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<Model::EntityClassNameTagMatcher>(
+        std::make_unique<mdl::EntityClassNameTagMatcher>(
           entry["pattern"].stringValue(), entry["material"].stringValue()));
     }
     else
@@ -325,12 +325,12 @@ void parseBrushTags(
   }
 }
 
-std::vector<Model::SmartTag> parseTags(
+std::vector<mdl::SmartTag> parseTags(
   const el::Value& value,
   const el::EvaluationTrace& trace,
-  const Model::FaceAttribsConfig& faceAttribsConfig)
+  const mdl::FaceAttribsConfig& faceAttribsConfig)
 {
-  auto result = std::vector<Model::SmartTag>{};
+  auto result = std::vector<mdl::SmartTag>{};
   if (value == el::Value::Null)
   {
     return result;
@@ -349,13 +349,13 @@ std::vector<Model::SmartTag> parseTags(
   return result;
 }
 
-Model::BrushFaceAttributes parseFaceAttribsDefaults(
+mdl::BrushFaceAttributes parseFaceAttribsDefaults(
   const el::Value& value,
   const el::EvaluationTrace& trace,
-  const Model::FlagsConfig& surfaceFlags,
-  const Model::FlagsConfig& contentFlags)
+  const mdl::FlagsConfig& surfaceFlags,
+  const mdl::FlagsConfig& contentFlags)
 {
-  auto defaults = Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName};
+  auto defaults = mdl::BrushFaceAttributes{mdl::BrushFaceAttributes::NoMaterialName};
   if (value == el::Value::Null)
   {
     return defaults;
@@ -371,7 +371,7 @@ Model::BrushFaceAttributes parseFaceAttribsDefaults(
 
   if (value["materialName"] != el::Value::Null)
   {
-    defaults = Model::BrushFaceAttributes{value["materialName"].stringValue()};
+    defaults = mdl::BrushFaceAttributes{value["materialName"].stringValue()};
   }
   if (value["offset"] != el::Value::Null && value["offset"].length() == 2)
   {
@@ -423,7 +423,7 @@ void parseFlag(
   const el::Value& value,
   const el::EvaluationTrace& trace,
   const size_t index,
-  std::vector<Model::FlagConfig>& flags)
+  std::vector<mdl::FlagConfig>& flags)
 {
   if (value["unused"].booleanValue())
   {
@@ -445,7 +445,7 @@ void parseFlag(
       {'description': 'String', 'unused': 'Boolean'}
       ])");
 
-    flags.push_back(Model::FlagConfig{
+    flags.push_back(mdl::FlagConfig{
       value["name"].stringValue(),
       value["description"].stringValue(),
       1 << index,
@@ -453,17 +453,17 @@ void parseFlag(
   }
 }
 
-Model::FlagsConfig parseFlagsConfig(
+mdl::FlagsConfig parseFlagsConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  using Model::GameConfig;
+  using mdl::GameConfig;
 
   if (value == el::Value::Null)
   {
     return {};
   }
 
-  auto flags = std::vector<Model::FlagConfig>{};
+  auto flags = std::vector<mdl::FlagConfig>{};
   flags.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -471,18 +471,18 @@ Model::FlagsConfig parseFlagsConfig(
     parseFlag(value[i], trace, i, flags);
   }
 
-  return Model::FlagsConfig{flags};
+  return mdl::FlagsConfig{flags};
 }
 
-Model::FaceAttribsConfig parseFaceAttribsConfig(
+mdl::FaceAttribsConfig parseFaceAttribsConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   if (value == el::Value::Null)
   {
-    return Model::FaceAttribsConfig{
+    return mdl::FaceAttribsConfig{
       {},
       {},
-      Model::BrushFaceAttributes{Model::BrushFaceAttributes::NoMaterialName},
+      mdl::BrushFaceAttributes{mdl::BrushFaceAttributes::NoMaterialName},
     };
   }
 
@@ -499,14 +499,14 @@ Model::FaceAttribsConfig parseFaceAttribsConfig(
   auto defaults =
     parseFaceAttribsDefaults(value["defaults"], trace, surfaceFlags, contentFlags);
 
-  return Model::FaceAttribsConfig{
+  return mdl::FaceAttribsConfig{
     std::move(surfaceFlags),
     std::move(contentFlags),
     defaults,
   };
 }
 
-Model::EntityConfig parseEntityConfig(
+mdl::EntityConfig parseEntityConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -518,7 +518,7 @@ Model::EntityConfig parseEntityConfig(
       {'modelformats': 'Array', 'scale': '*', 'setDefaultProperties': 'Boolean'}
     ])");
 
-  return Model::EntityConfig{
+  return mdl::EntityConfig{
     kdl::vec_transform(
       value["definitions"].asStringList(),
       [](const auto& str) { return std::filesystem::path{str}; }),
@@ -528,7 +528,7 @@ Model::EntityConfig parseEntityConfig(
   };
 }
 
-Model::PackageFormatConfig parsePackageFormatConfig(
+mdl::PackageFormatConfig parsePackageFormatConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectMapEntry(value, trace, "format", el::typeForName("String"));
@@ -539,7 +539,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(
   {
     expectType(value["extension"], trace, el::typeForName("String"));
 
-    return Model::PackageFormatConfig{
+    return mdl::PackageFormatConfig{
       {prependDot(value["extension"].stringValue())},
       formatValue.stringValue(),
     };
@@ -548,7 +548,7 @@ Model::PackageFormatConfig parsePackageFormatConfig(
   {
     expectType(value["extensions"], trace, el::typeForName("Array"));
 
-    return Model::PackageFormatConfig{
+    return mdl::PackageFormatConfig{
       prependDot(value["extensions"].asStringList()),
       formatValue.stringValue(),
     };
@@ -570,7 +570,7 @@ std::vector<std::string> parseMaterialExtensions(
   return parsePackageFormatConfig(value["format"], trace).extensions;
 }
 
-Model::MaterialConfig parseMaterialConfig(
+mdl::MaterialConfig parseMaterialConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -581,7 +581,7 @@ Model::MaterialConfig parseMaterialConfig(
       {'extensions': 'String', 'format': 'Map', 'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}
     ])");
 
-  return Model::MaterialConfig{
+  return mdl::MaterialConfig{
     std::filesystem::path{value["root"].stringValue()},
     parseMaterialExtensions(value, trace),
     std::filesystem::path{value["palette"].stringValue()},
@@ -593,7 +593,7 @@ Model::MaterialConfig parseMaterialConfig(
   };
 }
 
-Model::FileSystemConfig parseFileSystemConfig(
+mdl::FileSystemConfig parseFileSystemConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectStructure(
@@ -604,18 +604,18 @@ Model::FileSystemConfig parseFileSystemConfig(
       {}
     ])");
 
-  return Model::FileSystemConfig{
+  return mdl::FileSystemConfig{
     std::filesystem::path{value["searchpath"].stringValue()},
     parsePackageFormatConfig(value["packageformat"], trace),
   };
 }
 
-std::vector<Model::MapFormatConfig> parseMapFormatConfigs(
+std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectType(value, trace, el::typeForName("Array"));
 
-  auto result = std::vector<Model::MapFormatConfig>{};
+  auto result = std::vector<mdl::MapFormatConfig>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
@@ -628,7 +628,7 @@ std::vector<Model::MapFormatConfig> parseMapFormatConfigs(
         {'initialmap': 'String'}
       ])");
 
-    result.push_back(Model::MapFormatConfig{
+    result.push_back(mdl::MapFormatConfig{
       value[i]["format"].stringValue(),
       std::filesystem::path{value[i]["initialmap"].stringValue()},
     });
@@ -646,9 +646,9 @@ GameConfigParser::GameConfigParser(
 {
 }
 
-Model::GameConfig GameConfigParser::parse()
+mdl::GameConfig GameConfigParser::parse()
 {
-  using Model::GameConfig;
+  using mdl::GameConfig;
 
   const auto evaluationContext = el::EvaluationContext{};
   auto trace = el::EvaluationTrace{};

@@ -17,15 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BezierPatch.h"
-#include "Model/Brush.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/Group.h"
-#include "Model/GroupNode.h"
-#include "Model/NodeContents.h"
-#include "Model/PatchNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
@@ -33,6 +24,15 @@
 #include "asset/EntityDefinition.h"
 #include "asset/Material.h"
 #include "asset/MaterialManager.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/Group.h"
+#include "mdl/GroupNode.h"
+#include "mdl/NodeContents.h"
+#include "mdl/PatchNode.h"
 
 #include <memory>
 
@@ -53,7 +53,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapBrushes")
               document->worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
             .is_success());
 
-  auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+  auto nodesToSwap = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
   nodesToSwap.emplace_back(brushNode, modifiedBrush);
 
   document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
@@ -72,7 +72,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
   auto modifiedPatch = originalPatch;
   modifiedPatch.transform(vm::translation_matrix(vm::vec3d{16, 0, 0}));
 
-  auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+  auto nodesToSwap = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
   nodesToSwap.emplace_back(patchNode, modifiedPatch);
 
   document->swapNodeContents("Swap Nodes", std::move(nodesToSwap), {});
@@ -85,8 +85,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.swapPatches")
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.materialUsageCount")
 {
   document->deselectAll();
-  document->setProperty(
-    Model::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
+  document->setProperty(mdl::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
   constexpr auto MaterialName = "bongs2";
   const auto* material = document->materialManager().material(MaterialName);
@@ -102,7 +101,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.materialUsageCount")
               document->worldBounds(), vm::translation_matrix(vm::vec3d(16, 0, 0)), false)
             .is_success());
 
-  auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+  auto nodesToSwap = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
   nodesToSwap.emplace_back(brushNode, std::move(modifiedBrush));
 
   REQUIRE(material->usageCount() == 6u);
@@ -118,8 +117,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
 {
   constexpr auto Classname = "point_entity";
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{{
-    {Model::EntityPropertyKeys::Classname, Classname},
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{
+    {mdl::EntityPropertyKeys::Classname, Classname},
   }}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
@@ -128,7 +127,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
   auto modifiedEntity = originalEntity;
   modifiedEntity.addOrUpdateProperty("this", "that");
 
-  auto nodesToSwap = std::vector<std::pair<Model::Node*, Model::NodeContents>>{};
+  auto nodesToSwap = std::vector<std::pair<mdl::Node*, mdl::NodeContents>>{};
   nodesToSwap.emplace_back(entityNode, std::move(modifiedEntity));
 
   REQUIRE(m_pointEntityDef->usageCount() == 1u);
@@ -142,7 +141,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodeContentsTest.entityDefinitionUsageCou
 
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroups")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
   document->addNodes({{document->parentForNodes(), {groupNode}}});
@@ -166,7 +165,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
   auto* linkedBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(
@@ -175,7 +174,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
 
   document->undoCommand();
 
-  linkedBrushNode = dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+  linkedBrushNode = dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(
@@ -185,7 +184,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
 
 TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroupsFails")
 {
-  auto* groupNode = new Model::GroupNode{Model::Group{"group"}};
+  auto* groupNode = new mdl::GroupNode{mdl::Group{"group"}};
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
   document->addNodes({{document->parentForNodes(), {groupNode}}});
@@ -210,7 +209,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
   auto* linkedBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   CHECK(

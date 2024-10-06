@@ -19,15 +19,15 @@
  */
 
 #include "MapDocumentTest.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/PasteType.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -71,8 +71,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(worldNode.customLayers().empty());
     CHECK(defaultLayerNode.childCount() == 1u);
-    CHECK(
-      dynamic_cast<Model::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   }
 
   SECTION("Paste worldspawn with single brush in group")
@@ -108,11 +107,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     CHECK(defaultLayerNode.childCount() == 1u);
 
     const auto* groupNode =
-      dynamic_cast<Model::GroupNode*>(defaultLayerNode.children().front());
+      dynamic_cast<mdl::GroupNode*>(defaultLayerNode.children().front());
     CHECK(groupNode != nullptr);
     CHECK(groupNode->group().name() == "My Group");
     CHECK(groupNode->childCount() == 1u);
-    CHECK(dynamic_cast<Model::BrushNode*>(groupNode->children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::BrushNode*>(groupNode->children().front()) != nullptr);
   }
 
   SECTION("Paste worldspawn with single brush in entity")
@@ -145,11 +144,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     CHECK(defaultLayerNode.childCount() == 1u);
 
     const auto* entityNode =
-      dynamic_cast<Model::EntityNode*>(defaultLayerNode.children().front());
+      dynamic_cast<mdl::EntityNode*>(defaultLayerNode.children().front());
     CHECK(entityNode != nullptr);
     CHECK(entityNode->entity().classname() == "func_door");
     CHECK(entityNode->childCount() == 1u);
-    CHECK(dynamic_cast<Model::BrushNode*>(entityNode->children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::BrushNode*>(entityNode->children().front()) != nullptr);
   }
 
   SECTION("Paste worldspawn with single brush")
@@ -177,8 +176,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     CHECK(document->paste(data) == PasteType::Node);
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(defaultLayerNode.childCount() == 1u);
-    CHECK(
-      dynamic_cast<Model::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   }
 
   SECTION("Paste single brush")
@@ -200,8 +198,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
 
     CHECK(document->paste(data) == PasteType::Node);
     CHECK(defaultLayerNode.childCount() == 1u);
-    CHECK(
-      dynamic_cast<Model::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   }
 }
 
@@ -232,14 +229,13 @@ common/caulk
 
     CHECK(document->paste(data) == PasteType::Node);
     CHECK(defaultLayerNode.childCount() == 1u);
-    CHECK(
-      dynamic_cast<Model::PatchNode*>(defaultLayerNode.children().front()) != nullptr);
+    CHECK(dynamic_cast<mdl::PatchNode*>(defaultLayerNode.children().front()) != nullptr);
   }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGroupId")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   document->selectNodes({entityNode});
@@ -258,8 +254,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGr
     document->deselectAll();
     REQUIRE(document->paste(str) == PasteType::Node);
 
-    auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
-      document->world()->defaultLayer()->children().back());
+    auto* pastedGroupNode =
+      dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children().back());
     REQUIRE(pastedGroupNode != nullptr);
     REQUIRE(pastedGroupNode != groupNode);
 
@@ -272,8 +268,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGr
     document->deselectAll();
     REQUIRE(document->paste(str) == PasteType::Node);
 
-    auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
-      document->world()->defaultLayer()->children().back());
+    auto* pastedGroupNode =
+      dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children().back());
     REQUIRE(pastedGroupNode != nullptr);
     REQUIRE(pastedGroupNode != groupNode);
 
@@ -289,11 +285,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3d{vm::vec3d{0, 0, 0}, vm::vec3d{64, 64, 64}};
 
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
   document->selectNodes({brushNode1});
 
@@ -353,8 +349,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
   const auto originalGroupLinkId = linkedGroup->linkId();
   REQUIRE(originalGroupLinkId == groupNode->linkId());
 
-  auto* linkedBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedGroup->children().front());
+  auto* linkedBrushNode = dynamic_cast<mdl::BrushNode*>(linkedGroup->children().front());
   REQUIRE(linkedBrushNode);
 
   const auto originalBrushLinkId = linkedBrushNode->linkId();
@@ -376,7 +371,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
     CHECK(groupNode->childCount() == 2);
 
     const auto* pastedBrushNode =
-      dynamic_cast<Model::BrushNode*>(groupNode->children().back());
+      dynamic_cast<mdl::BrushNode*>(groupNode->children().back());
     REQUIRE(pastedBrushNode);
 
     CHECK(pastedBrushNode->linkId() != originalBrushLinkId);
@@ -397,7 +392,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 1);
 
-      const auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
+      const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroupNode);
 
@@ -412,14 +407,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 2);
 
-      const auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
+      const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroupNode);
 
       CHECK(pastedGroupNode->linkId() != originalGroupLinkId);
 
       const auto* pastedBrushNode =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode->children().front());
       REQUIRE(pastedBrushNode);
 
       CHECK(pastedBrushNode->linkId() != originalBrushLinkId);
@@ -430,14 +425,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);
 
-      const auto* pastedGroupNode = dynamic_cast<Model::GroupNode*>(
+      const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
         document->world()->defaultLayer()->children().back());
       REQUIRE(pastedGroupNode);
 
       CHECK(pastedGroupNode->linkId() == originalGroupLinkId);
 
       const auto* pastedBrushNode =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode->children().front());
       REQUIRE(pastedBrushNode);
 
       CHECK(pastedBrushNode->linkId() == originalBrushLinkId);
@@ -451,25 +446,25 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(groupNode->childCount() == 2);
       CHECK(linkedGroup->childCount() == 2);
 
-      auto* pastedGroup = dynamic_cast<Model::GroupNode*>(groupNode->children().back());
+      auto* pastedGroup = dynamic_cast<mdl::GroupNode*>(groupNode->children().back());
       REQUIRE(pastedGroup);
 
       CHECK(pastedGroup->linkId() != originalGroupLinkId);
 
       const auto* pastedBrushNode =
-        dynamic_cast<Model::BrushNode*>(pastedGroup->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroup->children().front());
       REQUIRE(pastedBrushNode);
 
       CHECK(pastedBrushNode->linkId() != originalBrushLinkId);
 
       auto* linkedPastedGroupNode =
-        dynamic_cast<Model::GroupNode*>(linkedGroup->children().back());
+        dynamic_cast<mdl::GroupNode*>(linkedGroup->children().back());
       REQUIRE(linkedPastedGroupNode);
 
       CHECK(linkedPastedGroupNode->linkId() == pastedGroup->linkId());
 
       const auto* linkedPastedBrushNode =
-        dynamic_cast<Model::BrushNode*>(linkedPastedGroupNode->children().front());
+        dynamic_cast<mdl::BrushNode*>(linkedPastedGroupNode->children().front());
       REQUIRE(pastedBrushNode);
 
       CHECK(linkedPastedBrushNode->linkId() == pastedBrushNode->linkId());
@@ -492,11 +487,11 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(document->world()->defaultLayer()->childCount() == 3);
 
       const auto* pastedGroupNode1 =
-        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[1]);
+        dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children()[1]);
       REQUIRE(pastedGroupNode1);
 
       const auto* pastedGroupNode2 =
-        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
+        dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children()[2]);
       REQUIRE(pastedGroupNode2);
 
       CHECK(pastedGroupNode1->linkId() != originalGroupLinkId);
@@ -504,13 +499,13 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(pastedGroupNode1->linkId() == pastedGroupNode2->linkId());
 
       const auto* pastedBrushNode1 =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode1->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode1->children().front());
       REQUIRE(pastedBrushNode1);
 
       CHECK(pastedBrushNode1->linkId() != originalBrushLinkId);
 
       const auto* pastedBrushNode2 =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode2->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode2->children().front());
       REQUIRE(pastedBrushNode2);
 
       CHECK(pastedBrushNode2->linkId() != originalBrushLinkId);
@@ -524,24 +519,24 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       CHECK(document->world()->defaultLayer()->childCount() == 4);
 
       const auto* pastedGroupNode1 =
-        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[2]);
+        dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children()[2]);
       REQUIRE(pastedGroupNode1);
 
       const auto* pastedGroupNode2 =
-        dynamic_cast<Model::GroupNode*>(document->world()->defaultLayer()->children()[3]);
+        dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children()[3]);
       REQUIRE(pastedGroupNode2);
 
       CHECK(pastedGroupNode1->linkId() == originalGroupLinkId);
       CHECK(pastedGroupNode2->linkId() == originalGroupLinkId);
 
       const auto* pastedBrushNode1 =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode1->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode1->children().front());
       REQUIRE(pastedBrushNode1);
 
       CHECK(pastedBrushNode1->linkId() == originalBrushLinkId);
 
       const auto* pastedBrushNode2 =
-        dynamic_cast<Model::BrushNode*>(pastedGroupNode2->children().front());
+        dynamic_cast<mdl::BrushNode*>(pastedGroupNode2->children().front());
       REQUIRE(pastedBrushNode2);
 
       CHECK(pastedBrushNode2->linkId() == originalBrushLinkId);
@@ -571,8 +566,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
 
   REQUIRE(document->paste(data) == PasteType::Node);
   REQUIRE(defaultLayerNode.childCount() == 1u);
-  REQUIRE(
-    dynamic_cast<Model::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
+  REQUIRE(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   REQUIRE(document->selectedNodes().brushCount() == 1u);
 
   CHECK(document->canUndoCommand());
@@ -582,7 +576,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
 
   document->redoCommand();
   CHECK(defaultLayerNode.childCount() == 1u);
-  CHECK(dynamic_cast<Model::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
+  CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   CHECK(document->selectedNodes().brushCount() == 1u);
 }
 

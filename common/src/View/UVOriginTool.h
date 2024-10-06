@@ -19,11 +19,11 @@
 
 #pragma once
 
-#include "Model/HitType.h"
 #include "View/Tool.h"
 #include "View/ToolController.h"
+#include "mdl/HitType.h"
 
-namespace tb::Model
+namespace tb::mdl
 {
 class PickResult;
 }
@@ -42,8 +42,8 @@ class UVViewHelper;
 class UVOriginTool : public ToolController, public Tool
 {
 public:
-  static const Model::HitType::Type XHandleHitType;
-  static const Model::HitType::Type YHandleHitType;
+  static const mdl::HitType::Type XHandleHitType;
+  static const mdl::HitType::Type YHandleHitType;
 
   static const double MaxPickDistance;
   static const float OriginHandleRadius;
@@ -58,7 +58,7 @@ private:
   Tool& tool() override;
   const Tool& tool() const override;
 
-  void pick(const InputState& inputState, Model::PickResult& pickResult) override;
+  void pick(const InputState& inputState, mdl::PickResult& pickResult) override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
 

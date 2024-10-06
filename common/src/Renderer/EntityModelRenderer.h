@@ -34,11 +34,11 @@ namespace tb::asset
 class EntityModelManager;
 }
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EditorContext;
 class EntityNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -52,9 +52,9 @@ private:
   Logger& m_logger;
 
   asset::EntityModelManager& m_entityModelManager;
-  const Model::EditorContext& m_editorContext;
+  const mdl::EditorContext& m_editorContext;
 
-  std::unordered_map<const Model::EntityNode*, MaterialRenderer*> m_entities;
+  std::unordered_map<const mdl::EntityNode*, MaterialRenderer*> m_entities;
 
   bool m_applyTinting = false;
   Color m_tintColor;
@@ -65,7 +65,7 @@ public:
   EntityModelRenderer(
     Logger& logger,
     asset::EntityModelManager& entityModelManager,
-    const Model::EditorContext& editorContext);
+    const mdl::EditorContext& editorContext);
   ~EntityModelRenderer() override;
 
   template <typename I>
@@ -95,9 +95,9 @@ public:
     }
   }
 
-  void addEntity(const Model::EntityNode* entityNode);
-  void removeEntity(const Model::EntityNode* entityNode);
-  void updateEntity(const Model::EntityNode* entityNode);
+  void addEntity(const mdl::EntityNode* entityNode);
+  void removeEntity(const mdl::EntityNode* entityNode);
+  void updateEntity(const mdl::EntityNode* entityNode);
   void clear();
 
   bool applyTinting() const;

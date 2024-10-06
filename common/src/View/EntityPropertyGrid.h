@@ -33,11 +33,11 @@ class QShortcut;
 class QSortFilterProxyModel;
 class QToolButton;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class EntityNode;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -96,7 +96,7 @@ private:
 
   void documentWasNewed(MapDocument* document);
   void documentWasLoaded(MapDocument* document);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
   void selectionDidChange(const Selection& selection);
   void entityDefinitionsOrModsDidChange();

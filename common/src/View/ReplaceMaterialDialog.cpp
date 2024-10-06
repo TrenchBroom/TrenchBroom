@@ -23,12 +23,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/NodeQueries.h"
-#include "Model/PushSelection.h"
-#include "Model/WorldNode.h" // IWYU pragma: keep
 #include "View/BorderLine.h"
 #include "View/MapDocument.h"
 #include "View/MaterialBrowser.h"
@@ -36,6 +30,12 @@
 #include "View/TitledPanel.h"
 #include "View/Transaction.h"
 #include "asset/Material.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/NodeQueries.h"
+#include "mdl/PushSelection.h"
+#include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -51,13 +51,13 @@ namespace
 
 void replaceMaterials(
   MapDocument& document,
-  const std::vector<Model::BrushFaceHandle>& faces,
+  const std::vector<mdl::BrushFaceHandle>& faces,
   const std::string& materialName)
 {
-  auto request = Model::ChangeBrushFaceAttributesRequest{};
+  auto request = mdl::ChangeBrushFaceAttributesRequest{};
   request.setMaterialName(materialName);
 
-  const auto pushSelection = Model::PushSelection{document};
+  const auto pushSelection = mdl::PushSelection{document};
 
   auto transaction = Transaction{document, "Replace Materials"};
   document.selectBrushFaces(faces);
@@ -110,7 +110,7 @@ void ReplaceMaterialDialog::accept()
   QMessageBox::information(this, tr("Replace Succeeded"), QString::fromStdString(msg));
 }
 
-std::vector<Model::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() const
+std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() const
 {
   const auto* subject = m_subjectBrowser->selectedMaterial();
   ensure(subject != nullptr, "subject is null");
@@ -119,7 +119,7 @@ std::vector<Model::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() 
   auto faces = document->allSelectedBrushFaces();
   if (faces.empty())
   {
-    faces = Model::collectBrushFaces({document->world()});
+    faces = mdl::collectBrushFaces({document->world()});
   }
 
   return kdl::vec_filter(

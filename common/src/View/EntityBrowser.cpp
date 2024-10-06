@@ -26,7 +26,6 @@
 #include <QScrollBar>
 #include <QtGlobal>
 
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "View/EntityBrowserView.h"
 #include "View/MapDocument.h"
@@ -34,6 +33,7 @@
 #include "View/ViewConstants.h"
 #include "asset/EntityDefinition.h"
 #include "asset/EntityDefinitionManager.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 
@@ -170,7 +170,7 @@ void EntityBrowser::modsDidChange()
   reload();
 }
 
-void EntityBrowser::nodesDidChange(const std::vector<Model::Node*>&)
+void EntityBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   // to handle definition usage count changes
   reload();

@@ -40,7 +40,7 @@ public:
   explicit FaceTool(std::weak_ptr<MapDocument> document);
 
 public:
-  std::vector<Model::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
+  std::vector<mdl::BrushNode*> findIncidentBrushes(const vm::polygon3d& handle) const;
 
 private:
   using VertexToolBase::findIncidentBrushes;
@@ -49,7 +49,7 @@ public:
   void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override;
+    mdl::PickResult& pickResult) const override;
 
 public:
   FaceHandleManager& handleManager() override;
@@ -57,7 +57,7 @@ public:
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(
-    const std::vector<Model::Hit>& hits) const override;
+    const std::vector<mdl::Hit>& hits) const override;
 
   MoveResult move(const vm::vec3d& delta) override;
 

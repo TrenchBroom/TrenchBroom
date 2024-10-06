@@ -19,12 +19,12 @@
 
 #include "DrawShapeTool.h"
 
-#include "Model/Brush.h" // IWYU pragma: keep
-#include "Model/BrushNode.h"
 #include "View/DrawShapeToolExtension.h"
 #include "View/DrawShapeToolExtensions.h"
 #include "View/DrawShapeToolPage.h"
 #include "View/MapDocument.h"
+#include "mdl/Brush.h" // IWYU pragma: keep
+#include "mdl/BrushNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/result.h"
@@ -45,7 +45,7 @@ void DrawShapeTool::update(const vm::bbox3d& bounds, const vm::axis::type axis)
   m_extensionManager.currentExtension().createBrushes(bounds, axis, *document)
     | kdl::transform([&](auto brushes) {
         updateBrushes(kdl::vec_transform(std::move(brushes), [](auto brush) {
-          return std::make_unique<Model::BrushNode>(std::move(brush));
+          return std::make_unique<mdl::BrushNode>(std::move(brush));
         }));
       })
     | kdl::transform_error([&](auto e) {

@@ -23,7 +23,6 @@
 #include <QListWidget>
 #include <QToolButton>
 
-#include "Model/EntityNodeBase.h"
 #include "View/BorderLine.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
@@ -31,6 +30,7 @@
 #include "View/TitleBar.h"
 #include "View/ViewConstants.h"
 #include "io/PathQt.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/string_utils.h"
@@ -46,7 +46,7 @@ namespace
 {
 
 std::vector<std::filesystem::path> getWadPaths(
-  const std::vector<Model::EntityNodeBase*>& nodes, const std::string& propertyKey)
+  const std::vector<mdl::EntityNodeBase*>& nodes, const std::string& propertyKey)
 {
   if (nodes.size() == 1)
   {
@@ -266,7 +266,7 @@ bool SmartWadEditor::canReloadWads() const
   return m_wadPaths->count() > 0;
 }
 
-void SmartWadEditor::doUpdateVisual(const std::vector<Model::EntityNodeBase*>& nodes)
+void SmartWadEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   const auto selectedRows =
     kdl::vec_transform(m_wadPaths->selectedItems(), [&](const auto& selectedItem) {

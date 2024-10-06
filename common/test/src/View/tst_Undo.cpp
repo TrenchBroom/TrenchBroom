@@ -17,16 +17,16 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "asset/Material.h"
 #include "asset/MaterialManager.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 
 #include <cassert>
 
@@ -38,8 +38,7 @@ namespace tb::View
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 {
   document->deselectAll();
-  document->setProperty(
-    Model::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
+  document->setProperty(mdl::EntityPropertyKeys::Wad, "fixture/test/io/Wad/cr8_czg.wad");
 
   auto* brushNode = createBrushNode("coffin1");
   document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -80,7 +79,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 
     document->selectBrushFaces({{brushNode, *topFaceIndex}});
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setXOffset(12.34f);
     REQUIRE(document->setFaceAttributes(request));
 
@@ -101,8 +100,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 
 TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{{
-    {Model::EntityPropertyKeys::Classname, "test"},
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{
+    {mdl::EntityPropertyKeys::Classname, "test"},
   }}};
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});

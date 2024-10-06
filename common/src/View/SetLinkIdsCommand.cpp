@@ -20,15 +20,15 @@
 #include "SetLinkIdsCommand.h"
 
 #include "Ensure.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h" // IWYU pragma: keep
-#include "Model/GroupNode.h"  // IWYU pragma: keep
-#include "Model/LayerNode.h"
-#include "Model/Node.h"
-#include "Model/Object.h"
-#include "Model/PatchNode.h" // IWYU pragma: keep
-#include "Model/WorldNode.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h" // IWYU pragma: keep
+#include "mdl/GroupNode.h"  // IWYU pragma: keep
+#include "mdl/LayerNode.h"
+#include "mdl/Node.h"
+#include "mdl/Object.h"
+#include "mdl/PatchNode.h" // IWYU pragma: keep
+#include "mdl/WorldNode.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
@@ -40,19 +40,19 @@ namespace tb::View
 namespace
 {
 
-auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkIds)
+auto setLinkIds(const std::vector<std::tuple<mdl::Node*, std::string>>& linkIds)
 {
   return linkIds | std::views::transform([](const auto& nodeAndLinkId) {
-           auto* node = std::get<Model::Node*>(nodeAndLinkId);
+           auto* node = std::get<mdl::Node*>(nodeAndLinkId);
            const auto& linkId = std::get<std::string>(nodeAndLinkId);
            return node->accept(kdl::overload(
-             [&](const Model::WorldNode*) -> std::tuple<Model::Node*, std::string> {
+             [&](const mdl::WorldNode*) -> std::tuple<mdl::Node*, std::string> {
                ensure(false, "no unexpected world node");
              },
-             [](const Model::LayerNode*) -> std::tuple<Model::Node*, std::string> {
+             [](const mdl::LayerNode*) -> std::tuple<mdl::Node*, std::string> {
                ensure(false, "no unexpected layer node");
              },
-             [&](Model::Object* object) -> std::tuple<Model::Node*, std::string> {
+             [&](mdl::Object* object) -> std::tuple<mdl::Node*, std::string> {
                auto oldLinkId = object->linkId();
                object->setLinkId(std::move(linkId));
                return {node, std::move(oldLinkId)};
@@ -61,16 +61,16 @@ auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkId
          | kdl::to_vector;
 
   return kdl::vec_transform(linkIds, [](const auto& nodeAndLinkId) {
-    auto* node = std::get<Model::Node*>(nodeAndLinkId);
+    auto* node = std::get<mdl::Node*>(nodeAndLinkId);
     const auto& linkId = std::get<std::string>(nodeAndLinkId);
     return node->accept(kdl::overload(
-      [&](const Model::WorldNode*) -> std::tuple<Model::Node*, std::string> {
+      [&](const mdl::WorldNode*) -> std::tuple<mdl::Node*, std::string> {
         ensure(false, "no unexpected world node");
       },
-      [](const Model::LayerNode*) -> std::tuple<Model::Node*, std::string> {
+      [](const mdl::LayerNode*) -> std::tuple<mdl::Node*, std::string> {
         ensure(false, "no unexpected layer node");
       },
-      [&](Model::Object* object) -> std::tuple<Model::Node*, std::string> {
+      [&](mdl::Object* object) -> std::tuple<mdl::Node*, std::string> {
         auto oldLinkId = object->linkId();
         object->setLinkId(std::move(linkId));
         return {node, std::move(oldLinkId)};
@@ -81,7 +81,7 @@ auto setLinkIds(const std::vector<std::tuple<Model::Node*, std::string>>& linkId
 } // namespace
 
 SetLinkIdsCommand::SetLinkIdsCommand(
-  const std::string& name, std::vector<std::tuple<Model::Node*, std::string>> linkIds)
+  const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds)
   : UndoableCommand{name, true}
   , m_linkIds{std::move(linkIds)}
 {

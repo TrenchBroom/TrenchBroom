@@ -20,22 +20,22 @@
 #include "SetBrushFaceAttributesTool.h"
 
 #include "Ensure.h"
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushFaceHandle.h"
-#include "Model/BrushNode.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Hit.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/LinkedGroupUtils.h"
-#include "Model/ModelUtils.h"
-#include "Model/UVCoordSystem.h"
 #include "View/GestureTracker.h"
 #include "View/InputState.h"
 #include "View/MapDocument.h"
 #include "View/Transaction.h"
 #include "View/TransactionScope.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushFaceHandle.h"
+#include "mdl/BrushNode.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Hit.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/LinkedGroupUtils.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/UVCoordSystem.h"
 
 #include "kdl/memory_utils.h"
 
@@ -135,7 +135,7 @@ bool applies(const InputState& inputState)
          && (materialOnly || projection || rotation);
 }
 
-size_t findClosestFace(const Model::Brush& brush, const vm::vec3d& normal)
+size_t findClosestFace(const mdl::Brush& brush, const vm::vec3d& normal)
 {
   size_t best = 0;
   for (size_t i = 1; i < brush.faceCount(); ++i)
@@ -163,10 +163,10 @@ size_t findClosestFace(const Model::Brush& brush, const vm::vec3d& normal)
  * Nested linked groups further complicate matters. We must make sure that we select the
  * innermost containing linked groups for both the old and new targets!
  */
-std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
-  Model::GroupNode& containingSourceGroupNode,
-  const Model::BrushFaceHandle& sourceFaceHandle,
-  const Model::BrushFaceHandle& oldTargetFaceHandle)
+std::optional<mdl::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
+  mdl::GroupNode& containingSourceGroupNode,
+  const mdl::BrushFaceHandle& sourceFaceHandle,
+  const mdl::BrushFaceHandle& oldTargetFaceHandle)
 {
   const auto& sourceBrushNode = *sourceFaceHandle.node();
   const auto& oldTargetBrushNode = *oldTargetFaceHandle.node();
@@ -178,7 +178,7 @@ std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   }
 
   const auto linkedTargetBrushNodesInSourceGroup =
-    Model::collectLinkedNodes({&containingSourceGroupNode}, oldTargetBrushNode);
+    mdl::collectLinkedNodes({&containingSourceGroupNode}, oldTargetBrushNode);
 
   if (linkedTargetBrushNodesInSourceGroup.empty())
   {
@@ -186,7 +186,7 @@ std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
   }
 
   auto* newTargetBrushNode =
-    dynamic_cast<Model::BrushNode*>(linkedTargetBrushNodesInSourceGroup.front());
+    dynamic_cast<mdl::BrushNode*>(linkedTargetBrushNodesInSourceGroup.front());
   ensure(newTargetBrushNode, "linked nodes are consistent");
 
   const auto* oldTargetContainingGroupNode = oldTargetBrushNode.containingGroup();
@@ -221,23 +221,23 @@ std::optional<Model::BrushFaceHandle> selectTargetFaceHandleForLinkedGroups(
     newTargetBrushNode != &sourceBrushNode
     || sourceFaceHandle.faceIndex() != newTargetFaceIndex)
   {
-    return Model::BrushFaceHandle{newTargetBrushNode, newTargetFaceIndex};
+    return mdl::BrushFaceHandle{newTargetBrushNode, newTargetFaceIndex};
   }
 
   return std::nullopt;
 }
 
 auto selectTargetFaceHandlesForLinkedGroups(
-  const Model::BrushFaceHandle& sourceFaceHandle,
-  const std::vector<Model::BrushFaceHandle>& targetFaceHandles)
+  const mdl::BrushFaceHandle& sourceFaceHandle,
+  const std::vector<mdl::BrushFaceHandle>& targetFaceHandles)
 {
-  auto* containingGroupNode = Model::findContainingGroup(sourceFaceHandle.node());
+  auto* containingGroupNode = mdl::findContainingGroup(sourceFaceHandle.node());
   if (!containingGroupNode)
   {
     return targetFaceHandles;
   }
 
-  auto result = std::vector<Model::BrushFaceHandle>{};
+  auto result = std::vector<mdl::BrushFaceHandle>{};
   result.reserve(targetFaceHandles.size());
 
   for (const auto& targetFaceHandle : targetFaceHandles)
@@ -255,16 +255,16 @@ auto selectTargetFaceHandlesForLinkedGroups(
 void transferFaceAttributes(
   MapDocument& document,
   const InputState& inputState,
-  const Model::BrushFaceHandle& sourceFaceHandle,
-  const std::vector<Model::BrushFaceHandle>& targetFaceHandles,
-  const Model::BrushFaceHandle& faceToSelectAfter)
+  const mdl::BrushFaceHandle& sourceFaceHandle,
+  const std::vector<mdl::BrushFaceHandle>& targetFaceHandles,
+  const mdl::BrushFaceHandle& faceToSelectAfter)
 {
   const auto targetFaceHandlesForLinkedGroups =
     selectTargetFaceHandlesForLinkedGroups(sourceFaceHandle, targetFaceHandles);
 
   const auto style = copyMaterialAttribsRotationModifiersDown(inputState)
-                       ? Model::WrapStyle::Rotation
-                       : Model::WrapStyle::Projection;
+                       ? mdl::WrapStyle::Rotation
+                       : mdl::WrapStyle::Projection;
 
   auto transaction = Transaction{document, TransferFaceAttributesTransactionName};
   document.deselectAll();
@@ -272,7 +272,7 @@ void transferFaceAttributes(
 
   if (copyMaterialOnlyModifiersDown(inputState))
   {
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(sourceFaceHandle.face().attributes().materialName());
     document.setFaceAttributes(request);
   }
@@ -299,13 +299,13 @@ class SetBrushFaceAttributesDragTracker : public GestureTracker
 {
 private:
   MapDocument& m_document;
-  Model::BrushFaceHandle m_initialSelectedFaceHandle;
-  std::optional<Model::BrushFaceHandle> m_sourceFaceHandle;
-  std::optional<Model::BrushFaceHandle> m_targetFaceHandle;
+  mdl::BrushFaceHandle m_initialSelectedFaceHandle;
+  std::optional<mdl::BrushFaceHandle> m_sourceFaceHandle;
+  std::optional<mdl::BrushFaceHandle> m_targetFaceHandle;
 
 public:
   SetBrushFaceAttributesDragTracker(
-    MapDocument& document, Model::BrushFaceHandle initialSelectedFaceHandle)
+    MapDocument& document, mdl::BrushFaceHandle initialSelectedFaceHandle)
     : m_document{document}
     , m_initialSelectedFaceHandle{std::move(initialSelectedFaceHandle)}
   {
@@ -313,10 +313,10 @@ public:
 
   bool update(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
-    const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-    const auto faceHandle = Model::hitToFaceHandle(hit);
+    const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+    const auto faceHandle = mdl::hitToFaceHandle(hit);
     if (!faceHandle)
     {
       // Dragging over void
@@ -389,7 +389,7 @@ bool SetBrushFaceAttributesTool::cancel()
 void SetBrushFaceAttributesTool::copyAttributesFromSelection(
   const InputState& inputState, const bool applyToBrush)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   assert(canCopyAttributesFromSelection(inputState));
 
@@ -398,13 +398,13 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
   const auto selectedFaces = document->selectedBrushFaces();
   assert(!selectedFaces.empty());
 
-  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
-  if (const auto targetFaceHandle = Model::hitToFaceHandle(hit))
+  const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
+  if (const auto targetFaceHandle = mdl::hitToFaceHandle(hit))
   {
     const auto sourceFaceHandle = selectedFaces.front();
     const auto targetList = applyToBrush
-                              ? Model::toHandles(targetFaceHandle->node())
-                              : std::vector<Model::BrushFaceHandle>{*targetFaceHandle};
+                              ? mdl::toHandles(targetFaceHandle->node())
+                              : std::vector<mdl::BrushFaceHandle>{*targetFaceHandle};
 
     transferFaceAttributes(
       *document, inputState, sourceFaceHandle, targetList, sourceFaceHandle);
@@ -414,7 +414,7 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
   const InputState& inputState) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!applies(inputState))
   {
@@ -429,7 +429,7 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
     return false;
   }
 
-  const auto& hit = inputState.pickResult().first(type(Model::BrushNode::BrushHitType));
+  const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
   return hit.isMatch();
 }
 

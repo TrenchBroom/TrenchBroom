@@ -19,14 +19,14 @@
 
 #pragma once
 
-#include "Model/HitType.h"
-#include "Model/PickResult.h"
 #include "NotifierConnection.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/RenderView.h"
 #include "View/ToolBox.h"
 #include "View/ToolBoxConnector.h"
 #include "View/UVViewHelper.h"
+#include "mdl/HitType.h"
+#include "mdl/PickResult.h"
 
 #include <filesystem>
 #include <memory>
@@ -34,11 +34,11 @@
 
 class QWidget;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceHandle;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::Renderer
 {
@@ -67,7 +67,7 @@ class UVView : public RenderView, public ToolBoxConnector
 {
   Q_OBJECT
 public:
-  static const Model::HitType::Type FaceHitType;
+  static const mdl::HitType::Type FaceHitType;
 
 private:
   std::weak_ptr<MapDocument> m_document;
@@ -93,8 +93,8 @@ private:
 
   void selectionDidChange(const Selection& selection);
   void documentWasCleared(MapDocument* document);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void gridDidChange();
   void cameraDidChange(const Renderer::Camera* camera);
   void preferenceDidChange(const std::filesystem::path& path);
@@ -125,7 +125,7 @@ public: // implement InputEventProcessor interface
 
 private:
   PickRequest pickRequest(float x, float y) const override;
-  Model::PickResult pick(const vm::ray3d& pickRay) const override;
+  mdl::PickResult pick(const vm::ray3d& pickRay) const override;
 };
 
 } // namespace tb::View

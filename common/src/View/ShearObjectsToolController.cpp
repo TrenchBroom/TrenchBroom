@@ -20,9 +20,6 @@
 
 #include "ShearObjectsToolController.h"
 
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
@@ -33,6 +30,9 @@
 #include "View/MapDocument.h"
 #include "View/ScaleObjectsTool.h"
 #include "View/ShearObjectsTool.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
 
 #include "kdl/memory_utils.h"
 
@@ -50,7 +50,7 @@ namespace
 HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
   const Grid& grid,
-  const Model::Hit& dragStartHit,
+  const mdl::Hit& dragStartHit,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
 {
@@ -202,7 +202,7 @@ const Tool& ShearObjectsToolController::tool() const
 }
 
 void ShearObjectsToolController::pick(
-  const InputState& inputState, Model::PickResult& pickResult)
+  const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (m_tool.applies())
   {
@@ -222,7 +222,7 @@ void ShearObjectsToolController::mouseMove(const InputState& inputState)
 std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
@@ -315,7 +315,7 @@ ShearObjectsToolController2D::ShearObjectsToolController2D(
 }
 
 void ShearObjectsToolController2D::doPick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
@@ -329,7 +329,7 @@ ShearObjectsToolController3D::ShearObjectsToolController3D(
 }
 
 void ShearObjectsToolController3D::doPick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick3D(pickRay, camera, pickResult);
 }

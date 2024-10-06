@@ -25,7 +25,6 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-#include "Model/EntityNodeBase.h"
 #include "View/EntityPropertyGrid.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
@@ -33,6 +32,7 @@
 #include "View/Splitter.h"
 #include "asset/EntityDefinition.h"
 #include "asset/PropertyDefinition.h"
+#include "mdl/EntityNodeBase.h"
 
 #include "kdl/memory_utils.h"
 
@@ -73,7 +73,7 @@ void EntityPropertyEditor::selectionDidChange(const Selection&)
   updateIfSelectedEntityDefinitionChanged();
 }
 
-void EntityPropertyEditor::nodesDidChange(const std::vector<Model::Node*>&)
+void EntityPropertyEditor::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   updateIfSelectedEntityDefinitionChanged();
 }
@@ -82,7 +82,7 @@ void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 {
   auto document = kdl::mem_lock(m_document);
   const auto* entityDefinition =
-    Model::selectEntityDefinition(document->allSelectedEntityNodes());
+    mdl::selectEntityDefinition(document->allSelectedEntityNodes());
 
   if (entityDefinition != m_currentDefinition)
   {
@@ -177,7 +177,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
   auto document = kdl::mem_lock(m_document);
   if (
     const auto* entityDefinition =
-      Model::selectEntityDefinition(document->allSelectedEntityNodes()))
+      mdl::selectEntityDefinition(document->allSelectedEntityNodes()))
   {
     auto normalFormat = QTextCharFormat{};
     auto boldFormat = QTextCharFormat{};

@@ -24,12 +24,12 @@
 #include <QStringList>
 #include <QVBoxLayout>
 
-#include "Model/Issue.h"
-#include "Model/Validator.h"
-#include "Model/WorldNode.h"
 #include "View/FlagsPopupEditor.h"
 #include "View/IssueBrowserView.h"
 #include "View/MapDocument.h"
+#include "mdl/Issue.h"
+#include "mdl/Validator.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 
@@ -104,27 +104,27 @@ void IssueBrowser::documentWasSaved(MapDocument*)
   m_view->update();
 }
 
-void IssueBrowser::nodesWereAdded(const std::vector<Model::Node*>&)
+void IssueBrowser::nodesWereAdded(const std::vector<mdl::Node*>&)
 {
   m_view->reload();
 }
 
-void IssueBrowser::nodesWereRemoved(const std::vector<Model::Node*>&)
+void IssueBrowser::nodesWereRemoved(const std::vector<mdl::Node*>&)
 {
   m_view->reload();
 }
 
-void IssueBrowser::nodesDidChange(const std::vector<Model::Node*>&)
+void IssueBrowser::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   m_view->reload();
 }
 
-void IssueBrowser::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void IssueBrowser::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
 {
   m_view->reload();
 }
 
-void IssueBrowser::issueIgnoreChanged(Model::Issue*)
+void IssueBrowser::issueIgnoreChanged(mdl::Issue*)
 {
   m_view->update();
 }

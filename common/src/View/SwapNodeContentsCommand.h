@@ -20,17 +20,17 @@
 #pragma once
 
 #include "Macros.h"
-#include "Model/NodeContents.h"
 #include "View/UpdateLinkedGroupsCommandBase.h"
+#include "mdl/NodeContents.h"
 
 #include <memory>
 #include <string>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -38,11 +38,11 @@ namespace tb::View
 class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
 {
 protected:
-  std::vector<std::pair<Model::Node*, Model::NodeContents>> m_nodes;
+  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> m_nodes;
 
 public:
   SwapNodeContentsCommand(
-    std::string name, std::vector<std::pair<Model::Node*, Model::NodeContents>> nodes);
+    std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
   ~SwapNodeContentsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

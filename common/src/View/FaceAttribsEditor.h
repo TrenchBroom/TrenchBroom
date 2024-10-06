@@ -31,11 +31,11 @@ class QLabel;
 class QLineEdit;
 class QGridLayout;
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceHandle;
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -116,8 +116,8 @@ private:
 
   void documentWasNewed(MapDocument* document);
   void documentWasLoaded(MapDocument* document);
-  void nodesDidChange(const std::vector<Model::Node*>& nodes);
-  void brushFacesDidChange(const std::vector<Model::BrushFaceHandle>& faces);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
   void selectionDidChange(const Selection& selection);
   void materialCollectionsDidChange();
 

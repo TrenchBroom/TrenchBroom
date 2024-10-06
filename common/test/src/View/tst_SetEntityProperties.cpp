@@ -18,17 +18,17 @@
  */
 
 #include "Color.h"
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/Entity.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/Transaction.h"
 #include "asset/EntityDefinition.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -67,8 +67,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
     std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
 
-  auto* entityNode =
-    new Model::EntityNode(Model::Entity{{{"classname", "large_entity"}}});
+  auto* entityNode = new mdl::EntityNode(mdl::Entity{{{"classname", "large_entity"}}});
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(entityNode->entity().definition() == largeEntityDef);
@@ -83,7 +82,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 
   document->removeProperty("classname");
   CHECK(entityNode->entity().definition() == nullptr);
-  CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
+  CHECK(document->selectionBounds().size() == mdl::EntityNode::DefaultBounds.size());
 
   {
     // we only want to undo the following changes later
@@ -98,12 +97,12 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 
   document->undoCommand();
   CHECK(entityNode->entity().definition() == nullptr);
-  CHECK(document->selectionBounds().size() == Model::EntityNode::DefaultBounds.size());
+  CHECK(document->selectionBounds().size() == mdl::EntityNode::DefaultBounds.size());
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProperty")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   document->selectNodes({entityNode});
@@ -147,7 +146,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProp
 TEST_CASE_METHOD(
   ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedPropertyRestoresValue")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{{{"some_key", "some_value"}}}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"some_key", "some_value"}}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
 
   document->selectNodes({entityNode});
@@ -161,12 +160,11 @@ TEST_CASE_METHOD(
 
   // both entities have the same value initially
   auto* linkedEntityNode =
-    dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::EntityNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedEntityNode);
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(
-      std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
 
   document->deselectAll();
   document->selectNodes({linkedEntityNode});
@@ -177,29 +175,28 @@ TEST_CASE_METHOD(
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
     Catch::UnorderedEquals(
-      std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
+      std::vector<mdl::EntityProperty>{{"some_key", "another_value"}}));
 
   // the value in the original entity remains unchanged
-  entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+  entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
   REQUIRE_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(
-      std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
 
   SECTION("When there is an unprotected property in the corresponding entity")
   {
     // set the property to unprotected, now the original value should be restored
     document->setProtectedProperty("some_key", false);
 
-    entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+    entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
     CHECK_THAT(
       entityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
   }
 
   SECTION("When no corresponding entity with an unprotected property can be found")
@@ -210,29 +207,29 @@ TEST_CASE_METHOD(
     document->setProtectedProperty("some_key", true);
 
     linkedEntityNode =
-      dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
+      dynamic_cast<mdl::EntityNode*>(linkedGroupNode->children().front());
     REQUIRE_THAT(
       entityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
     REQUIRE_THAT(
       linkedEntityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "another_value"}}));
 
     document->deselectAll();
     document->selectNodes({linkedEntityNode});
     document->setProtectedProperty("some_key", false);
 
-    entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+    entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       entityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "another_value"}}));
 
     SECTION(
       "Setting the property to unprotected in the original entity will fetch the new "
@@ -243,15 +240,15 @@ TEST_CASE_METHOD(
       document->setProtectedProperty("some_key", false);
 
       linkedEntityNode =
-        dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
+        dynamic_cast<mdl::EntityNode*>(linkedGroupNode->children().front());
       CHECK_THAT(
         entityNode->entity().properties(),
         Catch::UnorderedEquals(
-          std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
+          std::vector<mdl::EntityProperty>{{"some_key", "another_value"}}));
       CHECK_THAT(
         linkedEntityNode->entity().properties(),
         Catch::UnorderedEquals(
-          std::vector<Model::EntityProperty>{{"some_key", "another_value"}}));
+          std::vector<mdl::EntityProperty>{{"some_key", "another_value"}}));
     }
   }
 
@@ -260,30 +257,30 @@ TEST_CASE_METHOD(
     document->setProtectedProperty("yet_another_key", true);
     document->setProperty("yet_another_key", "yet_another_value");
 
-    entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+    entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
     REQUIRE_THAT(
       entityNode->entity().properties(),
       Catch::UnorderedEquals(
-        std::vector<Model::EntityProperty>{{"some_key", "some_value"}}));
+        std::vector<mdl::EntityProperty>{{"some_key", "some_value"}}));
     REQUIRE_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"some_key", "another_value"},
         {"yet_another_key", "yet_another_value"},
       }));
 
     document->setProtectedProperty("yet_another_key", false);
 
-    entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+    entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
     CHECK_THAT(
       entityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"some_key", "some_value"},
         {"yet_another_key", "yet_another_value"},
       }));
     CHECK_THAT(
       linkedEntityNode->entity().properties(),
-      Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+      Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
         {"some_key", "another_value"},
         {"yet_another_key", "yet_another_value"},
       }));
@@ -292,7 +289,7 @@ TEST_CASE_METHOD(
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedProperties")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{{
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{
     {"some_key", "some_value"},
     {"another_key", "another_value"},
   }}};
@@ -314,7 +311,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
 
   // both entities have the same values initially
   auto* linkedEntityNode =
-    dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
+    dynamic_cast<mdl::EntityNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedEntityNode);
 
   document->deselectAll();
@@ -324,8 +321,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
   document->setProtectedProperty("some_key", true);
   document->setProperty("some_key", "some_other_value");
 
-  linkedEntityNode =
-    dynamic_cast<Model::EntityNode*>(linkedGroupNode->children().front());
+  linkedEntityNode = dynamic_cast<mdl::EntityNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedEntityNode);
 
   document->deselectAll();
@@ -339,7 +335,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
   document->setProtectedProperty("yet_another_key", true);
   document->setProperty("yet_another_key", "and_yet_another_value");
 
-  entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+  entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
   REQUIRE(entityNode);
 
   REQUIRE_THAT(
@@ -347,7 +343,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
   REQUIRE_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_other_value"}, {"another_key", "another_value"}}));
 
   REQUIRE_THAT(
@@ -355,7 +351,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
   REQUIRE_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "yet_another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -371,7 +367,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
   CHECK(document->canClearProtectedProperties());
   document->clearProtectedProperties();
 
-  entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+  entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
   REQUIRE(entityNode != nullptr);
 
   CHECK_THAT(
@@ -379,7 +375,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
   CHECK_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_other_value"},
       {"another_key", "another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -389,14 +385,14 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{}));
   CHECK_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
 
   document->undoCommand();
 
-  entityNode = dynamic_cast<Model::EntityNode*>(groupNode->children().front());
+  entityNode = dynamic_cast<mdl::EntityNode*>(groupNode->children().front());
   REQUIRE(entityNode != nullptr);
 
   CHECK_THAT(
@@ -404,7 +400,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{"some_key"}));
   CHECK_THAT(
     entityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_other_value"}, {"another_key", "another_value"}}));
 
   CHECK_THAT(
@@ -412,7 +408,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.clearProtectedPr
     Catch::UnorderedEquals(std::vector<std::string>{"another_key", "yet_another_key"}));
   CHECK_THAT(
     linkedEntityNode->entity().properties(),
-    Catch::UnorderedEquals(std::vector<Model::EntityProperty>{
+    Catch::UnorderedEquals(std::vector<mdl::EntityProperty>{
       {"some_key", "some_value"},
       {"another_key", "yet_another_value"},
       {"yet_another_key", "and_yet_another_value"}}));
@@ -425,9 +421,9 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
 
-  auto* brushNode = new Model::BrushNode{
+  auto* brushNode = new mdl::BrushNode{
     builder.createCuboid(vm::bbox3d{{0, 0, 0}, {64, 64, 64}}, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode}}});
 
@@ -436,7 +432,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
   auto* brushEntNode = document->createBrushEntity(m_brushEntityDef);
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode}));
+    Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode}));
 
   REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));
   CHECK(document->updateSpawnflag("spawnflags", 1, true));

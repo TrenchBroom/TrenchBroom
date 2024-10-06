@@ -20,16 +20,6 @@
 #include "TestUtils.h"
 
 #include "Ensure.h"
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GameImpl.h"
-#include "Model/GroupNode.h"
-#include "Model/ParallelUVCoordSystem.h"
-#include "Model/ParaxialUVCoordSystem.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "TestLogger.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
@@ -38,6 +28,16 @@
 #include "asset/Texture.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GameImpl.h"
+#include "mdl/GroupNode.h"
+#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -174,7 +174,7 @@ std::string readTextFile(const std::filesystem::path& path)
 }
 } // namespace io
 
-namespace Model
+namespace mdl
 {
 BrushFace createParaxial(
   const vm::vec3d& point0,
@@ -337,24 +337,24 @@ GameAndConfig loadGame(const std::string& gameName)
   const auto configPath =
     std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
-    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
+    std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
   const auto configStr = io::readTextFile(configPath);
   auto configParser = io::GameConfigParser(configStr, configPath);
-  auto config = std::make_unique<Model::GameConfig>(configParser.parse());
-  auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
+  auto config = std::make_unique<mdl::GameConfig>(configParser.parse());
+  auto game = std::make_shared<mdl::GameImpl>(*config, gamePath, logger);
 
   // We would ideally just return game, but GameImpl captures a raw reference
   // to the GameConfig.
   return {std::move(game), std::move(config)};
 }
 
-const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces,
+const mdl::BrushFace* findFaceByPoints(
+  const std::vector<mdl::BrushFace>& faces,
   const vm::vec3d& point0,
   const vm::vec3d& point1,
   const vm::vec3d& point2)
 {
-  for (const Model::BrushFace& face : faces)
+  for (const mdl::BrushFace& face : faces)
   {
     if (
       face.points()[0] == point0 && face.points()[1] == point1
@@ -366,15 +366,15 @@ const Model::BrushFace* findFaceByPoints(
   return nullptr;
 }
 
-void checkFaceUVCoordSystem(const Model::BrushFace& face, const bool expectParallel)
+void checkFaceUVCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
   auto snapshot = face.takeUVCoordSystemSnapshot();
-  auto* check = dynamic_cast<Model::ParallelUVCoordSystemSnapshot*>(snapshot.get());
+  auto* check = dynamic_cast<mdl::ParallelUVCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);
 }
 
-void checkBrushUVCoordSystem(const Model::BrushNode* brushNode, const bool expectParallel)
+void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)
 {
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
@@ -393,14 +393,14 @@ void setLinkId(Node& node, std::string linkId)
     [](const LayerNode*) {},
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
-} // namespace Model
+} // namespace mdl
 
 namespace View
 {
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
-  const Model::MapFormat mapFormat)
+  const mdl::MapFormat mapFormat)
 {
   auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
 
@@ -417,9 +417,9 @@ DocumentGameConfig loadMapDocument(
 }
 
 DocumentGameConfig newMapDocument(
-  const std::string& gameName, const Model::MapFormat mapFormat)
+  const std::string& gameName, const mdl::MapFormat mapFormat)
 {
-  auto [game, gameConfig] = Model::loadGame(gameName);
+  auto [game, gameConfig] = mdl::loadGame(gameName);
 
   auto document = MapDocumentCommandFacade::newMapDocument();
   document->newDocument(mapFormat, vm::bbox3d(8192.0), game)

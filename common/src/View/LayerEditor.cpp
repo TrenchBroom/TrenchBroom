@@ -25,16 +25,16 @@
 #include <QToolButton>
 #include <QVBoxLayout>
 
-#include "Model/BrushNode.h"
-#include "Model/LayerNode.h"
-#include "Model/ModelUtils.h"
-#include "Model/WorldNode.h"
 #include "View/BorderLine.h"
 #include "View/LayerListBox.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/Transaction.h"
 #include "ViewUtils.h"
+#include "mdl/BrushNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -57,7 +57,7 @@ LayerEditor::LayerEditor(std::weak_ptr<MapDocument> document, QWidget* parent)
   updateButtons();
 }
 
-void LayerEditor::onSetCurrentLayer(Model::LayerNode* layer)
+void LayerEditor::onSetCurrentLayer(mdl::LayerNode* layer)
 {
   auto document = kdl::mem_lock(m_document);
   document->setCurrentLayer(layer);
@@ -65,13 +65,13 @@ void LayerEditor::onSetCurrentLayer(Model::LayerNode* layer)
   updateButtons();
 }
 
-bool LayerEditor::canSetCurrentLayer(Model::LayerNode* layer) const
+bool LayerEditor::canSetCurrentLayer(mdl::LayerNode* layer) const
 {
   auto document = kdl::mem_lock(m_document);
   return document->currentLayer() != layer;
 }
 
-void LayerEditor::onLayerRightClick(Model::LayerNode* layerNode)
+void LayerEditor::onLayerRightClick(mdl::LayerNode* layerNode)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -137,17 +137,17 @@ bool LayerEditor::canToggleLayerVisible() const
   return m_layerList->selectedLayer() != nullptr;
 }
 
-void LayerEditor::toggleLayerVisible(Model::LayerNode* layer)
+void LayerEditor::toggleLayerVisible(mdl::LayerNode* layer)
 {
   ensure(layer != nullptr, "layer is null");
   auto document = kdl::mem_lock(m_document);
   if (!layer->hidden())
   {
-    document->hide(std::vector<Model::Node*>{layer});
+    document->hide(std::vector<mdl::Node*>{layer});
   }
   else
   {
-    document->resetVisibility(std::vector<Model::Node*>{layer});
+    document->resetVisibility(std::vector<mdl::Node*>{layer});
   }
 }
 
@@ -156,31 +156,31 @@ bool LayerEditor::canToggleLayerLocked() const
   return m_layerList->selectedLayer() != nullptr;
 }
 
-void LayerEditor::toggleLayerLocked(Model::LayerNode* layer)
+void LayerEditor::toggleLayerLocked(mdl::LayerNode* layer)
 {
   ensure(layer != nullptr, "layer is null");
   auto document = kdl::mem_lock(m_document);
   if (!layer->locked())
   {
-    document->lock(std::vector<Model::Node*>{layer});
+    document->lock(std::vector<mdl::Node*>{layer});
   }
   else
   {
-    document->resetLock(std::vector<Model::Node*>{layer});
+    document->resetLock(std::vector<mdl::Node*>{layer});
   }
 }
 
-void LayerEditor::toggleOmitLayerFromExport(Model::LayerNode* layerNode)
+void LayerEditor::toggleOmitLayerFromExport(mdl::LayerNode* layerNode)
 {
   ensure(layerNode != nullptr, "layer is null");
   kdl::mem_lock(m_document)
     ->setOmitLayerFromExport(layerNode, !layerNode->layer().omitFromExport());
 }
 
-void LayerEditor::isolateLayer(Model::LayerNode* layer)
+void LayerEditor::isolateLayer(mdl::LayerNode* layer)
 {
   auto document = kdl::mem_lock(m_document);
-  document->isolateLayers(std::vector<Model::LayerNode*>{layer});
+  document->isolateLayers(std::vector<mdl::LayerNode*>{layer});
 }
 
 void LayerEditor::onMoveSelectionToLayer()
@@ -227,14 +227,14 @@ void LayerEditor::onAddLayer()
     auto document = kdl::mem_lock(m_document);
     auto* world = document->world();
 
-    auto layer = Model::Layer{name};
+    auto layer = mdl::Layer{name};
 
     // Sort it at the bottom of the list
     const auto customLayers = world->customLayersUserSorted();
     layer.setSortIndex(
       !customLayers.empty() ? customLayers.back()->layer().sortIndex() + 1 : 0);
 
-    auto* layerNode = new Model::LayerNode{std::move(layer)};
+    auto* layerNode = new mdl::LayerNode{std::move(layer)};
 
     auto transaction = Transaction{document, "Create Layer " + layerNode->name()};
     if (document->addNodes({{world, {layerNode}}}).empty())
@@ -323,7 +323,7 @@ bool LayerEditor::canMoveLayer(const int direction) const
   return false;
 }
 
-void LayerEditor::moveLayer(Model::LayerNode* layer, int direction)
+void LayerEditor::moveLayer(mdl::LayerNode* layer, int direction)
 {
   if (direction != 0)
   {
@@ -338,7 +338,7 @@ void LayerEditor::onShowAllLayers()
   auto document = kdl::mem_lock(m_document);
   const auto layers = document->world()->allLayers();
   document->resetVisibility(
-    std::vector<Model::Node*>(std::begin(layers), std::end(layers)));
+    std::vector<mdl::Node*>(std::begin(layers), std::end(layers)));
 }
 
 bool LayerEditor::canShowAllLayers() const
@@ -351,7 +351,7 @@ void LayerEditor::onHideAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
   const auto layers = document->world()->allLayers();
-  document->hide(std::vector<Model::Node*>{std::begin(layers), std::end(layers)});
+  document->hide(std::vector<mdl::Node*>{std::begin(layers), std::end(layers)});
 }
 
 bool LayerEditor::canHideAllLayers() const
@@ -363,7 +363,7 @@ bool LayerEditor::canHideAllLayers() const
 void LayerEditor::onLockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<mdl::Node*>(document->world()->allLayers());
   document->lock(nodes);
 }
 
@@ -376,7 +376,7 @@ bool LayerEditor::canLockAllLayers() const
 void LayerEditor::onUnlockAllLayers()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = kdl::vec_static_cast<Model::Node*>(document->world()->allLayers());
+  const auto nodes = kdl::vec_static_cast<mdl::Node*>(document->world()->allLayers());
   document->resetLock(nodes);
 }
 
@@ -386,8 +386,8 @@ bool LayerEditor::canUnlockAllLayers() const
   return std::ranges::any_of(layers, [](const auto* layer) { return layer->locked(); });
 }
 
-Model::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(
-  const Model::LayerNode* except) const
+mdl::LayerNode* LayerEditor::findVisibleAndUnlockedLayer(
+  const mdl::LayerNode* except) const
 {
   auto document = kdl::mem_lock(m_document);
   if (

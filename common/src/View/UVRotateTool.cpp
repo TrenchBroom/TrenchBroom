@@ -19,12 +19,6 @@
 
 #include "UVRotateTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/ChangeBrushFaceAttributesRequest.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/Polyhedron.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/ActiveShader.h"
@@ -40,6 +34,12 @@
 #include "View/MapDocument.h"
 #include "View/TransactionScope.h"
 #include "View/UVViewHelper.h"
+#include "mdl/BrushFace.h"
+#include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/Polyhedron.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
@@ -214,7 +214,7 @@ public:
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
     const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
 
-    auto request = Model::ChangeBrushFaceAttributesRequest{};
+    auto request = mdl::ChangeBrushFaceAttributesRequest{};
     request.setRotation(snappedAngle);
     m_document.setFaceAttributes(request);
 
@@ -252,7 +252,7 @@ public:
 std::optional<vm::vec2f> hitPointInFaceCoords(
   const UVViewHelper& helper, const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto toFace =
     helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -290,7 +290,7 @@ std::optional<float> computeInitialAngle(
 
 } // namespace
 
-const Model::HitType::Type UVRotateTool::AngleHandleHitType = Model::HitType::freeType();
+const mdl::HitType::Type UVRotateTool::AngleHandleHitType = mdl::HitType::freeType();
 
 UVRotateTool::UVRotateTool(std::weak_ptr<MapDocument> document, UVViewHelper& helper)
   : ToolController{}
@@ -310,7 +310,7 @@ const Tool& UVRotateTool::tool() const
   return *this;
 }
 
-void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickResult)
+void UVRotateTool::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (!m_helper.valid())
   {
@@ -338,7 +338,7 @@ void UVRotateTool::pick(const InputState& inputState, Model::PickResult& pickRes
     if (error <= RotateHandleWidth / zoom)
     {
       pickResult.addHit(
-        Model::Hit{AngleHandleHitType, *distanceToFace, hitPoint, 0, error});
+        mdl::Hit{AngleHandleHitType, *distanceToFace, hitPoint, 0, error});
     }
   }
 }
@@ -376,7 +376,7 @@ void UVRotateTool::render(
   Renderer::RenderContext&,
   Renderer::RenderBatch& renderBatch)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   if (
     inputState.anyToolDragging() || !m_helper.valid()

@@ -34,7 +34,7 @@
 #include <optional>
 
 // FIXME: should this be moved to Model?
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFace;
 }
@@ -449,7 +449,7 @@ public:
    */
   double snapToGridPlane(const vm::line3d& line, double distance) const;
 
-  double snapMoveDistanceForFace(const Model::BrushFace& face, double moveDistance) const;
+  double snapMoveDistanceForFace(const mdl::BrushFace& face, double moveDistance) const;
 
   vm::vec3d referencePoint(const vm::bbox3d& bounds) const;
 };

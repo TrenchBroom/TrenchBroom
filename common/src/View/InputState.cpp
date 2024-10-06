@@ -303,12 +303,12 @@ void InputState::setPickRequest(const PickRequest& pickRequest)
   m_pickRequest = pickRequest;
 }
 
-const Model::PickResult& InputState::pickResult() const
+const mdl::PickResult& InputState::pickResult() const
 {
   return m_pickResult;
 }
 
-void InputState::setPickResult(Model::PickResult pickResult)
+void InputState::setPickResult(mdl::PickResult pickResult)
 {
   m_pickResult = std::move(pickResult);
 }

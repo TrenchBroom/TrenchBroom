@@ -24,7 +24,7 @@
 
 #include <memory>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class LayerNode;
 }
@@ -34,13 +34,13 @@ namespace tb::View
 class SetCurrentLayerCommand : public UndoableCommand
 {
 private:
-  Model::LayerNode* m_currentLayer = nullptr;
-  Model::LayerNode* m_oldCurrentLayer = nullptr;
+  mdl::LayerNode* m_currentLayer = nullptr;
+  mdl::LayerNode* m_oldCurrentLayer = nullptr;
 
 public:
-  static std::unique_ptr<SetCurrentLayerCommand> set(Model::LayerNode* layer);
+  static std::unique_ptr<SetCurrentLayerCommand> set(mdl::LayerNode* layer);
 
-  explicit SetCurrentLayerCommand(Model::LayerNode* layer);
+  explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

@@ -23,13 +23,13 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
-#include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
 #include "View/MapFrame.h"
 #include "io/SystemPaths.h"
+#include "mdl/GameFactory.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 

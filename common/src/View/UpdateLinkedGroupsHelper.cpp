@@ -19,10 +19,10 @@
 
 #include "UpdateLinkedGroupsHelper.h"
 
-#include "Model/GroupNode.h"
-#include "Model/LinkedGroupUtils.h"
-#include "Model/ModelUtils.h"
 #include "View/MapDocumentCommandFacade.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LinkedGroupUtils.h"
+#include "mdl/ModelUtils.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -42,14 +42,14 @@ namespace
 {
 
 // Order groups so that descendants will be updated before their ancestors
-auto compareByAncestry(const Model::GroupNode* lhs, const Model::GroupNode* rhs)
+auto compareByAncestry(const mdl::GroupNode* lhs, const mdl::GroupNode* rhs)
 {
   return rhs->isAncestorOf(lhs);
 }
 
 } // namespace
 
-bool checkLinkedGroupsToUpdate(const std::vector<Model::GroupNode*>& changedLinkedGroups)
+bool checkLinkedGroupsToUpdate(const std::vector<mdl::GroupNode*>& changedLinkedGroups)
 {
   const auto linkedGroupIds = kdl::vec_sort(
     changedLinkedGroups
@@ -140,10 +140,10 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   const auto& worldBounds = document.worldBounds();
   return changedLinkedGroups | std::views::transform([&](const auto* groupNode) {
            const auto groupNodesToUpdate = kdl::vec_erase(
-             Model::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
+             mdl::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
              groupNode);
 
-           return Model::updateLinkedGroups(*groupNode, groupNodesToUpdate, worldBounds);
+           return mdl::updateLinkedGroups(*groupNode, groupNodesToUpdate, worldBounds);
          })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {

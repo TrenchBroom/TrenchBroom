@@ -25,8 +25,6 @@
 #include <QtGlobal>
 
 #include "Exceptions.h"
-#include "Model/CompilationProfile.h"
-#include "Model/CompilationTask.h"
 #include "View/CompilationContext.h"
 #include "View/CompilationVariables.h"
 #include "View/MapDocument.h" // IWYU pragma: keep
@@ -36,6 +34,8 @@
 #include "io/PathMatcher.h"
 #include "io/PathQt.h"
 #include "io/TraversalMode.h"
+#include "mdl/CompilationProfile.h"
+#include "mdl/CompilationTask.h"
 
 #include "kdl/functional.h"
 #include "kdl/overload.h"
@@ -81,7 +81,7 @@ std::string CompilationTaskRunner::interpolate(const std::string& spec)
 }
 
 CompilationExportMapTaskRunner::CompilationExportMapTaskRunner(
-  CompilationContext& context, Model::CompilationExportMap task)
+  CompilationContext& context, mdl::CompilationExportMap task)
   : CompilationTaskRunner{context}
   , m_task{std::move(task)}
 {
@@ -118,7 +118,7 @@ void CompilationExportMapTaskRunner::doExecute()
 void CompilationExportMapTaskRunner::doTerminate() {}
 
 CompilationCopyFilesTaskRunner::CompilationCopyFilesTaskRunner(
-  CompilationContext& context, Model::CompilationCopyFiles task)
+  CompilationContext& context, mdl::CompilationCopyFiles task)
   : CompilationTaskRunner{context}
   , m_task{std::move(task)}
 {
@@ -170,7 +170,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
 void CompilationCopyFilesTaskRunner::doTerminate() {}
 
 CompilationRenameFileTaskRunner::CompilationRenameFileTaskRunner(
-  CompilationContext& context, Model::CompilationRenameFile task)
+  CompilationContext& context, mdl::CompilationRenameFile task)
   : CompilationTaskRunner{context}
   , m_task{std::move(task)}
 {
@@ -207,7 +207,7 @@ void CompilationRenameFileTaskRunner::doExecute()
 void CompilationRenameFileTaskRunner::doTerminate() {}
 
 CompilationDeleteFilesTaskRunner::CompilationDeleteFilesTaskRunner(
-  CompilationContext& context, Model::CompilationDeleteFiles task)
+  CompilationContext& context, mdl::CompilationDeleteFiles task)
   : CompilationTaskRunner{context}
   , m_task{std::move(task)}
 {
@@ -249,7 +249,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 void CompilationDeleteFilesTaskRunner::doTerminate() {}
 
 CompilationRunToolTaskRunner::CompilationRunToolTaskRunner(
-  CompilationContext& context, Model::CompilationRunTool task)
+  CompilationContext& context, mdl::CompilationRunTool task)
   : CompilationTaskRunner{context}
   , m_task{std::move(task)}
 {
@@ -396,7 +396,7 @@ void CompilationRunToolTaskRunner::processReadyReadStandardOutput()
 }
 
 CompilationRunner::CompilationRunner(
-  CompilationContext context, const Model::CompilationProfile& profile, QObject* parent)
+  CompilationContext context, const mdl::CompilationProfile& profile, QObject* parent)
   : QObject{parent}
   , m_context{std::move(context)}
   , m_taskRunners{createTaskRunners(m_context, profile)}
@@ -407,42 +407,42 @@ CompilationRunner::CompilationRunner(
 CompilationRunner::~CompilationRunner() = default;
 
 CompilationRunner::TaskRunnerList CompilationRunner::createTaskRunners(
-  CompilationContext& context, const Model::CompilationProfile& profile)
+  CompilationContext& context, const mdl::CompilationProfile& profile)
 {
   auto result = TaskRunnerList{};
   for (const auto& task : profile.tasks)
   {
     std::visit(
       kdl::overload(
-        [&](const Model::CompilationExportMap& exportMap) {
+        [&](const mdl::CompilationExportMap& exportMap) {
           if (exportMap.enabled)
           {
             result.push_back(
               std::make_unique<CompilationExportMapTaskRunner>(context, exportMap));
           }
         },
-        [&](const Model::CompilationCopyFiles& copyFiles) {
+        [&](const mdl::CompilationCopyFiles& copyFiles) {
           if (copyFiles.enabled)
           {
             result.push_back(
               std::make_unique<CompilationCopyFilesTaskRunner>(context, copyFiles));
           }
         },
-        [&](const Model::CompilationRenameFile& renameFile) {
+        [&](const mdl::CompilationRenameFile& renameFile) {
           if (renameFile.enabled)
           {
             result.push_back(
               std::make_unique<CompilationRenameFileTaskRunner>(context, renameFile));
           }
         },
-        [&](const Model::CompilationDeleteFiles& deleteFiles) {
+        [&](const mdl::CompilationDeleteFiles& deleteFiles) {
           if (deleteFiles.enabled)
           {
             result.push_back(
               std::make_unique<CompilationDeleteFilesTaskRunner>(context, deleteFiles));
           }
         },
-        [&](const Model::CompilationRunTool& runTool) {
+        [&](const mdl::CompilationRunTool& runTool) {
           if (runTool.enabled)
           {
             result.push_back(

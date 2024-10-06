@@ -27,10 +27,10 @@
 #include <tuple>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class Node;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::View
 {
@@ -38,11 +38,11 @@ namespace tb::View
 class SetLinkIdsCommand : public UndoableCommand
 {
 protected:
-  std::vector<std::tuple<Model::Node*, std::string>> m_linkIds;
+  std::vector<std::tuple<mdl::Node*, std::string>> m_linkIds;
 
 public:
   SetLinkIdsCommand(
-    const std::string& name, std::vector<std::tuple<Model::Node*, std::string>> linkIds);
+    const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds);
   ~SetLinkIdsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;

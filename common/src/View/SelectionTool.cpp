@@ -19,15 +19,6 @@
 
 #include "SelectionTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/GroupNode.h" // IWYU pragma: keep
-#include "Model/Hit.h"
-#include "Model/HitAdapter.h"
-#include "Model/HitFilter.h"
-#include "Model/ModelUtils.h"
-#include "Model/Node.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/RenderContext.h"
@@ -37,6 +28,15 @@
 #include "View/MapDocument.h"
 #include "View/Transaction.h"
 #include "View/TransactionScope.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/GroupNode.h" // IWYU pragma: keep
+#include "mdl/Hit.h"
+#include "mdl/HitAdapter.h"
+#include "mdl/HitFilter.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/Node.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -59,7 +59,7 @@ namespace
  * This is used to implement the UI where clicking on a brush inside a group selects the
  * group.
  */
-Model::Node* findOutermostClosedGroupOrNode(Model::Node* node)
+mdl::Node* findOutermostClosedGroupOrNode(mdl::Node* node)
 {
   if (auto* group = findOutermostClosedGroup(node))
   {
@@ -69,22 +69,22 @@ Model::Node* findOutermostClosedGroupOrNode(Model::Node* node)
   return node;
 }
 
-const Model::Node* findOutermostClosedGroupOrNode(const Model::Node* node)
+const mdl::Node* findOutermostClosedGroupOrNode(const mdl::Node* node)
 {
-  return findOutermostClosedGroupOrNode(const_cast<Model::Node*>(node));
+  return findOutermostClosedGroupOrNode(const_cast<mdl::Node*>(node));
 }
 
-Model::HitFilter isNodeSelectable(const Model::EditorContext& editorContext)
+mdl::HitFilter isNodeSelectable(const mdl::EditorContext& editorContext)
 {
   return [&](const auto& hit) {
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       if (!editorContext.selectable(faceHandle->node(), faceHandle->face()))
       {
         return false;
       }
     }
-    if (const auto* node = Model::hitToNode(hit))
+    if (const auto* node = mdl::hitToNode(hit))
     {
       return editorContext.selectable(findOutermostClosedGroupOrNode(node));
     }
@@ -102,19 +102,18 @@ bool isMultiClick(const InputState& inputState)
   return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
 }
 
-const Model::Hit& firstHit(
-  const InputState& inputState, const Model::HitFilter& hitFilter)
+const mdl::Hit& firstHit(const InputState& inputState, const mdl::HitFilter& hitFilter)
 {
   return inputState.pickResult().first(hitFilter);
 }
 
-std::vector<Model::Node*> collectSelectableChildren(
-  const Model::EditorContext& editorContext, const Model::Node* node)
+std::vector<mdl::Node*> collectSelectableChildren(
+  const mdl::EditorContext& editorContext, const mdl::Node* node)
 {
-  return Model::collectSelectableNodes(node->children(), editorContext);
+  return mdl::collectSelectableNodes(node->children(), editorContext);
 }
 
-bool handleClick(const InputState& inputState, const Model::EditorContext& editorContext)
+bool handleClick(const InputState& inputState, const mdl::EditorContext& editorContext)
 {
   if (!inputState.mouseButtonsPressed(MouseButtons::Left))
   {
@@ -150,7 +149,7 @@ void adjustGrid(const InputState& inputState, Grid& grid)
  *  - second is the next selectable node in the list
  */
 template <typename I>
-std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end)
+std::pair<mdl::Node*, mdl::Node*> findSelectionPair(I it, I end)
 {
   const auto first =
     std::find_if(it, end, [](const auto* node) { return node->selected(); });
@@ -170,12 +169,12 @@ std::pair<Model::Node*, Model::Node*> findSelectionPair(I it, I end)
 
 void drillSelection(const InputState& inputState, MapDocument& document)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   const auto& editorContext = document.editorContext();
 
   const auto hits = inputState.pickResult().all(
-    type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+    type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
 
   // Hits may contain multiple brush/entity hits that are inside closed groups. These need
   // to be converted to group hits using findOutermostClosedGroupOrNode() and multiple
@@ -213,13 +212,13 @@ public:
 
   bool update(const InputState& inputState) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     const auto& editorContext = m_document->editorContext();
     if (m_document->hasSelectedBrushFaces())
     {
-      const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
-      if (const auto faceHandle = Model::hitToFaceHandle(hit))
+      const auto& hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+      if (const auto faceHandle = mdl::hitToFaceHandle(hit))
       {
         const auto* brush = faceHandle->node();
         const auto& face = faceHandle->face();
@@ -232,11 +231,11 @@ public:
     else
     {
       assert(m_document->hasSelectedNodes());
-      const auto& hit = firstHit(
-        inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+      const auto& hit =
+        firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
       if (hit.isMatch())
       {
-        auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+        auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
         if (!node->selected() && editorContext.selectable(node))
         {
           m_document->selectNodes({node});
@@ -253,11 +252,11 @@ public:
 
 } // namespace
 
-std::vector<Model::Node*> hitsToNodesWithGroupPicking(const std::vector<Model::Hit>& hits)
+std::vector<mdl::Node*> hitsToNodesWithGroupPicking(const std::vector<mdl::Hit>& hits)
 {
   return kdl::col_stable_remove_duplicates(
     hits | std::views::transform([](const auto& hit) {
-      return findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+      return findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
     })
     | kdl::to_vector);
 }
@@ -281,7 +280,7 @@ const Tool& SelectionTool::tool() const
 
 bool SelectionTool::mouseClick(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   const auto& editorContext = document->editorContext();
@@ -293,8 +292,8 @@ bool SelectionTool::mouseClick(const InputState& inputState)
 
   if (isFaceClick(inputState))
   {
-    const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    const auto& hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
@@ -346,10 +345,10 @@ bool SelectionTool::mouseClick(const InputState& inputState)
   else
   {
     const auto& hit =
-      firstHit(inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+      firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
     if (hit.isMatch())
     {
-      auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+      auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
       if (editorContext.selectable(node))
       {
         if (isMultiClick(inputState))
@@ -389,7 +388,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
 
 bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   const auto& editorContext = document->editorContext();
@@ -401,8 +400,8 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
 
   if (isFaceClick(inputState))
   {
-    const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    const auto& hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
@@ -414,13 +413,13 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
           {
             document->convertToFaceSelection();
           }
-          document->selectBrushFaces(Model::toHandles(brush));
+          document->selectBrushFaces(mdl::toHandles(brush));
         }
         else
         {
           auto transaction = Transaction{document, "Select Brush Faces"};
           document->deselectAll();
-          document->selectBrushFaces(Model::toHandles(brush));
+          document->selectBrushFaces(mdl::toHandles(brush));
           transaction.commit();
         }
       }
@@ -430,15 +429,15 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
   {
     const auto inGroup = document->currentGroup() != nullptr;
     const auto& hit =
-      firstHit(inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+      firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
     if (hit.isMatch())
     {
       const auto hitInGroup =
-        inGroup && Model::hitToNode(hit)->isDescendantOf(document->currentGroup());
+        inGroup && mdl::hitToNode(hit)->isDescendantOf(document->currentGroup());
       if (!inGroup || hitInGroup)
       {
         // If the hit node is inside a closed group, treat it as a hit on the group insted
-        auto* group = findOutermostClosedGroup(Model::hitToNode(hit));
+        auto* group = findOutermostClosedGroup(mdl::hitToNode(hit));
         if (group != nullptr)
         {
           if (editorContext.selectable(group))
@@ -448,7 +447,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
         }
         else
         {
-          const auto* node = Model::hitToNode(hit);
+          const auto* node = mdl::hitToNode(hit);
           if (editorContext.selectable(node))
           {
             const auto* container = node->parent();
@@ -504,7 +503,7 @@ void SelectionTool::mouseScroll(const InputState& inputState)
 std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
   const InputState& inputState)
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
   const auto& editorContext = document->editorContext();
@@ -516,8 +515,8 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
 
   if (isFaceClick(inputState))
   {
-    const auto& hit = firstHit(inputState, type(Model::BrushNode::BrushHitType));
-    if (const auto faceHandle = Model::hitToFaceHandle(hit))
+    const auto& hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto* brush = faceHandle->node();
       const auto& face = faceHandle->face();
@@ -541,13 +540,13 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
   else
   {
     const auto& hit =
-      firstHit(inputState, type(Model::nodeHitType()) && isNodeSelectable(editorContext));
+      firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
     if (!hit.isMatch())
     {
       return nullptr;
     }
 
-    auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+    auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
     if (editorContext.selectable(node))
     {
       document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
@@ -570,12 +569,12 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
 void SelectionTool::setRenderOptions(
   const InputState& inputState, Renderer::RenderContext& renderContext) const
 {
-  using namespace Model::HitFilters;
+  using namespace mdl::HitFilters;
 
   auto document = kdl::mem_lock(m_document);
-  if (const auto& hit = firstHit(inputState, type(Model::nodeHitType())); hit.isMatch())
+  if (const auto& hit = firstHit(inputState, type(mdl::nodeHitType())); hit.isMatch())
   {
-    auto* node = findOutermostClosedGroupOrNode(Model::hitToNode(hit));
+    auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
     if (node->selected())
     {
       renderContext.setShowSelectionGuide();

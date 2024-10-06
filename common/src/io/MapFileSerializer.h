@@ -20,13 +20,13 @@
 #pragma once
 
 #include "io/NodeSerializer.h"
-#include "Model/MapFormat.h"
+#include "mdl/MapFormat.h"
 
 #include <iosfwd>
 #include <memory>
 #include <vector>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BezierPatch;
 class Brush;
@@ -35,7 +35,7 @@ class BrushFace;
 class EntityProperty;
 class Node;
 class PatchNode;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -53,36 +53,36 @@ private:
     std::string string;
     size_t lineCount;
   };
-  std::unordered_map<const Model::Node*, PrecomputedString> m_nodeToPrecomputedString;
+  std::unordered_map<const mdl::Node*, PrecomputedString> m_nodeToPrecomputedString;
 
 public:
   static std::unique_ptr<NodeSerializer> create(
-    Model::MapFormat format, std::ostream& stream);
+    mdl::MapFormat format, std::ostream& stream);
 
 protected:
   explicit MapFileSerializer(std::ostream& stream);
 
 private:
-  void doBeginFile(const std::vector<const Model::Node*>& rootNodes) override;
+  void doBeginFile(const std::vector<const mdl::Node*>& rootNodes) override;
   void doEndFile() override;
 
-  void doBeginEntity(const Model::Node* node) override;
-  void doEndEntity(const Model::Node* node) override;
-  void doEntityProperty(const Model::EntityProperty& attribute) override;
-  void doBrush(const Model::BrushNode* brush) override;
-  void doBrushFace(const Model::BrushFace& face) override;
+  void doBeginEntity(const mdl::Node* node) override;
+  void doEndEntity(const mdl::Node* node) override;
+  void doEntityProperty(const mdl::EntityProperty& attribute) override;
+  void doBrush(const mdl::BrushNode* brush) override;
+  void doBrushFace(const mdl::BrushFace& face) override;
 
-  void doPatch(const Model::PatchNode* patchNode) override;
+  void doPatch(const mdl::PatchNode* patchNode) override;
 
 private:
-  void setFilePosition(const Model::Node* node);
+  void setFilePosition(const mdl::Node* node);
   size_t startLine();
 
 private: // threadsafe
   virtual void doWriteBrushFace(
-    std::ostream& stream, const Model::BrushFace& face) const = 0;
-  PrecomputedString writeBrushFaces(const Model::Brush& brush) const;
-  PrecomputedString writePatch(const Model::BezierPatch& patch) const;
+    std::ostream& stream, const mdl::BrushFace& face) const = 0;
+  PrecomputedString writeBrushFaces(const mdl::Brush& brush) const;
+  PrecomputedString writePatch(const mdl::BezierPatch& patch) const;
 };
 
 } // namespace tb::io

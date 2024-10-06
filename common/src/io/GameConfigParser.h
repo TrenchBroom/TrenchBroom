@@ -19,16 +19,16 @@
 
 #pragma once
 
-#include "io/ConfigParserBase.h"
 #include "Macros.h"
-#include "Model/GameConfig.h"
+#include "io/ConfigParserBase.h"
+#include "mdl/GameConfig.h"
 
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
 
-namespace tb::Model
+namespace tb::mdl
 {
 class BrushFaceAttributes;
 }
@@ -44,7 +44,7 @@ private:
 public:
   explicit GameConfigParser(std::string_view str, const std::filesystem::path& path = {});
 
-  Model::GameConfig parse();
+  mdl::GameConfig parse();
 
   deleteCopyAndMove(GameConfigParser);
 };

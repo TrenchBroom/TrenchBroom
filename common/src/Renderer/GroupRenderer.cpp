@@ -19,8 +19,6 @@
 
 #include "GroupRenderer.h"
 
-#include "Model/EditorContext.h"
-#include "Model/GroupNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/GLVertexType.h"
@@ -29,6 +27,8 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
+#include "mdl/EditorContext.h"
+#include "mdl/GroupNode.h"
 
 #include <vector>
 
@@ -37,10 +37,10 @@ namespace tb::Renderer
 class GroupRenderer::GroupNameAnchor : public TextAnchor3D
 {
 private:
-  const Model::GroupNode& m_group;
+  const mdl::GroupNode& m_group;
 
 public:
-  explicit GroupNameAnchor(const Model::GroupNode& group)
+  explicit GroupNameAnchor(const mdl::GroupNode& group)
     : m_group{group}
   {
   }
@@ -57,7 +57,7 @@ private:
   TextAlignment::Type alignment() const override { return TextAlignment::Bottom; }
 };
 
-GroupRenderer::GroupRenderer(const Model::EditorContext& editorContext)
+GroupRenderer::GroupRenderer(const mdl::EditorContext& editorContext)
   : m_editorContext{editorContext}
 {
 }
@@ -73,7 +73,7 @@ void GroupRenderer::clear()
   m_boundsRenderer = DirectEdgeRenderer();
 }
 
-void GroupRenderer::addGroup(const Model::GroupNode* group)
+void GroupRenderer::addGroup(const mdl::GroupNode* group)
 {
   if (m_groups.insert(group).second)
   {
@@ -81,7 +81,7 @@ void GroupRenderer::addGroup(const Model::GroupNode* group)
   }
 }
 
-void GroupRenderer::removeGroup(const Model::GroupNode* group)
+void GroupRenderer::removeGroup(const mdl::GroupNode* group)
 {
   if (auto it = m_groups.find(group); it != std::end(m_groups))
   {
@@ -90,7 +90,7 @@ void GroupRenderer::removeGroup(const Model::GroupNode* group)
   }
 }
 
-void GroupRenderer::invalidateGroup(const Model::GroupNode*)
+void GroupRenderer::invalidateGroup(const mdl::GroupNode*)
 {
   invalidate();
 }
@@ -248,19 +248,19 @@ void GroupRenderer::validateBounds()
   m_boundsValid = true;
 }
 
-bool GroupRenderer::shouldRenderGroup(const Model::GroupNode& group) const
+bool GroupRenderer::shouldRenderGroup(const mdl::GroupNode& group) const
 {
   const auto* currentGroup = m_editorContext.currentGroup();
   const auto* parentGroup = group.containingGroup();
   return parentGroup == currentGroup && m_editorContext.visible(&group);
 }
 
-AttrString GroupRenderer::groupString(const Model::GroupNode& groupNode) const
+AttrString GroupRenderer::groupString(const mdl::GroupNode& groupNode) const
 {
   return AttrString{groupNode.name()};
 }
 
-Color GroupRenderer::groupColor(const Model::GroupNode&) const
+Color GroupRenderer::groupColor(const mdl::GroupNode&) const
 {
   return pref(Preferences::DefaultGroupColor);
 }

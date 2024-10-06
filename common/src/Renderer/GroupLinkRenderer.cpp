@@ -19,13 +19,13 @@
 
 #include "GroupLinkRenderer.h"
 
-#include "Model/EditorContext.h"
-#include "Model/GroupNode.h"
-#include "Model/LinkedGroupUtils.h"
-#include "Model/ModelUtils.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "View/MapDocument.h"
+#include "mdl/EditorContext.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LinkedGroupUtils.h"
+#include "mdl/ModelUtils.h"
 
 #include "kdl/memory_utils.h"
 
@@ -39,7 +39,7 @@ GroupLinkRenderer::GroupLinkRenderer(std::weak_ptr<View::MapDocument> document)
 {
 }
 
-static vm::vec3f getLinkAnchorPosition(const Model::GroupNode& groupNode)
+static vm::vec3f getLinkAnchorPosition(const mdl::GroupNode& groupNode)
 {
   return vm::vec3f(groupNode.logicalBounds().center());
 }
@@ -59,7 +59,7 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
   {
     const auto& linkId = groupNode->linkId();
     const auto linkedGroupNodes =
-      Model::collectGroupsWithLinkId({document->world()}, linkId);
+      mdl::collectGroupsWithLinkId({document->world()}, linkId);
 
     const auto linkColor = pref(Preferences::LinkedGroupColor);
     const auto sourcePosition = getLinkAnchorPosition(*groupNode);

@@ -20,14 +20,14 @@
 #include "LoadShaders.h"
 
 #include "Error.h" // IWYU pragma: keep
+#include "Logger.h"
+#include "asset/Quake3Shader.h"
 #include "io/FileSystem.h"
 #include "io/PathInfo.h"
 #include "io/Quake3ShaderParser.h"
 #include "io/SimpleParserStatus.h"
 #include "io/TraversalMode.h"
-#include "Logger.h"
-#include "Model/GameConfig.h"
-#include "asset/Quake3Shader.h"
+#include "mdl/GameConfig.h"
 
 #include "kdl/parallel.h"
 #include "kdl/result.h"
@@ -67,7 +67,7 @@ Result<std::vector<asset::Quake3Shader>> loadShader(
 } // namespace
 
 Result<std::vector<asset::Quake3Shader>> loadShaders(
-  const FileSystem& fs, const Model::MaterialConfig& materialConfig, Logger& logger)
+  const FileSystem& fs, const mdl::MaterialConfig& materialConfig, Logger& logger)
 {
   if (fs.pathInfo(materialConfig.shaderSearchPath) != PathInfo::Directory)
   {

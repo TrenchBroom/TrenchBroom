@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/TransactionScope.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
@@ -39,7 +39,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat")
 {
   CHECK_FALSE(document->canRepeatCommands());
 
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   CHECK_FALSE(document->canRepeatCommands());
 
@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.canRepeat")
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate")
 {
-  auto* entityNode = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
 
@@ -70,10 +70,10 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTranslate")
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate")
 {
-  auto entity = Model::Entity();
+  auto entity = mdl::Entity();
   entity.transform(vm::translation_matrix(vm::vec3d(1, 2, 3)), true);
 
-  auto* entityNode = new Model::EntityNode(std::move(entity));
+  auto* entityNode = new mdl::EntityNode(std::move(entity));
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
@@ -182,10 +182,10 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.flipObjects")
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears")
 {
-  auto* entityNode1 = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode1 = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
-  auto* entityNode2 = new Model::EntityNode{Model::Entity{}};
+  auto* entityNode2 = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode2}}});
 
   document->selectNodes({entityNode1});
@@ -219,7 +219,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.selectionClears")
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction")
 {
-  auto* entityNode1 = new Model::EntityNode({});
+  auto* entityNode1 = new mdl::EntityNode({});
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});
@@ -236,7 +236,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction")
 
   // now repeat the transaction on a second entity
 
-  auto* entityNode2 = new Model::EntityNode({});
+  auto* entityNode2 = new mdl::EntityNode({});
   document->addNodes({{document->parentForNodes(), {entityNode2}}});
 
   document->deselectAll();
@@ -257,7 +257,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatTransaction")
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTranslate")
 {
-  auto* entityNode1 = new Model::EntityNode({});
+  auto* entityNode1 = new mdl::EntityNode({});
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});
@@ -319,7 +319,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatDuplicateAndTrans
 
 TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatUndo")
 {
-  auto* entityNode1 = new Model::EntityNode({});
+  auto* entityNode1 = new mdl::EntityNode({});
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
 
   document->selectNodes({entityNode1});

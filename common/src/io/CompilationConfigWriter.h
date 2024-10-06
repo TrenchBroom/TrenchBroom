@@ -25,11 +25,11 @@
 #include <iosfwd>
 #include <string>
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct CompilationConfig;
 struct CompilationProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -37,19 +37,19 @@ namespace tb::io
 class CompilationConfigWriter
 {
 private:
-  const Model::CompilationConfig& m_config;
+  const mdl::CompilationConfig& m_config;
   std::ostream& m_stream;
 
 public:
-  CompilationConfigWriter(const Model::CompilationConfig& config, std::ostream& stream);
+  CompilationConfigWriter(const mdl::CompilationConfig& config, std::ostream& stream);
 
   void writeConfig();
 
 private:
-  el::Value writeProfiles(const Model::CompilationConfig& config) const;
-  el::Value writeProfile(const Model::CompilationProfile& profile) const;
+  el::Value writeProfiles(const mdl::CompilationConfig& config) const;
+  el::Value writeProfile(const mdl::CompilationProfile& profile) const;
 
-  el::Value writeTasks(const Model::CompilationProfile& profile) const;
+  el::Value writeTasks(const mdl::CompilationProfile& profile) const;
 
   std::string escape(const std::string& str) const;
 

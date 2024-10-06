@@ -24,11 +24,11 @@
 
 #include <iosfwd>
 
-namespace tb::Model
+namespace tb::mdl
 {
 struct GameEngineConfig;
 struct GameEngineProfile;
-} // namespace tb::Model
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -36,17 +36,17 @@ namespace tb::io
 class GameEngineConfigWriter
 {
 private:
-  const Model::GameEngineConfig& m_config;
+  const mdl::GameEngineConfig& m_config;
   std::ostream& m_stream;
 
 public:
-  GameEngineConfigWriter(const Model::GameEngineConfig& config, std::ostream& stream);
+  GameEngineConfigWriter(const mdl::GameEngineConfig& config, std::ostream& stream);
 
   void writeConfig();
 
 private:
-  el::Value writeProfiles(const Model::GameEngineConfig& config) const;
-  el::Value writeProfile(const Model::GameEngineProfile& profile) const;
+  el::Value writeProfiles(const mdl::GameEngineConfig& config) const;
+  el::Value writeProfile(const mdl::GameEngineProfile& profile) const;
 
   deleteCopyAndMove(GameEngineConfigWriter);
 };

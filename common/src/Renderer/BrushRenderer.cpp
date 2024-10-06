@@ -19,17 +19,17 @@
 
 #include "BrushRenderer.h"
 
-#include "Model/Brush.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/Polyhedron.h"
-#include "Model/TagAttribute.h"
 #include "PreferenceManager.h"
 #include "Renderer/BrushRendererArrays.h"
 #include "Renderer/BrushRendererBrushCache.h"
 #include "Renderer/RenderContext.h"
 #include "asset/Material.h"
+#include "mdl/Brush.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/Polyhedron.h"
+#include "mdl/TagAttribute.h"
 
 #include <cassert>
 #include <cstring>
@@ -57,7 +57,7 @@ public:
   {
   }
 
-  RenderSettings markFaces(const Model::BrushNode& brush) const override
+  RenderSettings markFaces(const mdl::BrushNode& brush) const override
   {
     return resolve().markFaces(brush);
   }
@@ -79,24 +79,24 @@ BrushRenderer::Filter::RenderSettings BrushRenderer::Filter::renderNothing()
 // DefaultFilter
 
 BrushRenderer::DefaultFilter::~DefaultFilter() = default;
-BrushRenderer::DefaultFilter::DefaultFilter(const Model::EditorContext& context)
+BrushRenderer::DefaultFilter::DefaultFilter(const mdl::EditorContext& context)
   : m_context{context}
 {
 }
 
-bool BrushRenderer::DefaultFilter::visible(const Model::BrushNode& brush) const
+bool BrushRenderer::DefaultFilter::visible(const mdl::BrushNode& brush) const
 {
   return m_context.visible(&brush);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
-  const Model::BrushNode& brush, const Model::BrushFace& face) const
+  const mdl::BrushNode& brush, const mdl::BrushFace& face) const
 {
   return m_context.visible(&brush, face);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
-  const Model::BrushNode& brushNode, const Model::BrushEdge& edge) const
+  const mdl::BrushNode& brushNode, const mdl::BrushEdge& edge) const
 {
   const auto& brush = brushNode.brush();
   const auto firstFaceIndex = edge.firstFace()->payload();
@@ -110,30 +110,30 @@ bool BrushRenderer::DefaultFilter::visible(
          || m_context.visible(&brushNode, secondFace);
 }
 
-bool BrushRenderer::DefaultFilter::editable(const Model::BrushNode& brush) const
+bool BrushRenderer::DefaultFilter::editable(const mdl::BrushNode& brush) const
 {
   return m_context.editable(&brush);
 }
 
 bool BrushRenderer::DefaultFilter::editable(
-  const Model::BrushNode& brush, const Model::BrushFace& face) const
+  const mdl::BrushNode& brush, const mdl::BrushFace& face) const
 {
   return m_context.editable(&brush, face);
 }
 
-bool BrushRenderer::DefaultFilter::selected(const Model::BrushNode& brush) const
+bool BrushRenderer::DefaultFilter::selected(const mdl::BrushNode& brush) const
 {
   return brush.selected() || brush.parentSelected();
 }
 
 bool BrushRenderer::DefaultFilter::selected(
-  const Model::BrushNode&, const Model::BrushFace& face) const
+  const mdl::BrushNode&, const mdl::BrushFace& face) const
 {
   return face.selected();
 }
 
 bool BrushRenderer::DefaultFilter::selected(
-  const Model::BrushNode& brushNode, const Model::BrushEdge& edge) const
+  const mdl::BrushNode& brushNode, const mdl::BrushEdge& edge) const
 {
   const auto& brush = brushNode.brush();
   const auto firstFaceIndex = edge.firstFace()->payload();
@@ -147,7 +147,7 @@ bool BrushRenderer::DefaultFilter::selected(
          || selected(brushNode, secondFace);
 }
 
-bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::BrushNode& brush) const
+bool BrushRenderer::DefaultFilter::hasSelectedFaces(const mdl::BrushNode& brush) const
 {
   return brush.descendantSelected();
 }
@@ -155,7 +155,7 @@ bool BrushRenderer::DefaultFilter::hasSelectedFaces(const Model::BrushNode& brus
 // NoFilter
 
 BrushRenderer::Filter::RenderSettings BrushRenderer::NoFilter::markFaces(
-  const Model::BrushNode& brushNode) const
+  const mdl::BrushNode& brushNode) const
 {
   const auto& brush = brushNode.brush();
   for (const auto& face : brush.faces())
@@ -206,7 +206,7 @@ void BrushRenderer::invalidateMaterials(
   }
 }
 
-void BrushRenderer::invalidateBrush(const Model::BrushNode* brushNode)
+void BrushRenderer::invalidateBrush(const mdl::BrushNode* brushNode)
 {
   // skip brushes that are not in the renderer
   if (m_allBrushes.find(brushNode) == std::end(m_allBrushes))
@@ -437,7 +437,7 @@ static inline bool shouldRenderEdge(
 }
 
 static size_t countMarkedEdgeIndices(
-  const Model::BrushNode& brushNode, const BrushRenderer::Filter::EdgeRenderPolicy policy)
+  const mdl::BrushNode& brushNode, const BrushRenderer::Filter::EdgeRenderPolicy policy)
 {
   using EdgeRenderPolicy = BrushRenderer::Filter::EdgeRenderPolicy;
 
@@ -458,7 +458,7 @@ static size_t countMarkedEdgeIndices(
 }
 
 static void getMarkedEdgeIndices(
-  const Model::BrushNode& brushNode,
+  const mdl::BrushNode& brushNode,
   const BrushRenderer::Filter::EdgeRenderPolicy policy,
   const GLuint brushVerticesStartIndex,
   GLuint* dest)
@@ -484,7 +484,7 @@ static void getMarkedEdgeIndices(
 }
 
 bool BrushRenderer::shouldDrawFaceInTransparentPass(
-  const Model::BrushNode& brushNode, const Model::BrushFace& face) const
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
 {
   if (m_transparencyAlpha >= 1.0f)
   {
@@ -497,18 +497,18 @@ bool BrushRenderer::shouldDrawFaceInTransparentPass(
   {
     return true;
   }
-  if (brushNode.hasAttribute(Model::TagAttributes::Transparency))
+  if (brushNode.hasAttribute(mdl::TagAttributes::Transparency))
   {
     return true;
   }
-  if (face.hasAttribute(Model::TagAttributes::Transparency))
+  if (face.hasAttribute(mdl::TagAttributes::Transparency))
   {
     return true;
   }
   return false;
 }
 
-void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
+void BrushRenderer::validateBrush(const mdl::BrushNode& brushNode)
 {
   assert(m_allBrushes.find(&brushNode) != std::end(m_allBrushes));
   assert(m_invalidBrushes.find(&brushNode) != std::end(m_invalidBrushes));
@@ -672,7 +672,7 @@ void BrushRenderer::validateBrush(const Model::BrushNode& brushNode)
   }
 }
 
-void BrushRenderer::addBrush(const Model::BrushNode* brushNode)
+void BrushRenderer::addBrush(const mdl::BrushNode* brushNode)
 {
   // i.e. insert the brush as "invalid" if it's not already present.
   // if it is present, its validity is unchanged.
@@ -683,7 +683,7 @@ void BrushRenderer::addBrush(const Model::BrushNode* brushNode)
   }
 }
 
-void BrushRenderer::removeBrush(const Model::BrushNode* brushNode)
+void BrushRenderer::removeBrush(const mdl::BrushNode* brushNode)
 {
   // update m_brushValid
   m_allBrushes.erase(brushNode);
@@ -698,7 +698,7 @@ void BrushRenderer::removeBrush(const Model::BrushNode* brushNode)
   removeBrushFromVbo(*brushNode);
 }
 
-void BrushRenderer::removeBrushFromVbo(const Model::BrushNode& brushNode)
+void BrushRenderer::removeBrushFromVbo(const mdl::BrushNode& brushNode)
 {
   auto it = m_brushInfo.find(&brushNode);
 

@@ -17,17 +17,17 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Model/BrushBuilder.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GroupNode.h"
-#include "Model/LayerNode.h"
-#include "Model/NodeCollection.h"
-#include "Model/PatchNode.h"
-#include "Model/WorldNode.h"
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/NodeCollection.h"
+#include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -40,17 +40,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
 {
   GIVEN("A document with multiple entity nodes in various configurations")
   {
-    auto* topLevelEntityNode = new Model::EntityNode{Model::Entity{}};
+    auto* topLevelEntityNode = new mdl::EntityNode{mdl::Entity{}};
 
-    auto* emptyGroupNode = new Model::GroupNode{Model::Group{"empty"}};
-    auto* groupNodeWithEntity = new Model::GroupNode{Model::Group{"group"}};
-    auto* groupedEntityNode = new Model::EntityNode{Model::Entity{}};
+    auto* emptyGroupNode = new mdl::GroupNode{mdl::Group{"empty"}};
+    auto* groupNodeWithEntity = new mdl::GroupNode{mdl::Group{"group"}};
+    auto* groupedEntityNode = new mdl::EntityNode{mdl::Entity{}};
     groupNodeWithEntity->addChild(groupedEntityNode);
 
     auto* topLevelBrushNode = createBrushNode();
     auto* topLevelPatchNode = createPatchNode();
 
-    auto* topLevelBrushEntityNode = new Model::EntityNode{Model::Entity{}};
+    auto* topLevelBrushEntityNode = new mdl::EntityNode{mdl::Entity{}};
     auto* brushEntityBrushNode = createBrushNode();
     auto* brushEntityPatchNode = createPatchNode();
     topLevelBrushEntityNode->addChildren({brushEntityBrushNode, brushEntityPatchNode});
@@ -73,7 +73,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{document->world()}));
+            std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
     }
 
@@ -86,7 +86,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{document->world()}));
+            std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
     }
 
@@ -99,7 +99,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{document->world()}));
+            std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
     }
 
@@ -111,7 +111,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       {
         CHECK_THAT(
           document->allSelectedEntityNodes(),
-          Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{}));
+          Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityNodeBase*>{}));
       }
     }
 
@@ -124,7 +124,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{groupedEntityNode}));
+            std::vector<mdl::EntityNodeBase*>{groupedEntityNode}));
       }
 
       AND_WHEN("A top level entity node is selected")
@@ -135,8 +135,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         {
           CHECK_THAT(
             document->allSelectedEntityNodes(),
-            Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
-              groupedEntityNode, topLevelEntityNode}));
+            Catch::Matchers::UnorderedEquals(
+              std::vector<mdl::EntityNodeBase*>{groupedEntityNode, topLevelEntityNode}));
         }
       }
     }
@@ -150,18 +150,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{topLevelEntityNode}));
+            std::vector<mdl::EntityNodeBase*>{topLevelEntityNode}));
       }
     }
 
     WHEN("A node in a brush entity node is selected")
     {
       const auto selectBrushNode =
-        [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> {
+        [](auto* brushNode, auto* patchNode) -> std::tuple<mdl::Node*, mdl::Node*> {
         return {brushNode, patchNode};
       };
       const auto selectPatchNode =
-        [](auto* brushNode, auto* patchNode) -> std::tuple<Model::Node*, Model::Node*> {
+        [](auto* brushNode, auto* patchNode) -> std::tuple<mdl::Node*, mdl::Node*> {
         return {patchNode, brushNode};
       };
       const auto selectNodes = GENERATE_COPY(selectBrushNode, selectPatchNode);
@@ -178,7 +178,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         CHECK_THAT(
           document->allSelectedEntityNodes(),
           Catch::Matchers::UnorderedEquals(
-            std::vector<Model::EntityNodeBase*>{topLevelBrushEntityNode}));
+            std::vector<mdl::EntityNodeBase*>{topLevelBrushEntityNode}));
       }
 
       AND_WHEN("Another node in the same entity node is selected")
@@ -190,7 +190,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
           CHECK_THAT(
             document->allSelectedEntityNodes(),
             Catch::Matchers::UnorderedEquals(
-              std::vector<Model::EntityNodeBase*>{topLevelBrushEntityNode}));
+              std::vector<mdl::EntityNodeBase*>{topLevelBrushEntityNode}));
         }
       }
 
@@ -202,7 +202,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         {
           CHECK_THAT(
             document->allSelectedEntityNodes(),
-            Catch::Matchers::UnorderedEquals(std::vector<Model::EntityNodeBase*>{
+            Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityNodeBase*>{
               topLevelBrushEntityNode, topLevelEntityNode}));
         }
       }
@@ -213,13 +213,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching")
 {
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-  auto* brushNode2 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-  auto* brushNode3 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto* brushNode2 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto* brushNode3 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
   transformNode(
     *brushNode2,
@@ -246,7 +243,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching")
   using Catch::Matchers::UnorderedEquals;
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
+    UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2476
@@ -257,14 +254,14 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
@@ -272,19 +269,19 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
 
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode1, brushNode2}));
+    Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
   CHECK_THAT(
     document->currentLayer()->children(),
-    Catch::Equals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+    Catch::Equals(std::vector<mdl::Node*>{brushNode1, brushNode2}));
 
   document->selectTouching(true);
 
   // only this next line was failing
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{}));
+    Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{}));
   CHECK_THAT(
-    document->currentLayer()->children(), Catch::Equals(std::vector<Model::Node*>{}));
+    document->currentLayer()->children(), Catch::Equals(std::vector<mdl::Node*>{}));
 
   // brush1 and brush2 are deleted
   CHECK(brushNode1->parent() == nullptr);
@@ -297,24 +294,24 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
   document->deleteObjects();
   assert(document->selectedNodes().nodeCount() == 0);
 
-  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
+  auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  auto* group = new Model::GroupNode{Model::Group{"Unnamed"}};
+  auto* group = new mdl::GroupNode{mdl::Group{"Unnamed"}};
   document->addNodes({{layer, {group}}});
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
   document->addNodes({{group, {brush}}});
 
   const auto selectionBounds = vm::bbox3d{{-16.0, -16.0, -48.0}, {+16.0, +16.0, +48.0}};
 
-  auto* selectionBrush = new Model::BrushNode{
-    builder.createCuboid(selectionBounds, "material") | kdl::value()};
+  auto* selectionBrush =
+    new mdl::BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -329,24 +326,24 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
   document->deleteObjects();
   assert(document->selectedNodes().nodeCount() == 0);
 
-  auto* layer = new Model::LayerNode{Model::Layer{"Layer 1"}};
+  auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
 
-  auto* group = new Model::GroupNode{Model::Group{"Unnamed"}};
+  auto* group = new mdl::GroupNode{mdl::Group{"Unnamed"}};
   document->addNodes({{layer, {group}}});
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto brushBounds = vm::bbox3d{{-32.0, -32.0, -32.0}, {+32.0, +32.0, +32.0}};
 
   auto* brush =
-    new Model::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(brushBounds, "material") | kdl::value()};
   document->addNodes({{group, {brush}}});
 
   const auto selectionBounds = vm::bbox3d{{-48.0, -48.0, -48.0}, {+48.0, +48.0, +48.0}};
 
-  auto* selectionBrush = new Model::BrushNode{
-    builder.createCuboid(selectionBounds, "material") | kdl::value()};
+  auto* selectionBrush =
+    new mdl::BrushNode{builder.createCuboid(selectionBounds, "material") | kdl::value()};
   document->addNodes({{layer, {selectionBrush}}});
 
   document->selectNodes({selectionBrush});
@@ -360,13 +357,10 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
   using Catch::Matchers::UnorderedEquals;
 
   auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-  auto* brushNode2 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
-  auto* brushNode3 =
-    new Model::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+  auto* brushNode1 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto* brushNode2 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
+  auto* brushNode3 = new mdl::BrushNode{builder.createCube(64.0, "none") | kdl::value()};
 
   transformNode(
     *brushNode2,
@@ -392,7 +386,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
 
     CHECK_THAT(
       document->selectedNodes().brushes(),
-      UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
+      UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
   }
   SECTION("x camera")
   {
@@ -400,7 +394,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
 
     CHECK_THAT(
       document->selectedNodes().brushes(),
-      UnorderedEquals(std::vector<Model::BrushNode*>{brushNode3}));
+      UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode3}));
   }
 }
 
@@ -411,18 +405,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
-  auto* brushNode3 = new Model::BrushNode{
+  auto* brushNode3 = new mdl::BrushNode{
     builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
@@ -430,7 +424,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
   document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   document->selectNodes({brushNode1, brushNode2});
-  Model::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
+  mdl::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
 
   document->deselectAll();
 
@@ -451,7 +445,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
 
   CHECK_THAT(
     document->selectedNodes().nodes(),
-    Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode2, brushNode3, patchNode}));
+    Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode2, brushNode3, patchNode}));
   CHECK(!brushNode1->selected());
   CHECK(brushNode2->selected());
   CHECK(brushNode3->selected());
@@ -469,8 +463,8 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
   auto* brushNode1 = createBrushNode();
   auto* brushNode2 = createBrushNode();
 
-  auto* outerGroup = new Model::GroupNode{Model::Group{"outerGroup"}};
-  auto* innerGroup = new Model::GroupNode{Model::Group{"innerGroup"}};
+  auto* outerGroup = new mdl::GroupNode{mdl::Group{"outerGroup"}};
+  auto* innerGroup = new mdl::GroupNode{mdl::Group{"innerGroup"}};
 
   document->addNodes({{document->parentForNodes(), {outerGroup}}});
   document->addNodes({{outerGroup, {innerGroup}}});
@@ -491,7 +485,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
 
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::UnorderedEquals(std::vector<Model::BrushNode*>{brushNode2}));
+    Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
@@ -500,18 +494,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
   document->deleteObjects();
 
   const auto builder =
-    Model::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
+    mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
   const auto box = vm::bbox3d{{0, 0, 0}, {64, 64, 64}};
 
   auto* brushNode1 =
-    new Model::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
+    new mdl::BrushNode{builder.createCuboid(box, "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode1}}});
 
-  auto* brushNode2 = new Model::BrushNode{
+  auto* brushNode2 = new mdl::BrushNode{
     builder.createCuboid(box.translate({1, 1, 1}), "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode2}}});
 
-  auto* brushNode3 = new Model::BrushNode{
+  auto* brushNode3 = new mdl::BrushNode{
     builder.createCuboid(box.translate({2, 2, 2}), "material") | kdl::value()};
   document->addNodes({{document->parentForNodes(), {brushNode3}}});
 
@@ -534,18 +528,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
     document->selectNodes({brushNode3});
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+      Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode3}));
 
     document->selectSiblings();
     CHECK_THAT(
       document->selectedNodes().nodes(),
       Catch::UnorderedEquals(
-        std::vector<Model::Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
+        std::vector<mdl::Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode3}));
+      Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode3}));
   }
 
   SECTION("Brush in brush entity")
@@ -553,24 +547,23 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
     document->selectNodes({brushNode1});
     REQUIRE_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+      Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1}));
 
     document->selectSiblings();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1, brushNode2}));
+      Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1, brushNode2}));
 
     document->undoCommand();
     CHECK_THAT(
       document->selectedNodes().nodes(),
-      Catch::UnorderedEquals(std::vector<Model::Node*>{brushNode1}));
+      Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1}));
   }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.updateLastSelectionBounds")
 {
-  auto* entityNode =
-    new Model::EntityNode{Model::Entity{{{"classname", "point_entity"}}}};
+  auto* entityNode = new mdl::EntityNode{mdl::Entity{{{"classname", "point_entity"}}}};
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   REQUIRE(!entityNode->logicalBounds().is_empty());
 
@@ -610,18 +603,18 @@ TEST_CASE_METHOD(
   document->selectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
     document->selectedBrushFaces(),
-    Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+    Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
   // deselect it
   document->deselectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   // select the brush
   document->selectNodes({brushNode});
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
+    Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
   // translate the brush
   document->translateObjects(vm::vec3d{10.0, 0.0, 0.0});
@@ -633,20 +626,20 @@ TEST_CASE_METHOD(
   CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
   CHECK_THAT(
     document->selectedNodes().brushes(),
-    Catch::Equals(std::vector<Model::BrushNode*>{brushNode}));
+    Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
-    document->selectedNodes().brushes(), Catch::Equals(std::vector<Model::BrushNode*>{}));
+    document->selectedNodes().brushes(), Catch::Equals(std::vector<mdl::BrushNode*>{}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<Model::BrushFaceHandle>{}));
+    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
     document->selectedBrushFaces(),
-    Catch::Equals(std::vector<Model::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
+    Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 }
 
 } // namespace tb::View

@@ -20,19 +20,19 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EditorContext.h"
-#include "Model/EntityNode.h"
-#include "Model/ModelUtils.h"
-#include "Model/Polyhedron.h"
-#include "Model/UVCoordSystem.h"
-#include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "asset/DecalDefinition.h"
 #include "asset/Material.h"
 #include "asset/MaterialManager.h"
 #include "asset/Texture.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EditorContext.h"
+#include "mdl/EntityNode.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/Polyhedron.h"
+#include "mdl/UVCoordSystem.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -47,7 +47,7 @@ namespace
 {
 
 std::optional<asset::DecalSpecification> getDecalSpecification(
-  const Model::EntityNode* entityNode)
+  const mdl::EntityNode* entityNode)
 {
   const auto decalSpec = entityNode->entity().decalSpecification();
   return decalSpec.materialName.empty() ? std::nullopt : std::make_optional(decalSpec);
@@ -55,9 +55,9 @@ std::optional<asset::DecalSpecification> getDecalSpecification(
 
 using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
 std::vector<Vertex> createDecalBrushFace(
-  const Model::EntityNode* entityNode,
-  const Model::BrushNode* brush,
-  const Model::BrushFace& face,
+  const mdl::EntityNode* entityNode,
+  const mdl::BrushNode* brush,
+  const mdl::BrushFace& face,
   const asset::Material& material)
 {
   const auto* texture = material.texture();
@@ -70,7 +70,7 @@ std::vector<Vertex> createDecalBrushFace(
   const auto materialName = material.name();
 
   // copy the face properties, used to calculate the decal size and UV coords
-  auto attrs = Model::BrushFaceAttributes{materialName, face.attributes()};
+  auto attrs = mdl::BrushFaceAttributes{materialName, face.attributes()};
   auto uvCoordSystem = face.uvCoordSystem().clone();
 
   // create the geometry for the decal
@@ -163,29 +163,29 @@ void EntityDecalRenderer::clear()
   m_faceRenderer = FaceRenderer{m_vertexArray, m_faces, m_faceColor};
 }
 
-void EntityDecalRenderer::updateNode(Model::Node* node)
+void EntityDecalRenderer::updateNode(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [](Model::GroupNode*) {},
-    [&](const Model::EntityNode* entity) { updateEntity(entity); },
-    [&](const Model::BrushNode* brush) { updateBrush(brush); },
-    [](Model::PatchNode*) {}));
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [](mdl::GroupNode*) {},
+    [&](const mdl::EntityNode* entity) { updateEntity(entity); },
+    [&](const mdl::BrushNode* brush) { updateBrush(brush); },
+    [](mdl::PatchNode*) {}));
 }
 
-void EntityDecalRenderer::removeNode(Model::Node* node)
+void EntityDecalRenderer::removeNode(mdl::Node* node)
 {
   node->accept(kdl::overload(
-    [](Model::WorldNode*) {},
-    [](Model::LayerNode*) {},
-    [](Model::GroupNode*) {},
-    [&](const Model::EntityNode* entity) { removeEntity(entity); },
-    [&](const Model::BrushNode* brush) { removeBrush(brush); },
-    [](Model::PatchNode*) {}));
+    [](mdl::WorldNode*) {},
+    [](mdl::LayerNode*) {},
+    [](mdl::GroupNode*) {},
+    [&](const mdl::EntityNode* entity) { removeEntity(entity); },
+    [&](const mdl::BrushNode* brush) { removeBrush(brush); },
+    [](mdl::PatchNode*) {}));
 }
 
-void EntityDecalRenderer::updateEntity(const Model::EntityNode* entityNode)
+void EntityDecalRenderer::updateEntity(const mdl::EntityNode* entityNode)
 {
   // if the entity isn't visible, don't create decal geometry for it
   const auto& editorContext = kdl::mem_lock(m_document)->editorContext();
@@ -214,7 +214,7 @@ void EntityDecalRenderer::updateEntity(const Model::EntityNode* entityNode)
   }
 }
 
-void EntityDecalRenderer::removeEntity(const Model::EntityNode* entityNode)
+void EntityDecalRenderer::removeEntity(const mdl::EntityNode* entityNode)
 {
   if (const auto it = m_entities.find(entityNode); it != std::end(m_entities))
   {
@@ -224,7 +224,7 @@ void EntityDecalRenderer::removeEntity(const Model::EntityNode* entityNode)
   }
 }
 
-void EntityDecalRenderer::updateBrush(const Model::BrushNode* brushNode)
+void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
 {
   // invalidate any entities that intersect this brush or are tracking this brush
   for (auto& [ent, data] : m_entities)
@@ -251,7 +251,7 @@ void EntityDecalRenderer::updateBrush(const Model::BrushNode* brushNode)
   }
 }
 
-void EntityDecalRenderer::removeBrush(const Model::BrushNode* brushNode)
+void EntityDecalRenderer::removeBrush(const mdl::BrushNode* brushNode)
 {
   // invalidate any entities that are tracking this brush
   for (auto& [ent, data] : m_entities)
@@ -306,7 +306,7 @@ void EntityDecalRenderer::invalidateDecalData(EntityDecalData& data) const
 }
 
 void EntityDecalRenderer::validateDecalData(
-  const Model::EntityNode* entityNode, EntityDecalData& data) const
+  const mdl::EntityNode* entityNode, EntityDecalData& data) const
 {
   if (data.validated)
   {
@@ -329,7 +329,7 @@ void EntityDecalRenderer::validateDecalData(
   data.brushes.clear();
   for (const auto* node : intersectors)
   {
-    const auto* brushNode = dynamic_cast<const Model::BrushNode*>(node);
+    const auto* brushNode = dynamic_cast<const mdl::BrushNode*>(node);
     if (brushNode && editorContext.visible(brushNode))
     {
       data.brushes.push_back(brushNode);

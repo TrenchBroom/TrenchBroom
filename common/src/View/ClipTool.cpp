@@ -19,12 +19,6 @@
 
 #include "ClipTool.h"
 
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/Hit.h"
-#include "Model/HitFilter.h"
-#include "Model/PickResult.h"
-#include "Model/WorldNode.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/BrushRenderer.h"
@@ -33,6 +27,12 @@
 #include "View/MapDocument.h"
 #include "View/Selection.h"
 #include "View/Transaction.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/Hit.h"
+#include "mdl/HitFilter.h"
+#include "mdl/PickResult.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
@@ -52,7 +52,7 @@
 namespace tb::View
 {
 
-const Model::HitType::Type ClipTool::PointHitType = Model::HitType::freeType();
+const mdl::HitType::Type ClipTool::PointHitType = mdl::HitType::freeType();
 
 class ClipStrategy
 {
@@ -62,11 +62,11 @@ public:
   virtual void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const = 0;
+    mdl::PickResult& pickResult) const = 0;
   virtual void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult& pickResult) = 0;
+    const mdl::PickResult& pickResult) = 0;
   virtual void renderFeedback(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
@@ -82,15 +82,15 @@ public:
   virtual void removeLastPoint() = 0;
 
   virtual std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
-    const Model::PickResult& pickResult) const = 0;
-  virtual void beginDragPoint(const Model::PickResult& pickResult) = 0;
+    const mdl::PickResult& pickResult) const = 0;
+  virtual void beginDragPoint(const mdl::PickResult& pickResult) = 0;
   virtual void beginDragLastPoint() = 0;
   virtual bool dragPoint(
     const vm::vec3d& newPosition, const std::vector<vm::vec3d>& helpVectors) = 0;
   virtual void endDragPoint() = 0;
   virtual void cancelDragPoint() = 0;
 
-  virtual bool setFace(const Model::BrushFaceHandle& faceHandle) = 0;
+  virtual bool setFace(const mdl::BrushFaceHandle& faceHandle) = 0;
   virtual void reset() = 0;
   virtual std::vector<vm::vec3d> getPoints() const = 0;
 };
@@ -120,7 +120,7 @@ public:
   void pick(
     const vm::ray3d& pickRay,
     const Renderer::Camera& camera,
-    Model::PickResult& pickResult) const override
+    mdl::PickResult& pickResult) const override
   {
     for (size_t i = 0; i < m_points.size(); ++i)
     {
@@ -130,7 +130,7 @@ public:
           pickRay, point, static_cast<double>(pref(Preferences::HandleRadius))))
       {
         const auto hitPoint = vm::point_at_distance(pickRay, *distance);
-        pickResult.addHit(Model::Hit{ClipTool::PointHitType, *distance, hitPoint, i});
+        pickResult.addHit(mdl::Hit{ClipTool::PointHitType, *distance, hitPoint, i});
       }
     }
   }
@@ -138,7 +138,7 @@ public:
   void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult& pickResult) override
+    const mdl::PickResult& pickResult) override
   {
     renderPoints(renderContext, renderBatch);
     renderHighlight(renderContext, renderBatch, pickResult);
@@ -235,9 +235,9 @@ public:
   }
 
   std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
-    const Model::PickResult& pickResult) const override
+    const mdl::PickResult& pickResult) const override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     const auto& hit = pickResult.first(type(ClipTool::PointHitType));
     if (!hit.isMatch())
@@ -250,9 +250,9 @@ public:
     return {{position, hit.hitPoint()}};
   }
 
-  void beginDragPoint(const Model::PickResult& pickResult) override
+  void beginDragPoint(const mdl::PickResult& pickResult) override
   {
-    using namespace Model::HitFilters;
+    using namespace mdl::HitFilters;
 
     const auto& hit = pickResult.first(type(ClipTool::PointHitType));
     assert(hit.isMatch());
@@ -314,7 +314,7 @@ public:
     m_dragState = std::nullopt;
   }
 
-  bool setFace(const Model::BrushFaceHandle& /* faceHandle */) override { return false; }
+  bool setFace(const mdl::BrushFaceHandle& /* faceHandle */) override { return false; }
 
   void reset() override { m_points.clear(); }
 
@@ -365,7 +365,7 @@ private:
   void renderHighlight(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult& pickResult)
+    const mdl::PickResult& pickResult)
   {
     if (m_dragState)
     {
@@ -373,7 +373,7 @@ private:
     }
     else
     {
-      using namespace Model::HitFilters;
+      using namespace mdl::HitFilters;
 
       const auto& hit = pickResult.first(type(ClipTool::PointHitType));
       if (hit.isMatch())
@@ -398,17 +398,15 @@ private:
 class FaceClipStrategy : public ClipStrategy
 {
 private:
-  std::optional<Model::BrushFaceHandle> m_faceHandle;
+  std::optional<mdl::BrushFaceHandle> m_faceHandle;
 
 public:
-  void pick(const vm::ray3d&, const Renderer::Camera&, Model::PickResult&) const override
-  {
-  }
+  void pick(const vm::ray3d&, const Renderer::Camera&, mdl::PickResult&) const override {}
 
   void render(
     Renderer::RenderContext& renderContext,
     Renderer::RenderBatch& renderBatch,
-    const Model::PickResult&) override
+    const mdl::PickResult&) override
   {
     if (m_faceHandle)
     {
@@ -443,11 +441,11 @@ public:
   void removeLastPoint() override {}
 
   std::optional<std::tuple<vm::vec3d, vm::vec3d>> canDragPoint(
-    const Model::PickResult&) const override
+    const mdl::PickResult&) const override
   {
     return std::nullopt;
   }
-  void beginDragPoint(const Model::PickResult&) override {}
+  void beginDragPoint(const mdl::PickResult&) override {}
   void beginDragLastPoint() override {}
   bool dragPoint(
     const vm::vec3d& /* newPosition */,
@@ -458,7 +456,7 @@ public:
   void endDragPoint() override {}
   void cancelDragPoint() override {}
 
-  bool setFace(const Model::BrushFaceHandle& faceHandle) override
+  bool setFace(const mdl::BrushFaceHandle& faceHandle) override
   {
     m_faceHandle = faceHandle;
     return true;
@@ -520,7 +518,7 @@ void ClipTool::toggleSide()
 }
 
 void ClipTool::pick(
-  const vm::ray3d& pickRay, const Renderer::Camera& camera, Model::PickResult& pickResult)
+  const vm::ray3d& pickRay, const Renderer::Camera& camera, mdl::PickResult& pickResult)
 {
   if (m_strategy)
   {
@@ -531,7 +529,7 @@ void ClipTool::pick(
 void ClipTool::render(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch,
-  const Model::PickResult& pickResult)
+  const mdl::PickResult& pickResult)
 {
   renderBrushes(renderContext, renderBatch);
   renderStrategy(renderContext, renderBatch, pickResult);
@@ -562,7 +560,7 @@ void ClipTool::renderBrushes(
 void ClipTool::renderStrategy(
   Renderer::RenderContext& renderContext,
   Renderer::RenderBatch& renderBatch,
-  const Model::PickResult& pickResult)
+  const mdl::PickResult& pickResult)
 {
   if (m_strategy)
   {
@@ -619,9 +617,9 @@ void ClipTool::performClip()
   }
 }
 
-std::map<Model::Node*, std::vector<Model::Node*>> ClipTool::clipBrushes()
+std::map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
 {
-  auto result = std::map<Model::Node*, std::vector<Model::Node*>>{};
+  auto result = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
   if (!m_frontBrushes.empty())
   {
     if (keepFrontBrushes())
@@ -698,7 +696,7 @@ bool ClipTool::removeLastPoint()
 }
 
 std::optional<std::tuple<vm::vec3d, vm::vec3d>> ClipTool::beginDragPoint(
-  const Model::PickResult& pickResult)
+  const mdl::PickResult& pickResult)
 {
   assert(!m_dragging);
   if (m_strategy)
@@ -755,7 +753,7 @@ void ClipTool::cancelDragPoint()
   refreshViews();
 }
 
-void ClipTool::setFace(const Model::BrushFaceHandle& faceHandle)
+void ClipTool::setFace(const mdl::BrushFaceHandle& faceHandle)
 {
   m_strategy = std::make_unique<FaceClipStrategy>();
   m_strategy->setFace(faceHandle);
@@ -806,18 +804,18 @@ void ClipTool::updateBrushes()
   const auto clip =
     [&](auto* node, const auto& p1, const auto& p2, const auto& p3, auto& brushMap) {
       auto brush = node->brush();
-      Model::BrushFace::create(
+      mdl::BrushFace::create(
         p1,
         p2,
         p3,
-        Model::BrushFaceAttributes(document->currentMaterialName()),
+        mdl::BrushFaceAttributes(document->currentMaterialName()),
         document->world()->mapFormat())
-        | kdl::and_then([&](Model::BrushFace&& clipFace) {
+        | kdl::and_then([&](mdl::BrushFace&& clipFace) {
             setFaceAttributes(brush.faces(), clipFace);
             return brush.clip(worldBounds, std::move(clipFace));
           })
         | kdl::transform([&]() {
-            brushMap[node->parent()].push_back(new Model::BrushNode(std::move(brush)));
+            brushMap[node->parent()].push_back(new mdl::BrushNode(std::move(brush)));
           })
         | kdl::transform_error(
           [&](auto e) { document->error() << "Could not clip brush: " << e.msg; });
@@ -839,13 +837,13 @@ void ClipTool::updateBrushes()
     for (auto* brushNode : brushNodes)
     {
       auto* parent = brushNode->parent();
-      m_frontBrushes[parent].push_back(new Model::BrushNode{brushNode->brush()});
+      m_frontBrushes[parent].push_back(new mdl::BrushNode{brushNode->brush()});
     }
   }
 }
 
 void ClipTool::setFaceAttributes(
-  const std::vector<Model::BrushFace>& faces, Model::BrushFace& toSet) const
+  const std::vector<mdl::BrushFace>& faces, mdl::BrushFace& toSet) const
 {
   ensure(!faces.empty(), "no faces");
 
@@ -906,7 +904,7 @@ void ClipTool::updateRenderers()
 }
 
 void ClipTool::addBrushesToRenderer(
-  const std::map<Model::Node*, std::vector<Model::Node*>>& map,
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& map,
   Renderer::BrushRenderer& renderer)
 {
   for (const auto& [parent, nodes] : map)
@@ -914,12 +912,12 @@ void ClipTool::addBrushesToRenderer(
     for (auto* node : nodes)
     {
       node->accept(kdl::overload(
-        [](const Model::WorldNode*) {},
-        [](const Model::LayerNode*) {},
-        [](const Model::GroupNode*) {},
-        [](const Model::EntityNode*) {},
-        [&](Model::BrushNode* brush) { renderer.addBrush(brush); },
-        [](Model::PatchNode*) {}));
+        [](const mdl::WorldNode*) {},
+        [](const mdl::LayerNode*) {},
+        [](const mdl::GroupNode*) {},
+        [](const mdl::EntityNode*) {},
+        [&](mdl::BrushNode* brush) { renderer.addBrush(brush); },
+        [](mdl::PatchNode*) {}));
     }
   }
 }
@@ -984,7 +982,7 @@ void ClipTool::selectionDidChange(const Selection&)
   }
 }
 
-void ClipTool::nodesWillChange(const std::vector<Model::Node*>&)
+void ClipTool::nodesWillChange(const std::vector<mdl::Node*>&)
 {
   if (!m_ignoreNotifications)
   {
@@ -992,7 +990,7 @@ void ClipTool::nodesWillChange(const std::vector<Model::Node*>&)
   }
 }
 
-void ClipTool::nodesDidChange(const std::vector<Model::Node*>&)
+void ClipTool::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   if (!m_ignoreNotifications)
   {
@@ -1000,7 +998,7 @@ void ClipTool::nodesDidChange(const std::vector<Model::Node*>&)
   }
 }
 
-void ClipTool::brushFacesDidChange(const std::vector<Model::BrushFaceHandle>&)
+void ClipTool::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>&)
 {
   if (!m_ignoreNotifications)
   {

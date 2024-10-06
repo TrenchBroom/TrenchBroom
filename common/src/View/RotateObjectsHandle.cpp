@@ -20,13 +20,13 @@
 #include "RotateObjectsHandle.h"
 
 #include "Macros.h"
-#include "Model/Hit.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Renderer/Camera.h"
 #include "Renderer/RenderBatch.h"
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
+#include "mdl/Hit.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"
@@ -59,8 +59,7 @@ std::tuple<vm::vec<T, 3>, vm::vec<T, 3>, vm::vec<T, 3>> computeAxes(
 
 } // namespace
 
-const Model::HitType::Type RotateObjectsHandle::HandleHitType =
-  Model::HitType::freeType();
+const mdl::HitType::Type RotateObjectsHandle::HandleHitType = mdl::HitType::freeType();
 
 RotateObjectsHandle::Handle::Handle(const vm::vec3d& position)
   : m_position{position}
@@ -84,7 +83,7 @@ double RotateObjectsHandle::Handle::minorRadius()
   return double(pref(Preferences::HandleRadius));
 }
 
-Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
+mdl::Hit RotateObjectsHandle::Handle::pickCenterHandle(
   const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   if (
@@ -94,10 +93,10 @@ Model::Hit RotateObjectsHandle::Handle::pickCenterHandle(
     const auto hitPoint = vm::point_at_distance(pickRay, *distance);
     return {HandleHitType, *distance, hitPoint, HitArea::Center};
   }
-  return Model::Hit::NoHit;
+  return mdl::Hit::NoHit;
 }
 
-Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
+mdl::Hit RotateObjectsHandle::Handle::pickRotateHandle(
   const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   const auto transform = handleTransform(camera, area);
@@ -118,7 +117,7 @@ Model::Hit RotateObjectsHandle::Handle::pickRotateHandle(
     }
   }
 
-  return Model::Hit::NoHit;
+  return mdl::Hit::NoHit;
 }
 
 vm::mat4x4d RotateObjectsHandle::Handle::handleTransform(
@@ -146,27 +145,27 @@ vm::mat4x4d RotateObjectsHandle::Handle::handleTransform(
   }
 }
 
-Model::Hit RotateObjectsHandle::Handle2D::pick(
+mdl::Hit RotateObjectsHandle::Handle2D::pick(
   const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   switch (vm::find_abs_max_component(camera.direction()))
   {
   case vm::axis::x:
-    return Model::selectClosest(
+    return mdl::selectClosest(
       pickCenterHandle(pickRay, camera),
       pickRotateHandle(pickRay, camera, HitArea::XAxis));
   case vm::axis::y:
-    return Model::selectClosest(
+    return mdl::selectClosest(
       pickCenterHandle(pickRay, camera),
       pickRotateHandle(pickRay, camera, HitArea::YAxis));
   default:
-    return Model::selectClosest(
+    return mdl::selectClosest(
       pickCenterHandle(pickRay, camera),
       pickRotateHandle(pickRay, camera, HitArea::ZAxis));
   }
 }
 
-Model::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(
+mdl::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(
   const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   // Work around imprecision caused by 2D cameras being positioned at map bounds
@@ -258,10 +257,10 @@ void RotateObjectsHandle::Handle2D::renderHighlight(
   }
 }
 
-Model::Hit RotateObjectsHandle::Handle3D::pick(
+mdl::Hit RotateObjectsHandle::Handle3D::pick(
   const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
-  return Model::selectClosest(
+  return mdl::selectClosest(
     pickCenterHandle(pickRay, camera),
     pickRotateHandle(pickRay, camera, HitArea::XAxis),
     pickRotateHandle(pickRay, camera, HitArea::YAxis),
@@ -348,7 +347,7 @@ void RotateObjectsHandle::Handle3D::renderHighlight(
   }
 }
 
-Model::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
+mdl::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
   const vm::ray3d& pickRay, const Renderer::Camera& camera, const HitArea area) const
 {
   if (const auto hit = Handle::pickRotateHandle(pickRay, camera, area); hit.isMatch())
@@ -364,7 +363,7 @@ Model::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
     }
   }
 
-  return Model::Hit::NoHit;
+  return mdl::Hit::NoHit;
 }
 
 RotateObjectsHandle::RotateObjectsHandle()
@@ -383,13 +382,13 @@ void RotateObjectsHandle::setPosition(const vm::vec3d& position)
   m_position = position;
 }
 
-Model::Hit RotateObjectsHandle::pick2D(
+mdl::Hit RotateObjectsHandle::pick2D(
   const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   return m_handle2D.pick(pickRay, camera);
 }
 
-Model::Hit RotateObjectsHandle::pick3D(
+mdl::Hit RotateObjectsHandle::pick3D(
   const vm::ray3d& pickRay, const Renderer::Camera& camera) const
 {
   return m_handle3D.pick(pickRay, camera);
