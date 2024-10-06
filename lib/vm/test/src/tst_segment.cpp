@@ -25,15 +25,13 @@
 #include "vm/constants.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
-#include "vm/mat_io.h" // IWYU pragma: keep
 #include "vm/segment.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <iterator>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

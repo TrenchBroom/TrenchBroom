@@ -20,12 +20,11 @@
 */
 
 #include "vm/vec_ext.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

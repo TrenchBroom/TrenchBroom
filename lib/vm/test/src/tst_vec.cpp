@@ -22,14 +22,13 @@
 #include "test_utils.h"
 
 #include "vm/approx.h"
-#include "vm/mat_ext.h" // used by rotate_pos_x_by_degrees
+#include "vm/mat_ext.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <limits>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

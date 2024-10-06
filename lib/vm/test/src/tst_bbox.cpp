@@ -22,14 +22,13 @@
 #include "test_utils.h"
 
 #include "vm/bbox.h"
-#include "vm/bbox_io.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
 
 #include <sstream>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

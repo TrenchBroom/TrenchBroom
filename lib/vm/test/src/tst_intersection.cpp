@@ -26,12 +26,10 @@
 #include "vm/quat.h"
 #include "vm/vec.h"
 #include "vm/vec_ext.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 
-#define CATCH_CONFIG_ENABLE_ALL_STRINGMAKERS 1
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

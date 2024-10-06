@@ -26,7 +26,7 @@
 #include "vm/distance.h"
 #include "vm/vec.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

@@ -23,11 +23,9 @@
 
 #include "vm/approx.h"
 #include "vm/mat.h"
-#include "vm/mat_io.h" // IWYU pragma: keep
 #include "vm/vec.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {

@@ -25,15 +25,13 @@
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/plane.h"
-#include "vm/plane_io.h"
 #include "vm/scalar.h"
 #include "vm/vec.h"
-#include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <array>
 #include <sstream>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace vm
 {
