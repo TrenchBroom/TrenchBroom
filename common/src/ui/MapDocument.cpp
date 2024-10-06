@@ -2436,10 +2436,22 @@ void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
     }
   }
 
-  unlinkGroups(groupsToUnlink);
-  for (const auto& groupNodes : groupsToRelink)
+  const auto changedLinkedGroups = kdl::vec_sort_and_remove_duplicates(kdl::vec_concat(
+    collectContainingGroups(groupsToUnlink),
+    collectContainingGroups(kdl::vec_flatten(groupsToRelink))));
+
+  if (checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
-    linkGroups(groupNodes);
+    auto transaction = Transaction{*this, "Separate Selected Linked Groups"};
+
+    unlinkGroups(groupsToUnlink);
+    for (const auto& groupNodes : groupsToRelink)
+    {
+      linkGroups(groupNodes);
+    }
+
+    setHasPendingChanges(changedLinkedGroups, true);
+    transaction.commit();
   }
 }
 

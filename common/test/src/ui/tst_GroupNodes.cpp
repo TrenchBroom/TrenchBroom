@@ -961,6 +961,56 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(linkedBrushNode2->linkId() == originalBrushLinkId);
     CHECK(linkedBrushNode3->linkId() == originalBrushLinkId);
   }
+
+  SECTION("Separating linked groups nested inside a linked group")
+  {
+    /*
+     * groupNode
+     *   brushNode
+     *   nestedGroupNode
+     *     nestedEntityNode
+     *   nestedLinkedGroupNode
+     *     nestedLinkedEntityNode
+     * linkedOuterGroupNode
+     *   linkedBrushNode
+     *   linkedNestedGroupNode
+     *     linkedNestedEntityNode
+     *   linkedNestedLinkedGroupNode
+     *     linkedNestedLinkedEntityNode
+     */
+
+    auto* nestedGroupNode = new mdl::GroupNode{mdl::Group{"nestedGroupNode"}};
+    auto* nestedEntityNode = new mdl::EntityNode{mdl::Entity{}};
+    nestedGroupNode->addChild(nestedEntityNode);
+    document->addNodes({{groupNode, {nestedGroupNode}}});
+
+    document->openGroup(groupNode);
+    document->deselectAll();
+    document->selectNodes({nestedGroupNode});
+
+    auto* nestedLinkedGroupNode = document->createLinkedDuplicate();
+    REQUIRE_THAT(*nestedLinkedGroupNode, mdl::MatchesNode(*nestedGroupNode));
+
+    document->deselectAll();
+    document->closeGroup();
+
+    document->selectNodes({groupNode});
+    auto* linkedGroupNode = document->createLinkedDuplicate();
+    REQUIRE_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+
+    document->openGroup(groupNode);
+    document->deselectAll();
+    document->selectNodes({nestedLinkedGroupNode});
+    document->separateLinkedGroups();
+
+    REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
+
+    document->deselectAll();
+    document->closeGroup();
+
+    // the change was propagated to linkedGroupNode:
+    CHECK_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.newWithGroupOpen")
