@@ -20,10 +20,10 @@
 #include "DiskIO.h"
 
 #include "Exceptions.h"
+#include "Macros.h"
 #include "io/File.h"
 #include "io/PathInfo.h"
 #include "io/TraversalMode.h"
-#include "Macros.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"

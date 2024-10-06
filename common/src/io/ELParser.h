@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "el/EL_Forward.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
-#include "el/EL_Forward.h"
 
 #include <cstdint>
 #include <iosfwd>

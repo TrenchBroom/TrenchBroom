@@ -17,9 +17,9 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestFileSystem.h"
 #include "io/FileSystem.h"
 #include "io/TraversalMode.h"
-#include "TestFileSystem.h"
 
 #include "kdl/result.h"
 

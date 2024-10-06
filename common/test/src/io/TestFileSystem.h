@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Result.h"
 #include "io/File.h"
 #include "io/FileSystem.h"
 #include "io/PathInfo.h"
-#include "Result.h"
 
 #include "kdl/reflection_decl.h"
 

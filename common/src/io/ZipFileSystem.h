@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "io/ImageFileSystem.h"
 #include "Result.h"
+#include "io/ImageFileSystem.h"
 
 #include <miniz/miniz.h>
 

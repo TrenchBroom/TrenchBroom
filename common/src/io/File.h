@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "io/Reader.h"
 #include "Result.h"
+#include "io/Reader.h"
 
 #include "kdl/resource.h"
 

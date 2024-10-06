@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "io/ELParser.h"
 #include "el/EL_Forward.h"
+#include "io/ELParser.h"
 
 #include <filesystem>
 #include <string>

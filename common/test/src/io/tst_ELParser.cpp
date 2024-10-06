@@ -17,11 +17,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "io/ELParser.h"
 #include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ELParser.h"
 
 #include <string>
 

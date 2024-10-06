@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "io/ParserStatus.h"
 #include "Logger.h"
+#include "io/ParserStatus.h"
 
 #include <map>
 #include <string>

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
 #include "io/DiskFileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
-#include "Logger.h"
 
 #include "kdl/result.h"
 
