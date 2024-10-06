@@ -35,9 +35,9 @@
 #include "TestLogger.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentCommandFacade.h"
-#include "assets/Material.h"
-#include "assets/Resource.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Resource.h"
+#include "asset/Texture.h"
 
 #include "kdl/result.h"
 
@@ -411,7 +411,7 @@ DocumentGameConfig loadMapDocument(
     std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  document->processResourcesSync(assets::ProcessContext{false});
+  document->processResourcesSync(asset::ProcessContext{false});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
@@ -430,7 +430,7 @@ DocumentGameConfig newMapDocument(
 } // namespace View
 
 int getComponentOfPixel(
-  const assets::Texture& texture,
+  const asset::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -488,7 +488,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const assets::Texture& texture,
+  const asset::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -521,14 +521,14 @@ void checkColor(
 }
 
 int getComponentOfPixel(
-  const assets::Material& material, std::size_t x, std::size_t y, Component component)
+  const asset::Material& material, std::size_t x, std::size_t y, Component component)
 {
   ensure(material.texture(), "expected material to have a texture");
   return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
 void checkColor(
-  const assets::Material& material,
+  const asset::Material& material,
   const std::size_t x,
   const std::size_t y,
   const int r,

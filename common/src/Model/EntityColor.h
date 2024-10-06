@@ -26,7 +26,7 @@ namespace tb
 {
 class Color;
 
-namespace assets::ColorRange
+namespace asset::ColorRange
 {
 using Type = int;
 }
@@ -35,12 +35,12 @@ namespace Model
 {
 class EntityNodeBase;
 
-assets::ColorRange::Type detectColorRange(
+asset::ColorRange::Type detectColorRange(
   const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
 
 const std::string convertEntityColor(
-  const std::string& str, assets::ColorRange::Type colorRange);
+  const std::string& str, asset::ColorRange::Type colorRange);
 Color parseEntityColor(const std::string& str);
-std::string entityColorAsString(const Color& color, assets::ColorRange::Type colorRange);
+std::string entityColorAsString(const Color& color, asset::ColorRange::Type colorRange);
 } // namespace Model
 } // namespace tb

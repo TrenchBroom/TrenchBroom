@@ -21,8 +21,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ReadDdsTexture.h"
 #include "TestUtils.h"
-#include "assets/Palette.h"
-#include "assets/Texture.h"
+#include "asset/Palette.h"
+#include "asset/Texture.h"
 
 #include "kdl/result.h"
 
@@ -36,7 +36,7 @@ namespace tb::IO
 namespace
 {
 
-assets::Texture loadTexture(const std::string& name)
+asset::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/IO/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
@@ -54,7 +54,7 @@ void assertTexture(
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.mask() == assets::TextureMask::Off);
+  CHECK(texture.mask() == asset::TextureMask::Off);
 }
 
 } // namespace

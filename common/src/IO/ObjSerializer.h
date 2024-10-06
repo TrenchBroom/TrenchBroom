@@ -32,7 +32,7 @@
 #include <variant>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -89,7 +89,7 @@ public:
   {
     std::vector<IndexedVertex> verts;
     std::string materialName;
-    const assets::Material* material;
+    const asset::Material* material;
   };
 
   struct BrushObject
@@ -110,7 +110,7 @@ public:
     size_t patchNo;
     std::vector<PatchQuad> quads;
     std::string materialName;
-    const assets::Material* material;
+    const asset::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;

@@ -27,7 +27,7 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h" // IWYU pragma: keep
-#include "assets/ColorRange.h"
+#include "asset/ColorRange.h"
 
 #include "kdl/overload.h"
 #include "kdl/string_utils.h"
@@ -40,24 +40,24 @@
 namespace tb::Model
 {
 
-assets::ColorRange::Type detectColorRange(
+asset::ColorRange::Type detectColorRange(
   const std::string& propertyKey, const std::vector<EntityNodeBase*>& nodes)
 {
-  auto result = assets::ColorRange::Unset;
+  auto result = asset::ColorRange::Unset;
   for (auto* node : nodes)
   {
     node->accept(kdl::overload(
       [&](const EntityNodeBase* entityNode) {
         if (const auto* value = entityNode->entity().property(propertyKey))
         {
-          const auto range = assets::detectColorRange(*value);
-          if (result == assets::ColorRange::Unset)
+          const auto range = asset::detectColorRange(*value);
+          if (result == asset::ColorRange::Unset)
           {
             result = range;
           }
           else if (result != range)
           {
-            result = assets::ColorRange::Mixed;
+            result = asset::ColorRange::Mixed;
           }
         }
       },
@@ -70,7 +70,7 @@ assets::ColorRange::Type detectColorRange(
 }
 
 const std::string convertEntityColor(
-  const std::string& str, const assets::ColorRange::Type colorRange)
+  const std::string& str, const asset::ColorRange::Type colorRange)
 {
   const auto color = parseEntityColor(str);
   return entityColorAsString(color, colorRange);
@@ -79,17 +79,17 @@ const std::string convertEntityColor(
 Color parseEntityColor(const std::string& str)
 {
   const auto components = kdl::str_split(str, " ");
-  const auto range = assets::detectColorRange(components);
-  assert(range != assets::ColorRange::Mixed);
+  const auto range = asset::detectColorRange(components);
+  assert(range != asset::ColorRange::Mixed);
 
   int r = 0, g = 0, b = 0;
-  if (range == assets::ColorRange::Byte)
+  if (range == asset::ColorRange::Byte)
   {
     r = std::atoi(components[0].c_str());
     g = std::atoi(components[1].c_str());
     b = std::atoi(components[2].c_str());
   }
-  else if (range == assets::ColorRange::Float)
+  else if (range == asset::ColorRange::Float)
   {
     r = static_cast<int>(std::atof(components[0].c_str()) * 255.0);
     g = static_cast<int>(std::atof(components[1].c_str()) * 255.0);
@@ -100,15 +100,15 @@ Color parseEntityColor(const std::string& str)
 }
 
 std::string entityColorAsString(
-  const Color& color, const assets::ColorRange::Type colorRange)
+  const Color& color, const asset::ColorRange::Type colorRange)
 {
   std::stringstream result;
-  if (colorRange == assets::ColorRange::Byte)
+  if (colorRange == asset::ColorRange::Byte)
   {
     result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " "
            << int(color.b() * 255.0f);
   }
-  else if (colorRange == assets::ColorRange::Float)
+  else if (colorRange == asset::ColorRange::Float)
   {
     result << float(color.r()) << " " << float(color.g()) << " " << float(color.b());
   }

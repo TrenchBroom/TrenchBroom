@@ -29,7 +29,7 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -89,7 +89,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setMaterial(assets::Material* material);
+  void setMaterial(asset::Material* material);
 
   const PatchGrid& grid() const;
 

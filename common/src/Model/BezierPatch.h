@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "assets/AssetReference.h"
+#include "asset/AssetReference.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -29,7 +29,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -49,7 +49,7 @@ private:
   vm::bbox3d m_bounds;
 
   std::string m_materialName;
-  assets::AssetReference<assets::Material> m_materialReference;
+  asset::AssetReference<asset::Material> m_materialReference;
 
   kdl_reflect_decl(
     BezierPatch,
@@ -92,8 +92,8 @@ public: // control points:
   const std::string& materialName() const;
   void setMaterialName(std::string materialName);
 
-  const assets::Material* material() const;
-  bool setMaterial(assets::Material* material);
+  const asset::Material* material() const;
+  bool setMaterial(asset::Material* material);
 
   void transform(const vm::mat4x4d& transformation);
 

@@ -33,9 +33,9 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/Transformation.h"
-#include "assets/AssetUtils.h"
-#include "assets/EntityModel.h"
-#include "assets/EntityModelManager.h"
+#include "asset/AssetUtils.h"
+#include "asset/EntityModel.h"
+#include "asset/EntityModelManager.h"
 
 #include "vm/mat.h"
 
@@ -46,7 +46,7 @@ namespace tb::Renderer
 
 EntityModelRenderer::EntityModelRenderer(
   Logger& logger,
-  assets::EntityModelManager& entityModelManager,
+  asset::EntityModelManager& entityModelManager,
   const Model::EditorContext& editorContext)
   : m_logger{logger}
   , m_entityModelManager{entityModelManager}
@@ -62,7 +62,7 @@ EntityModelRenderer::~EntityModelRenderer()
 void EntityModelRenderer::addEntity(const Model::EntityNode* entityNode)
 {
   const auto modelSpec =
-    assets::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
+    asset::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
       return entityNode->entity().modelSpecification();
     });
 
@@ -81,7 +81,7 @@ void EntityModelRenderer::removeEntity(const Model::EntityNode* entityNode)
 void EntityModelRenderer::updateEntity(const Model::EntityNode* entityNode)
 {
   const auto modelSpec =
-    assets::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
+    asset::safeGetModelSpecification(m_logger, entityNode->entity().classname(), [&]() {
       return entityNode->entity().modelSpecification();
     });
 

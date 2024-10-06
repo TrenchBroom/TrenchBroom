@@ -23,7 +23,7 @@
 
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -45,7 +45,7 @@ public:
 
   struct CachedFace
   {
-    const assets::Material* material;
+    const asset::Material* material;
     const Model::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;

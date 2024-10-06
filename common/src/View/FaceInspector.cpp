@@ -35,7 +35,7 @@
 #include "View/QtUtils.h"
 #include "View/Splitter.h"
 #include "View/SwitchableTitledPanel.h"
-#include "assets/Material.h"
+#include "asset/Material.h"
 
 #include "kdl/memory_utils.h"
 
@@ -62,7 +62,7 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealMaterial(const assets::Material* material)
+void FaceInspector::revealMaterial(const asset::Material* material)
 {
   m_materialBrowser->revealMaterial(material);
   m_materialBrowser->setSelectedMaterial(material);
@@ -154,7 +154,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
   return panel;
 }
 
-void FaceInspector::materialSelected(const assets::Material* material)
+void FaceInspector::materialSelected(const asset::Material* material)
 {
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->allSelectedBrushFaces();

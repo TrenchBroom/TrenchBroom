@@ -26,9 +26,9 @@
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
-#include "assets/EntityModel.h"
-#include "assets/Material.h"
-#include "assets/Palette.h"
+#include "asset/EntityModel.h"
+#include "asset/Material.h"
+#include "asset/Palette.h"
 
 #include <filesystem>
 

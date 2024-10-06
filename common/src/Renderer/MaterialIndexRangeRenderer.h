@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -56,7 +56,7 @@ public:
   MaterialIndexRangeRenderer();
   MaterialIndexRangeRenderer(VertexArray vertexArray, MaterialIndexRangeMap indexRange);
   MaterialIndexRangeRenderer(
-    VertexArray vertexArray, const assets::Material* material, IndexRangeMap indexRange);
+    VertexArray vertexArray, const asset::Material* material, IndexRangeMap indexRange);
   ~MaterialIndexRangeRenderer() override;
 
   bool empty() const override;

@@ -20,7 +20,7 @@
 #include "Color.h"
 #include "IO/ELParser.h"
 #include "Model/Entity.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 #include "el/Expression.h"
 
 #include "Catch2.h"
@@ -40,13 +40,13 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
 }})"}
                                  .parse();
 
-  auto definition = assets::PointEntityDefinition{
+  auto definition = asset::PointEntityDefinition{
     "some_name",
     Color{},
     vm::bbox3d{32.0},
     "",
     {},
-    assets::ModelDefinition{modelExpression},
+    asset::ModelDefinition{modelExpression},
     {}};
 
   auto entity = Entity{};

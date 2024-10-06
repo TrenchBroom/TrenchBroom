@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "assets/EntityModelDataResource.h"
+#include "asset/EntityModelDataResource.h"
 
 #include <filesystem>
 #include <functional>
@@ -30,11 +30,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::assets
+namespace tb::asset
 {
 class EntityModel;
 class Material;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -45,21 +45,21 @@ namespace tb::IO
 {
 class FileSystem;
 
-using LoadMaterialFunc = std::function<assets::Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<asset::Material(const std::filesystem::path&)>;
 
-Result<assets::EntityModel> loadEntityModelSync(
+Result<asset::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
   Logger& logger);
 
-assets::EntityModel loadEntityModelAsync(
+asset::EntityModel loadEntityModelAsync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
-  const assets::CreateEntityModelDataResource& createResource,
+  const asset::CreateEntityModelDataResource& createResource,
   Logger& logger);
 
 } // namespace tb::IO

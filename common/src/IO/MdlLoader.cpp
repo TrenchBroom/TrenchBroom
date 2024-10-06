@@ -23,12 +23,12 @@
 #include "IO/ReaderException.h"
 #include "Renderer/IndexRangeMapBuilder.h"
 #include "Renderer/PrimType.h"
-#include "assets/EntityModel.h"
-#include "assets/Material.h"
-#include "assets/Palette.h"
-#include "assets/Texture.h"
-#include "assets/TextureBuffer.h"
-#include "assets/TextureResource.h"
+#include "asset/EntityModel.h"
+#include "asset/Material.h"
+#include "asset/Palette.h"
+#include "asset/Texture.h"
+#include "asset/TextureBuffer.h"
+#include "asset/TextureResource.h"
 
 #include "kdl/string_format.h"
 
@@ -275,7 +275,7 @@ auto makeFrameTriangles(
   const size_t skinWidth,
   const size_t skinHeight)
 {
-  auto frameTriangles = std::vector<assets::EntityModelVertex>{};
+  auto frameTriangles = std::vector<asset::EntityModelVertex>{};
   frameTriangles.reserve(triangles.size());
 
   for (size_t i = 0; i < triangles.size(); ++i)
@@ -302,8 +302,8 @@ auto makeFrameTriangles(
 
 void doParseFrame(
   Reader reader,
-  assets::EntityModelData& model,
-  assets::EntityModelSurface& surface,
+  asset::EntityModelData& model,
+  asset::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
   const size_t skinWidth,
@@ -325,7 +325,7 @@ void doParseFrame(
   auto size = Renderer::IndexRangeMap::Size{};
   size.inc(Renderer::PrimType::Triangles, frameTriangles.size());
 
-  auto builder = Renderer::IndexRangeMapBuilder<assets::EntityModelVertex::Type>{
+  auto builder = Renderer::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{
     frameTriangles.size() * 3, size};
   builder.addTriangles(frameTriangles);
 
@@ -335,8 +335,8 @@ void doParseFrame(
 
 void parseFrame(
   Reader& reader,
-  assets::EntityModelData& model,
-  assets::EntityModelSurface& surface,
+  asset::EntityModelData& model,
+  asset::EntityModelSurface& surface,
   const std::vector<MdlSkinTriangle>& triangles,
   const std::vector<MdlSkinVertex>& vertices,
   size_t skinWidth,
@@ -416,40 +416,40 @@ std::vector<MdlSkinVertex> parseVertices(Reader& reader, size_t count)
   return vertices;
 }
 
-assets::Material parseSkin(
+asset::Material parseSkin(
   Reader& reader,
   const size_t width,
   const size_t height,
   const int flags,
   std::string skinName,
-  const assets::Palette& palette)
+  const asset::Palette& palette)
 {
   const auto size = width * height;
   const auto transparency = (flags & MF_HOLEY)
-                              ? assets::PaletteTransparency::Index255Transparent
-                              : assets::PaletteTransparency::Opaque;
-  const auto mask = (transparency == assets::PaletteTransparency::Index255Transparent)
-                      ? assets::TextureMask::On
-                      : assets::TextureMask::Off;
+                              ? asset::PaletteTransparency::Index255Transparent
+                              : asset::PaletteTransparency::Opaque;
+  const auto mask = (transparency == asset::PaletteTransparency::Index255Transparent)
+                      ? asset::TextureMask::On
+                      : asset::TextureMask::Off;
   auto avgColor = Color{};
-  auto rgbaImage = assets::TextureBuffer{size * 4};
+  auto rgbaImage = asset::TextureBuffer{size * 4};
 
   const auto skinGroup = reader.readSize<int32_t>();
   if (skinGroup == 0)
   {
     palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
 
-    auto texture = assets::Texture{
+    auto texture = asset::Texture{
       width,
       height,
       avgColor,
       GL_RGBA,
       mask,
-      assets::NoEmbeddedDefaults{},
+      asset::NoEmbeddedDefaults{},
       std::move(rgbaImage)};
 
     auto textureResource = createTextureResource(std::move(texture));
-    return assets::Material{std::move(skinName), std::move(textureResource)};
+    return asset::Material{std::move(skinName), std::move(textureResource)};
   }
 
   const auto pictureCount = reader.readSize<int32_t>();
@@ -458,30 +458,30 @@ assets::Material parseSkin(
   palette.indexedToRgba(reader, size, rgbaImage, transparency, avgColor);
   reader.seekForward((pictureCount - 1) * size); // skip all remaining pictures
 
-  auto texture = assets::Texture{
+  auto texture = asset::Texture{
     width,
     height,
     avgColor,
     GL_RGBA,
     mask,
-    assets::NoEmbeddedDefaults{},
+    asset::NoEmbeddedDefaults{},
     std::move(rgbaImage)};
 
   auto textureResource = createTextureResource(std::move(texture));
-  return assets::Material{std::move(skinName), std::move(textureResource)};
+  return asset::Material{std::move(skinName), std::move(textureResource)};
 }
 
 void parseSkins(
   Reader& reader,
-  assets::EntityModelSurface& surface,
+  asset::EntityModelSurface& surface,
   const size_t count,
   const size_t width,
   const size_t height,
   const int flags,
   const std::string& modelName,
-  const assets::Palette& palette)
+  const asset::Palette& palette)
 {
-  auto skins = std::vector<assets::Material>{};
+  auto skins = std::vector<asset::Material>{};
   skins.reserve(count);
 
   for (size_t i = 0; i < count; ++i)
@@ -497,7 +497,7 @@ void parseSkins(
 } // namespace
 
 MdlLoader::MdlLoader(
-  std::string name, const Reader& reader, const assets::Palette& palette)
+  std::string name, const Reader& reader, const asset::Palette& palette)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{palette}
@@ -517,7 +517,7 @@ bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
   return ident == MdlLayout::Ident && version == MdlLayout::Version6;
 }
 
-Result<assets::EntityModelData> MdlLoader::load(Logger& /* logger */)
+Result<asset::EntityModelData> MdlLoader::load(Logger& /* logger */)
 {
   try
   {
@@ -548,8 +548,8 @@ Result<assets::EntityModelData> MdlLoader::load(Logger& /* logger */)
     /* const auto syncType = */ reader.readSize<int32_t>();
     const auto flags = reader.readInt<int32_t>();
 
-    auto data = assets::EntityModelData{
-      assets::PitchType::MdlInverted, assets::Orientation::Oriented};
+    auto data =
+      asset::EntityModelData{asset::PitchType::MdlInverted, asset::Orientation::Oriented};
     auto& surface = data.addSurface(m_name, frameCount);
 
     reader.seekFromBegin(MdlLayout::Skins);

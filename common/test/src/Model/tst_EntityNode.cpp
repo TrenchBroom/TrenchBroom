@@ -32,7 +32,7 @@
 #include "Model/MapFormat.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 
 #include "kdl/result.h"
 
@@ -126,7 +126,7 @@ TEST_CASE("EntityNodeTest.setPointEntity")
 
 TEST_CASE("EntityNodeTest.area")
 {
-  auto definition = assets::PointEntityDefinition(
+  auto definition = asset::PointEntityDefinition(
     "some_name",
     Color(),
     vm::bbox3d(vm::vec3d{0, 0, 0}, vm::vec3d(1.0, 2.0, 3.0)),

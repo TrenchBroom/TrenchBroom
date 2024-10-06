@@ -19,8 +19,8 @@
 
 #pragma once
 
-#include "assets/Material.h"
-#include "assets/Palette.h"
+#include "asset/Material.h"
+#include "asset/Palette.h"
 
 #include <filesystem>
 #include <optional>
@@ -34,13 +34,13 @@ namespace tb::IO
 {
 class FileSystem;
 
-assets::Material loadSkin(
+asset::Material loadSkin(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger);
 
-assets::Material loadSkin(
+asset::Material loadSkin(
   const std::filesystem::path& path,
   const FileSystem& fs,
-  const std::optional<assets::Palette>& palette,
+  const std::optional<asset::Palette>& palette,
   Logger& logger);
 
 } // namespace tb::IO

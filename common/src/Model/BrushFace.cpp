@@ -27,8 +27,8 @@
 #include "Model/TagVisitor.h"
 #include "Model/UVCoordSystem.h"
 #include "Polyhedron.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/result.h"
@@ -432,12 +432,12 @@ struct SurfaceData
   float surfaceValue;
 };
 
-SurfaceData getDefaultSurfaceData(const assets::Material* material)
+SurfaceData getDefaultSurfaceData(const asset::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {
     const auto& defaults = texture->embeddedDefaults();
-    if (const auto* q2Defaults = std::get_if<assets::Q2EmbeddedDefaults>(&defaults))
+    if (const auto* q2Defaults = std::get_if<asset::Q2EmbeddedDefaults>(&defaults))
     {
       return {
         q2Defaults->contents,
@@ -450,7 +450,7 @@ SurfaceData getDefaultSurfaceData(const assets::Material* material)
 }
 
 SurfaceData resolveSurfaceData(
-  const BrushFaceAttributes& attributes, const assets::Material* material)
+  const BrushFaceAttributes& attributes, const asset::Material* material)
 {
   const auto defaultSurfaceData = getDefaultSurfaceData(material);
   return {
@@ -494,7 +494,7 @@ const UVCoordSystem& BrushFace::uvCoordSystem() const
   return *m_uvCoordSystem;
 }
 
-const assets::Material* BrushFace::material() const
+const asset::Material* BrushFace::material() const
 {
   return m_materialReference.get();
 }
@@ -513,14 +513,14 @@ vm::vec2f BrushFace::modOffset(const vm::vec2f& offset) const
   return m_attributes.modOffset(offset, textureSize());
 }
 
-bool BrushFace::setMaterial(assets::Material* material)
+bool BrushFace::setMaterial(asset::Material* material)
 {
   if (material == this->material())
   {
     return false;
   }
 
-  m_materialReference = assets::AssetReference(material);
+  m_materialReference = asset::AssetReference(material);
   return true;
 }
 

@@ -26,11 +26,11 @@
 #include <memory>
 #include <string>
 
-namespace tb::assets
+namespace tb::asset
 {
 class BrushEntityDefinition;
 class PointEntityDefinition;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -50,8 +50,8 @@ private:
 protected:
   std::shared_ptr<Model::TestGame> game;
   std::shared_ptr<MapDocument> document;
-  assets::PointEntityDefinition* m_pointEntityDef = nullptr;
-  assets::BrushEntityDefinition* m_brushEntityDef = nullptr;
+  asset::PointEntityDefinition* m_pointEntityDef = nullptr;
+  asset::BrushEntityDefinition* m_brushEntityDef = nullptr;
 
 protected:
   MapDocumentTest();

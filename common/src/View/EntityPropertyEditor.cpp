@@ -31,8 +31,8 @@
 #include "View/QtUtils.h"
 #include "View/SmartPropertyEditorManager.h"
 #include "View/Splitter.h"
-#include "assets/EntityDefinition.h"
-#include "assets/PropertyDefinition.h"
+#include "asset/EntityDefinition.h"
+#include "asset/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 
@@ -108,15 +108,15 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 }
 
 QString EntityPropertyEditor::optionDescriptions(
-  const assets::PropertyDefinition& definition)
+  const asset::PropertyDefinition& definition)
 {
   static const auto bullet = QString{" "} + QChar{0x2022} + QString{" "};
 
   switch (definition.type())
   {
-  case assets::PropertyDefinitionType::ChoiceProperty: {
+  case asset::PropertyDefinitionType::ChoiceProperty: {
     const auto& choiceDef =
-      dynamic_cast<const assets::ChoicePropertyDefinition&>(definition);
+      dynamic_cast<const asset::ChoicePropertyDefinition&>(definition);
 
     auto result = QString{};
     auto stream = QTextStream{&result};
@@ -131,9 +131,9 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case assets::PropertyDefinitionType::FlagsProperty: {
+  case asset::PropertyDefinitionType::FlagsProperty: {
     const auto& flagsDef =
-      dynamic_cast<const assets::FlagsPropertyDefinition&>(definition);
+      dynamic_cast<const asset::FlagsPropertyDefinition&>(definition);
 
     // The options are not necessarily sorted by value, so we sort the descriptions here
     // by inserting into a map sorted by the flag value.
@@ -159,12 +159,12 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case assets::PropertyDefinitionType::StringProperty:
-  case assets::PropertyDefinitionType::BooleanProperty:
-  case assets::PropertyDefinitionType::IntegerProperty:
-  case assets::PropertyDefinitionType::FloatProperty:
-  case assets::PropertyDefinitionType::TargetSourceProperty:
-  case assets::PropertyDefinitionType::TargetDestinationProperty:
+  case asset::PropertyDefinitionType::StringProperty:
+  case asset::PropertyDefinitionType::BooleanProperty:
+  case asset::PropertyDefinitionType::IntegerProperty:
+  case asset::PropertyDefinitionType::FloatProperty:
+  case asset::PropertyDefinitionType::TargetSourceProperty:
+  case asset::PropertyDefinitionType::TargetDestinationProperty:
     return {};
     switchDefault();
   }

@@ -123,9 +123,9 @@ private:
   {
     AllocationTracker::Block* vertexHolderKey;
     AllocationTracker::Block* edgeIndicesKey;
-    std::vector<std::pair<const assets::Material*, AllocationTracker::Block*>>
+    std::vector<std::pair<const asset::Material*, AllocationTracker::Block*>>
       opaqueFaceIndicesKeys;
-    std::vector<std::pair<const assets::Material*, AllocationTracker::Block*>>
+    std::vector<std::pair<const asset::Material*, AllocationTracker::Block*>>
       transparentFaceIndicesKeys;
   };
   /**
@@ -147,7 +147,7 @@ private:
   std::shared_ptr<BrushIndexArray> m_edgeIndices;
 
   using MaterialToBrushIndicesMap =
-    std::unordered_map<const assets::Material*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const asset::Material*, std::shared_ptr<BrushIndexArray>>;
   std::shared_ptr<MaterialToBrushIndicesMap> m_transparentFaces;
   std::shared_ptr<MaterialToBrushIndicesMap> m_opaqueFaces;
 
@@ -198,9 +198,9 @@ public:
    * lingering Material* pointers.
    */
   void invalidate();
-  void invalidateMaterials(const std::vector<const assets::Material*>& materials);
+  void invalidateMaterials(const std::vector<const asset::Material*>& materials);
   void invalidateBrush(const Model::BrushNode* brush);
-  void invalidateMaterial(const assets::Material& material);
+  void invalidateMaterial(const asset::Material& material);
   bool valid() const;
 
   /**

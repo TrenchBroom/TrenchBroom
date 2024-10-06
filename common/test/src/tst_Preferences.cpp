@@ -25,7 +25,7 @@
 #include "Model/TagMatcher.h"
 #include "PreferenceManager.h"
 #include "View/Actions.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 
 #include "kdl/vector_utils.h"
 
@@ -454,8 +454,8 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
   auto hellKnight =
-    assets::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
-  const auto defs = std::vector<assets::EntityDefinition*>{&hellKnight};
+    asset::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
+  const auto defs = std::vector<asset::EntityDefinition*>{&hellKnight};
 
   const auto actions =
     View::ActionManager::instance().createEntityDefinitionActions(defs);

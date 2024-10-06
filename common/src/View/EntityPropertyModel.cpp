@@ -37,9 +37,9 @@
 #include "Model/WorldNode.h"
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionManager.h"
-#include "assets/PropertyDefinition.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionManager.h"
+#include "asset/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -267,7 +267,7 @@ PropertyRow::PropertyRow(std::string key, const Model::EntityNodeBase* node)
   }
   else if (definition != nullptr)
   {
-    m_value = assets::PropertyDefinition::defaultValue(*definition);
+    m_value = asset::PropertyDefinition::defaultValue(*definition);
     m_valueType = ValueType::Unset;
   }
   else

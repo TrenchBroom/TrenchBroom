@@ -21,9 +21,9 @@
 #include "Model/Entity.h"
 #include "Model/EntityProperties.h"
 #include "Model/EntityRotation.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityModel.h"
-#include "assets/PropertyDefinition.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityModel.h"
+#include "asset/PropertyDefinition.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
@@ -42,12 +42,12 @@ namespace
 
 struct EntityDefinitionInfo
 {
-  assets::EntityDefinitionType type;
-  std::vector<std::shared_ptr<assets::PropertyDefinition>> propertyDefinitions;
+  asset::EntityDefinitionType type;
+  std::vector<std::shared_ptr<asset::PropertyDefinition>> propertyDefinitions;
   vm::bbox3d bounds = vm::bbox3d{16.0};
 };
 
-std::unique_ptr<assets::EntityDefinition> createEntityDefinition(
+std::unique_ptr<asset::EntityDefinition> createEntityDefinition(
   const std::optional<EntityDefinitionInfo>& info)
 {
   if (!info.has_value())
@@ -57,17 +57,17 @@ std::unique_ptr<assets::EntityDefinition> createEntityDefinition(
 
   switch (info->type)
   {
-  case assets::EntityDefinitionType::PointEntity:
-    return std::make_unique<assets::PointEntityDefinition>(
+  case asset::EntityDefinitionType::PointEntity:
+    return std::make_unique<asset::PointEntityDefinition>(
       "",
       Color{},
       info->bounds,
       "",
       info->propertyDefinitions,
-      assets::ModelDefinition{},
-      assets::DecalDefinition{});
-  case assets::EntityDefinitionType::BrushEntity:
-    return std::make_unique<assets::BrushEntityDefinition>(
+      asset::ModelDefinition{},
+      asset::DecalDefinition{});
+  case asset::EntityDefinitionType::BrushEntity:
+    return std::make_unique<asset::BrushEntityDefinition>(
       "", Color{}, "", info->propertyDefinitions);
     switchDefault();
   }
@@ -77,7 +77,7 @@ std::unique_ptr<assets::EntityDefinition> createEntityDefinition(
 
 TEST_CASE("entityRotationInfo")
 {
-  using namespace assets;
+  using namespace asset;
 
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);

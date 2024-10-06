@@ -25,8 +25,8 @@
 #include "TestUtils.h"
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
-#include "assets/Material.h"
-#include "assets/MaterialManager.h"
+#include "asset/Material.h"
+#include "asset/MaterialManager.h"
 
 #include <cassert>
 

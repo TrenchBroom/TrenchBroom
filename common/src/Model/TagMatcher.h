@@ -21,7 +21,7 @@
 
 #include "Model/Tag.h"
 #include "Model/TagVisitor.h"
-#include "assets/Material.h"
+#include "asset/Material.h"
 
 #include "kdl/vector_set.h"
 
@@ -48,7 +48,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesMaterial(const assets::Material* material) const = 0;
+  virtual bool matchesMaterial(const asset::Material* material) const = 0;
 };
 
 class MaterialNameTagMatcher : public MaterialTagMatcher
@@ -63,7 +63,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const assets::Material* material) const override;
+  bool matchesMaterial(const asset::Material* material) const override;
   bool matchesMaterialName(std::string_view materialName) const;
 };
 
@@ -80,7 +80,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const assets::Material* material) const override;
+  bool matchesMaterial(const asset::Material* material) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher

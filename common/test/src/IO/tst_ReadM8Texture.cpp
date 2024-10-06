@@ -20,8 +20,8 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ReadM8Texture.h"
 #include "TestUtils.h"
-#include "assets/Palette.h"
-#include "assets/Texture.h"
+#include "asset/Palette.h"
+#include "asset/Texture.h"
 
 #include "kdl/result.h"
 

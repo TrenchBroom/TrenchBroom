@@ -24,11 +24,11 @@
 #include <memory>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::IO
 {
@@ -48,7 +48,7 @@ public:
   explicit EntityDefinitionParser(const Color& defaultEntityColor);
   virtual ~EntityDefinitionParser();
 
-  std::vector<std::unique_ptr<assets::EntityDefinition>> parseDefinitions(
+  std::vector<std::unique_ptr<asset::EntityDefinition>> parseDefinitions(
     ParserStatus& status);
 
 private:

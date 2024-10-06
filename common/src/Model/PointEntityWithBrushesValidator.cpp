@@ -24,7 +24,7 @@
 #include "Model/Issue.h"
 #include "Model/IssueQuickFix.h"
 #include "Model/MapFacade.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 
 #include "kdl/vector_utils.h"
 
@@ -71,7 +71,7 @@ void PointEntityWithBrushesValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
   const auto* definition =
-    dynamic_cast<const assets::PointEntityDefinition*>(entityNode.entity().definition());
+    dynamic_cast<const asset::PointEntityDefinition*>(entityNode.entity().definition());
   if (definition && entityNode.hasChildren())
   {
     issues.push_back(

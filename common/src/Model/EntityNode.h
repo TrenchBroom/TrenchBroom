@@ -30,12 +30,12 @@
 #include <optional>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 enum class PitchType;
 class EntityModel;
 struct ModelSpecification;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -62,7 +62,7 @@ public:
 
 public: // entity model
   const vm::bbox3d& modelBounds() const;
-  void setModel(const assets::EntityModel* model);
+  void setModel(const asset::EntityModel* model);
 
 private: // implement Node interface
   const vm::bbox3d& doGetLogicalBounds() const override;

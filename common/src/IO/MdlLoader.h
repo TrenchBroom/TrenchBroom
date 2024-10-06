@@ -24,7 +24,7 @@
 #include <filesystem>
 #include <string>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Palette;
 }
@@ -38,14 +38,14 @@ class MdlLoader : public EntityModelLoader
 private:
   std::string m_name;
   const Reader& m_reader;
-  const assets::Palette& m_palette;
+  const asset::Palette& m_palette;
 
 public:
-  MdlLoader(std::string name, const Reader& reader, const assets::Palette& palette);
+  MdlLoader(std::string name, const Reader& reader, const asset::Palette& palette);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<assets::EntityModelData> load(Logger& logger) override;
+  Result<asset::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::IO

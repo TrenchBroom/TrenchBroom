@@ -27,7 +27,7 @@
 #include "IO/TraversalMode.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
-#include "assets/Quake3Shader.h"
+#include "asset/Quake3Shader.h"
 
 #include "kdl/parallel.h"
 #include "kdl/result.h"
@@ -44,7 +44,7 @@ namespace tb::IO
 namespace
 {
 
-Result<std::vector<assets::Quake3Shader>> loadShader(
+Result<std::vector<asset::Quake3Shader>> loadShader(
   const FileSystem& fs, const std::filesystem::path& path, Logger& logger)
 {
   return fs.openFile(path) | kdl::transform([&](auto file) {
@@ -59,19 +59,19 @@ Result<std::vector<assets::Quake3Shader>> loadShader(
            {
              logger.warn() << "Skipping malformed shader file " << path << ": "
                            << e.what();
-             return std::vector<assets::Quake3Shader>{};
+             return std::vector<asset::Quake3Shader>{};
            }
          });
 }
 
 } // namespace
 
-Result<std::vector<assets::Quake3Shader>> loadShaders(
+Result<std::vector<asset::Quake3Shader>> loadShaders(
   const FileSystem& fs, const Model::MaterialConfig& materialConfig, Logger& logger)
 {
   if (fs.pathInfo(materialConfig.shaderSearchPath) != PathInfo::Directory)
   {
-    return std::vector<assets::Quake3Shader>{};
+    return std::vector<asset::Quake3Shader>{};
   }
 
   return fs.find(

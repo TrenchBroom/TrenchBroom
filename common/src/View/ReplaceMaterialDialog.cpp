@@ -35,7 +35,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/Transaction.h"
-#include "assets/Material.h"
+#include "asset/Material.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -190,12 +190,12 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setMinimumSize(650, 450);
 }
 
-void ReplaceMaterialDialog::subjectSelected(const assets::Material* /* subject */)
+void ReplaceMaterialDialog::subjectSelected(const asset::Material* /* subject */)
 {
   updateReplaceButton();
 }
 
-void ReplaceMaterialDialog::replacementSelected(const assets::Material* /* replacement */)
+void ReplaceMaterialDialog::replacementSelected(const asset::Material* /* replacement */)
 {
   updateReplaceButton();
 }

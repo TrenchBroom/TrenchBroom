@@ -26,43 +26,43 @@
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
 #include "Result.h"
-#include "assets/Material.h"
-#include "assets/Palette.h"
+#include "asset/Material.h"
+#include "asset/Palette.h"
 
 #include "kdl/string_format.h"
 
 namespace tb::IO
 {
 
-assets::Material loadSkin(
+asset::Material loadSkin(
   const std::filesystem::path& path, const FileSystem& fs, Logger& logger)
 {
   return loadSkin(path, fs, std::nullopt, logger);
 }
 
-assets::Material loadSkin(
+asset::Material loadSkin(
   const std::filesystem::path& path,
   const FileSystem& fs,
-  const std::optional<assets::Palette>& palette,
+  const std::optional<asset::Palette>& palette,
   Logger& logger)
 {
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) -> Result<assets::Material, ReadMaterialError> {
+         | kdl::and_then([&](auto file) -> Result<asset::Material, ReadMaterialError> {
              const auto extension = kdl::str_to_lower(path.extension().string());
              auto reader = file->reader().buffer();
              return (extension == ".wal" ? readWalTexture(reader, palette)
                                          : readFreeImageTexture(reader))
                     | kdl::transform([&](auto texture) {
                         auto textureResource = createTextureResource(std::move(texture));
-                        return assets::Material{
+                        return asset::Material{
                           path.stem().string(), std::move(textureResource)};
                       })
                     | kdl::or_else([&](auto e) {
-                        return Result<assets::Material, ReadMaterialError>{
+                        return Result<asset::Material, ReadMaterialError>{
                           ReadMaterialError{path.stem().string(), std::move(e.msg)}};
                       });
            })
-         | kdl::transform_error([&](auto e) -> assets::Material {
+         | kdl::transform_error([&](auto e) -> asset::Material {
              logger.error() << "Could not load skin '" << path << "': " << e.msg;
              return loadDefaultMaterial(fs, path.stem().string(), logger);
            })

@@ -30,9 +30,9 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/SwapNodeContentsCommand.h"
-#include "assets/EntityDefinition.h"
-#include "assets/Material.h"
-#include "assets/MaterialManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/Material.h"
+#include "asset/MaterialManager.h"
 
 #include <memory>
 

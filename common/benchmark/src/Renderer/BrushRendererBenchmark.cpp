@@ -25,8 +25,8 @@
 #include "Model/MapFormat.h"
 #include "Model/WorldNode.h"
 #include "Renderer/BrushRenderer.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/result.h"
 
@@ -50,11 +50,11 @@ constexpr size_t NumMaterials = 256;
 auto makeBrushes()
 {
   // make materials
-  auto materials = std::vector<assets::Material>{};
+  auto materials = std::vector<asset::Material>{};
   for (size_t i = 0; i < NumMaterials; ++i)
   {
     auto materialName = "material " + std::to_string(i);
-    auto textureResource = createTextureResource(assets::Texture{64, 64});
+    auto textureResource = createTextureResource(asset::Texture{64, 64});
     materials.emplace_back(std::move(materialName), std::move(textureResource));
   }
 

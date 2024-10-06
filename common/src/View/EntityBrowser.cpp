@@ -32,13 +32,13 @@
 #include "View/MapDocument.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 
 // for use in QVariant
-Q_DECLARE_METATYPE(tb::assets::EntityDefinitionSortOrder)
+Q_DECLARE_METATYPE(tb::asset::EntityDefinitionSortOrder)
 
 namespace tb::View
 {
@@ -82,14 +82,14 @@ void EntityBrowser::createGui(GLContextManager& contextManager)
 
   m_sortOrderChoice = new QComboBox{};
   m_sortOrderChoice->addItem(
-    tr("Name"), QVariant::fromValue(assets::EntityDefinitionSortOrder::Name));
+    tr("Name"), QVariant::fromValue(asset::EntityDefinitionSortOrder::Name));
   m_sortOrderChoice->addItem(
-    tr("Usage"), QVariant::fromValue(assets::EntityDefinitionSortOrder::Usage));
+    tr("Usage"), QVariant::fromValue(asset::EntityDefinitionSortOrder::Usage));
   m_sortOrderChoice->setCurrentIndex(0);
   m_sortOrderChoice->setToolTip(tr("Select ordering criterion"));
   connect(
     m_sortOrderChoice, QOverload<int>::of(&QComboBox::activated), this, [&](int index) {
-      auto sortOrder = static_cast<assets::EntityDefinitionSortOrder>(
+      auto sortOrder = static_cast<asset::EntityDefinitionSortOrder>(
         m_sortOrderChoice->itemData(index).toInt());
       m_view->setSortOrder(sortOrder);
     });
@@ -194,7 +194,7 @@ void EntityBrowser::preferenceDidChange(const std::filesystem::path& path)
   }
 }
 
-void EntityBrowser::resourcesWereProcessed(const std::vector<assets::ResourceId>&)
+void EntityBrowser::resourcesWereProcessed(const std::vector<asset::ResourceId>&)
 {
   reload();
 }

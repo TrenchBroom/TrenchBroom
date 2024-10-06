@@ -26,7 +26,7 @@
 #include "IO/VirtualFileSystem.h"
 #include "Logger.h"
 #include "Model/GameConfig.h"
-#include "assets/Palette.h"
+#include "asset/Palette.h"
 
 #include <filesystem>
 #include <memory>

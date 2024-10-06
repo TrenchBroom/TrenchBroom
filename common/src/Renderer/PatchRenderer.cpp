@@ -34,8 +34,8 @@
 #include "Renderer/RenderUtils.h"
 #include "Renderer/Shaders.h"
 #include "Renderer/VertexArray.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/vector_utils.h"
 
@@ -336,7 +336,7 @@ struct RenderFunc : public MaterialRenderFunc
   {
   }
 
-  void before(const assets::Material* material) override
+  void before(const asset::Material* material) override
   {
     shader.set("GridColor", gridColorForMaterial(material));
     if (const auto* texture = getTexture(material))
@@ -352,7 +352,7 @@ struct RenderFunc : public MaterialRenderFunc
     }
   }
 
-  void after(const assets::Material* material) override
+  void after(const asset::Material* material) override
   {
     if (material)
     {

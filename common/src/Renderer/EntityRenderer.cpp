@@ -30,8 +30,8 @@
 #include "Renderer/RenderContext.h"
 #include "Renderer/RenderService.h"
 #include "Renderer/TextAnchor.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityModelManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityModelManager.h"
 
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -69,7 +69,7 @@ private:
 
 EntityRenderer::EntityRenderer(
   Logger& logger,
-  assets::EntityModelManager& entityModelManager,
+  asset::EntityModelManager& entityModelManager,
   const Model::EditorContext& editorContext)
   : m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
@@ -123,9 +123,9 @@ void EntityRenderer::invalidateEntity(const Model::EntityNode* entity)
 }
 
 void EntityRenderer::invalidateEntityModels(
-  const std::vector<const assets::EntityModel*>& entityModels)
+  const std::vector<const asset::EntityModel*>& entityModels)
 {
-  const auto entityModelSet = std::unordered_set<const assets::EntityModel*>{
+  const auto entityModelSet = std::unordered_set<const asset::EntityModel*>{
     entityModels.begin(), entityModels.end()};
   for (const auto* entity : m_entities)
   {

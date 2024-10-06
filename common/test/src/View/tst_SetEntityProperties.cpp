@@ -28,7 +28,7 @@
 #include "View/MapDocument.h"
 #include "View/MapDocumentTest.h"
 #include "View/Transaction.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -44,27 +44,27 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 {
   // need to recreate these because document->setEntityDefinitions will delete the old
   // ones
-  auto pointEntityDefOwner = std::make_unique<assets::PointEntityDefinition>(
+  auto pointEntityDefOwner = std::make_unique<asset::PointEntityDefinition>(
     "point_entity",
     Color{},
     vm::bbox3d{16.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<assets::PropertyDefinition>>{},
-    assets::ModelDefinition{},
-    assets::DecalDefinition{});
+    std::vector<std::shared_ptr<asset::PropertyDefinition>>{},
+    asset::ModelDefinition{},
+    asset::DecalDefinition{});
   m_pointEntityDef = pointEntityDefOwner.get();
 
-  auto largeEntityDefOwner = std::make_unique<assets::PointEntityDefinition>(
+  auto largeEntityDefOwner = std::make_unique<asset::PointEntityDefinition>(
     "large_entity",
     Color{},
     vm::bbox3d{64.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<assets::PropertyDefinition>>{},
-    assets::ModelDefinition{},
-    assets::DecalDefinition{});
+    std::vector<std::shared_ptr<asset::PropertyDefinition>>{},
+    asset::ModelDefinition{},
+    asset::DecalDefinition{});
   auto* largeEntityDef = largeEntityDefOwner.get();
 
-  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<assets::EntityDefinition>>(
+  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
     std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
 
   auto* entityNode =

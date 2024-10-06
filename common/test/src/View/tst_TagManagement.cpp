@@ -26,10 +26,10 @@
 #include "Model/TestGame.h" // IWYU pragma: keep
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
-#include "assets/Material.h"
-#include "assets/MaterialCollection.h"
-#include "assets/MaterialManager.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/MaterialCollection.h"
+#include "asset/MaterialManager.h"
+#include "asset/Texture.h"
 
 #include "kdl/vector_utils.h"
 
@@ -45,20 +45,20 @@ namespace
 class TagManagementTest : public MapDocumentTest
 {
 protected:
-  assets::Material* m_materialA = nullptr;
-  assets::Material* m_materialB = nullptr;
-  assets::Material* m_materialC = nullptr;
-  const assets::MaterialCollection* m_materialCollection = nullptr;
+  asset::Material* m_materialA = nullptr;
+  asset::Material* m_materialB = nullptr;
+  asset::Material* m_materialC = nullptr;
+  const asset::MaterialCollection* m_materialCollection = nullptr;
 
 private:
   void SetUp()
   {
     auto materialA =
-      assets::Material{"some_material", createTextureResource(assets::Texture{16, 16})};
+      asset::Material{"some_material", createTextureResource(asset::Texture{16, 16})};
     auto materialB =
-      assets::Material{"other_material", createTextureResource(assets::Texture{32, 32})};
-    auto materialC = assets::Material{
-      "yet_another_material", createTextureResource(assets::Texture{64, 64})};
+      asset::Material{"other_material", createTextureResource(asset::Texture{32, 32})};
+    auto materialC = asset::Material{
+      "yet_another_material", createTextureResource(asset::Texture{64, 64})};
 
     const auto singleParam = std::string{"some_parm"};
     const auto multiParams = std::set<std::string>{"parm1", "parm2"};
@@ -69,7 +69,7 @@ private:
     auto materials =
       kdl::vec_from(std::move(materialA), std::move(materialB), std::move(materialC));
 
-    auto collections = kdl::vec_from(assets::MaterialCollection{std::move(materials)});
+    auto collections = kdl::vec_from(asset::MaterialCollection{std::move(materials)});
 
     auto& materialManager = document->materialManager();
     materialManager.setMaterialCollections(std::move(collections));

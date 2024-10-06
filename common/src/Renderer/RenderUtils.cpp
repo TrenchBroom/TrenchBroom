@@ -20,8 +20,8 @@
 #include "RenderUtils.h"
 
 #include "Renderer/GL.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 namespace tb::Renderer
 {
@@ -30,7 +30,7 @@ namespace
 constexpr auto EdgeOffset = 0.0001;
 }
 
-vm::vec3f gridColorForMaterial(const assets::Material* material)
+vm::vec3f gridColorForMaterial(const asset::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {
@@ -78,8 +78,8 @@ void coordinateSystemVerticesZ(const vm::bbox3f& bounds, vm::vec3f& start, vm::v
 }
 
 MaterialRenderFunc::~MaterialRenderFunc() = default;
-void MaterialRenderFunc::before(const assets::Material* /* material */) {}
-void MaterialRenderFunc::after(const assets::Material* /* material */) {}
+void MaterialRenderFunc::before(const asset::Material* /* material */) {}
+void MaterialRenderFunc::after(const asset::Material* /* material */) {}
 
 DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
   const int minFilter, const int magFilter)
@@ -88,7 +88,7 @@ DefaultMaterialRenderFunc::DefaultMaterialRenderFunc(
 {
 }
 
-void DefaultMaterialRenderFunc::before(const assets::Material* material)
+void DefaultMaterialRenderFunc::before(const asset::Material* material)
 {
   if (material)
   {
@@ -96,7 +96,7 @@ void DefaultMaterialRenderFunc::before(const assets::Material* material)
   }
 }
 
-void DefaultMaterialRenderFunc::after(const assets::Material* material)
+void DefaultMaterialRenderFunc::after(const asset::Material* material)
 {
   if (material)
   {

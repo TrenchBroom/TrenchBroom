@@ -27,8 +27,8 @@
 #include "Model/LayerNode.h"
 #include "Model/PatchNode.h"
 #include "Model/WorldNode.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/result.h"
 
@@ -391,8 +391,8 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   // must outlive map
-  auto textureResource = createTextureResource(assets::Texture{16, 16});
-  auto material = assets::Material{"some_material", std::move(textureResource)};
+  auto textureResource = createTextureResource(asset::Texture{16, 16});
+  auto material = asset::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
   auto map = Model::WorldNode{{}, {}, Model::MapFormat::Quake3};

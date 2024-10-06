@@ -29,7 +29,7 @@ namespace tb
 class Logger;
 }
 
-namespace tb::assets
+namespace tb::asset
 {
 class EntityModelManager;
 }
@@ -51,7 +51,7 @@ class EntityModelRenderer : public DirectRenderable
 private:
   Logger& m_logger;
 
-  assets::EntityModelManager& m_entityModelManager;
+  asset::EntityModelManager& m_entityModelManager;
   const Model::EditorContext& m_editorContext;
 
   std::unordered_map<const Model::EntityNode*, MaterialRenderer*> m_entities;
@@ -64,7 +64,7 @@ private:
 public:
   EntityModelRenderer(
     Logger& logger,
-    assets::EntityModelManager& entityModelManager,
+    asset::EntityModelManager& entityModelManager,
     const Model::EditorContext& editorContext);
   ~EntityModelRenderer() override;
 

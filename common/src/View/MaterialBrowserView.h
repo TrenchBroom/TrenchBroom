@@ -29,12 +29,12 @@
 
 class QScrollBar;
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 class MaterialCollection;
 class ResourceId;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::View
 {
@@ -59,7 +59,7 @@ private:
   MaterialSortOrder m_sortOrder = MaterialSortOrder::Name;
   std::string m_filterText;
 
-  const assets::Material* m_selectedMaterial = nullptr;
+  const asset::Material* m_selectedMaterial = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,13 +75,13 @@ public:
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 
-  const assets::Material* selectedMaterial() const;
-  void setSelectedMaterial(const assets::Material* selectedMaterial);
+  const asset::Material* selectedMaterial() const;
+  void setSelectedMaterial(const asset::Material* selectedMaterial);
 
-  void revealMaterial(const assets::Material* material);
+  void revealMaterial(const asset::Material* material);
 
 private:
-  void resourcesWereProcessed(const std::vector<assets::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<asset::ResourceId>& resources);
 
   void reloadMaterials();
 
@@ -90,22 +90,22 @@ private:
 
   void addMaterialsToLayout(
     Layout& layout,
-    const std::vector<const assets::Material*>& materials,
+    const std::vector<const asset::Material*>& materials,
     const Renderer::FontDescriptor& font);
   void addMaterialToLayout(
     Layout& layout,
-    const assets::Material& material,
+    const asset::Material& material,
     const Renderer::FontDescriptor& font);
 
-  std::vector<const assets::MaterialCollection*> getCollections() const;
-  std::vector<const assets::Material*> getMaterials(
-    const assets::MaterialCollection& collection) const;
-  std::vector<const assets::Material*> getMaterials() const;
+  std::vector<const asset::MaterialCollection*> getCollections() const;
+  std::vector<const asset::Material*> getMaterials(
+    const asset::MaterialCollection& collection) const;
+  std::vector<const asset::Material*> getMaterials() const;
 
-  std::vector<const assets::Material*> filterMaterials(
-    std::vector<const assets::Material*> materials) const;
-  std::vector<const assets::Material*> sortMaterials(
-    std::vector<const assets::Material*> materials) const;
+  std::vector<const asset::Material*> filterMaterials(
+    std::vector<const asset::Material*> materials) const;
+  std::vector<const asset::Material*> sortMaterials(
+    std::vector<const asset::Material*> materials) const;
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -113,16 +113,16 @@ private:
   const Color& getBackgroundColor() override;
 
   void renderBounds(Layout& layout, float y, float height);
-  const Color& materialColor(const assets::Material& material) const;
+  const Color& materialColor(const asset::Material& material) const;
   void renderMaterials(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;
   void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
-  const assets::Material& cellData(const Cell& cell) const;
+  const asset::Material& cellData(const Cell& cell) const;
 signals:
-  void materialSelected(const assets::Material* material);
+  void materialSelected(const asset::Material* material);
 };
 
 } // namespace tb::View

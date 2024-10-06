@@ -21,7 +21,7 @@
 #include "IO/AssimpLoader.h"
 #include "IO/DiskFileSystem.h"
 #include "Logger.h"
-#include "assets/EntityModel.h"
+#include "asset/EntityModel.h"
 
 #include "Catch2.h"
 

@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -84,7 +84,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceMaterial(size_t faceIndex, assets::Material* material);
+  void setFaceMaterial(size_t faceIndex, asset::Material* material);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;

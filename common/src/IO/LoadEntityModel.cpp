@@ -32,8 +32,8 @@
 #include "IO/SprLoader.h"
 #include "Model/GameConfig.h"
 #include "Result.h"
-#include "assets/EntityModel.h"
-#include "assets/Palette.h"
+#include "asset/EntityModel.h"
+#include "asset/Palette.h"
 
 #include <kdl/result.h>
 
@@ -47,10 +47,10 @@ auto loadPalette(const FileSystem& fs, const Model::MaterialConfig& materialConf
 {
   const auto& path = materialConfig.palette;
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) { return assets::loadPalette(*file, path); });
+         | kdl::and_then([&](auto file) { return asset::loadPalette(*file, path); });
 }
 
-Result<assets::EntityModelData> loadEntityModelData(
+Result<asset::EntityModelData> loadEntityModelData(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -58,7 +58,7 @@ Result<assets::EntityModelData> loadEntityModelData(
   Logger& logger)
 {
   return fs.openFile(path)
-         | kdl::and_then([&](auto file) -> Result<assets::EntityModelData> {
+         | kdl::and_then([&](auto file) -> Result<asset::EntityModelData> {
              const auto modelName = path.filename().string();
              auto reader = file->reader().buffer();
 
@@ -124,7 +124,7 @@ Result<assets::EntityModelData> loadEntityModelData(
            });
 }
 
-assets::ResourceLoader<assets::EntityModelData> makeEntityModelDataResourceLoader(
+asset::ResourceLoader<asset::EntityModelData> makeEntityModelDataResourceLoader(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -138,7 +138,7 @@ assets::ResourceLoader<assets::EntityModelData> makeEntityModelDataResourceLoade
 
 } // namespace
 
-Result<assets::EntityModel> loadEntityModelSync(
+Result<asset::EntityModel> loadEntityModelSync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
@@ -149,24 +149,24 @@ Result<assets::EntityModel> loadEntityModelSync(
          | kdl::transform([&](auto modelData) {
              auto modelName = path.filename().string();
              auto modelResource =
-               assets::createEntityModelDataResource(std::move(modelData));
-             return assets::EntityModel{std::move(modelName), std::move(modelResource)};
+               asset::createEntityModelDataResource(std::move(modelData));
+             return asset::EntityModel{std::move(modelName), std::move(modelResource)};
            });
 }
 
-assets::EntityModel loadEntityModelAsync(
+asset::EntityModel loadEntityModelAsync(
   const FileSystem& fs,
   const Model::MaterialConfig& materialConfig,
   const std::filesystem::path& path,
   const LoadMaterialFunc& loadMaterial,
-  const assets::CreateEntityModelDataResource& createResource,
+  const asset::CreateEntityModelDataResource& createResource,
   Logger& logger)
 {
   auto name = path.filename().string();
   auto loader =
     makeEntityModelDataResourceLoader(fs, materialConfig, path, loadMaterial, logger);
   auto resource = createResource(std::move(loader));
-  return assets::EntityModel{std::move(name), std::move(resource)};
+  return asset::EntityModel{std::move(name), std::move(resource)};
 }
 
 } // namespace tb::IO

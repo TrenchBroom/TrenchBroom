@@ -22,8 +22,8 @@
 #include "IO/MdlLoader.h"
 #include "IO/Reader.h"
 #include "Logger.h"
-#include "assets/EntityModel.h"
-#include "assets/Palette.h"
+#include "asset/EntityModel.h"
+#include "asset/Palette.h"
 
 #include "kdl/result.h"
 
@@ -39,7 +39,7 @@ TEST_CASE("MdlLoaderTest.loadValidMdl")
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
-  const auto palette = assets::loadPalette(*paletteFile, palettePath) | kdl::value();
+  const auto palette = asset::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath = std::filesystem::current_path() / "fixture/test/IO/Mdl/armor.mdl";
   const auto mdlFile = Disk::openFile(mdlPath) | kdl::value();
@@ -65,7 +65,7 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
-  const auto palette = assets::loadPalette(*paletteFile, palettePath) | kdl::value();
+  const auto palette = asset::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   const auto mdlPath =
     std::filesystem::current_path() / "fixture/test/IO/Mdl/invalid.mdl";
@@ -75,7 +75,7 @@ TEST_CASE("MdlLoaderTest.loadInvalidMdl")
   auto loader = MdlLoader("armor", reader, palette);
   CHECK(
     loader.load(logger)
-    == Result<assets::EntityModelData>{Error{"Unknown MDL model version: 538976288"}});
+    == Result<asset::EntityModelData>{Error{"Unknown MDL model version: 538976288"}});
 }
 
 } // namespace tb::IO

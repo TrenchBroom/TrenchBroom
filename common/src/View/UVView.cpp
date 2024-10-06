@@ -44,8 +44,8 @@
 #include "View/UVRotateTool.h"
 #include "View/UVScaleTool.h"
 #include "View/UVShearTool.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/memory_utils.h"
 

@@ -30,11 +30,11 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 struct DecalSpecification;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -63,7 +63,7 @@ private:
      * and the decal geometry is stored in the VBO */
     bool validated = false;
 
-    assets::Material* material = nullptr;
+    asset::Material* material = nullptr;
 
     AllocationTracker::Block* vertexHolderKey = nullptr;
     AllocationTracker::Block* faceIndicesKey = nullptr;
@@ -77,7 +77,7 @@ private:
 
   using Vertex = Renderer::GLVertexTypes::P3NT2::Vertex;
   using MaterialToBrushIndicesMap =
-    std::unordered_map<const assets::Material*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const asset::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<MaterialToBrushIndicesMap> m_faces;
   std::shared_ptr<BrushVertexArray> m_vertexArray;

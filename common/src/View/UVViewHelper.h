@@ -29,7 +29,7 @@
 
 #include <optional>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -71,7 +71,7 @@ public:
 
   bool valid() const;
   const Model::BrushFace* face() const;
-  const assets::Material* material() const;
+  const asset::Material* material() const;
   void setFaceHandle(std::optional<Model::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 

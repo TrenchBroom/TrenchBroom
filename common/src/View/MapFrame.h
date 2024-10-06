@@ -50,7 +50,7 @@ namespace tb
 class Logger;
 }
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -392,7 +392,7 @@ public:
   bool canRevealMaterial() const;
   void revealMaterial();
 
-  void revealMaterial(const assets::Material* material);
+  void revealMaterial(const asset::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();

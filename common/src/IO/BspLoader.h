@@ -20,7 +20,7 @@
 #pragma once
 
 #include "IO/EntityModelLoader.h"
-#include "assets/Palette.h"
+#include "asset/Palette.h"
 
 #include <filesystem>
 #include <string>
@@ -35,19 +35,16 @@ class BspLoader : public EntityModelLoader
 private:
   std::string m_name;
   const Reader& m_reader;
-  const assets::Palette m_palette;
+  const asset::Palette m_palette;
   const FileSystem& m_fs;
 
 public:
   BspLoader(
-    std::string name,
-    const Reader& reader,
-    assets::Palette palette,
-    const FileSystem& fs);
+    std::string name, const Reader& reader, asset::Palette palette, const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<assets::EntityModelData> load(Logger& logger) override;
+  Result<asset::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::IO

@@ -42,7 +42,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<assets::EntityModelData> load(Logger& logger) override;
+  Result<asset::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::IO

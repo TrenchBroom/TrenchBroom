@@ -21,9 +21,9 @@
 
 #include "IO/Reader.h"
 #include "IO/ReaderException.h"
-#include "assets/Palette.h"
-#include "assets/Texture.h"
-#include "assets/TextureBuffer.h"
+#include "asset/Palette.h"
+#include "asset/Texture.h"
+#include "asset/TextureBuffer.h"
 
 #include "kdl/result.h"
 
@@ -41,7 +41,7 @@ constexpr size_t PaletteSize = 768;
 } // namespace M8Layout
 
 
-Result<assets::Texture> readM8Texture(Reader& reader)
+Result<asset::Texture> readM8Texture(Reader& reader)
 {
   try
   {
@@ -79,14 +79,14 @@ Result<assets::Texture> readM8Texture(Reader& reader)
     auto paletteReader = reader.subReaderFromCurrent(M8Layout::PaletteSize);
     reader.seekForward(M8Layout::PaletteSize);
 
-    return assets::loadPalette(paletteReader, assets::PaletteColorFormat::Rgb)
+    return asset::loadPalette(paletteReader, asset::PaletteColorFormat::Rgb)
            | kdl::transform([&](const auto& palette) {
                reader.seekForward(4); // flags
                reader.seekForward(4); // contents
                reader.seekForward(4); // value
 
                auto mip0AverageColor = Color{};
-               auto buffers = assets::TextureBufferList{};
+               auto buffers = asset::TextureBufferList{};
                for (size_t mipLevel = 0; mipLevel < M8Layout::MipLevels; ++mipLevel)
                {
                  const auto w = widths[mipLevel];
@@ -99,14 +99,14 @@ Result<assets::Texture> readM8Texture(Reader& reader)
 
                  reader.seekFromBegin(offsets[mipLevel]);
 
-                 auto rgbaImage = assets::TextureBuffer{4 * w * h};
+                 auto rgbaImage = asset::TextureBuffer{4 * w * h};
 
                  auto averageColor = Color{};
                  palette.indexedToRgba(
                    reader,
                    w * h,
                    rgbaImage,
-                   assets::PaletteTransparency::Opaque,
+                   asset::PaletteTransparency::Opaque,
                    averageColor);
                  buffers.emplace_back(std::move(rgbaImage));
 
@@ -116,13 +116,13 @@ Result<assets::Texture> readM8Texture(Reader& reader)
                  }
                }
 
-               return assets::Texture{
+               return asset::Texture{
                  widths[0],
                  heights[0],
                  mip0AverageColor,
                  GL_RGBA,
-                 assets::TextureMask::Off,
-                 assets::NoEmbeddedDefaults{},
+                 asset::TextureMask::Off,
+                 asset::NoEmbeddedDefaults{},
                  std::move(buffers)};
              });
   }

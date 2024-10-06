@@ -33,7 +33,7 @@
 #include "TestUtils.h"
 #include "View/MapDocumentTest.h"
 #include "View/PasteType.h"
-#include "assets/EntityDefinition.h"
+#include "asset/EntityDefinition.h"
 
 #include "kdl/result.h"
 

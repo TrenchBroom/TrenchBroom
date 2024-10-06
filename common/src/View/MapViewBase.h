@@ -36,13 +36,13 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace tb::assets
+namespace tb::asset
 {
 class BrushEntityDefinition;
 class EntityDefinition;
 enum class EntityDefinitionType;
 class PointEntityDefinition;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -261,10 +261,10 @@ public: // reparenting objects
   void createBrushEntity();
   virtual vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const = 0;
 
-  assets::EntityDefinition* findEntityDefinition(
-    assets::EntityDefinitionType type, size_t index) const;
-  void createPointEntity(const assets::PointEntityDefinition* definition);
-  void createBrushEntity(const assets::BrushEntityDefinition* definition);
+  asset::EntityDefinition* findEntityDefinition(
+    asset::EntityDefinitionType type, size_t index) const;
+  void createPointEntity(const asset::PointEntityDefinition* definition);
+  void createBrushEntity(const asset::BrushEntityDefinition* definition);
   bool canCreateBrushEntity();
 
 public: // tags
@@ -276,8 +276,8 @@ public: // make structural
   void makeStructural();
 
 public: // entity definitions
-  void toggleEntityDefinitionVisible(const assets::EntityDefinition* definition);
-  void createEntity(const assets::EntityDefinition* definition);
+  void toggleEntityDefinitionVisible(const asset::EntityDefinition* definition);
+  void createEntity(const asset::EntityDefinition* definition);
 
 public: // view filters
   void toggleShowEntityClassnames();
@@ -376,7 +376,7 @@ protected: // QWidget overrides
   void dropEvent(QDropEvent* event) override;
 
 private:
-  QMenu* makeEntityGroupsMenu(assets::EntityDefinitionType type);
+  QMenu* makeEntityGroupsMenu(asset::EntityDefinitionType type);
 
   bool canMergeGroups() const;
   bool canMakeStructural() const;

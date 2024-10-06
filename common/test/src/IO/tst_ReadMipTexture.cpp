@@ -24,7 +24,7 @@
 #include "IO/WadFileSystem.h"
 #include "Logger.h"
 #include "TestLogger.h"
-#include "assets/Palette.h"
+#include "asset/Palette.h"
 
 #include "kdl/result.h"
 
@@ -69,7 +69,7 @@ TEST_CASE("readIdMipTexture")
   const auto palettePath = "fixture/test/palette.lmp";
   auto fs = DiskFileSystem{std::filesystem::current_path()};
   auto paletteFile = fs.openFile("fixture/test/palette.lmp") | kdl::value();
-  const auto palette = assets::loadPalette(*paletteFile, palettePath) | kdl::value();
+  const auto palette = asset::loadPalette(*paletteFile, palettePath) | kdl::value();
 
   auto logger = NullLogger{};
 
@@ -81,7 +81,7 @@ TEST_CASE("readIdMipTexture")
   const auto file = wadFS.openFile(textureName + ".D") | kdl::value();
   auto reader = file->reader().buffer();
   const auto texture =
-    readIdMipTexture(reader, palette, assets::TextureMask::Off) | kdl::value();
+    readIdMipTexture(reader, palette, asset::TextureMask::Off) | kdl::value();
 
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
@@ -108,7 +108,7 @@ TEST_CASE("readHlMipTexture")
 
   const auto file = wadFS.openFile(textureName + ".C") | kdl::value();
   auto reader = file->reader().buffer();
-  const auto texture = readHlMipTexture(reader, assets::TextureMask::Off) | kdl::value();
+  const auto texture = readHlMipTexture(reader, asset::TextureMask::Off) | kdl::value();
 
   CHECK(logger.countMessages(LogLevel::Error) == 0);
   CHECK(logger.countMessages(LogLevel::Warn) == 0);

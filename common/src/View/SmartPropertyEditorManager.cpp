@@ -31,7 +31,7 @@
 #include "View/SmartFlagsEditor.h"
 #include "View/SmartPropertyEditor.h"
 #include "View/SmartWadEditor.h"
-#include "assets/PropertyDefinition.h"
+#include "asset/PropertyDefinition.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -46,7 +46,7 @@ namespace
  * is of the type passed to the constructor.
  */
 SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
-  const assets::PropertyDefinitionType type)
+  const asset::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
@@ -61,7 +61,7 @@ SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
  * is of the type passed to the constructor, and these property definitions are all equal.
  */
 SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
-  const assets::PropertyDefinitionType type)
+  const asset::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     const auto* propDef = Model::selectPropertyDefinition(propertyKey, nodes);
@@ -114,14 +114,14 @@ void SmartPropertyEditorManager::createEditors()
   assert(m_editors.empty());
 
   m_editors.emplace_back(
-    makeSmartTypeEditorMatcher(assets::PropertyDefinitionType::FlagsProperty),
+    makeSmartTypeEditorMatcher(asset::PropertyDefinitionType::FlagsProperty),
     new SmartFlagsEditor{m_document});
   m_editors.emplace_back(
     makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
     new SmartColorEditor{m_document});
   m_editors.emplace_back(
     makeSmartTypeWithSameDefinitionEditorMatcher(
-      assets::PropertyDefinitionType::ChoiceProperty),
+      asset::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
     [&](const auto& propertyKey, const auto& nodes) {

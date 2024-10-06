@@ -32,11 +32,11 @@ class QCheckBox;
 class QWidget;
 class QButtonGroup;
 
-namespace tb::assets
+namespace tb::asset
 {
 class EntityDefinition;
 class EntityDefinitionManager;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::Model
 {
@@ -53,7 +53,7 @@ class EntityDefinitionCheckBoxList : public QWidget
 {
   Q_OBJECT
 private:
-  assets::EntityDefinitionManager& m_entityDefinitionManager;
+  asset::EntityDefinitionManager& m_entityDefinitionManager;
   Model::EditorContext& m_editorContext;
 
   std::vector<QCheckBox*> m_groupCheckBoxes;
@@ -61,14 +61,14 @@ private:
 
 public:
   EntityDefinitionCheckBoxList(
-    assets::EntityDefinitionManager& entityDefinitionManager,
+    asset::EntityDefinitionManager& entityDefinitionManager,
     Model::EditorContext& editorContext,
     QWidget* parent = nullptr);
 
   void refresh();
 private slots:
   void groupCheckBoxChanged(size_t groupIndex, bool checked);
-  void defCheckBoxChanged(const assets::EntityDefinition* definition, bool checked);
+  void defCheckBoxChanged(const asset::EntityDefinition* definition, bool checked);
   void showAllClicked();
   void hideAllClicked();
 

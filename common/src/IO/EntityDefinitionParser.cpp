@@ -23,9 +23,9 @@
 #include "IO/ParserStatus.h"
 #include "Macros.h"
 #include "Model/EntityProperties.h"
-#include "assets/EntityDefinition.h"
-#include "assets/ModelDefinition.h"
-#include "assets/PropertyDefinition.h"
+#include "asset/EntityDefinition.h"
+#include "asset/ModelDefinition.h"
+#include "asset/PropertyDefinition.h"
 
 #include <unordered_map>
 #include <unordered_set>
@@ -41,27 +41,27 @@ EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
 
 EntityDefinitionParser::~EntityDefinitionParser() {}
 
-static std::shared_ptr<assets::PropertyDefinition> mergeAttributes(
-  const assets::PropertyDefinition& inheritingClassAttribute,
-  const assets::PropertyDefinition& superClassAttribute)
+static std::shared_ptr<asset::PropertyDefinition> mergeAttributes(
+  const asset::PropertyDefinition& inheritingClassAttribute,
+  const asset::PropertyDefinition& superClassAttribute)
 {
   assert(inheritingClassAttribute.key() == superClassAttribute.key());
 
   // for now, only merge spawnflags
   if (
-    superClassAttribute.type() == assets::PropertyDefinitionType::FlagsProperty
-    && inheritingClassAttribute.type() == assets::PropertyDefinitionType::FlagsProperty
+    superClassAttribute.type() == asset::PropertyDefinitionType::FlagsProperty
+    && inheritingClassAttribute.type() == asset::PropertyDefinitionType::FlagsProperty
     && superClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags
     && inheritingClassAttribute.key() == Model::EntityPropertyKeys::Spawnflags)
   {
 
     const auto& name = inheritingClassAttribute.key();
-    auto result = std::make_shared<assets::FlagsPropertyDefinition>(name);
+    auto result = std::make_shared<asset::FlagsPropertyDefinition>(name);
 
     const auto& baseclassFlags =
-      static_cast<const assets::FlagsPropertyDefinition&>(superClassAttribute);
+      static_cast<const asset::FlagsPropertyDefinition&>(superClassAttribute);
     const auto& classFlags =
-      static_cast<const assets::FlagsPropertyDefinition&>(inheritingClassAttribute);
+      static_cast<const asset::FlagsPropertyDefinition&>(inheritingClassAttribute);
 
     for (int i = 0; i < 24; ++i)
     {
@@ -409,7 +409,7 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
 
 namespace
 {
-std::unique_ptr<assets::EntityDefinition> createDefinition(
+std::unique_ptr<asset::EntityDefinition> createDefinition(
   EntityDefinitionClassInfo classInfo, const Color& defaultEntityColor)
 {
   auto name = std::move(classInfo.name);
@@ -418,14 +418,14 @@ std::unique_ptr<assets::EntityDefinition> createDefinition(
   auto description = std::move(classInfo.description).value_or("");
   auto propertyDefinitions = std::move(classInfo.propertyDefinitions);
   auto modelDefinition =
-    std::move(classInfo.modelDefinition).value_or(assets::ModelDefinition{});
+    std::move(classInfo.modelDefinition).value_or(asset::ModelDefinition{});
   auto decalDefinition =
-    std::move(classInfo.decalDefinition).value_or(assets::DecalDefinition{});
+    std::move(classInfo.decalDefinition).value_or(asset::DecalDefinition{});
 
   switch (classInfo.type)
   {
   case EntityDefinitionClassType::PointClass:
-    return std::make_unique<assets::PointEntityDefinition>(
+    return std::make_unique<asset::PointEntityDefinition>(
       std::move(name),
       color,
       size,
@@ -434,7 +434,7 @@ std::unique_ptr<assets::EntityDefinition> createDefinition(
       std::move(modelDefinition),
       std::move(decalDefinition));
   case EntityDefinitionClassType::BrushClass:
-    return std::make_unique<assets::BrushEntityDefinition>(
+    return std::make_unique<asset::BrushEntityDefinition>(
       std::move(name), color, std::move(description), std::move(propertyDefinitions));
   case EntityDefinitionClassType::BaseClass:
     return nullptr;
@@ -442,7 +442,7 @@ std::unique_ptr<assets::EntityDefinition> createDefinition(
   };
 }
 
-std::vector<std::unique_ptr<assets::EntityDefinition>> createDefinitions(
+std::vector<std::unique_ptr<asset::EntityDefinition>> createDefinitions(
   ParserStatus& status,
   const std::vector<EntityDefinitionClassInfo>& classInfos,
   const Color& defaultEntityColor)
@@ -450,7 +450,7 @@ std::vector<std::unique_ptr<assets::EntityDefinition>> createDefinitions(
   const auto resolvedClasses =
     resolveInheritance(status, filterRedundantClasses(status, classInfos));
 
-  auto result = std::vector<std::unique_ptr<assets::EntityDefinition>>{};
+  auto result = std::vector<std::unique_ptr<asset::EntityDefinition>>{};
   for (auto classInfo : resolvedClasses)
   {
     if (auto definition = createDefinition(std::move(classInfo), defaultEntityColor))
@@ -464,7 +464,7 @@ std::vector<std::unique_ptr<assets::EntityDefinition>> createDefinitions(
 
 } // namespace
 
-std::vector<std::unique_ptr<assets::EntityDefinition>> EntityDefinitionParser::
+std::vector<std::unique_ptr<asset::EntityDefinition>> EntityDefinitionParser::
   parseDefinitions(ParserStatus& status)
 {
   const auto classInfos = parseClassInfos(status);

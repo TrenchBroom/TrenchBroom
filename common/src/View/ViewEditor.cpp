@@ -39,9 +39,9 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewConstants.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionGroup.h"
-#include "assets/EntityDefinitionManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionGroup.h"
+#include "asset/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 
@@ -52,7 +52,7 @@ namespace tb::View
 // EntityDefinitionCheckBoxList
 
 EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(
-  assets::EntityDefinitionManager& entityDefinitionManager,
+  asset::EntityDefinitionManager& entityDefinitionManager,
   Model::EditorContext& editorContext,
   QWidget* parent)
   : QWidget{parent}
@@ -115,7 +115,7 @@ void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool 
 }
 
 void EntityDefinitionCheckBoxList::defCheckBoxChanged(
-  const assets::EntityDefinition* definition, bool checked)
+  const asset::EntityDefinition* definition, bool checked)
 {
   m_editorContext.setEntityDefinitionHidden(definition, !checked);
   refresh();

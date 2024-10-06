@@ -28,7 +28,7 @@
 #include <utility>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -36,7 +36,7 @@ class Material;
 namespace tb::Renderer
 {
 
-vm::vec3f gridColorForMaterial(const assets::Material* material);
+vm::vec3f gridColorForMaterial(const asset::Material* material);
 
 void glSetEdgeOffset(double f);
 void glResetEdgeOffset();
@@ -52,8 +52,8 @@ class MaterialRenderFunc
 {
 public:
   virtual ~MaterialRenderFunc();
-  virtual void before(const assets::Material* material);
-  virtual void after(const assets::Material* material);
+  virtual void before(const asset::Material* material);
+  virtual void after(const asset::Material* material);
 };
 
 class DefaultMaterialRenderFunc : public MaterialRenderFunc
@@ -65,8 +65,8 @@ private:
 public:
   DefaultMaterialRenderFunc(int minFilter, int magFilter);
 
-  void before(const assets::Material* material) override;
-  void after(const assets::Material* material) override;
+  void before(const asset::Material* material) override;
+  void after(const asset::Material* material) override;
 };
 
 std::vector<vm::vec2f> circle2D(float radius, size_t segments);

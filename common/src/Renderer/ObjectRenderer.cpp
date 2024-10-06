@@ -49,14 +49,14 @@ void ObjectRenderer::removeNode(Model::Node* node)
 }
 
 void ObjectRenderer::invalidateMaterials(
-  const std::vector<const assets::Material*>& materials)
+  const std::vector<const asset::Material*>& materials)
 {
   m_brushRenderer.invalidateMaterials(materials);
   m_patchRenderer.invalidate();
 }
 
 void ObjectRenderer::invalidateEntityModels(
-  const std::vector<const assets::EntityModel*>& entityModels)
+  const std::vector<const asset::EntityModel*>& entityModels)
 {
   m_entityRenderer.invalidateEntityModels(entityModels);
 }

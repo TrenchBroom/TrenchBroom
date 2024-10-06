@@ -45,9 +45,9 @@
 #include "Model/GameConfig.h"
 #include "Model/LayerNode.h"
 #include "Model/WorldNode.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionFileSpec.h"
-#include "assets/MaterialManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionFileSpec.h"
+#include "asset/MaterialManager.h"
 
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
@@ -68,7 +68,7 @@ GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& l
   initializeFileSystem(logger);
 }
 
-Result<std::vector<std::unique_ptr<assets::EntityDefinition>>> GameImpl::
+Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> GameImpl::
   loadEntityDefinitions(IO::ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = path.extension().string();
@@ -320,8 +320,8 @@ void GameImpl::writeBrushFacesToStream(
 }
 
 void GameImpl::loadMaterialCollections(
-  assets::MaterialManager& materialManager,
-  const assets::CreateTextureResource& createResource) const
+  asset::MaterialManager& materialManager,
+  const asset::CreateTextureResource& createResource) const
 {
   materialManager.reload(m_fs, m_config.materialConfig, createResource);
 }
@@ -348,29 +348,29 @@ bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const
   });
 }
 
-std::vector<assets::EntityDefinitionFileSpec> GameImpl::allEntityDefinitionFiles() const
+std::vector<asset::EntityDefinitionFileSpec> GameImpl::allEntityDefinitionFiles() const
 {
   return kdl::vec_transform(m_config.entityConfig.defFilePaths, [](const auto& path) {
-    return assets::EntityDefinitionFileSpec::builtin(path);
+    return asset::EntityDefinitionFileSpec::builtin(path);
   });
 }
 
-assets::EntityDefinitionFileSpec GameImpl::extractEntityDefinitionFile(
+asset::EntityDefinitionFileSpec GameImpl::extractEntityDefinitionFile(
   const Entity& entity) const
 {
   if (const auto* defValue = entity.property(EntityPropertyKeys::EntityDefinitions))
   {
-    return assets::EntityDefinitionFileSpec::parse(*defValue);
+    return asset::EntityDefinitionFileSpec::parse(*defValue);
   }
 
   return defaultEntityDefinitionFile();
 }
 
-assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
+asset::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
 {
   if (const auto paths = m_config.entityConfig.defFilePaths; !paths.empty())
   {
-    return assets::EntityDefinitionFileSpec::builtin(paths.front());
+    return asset::EntityDefinitionFileSpec::builtin(paths.front());
   }
 
   throw GameException{
@@ -378,7 +378,7 @@ assets::EntityDefinitionFileSpec GameImpl::defaultEntityDefinitionFile() const
 }
 
 std::filesystem::path GameImpl::findEntityDefinitionFile(
-  const assets::EntityDefinitionFileSpec& spec,
+  const asset::EntityDefinitionFileSpec& spec,
   const std::vector<std::filesystem::path>& searchPaths) const
 {
   if (!spec.valid())

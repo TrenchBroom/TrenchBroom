@@ -67,9 +67,9 @@
 #include "View/SelectionTool.h"
 #include "View/SignalDelayer.h"
 #include "View/Transaction.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionGroup.h"
-#include "assets/EntityDefinitionManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionGroup.h"
+#include "asset/EntityDefinitionManager.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -634,10 +634,10 @@ void MapViewBase::createPointEntity()
   auto document = kdl::mem_lock(m_document);
   const auto index = action->data().toUInt();
   const auto* definition =
-    findEntityDefinition(assets::EntityDefinitionType::PointEntity, index);
+    findEntityDefinition(asset::EntityDefinitionType::PointEntity, index);
   ensure(definition != nullptr, "definition is null");
-  assert(definition->type() == assets::EntityDefinitionType::PointEntity);
-  createPointEntity(static_cast<const assets::PointEntityDefinition*>(definition));
+  assert(definition->type() == asset::EntityDefinitionType::PointEntity);
+  createPointEntity(static_cast<const asset::PointEntityDefinition*>(definition));
 }
 
 void MapViewBase::createBrushEntity()
@@ -646,20 +646,20 @@ void MapViewBase::createBrushEntity()
   auto document = kdl::mem_lock(m_document);
   const auto index = action->data().toUInt();
   const auto* definition =
-    findEntityDefinition(assets::EntityDefinitionType::BrushEntity, index);
+    findEntityDefinition(asset::EntityDefinitionType::BrushEntity, index);
   ensure(definition != nullptr, "definition is null");
-  assert(definition->type() == assets::EntityDefinitionType::BrushEntity);
-  createBrushEntity(static_cast<const assets::BrushEntityDefinition*>(definition));
+  assert(definition->type() == asset::EntityDefinitionType::BrushEntity);
+  createBrushEntity(static_cast<const asset::BrushEntityDefinition*>(definition));
 }
 
-assets::EntityDefinition* MapViewBase::findEntityDefinition(
-  const assets::EntityDefinitionType type, const size_t index) const
+asset::EntityDefinition* MapViewBase::findEntityDefinition(
+  const asset::EntityDefinitionType type, const size_t index) const
 {
   size_t count = 0;
   for (const auto& group : kdl::mem_lock(m_document)->entityDefinitionManager().groups())
   {
     const auto definitions =
-      group.definitions(type, assets::EntityDefinitionSortOrder::Name);
+      group.definitions(type, asset::EntityDefinitionSortOrder::Name);
     if (index < count + definitions.size())
     {
       return definitions[index - count];
@@ -669,7 +669,7 @@ assets::EntityDefinition* MapViewBase::findEntityDefinition(
   return nullptr;
 }
 
-void MapViewBase::createPointEntity(const assets::PointEntityDefinition* definition)
+void MapViewBase::createPointEntity(const asset::PointEntityDefinition* definition)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -678,7 +678,7 @@ void MapViewBase::createPointEntity(const assets::PointEntityDefinition* definit
   document->createPointEntity(definition, delta);
 }
 
-void MapViewBase::createBrushEntity(const assets::BrushEntityDefinition* definition)
+void MapViewBase::createBrushEntity(const asset::BrushEntityDefinition* definition)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -771,8 +771,7 @@ void MapViewBase::makeStructural()
   }
 }
 
-void MapViewBase::toggleEntityDefinitionVisible(
-  const assets::EntityDefinition* definition)
+void MapViewBase::toggleEntityDefinitionVisible(const asset::EntityDefinition* definition)
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -781,16 +780,16 @@ void MapViewBase::toggleEntityDefinitionVisible(
     definition, !editorContext.entityDefinitionHidden(definition));
 }
 
-void MapViewBase::createEntity(const assets::EntityDefinition* definition)
+void MapViewBase::createEntity(const asset::EntityDefinition* definition)
 {
   auto document = kdl::mem_lock(m_document);
-  if (definition->type() == assets::EntityDefinitionType::PointEntity)
+  if (definition->type() == asset::EntityDefinitionType::PointEntity)
   {
-    createPointEntity(static_cast<const assets::PointEntityDefinition*>(definition));
+    createPointEntity(static_cast<const asset::PointEntityDefinition*>(definition));
   }
   else if (canCreateBrushEntity())
   {
-    createBrushEntity(static_cast<const assets::BrushEntityDefinition*>(definition));
+    createBrushEntity(static_cast<const asset::BrushEntityDefinition*>(definition));
   }
 }
 
@@ -1346,8 +1345,8 @@ void MapViewBase::showPopupMenuLater()
     menu.addSeparator();
   }
 
-  menu.addMenu(makeEntityGroupsMenu(assets::EntityDefinitionType::PointEntity));
-  menu.addMenu(makeEntityGroupsMenu(assets::EntityDefinitionType::BrushEntity));
+  menu.addMenu(makeEntityGroupsMenu(asset::EntityDefinitionType::PointEntity));
+  menu.addMenu(makeEntityGroupsMenu(asset::EntityDefinitionType::BrushEntity));
 
   menu.exec(QCursor::pos());
 
@@ -1407,16 +1406,16 @@ void MapViewBase::dropEvent(QDropEvent* dropEvent)
   dropEvent->acceptProposedAction();
 }
 
-QMenu* MapViewBase::makeEntityGroupsMenu(const assets::EntityDefinitionType type)
+QMenu* MapViewBase::makeEntityGroupsMenu(const asset::EntityDefinitionType type)
 {
   auto* menu = new QMenu{};
 
   switch (type)
   {
-  case assets::EntityDefinitionType::PointEntity:
+  case asset::EntityDefinitionType::PointEntity:
     menu->setTitle(tr("Create Point Entity"));
     break;
-  case assets::EntityDefinitionType::BrushEntity:
+  case asset::EntityDefinitionType::BrushEntity:
     menu->setTitle(tr("Create Brush Entity"));
     break;
   }
@@ -1428,7 +1427,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const assets::EntityDefinitionType type
   for (const auto& group : document->entityDefinitionManager().groups())
   {
     const auto definitions =
-      group.definitions(type, assets::EntityDefinitionSortOrder::Name);
+      group.definitions(type, asset::EntityDefinitionSortOrder::Name);
 
     const auto filteredDefinitions = kdl::vec_filter(definitions, [](auto* definition) {
       return !kdl::cs::str_is_equal(
@@ -1447,12 +1446,12 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const assets::EntityDefinitionType type
 
         switch (type)
         {
-        case assets::EntityDefinitionType::PointEntity: {
+        case asset::EntityDefinitionType::PointEntity: {
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createPointEntity));
           break;
         }
-        case assets::EntityDefinitionType::BrushEntity: {
+        case asset::EntityDefinitionType::BrushEntity: {
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createBrushEntity));
           action->setEnabled(enableMakeBrushEntity);

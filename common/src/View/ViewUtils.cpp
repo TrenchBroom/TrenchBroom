@@ -29,7 +29,7 @@
 #include "Model/GameFactory.h"
 #include "View/ChoosePathTypeDialog.h"
 #include "View/MapDocument.h"
-#include "assets/EntityDefinitionFileSpec.h"
+#include "asset/EntityDefinitionFileSpec.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"
@@ -90,7 +90,7 @@ size_t loadEntityDefinitionFile(
       {
         const auto path =
           convertToPathType(pathDialog.pathType(), absPath, docPath, gamePath);
-        const auto spec = assets::EntityDefinitionFileSpec::external(path);
+        const auto spec = asset::EntityDefinitionFileSpec::external(path);
         document->setEntityDefinitionFile(spec);
         return static_cast<size_t>(i);
       }

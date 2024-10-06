@@ -30,11 +30,11 @@ namespace tb
 class Logger;
 }
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 class Texture;
-} // namespace tb::assets
+} // namespace tb::asset
 
 namespace tb::IO
 {
@@ -50,7 +50,7 @@ static const auto DefaultTexturePath = std::filesystem::path{"textures/__TB_empt
  * @param name the name of the texture to be returned
  * @return the default texture
  */
-assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
+asset::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
 
 /**
  * Loads a default material from the given file system. If the default material cannot be
@@ -60,7 +60,7 @@ assets::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger);
  * @param name the name of the material to be returned
  * @return the default material
  */
-assets::Material loadDefaultMaterial(
+asset::Material loadDefaultMaterial(
   const FileSystem& fs, std::string name, Logger& logger);
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath);

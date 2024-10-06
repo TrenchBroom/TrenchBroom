@@ -32,8 +32,8 @@
 #include "View/MaterialBrowserView.h"
 #include "View/QtUtils.h"
 #include "View/ViewConstants.h"
-#include "assets/Material.h"
-#include "assets/MaterialManager.h"
+#include "asset/Material.h"
+#include "asset/MaterialManager.h"
 
 #include "kdl/memory_utils.h"
 
@@ -54,17 +54,17 @@ MaterialBrowser::MaterialBrowser(
   reload();
 }
 
-const assets::Material* MaterialBrowser::selectedMaterial() const
+const asset::Material* MaterialBrowser::selectedMaterial() const
 {
   return m_view->selectedMaterial();
 }
 
-void MaterialBrowser::setSelectedMaterial(const assets::Material* selectedMaterial)
+void MaterialBrowser::setSelectedMaterial(const asset::Material* selectedMaterial)
 {
   m_view->setSelectedMaterial(selectedMaterial);
 }
 
-void MaterialBrowser::revealMaterial(const assets::Material* material)
+void MaterialBrowser::revealMaterial(const asset::Material* material)
 {
   setFilterText("");
   m_view->revealMaterial(material);

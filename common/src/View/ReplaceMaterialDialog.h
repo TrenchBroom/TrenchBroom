@@ -26,7 +26,7 @@
 
 class QPushButton;
 
-namespace tb::assets
+namespace tb::asset
 {
 class Material;
 }
@@ -64,8 +64,8 @@ private:
   std::vector<Model::BrushFaceHandle> getApplicableFaces() const;
   void createGui(GLContextManager& contextManager);
 private slots:
-  void subjectSelected(const assets::Material* subject);
-  void replacementSelected(const assets::Material* replacement);
+  void subjectSelected(const asset::Material* subject);
+  void replacementSelected(const asset::Material* replacement);
   void updateReplaceButton();
 };
 

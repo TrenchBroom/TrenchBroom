@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::assets
+namespace tb::asset
 {
 enum class PitchType;
 }

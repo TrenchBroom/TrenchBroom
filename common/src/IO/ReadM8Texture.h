@@ -21,7 +21,7 @@
 
 #include "Result.h"
 
-namespace tb::assets
+namespace tb::asset
 {
 class Texture;
 }
@@ -33,6 +33,6 @@ class Reader;
 /**
  * Heretic 2 .m8 format
  */
-Result<assets::Texture> readM8Texture(Reader& reader);
+Result<asset::Texture> readM8Texture(Reader& reader);
 
 } // namespace tb::IO

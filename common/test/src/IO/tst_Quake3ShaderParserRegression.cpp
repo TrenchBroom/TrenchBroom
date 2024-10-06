@@ -21,7 +21,7 @@
 #include "IO/Quake3ShaderParser.h"
 #include "IO/Reader.h"
 #include "IO/TestParserStatus.h"
-#include "assets/Quake3Shader.h"
+#include "asset/Quake3Shader.h"
 
 #include <filesystem>
 #include <string>
@@ -88,11 +88,11 @@ TEST_CASE("Quake3ShaderParserTest.parseShaderAbsolutePath")
 
   CHECK_THAT(
     parser.parse(status),
-    Catch::UnorderedEquals(std::vector<assets::Quake3Shader>{{
+    Catch::UnorderedEquals(std::vector<asset::Quake3Shader>{{
       "textures/eerie/ironcrosslt2_10000",      // shaderPath
       "textures/gothic_light/ironcrosslt2.tga", // editorImage
       "",                                       // lightImage
-      assets::Quake3Shader::Culling::Front,     // culling
+      asset::Quake3Shader::Culling::Front,      // culling
       {},                                       // surfaceParms
       {}                                        // stages
     }}));

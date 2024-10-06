@@ -39,7 +39,7 @@
 #include "View/CommandProcessor.h"
 #include "View/Selection.h"
 #include "View/UndoableCommand.h"
-#include "assets/EntityDefinitionFileSpec.h"
+#include "asset/EntityDefinitionFileSpec.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"

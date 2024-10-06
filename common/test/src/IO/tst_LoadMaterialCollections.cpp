@@ -24,9 +24,9 @@
 #include "Logger.h"
 #include "Model/GameConfig.h"
 #include "TestUtils.h"
-#include "assets/MaterialCollection.h"
-#include "assets/Resource.h"
-#include "assets/Texture.h"
+#include "asset/MaterialCollection.h"
+#include "asset/Resource.h"
+#include "asset/Texture.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
@@ -60,7 +60,7 @@ struct MaterialCollectionInfo
 };
 
 MaterialCollectionInfo makeMaterialCollectionInfo(
-  const assets::MaterialCollection& materialCollection)
+  const asset::MaterialCollection& materialCollection)
 {
   return MaterialCollectionInfo{
     materialCollection.path(),
@@ -80,7 +80,7 @@ MaterialCollectionInfo makeMaterialCollectionInfo(
 }
 
 class MaterialCollectionsMatcher
-  : public Catch::MatcherBase<Result<std::vector<assets::MaterialCollection>>>
+  : public Catch::MatcherBase<Result<std::vector<asset::MaterialCollection>>>
 {
 private:
   std::vector<MaterialCollectionInfo> m_expected;
@@ -91,7 +91,7 @@ public:
   {
   }
 
-  bool match(const Result<std::vector<assets::MaterialCollection>>& result) const override
+  bool match(const Result<std::vector<asset::MaterialCollection>>& result) const override
   {
     return result | kdl::transform([&](const auto& materialCollections) {
              return std::ranges::equal(
@@ -114,9 +114,9 @@ auto MatchesMaterialCollections(std::vector<MaterialCollectionInfo> expected)
   return MaterialCollectionsMatcher{std::move(expected)};
 }
 
-auto createResource(assets::ResourceLoader<assets::Texture> resourceLoader)
+auto createResource(asset::ResourceLoader<asset::Texture> resourceLoader)
 {
-  auto resource = std::make_shared<assets::TextureResource>(std::move(resourceLoader));
+  auto resource = std::make_shared<asset::TextureResource>(std::move(resourceLoader));
   resource->loadSync();
   return resource;
 }

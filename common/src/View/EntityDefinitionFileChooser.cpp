@@ -33,7 +33,7 @@
 #include "View/QtUtils.h"
 #include "View/TitledPanel.h"
 #include "View/ViewUtils.h"
-#include "assets/EntityDefinitionFileSpec.h"
+#include "asset/EntityDefinitionFileSpec.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_utils.h"
@@ -237,7 +237,7 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
   {
 
     auto* item = m_builtin->selectedItems().first();
-    auto spec = item->data(Qt::UserRole).value<assets::EntityDefinitionFileSpec>();
+    auto spec = item->data(Qt::UserRole).value<asset::EntityDefinitionFileSpec>();
 
     auto document = kdl::mem_lock(m_document);
     if (document->entityDefinitionFile() != spec)

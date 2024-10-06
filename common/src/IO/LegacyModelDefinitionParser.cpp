@@ -20,7 +20,7 @@
 #include "LegacyModelDefinitionParser.h"
 
 #include "IO/ParserStatus.h"
-#include "assets/ModelDefinition.h"
+#include "asset/ModelDefinition.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 
@@ -151,7 +151,7 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
   const auto startLocation = token.location();
 
   auto map = el::MapType{};
-  map[assets::ModelSpecificationKeys::Path] = el::Value(token.data());
+  map[asset::ModelSpecificationKeys::Path] = el::Value(token.data());
 
   auto indices = std::vector<size_t>{};
 
@@ -180,10 +180,10 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
 
   if (!indices.empty())
   {
-    map[assets::ModelSpecificationKeys::Skin] = el::Value(indices[0]);
+    map[asset::ModelSpecificationKeys::Skin] = el::Value(indices[0]);
     if (indices.size() > 1)
     {
-      map[assets::ModelSpecificationKeys::Frame] = el::Value(indices[1]);
+      map[asset::ModelSpecificationKeys::Frame] = el::Value(indices[1]);
     }
   }
 
@@ -247,7 +247,7 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
   const auto location = token.location();
 
   auto map = std::map<std::string, el::ExpressionNode>{
-    {assets::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
+    {asset::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
   };
 
   expect(
@@ -260,12 +260,12 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
       if (kdl::ci::str_is_equal("skinKey", token.data()))
       {
         map.emplace(
-          assets::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey"));
+          asset::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey"));
       }
       else if (kdl::ci::str_is_equal("frameKey", token.data()))
       {
         map.emplace(
-          assets::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey"));
+          asset::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey"));
       }
       else
       {

@@ -33,9 +33,9 @@
 #include "Model/GameConfig.h"
 #include "Model/WorldNode.h"
 #include "TestUtils.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityDefinitionFileSpec.h"
-#include "assets/MaterialManager.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityDefinitionFileSpec.h"
+#include "asset/MaterialManager.h"
 
 #include "kdl/result.h"
 
@@ -156,8 +156,8 @@ void TestGame::writeBrushFacesToStream(
 }
 
 void TestGame::loadMaterialCollections(
-  assets::MaterialManager& materialManager,
-  const assets::CreateTextureResource& createResource) const
+  asset::MaterialManager& materialManager,
+  const asset::CreateTextureResource& createResource) const
 {
   const auto materialConfig = Model::MaterialConfig{
     "textures",
@@ -191,19 +191,19 @@ bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) c
   return false;
 }
 
-std::vector<assets::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
+std::vector<asset::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
 {
   return {};
 }
 
-assets::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
+asset::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
   const Entity& /* entity */) const
 {
   return {};
 }
 
 std::filesystem::path TestGame::findEntityDefinitionFile(
-  const assets::EntityDefinitionFileSpec& /* spec */,
+  const asset::EntityDefinitionFileSpec& /* spec */,
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return {};
@@ -224,11 +224,11 @@ std::string TestGame::defaultMod() const
   return "";
 }
 
-Result<std::vector<std::unique_ptr<assets::EntityDefinition>>> TestGame::
+Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> TestGame::
   loadEntityDefinitions(
     IO::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return std::vector<std::unique_ptr<assets::EntityDefinition>>{};
+  return std::vector<std::unique_ptr<asset::EntityDefinition>>{};
 }
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)

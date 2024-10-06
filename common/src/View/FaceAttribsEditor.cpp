@@ -43,8 +43,8 @@
 #include "View/UVEditor.h"
 #include "View/ViewConstants.h"
 #include "View/ViewUtils.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_format.h"

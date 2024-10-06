@@ -22,8 +22,8 @@
 #include "Macros.h"
 #include "Model/Entity.h"
 #include "Model/EntityNode.h"
-#include "assets/EntityDefinition.h"
-#include "assets/EntityModel.h"
+#include "asset/EntityDefinition.h"
+#include "asset/EntityModel.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/string_compare.h"
@@ -121,9 +121,9 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
 
   const auto* model = entity.model();
   const auto* modelData = model ? model->data() : nullptr;
-  const auto pitchType = modelData ? modelData->pitchType() : assets::PitchType::Normal;
+  const auto pitchType = modelData ? modelData->pitchType() : asset::PitchType::Normal;
   const EntityRotationType eulerType =
-    (pitchType == assets::PitchType::MdlInverted
+    (pitchType == asset::PitchType::MdlInverted
        ? EntityRotationType::Euler
        : EntityRotationType::Euler_PositivePitchDown);
 

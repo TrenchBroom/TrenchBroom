@@ -20,7 +20,7 @@
 #include "IO/DiskFileSystem.h"
 #include "IO/ResourceUtils.h"
 #include "Logger.h"
-#include "assets/Material.h"
+#include "asset/Material.h"
 
 #include <filesystem>
 #include <memory>

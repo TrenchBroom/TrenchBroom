@@ -24,8 +24,8 @@
 #include "Model/Polyhedron.h"
 #include "Renderer/OrthographicCamera.h"
 #include "View/UVView.h"
-#include "assets/Material.h"
-#include "assets/Texture.h"
+#include "asset/Material.h"
+#include "asset/Texture.h"
 
 #include "vm/intersection.h"
 #include "vm/mat.h"
@@ -50,7 +50,7 @@ const Model::BrushFace* UVViewHelper::face() const
   return valid() ? &m_faceHandle->face() : nullptr;
 }
 
-const assets::Material* UVViewHelper::material() const
+const asset::Material* UVViewHelper::material() const
 {
   return valid() ? face()->material() : nullptr;
 }
