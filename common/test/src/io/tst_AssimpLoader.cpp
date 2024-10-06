@@ -18,10 +18,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "Logger.h"
 #include "io/AssimpLoader.h"
 #include "io/DiskFileSystem.h"
-#include "Logger.h"
-#include "asset/EntityModel.h"
+#include "mdl/EntityModel.h"
 
 #include "Catch2.h"
 

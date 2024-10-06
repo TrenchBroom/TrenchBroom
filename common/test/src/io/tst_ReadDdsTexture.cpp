@@ -18,11 +18,11 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "io/DiskFileSystem.h"
 #include "io/ReadDdsTexture.h"
-#include "TestUtils.h"
-#include "asset/Palette.h"
-#include "asset/Texture.h"
+#include "mdl/Palette.h"
+#include "mdl/Texture.h"
 
 #include "kdl/result.h"
 
@@ -36,7 +36,7 @@ namespace tb::io
 namespace
 {
 
-asset::Texture loadTexture(const std::string& name)
+mdl::Texture loadTexture(const std::string& name)
 {
   const auto ddsPath = std::filesystem::current_path() / "fixture/test/io/Dds/";
   auto diskFS = DiskFileSystem{ddsPath};
@@ -54,7 +54,7 @@ void assertTexture(
   CHECK(texture.width() == width);
   CHECK(texture.height() == height);
   CHECK(texture.format() == format);
-  CHECK(texture.mask() == asset::TextureMask::Off);
+  CHECK(texture.mask() == mdl::TextureMask::Off);
 }
 
 } // namespace

@@ -22,10 +22,10 @@
 #include "Ensure.h"
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/EntityDefinition.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
@@ -68,14 +68,13 @@ bool EditorContext::entityDefinitionHidden(const mdl::EntityNodeBase* entityNode
   return entityNode && entityDefinitionHidden(entityNode->entity().definition());
 }
 
-bool EditorContext::entityDefinitionHidden(
-  const asset::EntityDefinition* definition) const
+bool EditorContext::entityDefinitionHidden(const EntityDefinition* definition) const
 {
   return definition && m_hiddenEntityDefinitions[definition->index()];
 }
 
 void EditorContext::setEntityDefinitionHidden(
-  const asset::EntityDefinition* definition, const bool hidden)
+  const EntityDefinition* definition, const bool hidden)
 {
   if (definition && entityDefinitionHidden(definition) != hidden)
   {

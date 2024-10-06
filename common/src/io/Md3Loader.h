@@ -20,13 +20,13 @@
 #pragma once
 
 #include "io/EntityModelLoader.h"
-#include "asset/EntityModel_Forward.h"
+#include "mdl/EntityModel_Forward.h"
 
 #include <filesystem>
 #include <functional>
 #include <string>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 }
@@ -36,7 +36,7 @@ namespace tb::io
 class FileSystem;
 class Reader;
 
-using LoadMaterialFunc = std::function<asset::Material(const std::filesystem::path&)>;
+using LoadMaterialFunc = std::function<mdl::Material(const std::filesystem::path&)>;
 
 class Md3Loader : public EntityModelLoader
 {
@@ -50,7 +50,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<asset::EntityModelData> load(Logger& logger) override;
+  Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::io

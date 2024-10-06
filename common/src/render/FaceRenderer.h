@@ -25,7 +25,7 @@
 #include <memory>
 #include <unordered_map>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 }
@@ -40,7 +40,7 @@ class FaceRenderer : public IndexedRenderable
 {
 private:
   using MaterialToBrushIndicesMap =
-    const std::unordered_map<const asset::Material*, std::shared_ptr<BrushIndexArray>>;
+    const std::unordered_map<const mdl::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<BrushVertexArray> m_vertexArray;
   std::shared_ptr<MaterialToBrushIndicesMap> m_indexArrayMap;

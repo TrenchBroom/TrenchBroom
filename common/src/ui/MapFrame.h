@@ -50,16 +50,12 @@ namespace tb
 class Logger;
 }
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
 class Game;
 class GroupNode;
 class LayerNode;
+class Material;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -392,7 +388,7 @@ public:
   bool canRevealMaterial() const;
   void revealMaterial();
 
-  void revealMaterial(const asset::Material* material);
+  void revealMaterial(const mdl::Material* material);
 
   void debugPrintVertices();
   void debugCreateBrush();

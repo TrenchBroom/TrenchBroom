@@ -20,17 +20,17 @@
 #include "Exceptions.h"
 #include "MapDocumentTest.h"
 #include "TestUtils.h"
-#include "asset/EntityDefinition.h"
-#include "asset/PropertyDefinition.h"
 #include "io/WorldReader.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
+#include "mdl/PropertyDefinition.h"
 #include "mdl/TestGame.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocumentCommandFacade.h"
@@ -65,14 +65,14 @@ void MapDocumentTest::SetUp()
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   // create two entity definitions
-  m_pointEntityDef = new asset::PointEntityDefinition{
+  m_pointEntityDef = new mdl::PointEntityDefinition{
     "point_entity", Color{}, vm::bbox3d{16.0}, "this is a point entity", {}, {}, {}};
-  m_brushEntityDef = new asset::BrushEntityDefinition{
-    "brush_entity", Color{}, "this is a brush entity", {}};
+  m_brushEntityDef =
+    new mdl::BrushEntityDefinition{"brush_entity", Color{}, "this is a brush entity", {}};
 
   document->setEntityDefinitions(kdl::vec_from(
-    std::unique_ptr<asset::EntityDefinition>{m_pointEntityDef},
-    std::unique_ptr<asset::EntityDefinition>{m_brushEntityDef}));
+    std::unique_ptr<mdl::EntityDefinition>{m_pointEntityDef},
+    std::unique_ptr<mdl::EntityDefinition>{m_brushEntityDef}));
 }
 
 MapDocumentTest::~MapDocumentTest()
@@ -499,21 +499,20 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
     document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-    auto definitionWithDefaultsOwner = std::make_unique<asset::PointEntityDefinition>(
+    auto definitionWithDefaultsOwner = std::make_unique<mdl::PointEntityDefinition>(
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
-      std::vector<std::shared_ptr<asset::PropertyDefinition>>{
-        std::make_shared<asset::StringPropertyDefinition>(
+      std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
+        std::make_shared<mdl::StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
       },
-      asset::ModelDefinition{},
-      asset::DecalDefinition{});
+      mdl::ModelDefinition{},
+      mdl::DecalDefinition{});
     auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
-    document->setEntityDefinitions(
-      kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
-        std::move(definitionWithDefaultsOwner)));
+    document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
+      std::move(definitionWithDefaultsOwner)));
 
     auto* entityNode = document->createPointEntity(definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNode != nullptr);
@@ -575,19 +574,18 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
     document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-    auto definitionWithDefaultsOwner = std::make_unique<asset::BrushEntityDefinition>(
+    auto definitionWithDefaultsOwner = std::make_unique<mdl::BrushEntityDefinition>(
       "some_name",
       Color{},
       "",
-      std::vector<std::shared_ptr<asset::PropertyDefinition>>{
-        std::make_shared<asset::StringPropertyDefinition>(
+      std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
+        std::make_shared<mdl::StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
       });
     auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
 
-    document->setEntityDefinitions(
-      kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
-        std::move(definitionWithDefaultsOwner)));
+    document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
+      std::move(definitionWithDefaultsOwner)));
 
     auto* brushNode = createBrushNode("some_material");
     document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -610,24 +608,24 @@ TEST_CASE_METHOD(MapDocumentTest, "resetDefaultProperties")
   document->deleteObjects();
 
   // Note: The test document does not automatically set the default properties
-  auto definitionWithDefaultsOwner = std::make_unique<asset::PointEntityDefinition>(
+  auto definitionWithDefaultsOwner = std::make_unique<mdl::PointEntityDefinition>(
     "some_name",
     Color{},
     vm::bbox3d{32.0},
     "",
-    std::vector<std::shared_ptr<asset::PropertyDefinition>>{
-      std::make_shared<asset::StringPropertyDefinition>(
+    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
+      std::make_shared<mdl::StringPropertyDefinition>(
         "some_prop", "", "", !true(readOnly)),
-      std::make_shared<asset::StringPropertyDefinition>(
+      std::make_shared<mdl::StringPropertyDefinition>(
         "default_prop_a", "", "", !true(readOnly), "default_value_a"),
-      std::make_shared<asset::StringPropertyDefinition>(
+      std::make_shared<mdl::StringPropertyDefinition>(
         "default_prop_b", "", "", !true(readOnly), "default_value_b"),
     },
-    asset::ModelDefinition{},
-    asset::DecalDefinition{});
+    mdl::ModelDefinition{},
+    mdl::DecalDefinition{});
   auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
 
-  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
+  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
     std::move(definitionWithDefaultsOwner)));
 
   auto* entityNodeWithoutDefinition = new mdl::EntityNode{mdl::Entity{{

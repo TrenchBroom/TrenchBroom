@@ -43,7 +43,6 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "asset/Resource.h"
 #include "io/ExportOptions.h"
 #include "io/PathQt.h"
 #include "mdl/BrushFace.h"
@@ -60,6 +59,7 @@
 #include "mdl/ModelUtils.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Resource.h"
 #include "mdl/WorldNode.h"
 #include "ui/ActionBuilder.h"
 #include "ui/Actions.h"
@@ -2093,7 +2093,7 @@ void MapFrame::showLaunchEngineDialog()
 namespace
 {
 
-const asset::Material* materialToReveal(std::shared_ptr<MapDocument> document)
+const mdl::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 {
   const auto* firstMaterial = document->allSelectedBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalMaterial = kdl::all_of(
@@ -2118,7 +2118,7 @@ void MapFrame::revealMaterial()
   }
 }
 
-void MapFrame::revealMaterial(const asset::Material* material)
+void MapFrame::revealMaterial(const mdl::Material* material)
 {
   m_inspector->switchToPage(InspectorPage::Face);
   m_inspector->faceInspector()->revealMaterial(material);
@@ -2435,7 +2435,7 @@ void MapFrame::triggerAutosave()
 void MapFrame::triggerProcessResources()
 {
   auto document = kdl::mem_lock(m_document);
-  document->processResourcesAsync(asset::ProcessContext{true});
+  document->processResourcesAsync(mdl::ProcessContext{true});
 }
 
 // DebugPaletteWindow

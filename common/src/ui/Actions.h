@@ -35,15 +35,11 @@
 #include <variant>
 #include <vector>
 
-namespace tb::asset
-{
-class EntityDefinition;
-}
-
 namespace tb::mdl
 {
+class EntityDefinition;
 class SmartTag;
-}
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -236,7 +232,7 @@ public:
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
   std::vector<Action> createEntityDefinitionActions(
-    const std::vector<asset::EntityDefinition*>& entityDefinitions) const;
+    const std::vector<mdl::EntityDefinition*>& entityDefinitions) const;
 
   template <typename MenuVisitor>
   void visitMainMenu(const MenuVisitor& visitor) const

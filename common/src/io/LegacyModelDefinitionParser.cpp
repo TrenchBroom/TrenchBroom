@@ -19,10 +19,10 @@
 
 #include "LegacyModelDefinitionParser.h"
 
-#include "io/ParserStatus.h"
-#include "asset/ModelDefinition.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserStatus.h"
+#include "mdl/ModelDefinition.h"
 
 #include "kdl/string_compare.h"
 
@@ -151,7 +151,7 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
   const auto startLocation = token.location();
 
   auto map = el::MapType{};
-  map[asset::ModelSpecificationKeys::Path] = el::Value(token.data());
+  map[mdl::ModelSpecificationKeys::Path] = el::Value(token.data());
 
   auto indices = std::vector<size_t>{};
 
@@ -180,10 +180,10 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
 
   if (!indices.empty())
   {
-    map[asset::ModelSpecificationKeys::Skin] = el::Value(indices[0]);
+    map[mdl::ModelSpecificationKeys::Skin] = el::Value(indices[0]);
     if (indices.size() > 1)
     {
-      map[asset::ModelSpecificationKeys::Frame] = el::Value(indices[1]);
+      map[mdl::ModelSpecificationKeys::Frame] = el::Value(indices[1]);
     }
   }
 
@@ -247,7 +247,7 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
   const auto location = token.location();
 
   auto map = std::map<std::string, el::ExpressionNode>{
-    {asset::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
+    {mdl::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
   };
 
   expect(
@@ -260,12 +260,12 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
       if (kdl::ci::str_is_equal("skinKey", token.data()))
       {
         map.emplace(
-          asset::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey"));
+          mdl::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey"));
       }
       else if (kdl::ci::str_is_equal("frameKey", token.data()))
       {
         map.emplace(
-          asset::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey"));
+          mdl::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey"));
       }
       else
       {

@@ -26,14 +26,14 @@
 #include <QtGlobal>
 
 #include "Color.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"

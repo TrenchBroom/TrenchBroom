@@ -21,13 +21,13 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/AssetUtils.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionGroup.h"
-#include "asset/EntityDefinitionManager.h"
-#include "asset/EntityModel.h"
-#include "asset/EntityModelManager.h"
 #include "el/VariableStore.h"
+#include "mdl/AssetUtils.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionGroup.h"
+#include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityModel.h"
+#include "mdl/EntityModelManager.h"
 #include "render/ActiveShader.h"
 #include "render/FontDescriptor.h"
 #include "render/FontManager.h"
@@ -63,7 +63,7 @@ EntityBrowserView::EntityBrowserView(
   std::weak_ptr<MapDocument> i_document)
   : CellView{contextManager, scrollBar}
   , m_document{std::move(i_document)}
-  , m_sortOrder{asset::EntityDefinitionSortOrder::Name}
+  , m_sortOrder{mdl::EntityDefinitionSortOrder::Name}
 {
   const auto hRotation = vm::quatf{vm::vec3f{0, 0, 1}, vm::to_radians(-30.0f)};
   const auto vRotation = vm::quatf{vm::vec3f{0, 1, 0}, vm::to_radians(20.0f)};
@@ -86,7 +86,7 @@ void EntityBrowserView::setDefaultModelScaleExpression(
   m_defaultScaleModelExpression = std::move(defaultScaleExpression);
 }
 
-void EntityBrowserView::setSortOrder(const asset::EntityDefinitionSortOrder sortOrder)
+void EntityBrowserView::setSortOrder(const mdl::EntityDefinitionSortOrder sortOrder)
 {
   if (sortOrder != m_sortOrder)
   {
@@ -152,7 +152,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
     for (const auto& group : entityDefinitionManager.groups())
     {
       const auto& definitions =
-        group.definitions(asset::EntityDefinitionType::PointEntity, m_sortOrder);
+        group.definitions(mdl::EntityDefinitionType::PointEntity, m_sortOrder);
 
       if (!definitions.empty())
       {
@@ -166,7 +166,7 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   else
   {
     const auto& definitions = entityDefinitionManager.definitions(
-      asset::EntityDefinitionType::PointEntity, m_sortOrder);
+      mdl::EntityDefinitionType::PointEntity, m_sortOrder);
     addEntitiesToLayout(layout, definitions, font);
   }
 }
@@ -183,7 +183,7 @@ QString EntityBrowserView::dndData(const Cell& cell)
   return prefix + name;
 }
 
-void EntityBrowserView::resourcesWereProcessed(const std::vector<asset::ResourceId>&)
+void EntityBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
 {
   invalidate();
   update();
@@ -191,13 +191,13 @@ void EntityBrowserView::resourcesWereProcessed(const std::vector<asset::Resource
 
 void EntityBrowserView::addEntitiesToLayout(
   Layout& layout,
-  const std::vector<asset::EntityDefinition*>& definitions,
+  const std::vector<mdl::EntityDefinition*>& definitions,
   const render::FontDescriptor& font)
 {
   for (const auto* definition : definitions)
   {
     const auto* pointEntityDefinition =
-      static_cast<const asset::PointEntityDefinition*>(definition);
+      static_cast<const mdl::PointEntityDefinition*>(definition);
     addEntityToLayout(layout, pointEntityDefinition, font);
   }
 }
@@ -205,7 +205,7 @@ void EntityBrowserView::addEntitiesToLayout(
 namespace
 {
 bool matchesFilterText(
-  const asset::PointEntityDefinition& definition, const std::string& filterText)
+  const mdl::PointEntityDefinition& definition, const std::string& filterText)
 {
   return filterText.empty()
          || kdl::all_of(kdl::str_split(filterText, " "), [&](const auto& pattern) {
@@ -216,7 +216,7 @@ bool matchesFilterText(
 
 void EntityBrowserView::addEntityToLayout(
   Layout& layout,
-  const asset::PointEntityDefinition* definition,
+  const mdl::PointEntityDefinition* definition,
   const render::FontDescriptor& font)
 {
   if (
@@ -231,18 +231,18 @@ void EntityBrowserView::addEntityToLayout(
       fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
     const auto actualSize = fontManager().font(actualFont).measure(definition->name());
     const auto spec =
-      asset::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
+      mdl::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
         return definition->modelDefinition().defaultModelSpecification();
       });
 
-    const auto modelScale = vm::vec3f{asset::safeGetModelScale(
+    const auto modelScale = vm::vec3f{mdl::safeGetModelScale(
       definition->modelDefinition(),
       el::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
     auto* modelRenderer = static_cast<render::MaterialRenderer*>(nullptr);
     auto rotatedBounds = vm::bbox3f{};
-    auto modelOrientation = asset::Orientation::Oriented;
+    auto modelOrientation = mdl::Orientation::Oriented;
 
     const auto* model = entityModelManager.model(spec.path);
     const auto* modelData = model ? model->data() : nullptr;

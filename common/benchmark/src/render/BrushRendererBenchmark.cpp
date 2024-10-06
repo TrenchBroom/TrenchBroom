@@ -19,12 +19,12 @@
 
 #include "../../test/src/Catch2.h"
 #include "BenchmarkUtils.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/MapFormat.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "render/BrushRenderer.h"
 
@@ -50,11 +50,11 @@ constexpr size_t NumMaterials = 256;
 auto makeBrushes()
 {
   // make materials
-  auto materials = std::vector<asset::Material>{};
+  auto materials = std::vector<mdl::Material>{};
   for (size_t i = 0; i < NumMaterials; ++i)
   {
     auto materialName = "material " + std::to_string(i);
-    auto textureResource = createTextureResource(asset::Texture{64, 64});
+    auto textureResource = createTextureResource(mdl::Texture{64, 64});
     materials.emplace_back(std::move(materialName), std::move(textureResource));
   }
 

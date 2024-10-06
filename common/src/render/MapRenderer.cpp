@@ -21,18 +21,18 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/EntityModelManager.h"
-#include "asset/MaterialManager.h"
-#include "asset/Resource.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/MaterialManager.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Resource.h"
 #include "mdl/WorldNode.h"
 #include "render/BrushRenderer.h"
 #include "render/EntityDecalRenderer.h"
@@ -799,8 +799,7 @@ void MapRenderer::selectionDidChange(const ui::Selection& selection)
   invalidateGroupLinkRenderer();
 }
 
-void MapRenderer::resourcesWereProcessed(
-  const std::vector<asset::ResourceId>& resourceIds)
+void MapRenderer::resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds)
 {
   const auto document = kdl::mem_lock(m_document);
   const auto& materialManager = document->materialManager();

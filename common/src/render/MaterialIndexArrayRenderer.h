@@ -23,7 +23,7 @@
 #include "render/MaterialIndexArrayMap.h"
 #include "render/VertexArray.h"
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 }

@@ -33,16 +33,12 @@ class Color;
 class Logger;
 } // namespace tb
 
-namespace tb::asset
-{
-class EntityModel;
-class EntityModelManager;
-} // namespace tb::asset
-
 namespace tb::mdl
 {
 class BrushNode;
 class EditorContext;
+class EntityModel;
+class EntityModelManager;
 class EntityNode;
 class GroupNode;
 class Node;
@@ -66,7 +62,7 @@ public:
   template <typename BrushFilterT>
   ObjectRenderer(
     Logger& logger,
-    asset::EntityModelManager& entityModelManager,
+    mdl::EntityModelManager& entityModelManager,
     const mdl::EditorContext& editorContext,
     const BrushFilterT& brushFilter)
     : m_groupRenderer{editorContext}
@@ -79,8 +75,8 @@ public:
 public: // object management
   void addNode(mdl::Node* node);
   void removeNode(mdl::Node* node);
-  void invalidateMaterials(const std::vector<const asset::Material*>& materials);
-  void invalidateEntityModels(const std::vector<const asset::EntityModel*>& entityModels);
+  void invalidateMaterials(const std::vector<const mdl::Material*>& materials);
+  void invalidateEntityModels(const std::vector<const mdl::EntityModel*>& entityModels);
   void invalidateNode(mdl::Node* node);
   void invalidate();
   void clear();

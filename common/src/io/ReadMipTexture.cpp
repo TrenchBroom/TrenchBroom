@@ -23,9 +23,9 @@
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
-#include "asset/Palette.h"
-#include "asset/Texture.h"
-#include "asset/TextureBuffer.h"
+#include "mdl/Palette.h"
+#include "mdl/Texture.h"
+#include "mdl/TextureBuffer.h"
 
 #include "kdl/result.h"
 
@@ -41,9 +41,9 @@ static constexpr size_t TextureNameLength = 16;
 namespace
 {
 
-using GetMipPalette = std::function<Result<asset::Palette>(Reader& reader)>;
+using GetMipPalette = std::function<Result<mdl::Palette>(Reader& reader)>;
 
-Result<asset::Palette> readHlMipPalette(Reader& reader)
+Result<mdl::Palette> readHlMipPalette(Reader& reader)
 {
   reader.seekFromBegin(0);
   reader.seekFromBegin(MipLayout::TextureNameLength);
@@ -59,16 +59,16 @@ Result<asset::Palette> readHlMipPalette(Reader& reader)
   // palette data starts right after the color count
   auto data = std::vector<unsigned char>(colorCount * 3);
   reader.read(data.data(), data.size());
-  return asset::makePalette(data, asset::PaletteColorFormat::Rgb);
+  return mdl::makePalette(data, mdl::PaletteColorFormat::Rgb);
 }
 
-Result<asset::Texture> readMipTexture(
-  Reader& reader, const GetMipPalette& getMipPalette, const asset::TextureMask mask)
+Result<mdl::Texture> readMipTexture(
+  Reader& reader, const GetMipPalette& getMipPalette, const mdl::TextureMask mask)
 {
   static const auto MipLevels = size_t(4);
 
   auto averageColor = Color{};
-  auto buffers = asset::TextureBufferList{MipLevels};
+  auto buffers = mdl::TextureBufferList{MipLevels};
   size_t offset[MipLevels];
 
   try
@@ -90,11 +90,11 @@ Result<asset::Texture> readMipTexture(
       offset[i] = reader.readSize<int32_t>();
     }
 
-    const auto transparency = mask == asset::TextureMask::On
-                                ? asset::PaletteTransparency::Index255Transparent
-                                : asset::PaletteTransparency::Opaque;
+    const auto transparency = mask == mdl::TextureMask::On
+                                ? mdl::PaletteTransparency::Index255Transparent
+                                : mdl::PaletteTransparency::Opaque;
 
-    asset::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
+    mdl::setMipBufferSize(buffers, MipLevels, width, height, GL_RGBA);
     return getMipPalette(reader) | kdl::transform([&](const auto& palette) {
              for (size_t i = 0; i < MipLevels; ++i)
              {
@@ -109,13 +109,13 @@ Result<asset::Texture> readMipTexture(
                }
              }
 
-             return asset::Texture{
+             return mdl::Texture{
                width,
                height,
                averageColor,
                GL_RGBA,
                mask,
-               asset::NoEmbeddedDefaults{},
+               mdl::NoEmbeddedDefaults{},
                std::move(buffers)};
            });
   }
@@ -140,13 +140,13 @@ std::string readMipTextureName(Reader& reader)
   }
 }
 
-Result<asset::Texture> readIdMipTexture(
-  Reader& reader, const asset::Palette& palette, const asset::TextureMask mask)
+Result<mdl::Texture> readIdMipTexture(
+  Reader& reader, const mdl::Palette& palette, const mdl::TextureMask mask)
 {
   return readMipTexture(reader, [&](Reader&) { return palette; }, mask);
 }
 
-Result<asset::Texture> readHlMipTexture(Reader& reader, const asset::TextureMask mask)
+Result<mdl::Texture> readHlMipTexture(Reader& reader, const mdl::TextureMask mask)
 {
   return readMipTexture(reader, readHlMipPalette, mask);
 }

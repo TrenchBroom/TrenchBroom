@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "asset/Material.h"
+#include "mdl/Material.h"
 #include "mdl/Tag.h"
 #include "mdl/TagVisitor.h"
 
@@ -48,7 +48,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  virtual bool matchesMaterial(const asset::Material* material) const = 0;
+  virtual bool matchesMaterial(const Material* material) const = 0;
 };
 
 class MaterialNameTagMatcher : public MaterialTagMatcher
@@ -63,7 +63,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const asset::Material* material) const override;
+  bool matchesMaterial(const Material* material) const override;
   bool matchesMaterialName(std::string_view materialName) const;
 };
 
@@ -80,7 +80,7 @@ public:
   void appendToStream(std::ostream& str) const override;
 
 private:
-  bool matchesMaterial(const asset::Material* material) const override;
+  bool matchesMaterial(const Material* material) const override;
 };
 
 class FlagsTagMatcher : public TagMatcher

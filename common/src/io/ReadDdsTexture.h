@@ -22,7 +22,7 @@
 
 #include "Result.h"
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Texture;
 }
@@ -31,6 +31,6 @@ namespace tb::io
 {
 class Reader;
 
-Result<asset::Texture> readDdsTexture(Reader& reader);
+Result<mdl::Texture> readDdsTexture(Reader& reader);
 
 } // namespace tb::io

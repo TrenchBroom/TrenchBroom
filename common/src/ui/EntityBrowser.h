@@ -32,15 +32,11 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb::asset
-{
-class ResourceId;
-};
-
 namespace tb::mdl
 {
 class Node;
-}
+class ResourceId;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -82,7 +78,7 @@ private:
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void entityDefinitionsDidChange();
   void preferenceDidChange(const std::filesystem::path& path);
-  void resourcesWereProcessed(const std::vector<asset::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
 };
 
 } // namespace tb::ui

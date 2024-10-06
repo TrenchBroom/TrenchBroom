@@ -26,7 +26,7 @@
 #include <QScrollArea>
 
 #include "Color.h"
-#include "asset/ColorRange.h"
+#include "mdl/ColorRange.h"
 #include "mdl/EntityColor.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityNodeBase.h"
@@ -184,12 +184,12 @@ void SmartColorEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& n
 void SmartColorEditor::updateColorRange(const std::vector<mdl::EntityNodeBase*>& nodes)
 {
   const auto range = detectColorRange(propertyKey(), nodes);
-  if (range == asset::ColorRange::Float)
+  if (range == mdl::ColorRange::Float)
   {
     m_floatRadio->setChecked(true);
     m_byteRadio->setChecked(false);
   }
-  else if (range == asset::ColorRange::Byte)
+  else if (range == mdl::ColorRange::Byte)
   {
     m_floatRadio->setChecked(false);
     m_byteRadio->setChecked(true);
@@ -216,19 +216,19 @@ void SmartColorEditor::updateColorHistory()
 void SmartColorEditor::setColor(const QColor& color) const
 {
   const auto colorRange =
-    m_floatRadio->isChecked() ? asset::ColorRange::Float : asset::ColorRange::Byte;
+    m_floatRadio->isChecked() ? mdl::ColorRange::Float : mdl::ColorRange::Byte;
   const auto value = mdl::entityColorAsString(fromQColor(color), colorRange);
   document()->setProperty(propertyKey(), value);
 }
 
 void SmartColorEditor::floatRangeRadioButtonClicked()
 {
-  document()->convertEntityColorRange(propertyKey(), asset::ColorRange::Float);
+  document()->convertEntityColorRange(propertyKey(), mdl::ColorRange::Float);
 }
 
 void SmartColorEditor::byteRangeRadioButtonClicked()
 {
-  document()->convertEntityColorRange(propertyKey(), asset::ColorRange::Byte);
+  document()->convertEntityColorRange(propertyKey(), mdl::ColorRange::Byte);
 }
 
 void SmartColorEditor::colorPickerChanged(const QColor& color)

@@ -18,12 +18,12 @@
  */
 
 #include "TestUtils.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -2004,8 +2004,8 @@ TEST_CASE("moveFaceWithUVLock")
 
   const auto worldBounds = vm::bbox3d{4096.0};
 
-  auto textureResource = createTextureResource(asset::Texture{64, 64});
-  auto testMaterial = asset::Material{"testMaterial", std::move(textureResource)};
+  auto textureResource = createTextureResource(Texture{64, 64});
+  auto testMaterial = Material{"testMaterial", std::move(textureResource)};
 
   auto builder = BrushBuilder{format, worldBounds};
   auto brush = builder.createCube(64.0, "") | kdl::value();

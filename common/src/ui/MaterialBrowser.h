@@ -33,14 +33,10 @@ class QComboBox;
 class QLineEdit;
 class QScrollBar;
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
 class BrushFaceHandle;
+class Material;
 class Node;
 } // namespace tb::mdl
 
@@ -71,16 +67,16 @@ public:
     GLContextManager& contextManager,
     QWidget* parent = nullptr);
 
-  const asset::Material* selectedMaterial() const;
-  void setSelectedMaterial(const asset::Material* selectedMaterial);
-  void revealMaterial(const asset::Material* material);
+  const mdl::Material* selectedMaterial() const;
+  void setSelectedMaterial(const mdl::Material* selectedMaterial);
+  void revealMaterial(const mdl::Material* material);
 
   void setSortOrder(MaterialSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 signals:
-  void materialSelected(const asset::Material* material);
+  void materialSelected(const mdl::Material* material);
 
 private:
   void createGui(GLContextManager& contextManager);

@@ -21,14 +21,14 @@
 
 #include "Exceptions.h"
 #include "FileLocation.h"
-#include "asset/ModelDefinition.h"
-#include "asset/PropertyDefinition.h"
 #include "el/ELExceptions.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/ModelDefinition.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "kdl/string_format.h"
 
@@ -264,11 +264,11 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
   return classInfo;
 }
 
-std::unique_ptr<asset::PropertyDefinition> DefParser::parseSpawnflags(
+std::unique_ptr<mdl::PropertyDefinition> DefParser::parseSpawnflags(
   ParserStatus& /* status */)
 {
   auto definition =
-    std::make_unique<asset::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
+    std::make_unique<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
   size_t numOptions = 0;
 
   auto token = m_tokenizer.peekToken();
@@ -319,7 +319,7 @@ bool DefParser::parseProperty(ParserStatus& status, EntityDefinitionClassInfo& c
   else if (typeName == "choice")
   {
     auto propertyDefinition =
-      std::shared_ptr<asset::PropertyDefinition>{parseChoicePropertyDefinition(status)};
+      std::shared_ptr<mdl::PropertyDefinition>{parseChoicePropertyDefinition(status)};
     if (!addPropertyDefinition(classInfo.propertyDefinitions, propertyDefinition))
     {
       status.warn(
@@ -359,13 +359,13 @@ std::string DefParser::parseBaseProperty(ParserStatus& status)
   return basename;
 }
 
-std::unique_ptr<asset::PropertyDefinition> DefParser::parseChoicePropertyDefinition(
+std::unique_ptr<mdl::PropertyDefinition> DefParser::parseChoicePropertyDefinition(
   ParserStatus& status)
 {
   auto token = expect(status, DefToken::QuotedString, m_tokenizer.nextToken());
   auto propertyKey = token.data();
 
-  asset::ChoicePropertyOption::List options;
+  mdl::ChoicePropertyOption::List options;
   expect(status, DefToken::OParenthesis, nextTokenIgnoringNewlines());
   token = nextTokenIgnoringNewlines();
   while (token.type() == DefToken::OParenthesis)
@@ -384,11 +384,11 @@ std::unique_ptr<asset::PropertyDefinition> DefParser::parseChoicePropertyDefinit
 
   expect(status, DefToken::CParenthesis, token);
 
-  return std::make_unique<asset::ChoicePropertyDefinition>(
+  return std::make_unique<mdl::ChoicePropertyDefinition>(
     std::move(propertyKey), "", "", std::move(options), false);
 }
 
-asset::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
+mdl::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
 {
   expect(status, DefToken::OParenthesis, m_tokenizer.nextToken());
 
@@ -408,7 +408,7 @@ asset::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
     expect(status, DefToken::CParenthesis, m_tokenizer.nextToken());
 
     expression.optimize();
-    return asset::ModelDefinition{std::move(expression)};
+    return mdl::ModelDefinition{std::move(expression)};
   }
   catch (const ParserException& e)
   {
@@ -429,7 +429,7 @@ asset::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
         fmt::format(
           "Legacy model expressions are deprecated, replace with '{}'",
           expression.asString()));
-      return asset::ModelDefinition{std::move(expression)};
+      return mdl::ModelDefinition{std::move(expression)};
     }
     catch (const ParserException&)
     {

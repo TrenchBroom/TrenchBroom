@@ -19,16 +19,16 @@
 
 #include "TagMatcher.h"
 
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionManager.h"
-#include "asset/Material.h"
-#include "asset/MaterialManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/MapFacade.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialManager.h"
 #include "mdl/NodeCollection.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
@@ -102,7 +102,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade)
 {
   const auto& materialManager = facade.materialManager();
   const auto& allMaterials = materialManager.materials();
-  auto matchingMaterials = std::vector<const asset::Material*>{};
+  auto matchingMaterials = std::vector<const Material*>{};
 
   std::copy_if(
     std::begin(allMaterials),
@@ -117,7 +117,7 @@ void MaterialTagMatcher::enable(TagMatcherCallback& callback, MapFacade& facade)
       return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
     });
 
-  const asset::Material* material = nullptr;
+  const Material* material = nullptr;
   if (matchingMaterials.empty())
   {
     return;
@@ -181,7 +181,7 @@ void MaterialNameTagMatcher::appendToStream(std::ostream& str) const
                           << "m_pattern" << m_pattern;
 }
 
-bool MaterialNameTagMatcher::matchesMaterial(const asset::Material* material) const
+bool MaterialNameTagMatcher::matchesMaterial(const Material* material) const
 {
   return material && matchesMaterialName(material->name());
 }
@@ -232,7 +232,7 @@ void SurfaceParmTagMatcher::appendToStream(std::ostream& str) const
                           << "m_parameters" << m_parameters;
 }
 
-bool SurfaceParmTagMatcher::matchesMaterial(const asset::Material* material) const
+bool SurfaceParmTagMatcher::matchesMaterial(const Material* material) const
 {
   if (material)
   {
@@ -432,14 +432,14 @@ void EntityClassNameTagMatcher::enable(
 
   const auto& definitionManager = facade.entityDefinitionManager();
   const auto& allDefinitions = definitionManager.definitions();
-  auto matchingDefinitions = std::vector<asset::EntityDefinition*>{};
+  auto matchingDefinitions = std::vector<EntityDefinition*>{};
 
   std::copy_if(
     std::begin(allDefinitions),
     std::end(allDefinitions),
     std::back_inserter(matchingDefinitions),
     [this](const auto* definition) {
-      return definition->type() == asset::EntityDefinitionType::BrushEntity
+      return definition->type() == EntityDefinitionType::BrushEntity
              && matchesClassname(definition->name());
     });
 
@@ -450,7 +450,7 @@ void EntityClassNameTagMatcher::enable(
       return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
     });
 
-  const asset::EntityDefinition* definition = nullptr;
+  const EntityDefinition* definition = nullptr;
   if (matchingDefinitions.empty())
   {
     return;
@@ -472,7 +472,7 @@ void EntityClassNameTagMatcher::enable(
   }
 
   assert(definition != nullptr);
-  facade.createBrushEntity(static_cast<const asset::BrushEntityDefinition*>(definition));
+  facade.createBrushEntity(static_cast<const BrushEntityDefinition*>(definition));
 
   if (!m_material.empty())
   {

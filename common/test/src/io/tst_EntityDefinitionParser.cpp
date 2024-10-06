@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "asset/PropertyDefinition.h"
 #include "el/Expression.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/EntityDefinitionParser.h"
 #include "io/TestParserStatus.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/PropertyDefinition.h"
 
 #include <vector>
 
@@ -315,9 +315,9 @@ TEST_CASE("resolveInheritance")
   SECTION("overrideMembersIfNotPresent")
   {
     const auto baseModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto baseDecalDef =
-      asset::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -412,9 +412,9 @@ TEST_CASE("resolveInheritance")
   SECTION("mergeModelDefinitions")
   {
     const auto baseModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto pointModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(baseModelDef);
 
@@ -465,9 +465,9 @@ TEST_CASE("resolveInheritance")
 
   SECTION("mergeDecalDefinitions")
   {
-    const auto baseDecalDef = asset::DecalDefinition{
+    const auto baseDecalDef = mdl::DecalDefinition{
       el::ExpressionNode{el::LiteralExpression{el::Value{"decal1"}}}};
-    const auto pointDecalDef = asset::DecalDefinition{
+    const auto pointDecalDef = mdl::DecalDefinition{
       el::ExpressionNode{el::LiteralExpression{el::Value{"decal2"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(baseDecalDef);
@@ -519,13 +519,11 @@ TEST_CASE("resolveInheritance")
   SECTION("inheritPropertyDefinitions")
   {
     const auto a1_1 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
     const auto a1_2 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 =
-      std::make_shared<asset::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 =
-      std::make_shared<asset::StringPropertyDefinition>("a3", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
+    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
+    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -573,13 +571,13 @@ TEST_CASE("resolveInheritance")
 
   SECTION("mergeSpawnflagsSimpleInheritance")
   {
-    auto a1 = std::make_shared<asset::FlagsPropertyDefinition>(
-      mdl::EntityPropertyKeys::Spawnflags);
+    auto a1 =
+      std::make_shared<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
     a1->addOption(1 << 1, "a1_1", "", true);
     a1->addOption(1 << 2, "a1_2", "", false);
 
-    auto a2 = std::make_shared<asset::FlagsPropertyDefinition>(
-      mdl::EntityPropertyKeys::Spawnflags);
+    auto a2 =
+      std::make_shared<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
     a2->addOption(1 << 2, "a2_2", "", true);
     a2->addOption(1 << 4, "a2_4", "", false);
 
@@ -618,16 +616,16 @@ TEST_CASE("resolveInheritance")
     CHECK(classInfo.propertyDefinitions.size() == 1u);
 
     const auto propertyDefinition = classInfo.propertyDefinitions.front();
-    CHECK(propertyDefinition->type() == asset::PropertyDefinitionType::FlagsProperty);
+    CHECK(propertyDefinition->type() == mdl::PropertyDefinitionType::FlagsProperty);
 
     const auto& flagsPropertyDefinition =
-      static_cast<const asset::FlagsPropertyDefinition&>(*propertyDefinition.get());
+      static_cast<const mdl::FlagsPropertyDefinition&>(*propertyDefinition.get());
     CHECK(flagsPropertyDefinition.key() == mdl::EntityPropertyKeys::Spawnflags);
 
     const auto& options = flagsPropertyDefinition.options();
     CHECK_THAT(
       options,
-      Catch::Equals(std::vector<asset::FlagsPropertyOption>{
+      Catch::Equals(std::vector<mdl::FlagsPropertyOption>{
         {1 << 1, "a1_1", "", true},
         {1 << 2, "a2_2", "", true},
         {1 << 4, "a2_4", "", false},
@@ -637,30 +635,28 @@ TEST_CASE("resolveInheritance")
   SECTION("chainOfBaseClasses")
   {
     const auto a1_1 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
     const auto a1_2 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 =
-      std::make_shared<asset::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 =
-      std::make_shared<asset::StringPropertyDefinition>("a3", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
+    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
+    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
 
     const auto base1ModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto base2ModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
     const auto pointModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(base2ModelDef);
     mergedModelDef.append(base1ModelDef);
 
-    const auto base1DecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
-    const auto base2DecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
-    const auto pointDecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
+    const auto base1DecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
+    const auto base2DecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
+    const auto pointDecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(base2DecalDef);
     mergedDecalDef.append(base1DecalDef);
@@ -723,30 +719,28 @@ TEST_CASE("resolveInheritance")
   SECTION("multipleBaseClasses")
   {
     const auto a1_1 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
     const auto a1_2 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 =
-      std::make_shared<asset::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 =
-      std::make_shared<asset::StringPropertyDefinition>("a3", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
+    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
+    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
 
     const auto base1ModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
     const auto base2ModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"def"}}}};
     const auto pointModelDef =
-      asset::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
+      mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"xyz"}}}};
     auto mergedModelDef = pointModelDef;
     mergedModelDef.append(base1ModelDef);
     mergedModelDef.append(base2ModelDef);
 
-    const auto base1DecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
-    const auto base2DecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
-    const auto pointDecalDef = asset::DecalDefinition{
-      el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
+    const auto base1DecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec1"}}}};
+    const auto base2DecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec2"}}}};
+    const auto pointDecalDef =
+      mdl::DecalDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"dec3"}}}};
     auto mergedDecalDef = pointDecalDef;
     mergedDecalDef.append(base1DecalDef);
     mergedDecalDef.append(base2DecalDef);
@@ -808,14 +802,12 @@ TEST_CASE("resolveInheritance")
 
   SECTION("diamondInheritance")
   {
-    const auto a1 =
-      std::make_shared<asset::StringPropertyDefinition>("a1", "", "", false);
+    const auto a1 = std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
     const auto a2_1 =
-      std::make_shared<asset::StringPropertyDefinition>("a2_1", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a2_1", "", "", false);
     const auto a2_2 =
-      std::make_shared<asset::StringPropertyDefinition>("a2_2", "", "", false);
-    const auto a3 =
-      std::make_shared<asset::StringPropertyDefinition>("a3", "", "", false);
+      std::make_shared<mdl::StringPropertyDefinition>("a2_2", "", "", false);
+    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,

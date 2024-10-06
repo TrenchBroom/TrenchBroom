@@ -38,11 +38,11 @@ bool pointExactlyIntegral(const vm::vec3d& point);
 bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
 
-namespace asset
+namespace mdl
 {
 class Material;
 class Texture;
-} // namespace asset
+} // namespace mdl
 
 namespace io
 {
@@ -213,9 +213,9 @@ enum class ColorMatch
 };
 
 int getComponentOfPixel(
-  const asset::Texture& texture, std::size_t x, std::size_t y, Component component);
+  const mdl::Texture& texture, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const asset::Texture& texture,
+  const mdl::Texture& texture,
   std::size_t x,
   std::size_t y,
   int r,
@@ -225,9 +225,9 @@ void checkColor(
   ColorMatch match = ColorMatch::Exact);
 
 int getComponentOfPixel(
-  const asset::Material& material, std::size_t x, std::size_t y, Component component);
+  const mdl::Material& material, std::size_t x, std::size_t y, Component component);
 void checkColor(
-  const asset::Material& material,
+  const mdl::Material& material,
   std::size_t x,
   std::size_t y,
   int r,

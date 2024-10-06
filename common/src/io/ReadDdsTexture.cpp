@@ -23,8 +23,8 @@
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
-#include "asset/Texture.h"
-#include "asset/TextureBuffer.h"
+#include "mdl/Texture.h"
+#include "mdl/TextureBuffer.h"
 
 #include <fmt/format.h>
 
@@ -117,7 +117,7 @@ GLenum convertDx10FormatToGLFormat(const size_t dx10Format)
   }
 }
 
-void readDdsMips(Reader& reader, asset::TextureBufferList& buffers)
+void readDdsMips(Reader& reader, mdl::TextureBufferList& buffers)
 {
   for (size_t i = 0, mipLevels = buffers.size(); i < mipLevels; ++i)
   {
@@ -127,7 +127,7 @@ void readDdsMips(Reader& reader, asset::TextureBufferList& buffers)
 
 } // namespace
 
-Result<asset::Texture> readDdsTexture(Reader& reader)
+Result<mdl::Texture> readDdsTexture(Reader& reader)
 {
   try
   {
@@ -244,18 +244,18 @@ Result<asset::Texture> readDdsTexture(Reader& reader)
     }
 
     const auto numMips = mipMapsCount ? mipMapsCount : 1;
-    auto buffers = asset::TextureBufferList{numMips};
+    auto buffers = mdl::TextureBufferList{numMips};
 
-    asset::setMipBufferSize(buffers, numMips, width, height, format);
+    mdl::setMipBufferSize(buffers, numMips, width, height, format);
     readDdsMips(reader, buffers);
 
-    return asset::Texture{
+    return mdl::Texture{
       width,
       height,
       Color{},
       format,
-      asset::TextureMask::Off,
-      asset::NoEmbeddedDefaults{},
+      mdl::TextureMask::Off,
+      mdl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
   catch (const ReaderException& e)

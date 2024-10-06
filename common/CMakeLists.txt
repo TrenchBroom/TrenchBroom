@@ -1,26 +1,26 @@
 set(COMMON_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_SOURCE
-        ${COMMON_SOURCE_DIR}/asset/ColorRange.cpp
-        ${COMMON_SOURCE_DIR}/asset/DecalDefinition.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinition.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionFileSpec.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionGroup.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionManager.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityModel.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityModelDataResource.cpp
-        ${COMMON_SOURCE_DIR}/asset/EntityModelManager.cpp
-        ${COMMON_SOURCE_DIR}/asset/Material.cpp
-        ${COMMON_SOURCE_DIR}/asset/MaterialCollection.cpp
-        ${COMMON_SOURCE_DIR}/asset/MaterialManager.cpp
-        ${COMMON_SOURCE_DIR}/asset/ModelDefinition.cpp
-        ${COMMON_SOURCE_DIR}/asset/ModelSpecification.cpp
-        ${COMMON_SOURCE_DIR}/asset/Palette.cpp
-        ${COMMON_SOURCE_DIR}/asset/PropertyDefinition.cpp
-        ${COMMON_SOURCE_DIR}/asset/Quake3Shader.cpp
-        ${COMMON_SOURCE_DIR}/asset/Texture.cpp
-        ${COMMON_SOURCE_DIR}/asset/TextureBuffer.cpp
-        ${COMMON_SOURCE_DIR}/asset/TextureResource.cpp
+        ${COMMON_SOURCE_DIR}/mdl/ColorRange.cpp
+        ${COMMON_SOURCE_DIR}/mdl/DecalDefinition.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinition.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityModel.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.cpp
+        ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Material.cpp
+        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.cpp
+        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.cpp
+        ${COMMON_SOURCE_DIR}/mdl/ModelDefinition.cpp
+        ${COMMON_SOURCE_DIR}/mdl/ModelSpecification.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Palette.cpp
+        ${COMMON_SOURCE_DIR}/mdl/PropertyDefinition.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Quake3Shader.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Texture.cpp
+        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.cpp
+        ${COMMON_SOURCE_DIR}/mdl/TextureResource.cpp
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
@@ -490,31 +490,31 @@ set(COMMON_SOURCE
 )
 
 set(COMMON_HEADER
-        ${COMMON_SOURCE_DIR}/asset/AssetReference.h
-        ${COMMON_SOURCE_DIR}/asset/AssetUtils.h
-        ${COMMON_SOURCE_DIR}/asset/ColorRange.h
-        ${COMMON_SOURCE_DIR}/asset/CreateResource.h
-        ${COMMON_SOURCE_DIR}/asset/DecalDefinition.h
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinition.h
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionFileSpec.h
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionGroup.h
-        ${COMMON_SOURCE_DIR}/asset/EntityDefinitionManager.h
-        ${COMMON_SOURCE_DIR}/asset/EntityModel_Forward.h
-        ${COMMON_SOURCE_DIR}/asset/EntityModel.h
-        ${COMMON_SOURCE_DIR}/asset/EntityModelDataResource.h
-        ${COMMON_SOURCE_DIR}/asset/EntityModelManager.h
-        ${COMMON_SOURCE_DIR}/asset/Material.h
-        ${COMMON_SOURCE_DIR}/asset/MaterialCollection.h
-        ${COMMON_SOURCE_DIR}/asset/MaterialManager.h
-        ${COMMON_SOURCE_DIR}/asset/ModelDefinition.h
-        ${COMMON_SOURCE_DIR}/asset/ModelSpecification.h
-        ${COMMON_SOURCE_DIR}/asset/Palette.h
-        ${COMMON_SOURCE_DIR}/asset/PropertyDefinition.h
-        ${COMMON_SOURCE_DIR}/asset/Quake3Shader.h
-        ${COMMON_SOURCE_DIR}/asset/Resource.h
-        ${COMMON_SOURCE_DIR}/asset/Texture.h
-        ${COMMON_SOURCE_DIR}/asset/TextureBuffer.h
-        ${COMMON_SOURCE_DIR}/asset/TextureResource.h
+        ${COMMON_SOURCE_DIR}/mdl/AssetReference.h
+        ${COMMON_SOURCE_DIR}/mdl/AssetUtils.h
+        ${COMMON_SOURCE_DIR}/mdl/ColorRange.h
+        ${COMMON_SOURCE_DIR}/mdl/CreateResource.h
+        ${COMMON_SOURCE_DIR}/mdl/DecalDefinition.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinition.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityModel_Forward.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityModel.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityModelManager.h
+        ${COMMON_SOURCE_DIR}/mdl/Material.h
+        ${COMMON_SOURCE_DIR}/mdl/MaterialCollection.h
+        ${COMMON_SOURCE_DIR}/mdl/MaterialManager.h
+        ${COMMON_SOURCE_DIR}/mdl/ModelDefinition.h
+        ${COMMON_SOURCE_DIR}/mdl/ModelSpecification.h
+        ${COMMON_SOURCE_DIR}/mdl/Palette.h
+        ${COMMON_SOURCE_DIR}/mdl/PropertyDefinition.h
+        ${COMMON_SOURCE_DIR}/mdl/Quake3Shader.h
+        ${COMMON_SOURCE_DIR}/mdl/Resource.h
+        ${COMMON_SOURCE_DIR}/mdl/Texture.h
+        ${COMMON_SOURCE_DIR}/mdl/TextureBuffer.h
+        ${COMMON_SOURCE_DIR}/mdl/TextureResource.h
         ${COMMON_SOURCE_DIR}/Color.h
         ${COMMON_SOURCE_DIR}/el/EL_Forward.h
         ${COMMON_SOURCE_DIR}/el/ELExceptions.h

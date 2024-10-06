@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "asset/EntityModel.h"
+#include "mdl/EntityModel.h"
 
 namespace tb
 {
@@ -35,7 +35,7 @@ class EntityModelLoader
 public:
   virtual ~EntityModelLoader();
 
-  virtual Result<asset::EntityModelData> load(Logger& logger) = 0;
+  virtual Result<mdl::EntityModelData> load(Logger& logger) = 0;
 };
 
 } // namespace tb::io

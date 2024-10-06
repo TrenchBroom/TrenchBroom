@@ -20,9 +20,9 @@
 #include "EntityRotation.h"
 
 #include "Macros.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityModel.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityModel.h"
 #include "mdl/EntityNode.h"
 
 #include "kdl/reflection_impl.h"
@@ -121,11 +121,10 @@ EntityRotationInfo entityRotationInfo(const Entity& entity)
 
   const auto* model = entity.model();
   const auto* modelData = model ? model->data() : nullptr;
-  const auto pitchType = modelData ? modelData->pitchType() : asset::PitchType::Normal;
+  const auto pitchType = modelData ? modelData->pitchType() : PitchType::Normal;
   const EntityRotationType eulerType =
-    (pitchType == asset::PitchType::MdlInverted
-       ? EntityRotationType::Euler
-       : EntityRotationType::Euler_PositivePitchDown);
+    (pitchType == PitchType::MdlInverted ? EntityRotationType::Euler
+                                         : EntityRotationType::Euler_PositivePitchDown);
 
   // determine the type of rotation to apply to this entity
   const auto classname = entity.classname();

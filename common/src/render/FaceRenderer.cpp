@@ -21,8 +21,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "render/ActiveShader.h"
 #include "render/BrushRendererArrays.h"
 #include "render/Camera.h"
@@ -62,7 +62,7 @@ public:
   {
   }
 
-  void before(const asset::Material* material) override
+  void before(const mdl::Material* material) override
   {
     if (const auto* texture = getTexture(material))
     {
@@ -77,7 +77,7 @@ public:
     }
   }
 
-  void after(const asset::Material* material) override
+  void after(const mdl::Material* material) override
   {
     if (material)
     {
@@ -189,7 +189,7 @@ void FaceRenderer::doRender(RenderContext& context)
       if (brushIndexHolderPtr->hasValidIndices())
       {
         const auto* texture = getTexture(material);
-        const auto enableMasked = texture && texture->mask() == asset::TextureMask::On;
+        const auto enableMasked = texture && texture->mask() == mdl::TextureMask::On;
 
         // set any per-material uniforms
         shader.set("GridColor", gridColorForMaterial(material));

@@ -28,8 +28,8 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/Material.h"
-#include "asset/MaterialManager.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MaterialBrowserView.h"
 #include "ui/QtUtils.h"
@@ -54,17 +54,17 @@ MaterialBrowser::MaterialBrowser(
   reload();
 }
 
-const asset::Material* MaterialBrowser::selectedMaterial() const
+const mdl::Material* MaterialBrowser::selectedMaterial() const
 {
   return m_view->selectedMaterial();
 }
 
-void MaterialBrowser::setSelectedMaterial(const asset::Material* selectedMaterial)
+void MaterialBrowser::setSelectedMaterial(const mdl::Material* selectedMaterial)
 {
   m_view->setSelectedMaterial(selectedMaterial);
 }
 
-void MaterialBrowser::revealMaterial(const asset::Material* material)
+void MaterialBrowser::revealMaterial(const mdl::Material* material)
 {
   setFilterText("");
   m_view->revealMaterial(material);

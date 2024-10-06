@@ -29,11 +29,6 @@
 
 #include <optional>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::render
 {
 class ActiveShader;
@@ -45,6 +40,7 @@ class RenderContext;
 namespace tb::mdl
 {
 class BrushFace;
+class Material;
 class PickResult;
 } // namespace tb::mdl
 
@@ -71,7 +67,7 @@ public:
 
   bool valid() const;
   const mdl::BrushFace* face() const;
-  const asset::Material* material() const;
+  const mdl::Material* material() const;
   void setFaceHandle(std::optional<mdl::BrushFaceHandle> faceHandle);
   void cameraViewportChanged();
 

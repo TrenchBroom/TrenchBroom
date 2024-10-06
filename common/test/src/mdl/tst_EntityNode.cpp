@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "asset/EntityDefinition.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/EntityRotation.h"
@@ -126,7 +126,7 @@ TEST_CASE("EntityNodeTest.setPointEntity")
 
 TEST_CASE("EntityNodeTest.area")
 {
-  auto definition = asset::PointEntityDefinition(
+  auto definition = PointEntityDefinition(
     "some_name",
     Color(),
     vm::bbox3d(vm::vec3d{0, 0, 0}, vm::vec3d(1.0, 2.0, 3.0)),

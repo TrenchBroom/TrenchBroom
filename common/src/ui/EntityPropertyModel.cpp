@@ -28,15 +28,15 @@
 #include <QTimer>
 
 #include "Macros.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionManager.h"
-#include "asset/PropertyDefinition.h"
 #include "io/ResourceUtils.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/EntityNodeIndex.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -263,7 +263,7 @@ PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
   }
   else if (definition != nullptr)
   {
-    m_value = asset::PropertyDefinition::defaultValue(*definition);
+    m_value = mdl::PropertyDefinition::defaultValue(*definition);
     m_valueType = ValueType::Unset;
   }
   else

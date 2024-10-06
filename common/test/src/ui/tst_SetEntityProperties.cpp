@@ -19,10 +19,10 @@
 
 #include "Color.h"
 #include "TestUtils.h"
-#include "asset/EntityDefinition.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/WorldNode.h"
@@ -44,27 +44,27 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 {
   // need to recreate these because document->setEntityDefinitions will delete the old
   // ones
-  auto pointEntityDefOwner = std::make_unique<asset::PointEntityDefinition>(
+  auto pointEntityDefOwner = std::make_unique<mdl::PointEntityDefinition>(
     "point_entity",
     Color{},
     vm::bbox3d{16.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<asset::PropertyDefinition>>{},
-    asset::ModelDefinition{},
-    asset::DecalDefinition{});
+    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
+    mdl::ModelDefinition{},
+    mdl::DecalDefinition{});
   m_pointEntityDef = pointEntityDefOwner.get();
 
-  auto largeEntityDefOwner = std::make_unique<asset::PointEntityDefinition>(
+  auto largeEntityDefOwner = std::make_unique<mdl::PointEntityDefinition>(
     "large_entity",
     Color{},
     vm::bbox3d{64.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<asset::PropertyDefinition>>{},
-    asset::ModelDefinition{},
-    asset::DecalDefinition{});
+    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
+    mdl::ModelDefinition{},
+    mdl::DecalDefinition{});
   auto* largeEntityDef = largeEntityDefOwner.get();
 
-  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<asset::EntityDefinition>>(
+  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
     std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
 
   auto* entityNode = new mdl::EntityNode(mdl::Entity{{{"classname", "large_entity"}}});

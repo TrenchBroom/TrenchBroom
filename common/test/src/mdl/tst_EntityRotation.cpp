@@ -18,12 +18,12 @@
  */
 
 #include "Macros.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityModel.h"
-#include "asset/PropertyDefinition.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityModel.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/EntityRotation.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
@@ -42,12 +42,12 @@ namespace
 
 struct EntityDefinitionInfo
 {
-  asset::EntityDefinitionType type;
-  std::vector<std::shared_ptr<asset::PropertyDefinition>> propertyDefinitions;
+  EntityDefinitionType type;
+  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions;
   vm::bbox3d bounds = vm::bbox3d{16.0};
 };
 
-std::unique_ptr<asset::EntityDefinition> createEntityDefinition(
+std::unique_ptr<EntityDefinition> createEntityDefinition(
   const std::optional<EntityDefinitionInfo>& info)
 {
   if (!info.has_value())
@@ -57,17 +57,17 @@ std::unique_ptr<asset::EntityDefinition> createEntityDefinition(
 
   switch (info->type)
   {
-  case asset::EntityDefinitionType::PointEntity:
-    return std::make_unique<asset::PointEntityDefinition>(
+  case EntityDefinitionType::PointEntity:
+    return std::make_unique<PointEntityDefinition>(
       "",
       Color{},
       info->bounds,
       "",
       info->propertyDefinitions,
-      asset::ModelDefinition{},
-      asset::DecalDefinition{});
-  case asset::EntityDefinitionType::BrushEntity:
-    return std::make_unique<asset::BrushEntityDefinition>(
+      ModelDefinition{},
+      DecalDefinition{});
+  case EntityDefinitionType::BrushEntity:
+    return std::make_unique<BrushEntityDefinition>(
       "", Color{}, "", info->propertyDefinitions);
     switchDefault();
   }
@@ -77,7 +77,7 @@ std::unique_ptr<asset::EntityDefinition> createEntityDefinition(
 
 TEST_CASE("entityRotationInfo")
 {
-  using namespace asset;
+  using namespace mdl;
 
   auto manglePropertyDef =
     std::make_shared<StringPropertyDefinition>("mangle", "", "", false);

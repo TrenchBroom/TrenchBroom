@@ -18,13 +18,13 @@
  */
 
 #include "TestUtils.h"
-#include "asset/Material.h"
-#include "asset/MaterialManager.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialManager.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
 

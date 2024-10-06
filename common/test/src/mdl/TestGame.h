@@ -96,8 +96,8 @@ public:
     std::ostream& stream) const override;
 
   void loadMaterialCollections(
-    asset::MaterialManager& materialManager,
-    const asset::CreateTextureResource& createResource) const override;
+    MaterialManager& materialManager,
+    const CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
@@ -105,18 +105,18 @@ public:
     Logger& logger) override;
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
-  std::vector<asset::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
-  asset::EntityDefinitionFileSpec extractEntityDefinitionFile(
+  std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
+  EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const override;
   std::filesystem::path findEntityDefinitionFile(
-    const asset::EntityDefinitionFileSpec& spec,
+    const EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
   Result<std::vector<std::string>> availableMods() const override;
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
   std::string defaultMod() const override;
 
-  Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> loadEntityDefinitions(
+  Result<std::vector<std::unique_ptr<EntityDefinition>>> loadEntityDefinitions(
     io::ParserStatus& status, const std::filesystem::path& path) const override;
 
   void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);

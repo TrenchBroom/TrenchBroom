@@ -29,13 +29,9 @@
 #include <string>
 #include <string_view>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
+class Material;
 
 class BrushFaceAttributes
 {

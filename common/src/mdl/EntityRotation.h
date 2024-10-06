@@ -30,15 +30,11 @@
 #include <string>
 #include <vector>
 
-namespace tb::asset
-{
-enum class PitchType;
-}
-
 namespace tb::mdl
 {
 class Entity;
 class EntityProperty;
+enum class PitchType;
 struct EntityPropertyConfig;
 
 enum class EntityRotationType

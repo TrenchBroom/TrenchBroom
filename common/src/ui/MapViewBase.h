@@ -36,20 +36,16 @@ class QShortcut;
 class QString;
 class QAction;
 
-namespace tb::asset
+namespace tb::mdl
 {
 class BrushEntityDefinition;
 class EntityDefinition;
-enum class EntityDefinitionType;
-class PointEntityDefinition;
-} // namespace tb::asset
-
-namespace tb::mdl
-{
 class GroupNode;
 class Node;
 class NodeCollection;
+class PointEntityDefinition;
 class SmartTag;
+enum class EntityDefinitionType;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -258,10 +254,10 @@ public: // reparenting objects
   void createBrushEntity();
   virtual vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const = 0;
 
-  asset::EntityDefinition* findEntityDefinition(
-    asset::EntityDefinitionType type, size_t index) const;
-  void createPointEntity(const asset::PointEntityDefinition* definition);
-  void createBrushEntity(const asset::BrushEntityDefinition* definition);
+  mdl::EntityDefinition* findEntityDefinition(
+    mdl::EntityDefinitionType type, size_t index) const;
+  void createPointEntity(const mdl::PointEntityDefinition* definition);
+  void createBrushEntity(const mdl::BrushEntityDefinition* definition);
   bool canCreateBrushEntity();
 
 public: // tags
@@ -273,8 +269,8 @@ public: // make structural
   void makeStructural();
 
 public: // entity definitions
-  void toggleEntityDefinitionVisible(const asset::EntityDefinition* definition);
-  void createEntity(const asset::EntityDefinition* definition);
+  void toggleEntityDefinitionVisible(const mdl::EntityDefinition* definition);
+  void createEntity(const mdl::EntityDefinition* definition);
 
 public: // view filters
   void toggleShowEntityClassnames();
@@ -372,7 +368,7 @@ protected: // QWidget overrides
   void dropEvent(QDropEvent* event) override;
 
 private:
-  QMenu* makeEntityGroupsMenu(asset::EntityDefinitionType type);
+  QMenu* makeEntityGroupsMenu(mdl::EntityDefinitionType type);
 
   bool canMergeGroups() const;
   bool canMakeStructural() const;

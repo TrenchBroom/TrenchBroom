@@ -23,21 +23,13 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Uuid.h"
-#include "asset/AssetUtils.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionFileSpec.h"
-#include "asset/EntityDefinitionGroup.h"
-#include "asset/EntityDefinitionManager.h"
-#include "asset/EntityModelManager.h"
-#include "asset/Material.h"
-#include "asset/MaterialManager.h"
-#include "asset/ResourceManager.h"
 #include "io/DiskIO.h"
 #include "io/ExportOptions.h"
 #include "io/GameConfigParser.h"
 #include "io/PathInfo.h"
 #include "io/SimpleParserStatus.h"
 #include "io/SystemPaths.h"
+#include "mdl/AssetUtils.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
@@ -51,6 +43,11 @@
 #include "mdl/EmptyPropertyKeyValidator.h"
 #include "mdl/EmptyPropertyValueValidator.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionFileSpec.h"
+#include "mdl/EntityDefinitionGroup.h"
+#include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Game.h"
@@ -64,6 +61,8 @@
 #include "mdl/LockState.h"
 #include "mdl/LongPropertyKeyValidator.h"
 #include "mdl/LongPropertyValueValidator.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialManager.h"
 #include "mdl/MissingClassnameValidator.h"
 #include "mdl/MissingDefinitionValidator.h"
 #include "mdl/MissingModValidator.h"
@@ -80,6 +79,7 @@
 #include "mdl/PropertyKeyWithDoubleQuotationMarksValidator.h"
 #include "mdl/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "mdl/PushSelection.h"
+#include "mdl/ResourceManager.h"
 #include "mdl/SoftMapBoundsValidator.h"
 #include "mdl/TagManager.h"
 #include "mdl/VisibilityState.h"
@@ -377,17 +377,17 @@ const std::string MapDocument::DefaultDocumentName("unnamed.map");
 MapDocument::MapDocument()
   : m_worldBounds(DefaultWorldBounds)
   , m_world(nullptr)
-  , m_resourceManager(std::make_unique<asset::ResourceManager>())
-  , m_entityDefinitionManager(std::make_unique<asset::EntityDefinitionManager>())
-  , m_entityModelManager(std::make_unique<asset::EntityModelManager>(
+  , m_resourceManager(std::make_unique<mdl::ResourceManager>())
+  , m_entityDefinitionManager(std::make_unique<mdl::EntityDefinitionManager>())
+  , m_entityModelManager(std::make_unique<mdl::EntityModelManager>(
       [&](auto resourceLoader) {
         auto resource =
-          std::make_shared<asset::EntityModelDataResource>(std::move(resourceLoader));
+          std::make_shared<mdl::EntityModelDataResource>(std::move(resourceLoader));
         m_resourceManager->addResource(resource);
         return resource;
       },
       logger()))
-  , m_materialManager(std::make_unique<asset::MaterialManager>(logger()))
+  , m_materialManager(std::make_unique<mdl::MaterialManager>(logger()))
   , m_tagManager(std::make_unique<mdl::TagManager>())
   , m_editorContext(std::make_unique<mdl::EditorContext>())
   , m_grid(std::make_unique<Grid>(4))
@@ -531,17 +531,17 @@ mdl::EditorContext& MapDocument::editorContext() const
   return *m_editorContext;
 }
 
-asset::EntityDefinitionManager& MapDocument::entityDefinitionManager()
+mdl::EntityDefinitionManager& MapDocument::entityDefinitionManager()
 {
   return *m_entityDefinitionManager;
 }
 
-asset::EntityModelManager& MapDocument::entityModelManager()
+mdl::EntityModelManager& MapDocument::entityModelManager()
 {
   return *m_entityModelManager;
 }
 
-asset::MaterialManager& MapDocument::materialManager()
+mdl::MaterialManager& MapDocument::materialManager()
 {
   return *m_materialManager;
 }
@@ -1438,7 +1438,7 @@ void MapDocument::convertToFaceSelection()
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
-void MapDocument::selectFacesWithMaterial(const asset::Material* material)
+void MapDocument::selectFacesWithMaterial(const mdl::Material* material)
 {
   const auto faces = kdl::vec_filter(
     mdl::collectSelectableBrushFaces(
@@ -1926,7 +1926,7 @@ void MapDocument::duplicateObjects()
 }
 
 mdl::EntityNode* MapDocument::createPointEntity(
-  const asset::PointEntityDefinition* definition, const vm::vec3d& delta)
+  const mdl::PointEntityDefinition* definition, const vm::vec3d& delta)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -1962,7 +1962,7 @@ mdl::EntityNode* MapDocument::createPointEntity(
 }
 
 mdl::EntityNode* MapDocument::createBrushEntity(
-  const asset::BrushEntityDefinition* definition)
+  const mdl::BrushEntityDefinition* definition)
 {
   ensure(definition != nullptr, "definition is null");
 
@@ -3404,7 +3404,7 @@ bool MapDocument::removeProperty(const std::string& key)
 }
 
 bool MapDocument::convertEntityColorRange(
-  const std::string& key, asset::ColorRange::Type range)
+  const std::string& key, mdl::ColorRange::Type range)
 {
   const auto entityNodes = allSelectedEntityNodes();
   return applyAndSwap(
@@ -4260,14 +4260,14 @@ std::unique_ptr<CommandResult> MapDocument::executeAndStore(
   return doExecuteAndStore(std::move(command));
 }
 
-void MapDocument::processResourcesSync(const asset::ProcessContext& processContext)
+void MapDocument::processResourcesSync(const mdl::ProcessContext& processContext)
 {
-  auto allProcessedResourceIds = std::vector<asset::ResourceId>{};
+  auto allProcessedResourceIds = std::vector<mdl::ResourceId>{};
   while (m_resourceManager->needsProcessing())
   {
     auto processedResourceIds = m_resourceManager->process(
       [](auto task) {
-        auto promise = std::promise<std::unique_ptr<asset::TaskResult>>{};
+        auto promise = std::promise<std::unique_ptr<mdl::TaskResult>>{};
         promise.set_value(task());
         return promise.get_future();
       },
@@ -4284,7 +4284,7 @@ void MapDocument::processResourcesSync(const asset::ProcessContext& processConte
   }
 }
 
-void MapDocument::processResourcesAsync(const asset::ProcessContext& processContext)
+void MapDocument::processResourcesAsync(const mdl::ProcessContext& processContext)
 {
   const auto processedResourceIds = m_resourceManager->process(
     [](auto task) { return std::async(std::move(task)); },
@@ -4363,18 +4363,18 @@ void MapDocument::clearWorld()
   m_currentLayer = nullptr;
 }
 
-asset::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
+mdl::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
 {
   return m_world ? m_game->extractEntityDefinitionFile(m_world->entity())
-                 : asset::EntityDefinitionFileSpec{};
+                 : mdl::EntityDefinitionFileSpec{};
 }
 
-std::vector<asset::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const
+std::vector<mdl::EntityDefinitionFileSpec> MapDocument::allEntityDefinitionFiles() const
 {
   return m_game->allEntityDefinitionFiles();
 }
 
-void MapDocument::setEntityDefinitionFile(const asset::EntityDefinitionFileSpec& spec)
+void MapDocument::setEntityDefinitionFile(const mdl::EntityDefinitionFileSpec& spec)
 {
   // to avoid backslashes being misinterpreted as escape sequences
   const std::string formatted = kdl::str_replace_every(spec.asString(), "\\", "/");
@@ -4386,7 +4386,7 @@ void MapDocument::setEntityDefinitionFile(const asset::EntityDefinitionFileSpec&
 }
 
 void MapDocument::setEntityDefinitions(
-  std::vector<std::unique_ptr<asset::EntityDefinition>> definitions)
+  std::vector<std::unique_ptr<mdl::EntityDefinition>> definitions)
 {
   m_entityDefinitionManager->setDefinitions(std::move(definitions));
 }
@@ -4560,7 +4560,7 @@ void MapDocument::loadMaterials()
       m_game->reloadWads(path(), wadPaths, logger());
     }
     m_game->loadMaterialCollections(*m_materialManager, [&](auto resourceLoader) {
-      auto resource = std::make_shared<asset::TextureResource>(std::move(resourceLoader));
+      auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
       m_resourceManager->addResource(resource);
       return resource;
     });
@@ -4577,7 +4577,7 @@ void MapDocument::unloadMaterials()
   m_materialManager->clear();
 }
 
-static auto makeSetMaterialsVisitor(asset::MaterialManager& manager)
+static auto makeSetMaterialsVisitor(mdl::MaterialManager& manager)
 {
   return kdl::overload(
     [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4589,7 +4589,7 @@ static auto makeSetMaterialsVisitor(asset::MaterialManager& manager)
       for (size_t i = 0u; i < brush.faceCount(); ++i)
       {
         const mdl::BrushFace& face = brush.face(i);
-        asset::Material* material = manager.material(face.attributes().materialName());
+        mdl::Material* material = manager.material(face.attributes().materialName());
         brushNode->setFaceMaterial(i, material);
       }
     },
@@ -4652,7 +4652,7 @@ void MapDocument::unsetMaterials(const std::vector<mdl::Node*>& nodes)
   materialUsageCountsDidChangeNotifier();
 }
 
-static auto makeSetEntityDefinitionsVisitor(asset::EntityDefinitionManager& manager)
+static auto makeSetEntityDefinitionsVisitor(mdl::EntityDefinitionManager& manager)
 {
   // this helper lambda must be captured by value
   const auto setEntityDefinition = [&](auto* node) {
@@ -4721,7 +4721,7 @@ void MapDocument::clearEntityModels()
   m_entityModelManager->clear();
 }
 
-static auto makeSetEntityModelsVisitor(asset::EntityModelManager& manager, Logger& logger)
+static auto makeSetEntityModelsVisitor(mdl::EntityModelManager& manager, Logger& logger)
 {
   return kdl::overload(
     [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -4729,7 +4729,7 @@ static auto makeSetEntityModelsVisitor(asset::EntityModelManager& manager, Logge
     [](auto&& thisLambda, mdl::GroupNode* group) { group->visitChildren(thisLambda); },
     [&](mdl::EntityNode* entityNode) {
       const auto modelSpec =
-        asset::safeGetModelSpecification(logger, entityNode->entity().classname(), [&]() {
+        mdl::safeGetModelSpecification(logger, entityNode->entity().classname(), [&]() {
           return entityNode->entity().modelSpecification();
         });
       const auto* model = manager.model(modelSpec.path);

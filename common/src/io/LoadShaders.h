@@ -28,21 +28,17 @@ namespace tb
 class Logger;
 } // namespace tb
 
-namespace tb::asset
-{
-class Quake3Shader;
-} // namespace tb::asset
-
 namespace tb::mdl
 {
 struct MaterialConfig;
-}
+class Quake3Shader;
+} // namespace tb::mdl
 
 namespace tb::io
 {
 class FileSystem;
 
-Result<std::vector<asset::Quake3Shader>> loadShaders(
+Result<std::vector<mdl::Quake3Shader>> loadShaders(
   const FileSystem& fs, const mdl::MaterialConfig& materialConfig, Logger& logger);
 
 } // namespace tb::io

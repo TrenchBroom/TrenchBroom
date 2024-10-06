@@ -24,11 +24,11 @@
 
 #include <string_view>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Quake3Shader;
 class Quake3ShaderStage;
-} // namespace tb::asset
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -72,14 +72,14 @@ public:
    *
    * @throws ParserException if the shader is not well-formed
    */
-  std::vector<asset::Quake3Shader> parse(ParserStatus& status);
+  std::vector<mdl::Quake3Shader> parse(ParserStatus& status);
 
 private:
-  void parseTexture(asset::Quake3Shader& shader, ParserStatus& status);
-  void parseBody(asset::Quake3Shader& shader, ParserStatus& status);
-  void parseStage(asset::Quake3Shader& shader, ParserStatus& status);
-  void parseBodyEntry(asset::Quake3Shader& shader, ParserStatus& status);
-  void parseStageEntry(asset::Quake3ShaderStage& stage, ParserStatus& status);
+  void parseTexture(mdl::Quake3Shader& shader, ParserStatus& status);
+  void parseBody(mdl::Quake3Shader& shader, ParserStatus& status);
+  void parseStage(mdl::Quake3Shader& shader, ParserStatus& status);
+  void parseBodyEntry(mdl::Quake3Shader& shader, ParserStatus& status);
+  void parseStageEntry(mdl::Quake3ShaderStage& stage, ParserStatus& status);
   void skipRemainderOfEntry();
 
 private:

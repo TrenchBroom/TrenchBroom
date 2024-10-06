@@ -24,13 +24,9 @@
 
 #include "kdl/bitset.h"
 
-namespace tb::asset
-{
-class EntityDefinition;
-}
-
 namespace tb::mdl
 {
+class EntityDefinition;
 class EntityNodeBase;
 class BrushNode;
 class BrushFace;
@@ -64,8 +60,8 @@ public:
   void setHiddenTags(TagType::Type hiddenTags);
 
   bool entityDefinitionHidden(const mdl::EntityNodeBase* entityNode) const;
-  bool entityDefinitionHidden(const asset::EntityDefinition* definition) const;
-  void setEntityDefinitionHidden(const asset::EntityDefinition* definition, bool hidden);
+  bool entityDefinitionHidden(const EntityDefinition* definition) const;
+  void setEntityDefinitionHidden(const EntityDefinition* definition, bool hidden);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);

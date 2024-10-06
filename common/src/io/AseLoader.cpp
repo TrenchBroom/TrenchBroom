@@ -22,8 +22,8 @@
 #include "FileLocation.h"
 #include "Logger.h"
 #include "Result.h"
-#include "asset/EntityModel.h"
 #include "io/ResourceUtils.h"
+#include "mdl/EntityModel.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
@@ -132,7 +132,7 @@ bool AseLoader::canParse(const std::filesystem::path& path)
   return kdl::str_to_lower(path.extension().string()) == ".ase";
 }
 
-Result<asset::EntityModelData> AseLoader::load(Logger& logger)
+Result<mdl::EntityModelData> AseLoader::load(Logger& logger)
 {
   try
   {
@@ -655,13 +655,12 @@ AseLoader::TokenNameMap AseLoader::tokenNames() const
   return result;
 }
 
-Result<asset::EntityModelData> AseLoader::buildModelData(
+Result<mdl::EntityModelData> AseLoader::buildModelData(
   Logger& logger, const Scene& scene) const
 {
-  using Vertex = asset::EntityModelVertex;
+  using Vertex = mdl::EntityModelVertex;
 
-  auto data =
-    asset::EntityModelData{asset::PitchType::Normal, asset::Orientation::Oriented};
+  auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
   auto& surface = data.addSurface(m_name, 1);
 
   // Load the materials

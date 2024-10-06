@@ -18,9 +18,6 @@
  */
 
 #include "Logger.h"
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
-#include "asset/Palette.h"
 #include "io/AseLoader.h"
 #include "io/DiskFileSystem.h"
 #include "io/LoadMaterialCollections.h"
@@ -28,7 +25,10 @@
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/VirtualFileSystem.h"
+#include "mdl/EntityModel.h"
 #include "mdl/GameConfig.h"
+#include "mdl/Material.h"
+#include "mdl/Palette.h"
 
 #include <filesystem>
 

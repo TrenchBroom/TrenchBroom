@@ -23,8 +23,8 @@
 #include <QWidget>
 
 #include "Macros.h"
-#include "asset/PropertyDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/PropertyDefinition.h"
 #include "ui/MapDocument.h"
 #include "ui/SmartChoiceEditor.h"
 #include "ui/SmartColorEditor.h"
@@ -46,7 +46,7 @@ namespace
  * is of the type passed to the constructor.
  */
 SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
-  const asset::PropertyDefinitionType type)
+  const mdl::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
@@ -61,7 +61,7 @@ SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
  * is of the type passed to the constructor, and these property definitions are all equal.
  */
 SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
-  const asset::PropertyDefinitionType type)
+  const mdl::PropertyDefinitionType type)
 {
   return [=](const auto& propertyKey, const auto& nodes) {
     const auto* propDef = mdl::selectPropertyDefinition(propertyKey, nodes);
@@ -114,14 +114,14 @@ void SmartPropertyEditorManager::createEditors()
   assert(m_editors.empty());
 
   m_editors.emplace_back(
-    makeSmartTypeEditorMatcher(asset::PropertyDefinitionType::FlagsProperty),
+    makeSmartTypeEditorMatcher(mdl::PropertyDefinitionType::FlagsProperty),
     new SmartFlagsEditor{m_document});
   m_editors.emplace_back(
     makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
     new SmartColorEditor{m_document});
   m_editors.emplace_back(
     makeSmartTypeWithSameDefinitionEditorMatcher(
-      asset::PropertyDefinitionType::ChoiceProperty),
+      mdl::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document});
   m_editors.emplace_back(
     [&](const auto& propertyKey, const auto& nodes) {

@@ -19,11 +19,11 @@
 
 #include "MdxLoader.h"
 
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "io/SkinLoader.h"
+#include "mdl/EntityModel.h"
+#include "mdl/Material.h"
 #include "render/GLVertex.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
@@ -327,12 +327,12 @@ auto parseMeshes(Reader reader, const size_t commandCount)
 }
 
 void loadSkins(
-  asset::EntityModelSurface& surface,
+  mdl::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
   const FileSystem& fs,
   Logger& logger)
 {
-  auto materials = std::vector<asset::Material>{};
+  auto materials = std::vector<mdl::Material>{};
   materials.reserve(skins.size());
 
   for (const auto& skin : skins)
@@ -346,7 +346,7 @@ void loadSkins(
 
 auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVertices)
 {
-  auto vertices = std::vector<asset::EntityModelVertex>{};
+  auto vertices = std::vector<mdl::EntityModelVertex>{};
   vertices.reserve(meshVertices.size());
 
   for (const auto& md2MeshVertex : meshVertices)
@@ -359,8 +359,8 @@ auto getVertices(const MdxFrame& frame, const std::vector<MdxMeshVertex>& meshVe
 }
 
 void buildFrame(
-  asset::EntityModelData& model,
-  asset::EntityModelSurface& surface,
+  mdl::EntityModelData& model,
+  mdl::EntityModelSurface& surface,
   const MdxFrame& frame,
   const std::vector<MdxMesh>& meshes)
 {
@@ -375,7 +375,7 @@ void buildFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{vertexCount, size};
+    render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{vertexCount, size};
   for (const auto& md2Mesh : meshes)
   {
     if (!md2Mesh.vertices.empty())
@@ -425,7 +425,7 @@ bool MdxLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<asset::EntityModelData> MdxLoader::load(Logger& logger)
+Result<mdl::EntityModelData> MdxLoader::load(Logger& logger)
 {
   try
   {
@@ -464,8 +464,7 @@ Result<asset::EntityModelData> MdxLoader::load(Logger& logger)
 
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-    auto data =
-      asset::EntityModelData{asset::PitchType::Normal, asset::Orientation::Oriented};
+    auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
     auto& surface = data.addSurface(m_name, frameCount);
 
     loadSkins(surface, skins, m_fs, logger);

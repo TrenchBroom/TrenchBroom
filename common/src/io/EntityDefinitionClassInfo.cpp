@@ -20,7 +20,7 @@
 #include "EntityDefinitionClassInfo.h"
 
 #include "Macros.h"
-#include "asset/PropertyDefinition.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "kdl/reflection_impl.h"
 #include "kdl/vector_utils.h"
@@ -55,8 +55,8 @@ std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type
 kdl_reflect_impl(EntityDefinitionClassInfo);
 
 bool addPropertyDefinition(
-  std::vector<std::shared_ptr<asset::PropertyDefinition>>& propertyDefinitions,
-  std::shared_ptr<asset::PropertyDefinition> propertyDefinition)
+  std::vector<std::shared_ptr<mdl::PropertyDefinition>>& propertyDefinitions,
+  std::shared_ptr<mdl::PropertyDefinition> propertyDefinition)
 {
   assert(propertyDefinition != nullptr);
   if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) {

@@ -31,10 +31,10 @@ struct aiNode;
 struct aiScene;
 struct aiMesh;
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
-} // namespace tb::asset
+} // namespace tb::mdl
 
 namespace tb::io
 {
@@ -58,7 +58,7 @@ public:
 
   static bool canParse(const std::filesystem::path& path);
 
-  Result<asset::EntityModelData> load(Logger& logger) override;
+  Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::io

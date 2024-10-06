@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionTestUtils.h"
-#include "asset/PropertyDefinition.h"
 #include "io/DefParser.h"
 #include "io/DiskIO.h"
 #include "io/PathMatcher.h"
 #include "io/TestParserStatus.h"
 #include "io/TraversalMode.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionTestUtils.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "Catch2.h"
 
@@ -152,7 +152,7 @@ Set sounds to the cd track to play.
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == asset::EntityDefinitionType::BrushEntity);
+  CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "worldspawn");
   CHECK(definition.color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
   CHECK(definition.description() == R"(Only used for the world entity. 
@@ -179,7 +179,7 @@ TEST_CASE("DefParserTest.parsePointClass")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == asset::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "monster_zombie");
   CHECK(definition.color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
   CHECK(
@@ -187,7 +187,7 @@ TEST_CASE("DefParserTest.parsePointClass")
     == R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)");
 
   const auto& pointDefinition =
-    static_cast<const asset::PointEntityDefinition&>(definition);
+    static_cast<const mdl::PointEntityDefinition&>(definition);
   CHECK(
     pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
@@ -195,7 +195,7 @@ TEST_CASE("DefParserTest.parsePointClass")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == asset::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -203,7 +203,7 @@ TEST_CASE("DefParserTest.parsePointClass")
 
   CHECK(
     spawnflags->options()
-    == std::vector<asset::FlagsPropertyOption>{
+    == std::vector<mdl::FlagsPropertyOption>{
       {1, "Crucified", "", false},
       {2, "ambush", "", false},
     });
@@ -223,13 +223,13 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == asset::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
   CHECK(definition.description() == "some desc");
 
   const auto& pointDefinition =
-    static_cast<const asset::PointEntityDefinition&>(definition);
+    static_cast<const mdl::PointEntityDefinition&>(definition);
   CHECK(
     pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
@@ -237,7 +237,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == asset::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -245,7 +245,7 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 
   CHECK(
     spawnflags->options()
-    == std::vector<asset::FlagsPropertyOption>{
+    == std::vector<mdl::FlagsPropertyOption>{
       {1, "", "", false},
       {2, "SUSPENDED", "", false},
       {4, "SPIN", "", false},
@@ -268,7 +268,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == asset::EntityDefinitionType::BrushEntity);
+  CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
   CHECK(definition.description() == "some desc");
@@ -277,7 +277,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
   CHECK(properties.size() == 1u); // spawnflags
 
   const auto property = properties[0];
-  CHECK(property->type() == asset::PropertyDefinitionType::FlagsProperty);
+  CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
 
   const auto* spawnflags = definition.spawnflags();
   CHECK(spawnflags != nullptr);
@@ -285,7 +285,7 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
 
   CHECK(
     spawnflags->options()
-    == std::vector<asset::FlagsPropertyOption>{
+    == std::vector<mdl::FlagsPropertyOption>{
       {1, "SUSPENDED", "", false},
       {2, "SPIN", "", false},
       {4, "", "", false},
@@ -333,7 +333,7 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   CHECK(definitions.size() == 1u);
 
   const auto& definition = *definitions[0];
-  CHECK(definition.type() == asset::EntityDefinitionType::PointEntity);
+  CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "light");
 
   CHECK(definition.propertyDefinitions().size() == 2u);
@@ -341,21 +341,21 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
   const auto* stylePropertyDefinition = definition.propertyDefinition("style");
   CHECK(stylePropertyDefinition != nullptr);
   CHECK(stylePropertyDefinition->key() == "style");
-  CHECK(stylePropertyDefinition->type() == asset::PropertyDefinitionType::ChoiceProperty);
+  CHECK(stylePropertyDefinition->type() == mdl::PropertyDefinitionType::ChoiceProperty);
 
   const auto* spawnflagsPropertyDefinition =
     definition.propertyDefinition(mdl::EntityPropertyKeys::Spawnflags);
   CHECK(spawnflagsPropertyDefinition != nullptr);
   CHECK(spawnflagsPropertyDefinition->key() == mdl::EntityPropertyKeys::Spawnflags);
   CHECK(
-    spawnflagsPropertyDefinition->type() == asset::PropertyDefinitionType::FlagsProperty);
+    spawnflagsPropertyDefinition->type() == mdl::PropertyDefinitionType::FlagsProperty);
 
   const auto* choice =
-    static_cast<const asset::ChoicePropertyDefinition*>(stylePropertyDefinition);
+    static_cast<const mdl::ChoicePropertyDefinition*>(stylePropertyDefinition);
 
   CHECK(
     choice->options()
-    == std::vector<asset::ChoicePropertyOption>{
+    == std::vector<mdl::ChoicePropertyOption>{
       {"0", "normal"},
       {"1", "flicker (first variety)"},
       {"2", "slow strong pulse"},
@@ -378,7 +378,7 @@ static const auto DefModelDefinitionTemplate = R"(
   }
   */)";
 
-using asset::assertModelDefinition;
+using mdl::assertModelDefinition;
 
 TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
@@ -386,11 +386,11 @@ TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
   assertModelDefinition<DefParser>(
-    asset::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
   assertModelDefinition<DefParser>(
-    asset::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'spawnflags': 1 }");
@@ -402,12 +402,12 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
   assertModelDefinition<DefParser>(
-    asset::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
+    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp' }");
   assertModelDefinition<DefParser>(
-    asset::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
+    mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
     ModelDefinition,
     DefModelDefinitionTemplate,
     "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
@@ -419,7 +419,7 @@ TEST_CASE("DefParserTest.parseELModelDefinition")
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
   assertModelDefinition<DefParser>(
-    asset::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
+    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
     ModelDefinition,
     DefModelDefinitionTemplate);
 }
@@ -443,7 +443,7 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
   auto definitions = parser.parseDefinitions(status);
   CHECK(definitions.size() == 1u);
 
-  const auto& definition = static_cast<asset::PointEntityDefinition&>(*definitions[0]);
+  const auto& definition = static_cast<mdl::PointEntityDefinition&>(*definitions[0]);
   CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
 

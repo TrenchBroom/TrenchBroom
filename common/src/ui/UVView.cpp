@@ -21,10 +21,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "render/ActiveShader.h"
 #include "render/Camera.h"
 #include "render/EdgeRenderer.h"

@@ -23,7 +23,7 @@
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
-#include "asset/Palette.h"
+#include "mdl/Palette.h"
 
 #include <fmt/format.h>
 
@@ -60,20 +60,20 @@ size_t readMipOffsets(
   return mipLevels;
 }
 
-std::tuple<asset::TextureBufferList, bool> readMips(
-  const asset::Palette& palette,
+std::tuple<mdl::TextureBufferList, bool> readMips(
+  const mdl::Palette& palette,
   const size_t mipLevels,
   const size_t offsets[],
   const size_t width,
   const size_t height,
   Reader& reader,
   Color& averageColor,
-  const asset::PaletteTransparency transparency)
+  const mdl::PaletteTransparency transparency)
 {
   static auto tempColor = Color{};
 
-  auto buffers = asset::TextureBufferList{};
-  asset::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
+  auto buffers = mdl::TextureBufferList{};
+  mdl::setMipBufferSize(buffers, mipLevels, width, height, GL_RGBA);
 
   auto hasTransparency = false;
   for (size_t i = 0; i < mipLevels; ++i)
@@ -101,8 +101,7 @@ std::tuple<asset::TextureBufferList, bool> readMips(
   return {std::move(buffers), hasTransparency};
 }
 
-Result<asset::Texture> readQ2Wal(
-  Reader& reader, const std::optional<asset::Palette>& palette)
+Result<mdl::Texture> readQ2Wal(Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   static const auto MaxMipLevels = size_t(4);
   auto averageColor = Color{};
@@ -132,7 +131,7 @@ Result<asset::Texture> readQ2Wal(
     const auto flags = reader.readInt<int32_t>();
     const auto contents = reader.readInt<int32_t>();
     const auto value = reader.readInt<int32_t>();
-    auto embeddedDefaults = asset::Q2EmbeddedDefaults{flags, contents, value};
+    auto embeddedDefaults = mdl::Q2EmbeddedDefaults{flags, contents, value};
 
     auto [buffers, hasTransparency] = readMips(
       *palette,
@@ -142,16 +141,16 @@ Result<asset::Texture> readQ2Wal(
       height,
       reader,
       averageColor,
-      asset::PaletteTransparency::Opaque);
+      mdl::PaletteTransparency::Opaque);
 
     unused(hasTransparency);
 
-    return asset::Texture{
+    return mdl::Texture{
       width,
       height,
       averageColor,
       GL_RGBA,
-      asset::TextureMask::Off,
+      mdl::TextureMask::Off,
       std::move(embeddedDefaults),
       std::move(buffers)};
   }
@@ -161,7 +160,7 @@ Result<asset::Texture> readQ2Wal(
   }
 }
 
-Result<asset::Texture> readDkWal(Reader& reader)
+Result<mdl::Texture> readDkWal(Reader& reader)
 {
   static const auto MaxMipLevels = size_t(9);
   auto averageColor = Color{};
@@ -194,9 +193,9 @@ Result<asset::Texture> readDkWal(Reader& reader)
     auto paletteReader = reader.subReaderFromCurrent(3 * 256);
     reader.seekForward(3 * 256); // seek past palette
     const auto value = reader.readInt<int32_t>();
-    auto embeddedDefaults = asset::Q2EmbeddedDefaults{flags, contents, value};
+    auto embeddedDefaults = mdl::Q2EmbeddedDefaults{flags, contents, value};
 
-    return asset::loadPalette(paletteReader, asset::PaletteColorFormat::Rgb)
+    return mdl::loadPalette(paletteReader, mdl::PaletteColorFormat::Rgb)
            | kdl::transform([&](const auto& palette) {
                auto [buffers, hasTransparency] = readMips(
                  palette,
@@ -206,14 +205,14 @@ Result<asset::Texture> readDkWal(Reader& reader)
                  height,
                  reader,
                  averageColor,
-                 asset::PaletteTransparency::Index255Transparent);
+                 mdl::PaletteTransparency::Index255Transparent);
 
-               return asset::Texture{
+               return mdl::Texture{
                  width,
                  height,
                  averageColor,
                  GL_RGBA,
-                 hasTransparency ? asset::TextureMask::On : asset::TextureMask::Off,
+                 hasTransparency ? mdl::TextureMask::On : mdl::TextureMask::Off,
                  std::move(embeddedDefaults),
                  std::move(buffers)};
              });
@@ -226,8 +225,8 @@ Result<asset::Texture> readDkWal(Reader& reader)
 
 } // namespace
 
-Result<asset::Texture> readWalTexture(
-  Reader& reader, const std::optional<asset::Palette>& palette)
+Result<mdl::Texture> readWalTexture(
+  Reader& reader, const std::optional<mdl::Palette>& palette)
 {
   try
   {

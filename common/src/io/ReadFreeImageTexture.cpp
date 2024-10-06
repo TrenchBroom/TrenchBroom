@@ -24,8 +24,8 @@
 #include "io/ImageLoaderImpl.h"
 #include "io/MaterialUtils.h"
 #include "io/Reader.h"
-#include "asset/Texture.h"
-#include "asset/TextureBuffer.h"
+#include "mdl/Texture.h"
+#include "mdl/TextureBuffer.h"
 
 #include "kdl/resource.h"
 #include "kdl/string_utils.h"
@@ -71,7 +71,7 @@ constexpr GLenum freeImage32BPPFormatToGLFormat()
 
 } // namespace
 
-Color getAverageColor(const asset::TextureBuffer& buffer, const GLenum format)
+Color getAverageColor(const mdl::TextureBuffer& buffer, const GLenum format)
 {
   ensure(format == GL_RGBA || format == GL_BGRA, "format is GL_RGBA or GL_BGRA");
 
@@ -99,7 +99,7 @@ Color getAverageColor(const asset::TextureBuffer& buffer, const GLenum format)
   return average;
 }
 
-Result<asset::Texture> readFreeImageTextureFromMemory(
+Result<mdl::Texture> readFreeImageTextureFromMemory(
   const uint8_t* begin, const size_t size)
 {
   try
@@ -134,8 +134,8 @@ Result<asset::Texture> readFreeImageTextureFromMemory(
     constexpr auto mipCount = 1u;
     constexpr auto format = freeImage32BPPFormatToGLFormat();
 
-    auto buffers = asset::TextureBufferList{mipCount};
-    asset::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
+    auto buffers = mdl::TextureBufferList{mipCount};
+    mdl::setMipBufferSize(buffers, mipCount, imageWidth, imageHeight, format);
 
     if (
       FreeImage_GetColorType(*image) != FIC_RGBALPHA
@@ -165,16 +165,16 @@ Result<asset::Texture> readFreeImageTextureFromMemory(
       TRUE);
 
 
-    const auto textureMask = masked ? asset::TextureMask::On : asset::TextureMask::Off;
+    const auto textureMask = masked ? mdl::TextureMask::On : mdl::TextureMask::Off;
     const auto averageColor = getAverageColor(buffers.at(0), format);
 
-    return asset::Texture{
+    return mdl::Texture{
       imageWidth,
       imageHeight,
       averageColor,
       format,
       textureMask,
-      asset::NoEmbeddedDefaults{},
+      mdl::NoEmbeddedDefaults{},
       std::move(buffers)};
   }
   catch (const std::exception& e)
@@ -183,7 +183,7 @@ Result<asset::Texture> readFreeImageTextureFromMemory(
   }
 }
 
-Result<asset::Texture> readFreeImageTexture(Reader& reader)
+Result<mdl::Texture> readFreeImageTexture(Reader& reader)
 {
   auto bufferedReader = reader.buffer();
   const auto* begin = bufferedReader.begin();

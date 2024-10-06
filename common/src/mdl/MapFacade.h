@@ -33,28 +33,24 @@
 #include <string>
 #include <vector>
 
-namespace tb::asset
-{
-class BrushEntityDefinition;
-class EntityDefinitionManager;
-class EntityModelManager;
-class Material;
-class PointEntityDefinition;
-class MaterialManager;
-} // namespace tb::asset
-
 namespace tb::mdl
 {
+class BrushEntityDefinition;
 class BrushFace;
-class BrushNode;
 class BrushFaceAttributes;
+class BrushNode;
 class ChangeBrushFaceAttributesRequest;
+class EntityDefinitionManager;
+class EntityModelManager;
 class EntityNode;
 class Game;
 class GroupNode;
 class LayerNode;
+class Material;
+class MaterialManager;
 class Node;
 class NodeCollection;
+class PointEntityDefinition;
 
 /**
  * Interface of MapDocument that is exposed to the Model package.
@@ -73,9 +69,9 @@ public: // getters
   virtual Node* currentGroupOrWorld() const = 0;
   virtual Node* parentForNodes(const std::vector<Node*>& nodes) const = 0;
 
-  virtual asset::EntityDefinitionManager& entityDefinitionManager() = 0;
-  virtual asset::EntityModelManager& entityModelManager() = 0;
-  virtual asset::MaterialManager& materialManager() = 0;
+  virtual EntityDefinitionManager& entityDefinitionManager() = 0;
+  virtual EntityModelManager& entityModelManager() = 0;
+  virtual MaterialManager& materialManager() = 0;
 
 public: // selection
   virtual bool hasSelection() const = 0;
@@ -118,9 +114,8 @@ public: // adding, removing, reparenting, and duplicating nodes
 
 public: // entity management
   virtual mdl::EntityNode* createPointEntity(
-    const asset::PointEntityDefinition* definition, const vm::vec3d& delta) = 0;
-  virtual mdl::EntityNode* createBrushEntity(
-    const asset::BrushEntityDefinition* definition) = 0;
+    const PointEntityDefinition* definition, const vm::vec3d& delta) = 0;
+  virtual mdl::EntityNode* createBrushEntity(const BrushEntityDefinition* definition) = 0;
 
 public:                                            // modifying transient node attributes
   virtual void hide(std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!
@@ -150,7 +145,7 @@ public: // modifying entity properties
   virtual bool removeProperty(const std::string& key) = 0;
 
   virtual bool convertEntityColorRange(
-    const std::string& name, asset::ColorRange::Type range) = 0;
+    const std::string& name, ColorRange::Type range) = 0;
   virtual bool updateSpawnflag(
     const std::string& name, size_t flagIndex, bool setFlag) = 0;
 

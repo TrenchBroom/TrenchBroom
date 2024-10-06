@@ -29,10 +29,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionGroup.h"
-#include "asset/EntityDefinitionManager.h"
 #include "mdl/EditorContext.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionGroup.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/Game.h"
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
@@ -52,7 +52,7 @@ namespace tb::ui
 // EntityDefinitionCheckBoxList
 
 EntityDefinitionCheckBoxList::EntityDefinitionCheckBoxList(
-  asset::EntityDefinitionManager& entityDefinitionManager,
+  mdl::EntityDefinitionManager& entityDefinitionManager,
   mdl::EditorContext& editorContext,
   QWidget* parent)
   : QWidget{parent}
@@ -115,7 +115,7 @@ void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool 
 }
 
 void EntityDefinitionCheckBoxList::defCheckBoxChanged(
-  const asset::EntityDefinition* definition, bool checked)
+  const mdl::EntityDefinition* definition, bool checked)
 {
   m_editorContext.setEntityDefinitionHidden(definition, !checked);
   refresh();

@@ -18,7 +18,6 @@
  */
 
 #include "Logger.h"
-#include "asset/Palette.h"
 #include "io/DiskFileSystem.h"
 #include "io/LoadMaterialCollections.h"
 #include "io/LoadShaders.h"
@@ -27,6 +26,7 @@
 #include "io/Reader.h"
 #include "io/VirtualFileSystem.h"
 #include "mdl/GameConfig.h"
+#include "mdl/Palette.h"
 
 #include <filesystem>
 #include <memory>

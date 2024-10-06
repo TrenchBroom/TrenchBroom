@@ -22,6 +22,7 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
+#include "mdl/ColorRange.h"
 #include "mdl/Game.h"
 #include "mdl/MapFacade.h"
 #include "mdl/NodeCollection.h"
@@ -47,38 +48,34 @@ namespace tb
 class Color;
 } // namespace tb
 
-namespace tb::asset
-{
-class EntityDefinition;
-class EntityDefinitionFileSpec;
-class EntityDefinitionManager;
-class EntityModelManager;
-class Material;
-class MaterialManager;
-struct ProcessContext;
-class ResourceId;
-class ResourceManager;
-} // namespace tb::asset
-
 namespace tb::mdl
 {
 class Brush;
 class BrushFace;
-class BrushFaceHandle;
 class BrushFaceAttributes;
+class BrushFaceHandle;
 class EditorContext;
 class Entity;
+class EntityDefinition;
+class EntityDefinitionFileSpec;
+class EntityDefinitionManager;
+class EntityModelManager;
 class Game;
 class Issue;
-enum class MapFormat;
+class Material;
+class MaterialManager;
 class PickResult;
 class PointTrace;
 class PortalFile;
+class ResourceId;
+class ResourceManager;
 class SmartTag;
 class TagManager;
 class UVCoordSystemSnapshot;
 class WorldNode;
+enum class MapFormat;
 enum class WrapStyle;
+struct ProcessContext;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -121,10 +118,10 @@ protected:
   std::optional<PointFile> m_pointFile;
   std::optional<PortalFile> m_portalFile;
 
-  std::unique_ptr<asset::ResourceManager> m_resourceManager;
-  std::unique_ptr<asset::EntityDefinitionManager> m_entityDefinitionManager;
-  std::unique_ptr<asset::EntityModelManager> m_entityModelManager;
-  std::unique_ptr<asset::MaterialManager> m_materialManager;
+  std::unique_ptr<mdl::ResourceManager> m_resourceManager;
+  std::unique_ptr<mdl::EntityDefinitionManager> m_entityDefinitionManager;
+  std::unique_ptr<mdl::EntityModelManager> m_entityModelManager;
+  std::unique_ptr<mdl::MaterialManager> m_materialManager;
   std::unique_ptr<mdl::TagManager> m_tagManager;
 
   std::unique_ptr<mdl::EditorContext> m_editorContext;
@@ -196,7 +193,7 @@ public: // notification
 
   Notifier<const std::vector<mdl::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
-  Notifier<const std::vector<asset::ResourceId>> resourcesWereProcessedNotifier;
+  Notifier<const std::vector<mdl::ResourceId>> resourcesWereProcessedNotifier;
 
   Notifier<> materialCollectionsWillChangeNotifier;
   Notifier<> materialCollectionsDidChangeNotifier;
@@ -261,9 +258,9 @@ public:
 
   mdl::EditorContext& editorContext() const;
 
-  asset::EntityDefinitionManager& entityDefinitionManager() override;
-  asset::EntityModelManager& entityModelManager() override;
-  asset::MaterialManager& materialManager() override;
+  mdl::EntityDefinitionManager& entityDefinitionManager() override;
+  mdl::EntityModelManager& entityModelManager() override;
+  mdl::MaterialManager& materialManager() override;
 
   Grid& grid() const;
 
@@ -407,7 +404,7 @@ public: // selection
   void selectNodes(const std::vector<mdl::Node*>& nodes) override;
   void selectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles) override;
   void convertToFaceSelection() override;
-  void selectFacesWithMaterial(const asset::Material* material);
+  void selectFacesWithMaterial(const mdl::Material* material);
   void selectTall(vm::axis::type cameraAxis);
 
   void deselectAll() override;
@@ -452,9 +449,9 @@ public:
 
 public: // entity management
   mdl::EntityNode* createPointEntity(
-    const asset::PointEntityDefinition* definition, const vm::vec3d& delta) override;
+    const mdl::PointEntityDefinition* definition, const vm::vec3d& delta) override;
   mdl::EntityNode* createBrushEntity(
-    const asset::BrushEntityDefinition* definition) override;
+    const mdl::BrushEntityDefinition* definition) override;
 
 public: // group management
   mdl::GroupNode* groupSelection(const std::string& name);
@@ -590,7 +587,7 @@ public: // modifying entity properties, declared in MapFacade interface
   bool removeProperty(const std::string& key) override;
 
   bool convertEntityColorRange(
-    const std::string& key, asset::ColorRange::Type range) override;
+    const std::string& key, mdl::ColorRange::Type range) override;
   bool updateSpawnflag(const std::string& key, size_t flagIndex, bool setFlag) override;
 
   bool setProtectedProperty(const std::string& key, bool value);
@@ -684,8 +681,8 @@ private: // subclassing interface for command processing
     std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
-  void processResourcesSync(const asset::ProcessContext& processContext);
-  void processResourcesAsync(const asset::ProcessContext& processContext);
+  void processResourcesSync(const mdl::ProcessContext& processContext);
+  void processResourcesAsync(const mdl::ProcessContext& processContext);
   bool needsResourceProcessing();
 
 public: // picking
@@ -705,13 +702,13 @@ private: // world management
   void clearWorld();
 
 public: // asset management
-  asset::EntityDefinitionFileSpec entityDefinitionFile() const;
-  std::vector<asset::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
-  void setEntityDefinitionFile(const asset::EntityDefinitionFileSpec& spec);
+  mdl::EntityDefinitionFileSpec entityDefinitionFile() const;
+  std::vector<mdl::EntityDefinitionFileSpec> allEntityDefinitionFiles() const;
+  void setEntityDefinitionFile(const mdl::EntityDefinitionFileSpec& spec);
 
   // For testing
   void setEntityDefinitions(
-    std::vector<std::unique_ptr<asset::EntityDefinition>> definitions);
+    std::vector<std::unique_ptr<mdl::EntityDefinition>> definitions);
 
   void reloadMaterialCollections();
   void reloadEntityDefinitions();

@@ -26,8 +26,8 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 
-#include "asset/EntityDefinitionFileSpec.h"
 #include "io/PathQt.h"
+#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/Game.h"
 #include "ui/BorderLine.h"
 #include "ui/MapDocument.h"
@@ -237,7 +237,7 @@ void EntityDefinitionFileChooser::builtinSelectionChanged()
   {
 
     auto* item = m_builtin->selectedItems().first();
-    auto spec = item->data(Qt::UserRole).value<asset::EntityDefinitionFileSpec>();
+    auto spec = item->data(Qt::UserRole).value<mdl::EntityDefinitionFileSpec>();
 
     auto document = kdl::mem_lock(m_document);
     if (document->entityDefinitionFile() != spec)

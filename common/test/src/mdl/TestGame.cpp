@@ -20,9 +20,6 @@
 #include "TestGame.h"
 
 #include "TestUtils.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityDefinitionFileSpec.h"
-#include "asset/MaterialManager.h"
 #include "io/BrushFaceReader.h"
 #include "io/DiskFileSystem.h"
 #include "io/DiskIO.h"
@@ -34,7 +31,10 @@
 #include "io/WadFileSystem.h"
 #include "mdl/BrushFace.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
+#include "mdl/MaterialManager.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
@@ -156,8 +156,7 @@ void TestGame::writeBrushFacesToStream(
 }
 
 void TestGame::loadMaterialCollections(
-  asset::MaterialManager& materialManager,
-  const asset::CreateTextureResource& createResource) const
+  MaterialManager& materialManager, const CreateTextureResource& createResource) const
 {
   const auto materialConfig = mdl::MaterialConfig{
     "textures",
@@ -191,19 +190,19 @@ bool TestGame::isEntityDefinitionFile(const std::filesystem::path& /* path */) c
   return false;
 }
 
-std::vector<asset::EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
+std::vector<EntityDefinitionFileSpec> TestGame::allEntityDefinitionFiles() const
 {
   return {};
 }
 
-asset::EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
+EntityDefinitionFileSpec TestGame::extractEntityDefinitionFile(
   const Entity& /* entity */) const
 {
   return {};
 }
 
 std::filesystem::path TestGame::findEntityDefinitionFile(
-  const asset::EntityDefinitionFileSpec& /* spec */,
+  const EntityDefinitionFileSpec& /* spec */,
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return {};
@@ -224,11 +223,10 @@ std::string TestGame::defaultMod() const
   return "";
 }
 
-Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> TestGame::
-  loadEntityDefinitions(
-    io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
+Result<std::vector<std::unique_ptr<EntityDefinition>>> TestGame::loadEntityDefinitions(
+  io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return std::vector<std::unique_ptr<asset::EntityDefinition>>{};
+  return std::vector<std::unique_ptr<EntityDefinition>>{};
 }
 
 void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)

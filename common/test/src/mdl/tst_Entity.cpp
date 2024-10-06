@@ -17,12 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "asset/EntityDefinition.h"
-#include "asset/PropertyDefinition.h"
 #include "el/Expression.h"
 #include "io/ELParser.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "vm/bbox.h"
 #include "vm/mat.h"
@@ -50,13 +50,13 @@ TEST_CASE("EntityTest")
   {
     SECTION("Updates cached model transformation")
     {
-      auto definition = asset::PointEntityDefinition{
+      auto definition = PointEntityDefinition{
         "some_name",
         Color{},
         vm::bbox3d{32.0},
         "",
         {},
-        asset::ModelDefinition{el::ExpressionNode{el::MapExpression{
+        ModelDefinition{el::ExpressionNode{el::MapExpression{
           {{"scale", el::ExpressionNode{el::VariableExpression{"modelscale"}}}}}}},
         {}};
 
@@ -82,15 +82,14 @@ TEST_CASE("EntityTest")
   {
     const auto propertyConfig = EntityPropertyConfig{};
 
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {
-        std::make_shared<asset::StringPropertyDefinition>(
-          "some_prop", "", "", !true(readOnly)),
-        std::make_shared<asset::StringPropertyDefinition>(
+        std::make_shared<StringPropertyDefinition>("some_prop", "", "", !true(readOnly)),
+        std::make_shared<StringPropertyDefinition>(
           "some_default_prop", "", "", !true(readOnly), "value"),
       },
       {},
@@ -124,8 +123,8 @@ TEST_CASE("EntityTest")
 
   SECTION("definitionBounds")
   {
-    auto pointEntityDefinition = asset::PointEntityDefinition(
-      "some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {});
+    auto pointEntityDefinition =
+      PointEntityDefinition("some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {});
     auto entity = Entity{};
 
     SECTION("Returns default bounds if no definition is set")
@@ -144,13 +143,13 @@ TEST_CASE("EntityTest")
   {
     SECTION("Updates cached model transformation")
     {
-      auto definition = asset::PointEntityDefinition{
+      auto definition = PointEntityDefinition{
         "some_name",
         Color{},
         vm::bbox3d{32.0},
         "",
         {},
-        asset::ModelDefinition{el::ExpressionNode{el::MapExpression{{}}}},
+        ModelDefinition{el::ExpressionNode{el::MapExpression{{}}}},
         {}};
 
       auto entity = Entity{};
@@ -177,57 +176,53 @@ TEST_CASE("EntityTest")
                          "maps/b_shell2.bsp"
   }})");
 
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
-      asset::ModelDefinition{modelExpression},
+      ModelDefinition{modelExpression},
       {}};
 
     auto entity = Entity{};
     entity.setDefinition(&definition);
-    CHECK(
-      entity.modelSpecification()
-      == asset::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
+    CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 
     entity.addOrUpdateProperty(EntityPropertyKeys::Spawnflags, "1");
-    CHECK(
-      entity.modelSpecification()
-      == asset::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+    CHECK(entity.modelSpecification() == ModelSpecification{"maps/b_shell1.bsp", 0, 0});
   }
 
   SECTION("decalSpecification")
   {
     auto decalExpression = io::ELParser::parseStrict(R"({ texture: texture })");
 
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
       {},
-      asset::DecalDefinition{decalExpression}};
+      DecalDefinition{decalExpression}};
 
     auto entity = Entity{};
     entity.setDefinition(&definition);
-    CHECK(entity.decalSpecification() == asset::DecalSpecification{""});
+    CHECK(entity.decalSpecification() == DecalSpecification{""});
 
     entity.addOrUpdateProperty("texture", "decal1");
-    CHECK(entity.decalSpecification() == asset::DecalSpecification{"decal1"});
+    CHECK(entity.decalSpecification() == DecalSpecification{"decal1"});
   }
 
   SECTION("unsetEntityDefinitionAndModel")
   {
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
-      asset::ModelDefinition{el::ExpressionNode{el::MapExpression{{}}}},
+      ModelDefinition{el::ExpressionNode{el::MapExpression{{}}}},
       {}};
 
     auto entity = Entity{};
@@ -249,8 +244,8 @@ TEST_CASE("EntityTest")
   SECTION("addOrUpdateProperty")
   {
     // needs to be created here so that it is destroyed last
-    auto definition = asset::PointEntityDefinition{
-      "some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
+    auto definition =
+      PointEntityDefinition{"some_name", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
 
     auto entity = Entity{};
     REQUIRE(entity.property("test") == nullptr);
@@ -293,13 +288,13 @@ TEST_CASE("EntityTest")
   SECTION("renameProperty")
   {
     // needs to be created here so that it is destroyed last
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
-      asset::ModelDefinition{el::ExpressionNode{el::MapExpression{
+      ModelDefinition{el::ExpressionNode{el::MapExpression{
         {{"scale", el::ExpressionNode{el::VariableExpression{"modelscale"}}}}}}},
       {}};
 
@@ -367,13 +362,13 @@ TEST_CASE("EntityTest")
   SECTION("removeProperty")
   {
     // needs to be created here so that it is destroyed last
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
-      asset::ModelDefinition{el::ExpressionNode{el::MapExpression{
+      ModelDefinition{el::ExpressionNode{el::MapExpression{
         {{"scale", el::ExpressionNode{el::VariableExpression{"modelscale"}}}}}}},
       {}};
 
@@ -588,13 +583,13 @@ TEST_CASE("EntityTest")
   SECTION("setOrigin")
   {
     // needs to be created here so that it is destroyed last
-    auto definition = asset::PointEntityDefinition{
+    auto definition = PointEntityDefinition{
       "some_name",
       Color{},
       vm::bbox3d{32.0},
       "",
       {},
-      asset::ModelDefinition{el::ExpressionNode{el::MapExpression{
+      ModelDefinition{el::ExpressionNode{el::MapExpression{
         {{"scale", el::ExpressionNode{el::VariableExpression{"modelscale"}}}}}}},
       {}};
 
@@ -635,7 +630,7 @@ TEST_CASE("EntityTest")
   SECTION("transform")
   {
     // need to be created here so that they are destroyed last
-    auto definition = asset::PointEntityDefinition(
+    auto definition = PointEntityDefinition(
       "some_name",
       Color{},
       vm::bbox3d{16.0}.translate(vm::vec3d{16, 16, 0}),
@@ -643,8 +638,8 @@ TEST_CASE("EntityTest")
       {},
       {},
       {});
-    auto otherDefinition = asset::PointEntityDefinition{
-      "some_class", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
+    auto otherDefinition =
+      PointEntityDefinition{"some_class", Color{}, vm::bbox3d{32.0}, "", {}, {}, {}};
 
     auto entity = Entity{};
     REQUIRE(entity.rotation() == vm::mat4x4d::identity());

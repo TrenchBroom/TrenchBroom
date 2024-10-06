@@ -1,9 +1,9 @@
 set(COMMON_TEST_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 set(COMMON_TEST_UTILS_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/asset/EntityDefinitionTestUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/EntityDefinitionTestUtils.h"
-        "${COMMON_TEST_SOURCE_DIR}/asset/MockTaskRunner.h"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/EntityDefinitionTestUtils.h"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/MockTaskRunner.h"
         "${COMMON_TEST_SOURCE_DIR}/Catch2.h"
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/Matchers.h"
@@ -25,13 +25,13 @@ set(COMMON_TEST_UTILS_SOURCE
 )
 
 set(COMMON_TEST_SOURCE
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_AssetUtils.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_DecalDefinition.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_EntityModel.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_ModelDefinition.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_Palette.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_Resource.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/asset/tst_ResourceManager.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_AssetUtils.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_DecalDefinition.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityModel.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ModelDefinition.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Palette.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_Resource.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_ResourceManager.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_Matchers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/catch/tst_StringMakers.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/tst_EL.cpp"

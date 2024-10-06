@@ -34,11 +34,6 @@
 #include <string>
 #include <vector>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::render
 {
 class BrushRendererBrushCache;
@@ -49,7 +44,7 @@ namespace tb::mdl
 class BrushFace;
 class GroupNode;
 class LayerNode;
-
+class Material;
 class ModelFactory;
 
 class BrushNode : public Node, public Object
@@ -84,7 +79,7 @@ public:
 
   void updateFaceTags(size_t faceIndex, TagManager& tagManager);
 
-  void setFaceMaterial(size_t faceIndex, asset::Material* material);
+  void setFaceMaterial(size_t faceIndex, Material* material);
 
   bool contains(const Node* node) const;
   bool intersects(const Node* node) const;

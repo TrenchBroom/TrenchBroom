@@ -20,11 +20,11 @@
 #include "BrushRenderer.h"
 
 #include "PreferenceManager.h"
-#include "asset/Material.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/Material.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/TagAttribute.h"
 #include "render/BrushRendererArrays.h"
@@ -189,10 +189,10 @@ void BrushRenderer::invalidate()
 }
 
 void BrushRenderer::invalidateMaterials(
-  const std::vector<const asset::Material*>& materials)
+  const std::vector<const mdl::Material*>& materials)
 {
   const auto materialSet =
-    std::unordered_set<const asset::Material*>{materials.begin(), materials.end()};
+    std::unordered_set<const mdl::Material*>{materials.begin(), materials.end()};
   for (auto* brush : m_allBrushes)
   {
     for (const auto& face : brush->brush().faces())

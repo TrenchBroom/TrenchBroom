@@ -19,13 +19,13 @@
 
 #include "DkmLoader.h"
 
-#include "asset/EntityModel.h"
 #include "io/FileSystem.h"
 #include "io/PathInfo.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "io/SkinLoader.h"
 #include "io/TraversalMode.h"
+#include "mdl/EntityModel.h"
 #include "render/GLVertex.h"
 #include "render/IndexRangeMap.h"
 #include "render/IndexRangeMapBuilder.h"
@@ -420,7 +420,7 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
 }
 
 Result<void> loadSkins(
-  asset::EntityModelSurface& surface,
+  mdl::EntityModelSurface& surface,
   const std::vector<std::string>& skins,
   const FileSystem& fs,
   Logger& logger)
@@ -441,13 +441,13 @@ auto getVertices(const DkmFrame& frame, const std::vector<DkmMeshVertex>& meshVe
 {
   return kdl::vec_transform(meshVertices, [&](const auto& meshVertex) {
     const auto position = frame.vertex(meshVertex.vertexIndex);
-    return asset::EntityModelVertex{position, meshVertex.uv};
+    return mdl::EntityModelVertex{position, meshVertex.uv};
   });
 }
 
 void buildFrame(
-  asset::EntityModelData& model,
-  asset::EntityModelSurface& surface,
+  mdl::EntityModelData& model,
+  mdl::EntityModelSurface& surface,
   const DkmFrame& frame,
   const std::vector<DkmMesh>& meshes)
 {
@@ -463,7 +463,7 @@ void buildFrame(
   auto bounds = vm::bbox3f::builder{};
 
   auto builder =
-    render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{vertexCount, size};
+    render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{vertexCount, size};
   for (const auto& mesh : meshes)
   {
     if (!mesh.vertices.empty())
@@ -512,7 +512,7 @@ bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 }
 
 // http://tfc.duke.free.fr/old/models/md2.htm
-Result<asset::EntityModelData> DkmLoader::load(Logger& logger)
+Result<mdl::EntityModelData> DkmLoader::load(Logger& logger)
 {
   try
   {
@@ -552,8 +552,7 @@ Result<asset::EntityModelData> DkmLoader::load(Logger& logger)
 
     const auto skins = parseSkins(reader.subReaderFromBegin(skinOffset), skinCount);
 
-    auto data =
-      asset::EntityModelData{asset::PitchType::Normal, asset::Orientation::Oriented};
+    auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
 
     auto& surface = data.addSurface(m_name, frameCount);
     return loadSkins(surface, skins, m_fs, logger).transform([&]() {

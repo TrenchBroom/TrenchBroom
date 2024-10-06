@@ -23,10 +23,10 @@
 #include <QMessageBox>
 #include <QPushButton>
 
-#include "asset/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
+#include "mdl/Material.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/PushSelection.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
@@ -190,12 +190,12 @@ void ReplaceMaterialDialog::createGui(GLContextManager& contextManager)
   setMinimumSize(650, 450);
 }
 
-void ReplaceMaterialDialog::subjectSelected(const asset::Material* /* subject */)
+void ReplaceMaterialDialog::subjectSelected(const mdl::Material* /* subject */)
 {
   updateReplaceButton();
 }
 
-void ReplaceMaterialDialog::replacementSelected(const asset::Material* /* replacement */)
+void ReplaceMaterialDialog::replacementSelected(const mdl::Material* /* replacement */)
 {
   updateReplaceButton();
 }

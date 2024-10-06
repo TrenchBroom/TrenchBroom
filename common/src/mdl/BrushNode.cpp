@@ -126,7 +126,7 @@ void BrushNode::updateFaceTags(const size_t faceIndex, TagManager& tagManager)
   m_brush.face(faceIndex).updateTags(tagManager);
 }
 
-void BrushNode::setFaceMaterial(const size_t faceIndex, asset::Material* material)
+void BrushNode::setFaceMaterial(const size_t faceIndex, Material* material)
 {
   m_brush.face(faceIndex).setMaterial(material);
 

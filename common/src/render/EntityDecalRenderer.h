@@ -30,18 +30,14 @@
 #include <unordered_map>
 #include <vector>
 
-namespace tb::asset
-{
-class Material;
-struct DecalSpecification;
-} // namespace tb::asset
-
 namespace tb::mdl
 {
 class BrushFace;
 class BrushNode;
 class EntityNode;
+class Material;
 class Node;
+struct DecalSpecification;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -63,7 +59,7 @@ private:
      * and the decal geometry is stored in the VBO */
     bool validated = false;
 
-    asset::Material* material = nullptr;
+    mdl::Material* material = nullptr;
 
     AllocationTracker::Block* vertexHolderKey = nullptr;
     AllocationTracker::Block* faceIndicesKey = nullptr;
@@ -77,7 +73,7 @@ private:
 
   using Vertex = render::GLVertexTypes::P3NT2::Vertex;
   using MaterialToBrushIndicesMap =
-    std::unordered_map<const asset::Material*, std::shared_ptr<BrushIndexArray>>;
+    std::unordered_map<const mdl::Material*, std::shared_ptr<BrushIndexArray>>;
 
   std::shared_ptr<MaterialToBrushIndicesMap> m_faces;
   std::shared_ptr<BrushVertexArray> m_vertexArray;

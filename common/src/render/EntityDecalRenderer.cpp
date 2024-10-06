@@ -20,16 +20,16 @@
 #include "EntityDecalRenderer.h"
 
 #include "BrushRendererArrays.h"
-#include "asset/DecalDefinition.h"
-#include "asset/Material.h"
-#include "asset/MaterialManager.h"
-#include "asset/Texture.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
+#include "mdl/DecalDefinition.h"
 #include "mdl/EditorContext.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialManager.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
@@ -46,7 +46,7 @@ namespace tb::render
 namespace
 {
 
-std::optional<asset::DecalSpecification> getDecalSpecification(
+std::optional<mdl::DecalSpecification> getDecalSpecification(
   const mdl::EntityNode* entityNode)
 {
   const auto decalSpec = entityNode->entity().decalSpecification();
@@ -58,7 +58,7 @@ std::vector<Vertex> createDecalBrushFace(
   const mdl::EntityNode* entityNode,
   const mdl::BrushNode* brush,
   const mdl::BrushFace& face,
-  const asset::Material& material)
+  const mdl::Material& material)
 {
   const auto* texture = material.texture();
   if (!texture)

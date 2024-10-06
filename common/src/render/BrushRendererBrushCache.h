@@ -23,15 +23,11 @@
 
 #include <vector>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
+class Material;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -45,7 +41,7 @@ public:
 
   struct CachedFace
   {
-    const asset::Material* material;
+    const mdl::Material* material;
     const mdl::BrushFace* face;
     size_t vertexCount;
     size_t indexOfFirstVertexRelativeToBrush;

@@ -18,10 +18,10 @@
  */
 
 #include "Color.h"
-#include "asset/EntityDefinition.h"
 #include "el/Expression.h"
 #include "io/ELParser.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 
 #include "Catch2.h"
 
@@ -40,14 +40,8 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
 }})"}
                                  .parse();
 
-  auto definition = asset::PointEntityDefinition{
-    "some_name",
-    Color{},
-    vm::bbox3d{32.0},
-    "",
-    {},
-    asset::ModelDefinition{modelExpression},
-    {}};
+  auto definition = PointEntityDefinition{
+    "some_name", Color{}, vm::bbox3d{32.0}, "", {}, ModelDefinition{modelExpression}, {}};
 
   auto entity = Entity{};
   entity.setDefinition(&definition);

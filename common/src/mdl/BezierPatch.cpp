@@ -20,7 +20,7 @@
 #include "BezierPatch.h"
 
 #include "Ensure.h"
-#include "asset/Material.h"
+#include "mdl/Material.h"
 
 #include "kdl/reflection_impl.h"
 
@@ -144,19 +144,19 @@ void BezierPatch::setMaterialName(std::string materialName)
   m_materialName = std::move(materialName);
 }
 
-const asset::Material* BezierPatch::material() const
+const Material* BezierPatch::material() const
 {
   return m_materialReference.get();
 }
 
-bool BezierPatch::setMaterial(asset::Material* material)
+bool BezierPatch::setMaterial(Material* material)
 {
   if (material == this->material())
   {
     return false;
   }
 
-  m_materialReference = asset::AssetReference{material};
+  m_materialReference = AssetReference{material};
   return true;
 }
 

@@ -25,22 +25,22 @@
 
 #include <string_view>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Texture;
 class TextureBuffer;
-} // namespace tb::asset
+} // namespace tb::mdl
 
 namespace tb::io
 {
 
 class Reader;
 
-Color getAverageColor(const asset::TextureBuffer& buffer, GLenum format);
+Color getAverageColor(const mdl::TextureBuffer& buffer, GLenum format);
 
-Result<asset::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
+Result<mdl::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t size);
 
-Result<asset::Texture> readFreeImageTexture(Reader& reader);
+Result<mdl::Texture> readFreeImageTexture(Reader& reader);
 
 bool isSupportedFreeImageExtension(std::string_view extension);
 

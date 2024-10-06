@@ -20,12 +20,12 @@
 #pragma once
 
 #include "io/EntityModelLoader.h"
-#include "asset/EntityModel_Forward.h"
+#include "mdl/EntityModel_Forward.h"
 
 #include <filesystem>
 #include <string>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Palette;
 }
@@ -41,19 +41,19 @@ class Md2Loader : public EntityModelLoader
 private:
   std::string m_name;
   const Reader& m_reader;
-  const asset::Palette& m_palette;
+  const mdl::Palette& m_palette;
   const FileSystem& m_fs;
 
 public:
   Md2Loader(
     std::string name,
     const Reader& reader,
-    const asset::Palette& palette,
+    const mdl::Palette& palette,
     const FileSystem& fs);
 
   static bool canParse(const std::filesystem::path& path, Reader reader);
 
-  Result<asset::EntityModelData> load(Logger& logger) override;
+  Result<mdl::EntityModelData> load(Logger& logger) override;
 };
 
 } // namespace tb::io

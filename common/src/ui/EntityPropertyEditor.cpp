@@ -25,9 +25,9 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-#include "asset/EntityDefinition.h"
-#include "asset/PropertyDefinition.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/PropertyDefinition.h"
 #include "ui/EntityPropertyGrid.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
@@ -108,15 +108,15 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 }
 
 QString EntityPropertyEditor::optionDescriptions(
-  const asset::PropertyDefinition& definition)
+  const mdl::PropertyDefinition& definition)
 {
   static const auto bullet = QString{" "} + QChar{0x2022} + QString{" "};
 
   switch (definition.type())
   {
-  case asset::PropertyDefinitionType::ChoiceProperty: {
+  case mdl::PropertyDefinitionType::ChoiceProperty: {
     const auto& choiceDef =
-      dynamic_cast<const asset::ChoicePropertyDefinition&>(definition);
+      dynamic_cast<const mdl::ChoicePropertyDefinition&>(definition);
 
     auto result = QString{};
     auto stream = QTextStream{&result};
@@ -131,9 +131,8 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case asset::PropertyDefinitionType::FlagsProperty: {
-    const auto& flagsDef =
-      dynamic_cast<const asset::FlagsPropertyDefinition&>(definition);
+  case mdl::PropertyDefinitionType::FlagsProperty: {
+    const auto& flagsDef = dynamic_cast<const mdl::FlagsPropertyDefinition&>(definition);
 
     // The options are not necessarily sorted by value, so we sort the descriptions here
     // by inserting into a map sorted by the flag value.
@@ -159,12 +158,12 @@ QString EntityPropertyEditor::optionDescriptions(
     }
     return result;
   }
-  case asset::PropertyDefinitionType::StringProperty:
-  case asset::PropertyDefinitionType::BooleanProperty:
-  case asset::PropertyDefinitionType::IntegerProperty:
-  case asset::PropertyDefinitionType::FloatProperty:
-  case asset::PropertyDefinitionType::TargetSourceProperty:
-  case asset::PropertyDefinitionType::TargetDestinationProperty:
+  case mdl::PropertyDefinitionType::StringProperty:
+  case mdl::PropertyDefinitionType::BooleanProperty:
+  case mdl::PropertyDefinitionType::IntegerProperty:
+  case mdl::PropertyDefinitionType::FloatProperty:
+  case mdl::PropertyDefinitionType::TargetSourceProperty:
+  case mdl::PropertyDefinitionType::TargetDestinationProperty:
     return {};
     switchDefault();
   }

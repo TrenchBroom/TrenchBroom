@@ -29,7 +29,7 @@ class QWidget;
 class QLabel;
 class QWidget;
 
-namespace tb::asset
+namespace tb::mdl
 {
 class ChoicePropertyDefinition;
 }

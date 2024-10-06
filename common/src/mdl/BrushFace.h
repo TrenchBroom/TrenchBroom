@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Result.h"
-#include "asset/AssetReference.h"
+#include "mdl/AssetReference.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/BrushGeometry.h"
 #include "mdl/Tag.h"
@@ -39,13 +39,9 @@
 #include <optional>
 #include <vector>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
+class Material;
 class UVCoordSystem;
 class UVCoordSystemSnapshot;
 enum class WrapStyle;
@@ -92,7 +88,7 @@ private:
   vm::plane3d m_boundary;
   BrushFaceAttributes m_attributes;
 
-  asset::AssetReference<asset::Material> m_materialReference;
+  AssetReference<Material> m_materialReference;
   std::unique_ptr<UVCoordSystem> m_uvCoordSystem;
   BrushFaceGeometry* m_geometry = nullptr;
 
@@ -208,11 +204,11 @@ public:
   void resetUVCoordSystemCache();
   const UVCoordSystem& uvCoordSystem() const;
 
-  const asset::Material* material() const;
+  const Material* material() const;
   vm::vec2f textureSize() const;
   vm::vec2f modOffset(const vm::vec2f& offset) const;
 
-  bool setMaterial(asset::Material* material);
+  bool setMaterial(Material* material);
 
   vm::vec3d uAxis() const;
   vm::vec3d vAxis() const;

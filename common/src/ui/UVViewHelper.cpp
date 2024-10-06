@@ -19,11 +19,11 @@
 
 #include "UVViewHelper.h"
 
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "mdl/BrushFace.h"
+#include "mdl/Material.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/Texture.h"
 #include "render/OrthographicCamera.h"
 #include "ui/UVView.h"
 
@@ -50,7 +50,7 @@ const mdl::BrushFace* UVViewHelper::face() const
   return valid() ? &m_faceHandle->face() : nullptr;
 }
 
-const asset::Material* UVViewHelper::material() const
+const mdl::Material* UVViewHelper::material() const
 {
   return valid() ? face()->material() : nullptr;
 }

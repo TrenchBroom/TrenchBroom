@@ -24,10 +24,10 @@
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
-#include "asset/Material.h"
-#include "asset/MaterialCollection.h"
-#include "asset/MaterialManager.h"
-#include "asset/Texture.h"
+#include "mdl/Material.h"
+#include "mdl/MaterialCollection.h"
+#include "mdl/MaterialManager.h"
+#include "mdl/Texture.h"
 #include "render/ActiveShader.h"
 #include "render/FontManager.h"
 #include "render/GLVertexType.h"
@@ -108,12 +108,12 @@ void MaterialBrowserView::setFilterText(const std::string& filterText)
   }
 }
 
-const asset::Material* MaterialBrowserView::selectedMaterial() const
+const mdl::Material* MaterialBrowserView::selectedMaterial() const
 {
   return m_selectedMaterial;
 }
 
-void MaterialBrowserView::setSelectedMaterial(const asset::Material* selectedMaterial)
+void MaterialBrowserView::setSelectedMaterial(const mdl::Material* selectedMaterial)
 {
   if (m_selectedMaterial != selectedMaterial)
   {
@@ -122,7 +122,7 @@ void MaterialBrowserView::setSelectedMaterial(const asset::Material* selectedMat
   }
 }
 
-void MaterialBrowserView::revealMaterial(const asset::Material* material)
+void MaterialBrowserView::revealMaterial(const mdl::Material* material)
 {
   scrollToCell([&](const Cell& cell) {
     const auto& cellMaterial = cellData(cell);
@@ -130,7 +130,7 @@ void MaterialBrowserView::revealMaterial(const asset::Material* material)
   });
 }
 
-void MaterialBrowserView::resourcesWereProcessed(const std::vector<asset::ResourceId>&)
+void MaterialBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId>&)
 {
   reloadMaterials();
 }
@@ -178,7 +178,7 @@ void MaterialBrowserView::doReloadLayout(Layout& layout)
 
 void MaterialBrowserView::addMaterialsToLayout(
   Layout& layout,
-  const std::vector<const asset::Material*>& materials,
+  const std::vector<const mdl::Material*>& materials,
   const render::FontDescriptor& font)
 {
   for (const auto* material : materials)
@@ -188,7 +188,7 @@ void MaterialBrowserView::addMaterialsToLayout(
 }
 
 void MaterialBrowserView::addMaterialToLayout(
-  Layout& layout, const asset::Material& material, const render::FontDescriptor& font)
+  Layout& layout, const mdl::Material& material, const render::FontDescriptor& font)
 {
   const auto maxCellWidth = layout.maxCellWidth();
 
@@ -209,12 +209,12 @@ void MaterialBrowserView::addMaterialToLayout(
     titleHeight + 4.0f);
 }
 
-std::vector<const asset::MaterialCollection*> MaterialBrowserView::getCollections() const
+std::vector<const mdl::MaterialCollection*> MaterialBrowserView::getCollections() const
 {
   auto document = kdl::mem_lock(m_document);
   const auto enabledMaterialCollections = document->enabledMaterialCollections();
 
-  auto result = std::vector<const asset::MaterialCollection*>{};
+  auto result = std::vector<const mdl::MaterialCollection*>{};
   for (const auto& collection : document->materialManager().collections())
   {
     if (kdl::vec_contains(enabledMaterialCollections, collection.path()))
@@ -225,17 +225,17 @@ std::vector<const asset::MaterialCollection*> MaterialBrowserView::getCollection
   return result;
 }
 
-std::vector<const asset::Material*> MaterialBrowserView::getMaterials(
-  const asset::MaterialCollection& collection) const
+std::vector<const mdl::Material*> MaterialBrowserView::getMaterials(
+  const mdl::MaterialCollection& collection) const
 {
   return sortMaterials(filterMaterials(
     kdl::vec_transform(collection.materials(), [](const auto& t) { return &t; })));
 }
 
-std::vector<const asset::Material*> MaterialBrowserView::getMaterials() const
+std::vector<const mdl::Material*> MaterialBrowserView::getMaterials() const
 {
   auto document = kdl::mem_lock(m_document);
-  auto materials = std::vector<const asset::Material*>{};
+  auto materials = std::vector<const mdl::Material*>{};
   for (const auto& collection : getCollections())
   {
     for (const auto& material : collection->materials())
@@ -246,8 +246,8 @@ std::vector<const asset::Material*> MaterialBrowserView::getMaterials() const
   return sortMaterials(filterMaterials(materials));
 }
 
-std::vector<const asset::Material*> MaterialBrowserView::filterMaterials(
-  std::vector<const asset::Material*> materials) const
+std::vector<const mdl::Material*> MaterialBrowserView::filterMaterials(
+  std::vector<const mdl::Material*> materials) const
 {
   if (m_hideUnused)
   {
@@ -266,8 +266,8 @@ std::vector<const asset::Material*> MaterialBrowserView::filterMaterials(
   return materials;
 }
 
-std::vector<const asset::Material*> MaterialBrowserView::sortMaterials(
-  std::vector<const asset::Material*> materials) const
+std::vector<const mdl::Material*> MaterialBrowserView::sortMaterials(
+  std::vector<const mdl::Material*> materials) const
 {
   const auto compareNames = [](const auto& lhs, const auto& rhs) {
     return kdl::ci::string_less{}(lhs->name(), rhs->name());
@@ -358,7 +358,7 @@ void MaterialBrowserView::renderBounds(Layout& layout, const float y, const floa
   vertexArray.render(render::PrimType::Quads);
 }
 
-const Color& MaterialBrowserView::materialColor(const asset::Material& material) const
+const Color& MaterialBrowserView::materialColor(const mdl::Material& material) const
 {
   if (&material == m_selectedMaterial)
   {
@@ -461,9 +461,9 @@ void MaterialBrowserView::doContextMenu(
   }
 }
 
-const asset::Material& MaterialBrowserView::cellData(const Cell& cell) const
+const mdl::Material& MaterialBrowserView::cellData(const Cell& cell) const
 {
-  return *cell.itemAs<const asset::Material*>();
+  return *cell.itemAs<const mdl::Material*>();
 }
 
 } // namespace tb::ui

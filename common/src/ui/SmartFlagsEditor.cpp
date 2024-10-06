@@ -22,10 +22,10 @@
 #include <QScrollArea>
 #include <QVBoxLayout>
 
-#include "asset/EntityDefinition.h"
-#include "asset/PropertyDefinition.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityNodeBase.h"
+#include "mdl/PropertyDefinition.h"
 #include "ui/FlagsEditor.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewUtils.h"
@@ -106,7 +106,7 @@ void SmartFlagsEditor::getFlags(
       auto tooltip = QString{""};
 
       if (
-        const auto* propDef = asset::EntityDefinition::safeGetFlagsPropertyDefinition(
+        const auto* propDef = mdl::EntityDefinition::safeGetFlagsPropertyDefinition(
           node->entity().definition(), propertyKey()))
       {
         const int flag = int(1 << i);

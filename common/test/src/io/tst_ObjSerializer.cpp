@@ -17,8 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "io/ExportOptions.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
@@ -27,7 +25,9 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/Material.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
@@ -391,8 +391,8 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
   const auto worldBounds = vm::bbox3d{8192.0};
 
   // must outlive map
-  auto textureResource = createTextureResource(asset::Texture{16, 16});
-  auto material = asset::Material{"some_material", std::move(textureResource)};
+  auto textureResource = createTextureResource(mdl::Texture{16, 16});
+  auto material = mdl::Material{"some_material", std::move(textureResource)};
   material.setRelativePath("textures/some_material.png");
 
   auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};

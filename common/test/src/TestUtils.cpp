@@ -21,9 +21,6 @@
 
 #include "Ensure.h"
 #include "TestLogger.h"
-#include "asset/Material.h"
-#include "asset/Resource.h"
-#include "asset/Texture.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
 #include "mdl/BezierPatch.h"
@@ -32,9 +29,12 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GameImpl.h"
 #include "mdl/GroupNode.h"
+#include "mdl/Material.h"
 #include "mdl/ParallelUVCoordSystem.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Resource.h"
+#include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentCommandFacade.h"
@@ -411,7 +411,7 @@ DocumentGameConfig loadMapDocument(
     std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  document->processResourcesSync(asset::ProcessContext{false});
+  document->processResourcesSync(mdl::ProcessContext{false});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
@@ -430,7 +430,7 @@ DocumentGameConfig newMapDocument(
 } // namespace ui
 
 int getComponentOfPixel(
-  const asset::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -488,7 +488,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const asset::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -521,14 +521,14 @@ void checkColor(
 }
 
 int getComponentOfPixel(
-  const asset::Material& material, std::size_t x, std::size_t y, Component component)
+  const mdl::Material& material, std::size_t x, std::size_t y, Component component)
 {
   ensure(material.texture(), "expected material to have a texture");
   return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
 void checkColor(
-  const asset::Material& material,
+  const mdl::Material& material,
   const std::size_t x,
   const std::size_t y,
   const int r,

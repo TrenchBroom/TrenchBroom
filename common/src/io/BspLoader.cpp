@@ -20,14 +20,14 @@
 #include "BspLoader.h"
 
 #include "Logger.h"
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadMipTexture.h"
 #include "io/Reader.h"
 #include "io/ReaderException.h"
 #include "io/ResourceUtils.h"
+#include "mdl/EntityModel.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "render/MaterialIndexRangeMap.h"
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
@@ -89,11 +89,11 @@ struct FaceInfo
 };
 
 
-std::vector<asset::Material> parseMaterials(
-  Reader reader, const asset::Palette& palette, const FileSystem& fs, Logger& logger)
+std::vector<mdl::Material> parseMaterials(
+  Reader reader, const mdl::Palette& palette, const FileSystem& fs, Logger& logger)
 {
   const auto materialCount = reader.readSize<int32_t>();
-  auto result = std::vector<asset::Material>{};
+  auto result = std::vector<mdl::Material>{};
   result.reserve(materialCount);
 
   for (size_t i = 0; i < materialCount; ++i)
@@ -115,7 +115,7 @@ std::vector<asset::Material> parseMaterials(
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
           auto textureResource = createTextureResource(std::move(texture));
-          return asset::Material{std::move(materialName), std::move(textureResource)};
+          return mdl::Material{std::move(materialName), std::move(textureResource)};
         })
       | kdl::value());
   }
@@ -186,7 +186,7 @@ std::vector<int> parseFaceEdges(Reader reader, const size_t faceEdgeCount)
 vm::vec2f uvCoords(
   const vm::vec3f& vertex,
   const MaterialInfo& materialInfo,
-  const asset::Material* material)
+  const mdl::Material* material)
 {
   if (const auto* texture = getTexture(material))
   {
@@ -203,14 +203,14 @@ vm::vec2f uvCoords(
 void parseFrame(
   Reader reader,
   const size_t frameIndex,
-  asset::EntityModelData& modelData,
+  mdl::EntityModelData& modelData,
   const std::vector<MaterialInfo>& materialInfos,
   const std::vector<vm::vec3f>& vertices,
   const std::vector<EdgeInfo>& edgeInfos,
   const std::vector<FaceInfo>& faceInfos,
   const std::vector<int>& faceEdges)
 {
-  using Vertex = asset::EntityModelVertex;
+  using Vertex = mdl::EntityModelVertex;
 
   auto& surface = modelData.surface(0);
 
@@ -274,7 +274,7 @@ void parseFrame(
 } // namespace
 
 BspLoader::BspLoader(
-  std::string name, const Reader& reader, asset::Palette palette, const FileSystem& fs)
+  std::string name, const Reader& reader, mdl::Palette palette, const FileSystem& fs)
   : m_name{std::move(name)}
   , m_reader{reader}
   , m_palette{std::move(palette)}
@@ -293,7 +293,7 @@ bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
   return version == 29;
 }
 
-Result<asset::EntityModelData> BspLoader::load(Logger& logger)
+Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
 {
   try
   {
@@ -337,8 +337,7 @@ Result<asset::EntityModelData> BspLoader::load(Logger& logger)
     reader.seekFromBegin(BspLayout::DirMaterialsAddress);
     const auto materialsOffset = reader.readSize<int32_t>();
 
-    auto data =
-      asset::EntityModelData{asset::PitchType::Normal, asset::Orientation::Oriented};
+    auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
 
     auto materials =
       parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);

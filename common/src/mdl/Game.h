@@ -20,11 +20,11 @@
 #pragma once
 
 #include "Result.h"
-#include "asset/TextureResource.h"
 #include "io/EntityDefinitionLoader.h"
 #include "io/ExportOptions.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
+#include "mdl/TextureResource.h"
 
 #include "vm/bbox.h"
 
@@ -40,12 +40,6 @@ namespace tb
 class Logger;
 } // namespace tb
 
-namespace tb::asset
-{
-class EntityDefinitionFileSpec;
-class MaterialManager;
-} // namespace tb::asset
-
 namespace tb::io
 {
 class FileSystem;
@@ -53,15 +47,17 @@ class FileSystem;
 
 namespace tb::mdl
 {
-class EntityNodeBase;
 class BrushFace;
 class BrushFaceAttributes;
-struct CompilationConfig;
 class Entity;
-struct FlagsConfig;
+class EntityDefinitionFileSpec;
+class EntityNodeBase;
+class MaterialManager;
 class Node;
 class SmartTag;
 class WorldNode;
+struct CompilationConfig;
+struct FlagsConfig;
 
 class Game : public io::EntityDefinitionLoader
 {
@@ -136,8 +132,8 @@ public: // parsing and serializing objects
 
 public: // material collection handling
   virtual void loadMaterialCollections(
-    asset::MaterialManager& materialManager,
-    const asset::CreateTextureResource& createResource) const = 0;
+    MaterialManager& materialManager,
+    const CreateTextureResource& createResource) const = 0;
 
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
@@ -146,12 +142,11 @@ public: // material collection handling
 
 public: // entity definition handling
   virtual bool isEntityDefinitionFile(const std::filesystem::path& path) const = 0;
-  virtual std::vector<asset::EntityDefinitionFileSpec> allEntityDefinitionFiles()
-    const = 0;
-  virtual asset::EntityDefinitionFileSpec extractEntityDefinitionFile(
+  virtual std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const = 0;
+  virtual EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const = 0;
   virtual std::filesystem::path findEntityDefinitionFile(
-    const asset::EntityDefinitionFileSpec& spec,
+    const EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const = 0;
 
 public: // mods

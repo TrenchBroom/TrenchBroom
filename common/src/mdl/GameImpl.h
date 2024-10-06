@@ -49,7 +49,7 @@ public:
   GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger);
 
 public: // implement EntityDefinitionLoader interface:
-  Result<std::vector<std::unique_ptr<asset::EntityDefinition>>> loadEntityDefinitions(
+  Result<std::vector<std::unique_ptr<EntityDefinition>>> loadEntityDefinitions(
     io::ParserStatus& status, const std::filesystem::path& path) const override;
 
 public: // implement Game interface
@@ -101,8 +101,8 @@ public: // implement Game interface
     std::ostream& stream) const override;
 
   void loadMaterialCollections(
-    asset::MaterialManager& materialManager,
-    const asset::CreateTextureResource& createResource) const override;
+    MaterialManager& materialManager,
+    const CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
@@ -110,12 +110,12 @@ public: // implement Game interface
     Logger& logger) override;
 
   bool isEntityDefinitionFile(const std::filesystem::path& path) const override;
-  std::vector<asset::EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
-  asset::EntityDefinitionFileSpec extractEntityDefinitionFile(
+  std::vector<EntityDefinitionFileSpec> allEntityDefinitionFiles() const override;
+  EntityDefinitionFileSpec extractEntityDefinitionFile(
     const Entity& entity) const override;
-  asset::EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
+  EntityDefinitionFileSpec defaultEntityDefinitionFile() const;
   std::filesystem::path findEntityDefinitionFile(
-    const asset::EntityDefinitionFileSpec& spec,
+    const EntityDefinitionFileSpec& spec,
     const std::vector<std::filesystem::path>& searchPaths) const override;
 
   Result<std::vector<std::string>> availableMods() const override;

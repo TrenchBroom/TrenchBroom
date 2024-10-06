@@ -22,7 +22,7 @@
 
 #include "Color.h"
 #include "PreferenceManager.h"
-#include "asset/EntityDefinition.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/Tag.h"
 #include "mdl/TagMatcher.h"
 #include "ui/Actions.h"
@@ -453,8 +453,8 @@ TEST_CASE("PreferencesTest.testWxViewShortcutsAndMenuShortcutsRecognized")
 TEST_CASE("PreferencesTest.testWxEntityShortcuts")
 {
   auto hellKnight =
-    asset::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
-  const auto defs = std::vector<asset::EntityDefinition*>{&hellKnight};
+    mdl::PointEntityDefinition{"monster_hell_knight", {0, 0, 0}, {}, "", {}, {}, {}};
+  const auto defs = std::vector<mdl::EntityDefinition*>{&hellKnight};
 
   const auto actions = ui::ActionManager::instance().createEntityDefinitionActions(defs);
   const auto actualPrefPaths = kdl::vec_transform(

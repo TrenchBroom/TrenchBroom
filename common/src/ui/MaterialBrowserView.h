@@ -29,12 +29,12 @@
 
 class QScrollBar;
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 class MaterialCollection;
 class ResourceId;
-} // namespace tb::asset
+} // namespace tb::mdl
 
 namespace tb::ui
 {
@@ -59,7 +59,7 @@ private:
   MaterialSortOrder m_sortOrder = MaterialSortOrder::Name;
   std::string m_filterText;
 
-  const asset::Material* m_selectedMaterial = nullptr;
+  const mdl::Material* m_selectedMaterial = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -75,13 +75,13 @@ public:
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
 
-  const asset::Material* selectedMaterial() const;
-  void setSelectedMaterial(const asset::Material* selectedMaterial);
+  const mdl::Material* selectedMaterial() const;
+  void setSelectedMaterial(const mdl::Material* selectedMaterial);
 
-  void revealMaterial(const asset::Material* material);
+  void revealMaterial(const mdl::Material* material);
 
 private:
-  void resourcesWereProcessed(const std::vector<asset::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
 
   void reloadMaterials();
 
@@ -90,20 +90,20 @@ private:
 
   void addMaterialsToLayout(
     Layout& layout,
-    const std::vector<const asset::Material*>& materials,
+    const std::vector<const mdl::Material*>& materials,
     const render::FontDescriptor& font);
   void addMaterialToLayout(
-    Layout& layout, const asset::Material& material, const render::FontDescriptor& font);
+    Layout& layout, const mdl::Material& material, const render::FontDescriptor& font);
 
-  std::vector<const asset::MaterialCollection*> getCollections() const;
-  std::vector<const asset::Material*> getMaterials(
-    const asset::MaterialCollection& collection) const;
-  std::vector<const asset::Material*> getMaterials() const;
+  std::vector<const mdl::MaterialCollection*> getCollections() const;
+  std::vector<const mdl::Material*> getMaterials(
+    const mdl::MaterialCollection& collection) const;
+  std::vector<const mdl::Material*> getMaterials() const;
 
-  std::vector<const asset::Material*> filterMaterials(
-    std::vector<const asset::Material*> materials) const;
-  std::vector<const asset::Material*> sortMaterials(
-    std::vector<const asset::Material*> materials) const;
+  std::vector<const mdl::Material*> filterMaterials(
+    std::vector<const mdl::Material*> materials) const;
+  std::vector<const mdl::Material*> sortMaterials(
+    std::vector<const mdl::Material*> materials) const;
 
   void doClear() override;
   void doRender(Layout& layout, float y, float height) override;
@@ -111,16 +111,16 @@ private:
   const Color& getBackgroundColor() override;
 
   void renderBounds(Layout& layout, float y, float height);
-  const Color& materialColor(const asset::Material& material) const;
+  const Color& materialColor(const mdl::Material& material) const;
   void renderMaterials(Layout& layout, float y, float height);
 
   void doLeftClick(Layout& layout, float x, float y) override;
   QString tooltip(const Cell& cell) override;
   void doContextMenu(Layout& layout, float x, float y, QContextMenuEvent* event) override;
 
-  const asset::Material& cellData(const Cell& cell) const;
+  const mdl::Material& cellData(const Cell& cell) const;
 signals:
-  void materialSelected(const asset::Material* material);
+  void materialSelected(const mdl::Material* material);
 };
 
 } // namespace tb::ui

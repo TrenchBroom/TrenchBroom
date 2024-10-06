@@ -19,7 +19,7 @@
 
 #include "MaterialUtils.h"
 
-#include "asset/TextureBuffer.h"
+#include "mdl/TextureBuffer.h"
 
 #include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
@@ -44,16 +44,15 @@ bool checkTextureDimensions(size_t width, size_t height)
 
 size_t mipSize(const size_t width, const size_t height, const size_t mipLevel)
 {
-  const auto size = asset::sizeAtMipLevel(width, height, mipLevel);
+  const auto size = mdl::sizeAtMipLevel(width, height, mipLevel);
   return size.x() * size.y();
 }
 
 kdl_reflect_impl(ReadMaterialError);
 
-asset::TextureMask getTextureMaskFromName(std::string_view name)
+mdl::TextureMask getTextureMaskFromName(std::string_view name)
 {
-  return kdl::cs::str_is_prefix(name, "{") ? asset::TextureMask::On
-                                           : asset::TextureMask::Off;
+  return kdl::cs::str_is_prefix(name, "{") ? mdl::TextureMask::On : mdl::TextureMask::Off;
 }
 
 } // namespace tb::io

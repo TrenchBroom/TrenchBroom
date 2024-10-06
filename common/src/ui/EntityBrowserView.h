@@ -37,14 +37,14 @@ namespace tb
 class Logger;
 }
 
-namespace tb::asset
+namespace tb::mdl
 {
 class EntityDefinition;
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
 class PointEntityDefinition;
 class ResourceId;
-} // namespace tb::asset
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -62,9 +62,9 @@ using EntityGroupData = std::string;
 struct EntityCellData
 {
   using EntityRenderer = render::MaterialRenderer;
-  const asset::PointEntityDefinition* entityDefinition;
+  const mdl::PointEntityDefinition* entityDefinition;
   EntityRenderer* modelRenderer;
-  asset::Orientation modelOrientation;
+  mdl::Orientation modelOrientation;
   render::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
   vm::vec3f modelScale;
@@ -89,7 +89,7 @@ private:
 
   bool m_group = false;
   bool m_hideUnused = false;
-  asset::EntityDefinitionSortOrder m_sortOrder;
+  mdl::EntityDefinitionSortOrder m_sortOrder;
   std::string m_filterText;
 
   NotifierConnection m_notifierConnection;
@@ -105,7 +105,7 @@ public:
   void setDefaultModelScaleExpression(
     std::optional<el::ExpressionNode> defaultModelScaleExpression);
 
-  void setSortOrder(asset::EntityDefinitionSortOrder sortOrder);
+  void setSortOrder(mdl::EntityDefinitionSortOrder sortOrder);
   void setGroup(bool group);
   void setHideUnused(bool hideUnused);
   void setFilterText(const std::string& filterText);
@@ -117,15 +117,15 @@ private:
   bool dndEnabled() override;
   QString dndData(const Cell& cell) override;
 
-  void resourcesWereProcessed(const std::vector<asset::ResourceId>& resources);
+  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resources);
 
   void addEntitiesToLayout(
     Layout& layout,
-    const std::vector<asset::EntityDefinition*>& definitions,
+    const std::vector<mdl::EntityDefinition*>& definitions,
     const render::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
-    const asset::PointEntityDefinition* definition,
+    const mdl::PointEntityDefinition* definition,
     const render::FontDescriptor& font);
 
   void doClear() override;

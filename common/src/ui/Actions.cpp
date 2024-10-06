@@ -25,7 +25,7 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "TrenchBroomApp.h"
-#include "asset/EntityDefinition.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/Tag.h"
 #include "ui/Grid.h" // IWYU pragma: keep
@@ -306,7 +306,7 @@ std::vector<Action> ActionManager::createTagActions(
 }
 
 std::vector<Action> ActionManager::createEntityDefinitionActions(
-  const std::vector<asset::EntityDefinition*>& entityDefinitions) const
+  const std::vector<mdl::EntityDefinition*>& entityDefinitions) const
 {
   std::vector<Action> result;
 

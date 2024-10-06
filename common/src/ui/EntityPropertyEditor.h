@@ -32,11 +32,11 @@ class QSplitter;
 
 namespace tb
 {
-namespace asset
+namespace mdl
 {
 class PropertyDefinition;
 class EntityDefinition;
-} // namespace asset
+} // namespace mdl
 
 namespace mdl
 {
@@ -63,7 +63,7 @@ private:
   EntityPropertyGrid* m_propertyGrid = nullptr;
   SmartPropertyEditorManager* m_smartEditorManager = nullptr;
   QTextEdit* m_documentationText = nullptr;
-  const asset::EntityDefinition* m_currentDefinition = nullptr;
+  const mdl::EntityDefinition* m_currentDefinition = nullptr;
 
   NotifierConnection m_notifierConnection;
 
@@ -87,7 +87,7 @@ private:
    * Returns a description of the options for ChoicePropertyOption and
    * FlagsPropertyDefinition, other subclasses return an empty string.
    */
-  static QString optionDescriptions(const asset::PropertyDefinition& definition);
+  static QString optionDescriptions(const mdl::PropertyDefinition& definition);
 
   void updateDocumentation(const std::string& propertyKey);
   void createGui(std::weak_ptr<MapDocument> document);

@@ -21,8 +21,8 @@
 
 #include "Color.h"
 #include "FileLocation.h"
-#include "asset/DecalDefinition.h"
-#include "asset/ModelDefinition.h"
+#include "mdl/DecalDefinition.h"
+#include "mdl/ModelDefinition.h"
 
 #include "kdl/reflection_decl.h"
 
@@ -34,7 +34,7 @@
 #include <string>
 #include <vector>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class PropertyDefinition;
 }
@@ -59,10 +59,10 @@ struct EntityDefinitionClassInfo
   std::optional<std::string> description;
   std::optional<Color> color;
   std::optional<vm::bbox3d> size;
-  std::optional<asset::ModelDefinition> modelDefinition;
-  std::optional<asset::DecalDefinition> decalDefinition;
+  std::optional<mdl::ModelDefinition> modelDefinition;
+  std::optional<mdl::DecalDefinition> decalDefinition;
 
-  std::vector<std::shared_ptr<asset::PropertyDefinition>> propertyDefinitions;
+  std::vector<std::shared_ptr<mdl::PropertyDefinition>> propertyDefinitions;
   std::vector<std::string> superClasses;
 
   kdl_reflect_decl(
@@ -80,7 +80,7 @@ struct EntityDefinitionClassInfo
 };
 
 bool addPropertyDefinition(
-  std::vector<std::shared_ptr<asset::PropertyDefinition>>& propertyDefinitions,
-  std::shared_ptr<asset::PropertyDefinition> propertyDefinition);
+  std::vector<std::shared_ptr<mdl::PropertyDefinition>>& propertyDefinitions,
+  std::shared_ptr<mdl::PropertyDefinition> propertyDefinition);
 
 } // namespace tb::io

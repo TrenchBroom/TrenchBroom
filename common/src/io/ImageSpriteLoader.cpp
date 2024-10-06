@@ -19,13 +19,13 @@
 
 #include "ImageSpriteLoader.h"
 
-#include "asset/EntityModel.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
 #include "io/File.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/ReaderException.h"
+#include "mdl/EntityModel.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
@@ -47,12 +47,12 @@ auto loadMaterial(const FileSystem& fs, File& file, std::string name, Logger& lo
          | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
          | kdl::and_then([&](auto texture) {
              auto textureResource = createTextureResource(std::move(texture));
-             return Result<asset::Material>{
-               asset::Material{std::move(name), std::move(textureResource)}};
+             return Result<mdl::Material>{
+               mdl::Material{std::move(name), std::move(textureResource)}};
            });
 }
 
-void createFrame(asset::EntityModelData& modelData)
+void createFrame(mdl::EntityModelData& modelData)
 {
   auto& surface = modelData.surface(0);
 
@@ -71,20 +71,20 @@ void createFrame(asset::EntityModelData& modelData)
     const auto bboxMax = vm::vec3f{vm::max(x1, x2), vm::max(x1, x2), vm::max(y1, y2)};
     auto& frame = modelData.addFrame("frame", {bboxMin, bboxMax});
 
-    const auto triangles = std::vector<asset::EntityModelVertex>{
-      asset::EntityModelVertex{{x1, y1, 0}, {0, 1}},
-      asset::EntityModelVertex{{x1, y2, 0}, {0, 0}},
-      asset::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+    const auto triangles = std::vector<mdl::EntityModelVertex>{
+      mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+      mdl::EntityModelVertex{{x1, y2, 0}, {0, 0}},
+      mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
 
-      asset::EntityModelVertex{{x2, y2, 0}, {1, 0}},
-      asset::EntityModelVertex{{x2, y1, 0}, {1, 1}},
-      asset::EntityModelVertex{{x1, y1, 0}, {0, 1}},
+      mdl::EntityModelVertex{{x2, y2, 0}, {1, 0}},
+      mdl::EntityModelVertex{{x2, y1, 0}, {1, 1}},
+      mdl::EntityModelVertex{{x1, y1, 0}, {0, 1}},
     };
 
     auto size = render::IndexRangeMap::Size{};
     size.inc(render::PrimType::Triangles, 2);
 
-    auto builder = render::IndexRangeMapBuilder<asset::EntityModelVertex::Type>{6, size};
+    auto builder = render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{6, size};
     builder.addTriangles(triangles);
 
     surface.addMesh(frame, builder.vertices(), builder.indices());
@@ -106,14 +106,14 @@ bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
   return isSupportedFreeImageExtension(path.extension().string());
 }
 
-Result<asset::EntityModelData> ImageSpriteLoader::load(Logger& logger)
+Result<mdl::EntityModelData> ImageSpriteLoader::load(Logger& logger)
 {
   try
   {
     return loadMaterial(m_fs, *m_file, m_name, logger)
            | kdl::transform([&](auto material) {
-               auto data = asset::EntityModelData{
-                 asset::PitchType::Normal, asset::Orientation::ViewPlaneParallel};
+               auto data = mdl::EntityModelData{
+                 mdl::PitchType::Normal, mdl::Orientation::ViewPlaneParallel};
 
                auto& surface = data.addSurface(m_name, 1);
                surface.setSkins(kdl::vec_from(std::move(material)));

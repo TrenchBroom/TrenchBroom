@@ -31,14 +31,14 @@
 #include <QThread>
 
 #include "Ensure.h"
+#include "Logger.h"
 #include "io/FileSystem.h"
 #include "io/PathQt.h"
 #include "io/ReadFreeImageTexture.h"
 #include "io/SystemPaths.h"
-#include "Logger.h"
-#include "asset/Material.h"
-#include "asset/Texture.h"
-#include "asset/TextureResource.h"
+#include "mdl/Material.h"
+#include "mdl/Texture.h"
+#include "mdl/TextureResource.h"
 
 #include "kdl/result.h"
 #include "kdl/set_temp.h"
@@ -49,7 +49,7 @@
 namespace tb::io
 {
 
-asset::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
+mdl::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
 {
   // recursion guard
   static auto executing = false;
@@ -63,7 +63,7 @@ asset::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
            })
            | kdl::transform_error([&](auto e) {
                logger.error() << "Could not load default texture: " << e.msg;
-               return asset::Texture{32, 32};
+               return mdl::Texture{32, 32};
              })
            | kdl::value();
   }
@@ -72,14 +72,13 @@ asset::Texture loadDefaultTexture(const FileSystem& fs, Logger& logger)
     logger.error() << "Could not load default texture";
   }
 
-  return asset::Texture{32, 32};
+  return mdl::Texture{32, 32};
 }
 
-asset::Material loadDefaultMaterial(
-  const FileSystem& fs, std::string name, Logger& logger)
+mdl::Material loadDefaultMaterial(const FileSystem& fs, std::string name, Logger& logger)
 {
   auto textureResource = createTextureResource(loadDefaultTexture(fs, logger));
-  return asset::Material{std::move(name), std::move(textureResource)};
+  return mdl::Material{std::move(name), std::move(textureResource)};
 }
 
 static QString imagePathToString(const std::filesystem::path& imagePath)

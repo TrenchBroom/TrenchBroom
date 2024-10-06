@@ -29,14 +29,10 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
 class EntityNodeBase;
+class Material;
 
 struct PatchGrid
 {
@@ -89,7 +85,7 @@ public:
   const BezierPatch& patch() const;
   BezierPatch setPatch(BezierPatch patch);
 
-  void setMaterial(asset::Material* material);
+  void setMaterial(Material* material);
 
   const PatchGrid& grid() const;
 

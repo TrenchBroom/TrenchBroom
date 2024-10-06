@@ -22,12 +22,12 @@
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include "asset/Material.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceAttributes.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Material.h"
 #include "ui/BorderLine.h"
 #include "ui/FaceAttribsEditor.h"
 #include "ui/MapDocument.h"
@@ -62,7 +62,7 @@ bool FaceInspector::cancelMouseDrag()
   return m_faceAttribsEditor->cancelMouseDrag();
 }
 
-void FaceInspector::revealMaterial(const asset::Material* material)
+void FaceInspector::revealMaterial(const mdl::Material* material)
 {
   m_materialBrowser->revealMaterial(material);
   m_materialBrowser->setSelectedMaterial(material);
@@ -154,7 +154,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
   return panel;
 }
 
-void FaceInspector::materialSelected(const asset::Material* material)
+void FaceInspector::materialSelected(const mdl::Material* material)
 {
   auto document = kdl::mem_lock(m_document);
   const auto faces = document->allSelectedBrushFaces();

@@ -20,10 +20,10 @@
 #include "EntityRenderer.h"
 
 #include "AttrString.h"
-#include "asset/EntityDefinition.h"
-#include "asset/EntityModelManager.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityModelManager.h"
 #include "mdl/EntityNode.h"
 #include "render/Camera.h"
 #include "render/GLVertexType.h"
@@ -69,7 +69,7 @@ private:
 
 EntityRenderer::EntityRenderer(
   Logger& logger,
-  asset::EntityModelManager& entityModelManager,
+  mdl::EntityModelManager& entityModelManager,
   const mdl::EditorContext& editorContext)
   : m_entityModelManager{entityModelManager}
   , m_editorContext{editorContext}
@@ -123,10 +123,10 @@ void EntityRenderer::invalidateEntity(const mdl::EntityNode* entity)
 }
 
 void EntityRenderer::invalidateEntityModels(
-  const std::vector<const asset::EntityModel*>& entityModels)
+  const std::vector<const mdl::EntityModel*>& entityModels)
 {
-  const auto entityModelSet = std::unordered_set<const asset::EntityModel*>{
-    entityModels.begin(), entityModels.end()};
+  const auto entityModelSet =
+    std::unordered_set<const mdl::EntityModel*>{entityModels.begin(), entityModels.end()};
   for (const auto* entity : m_entities)
   {
     if (entityModelSet.contains(entity->entity().model()))

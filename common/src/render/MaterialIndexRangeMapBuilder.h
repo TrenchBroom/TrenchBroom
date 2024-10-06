@@ -25,7 +25,7 @@
 
 #include <vector>
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 }
@@ -45,7 +45,7 @@ class MaterialIndexRangeMapBuilder
 public:
   using Vertex = typename VertexSpec::Vertex;
   using VertexList = std::vector<Vertex>;
-  using Material = asset::Material;
+  using Material = mdl::Material;
 
 private:
   using IndexData = typename VertexListBuilder<VertexSpec>::Range;

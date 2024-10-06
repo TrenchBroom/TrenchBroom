@@ -32,21 +32,18 @@
 #include <variant>
 #include <vector>
 
-namespace tb::asset
-{
-class Material;
-}
-
 namespace tb::mdl
 {
 class BrushNode;
 class BrushFace;
 class EntityProperty;
+class Material;
 class Node;
 } // namespace tb::mdl
 
 namespace tb::io
 {
+
 class ObjSerializer : public NodeSerializer
 {
 public:
@@ -89,7 +86,7 @@ public:
   {
     std::vector<IndexedVertex> verts;
     std::string materialName;
-    const asset::Material* material;
+    const mdl::Material* material;
   };
 
   struct BrushObject
@@ -110,7 +107,7 @@ public:
     size_t patchNo;
     std::vector<PatchQuad> quads;
     std::string materialName;
-    const asset::Material* material;
+    const mdl::Material* material;
   };
 
   using Object = std::variant<BrushObject, PatchObject>;

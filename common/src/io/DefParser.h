@@ -83,15 +83,15 @@ private:
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
   std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-  std::unique_ptr<asset::PropertyDefinition> parseSpawnflags(ParserStatus& status);
+  std::unique_ptr<mdl::PropertyDefinition> parseSpawnflags(ParserStatus& status);
   void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
   bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
   void parseDefaultProperty(ParserStatus& status);
   std::string parseBaseProperty(ParserStatus& status);
-  std::unique_ptr<asset::PropertyDefinition> parseChoicePropertyDefinition(
+  std::unique_ptr<mdl::PropertyDefinition> parseChoicePropertyDefinition(
     ParserStatus& status);
-  asset::ModelDefinition parseModelDefinition(ParserStatus& status);
+  mdl::ModelDefinition parseModelDefinition(ParserStatus& status);
 
   std::string parseDescription();
 

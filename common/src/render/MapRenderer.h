@@ -32,11 +32,6 @@ namespace tb
 class Color;
 }
 
-namespace tb::asset
-{
-class ResourceId;
-}
-
 namespace tb::ui
 {
 // FIXME: Renderer should not depend on View
@@ -51,6 +46,7 @@ class BrushFaceHandle;
 class GroupNode;
 class LayerNode;
 class Node;
+class ResourceId;
 } // namespace tb::mdl
 
 namespace tb::render
@@ -150,7 +146,7 @@ private: // notification
 
   void selectionDidChange(const ui::Selection& selection);
 
-  void resourcesWereProcessed(const std::vector<asset::ResourceId>& resourceIds);
+  void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds);
 
   void materialCollectionsWillChange();
   void entityDefinitionsDidChange();

@@ -19,10 +19,10 @@
 
 #include "EntityNode.h"
 
-#include "asset/EntityDefinition.h"
-#include "asset/EntityModel.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityModel.h"
 #include "mdl/EntityPropertiesVariableStore.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/PatchNode.h"
@@ -58,7 +58,7 @@ const vm::bbox3d& EntityNode::modelBounds() const
   return m_cachedBounds->modelBounds;
 }
 
-void EntityNode::setModel(const asset::EntityModel* model)
+void EntityNode::setModel(const EntityModel* model)
 {
   m_entity.setModel(model);
   nodePhysicalBoundsDidChange();
@@ -301,7 +301,7 @@ void EntityNode::validateBounds() const
   else
   {
     const auto* definition =
-      dynamic_cast<const asset::PointEntityDefinition*>(m_entity.definition());
+      dynamic_cast<const PointEntityDefinition*>(m_entity.definition());
     const auto definitionBounds = definition ? definition->bounds() : DefaultBounds;
 
     m_cachedBounds->logicalBounds = definitionBounds.translate(m_entity.origin());

@@ -20,9 +20,9 @@
 #pragma once
 
 #include "Result.h"
-#include "asset/Palette.h"
-#include "asset/Quake3Shader.h"
-#include "asset/TextureResource.h"
+#include "mdl/Palette.h"
+#include "mdl/Quake3Shader.h"
+#include "mdl/TextureResource.h"
 
 #include <filesystem>
 #include <optional>
@@ -33,33 +33,29 @@ namespace tb
 class Logger;
 } // namespace tb
 
-namespace tb::asset
+namespace tb::mdl
 {
 class Material;
 class MaterialCollection;
-} // namespace tb::asset
-
-namespace tb::mdl
-{
 struct MaterialConfig;
-}
+} // namespace tb::mdl
 
 namespace tb::io
 {
 class FileSystem;
 
-Result<asset::Material> loadMaterial(
+Result<mdl::Material> loadMaterial(
   const FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const std::filesystem::path& materialPath,
-  const asset::CreateTextureResource& createResource,
-  const std::vector<asset::Quake3Shader>& shaders,
-  const std::optional<Result<asset::Palette>>& paletteResult);
+  const mdl::CreateTextureResource& createResource,
+  const std::vector<mdl::Quake3Shader>& shaders,
+  const std::optional<Result<mdl::Palette>>& paletteResult);
 
-Result<std::vector<asset::MaterialCollection>> loadMaterialCollections(
+Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
   const FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
-  const asset::CreateTextureResource& createResource,
+  const mdl::CreateTextureResource& createResource,
   Logger& logger);
 
 } // namespace tb::io
