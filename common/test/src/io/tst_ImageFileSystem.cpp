@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "io/DiskIO.h"
 #include "io/DkPakFileSystem.h"
 #include "io/IdPakFileSystem.h"
@@ -24,11 +25,10 @@
 #include "io/TraversalMode.h"
 #include "io/WadFileSystem.h"
 #include "io/ZipFileSystem.h"
-#include "TestUtils.h"
 
 #include <filesystem>
 
-#include "CatchUtils/Matchers.h"
+#include "catch/Matchers.h"
 
 #include "Catch2.h"
 

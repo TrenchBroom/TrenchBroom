@@ -99,7 +99,7 @@ IncludeCategories:
     Priority:        5
   - Regex:           '^"vm/.*'
     Priority:        5
-  - Regex:           '^"CatchUtils/.*'
+  - Regex:           '^"catch/.*'
     Priority:        10
   - Regex:           '^<catch2/.*'
     Priority:        11

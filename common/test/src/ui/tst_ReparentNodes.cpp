@@ -25,7 +25,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
 
-#include "CatchUtils/Matchers.h"
+#include "catch/Matchers.h"
 
 #include "Catch2.h"
 
