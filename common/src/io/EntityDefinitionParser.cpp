@@ -27,21 +27,20 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kdl/range_to_vector.h"
+
+#include <algorithm>
+#include <ranges>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace tb::io
 {
-static const auto DefaultSize = vm::bbox3d(-8, +8);
-
-EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
-  : m_defaultEntityColor{defaultEntityColor}
+namespace
 {
-}
+static constexpr auto DefaultSize = vm::bbox3d(-8, +8);
 
-EntityDefinitionParser::~EntityDefinitionParser() {}
-
-static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
+std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
   const mdl::PropertyDefinition& inheritingClassAttribute,
   const mdl::PropertyDefinition& superClassAttribute)
 {
@@ -68,7 +67,7 @@ static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
       const auto* baseclassFlag = baseclassFlags.option(static_cast<int>(1 << i));
       const auto* classFlag = classFlags.option(static_cast<int>(1 << i));
 
-      if (baseclassFlag != nullptr && classFlag == nullptr)
+      if (baseclassFlag && !classFlag)
       {
         result->addOption(
           baseclassFlag->value(),
@@ -76,7 +75,7 @@ static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
           baseclassFlag->longDescription(),
           baseclassFlag->isDefault());
       }
-      else if (classFlag != nullptr)
+      else if (classFlag)
       {
         result->addOption(
           classFlag->value(),
@@ -100,7 +99,7 @@ static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
  * - spawnflags are merged together
  * - model definitions are merged together
  */
-static void inheritAttributes(
+void inheritAttributes(
   EntityDefinitionClassInfo& inheritingClass, const EntityDefinitionClassInfo& superClass)
 {
   if (!inheritingClass.description)
@@ -118,9 +117,8 @@ static void inheritAttributes(
 
   for (const auto& attribute : superClass.propertyDefinitions)
   {
-    auto it = std::find_if(
-      std::begin(inheritingClass.propertyDefinitions),
-      std::end(inheritingClass.propertyDefinitions),
+    auto it = std::ranges::find_if(
+      inheritingClass.propertyDefinitions,
       [&](const auto& a) { return a->key() == attribute->key(); });
     if (it == std::end(inheritingClass.propertyDefinitions))
     {
@@ -128,8 +126,7 @@ static void inheritAttributes(
     }
     else
     {
-      auto mergedAttribute = mergeAttributes(**it, *attribute);
-      if (mergedAttribute != nullptr)
+      if (auto mergedAttribute = mergeAttributes(**it, *attribute))
       {
         *it = mergedAttribute;
       }
@@ -156,6 +153,55 @@ static void inheritAttributes(
 }
 
 /**
+ * Filter out redundant classes. A class is redundant if a class of the same name exists
+ * at an earlier position in the given vector, unless the two classes each have one of the
+ * types point and brush each. That is, any duplicate is redundant with the exception of
+ * overloaded point and brush classes.
+ */
+std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
+  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
+{
+  auto result = std::vector<EntityDefinitionClassInfo>{};
+  result.reserve(classInfos.size());
+
+  const auto getMask = [](const auto type) { return 1 << static_cast<int>(type); };
+
+  const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
+
+  auto seen = std::unordered_map<std::string, int>{};
+  for (const auto& classInfo : classInfos)
+  {
+    auto& seenMask = seen[classInfo.name];
+    const auto classMask = getMask(classInfo.type);
+
+    if (classMask & seenMask)
+    {
+      status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
+    }
+    else if ((seenMask & baseClassMask) || (seenMask != 0 && (classMask & baseClassMask)))
+    {
+      status.warn(classInfo.location, "Redundant class info '" + classInfo.name + "'");
+    }
+    else
+    {
+      result.push_back(classInfo);
+      seenMask |= classMask;
+    }
+  }
+
+  return result;
+}
+
+// forward declaration to enable recursion
+template <typename F>
+void findSuperClassesAndInheritFrom(
+  ParserStatus& status,
+  EntityDefinitionClassInfo& inheritingClass,
+  const EntityDefinitionClassInfo& classWithSuperClasses,
+  const F& findClassInfos,
+  std::unordered_set<std::string>& visited);
+
+/**
  * Resolves inheritance from the given inheriting class to the given super class, and
  * recurses into the super classes of the given super class.
  *
@@ -165,14 +211,14 @@ static void inheritAttributes(
  *
  * Otherwise, the attributes from the given super class are copied to the inheriting
  * class. For the exact semantics of inheriting an attribute from a super class, see the
- * inheritAttributes function. Afterwards, the super classes of the given super class are
- * recursively inherited from.
+ * inheritAttributes function. Afterwards, the super classes of the given super class
+ * are recursively inherited from.
  *
- * By copying the attributes before recursing further into the super class hierarchy, the
- * attributes inherited from a class that is closer to the inheriting class in the
- * inheritance hierarchy take precedence over the attributes from a class that is further.
- * This means that attributes from the further class get overridden by attributes from the
- * closer class.
+ * By copying the attributes before recursing further into the super class hierarchy,
+ * the attributes inherited from a class that is closer to the inheriting class in the
+ * inheritance hierarchy take precedence over the attributes from a class that is
+ * further. This means that attributes from the further class get overridden by
+ * attributes from the closer class.
  *
  * The following example illustrates this. Let A, B, C be classes such that A inherits
  * from B and B inherits from C. Then B has its attributes copied into A before C. And
@@ -180,34 +226,35 @@ static void inheritAttributes(
  * attributes from B take precedence over the attributes from C.
  *
  * @param status the parser status to add errors to
- * @param inheritingClass class the class that is currently processed, i.e. the class that
- * induces the inheritance hierarchy that is currently being resolved
+ * @param inheritingClass class the class that is currently processed, i.e. the class
+ * that induces the inheritance hierarchy that is currently being resolved
  * @param superClass the super class to inherit from
  * @param findClassInfos a function that finds class infos by their names
- * @param visited a set that contains the names of the classes visited so far on the path
- * from the inheriting class to the given super class
+ * @param visited a set that contains the names of the classes visited so far on the
+ * path from the inheriting class to the given super class
  *
  */
 template <typename F>
-static void inheritFromAndRecurse(
+void inheritFromAndRecurse(
   ParserStatus& status,
   EntityDefinitionClassInfo& inheritingClass,
   const EntityDefinitionClassInfo& superClass,
   const F& findClassInfos,
   std::unordered_set<std::string>& visited)
 {
-  if (!visited.insert(superClass.name).second)
+  if (visited.insert(superClass.name).second)
+  {
+    inheritAttributes(inheritingClass, superClass);
+    findSuperClassesAndInheritFrom(
+      status, inheritingClass, superClass, findClassInfos, visited);
+
+    visited.erase(superClass.name);
+  }
+  else
   {
     status.error(
       inheritingClass.location, "Entity definition class hierarchy contains a cycle");
-    return;
   }
-
-  inheritAttributes(inheritingClass, superClass);
-  findSuperClassesAndInheritFrom(
-    status, inheritingClass, superClass, findClassInfos, visited);
-
-  visited.erase(superClass.name);
 }
 
 /**
@@ -247,39 +294,48 @@ static void inheritFromAndRecurse(
  * from the inheriting class to the given super class
  */
 template <typename F>
-static void findSuperClassesAndInheritFrom(
+void findSuperClassesAndInheritFrom(
   ParserStatus& status,
   EntityDefinitionClassInfo& inheritingClass,
   const EntityDefinitionClassInfo& classWithSuperClasses,
   const F& findClassInfos,
   std::unordered_set<std::string>& visited)
 {
+  const auto findClassInfoWithType =
+    [&](const auto& classes, const auto type) -> const EntityDefinitionClassInfo* {
+    if (const auto it = std::find_if(
+          classes.begin(), classes.end(), [&](const auto* c) { return c->type == type; });
+        it != classes.end())
+    {
+      return *it;
+    }
+    return nullptr;
+  };
+
   const auto selectSuperClass =
     [&](const auto& potentialSuperClasses) -> const EntityDefinitionClassInfo* {
     if (potentialSuperClasses.size() == 1u)
     {
       return potentialSuperClasses.front();
     }
-    else if (potentialSuperClasses.size() > 1u)
+    if (potentialSuperClasses.size() > 1u)
     {
       // find a super class with the same class type as the inheriting class
-      for (const auto* potentialSuperClass : potentialSuperClasses)
+      if (
+        const auto* classInfo =
+          findClassInfoWithType(potentialSuperClasses, inheritingClass.type))
       {
-        if (potentialSuperClass->type == inheritingClass.type)
-        {
-          return potentialSuperClass;
-        }
+        return classInfo;
       }
 
       if (inheritingClass.type != EntityDefinitionClassType::BaseClass)
       {
         // find a super class of type BaseClass
-        for (const auto* potentialSuperClass : potentialSuperClasses)
+        if (
+          const auto* classInfo = findClassInfoWithType(
+            potentialSuperClasses, EntityDefinitionClassType::BaseClass))
         {
-          if (potentialSuperClass->type == EntityDefinitionClassType::BaseClass)
-          {
-            return potentialSuperClass;
-          }
+          return classInfo;
         }
       }
     }
@@ -289,17 +345,16 @@ static void findSuperClassesAndInheritFrom(
 
   for (const auto& nextSuperClassName : classWithSuperClasses.superClasses)
   {
-    const auto* nextSuperClass = selectSuperClass(findClassInfos(nextSuperClassName));
-    if (nextSuperClass == nullptr)
+    if (const auto* nextSuperClass = selectSuperClass(findClassInfos(nextSuperClassName)))
+    {
+      inheritFromAndRecurse(
+        status, inheritingClass, *nextSuperClass, findClassInfos, visited);
+    }
+    else
     {
       status.error(
         classWithSuperClasses.location,
         "No matching super class found for '" + nextSuperClassName + "'");
-    }
-    else
-    {
-      inheritFromAndRecurse(
-        status, inheritingClass, *nextSuperClass, findClassInfos, visited);
     }
   }
 }
@@ -321,7 +376,7 @@ static void findSuperClassesAndInheritFrom(
  * super classes added
  */
 template <typename F>
-static EntityDefinitionClassInfo resolveInheritance(
+EntityDefinitionClassInfo resolveInheritance(
   ParserStatus& status,
   EntityDefinitionClassInfo inheritingClass,
   const F& findClassInfos)
@@ -332,83 +387,6 @@ static EntityDefinitionClassInfo resolveInheritance(
   return inheritingClass;
 }
 
-/**
- * Filter out redundant classes. A class is redundant if a class of the same name exists
- * at an earlier position in the given vector, unless the two classes each have one of the
- * types point and brush each. That is, any duplicate is redundant with the exception of
- * overloaded point and brush classes.
- */
-static std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
-  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
-{
-  std::vector<EntityDefinitionClassInfo> result;
-  result.reserve(classInfos.size());
-
-  const auto getMask = [](const auto type) { return 1 << static_cast<int>(type); };
-
-  const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
-
-  std::unordered_map<std::string, int> seen;
-  for (const auto& classInfo : classInfos)
-  {
-    auto& seenMask = seen[classInfo.name];
-    const auto classMask = getMask(classInfo.type);
-
-    if (classMask & seenMask)
-    {
-      status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
-    }
-    else if ((seenMask & baseClassMask) || (seenMask != 0 && (classMask & baseClassMask)))
-    {
-      status.warn(classInfo.location, "Redundant class info '" + classInfo.name + "'");
-    }
-    else
-    {
-      result.push_back(classInfo);
-      seenMask |= classMask;
-    }
-  }
-
-  return result;
-}
-
-/**
- * Resolves the inheritance for every class that is not of type BaseClass in the given
- * vector and returns a vector of copies where the inherited attributes are added to the
- * inheriting classes.
- *
- * Exposed for testing.
- */
-std::vector<EntityDefinitionClassInfo> resolveInheritance(
-  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
-{
-  const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
-  const auto findClassInfos =
-    [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
-    std::vector<const EntityDefinitionClassInfo*> result;
-    for (const auto& classInfo : filteredClassInfos)
-    {
-      if (classInfo.name == name)
-      {
-        result.push_back(&classInfo);
-      }
-    }
-    return result;
-  };
-
-  std::vector<EntityDefinitionClassInfo> result;
-  for (const auto& classInfo : filteredClassInfos)
-  {
-    if (classInfo.type != EntityDefinitionClassType::BaseClass)
-    {
-      result.push_back(resolveInheritance(status, classInfo, findClassInfos));
-    }
-  }
-  return result;
-}
-
-namespace
-{
 std::unique_ptr<mdl::EntityDefinition> createDefinition(
   EntityDefinitionClassInfo classInfo, const Color& defaultEntityColor)
 {
@@ -463,6 +441,39 @@ std::vector<std::unique_ptr<mdl::EntityDefinition>> createDefinitions(
 }
 
 } // namespace
+
+/**
+ * Resolves the inheritance for every class that is not of type BaseClass in the given
+ * vector and returns a vector of copies where the inherited attributes are added to the
+ * inheriting classes.
+ *
+ * Exposed for testing.
+ */
+std::vector<EntityDefinitionClassInfo> resolveInheritance(
+  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
+{
+  const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
+  const auto findClassInfos =
+    [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
+    return filteredClassInfos
+           | std::views::filter([&](const auto& c) { return c.name == name; })
+           | std::views::transform([](const auto& c) { return &c; }) | kdl::to_vector;
+  };
+
+  return filteredClassInfos | std::views::filter([](const auto& c) {
+           return c.type != EntityDefinitionClassType::BaseClass;
+         })
+         | std::views::transform(
+           [&](const auto& c) { return resolveInheritance(status, c, findClassInfos); })
+         | kdl::to_vector;
+}
+
+EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
+  : m_defaultEntityColor{defaultEntityColor}
+{
+}
+
+EntityDefinitionParser::~EntityDefinitionParser() {}
 
 std::vector<std::unique_ptr<mdl::EntityDefinition>> EntityDefinitionParser::
   parseDefinitions(ParserStatus& status)
