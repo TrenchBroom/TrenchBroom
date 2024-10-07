@@ -101,188 +101,128 @@ public:
 
 } // namespace
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.runMissingTool")
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 {
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
+  SECTION("runMissingTool")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  auto task = mdl::CompilationRunTool{true, "", "", false};
-  auto runner = CompilationRunToolTaskRunner{context, task};
+    auto task = mdl::CompilationRunTool{true, "", "", false};
+    auto runner = CompilationRunToolTaskRunner{context, task};
 
-  auto exec = ExecuteTask{runner};
-  REQUIRE(exec.executeAndWait(5000ms));
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
 
-  CHECK(exec.started);
-  CHECK(exec.errored);
-  CHECK_FALSE(exec.ended);
-}
+    CHECK(exec.started);
+    CHECK(exec.errored);
+    CHECK_FALSE(exec.ended);
+  }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsZeroExitCode")
-{
-  auto testEnvironment = io::TestEnvironment{};
-  testEnvironment.createFile("test.txt", "hello world");
+  SECTION("toolReturnsZeroExitCode")
+  {
+    auto testEnvironment = io::TestEnvironment{};
+    testEnvironment.createFile("test.txt", "hello world");
 
-  auto variables = CompilationVariables{document, testEnvironment.dir().string()};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
+    auto variables = CompilationVariables{document, testEnvironment.dir().string()};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = mdl::CompilationRunTool{
-    true, RETURN_EXITCODE_PATH, "--exit 0", treatNonZeroResultCodeAsError};
-  auto runner = CompilationRunToolTaskRunner{context, task};
+    const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+    auto task = mdl::CompilationRunTool{
+      true, RETURN_EXITCODE_PATH, "--exit 0", treatNonZeroResultCodeAsError};
+    auto runner = CompilationRunToolTaskRunner{context, task};
 
-  auto exec = ExecuteTask{runner};
-  REQUIRE(exec.executeAndWait(5000ms));
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
 
-  CHECK(exec.started);
-  CHECK_FALSE(exec.errored);
-  CHECK(exec.ended);
-}
+    CHECK(exec.started);
+    CHECK_FALSE(exec.errored);
+    CHECK(exec.ended);
+  }
 
-TEST_CASE_METHOD(
-  MapDocumentTest, "CompilationRunToolTaskRunner.toolReturnsNonZeroExitCode")
-{
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
+  SECTION("toolReturnsNonZeroExitCode")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = mdl::CompilationRunTool{
-    true, RETURN_EXITCODE_PATH, "--exit 1", treatNonZeroResultCodeAsError};
-  auto runner = CompilationRunToolTaskRunner{context, task};
+    const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+    auto task = mdl::CompilationRunTool{
+      true, RETURN_EXITCODE_PATH, "--exit 1", treatNonZeroResultCodeAsError};
+    auto runner = CompilationRunToolTaskRunner{context, task};
 
-  auto exec = ExecuteTask{runner};
-  REQUIRE(exec.executeAndWait(5000ms));
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
 
-  CHECK(exec.started);
-  CHECK(exec.errored == treatNonZeroResultCodeAsError);
-  CHECK(exec.ended == !treatNonZeroResultCodeAsError);
-}
+    CHECK(exec.started);
+    CHECK(exec.errored == treatNonZeroResultCodeAsError);
+    CHECK(exec.ended == !treatNonZeroResultCodeAsError);
+  }
 
 #if !defined(_WIN32) && !defined(_WIN64)
-// the test is unreliable on Windows
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolAborts")
-{
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
+  // the test is unreliable on Windows
+  SECTION("toolAborts")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
 
-  auto context = CompilationContext{document, variables, outputAdapter, false};
+    auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = mdl::CompilationRunTool{
-    true, RETURN_EXITCODE_PATH, "--abort", treatNonZeroResultCodeAsError};
-  auto runner = CompilationRunToolTaskRunner{context, task};
+    const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+    auto task = mdl::CompilationRunTool{
+      true, RETURN_EXITCODE_PATH, "--abort", treatNonZeroResultCodeAsError};
+    auto runner = CompilationRunToolTaskRunner{context, task};
 
-  auto exec = ExecuteTask{runner};
-  REQUIRE(exec.executeAndWait(5000ms));
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
 
-  CHECK(exec.started);
-  CHECK(exec.errored);
-  CHECK_FALSE(exec.ended);
-}
+    CHECK(exec.started);
+    CHECK(exec.errored);
+    CHECK_FALSE(exec.ended);
+  }
 #endif
 
 #if !defined(__APPLE__) || defined(NDEBUG)
-// the test is unreliable on macOS in debug mode
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner.toolCrashes")
-{
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
-
-  auto context = CompilationContext{document, variables, outputAdapter, false};
-
-  const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
-  auto task = mdl::CompilationRunTool{
-    true, RETURN_EXITCODE_PATH, "--crash", treatNonZeroResultCodeAsError};
-  auto runner = CompilationRunToolTaskRunner{context, task};
-
-  auto exec = ExecuteTask{runner};
-  REQUIRE(exec.executeAndWait(5000ms));
-
-  CHECK(exec.started);
-#if defined _WIN32
-  // QProcess does not report a crash on SIGSEGV on Windows
-  CHECK(exec.errored == treatNonZeroResultCodeAsError);
-  CHECK(exec.ended == !treatNonZeroResultCodeAsError);
-#else
-  CHECK(exec.errored);
-  CHECK_FALSE(exec.ended);
-#endif
-}
-#endif
-
-TEST_CASE_METHOD(
-  MapDocumentTest, "CompilationCopyFilesTaskRunner.createTargetDirectories")
-{
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
-
-  auto context = CompilationContext{document, variables, outputAdapter, false};
-
-  auto testEnvironment = io::TestEnvironment{};
-
-  const auto sourcePath = "my_map.map";
-  testEnvironment.createFile(sourcePath, "{}");
-
-  const auto targetPath = std::filesystem::path{"some/other/path"};
-
-  auto task = mdl::CompilationCopyFiles{
-    true,
-    (testEnvironment.dir() / sourcePath).string(),
-    (testEnvironment.dir() / targetPath).string()};
-  auto runner = CompilationCopyFilesTaskRunner{context, task};
-
-  REQUIRE_NOTHROW(runner.execute());
-
-  CHECK(testEnvironment.directoryExists(targetPath));
-  CHECK(testEnvironment.loadFile(targetPath / sourcePath) == "{}");
-}
-
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner.renameFile")
-{
-  const auto overwrite = GENERATE(true, false);
-
-  auto variables = el::NullVariableStore{};
-  auto output = QTextEdit{};
-  auto outputAdapter = TextOutputAdapter{&output};
-
-  auto context = CompilationContext{document, variables, outputAdapter, false};
-
-  auto testEnvironment = io::TestEnvironment{};
-
-  const auto sourcePath = "my_map.map";
-  testEnvironment.createFile(sourcePath, "{}");
-
-  const auto targetPath = std::filesystem::path{"some/other/path/your_map.map"};
-  if (overwrite)
+  // the test is unreliable on macOS in debug mode
+  SECTION("toolCrashes")
   {
-    testEnvironment.createDirectory(targetPath.parent_path());
-    testEnvironment.createFile(targetPath, "{...}");
-    REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{document, variables, outputAdapter, false};
+
+    const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
+    auto task = mdl::CompilationRunTool{
+      true, RETURN_EXITCODE_PATH, "--crash", treatNonZeroResultCodeAsError};
+    auto runner = CompilationRunToolTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    CHECK(exec.started);
+#if defined _WIN32
+    // QProcess does not report a crash on SIGSEGV on Windows
+    CHECK(exec.errored == treatNonZeroResultCodeAsError);
+    CHECK(exec.ended == !treatNonZeroResultCodeAsError);
+#else
+    CHECK(exec.errored);
+    CHECK_FALSE(exec.ended);
+#endif
   }
-
-  auto task = mdl::CompilationRenameFile{
-    true,
-    (testEnvironment.dir() / sourcePath).string(),
-    (testEnvironment.dir() / targetPath).string()};
-  auto runner = CompilationRenameFileTaskRunner{context, task};
-
-  REQUIRE_NOTHROW(runner.execute());
-
-  CHECK(testEnvironment.loadFile(targetPath) == "{}");
+#endif
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTargetPattern")
+TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
 {
   auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
@@ -292,72 +232,105 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner.deleteTarget
 
   auto testEnvironment = io::TestEnvironment{};
 
-  const auto file1 = "file1.lit";
-  const auto file2 = "file2.lit";
-  const auto file3 = "file3.map";
-  const auto dir = "somedir.lit";
+  SECTION("createTargetDirectories")
+  {
+    const auto sourcePath = "my_map.map";
+    testEnvironment.createFile(sourcePath, "{}");
 
-  testEnvironment.createFile(file1, "");
-  testEnvironment.createFile(file2, "");
-  testEnvironment.createFile(file3, "");
-  testEnvironment.createDirectory(dir);
+    const auto targetPath = std::filesystem::path{"some/other/path"};
 
-  auto task =
-    mdl::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
-  auto runner = CompilationDeleteFilesTaskRunner{context, task};
+    auto task = mdl::CompilationCopyFiles{
+      true,
+      (testEnvironment.dir() / sourcePath).string(),
+      (testEnvironment.dir() / targetPath).string()};
+    auto runner = CompilationCopyFilesTaskRunner{context, task};
 
-  REQUIRE_NOTHROW(runner.execute());
+    REQUIRE_NOTHROW(runner.execute());
 
-  CHECK(!testEnvironment.fileExists(file1));
-  CHECK(!testEnvironment.fileExists(file2));
-  CHECK(testEnvironment.fileExists(file3));
-  CHECK(testEnvironment.directoryExists(dir));
+    CHECK(testEnvironment.directoryExists(targetPath));
+    CHECK(testEnvironment.loadFile(targetPath / sourcePath) == "{}");
+  }
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "CompilationRunner.stopAfterFirstError")
+TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner")
 {
   auto variables = el::NullVariableStore{};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
-  const auto does_not_exist = "does_not_exist.map";
-  const auto does_exist = "does_exist.map";
-  const auto should_not_exist = "should_not_exist.map";
+  auto context = CompilationContext{document, variables, outputAdapter, false};
 
   auto testEnvironment = io::TestEnvironment{};
-  testEnvironment.createFile(does_exist, "");
 
-  auto compilationProfile = mdl::CompilationProfile{
-    "name",
-    testEnvironment.dir().string(),
+  SECTION("renameFile")
+  {
+    const auto overwrite = GENERATE(true, false);
+
+    const auto sourcePath = "my_map.map";
+    testEnvironment.createFile(sourcePath, "{}");
+
+    const auto targetPath = std::filesystem::path{"some/other/path/your_map.map"};
+    if (overwrite)
     {
-      mdl::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
-      mdl::CompilationCopyFiles{true, does_exist, should_not_exist},
-    }};
+      testEnvironment.createDirectory(targetPath.parent_path());
+      testEnvironment.createFile(targetPath, "{...}");
+      REQUIRE(testEnvironment.loadFile(targetPath) == "{...}");
+    }
 
-  auto runner = CompilationRunner{
-    CompilationContext{document, variables, outputAdapter, false}, compilationProfile};
+    auto task = mdl::CompilationRenameFile{
+      true,
+      (testEnvironment.dir() / sourcePath).string(),
+      (testEnvironment.dir() / targetPath).string()};
+    auto runner = CompilationRenameFileTaskRunner{context, task};
 
-  auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
-  auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
+    REQUIRE_NOTHROW(runner.execute());
 
-  REQUIRE(compilationStartedSpy.isValid());
-  REQUIRE(compilationEndedSpy.isValid());
-
-  runner.execute();
-  REQUIRE(!runner.running());
-  REQUIRE(compilationStartedSpy.count() == 1);
-  REQUIRE(compilationEndedSpy.count() == 1);
-
-  CHECK_FALSE(testEnvironment.fileExists(should_not_exist));
+    CHECK(testEnvironment.loadFile(targetPath) == "{}");
+  }
 }
 
-TEST_CASE("CompilationRunner.interpolateToolsVariables")
+TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner")
+{
+  auto variables = el::NullVariableStore{};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  auto testEnvironment = io::TestEnvironment{};
+
+  SECTION("deleteTargetPattern")
+  {
+    const auto file1 = "file1.lit";
+    const auto file2 = "file2.lit";
+    const auto file3 = "file3.map";
+    const auto dir = "somedir.lit";
+
+    testEnvironment.createFile(file1, "");
+    testEnvironment.createFile(file2, "");
+    testEnvironment.createFile(file3, "");
+    testEnvironment.createDirectory(dir);
+
+    auto task =
+      mdl::CompilationDeleteFiles{true, (testEnvironment.dir() / "*.lit").string()};
+    auto runner = CompilationDeleteFilesTaskRunner{context, task};
+
+    REQUIRE_NOTHROW(runner.execute());
+
+    CHECK(!testEnvironment.fileExists(file1));
+    CHECK(!testEnvironment.fileExists(file2));
+    CHECK(testEnvironment.fileExists(file3));
+    CHECK(testEnvironment.directoryExists(dir));
+  }
+}
+
+TEST_CASE("CompilationRunner")
 {
   auto [document, game, gameConfig] = ui::loadMapDocument(
     "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
     mdl::MapFormat::Unknown);
+
   const auto testWorkDir = std::string{"/some/path"};
   auto variables = CompilationVariables{document, testWorkDir};
   auto output = QTextEdit{};
@@ -365,16 +338,54 @@ TEST_CASE("CompilationRunner.interpolateToolsVariables")
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
 
-  const auto startSubstr = std::string{"foo "};
-  const auto midSubstr = std::string{" bar "};
-  const auto toInterpolate = startSubstr + std::string{"${MAP_DIR_PATH}"} + midSubstr
-                             + std::string{"${WORK_DIR_PATH}"};
-  const auto expected =
-    startSubstr + document->path().parent_path().string() + midSubstr + testWorkDir;
+  auto testEnvironment = io::TestEnvironment{};
 
-  const auto interpolated = context.interpolate(toInterpolate);
+  SECTION("stopAfterFirstError")
+  {
+    const auto does_not_exist = "does_not_exist.map";
+    const auto does_exist = "does_exist.map";
+    const auto should_not_exist = "should_not_exist.map";
 
-  CHECK(interpolated == expected);
+    testEnvironment.createFile(does_exist, "");
+
+    auto compilationProfile = mdl::CompilationProfile{
+      "name",
+      testEnvironment.dir().string(),
+      {
+        mdl::CompilationCopyFiles{true, does_not_exist, "does_not_matter.map"},
+        mdl::CompilationCopyFiles{true, does_exist, should_not_exist},
+      }};
+
+    auto runner = CompilationRunner{
+      CompilationContext{document, variables, outputAdapter, false}, compilationProfile};
+
+    auto compilationStartedSpy = QSignalSpy{&runner, SIGNAL(compilationStarted())};
+    auto compilationEndedSpy = QSignalSpy{&runner, SIGNAL(compilationEnded())};
+
+    REQUIRE(compilationStartedSpy.isValid());
+    REQUIRE(compilationEndedSpy.isValid());
+
+    runner.execute();
+    REQUIRE(!runner.running());
+    REQUIRE(compilationStartedSpy.count() == 1);
+    REQUIRE(compilationEndedSpy.count() == 1);
+
+    CHECK_FALSE(testEnvironment.fileExists(should_not_exist));
+  }
+
+  SECTION("interpolateToolsVariables")
+  {
+    using namespace std::string_literals;
+
+    const auto startSubstr = "foo "s;
+    const auto midSubstr = " bar "s;
+    const auto toInterpolate =
+      startSubstr + "${MAP_DIR_PATH}"s + midSubstr + "${WORK_DIR_PATH}"s;
+
+    CHECK(
+      context.interpolate(toInterpolate)
+      == startSubstr + document->path().parent_path().string() + midSubstr + testWorkDir);
+  }
 }
 
 } // namespace tb::ui
