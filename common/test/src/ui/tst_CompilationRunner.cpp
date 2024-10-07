@@ -249,17 +249,31 @@ TEST_CASE("CompilationExportMapTaskRunner")
 
     CHECK(testEnvironment.fileExists("exported.map"));
   }
+
+  SECTION("variable interpolation error")
+  {
+    auto node = new mdl::EntityNode{mdl::Entity{}};
+    document->addNodes({{document->parentForNodes(), {node}}});
+
+    auto task = mdl::CompilationExportMap{true, "${WORK_DIR_PATH/exported.map"};
+
+    auto runner = CompilationExportMapTaskRunner{context, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    CHECK(!testEnvironment.fileExists("exported.map"));
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
 {
-  auto variables = el::NullVariableStore{};
+  auto testEnvironment = io::TestEnvironment{};
+
+  const auto testWorkDir = testEnvironment.dir().string();
+  auto variables = CompilationVariables{document, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
-
-  auto testEnvironment = io::TestEnvironment{};
 
   SECTION("createTargetDirectories")
   {
@@ -279,17 +293,31 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
     CHECK(testEnvironment.directoryExists(targetPath));
     CHECK(testEnvironment.loadFile(targetPath / sourcePath) == "{}");
   }
+
+  SECTION("variable interpolation errors")
+  {
+    const auto sourcePath =
+      GENERATE("${WORK_DIR_PATH}/source.map", "${WORK_DIR_PATH/source.map}");
+    const auto targetPath =
+      GENERATE("${WORK_DIR_PATH}/target.map", "${WORK_DIR_PATH/target.map}");
+
+    auto task = mdl::CompilationCopyFiles{true, sourcePath, targetPath};
+    auto runner = CompilationCopyFilesTaskRunner{context, task};
+
+    REQUIRE_NOTHROW(runner.execute());
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner")
 {
-  auto variables = el::NullVariableStore{};
+  auto testEnvironment = io::TestEnvironment{};
+
+  const auto testWorkDir = testEnvironment.dir().string();
+  auto variables = CompilationVariables{document, testWorkDir};
   auto output = QTextEdit{};
   auto outputAdapter = TextOutputAdapter{&output};
 
   auto context = CompilationContext{document, variables, outputAdapter, false};
-
-  auto testEnvironment = io::TestEnvironment{};
 
   SECTION("renameFile")
   {
@@ -315,6 +343,19 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRenameFileTaskRunner")
     REQUIRE_NOTHROW(runner.execute());
 
     CHECK(testEnvironment.loadFile(targetPath) == "{}");
+  }
+
+  SECTION("variable interpolation errors")
+  {
+    const auto sourcePath =
+      GENERATE("${WORK_DIR_PATH}/source.map", "${WORK_DIR_PATH/source.map}");
+    const auto targetPath =
+      GENERATE("${WORK_DIR_PATH}/target.map", "${WORK_DIR_PATH/target.map}");
+
+    auto task = mdl::CompilationRenameFile{true, sourcePath, targetPath};
+    auto runner = CompilationRenameFileTaskRunner{context, task};
+
+    REQUIRE_NOTHROW(runner.execute());
   }
 }
 
@@ -350,6 +391,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner")
     CHECK(!testEnvironment.fileExists(file2));
     CHECK(testEnvironment.fileExists(file3));
     CHECK(testEnvironment.directoryExists(dir));
+  }
+
+  SECTION("variable interpolation error")
+  {
+    auto task = mdl::CompilationDeleteFiles{true, "${WORK_DIR_PATH/exported.map"};
+    auto runner = CompilationDeleteFilesTaskRunner{context, task};
+
+    REQUIRE_NOTHROW(runner.execute());
   }
 }
 

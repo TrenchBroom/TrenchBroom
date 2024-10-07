@@ -23,6 +23,7 @@
 #include <QProcess>
 
 #include "Macros.h"
+#include "Result.h"
 #include "mdl/CompilationTask.h"
 #include "ui/CompilationContext.h"
 
@@ -59,7 +60,7 @@ signals:
   void end();
 
 protected:
-  std::string interpolate(const std::string& spec);
+  Result<std::string> interpolate(const std::string& spec);
 
 private:
   virtual void doExecute() = 0;
@@ -158,7 +159,7 @@ private:
 
 private:
   void startProcess();
-  std::string cmd();
+  Result<std::string> cmd();
 private slots:
   void processErrorOccurred(QProcess::ProcessError processError);
   void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
