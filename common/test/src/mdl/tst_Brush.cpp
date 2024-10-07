@@ -2124,12 +2124,12 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // left brush faces
   CHECK(left->faceCount() == 6u);
-  CHECK(left->findFace({-16.0, vm::vec3d{1, 0, 0}}));
-  CHECK(left->findFace({+32.0, vm::vec3d{-1, 0, 0}}));
-  CHECK(left->findFace({+16.0, vm::vec3d{0, 1, 0}}));
-  CHECK(left->findFace({+16.0, vm::vec3d{0, -1, 0}}));
-  CHECK(left->findFace({+32.0, vm::vec3d{0, 0, 1}}));
-  CHECK(left->findFace({+32.0, vm::vec3d{0, 0, -1}}));
+  CHECK(left->findFace(vm::plane3d{-16.0, vm::vec3d{1, 0, 0}}));
+  CHECK(left->findFace(vm::plane3d{+32.0, vm::vec3d{-1, 0, 0}}));
+  CHECK(left->findFace(vm::plane3d{+16.0, vm::vec3d{0, 1, 0}}));
+  CHECK(left->findFace(vm::plane3d{+16.0, vm::vec3d{0, -1, 0}}));
+  CHECK(left->findFace(vm::plane3d{+32.0, vm::vec3d{0, 0, 1}}));
+  CHECK(left->findFace(vm::plane3d{+32.0, vm::vec3d{0, 0, -1}}));
 
   // left brush materials
   CHECK(
@@ -2182,12 +2182,12 @@ TEST_CASE("BrushTest.subtractCuboidFromCuboid")
 
   // right brush faces
   CHECK(right->faceCount() == 6u);
-  CHECK(right->findFace({+32.0, vm::vec3d{1, 0, 0}}));
-  CHECK(right->findFace({-16.0, vm::vec3d{-1, 0, 0}}));
-  CHECK(right->findFace({+16.0, vm::vec3d{0, 1, 0}}));
-  CHECK(right->findFace({+16.0, vm::vec3d{0, -1, 0}}));
-  CHECK(right->findFace({+32.0, vm::vec3d{0, 0, 1}}));
-  CHECK(right->findFace({+32.0, vm::vec3d{0, 0, -1}}));
+  CHECK(right->findFace(vm::plane3d{+32.0, vm::vec3d{1, 0, 0}}));
+  CHECK(right->findFace(vm::plane3d{-16.0, vm::vec3d{-1, 0, 0}}));
+  CHECK(right->findFace(vm::plane3d{+16.0, vm::vec3d{0, 1, 0}}));
+  CHECK(right->findFace(vm::plane3d{+16.0, vm::vec3d{0, -1, 0}}));
+  CHECK(right->findFace(vm::plane3d{+32.0, vm::vec3d{0, 0, 1}}));
+  CHECK(right->findFace(vm::plane3d{+32.0, vm::vec3d{0, 0, -1}}));
 
   // right brush materials
   CHECK(

@@ -27,21 +27,17 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include <algorithm>
 #include <unordered_map>
 #include <unordered_set>
 
 namespace tb::io
 {
-static const auto DefaultSize = vm::bbox3d(-8, +8);
-
-EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
-  : m_defaultEntityColor{defaultEntityColor}
+namespace
 {
-}
+static constexpr auto DefaultSize = vm::bbox3d(-8, +8);
 
-EntityDefinitionParser::~EntityDefinitionParser() {}
-
-static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
+std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
   const mdl::PropertyDefinition& inheritingClassAttribute,
   const mdl::PropertyDefinition& superClassAttribute)
 {
@@ -100,7 +96,7 @@ static std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
  * - spawnflags are merged together
  * - model definitions are merged together
  */
-static void inheritAttributes(
+void inheritAttributes(
   EntityDefinitionClassInfo& inheritingClass, const EntityDefinitionClassInfo& superClass)
 {
   if (!inheritingClass.description)
@@ -156,6 +152,55 @@ static void inheritAttributes(
 }
 
 /**
+ * Filter out redundant classes. A class is redundant if a class of the same name exists
+ * at an earlier position in the given vector, unless the two classes each have one of the
+ * types point and brush each. That is, any duplicate is redundant with the exception of
+ * overloaded point and brush classes.
+ */
+std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
+  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
+{
+  std::vector<EntityDefinitionClassInfo> result;
+  result.reserve(classInfos.size());
+
+  const auto getMask = [](const auto type) { return 1 << static_cast<int>(type); };
+
+  const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
+
+  std::unordered_map<std::string, int> seen;
+  for (const auto& classInfo : classInfos)
+  {
+    auto& seenMask = seen[classInfo.name];
+    const auto classMask = getMask(classInfo.type);
+
+    if (classMask & seenMask)
+    {
+      status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
+    }
+    else if ((seenMask & baseClassMask) || (seenMask != 0 && (classMask & baseClassMask)))
+    {
+      status.warn(classInfo.location, "Redundant class info '" + classInfo.name + "'");
+    }
+    else
+    {
+      result.push_back(classInfo);
+      seenMask |= classMask;
+    }
+  }
+
+  return result;
+}
+
+// forward declaration to enable recursion
+template <typename F>
+void findSuperClassesAndInheritFrom(
+  ParserStatus& status,
+  EntityDefinitionClassInfo& inheritingClass,
+  const EntityDefinitionClassInfo& classWithSuperClasses,
+  const F& findClassInfos,
+  std::unordered_set<std::string>& visited);
+
+/**
  * Resolves inheritance from the given inheriting class to the given super class, and
  * recurses into the super classes of the given super class.
  *
@@ -165,14 +210,14 @@ static void inheritAttributes(
  *
  * Otherwise, the attributes from the given super class are copied to the inheriting
  * class. For the exact semantics of inheriting an attribute from a super class, see the
- * inheritAttributes function. Afterwards, the super classes of the given super class are
- * recursively inherited from.
+ * inheritAttributes function. Afterwards, the super classes of the given super class
+ * are recursively inherited from.
  *
- * By copying the attributes before recursing further into the super class hierarchy, the
- * attributes inherited from a class that is closer to the inheriting class in the
- * inheritance hierarchy take precedence over the attributes from a class that is further.
- * This means that attributes from the further class get overridden by attributes from the
- * closer class.
+ * By copying the attributes before recursing further into the super class hierarchy,
+ * the attributes inherited from a class that is closer to the inheriting class in the
+ * inheritance hierarchy take precedence over the attributes from a class that is
+ * further. This means that attributes from the further class get overridden by
+ * attributes from the closer class.
  *
  * The following example illustrates this. Let A, B, C be classes such that A inherits
  * from B and B inherits from C. Then B has its attributes copied into A before C. And
@@ -180,16 +225,16 @@ static void inheritAttributes(
  * attributes from B take precedence over the attributes from C.
  *
  * @param status the parser status to add errors to
- * @param inheritingClass class the class that is currently processed, i.e. the class that
- * induces the inheritance hierarchy that is currently being resolved
+ * @param inheritingClass class the class that is currently processed, i.e. the class
+ * that induces the inheritance hierarchy that is currently being resolved
  * @param superClass the super class to inherit from
  * @param findClassInfos a function that finds class infos by their names
- * @param visited a set that contains the names of the classes visited so far on the path
- * from the inheriting class to the given super class
+ * @param visited a set that contains the names of the classes visited so far on the
+ * path from the inheriting class to the given super class
  *
  */
 template <typename F>
-static void inheritFromAndRecurse(
+void inheritFromAndRecurse(
   ParserStatus& status,
   EntityDefinitionClassInfo& inheritingClass,
   const EntityDefinitionClassInfo& superClass,
@@ -247,7 +292,7 @@ static void inheritFromAndRecurse(
  * from the inheriting class to the given super class
  */
 template <typename F>
-static void findSuperClassesAndInheritFrom(
+void findSuperClassesAndInheritFrom(
   ParserStatus& status,
   EntityDefinitionClassInfo& inheritingClass,
   const EntityDefinitionClassInfo& classWithSuperClasses,
@@ -321,7 +366,7 @@ static void findSuperClassesAndInheritFrom(
  * super classes added
  */
 template <typename F>
-static EntityDefinitionClassInfo resolveInheritance(
+EntityDefinitionClassInfo resolveInheritance(
   ParserStatus& status,
   EntityDefinitionClassInfo inheritingClass,
   const F& findClassInfos)
@@ -332,45 +377,7 @@ static EntityDefinitionClassInfo resolveInheritance(
   return inheritingClass;
 }
 
-/**
- * Filter out redundant classes. A class is redundant if a class of the same name exists
- * at an earlier position in the given vector, unless the two classes each have one of the
- * types point and brush each. That is, any duplicate is redundant with the exception of
- * overloaded point and brush classes.
- */
-static std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
-  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
-{
-  std::vector<EntityDefinitionClassInfo> result;
-  result.reserve(classInfos.size());
-
-  const auto getMask = [](const auto type) { return 1 << static_cast<int>(type); };
-
-  const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
-
-  std::unordered_map<std::string, int> seen;
-  for (const auto& classInfo : classInfos)
-  {
-    auto& seenMask = seen[classInfo.name];
-    const auto classMask = getMask(classInfo.type);
-
-    if (classMask & seenMask)
-    {
-      status.warn(classInfo.location, "Duplicate class info '" + classInfo.name + "'");
-    }
-    else if ((seenMask & baseClassMask) || (seenMask != 0 && (classMask & baseClassMask)))
-    {
-      status.warn(classInfo.location, "Redundant class info '" + classInfo.name + "'");
-    }
-    else
-    {
-      result.push_back(classInfo);
-      seenMask |= classMask;
-    }
-  }
-
-  return result;
-}
+} // namespace
 
 /**
  * Resolves the inheritance for every class that is not of type BaseClass in the given
@@ -406,6 +413,13 @@ std::vector<EntityDefinitionClassInfo> resolveInheritance(
   }
   return result;
 }
+
+EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
+  : m_defaultEntityColor{defaultEntityColor}
+{
+}
+
+EntityDefinitionParser::~EntityDefinitionParser() {}
 
 namespace
 {
