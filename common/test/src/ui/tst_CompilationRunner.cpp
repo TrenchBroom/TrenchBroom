@@ -28,6 +28,7 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include "el/VariableStore.h"
 #include "io/TestEnvironment.h"
 #include "mdl/CompilationTask.h"
+#include "mdl/EntityNode.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"
 #include "ui/CompilationVariables.h"
@@ -220,6 +221,34 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 #endif
   }
 #endif
+}
+
+TEST_CASE("CompilationExportMapTaskRunner")
+{
+  auto [document, game, gameConfig] =
+    ui::newMapDocument("Quake", mdl::MapFormat::Standard);
+
+  auto testEnvironment = io::TestEnvironment{};
+
+  const auto testWorkDir = testEnvironment.dir().string();
+  auto variables = CompilationVariables{document, testWorkDir};
+  auto output = QTextEdit{};
+  auto outputAdapter = TextOutputAdapter{&output};
+
+  auto context = CompilationContext{document, variables, outputAdapter, false};
+
+  SECTION("exportMap")
+  {
+    auto node = new mdl::EntityNode{mdl::Entity{}};
+    document->addNodes({{document->parentForNodes(), {node}}});
+
+    auto task = mdl::CompilationExportMap{true, "${WORK_DIR_PATH}/exported.map"};
+
+    auto runner = CompilationExportMapTaskRunner{context, task};
+    REQUIRE_NOTHROW(runner.execute());
+
+    CHECK(testEnvironment.fileExists("exported.map"));
+  }
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "CompilationCopyFilesTaskRunner")
