@@ -27,7 +27,10 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kdl/range_to_vector.h"
+
 #include <algorithm>
+#include <ranges>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -64,7 +67,7 @@ std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
       const auto* baseclassFlag = baseclassFlags.option(static_cast<int>(1 << i));
       const auto* classFlag = classFlags.option(static_cast<int>(1 << i));
 
-      if (baseclassFlag != nullptr && classFlag == nullptr)
+      if (baseclassFlag && !classFlag)
       {
         result->addOption(
           baseclassFlag->value(),
@@ -72,7 +75,7 @@ std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
           baseclassFlag->longDescription(),
           baseclassFlag->isDefault());
       }
-      else if (classFlag != nullptr)
+      else if (classFlag)
       {
         result->addOption(
           classFlag->value(),
@@ -114,9 +117,8 @@ void inheritAttributes(
 
   for (const auto& attribute : superClass.propertyDefinitions)
   {
-    auto it = std::find_if(
-      std::begin(inheritingClass.propertyDefinitions),
-      std::end(inheritingClass.propertyDefinitions),
+    auto it = std::ranges::find_if(
+      inheritingClass.propertyDefinitions,
       [&](const auto& a) { return a->key() == attribute->key(); });
     if (it == std::end(inheritingClass.propertyDefinitions))
     {
@@ -124,8 +126,7 @@ void inheritAttributes(
     }
     else
     {
-      auto mergedAttribute = mergeAttributes(**it, *attribute);
-      if (mergedAttribute != nullptr)
+      if (auto mergedAttribute = mergeAttributes(**it, *attribute))
       {
         *it = mergedAttribute;
       }
@@ -160,14 +161,14 @@ void inheritAttributes(
 std::vector<EntityDefinitionClassInfo> filterRedundantClasses(
   ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
 {
-  std::vector<EntityDefinitionClassInfo> result;
+  auto result = std::vector<EntityDefinitionClassInfo>{};
   result.reserve(classInfos.size());
 
   const auto getMask = [](const auto type) { return 1 << static_cast<int>(type); };
 
   const auto baseClassMask = getMask(EntityDefinitionClassType::BaseClass);
 
-  std::unordered_map<std::string, int> seen;
+  auto seen = std::unordered_map<std::string, int>{};
   for (const auto& classInfo : classInfos)
   {
     auto& seenMask = seen[classInfo.name];
@@ -241,18 +242,19 @@ void inheritFromAndRecurse(
   const F& findClassInfos,
   std::unordered_set<std::string>& visited)
 {
-  if (!visited.insert(superClass.name).second)
+  if (visited.insert(superClass.name).second)
+  {
+    inheritAttributes(inheritingClass, superClass);
+    findSuperClassesAndInheritFrom(
+      status, inheritingClass, superClass, findClassInfos, visited);
+
+    visited.erase(superClass.name);
+  }
+  else
   {
     status.error(
       inheritingClass.location, "Entity definition class hierarchy contains a cycle");
-    return;
   }
-
-  inheritAttributes(inheritingClass, superClass);
-  findSuperClassesAndInheritFrom(
-    status, inheritingClass, superClass, findClassInfos, visited);
-
-  visited.erase(superClass.name);
 }
 
 /**
@@ -299,32 +301,41 @@ void findSuperClassesAndInheritFrom(
   const F& findClassInfos,
   std::unordered_set<std::string>& visited)
 {
+  const auto findClassInfoWithType =
+    [&](const auto& classes, const auto type) -> const EntityDefinitionClassInfo* {
+    if (const auto it = std::find_if(
+          classes.begin(), classes.end(), [&](const auto* c) { return c->type == type; });
+        it != classes.end())
+    {
+      return *it;
+    }
+    return nullptr;
+  };
+
   const auto selectSuperClass =
     [&](const auto& potentialSuperClasses) -> const EntityDefinitionClassInfo* {
     if (potentialSuperClasses.size() == 1u)
     {
       return potentialSuperClasses.front();
     }
-    else if (potentialSuperClasses.size() > 1u)
+    if (potentialSuperClasses.size() > 1u)
     {
       // find a super class with the same class type as the inheriting class
-      for (const auto* potentialSuperClass : potentialSuperClasses)
+      if (
+        const auto* classInfo =
+          findClassInfoWithType(potentialSuperClasses, inheritingClass.type))
       {
-        if (potentialSuperClass->type == inheritingClass.type)
-        {
-          return potentialSuperClass;
-        }
+        return classInfo;
       }
 
       if (inheritingClass.type != EntityDefinitionClassType::BaseClass)
       {
         // find a super class of type BaseClass
-        for (const auto* potentialSuperClass : potentialSuperClasses)
+        if (
+          const auto* classInfo = findClassInfoWithType(
+            potentialSuperClasses, EntityDefinitionClassType::BaseClass))
         {
-          if (potentialSuperClass->type == EntityDefinitionClassType::BaseClass)
-          {
-            return potentialSuperClass;
-          }
+          return classInfo;
         }
       }
     }
@@ -334,17 +345,16 @@ void findSuperClassesAndInheritFrom(
 
   for (const auto& nextSuperClassName : classWithSuperClasses.superClasses)
   {
-    const auto* nextSuperClass = selectSuperClass(findClassInfos(nextSuperClassName));
-    if (nextSuperClass == nullptr)
+    if (const auto* nextSuperClass = selectSuperClass(findClassInfos(nextSuperClassName)))
+    {
+      inheritFromAndRecurse(
+        status, inheritingClass, *nextSuperClass, findClassInfos, visited);
+    }
+    else
     {
       status.error(
         classWithSuperClasses.location,
         "No matching super class found for '" + nextSuperClassName + "'");
-    }
-    else
-    {
-      inheritFromAndRecurse(
-        status, inheritingClass, *nextSuperClass, findClassInfos, visited);
     }
   }
 }
@@ -377,52 +387,6 @@ EntityDefinitionClassInfo resolveInheritance(
   return inheritingClass;
 }
 
-} // namespace
-
-/**
- * Resolves the inheritance for every class that is not of type BaseClass in the given
- * vector and returns a vector of copies where the inherited attributes are added to the
- * inheriting classes.
- *
- * Exposed for testing.
- */
-std::vector<EntityDefinitionClassInfo> resolveInheritance(
-  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
-{
-  const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
-  const auto findClassInfos =
-    [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
-    std::vector<const EntityDefinitionClassInfo*> result;
-    for (const auto& classInfo : filteredClassInfos)
-    {
-      if (classInfo.name == name)
-      {
-        result.push_back(&classInfo);
-      }
-    }
-    return result;
-  };
-
-  std::vector<EntityDefinitionClassInfo> result;
-  for (const auto& classInfo : filteredClassInfos)
-  {
-    if (classInfo.type != EntityDefinitionClassType::BaseClass)
-    {
-      result.push_back(resolveInheritance(status, classInfo, findClassInfos));
-    }
-  }
-  return result;
-}
-
-EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
-  : m_defaultEntityColor{defaultEntityColor}
-{
-}
-
-EntityDefinitionParser::~EntityDefinitionParser() {}
-
-namespace
-{
 std::unique_ptr<mdl::EntityDefinition> createDefinition(
   EntityDefinitionClassInfo classInfo, const Color& defaultEntityColor)
 {
@@ -477,6 +441,39 @@ std::vector<std::unique_ptr<mdl::EntityDefinition>> createDefinitions(
 }
 
 } // namespace
+
+/**
+ * Resolves the inheritance for every class that is not of type BaseClass in the given
+ * vector and returns a vector of copies where the inherited attributes are added to the
+ * inheriting classes.
+ *
+ * Exposed for testing.
+ */
+std::vector<EntityDefinitionClassInfo> resolveInheritance(
+  ParserStatus& status, const std::vector<EntityDefinitionClassInfo>& classInfos)
+{
+  const auto filteredClassInfos = filterRedundantClasses(status, classInfos);
+  const auto findClassInfos =
+    [&](const auto& name) -> std::vector<const EntityDefinitionClassInfo*> {
+    return filteredClassInfos
+           | std::views::filter([&](const auto& c) { return c.name == name; })
+           | std::views::transform([](const auto& c) { return &c; }) | kdl::to_vector;
+  };
+
+  return filteredClassInfos | std::views::filter([](const auto& c) {
+           return c.type != EntityDefinitionClassType::BaseClass;
+         })
+         | std::views::transform(
+           [&](const auto& c) { return resolveInheritance(status, c, findClassInfos); })
+         | kdl::to_vector;
+}
+
+EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
+  : m_defaultEntityColor{defaultEntityColor}
+{
+}
+
+EntityDefinitionParser::~EntityDefinitionParser() {}
 
 std::vector<std::unique_ptr<mdl::EntityDefinition>> EntityDefinitionParser::
   parseDefinitions(ParserStatus& status)
