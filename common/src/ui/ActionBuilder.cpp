@@ -49,7 +49,7 @@ namespace
 {
 
 QAction& findOrCreateQtAction(
-  std::unordered_map<const Action*, QAction*> actionMap,
+  std::unordered_map<const Action*, QAction*>& actionMap,
   const Action& tbAction,
   const TriggerFn& triggerFn)
 {
