@@ -72,11 +72,11 @@ std::optional<vm::vec3d> Lasso::project(
   const vm::vec3d& point, const vm::plane3d& plane) const
 {
   const auto ray = vm::ray3d{m_camera.pickRay(vm::vec3f{point})};
-  return kdl::optional_transform(
-    vm::intersect_ray_plane(ray, plane), [&](const auto hitDistance) {
-      const auto hitPoint = vm::point_at_distance(ray, hitDistance);
-      return getTransform() * hitPoint;
-    });
+  return vm::intersect_ray_plane(ray, plane)
+         | kdl::optional_transform([&](const auto hitDistance) {
+             const auto hitPoint = vm::point_at_distance(ray, hitDistance);
+             return getTransform() * hitPoint;
+           });
 }
 
 void Lasso::render(

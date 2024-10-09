@@ -72,13 +72,14 @@ std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputSta
 std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
-  return kdl::optional_transform(
-    vm::intersect_ray_plane(pickRay, boundary), [&](const auto facePointDist) {
-      const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
-      const auto toTex = helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
+  return vm::intersect_ray_plane(pickRay, boundary)
+         | kdl::optional_transform([&](const auto facePointDist) {
+             const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
+             const auto toTex =
+               helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
 
-      return vm::vec2f{toTex * facePoint};
-    });
+             return vm::vec2f{toTex * facePoint};
+           });
 }
 
 vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec2i handle)

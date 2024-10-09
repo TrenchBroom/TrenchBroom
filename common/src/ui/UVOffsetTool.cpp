@@ -28,7 +28,6 @@
 #include "ui/UVView.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/optional_utils.h"
 #include "kdl/range_fold.h"
 
 #include "vm/intersection.h"
@@ -45,13 +44,12 @@ namespace
 vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 {
   const auto& boundary = helper.face()->boundary();
-  return *kdl::optional_transform(
-    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
-      const auto hitPoint = vm::point_at_distance(ray, distance);
-      const auto transform = helper.face()->toUVCoordSystemMatrix(
-        vm::vec2f{0, 0}, helper.face()->attributes().scale(), true);
-      return vm::vec2f{transform * hitPoint};
-    });
+
+  const auto distance = *vm::intersect_ray_plane(ray, boundary);
+  const auto hitPoint = vm::point_at_distance(ray, distance);
+  const auto transform = helper.face()->toUVCoordSystemMatrix(
+    vm::vec2f{0, 0}, helper.face()->attributes().scale(), true);
+  return vm::vec2f{transform * hitPoint};
 }
 
 vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
