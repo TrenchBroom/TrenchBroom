@@ -19,6 +19,8 @@
 
 #include "RotateObjectsTool.h"
 
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 #include "mdl/Hit.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
@@ -27,7 +29,6 @@
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
-#include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
@@ -51,18 +52,7 @@ const Grid& RotateObjectsTool::grid() const
 
 void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area)
 {
-  if (area == RotateObjectsHandle::HitArea::XAxis)
-  {
-    m_toolPage->setAxis(vm::axis::x);
-  }
-  else if (area == RotateObjectsHandle::HitArea::YAxis)
-  {
-    m_toolPage->setAxis(vm::axis::y);
-  }
-  else if (area == RotateObjectsHandle::HitArea::ZAxis)
-  {
-    m_toolPage->setAxis(vm::axis::z);
-  }
+  handleHitAreaDidChangeNotifier(area);
 }
 
 double RotateObjectsTool::angle() const
@@ -83,16 +73,25 @@ vm::vec3d RotateObjectsTool::rotationCenter() const
 void RotateObjectsTool::setRotationCenter(const vm::vec3d& position)
 {
   m_handle.setPosition(position);
-  m_toolPage->setCurrentCenter(position);
+  rotationCenterDidChangeNotifier(position);
   refreshViews();
 }
 
 void RotateObjectsTool::resetRotationCenter()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& bounds = document->selectionBounds();
-  const auto position = document->grid().snap(bounds.center());
-  setRotationCenter(position);
+  const auto selectedNodes = document->selectedNodes();
+  if (selectedNodes.nodeCount() == 1 && selectedNodes.entityCount() == 1)
+  {
+    const auto& entityNode = *selectedNodes.entities().front();
+    setRotationCenter(entityNode.entity().origin());
+  }
+  else
+  {
+    const auto& bounds = document->selectionBounds();
+    const auto position = document->grid().snap(bounds.center());
+    setRotationCenter(position);
+  }
 }
 
 double RotateObjectsTool::majorHandleRadius(const render::Camera& camera) const
@@ -115,7 +114,7 @@ void RotateObjectsTool::commitRotation()
 {
   auto document = kdl::mem_lock(m_document);
   document->commitTransaction();
-  updateRecentlyUsedCenters(rotationCenter());
+  rotationCenterWasUsedNotifier(rotationCenter());
 }
 
 void RotateObjectsTool::cancelRotation()
@@ -180,19 +179,9 @@ void RotateObjectsTool::renderHighlight3D(
   m_handle.renderHighlight3D(renderContext, renderBatch, area);
 }
 
-void RotateObjectsTool::updateRecentlyUsedCenters(const vm::vec3d& center)
-{
-  m_recentlyUsedCenters = kdl::vec_erase(std::move(m_recentlyUsedCenters), center);
-  m_recentlyUsedCenters.push_back(center);
-  m_toolPage->setRecentlyUsedCenters(m_recentlyUsedCenters);
-}
-
 QWidget* RotateObjectsTool::doCreatePage(QWidget* parent)
 {
-  assert(m_toolPage == nullptr);
-
-  m_toolPage = new RotateObjectsToolPage{m_document, *this, parent};
-  return m_toolPage;
+  return new RotateObjectsToolPage{m_document, *this, parent};
 }
 
 } // namespace tb::ui

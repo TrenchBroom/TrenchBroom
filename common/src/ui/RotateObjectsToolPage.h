@@ -22,6 +22,7 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
+#include "ui/RotateObjectsTool.h"
 
 #include "vm/util.h"
 #include "vm/vec.h"
@@ -56,15 +57,13 @@ private:
 
   NotifierConnection m_notifierConnection;
 
+  std::vector<vm::vec3d> m_recentlyUsedCenters;
+
 public:
   RotateObjectsToolPage(
     std::weak_ptr<MapDocument> document,
     RotateObjectsTool& tool,
     QWidget* parent = nullptr);
-
-  void setAxis(vm::axis::type axis);
-  void setRecentlyUsedCenters(const std::vector<vm::vec3d>& centers);
-  void setCurrentCenter(const vm::vec3d& center);
 
 private:
   void connectObservers();
@@ -74,6 +73,10 @@ private:
 
   void selectionDidChange(const Selection& selection);
   void documentWasNewedOrLoaded(MapDocument* document);
+
+  void rotationCenterDidChange(const vm::vec3d& center);
+  void rotationCenterWasUsed(const vm::vec3d& center);
+  void handleHitAreaDidChange(RotateObjectsHandle::HitArea area);
 
   void centerChanged();
   void resetCenterClicked();

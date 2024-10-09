@@ -135,6 +135,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RemoveNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ReparentNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RepeatableActions.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_RotateObjectsTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ScaleObjectsTool.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Selection.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_SelectionTool.cpp"
