@@ -267,11 +267,11 @@ std::optional<vm::vec2f> hitPointInFaceCoords(
     // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
     const auto& boundary = helper.face()->boundary();
     const auto& pickRay = inputState.pickRay();
-    return kdl::optional_transform(
-      vm::intersect_ray_plane(pickRay, boundary), [&](const auto distanceToFace) {
-        const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
-        return vm::vec2f{toFace * hitPoint};
-      });
+    return vm::intersect_ray_plane(pickRay, boundary)
+           | kdl::optional_transform([&](const auto distanceToFace) {
+               const auto hitPoint = vm::point_at_distance(pickRay, distanceToFace);
+               return vm::vec2f{toFace * hitPoint};
+             });
   }
 
   return std::nullopt;
@@ -280,10 +280,10 @@ std::optional<vm::vec2f> hitPointInFaceCoords(
 std::optional<float> computeInitialAngle(
   const UVViewHelper& helper, const InputState& inputState)
 {
-  return kdl::optional_transform(
-    hitPointInFaceCoords(helper, inputState), [&](const auto& point) {
-      return measureAngle(helper, point) - helper.face()->attributes().rotation();
-    });
+  return hitPointInFaceCoords(helper, inputState)
+         | kdl::optional_transform([&](const auto& point) {
+             return measureAngle(helper, point) - helper.face()->attributes().rotation();
+           });
 }
 
 } // namespace

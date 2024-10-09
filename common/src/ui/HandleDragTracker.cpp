@@ -78,10 +78,11 @@ DragHandlePicker makePlaneHandlePicker(
 {
   return [plane = vm::plane3d{plane_.anchor() - handleOffset, plane_.normal},
           handleOffset](const InputState& inputState) -> std::optional<vm::vec3d> {
-    return kdl::optional_transform(
-      vm::intersect_ray_plane(inputState.pickRay(), plane), [&](const auto distance) {
-        return vm::point_at_distance(inputState.pickRay(), distance) + handleOffset;
-      });
+    return vm::intersect_ray_plane(inputState.pickRay(), plane)
+           | kdl::optional_transform([&](const auto distance) {
+               return vm::point_at_distance(inputState.pickRay(), distance)
+                      + handleOffset;
+             });
   };
 }
 
@@ -94,12 +95,13 @@ DragHandlePicker makeCircleHandlePicker(
   return [center = center_ - handleOffset, normal, radius, handleOffset](
            const InputState& inputState) -> std::optional<vm::vec3d> {
     const auto plane = vm::plane3d{center, normal};
-    return kdl::optional_transform(
-      vm::intersect_ray_plane(inputState.pickRay(), plane), [&](const auto distance) {
-        const auto hitPoint = vm::point_at_distance(inputState.pickRay(), distance);
-        const auto direction = vm::normalize(hitPoint - center);
-        return center + radius * direction + handleOffset;
-      });
+    return vm::intersect_ray_plane(inputState.pickRay(), plane)
+           | kdl::optional_transform([&](const auto distance) {
+               const auto hitPoint =
+                 vm::point_at_distance(inputState.pickRay(), distance);
+               const auto direction = vm::normalize(hitPoint - center);
+               return center + radius * direction + handleOffset;
+             });
   };
 }
 

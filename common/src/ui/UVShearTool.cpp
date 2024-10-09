@@ -48,12 +48,13 @@ std::optional<vm::vec2f> getHit(
   const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
-  return kdl::optional_transform(
-    vm::intersect_ray_plane(pickRay, boundary), [&](const auto distance) {
-      const auto hitPoint = vm::point_at_distance(pickRay, distance);
-      const auto hitVec = hitPoint - helper.origin();
-      return vm::vec2f{float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
-    });
+  return vm::intersect_ray_plane(pickRay, boundary)
+         | kdl::optional_transform([&](const auto distance) {
+             const auto hitPoint = vm::point_at_distance(pickRay, distance);
+             const auto hitVec = hitPoint - helper.origin();
+             return vm::vec2f{
+               float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
+           });
 }
 
 class UVShearDragTracker : public GestureTracker
