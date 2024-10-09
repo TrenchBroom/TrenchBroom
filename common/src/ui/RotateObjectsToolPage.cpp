@@ -39,7 +39,6 @@
 #include "kdl/memory_utils.h"
 #include "kdl/range_to.h"
 
-#include "vm/util.h"
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>
@@ -70,32 +69,13 @@ void RotateObjectsToolPage::connectObservers()
     this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
     this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
-}
 
-void RotateObjectsToolPage::setAxis(const vm::axis::type axis)
-{
-  m_axis->setCurrentIndex(static_cast<int>(axis));
-}
-
-void RotateObjectsToolPage::setRecentlyUsedCenters(const std::vector<vm::vec3d>& centers)
-{
-  m_recentlyUsedCentersList->clear();
-  m_recentlyUsedCentersList->addItems(
-    centers | std::views::reverse | std::views::transform([](const auto& center) {
-      return QString::fromStdString(fmt::format("{}", fmt::streamed(center)));
-    })
-    | kdl::to<QStringList>());
-
-  if (m_recentlyUsedCentersList->count() > 0)
-  {
-    m_recentlyUsedCentersList->setCurrentIndex(0);
-  }
-}
-
-void RotateObjectsToolPage::setCurrentCenter(const vm::vec3d& center)
-{
-  m_recentlyUsedCentersList->setCurrentText(
-    QString::fromStdString(fmt::format("{}", fmt::streamed(center))));
+  m_notifierConnection += m_tool.rotationCenterDidChangeNotifier.connect(
+    this, &RotateObjectsToolPage::rotationCenterDidChange);
+  m_notifierConnection += m_tool.rotationCenterWasUsedNotifier.connect(
+    this, &RotateObjectsToolPage::rotationCenterWasUsed);
+  m_notifierConnection += m_tool.handleHitAreaDidChangeNotifier.connect(
+    this, &RotateObjectsToolPage::handleHitAreaDidChange);
 }
 
 void RotateObjectsToolPage::createGui()
@@ -210,6 +190,48 @@ void RotateObjectsToolPage::selectionDidChange(const Selection&)
 void RotateObjectsToolPage::documentWasNewedOrLoaded(MapDocument*)
 {
   updateGui();
+}
+
+void RotateObjectsToolPage::rotationCenterDidChange(const vm::vec3d& center)
+{
+  m_recentlyUsedCentersList->setCurrentText(
+    QString::fromStdString(fmt::format("{}", fmt::streamed(center))));
+}
+
+void RotateObjectsToolPage::rotationCenterWasUsed(const vm::vec3d& center)
+{
+  std::erase_if(m_recentlyUsedCenters, [&](const auto& c) { return c == center; });
+  m_recentlyUsedCenters.push_back(center);
+
+  m_recentlyUsedCentersList->clear();
+  m_recentlyUsedCentersList->addItems(
+    m_recentlyUsedCenters | std::views::reverse
+    | std::views::transform([](const auto& c) {
+        return QString::fromStdString(fmt::format("{}", fmt::streamed(c)));
+      })
+    | kdl::to<QStringList>());
+
+  if (m_recentlyUsedCentersList->count() > 0)
+  {
+    m_recentlyUsedCentersList->setCurrentIndex(0);
+  }
+}
+
+void RotateObjectsToolPage::handleHitAreaDidChange(
+  const RotateObjectsHandle::HitArea area)
+{
+  if (area == RotateObjectsHandle::HitArea::XAxis)
+  {
+    m_axis->setCurrentIndex(0);
+  }
+  else if (area == RotateObjectsHandle::HitArea::YAxis)
+  {
+    m_axis->setCurrentIndex(1);
+  }
+  else if (area == RotateObjectsHandle::HitArea::ZAxis)
+  {
+    m_axis->setCurrentIndex(2);
+  }
 }
 
 void RotateObjectsToolPage::centerChanged()

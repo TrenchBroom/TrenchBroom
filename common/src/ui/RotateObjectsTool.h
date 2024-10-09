@@ -25,7 +25,6 @@
 #include "vm/scalar.h"
 
 #include <memory>
-#include <vector>
 
 namespace tb::render
 {
@@ -38,18 +37,19 @@ namespace tb::ui
 {
 class Grid;
 class MapDocument;
-class RotateObjectsToolPage;
 
 class RotateObjectsTool : public Tool
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  RotateObjectsToolPage* m_toolPage = nullptr;
   RotateObjectsHandle m_handle;
   double m_angle = vm::to_radians(15.0);
-  std::vector<vm::vec3d> m_recentlyUsedCenters;
 
 public:
+  Notifier<vm::vec3d> rotationCenterDidChangeNotifier;
+  Notifier<vm::vec3d> rotationCenterWasUsedNotifier;
+  Notifier<RotateObjectsHandle::HitArea> handleHitAreaDidChangeNotifier;
+
   explicit RotateObjectsTool(std::weak_ptr<MapDocument> document);
 
   bool doActivate() override;
@@ -92,9 +92,6 @@ public:
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
     RotateObjectsHandle::HitArea area);
-
-private:
-  void updateRecentlyUsedCenters(const vm::vec3d& center);
 
 private:
   QWidget* doCreatePage(QWidget* parent) override;
