@@ -21,7 +21,6 @@
 
 #include "mdl/BrushFace.h"
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
-#include "mdl/Polyhedron.h"
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
@@ -30,12 +29,13 @@
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
+#include "kdl/range_fold.h"
 
 #include "vm/intersection.h"
-#include "vm/mat.h"
 #include "vm/vec.h"
 
 #include <cassert>
+#include <ranges>
 
 namespace tb::ui
 {
@@ -65,12 +65,11 @@ vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
       helper.face()->attributes().scale(),
       true);
 
-    auto distance = vm::vec2f::max();
-    for (const auto* vertex : helper.face()->vertices())
-    {
-      const auto temp = helper.computeDistanceFromUVGrid(transform * vertex->position());
-      distance = vm::abs_min(distance, temp);
-    }
+    const auto distance = kdl::fold_left_first(
+      helper.face()->vertices() | std::views::transform([&](const auto& vertex) {
+        return helper.computeDistanceFromUVGrid(transform * vertex->position());
+      }),
+      [&](const auto lhs, const auto rhs) { return vm::abs_min(lhs, rhs); });
 
     return helper.snapDelta(delta, -distance);
   }
