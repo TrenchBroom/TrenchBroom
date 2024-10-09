@@ -19,6 +19,8 @@
 
 #include "RotateObjectsTool.h"
 
+#include "mdl/Entity.h"
+#include "mdl/EntityNode.h"
 #include "mdl/Hit.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
@@ -78,9 +80,18 @@ void RotateObjectsTool::setRotationCenter(const vm::vec3d& position)
 void RotateObjectsTool::resetRotationCenter()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto& bounds = document->selectionBounds();
-  const auto position = document->grid().snap(bounds.center());
-  setRotationCenter(position);
+  const auto selectedNodes = document->selectedNodes();
+  if (selectedNodes.nodeCount() == 1 && selectedNodes.entityCount() == 1)
+  {
+    const auto& entityNode = *selectedNodes.entities().front();
+    setRotationCenter(entityNode.entity().origin());
+  }
+  else
+  {
+    const auto& bounds = document->selectionBounds();
+    const auto position = document->grid().snap(bounds.center());
+    setRotationCenter(position);
+  }
 }
 
 double RotateObjectsTool::majorHandleRadius(const render::Camera& camera) const
