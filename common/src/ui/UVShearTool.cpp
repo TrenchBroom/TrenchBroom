@@ -32,9 +32,12 @@
 
 #include "kdl/memory_utils.h"
 #include "kdl/optional_utils.h"
+#include "kdl/range_to_vector.h"
 
 #include "vm/intersection.h"
 #include "vm/vec.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
@@ -43,8 +46,8 @@ namespace
 
 std::optional<vm::vec2f> getHit(
   const UVViewHelper& helper,
-  const vm::vec3d& xAxis,
-  const vm::vec3d& yAxis,
+  const vm::vec3d& uAxis,
+  const vm::vec3d& vAxis,
   const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
@@ -53,8 +56,73 @@ std::optional<vm::vec2f> getHit(
              const auto hitPoint = vm::point_at_distance(pickRay, distance);
              const auto hitVec = hitPoint - helper.origin();
              return vm::vec2f{
-               float(vm::dot(hitVec, xAxis)), float(vm::dot(hitVec, yAxis))};
+               float(vm::dot(hitVec, uAxis)), float(vm::dot(hitVec, vAxis))};
            });
+}
+
+/**
+ * Return the face's edge vectors in UV coordinates.
+ */
+std::vector<vm::vec2f> getEdgeVectorsUV(const UVViewHelper& helper)
+{
+  if (const auto* face = helper.face())
+  {
+    const auto toUV =
+      helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{0, 0}, true);
+    return face->edges() | std::views::transform([&](const auto* edge) {
+             const auto& segment3d = edge->segment();
+             return vm::vec2f{toUV * segment3d.end()}
+                    - vm::vec2f{toUV * segment3d.start()};
+           })
+           | kdl::to_vector;
+  }
+  return {};
+}
+
+std::vector<float> getSnappedShearFactors(
+  const std::vector<vm::vec2f> edgeVectors, const vm::axis::type axis)
+{
+  return edgeVectors | std::views::filter([&](const auto& v) {
+           return !vm::is_zero(v[axis], vm::Cf::almost_zero());
+         })
+         | std::views::transform([&](const auto& v) { return -v[1 - axis] / v[axis]; })
+         | kdl::to_vector;
+}
+
+float snapShearFactors(
+  const float factor,
+  const float orthogonalOffset,
+  const vm::axis::type axis,
+  const UVViewHelper& helper)
+{
+  const auto edgeVectors = getEdgeVectorsUV(helper);
+  const auto snappedFactors = getSnappedShearFactors(edgeVectors, axis);
+
+  const auto absDiff = [&](const auto& x) { return vm::abs(x - factor); };
+
+  const auto it = std::ranges::min_element(
+    snappedFactors,
+    [&](const auto& lhs, const auto& rhs) { return absDiff(lhs) < absDiff(rhs); });
+
+  const auto threshold = 10.0f / vm::abs(orthogonalOffset) / helper.cameraZoom();
+  return it != snappedFactors.end() && absDiff(*it) < threshold ? *it : factor;
+}
+
+vm::vec2f snapShearFactors(
+  const vm::vec2f& factors, const vm::vec2f& offset, const UVViewHelper& helper)
+{
+  return vm::vec2f{
+    snapShearFactors(factors.x(), offset.x(), vm::axis::x, helper),
+    snapShearFactors(factors.y(), offset.y(), vm::axis::y, helper),
+  };
+}
+
+vm::vec2f selectShearFactors(const vm::vec2f& factors, const vm::vec2b& selector)
+{
+  return vm::vec2f{
+    selector.x() ? factors.x() : 0.0f,
+    selector.y() ? factors.y() : 0.0f,
+  };
 }
 
 class UVShearDragTracker : public GestureTracker
@@ -63,74 +131,70 @@ private:
   MapDocument& m_document;
   const UVViewHelper& m_helper;
   vm::vec2b m_selector;
-  vm::vec3d m_xAxis;
-  vm::vec3d m_yAxis;
+  vm::vec3d m_uAxis;
+  vm::vec3d m_vAxis;
   vm::vec2f m_initialHit;
-  vm::vec2f m_lastHit;
 
 public:
   UVShearDragTracker(
     MapDocument& document,
     const UVViewHelper& helper,
     const vm::vec2b& selector,
-    const vm::vec3d& xAxis,
-    const vm::vec3d& yAxis,
+    const vm::vec3d& uAxis,
+    const vm::vec3d& vAxis,
     const vm::vec2f& initialHit)
     : m_document{document}
     , m_helper{helper}
     , m_selector{selector}
-    , m_xAxis{xAxis}
-    , m_yAxis{yAxis}
+    , m_uAxis{uAxis}
+    , m_vAxis{vAxis}
     , m_initialHit{initialHit}
-    , m_lastHit{initialHit}
   {
     m_document.startTransaction("Shear UV", TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override
   {
-    const auto currentHit = getHit(m_helper, m_xAxis, m_yAxis, inputState.pickRay());
+    m_document.rollbackTransaction();
+
+    const auto currentHit = getHit(m_helper, m_uAxis, m_vAxis, inputState.pickRay());
     if (!currentHit)
     {
       return false;
     }
 
-    const auto delta = *currentHit - m_lastHit;
+    const auto delta = *currentHit - m_initialHit;
 
-    const auto origin = m_helper.origin();
-    const auto oldCoords = vm::vec2f{
-      m_helper.face()->toUVCoordSystemMatrix(
-        vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
-      * origin};
+    const auto factors = vm::vec2f{
+      -delta.y() / m_initialHit.x(),
+      -delta.x() / m_initialHit.y(),
+    };
 
-    if (m_selector[0])
+    const auto snappedFactors =
+      selectShearFactors(snapShearFactors(factors, *currentHit, m_helper), m_selector);
+
+    if (!vm::is_zero(snappedFactors, vm::Cf::almost_zero()))
     {
-      const auto factors = vm::vec2f{-delta.y() / m_initialHit.x(), 0.0f};
-      if (!vm::is_zero(factors, vm::Cf::almost_zero()))
-      {
-        m_document.shearUV(factors);
-      }
+      const auto origin = m_helper.origin();
+      const auto oldOriginUV = vm::vec2f{
+        m_helper.face()->toUVCoordSystemMatrix(
+          vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
+        * origin};
+
+      m_document.shearUV(snappedFactors);
+
+      const auto newOriginUV = vm::vec2f{
+        m_helper.face()->toUVCoordSystemMatrix(
+          vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
+        * origin};
+      const auto newOffset =
+        m_helper.face()->attributes().offset() + oldOriginUV - newOriginUV;
+
+      auto request = mdl::ChangeBrushFaceAttributesRequest{};
+      request.setOffset(newOffset);
+      m_document.setFaceAttributes(request);
     }
-    else if (m_selector[1])
-    {
-      const auto factors = vm::vec2f{0.0f, -delta.x() / m_initialHit.y()};
-      if (!vm::is_zero(factors, vm::Cf::almost_zero()))
-      {
-        m_document.shearUV(factors);
-      }
-    }
 
-    const auto newCoords = vm::vec2f{
-      m_helper.face()->toUVCoordSystemMatrix(
-        vm::vec2f{0, 0}, m_helper.face()->attributes().scale(), true)
-      * origin};
-    const auto newOffset = m_helper.face()->attributes().offset() + oldCoords - newCoords;
-
-    auto request = mdl::ChangeBrushFaceAttributesRequest{};
-    request.setOffset(newOffset);
-    m_document.setFaceAttributes(request);
-
-    m_lastHit = *currentHit;
     return true;
   }
 
@@ -192,7 +256,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   const auto& xHit = inputState.pickResult().first(type(XHandleHitType));
   const auto& yHit = inputState.pickResult().first(type(YHandleHitType));
 
-  if (!(xHit.isMatch() ^ yHit.isMatch()))
+  if (!xHit.isMatch() && !yHit.isMatch())
   {
     return nullptr;
   }
