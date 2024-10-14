@@ -204,7 +204,9 @@ public:
     const auto curHandlePosUVCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
     const auto newHandlePosFaceCoords =
       getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
-    const auto newHandlePosSnapped = snap(m_helper, newHandlePosFaceCoords);
+    const auto newHandlePosSnapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                                       ? snap(m_helper, newHandlePosFaceCoords)
+                                       : newHandlePosFaceCoords;
 
     const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
     const auto originHandlePosUVCoords = m_helper.originInUVCoords();
