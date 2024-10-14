@@ -208,7 +208,7 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
   for (size_t i = 0; i < 2; ++i)
   {
     result[i] =
-      vm::abs(distance[i]) < 4.0f / zoom ? delta[i] + distance[i] : vm::round(delta[i]);
+      vm::abs(distance[i]) < 8.0f / zoom ? delta[i] + distance[i] : vm::round(delta[i]);
   }
   return result;
 }
