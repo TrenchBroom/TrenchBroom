@@ -136,7 +136,7 @@ private:
   {
     if (
       inputState.mouseButtonsPressed(MouseButtons::Left)
-      && inputState.modifierKeysPressed(ModifierKeys::MKAlt | ModifierKeys::Shift)
+      && inputState.modifierKeysPressed(ModifierKeys::Alt | ModifierKeys::Shift)
       && m_tool.handleManager().selectedHandleCount() == 1)
     {
       if (const auto hit = VertexToolController::findHandleHit(inputState, *this);
@@ -158,20 +158,20 @@ private:
     return (
       inputState.mouseButtonsPressed(MouseButtons::Left) &&
       (inputState.modifierKeysPressed(ModifierKeys::None) ||    // horizontal movement
-       inputState.modifierKeysPressed(ModifierKeys::MKAlt) ||     // vertical movement
-       inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd) || // horizontal absolute snap
+       inputState.modifierKeysPressed(ModifierKeys::Alt) ||     // vertical movement
+       inputState.modifierKeysPressed(ModifierKeys::CtrlCmd) || // horizontal absolute snap
        inputState.modifierKeysPressed(
-         ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt) || // vertical absolute snap
+         ModifierKeys::CtrlCmd | ModifierKeys::Alt) || // vertical absolute snap
        inputState.modifierKeysPressed(
          ModifierKeys::Shift) || // add new vertex and horizontal movement
        inputState.modifierKeysPressed(
-         ModifierKeys::Shift | ModifierKeys::MKAlt) || // add new vertex and vertical movement
+         ModifierKeys::Shift | ModifierKeys::Alt) || // add new vertex and vertical movement
        inputState.modifierKeysPressed(
          ModifierKeys::Shift |
-         ModifierKeys::MKCtrlCmd) || // add new vertex and horizontal movement with absolute snap
+         ModifierKeys::CtrlCmd) || // add new vertex and horizontal movement with absolute snap
        inputState.modifierKeysPressed(
-         ModifierKeys::Shift | ModifierKeys::MKCtrlCmd |
-         ModifierKeys::MKAlt) // add new vertex and vertical movement with absolute snap
+         ModifierKeys::Shift | ModifierKeys::CtrlCmd |
+         ModifierKeys::Alt) // add new vertex and vertical movement with absolute snap
        ));
   }
 
