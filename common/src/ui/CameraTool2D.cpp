@@ -116,7 +116,7 @@ bool shouldDragZoom(const InputState& inputState)
   return (
     pref(Preferences::CameraEnableAltMove)
     && inputState.mouseButtonsPressed(MouseButtons::Middle)
-    && inputState.modifierKeysPressed(ModifierKeys::MKAlt));
+    && inputState.modifierKeysPressed(ModifierKeys::Alt));
 }
 
 } // namespace
