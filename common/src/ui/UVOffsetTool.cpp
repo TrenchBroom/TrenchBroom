@@ -98,7 +98,9 @@ public:
 
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
     const auto delta = curPoint - m_lastPoint;
-    const auto snapped = snapDelta(m_helper, delta);
+    const auto snapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                           ? snapDelta(m_helper, delta)
+                           : delta;
 
     const auto corrected =
       vm::correct(m_helper.face()->attributes().offset() - snapped, 4, 0.0f);
