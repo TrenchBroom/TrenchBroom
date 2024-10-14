@@ -66,7 +66,7 @@ float measureAngle(const UVViewHelper& helper, const vm::vec2f& point)
   return vm::mod(helper.face()->measureUVAngle(origin, point), 360.0f);
 }
 
-float snapAngle(const UVViewHelper& helper, const float angle)
+float snapAngle(const UVViewHelper& helper, const float angle, const float distToOrigin)
 {
   const float angles[] = {
     vm::mod(angle + 0.0f, 360.0f),
@@ -94,7 +94,10 @@ float snapAngle(const UVViewHelper& helper, const float angle)
     }
   }
 
-  if (std::abs(minDelta) < 3.0f)
+  // These constants and the use of POW don't have a rational -- they were just determined
+  // by trial and error.
+  const auto threshold = 150.0f / std::pow(distToOrigin, 0.8f) / helper.cameraZoom();
+  if (std::abs(minDelta) < threshold)
   {
     return angle - minDelta;
   }
@@ -199,6 +202,7 @@ public:
     const auto& pickRay = inputState.pickRay();
     const auto curPointDistance = vm::intersect_ray_plane(pickRay, boundary);
     const auto curPoint = vm::point_at_distance(pickRay, *curPointDistance);
+    const auto distToOrigin = vm::length(curPoint - m_helper.origin());
 
     const auto toFaceOld =
       m_helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
@@ -209,7 +213,8 @@ public:
     const auto curAngle = measureAngle(m_helper, curPointInFaceCoords);
 
     const auto angle = curAngle - m_initialAngle;
-    const auto snappedAngle = vm::correct(snapAngle(m_helper, angle), 4, 0.0f);
+    const auto snappedAngle =
+      vm::correct(snapAngle(m_helper, angle, float(distToOrigin)), 4, 0.0f);
 
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
     const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
