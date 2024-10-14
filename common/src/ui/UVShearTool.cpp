@@ -170,8 +170,11 @@ public:
       -delta.x() / m_initialHit.y(),
     };
 
-    const auto snappedFactors =
-      selectShearFactors(snapShearFactors(factors, *currentHit, m_helper), m_selector);
+    const auto snappedFactors = selectShearFactors(
+      !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+        ? snapShearFactors(factors, *currentHit, m_helper)
+        : factors,
+      m_selector);
 
     if (!vm::is_zero(snappedFactors, vm::Cf::almost_zero()))
     {
@@ -242,7 +245,8 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   assert(m_helper.valid());
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::Alt)
+    !(inputState.modifierKeysPressed(ModifierKeys::Alt)
+      || inputState.modifierKeysPressed(ModifierKeys::Alt | ModifierKeys::CtrlCmd))
     || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;

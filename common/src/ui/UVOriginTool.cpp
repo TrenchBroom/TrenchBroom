@@ -270,7 +270,9 @@ public:
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
     const auto delta = curPoint - m_lastPoint;
 
-    const auto snapped = snapDelta(m_helper, delta * m_selector);
+    const auto snapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                           ? snapDelta(m_helper, delta * m_selector)
+                           : delta * m_selector;
     if (vm::is_zero(snapped, vm::Cf::almost_zero()))
     {
       return true;

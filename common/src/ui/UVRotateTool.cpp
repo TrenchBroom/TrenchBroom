@@ -213,8 +213,12 @@ public:
     const auto curAngle = measureAngle(m_helper, curPointInFaceCoords);
 
     const auto angle = curAngle - m_initialAngle;
-    const auto snappedAngle =
-      vm::correct(snapAngle(m_helper, angle, float(distToOrigin)), 4, 0.0f);
+    const auto snappedAngle = vm::correct(
+      !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+        ? snapAngle(m_helper, angle, float(distToOrigin))
+        : angle,
+      4,
+      0.0f);
 
     const auto oldCenterInFaceCoords = m_helper.originInFaceCoords();
     const auto oldCenterInWorldCoords = toWorld * vm::vec3d{oldCenterInFaceCoords};
