@@ -109,9 +109,9 @@ std::unique_ptr<GestureTracker> MoveObjectsToolController::acceptMouseDrag(
 
   if (
     !inputState.modifierKeysPressed(ModifierKeys::None)
-    && !inputState.modifierKeysPressed(ModifierKeys::MKAlt)
-    && !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)
-    && !inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd | ModifierKeys::MKAlt))
+    && !inputState.modifierKeysPressed(ModifierKeys::Alt)
+    && !inputState.modifierKeysPressed(ModifierKeys::CtrlCmd)
+    && !inputState.modifierKeysPressed(ModifierKeys::CtrlCmd | ModifierKeys::Alt))
   {
     return nullptr;
   }
