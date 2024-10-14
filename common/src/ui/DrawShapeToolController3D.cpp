@@ -84,7 +84,7 @@ public:
       }
     }
 
-    if (inputState.modifierKeys() == ModifierKeys::MKAlt)
+    if (inputState.modifierKeys() == ModifierKeys::Alt)
     {
       return UpdateDragConfig{
         makeHandlePositionProposer(
@@ -168,7 +168,7 @@ private:
 
     if (inputState.modifierKeysDown(ModifierKeys::Shift))
     {
-      const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+      const auto includeZAxis = inputState.modifierKeysDown(ModifierKeys::Alt);
 
       const auto xyAxes = vm::vec3d{1, 0, 0} + vm::vec3d{0, 1, 0};
       const auto zAxis = vm::vec3d{0, 0, 1};

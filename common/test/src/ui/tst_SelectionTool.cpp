@@ -181,7 +181,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         AND_WHEN("I shift+ctrl click on the selected face again")
         {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
@@ -221,7 +221,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         AND_WHEN("I ctrl click on the selected brush again")
         {
-          inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
@@ -284,7 +284,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift+ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
@@ -314,7 +314,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
@@ -349,7 +349,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I shift+ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::Shift | ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);
@@ -378,7 +378,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         WHEN("I ctrl click once")
         {
-          inputState.setModifierKeys(ModifierKeys::MKCtrlCmd);
+          inputState.setModifierKeys(ModifierKeys::CtrlCmd);
           inputState.mouseDown(MouseButtons::Left);
           tool.mouseClick(inputState);
           inputState.mouseUp(MouseButtons::Left);

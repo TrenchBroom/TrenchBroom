@@ -108,17 +108,17 @@ namespace
 
 bool copyMaterialOnlyModifiersDown(const InputState& inputState)
 {
-  return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::MKCtrlCmd);
+  return inputState.modifierKeys() == (ModifierKeys::Alt | ModifierKeys::CtrlCmd);
 }
 
 bool copyMaterialAttribsProjectionModifiersDown(const InputState& inputState)
 {
-  return inputState.modifierKeys() == (ModifierKeys::MKAlt);
+  return inputState.modifierKeys() == (ModifierKeys::Alt);
 }
 
 bool copyMaterialAttribsRotationModifiersDown(const InputState& inputState)
 {
-  return inputState.modifierKeys() == (ModifierKeys::MKAlt | ModifierKeys::Shift);
+  return inputState.modifierKeys() == (ModifierKeys::Alt | ModifierKeys::Shift);
 }
 
 /**

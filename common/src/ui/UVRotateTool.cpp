@@ -267,7 +267,7 @@ std::optional<vm::vec2f> hitPointInFaceCoords(
     return vm::vec2f{toFace * angleHandleHit.hitPoint()};
   }
 
-  if (inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
+  if (inputState.modifierKeysPressed(ModifierKeys::CtrlCmd))
   {
     // If Ctrl is pressed, allow starting the drag anywhere, not just on the handle
     const auto& boundary = helper.face()->boundary();
@@ -353,7 +353,7 @@ std::unique_ptr<GestureTracker> UVRotateTool::acceptMouseDrag(
 
   if (
     !(inputState.modifierKeysPressed(ModifierKeys::None)
-      || inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd))
+      || inputState.modifierKeysPressed(ModifierKeys::CtrlCmd))
     || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;
@@ -387,7 +387,7 @@ void UVRotateTool::render(
   }
 
   const auto highlight =
-    inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd)
+    inputState.modifierKeysPressed(ModifierKeys::CtrlCmd)
     || inputState.pickResult().first(type(AngleHandleHitType)).isMatch();
   renderBatch.addOneShot(new Render{
     m_helper, float(CenterHandleRadius), float(RotateHandleRadius), highlight});

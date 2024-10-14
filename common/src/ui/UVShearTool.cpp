@@ -242,7 +242,7 @@ std::unique_ptr<GestureTracker> UVShearTool::acceptMouseDrag(const InputState& i
   assert(m_helper.valid());
 
   if (
-    !inputState.modifierKeysPressed(ModifierKeys::MKAlt)
+    !inputState.modifierKeysPressed(ModifierKeys::Alt)
     || !inputState.mouseButtonsPressed(MouseButtons::Left))
   {
     return nullptr;

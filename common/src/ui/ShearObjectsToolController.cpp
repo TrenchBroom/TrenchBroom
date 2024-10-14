@@ -54,7 +54,7 @@ HandlePositionProposer makeHandlePositionProposer(
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
 {
-  const auto vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+  const auto vertical = inputState.modifierKeysDown(ModifierKeys::Alt);
   const auto& camera = inputState.camera();
 
   const auto side = dragStartHit.target<BBoxSide>();
@@ -122,7 +122,7 @@ public:
       return std::nullopt;
     }
 
-    const bool vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+    const bool vertical = inputState.modifierKeysDown(ModifierKeys::Alt);
     if (vertical == m_tool.constrainVertical())
     {
       return std::nullopt;
@@ -229,7 +229,7 @@ std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
     return nullptr;
   }
 
-  const auto vertical = inputState.modifierKeysDown(ModifierKeys::MKAlt);
+  const auto vertical = inputState.modifierKeysDown(ModifierKeys::Alt);
   if (!(inputState.modifierKeysPressed(ModifierKeys::None) || vertical))
   {
     return nullptr;
