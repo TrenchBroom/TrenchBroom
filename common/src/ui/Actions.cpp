@@ -212,12 +212,15 @@ void Action::resetKeySequence() const
 
 void Action::execute(ActionExecutionContext& context) const
 {
-  m_execute(context);
+  if (enabled(context))
+  {
+    m_execute(context);
+  }
 }
 
 bool Action::enabled(const ActionExecutionContext& context) const
 {
-  return m_enabled(context);
+  return context.hasActionContext(m_actionContext) && m_enabled(context);
 }
 
 bool Action::checkable() const
