@@ -115,7 +115,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (vm::abs(distance[i]) > 4.0f / helper.cameraZoom())
+    if (vm::abs(distance[i]) > 8.0f / helper.cameraZoom())
     {
       distance[i] = 0.0f;
     }
@@ -217,8 +217,8 @@ public:
     {
       if (m_selector[i])
       {
-        const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
-        if (value != 0.0f)
+        if (const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
+            value != 0.0f)
         {
           newScale[i] = value;
         }
