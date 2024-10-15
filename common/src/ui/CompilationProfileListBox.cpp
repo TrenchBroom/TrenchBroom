@@ -92,7 +92,10 @@ ControlListBoxItemRenderer* CompilationProfileListBox::createItemRenderer(
   auto& profile = m_config.profiles[index];
   auto* renderer = new CompilationProfileItemRenderer{profile, parent};
   connect(
-    renderer, &QWidget::customContextMenuRequested, this, [&, index](const QPoint& pos) {
+    renderer,
+    &QWidget::customContextMenuRequested,
+    this,
+    [&, renderer, index](const QPoint& pos) {
       emit this->profileContextMenuRequested(
         renderer->mapToGlobal(pos), m_config.profiles[index]);
     });

@@ -105,7 +105,12 @@ jobs:
       - name: Install macOS dependencies
         if: ${{ matrix.os == 'macos-13' }}
         run: |
-          brew update
+          # workaround for https://github.com/actions/runner-images/issues/4020
+          # copied from https://github.com/Gelmo/warfork-qfusion/commit/79f3dd021b5b74d19647a4bf225d488c9b3dd44d
+          # remove when fixed or upgrading to macos-14
+          # this issue can always reoccur when brew updates their python formula
+          brew unlink python@3.12
+          brew link --overwrite python@3.12
           brew install cmake p7zip pandoc qt@5 ninja autoconf automake kadwanev/brew/retry
 
       # Run build script
