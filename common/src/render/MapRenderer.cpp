@@ -227,6 +227,10 @@ void MapRenderer::restoreSelectionColors()
 void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
 {
   setupGL(renderBatch);
+  renderEntityDecals(renderContext, renderBatch);
+  renderEntityLinks(renderContext, renderBatch);
+  renderGroupLinks(renderContext, renderBatch);
+
   renderDefaultOpaque(renderContext, renderBatch);
   renderLockedOpaque(renderContext, renderBatch);
   renderSelectionOpaque(renderContext, renderBatch);
@@ -234,10 +238,6 @@ void MapRenderer::render(RenderContext& renderContext, RenderBatch& renderBatch)
   renderDefaultTransparent(renderContext, renderBatch);
   renderLockedTransparent(renderContext, renderBatch);
   renderSelectionTransparent(renderContext, renderBatch);
-
-  renderEntityDecals(renderContext, renderBatch);
-  renderEntityLinks(renderContext, renderBatch);
-  renderGroupLinks(renderContext, renderBatch);
 }
 
 void MapRenderer::clear()
