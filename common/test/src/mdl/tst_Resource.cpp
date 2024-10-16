@@ -101,7 +101,7 @@ TEST_CASE("Resource")
   auto taskRunner = [&](auto task) { return mockTaskRunner.run(std::move(task)); };
 
   const auto glContextAvailable = GENERATE(true, false);
-  const auto processContext = ProcessContext{glContextAvailable};
+  const auto processContext = ProcessContext{glContextAvailable, [](auto, auto) {}};
 
   SECTION("Construction with loaded resource")
   {

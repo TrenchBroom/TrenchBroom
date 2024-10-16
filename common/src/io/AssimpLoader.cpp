@@ -51,6 +51,7 @@
 #include <fmt/format.h>
 
 #include <optional>
+#include <ranges>
 #include <string_view>
 #include <utility>
 
@@ -532,7 +533,7 @@ std::optional<size_t> getBoneIndexByName(
   return std::nullopt;
 }
 
-std::vector<mdl::EntityModelVertex> computeMeshVertices(
+Result<std::vector<mdl::EntityModelVertex>> computeMeshVertices(
   const aiMesh& mesh,
   const aiMatrix4x4& transform,
   const aiMatrix4x4& axisTransform,
@@ -558,12 +559,18 @@ std::vector<mdl::EntityModelVertex> computeMeshVertices(
     const auto& bone = *mesh.mBones[i];
 
     // find the bone with the matching name
-    if (const auto index = getBoneIndexByName(boneTransforms, bone))
+    if (const auto boneIndex = getBoneIndexByName(boneTransforms, bone))
     {
-      for (unsigned int j = 0; j < bone.mNumWeights; ++j)
+      for (unsigned int weightIndex = 0; weightIndex < bone.mNumWeights; ++weightIndex)
       {
-        weightsPerVertex[bone.mWeights[j].mVertexId].push_back(
-          {*index, bone.mWeights[j].mWeight, bone});
+        const auto vertexIndex = bone.mWeights[weightIndex].mVertexId;
+        if (vertexIndex >= mesh.mNumVertices)
+        {
+          return Error{fmt::format("Invalid vertex index {}", vertexIndex)};
+        }
+
+        weightsPerVertex[vertexIndex].push_back(
+          {*boneIndex, bone.mWeights[weightIndex].mWeight, bone});
       }
     }
   }
@@ -614,6 +621,37 @@ std::vector<mdl::EntityModelVertex> computeMeshVertices(
   }
 
   return vertices;
+}
+
+AssimpComputedMeshData computeMeshData(
+  const AssimpMeshWithTransforms& mesh,
+  const size_t meshIndex,
+  const std::vector<mdl::EntityModelVertex>& vertices)
+{
+  // build the mesh faces as triangles
+  const auto numTriangles = mesh.m_mesh->mNumFaces;
+  const auto numIndices = numTriangles * 3;
+
+  auto size = render::IndexRangeMap::Size{};
+  size.inc(render::PrimType::Triangles, numTriangles);
+  auto builder =
+    render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{numIndices, size};
+
+  for (unsigned int i = 0; i < numTriangles; ++i)
+  {
+    const auto& face = mesh.m_mesh->mFaces[i];
+
+    // ignore anything that's not a triangle
+    if (face.mNumIndices == 3)
+    {
+      builder.addTriangle(
+        vertices[face.mIndices[0]],
+        vertices[face.mIndices[1]],
+        vertices[face.mIndices[2]]);
+    }
+  }
+
+  return {meshIndex, builder.vertices(), builder.indices()};
 }
 
 aiMatrix4x4 getAxisTransform(const aiScene& scene)
@@ -687,10 +725,9 @@ Result<void> loadSceneFrame(
       ? getAnimationInformation(*scene.mRootNode, *scene.mAnimations[frameIndex])
       : std::vector<AssimpBoneInformation>{};
 
-  auto meshes = std::vector<AssimpMeshWithTransforms>{};
-
   // Assimp files import as y-up. We must multiply the root transform with an axis
   // transform matrix.
+  auto meshes = std::vector<AssimpMeshWithTransforms>{};
   processRootNode(
     meshes,
     *scene.mRootNode,
@@ -698,67 +735,50 @@ Result<void> loadSceneFrame(
     scene.mRootNode->mTransformation,
     getAxisTransform(scene));
 
-  // store the mesh data in a list so we can compute the bounding box before creating the
-  // frame
-  auto meshData = std::vector<AssimpComputedMeshData>{};
   auto bounds = vm::bbox3f::builder{};
 
-  for (const auto& mesh : meshes)
-  {
-    if (const auto meshIndex = getMeshIndex(scene, *mesh.m_mesh))
-    {
-      const auto vertices = computeMeshVertices(
-        *mesh.m_mesh, mesh.m_transform, mesh.m_axisTransform, boneTransforms);
+  return meshes | std::views::transform([&](const auto& mesh) {
+           return std::tuple{mesh, getMeshIndex(scene, *mesh.m_mesh)};
+         })
+         | std::views::filter([](const auto& meshAndIndex) {
+             return std::get<1>(meshAndIndex) != std::nullopt;
+           })
+         | std::views::transform([&](const auto& meshAndIndex) {
+             const auto& mesh = std::get<0>(meshAndIndex);
+             const auto& meshIndex = *std::get<1>(meshAndIndex);
 
-      for (const auto& v : vertices)
-      {
-        bounds.add(v.attr);
-      }
+             return computeMeshVertices(
+                      *mesh.m_mesh,
+                      mesh.m_transform,
+                      mesh.m_axisTransform,
+                      boneTransforms)
+                    | kdl::transform([&](const auto& vertices) {
+                        for (const auto& v : vertices)
+                        {
+                          bounds.add(v.attr);
+                        }
 
-      // build the mesh faces as triangles
-      const auto numTriangles = mesh.m_mesh->mNumFaces;
-      const auto numIndices = numTriangles * 3;
+                        return computeMeshData(mesh, meshIndex, vertices);
+                      });
+           })
+         | kdl::fold | kdl::and_then([&](const auto& meshData) -> Result<void> {
+             if (!bounds.initialized())
+             {
+               // passing empty bounds as bbox crashes the program, don't let it happen
+               return Error{"Model has no vertices. (So no valid bounding box.)"};
+             }
 
-      auto size = render::IndexRangeMap::Size{};
-      size.inc(render::PrimType::Triangles, numTriangles);
-      auto builder =
-        render::IndexRangeMapBuilder<mdl::EntityModelVertex::Type>{numIndices, size};
+             const auto frameBounds = bounds.bounds();
+             auto& frame = model.addFrame(name, frameBounds);
 
-      for (unsigned int i = 0; i < numTriangles; ++i)
-      {
-        const auto& face = mesh.m_mesh->mFaces[i];
+             for (const auto& data : meshData)
+             {
+               auto& surface = model.surface(data.m_meshIndex);
+               surface.addMesh(frame, data.m_vertices, data.m_indices);
+             }
 
-        // ignore anything that's not a triangle
-        if (face.mNumIndices == 3)
-        {
-          builder.addTriangle(
-            vertices[face.mIndices[0]],
-            vertices[face.mIndices[1]],
-            vertices[face.mIndices[2]]);
-        }
-      }
-
-      meshData.push_back({*meshIndex, builder.vertices(), builder.indices()});
-    }
-  }
-
-  if (!bounds.initialized())
-  {
-    // passing empty bounds as bbox crashes the program, don't let it happen
-    return Error{"Model has no vertices. (So no valid bounding box.)"};
-  }
-
-  // we've processed the model, now we can create the frame and bind the meshes to it
-  const auto frameBounds = bounds.bounds();
-  auto& frame = model.addFrame(name, frameBounds);
-
-  for (const auto& data : meshData)
-  {
-    auto& surface = model.surface(data.m_meshIndex);
-    surface.addMesh(frame, data.m_vertices, data.m_indices);
-  }
-
-  return Result<void>{};
+             return Result<void>{};
+           });
 }
 
 } // namespace
@@ -808,7 +828,7 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
     const auto* scene = importer.ReadFile(modelPath, assimpFlags);
     if (!scene)
     {
-      throw ParserException{fmt::format(
+      return Error{fmt::format(
         "Assimp couldn't import model from '{}': {}",
         m_path.string(),
         importer.GetErrorString())};
@@ -829,8 +849,8 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
 
       auto& surface = data.addSurface(scene->mMeshes[i]->mName.data, numSequences);
 
-      // an assimp mesh will only ever have one material, but a material can have multiple
-      // alternatives (this is how assimp handles skins)
+      // an assimp mesh will only ever have one material, but a material can have
+      // multiple alternatives (this is how assimp handles skins)
 
       // load skins for this surface
       auto textures =
@@ -842,16 +862,10 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
       surface.setSkins(std::move(materials));
     }
 
-    for (size_t i = 0; i < numSequences; ++i)
-    {
-      // load the requested frame
-      loadSceneFrame(*scene, i, data, modelPath) | kdl::transform_error([&](auto e) {
-        throw ParserException{fmt::format(
-          "Assimp couldn't import model from '{}': {}", m_path.string(), e.msg)};
-      });
-    }
-
-    return data;
+    return std::views::iota(0u, numSequences) | std::views::transform([&](const auto i) {
+             return loadSceneFrame(*scene, i, data, modelPath);
+           })
+           | kdl::fold | kdl::transform([&]() { return std::move(data); });
   }
   catch (const ParserException& e)
   {

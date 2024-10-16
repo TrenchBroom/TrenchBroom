@@ -100,6 +100,8 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <chrono>
 #include <iterator>
@@ -2435,7 +2437,8 @@ void MapFrame::triggerAutosave()
 void MapFrame::triggerProcessResources()
 {
   auto document = kdl::mem_lock(m_document);
-  document->processResourcesAsync(mdl::ProcessContext{true});
+  document->processResourcesAsync(mdl::ProcessContext{
+    true, [&](const auto&, const auto& error) { logger().error() << error; }});
 }
 
 // DebugPaletteWindow
