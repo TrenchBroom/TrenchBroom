@@ -67,6 +67,7 @@ struct EntityCellData
   mdl::Orientation modelOrientation;
   render::FontDescriptor fontDescriptor;
   vm::bbox3f bounds;
+  vm::mat4x4f transform;
   vm::vec3f modelScale;
 };
 
@@ -139,8 +140,7 @@ private:
   void renderModels(
     Layout& layout, float y, float height, render::Transformation& transformation);
 
-  vm::mat4x4f itemTransformation(
-    const Cell& cell, float y, float height, bool applyModelScale) const;
+  vm::mat4x4f itemTransformation(const Cell& cell, float y, float height) const;
 
   QString tooltip(const Cell& cell) override;
 
