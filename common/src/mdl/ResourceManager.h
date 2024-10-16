@@ -71,6 +71,14 @@ public:
   {
     return m_resource->process(taskRunner, processContext);
   }
+  std::optional<std::string> error() const
+  {
+    return std::visit(
+      kdl::overload(
+        [](const ResourceFailed& failed) { return std::optional{failed.error}; },
+        [](const auto&) { return std::nullopt; }),
+      m_resource->state());
+  };
 };
 
 class ResourceManager

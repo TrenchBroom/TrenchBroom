@@ -36,12 +36,25 @@
 namespace tb::mdl
 {
 
+class ResourceId
+{
+private:
+  std::string m_id = generateUuid();
+
+  kdl_reflect_inline(ResourceId, m_id);
+
+  friend struct std::hash<ResourceId>;
+};
+
 template <typename T>
 using ResourceLoader = std::function<Result<T>()>;
+
+using ErrorHandler = std::function<void(const ResourceId&, const std::string&)>;
 
 struct ProcessContext
 {
   bool glContextAvailable;
+  ErrorHandler errorHandler;
 };
 
 class TaskResult
@@ -201,16 +214,6 @@ ResourceState<T> drop(ResourceDropping<T> state, const bool glContextAvailable)
 
 } // namespace detail
 
-class ResourceId
-{
-private:
-  std::string m_id = generateUuid();
-
-  kdl_reflect_inline(ResourceId, m_id);
-
-  friend struct std::hash<ResourceId>;
-};
-
 /**
  * A resource that can be loaded, uploaded, and dropped.
  *
@@ -299,7 +302,17 @@ public:
         },
         [](auto state) -> ResourceState<T> { return state; }),
       std::move(m_state));
-    return previousStateIndex != m_state.index();
+
+    if (previousStateIndex != m_state.index())
+    {
+      if (const auto* failedState = std::get_if<ResourceFailed>(&m_state))
+      {
+        context.errorHandler(m_id, failedState->error);
+      }
+      return true;
+    }
+
+    return false;
   }
 
   void drop()

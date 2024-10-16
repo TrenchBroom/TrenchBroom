@@ -57,9 +57,9 @@ Result<mdl::EntityModelData> loadEntityModelData(
   const LoadMaterialFunc& loadMaterial,
   Logger& logger)
 {
+  const auto modelName = path.filename().string();
   return fs.openFile(path)
          | kdl::and_then([&](auto file) -> Result<mdl::EntityModelData> {
-             const auto modelName = path.filename().string();
              auto reader = file->reader().buffer();
 
              if (io::MdlLoader::canParse(path, reader))
@@ -121,6 +121,10 @@ Result<mdl::EntityModelData> loadEntityModelData(
                return loader.load(logger);
              }
              return Error{"Unknown model format: '" + path.string() + "'"};
+           })
+         | kdl::or_else([&](const auto& e) {
+             return Result<mdl::EntityModelData>{Error{
+               fmt::format("Failed to load entity model '{}': {}", modelName, e.msg)}};
            });
 }
 

@@ -147,10 +147,8 @@ const EntityModel* EntityModelManager::model(const std::filesystem::path& path) 
              assert(success);
              unused(success);
 
-             auto* modelPtr = &(pos->second);
-             m_logger.debug() << "Loaded entity model " << path;
-
-             return modelPtr;
+             m_logger.debug() << "Loading entity model " << path;
+             return &(pos->second);
            })
            | kdl::if_error([&](auto e) {
                m_logger.error() << e.msg;

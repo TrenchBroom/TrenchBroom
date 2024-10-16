@@ -78,7 +78,7 @@ TEST_CASE("ResourceManager")
   auto taskRunner = [&](auto task) { return mockTaskRunner.run(std::move(task)); };
 
   const auto glContextAvailable = GENERATE(true, false);
-  const auto processContext = ProcessContext{glContextAvailable};
+  const auto processContext = ProcessContext{glContextAvailable, [](auto, auto) {}};
 
   auto resourceManager = ResourceManager{};
 

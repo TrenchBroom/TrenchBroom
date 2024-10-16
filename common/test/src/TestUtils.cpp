@@ -411,7 +411,7 @@ DocumentGameConfig loadMapDocument(
     std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  document->processResourcesSync(mdl::ProcessContext{false});
+  document->processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
 
   return {std::move(document), std::move(game), std::move(gameConfig)};
 }
