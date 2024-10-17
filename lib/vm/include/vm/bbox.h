@@ -420,7 +420,7 @@ public:
     return vm::max(min, vm::min(max, point));
   }
 
-  enum class Corner
+  enum class corner
   {
     min,
     max
@@ -432,13 +432,13 @@ public:
    * @param c the corner to return
    * @return the position of the given corner
    */
-  constexpr vec<T, S> corner(const Corner c[S]) const
+  constexpr vec<T, S> corner_position(const std::array<corner, S> c) const
   {
     assert(is_valid());
     vec<T, S> result;
     for (size_t i = 0; i < S; ++i)
     {
-      result[i] = c[i] == Corner::min ? min[i] : max[i];
+      result[i] = c[i] == corner::min ? min[i] : max[i];
     }
     return result;
   }
@@ -451,13 +451,12 @@ public:
    * @param z the Z position of the corner
    * @return the position of the given corner
    */
-  constexpr vec<T, 3> corner(Corner x, Corner y, Corner z) const
+  constexpr vec<T, 3> corner_position(corner x, corner y, corner z) const
   {
-    Corner c[] = {x, y, z};
-    return corner(c);
+    return corner_position({x, y, z});
   }
 
-  enum class Range
+  enum class range
   {
     less,
     within,
@@ -479,25 +478,16 @@ public:
    * @param point the point to check
    * @return the relative position
    */
-  constexpr std::array<Range, S> relative_position(const vec<T, S>& point) const
+  constexpr std::array<range, S> relative_position(const vec<T, S>& point) const
   {
     assert(is_valid());
 
-    std::array<Range, S> result{};
+    std::array<range, S> result{};
     for (size_t i = 0; i < S; ++i)
     {
-      if (point[i] < min[i])
-      {
-        result[i] = Range::less;
-      }
-      else if (point[i] > max[i])
-      {
-        result[i] = Range::greater;
-      }
-      else
-      {
-        result[i] = Range::within;
-      }
+      result[i] = point[i] < min[i]   ? range::less
+                  : point[i] > max[i] ? range::greater
+                                      : range::within;
     }
 
     return result;
