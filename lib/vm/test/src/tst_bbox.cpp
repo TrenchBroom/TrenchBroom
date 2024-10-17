@@ -185,35 +185,35 @@ TEST_CASE("bbox.constrain")
   CER_CHECK(bounds.constrain(bounds.max + vec3d{0, 0, 1}) == bounds.max);
 }
 
-TEST_CASE("bbox.corner")
+TEST_CASE("bbox.corner_position")
 {
   constexpr auto min = vec3f(-1.0f, -2.0f, -3.0f);
   constexpr auto max = vec3f(1.0f, 3.0f, 5.0f);
   constexpr auto bounds = bbox3f(min, max);
 
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::min, bbox3f::Corner::min, bbox3f::Corner::min)
+    bounds.corner_position(bbox3f::corner::min, bbox3f::corner::min, bbox3f::corner::min)
     == vec3f(-1.0f, -2.0f, -3.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::min, bbox3f::Corner::min, bbox3f::Corner::max)
+    bounds.corner_position(bbox3f::corner::min, bbox3f::corner::min, bbox3f::corner::max)
     == vec3f(-1.0f, -2.0f, 5.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::min, bbox3f::Corner::max, bbox3f::Corner::min)
+    bounds.corner_position(bbox3f::corner::min, bbox3f::corner::max, bbox3f::corner::min)
     == vec3f(-1.0f, 3.0f, -3.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::min, bbox3f::Corner::max, bbox3f::Corner::max)
+    bounds.corner_position(bbox3f::corner::min, bbox3f::corner::max, bbox3f::corner::max)
     == vec3f(-1.0f, 3.0f, 5.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::max, bbox3f::Corner::min, bbox3f::Corner::min)
+    bounds.corner_position(bbox3f::corner::max, bbox3f::corner::min, bbox3f::corner::min)
     == vec3f(1.0f, -2.0f, -3.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::max, bbox3f::Corner::min, bbox3f::Corner::max)
+    bounds.corner_position(bbox3f::corner::max, bbox3f::corner::min, bbox3f::corner::max)
     == vec3f(1.0f, -2.0f, 5.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::max, bbox3f::Corner::max, bbox3f::Corner::min)
+    bounds.corner_position(bbox3f::corner::max, bbox3f::corner::max, bbox3f::corner::min)
     == vec3f(1.0f, 3.0f, -3.0f));
   CER_CHECK(
-    bounds.corner(bbox3f::Corner::max, bbox3f::Corner::max, bbox3f::Corner::max)
+    bounds.corner_position(bbox3f::corner::max, bbox3f::corner::max, bbox3f::corner::max)
     == vec3f(1.0f, 3.0f, 5.0f));
 }
 
@@ -222,9 +222,9 @@ TEST_CASE("bbox.relative_position")
   constexpr auto bounds = bbox3f(vec3f(-12.0f, -3.0f, 4.0f), vec3f(8.0f, 9.0f, 8.0f));
   constexpr auto point1 = vec3f(-1.0f, 0.0f, 0.0f);
   constexpr auto pos1 = bounds.relative_position(point1);
-  CER_CHECK(pos1[0] == bbox3f::Range::within);
-  CER_CHECK(pos1[1] == bbox3f::Range::within);
-  CER_CHECK(pos1[2] == bbox3f::Range::less);
+  CER_CHECK(pos1[0] == bbox3f::range::within);
+  CER_CHECK(pos1[1] == bbox3f::range::within);
+  CER_CHECK(pos1[2] == bbox3f::range::less);
 }
 
 TEST_CASE("bbox.expand")
