@@ -24,17 +24,61 @@
 
 namespace kdl
 {
-
-template <typename T, typename F>
-auto optional_and_then(std::optional<T> o, const F& f) -> decltype(f(*o))
+namespace detail
 {
-  return o ? f(*o) : std::nullopt;
+
+// Type acts as a tag to find the correct operator| overload
+template <typename F>
+struct and_then_helper
+{
+  const F& f;
+};
+
+// This actually does the work
+template <typename T, typename F>
+auto operator|(std::optional<T>&& o, and_then_helper<F> h)
+{
+  return o ? h.f(std::move(*o)) : std::nullopt;
 }
 
 template <typename T, typename F>
-auto optional_transform(std::optional<T> o, const F& f) -> decltype(std::optional{f(*o)})
+auto operator|(const std::optional<T>& o, const and_then_helper<F>& h)
 {
-  return o ? std::optional{f(*o)} : std::nullopt;
+  return o ? h.f(*o) : std::nullopt;
+}
+
+// Type acts as a tag to find the correct operator| overload
+template <typename F>
+struct transform_helper
+{
+  const F& f;
+};
+
+// This actually does the work
+template <typename T, typename F>
+auto operator|(std::optional<T>&& o, const transform_helper<F>& h)
+{
+  return o ? std::optional{h.f(std::move(*o))} : std::nullopt;
+}
+
+template <typename T, typename F>
+auto operator|(const std::optional<T>& o, const transform_helper<F>& h)
+{
+  return o ? std::optional{h.f(*o)} : std::nullopt;
+}
+
+} // namespace detail
+
+template <typename F>
+auto optional_and_then(const F& f)
+{
+  return detail::and_then_helper<F>{f};
+}
+
+template <typename F>
+auto optional_transform(const F& f)
+{
+  return detail::transform_helper<F>{f};
 }
 
 } // namespace kdl

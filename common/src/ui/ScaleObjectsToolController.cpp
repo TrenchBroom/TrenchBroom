@@ -111,7 +111,7 @@ static HandlePositionProposer makeHandlePositionProposer(
 static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
   const InputState& inputState)
 {
-  const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::MKAlt)
+  const auto centerAnchor = inputState.modifierKeysDown(ModifierKeys::Alt)
                               ? AnchorPos::Center
                               : AnchorPos::Opposite;
 

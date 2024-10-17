@@ -169,13 +169,12 @@ public:
 
     const auto& pickRay = inputState.pickRay();
     const auto defaultPos = m_tool.defaultClipPointPos();
-    return kdl::optional_transform(
-      vm::intersect_ray_plane(pickRay, vm::plane3d{defaultPos, viewDir}),
-      [&](const auto distance) {
-        const auto hitPoint = vm::point_at_distance(pickRay, distance);
-        const auto position = m_tool.grid().snap(hitPoint);
-        return std::tuple{position, hitPoint};
-      });
+    return vm::intersect_ray_plane(pickRay, vm::plane3d{defaultPos, viewDir})
+           | kdl::optional_transform([&](const auto distance) {
+               const auto hitPoint = vm::point_at_distance(pickRay, distance);
+               const auto position = m_tool.grid().snap(hitPoint);
+               return std::tuple{position, hitPoint};
+             });
   }
 };
 

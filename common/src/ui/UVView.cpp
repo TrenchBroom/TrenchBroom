@@ -360,9 +360,9 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
   assert(m_helper.valid());
 
   const auto& normal = m_helper.face()->boundary().normal;
-  const auto xAxis = vm::vec3f{
+  const auto uAxis = vm::vec3f{
     m_helper.face()->uAxis() - vm::dot(m_helper.face()->uAxis(), normal) * normal};
-  const auto yAxis = vm::vec3f{
+  const auto vAxis = vm::vec3f{
     m_helper.face()->vAxis() - vm::dot(m_helper.face()->vAxis(), normal) * normal};
   const auto center = vm::vec3f{m_helper.face()->boundsCenter()};
 
@@ -371,9 +371,9 @@ void UVView::renderUVAxes(render::RenderContext&, render::RenderBatch& renderBat
   auto edgeRenderer = render::DirectEdgeRenderer{
     render::VertexArray::move(std::vector{
       Vertex{center, pref(Preferences::XAxisColor)},
-      Vertex{center + length * xAxis, pref(Preferences::XAxisColor)},
+      Vertex{center + length * uAxis, pref(Preferences::XAxisColor)},
       Vertex{center, pref(Preferences::YAxisColor)},
-      Vertex{center + length * yAxis, pref(Preferences::YAxisColor)},
+      Vertex{center + length * vAxis, pref(Preferences::YAxisColor)},
     }),
     render::PrimType::Lines};
   edgeRenderer.renderOnTop(renderBatch, 2.0f);

@@ -165,14 +165,13 @@ void UVViewHelper::pickUVGrid(
       // (i.e. so the X component is the distance to the closest vertical gridline, and
       // the Y the distance to the closest horizontal gridline.)
       const auto distanceFromGridUVCoords =
-        computeDistanceFromUVGrid(vm::vec3d(hitPointInUVCoords, 0.0f));
+        computeDistanceFromUVGrid(vm::vec3d{hitPointInUVCoords, 0});
       const vm::vec2f closestPointsOnGridInUVCoords[2] = {
-        hitPointInUVCoords
-          + vm::vec2f{distanceFromGridUVCoords.x(), 0.0f}, // closest point on a vertical
-                                                           // gridline
-        hitPointInUVCoords
-          + vm::vec2f{0.0f, distanceFromGridUVCoords.y()}, // closest point on a
-                                                           // horizontal gridline
+        // closest point on a vertical gridline
+        hitPointInUVCoords + vm::vec2f{distanceFromGridUVCoords.x(), 0},
+        // closest point on a horizontal gridline
+        hitPointInUVCoords + vm::vec2f{0, distanceFromGridUVCoords.y()},
+
       };
 
       // FIXME: should be measured in points so the grid isn't harder to hit with high-DPI
@@ -209,7 +208,7 @@ vm::vec2f UVViewHelper::snapDelta(const vm::vec2f& delta, const vm::vec2f& dista
   for (size_t i = 0; i < 2; ++i)
   {
     result[i] =
-      vm::abs(distance[i]) < 4.0f / zoom ? delta[i] + distance[i] : vm::round(delta[i]);
+      vm::abs(distance[i]) < 8.0f / zoom ? delta[i] + distance[i] : vm::round(delta[i]);
   }
   return result;
 }
