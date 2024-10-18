@@ -155,7 +155,7 @@ ModifierKeyState ToolBoxConnector::modifierKeys()
   auto state = ModifierKeys::None;
   if (mouseState & Qt::ControlModifier)
   {
-    state |= ModifierKeys::MKCtrlCmd;
+    state |= ModifierKeys::CtrlCmd;
   }
   if (mouseState & Qt::ShiftModifier)
   {
@@ -163,7 +163,7 @@ ModifierKeyState ToolBoxConnector::modifierKeys()
   }
   if (mouseState & Qt::AltModifier)
   {
-    state |= ModifierKeys::MKAlt;
+    state |= ModifierKeys::Alt;
   }
   return state;
 }
