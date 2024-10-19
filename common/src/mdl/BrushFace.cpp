@@ -289,10 +289,13 @@ void BrushFace::copyUVCoordSystemFromFace(
 
   // Adjust the offset on this face so that the UV coordinates at the refPoint stay
   // the same
-  const auto currentCoords =
-    m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f{1, 1});
-  const auto offsetChange = desriedCoords - currentCoords;
-  m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
+  if (!vm::is_zero(seam.direction, vm::Cd::almost_zero()))
+  {
+    const auto currentCoords =
+      m_uvCoordSystem->uvCoords(refPoint, m_attributes, vm::vec2f::one());
+    const auto offsetChange = desriedCoords - currentCoords;
+    m_attributes.setOffset(correct(modOffset(m_attributes.offset() + offsetChange), 4));
+  }
 }
 
 const BrushFace::Points& BrushFace::points() const

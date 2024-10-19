@@ -242,6 +242,31 @@ TEST_CASE("BrushTest.constructBrushWithRedundantFaces")
           .is_error());
 }
 
+TEST_CASE("BrushTest.cloneFaceAttributesFrom")
+{
+  const auto worldBounds = vm::bbox3d{4096.0};
+
+  const auto brushBuilder = BrushBuilder{MapFormat::Valve, worldBounds};
+  auto brush =
+    brushBuilder.createCube(64.0, "left", "right", "front", "back", "top", "bottom")
+    | kdl::value();
+
+  const auto topFaceIndex = brush.findFace(vm::vec3d{0, 0, 1});
+  REQUIRE(topFaceIndex != std::nullopt);
+
+  auto& topFace = brush.face(*topFaceIndex);
+
+  auto attributes = topFace.attributes();
+  attributes.setXOffset(64.0f);
+  attributes.setYOffset(-48.0f);
+  topFace.setAttributes(attributes);
+
+  auto newBrush = brush;
+  newBrush.cloneFaceAttributesFrom(brush);
+
+  CHECK(newBrush == brush);
+}
+
 TEST_CASE("BrushTest.clip")
 {
   const auto worldBounds = vm::bbox3d{4096.0};
