@@ -296,18 +296,18 @@ template <typename T, typename FP, typename VP>
 std::optional<T> Polyhedron_Face<T, FP, VP>::intersectWithRay(
   const vm::ray<T, 3>& ray, const vm::side side) const
 {
-  return kdl::optional_transform(intersectWithRay(ray), [&](const auto result) {
-    switch (side)
-    {
-    case vm::side::front:
-      return result.front() ? std::optional{result.distance()} : std::nullopt;
-    case vm::side::back:
-      return result.back() ? std::optional{result.distance()} : std::nullopt;
-    case vm::side::both:
-      return std::optional{result.distance()};
-      switchDefault();
-    }
-  });
+  return intersectWithRay(ray) | kdl::optional_transform([&](const auto result) {
+           switch (side)
+           {
+           case vm::side::front:
+             return result.front() ? std::optional{result.distance()} : std::nullopt;
+           case vm::side::back:
+             return result.back() ? std::optional{result.distance()} : std::nullopt;
+           case vm::side::both:
+             return std::optional{result.distance()};
+             switchDefault();
+           }
+         });
 }
 
 template <typename T, typename FP, typename VP>
@@ -534,14 +534,15 @@ Polyhedron_Face<T, FP, VP>::intersectWithRay(const vm::ray<T, 3>& ray) const
     return std::nullopt;
   }
 
-  const auto distance = vm::intersect_ray_polygon(
-    ray, plane, m_boundary.begin(), m_boundary.end(), [](const HalfEdge* e) {
-      return e->origin()->position();
-    });
-
-  return kdl::optional_transform(distance, [&](const auto d) {
-    return cos < T(0) ? RayIntersection::Front(d) : RayIntersection::Back(d);
-  });
+  return vm::intersect_ray_polygon(
+           ray,
+           plane,
+           m_boundary.begin(),
+           m_boundary.end(),
+           [](const HalfEdge* e) { return e->origin()->position(); })
+         | kdl::optional_transform([&](const auto d) {
+             return cos < T(0) ? RayIntersection::Front(d) : RayIntersection::Back(d);
+           });
 }
 
 } // namespace tb::mdl

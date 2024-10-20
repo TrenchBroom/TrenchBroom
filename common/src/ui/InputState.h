@@ -34,8 +34,8 @@ namespace ModifierKeys
 {
 static const ModifierKeyState None = 0;
 static const ModifierKeyState Shift = 1 << 0;
-static const ModifierKeyState MKCtrlCmd = 1 << 1; // Cmd on Mac, Ctrl on other systems
-static const ModifierKeyState MKAlt = 1 << 2;
+static const ModifierKeyState CtrlCmd = 1 << 1; // Cmd on Mac, Ctrl on other systems
+static const ModifierKeyState Alt = 1 << 2;
 static const ModifierKeyState DontCare = 1 << 3;
 } // namespace ModifierKeys
 

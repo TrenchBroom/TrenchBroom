@@ -752,18 +752,6 @@ size_t BrushFace::vertexCount() const
   return m_geometry->boundary().size();
 }
 
-BrushFace::EdgeList BrushFace::edges() const
-{
-  ensure(m_geometry != nullptr, "geometry is null");
-  return EdgeList(m_geometry->boundary(), TransformHalfEdgeToEdge());
-}
-
-BrushFace::VertexList BrushFace::vertices() const
-{
-  ensure(m_geometry != nullptr, "geometry is null");
-  return VertexList(m_geometry->boundary(), TransformHalfEdgeToVertex());
-}
-
 std::vector<vm::vec3d> BrushFace::vertexPositions() const
 {
   ensure(m_geometry != nullptr, "geometry is null");

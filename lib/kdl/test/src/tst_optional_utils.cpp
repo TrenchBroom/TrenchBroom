@@ -28,15 +28,15 @@ namespace kdl
 TEST_CASE("optional_and_then")
 {
   const auto f = [](int x) { return std::optional{x * 2}; };
-  CHECK(optional_and_then(std::optional<int>{42}, f) == 84);
-  CHECK(optional_and_then(std::optional<int>{}, f) == std::nullopt);
+  CHECK((std::optional<int>{42} | optional_and_then(f)) == 84);
+  CHECK((std::optional<int>{} | optional_and_then(f)) == std::nullopt);
 }
 
 TEST_CASE("optional_transform")
 {
   const auto f = [](int x) { return x * 2; };
-  CHECK(optional_transform(std::optional<int>{42}, f) == 84);
-  CHECK(optional_transform(std::optional<int>{}, f) == std::nullopt);
+  CHECK((std::optional<int>{42} | optional_transform(f)) == 84);
+  CHECK((std::optional<int>{} | optional_transform(f)) == std::nullopt);
 }
 
 } // namespace kdl
