@@ -1104,10 +1104,14 @@ endif()
 set_compiler_config(common)
 
 # Create the cmake script for generating the version information
-get_build_platform(COMMON_PLATFORM_NAME)
-configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake.in" "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake" @ONLY)
 target_include_directories(common PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-add_custom_target(generate_version ${CMAKE_COMMAND} -P "${CMAKE_CURRENT_BINARY_DIR}/GenerateVersion.cmake")
+add_custom_target(generate_version ${CMAKE_COMMAND}
+  -D UTILS="${CMAKE_SOURCE_DIR}/cmake/Utils.cmake"
+  -D APP_BUILD_TYPE="${APP_BUILD_TYPE}"
+  -D SRC="${COMMON_SOURCE_DIR}/Version.h.in"
+  -D DST="${CMAKE_CURRENT_BINARY_DIR}/Version.h"
+  -D GIT_EXECUTABLE="${GIT_EXECUTABLE}"
+  -P "${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateVersion.cmake")
 add_dependencies(common generate_version)
 
 add_subdirectory(test)
