@@ -242,7 +242,7 @@ TEST_CASE("MoveDragTracker.constructor")
     {
       auto tracker = makeMoveTracker(
         makeInputState(
-          vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera3d, ModifierKeys::MKAlt),
+          vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera3d, ModifierKeys::Alt),
         initialHandlePosition,
         initialHitPoint);
 
@@ -296,7 +296,7 @@ TEST_CASE("MoveDragTracker.constructor")
     {
       auto tracker = makeMoveTracker(
         makeInputState(
-          vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera2d, ModifierKeys::MKAlt),
+          vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera2d, ModifierKeys::Alt),
         initialHandlePosition,
         initialHitPoint);
 
@@ -334,7 +334,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     WHEN("The alt modifier is pressed")
     {
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera3d, ModifierKeys::MKAlt));
+        vm::vec3d{0, 0, 64}, vm::vec3d{0, 1, -1}, camera3d, ModifierKeys::Alt));
 
       THEN("The tracker switches to a vertical hit finder")
       {
@@ -458,7 +458,7 @@ TEST_CASE("MoveDragTracker.modifierKeyChange")
     WHEN("The alt modifier is pressed")
     {
       tracker.modifierKeyChange(makeInputState(
-        vm::vec3d{0, 64, 64}, vm::vec3d{0, 0, -1}, camera2d, ModifierKeys::MKAlt));
+        vm::vec3d{0, 64, 64}, vm::vec3d{0, 0, -1}, camera2d, ModifierKeys::Alt));
 
       THEN("The tracker does not change the hit finder")
       {

@@ -72,13 +72,14 @@ std::tuple<vm::vec2i, vm::vec2b> getHandleAndSelector(const InputState& inputSta
 std::optional<vm::vec2f> getHitPoint(const UVViewHelper& helper, const vm::ray3d& pickRay)
 {
   const auto& boundary = helper.face()->boundary();
-  return kdl::optional_transform(
-    vm::intersect_ray_plane(pickRay, boundary), [&](const auto facePointDist) {
-      const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
-      const auto toTex = helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
+  return vm::intersect_ray_plane(pickRay, boundary)
+         | kdl::optional_transform([&](const auto facePointDist) {
+             const auto facePoint = vm::point_at_distance(pickRay, facePointDist);
+             const auto toTex =
+               helper.face()->toUVCoordSystemMatrix({0, 0}, {1, 1}, true);
 
-      return vm::vec2f{toTex * facePoint};
-    });
+             return vm::vec2f{toTex * facePoint};
+           });
 }
 
 vm::vec2f getScaledTranslatedHandlePos(const UVViewHelper& helper, const vm::vec2i handle)
@@ -114,7 +115,7 @@ vm::vec2f snap(const UVViewHelper& helper, const vm::vec2f& position)
 
   for (size_t i = 0; i < 2; ++i)
   {
-    if (vm::abs(distance[i]) > 4.0f / helper.cameraZoom())
+    if (vm::abs(distance[i]) > 8.0f / helper.cameraZoom())
     {
       distance[i] = 0.0f;
     }
@@ -203,7 +204,9 @@ public:
     const auto curHandlePosUVCoords = getScaledTranslatedHandlePos(m_helper, m_handle);
     const auto newHandlePosFaceCoords =
       getHandlePos(m_helper, m_handle) + dragDeltaFaceCoords;
-    const auto newHandlePosSnapped = snap(m_helper, newHandlePosFaceCoords);
+    const auto newHandlePosSnapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                                       ? snap(m_helper, newHandlePosFaceCoords)
+                                       : newHandlePosFaceCoords;
 
     const auto originHandlePosFaceCoords = m_helper.originInFaceCoords();
     const auto originHandlePosUVCoords = m_helper.originInUVCoords();
@@ -216,8 +219,8 @@ public:
     {
       if (m_selector[i])
       {
-        const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
-        if (value != 0.0f)
+        if (const auto value = newHandleDistFaceCoords[i] / curHandleDistUVCoords[i];
+            value != 0.0f)
         {
           newScale[i] = value;
         }

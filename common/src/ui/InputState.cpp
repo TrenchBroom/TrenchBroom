@@ -91,8 +91,8 @@ bool InputState::checkModifierKeys(
   const ModifierKeyPressed shift) const
 {
   return (
-    checkModifierKey(ctrl, ModifierKeys::MKCtrlCmd)
-    && checkModifierKey(alt, ModifierKeys::MKAlt)
+    checkModifierKey(ctrl, ModifierKeys::CtrlCmd)
+    && checkModifierKey(alt, ModifierKeys::Alt)
     && checkModifierKey(shift, ModifierKeys::Shift));
 }
 

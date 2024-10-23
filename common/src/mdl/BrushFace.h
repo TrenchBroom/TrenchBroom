@@ -26,7 +26,6 @@
 #include "mdl/Tag.h"
 
 #include "kdl/reflection_decl.h"
-#include "kdl/transform_range.h"
 
 #include "vm/plane.h"
 #include "vm/polygon.h"
@@ -37,6 +36,7 @@
 #include <array>
 #include <memory>
 #include <optional>
+#include <ranges>
 #include <vector>
 
 namespace tb::mdl
@@ -80,9 +80,6 @@ private:
   };
 
 public:
-  using VertexList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToVertex>;
-  using EdgeList = kdl::transform_adapter<BrushHalfEdgeList, TransformHalfEdgeToEdge>;
-
 private:
   BrushFace::Points m_points;
   vm::plane3d m_boundary;
@@ -239,8 +236,17 @@ public:
   float measureUVAngle(const vm::vec2f& center, const vm::vec2f& point) const;
 
   size_t vertexCount() const;
-  EdgeList edges() const;
-  VertexList vertices() const;
+
+  auto edges() const
+  {
+    return m_geometry->boundary() | std::views::transform(TransformHalfEdgeToEdge{});
+  }
+
+  auto vertices() const
+  {
+    return m_geometry->boundary() | std::views::transform(TransformHalfEdgeToVertex{});
+  }
+
   std::vector<vm::vec3d> vertexPositions() const;
 
   bool hasVertices(

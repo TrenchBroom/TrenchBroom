@@ -99,7 +99,7 @@ bool isFaceClick(const InputState& inputState)
 
 bool isMultiClick(const InputState& inputState)
 {
-  return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+  return inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
 }
 
 const mdl::Hit& firstHit(const InputState& inputState, const mdl::HitFilter& hitFilter)

@@ -156,7 +156,7 @@ protected:
 
     void end(const InputState& inputState, const DragState&) override
     {
-      m_tool.select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd));
+      m_tool.select(*m_lasso, inputState.modifierKeysDown(ModifierKeys::CtrlCmd));
     }
 
     void cancel(const DragState&) override {}
@@ -207,8 +207,7 @@ protected:
 
       if (const auto hits = firstHits(inputState.pickResult()); !hits.empty())
       {
-        return m_tool.select(
-          hits, inputState.modifierKeysPressed(ModifierKeys::MKCtrlCmd));
+        return m_tool.select(hits, inputState.modifierKeysPressed(ModifierKeys::CtrlCmd));
       }
       return m_tool.deselectAll();
     }
@@ -430,7 +429,7 @@ protected:
     {
       return inputState.mouseButtonsPressed(MouseButtons::Left) &&
              (inputState.modifierKeysPressed(ModifierKeys::None)     // horizontal movement
-              || inputState.modifierKeysPressed(ModifierKeys::MKAlt)); // vertical movement
+              || inputState.modifierKeysPressed(ModifierKeys::Alt)); // vertical movement
     }
   };
 

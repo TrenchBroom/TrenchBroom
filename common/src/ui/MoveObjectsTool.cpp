@@ -96,7 +96,7 @@ void MoveObjectsTool::cancelMove()
 
 bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const
 {
-  return inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+  return inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
 }
 
 QWidget* MoveObjectsTool::doCreatePage(QWidget* parent)

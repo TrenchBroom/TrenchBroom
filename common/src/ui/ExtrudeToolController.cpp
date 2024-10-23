@@ -402,7 +402,7 @@ std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
   const auto& hit = inputState.pickResult().first(type(ExtrudeTool::ExtrudeHitType));
   if (hit.isMatch())
   {
-    if (inputState.modifierKeysDown(ModifierKeys::MKAlt))
+    if (inputState.modifierKeysDown(ModifierKeys::Alt))
     {
       if (inputState.camera().orthographicProjection())
       {
@@ -412,7 +412,7 @@ std::unique_ptr<GestureTracker> ExtrudeToolController::acceptMouseDrag(
     }
     else
     {
-      const auto split = inputState.modifierKeysDown(ModifierKeys::MKCtrlCmd);
+      const auto split = inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
       m_tool.beginExtrude();
       return createExtrudeDragTracker(m_tool, inputState, hit, split);
     }
@@ -457,8 +457,8 @@ bool ExtrudeToolController2D::doHandleInput(const InputState& inputState) const
 {
   return (
     inputState.modifierKeysPressed(ModifierKeys::Shift)
-    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd)
-    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKAlt));
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::CtrlCmd)
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::Alt));
 }
 
 ExtrudeToolController3D::ExtrudeToolController3D(ExtrudeTool& tool)
@@ -476,7 +476,7 @@ bool ExtrudeToolController3D::doHandleInput(const InputState& inputState) const
 {
   return (
     inputState.modifierKeysPressed(ModifierKeys::Shift)
-    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::MKCtrlCmd));
+    || inputState.modifierKeysPressed(ModifierKeys::Shift | ModifierKeys::CtrlCmd));
 }
 
 } // namespace tb::ui

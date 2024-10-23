@@ -40,8 +40,6 @@
 #include "ui/InputState.h"
 #include "ui/UVViewHelper.h"
 
-#include "kdl/optional_utils.h"
-
 #include "vm/distance.h"
 #include "vm/intersection.h"
 #include "vm/line.h"
@@ -86,13 +84,11 @@ vm::vec2f getSelector(const InputState& inputState)
 vm::vec2f computeHitPoint(const UVViewHelper& helper, const vm::ray3d& ray)
 {
   const auto& boundary = helper.face()->boundary();
-  return *kdl::optional_transform(
-    vm::intersect_ray_plane(ray, boundary), [&](const auto distance) {
-      const auto hitPoint = vm::point_at_distance(ray, distance);
-      const auto transform =
-        helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
-      return vm::vec2f{transform * hitPoint};
-    });
+  const auto distance = *vm::intersect_ray_plane(ray, boundary);
+  const auto hitPoint = vm::point_at_distance(ray, distance);
+  const auto transform =
+    helper.face()->toUVCoordSystemMatrix(vm::vec2f{0, 0}, vm::vec2f{1, 1}, true);
+  return vm::vec2f{transform * hitPoint};
 }
 
 vm::vec2f snapDelta(const UVViewHelper& helper, const vm::vec2f& delta)
@@ -274,7 +270,9 @@ public:
     const auto curPoint = computeHitPoint(m_helper, inputState.pickRay());
     const auto delta = curPoint - m_lastPoint;
 
-    const auto snapped = snapDelta(m_helper, delta * m_selector);
+    const auto snapped = !inputState.modifierKeysDown(ModifierKeys::CtrlCmd)
+                           ? snapDelta(m_helper, delta * m_selector)
+                           : delta * m_selector;
     if (vm::is_zero(snapped, vm::Cf::almost_zero()))
     {
       return true;

@@ -24,7 +24,6 @@
 #include "NotifierConnection.h"
 #include "ui/RotateObjectsTool.h"
 
-#include "vm/util.h"
 #include "vm/vec.h"
 
 #include <memory>

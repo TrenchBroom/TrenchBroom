@@ -415,7 +415,7 @@ private:
   {
     const render::Camera& camera = inputState.camera();
     return camera.perspectiveProjection()
-           && inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::MKAlt);
+           && inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::Alt);
   }
 
   static bool isConstrictedMove(const InputState& inputState, const DragState& dragState)
@@ -432,7 +432,7 @@ private:
 
   static SnapMode snapMode(const InputState& inputState)
   {
-    return inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::MKCtrlCmd)
+    return inputState.checkModifierKey(ModifierKeyPressed::Yes, ModifierKeys::CtrlCmd)
              ? SnapMode::Absolute
              : SnapMode::Relative;
   }
