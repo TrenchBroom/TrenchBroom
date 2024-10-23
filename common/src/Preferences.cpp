@@ -108,7 +108,7 @@ Preference<Color> UndefinedEntityColor(
   "render/Colors/Undefined entity", Color(0.5f, 0.5f, 0.5f, 1.0f));
 
 Preference<Color> SelectionBoundsColor(
-  "render/Colors/Selection bounds", Color(1.0f, 0.0f, 0.0f, 0.5f));
+  "render/Colors/Selection bounds", Color(1.0f, 0.0f, 0.0f, 0.35f));
 
 Preference<Color> InfoOverlayTextColor(
   "render/Colors/Info overlay text", Color(1.0f, 1.0f, 1.0f, 1.0f));
