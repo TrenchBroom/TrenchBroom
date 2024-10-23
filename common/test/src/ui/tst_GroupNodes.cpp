@@ -962,7 +962,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(linkedBrushNode3->linkId() == originalBrushLinkId);
   }
 
-  SECTION("Separating linked groups nested inside a linked group")
+  SECTION("Nested linked groups")
   {
     /*
      * groupNode
@@ -998,18 +998,21 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     auto* linkedGroupNode = document->createLinkedDuplicate();
     REQUIRE_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
 
-    document->openGroup(groupNode);
-    document->deselectAll();
-    document->selectNodes({nestedLinkedGroupNode});
-    document->separateLinkedGroups();
+    SECTION("Separating linked groups nested inside a linked group")
+    {
+      document->openGroup(groupNode);
+      document->deselectAll();
+      document->selectNodes({nestedLinkedGroupNode});
+      document->separateLinkedGroups();
 
-    REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
+      REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
 
-    document->deselectAll();
-    document->closeGroup();
+      document->deselectAll();
+      document->closeGroup();
 
-    // the change was propagated to linkedGroupNode:
-    CHECK_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+      // the change was propagated to linkedGroupNode:
+      CHECK_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+    }
   }
 }
 
