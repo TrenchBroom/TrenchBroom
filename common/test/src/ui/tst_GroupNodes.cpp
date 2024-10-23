@@ -1013,12 +1013,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
       CHECK(brushNode->linkId() != linkedBrushNode->linkId());
 
       // But the nested group nodes are still all linked to each other
-      /* EXPECTED:
       CHECK(linkedNestedGroupNode->linkId() == nestedGroupNode->linkId());
       CHECK(nestedGroupNode->linkId() == nestedLinkedGroupNode->linkId());
-      ACTUAL: */
-      CHECK(linkedNestedGroupNode->linkId() != nestedGroupNode->linkId());
-      CHECK(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
       CHECK(linkedNestedGroupNode->linkId() == linkedNestedLinkedGroupNode->linkId());
     }
 

@@ -2301,9 +2301,32 @@ void MapDocument::linkGroups(const std::vector<mdl::GroupNode*>& groupNodes)
   }
 }
 
+namespace
+{
+
+std::vector<mdl::Node*> collectNodesToUnlink(
+  const std::vector<mdl::GroupNode*>& groupNodes)
+{
+  auto result = std::vector<mdl::Node*>{};
+  for (auto* groupNode : groupNodes)
+  {
+    result.push_back(groupNode);
+    groupNode->visitChildren(kdl::overload(
+      [](const mdl::WorldNode*) {},
+      [](const mdl::LayerNode*) {},
+      [](const mdl::GroupNode*) {},
+      [&](mdl::EntityNode* entityNode) { result.push_back(entityNode); },
+      [&](mdl::BrushNode* brushNode) { result.push_back(brushNode); },
+      [&](mdl::PatchNode* patchNode) { result.push_back(patchNode); }));
+  }
+  return result;
+}
+
+} // namespace
+
 void MapDocument::unlinkGroups(const std::vector<mdl::GroupNode*>& groupNodes)
 {
-  const auto nodesToUnlink = mdl::collectNodesAndDescendants(groupNodes);
+  const auto nodesToUnlink = collectNodesToUnlink(groupNodes);
 
   auto linkIds = kdl::vec_transform(
     nodesToUnlink, [](auto* node) -> std::tuple<mdl::Node*, std::string> {
