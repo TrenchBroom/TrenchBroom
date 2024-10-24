@@ -157,6 +157,7 @@ void UVEditor::resetUVClicked()
   auto request = mdl::ChangeBrushFaceAttributesRequest{};
 
   auto document = kdl::mem_lock(m_document);
+  request.resetAll(document->game()->config().faceAttribsConfig.defaults);
   document->setFaceAttributes(request);
 }
 
