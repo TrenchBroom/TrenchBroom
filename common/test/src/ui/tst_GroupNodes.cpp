@@ -962,7 +962,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(linkedBrushNode3->linkId() == originalBrushLinkId);
   }
 
-  SECTION("Separating linked groups nested inside a linked group")
+  SECTION("Nested linked groups")
   {
     /*
      * groupNode
@@ -998,18 +998,40 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     auto* linkedGroupNode = document->createLinkedDuplicate();
     REQUIRE_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
 
-    document->openGroup(groupNode);
-    document->deselectAll();
-    document->selectNodes({nestedLinkedGroupNode});
-    document->separateLinkedGroups();
-
-    REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
+    const auto [linkedBrushNode, linkedNestedGroupNode, linkedNestedLinkedGroupNode] =
+      getChildrenAs<mdl::BrushNode, mdl::GroupNode, mdl::GroupNode>(*linkedGroupNode);
 
     document->deselectAll();
-    document->closeGroup();
 
-    // the change was propagated to linkedGroupNode:
-    CHECK_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+    SECTION("Separating linked groups with nested linked groups inside")
+    {
+      document->selectNodes({groupNode});
+      document->separateLinkedGroups();
+
+      // The outer groups where separated
+      CHECK(groupNode->linkId() != linkedGroupNode->linkId());
+      CHECK(brushNode->linkId() != linkedBrushNode->linkId());
+
+      // But the nested group nodes are still all linked to each other
+      CHECK(linkedNestedGroupNode->linkId() == nestedGroupNode->linkId());
+      CHECK(nestedGroupNode->linkId() == nestedLinkedGroupNode->linkId());
+      CHECK(linkedNestedGroupNode->linkId() == linkedNestedLinkedGroupNode->linkId());
+    }
+
+    SECTION("Separating linked groups nested inside a linked group")
+    {
+      document->openGroup(groupNode);
+      document->selectNodes({nestedLinkedGroupNode});
+      document->separateLinkedGroups();
+
+      REQUIRE(nestedGroupNode->linkId() != nestedLinkedGroupNode->linkId());
+
+      document->deselectAll();
+      document->closeGroup();
+
+      // the change was propagated to linkedGroupNode:
+      CHECK_THAT(*linkedGroupNode, mdl::MatchesNode(*groupNode));
+    }
   }
 }
 
