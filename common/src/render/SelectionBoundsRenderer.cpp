@@ -34,10 +34,14 @@
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
+#include <array>
+
 namespace tb::render
 {
 namespace
 {
+using corner = vm::bbox3d::corner;
+using range = vm::bbox3d::range;
 
 class SizeTextAnchor2D : public TextAnchor3D
 {
@@ -122,30 +126,29 @@ private:
     if (m_axis == vm::axis::z)
     {
       if (
-        (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
-        || (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within))
+        (camPos[0] == range::less && camPos[1] == range::less)
+        || (camPos[0] == range::less && camPos[1] == range::within))
       {
         pos[0] = m_bounds.min.x();
         pos[1] = m_bounds.max.y();
       }
       else if (
-        (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
-        || (camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::greater))
+        (camPos[0] == range::less && camPos[1] == range::greater)
+        || (camPos[0] == range::within && camPos[1] == range::greater))
       {
         pos[0] = m_bounds.max.x();
         pos[1] = m_bounds.max.y();
       }
       else if (
-        (camPos[0] == vm::bbox3d::Range::greater
-         && camPos[1] == vm::bbox3d::Range::greater)
-        || (camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::within))
+        (camPos[0] == range::greater && camPos[1] == range::greater)
+        || (camPos[0] == range::greater && camPos[1] == range::within))
       {
         pos[0] = m_bounds.max.x();
         pos[1] = m_bounds.min.y();
       }
       else if (
-        (camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
-        || (camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less))
+        (camPos[0] == range::within && camPos[1] == range::less)
+        || (camPos[0] == range::greater && camPos[1] == range::less))
       {
         pos[0] = m_bounds.min.x();
         pos[1] = m_bounds.min.y();
@@ -164,121 +167,85 @@ private:
       if (m_axis == vm::axis::x)
       {
         pos[0] = m_bounds.min.x() + half.x();
-        if (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
+        if (camPos[0] == range::less && camPos[1] == range::less)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::less && camPos[1] == range::within)
         {
           pos[1] = m_bounds.max.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::less && camPos[1] == range::greater)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
+        else if (camPos[0] == range::within && camPos[1] == range::less)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within
-          && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::within && camPos[1] == range::within)
         {
           pos[1] = camDir.y() <= 0.0f ? m_bounds.min.y() : m_bounds.max.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within
-          && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::within && camPos[1] == range::greater)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less)
+        else if (camPos[0] == range::greater && camPos[1] == range::less)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.y() : m_bounds.max.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.min.y() : m_bounds.max.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater
-          && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::greater && camPos[1] == range::within)
         {
           pos[1] = m_bounds.min.y();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater
-          && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::greater && camPos[1] == range::greater)
         {
-          pos[1] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.y() : m_bounds.min.y();
+          pos[1] = camPos[2] == range::within ? m_bounds.max.y() : m_bounds.min.y();
         }
       }
       else
       {
         pos[1] = m_bounds.min.y() + half.y();
-        if (camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::less)
+        if (camPos[0] == range::less && camPos[1] == range::less)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::less && camPos[1] == range::within)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::less && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::less && camPos[1] == range::greater)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.min.x() : m_bounds.max.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.min.x() : m_bounds.max.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within && camPos[1] == vm::bbox3d::Range::less)
+        else if (camPos[0] == range::within && camPos[1] == range::less)
         {
           pos[0] = m_bounds.min.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within
-          && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::within && camPos[1] == range::within)
         {
           pos[0] = camDir.x() <= 0.0f ? m_bounds.min.x() : m_bounds.max.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::within
-          && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::within && camPos[1] == range::greater)
         {
           pos[0] = m_bounds.max.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater && camPos[1] == vm::bbox3d::Range::less)
+        else if (camPos[0] == range::greater && camPos[1] == range::less)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater
-          && camPos[1] == vm::bbox3d::Range::within)
+        else if (camPos[0] == range::greater && camPos[1] == range::within)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
-        else if (
-          camPos[0] == vm::bbox3d::Range::greater
-          && camPos[1] == vm::bbox3d::Range::greater)
+        else if (camPos[0] == range::greater && camPos[1] == range::greater)
         {
-          pos[0] =
-            camPos[2] == vm::bbox3d::Range::within ? m_bounds.max.x() : m_bounds.min.x();
+          pos[0] = camPos[2] == range::within ? m_bounds.max.x() : m_bounds.min.x();
         }
       }
 
-      if (camPos[2] == vm::bbox3d::Range::less)
+      if (camPos[2] == range::less)
       {
         pos[2] = m_bounds.min.z();
       }
@@ -299,8 +266,7 @@ private:
     }
 
     const auto camPos = m_bounds.relative_position(vm::vec3d(m_camera.position()));
-    return camPos[2] == vm::bbox3d::Range::less ? TextAlignment::Top
-                                                : TextAlignment::Bottom;
+    return camPos[2] == range::less ? TextAlignment::Top : TextAlignment::Bottom;
   }
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
@@ -330,14 +296,12 @@ class MinMaxTextAnchor3D : public TextAnchor3D
 {
 private:
   const vm::bbox3d& m_bounds;
-  const vm::bbox3d::Corner m_minMax;
+  const corner m_minMax;
   const render::Camera& m_camera;
 
 public:
   MinMaxTextAnchor3D(
-    const vm::bbox3d& bounds,
-    const vm::bbox3d::Corner minMax,
-    const render::Camera& camera)
+    const vm::bbox3d& bounds, const corner minMax, const render::Camera& camera)
     : m_bounds{bounds}
     , m_minMax{minMax}
     , m_camera{camera}
@@ -347,36 +311,24 @@ public:
 private:
   vm::vec3f basePosition() const override
   {
-    return m_minMax == vm::bbox3d::Corner::min ? vm::vec3f{m_bounds.min}
-                                               : vm::vec3f{m_bounds.max};
+    return m_minMax == corner::min ? vm::vec3f{m_bounds.min} : vm::vec3f{m_bounds.max};
   }
 
   TextAlignment::Type alignment() const override
   {
     const auto camPos = m_bounds.relative_position(vm::vec3d(m_camera.position()));
-    if (m_minMax == vm::bbox3d::Corner::min)
+    if (m_minMax == corner::min)
     {
-      if (
-        (camPos[1] == vm::bbox3d::Range::less)
-        || (camPos[1] == vm::bbox3d::Range::within && camPos[0] != vm::bbox3d::Range::less))
-      {
-        return TextAlignment::Top | TextAlignment::Right;
-      }
-      else
-      {
-        return TextAlignment::Top | TextAlignment::Left;
-      }
+      return (camPos[1] == range::less)
+                 || (camPos[1] == range::within && camPos[0] != range::less)
+               ? TextAlignment::Top | TextAlignment::Right
+               : TextAlignment::Top | TextAlignment::Left;
     }
-    else if (
-      (camPos[1] == vm::bbox3d::Range::less)
-      || (camPos[1] == vm::bbox3d::Range::within && camPos[0] != vm::bbox3d::Range::less))
-    {
-      return TextAlignment::Bottom | TextAlignment::Left;
-    }
-    else
-    {
-      return TextAlignment::Bottom | TextAlignment::Right;
-    }
+
+    return (camPos[1] == range::less)
+               || (camPos[1] == range::within && camPos[0] != range::less)
+             ? TextAlignment::Bottom | TextAlignment::Left
+             : TextAlignment::Bottom | TextAlignment::Right;
   }
 
   vm::vec2f extraOffsets(const TextAlignment::Type alignment) const override
@@ -441,7 +393,7 @@ void SelectionBoundsRenderer::renderSize(
 void SelectionBoundsRenderer::renderSize2D(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  static const std::string labels[3] = {"X", "Y", "Z"};
+  static const auto labels = std::array{"X", "Y", "Z"};
 
   auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
@@ -469,7 +421,7 @@ void SelectionBoundsRenderer::renderSize2D(
 void SelectionBoundsRenderer::renderSize3D(
   RenderContext& renderContext, RenderBatch& renderBatch)
 {
-  static const std::string labels[3] = {"X", "Y", "Z"};
+  static const auto labels = std::array{"X", "Y", "Z"};
 
   auto renderService = RenderService{renderContext, renderBatch};
   renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
@@ -501,11 +453,11 @@ void SelectionBoundsRenderer::renderMinMax(
 
   renderService.renderString(
     fmt::format("Min: {}", fmt::streamed(vm::correct(m_bounds.min))),
-    MinMaxTextAnchor3D{m_bounds, vm::bbox3d::Corner::min, renderContext.camera()});
+    MinMaxTextAnchor3D{m_bounds, corner::min, renderContext.camera()});
 
   renderService.renderString(
     fmt::format("Max: {}", fmt::streamed(vm::correct(m_bounds.max))),
-    MinMaxTextAnchor3D{m_bounds, vm::bbox3d::Corner::max, renderContext.camera()});
+    MinMaxTextAnchor3D{m_bounds, corner::max, renderContext.camera()});
 }
 
 } // namespace tb::render

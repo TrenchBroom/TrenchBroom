@@ -306,19 +306,45 @@ void RenderService::renderFilledPolygon(const std::vector<vm::vec3f>& positions)
 
 void RenderService::renderBounds(const vm::bbox3f& bounds)
 {
-  const auto p1 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()};
-  const auto p2 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.max.z()};
-  const auto p3 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.min.z()};
-  const auto p4 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.max.z()};
-  const auto p5 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.min.z()};
-  const auto p6 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.max.z()};
-  const auto p7 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.min.z()};
-  const auto p8 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.max.z()};
+  if (m_renderContext.render2D())
+  {
+    const auto axis = vm::find_abs_max_component(m_renderContext.camera().direction());
+    const auto points = axis == vm::axis::x ? std::vector{
+      vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()},
+      vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.max.z()},
+      vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.max.z()},
+      vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.min.z()},
+    } : axis == vm::axis::y ? std::vector{
+      vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()},
+      vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.max.z()},
+      vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.max.z()},
+      vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.min.z()},
+    } : std::vector
+    {
+      vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()},
+      vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.min.z()},
+      vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.min.z()},
+      vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.min.z()},
+    };
 
-  renderLines({
-    p1, p2, p1, p3, p1, p5, p2, p4, p2, p6, p3, p4,
-    p3, p7, p4, p8, p5, p6, p5, p7, p6, p8, p7, p8,
-  });
+    renderPolygonOutline(points);
+  }
+  else
+  {
+    const auto p1 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.min.z()};
+    const auto p2 = vm::vec3f{bounds.min.x(), bounds.min.y(), bounds.max.z()};
+    const auto p3 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.min.z()};
+    const auto p4 = vm::vec3f{bounds.min.x(), bounds.max.y(), bounds.max.z()};
+    const auto p5 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.min.z()};
+    const auto p6 = vm::vec3f{bounds.max.x(), bounds.min.y(), bounds.max.z()};
+    const auto p7 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.min.z()};
+    const auto p8 = vm::vec3f{bounds.max.x(), bounds.max.y(), bounds.max.z()};
+
+    renderLines({
+      p1, p2, p1, p3, p1, p5, p2, p4, p2, p6, p3, p4,
+      p3, p7, p4, p8, p5, p6, p5, p7, p6, p8, p7, p8,
+    });
+  }
 }
 
 void RenderService::renderCircle(
