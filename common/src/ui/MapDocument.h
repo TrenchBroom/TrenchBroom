@@ -306,6 +306,11 @@ public: // new, load, save document
     const vm::bbox3d& worldBounds,
     std::shared_ptr<mdl::Game> game,
     const std::filesystem::path& path);
+  void loadWorld(
+    const vm::bbox3d& worldBounds,
+    std::unique_ptr<mdl::WorldNode> worldNode,
+    std::shared_ptr<mdl::Game> game,
+    const std::filesystem::path& path);
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
