@@ -5049,6 +5049,37 @@ void MapDocument::updateAllFaceTags()
     [](mdl::PatchNode*) {}));
 }
 
+void MapDocument::updateFaceTagsAfterResourcesWhereProcessed(
+  const std::vector<mdl::ResourceId>& resourceIds)
+{
+  // Some textures contain embedded default values for surface flags and such, so we must
+  // update the face tags after the resources have been processed.
+
+  const auto materials = m_materialManager->findMaterialsByTextureResourceId(resourceIds);
+  const auto materialSet =
+    std::unordered_set<const mdl::Material*>{materials.begin(), materials.end()};
+
+  m_world->accept(kdl::overload(
+    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
+    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
+    [](auto&& thisLambda, mdl::GroupNode* group) { group->visitChildren(thisLambda); },
+    [](auto&& thisLambda, mdl::EntityNode* entity) { entity->visitChildren(thisLambda); },
+    [&](mdl::BrushNode* brushNode) {
+      const auto& faces = brushNode->brush().faces();
+      for (size_t i = 0; i < faces.size(); ++i)
+      {
+        {
+          const auto& face = faces[i];
+          if (materialSet.contains(face.material()))
+          {
+            brushNode->updateFaceTags(i, *m_tagManager);
+          }
+        }
+      }
+    },
+    [](mdl::PatchNode*) {}));
+}
+
 bool MapDocument::persistent() const
 {
   return m_path.is_absolute() && io::Disk::pathInfo(m_path) == io::PathInfo::File;
@@ -5140,6 +5171,8 @@ void MapDocument::connectObservers()
     brushFacesDidChangeNotifier.connect(this, &MapDocument::updateFaceTags);
   m_notifierConnection +=
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
+  m_notifierConnection += resourcesWereProcessedNotifier.connect(
+    this, &MapDocument::updateFaceTagsAfterResourcesWhereProcessed);
 }
 
 void MapDocument::materialCollectionsWillChange()

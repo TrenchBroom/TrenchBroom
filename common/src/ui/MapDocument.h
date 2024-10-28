@@ -793,6 +793,9 @@ private:
   void updateFaceTags(const std::vector<mdl::BrushFaceHandle>& faces);
   void updateAllFaceTags();
 
+  void updateFaceTagsAfterResourcesWhereProcessed(
+    const std::vector<mdl::ResourceId>& resourceIds);
+
 public: // document path
   bool persistent() const;
   std::string filename() const;
