@@ -306,6 +306,11 @@ public: // new, load, save document
     const vm::bbox3d& worldBounds,
     std::shared_ptr<mdl::Game> game,
     const std::filesystem::path& path);
+  void loadWorld(
+    const vm::bbox3d& worldBounds,
+    std::unique_ptr<mdl::WorldNode> worldNode,
+    std::shared_ptr<mdl::Game> game,
+    const std::filesystem::path& path);
   void saveDocument();
   void saveDocumentAs(const std::filesystem::path& path);
   void saveDocumentTo(const std::filesystem::path& path);
@@ -690,13 +695,9 @@ public: // picking
   std::vector<mdl::Node*> findNodesContaining(const vm::vec3d& point) const;
 
 private: // world management
-  Result<void> createWorld(
-    mdl::MapFormat mapFormat,
+  void setWorld(
     const vm::bbox3d& worldBounds,
-    std::shared_ptr<mdl::Game> game);
-  Result<void> loadWorld(
-    mdl::MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
+    std::unique_ptr<mdl::WorldNode> worldNode,
     std::shared_ptr<mdl::Game> game,
     const std::filesystem::path& path);
   void clearWorld();
@@ -791,6 +792,9 @@ private:
 
   void updateFaceTags(const std::vector<mdl::BrushFaceHandle>& faces);
   void updateAllFaceTags();
+
+  void updateFaceTagsAfterResourcesWhereProcessed(
+    const std::vector<mdl::ResourceId>& resourceIds);
 
 public: // document path
   bool persistent() const;
