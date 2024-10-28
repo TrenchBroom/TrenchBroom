@@ -690,13 +690,9 @@ public: // picking
   std::vector<mdl::Node*> findNodesContaining(const vm::vec3d& point) const;
 
 private: // world management
-  Result<void> createWorld(
-    mdl::MapFormat mapFormat,
+  void setWorld(
     const vm::bbox3d& worldBounds,
-    std::shared_ptr<mdl::Game> game);
-  Result<void> loadWorld(
-    mdl::MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
+    std::unique_ptr<mdl::WorldNode> worldNode,
     std::shared_ptr<mdl::Game> game,
     const std::filesystem::path& path);
   void clearWorld();

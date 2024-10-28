@@ -591,20 +591,15 @@ Result<void> MapDocument::newDocument(
 {
   info("Creating new document");
 
-  clearRepeatableCommands();
-  doClearCommandProcessor();
   clearDocument();
 
-  return createWorld(mapFormat, worldBounds, game) | kdl::transform([&]() {
-           loadAssets();
-           registerValidators();
-           registerSmartTags();
-           createTagActions();
+  return game->newMap(mapFormat, m_worldBounds, logger())
+         | kdl::transform([&](auto worldNode) {
+             setWorld(worldBounds, std::move(worldNode), game, DefaultDocumentName);
 
-           clearModificationCount();
-
-           documentWasNewedNotifier(this);
-         });
+             clearModificationCount();
+             documentWasNewedNotifier(this);
+           });
 }
 
 Result<void> MapDocument::loadDocument(
@@ -615,18 +610,13 @@ Result<void> MapDocument::loadDocument(
 {
   info("Loading document from " + path.string());
 
-  clearRepeatableCommands();
-  doClearCommandProcessor();
   clearDocument();
 
-  return loadWorld(mapFormat, worldBounds, game, path) | kdl::transform([&]() {
-           loadAssets();
-           registerValidators();
-           registerSmartTags();
-           createTagActions();
-
-           documentWasLoadedNotifier(this);
-         });
+  return game->loadMap(mapFormat, worldBounds, path, logger())
+         | kdl::transform([&](auto worldNode) {
+             setWorld(worldBounds, std::move(worldNode), game, path);
+             documentWasLoadedNotifier(this);
+           });
 }
 
 void MapDocument::saveDocument()
@@ -663,6 +653,9 @@ void MapDocument::doSaveDocument(const std::filesystem::path& path)
 
 void MapDocument::clearDocument()
 {
+  clearRepeatableCommands();
+  doClearCommandProcessor();
+
   if (m_world)
   {
     documentWillBeClearedNotifier(this);
@@ -4355,41 +4348,26 @@ std::vector<mdl::Node*> MapDocument::findNodesContaining(const vm::vec3d& point)
   return result;
 }
 
-Result<void> MapDocument::createWorld(
-  const mdl::MapFormat mapFormat,
+void MapDocument::setWorld(
   const vm::bbox3d& worldBounds,
-  std::shared_ptr<mdl::Game> game)
-{
-  return game->newMap(mapFormat, m_worldBounds, logger())
-         | kdl::transform([&](auto world) {
-             m_worldBounds = worldBounds;
-             m_game = game;
-             m_world = std::move(world);
-             m_entityModelManager->setGame(game.get());
-             performSetCurrentLayer(m_world->defaultLayer());
-
-             updateGameSearchPaths();
-             setPath(std::filesystem::path(DefaultDocumentName));
-           });
-}
-
-Result<void> MapDocument::loadWorld(
-  const mdl::MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
+  std::unique_ptr<mdl::WorldNode> worldNode,
   std::shared_ptr<mdl::Game> game,
   const std::filesystem::path& path)
 {
-  return game->loadMap(mapFormat, m_worldBounds, path, logger())
-         | kdl::transform([&](auto world) {
-             m_worldBounds = worldBounds;
-             m_game = game;
-             m_world = std::move(world);
-             m_entityModelManager->setGame(game.get());
-             performSetCurrentLayer(m_world->defaultLayer());
+  m_worldBounds = worldBounds;
+  m_world = std::move(worldNode);
+  m_game = game;
 
-             updateGameSearchPaths();
-             setPath(path);
-           });
+  m_entityModelManager->setGame(game.get());
+  performSetCurrentLayer(m_world->defaultLayer());
+
+  updateGameSearchPaths();
+  setPath(path);
+
+  loadAssets();
+  registerValidators();
+  registerSmartTags();
+  createTagActions();
 }
 
 void MapDocument::clearWorld()
