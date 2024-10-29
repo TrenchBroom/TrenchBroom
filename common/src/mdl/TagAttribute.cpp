@@ -19,11 +19,36 @@
 
 #include "TagAttribute.h"
 
-#include "mdl/Tag.h"
+#include "kdl/struct_io.h"
 
-namespace tb::mdl::TagAttributes
+namespace tb::mdl
 {
 
+bool operator==(const TagAttribute& lhs, const TagAttribute& rhs)
+{
+  return lhs.name == rhs.name;
+}
+
+bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs)
+{
+  return !(lhs == rhs);
+}
+
+bool operator<(const TagAttribute& lhs, const TagAttribute& rhs)
+{
+  return lhs.name < rhs.name;
+}
+
+std::ostream& operator<<(std::ostream& str, const TagAttribute& attr)
+{
+  kdl::struct_stream{str} << "TagAttribute"
+                          << "type" << attr.type << "name" << attr.name;
+  return str;
+}
+
+namespace TagAttributes
+{
 const TagAttribute Transparency = TagAttribute{1, "transparent"};
 
-}
+} // namespace TagAttributes
+} // namespace tb::mdl

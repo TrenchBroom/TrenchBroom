@@ -19,9 +19,27 @@
 
 #pragma once
 
+#include <string>
+
 namespace tb::mdl
 {
-class TagAttribute;
+
+/**
+ * This strzct represents an attribute of a tag. A tag can have multiple attributes, but
+ * the names must be unique.
+ */
+struct TagAttribute
+{
+  using AttributeType = unsigned long;
+
+  AttributeType type;
+  std::string name;
+
+  friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
+  friend bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs);
+  friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
+  friend std::ostream& operator<<(std::ostream& str, const TagAttribute& attr);
+};
 
 namespace TagAttributes
 {

@@ -23,6 +23,9 @@
 #include "mdl/Tag.h"
 #include "mdl/TagType.h"
 
+#include <fmt/format.h>
+
+#include <algorithm>
 #include <stdexcept>
 #include <string>
 
@@ -61,36 +64,28 @@ bool TagManager::isRegisteredSmartTag(const std::string& name) const
 
 const SmartTag& TagManager::smartTag(const std::string& name) const
 {
-  const auto it = m_smartTags.find(name);
-  if (it == std::end(m_smartTags))
+  if (const auto it = m_smartTags.find(name); it != std::end(m_smartTags))
   {
-    throw std::logic_error("Smart tag not registered");
+    return *it;
   }
-  return *it;
+  throw std::logic_error{"Smart tag not registered"};
 }
 
 bool TagManager::isRegisteredSmartTag(const size_t index) const
 {
-  for (const auto& tag : m_smartTags)
-  {
-    if (tag.index() == index)
-    {
-      return true;
-    }
-  }
-  return false;
+  return std::ranges::any_of(
+    m_smartTags, [&](const auto& tag) { return tag.index() == index; });
 }
 
 const SmartTag& TagManager::smartTag(const size_t index) const
 {
-  for (const auto& tag : m_smartTags)
+  if (const auto it = std::ranges::find_if(
+        m_smartTags, [&](const auto& tag) { return tag.index() == index; });
+      it != std::end(m_smartTags))
   {
-    if (tag.index() == index)
-    {
-      return tag;
-    }
+    return *it;
   }
-  throw std::logic_error("Smart tag not registered");
+  throw std::logic_error{"Smart tag not registered"};
 }
 
 void TagManager::registerSmartTags(const std::vector<SmartTag>& tags)
@@ -103,7 +98,8 @@ void TagManager::registerSmartTags(const std::vector<SmartTag>& tags)
 
     if (!inserted)
     {
-      throw std::logic_error("Smart tag '" + tag.name() + "' already registered");
+      throw std::logic_error{
+        fmt::format("Smart tag '{}' already registered", tag.name())};
     }
 
     it->setIndex(nextIndex);

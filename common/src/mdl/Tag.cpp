@@ -31,44 +31,6 @@
 namespace tb::mdl
 {
 
-TagAttribute::TagAttribute(const AttributeType type, std::string name)
-  : m_type{type}
-  , m_name{std::move(name)}
-{
-}
-
-TagAttribute::AttributeType TagAttribute::type() const
-{
-  return m_type;
-}
-
-const std::string& TagAttribute::name() const
-{
-  return m_name;
-}
-
-bool operator==(const TagAttribute& lhs, const TagAttribute& rhs)
-{
-  return lhs.m_name == rhs.m_name;
-}
-
-bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs)
-{
-  return !(lhs == rhs);
-}
-
-bool operator<(const TagAttribute& lhs, const TagAttribute& rhs)
-{
-  return lhs.m_name < rhs.m_name;
-}
-
-std::ostream& operator<<(std::ostream& str, const TagAttribute& attr)
-{
-  kdl::struct_stream{str} << "TagAttribute"
-                          << "m_type" << attr.m_type << "m_name" << attr.m_name;
-  return str;
-}
-
 Tag::Tag(const size_t index, std::string name, std::vector<TagAttribute> attributes)
   : m_index{index}
   , m_name{std::move(name)}
@@ -143,7 +105,7 @@ std::ostream& operator<<(std::ostream& str, const Tag& tag)
 }
 
 TagReference::TagReference(const Tag& tag)
-  : m_tag(&tag)
+  : m_tag{&tag}
 {
 }
 
@@ -214,18 +176,17 @@ bool Taggable::addTag(const Tag& tag)
 
 bool Taggable::removeTag(const Tag& tag)
 {
-  const auto it = m_tags.find(TagReference(tag));
-  if (it == std::end(m_tags))
+  if (const auto it = m_tags.find(TagReference(tag)); it != std::end(m_tags))
   {
-    return false;
+    m_tagMask &= ~tag.type();
+    m_tags.erase(it);
+    assert(!hasTag(tag));
+
+    updateAttributeMask();
+    return true;
   }
 
-  m_tagMask &= ~tag.type();
-  m_tags.erase(it);
-  assert(!hasTag(tag));
-
-  updateAttributeMask();
-  return true;
+  return false;
 }
 
 void Taggable::initializeTags(TagManager& tagManager)
@@ -249,7 +210,7 @@ void Taggable::clearTags()
 
 bool Taggable::hasAttribute(const TagAttribute& attribute) const
 {
-  return (m_attributeMask & attribute.type()) != 0;
+  return (m_attributeMask & attribute.type) != 0;
 }
 
 void Taggable::accept(TagVisitor& visitor)
@@ -270,7 +231,7 @@ void Taggable::updateAttributeMask()
     const auto& tag = tagRef.tag();
     for (const auto& attribute : tag.attributes())
     {
-      m_attributeMask |= attribute.type();
+      m_attributeMask |= attribute.type;
     }
   }
 }
@@ -282,6 +243,7 @@ TagMatcher::~TagMatcher() = default;
 void TagMatcher::enable(TagMatcherCallback& /* callback */, MapFacade& /* facade */) const
 {
 }
+
 void TagMatcher::disable(
   TagMatcherCallback& /* callback */, MapFacade& /* facade */) const
 {
@@ -313,8 +275,8 @@ SmartTag::SmartTag(
 }
 
 SmartTag::SmartTag(const SmartTag& other)
-  : Tag(other.m_index, other.m_name, other.m_attributes)
-  , m_matcher(other.m_matcher->clone())
+  : Tag{other.m_index, other.m_name, other.m_attributes}
+  , m_matcher{other.m_matcher->clone()}
 {
 }
 
@@ -322,10 +284,7 @@ SmartTag::SmartTag(SmartTag&& other) noexcept = default;
 
 SmartTag& SmartTag::operator=(const SmartTag& other)
 {
-  m_index = other.m_index;
-  m_name = other.m_name;
-  m_attributes = other.m_attributes;
-  m_matcher = other.m_matcher->clone();
+  *this = SmartTag{other};
   return *this;
 }
 
@@ -374,4 +333,5 @@ void SmartTag::appendToStream(std::ostream& str) const
                           << "m_index" << m_index << "m_name" << m_name << "m_attributes"
                           << m_attributes << "m_matcher" << *m_matcher;
 }
+
 } // namespace tb::mdl
