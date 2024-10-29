@@ -439,4 +439,104 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
   }
 }
 
+TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clickingThroughHidden")
+{
+  const auto* world = document->world();
+  auto builder = mdl::BrushBuilder{
+    world->mapFormat(),
+    document->worldBounds(),
+    document->game()->config().faceAttribsConfig.defaults};
+
+  auto tool = SelectionTool{document};
+
+  GIVEN("A brush visible behind the hidden face of another brush")
+  {
+    auto visibleBrush = builder.createCube(
+                          32.0,
+                          "left_face",
+                          "right_face",
+                          "front_face",
+                          "back_face",
+                          "top_face",
+                          "bottom_face")
+                        | kdl::value();
+    auto* visibleBrushNode = new mdl::BrushNode{std::move(visibleBrush)};
+    const auto visibleTopFaceIndex = *visibleBrushNode->brush().findFace("top_face");
+
+    auto hiddenBrush = builder.createCube(
+                         64.0,
+                         "left_face",
+                         "right_face",
+                         "front_face",
+                         "back_face",
+                         "top_face",
+                         "bottom_face")
+                       | kdl::value();
+    auto* hiddenBrushNode = new mdl::BrushNode{std::move(hiddenBrush)};
+    const auto hiddenTopFaceIndex = *hiddenBrushNode->brush().findFace("top_face");
+
+    document->addNodes(
+      {{document->parentForNodes(), {visibleBrushNode, hiddenBrushNode}}});
+
+    const auto hiddenTag = mdl::Tag{"hidden", {}};
+    auto taggedBrush = hiddenBrushNode->brush();
+    taggedBrush.face(hiddenTopFaceIndex).addTag(hiddenTag);
+    document->swapNodeContents(
+      "Set Tag", {{hiddenBrushNode, mdl::NodeContents{std::move(taggedBrush)}}});
+
+    document->editorContext().setHiddenTags(hiddenTag.type());
+
+    REQUIRE(hiddenBrushNode->brush().face(hiddenTopFaceIndex).hasTag(hiddenTag));
+    CHECK_FALSE(document->editorContext().visible(
+      hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
+
+    auto camera = render::OrthographicCamera{};
+    AND_GIVEN("A pick ray that points at the top face of the brushes")
+    {
+      camera.moveTo({0, 0, 128});
+      camera.setDirection({0, 0, -1}, {0, 1, 0});
+
+      const auto pickRay = vm::ray3d{camera.pickRay({0, 0, 0})};
+
+      auto pickResult = mdl::PickResult{};
+      document->pick(pickRay, pickResult);
+      CHECK(pickResult.all().size() == 2);
+      REQUIRE(document->selectedBrushFaces().empty());
+
+      auto inputState = InputState{};
+      inputState.setPickRequest({pickRay, camera});
+      inputState.setPickResult(std::move(pickResult));
+
+      WHEN("I shift click once")
+      {
+        inputState.setModifierKeys(ModifierKeys::Shift);
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        THEN("The top face of the visible brush get selected")
+        {
+          CHECK(document->selectedNodes().empty());
+          CHECK(
+            document->selectedBrushFaces()
+            == std::vector<mdl::BrushFaceHandle>{
+              {visibleBrushNode, visibleTopFaceIndex}});
+        }
+      }
+
+      WHEN("I click once")
+      {
+        inputState.mouseDown(MouseButtons::Left);
+        tool.mouseClick(inputState);
+        inputState.mouseUp(MouseButtons::Left);
+
+        THEN("The visible brush gets selected")
+        {
+          CHECK(document->selectedBrushFaces().empty());
+          CHECK(document->selectedNodes() == mdl::NodeCollection{{visibleBrushNode}});
+        }
+      }
+    }
+  }
+}
 } // namespace tb::ui
