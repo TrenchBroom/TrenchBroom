@@ -217,7 +217,9 @@ public:
     const auto& editorContext = m_document->editorContext();
     if (m_document->hasSelectedBrushFaces())
     {
-      const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+      const auto hit = firstHit(
+        inputState,
+        type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
       if (const auto faceHandle = mdl::hitToFaceHandle(hit))
       {
         const auto* brush = faceHandle->node();
@@ -292,7 +294,8 @@ bool SelectionTool::mouseClick(const InputState& inputState)
 
   if (isFaceClick(inputState))
   {
-    const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
+    const auto hit = firstHit(
+      inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
       const auto* brush = faceHandle->node();
