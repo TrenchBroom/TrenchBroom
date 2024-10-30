@@ -19,7 +19,7 @@ QToolButton#backgroundChecked {
 }
 
 QToolButton#backgroundChecked::checked {
-  background-color: rgb(0, 0, 0, 60);
+  background-color: rgba(0, 0, 0, 50);
 }
 
 QToolButton#toolButton_borderless {
