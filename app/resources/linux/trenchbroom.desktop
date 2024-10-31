@@ -1,10 +1,10 @@
 [Desktop Entry]
 Exec=trenchbroom %F
 GenericName=Level Editor
-Comment=Level Editor
+Comment=Cross-Platform Level Editor
 Icon=trenchbroom
 Name=TrenchBroom
-Terminal=0
+Terminal=false
 Type=Application
 Categories=Game
 Keywords=quake;level;editor;
