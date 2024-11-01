@@ -21,6 +21,7 @@
 
 #include <QCoreApplication>
 #include <QDir>
+#include <QProcessEnvironment>
 #include <QStandardPaths>
 #include <QString>
 
@@ -28,11 +29,20 @@
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 
+#include <optional>
 #include <vector>
 
 namespace tb::io::SystemPaths
 {
+namespace
+{
 
+std::filesystem::path appImageDirectory()
+{
+  return appDirectory() / ".." / "share" / "TrenchBroom";
+}
+
+} // namespace
 
 std::filesystem::path appDirectory()
 {
@@ -76,6 +86,13 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file)
     return inUserDataDir;
   }
 
+  // Compatibility with AppImage runtime
+  const auto inAppImageDir = appImageDirectory() / file;
+  if (Disk::pathInfo(inAppImageDir) == PathInfo::File)
+  {
+    return inAppImageDir;
+  }
+
   return io::pathFromQString(QStandardPaths::locate(
     QStandardPaths::AppDataLocation,
     io::pathAsQString(file),
@@ -90,6 +107,8 @@ std::vector<std::filesystem::path> findResourceDirectories(
     appDirectory() / directory,
     // Compatibility with wxWidgets
     userDataDirectory() / directory,
+    // Compatibility with AppImage
+    appImageDirectory() / directory,
   };
 
   const auto dirs = QStandardPaths::locateAll(
