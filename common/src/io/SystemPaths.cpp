@@ -33,22 +33,6 @@
 namespace tb::io::SystemPaths
 {
 
-bool portableState = false;
-
-bool isPortable()
-{
-  return portableState;
-}
-
-void setPortable()
-{
-  setPortable(true);
-}
-
-void setPortable(bool newState)
-{
-  portableState = newState;
-}
 
 std::filesystem::path appDirectory()
 {
@@ -123,4 +107,22 @@ std::vector<std::filesystem::path> findResourceDirectories(
   }
   return result;
 }
+
+bool portableState = false;
+
+bool isPortable()
+{
+  return portableState;
+}
+
+void setPortable()
+{
+  setPortable(true);
+}
+
+void setPortable(bool newState)
+{
+  portableState = newState;
+}
+
 } // namespace tb::io::SystemPaths
