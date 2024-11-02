@@ -209,4 +209,5 @@ size_t FileView::size() const
 {
   return m_length;
 }
+
 } // namespace tb::io
