@@ -132,9 +132,12 @@ TEST_CASE("loadMaterialCollections")
 
   SECTION("WAD file")
   {
+    const auto mountPoint = GENERATE("textures", "textures/cr8_czg.wad");
+    CAPTURE(mountPoint);
+
     const auto wadPath = workDir / "fixture/test/io/Wad/cr8_czg.wad";
     fs.mount("", std::make_unique<DiskFileSystem>(workDir)); // to find the palette
-    fs.mount("textures", openFS<WadFileSystem>(wadPath));
+    fs.mount(mountPoint, openFS<WadFileSystem>(wadPath));
 
     const auto materialConfig = mdl::MaterialConfig{
       "textures",
@@ -149,7 +152,7 @@ TEST_CASE("loadMaterialCollections")
       loadMaterialCollections(fs, materialConfig, createResource, logger),
       MatchesMaterialCollections({
         {
-          "textures",
+          mountPoint,
           {
             MaterialInfo{"blowjob_machine", 128, 128},
             MaterialInfo{"bongs2", 128, 128},
