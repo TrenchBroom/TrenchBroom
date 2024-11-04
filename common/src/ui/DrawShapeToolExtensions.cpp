@@ -56,6 +56,12 @@ const std::string& DrawShapeToolCuboidExtension::name() const
   return name;
 }
 
+const std::filesystem::path& DrawShapeToolCuboidExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Cuboid.svg"};
+  return path;
+}
+
 QWidget* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
 {
   return new QWidget{parent};
@@ -87,13 +93,13 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
   auto* radiusModeEdgeButton =
     createBitmapToggleButton("RadiusModeEdge.svg", tr("Radius is to edge"));
   radiusModeEdgeButton->setIconSize({24, 24});
-  radiusModeEdgeButton->setObjectName("backgroundChecked");
+  radiusModeEdgeButton->setObjectName("toolButton_withBorder");
   radiusModeEdgeButton->setChecked(m_parameters.radiusMode == mdl::RadiusMode::ToEdge);
 
   auto* radiusModeVertexButton =
     createBitmapToggleButton("RadiusModeVertex.svg", tr("Radius is to vertex"));
   radiusModeVertexButton->setIconSize({24, 24});
-  radiusModeVertexButton->setObjectName("backgroundChecked");
+  radiusModeVertexButton->setObjectName("toolButton_withBorder");
   radiusModeVertexButton->setChecked(
     m_parameters.radiusMode == mdl::RadiusMode::ToVertex);
 
@@ -160,6 +166,12 @@ const std::string& DrawShapeToolCylinderExtension::name() const
   return name;
 }
 
+const std::filesystem::path& DrawShapeToolCylinderExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Cylinder.svg"};
+  return path;
+}
+
 QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
 {
   return new DrawShapeToolCylinderShapeExtensionPage{m_parameters, parent};
@@ -200,6 +212,12 @@ const std::string& DrawShapeToolConeExtension::name() const
 {
   static const auto name = std::string{"Cone"};
   return name;
+}
+
+const std::filesystem::path& DrawShapeToolConeExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_Cone.svg"};
+  return path;
 }
 
 QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
@@ -256,6 +274,12 @@ const std::string& DrawShapeToolIcoSphereExtension::name() const
   return name;
 }
 
+const std::filesystem::path& DrawShapeToolIcoSphereExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_IcoSphere.svg"};
+  return path;
+}
+
 QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
 {
   return new DrawShapeToolIcoSphereShapeExtensionPage{m_parameters, parent};
@@ -304,6 +328,12 @@ const std::string& DrawShapeToolUVSphereExtension::name() const
 {
   static const auto name = std::string{"Spheroid (UV)"};
   return name;
+}
+
+const std::filesystem::path& DrawShapeToolUVSphereExtension::iconPath() const
+{
+  static const auto path = std::filesystem::path{"ShapeTool_UVSphere.svg"};
+  return path;
 }
 
 QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)

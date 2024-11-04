@@ -19,13 +19,16 @@
 
 #include "DrawShapeToolPage.h"
 
-#include <QComboBox>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMenu>
 #include <QStackedLayout>
+#include <QToolButton>
 
+#include "io/ResourceUtils.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/MapDocument.h"
+#include "ui/QtUtils.h"
 #include "ui/ViewConstants.h"
 
 namespace tb::ui
@@ -37,22 +40,24 @@ DrawShapeToolPage::DrawShapeToolPage(
   QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
+  , m_extensionManager{extensionManager}
 {
-  createGui(extensionManager);
-  m_notifierConnection += extensionManager.currentExtensionDidChangeNotifier.connect(
+  createGui();
+  m_notifierConnection += m_extensionManager.currentExtensionDidChangeNotifier.connect(
     this, &DrawShapeToolPage::currentExtensionDidChange);
 }
 
-void DrawShapeToolPage::createGui(DrawShapeToolExtensionManager& extensionManager)
+void DrawShapeToolPage::createGui()
 {
   auto* label = new QLabel{tr("Shape")};
-  m_extensions = new QComboBox{};
-  m_extensionPages = new QStackedLayout{};
+  m_extensionButton = createBitmapButton(
+    m_extensionManager.currentExtension().iconPath(), tr("Click to select a shape"));
+  m_extensionButton->setObjectName("toolButton_withBorder");
 
-  for (auto* extension : extensionManager.extensions())
+  m_extensionPages = new QStackedLayout{};
+  for (auto* extension : m_extensionManager.extensions())
   {
-    m_extensions->addItem(QString::fromStdString(extension->name()));
-    m_extensionPages->addWidget(extension->createToolPage());
+    m_extensionPages->addWidget(extension->createToolPage(this));
   }
 
   auto* layout = new QHBoxLayout();
@@ -60,22 +65,37 @@ void DrawShapeToolPage::createGui(DrawShapeToolExtensionManager& extensionManage
   layout->setSpacing(LayoutConstants::MediumHMargin);
 
   layout->addWidget(label, 0, Qt::AlignVCenter);
-  layout->addWidget(m_extensions, 0, Qt::AlignVCenter);
+  layout->addWidget(m_extensionButton, 0, Qt::AlignVCenter);
   layout->addLayout(m_extensionPages);
   layout->addStretch(2);
 
   setLayout(layout);
 
-  connect(
-    m_extensions, QOverload<int>::of(&QComboBox::activated), this, [&](const auto index) {
-      extensionManager.setCurrentExtensionIndex(size_t(index));
-    });
+  connect(m_extensionButton, &QAbstractButton::clicked, [&]() {
+    auto menu = QMenu{};
+
+    const auto extensions = m_extensionManager.extensions();
+    for (size_t i = 0; i < extensions.size(); ++i)
+    {
+      auto* extension = extensions[i];
+      auto icon = io::loadSVGIcon(extension->iconPath());
+
+      auto* action =
+        menu.addAction(icon, QString::fromStdString(extension->name()), [&, i]() {
+          m_extensionManager.setCurrentExtensionIndex(i);
+        });
+      action->setIconVisibleInMenu(true);
+    }
+
+    menu.exec(QCursor::pos());
+  });
 }
 
-void DrawShapeToolPage::currentExtensionDidChange(size_t index)
+void DrawShapeToolPage::currentExtensionDidChange(const size_t index)
 {
-  m_extensions->setCurrentIndex(int(index));
-  m_extensionPages->setCurrentIndex(m_extensions->currentIndex());
+  auto icon = io::loadSVGIcon(m_extensionManager.currentExtension().iconPath());
+  m_extensionButton->setIcon(icon);
+  m_extensionPages->setCurrentIndex(int(index));
 }
 
 } // namespace tb::ui
