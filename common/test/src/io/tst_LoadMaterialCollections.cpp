@@ -149,7 +149,7 @@ TEST_CASE("loadMaterialCollections")
       loadMaterialCollections(fs, materialConfig, createResource, logger),
       MatchesMaterialCollections({
         {
-          "textures/",
+          "textures",
           {
             MaterialInfo{"blowjob_machine", 128, 128},
             MaterialInfo{"bongs2", 128, 128},
@@ -261,7 +261,7 @@ TEST_CASE("loadMaterialCollections")
           loadMaterialCollections(fs, materialConfig, createResource, logger),
           MatchesMaterialCollections({
             {
-              "textures/",
+              "textures",
               {
                 MaterialInfo{"__TB_empty", 32, 32}, // generated for fallback image
               },
@@ -326,7 +326,7 @@ TEST_CASE("loadMaterialCollections")
         loadMaterialCollections(fs, materialConfig, createResource, logger),
         MatchesMaterialCollections({
           {
-            "textures/",
+            "textures",
             {
               MaterialInfo{"__TB_empty", 32, 32}, // generated for fallback image
             },
