@@ -326,7 +326,13 @@ Result<mdl::Material> loadTextureMaterial(
   const mdl::CreateTextureResource& createResource,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
-  const auto prefixLength = kdl::path_length(materialConfig.root);
+  // If the texture comes from a wad file, we omit the wad filename from the texture name.
+  const auto wadFileName = kdl::path_length(texturePath) > 1
+                             ? texturePath.parent_path().filename()
+                             : std::filesystem::path{};
+  const auto isWad = kdl::path_to_lower(wadFileName.extension()) == ".wad";
+
+  const auto prefixLength = kdl::path_length(materialConfig.root) + (isWad ? 1 : 0);
   const auto pathMatcher = !materialConfig.extensions.empty()
                              ? makeExtensionPathMatcher(materialConfig.extensions)
                              : matchAnyPath;
@@ -338,27 +344,25 @@ Result<mdl::Material> loadTextureMaterial(
 }
 
 std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
-  std::vector<mdl::Material> materials, const mdl::MaterialConfig& materialConfig)
+  std::vector<mdl::Material> materials)
 {
-  const auto getMaterialCollectionPath = [&](const auto& materialName) {
-    return materialConfig.root / std::filesystem::path{materialName}.parent_path();
+  const auto getMaterialCollectionPath = [&](const auto& material) {
+    return material.relativePath().parent_path();
   };
 
   materials = kdl::vec_sort(std::move(materials), [&](const auto& lhs, const auto& rhs) {
-    return getMaterialCollectionPath(lhs.name()) < getMaterialCollectionPath(rhs.name());
+    return getMaterialCollectionPath(lhs) < getMaterialCollectionPath(rhs);
   });
 
   auto materialsByCollection =
     kdl::make_grouped_range(materials, [&](const auto& lhs, const auto& rhs) {
-      return getMaterialCollectionPath(lhs.name())
-             == getMaterialCollectionPath(rhs.name());
+      return getMaterialCollectionPath(lhs) == getMaterialCollectionPath(rhs);
     });
 
   return kdl::vec_transform(materialsByCollection, [&](auto groupedMaterials) {
     assert(!groupedMaterials.empty());
 
-    auto materialCollectionPath =
-      getMaterialCollectionPath(groupedMaterials.front().name());
+    auto materialCollectionPath = getMaterialCollectionPath(groupedMaterials.front());
 
     auto materialsForCollection = std::vector<mdl::Material>(
       std::move_iterator{groupedMaterials.begin()},
@@ -366,7 +370,7 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
 
     materialsForCollection = kdl::vec_sort(
       std::move(materialsForCollection), [&](const auto& lhs, const auto& rhs) {
-        return std::filesystem::path{lhs.name()} < std::filesystem::path{rhs.name()};
+        return lhs.relativePath() < rhs.relativePath();
       });
 
     return mdl::MaterialCollection{
@@ -435,7 +439,7 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
                       });
            })
          | kdl::transform([&](auto materials) {
-             return groupMaterialsIntoCollections(std::move(materials), materialConfig);
+             return groupMaterialsIntoCollections(std::move(materials));
            });
 }
 

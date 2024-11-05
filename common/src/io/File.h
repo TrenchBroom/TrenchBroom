@@ -150,44 +150,4 @@ public:
   size_t size() const override;
 };
 
-// TODO: get rid of this, it's evil
-/**
- * A file that is backed by a C++ object. These kinds of files are used to insert custom
- * objects into the virtual filesystem. An example would be shader objects which are
- * parsed by the shader file system.
- *
- * @tparam T the type of the object represented by this file
- */
-template <typename T>
-class ObjectFile : public File
-{
-private:
-  T m_object;
-
-public:
-  /**
-   * Creates a new file with the given object.
-   *
-   * @tparam S the type of the given object, must be convertible to T
-   * @param object the object
-   */
-  template <typename S>
-  explicit ObjectFile(S&& object)
-    : m_object(std::forward<S>(object))
-  {
-  }
-
-  Reader reader() const override
-  {
-    const auto addr = reinterpret_cast<const char*>(&m_object);
-    return Reader::from(addr, addr + size());
-  }
-
-  size_t size() const override { return sizeof(m_object); }
-
-  /**
-   * Returns the object that backs this file.
-   */
-  const T& object() const { return m_object; }
-};
 } // namespace tb::io
