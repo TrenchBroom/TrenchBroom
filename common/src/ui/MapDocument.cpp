@@ -4447,31 +4447,19 @@ std::vector<std::filesystem::path> MapDocument::enabledMaterialCollections() con
       const auto* materialCollectionStr =
         m_world->entity().property(mdl::EntityPropertyKeys::EnabledMaterialCollections))
     {
-      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-        kdl::str_split(*materialCollectionStr, ";"),
-        [](const auto& str) { return std::filesystem::path{str}; }));
+      const auto strs = kdl::str_split(*materialCollectionStr, ";");
+      return kdl::vec_sort_and_remove_duplicates(
+        strs | std::views::transform([](const auto& str) {
+          return std::filesystem::path{str};
+        })
+        | kdl::to_vector);
     }
 
-    // If the map uses wad files, always enable all of them by default
-    if (m_world->entity().property(mdl::EntityPropertyKeys::Wad))
-    {
-      return kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-        m_materialManager->collections(),
-        [](const auto& collection) { return collection.path(); }));
-    }
-
-    // Otherwise, enable all material collections with used materials in them
-    auto result = std::vector<std::filesystem::path>{};
-    for (const auto& collection : m_materialManager->collections())
-    {
-      if (kdl::any_of(collection.materials(), [](const auto& material) {
-            return material.usageCount() > 0;
-          }))
-      {
-        result.push_back(collection.path());
-      }
-    }
-    return kdl::vec_sort_and_remove_duplicates(result);
+    // Otherwise, enable all texture collections
+    return kdl::vec_sort_and_remove_duplicates(
+      m_materialManager->collections()
+      | std::views::transform([](const auto& collection) { return collection.path(); })
+      | kdl::to_vector);
   }
   return {};
 }
