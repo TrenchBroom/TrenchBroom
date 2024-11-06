@@ -36,7 +36,7 @@ namespace DkPakLayout
 static const size_t HeaderMagicLength = 0x4;
 static const size_t EntryLength = 0x48;
 static const size_t EntryNameLength = 0x38;
-static const std::string HeaderMagic = "PACK";
+// static const std::string HeaderMagic = "PACK";
 } // namespace DkPakLayout
 
 namespace
