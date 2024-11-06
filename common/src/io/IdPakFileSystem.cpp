@@ -26,8 +26,6 @@
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
-#include <string>
-
 namespace tb::io
 {
 namespace PakLayout
@@ -36,7 +34,7 @@ static const size_t HeaderAddress = 0x0;
 static const size_t HeaderMagicLength = 0x4;
 static const size_t EntryLength = 0x40;
 static const size_t EntryNameLength = 0x38;
-static const std::string HeaderMagic = "PACK";
+// static const std::string HeaderMagic = "PACK";
 } // namespace PakLayout
 
 Result<void> IdPakFileSystem::doReadDirectory()
