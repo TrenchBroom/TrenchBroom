@@ -4,6 +4,8 @@ on: [pull_request]
 jobs:
   cpp-linter:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
 
     env:
       # Record pull request head commit SHA
