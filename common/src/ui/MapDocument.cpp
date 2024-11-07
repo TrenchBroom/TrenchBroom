@@ -584,6 +584,23 @@ void MapDocument::createEntityDefinitionActions()
     actionManager.createEntityDefinitionActions(m_entityDefinitionManager->definitions());
 }
 
+namespace
+{
+void setWorldDefaultProperties(
+  mdl::WorldNode& world, mdl::EntityDefinitionManager& entityDefinitionManager)
+{
+  const auto definition =
+    entityDefinitionManager.definition(mdl::EntityPropertyValues::WorldspawnClassname);
+
+  if (definition && world.entityPropertyConfig().setDefaultProperties)
+  {
+    auto entity = world.entity();
+    mdl::setDefaultProperties(*definition, entity, mdl::SetDefaultPropertyMode::SetAll);
+    world.setEntity(std::move(entity));
+  }
+}
+} // namespace
+
 Result<void> MapDocument::newDocument(
   const mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
@@ -596,7 +613,7 @@ Result<void> MapDocument::newDocument(
   return game->newMap(mapFormat, m_worldBounds, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, DefaultDocumentName);
-
+             setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
              clearModificationCount();
              documentWasNewedNotifier(this);
            });
