@@ -40,7 +40,8 @@ private:
 
 public:
   explicit TestEnvironment(
-    const std::string& dir, const SetupFunction& setup = [](TestEnvironment&) {});
+    const std::filesystem::path& dir,
+    const SetupFunction& setup = [](TestEnvironment&) {});
   explicit TestEnvironment(const SetupFunction& setup = [](TestEnvironment&) {});
   ~TestEnvironment();
 
