@@ -21,6 +21,8 @@
 
 #include "Macros.h"
 
+#include <fmt/format.h>
+
 #include <fstream>
 #include <string>
 
@@ -34,6 +36,11 @@ TestEnvironment::TestEnvironment(
   : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
   , m_dir{m_sandboxPath / dir}
 {
+  if (!dir.is_relative())
+  {
+    throw std::runtime_error{fmt::format("'{}' is not a relative path", dir.string())};
+  }
+
   createTestEnvironment(setup);
 }
 
