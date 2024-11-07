@@ -52,6 +52,7 @@ class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
   const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
@@ -102,6 +103,7 @@ public:
   DrawShapeToolCylinderExtension();
 
   const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
@@ -118,6 +120,7 @@ public:
   DrawShapeToolConeExtension();
 
   const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
@@ -151,6 +154,7 @@ public:
   DrawShapeToolIcoSphereExtension();
 
   const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,
@@ -185,6 +189,7 @@ public:
   DrawShapeToolUVSphereExtension();
 
   const std::string& name() const override;
+  const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds,

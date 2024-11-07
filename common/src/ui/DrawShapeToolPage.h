@@ -25,8 +25,8 @@
 
 #include <memory>
 
-class QComboBox;
 class QStackedLayout;
+class QToolButton;
 
 namespace tb::ui
 {
@@ -38,8 +38,9 @@ class DrawShapeToolPage : public QWidget
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
+  DrawShapeToolExtensionManager& m_extensionManager;
 
-  QComboBox* m_extensions = nullptr;
+  QToolButton* m_extensionButton = nullptr;
   QStackedLayout* m_extensionPages = nullptr;
 
   NotifierConnection m_notifierConnection;
@@ -51,7 +52,7 @@ public:
     QWidget* parent = nullptr);
 
 private:
-  void createGui(DrawShapeToolExtensionManager& extensionManager);
+  void createGui();
   void currentExtensionDidChange(size_t index);
 };
 
