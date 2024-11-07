@@ -339,9 +339,9 @@ QColor toQColor(const Color& color)
 }
 
 QToolButton* createBitmapButton(
-  const std::string& image, const QString& tooltip, QWidget* parent)
+  const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
 {
-  return createBitmapButton(io::loadSVGIcon(image), tooltip, parent);
+  return createBitmapButton(io::loadSVGIcon(imagePath), tooltip, parent);
 }
 
 QToolButton* createBitmapButton(
@@ -366,9 +366,9 @@ QToolButton* createBitmapButton(
 }
 
 QToolButton* createBitmapToggleButton(
-  const std::string& image, const QString& tooltip, QWidget* parent)
+  const std::filesystem::path& imagePath, const QString& tooltip, QWidget* parent)
 {
-  auto* button = createBitmapButton(image, tooltip, parent);
+  auto* button = createBitmapButton(imagePath, tooltip, parent);
   button->setCheckable(true);
   return button;
 }

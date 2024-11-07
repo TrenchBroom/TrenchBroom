@@ -32,6 +32,7 @@
 #include "Ensure.h"
 #include "ui/ViewConstants.h"
 
+#include <filesystem>
 #include <string>
 
 class QButtonGroup;
@@ -129,11 +130,15 @@ class MapFrame;
 MapFrame* findMapFrame(QWidget* widget);
 
 QToolButton* createBitmapButton(
-  const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
+  const std::filesystem::path& imagePath,
+  const QString& tooltip,
+  QWidget* parent = nullptr);
 QToolButton* createBitmapButton(
   const QIcon& icon, const QString& tooltip, QWidget* parent = nullptr);
 QToolButton* createBitmapToggleButton(
-  const std::string& image, const QString& tooltip, QWidget* parent = nullptr);
+  const std::filesystem::path& imagePath,
+  const QString& tooltip,
+  QWidget* parent = nullptr);
 
 QWidget* createDefaultPage(const QString& message, QWidget* parent = nullptr);
 QSlider* createSlider(int min, int max);
