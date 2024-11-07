@@ -29,7 +29,8 @@
 namespace tb::io
 {
 
-TestEnvironment::TestEnvironment(const std::string& dir, const SetupFunction& setup)
+TestEnvironment::TestEnvironment(
+  const std::filesystem::path& dir, const SetupFunction& setup)
   : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
   , m_dir{m_sandboxPath / dir}
 {
