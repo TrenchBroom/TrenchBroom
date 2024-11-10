@@ -53,7 +53,6 @@
 #include <fmt/format.h>
 
 #include <string>
-#include <vector>
 
 namespace tb::io
 {
@@ -61,12 +60,12 @@ namespace tb::io
 namespace
 {
 
-Result<mdl::Palette> loadPalette(
+std::optional<Result<mdl::Palette>> loadPalette(
   const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   if (materialConfig.palette.empty())
   {
-    return Error{"Material config is missing palette definition"};
+    return std::nullopt;
   }
 
   return fs.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
@@ -245,6 +244,78 @@ Result<mdl::Material> loadShaderMaterial(
            });
 }
 
+Result<mdl::Texture> loadTexture(
+  const std::filesystem::path& path,
+  const std::string& name,
+  const FileSystem& fs,
+  const std::optional<Result<mdl::Palette>>& paletteResult)
+{
+  const auto extension = kdl::str_to_lower(path.extension().string());
+  if (extension == ".d")
+  {
+    if (!paletteResult)
+    {
+      return Error{"Palette is required for mip textures"};
+    }
+
+    return fs.openFile(path) | kdl::join(*paletteResult)
+           | kdl::and_then([&](auto file, const auto& palette) {
+               auto reader = file->reader().buffer();
+               const auto mask = getTextureMaskFromName(name);
+               return readIdMipTexture(reader, palette, mask);
+             });
+  }
+  else if (extension == ".c")
+  {
+    const auto mask = getTextureMaskFromName(name);
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readHlMipTexture(reader, mask);
+           });
+  }
+  else if (extension == ".wal")
+  {
+    auto palette = std::optional<mdl::Palette>{};
+    if (paletteResult)
+    {
+      if (paletteResult->is_error())
+      {
+        return Error{
+          std::visit([](const auto& e) { return e.msg; }, paletteResult->error())};
+      }
+      palette = paletteResult->value();
+    }
+
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readWalTexture(reader, palette);
+           });
+  }
+  else if (extension == ".m8")
+  {
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readM8Texture(reader);
+           });
+  }
+  else if (extension == ".dds")
+  {
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readDdsTexture(reader);
+           });
+  }
+  else if (isSupportedFreeImageExtension(extension))
+  {
+    return fs.openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             return readFreeImageTexture(reader);
+           });
+  }
+
+  return Error{"Unknown texture file extension: " + extension};
+}
+
 mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   const std::filesystem::path& path,
   const std::string& name,
@@ -252,70 +323,11 @@ mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   return [&, path, name, paletteResult]() -> Result<mdl::Texture> {
-    const auto extension = kdl::str_to_lower(path.extension().string());
-    if (extension == ".d")
-    {
-      if (!paletteResult)
-      {
-        return Error{"Palette is required for mip textures"};
-      }
-
-      return fs.openFile(path) | kdl::join(*paletteResult)
-             | kdl::and_then([&](auto file, const auto& palette) {
-                 auto reader = file->reader().buffer();
-                 const auto mask = getTextureMaskFromName(name);
-                 return readIdMipTexture(reader, palette, mask);
-               });
-    }
-    else if (extension == ".c")
-    {
-      const auto mask = getTextureMaskFromName(name);
-      return fs.openFile(path) | kdl::and_then([&](auto file) {
-               auto reader = file->reader().buffer();
-               return readHlMipTexture(reader, mask);
+    return loadTexture(path, name, fs, paletteResult)
+           | kdl::or_else([&](auto e) -> Result<mdl::Texture> {
+               return Error{
+                 fmt::format("Could not load texture '{}': {}", path.string(), e.msg)};
              });
-    }
-    else if (extension == ".wal")
-    {
-      auto palette = std::optional<mdl::Palette>{};
-      if (paletteResult)
-      {
-        if (paletteResult->is_error())
-        {
-          return Error{
-            std::visit([](const auto& e) { return e.msg; }, paletteResult->error())};
-        }
-        palette = paletteResult->value();
-      }
-
-      return fs.openFile(path) | kdl::and_then([&](auto file) {
-               auto reader = file->reader().buffer();
-               return readWalTexture(reader, palette);
-             });
-    }
-    else if (extension == ".m8")
-    {
-      return fs.openFile(path) | kdl::and_then([&](auto file) {
-               auto reader = file->reader().buffer();
-               return readM8Texture(reader);
-             });
-    }
-    else if (extension == ".dds")
-    {
-      return fs.openFile(path) | kdl::and_then([&](auto file) {
-               auto reader = file->reader().buffer();
-               return readDdsTexture(reader);
-             });
-    }
-    else if (isSupportedFreeImageExtension(extension))
-    {
-      return fs.openFile(path) | kdl::and_then([&](auto file) {
-               auto reader = file->reader().buffer();
-               return readFreeImageTexture(reader);
-             });
-    }
-
-    return Error{"Unknown texture file extension: " + extension};
   };
 }
 
