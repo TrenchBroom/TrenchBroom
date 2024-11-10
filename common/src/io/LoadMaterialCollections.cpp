@@ -53,7 +53,6 @@
 #include <fmt/format.h>
 
 #include <string>
-#include <vector>
 
 namespace tb::io
 {
