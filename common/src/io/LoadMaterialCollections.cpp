@@ -60,12 +60,12 @@ namespace tb::io
 namespace
 {
 
-Result<mdl::Palette> loadPalette(
+std::optional<Result<mdl::Palette>> loadPalette(
   const FileSystem& fs, const mdl::MaterialConfig& materialConfig)
 {
   if (materialConfig.palette.empty())
   {
-    return Error{"Material config is missing palette definition"};
+    return std::nullopt;
   }
 
   return fs.openFile(materialConfig.palette) | kdl::and_then([&](auto file) {
