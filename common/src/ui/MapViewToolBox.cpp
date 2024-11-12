@@ -365,10 +365,6 @@ void MapViewToolBox::updateToolPage()
   {
     activeTool->showPage();
   }
-  else if (document->hasSelection())
-  {
-    moveObjectsTool().showPage();
-  }
   else
   {
     drawShapeTool().showPage();

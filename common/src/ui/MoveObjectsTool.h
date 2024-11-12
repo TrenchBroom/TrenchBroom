@@ -58,8 +58,6 @@ public:
 
 private:
   bool duplicateObjects(const InputState& inputState) const;
-
-  QWidget* doCreatePage(QWidget* parent) override;
 };
 
 } // namespace tb::ui
