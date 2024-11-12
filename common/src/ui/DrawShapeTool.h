@@ -22,8 +22,6 @@
 #include "ui/CreateBrushesToolBase.h"
 #include "ui/DrawShapeToolExtension.h"
 
-#include "vm/util.h"
-
 #include <memory>
 
 namespace tb::ui
@@ -34,7 +32,7 @@ class DrawShapeTool : public CreateBrushesToolBase
 {
 public:
   explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3d& bounds, vm::axis::type axis);
+  void update(const vm::bbox3d& bounds);
 
   bool cancel();
 

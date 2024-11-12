@@ -55,18 +55,34 @@ public:
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds,
-    vm::axis::type axis,
-    const MapDocument& document) const override;
+    const vm::bbox3d& bounds, const MapDocument& document) const override;
 };
 
-struct CircularShapeParameters
+struct AxisAlignedShapeParameters
+{
+  vm::axis::type axis;
+};
+
+class DrawShapeToolAxisAlignedShapeExtensionPage : public DrawShapeToolExtensionPage
+{
+public:
+  explicit DrawShapeToolAxisAlignedShapeExtensionPage(
+    AxisAlignedShapeParameters& parameters, QWidget* parent = nullptr);
+
+private:
+  AxisAlignedShapeParameters& m_parameters;
+
+  Q_OBJECT
+};
+
+struct CircularShapeParameters : AxisAlignedShapeParameters
 {
   size_t numSides;
   mdl::RadiusMode radiusMode;
 };
 
-class DrawShapeToolCircularShapeExtensionPage : public DrawShapeToolExtensionPage
+class DrawShapeToolCircularShapeExtensionPage
+  : public DrawShapeToolAxisAlignedShapeExtensionPage
 {
 public:
   explicit DrawShapeToolCircularShapeExtensionPage(
@@ -106,9 +122,7 @@ public:
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds,
-    vm::axis::type axis,
-    const MapDocument& document) const override;
+    const vm::bbox3d& bounds, const MapDocument& document) const override;
 
 private:
   CylinderShapeParameters m_parameters;
@@ -123,9 +137,7 @@ public:
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds,
-    vm::axis::type axis,
-    const MapDocument& document) const override;
+    const vm::bbox3d& bounds, const MapDocument& document) const override;
 
 private:
   CircularShapeParameters m_parameters;
@@ -157,9 +169,7 @@ public:
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds,
-    vm::axis::type axis,
-    const MapDocument& document) const override;
+    const vm::bbox3d& bounds, const MapDocument& document) const override;
 
 private:
   IcoSphereShapeParameters m_parameters;
@@ -192,9 +202,7 @@ public:
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds,
-    vm::axis::type axis,
-    const MapDocument& document) const override;
+    const vm::bbox3d& bounds, const MapDocument& document) const override;
 
 private:
   UVSphereShapeParameters m_parameters;

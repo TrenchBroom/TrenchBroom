@@ -21,6 +21,7 @@
 
 #include <QButtonGroup>
 #include <QCheckBox>
+#include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
 #include <QToolButton>
@@ -68,7 +69,7 @@ QWidget* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
-  const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
+  const vm::bbox3d& bounds, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = mdl::BrushBuilder{
@@ -80,9 +81,29 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensionPage(
+  AxisAlignedShapeParameters& parameters, QWidget* parent)
+  : DrawShapeToolExtensionPage{parent}
+  , m_parameters{parameters}
+{
+  auto* axisLabel = new QLabel{tr("Axis: ")};
+  auto* axisComboBox = new QComboBox{};
+  axisComboBox->addItems({tr("X"), tr("Y"), tr("Z")});
+  axisComboBox->setCurrentIndex(int(parameters.axis));
+
+  connect(
+    axisComboBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto index) { m_parameters.axis = vm::axis::type(index); });
+
+  addWidget(axisLabel);
+  addWidget(axisComboBox);
+}
+
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
   CircularShapeParameters& parameters, QWidget* parent)
-  : DrawShapeToolExtensionPage{parent}
+  : DrawShapeToolAxisAlignedShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
   auto* numSidesLabel = new QLabel{tr("Number of Sides: ")};
@@ -156,7 +177,7 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension()
-  : m_parameters{8, mdl::RadiusMode::ToEdge, false, 16.0}
+  : m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
@@ -178,7 +199,7 @@ QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
-  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = mdl::BrushBuilder{
@@ -191,20 +212,20 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
                m_parameters.thickness,
                m_parameters.numSides,
                m_parameters.radiusMode,
-               axis,
+               m_parameters.axis,
                document.currentMaterialName())
            : builder
                .createCylinder(
                  bounds,
                  m_parameters.numSides,
                  m_parameters.radiusMode,
-                 axis,
+                 m_parameters.axis,
                  document.currentMaterialName())
                .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
 DrawShapeToolConeExtension::DrawShapeToolConeExtension()
-  : m_parameters{8, mdl::RadiusMode::ToEdge}
+  : m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge}
 {
 }
 
@@ -226,7 +247,7 @@ QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
-  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = mdl::BrushBuilder{
@@ -238,7 +259,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
       bounds,
       m_parameters.numSides,
       m_parameters.radiusMode,
-      axis,
+      m_parameters.axis,
       document.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
@@ -286,7 +307,7 @@ QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
-  const vm::bbox3d& bounds, const vm::axis::type, const MapDocument& document) const
+  const vm::bbox3d& bounds, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = mdl::BrushBuilder{
@@ -320,7 +341,7 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension()
-  : m_parameters{8, mdl::RadiusMode::ToEdge, 8}
+  : m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, 8}
 {
 }
 
@@ -342,7 +363,7 @@ QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
-  const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const
+  const vm::bbox3d& bounds, const MapDocument& document) const
 {
   const auto game = document.game();
   const auto builder = mdl::BrushBuilder{
@@ -355,7 +376,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
       m_parameters.numSides,
       m_parameters.numRings,
       m_parameters.radiusMode,
-      axis,
+      m_parameters.axis,
       document.currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }

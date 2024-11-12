@@ -23,8 +23,6 @@
 #include "Result.h"
 #include "mdl/Brush.h"
 
-#include "vm/util.h"
-
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -44,7 +42,7 @@ public:
   virtual const std::filesystem::path& iconPath() const = 0;
   virtual QWidget* createToolPage(QWidget* parent = nullptr) = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, vm::axis::type axis, const MapDocument& document) const = 0;
+    const vm::bbox3d& bounds, const MapDocument& document) const = 0;
 };
 
 class DrawShapeToolExtensionManager

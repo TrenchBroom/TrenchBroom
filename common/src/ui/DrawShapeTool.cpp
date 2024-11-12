@@ -41,10 +41,10 @@ DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-void DrawShapeTool::update(const vm::bbox3d& bounds, const vm::axis::type axis)
+void DrawShapeTool::update(const vm::bbox3d& bounds)
 {
   auto document = kdl::mem_lock(m_document);
-  m_extensionManager.currentExtension().createBrushes(bounds, axis, *document)
+  m_extensionManager.currentExtension().createBrushes(bounds, *document)
     | kdl::transform([&](auto brushes) {
         updateBrushes(
           brushes | std::views::transform([](auto brush) {
