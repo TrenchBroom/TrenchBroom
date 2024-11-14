@@ -36,15 +36,14 @@ namespace tb::ui
 {
 
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushesToolBase{true, std::move(document)}
-  , m_extensionManager{createDrawShapeToolExtensions()}
+  : CreateBrushesToolBase{true, document}
+  , m_extensionManager{createDrawShapeToolExtensions(document)}
 {
 }
 
 void DrawShapeTool::update(const vm::bbox3d& bounds)
 {
-  auto document = kdl::mem_lock(m_document);
-  m_extensionManager.currentExtension().createBrushes(bounds, *document)
+  m_extensionManager.currentExtension().createBrushes(bounds)
     | kdl::transform([&](auto brushes) {
         updateBrushes(
           brushes | std::views::transform([](auto brush) {
@@ -54,6 +53,7 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
       })
     | kdl::transform_error([&](auto e) {
         clearBrushes();
+        auto document = kdl::mem_lock(m_document);
         document->error() << "Could not update brushes: " << e;
       });
 }

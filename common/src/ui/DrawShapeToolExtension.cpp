@@ -26,6 +26,11 @@
 namespace tb::ui
 {
 
+DrawShapeToolExtension::DrawShapeToolExtension(std::weak_ptr<MapDocument> document)
+  : m_document{std::move(document)}
+{
+}
+
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 
 DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(

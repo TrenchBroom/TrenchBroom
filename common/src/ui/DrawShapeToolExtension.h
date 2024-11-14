@@ -36,13 +36,18 @@ class MapDocument;
 
 class DrawShapeToolExtension
 {
+protected:
+  std::weak_ptr<MapDocument> m_document;
+
+  explicit DrawShapeToolExtension(std::weak_ptr<MapDocument> document);
+
 public:
   virtual ~DrawShapeToolExtension();
   virtual const std::string& name() const = 0;
   virtual const std::filesystem::path& iconPath() const = 0;
   virtual QWidget* createToolPage(QWidget* parent = nullptr) = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const = 0;
+    const vm::bbox3d& bounds) const = 0;
 };
 
 class DrawShapeToolExtensionManager

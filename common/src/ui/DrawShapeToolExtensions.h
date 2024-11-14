@@ -51,11 +51,12 @@ protected:
 class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
+  explicit DrawShapeToolCuboidExtension(std::weak_ptr<MapDocument> document);
+
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const override;
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 };
 
 struct AxisAlignedShapeParameters
@@ -116,13 +117,12 @@ private:
 class DrawShapeToolCylinderExtension : public DrawShapeToolExtension
 {
 public:
-  DrawShapeToolCylinderExtension();
+  explicit DrawShapeToolCylinderExtension(std::weak_ptr<MapDocument> document);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const override;
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
   CylinderShapeParameters m_parameters;
@@ -131,13 +131,12 @@ private:
 class DrawShapeToolConeExtension : public DrawShapeToolExtension
 {
 public:
-  DrawShapeToolConeExtension();
+  explicit DrawShapeToolConeExtension(std::weak_ptr<MapDocument> document);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const override;
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
   CircularShapeParameters m_parameters;
@@ -163,13 +162,12 @@ private:
 class DrawShapeToolIcoSphereExtension : public DrawShapeToolExtension
 {
 public:
-  DrawShapeToolIcoSphereExtension();
+  explicit DrawShapeToolIcoSphereExtension(std::weak_ptr<MapDocument> document);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const override;
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
   IcoSphereShapeParameters m_parameters;
@@ -196,18 +194,18 @@ private:
 class DrawShapeToolUVSphereExtension : public DrawShapeToolExtension
 {
 public:
-  DrawShapeToolUVSphereExtension();
+  explicit DrawShapeToolUVSphereExtension(std::weak_ptr<MapDocument> document);
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
   QWidget* createToolPage(QWidget* parent) override;
-  Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds, const MapDocument& document) const override;
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
   UVSphereShapeParameters m_parameters;
 };
 
-std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions();
+std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensions(
+  std::weak_ptr<MapDocument> document);
 
 } // namespace tb::ui
