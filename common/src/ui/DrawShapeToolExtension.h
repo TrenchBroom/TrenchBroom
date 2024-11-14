@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QWidget>
+
 #include "Notifier.h"
 #include "Result.h"
 #include "mdl/Brush.h"
@@ -28,11 +30,25 @@
 #include <string>
 #include <vector>
 
-class QWidget;
-
 namespace tb::ui
 {
 class MapDocument;
+
+class DrawShapeToolExtensionPage : public QWidget
+{
+  Q_OBJECT
+protected:
+  NotifierConnection m_notifierConnection;
+
+public:
+  Notifier<> settingsDidChangeNotifier;
+
+  explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
+
+protected:
+  void addWidget(QWidget* widget);
+  void addApplyButton(std::weak_ptr<MapDocument> document);
+};
 
 class DrawShapeToolExtension
 {
@@ -45,7 +61,7 @@ public:
   virtual ~DrawShapeToolExtension();
   virtual const std::string& name() const = 0;
   virtual const std::filesystem::path& iconPath() const = 0;
-  virtual QWidget* createToolPage(QWidget* parent = nullptr) = 0;
+  virtual DrawShapeToolExtensionPage* createToolPage(QWidget* parent = nullptr) = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
     const vm::bbox3d& bounds) const = 0;
 };

@@ -25,6 +25,7 @@
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/DrawShapeToolPage.h"
 #include "ui/MapDocument.h"
+#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"
@@ -72,7 +73,38 @@ bool DrawShapeTool::cancel()
 
 QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
-  return new DrawShapeToolPage{m_document, m_extensionManager, parent};
+  auto* page = new DrawShapeToolPage{m_document, m_extensionManager, parent};
+  m_notifierConnection += page->settingsDidChangeNotifier.connect([&]() {
+    auto document = kdl::mem_lock(m_document);
+    if (document->hasSelectedNodes())
+    {
+      m_extensionManager.currentExtension().createBrushes(document->selectionBounds())
+        | kdl::transform([](auto brushes) {
+            return brushes | std::views::transform([](auto brush) {
+                     return std::make_unique<mdl::BrushNode>(std::move(brush));
+                   })
+                   | kdl::to_vector;
+          })
+        | kdl::transform([&](auto brushNodes) {
+            auto transaction = Transaction{document, "Update Brushes"};
+
+            document->deleteObjects();
+            const auto addedNodes = document->addNodes({
+              {document->parentForNodes(),
+               brushNodes | std::views::transform([](auto& node) {
+                 return static_cast<mdl::Node*>(node.release());
+               }) | kdl::to_vector},
+            });
+            document->selectNodes(addedNodes);
+
+            transaction.commit();
+          })
+        | kdl::transform_error(
+          [&](auto e) { document->error() << "Could not update brushes: " << e; });
+    }
+  });
+
+  return page;
 }
 
 } // namespace tb::ui

@@ -36,23 +36,6 @@
 namespace tb::ui
 {
 
-DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
-  : QWidget{parent}
-{
-
-  auto* layout = new QHBoxLayout{};
-  layout->setContentsMargins(QMargins{});
-  layout->setSpacing(LayoutConstants::MediumHMargin);
-  layout->addStretch(1);
-  setLayout(layout);
-}
-
-void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
-{
-  auto* boxLayout = qobject_cast<QHBoxLayout*>(layout());
-  boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
-}
-
 DrawShapeToolCuboidExtension::DrawShapeToolCuboidExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
@@ -71,9 +54,9 @@ const std::filesystem::path& DrawShapeToolCuboidExtension::iconPath() const
   return path;
 }
 
-QWidget* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
 {
-  return new QWidget{parent};
+  return new DrawShapeToolExtensionPage{parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
@@ -156,7 +139,9 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
-  CylinderShapeParameters& parameters, QWidget* parent)
+  std::weak_ptr<MapDocument> document,
+  CylinderShapeParameters& parameters,
+  QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -183,6 +168,7 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
   addWidget(hollowCheckBox);
   addWidget(thicknessLabel);
   addWidget(thicknessBox);
+  addApplyButton(document);
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension(
@@ -204,9 +190,10 @@ const std::filesystem::path& DrawShapeToolCylinderExtension::iconPath() const
   return path;
 }
 
-QWidget* DrawShapeToolCylinderExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolCylinderExtension::createToolPage(
+  QWidget* parent)
 {
-  return new DrawShapeToolCylinderShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolCylinderShapeExtensionPage{m_document, m_parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
@@ -236,6 +223,15 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
                .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
+DrawShapeToolConeShapeExtensionPage::DrawShapeToolConeShapeExtensionPage(
+  std::weak_ptr<MapDocument> document,
+  CircularShapeParameters& parameters,
+  QWidget* parent)
+  : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
+{
+  addApplyButton(document);
+}
+
 DrawShapeToolConeExtension::DrawShapeToolConeExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
@@ -255,9 +251,9 @@ const std::filesystem::path& DrawShapeToolConeExtension::iconPath() const
   return path;
 }
 
-QWidget* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
 {
-  return new DrawShapeToolCircularShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolConeShapeExtensionPage{m_document, m_parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
@@ -280,7 +276,9 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
 }
 
 DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPage(
-  IcoSphereShapeParameters& parameters, QWidget* parent)
+  std::weak_ptr<MapDocument> document,
+  IcoSphereShapeParameters& parameters,
+  QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
@@ -297,6 +295,7 @@ DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPa
 
   addWidget(accuracyLabel);
   addWidget(accuracyBox);
+  addApplyButton(document);
 }
 
 DrawShapeToolIcoSphereExtension::DrawShapeToolIcoSphereExtension(
@@ -318,9 +317,10 @@ const std::filesystem::path& DrawShapeToolIcoSphereExtension::iconPath() const
   return path;
 }
 
-QWidget* DrawShapeToolIcoSphereExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolIcoSphereExtension::createToolPage(
+  QWidget* parent)
 {
-  return new DrawShapeToolIcoSphereShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolIcoSphereShapeExtensionPage{m_document, m_parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
@@ -339,7 +339,9 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
 }
 
 DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage(
-  UVSphereShapeParameters& parameters, QWidget* parent)
+  std::weak_ptr<MapDocument> document,
+  UVSphereShapeParameters& parameters,
+  QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
@@ -356,6 +358,7 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
 
   addWidget(numRingsLabel);
   addWidget(numRingsBox);
+  addApplyButton(document);
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(
@@ -377,9 +380,10 @@ const std::filesystem::path& DrawShapeToolUVSphereExtension::iconPath() const
   return path;
 }
 
-QWidget* DrawShapeToolUVSphereExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolUVSphereExtension::createToolPage(
+  QWidget* parent)
 {
-  return new DrawShapeToolUVSphereShapeExtensionPage{m_parameters, parent};
+  return new DrawShapeToolUVSphereShapeExtensionPage{m_document, m_parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(

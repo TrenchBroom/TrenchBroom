@@ -19,13 +19,13 @@
 
 #pragma once
 
-#include <QWidget>
-
 #include "Result.h"
 #include "ui/DrawShapeToolExtension.h"
 
 #include <memory>
 #include <vector>
+
+class QWidget;
 
 namespace tb::mdl
 {
@@ -36,18 +36,6 @@ namespace tb::ui
 {
 class MapDocument;
 
-class DrawShapeToolExtensionPage : public QWidget
-{
-public:
-  explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
-
-protected:
-  void addWidget(QWidget* widget);
-
-  Q_OBJECT
-};
-
-
 class DrawShapeToolCuboidExtension : public DrawShapeToolExtension
 {
 public:
@@ -55,7 +43,7 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  QWidget* createToolPage(QWidget* parent) override;
+  DrawShapeToolExtensionPage* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 };
 
@@ -72,8 +60,6 @@ public:
 
 private:
   AxisAlignedShapeParameters& m_parameters;
-
-  Q_OBJECT
 };
 
 struct CircularShapeParameters : AxisAlignedShapeParameters
@@ -106,7 +92,9 @@ class DrawShapeToolCylinderShapeExtensionPage
 {
 public:
   explicit DrawShapeToolCylinderShapeExtensionPage(
-    CylinderShapeParameters& parameters, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    CylinderShapeParameters& parameters,
+    QWidget* parent = nullptr);
 
 private:
   CylinderShapeParameters& m_parameters;
@@ -121,11 +109,22 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  QWidget* createToolPage(QWidget* parent) override;
+  DrawShapeToolExtensionPage* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
   CylinderShapeParameters m_parameters;
+};
+
+class DrawShapeToolConeShapeExtensionPage : public DrawShapeToolCircularShapeExtensionPage
+{
+public:
+  explicit DrawShapeToolConeShapeExtensionPage(
+    std::weak_ptr<MapDocument> document,
+    CircularShapeParameters& parameters,
+    QWidget* parent = nullptr);
+
+  Q_OBJECT
 };
 
 class DrawShapeToolConeExtension : public DrawShapeToolExtension
@@ -135,7 +134,7 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  QWidget* createToolPage(QWidget* parent) override;
+  DrawShapeToolExtensionPage* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
@@ -151,7 +150,9 @@ class DrawShapeToolIcoSphereShapeExtensionPage : public DrawShapeToolExtensionPa
 {
 public:
   explicit DrawShapeToolIcoSphereShapeExtensionPage(
-    IcoSphereShapeParameters& parameters, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    IcoSphereShapeParameters& parameters,
+    QWidget* parent = nullptr);
 
 private:
   IcoSphereShapeParameters& m_parameters;
@@ -166,7 +167,7 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  QWidget* createToolPage(QWidget* parent) override;
+  DrawShapeToolExtensionPage* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:
@@ -183,7 +184,9 @@ class DrawShapeToolUVSphereShapeExtensionPage
 {
 public:
   explicit DrawShapeToolUVSphereShapeExtensionPage(
-    UVSphereShapeParameters& parameters, QWidget* parent = nullptr);
+    std::weak_ptr<MapDocument> document,
+    UVSphereShapeParameters& parameters,
+    QWidget* parent = nullptr);
 
 private:
   UVSphereShapeParameters& m_parameters;
@@ -198,7 +201,7 @@ public:
 
   const std::string& name() const override;
   const std::filesystem::path& iconPath() const override;
-  QWidget* createToolPage(QWidget* parent) override;
+  DrawShapeToolExtensionPage* createToolPage(QWidget* parent) override;
   Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const override;
 
 private:

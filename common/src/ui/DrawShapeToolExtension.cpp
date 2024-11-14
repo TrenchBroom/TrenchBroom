@@ -19,12 +19,48 @@
 
 #include "DrawShapeToolExtension.h"
 
-#include "Ensure.h"
+#include <QHBoxLayout>
+#include <QPushButton>
 
+#include "Ensure.h"
+#include "ui/MapDocument.h"
+#include "ui/ViewConstants.h"
+
+#include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
+
+DrawShapeToolExtensionPage::DrawShapeToolExtensionPage(QWidget* parent)
+  : QWidget{parent}
+{
+  auto* layout = new QHBoxLayout{};
+  layout->setContentsMargins(QMargins{});
+  layout->setSpacing(LayoutConstants::MediumHMargin);
+  layout->addStretch(1);
+  setLayout(layout);
+}
+
+void DrawShapeToolExtensionPage::addWidget(QWidget* widget)
+{
+  auto* boxLayout = qobject_cast<QHBoxLayout*>(layout());
+  boxLayout->insertWidget(boxLayout->count() - 1, widget, 0, Qt::AlignVCenter);
+}
+
+void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> document)
+{
+  auto* applyButton = new QPushButton{tr("Apply")};
+  applyButton->setEnabled(false);
+  connect(
+    applyButton, &QPushButton::clicked, this, [&]() { settingsDidChangeNotifier(); });
+
+  addWidget(applyButton);
+
+  auto doc = kdl::mem_lock(document);
+  m_notifierConnection += doc->selectionDidChangeNotifier.connect(
+    [=](const auto&) { applyButton->setEnabled(doc->hasSelectedNodes()); });
+}
 
 DrawShapeToolExtension::DrawShapeToolExtension(std::weak_ptr<MapDocument> document)
   : m_document{std::move(document)}

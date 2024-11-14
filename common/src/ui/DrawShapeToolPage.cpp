@@ -57,7 +57,10 @@ void DrawShapeToolPage::createGui()
   m_extensionPages = new QStackedLayout{};
   for (auto* extension : m_extensionManager.extensions())
   {
-    m_extensionPages->addWidget(extension->createToolPage(this));
+    auto* extensionPage = extension->createToolPage();
+    m_notifierConnection +=
+      extensionPage->settingsDidChangeNotifier.connect(settingsDidChangeNotifier);
+    m_extensionPages->addWidget(extensionPage);
   }
 
   auto* layout = new QHBoxLayout();
