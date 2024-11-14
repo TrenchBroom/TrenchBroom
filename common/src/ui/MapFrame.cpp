@@ -1617,6 +1617,34 @@ void MapFrame::replaceMaterial()
   dialog.exec();
 }
 
+void MapFrame::moveSelectedObjects()
+{
+  auto ok = false;
+  const auto str = QInputDialog::getText(
+    this,
+    "Move Objects",
+    "Enter coordinates: X Y Z",
+    QLineEdit::Normal,
+    "0.0 0.0 0.0",
+    &ok);
+  if (ok)
+  {
+    if (const auto offset = vm::parse<double, 3>(str.toStdString()))
+    {
+      m_document->translateObjects(*offset);
+    }
+    else
+    {
+      QMessageBox::warning(this, "Error", tr("Invalid coordinates: '%1'").arg(str));
+    }
+  }
+}
+
+bool MapFrame::canMoveSelectedObjects() const
+{
+  return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+}
+
 bool MapFrame::anyToolActive() const
 {
   return m_mapView->anyToolActive();

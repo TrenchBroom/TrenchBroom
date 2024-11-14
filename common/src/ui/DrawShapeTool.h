@@ -19,10 +19,9 @@
 
 #pragma once
 
+#include "NotifierConnection.h"
 #include "ui/CreateBrushesToolBase.h"
 #include "ui/DrawShapeToolExtension.h"
-
-#include "vm/util.h"
 
 #include <memory>
 
@@ -32,9 +31,12 @@ class MapDocument;
 
 class DrawShapeTool : public CreateBrushesToolBase
 {
+private:
+  NotifierConnection m_notifierConnection;
+
 public:
   explicit DrawShapeTool(std::weak_ptr<MapDocument> document);
-  void update(const vm::bbox3d& bounds, vm::axis::type axis);
+  void update(const vm::bbox3d& bounds);
 
   bool cancel();
 

@@ -21,6 +21,7 @@
 
 #include <QWidget>
 
+#include "Notifier.h"
 #include "NotifierConnection.h"
 
 #include <memory>
@@ -46,6 +47,8 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
+  Notifier<> settingsDidChangeNotifier;
+
   explicit DrawShapeToolPage(
     std::weak_ptr<MapDocument> document,
     DrawShapeToolExtensionManager& extensionManager,

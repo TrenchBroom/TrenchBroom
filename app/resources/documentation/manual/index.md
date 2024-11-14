@@ -552,9 +552,9 @@ Backward      #action(Controls/Map view/Move objects backward; Move objects up) 
 
 Note that the meaning of the keyboard shortcuts depends on the viewport in which you use them. While #action(Controls/Map view/Move objects up; Move objects forward) moves the selected objects in the direction of the up axis if used in a 2D viewport, it moves the objects (roughly) in the direction of the camera viewing direction (i.e. forward) on the editing plane if used in the 3D viewport. Likewise, #action(Controls/Map view/Move objects forward; Move objects down) moves the selected objects in the direction of the normal axis (i.e. forward) if used in a 2D viewport and in the direction of the negative Z axis if used in the 3D viewport.
 
-![Additional controls for move tool](images/MoveObjectsToolPage.png)
+![Moving objects](images/MoveObjectsByOffset.png)
 
-The move tool adds a few controls to the info bar above the viewports: A text box and a button labeled "Apply". You can enter a vector into the text box (three space separated numbers), and if you click the button, the currently selected objects will be moved by that vector.
+To move objects by a specified offset, select #menu(Menu/Edit/Move objects) to bring up a window where you can enter a vector. Click "OK" and the currently selected objects will be moved by that vector.
 
 ### Rotating Objects {#rotating_objects}
 

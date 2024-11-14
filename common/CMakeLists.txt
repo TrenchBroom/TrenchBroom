@@ -403,7 +403,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/MoveHandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/MoveObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/ui/MoveObjectsToolController.cpp
-        ${COMMON_SOURCE_DIR}/ui/MoveObjectsToolPage.cpp
         ${COMMON_SOURCE_DIR}/ui/MultiCompletionLineEdit.cpp
         ${COMMON_SOURCE_DIR}/ui/MultiPaneMapView.cpp
         ${COMMON_SOURCE_DIR}/ui/ObjExportDialog.cpp
@@ -937,7 +936,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/MoveHandleDragTracker.h
         ${COMMON_SOURCE_DIR}/ui/MoveObjectsTool.h
         ${COMMON_SOURCE_DIR}/ui/MoveObjectsToolController.h
-        ${COMMON_SOURCE_DIR}/ui/MoveObjectsToolPage.h
         ${COMMON_SOURCE_DIR}/ui/MultiCompletionLineEdit.h
         ${COMMON_SOURCE_DIR}/ui/MultiPaneMapView.h
         ${COMMON_SOURCE_DIR}/ui/ObjExportDialog.h

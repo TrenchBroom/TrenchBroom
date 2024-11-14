@@ -25,32 +25,37 @@
 #include "ui/DrawShapeToolExtensions.h"
 #include "ui/DrawShapeToolPage.h"
 #include "ui/MapDocument.h"
+#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
 
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
-  : CreateBrushesToolBase{true, std::move(document)}
-  , m_extensionManager{createDrawShapeToolExtensions()}
+  : CreateBrushesToolBase{true, document}
+  , m_extensionManager{createDrawShapeToolExtensions(document)}
 {
 }
 
-void DrawShapeTool::update(const vm::bbox3d& bounds, const vm::axis::type axis)
+void DrawShapeTool::update(const vm::bbox3d& bounds)
 {
-  auto document = kdl::mem_lock(m_document);
-  m_extensionManager.currentExtension().createBrushes(bounds, axis, *document)
+  m_extensionManager.currentExtension().createBrushes(bounds)
     | kdl::transform([&](auto brushes) {
-        updateBrushes(kdl::vec_transform(std::move(brushes), [](auto brush) {
-          return std::make_unique<mdl::BrushNode>(std::move(brush));
-        }));
+        updateBrushes(
+          brushes | std::views::transform([](auto brush) {
+            return std::make_unique<mdl::BrushNode>(std::move(brush));
+          })
+          | kdl::to_vector);
       })
     | kdl::transform_error([&](auto e) {
         clearBrushes();
-        document->error() << "Could not update brush: " << e;
+        auto document = kdl::mem_lock(m_document);
+        document->error() << "Could not update brushes: " << e;
       });
 }
 
@@ -68,7 +73,38 @@ bool DrawShapeTool::cancel()
 
 QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
-  return new DrawShapeToolPage{m_document, m_extensionManager, parent};
+  auto* page = new DrawShapeToolPage{m_document, m_extensionManager, parent};
+  m_notifierConnection += page->settingsDidChangeNotifier.connect([&]() {
+    auto document = kdl::mem_lock(m_document);
+    if (document->hasSelectedNodes())
+    {
+      m_extensionManager.currentExtension().createBrushes(document->selectionBounds())
+        | kdl::transform([](auto brushes) {
+            return brushes | std::views::transform([](auto brush) {
+                     return std::make_unique<mdl::BrushNode>(std::move(brush));
+                   })
+                   | kdl::to_vector;
+          })
+        | kdl::transform([&](auto brushNodes) {
+            auto transaction = Transaction{document, "Update Brushes"};
+
+            document->deleteObjects();
+            const auto addedNodes = document->addNodes({
+              {document->parentForNodes(),
+               brushNodes | std::views::transform([](auto& node) {
+                 return static_cast<mdl::Node*>(node.release());
+               }) | kdl::to_vector},
+            });
+            document->selectNodes(addedNodes);
+
+            transaction.commit();
+          })
+        | kdl::transform_error(
+          [&](auto e) { document->error() << "Could not update brushes: " << e; });
+    }
+  });
+
+  return page;
 }
 
 } // namespace tb::ui

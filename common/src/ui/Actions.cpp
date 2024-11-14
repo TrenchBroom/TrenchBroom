@@ -1467,6 +1467,16 @@ void ActionManager::createEditMenu()
     },
     std::filesystem::path{"FlipVertically.svg"},
   }));
+  editMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Move objects"},
+    QObject::tr("Move..."),
+    ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
+    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_M},
+    [](auto& context) { context.frame()->moveSelectedObjects(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame()->canMoveSelectedObjects();
+    },
+  }));
   editMenu.addSeparator();
 
   auto& toolMenu = editMenu.addMenu("Tools");

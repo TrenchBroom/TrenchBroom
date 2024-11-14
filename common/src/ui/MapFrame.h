@@ -277,6 +277,9 @@ public:
   void renameSelectedGroups();
   bool canRenameSelectedGroups() const;
 
+  void moveSelectedObjects();
+  bool canMoveSelectedObjects() const;
+
   bool anyToolActive() const;
 
   void toggleAssembleBrushTool();

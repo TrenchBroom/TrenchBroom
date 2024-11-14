@@ -22,7 +22,6 @@
 #include "ui/Grid.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/MoveObjectsToolPage.h"
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
@@ -97,11 +96,6 @@ void MoveObjectsTool::cancelMove()
 bool MoveObjectsTool::duplicateObjects(const InputState& inputState) const
 {
   return inputState.modifierKeysDown(ModifierKeys::CtrlCmd);
-}
-
-QWidget* MoveObjectsTool::doCreatePage(QWidget* parent)
-{
-  return new MoveObjectsToolPage{m_document, parent};
 }
 
 } // namespace tb::ui
