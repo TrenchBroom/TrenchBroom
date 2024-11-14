@@ -27,8 +27,10 @@
 #include "ui/MapDocument.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
@@ -44,13 +46,15 @@ void DrawShapeTool::update(const vm::bbox3d& bounds, const vm::axis::type axis)
   auto document = kdl::mem_lock(m_document);
   m_extensionManager.currentExtension().createBrushes(bounds, axis, *document)
     | kdl::transform([&](auto brushes) {
-        updateBrushes(kdl::vec_transform(std::move(brushes), [](auto brush) {
-          return std::make_unique<mdl::BrushNode>(std::move(brush));
-        }));
+        updateBrushes(
+          brushes | std::views::transform([](auto brush) {
+            return std::make_unique<mdl::BrushNode>(std::move(brush));
+          })
+          | kdl::to_vector);
       })
     | kdl::transform_error([&](auto e) {
         clearBrushes();
-        document->error() << "Could not update brush: " << e;
+        document->error() << "Could not update brushes: " << e;
       });
 }
 
