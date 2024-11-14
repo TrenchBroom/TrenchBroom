@@ -53,9 +53,10 @@ void AppInfoPanel::createGui()
   auto* appLine = new BorderLine{};
   auto* appClaim = new QLabel{tr("Level Editor")};
 
-  auto version = new ClickableLabel{tr("Version ") % getBuildVersion()};
-  auto build = new ClickableLabel{tr("Build ") % getBuildIdStr()};
-  auto qtVersion = new ClickableLabel{tr("Qt ") % QString::fromLocal8Bit(qVersion())};
+  auto version = new ClickableLabel{tr("Version %1").arg(getBuildVersion())};
+  auto build = new ClickableLabel{tr("Build %1").arg(getBuildIdStr())};
+  auto qtVersion =
+    new ClickableLabel{tr("Qt %1").arg(QString::fromLocal8Bit(qVersion()))};
 
   makeInfo(version);
   makeInfo(build);
@@ -89,10 +90,10 @@ void AppInfoPanel::createGui()
 
 void AppInfoPanel::versionInfoClicked()
 {
-  auto* clipboard = QApplication::clipboard();
   const auto str =
-    tr("TrenchBroom ") % getBuildVersion() % tr(" Build ") % getBuildIdStr();
-  clipboard->setText(str);
+    tr("TrenchBroom %1 Build %2").arg(getBuildVersion()).arg(getBuildIdStr());
+
+  QApplication::clipboard()->setText(str);
 }
 
 } // namespace tb::ui
