@@ -64,6 +64,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/string_format.h"
     "${KDL_INCLUDE_DIR}/kdl/string_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/struct_io.h"
+    "${KDL_INCLUDE_DIR}/kdl/task_manager.h"
     "${KDL_INCLUDE_DIR}/kdl/traits.h"
     "${KDL_INCLUDE_DIR}/kdl/tuple_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/vector_set_forward.h"

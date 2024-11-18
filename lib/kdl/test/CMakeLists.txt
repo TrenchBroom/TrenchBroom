@@ -30,6 +30,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_format.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_string_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_struct_io.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_task_manager.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_tuple_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_set.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_vector_utils.cpp"
