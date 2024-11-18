@@ -13,7 +13,7 @@ TrenchBroom is a level editing program for brush-based game engines such as Quak
   - High performance renderer with support for huge maps
   - Unlimited Undo and Redo
   - Macro-like command repetition
-    - Linked groups
+  - Linked groups
   - Issue browser with automatic quick fixes
   - Run external compilers and launch game engines
   - Point file support
@@ -440,11 +440,13 @@ TrenchBroom gives you various options on how to create new objects. In the follo
 
 ### Creating Simple Shapes
 
-The easiest way to create a new brush is to just draw it with the mouse. To draw a brush, make sure nothing is currently selected and left drag in the 3D viewport or any of the 2D viewports. If you draw a brush in the 3D viewport, its shape is controlled by the point where you initially started your drag, the point currently under the mouse, and the current grid size. Essentially, you will draw your brush on the XY plane, and its height will be set to the current grid size. But it is possible to change the height while drawing a brush by holding #key(Alt). Whenever #key(Alt) is held, you can change the brush height, otherwise you control the X/Y extents of the brush.
+The easiest way to create a new brush is to just draw it out with the mouse using the Simple Shape Tool which is enabled by default when nothing else is selected or any other tool active. Left drag in the 3D viewport or any of the 2D viewports.
+
+When drawing a brush in the 3D viewport, its shape is controlled from the point under the mouse where you initially started your drag, to the point currently under the mouse cursor, and the current grid size. Essentially, while drawing your brush on the XY plane, and its height will be set to the current grid size. While dragging you can force the XY planes to equal lengths by holding #key(Shift), or force XYZ planes to equal lengths by holding #key(Shift)+#key(Alt), and its also possible to change just the height while drawing a brush by holding #key(Alt).
 
 ![Creating a cuboid in the 3D viewport](images/DrawBrush.gif)
 
-If, on the other hand, you draw a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
+When drawing a brush in a 2D viewport, you only control its extents on whatever axes the 2D view is set to display. So if you are drawing a brush in the XZ view, you control the X/Z extents with the mouse, and there's no way to change the Y extents directly, which is always fixed to the Y extents of the most recently selected objects. This of course applies to all of the different 2D viewports in the same way.
 
 In either case, the material assigned to the newly created brush is the _current material_. The current material is set by choosing a material in the [material browser](#material_browser) or by selecting a face that already has a material. This concept applies to other ways of creating new brushes, too.
 
