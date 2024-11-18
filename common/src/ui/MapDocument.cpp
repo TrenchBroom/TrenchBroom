@@ -375,31 +375,21 @@ const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
 MapDocument::MapDocument()
-  : m_worldBounds(DefaultWorldBounds)
-  , m_world(nullptr)
-  , m_resourceManager(std::make_unique<mdl::ResourceManager>())
-  , m_entityDefinitionManager(std::make_unique<mdl::EntityDefinitionManager>())
-  , m_entityModelManager(std::make_unique<mdl::EntityModelManager>(
+  : m_resourceManager{std::make_unique<mdl::ResourceManager>()}
+  , m_entityDefinitionManager{std::make_unique<mdl::EntityDefinitionManager>()}
+  , m_entityModelManager{std::make_unique<mdl::EntityModelManager>(
       [&](auto resourceLoader) {
         auto resource =
           std::make_shared<mdl::EntityModelDataResource>(std::move(resourceLoader));
         m_resourceManager->addResource(resource);
         return resource;
       },
-      logger()))
-  , m_materialManager(std::make_unique<mdl::MaterialManager>(logger()))
-  , m_tagManager(std::make_unique<mdl::TagManager>())
-  , m_editorContext(std::make_unique<mdl::EditorContext>())
-  , m_grid(std::make_unique<Grid>(4))
-  , m_path(DefaultDocumentName)
-  , m_lastSaveModificationCount(0)
-  , m_modificationCount(0)
-  , m_currentLayer(nullptr)
-  , m_currentMaterialName(mdl::BrushFaceAttributes::NoMaterialName)
-  , m_lastSelectionBounds(0.0, 32.0)
-  , m_selectionBoundsValid(true)
-  , m_viewEffectsService(nullptr)
-  , m_repeatStack(std::make_unique<RepeatStack>())
+      logger())}
+  , m_materialManager{std::make_unique<mdl::MaterialManager>(logger())}
+  , m_tagManager{std::make_unique<mdl::TagManager>()}
+  , m_editorContext{std::make_unique<mdl::EditorContext>()}
+  , m_grid{std::make_unique<Grid>(4)}
+  , m_repeatStack{std::make_unique<RepeatStack>()}
 {
   connectObservers();
 }

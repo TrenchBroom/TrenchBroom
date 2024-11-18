@@ -111,7 +111,7 @@ public:
   static const std::string DefaultDocumentName;
 
 protected:
-  vm::bbox3d m_worldBounds;
+  vm::bbox3d m_worldBounds = DefaultWorldBounds;
   std::shared_ptr<mdl::Game> m_game;
   std::unique_ptr<mdl::WorldNode> m_world;
 
@@ -131,20 +131,20 @@ protected:
   ActionList m_tagActions;
   ActionList m_entityDefinitionActions;
 
-  std::filesystem::path m_path;
-  size_t m_lastSaveModificationCount;
-  size_t m_modificationCount;
+  std::filesystem::path m_path = DefaultDocumentName;
+  size_t m_lastSaveModificationCount = 0;
+  size_t m_modificationCount = 0;
 
   mdl::NodeCollection m_selectedNodes;
   std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
 
-  mdl::LayerNode* m_currentLayer;
-  std::string m_currentMaterialName;
-  vm::bbox3d m_lastSelectionBounds;
+  mdl::LayerNode* m_currentLayer = nullptr;
+  std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
+  vm::bbox3d m_lastSelectionBounds = vm::bbox3d{0.0, 32.0};
   mutable vm::bbox3d m_selectionBounds;
-  mutable bool m_selectionBoundsValid;
+  mutable bool m_selectionBoundsValid = true;
 
-  ViewEffectsService* m_viewEffectsService;
+  ViewEffectsService* m_viewEffectsService = nullptr;
 
   /*
    * All actions pushed to this stack can be repeated later. The stack must be
