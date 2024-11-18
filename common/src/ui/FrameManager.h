@@ -24,6 +24,11 @@
 #include <memory>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::ui
 {
 class MapDocument;
@@ -40,7 +45,7 @@ public:
   explicit FrameManager(bool singleFrame);
   ~FrameManager() override;
 
-  MapFrame* newFrame();
+  MapFrame* newFrame(kdl::task_manager& taskManager);
   bool closeAllFrames();
 
   std::vector<MapFrame*> frames() const;
@@ -49,7 +54,7 @@ public:
 
 private:
   void onFocusChange(QWidget* old, QWidget* now);
-  MapFrame* createOrReuseFrame();
+  MapFrame* createOrReuseFrame(kdl::task_manager& taskManager);
   MapFrame* createFrame(std::shared_ptr<MapDocument> document);
   void removeFrame(MapFrame* frame);
 

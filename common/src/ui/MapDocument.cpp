@@ -374,8 +374,9 @@ bool applyAndSwap(
 const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
-MapDocument::MapDocument()
-  : m_resourceManager{std::make_unique<mdl::ResourceManager>()}
+MapDocument::MapDocument(kdl::task_manager& taskManager)
+  : m_taskManager{taskManager}
+  , m_resourceManager{std::make_unique<mdl::ResourceManager>()}
   , m_entityDefinitionManager{std::make_unique<mdl::EntityDefinitionManager>()}
   , m_entityModelManager{std::make_unique<mdl::EntityModelManager>(
       [&](auto resourceLoader) {

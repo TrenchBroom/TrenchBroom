@@ -158,6 +158,11 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
+std::unique_ptr<kdl::task_manager> createTestTaskManager()
+{
+  return std::make_unique<kdl::task_manager>(1);
+}
+
 namespace io
 {
 std::string readTextFile(const std::filesystem::path& path)
@@ -393,6 +398,7 @@ void setLinkId(Node& node, std::string linkId)
     [](const LayerNode*) {},
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
+
 } // namespace mdl
 
 namespace ui
@@ -402,7 +408,7 @@ DocumentGameConfig loadMapDocument(
   const std::string& gameName,
   const mdl::MapFormat mapFormat)
 {
-  auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
+  auto [document, game, gameConfig, taskManager] = newMapDocument(gameName, mapFormat);
 
   document->loadDocument(
     mapFormat,
@@ -413,19 +419,22 @@ DocumentGameConfig loadMapDocument(
 
   document->processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
 
-  return {std::move(document), std::move(game), std::move(gameConfig)};
+  return {
+    std::move(document), std::move(game), std::move(gameConfig), std::move(taskManager)};
 }
 
 DocumentGameConfig newMapDocument(
   const std::string& gameName, const mdl::MapFormat mapFormat)
 {
-  auto [game, gameConfig] = mdl::loadGame(gameName);
+  auto taskManager = createTestTaskManager();
+  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
 
-  auto document = MapDocumentCommandFacade::newMapDocument();
+  auto [game, gameConfig] = mdl::loadGame(gameName);
   document->newDocument(mapFormat, vm::bbox3d(8192.0), game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  return {std::move(document), std::move(game), std::move(gameConfig)};
+  return {
+    std::move(document), std::move(game), std::move(gameConfig), std::move(taskManager)};
 }
 } // namespace ui
 

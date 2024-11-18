@@ -377,7 +377,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
                  }
                }
 
-               frame = m_frameManager->newFrame();
+               frame = m_frameManager->newFrame(m_taskManager);
 
                auto game = gameFactory.createGame(gameName, frame->logger());
                ensure(game.get() != nullptr, "game is null");
@@ -462,7 +462,7 @@ bool TrenchBroomApp::newDocument()
       return false;
     }
 
-    frame = m_frameManager->newFrame();
+    frame = m_frameManager->newFrame(m_taskManager);
 
     auto& gameFactory = mdl::GameFactory::instance();
     auto game = gameFactory.createGame(gameName, frame->logger());

@@ -28,6 +28,11 @@
 #include <string>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 enum class LockState;
@@ -53,9 +58,9 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  static std::shared_ptr<MapDocument> newMapDocument();
+  static std::shared_ptr<MapDocument> newMapDocument(kdl::task_manager& taskManager);
 
-  MapDocumentCommandFacade();
+  explicit MapDocumentCommandFacade(kdl::task_manager& taskManager);
 
   ~MapDocumentCommandFacade() override;
 

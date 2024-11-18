@@ -262,7 +262,7 @@ TEST_CASE("ChangeBrushFaceAttributesTest.Quake2IntegrationTest")
   const int WaterFlag = 32;
   const int LavaFlag = 8;
 
-  auto [document, game, gameConfig] = ui::loadMapDocument(
+  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
     "fixture/test/ui/ChangeBrushFaceAttributesTest/lavaAndWater.map",
     "Quake2",
     mdl::MapFormat::Unknown);

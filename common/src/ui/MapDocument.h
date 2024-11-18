@@ -43,6 +43,11 @@
 #include <string>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+} // namespace kdl
+
 namespace tb
 {
 class Color;
@@ -111,6 +116,8 @@ public:
   static const std::string DefaultDocumentName;
 
 protected:
+  kdl::task_manager& m_taskManager;
+
   vm::bbox3d m_worldBounds = DefaultWorldBounds;
   std::shared_ptr<mdl::Game> m_game;
   std::unique_ptr<mdl::WorldNode> m_world;
@@ -216,7 +223,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 protected:
-  MapDocument();
+  explicit MapDocument(kdl::task_manager& taskManager);
 
 public:
   ~MapDocument() override;

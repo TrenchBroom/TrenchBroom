@@ -70,14 +70,16 @@ std::vector<mdl::Node*> collectOldChildren(
 
 } // namespace
 
-std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument()
+std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument(
+  kdl::task_manager& taskManager)
 {
   // can't use std::make_shared here because the constructor is private
-  return std::shared_ptr<MapDocument>{new MapDocumentCommandFacade{}};
+  return std::shared_ptr<MapDocument>{new MapDocumentCommandFacade{taskManager}};
 }
 
-MapDocumentCommandFacade::MapDocumentCommandFacade()
-  : m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
+MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManager)
+  : MapDocument{taskManager}
+  , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
 {
   connectObservers();
 }
