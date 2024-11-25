@@ -116,6 +116,7 @@
 #include "kdl/result_fold.h"
 #include "kdl/stable_remove_duplicates.h"
 #include "kdl/string_format.h"
+#include "kdl/task_manager.h"
 #include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
@@ -4333,10 +4334,12 @@ void MapDocument::processResourcesSync(const mdl::ProcessContext& processContext
 
 void MapDocument::processResourcesAsync(const mdl::ProcessContext& processContext)
 {
+  using namespace std::chrono_literals;
+
   const auto processedResourceIds = m_resourceManager->process(
-    [](auto task) { return std::async(std::move(task)); },
+    [&](auto task) { return m_taskManager.run_task(std::move(task)); },
     processContext,
-    std::chrono::milliseconds{20});
+    20ms);
 
   if (!processedResourceIds.empty())
   {

@@ -112,6 +112,7 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
+  , m_taskManager{std::thread::hardware_concurrency()}
 {
   using namespace std::chrono_literals;
 
