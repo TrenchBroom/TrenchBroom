@@ -4574,28 +4574,19 @@ void MapDocument::reloadMaterials()
 
 void MapDocument::loadMaterials()
 {
-  try
+  if (const auto* wadStr = m_world->entity().property(mdl::EntityPropertyKeys::Wad))
   {
-    if (const auto* wadStr = m_world->entity().property(mdl::EntityPropertyKeys::Wad))
-    {
-      const auto wadPaths = kdl::vec_transform(
-        kdl::str_split(*wadStr, ";"),
-        [](const auto& str) { return std::filesystem::path{str}; });
-      m_game->reloadWads(path(), wadPaths, logger());
-    }
-    m_materialManager->reload(
-      m_game->gameFileSystem(),
-      m_game->config().materialConfig,
-      [&](auto resourceLoader) {
-        auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
-        m_resourceManager->addResource(resource);
-        return resource;
-      });
+    const auto wadPaths = kdl::vec_transform(
+      kdl::str_split(*wadStr, ";"),
+      [](const auto& str) { return std::filesystem::path{str}; });
+    m_game->reloadWads(path(), wadPaths, logger());
   }
-  catch (const Exception& e)
-  {
-    error(e.what());
-  }
+  m_materialManager->reload(
+    m_game->gameFileSystem(), m_game->config().materialConfig, [&](auto resourceLoader) {
+      auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
+      m_resourceManager->addResource(resource);
+      return resource;
+    });
 }
 
 void MapDocument::unloadMaterials()
