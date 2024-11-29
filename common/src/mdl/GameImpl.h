@@ -100,10 +100,6 @@ public: // implement Game interface
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
 
-  void loadMaterialCollections(
-    MaterialManager& materialManager,
-    const CreateTextureResource& createResource) const override;
-
   void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,

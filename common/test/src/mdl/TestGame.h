@@ -45,7 +45,19 @@ namespace tb::mdl
 class TestGame : public Game
 {
 private:
-  GameConfig m_config = {"Test", {}, {}, false, {}, {}, {}, {}, {}, {}, {}, {}};
+  GameConfig m_config = {
+    "Test",
+    {},
+    {},
+    false,
+    {},
+    {},
+    {"textures", {".D"}, "fixture/test/palette.lmp", "wad", "", {}},
+    {},
+    {},
+    {},
+    {},
+    {}};
   std::unique_ptr<io::VirtualFileSystem> m_fs;
   mutable std::unique_ptr<WorldNode> m_worldNodeToLoad;
 
@@ -94,10 +106,6 @@ public:
     WorldNode& world,
     const std::vector<BrushFace>& faces,
     std::ostream& stream) const override;
-
-  void loadMaterialCollections(
-    MaterialManager& materialManager,
-    const CreateTextureResource& createResource) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,

@@ -155,21 +155,6 @@ void TestGame::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void TestGame::loadMaterialCollections(
-  MaterialManager& materialManager, const CreateTextureResource& createResource) const
-{
-  const auto materialConfig = mdl::MaterialConfig{
-    "textures",
-    {".D"},
-    "fixture/test/palette.lmp",
-    "wad",
-    "",
-    {},
-  };
-
-  materialManager.reload(*m_fs, materialConfig, createResource);
-}
-
 void TestGame::reloadWads(
   const std::filesystem::path&,
   const std::vector<std::filesystem::path>& wadPaths,

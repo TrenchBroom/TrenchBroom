@@ -319,12 +319,6 @@ void GameImpl::writeBrushFacesToStream(
   writer.writeBrushFaces(faces);
 }
 
-void GameImpl::loadMaterialCollections(
-  MaterialManager& materialManager, const CreateTextureResource& createResource) const
-{
-  materialManager.reload(m_fs, m_config.materialConfig, createResource);
-}
-
 void GameImpl::reloadWads(
   const std::filesystem::path& documentPath,
   const std::vector<std::filesystem::path>& wadPaths,

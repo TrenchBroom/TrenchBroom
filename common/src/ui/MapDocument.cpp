@@ -26,6 +26,7 @@
 #include "io/DiskIO.h"
 #include "io/ExportOptions.h"
 #include "io/GameConfigParser.h"
+#include "io/LoadMaterialCollections.h"
 #include "io/PathInfo.h"
 #include "io/SimpleParserStatus.h"
 #include "io/SystemPaths.h"
@@ -4582,11 +4583,14 @@ void MapDocument::loadMaterials()
         [](const auto& str) { return std::filesystem::path{str}; });
       m_game->reloadWads(path(), wadPaths, logger());
     }
-    m_game->loadMaterialCollections(*m_materialManager, [&](auto resourceLoader) {
-      auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
-      m_resourceManager->addResource(resource);
-      return resource;
-    });
+    m_materialManager->reload(
+      m_game->gameFileSystem(),
+      m_game->config().materialConfig,
+      [&](auto resourceLoader) {
+        auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
+        m_resourceManager->addResource(resource);
+        return resource;
+      });
   }
   catch (const Exception& e)
   {

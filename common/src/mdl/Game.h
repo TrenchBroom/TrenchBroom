@@ -131,10 +131,6 @@ public: // parsing and serializing objects
     std::ostream& stream) const = 0;
 
 public: // material collection handling
-  virtual void loadMaterialCollections(
-    MaterialManager& materialManager,
-    const CreateTextureResource& createResource) const = 0;
-
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,
