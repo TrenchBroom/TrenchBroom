@@ -97,9 +97,17 @@ public:
     }
 
     const auto& brush = brushNode.brush();
+    bool hasMarkedFaces = false;
     for (const auto& face : brush.faces())
     {
-      face.setMarked(true);
+      const bool mark = visible(brushNode, face);
+      face.setMarked(mark);
+      hasMarkedFaces |= mark;
+    }
+
+    if (!hasMarkedFaces)
+    {
+      return renderNothing();
     }
 
     return {FaceRenderPolicy::RenderMarked, EdgeRenderPolicy::RenderAll};
