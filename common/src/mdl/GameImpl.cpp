@@ -26,7 +26,6 @@
 #include "io/DiskFileSystem.h"
 #include "io/DiskIO.h"
 #include "io/EntParser.h"
-#include "io/ExportOptions.h"
 #include "io/FgdParser.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadEntityModel.h"
@@ -49,8 +48,6 @@
 #include "mdl/MaterialManager.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/overload.h"
-#include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
@@ -241,48 +238,6 @@ Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
          });
 }
 
-Result<void> GameImpl::writeMap(
-  WorldNode& world, const std::filesystem::path& path, const bool exporting) const
-{
-  return io::Disk::withOutputStream(path, [&](auto& stream) {
-    const auto mapFormatName = formatName(world.mapFormat());
-    stream << "// Game: " << config().name << "\n"
-           << "// Format: " << mapFormatName << "\n";
-
-    auto writer = io::NodeWriter{world, stream};
-    writer.setExporting(exporting);
-    writer.writeMap();
-  });
-}
-
-Result<void> GameImpl::writeMap(WorldNode& world, const std::filesystem::path& path) const
-{
-  return writeMap(world, path, false);
-}
-
-Result<void> GameImpl::exportMap(WorldNode& world, const io::ExportOptions& options) const
-{
-  return std::visit(
-    kdl::overload(
-      [&](const io::ObjExportOptions& objOptions) {
-        return io::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
-          const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
-          return io::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
-            auto writer = io::NodeWriter{
-              world,
-              std::make_unique<io::ObjSerializer>(
-                objStream, mtlStream, mtlPath.filename().string(), objOptions)};
-            writer.setExporting(true);
-            writer.writeMap();
-          });
-        });
-      },
-      [&](const io::MapExportOptions& mapOptions) {
-        return writeMap(world, mapOptions.exportPath, true);
-      }),
-    options);
-}
-
 std::vector<Node*> GameImpl::parseNodes(
   const std::string& str,
   const MapFormat mapFormat,
@@ -303,20 +258,6 @@ std::vector<BrushFace> GameImpl::parseBrushFaces(
   auto parserStatus = io::SimpleParserStatus{logger};
   auto reader = io::BrushFaceReader{str, mapFormat};
   return reader.read(worldBounds, parserStatus);
-}
-
-void GameImpl::writeNodesToStream(
-  WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeNodes(nodes);
-}
-
-void GameImpl::writeBrushFacesToStream(
-  WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeBrushFaces(faces);
 }
 
 void GameImpl::reloadWads(

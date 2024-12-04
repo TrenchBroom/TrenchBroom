@@ -22,8 +22,6 @@
 #include "TestUtils.h"
 #include "io/BrushFaceReader.h"
 #include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
-#include "io/ExportOptions.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/TestParserStatus.h"
@@ -36,8 +34,6 @@
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/WorldNode.h"
-
-#include "kdl/result.h"
 
 #include <memory>
 #include <vector>
@@ -106,20 +102,6 @@ Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
            : std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
 }
 
-Result<void> TestGame::writeMap(WorldNode& world, const std::filesystem::path& path) const
-{
-  return io::Disk::withOutputStream(path, [&](auto& stream) {
-    auto writer = io::NodeWriter{world, stream};
-    writer.writeMap();
-  });
-}
-
-Result<void> TestGame::exportMap(
-  WorldNode& /* world */, const io::ExportOptions& /* options */) const
-{
-  return kdl::void_success;
-}
-
 std::vector<Node*> TestGame::parseNodes(
   const std::string& str,
   const MapFormat mapFormat,
@@ -139,20 +121,6 @@ std::vector<BrushFace> TestGame::parseBrushFaces(
   auto status = io::TestParserStatus{};
   auto reader = io::BrushFaceReader{str, mapFormat};
   return reader.read(worldBounds, status);
-}
-
-void TestGame::writeNodesToStream(
-  WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeNodes(nodes);
-}
-
-void TestGame::writeBrushFacesToStream(
-  WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeBrushFaces(faces);
 }
 
 void TestGame::reloadWads(

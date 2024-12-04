@@ -22,6 +22,7 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 #include "Result.h"
+#include "io/ExportOptions.h"
 #include "mdl/ColorRange.h"
 #include "mdl/Game.h"
 #include "mdl/MapFacade.h"

@@ -27,6 +27,8 @@
 #include "io/ExportOptions.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadMaterialCollections.h"
+#include "io/NodeWriter.h"
+#include "io/ObjSerializer.h"
 #include "io/PathInfo.h"
 #include "io/SimpleParserStatus.h"
 #include "io/SystemPaths.h"
@@ -112,6 +114,7 @@
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/parallel.h"
+#include "kdl/path_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
@@ -654,14 +657,41 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
 {
   ensure(m_game.get() != nullptr, "game is null");
   ensure(m_world, "world is null");
-  m_game->writeMap(*m_world, path) | kdl::transform_error([&](const auto& e) {
+
+  io::Disk::withOutputStream(path, [&](auto& stream) {
+    auto writer = io::NodeWriter{*m_world, stream};
+    writer.setExporting(false);
+    writer.writeMap();
+  }) | kdl::transform_error([&](const auto& e) {
     error() << "Could not save document: " << e.msg;
   });
 }
 
 Result<void> MapDocument::exportDocumentAs(const io::ExportOptions& options)
 {
-  return m_game->exportMap(*m_world, options);
+  return std::visit(
+    kdl::overload(
+      [&](const io::ObjExportOptions& objOptions) {
+        return io::Disk::withOutputStream(objOptions.exportPath, [&](auto& objStream) {
+          const auto mtlPath = kdl::path_replace_extension(objOptions.exportPath, ".mtl");
+          return io::Disk::withOutputStream(mtlPath, [&](auto& mtlStream) {
+            auto writer = io::NodeWriter{
+              *m_world,
+              std::make_unique<io::ObjSerializer>(
+                objStream, mtlStream, mtlPath.filename().string(), objOptions)};
+            writer.setExporting(true);
+            writer.writeMap();
+          });
+        });
+      },
+      [&](const io::MapExportOptions& mapOptions) {
+        return io::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
+          auto writer = io::NodeWriter{*m_world, stream};
+          writer.setExporting(false);
+          writer.writeMap();
+        });
+      }),
+    options);
 }
 
 void MapDocument::doSaveDocument(const std::filesystem::path& path)
@@ -700,16 +730,18 @@ MapTextEncoding MapDocument::encoding() const
 std::string MapDocument::serializeSelectedNodes()
 {
   std::stringstream stream;
-  m_game->writeNodesToStream(*m_world, m_selectedNodes.nodes(), stream);
+  auto writer = io::NodeWriter{*m_world, stream};
+  writer.writeNodes(selectedNodes().nodes());
   return stream.str();
 }
 
 std::string MapDocument::serializeSelectedBrushFaces()
 {
   std::stringstream stream;
-  const auto faces =
-    kdl::vec_transform(m_selectedBrushFaces, [](const auto& h) { return h.face(); });
-  m_game->writeBrushFacesToStream(*m_world, faces, stream);
+  auto writer = io::NodeWriter{*m_world, stream};
+  writer.writeBrushFaces(
+    m_selectedBrushFaces | std::views::transform([](const auto& h) { return h.face(); })
+    | kdl::to_vector);
   return stream.str();
 }
 

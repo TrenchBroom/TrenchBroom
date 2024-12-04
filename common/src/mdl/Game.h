@@ -21,10 +21,8 @@
 
 #include "Result.h"
 #include "io/EntityDefinitionLoader.h"
-#include "io/ExportOptions.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MapFormat.h"
-#include "mdl/TextureResource.h"
 
 #include "vm/bbox.h"
 
@@ -106,10 +104,6 @@ public: // loading and writing map files
     const vm::bbox3d& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const = 0;
-  virtual Result<void> writeMap(
-    WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual Result<void> exportMap(
-    WorldNode& world, const io::ExportOptions& options) const = 0;
 
 public: // parsing and serializing objects
   virtual std::vector<Node*> parseNodes(
@@ -122,13 +116,6 @@ public: // parsing and serializing objects
     MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     Logger& logger) const = 0;
-
-  virtual void writeNodesToStream(
-    WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
-  virtual void writeBrushFacesToStream(
-    WorldNode& world,
-    const std::vector<BrushFace>& faces,
-    std::ostream& stream) const = 0;
 
 public: // material collection handling
   virtual void reloadWads(

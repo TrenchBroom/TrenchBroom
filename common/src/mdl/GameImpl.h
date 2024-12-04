@@ -73,12 +73,6 @@ public: // implement Game interface
     const vm::bbox3d& worldBounds,
     const std::filesystem::path& path,
     Logger& logger) const override;
-  Result<void> writeMap(
-    WorldNode& world, const std::filesystem::path& path, bool exporting) const;
-  Result<void> writeMap(
-    WorldNode& world, const std::filesystem::path& path) const override;
-  Result<void> exportMap(
-    WorldNode& world, const io::ExportOptions& options) const override;
 
   std::vector<Node*> parseNodes(
     const std::string& str,
@@ -90,15 +84,6 @@ public: // implement Game interface
     MapFormat mapFormat,
     const vm::bbox3d& worldBounds,
     Logger& logger) const override;
-
-  void writeNodesToStream(
-    WorldNode& world,
-    const std::vector<Node*>& nodes,
-    std::ostream& stream) const override;
-  void writeBrushFacesToStream(
-    WorldNode& world,
-    const std::vector<BrushFace>& faces,
-    std::ostream& stream) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
