@@ -66,6 +66,8 @@ public:
   ~TestGame() override;
 
   const GameConfig& config() const override;
+  GameConfig& config();
+
   const io::FileSystem& gameFileSystem() const override;
 
   std::filesystem::path gamePath() const override;
@@ -75,25 +77,6 @@ public:
     const std::vector<std::filesystem::path>& searchPaths, Logger& logger) override;
   PathErrors checkAdditionalSearchPaths(
     const std::vector<std::filesystem::path>& searchPaths) const override;
-
-  Result<std::unique_ptr<WorldNode>> newMap(
-    MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const override;
-  Result<std::unique_ptr<WorldNode>> loadMap(
-    MapFormat format,
-    const vm::bbox3d& worldBounds,
-    const std::filesystem::path& path,
-    Logger& logger) const override;
-
-  std::vector<Node*> parseNodes(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    Logger& logger) const override;
-  std::vector<BrushFace> parseBrushFaces(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    Logger& logger) const override;
 
   void reloadWads(
     const std::filesystem::path& documentPath,
@@ -115,7 +98,6 @@ public:
   Result<std::vector<std::unique_ptr<EntityDefinition>>> loadEntityDefinitions(
     io::ParserStatus& status, const std::filesystem::path& path) const override;
 
-  void setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode);
   void setSmartTags(std::vector<SmartTag> smartTags);
   void setDefaultFaceAttributes(const mdl::BrushFaceAttributes& newDefaults);
 };

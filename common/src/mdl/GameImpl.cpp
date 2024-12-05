@@ -30,23 +30,17 @@
 #include "io/GameConfigParser.h"
 #include "io/LoadEntityModel.h"
 #include "io/NodeReader.h"
-#include "io/NodeWriter.h"
-#include "io/ObjSerializer.h"
 #include "io/PathInfo.h"
-#include "io/SimpleParserStatus.h"
 #include "io/SystemPaths.h"
 #include "io/TraversalMode.h"
 #include "io/WorldReader.h"
-#include "mdl/BrushBuilder.h"
-#include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
+#include "mdl/EntityNodeBase.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/GameConfig.h"
-#include "mdl/LayerNode.h"
 #include "mdl/MaterialManager.h"
-#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
@@ -167,97 +161,6 @@ Game::SoftMapBounds GameImpl::extractSoftMapBounds(const Entity& entity) const
 
   // Not set in map -> use Game value
   return SoftMapBounds{SoftMapBoundsType::Game, config().softMapBounds};
-}
-
-Result<std::unique_ptr<WorldNode>> GameImpl::newMap(
-  const MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const
-{
-  const auto initialMapFilePath = m_config.findInitialMap(formatName(format));
-  if (
-    !initialMapFilePath.empty()
-    && io::Disk::pathInfo(initialMapFilePath) == io::PathInfo::File)
-  {
-    return loadMap(format, worldBounds, initialMapFilePath, logger);
-  }
-
-  auto propertyConfig = entityPropertyConfig();
-  auto worldEntity = mdl::Entity{};
-  if (
-    format == MapFormat::Valve || format == MapFormat::Quake2_Valve
-    || format == MapFormat::Quake3_Valve)
-  {
-    worldEntity.addOrUpdateProperty(EntityPropertyKeys::ValveVersion, "220");
-  }
-
-  if (m_config.materialConfig.property)
-  {
-    worldEntity.addOrUpdateProperty(*m_config.materialConfig.property, "");
-  }
-
-  auto worldNode = std::make_unique<WorldNode>(
-    std::move(propertyConfig), std::move(worldEntity), format);
-
-  const auto builder = mdl::BrushBuilder{
-    worldNode->mapFormat(), worldBounds, config().faceAttribsConfig.defaults};
-  builder.createCuboid({128.0, 128.0, 32.0}, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::transform(
-      [&](auto b) { worldNode->defaultLayer()->addChild(new BrushNode{std::move(b)}); })
-    | kdl::transform_error(
-      [&](auto e) { logger.error() << "Could not create default brush: " << e.msg; });
-
-  return worldNode;
-}
-
-Result<std::unique_ptr<WorldNode>> GameImpl::loadMap(
-  const MapFormat format,
-  const vm::bbox3d& worldBounds,
-  const std::filesystem::path& path,
-  Logger& logger) const
-{
-  auto parserStatus = io::SimpleParserStatus{logger};
-  return io::Disk::openFile(path) | kdl::transform([&](auto file) {
-           auto fileReader = file->reader().buffer();
-           if (format == MapFormat::Unknown)
-           {
-             // Try all formats listed in the game config
-             const auto possibleFormats = kdl::vec_transform(
-               m_config.fileFormats,
-               [](const auto& config) { return mdl::formatFromName(config.format); });
-
-             return io::WorldReader::tryRead(
-               fileReader.stringView(),
-               possibleFormats,
-               worldBounds,
-               entityPropertyConfig(),
-               parserStatus);
-           }
-
-           auto worldReader =
-             io::WorldReader{fileReader.stringView(), format, entityPropertyConfig()};
-           return worldReader.read(worldBounds, parserStatus);
-         });
-}
-
-std::vector<Node*> GameImpl::parseNodes(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& logger) const
-{
-  auto parserStatus = io::SimpleParserStatus{logger};
-  return io::NodeReader::read(
-    str, mapFormat, worldBounds, entityPropertyConfig(), parserStatus);
-}
-
-std::vector<BrushFace> GameImpl::parseBrushFaces(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& logger) const
-{
-  auto parserStatus = io::SimpleParserStatus{logger};
-  auto reader = io::BrushFaceReader{str, mapFormat};
-  return reader.read(worldBounds, parserStatus);
 }
 
 void GameImpl::reloadWads(

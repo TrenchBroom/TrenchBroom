@@ -24,10 +24,8 @@
 #include "io/DiskFileSystem.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
-#include "io/TestParserStatus.h"
 #include "io/VirtualFileSystem.h"
 #include "io/WadFileSystem.h"
-#include "mdl/BrushFace.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
@@ -50,6 +48,11 @@ TestGame::TestGame()
 TestGame::~TestGame() = default;
 
 const GameConfig& TestGame::config() const
+{
+  return m_config;
+}
+
+GameConfig& TestGame::config()
 {
   return m_config;
 }
@@ -83,44 +86,6 @@ Game::PathErrors TestGame::checkAdditionalSearchPaths(
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return {};
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::newMap(
-  const MapFormat format, const vm::bbox3d& /* worldBounds */, Logger& /* logger */) const
-{
-  return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
-  const MapFormat format,
-  const vm::bbox3d& /* worldBounds */,
-  const std::filesystem::path& /* path */,
-  Logger& /* logger */) const
-{
-  return m_worldNodeToLoad
-           ? std::move(m_worldNodeToLoad)
-           : std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-}
-
-std::vector<Node*> TestGame::parseNodes(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& /* logger */) const
-{
-  auto status = io::TestParserStatus{};
-  return io::NodeReader::read(str, mapFormat, worldBounds, {}, status);
-}
-
-std::vector<BrushFace> TestGame::parseBrushFaces(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& /* logger */) const
-{
-  auto status = io::TestParserStatus{};
-  auto reader = io::BrushFaceReader{str, mapFormat};
-  return reader.read(worldBounds, status);
 }
 
 void TestGame::reloadWads(
@@ -180,11 +145,6 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> TestGame::loadEntityDefin
   io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
   return std::vector<std::unique_ptr<EntityDefinition>>{};
-}
-
-void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
-{
-  m_worldNodeToLoad = std::move(worldNode);
 }
 
 void TestGame::setSmartTags(std::vector<SmartTag> smartTags)

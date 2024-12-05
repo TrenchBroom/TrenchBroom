@@ -23,15 +23,18 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "Uuid.h"
+#include "io/BrushFaceReader.h"
 #include "io/DiskIO.h"
 #include "io/ExportOptions.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadMaterialCollections.h"
+#include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
 #include "io/PathInfo.h"
 #include "io/SimpleParserStatus.h"
 #include "io/SystemPaths.h"
+#include "io/WorldReader.h"
 #include "mdl/AssetUtils.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
@@ -582,6 +585,95 @@ void MapDocument::createEntityDefinitionActions()
 
 namespace
 {
+Result<std::unique_ptr<mdl::WorldNode>> loadMap(
+  const mdl::GameConfig& config,
+  const mdl::MapFormat mapFormat,
+  const vm::bbox3d& worldBounds,
+  const std::filesystem::path& path,
+  Logger& logger)
+{
+  const auto entityPropertyConfig = mdl::EntityPropertyConfig{
+    config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
+
+  auto parserStatus = io::SimpleParserStatus{logger};
+  return io::Disk::openFile(path) | kdl::transform([&](auto file) {
+           auto fileReader = file->reader().buffer();
+           if (mapFormat == mdl::MapFormat::Unknown)
+           {
+             // Try all formats listed in the game config
+             const auto possibleFormats =
+               config.fileFormats | std::views::transform([](const auto& formatConfig) {
+                 return mdl::formatFromName(formatConfig.format);
+               })
+               | kdl::to_vector;
+
+             return io::WorldReader::tryRead(
+               fileReader.stringView(),
+               possibleFormats,
+               worldBounds,
+               entityPropertyConfig,
+               parserStatus);
+           }
+
+           auto worldReader =
+             io::WorldReader{fileReader.stringView(), mapFormat, entityPropertyConfig};
+           return worldReader.read(worldBounds, parserStatus);
+         });
+}
+
+Result<std::unique_ptr<mdl::WorldNode>> newMap(
+  const mdl::GameConfig& config,
+  const mdl::MapFormat format,
+  const vm::bbox3d& worldBounds,
+  Logger& logger)
+{
+  if (!config.forceEmptyNewMap)
+  {
+    const auto initialMapFilePath = config.findInitialMap(formatName(format));
+    if (
+      !initialMapFilePath.empty()
+      && io::Disk::pathInfo(initialMapFilePath) == io::PathInfo::File)
+    {
+      return loadMap(config, format, worldBounds, initialMapFilePath, logger);
+    }
+  }
+
+  auto worldEntity = mdl::Entity{};
+  if (!config.forceEmptyNewMap)
+  {
+    if (
+      format == mdl::MapFormat::Valve || format == mdl::MapFormat::Quake2_Valve
+      || format == mdl::MapFormat::Quake3_Valve)
+    {
+      worldEntity.addOrUpdateProperty(mdl::EntityPropertyKeys::ValveVersion, "220");
+    }
+
+    if (config.materialConfig.property)
+    {
+      worldEntity.addOrUpdateProperty(*config.materialConfig.property, "");
+    }
+  }
+
+  auto entityPropertyConfig = mdl::EntityPropertyConfig{
+    config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
+  auto worldNode = std::make_unique<mdl::WorldNode>(
+    std::move(entityPropertyConfig), std::move(worldEntity), format);
+
+  if (!config.forceEmptyNewMap)
+  {
+    const auto builder = mdl::BrushBuilder{
+      worldNode->mapFormat(), worldBounds, config.faceAttribsConfig.defaults};
+    builder.createCuboid({128.0, 128.0, 32.0}, mdl::BrushFaceAttributes::NoMaterialName)
+      | kdl::transform([&](auto b) {
+          worldNode->defaultLayer()->addChild(new mdl::BrushNode{std::move(b)});
+        })
+      | kdl::transform_error(
+        [&](auto e) { logger.error() << "Could not create default brush: " << e.msg; });
+  }
+
+  return worldNode;
+}
+
 void setWorldDefaultProperties(
   mdl::WorldNode& world, mdl::EntityDefinitionManager& entityDefinitionManager)
 {
@@ -606,7 +698,7 @@ Result<void> MapDocument::newDocument(
 
   clearDocument();
 
-  return game->newMap(mapFormat, m_worldBounds, logger())
+  return newMap(game->config(), mapFormat, m_worldBounds, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, DefaultDocumentName);
              setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
@@ -625,7 +717,7 @@ Result<void> MapDocument::loadDocument(
 
   clearDocument();
 
-  return game->loadMap(mapFormat, worldBounds, path, logger())
+  return loadMap(m_game->config(), mapFormat, worldBounds, path, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, path);
              documentWasLoadedNotifier(this);
@@ -747,26 +839,27 @@ std::string MapDocument::serializeSelectedBrushFaces()
 
 PasteType MapDocument::paste(const std::string& str)
 {
+  auto parserStatus = io::SimpleParserStatus{logger()};
+
   // Try parsing as entities, then as brushes, in all compatible formats
-  const std::vector<mdl::Node*> nodes =
-    m_game->parseNodes(str, m_world->mapFormat(), m_worldBounds, logger());
-  if (!nodes.empty())
+  if (const auto nodes = io::NodeReader::read(
+        str,
+        m_world->mapFormat(),
+        m_worldBounds,
+        m_world->entityPropertyConfig(),
+        parserStatus);
+      !nodes.empty())
   {
-    if (pasteNodes(nodes))
-    {
-      return PasteType::Node;
-    }
-    return PasteType::Failed;
+    return pasteNodes(nodes) ? PasteType::Node : PasteType::Failed;
   }
 
   // Try parsing as brush faces
   try
   {
-    const std::vector<mdl::BrushFace> faces =
-      m_game->parseBrushFaces(str, m_world->mapFormat(), m_worldBounds, logger());
-    if (!faces.empty() && pasteBrushFaces(faces))
+    auto reader = io::BrushFaceReader{str, m_world->mapFormat()};
+    if (const auto faces = reader.read(m_worldBounds, parserStatus); !faces.empty())
     {
-      return PasteType::BrushFace;
+      return pasteBrushFaces(faces) ? PasteType::BrushFace : PasteType::Failed;
     }
   }
   catch (const ParserException& e)

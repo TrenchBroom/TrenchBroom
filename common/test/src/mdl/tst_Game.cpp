@@ -21,7 +21,6 @@
 #include "TestUtils.h"
 #include "io/GameConfigParser.h"
 #include "mdl/GameImpl.h"
-#include "mdl/WorldNode.h"
 
 #include <filesystem>
 
@@ -29,52 +28,6 @@
 
 namespace tb::mdl
 {
-
-TEST_CASE("GameTest.newMap")
-{
-  auto logger = NullLogger();
-
-  SECTION("Creates correct worldspawn properties for new maps")
-  {
-    using T = std::tuple<std::string, MapFormat, std::vector<EntityProperty>>;
-    const auto [gameName, mapFormat, expectedProperties] = GENERATE(values<T>({
-      {"Quake",
-       MapFormat::Valve,
-       {
-         {"classname", "worldspawn"},
-         {"wad", ""},
-         {"mapversion", "220"},
-       }},
-      {"Quake3",
-       MapFormat::Quake3_Legacy,
-       {
-         {"classname", "worldspawn"},
-       }},
-      {"Quake3",
-       MapFormat::Quake3_Valve,
-       {
-         {"classname", "worldspawn"},
-         {"mapversion", "220"},
-       }},
-    }));
-
-    CAPTURE(gameName, mapFormat);
-
-    const auto configPath =
-      std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
-    const auto configStr = io::readTextFile(configPath);
-    auto configParser = io::GameConfigParser{configStr, configPath};
-    auto config = configParser.parse();
-
-    const auto gamePath =
-      std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
-    auto game = GameImpl{config, gamePath, logger};
-
-    auto world = game.newMap(mapFormat, vm::bbox3d{8192.0}, logger) | kdl::value();
-    CHECK_THAT(
-      world->entity().properties(), Catch::Matchers::UnorderedEquals(expectedProperties));
-  }
-}
 
 TEST_CASE("GameTest.loadCorruptPackages")
 {

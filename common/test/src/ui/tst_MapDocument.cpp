@@ -61,6 +61,8 @@ MapDocumentTest::MapDocumentTest(const mdl::MapFormat mapFormat)
 void MapDocumentTest::SetUp()
 {
   game = std::make_shared<mdl::TestGame>();
+  game->config().forceEmptyNewMap = true;
+
   document = MapDocumentCommandFacade::newMapDocument(*taskManager);
   document->newDocument(m_mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
@@ -493,11 +495,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createPointEntity")
   SECTION("Default entity properties")
   {
     // set up a document with an entity config having setDefaultProperties set to true
-    game->setWorldNodeToLoad(std::make_unique<mdl::WorldNode>(
-      mdl::EntityPropertyConfig{{}, true(setDefaultProperties)},
-      mdl::Entity{},
-      mdl::MapFormat::Standard));
-    document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
+    game->config().entityConfig.setDefaultProperties = true;
+    document->newDocument(mdl::MapFormat::Standard, document->worldBounds(), game)
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<mdl::PointEntityDefinition>(
@@ -568,11 +567,8 @@ TEST_CASE_METHOD(MapDocumentTest, "createBrushEntity")
   SECTION("Default entity properties")
   {
     // set up a document with an entity config having setDefaultProperties set to true
-    game->setWorldNodeToLoad(std::make_unique<mdl::WorldNode>(
-      mdl::EntityPropertyConfig{{}, true(setDefaultProperties)},
-      mdl::Entity{},
-      mdl::MapFormat::Standard));
-    document->loadDocument(mdl::MapFormat::Standard, document->worldBounds(), game, "")
+    game->config().entityConfig.setDefaultProperties = true;
+    document->newDocument(mdl::MapFormat::Standard, document->worldBounds(), game)
       | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
     auto definitionWithDefaultsOwner = std::make_unique<mdl::BrushEntityDefinition>(
