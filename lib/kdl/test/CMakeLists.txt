@@ -14,7 +14,6 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_meta_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_optional_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_pair_iterator.cpp"
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_parallel.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_path_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_product_iterator.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_range_utils.cpp"
