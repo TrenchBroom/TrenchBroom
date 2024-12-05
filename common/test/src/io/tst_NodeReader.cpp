@@ -28,22 +28,23 @@
 namespace tb::mdl
 {
 
-TEST_CASE("NodeReaderTest.parseFaceAsNode")
+TEST_CASE("NodeReader")
 {
-  const std::string data(R"(
+  const auto worldBounds = vm::bbox3d{4096.0};
+  auto status = io::TestParserStatus{};
+
+  SECTION("parseFaceAsNode")
+  {
+    const auto data = R"(
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
-)");
+)";
 
-  const vm::bbox3d worldBounds(4096.0);
+    CHECK(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
+  }
 
-  io::TestParserStatus status;
-
-  CHECK(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
-}
-
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
-{
-  const std::string data(R"(
+  SECTION("convertValveToStandardMapFormat")
+  {
+    const auto data = R"(
 // entity 0
 {
 "classname" "worldspawn"
@@ -58,27 +59,22 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormat")
 ( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 }
 }
-)");
+)";
 
-  const vm::bbox3d worldBounds(4096.0);
+    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+    REQUIRE(brushNode != nullptr);
 
-  io::TestParserStatus status;
+    auto brush = brushNode->brush();
+    CHECK(
+      dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
+      != nullptr);
+  }
 
-  std::vector<Node*> nodes =
-    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
-  auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
-  REQUIRE(brushNode != nullptr);
-
-  Brush brush = brushNode->brush();
-  CHECK(
-    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
-    != nullptr);
-}
-
-TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
-{
-  // Data comes from copying a Group in 2020.2
-  const std::string data(R"(// entity 0
+  SECTION("convertValveToStandardMapFormatInGroups")
+  {
+    // Data comes from copying a Group in 2020.2
+    const auto data = R"(// entity 0
 {
 "classname" "func_group"
 "_tb_type" "_tb_group"
@@ -94,32 +90,27 @@ TEST_CASE("NodeReaderTest.convertValveToStandardMapFormatInGroups")
 ( 64 64 16 ) ( 64 64 17 ) ( 64 65 16 ) __TB_empty [ 0 1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 }
 }
-)");
+)";
 
-  const vm::bbox3d worldBounds(4096.0);
+    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
 
-  io::TestParserStatus status;
+    auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
+    REQUIRE(groupNode != nullptr);
 
-  std::vector<Node*> nodes =
-    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
+    REQUIRE(brushNode != nullptr);
 
-  auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
-  REQUIRE(groupNode != nullptr);
+    const auto brush = brushNode->brush();
+    CHECK(
+      dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
+      != nullptr);
+  }
 
-  auto* brushNode = dynamic_cast<BrushNode*>(groupNode->children().at(0));
-  REQUIRE(brushNode != nullptr);
+  SECTION("readScientificNotation")
+  {
+    // https://github.com/TrenchBroom/TrenchBroom/issues/4270
 
-  const Brush brush = brushNode->brush();
-  CHECK(
-    dynamic_cast<const ParaxialUVCoordSystem*>(&brush.face(0).uvCoordSystem())
-    != nullptr);
-}
-
-TEST_CASE("NodeReaderTest.readScientificNotation")
-{
-  // https://github.com/TrenchBroom/TrenchBroom/issues/4270
-
-  const auto data = R"(
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "sounds" "1"
@@ -135,11 +126,9 @@ TEST_CASE("NodeReaderTest.readScientificNotation")
 }
 )";
 
-  const auto worldBounds = vm::bbox3d{4096.0};
-  auto status = io::TestParserStatus{};
-
-  auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
-  CHECK(nodes.size() == 1);
+    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    CHECK(nodes.size() == 1);
+  }
 }
 
 } // namespace tb::mdl
