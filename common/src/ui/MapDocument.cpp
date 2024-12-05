@@ -116,7 +116,6 @@
 #include "kdl/grouped_range.h"
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/parallel.h"
 #include "kdl/path_utils.h"
 #include "kdl/range_utils.h"
 #include "kdl/result.h"
@@ -416,6 +415,11 @@ MapDocument::~MapDocument()
   clearWorld();
 }
 
+kdl::task_manager& MapDocument::taskManager()
+{
+  return m_taskManager;
+}
+
 Logger& MapDocument::logger()
 {
   return *this;
@@ -590,6 +594,7 @@ Result<std::unique_ptr<mdl::WorldNode>> loadMap(
   const mdl::MapFormat mapFormat,
   const vm::bbox3d& worldBounds,
   const std::filesystem::path& path,
+  kdl::task_manager& taskManager,
   Logger& logger)
 {
   const auto entityPropertyConfig = mdl::EntityPropertyConfig{
@@ -612,12 +617,13 @@ Result<std::unique_ptr<mdl::WorldNode>> loadMap(
                possibleFormats,
                worldBounds,
                entityPropertyConfig,
-               parserStatus);
+               parserStatus,
+               taskManager);
            }
 
            auto worldReader =
              io::WorldReader{fileReader.stringView(), mapFormat, entityPropertyConfig};
-           return worldReader.read(worldBounds, parserStatus);
+           return worldReader.read(worldBounds, parserStatus, taskManager);
          });
 }
 
@@ -625,6 +631,7 @@ Result<std::unique_ptr<mdl::WorldNode>> newMap(
   const mdl::GameConfig& config,
   const mdl::MapFormat format,
   const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager,
   Logger& logger)
 {
   if (!config.forceEmptyNewMap)
@@ -634,7 +641,8 @@ Result<std::unique_ptr<mdl::WorldNode>> newMap(
       !initialMapFilePath.empty()
       && io::Disk::pathInfo(initialMapFilePath) == io::PathInfo::File)
     {
-      return loadMap(config, format, worldBounds, initialMapFilePath, logger);
+      return loadMap(
+        config, format, worldBounds, initialMapFilePath, taskManager, logger);
     }
   }
 
@@ -698,7 +706,7 @@ Result<void> MapDocument::newDocument(
 
   clearDocument();
 
-  return newMap(game->config(), mapFormat, m_worldBounds, logger())
+  return newMap(game->config(), mapFormat, m_worldBounds, m_taskManager, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, DefaultDocumentName);
              setWorldDefaultProperties(*m_world, *m_entityDefinitionManager);
@@ -717,7 +725,7 @@ Result<void> MapDocument::loadDocument(
 
   clearDocument();
 
-  return loadMap(m_game->config(), mapFormat, worldBounds, path, logger())
+  return loadMap(m_game->config(), mapFormat, worldBounds, path, m_taskManager, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, path);
              documentWasLoadedNotifier(this);
@@ -753,7 +761,7 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   io::Disk::withOutputStream(path, [&](auto& stream) {
     auto writer = io::NodeWriter{*m_world, stream};
     writer.setExporting(false);
-    writer.writeMap();
+    writer.writeMap(m_taskManager);
   }) | kdl::transform_error([&](const auto& e) {
     error() << "Could not save document: " << e.msg;
   });
@@ -772,7 +780,7 @@ Result<void> MapDocument::exportDocumentAs(const io::ExportOptions& options)
               std::make_unique<io::ObjSerializer>(
                 objStream, mtlStream, mtlPath.filename().string(), objOptions)};
             writer.setExporting(true);
-            writer.writeMap();
+            writer.writeMap(m_taskManager);
           });
         });
       },
@@ -780,7 +788,7 @@ Result<void> MapDocument::exportDocumentAs(const io::ExportOptions& options)
         return io::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = io::NodeWriter{*m_world, stream};
           writer.setExporting(false);
-          writer.writeMap();
+          writer.writeMap(m_taskManager);
         });
       }),
     options);
@@ -823,7 +831,7 @@ std::string MapDocument::serializeSelectedNodes()
 {
   std::stringstream stream;
   auto writer = io::NodeWriter{*m_world, stream};
-  writer.writeNodes(selectedNodes().nodes());
+  writer.writeNodes(selectedNodes().nodes(), m_taskManager);
   return stream.str();
 }
 
@@ -833,7 +841,8 @@ std::string MapDocument::serializeSelectedBrushFaces()
   auto writer = io::NodeWriter{*m_world, stream};
   writer.writeBrushFaces(
     m_selectedBrushFaces | std::views::transform([](const auto& h) { return h.face(); })
-    | kdl::to_vector);
+      | kdl::to_vector,
+    m_taskManager);
   return stream.str();
 }
 
@@ -847,7 +856,8 @@ PasteType MapDocument::paste(const std::string& str)
         m_world->mapFormat(),
         m_worldBounds,
         m_world->entityPropertyConfig(),
-        parserStatus);
+        parserStatus,
+        m_taskManager);
       !nodes.empty())
   {
     return pasteNodes(nodes) ? PasteType::Node : PasteType::Failed;
@@ -3090,46 +3100,48 @@ bool MapDocument::transformObjects(
   const auto updateAngleProperty =
     m_world->entityPropertyConfig().updateAnglePropertyAfterTransform;
 
-  auto transformResults = kdl::vec_parallel_transform(
-    nodesToTransform, [&](mdl::Node* node) -> TransformResult {
-      return node->accept(kdl::overload(
-        [&](mdl::WorldNode*) -> TransformResult {
-          ensure(false, "Unexpected world node");
-        },
-        [&](mdl::LayerNode*) -> TransformResult {
-          ensure(false, "Unexpected layer node");
-        },
-        [&](mdl::GroupNode* groupNode) -> TransformResult {
-          auto group = groupNode->group();
-          group.transform(transformation);
-          return std::make_pair(groupNode, mdl::NodeContents{std::move(group)});
-        },
-        [&](mdl::EntityNode* entityNode) -> TransformResult {
-          auto entity = entityNode->entity();
-          entity.transform(transformation, updateAngleProperty);
-          return std::make_pair(entityNode, mdl::NodeContents{std::move(entity)});
-        },
-        [&](mdl::BrushNode* brushNode) -> TransformResult {
-          const auto* containingGroup = brushNode->containingGroup();
-          const bool lockAlignment =
+  auto tasks =
+    nodesToTransform | std::views::transform([&](auto& node) {
+      return std::function{[&]() {
+        return node->accept(kdl::overload(
+          [&](mdl::WorldNode*) -> TransformResult {
+            ensure(false, "Unexpected world node");
+          },
+          [&](mdl::LayerNode*) -> TransformResult {
+            ensure(false, "Unexpected layer node");
+          },
+          [&](mdl::GroupNode* groupNode) -> TransformResult {
+            auto group = groupNode->group();
+            group.transform(transformation);
+            return std::make_pair(groupNode, mdl::NodeContents{std::move(group)});
+          },
+          [&](mdl::EntityNode* entityNode) -> TransformResult {
+            auto entity = entityNode->entity();
+            entity.transform(transformation, updateAngleProperty);
+            return std::make_pair(entityNode, mdl::NodeContents{std::move(entity)});
+          },
+          [&](mdl::BrushNode* brushNode) -> TransformResult {
+            const auto* containingGroup = brushNode->containingGroup();
+            const bool lockAlignment =
             alignmentLock
             || (containingGroup && containingGroup->closed() && mdl::collectLinkedNodes({m_world.get()}, *brushNode).size() > 1);
 
-          auto brush = brushNode->brush();
-          return brush.transform(m_worldBounds, transformation, lockAlignment)
-                 | kdl::and_then([&]() -> TransformResult {
-                     return std::make_pair(
-                       brushNode, mdl::NodeContents{std::move(brush)});
-                   });
-        },
-        [&](mdl::PatchNode* patchNode) -> TransformResult {
-          auto patch = patchNode->patch();
-          patch.transform(transformation);
-          return std::make_pair(patchNode, mdl::NodeContents{std::move(patch)});
-        }));
+            auto brush = brushNode->brush();
+            return brush.transform(m_worldBounds, transformation, lockAlignment)
+                   | kdl::and_then([&]() -> TransformResult {
+                       return std::make_pair(
+                         brushNode, mdl::NodeContents{std::move(brush)});
+                     });
+          },
+          [&](mdl::PatchNode* patchNode) -> TransformResult {
+            auto patch = patchNode->patch();
+            patch.transform(transformation);
+            return std::make_pair(patchNode, mdl::NodeContents{std::move(patch)});
+          }));
+      }};
     });
 
-  return std::move(transformResults) | kdl::fold
+  return m_taskManager.run_tasks_and_wait(tasks) | kdl::fold
          | kdl::and_then([&](auto nodesToUpdate) -> Result<bool> {
              const auto success = swapNodeContents(
                commandName,
@@ -4506,7 +4518,7 @@ void MapDocument::setWorld(
   m_world = std::move(worldNode);
   m_game = game;
 
-  m_entityModelManager->setGame(game.get());
+  m_entityModelManager->setGame(game.get(), m_taskManager);
   performSetCurrentLayer(m_world->defaultLayer());
 
   updateGameSearchPaths();
@@ -4707,11 +4719,14 @@ void MapDocument::loadMaterials()
     m_game->reloadWads(path(), wadPaths, logger());
   }
   m_materialManager->reload(
-    m_game->gameFileSystem(), m_game->config().materialConfig, [&](auto resourceLoader) {
+    m_game->gameFileSystem(),
+    m_game->config().materialConfig,
+    [&](auto resourceLoader) {
       auto resource = std::make_shared<mdl::TextureResource>(std::move(resourceLoader));
       m_resourceManager->addResource(resource);
       return resource;
-    });
+    },
+    m_taskManager);
 }
 
 void MapDocument::unloadMaterials()

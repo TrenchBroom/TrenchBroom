@@ -32,6 +32,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/pair_iterator.h"
+#include "kdl/task_manager.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/bbox.h"
@@ -204,6 +205,8 @@ TEST_CASE("collectLinkedGroups")
 
 TEST_CASE("updateLinkedGroups")
 {
+  auto taskManager = kdl::task_manager{};
+
   SECTION("Group with one object")
   {
     const auto worldBounds = vm::bbox3d{8192.0};
@@ -219,14 +222,14 @@ TEST_CASE("updateLinkedGroups")
 
     SECTION("Target group list is empty")
     {
-      updateLinkedGroups(groupNode, {}, worldBounds)
+      updateLinkedGroups(groupNode, {}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
         | kdl::transform_error([](const auto&) { FAIL(); });
     }
 
     SECTION("Target group list contains only source group")
     {
-      updateLinkedGroups(groupNode, {&groupNode}, worldBounds)
+      updateLinkedGroups(groupNode, {&groupNode}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) { CHECK(r.empty()); })
         | kdl::transform_error([](const auto&) { FAIL(); });
     }
@@ -251,7 +254,7 @@ TEST_CASE("updateLinkedGroups")
       transformNode(*entityNode, vm::translation_matrix(vm::vec3d{0, 0, 3}), worldBounds);
       REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 3});
 
-      updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
+      updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
             CHECK(r.size() == 1u);
 
@@ -305,7 +308,8 @@ TEST_CASE("updateLinkedGroups")
         innerGroupNodeClone->group().transformation()
         == vm::translation_matrix(vm::vec3d{0, 2, 0}));
 
-      updateLinkedGroups(*innerGroupNode, {innerGroupNodeClone.get()}, worldBounds)
+      updateLinkedGroups(
+        *innerGroupNode, {innerGroupNodeClone.get()}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
             CHECK(r.size() == 1u);
 
@@ -335,7 +339,8 @@ TEST_CASE("updateLinkedGroups")
         innerGroupNodeClone->group().transformation()
         == vm::translation_matrix(vm::vec3d{0, 2, 0}));
 
-      updateLinkedGroups(*innerGroupNode, {innerGroupNodeClone.get()}, worldBounds)
+      updateLinkedGroups(
+        *innerGroupNode, {innerGroupNodeClone.get()}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
             CHECK(r.size() == 1u);
 
@@ -405,7 +410,8 @@ TEST_CASE("updateLinkedGroups")
       dynamic_cast<EntityNode*>(innerGroupNodeClone->children().front());
     REQUIRE(innerGroupEntityNodeClone != nullptr);
 
-    updateLinkedGroups(outerGroupNode, {outerGroupNodeClone.get()}, worldBounds)
+    updateLinkedGroups(
+      outerGroupNode, {outerGroupNodeClone.get()}, worldBounds, taskManager)
       | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
           REQUIRE(r.size() == 1u);
           const auto& [groupNodeToUpdate, newChildren] = r.front();
@@ -447,7 +453,7 @@ TEST_CASE("updateLinkedGroups")
     transformNode(*entityNode, vm::translation_matrix(vm::vec3d{1, 0, 0}), worldBounds);
     REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 0});
 
-    updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds)
+    updateLinkedGroups(groupNode, {groupNodeClone.get()}, worldBounds, taskManager)
       | kdl::transform([](auto) { FAIL(); }) | kdl::transform_error([](auto e) {
           CHECK(e == Error{"Updating a linked node would exceed world bounds"});
         });
@@ -486,7 +492,8 @@ TEST_CASE("updateLinkedGroups")
       "linked "
       "group")
     {
-      updateLinkedGroups(outerGroupNode, {outerGroupNodeClone.get()}, worldBounds)
+      updateLinkedGroups(
+        outerGroupNode, {outerGroupNodeClone.get()}, worldBounds, taskManager)
         | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
             REQUIRE(r.size() == 1u);
 
@@ -624,7 +631,7 @@ TEST_CASE("updateLinkedGroups")
     // lambda can't capture structured bindings
     const auto expectedTargetProperties = expectedProperties;
 
-    updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds)
+    updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds, taskManager)
       | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
           REQUIRE(r.size() == 1u);
           const auto& p = r.front();
@@ -682,7 +689,7 @@ TEST_CASE("updateLinkedGroups")
     sourceBrushEntity->addChildren({sourceBrushNode});
     sourceGroupNode.addChildren({sourceBrushEntity});
 
-    updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds)
+    updateLinkedGroups(sourceGroupNode, {targetGroupNode.get()}, worldBounds, taskManager)
       | kdl::transform([&](const UpdateLinkedGroupsResult& r) {
           REQUIRE(r.size() == 1u);
           const auto& p = r.front();

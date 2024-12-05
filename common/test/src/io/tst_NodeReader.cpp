@@ -23,6 +23,8 @@
 #include "mdl/GroupNode.h"
 #include "mdl/ParaxialUVCoordSystem.h"
 
+#include "kdl/task_manager.h"
+
 #include "Catch2.h"
 
 namespace tb::mdl
@@ -30,6 +32,7 @@ namespace tb::mdl
 
 TEST_CASE("NodeReader")
 {
+  auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{4096.0};
   auto status = io::TestParserStatus{};
 
@@ -39,7 +42,9 @@ TEST_CASE("NodeReader")
 ( -64 -64 -16 ) ( -64 -63 -16 ) ( -64 -64 -15 ) __TB_empty [ 0 -1 0 0 ] [ 0 0 -1 0 ] 0 1 1
 )";
 
-    CHECK(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status).empty());
+    CHECK(
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager)
+        .empty());
   }
 
   SECTION("convertValveToStandardMapFormat")
@@ -61,7 +66,8 @@ TEST_CASE("NodeReader")
 }
 )";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
     REQUIRE(brushNode != nullptr);
 
@@ -92,7 +98,8 @@ TEST_CASE("NodeReader")
 }
 )";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
 
     auto* groupNode = dynamic_cast<GroupNode*>(nodes.at(0));
     REQUIRE(groupNode != nullptr);
@@ -126,7 +133,8 @@ TEST_CASE("NodeReader")
 }
 )";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1);
   }
 }

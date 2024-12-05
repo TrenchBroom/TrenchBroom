@@ -49,7 +49,8 @@ std::vector<mdl::Node*> NodeReader::read(
   const mdl::MapFormat preferredMapFormat,
   const vm::bbox3d& worldBounds,
   const mdl::EntityPropertyConfig& entityPropertyConfig,
-  ParserStatus& status)
+  ParserStatus& status,
+  kdl::task_manager& taskManager)
 {
   // Try preferred format first
   for (const auto compatibleMapFormat : mdl::compatibleFormats(preferredMapFormat))
@@ -60,7 +61,8 @@ std::vector<mdl::Node*> NodeReader::read(
           str,
           worldBounds,
           entityPropertyConfig,
-          status);
+          status,
+          taskManager);
         !result.empty())
     {
       for (const auto& error : mdl::initializeLinkIds(result))
@@ -90,13 +92,14 @@ std::vector<mdl::Node*> NodeReader::readAsFormat(
   const std::string& str,
   const vm::bbox3d& worldBounds,
   const mdl::EntityPropertyConfig& entityPropertyConfig,
-  ParserStatus& status)
+  ParserStatus& status,
+  kdl::task_manager& taskManager)
 {
   {
     auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
     try
     {
-      reader.readEntities(worldBounds, status);
+      reader.readEntities(worldBounds, status, taskManager);
       status.info(
         "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " entities");
       return reader.m_nodes;
@@ -114,7 +117,7 @@ std::vector<mdl::Node*> NodeReader::readAsFormat(
     auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
     try
     {
-      reader.readBrushes(worldBounds, status);
+      reader.readBrushes(worldBounds, status, taskManager);
       status.info(
         "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " brushes");
       return reader.m_nodes;

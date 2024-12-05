@@ -424,15 +424,17 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
   const FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
+  kdl::task_manager& taskManager,
   Logger& logger)
 {
   const auto paletteResult = loadPalette(fs, materialConfig);
 
-  return loadShaders(fs, materialConfig, logger) | kdl::transform([&](auto shaders) {
-           return kdl::vec_filter(std::move(shaders), [&](const auto& shader) {
-             return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
-           });
-         })
+  return loadShaders(fs, materialConfig, taskManager, logger)
+         | kdl::transform([&](auto shaders) {
+             return kdl::vec_filter(std::move(shaders), [&](const auto& shader) {
+               return kdl::path_has_prefix(shader.shaderPath, materialConfig.root);
+             });
+           })
          | kdl::and_then([&](auto shaders) {
              return findAllMaterialPaths(fs, materialConfig, shaders)
                     | kdl::and_then([&](const auto& materialPaths) {

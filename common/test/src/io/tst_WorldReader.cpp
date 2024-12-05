@@ -32,6 +32,8 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/task_manager.h"
+
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
 #include "vm/vec.h"
@@ -50,6 +52,7 @@ TEST_CASE("WorldReader")
 {
   using namespace std::string_literals;
 
+  auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{8192.0};
   auto status = TestParserStatus{};
 
@@ -58,7 +61,7 @@ TEST_CASE("WorldReader")
     const auto data = "";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world != nullptr);
     CHECK(world->childCount() == 1u);
@@ -71,7 +74,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world != nullptr);
     CHECK(world->childCount() == 1u);
@@ -90,7 +93,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -123,7 +126,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     REQUIRE(world != nullptr);
     REQUIRE(world->childCount() == 1u);
@@ -153,7 +156,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->entity().hasProperty(mdl::EntityPropertyKeys::Classname));
@@ -193,7 +196,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -271,7 +274,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -312,7 +315,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -384,7 +387,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Valve, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -410,7 +413,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -477,7 +480,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2_Valve, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -505,7 +508,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake3_Valve, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -531,7 +534,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -592,7 +595,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Daikatana, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -618,7 +621,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
     auto* defaultLayer = world->children().front();
@@ -666,7 +669,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 2u);
 
@@ -712,7 +715,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     REQUIRE(world->childCount() == 3u);
 
@@ -772,7 +775,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 4u);
 
@@ -849,7 +852,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 7u);
 
@@ -943,7 +946,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 2u);
     CHECK(world->children().front()->childCount() == 2u); // default layer
@@ -1017,7 +1020,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 1u);
 
@@ -1060,7 +1063,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->childCount() == 2u);
 
@@ -1105,7 +1108,7 @@ TEST_CASE("WorldReader")
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     // TODO 2427: Assert one brush!
     CHECK(world->defaultLayer()->childCount() == 0u);
@@ -1140,7 +1143,7 @@ brushDef
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     // TODO 2427: Assert two brushes!
     CHECK(world->defaultLayer()->childCount() == 1u);
@@ -1169,7 +1172,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake3, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
 
     CHECK(world->defaultLayer()->childCount() == 1u);
 
@@ -1216,7 +1219,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Quake2, {}};
 
-    CHECK_NOTHROW(reader.read(worldBounds, status));
+    CHECK_NOTHROW(reader.read(worldBounds, status, taskManager));
   }
 
   SECTION("parseEscapedDoubleQuotationMarks")
@@ -1229,7 +1232,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -1250,7 +1253,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -1271,7 +1274,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -1292,7 +1295,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -1314,7 +1317,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
 
     CHECK(worldNode != nullptr);
     CHECK(worldNode->childCount() == 1u);
@@ -1380,7 +1383,7 @@ common/caulk
     auto fileReader = file->reader().buffer();
 
     auto worldReader = WorldReader{fileReader.stringView(), mdl::MapFormat::Quake2, {}};
-    auto worldNode = worldReader.read(worldBounds, status);
+    auto worldNode = worldReader.read(worldBounds, status, taskManager);
 
     REQUIRE(worldNode != nullptr);
     REQUIRE(1u == worldNode->childCount());
@@ -1419,7 +1422,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     REQUIRE(world->childCount() == 1u);
 
@@ -1474,7 +1477,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto worldNode = reader.read(worldBounds, status);
+    auto worldNode = reader.read(worldBounds, status, taskManager);
     REQUIRE(worldNode != nullptr);
     REQUIRE(worldNode->childCount() == 1u);
 
@@ -1517,7 +1520,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 2u);
 
@@ -1559,7 +1562,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 1);
 
@@ -1606,7 +1609,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 3u);
 
@@ -1652,7 +1655,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 1u);
 
@@ -1748,7 +1751,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     REQUIRE(world->defaultLayer()->childCount() == 4u);
 
@@ -1830,7 +1833,7 @@ common/caulk
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
 
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->defaultLayer()->childCount() == 3u);
 
@@ -1878,7 +1881,12 @@ common/caulk
 
 
     auto world = WorldReader::tryRead(
-      data, {mdl::MapFormat::Standard, mdl::MapFormat::Valve}, worldBounds, {}, status);
+      data,
+      {mdl::MapFormat::Standard, mdl::MapFormat::Valve},
+      worldBounds,
+      {},
+      status,
+      taskManager);
     REQUIRE(world != nullptr);
     CHECK(world->mapFormat() == mdl::MapFormat::Standard);
   }

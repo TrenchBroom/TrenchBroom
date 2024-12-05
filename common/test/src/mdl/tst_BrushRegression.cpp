@@ -28,6 +28,7 @@
 
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/task_manager.h"
 
 #include "vm/approx.h"
 #include "vm/polygon.h"
@@ -49,14 +50,15 @@ namespace
 
 // snap vertices tests
 
-void assertCannotSnapTo(const std::string& data, const double gridSize)
+void assertCannotSnapTo(
+  const std::string& data, const double gridSize, kdl::task_manager& taskManager)
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
 
   const auto nodes =
-    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
   CHECK(nodes.size() == 1u);
 
   auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -65,19 +67,20 @@ void assertCannotSnapTo(const std::string& data, const double gridSize)
   kdl::col_delete_all(nodes);
 }
 
-void assertCannotSnap(const std::string& data)
+void assertCannotSnap(const std::string& data, kdl::task_manager& taskManager)
 {
-  assertCannotSnapTo(data, 1);
+  assertCannotSnapTo(data, 1, taskManager);
 }
 
-void assertSnapTo(const std::string& data, const double gridSize)
+void assertSnapTo(
+  const std::string& data, const double gridSize, kdl::task_manager& taskManager)
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
   auto status = io::TestParserStatus{};
 
   const auto nodes =
-    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
   CHECK(nodes.size() == 1u);
 
   auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -98,9 +101,9 @@ void assertSnapTo(const std::string& data, const double gridSize)
   kdl::col_delete_all(nodes);
 }
 
-void assertSnapToInteger(const std::string& data)
+void assertSnapToInteger(const std::string& data, kdl::task_manager& taskManager)
 {
-  assertSnapTo(data, 1);
+  assertSnapTo(data, 1, taskManager);
 }
 
 } // namespace
@@ -115,6 +118,8 @@ void assertSnapToInteger(const std::string& data)
 
 TEST_CASE("Brush_Regression")
 {
+  auto taskManager = kdl::task_manager{};
+
   const auto worldBounds = vm::bbox3d{8192.0};
 
   SECTION("constructWithFailingFaces")
@@ -397,8 +402,8 @@ TEST_CASE("Brush_Regression")
 
     auto status = io::TestParserStatus{};
 
-    const auto nodes =
-      io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -461,8 +466,8 @@ TEST_CASE("Brush_Regression")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes =
-      io::NodeReader::read(data, MapFormat::Standard, vm::bbox3d{4096.0}, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, vm::bbox3d{4096.0}, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -504,7 +509,8 @@ TEST_CASE("Brush_Regression")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -587,7 +593,7 @@ TEST_CASE("Brush_Regression")
       ( 0 -192 512 ) ( 0 -192 640 ) ( 128 -192 512 ) skill_ground 0 512 0 1 1 //TX1
       ( 0 0 512 ) ( 0 -128 512 ) ( 128 0 512 ) skill_ground 0 0 0 1 -1 //TX1
       })";
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1202")
@@ -603,7 +609,7 @@ TEST_CASE("Brush_Regression")
       ( 96 -2840.62573 176 ) ( 96 -3021.64502 176 ) ( 96 -2840.62573 304 ) bricka2_4 -2009 176 0 -1.41421 1 //TX2
       ( -128 -288 176 ) ( -128 -160 176 ) ( -128 -288 304 ) bricka2_4 288 176 0 1 1 //TX2
       })";
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1203")
@@ -620,7 +626,7 @@ TEST_CASE("Brush_Regression")
     ( -2288.33311 -1643.78464 1184 ) ( -2197.82344 -1553.27497 1184 ) ( -2288.33311 -1643.78464 1312 ) metal5_6 2325 1184 0 0.70711 1 //TX2
     ( -2243.76171 -1610.43983 1184 ) ( -2243.76171 -1610.43983 1312 ) ( -2327.90482 -1513.98290 1184 ) metal5_6 2137 1184 0 0.75357 1 //TX1
     })";
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1205")
@@ -646,7 +652,7 @@ TEST_CASE("Brush_Regression")
     ( 285.25483 -226.74517 1232 ) ( 191.99999 -320.00001 1232 ) ( 285.25483 -226.74517 1104 ) bookshelf1w 1232 311 -90 1 -0.72855 //TX1
     ( 304 -368 1232 ) ( 210.74516 -274.74516 1232 ) ( 304 -368 1104 ) bookshelf1w 1232 -505 -90 1 0.72855 //TX1
     })";
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1206")
@@ -662,7 +668,7 @@ TEST_CASE("Brush_Regression")
     ( -637 1440.50000 1338 ) ( -637 1440.50000 1466 ) ( -637 1568.50000 1338 ) column01_3 -1440 1338 0 1 1 //TX1
     ( -638 1435.27452 1340.35014 ) ( -638 1312.19946 1375.51444 ) ( -510 1435.27452 1340.35014 ) column01_3 638 -1493 0 1 -0.96152 //TX1
     })";
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1207")
@@ -677,7 +683,7 @@ TEST_CASE("Brush_Regression")
       ( -635.50000 1438 1354 ) ( -635.50000 1438 1482 ) ( -507.50000 1438 1354 ) column01_3 636 1354 0 1 1 //TX1
       ( -635.50000 1442.50000 1354 ) ( -635.50000 1442.50000 1482 ) ( -635.50000 1570.50000 1354 ) column01_3 -1442 1354 0 1 1 //TX1
       })";
-    assertCannotSnap(data);
+    assertCannotSnap(data, taskManager);
   }
 
   SECTION("snapIssue1232")
@@ -705,7 +711,7 @@ TEST_CASE("Brush_Regression")
       ( 1941.71572 511.78427 2072 ) ( 1941.71572 511.78427 2200 ) ( 2073.59785 379.90191 2072 ) wbord05 497 2072 0 -1.03033 1 //TX1
      })";
 
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1395_24202")
@@ -725,7 +731,7 @@ TEST_CASE("Brush_Regression")
     ( -96 -299 1019 ) ( -96 -171 1019 ) ( 50 -400 1017 ) rock3_8 -28.9783 0.638519 81.5019 0.875609 -1
     })";
 
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapIssue1395_18995")
@@ -753,7 +759,7 @@ TEST_CASE("Brush_Regression")
       ( 446 754 665 ) ( 446 807 665 ) ( 328 754 665 ) wswamp1_2 -16 -2 0 1 1
       })";
 
-    assertSnapToInteger(data);
+    assertSnapToInteger(data, taskManager);
   }
 
   SECTION("snapToGrid64")
@@ -772,7 +778,7 @@ TEST_CASE("Brush_Regression")
 
     // Seems reasonable for this to fail to snap to grid 64; it's only 48 units tall.
     // If it was able to snap, that would be OK too.
-    assertCannotSnapTo(data, 64);
+    assertCannotSnapTo(data, 64, taskManager);
   }
 
   SECTION("moveEdgesFail_2361")
@@ -856,7 +862,8 @@ TEST_CASE("Brush_Regression")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     REQUIRE(nodes.size() == 1u);
 
     auto brush = static_cast<BrushNode*>(nodes.front())->brush();
@@ -917,7 +924,8 @@ TEST_CASE("Brush_Regression")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(!nodes.empty());
 
     auto points = std::vector<vm::vec3d>{};
@@ -984,7 +992,7 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
 
     const auto nodes =
-      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     REQUIRE(nodes.size() == 28);
 
     auto points = std::vector<vm::vec3d>{};
@@ -1089,10 +1097,10 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto minuendNodes =
-      io::NodeReader::read(minuendStr, MapFormat::Valve, worldBounds, {}, status);
-    const auto subtrahendNodes =
-      io::NodeReader::read(subtrahendStr, MapFormat::Valve, worldBounds, {}, status);
+    const auto minuendNodes = io::NodeReader::read(
+      minuendStr, MapFormat::Valve, worldBounds, {}, status, taskManager);
+    const auto subtrahendNodes = io::NodeReader::read(
+      subtrahendStr, MapFormat::Valve, worldBounds, {}, status, taskManager);
 
     const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
     const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1124,10 +1132,10 @@ TEST_CASE("Brush_Regression")
     const auto subtrahendStr = io::readTextFile(subtrahendPath);
 
     auto status = io::TestParserStatus{};
-    const auto minuendNodes =
-      io::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
-    const auto subtrahendNodes =
-      io::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    const auto minuendNodes = io::NodeReader::read(
+      minuendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    const auto subtrahendNodes = io::NodeReader::read(
+      subtrahendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
 
     const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
     const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1169,10 +1177,10 @@ TEST_CASE("Brush_Regression")
       })";
 
     auto status = io::TestParserStatus{};
-    const auto minuendNodes =
-      io::NodeReader::read(minuendStr, MapFormat::Standard, worldBounds, {}, status);
-    const auto subtrahendNodes =
-      io::NodeReader::read(subtrahendStr, MapFormat::Standard, worldBounds, {}, status);
+    const auto minuendNodes = io::NodeReader::read(
+      minuendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
+    const auto subtrahendNodes = io::NodeReader::read(
+      subtrahendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
 
     const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
     const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
@@ -1204,8 +1212,8 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto nodes =
-      io::NodeReader::read(brushString, MapFormat::Valve, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      brushString, MapFormat::Valve, worldBounds, {}, status, taskManager);
     const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
@@ -1261,8 +1269,8 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto nodes =
-      io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
@@ -1400,8 +1408,8 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto nodes =
-      io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
@@ -1443,8 +1451,8 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto nodes =
-      io::NodeReader::read(brushString, MapFormat::Standard, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
@@ -1492,8 +1500,8 @@ TEST_CASE("Brush_Regression")
     })";
 
     auto status = io::TestParserStatus{};
-    const auto nodes =
-      io::NodeReader::read(brushString, MapFormat::Quake2, worldBounds, {}, status);
+    const auto nodes = io::NodeReader::read(
+      brushString, MapFormat::Quake2, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
   }
 }

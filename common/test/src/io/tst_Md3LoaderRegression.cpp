@@ -28,6 +28,8 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
 
+#include "kdl/task_manager.h"
+
 #include <filesystem>
 #include <memory>
 
@@ -57,7 +59,10 @@ TEST_CASE("Md3LoaderTest.loadFailure_2659")
     std::make_unique<DiskFileSystem>(
       std::filesystem::current_path() / "fixture/test/io/Md3/armor"));
 
-  const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+  auto taskManager = kdl::task_manager{};
+
+  const auto shaders =
+    loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
   const auto createResource = [](auto resourceLoader) {
     return createResourceSync(std::move(resourceLoader));

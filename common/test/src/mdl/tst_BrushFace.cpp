@@ -33,6 +33,7 @@
 #include "mdl/Texture.h"
 
 #include "kdl/result.h"
+#include "kdl/task_manager.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
@@ -463,6 +464,8 @@ void checkAlignmentLockOffWithScale(const Brush& cube)
 
 TEST_CASE("BrushFace")
 {
+  auto taskManager = kdl::task_manager{};
+
   SECTION("constructWithValidPoints")
   {
     const auto p0 = vm::vec3d{0, 0, 4};
@@ -649,7 +652,8 @@ TEST_CASE("BrushFace")
     const auto worldBounds = vm::bbox3d{4096.0};
 
     auto status = io::TestParserStatus{};
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
 
@@ -710,7 +714,8 @@ TEST_CASE("BrushFace")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
 
@@ -784,7 +789,8 @@ TEST_CASE("BrushFace")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
     CHECK(brushNode != nullptr);
 
@@ -873,7 +879,8 @@ TEST_CASE("BrushFace")
 
     auto status = io::TestParserStatus{};
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
     REQUIRE(brushNode != nullptr);
 

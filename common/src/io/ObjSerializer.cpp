@@ -100,7 +100,10 @@ ObjSerializer::ObjSerializer(
   ensure(m_mtlStream.good(), "mtl stream is good");
 }
 
-void ObjSerializer::doBeginFile(const std::vector<const mdl::Node*>& /* rootNodes */) {}
+void ObjSerializer::doBeginFile(
+  const std::vector<const mdl::Node*>& /* rootNodes */, kdl::task_manager&)
+{
+}
 
 static void writeMtlFile(
   std::ostream& str,

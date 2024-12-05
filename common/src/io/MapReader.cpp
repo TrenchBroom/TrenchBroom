@@ -36,11 +36,10 @@
 #include "mdl/VisibilityState.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/parallel.h"
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
+#include "kdl/task_manager.h"
 
 #include "vm/mat_io.h"
 
@@ -81,18 +80,20 @@ MapReader::MapReader(
 {
 }
 
-void MapReader::readEntities(const vm::bbox3d& worldBounds, ParserStatus& status)
+void MapReader::readEntities(
+  const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
   m_worldBounds = worldBounds;
   parseEntities(status);
-  createNodes(status);
+  createNodes(status, taskManager);
 }
 
-void MapReader::readBrushes(const vm::bbox3d& worldBounds, ParserStatus& status)
+void MapReader::readBrushes(
+  const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
   m_worldBounds = worldBounds;
   parseBrushesOrPatches(status);
-  createNodes(status);
+  createNodes(status, taskManager);
 }
 
 void MapReader::readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status)
@@ -635,43 +636,44 @@ std::vector<std::optional<NodeInfo>> createNodesFromObjectInfos(
   std::vector<MapReader::ObjectInfo> objectInfos,
   const vm::bbox3d& worldBounds,
   const mdl::MapFormat mapFormat,
-  ParserStatus& status)
+  ParserStatus& status,
+  kdl::task_manager& taskManager)
 {
   // create nodes in parallel, moving data out of objectInfos
   // we store optionals in the result vector to make the elements default constructible,
   // which is a requirement for parallel transform
-  auto createNodeResults = kdl::vec_parallel_transform(
-    std::move(objectInfos), [&](MapReader::ObjectInfo&& objectInfo) -> CreateNodeResult {
-      return std::visit(
-        kdl::overload(
-          [&](MapReader::EntityInfo&& entityInfo) {
-            return createNodeFromEntityInfo(
-              entityPropertyConfig, std::move(entityInfo), mapFormat);
-          },
-          [&](MapReader::BrushInfo&& brushInfo) {
-            return createBrushNode(std::move(brushInfo), worldBounds);
-          },
-          [&](MapReader::PatchInfo&& patchInfo) {
-            return createPatchNode(std::move(patchInfo));
-          }),
-        std::move(objectInfo));
-    });
+  auto tasks = objectInfos | std::views::transform([&](auto& objectInfo) {
+                 return std::function{[&]() -> CreateNodeResult {
+                   return std::visit(
+                     kdl::overload(
+                       [&](MapReader::EntityInfo& entityInfo) {
+                         return createNodeFromEntityInfo(
+                           entityPropertyConfig, std::move(entityInfo), mapFormat);
+                       },
+                       [&](MapReader::BrushInfo& brushInfo) {
+                         return createBrushNode(std::move(brushInfo), worldBounds);
+                       },
+                       [&](MapReader::PatchInfo& patchInfo) {
+                         return createPatchNode(std::move(patchInfo));
+                       }),
+                     objectInfo);
+                 }};
+               });
 
-  return kdl::vec_transform(
-    std::move(createNodeResults),
-    [&](std::optional<CreateNodeResult>&& createNodeResult) -> std::optional<NodeInfo> {
-      assert(createNodeResult.has_value());
-
-      return std::move(*createNodeResult)
-             | kdl::transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
-                 return std::move(nodeInfo);
-               })
-             | kdl::transform_error([&](const NodeError& e) -> std::optional<NodeInfo> {
-                 status.error(e.location, e.msg);
-                 return std::nullopt;
-               })
-             | kdl::value();
-    });
+  auto results = taskManager.run_tasks_and_wait(std::move(tasks));
+  return results | std::views::transform([&](auto& createNodeResult) {
+           return std::move(createNodeResult)
+                  | kdl::transform([&](NodeInfo&& nodeInfo) -> std::optional<NodeInfo> {
+                      return std::move(nodeInfo);
+                    })
+                  | kdl::transform_error(
+                    [&](const NodeError& e) -> std::optional<NodeInfo> {
+                      status.error(e.location, e.msg);
+                      return std::nullopt;
+                    })
+                  | kdl::value();
+         })
+         | kdl::to_vector;
 }
 
 void validateDuplicateLayersAndGroups(
@@ -919,7 +921,7 @@ std::unordered_map<mdl::Node*, mdl::Node*> buildNodeToParentMap(
  * Nodes for which the parent node is not known (e.g. when parsing only brushes) are added
  * to a default parent, which is returned from the `onWorldNode` callback.
  */
-void MapReader::createNodes(ParserStatus& status)
+void MapReader::createNodes(ParserStatus& status, kdl::task_manager& taskManager)
 {
   // create nodes from the recorded object infos
   auto nodeInfos = createNodesFromObjectInfos(
@@ -927,7 +929,8 @@ void MapReader::createNodes(ParserStatus& status)
     std::move(m_objectInfos),
     m_worldBounds,
     m_targetMapFormat,
-    status);
+    status,
+    taskManager);
 
   // call onWorldNode for the first world node, remember the default parent and clear out
   // all other world nodes the brushes belonging to redundant world nodes will be added to

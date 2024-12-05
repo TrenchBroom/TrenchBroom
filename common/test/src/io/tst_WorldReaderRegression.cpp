@@ -24,6 +24,8 @@
 #include "mdl/BrushNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/task_manager.h"
+
 #include "Catch2.h"
 
 namespace tb::io
@@ -31,6 +33,7 @@ namespace tb::io
 
 TEST_CASE("WorldReader_Regression")
 {
+  auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{8192.0};
   auto status = io::TestParserStatus{};
 
@@ -51,7 +54,7 @@ TEST_CASE("WorldReader_Regression")
 })";
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     CHECK(world != nullptr);
   }
 
@@ -71,7 +74,7 @@ TEST_CASE("WorldReader_Regression")
 })";
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);
@@ -105,7 +108,7 @@ TEST_CASE("WorldReader_Regression")
 }
 })";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);
@@ -130,7 +133,7 @@ TEST_CASE("WorldReader_Regression")
 }
 })";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status);
+    auto world = reader.read(worldBounds, status, taskManager);
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);

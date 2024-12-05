@@ -230,6 +230,8 @@ public:
   ~MapDocument() override;
 
 public: // accessors and such
+  kdl::task_manager& taskManager();
+
   Logger& logger();
 
   std::shared_ptr<mdl::Game> game() const override;

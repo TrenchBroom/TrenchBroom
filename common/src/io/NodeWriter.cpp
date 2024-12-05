@@ -106,9 +106,9 @@ void NodeWriter::setExporting(const bool exporting)
   m_serializer->setExporting(exporting);
 }
 
-void NodeWriter::writeMap()
+void NodeWriter::writeMap(kdl::task_manager& taskManager)
 {
-  m_serializer->beginFile({&m_world});
+  m_serializer->beginFile({&m_world}, taskManager);
   writeDefaultLayer();
   writeCustomLayers();
   m_serializer->endFile();
@@ -142,9 +142,10 @@ void NodeWriter::writeCustomLayer(const mdl::LayerNode* layerNode)
   }
 }
 
-void NodeWriter::writeNodes(const std::vector<mdl::Node*>& nodes)
+void NodeWriter::writeNodes(
+  const std::vector<mdl::Node*>& nodes, kdl::task_manager& taskManager)
 {
-  m_serializer->beginFile(kdl::vec_static_cast<const mdl::Node*>(nodes));
+  m_serializer->beginFile(kdl::vec_static_cast<const mdl::Node*>(nodes), taskManager);
 
   // Assort nodes according to their type and, in case of brushes, whether they are entity
   // or world brushes.
@@ -198,9 +199,10 @@ void NodeWriter::writeEntityBrushes(const EntityBrushesMap& entityBrushes)
   }
 }
 
-void NodeWriter::writeBrushFaces(const std::vector<mdl::BrushFace>& faces)
+void NodeWriter::writeBrushFaces(
+  const std::vector<mdl::BrushFace>& faces, kdl::task_manager& taskManager)
 {
-  m_serializer->beginFile({});
+  m_serializer->beginFile({}, taskManager);
   m_serializer->brushFaces(faces);
   m_serializer->endFile();
 }

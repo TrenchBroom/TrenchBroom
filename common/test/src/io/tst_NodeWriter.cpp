@@ -33,6 +33,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
+#include "kdl/task_manager.h"
 
 #include <fmt/format.h>
 
@@ -47,13 +48,15 @@ namespace tb::io
 {
 TEST_CASE("NodeWriter")
 {
+  auto taskManager = kdl::task_manager{};
+
   SECTION("writeEmptyMap")
   {
     auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Standard};
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -71,7 +74,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -97,7 +100,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -136,7 +139,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -208,7 +211,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -243,7 +246,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -277,7 +280,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -317,7 +320,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -363,7 +366,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -403,7 +406,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -452,7 +455,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -514,7 +517,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -593,7 +596,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -696,7 +699,7 @@ TEST_CASE("NodeWriter")
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
     writer.setExporting(true);
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -748,7 +751,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -792,7 +795,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeNodes({innerGroupNode, worldBrushNode});
+    writer.writeNodes({innerGroupNode, worldBrushNode}, taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -845,7 +848,7 @@ TEST_CASE("NodeWriter")
     {
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
-      writer.writeMap();
+      writer.writeMap(taskManager);
 
       const auto actual = str.str();
       const auto expected = fmt::format(
@@ -873,7 +876,7 @@ TEST_CASE("NodeWriter")
 
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
-      writer.writeMap();
+      writer.writeMap(taskManager);
 
       const auto actual = str.str();
       const auto expected = fmt::format(
@@ -918,7 +921,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{worldNode, str};
-    writer.writeNodes({groupNode});
+    writer.writeNodes({groupNode}, taskManager);
 
     const auto actual = str.str();
     const auto expected = fmt::format(
@@ -949,7 +952,7 @@ TEST_CASE("NodeWriter")
 
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
-      writer.writeNodes({entityNode});
+      writer.writeNodes({entityNode}, taskManager);
 
       const auto actual = str.str();
       const auto expected =
@@ -969,7 +972,7 @@ TEST_CASE("NodeWriter")
 
       auto str = std::stringstream{};
       auto writer = NodeWriter{worldNode, str};
-      writer.writeNodes({entityNode});
+      writer.writeNodes({entityNode}, taskManager);
 
       const auto actual = str.str();
       const auto expected =
@@ -992,7 +995,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeBrushFaces(brushNode->brush().faces());
+    writer.writeBrushFaces(brushNode->brush().faces(), taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -1016,7 +1019,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -1037,7 +1040,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -1059,7 +1062,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =
@@ -1087,7 +1090,7 @@ TEST_CASE("NodeWriter")
 
     auto str = std::stringstream{};
     auto writer = NodeWriter{map, str};
-    writer.writeMap();
+    writer.writeMap(taskManager);
 
     const auto actual = str.str();
     const auto expected =

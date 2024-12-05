@@ -77,7 +77,8 @@ std::unique_ptr<mdl::WorldNode> WorldReader::tryRead(
   const std::vector<mdl::MapFormat>& mapFormatsToTry,
   const vm::bbox3d& worldBounds,
   const mdl::EntityPropertyConfig& entityPropertyConfig,
-  ParserStatus& status)
+  ParserStatus& status,
+  kdl::task_manager& taskManager)
 {
   auto parserExceptions = std::vector<std::tuple<mdl::MapFormat, std::string>>{};
 
@@ -91,7 +92,7 @@ std::unique_ptr<mdl::WorldNode> WorldReader::tryRead(
     try
     {
       auto reader = WorldReader{str, mapFormat, entityPropertyConfig};
-      return reader.read(worldBounds, status);
+      return reader.read(worldBounds, status, taskManager);
     }
     catch (const ParserException& e)
     {
@@ -173,9 +174,9 @@ void setLinkIds(mdl::WorldNode& worldNode, ParserStatus& status)
 } // namespace
 
 std::unique_ptr<mdl::WorldNode> WorldReader::read(
-  const vm::bbox3d& worldBounds, ParserStatus& status)
+  const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
-  readEntities(worldBounds, status);
+  readEntities(worldBounds, status, taskManager);
   sanitizeLayerSortIndicies(*m_worldNode, status);
   setLinkIds(*m_worldNode, status);
   m_worldNode->rebuildNodeTree();

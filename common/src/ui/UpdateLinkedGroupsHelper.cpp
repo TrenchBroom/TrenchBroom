@@ -143,7 +143,8 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
              mdl::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
              groupNode);
 
-           return mdl::updateLinkedGroups(*groupNode, groupNodesToUpdate, worldBounds);
+           return mdl::updateLinkedGroups(
+             *groupNode, groupNodesToUpdate, worldBounds, document.taskManager());
          })
          | kdl::fold
          | kdl::and_then([&](auto nestedUpdateLists) -> Result<LinkedGroupUpdates> {

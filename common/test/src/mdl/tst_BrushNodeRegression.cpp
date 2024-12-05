@@ -27,6 +27,7 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/MapFormat.h"
 
+#include "kdl/task_manager.h"
 #include "kdl/vector_utils.h"
 
 #include <string>
@@ -39,6 +40,7 @@ namespace tb::mdl
 
 TEST_CASE("BrushNode_Regression")
 {
+  auto taskManager = kdl::task_manager{};
   const auto worldBounds = vm::bbox3d{8192.0};
   auto status = io::TestParserStatus{};
 
@@ -59,7 +61,8 @@ TEST_CASE("BrushNode_Regression")
       ( 656 754.57864 1021.42136 ) ( -84592 754.57864 1021.42136 ) ( 656 61034.01582 -59258.01582 ) skip 1 2 0 -666 470.93310 //TX2
       })";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     kdl::vec_clear_and_delete(nodes);
@@ -82,7 +85,8 @@ TEST_CASE("BrushNode_Regression")
       ( 16 1389.42136 957.42136 ) ( 85264 1389.42136 957.42136 ) ( 16 -58890.01582 -59322.01582 ) skip 0 -3 0 666 -470.93310 //TX2
       })";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     kdl::vec_clear_and_delete(nodes);
@@ -187,7 +191,8 @@ TEST_CASE("BrushNode_Regression")
       ( -22.7647 1850.46 114.982 ) ( -23.5781 1850.46 115.2 ) ( -23.0501 1851.2 114.289 ) O_METAL1_19AD [ -1 0 0 -16 ] [ 0 0 1 -0 ] 180 1 -1
       })";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
 
     kdl::vec_clear_and_delete(nodes);
@@ -207,7 +212,8 @@ TEST_CASE("BrushNode_Regression")
       ( -1248.00004 -2144 1061.33328 ) ( -1248.00004 -2272 1061.33328 ) ( -1120 -2144 976 ) rock_1732 1248 2144 0 1 -1 //TX1
       })";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status);
+    auto nodes = io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager);
     CHECK(nodes.empty());
 
     kdl::vec_clear_and_delete(nodes);
@@ -237,7 +243,12 @@ TEST_CASE("BrushNode_Regression")
       })";
 
     auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+      data,
+      MapFormat::Standard,
+      worldBounds,
+      {},
+      status,
+      taskManager); // assertion failure
     kdl::vec_clear_and_delete(nodes);
   }
 
@@ -283,7 +294,12 @@ TEST_CASE("BrushNode_Regression")
       })";
 
     auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+      data,
+      MapFormat::Standard,
+      worldBounds,
+      {},
+      status,
+      taskManager); // assertion failure
     kdl::vec_clear_and_delete(nodes);
   }
 
@@ -306,7 +322,12 @@ TEST_CASE("BrushNode_Regression")
       })";
 
     auto nodes = io::NodeReader::read(
-      data, MapFormat::Standard, worldBounds, {}, status); // assertion failure
+      data,
+      MapFormat::Standard,
+      worldBounds,
+      {},
+      status,
+      taskManager); // assertion failure
     kdl::vec_clear_and_delete(nodes);
   }
 
@@ -392,8 +413,8 @@ TEST_CASE("BrushNode_Regression")
 }
 )";
 
-    CHECK_NOTHROW(
-      io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+    CHECK_NOTHROW(io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("buildBrush_2491")
@@ -411,8 +432,8 @@ TEST_CASE("BrushNode_Regression")
     }
     )";
 
-    CHECK_NOTHROW(
-      io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status));
+    CHECK_NOTHROW(io::NodeReader::read(
+      data, MapFormat::Standard, worldBounds, {}, status, taskManager));
   }
 
   SECTION("buildBrush_2686")
@@ -448,7 +469,8 @@ TEST_CASE("BrushNode_Regression")
 }
             )";
 
-    CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+    CHECK_NOTHROW(
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   SECTION("buildBrush_4100")
@@ -475,7 +497,8 @@ TEST_CASE("BrushNode_Regression")
 ( -0 128 -0 ) ( -1 128 0 ) ( -0 128 1 ) skip [ 1 0 0 0 ] [ 0 1 0 0 ] 0 1 1
 })";
 
-    CHECK_NOTHROW(io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status));
+    CHECK_NOTHROW(
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager));
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1893
@@ -522,7 +545,8 @@ TEST_CASE("BrushNode_Regression")
       }
       })";
 
-    auto nodes = io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status);
+    auto nodes =
+      io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
     CHECK(nodes.size() == 1u);
     CHECK(nodes.at(0)->hasChildren());
     CHECK(nodes.at(0)->children().size() == 2u);

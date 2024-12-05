@@ -29,6 +29,7 @@
 #include "mdl/Texture.h"
 
 #include "kdl/reflection_impl.h"
+#include "kdl/task_manager.h"
 #include "kdl/vector_utils.h"
 
 #include <memory>
@@ -130,6 +131,8 @@ TEST_CASE("loadMaterialCollections")
 
   const auto workDir = std::filesystem::current_path();
 
+  auto taskManager = kdl::task_manager{};
+
   SECTION("WAD file")
   {
     const auto mountPoint = GENERATE("textures", "textures/cr8_czg.wad");
@@ -149,7 +152,7 @@ TEST_CASE("loadMaterialCollections")
     };
 
     CHECK_THAT(
-      loadMaterialCollections(fs, materialConfig, createResource, logger),
+      loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
       MatchesMaterialCollections({
         {
           mountPoint,
@@ -199,7 +202,8 @@ TEST_CASE("loadMaterialCollections")
         };
 
         CHECK_THAT(
-          loadMaterialCollections(fs, materialConfig, createResource, logger),
+          loadMaterialCollections(
+            fs, materialConfig, createResource, taskManager, logger),
           MatchesMaterialCollections({
             {
               "textures/test",
@@ -227,7 +231,8 @@ TEST_CASE("loadMaterialCollections")
         };
 
         CHECK_THAT(
-          loadMaterialCollections(fs, materialConfig, createResource, logger),
+          loadMaterialCollections(
+            fs, materialConfig, createResource, taskManager, logger),
           MatchesMaterialCollections({
             {
               "textures/test",
@@ -261,7 +266,8 @@ TEST_CASE("loadMaterialCollections")
         };
 
         CHECK_THAT(
-          loadMaterialCollections(fs, materialConfig, createResource, logger),
+          loadMaterialCollections(
+            fs, materialConfig, createResource, taskManager, logger),
           MatchesMaterialCollections({
             {
               "textures",
@@ -294,7 +300,7 @@ TEST_CASE("loadMaterialCollections")
       };
 
       CHECK_THAT(
-        loadMaterialCollections(fs, materialConfig, createResource, logger),
+        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
         MatchesMaterialCollections({
           {
             "textures/test",
@@ -326,7 +332,7 @@ TEST_CASE("loadMaterialCollections")
       };
 
       CHECK_THAT(
-        loadMaterialCollections(fs, materialConfig, createResource, logger),
+        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
         MatchesMaterialCollections({
           {
             "textures",

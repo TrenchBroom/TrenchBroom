@@ -33,8 +33,8 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
-#include "kdl/parallel.h"
 #include "kdl/string_format.h"
+#include "kdl/task_manager.h"
 
 #include <fmt/format.h>
 
@@ -309,7 +309,8 @@ MapFileSerializer::MapFileSerializer(std::ostream& stream)
 {
 }
 
-void MapFileSerializer::doBeginFile(const std::vector<const mdl::Node*>& rootNodes)
+void MapFileSerializer::doBeginFile(
+  const std::vector<const mdl::Node*>& rootNodes, kdl::task_manager& taskManager)
 {
   ensure(m_nodeToPrecomputedString.empty(), "MapFileSerializer may not be reused");
 
@@ -340,21 +341,22 @@ void MapFileSerializer::doBeginFile(const std::vector<const mdl::Node*>& rootNod
 
   // serialize brushes to strings in parallel
   using Entry = std::pair<const mdl::Node*, PrecomputedString>;
-  std::vector<Entry> result =
-    kdl::vec_parallel_transform(std::move(nodesToSerialize), [&](const auto& node) {
-      return std::visit(
-        kdl::overload(
-          [&](const mdl::BrushNode* brushNode) {
-            return Entry{brushNode, writeBrushFaces(brushNode->brush())};
-          },
-          [&](const mdl::PatchNode* patchNode) {
-            return Entry{patchNode, writePatch(patchNode->patch())};
-          }),
-        node);
-    });
+  auto tasks = nodesToSerialize | std::views::transform([&](const auto& node) {
+                 return std::function{[&]() {
+                   return std::visit(
+                     kdl::overload(
+                       [&](const mdl::BrushNode* brushNode) {
+                         return Entry{brushNode, writeBrushFaces(brushNode->brush())};
+                       },
+                       [&](const mdl::PatchNode* patchNode) {
+                         return Entry{patchNode, writePatch(patchNode->patch())};
+                       }),
+                     node);
+                 }};
+               });
 
-  // move strings into a map
-  for (auto& entry : result)
+  // render strings and move them into a map
+  for (auto& entry : taskManager.run_tasks_and_wait(std::move(tasks)))
   {
     m_nodeToPrecomputedString.insert(std::move(entry));
   }
