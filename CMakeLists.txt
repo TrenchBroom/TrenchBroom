@@ -16,15 +16,6 @@ if(POLICY CMP0063)
   cmake_policy(SET CMP0063 NEW)
 endif()
 
-# Note: When this variable is changed, vcpkg will need to recompile all dependencies.
-# However, vcpkg will not detect the change and will happily keep using any cached
-# binaries (see the lukka/run-vcpkg workflow step for details). This will cause a mismatch
-# between the deployment target under which the binaries were compiled and the new
-# deployment target used here. Therefore, when this variable is changed, the vcpkg binary
-# cache must be invalidated. The easiest way to do that is to update vcpkg to the latest
-# version because the vcpkg commit ID is part of the cache key for the binary cache.
-set(CMAKE_OSX_DEPLOYMENT_TARGET "10.15")
-
 set(CMAKE_TOOLCHAIN_FILE "${CMAKE_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake")
 set(VCPKG_OVERLAY_PORTS "${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/freeimage;${CMAKE_SOURCE_DIR}/vcpkg-overlay-ports/openexr")
 
