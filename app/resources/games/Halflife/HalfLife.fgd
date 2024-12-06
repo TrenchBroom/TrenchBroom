@@ -663,9 +663,9 @@
 // cyclers
 //
 
-@PointClass base(Targetname, Angles, Sequence) size(-16 -16 0, 16 16 72) studio() = cycler : "Monster Cycler" 
+@PointClass base(Targetname, Angles, Sequence) size(-16 -16 0, 16 16 72) model({ "path": model}) = cycler : "Monster Cycler" 
 [
-	model(studio) : "Model"
+	model(string) : "Model"
 	renderfx(choices) :"Render FX" : 0 =
 	[
 		0: "Normal"
@@ -736,9 +736,9 @@
 	rendercolor(color255) : "FX Color (R G B)" : "0 0 0"
 ]
 
-@PointClass base(Monster, Sequence) size(-16 -16 -16, 16 16 16) studio() = cycler_weapon : "Weapon Cycler" 
+@PointClass base(Monster, Sequence) size(-16 -16 -16, 16 16 16) model({ "path": model}) = cycler_weapon : "Weapon Cycler" 
 [
-	model(studio) : "model"
+	model(string) : "model"
 ]
 
 @PointClass sprite() base(Targetname, RenderFields, Angles) size(-4 -4 -4, 4 4 4) = cycler_wreckage : "Wreckage" 
@@ -1841,19 +1841,19 @@
 	iFlockSize(Integer) : "Flock Size" : 8
 	flFlockRadius(Integer) : "Flock Radius" : 128
 ]
-@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) studio() = monster_furniture : "Monster Furniture" 
+@PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) model({ "path": model}) = monster_furniture : "Monster Furniture" 
 [
-	model(studio) : "model"
+	model(string) : "model"
 
 ]
 @PointClass base(Monster, Sequence) size(-32 -32 0, 32 32 128) model({ "path": "models/garg.mdl", "frame": sequence, "skin": skin }) = monster_gargantua : "Gargantua" []
-@PointClass base(Monster, RenderFields, Sequence) size(-16 -16 -36, 16 16 36) studio() = monster_generic : "Generic Script Monster" 
+@PointClass base(Monster, RenderFields, Sequence) size(-16 -16 -36, 16 16 36) model({ "path": model}) = monster_generic : "Generic Script Monster" 
 [
 	spawnflags(Flags) = 
 	[
 		4 : "Not solid"	: 0
 	]
-	model(studio) : "model"
+	model(string) : "model"
 	body(Integer) : "Body" : 0
 ]
 @PointClass base(Monster, Sequence) size(-16 -16 0, 16 16 72) model({ "path": "models/gman.mdl", "frame": sequence, "skin": skin }) = monster_gman : "G-Man" []
