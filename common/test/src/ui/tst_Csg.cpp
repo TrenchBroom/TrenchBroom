@@ -279,7 +279,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 // Test for https://github.com/TrenchBroom/TrenchBroom/issues/3755
 TEST_CASE("CsgTest.csgSubtractFailure")
 {
-  auto [document, game, gameConfig] = ui::loadMapDocument(
+  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
     "fixture/test/ui/MapDocumentTest/csgSubtractFailure.map",
     "Quake",
     mdl::MapFormat::Valve);
@@ -315,7 +315,7 @@ TEST_CASE("CsgTest.csgSubtractFailure")
 
 TEST_CASE("CsgTest.csgHollow")
 {
-  auto [document, game, gameConfig] = ui::loadMapDocument(
+  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
     "fixture/test/ui/MapDocumentTest/csgHollow.map", "Quake", mdl::MapFormat::Valve);
 
   REQUIRE(document->currentLayer()->childCount() == 2);

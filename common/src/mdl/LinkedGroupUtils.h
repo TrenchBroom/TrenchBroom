@@ -37,6 +37,11 @@
 #include <utility>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 
@@ -133,7 +138,8 @@ using UpdateLinkedGroupsResult =
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<mdl::GroupNode*>& targetGroupNodes,
-  const vm::bbox3d& worldBounds);
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager);
 
 std::vector<Error> initializeLinkIds(const std::vector<Node*>& nodes);
 

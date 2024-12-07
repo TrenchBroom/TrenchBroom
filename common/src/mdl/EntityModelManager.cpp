@@ -60,25 +60,26 @@ void EntityModelManager::clear()
   // Remove logging because it might fail when the document is already destroyed.
 }
 
-void EntityModelManager::reloadShaders()
+void EntityModelManager::reloadShaders(kdl::task_manager& taskManager)
 {
   m_shaders.clear();
 
   if (m_game)
   {
     m_shaders =
-      io::loadShaders(m_game->gameFileSystem(), m_game->config().materialConfig, m_logger)
+      io::loadShaders(
+        m_game->gameFileSystem(), m_game->config().materialConfig, taskManager, m_logger)
       | kdl::if_error(
         [&](const auto& e) { m_logger.error() << "Failed to reload shaders: " << e.msg; })
       | kdl::value_or(std::vector<Quake3Shader>{});
   }
 }
 
-void EntityModelManager::setGame(const mdl::Game* game)
+void EntityModelManager::setGame(const mdl::Game* game, kdl::task_manager& taskManager)
 {
   clear();
   m_game = game;
-  reloadShaders();
+  reloadShaders(taskManager);
 }
 
 render::MaterialRenderer* EntityModelManager::renderer(

@@ -140,7 +140,9 @@ public:
     ObjExportOptions options);
 
 private:
-  void doBeginFile(const std::vector<const mdl::Node*>& rootNodes) override;
+  void doBeginFile(
+    const std::vector<const mdl::Node*>& rootNodes,
+    kdl::task_manager& taskManager) override;
   void doEndFile() override;
 
   void doBeginEntity(const mdl::Node* node) override;

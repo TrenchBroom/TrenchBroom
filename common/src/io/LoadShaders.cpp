@@ -29,9 +29,9 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Quake3Shader.h"
 
-#include "kdl/parallel.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/task_manager.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -67,7 +67,10 @@ Result<std::vector<mdl::Quake3Shader>> loadShader(
 } // namespace
 
 Result<std::vector<mdl::Quake3Shader>> loadShaders(
-  const FileSystem& fs, const mdl::MaterialConfig& materialConfig, Logger& logger)
+  const FileSystem& fs,
+  const mdl::MaterialConfig& materialConfig,
+  kdl::task_manager& taskManager,
+  Logger& logger)
 {
   if (fs.pathInfo(materialConfig.shaderSearchPath) != PathInfo::Directory)
   {
@@ -79,10 +82,11 @@ Result<std::vector<mdl::Quake3Shader>> loadShaders(
            TraversalMode::Flat,
            makeExtensionPathMatcher({".shader"}))
          | kdl::and_then([&](auto paths) {
-             return kdl::vec_parallel_transform(
-                      paths,
-                      [&](const auto& path) { return loadShader(fs, path, logger); })
-                    | kdl::fold;
+             auto tasks =
+               paths | std::views::transform([&](const auto& path) {
+                 return std::function{[&]() { return loadShader(fs, path, logger); }};
+               });
+             return taskManager.run_tasks_and_wait(tasks) | kdl::fold;
            })
          | kdl::transform(
            [&](auto nestedShaders) { return kdl::vec_flatten(std::move(nestedShaders)); })

@@ -27,9 +27,9 @@
 #include "mdl/NodeQueries.h"
 
 #include "kdl/grouped_range.h"
-#include "kdl/parallel.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h"
+#include "kdl/task_manager.h"
 #include "kdl/zip_iterator.h"
 
 #include <string_view>
@@ -267,7 +267,10 @@ Result<std::unique_ptr<Node>> cloneAndTransformRecursive(
  * Returns a vector of the cloned direct children of `node`.
  */
 Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
-  const Node& node, const vm::bbox3d& worldBounds, const vm::mat4x4d& transformation)
+  const Node& node,
+  const vm::bbox3d& worldBounds,
+  const vm::mat4x4d& transformation,
+  kdl::task_manager& taskManager)
 {
   auto nodesToClone = collectDescendants(std::vector{&node});
 
@@ -275,43 +278,45 @@ Result<std::vector<std::unique_ptr<Node>>> cloneAndTransformChildren(
 
   // In parallel, produce pairs { node pointer, transformed contents } from the nodes in
   // `nodesToClone`
-  auto transformResults =
-    kdl::vec_parallel_transform(nodesToClone, [&](const Node* nodeToTransform) {
-      return nodeToTransform->accept(kdl::overload(
-        [](const WorldNode*) -> TransformResult {
-          ensure(false, "Linked group structure is valid");
-        },
-        [](const LayerNode*) -> TransformResult {
-          ensure(false, "Linked group structure is valid");
-        },
-        [&](const GroupNode* groupNode) -> TransformResult {
-          auto group = groupNode->group();
-          group.transform(transformation);
-          return std::make_pair(nodeToTransform, NodeContents{std::move(group)});
-        },
-        [&](const EntityNode* entityNode) -> TransformResult {
-          const auto updateAngleProperty =
-            entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
-          auto entity = entityNode->entity();
-          entity.transform(transformation, updateAngleProperty);
-          return std::make_pair(nodeToTransform, NodeContents{std::move(entity)});
-        },
-        [&](const BrushNode* brushNode) -> TransformResult {
-          auto brush = brushNode->brush();
-          return brush.transform(worldBounds, transformation, true)
-                 | kdl::and_then([&]() -> TransformResult {
-                     return std::make_pair(
-                       nodeToTransform, NodeContents{std::move(brush)});
-                   });
-        },
-        [&](const PatchNode* patchNode) -> TransformResult {
-          auto patch = patchNode->patch();
-          patch.transform(transformation);
-          return std::make_pair(nodeToTransform, NodeContents{std::move(patch)});
-        }));
+  auto tasks =
+    nodesToClone | std::views::transform([&](const auto& nodeToTransform) {
+      return std::function{[&]() {
+        return nodeToTransform->accept(kdl::overload(
+          [](const WorldNode*) -> TransformResult {
+            ensure(false, "Linked group structure is valid");
+          },
+          [](const LayerNode*) -> TransformResult {
+            ensure(false, "Linked group structure is valid");
+          },
+          [&](const GroupNode* groupNode) -> TransformResult {
+            auto group = groupNode->group();
+            group.transform(transformation);
+            return std::make_pair(nodeToTransform, NodeContents{std::move(group)});
+          },
+          [&](const EntityNode* entityNode) -> TransformResult {
+            const auto updateAngleProperty =
+              entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
+            auto entity = entityNode->entity();
+            entity.transform(transformation, updateAngleProperty);
+            return std::make_pair(nodeToTransform, NodeContents{std::move(entity)});
+          },
+          [&](const BrushNode* brushNode) -> TransformResult {
+            auto brush = brushNode->brush();
+            return brush.transform(worldBounds, transformation, true)
+                   | kdl::and_then([&]() -> TransformResult {
+                       return std::make_pair(
+                         nodeToTransform, NodeContents{std::move(brush)});
+                     });
+          },
+          [&](const PatchNode* patchNode) -> TransformResult {
+            auto patch = patchNode->patch();
+            patch.transform(transformation);
+            return std::make_pair(nodeToTransform, NodeContents{std::move(patch)});
+          }));
+      }};
     });
 
-  return std::move(transformResults) | kdl::fold
+  return taskManager.run_tasks_and_wait(tasks) | kdl::fold
          | kdl::or_else(
            [](const auto&) -> Result<std::vector<std::pair<const Node*, NodeContents>>> {
              return Error{"Failed to transform a linked node"};
@@ -466,7 +471,8 @@ void preserveEntityProperties(
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
   const std::vector<GroupNode*>& targetGroupNodes,
-  const vm::bbox3d& worldBounds)
+  const vm::bbox3d& worldBounds,
+  kdl::task_manager& taskManager)
 {
   const auto& sourceGroup = sourceGroupNode.group();
   const auto invertedSourceTransformation = vm::invert(sourceGroup.transformation());
@@ -483,7 +489,7 @@ Result<UpdateLinkedGroupsResult> updateLinkedGroups(
              const auto transformation =
                targetGroupNode->group().transformation() * *invertedSourceTransformation;
              return cloneAndTransformChildren(
-                      sourceGroupNode, worldBounds, transformation)
+                      sourceGroupNode, worldBounds, transformation, taskManager)
                     | kdl::transform([&](auto newChildren) {
                         const auto linkIdToNodeMap =
                           makeLinkIdToNodeMap(targetGroupNode->children());

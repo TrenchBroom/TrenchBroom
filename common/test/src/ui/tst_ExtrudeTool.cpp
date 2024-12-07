@@ -231,7 +231,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
   // clang-format on
 
   const auto mapPath = "fixture/test/ui/ExtrudeToolTest" / mapName;
-  auto [document, game, gameConfig] =
+  auto [document, game, gameConfig, taskManager] =
     ui::loadMapDocument(mapPath, "Quake", mdl::MapFormat::Valve);
 
   document->selectAllNodes();
@@ -277,7 +277,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 {
   using namespace mdl::HitFilters;
 
-  auto [document, game, gameConfig] = ui::loadMapDocument(
+  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
     "fixture/test/ui/ExtrudeToolTest/splitBrushes.map", "Quake", mdl::MapFormat::Valve);
 
   document->selectAllNodes();

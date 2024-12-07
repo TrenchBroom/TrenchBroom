@@ -63,11 +63,12 @@ void NodeSerializer::setExporting(const bool exporting)
   m_exporting = exporting;
 }
 
-void NodeSerializer::beginFile(const std::vector<const mdl::Node*>& rootNodes)
+void NodeSerializer::beginFile(
+  const std::vector<const mdl::Node*>& rootNodes, kdl::task_manager& taskManager)
 {
   m_entityNo = 0;
   m_brushNo = 0;
-  doBeginFile(rootNodes);
+  doBeginFile(rootNodes, taskManager);
 }
 
 void NodeSerializer::endFile()

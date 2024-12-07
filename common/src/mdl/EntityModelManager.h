@@ -31,6 +31,11 @@
 #include <unordered_set>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb
 {
 class Logger;
@@ -74,9 +79,9 @@ public:
   ~EntityModelManager();
 
   void clear();
-  void reloadShaders();
+  void reloadShaders(kdl::task_manager& taskManager);
 
-  void setGame(const mdl::Game* game);
+  void setGame(const mdl::Game* game, kdl::task_manager& taskManager);
 
   render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 

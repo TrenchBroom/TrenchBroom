@@ -138,6 +138,7 @@ struct GameConfig
   std::vector<SmartTag> smartTags;
   std::optional<vm::bbox3d> softMapBounds;
   std::vector<CompilationTool> compilationTools;
+  bool forceEmptyNewMap = false;
 
   CompilationConfig compilationConfig{};
   GameEngineConfig gameEngineConfig{};

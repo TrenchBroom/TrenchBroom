@@ -23,6 +23,11 @@
 
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb
 {
 class Logger;
@@ -39,6 +44,9 @@ namespace tb::io
 class FileSystem;
 
 Result<std::vector<mdl::Quake3Shader>> loadShaders(
-  const FileSystem& fs, const mdl::MaterialConfig& materialConfig, Logger& logger);
+  const FileSystem& fs,
+  const mdl::MaterialConfig& materialConfig,
+  kdl::task_manager& taskManager,
+  Logger& logger);
 
 } // namespace tb::io

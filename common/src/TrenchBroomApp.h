@@ -21,6 +21,8 @@
 
 #include <QApplication>
 
+#include "kdl/task_manager.h"
+
 #include <filesystem>
 #include <memory>
 #include <string>
@@ -45,6 +47,7 @@ class TrenchBroomApp : public QApplication
 {
   Q_OBJECT
 private:
+  kdl::task_manager m_taskManager = kdl::task_manager{256};
   std::unique_ptr<FrameManager> m_frameManager;
   std::unique_ptr<RecentDocuments> m_recentDocuments;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;

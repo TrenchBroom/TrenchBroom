@@ -22,6 +22,8 @@
 #include "mdl/MapFormat.h"
 #include "ui/MapDocument.h"
 
+#include "kdl/task_manager.h"
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -44,6 +46,7 @@ private:
   mdl::MapFormat m_mapFormat;
 
 protected:
+  std::unique_ptr<kdl::task_manager> taskManager;
   std::shared_ptr<mdl::TestGame> game;
   std::shared_ptr<MapDocument> document;
   mdl::PointEntityDefinition* m_pointEntityDef = nullptr;

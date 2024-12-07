@@ -33,6 +33,11 @@
 #include <variant>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 class BrushNode;
@@ -129,13 +134,15 @@ protected:
    *
    * @throws ParserException if parsing fails
    */
-  void readEntities(const vm::bbox3d& worldBounds, ParserStatus& status);
+  void readEntities(
+    const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
   /**
    * Attempts to parse as one or more brushes without any enclosing entity.
    *
    * @throws ParserException if parsing fails
    */
-  void readBrushes(const vm::bbox3d& worldBounds, ParserStatus& status);
+  void readBrushes(
+    const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
   /**
    * Attempts to parse as one or more brush faces.
    *
@@ -180,7 +187,7 @@ protected: // implement MapParser interface
     ParserStatus& status) override;
 
 private: // helper methods
-  void createNodes(ParserStatus& status);
+  void createNodes(ParserStatus& status, kdl::task_manager& taskManager);
 
 private: // subclassing interface - these will be called in the order that nodes should be
          // inserted

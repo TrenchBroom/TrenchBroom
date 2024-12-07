@@ -24,6 +24,8 @@
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
 
+#include "kdl/task_manager.h"
+
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
@@ -37,6 +39,8 @@ bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2);
 bool pointExactlyIntegral(const vm::vec3d& point);
 bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs);
+
+std::unique_ptr<kdl::task_manager> createTestTaskManager();
 
 namespace mdl
 {
@@ -190,11 +194,14 @@ struct DocumentGameConfig
   std::shared_ptr<MapDocument> document;
   std::shared_ptr<mdl::Game> game;
   std::unique_ptr<mdl::GameConfig> gameConfig;
+  std::unique_ptr<kdl::task_manager> taskManager;
 };
+
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
   mdl::MapFormat mapFormat);
+
 DocumentGameConfig newMapDocument(const std::string& gameName, mdl::MapFormat mapFormat);
 } // namespace ui
 

@@ -28,6 +28,8 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
 
+#include "kdl/task_manager.h"
+
 #include "Catch2.h"
 
 namespace tb::io
@@ -51,13 +53,16 @@ TEST_CASE("AseLoaderTest")
     std::filesystem::current_path() / "fixture/test/io/ResourceUtils/assets";
   fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
+  auto taskManager = kdl::task_manager{};
+
   SECTION("parseFailure_2657")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/steelstorm_player";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));
@@ -83,7 +88,8 @@ TEST_CASE("AseLoaderTest")
       std::filesystem::current_path() / "fixture/test/io/Ase/no_scene_directive";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));
@@ -109,7 +115,8 @@ TEST_CASE("AseLoaderTest")
       std::filesystem::current_path() / "fixture/test/io/Ase/index_out_of_bounds";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));
@@ -135,7 +142,8 @@ TEST_CASE("AseLoaderTest")
       std::filesystem::current_path() / "fixture/test/io/Ase/index_out_of_bounds";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));

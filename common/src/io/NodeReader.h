@@ -25,6 +25,11 @@
 #include <string_view>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::io
 {
 class ParserStatus;
@@ -58,7 +63,8 @@ public:
     mdl::MapFormat preferredMapFormat,
     const vm::bbox3d& worldBounds,
     const mdl::EntityPropertyConfig& entityPropertyConfig,
-    ParserStatus& status);
+    ParserStatus& status,
+    kdl::task_manager& taskManager);
 
 private:
   static std::vector<mdl::Node*> readAsFormat(
@@ -67,7 +73,8 @@ private:
     const std::string& str,
     const vm::bbox3d& worldBounds,
     const mdl::EntityPropertyConfig& entityPropertyConfig,
-    ParserStatus& status);
+    ParserStatus& status,
+    kdl::task_manager& taskManager);
 
 private: // implement MapReader interface
   mdl::Node* onWorldNode(

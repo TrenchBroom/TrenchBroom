@@ -39,9 +39,9 @@ FrameManager::FrameManager(const bool singleFrame)
 
 FrameManager::~FrameManager() = default;
 
-MapFrame* FrameManager::newFrame()
+MapFrame* FrameManager::newFrame(kdl::task_manager& taskManager)
 {
-  return createOrReuseFrame();
+  return createOrReuseFrame(taskManager);
 }
 
 std::vector<MapFrame*> FrameManager::frames() const
@@ -92,12 +92,12 @@ void FrameManager::onFocusChange(QWidget* /* old */, QWidget* now)
   }
 }
 
-MapFrame* FrameManager::createOrReuseFrame()
+MapFrame* FrameManager::createOrReuseFrame(kdl::task_manager& taskManager)
 {
   assert(!m_singleFrame || m_frames.size() <= 1);
   if (!m_singleFrame || m_frames.empty())
   {
-    auto document = MapDocumentCommandFacade::newMapDocument();
+    auto document = MapDocumentCommandFacade::newMapDocument(taskManager);
     createFrame(std::move(document));
   }
   return topFrame();

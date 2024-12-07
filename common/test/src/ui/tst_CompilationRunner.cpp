@@ -225,7 +225,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
 TEST_CASE("CompilationExportMapTaskRunner")
 {
-  auto [document, game, gameConfig] =
+  auto [document, game, gameConfig, taskManager] =
     ui::newMapDocument("Quake", mdl::MapFormat::Standard);
 
   auto testEnvironment = io::TestEnvironment{};
@@ -404,7 +404,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationDeleteFilesTaskRunner")
 
 TEST_CASE("CompilationRunner")
 {
-  auto [document, game, gameConfig] = ui::loadMapDocument(
+  auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
     "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
     "Quake",
     mdl::MapFormat::Unknown);

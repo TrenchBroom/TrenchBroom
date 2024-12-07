@@ -30,6 +30,8 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
+#include "kdl/task_manager.h"
+
 #include <filesystem>
 
 #include "Catch2.h"
@@ -54,13 +56,16 @@ TEST_CASE("AseLoaderTest")
   auto fs = VirtualFileSystem{};
   fs.mount("", std::make_unique<DiskFileSystem>(defaultAssetsPath));
 
+  auto taskManager = kdl::task_manager{};
+
   SECTION("loadWithoutException")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/wedge_with_shader";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));
@@ -87,7 +92,8 @@ TEST_CASE("AseLoaderTest")
       std::filesystem::current_path() / "fixture/test/io/Ase/fallback_to_materialname";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));
@@ -117,7 +123,8 @@ TEST_CASE("AseLoaderTest")
       std::filesystem::current_path() / "fixture/test/io/Ase/load_default_material";
     fs.mount("", std::make_unique<DiskFileSystem>(basePath));
 
-    const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+    const auto shaders =
+      loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
     const auto createResource = [](auto resourceLoader) {
       return createResourceSync(std::move(resourceLoader));

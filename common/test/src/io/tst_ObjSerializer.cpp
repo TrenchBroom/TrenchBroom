@@ -31,6 +31,7 @@
 #include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
+#include "kdl/task_manager.h"
 
 #include <fmt/format.h>
 
@@ -47,6 +48,8 @@ TEST_CASE("ObjSerializer.writeBrush")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
+  auto taskManager = kdl::task_manager{};
+
   auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
   auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
@@ -62,7 +65,7 @@ TEST_CASE("ObjSerializer.writeBrush")
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-  writer.writeMap();
+  writer.writeMap(taskManager);
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
@@ -114,6 +117,8 @@ TEST_CASE("ObjSerializer.writePatch")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
+  auto taskManager = kdl::task_manager{};
+
   auto map = mdl::WorldNode{{}, {}, mdl::MapFormat::Quake3};
 
   auto builder = mdl::BrushBuilder{map.mapFormat(), worldBounds};
@@ -140,7 +145,7 @@ TEST_CASE("ObjSerializer.writePatch")
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlFilename, objOptions)};
-  writer.writeMap();
+  writer.writeMap(taskManager);
 
   CHECK(objStream.str() == R"(mtllib some_file_name.mtl
 # vertices
@@ -390,6 +395,8 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
+  auto taskManager = kdl::task_manager{};
+
   // must outlive map
   auto textureResource = createTextureResource(mdl::Texture{16, 16});
   auto material = mdl::Material{"some_material", std::move(textureResource)};
@@ -431,7 +438,7 @@ TEST_CASE("ObjSerializer.writeRelativeMaterialPath")
 
   auto writer = NodeWriter{
     map, std::make_unique<ObjSerializer>(objStream, mtlStream, mtlName, options)};
-  writer.writeMap();
+  writer.writeMap(taskManager);
 
   const auto expectedMtl = expectedPath ? fmt::format(
                                             R"(newmtl some_material

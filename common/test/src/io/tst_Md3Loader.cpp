@@ -29,6 +29,8 @@
 #include "mdl/GameConfig.h"
 #include "mdl/Palette.h"
 
+#include "kdl/task_manager.h"
+
 #include "vm/bbox.h"
 
 #include <filesystem>
@@ -58,7 +60,10 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
     std::make_unique<DiskFileSystem>(
       std::filesystem::current_path() / "fixture/test/io/Md3/bfg"));
 
-  const auto shaders = loadShaders(fs, materialConfig, logger) | kdl::value();
+  auto taskManager = kdl::task_manager{};
+
+  const auto shaders =
+    loadShaders(fs, materialConfig, taskManager, logger) | kdl::value();
 
   const auto createResource = [](auto resourceLoader) {
     return createResourceSync(std::move(resourceLoader));
@@ -74,7 +79,7 @@ TEST_CASE("Md3LoaderTest.loadValidMd3")
   const auto md3File = fs.openFile(md3Path) | kdl::value();
 
   auto reader = md3File->reader().buffer();
-  auto loader = Md3Loader("bfg", reader, loadMaterial);
+  auto loader = Md3Loader{"bfg", reader, loadMaterial};
   auto modelData = loader.load(logger);
 
   CHECK(modelData.is_success());

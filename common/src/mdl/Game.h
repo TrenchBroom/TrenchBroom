@@ -21,16 +21,12 @@
 
 #include "Result.h"
 #include "io/EntityDefinitionLoader.h"
-#include "io/ExportOptions.h"
 #include "mdl/GameConfig.h"
-#include "mdl/MapFormat.h"
-#include "mdl/TextureResource.h"
 
 #include "vm/bbox.h"
 
 #include <filesystem>
 #include <map>
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -98,43 +94,7 @@ public: // game configuration
    */
   virtual SoftMapBounds extractSoftMapBounds(const Entity& entity) const = 0;
 
-public: // loading and writing map files
-  virtual Result<std::unique_ptr<WorldNode>> newMap(
-    MapFormat format, const vm::bbox3d& worldBounds, Logger& logger) const = 0;
-  virtual Result<std::unique_ptr<WorldNode>> loadMap(
-    MapFormat format,
-    const vm::bbox3d& worldBounds,
-    const std::filesystem::path& path,
-    Logger& logger) const = 0;
-  virtual Result<void> writeMap(
-    WorldNode& world, const std::filesystem::path& path) const = 0;
-  virtual Result<void> exportMap(
-    WorldNode& world, const io::ExportOptions& options) const = 0;
-
-public: // parsing and serializing objects
-  virtual std::vector<Node*> parseNodes(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    Logger& logger) const = 0;
-  virtual std::vector<BrushFace> parseBrushFaces(
-    const std::string& str,
-    MapFormat mapFormat,
-    const vm::bbox3d& worldBounds,
-    Logger& logger) const = 0;
-
-  virtual void writeNodesToStream(
-    WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const = 0;
-  virtual void writeBrushFacesToStream(
-    WorldNode& world,
-    const std::vector<BrushFace>& faces,
-    std::ostream& stream) const = 0;
-
 public: // material collection handling
-  virtual void loadMaterialCollections(
-    MaterialManager& materialManager,
-    const CreateTextureResource& createResource) const = 0;
-
   virtual void reloadWads(
     const std::filesystem::path& documentPath,
     const std::vector<std::filesystem::path>& wadPaths,

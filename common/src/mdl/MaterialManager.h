@@ -22,10 +22,14 @@
 #include "mdl/MaterialCollection.h"
 #include "mdl/TextureResource.h"
 
-#include <filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+namespace kdl
+{
+class task_manager;
+}
 
 namespace tb
 {
@@ -64,7 +68,8 @@ public:
   void reload(
     const io::FileSystem& fs,
     const mdl::MaterialConfig& materialConfig,
-    const CreateTextureResource& createResource);
+    const CreateTextureResource& createResource,
+    kdl::task_manager& taskManager);
 
   // for testing
   void setMaterialCollections(std::vector<MaterialCollection> collections);

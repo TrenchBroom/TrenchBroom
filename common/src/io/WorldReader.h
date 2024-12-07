@@ -27,6 +27,11 @@
 #include <tuple>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 struct EntityPropertyConfig;
@@ -59,7 +64,7 @@ public:
     const mdl::EntityPropertyConfig& entityPropertyConfig);
 
   std::unique_ptr<mdl::WorldNode> read(
-    const vm::bbox3d& worldBounds, ParserStatus& status);
+    const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
 
   /**
    * Try to parse the given string as the given map formats, in order.
@@ -69,6 +74,7 @@ public:
    * @param mapFormatsToTry formats to try, in order
    * @param worldBounds world bounds
    * @param status status
+   * @param taskManager the task manager to use for parallel tasks
    * @return the world node
    * @throws WorldReaderException if `str` can't be parsed by any of the given formats
    */
@@ -77,7 +83,8 @@ public:
     const std::vector<mdl::MapFormat>& mapFormatsToTry,
     const vm::bbox3d& worldBounds,
     const mdl::EntityPropertyConfig& entityPropertyConfig,
-    ParserStatus& status);
+    ParserStatus& status,
+    kdl::task_manager& taskManager);
 
 private: // implement MapReader interface
   mdl::Node* onWorldNode(

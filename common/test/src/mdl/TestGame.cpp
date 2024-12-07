@@ -22,22 +22,16 @@
 #include "TestUtils.h"
 #include "io/BrushFaceReader.h"
 #include "io/DiskFileSystem.h"
-#include "io/DiskIO.h"
-#include "io/ExportOptions.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
-#include "io/TestParserStatus.h"
 #include "io/VirtualFileSystem.h"
 #include "io/WadFileSystem.h"
-#include "mdl/BrushFace.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/WorldNode.h"
-
-#include "kdl/result.h"
 
 #include <memory>
 #include <vector>
@@ -54,6 +48,11 @@ TestGame::TestGame()
 TestGame::~TestGame() = default;
 
 const GameConfig& TestGame::config() const
+{
+  return m_config;
+}
+
+GameConfig& TestGame::config()
 {
   return m_config;
 }
@@ -87,87 +86,6 @@ Game::PathErrors TestGame::checkAdditionalSearchPaths(
   const std::vector<std::filesystem::path>& /* searchPaths */) const
 {
   return {};
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::newMap(
-  const MapFormat format, const vm::bbox3d& /* worldBounds */, Logger& /* logger */) const
-{
-  return std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-}
-
-Result<std::unique_ptr<WorldNode>> TestGame::loadMap(
-  const MapFormat format,
-  const vm::bbox3d& /* worldBounds */,
-  const std::filesystem::path& /* path */,
-  Logger& /* logger */) const
-{
-  return m_worldNodeToLoad
-           ? std::move(m_worldNodeToLoad)
-           : std::make_unique<WorldNode>(EntityPropertyConfig{}, Entity{}, format);
-}
-
-Result<void> TestGame::writeMap(WorldNode& world, const std::filesystem::path& path) const
-{
-  return io::Disk::withOutputStream(path, [&](auto& stream) {
-    auto writer = io::NodeWriter{world, stream};
-    writer.writeMap();
-  });
-}
-
-Result<void> TestGame::exportMap(
-  WorldNode& /* world */, const io::ExportOptions& /* options */) const
-{
-  return kdl::void_success;
-}
-
-std::vector<Node*> TestGame::parseNodes(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& /* logger */) const
-{
-  auto status = io::TestParserStatus{};
-  return io::NodeReader::read(str, mapFormat, worldBounds, {}, status);
-}
-
-std::vector<BrushFace> TestGame::parseBrushFaces(
-  const std::string& str,
-  const MapFormat mapFormat,
-  const vm::bbox3d& worldBounds,
-  Logger& /* logger */) const
-{
-  auto status = io::TestParserStatus{};
-  auto reader = io::BrushFaceReader{str, mapFormat};
-  return reader.read(worldBounds, status);
-}
-
-void TestGame::writeNodesToStream(
-  WorldNode& world, const std::vector<Node*>& nodes, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeNodes(nodes);
-}
-
-void TestGame::writeBrushFacesToStream(
-  WorldNode& world, const std::vector<BrushFace>& faces, std::ostream& stream) const
-{
-  auto writer = io::NodeWriter{world, stream};
-  writer.writeBrushFaces(faces);
-}
-
-void TestGame::loadMaterialCollections(
-  MaterialManager& materialManager, const CreateTextureResource& createResource) const
-{
-  const auto materialConfig = mdl::MaterialConfig{
-    "textures",
-    {".D"},
-    "fixture/test/palette.lmp",
-    "wad",
-    "",
-    {},
-  };
-
-  materialManager.reload(*m_fs, materialConfig, createResource);
 }
 
 void TestGame::reloadWads(
@@ -227,11 +145,6 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> TestGame::loadEntityDefin
   io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
   return std::vector<std::unique_ptr<EntityDefinition>>{};
-}
-
-void TestGame::setWorldNodeToLoad(std::unique_ptr<WorldNode> worldNode)
-{
-  m_worldNodeToLoad = std::move(worldNode);
 }
 
 void TestGame::setSmartTags(std::vector<SmartTag> smartTags)

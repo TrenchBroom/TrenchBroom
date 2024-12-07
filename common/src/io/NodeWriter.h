@@ -23,6 +23,11 @@
 #include <memory>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb::mdl
 {
 class BrushNode;
@@ -51,7 +56,7 @@ public:
   ~NodeWriter();
 
   void setExporting(bool exporting);
-  void writeMap();
+  void writeMap(kdl::task_manager& taskManager);
 
 private:
   void writeDefaultLayer();
@@ -59,14 +64,15 @@ private:
   void writeCustomLayer(const mdl::LayerNode* layer);
 
 public:
-  void writeNodes(const std::vector<mdl::Node*>& nodes);
+  void writeNodes(const std::vector<mdl::Node*>& nodes, kdl::task_manager& taskManager);
 
 private:
   void writeWorldBrushes(const std::vector<mdl::BrushNode*>& brushes);
   void writeEntityBrushes(const EntityBrushesMap& entityBrushes);
 
 public:
-  void writeBrushFaces(const std::vector<mdl::BrushFace>& faces);
+  void writeBrushFaces(
+    const std::vector<mdl::BrushFace>& faces, kdl::task_manager& taskManager);
 };
 
 } // namespace tb::io

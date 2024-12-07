@@ -19,11 +19,13 @@
 
 #pragma once
 
-#include "mdl/IdType.h"
-
 #include <string>
-#include <unordered_map>
 #include <vector>
+
+namespace kdl
+{
+class task_manager;
+}
 
 namespace tb
 {
@@ -88,7 +90,8 @@ public:
    * Any nodes serialized after calling beginFile() must have either been
    * in the rootNodes vector or be a descendant of one of these nodes.
    */
-  void beginFile(const std::vector<const mdl::Node*>& rootNodes);
+  void beginFile(
+    const std::vector<const mdl::Node*>& rootNodes, kdl::task_manager& taskManager);
   void endFile();
 
 public:
@@ -142,7 +145,8 @@ protected:
   std::string escapeEntityProperties(const std::string& str) const;
 
 private:
-  virtual void doBeginFile(const std::vector<const mdl::Node*>& nodes) = 0;
+  virtual void doBeginFile(
+    const std::vector<const mdl::Node*>& nodes, kdl::task_manager& taskManager) = 0;
   virtual void doEndFile() = 0;
 
   virtual void doBeginEntity(const mdl::Node* node) = 0;

@@ -24,14 +24,22 @@
 #include "mdl/BrushNode.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/task_manager.h"
+
 #include "Catch2.h"
 
 namespace tb::io
 {
 
-TEST_CASE("WorldReaderTest.parseFailure_1424")
+TEST_CASE("WorldReader_Regression")
 {
-  const auto data = R"(
+  auto taskManager = kdl::task_manager{};
+  const auto worldBounds = vm::bbox3d{8192.0};
+  auto status = io::TestParserStatus{};
+
+  SECTION("parseFailure_1424")
+  {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 "message" "yay"
@@ -45,18 +53,14 @@ TEST_CASE("WorldReaderTest.parseFailure_1424")
 }
 })";
 
-  const auto worldBounds = vm::bbox3d{8192.0};
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto world = reader.read(worldBounds, status, taskManager);
+    CHECK(world != nullptr);
+  }
 
-  auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-
-  auto world = reader.read(worldBounds, status);
-  CHECK(world != nullptr);
-}
-
-TEST_CASE("WorldReaderTest.parseProblematicBrush1")
-{
-  const auto data = R"(
+  SECTION("parseProblematicBrush1")
+  {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -68,32 +72,30 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush1")
 ( 287 152 208 ) ( 287 152 176 ) ( 323 116 176 ) mt_sr_v13 -65 -111 -180 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto world = reader.read(worldBounds, status, taskManager);
+    REQUIRE(world != nullptr);
 
-  auto world = reader.read(worldBounds, status);
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
 
-  CHECK(world->childCount() == 1u);
-  auto* defaultLayer = world->children().front();
-  CHECK(defaultLayer->childCount() == 1u);
+    auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brushNode, false);
+    const auto& faces = brushNode->brush().faces();
+    CHECK(faces.size() == 6u);
+    CHECK(findFaceByPoints(faces, {308, 108, 176}, {308, 132, 176}, {252, 132, 176}));
+    CHECK(findFaceByPoints(faces, {252, 132, 208}, {308, 132, 208}, {308, 108, 208}));
+    CHECK(findFaceByPoints(faces, {288, 152, 176}, {288, 152, 208}, {288, 120, 208}));
+    CHECK(findFaceByPoints(faces, {288, 122, 176}, {288, 122, 208}, {308, 102, 208}));
+    CHECK(findFaceByPoints(faces, {308, 100, 176}, {308, 100, 208}, {324, 116, 208}));
+    CHECK(findFaceByPoints(faces, {287, 152, 208}, {287, 152, 176}, {323, 116, 176}));
+  }
 
-  auto* brushNode = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
-  checkBrushUVCoordSystem(brushNode, false);
-  const auto& faces = brushNode->brush().faces();
-  CHECK(faces.size() == 6u);
-  CHECK(findFaceByPoints(faces, {308, 108, 176}, {308, 132, 176}, {252, 132, 176}));
-  CHECK(findFaceByPoints(faces, {252, 132, 208}, {308, 132, 208}, {308, 108, 208}));
-  CHECK(findFaceByPoints(faces, {288, 152, 176}, {288, 152, 208}, {288, 120, 208}));
-  CHECK(findFaceByPoints(faces, {288, 122, 176}, {288, 122, 208}, {308, 102, 208}));
-  CHECK(findFaceByPoints(faces, {308, 100, 176}, {308, 100, 208}, {324, 116, 208}));
-  CHECK(findFaceByPoints(faces, {287, 152, 208}, {287, 152, 176}, {323, 116, 176}));
-}
-
-TEST_CASE("WorldReaderTest.parseProblematicBrush2")
-{
-  const auto data = R"(
+  SECTION("parseProblematicBrush2")
+  {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -105,23 +107,20 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush2")
 ( -559 1090 96 ) ( -598 1090 96 ) ( -598 1055 96 ) mt_sr_v13 -16 0 0 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3d{8192.0};
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto world = reader.read(worldBounds, status, taskManager);
+    REQUIRE(world != nullptr);
 
-  auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brush, false);
+  }
 
-  auto world = reader.read(worldBounds, status);
-
-  CHECK(world->childCount() == 1u);
-  auto* defaultLayer = world->children().front();
-  CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
-  checkBrushUVCoordSystem(brush, false);
-}
-
-TEST_CASE("WorldReaderTest.parseProblematicBrush3")
-{
-  const auto data = R"(
+  SECTION("parseProblematicBrush3")
+  {
+    const auto data = R"(
 {
 "classname" "worldspawn"
 {
@@ -133,18 +132,16 @@ TEST_CASE("WorldReaderTest.parseProblematicBrush3")
 ( -32 1136 32 ) ( -32 1152 -96 ) ( -32 1120 -96 ) b_rc_v4 0 32 90 1 1
 }
 })";
-  const auto worldBounds = vm::bbox3d{8192.0};
+    auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
+    auto world = reader.read(worldBounds, status, taskManager);
+    REQUIRE(world != nullptr);
 
-  auto status = io::TestParserStatus{};
-  auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-
-  auto world = reader.read(worldBounds, status);
-
-  CHECK(world->childCount() == 1u);
-  auto* defaultLayer = world->children().front();
-  CHECK(defaultLayer->childCount() == 1u);
-  auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
-  checkBrushUVCoordSystem(brush, false);
+    CHECK(world->childCount() == 1u);
+    auto* defaultLayer = world->children().front();
+    CHECK(defaultLayer->childCount() == 1u);
+    auto* brush = static_cast<mdl::BrushNode*>(defaultLayer->children().front());
+    checkBrushUVCoordSystem(brush, false);
+  }
 }
 
 } // namespace tb::io

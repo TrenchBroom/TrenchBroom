@@ -28,6 +28,11 @@
 #include <optional>
 #include <vector>
 
+namespace kdl
+{
+class task_manager;
+}
+
 namespace tb
 {
 class Logger;
@@ -56,6 +61,7 @@ Result<std::vector<mdl::MaterialCollection>> loadMaterialCollections(
   const FileSystem& fs,
   const mdl::MaterialConfig& materialConfig,
   const mdl::CreateTextureResource& createResource,
+  kdl::task_manager& taskManager,
   Logger& logger);
 
 } // namespace tb::io

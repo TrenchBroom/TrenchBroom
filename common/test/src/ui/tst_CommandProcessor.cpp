@@ -19,6 +19,7 @@
 
 #include "Macros.h"
 #include "NotifierConnection.h"
+#include "TestUtils.h"
 #include "ui/CommandProcessor.h"
 #include "ui/MapDocumentCommandFacade.h"
 #include "ui/TransactionScope.h"
@@ -251,7 +252,8 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
    * Execute a successful command, then undo it successfully.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -297,7 +299,8 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo")
    * Execute a successful command, then undo fails.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -339,7 +342,8 @@ TEST_CASE("CommandProcessorTest.doFailingCommand")
    * Execute a failing command.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -368,7 +372,8 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction")
    * successfully. Finally, redo it, also with success.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -451,7 +456,8 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction")
    * commit it.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -516,7 +522,8 @@ TEST_CASE("CommandProcessorTest.nestedTransactions")
    * and commit both transactions. Then undo the outer transaction.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -592,8 +599,10 @@ TEST_CASE("CommandProcessorTest.nestedTransactions")
 }
 
 TEST_CASE("CommandProceossor.isCurrentDocumentStateObservable")
+
 {
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
 
   SECTION("No enclosing transaction")
@@ -677,7 +686,8 @@ TEST_CASE("CommandProcessorTest.collateCommands")
    * Execute a command and collate the next command, then undo.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -737,7 +747,8 @@ TEST_CASE("CommandProcessorTest.collationInterval")
    * collation interval. Then, undo the second command.
    */
 
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade, std::chrono::milliseconds(100)};
   auto observer = TestObserver{commandProcessor};
 
@@ -795,8 +806,10 @@ TEST_CASE("CommandProcessorTest.collationInterval")
 }
 
 TEST_CASE("CommandProcessorTest.collateTransactions")
+
 {
-  auto facade = MapDocumentCommandFacade{};
+  auto taskManager = createTestTaskManager();
+  auto facade = MapDocumentCommandFacade{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
