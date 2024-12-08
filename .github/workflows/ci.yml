@@ -63,17 +63,11 @@ jobs:
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
       # Dependencies
-      - name: Install common Linux dependencies
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+      - name: Install Linux dependencies
+        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
         run: |
           sudo apt update
-          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev
-
-      - name: Install Qt5 on Ubuntu 22.04
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          sudo apt update
-          sudo apt install qtbase5-dev libqt5svg5-dev
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2 qtbase5-dev libqt5svg5-dev qt5ct
 
       - name: Install Pandoc (Windows)
         if: ${{ matrix.os == 'windows-2022' }}
@@ -115,7 +109,7 @@ jobs:
 
       # Run build script
       - name: Linux build
-        if: ${{ startsWith(matrix.os, 'ubuntu-') }}
+        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
         run: ./CI-linux.sh
 
       - name: macOS build
@@ -169,7 +163,7 @@ jobs:
         with:
           name: ubuntu-22.04
           path: |
-            build/*.deb
+            build/*.AppImage
             build/*.md5
 
       # macOS
@@ -192,7 +186,8 @@ jobs:
         with:
           draft: true
           files: |
-            build/*.deb
+            build/*.AppImage
+            build/*.AppImage.md5
             build/*.dmg
             build/*.md5
             cmakebuild/*.7z

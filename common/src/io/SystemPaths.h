@@ -49,4 +49,5 @@ std::vector<std::filesystem::path> findResourceDirectories(
 void setPortable();
 void setPortable(bool newState);
 bool isPortable();
+
 } // namespace tb::io::SystemPaths
