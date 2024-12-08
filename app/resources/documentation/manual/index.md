@@ -440,9 +440,9 @@ TrenchBroom gives you various options on how to create new objects. In the follo
 
 ### Creating Simple Shapes
 
-The easiest way to create a new brush is to just draw it out with the mouse using the Simple Shape Tool which is enabled by default when nothing else is selected or any other tool active. Left drag in the 3D viewport or any of the 2D viewports.
+The easiest way to create a new brush is to just draw it out with the mouse using the Simple Shape Tool. The tool is enabled by default when nothing else is selected or any other tool active. Left drag in the 3D viewport or any of the 2D viewports.
 
-When drawing a brush in the 3D viewport, its shape is controlled from the point under the mouse where you initially started your drag, to the point currently under the mouse cursor, and the current grid size. Essentially, while drawing your brush on the XY plane, and its height will be set to the current grid size. While dragging you can force the XY planes to equal lengths by holding #key(Shift), or force XYZ planes to equal lengths by holding #key(Shift)+#key(Alt), and its also possible to change just the height while drawing a brush by holding #key(Alt).
+When drawing a brush in the 3D viewport, its shape is controlled from the point under the mouse where you initially started your drag, to the point currently under the mouse cursor, and the current grid size. When drawing your brush on the XY axes, the height of the brush will be set to the current grid size. While dragging you can force the XY axes to be equal by holding #key(Shift), or force all XYZ axes to be equal by holding #key(Shift)+#key(Alt), and its also possible to change just the height while drawing a brush by holding #key(Alt).
 
 ![Creating a cuboid in the 3D viewport](images/DrawBrush.gif)
 
