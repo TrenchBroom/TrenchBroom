@@ -725,7 +725,7 @@ Result<void> MapDocument::loadDocument(
 
   clearDocument();
 
-  return loadMap(m_game->config(), mapFormat, worldBounds, path, m_taskManager, logger())
+  return loadMap(game->config(), mapFormat, worldBounds, path, m_taskManager, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, path);
              documentWasLoadedNotifier(this);
