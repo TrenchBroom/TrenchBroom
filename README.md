@@ -8,6 +8,7 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 - Website:   https://github.com/TrenchBroom/TrenchBroom
 - Discord:   https://discord.gg/WGf9uve
 - Mastodon:  https://mastodon.gamedev.place/@trenchbroom
+- Bluesky:   https://bsky.app/profile/trenchbroom.bsky.social
 - Video Tutorial Series:  https://www.youtube.com/playlist?list=PLgDKRPte5Y0AZ_K_PZbWbgBAEt5xf74aE
 - Manual:    https://trenchbroom.github.io/manual/latest
 
