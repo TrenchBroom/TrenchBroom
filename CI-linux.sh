@@ -46,7 +46,7 @@ fi
 
 cd "$BUILD_DIR"
 
--ldd --verbose ./app/trenchbroom
+ldd --verbose ./app/trenchbroom
 
 make install DESTDIR=AppDir | exit 1
 
