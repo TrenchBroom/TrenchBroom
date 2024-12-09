@@ -111,6 +111,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/tst_octree.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_Preferences.cpp"
         "${COMMON_TEST_SOURCE_DIR}/tst_StackWalker.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/MapDocumentTest.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/MapDocumentTest.h"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ActionContext.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Actions.cpp"
