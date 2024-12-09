@@ -732,17 +732,6 @@ Result<void> MapDocument::loadDocument(
            });
 }
 
-void MapDocument::loadWorld(
-  const vm::bbox3d& worldBounds,
-  std::unique_ptr<mdl::WorldNode> worldNode,
-  std::shared_ptr<mdl::Game> game,
-  const std::filesystem::path& path)
-{
-  clearDocument();
-  setWorld(worldBounds, std::move(worldNode), game, path);
-  documentWasLoadedNotifier(this);
-}
-
 void MapDocument::saveDocument()
 {
   doSaveDocument(m_path);
