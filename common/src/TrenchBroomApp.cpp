@@ -25,6 +25,7 @@
 #include "Result.h"
 #include "TrenchBroomStackWalker.h"
 #include "io/DiskIO.h"
+#include "io/MapHeader.h"
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
@@ -44,6 +45,8 @@
 #include "ui/QtUtils.h"
 #include "ui/RecentDocuments.h"
 #include "ui/WelcomeWindow.h"
+
+#include "kdl/vector_utils.h"
 #ifdef __APPLE__
 #include "ui/ActionBuilder.h"
 #endif
@@ -95,6 +98,35 @@ std::shared_ptr<MapDocument> topDocument()
     }
   }
   return {};
+}
+
+std::optional<std::tuple<std::string, mdl::MapFormat>> detectOrQueryGameAndFormat(
+  const std::filesystem::path& path)
+{
+  return io::Disk::withInputStream(path, io::readMapHeader)
+         | kdl::transform(
+           [&](auto detectedGameNameAndMapFormat)
+             -> std::optional<std::tuple<std::string, mdl::MapFormat>> {
+             auto [gameName, mapFormat] = detectedGameNameAndMapFormat;
+             const auto& gameFactory = mdl::GameFactory::instance();
+
+             if (
+               gameName == std::nullopt
+               || !kdl::vec_contains(gameFactory.gameList(), *gameName)
+               || mapFormat == mdl::MapFormat::Unknown)
+             {
+               auto queriedGameNameAndMapFormat = GameDialog::showOpenDocumentDialog();
+               if (!queriedGameNameAndMapFormat)
+               {
+                 return std::nullopt;
+               }
+
+               std::tie(gameName, mapFormat) = *queriedGameNameAndMapFormat;
+             }
+
+             return std::optional{std::tuple{std::move(*gameName), mapFormat}};
+           })
+         | kdl::transform_error([](const auto&) { return std::nullopt; }) | kdl::value();
 }
 
 } // namespace
@@ -366,24 +398,21 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
              m_recentDocuments->removePath(absPath);
              return Result<void>{e};
            })
-           | kdl::and_then([&]() { return gameFactory.detectGame(absPath); })
-           | kdl::and_then([&](const auto& gameNameAndMapFormat) {
-               auto [gameName, mapFormat] = gameNameAndMapFormat;
-
-               if (gameName.empty() || mapFormat == mdl::MapFormat::Unknown)
+           | kdl::and_then([&]() {
+               const auto gameNameAndMapFormat = detectOrQueryGameAndFormat(absPath);
+               if (!gameNameAndMapFormat)
                {
-                 if (!GameDialog::showOpenDocumentDialog(nullptr, gameName, mapFormat))
-                 {
-                   return Result<bool>{false};
-                 }
+                 return Result<bool>{false};
                }
 
                frame = m_frameManager->newFrame(m_taskManager);
 
+               auto [gameName, mapFormat] = *gameNameAndMapFormat;
                auto game = gameFactory.createGame(gameName, frame->logger());
                ensure(game.get() != nullptr, "game is null");
 
                closeWelcomeWindow();
+
                return frame->openDocument(game, mapFormat, absPath);
              })
            | kdl::transform_error([&](const auto& e) {
@@ -456,12 +485,13 @@ bool TrenchBroomApp::newDocument()
   auto* frame = static_cast<MapFrame*>(nullptr);
   try
   {
-    auto gameName = std::string{};
-    auto mapFormat = mdl::MapFormat::Unknown;
-    if (!GameDialog::showNewDocumentDialog(nullptr, gameName, mapFormat))
+    const auto gameNameAndMapFormat = GameDialog::showNewDocumentDialog();
+    if (!gameNameAndMapFormat)
     {
       return false;
     }
+
+    const auto [gameName, mapFormat] = *gameNameAndMapFormat;
 
     frame = m_frameManager->newFrame(m_taskManager);
 

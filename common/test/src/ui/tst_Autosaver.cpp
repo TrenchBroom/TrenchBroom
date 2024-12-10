@@ -228,7 +228,9 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
       == std::vector<std::string>{
         "autosave/test.1.map",
         "autosave/test.2.map",
-        R"(// entity 0
+        R"(// Game: Test
+// Format: Standard
+// entity 0
 {
 "classname" "worldspawn"
 }
@@ -249,7 +251,9 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
       kdl::vec_transform(allPaths, [&](const auto& path) { return env.loadFile(path); })
       == std::vector<std::string>{
         "autosave/test.2.map",
-        R"(// entity 0
+        R"(// Game: Test
+// Format: Standard
+// entity 0
 {
 "classname" "worldspawn"
 }
@@ -257,7 +261,9 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
 {
 }
 )",
-        R"(// entity 0
+        R"(// Game: Test
+// Format: Standard
+// entity 0
 {
 "classname" "worldspawn"
 }
@@ -317,7 +323,9 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTest.autosaverCleanup")
       == std::vector<std::string>{
         "autosave/test.1.map",
         "autosave/test.3.map",
-        R"(// entity 0
+        R"(// Game: Test
+// Format: Standard
+// entity 0
 {
 "classname" "worldspawn"
 }
