@@ -220,51 +220,6 @@ const GameConfig& GameFactory::gameConfig(const std::string& name) const
   return cIt->second;
 }
 
-namespace
-{
-std::string readInfoComment(std::istream& stream, const std::string& name)
-{
-  const auto expectedHeader = "// " + name + ": ";
-
-  auto lineBuffer = std::string{};
-  std::getline(stream, lineBuffer);
-  if (stream.fail())
-  {
-    return "";
-  }
-
-  const auto lineView = std::string_view{lineBuffer};
-  if (!kdl::cs::str_is_prefix(lineView, expectedHeader))
-  {
-    return "";
-  }
-
-  auto result = lineView.substr(expectedHeader.size());
-  if (!result.empty() && result.back() == '\r')
-  {
-    result = result.substr(0, result.length() - 1);
-  }
-  return std::string{result};
-}
-} // namespace
-
-Result<std::pair<std::string, MapFormat>> GameFactory::detectGame(
-  const std::filesystem::path& path) const
-{
-  return io::Disk::withInputStream(path, [&](auto& stream) {
-    auto gameName = readInfoComment(stream, "Game");
-    if (m_configs.find(gameName) == std::end(m_configs))
-    {
-      gameName = "";
-    }
-
-    const auto formatName = readInfoComment(stream, "Format");
-    const auto format = formatFromName(formatName);
-
-    return std::pair{gameName, format};
-  });
-}
-
 const std::filesystem::path& GameFactory::userGameConfigsPath() const
 {
   return m_userGameDir;

@@ -25,6 +25,7 @@
 #include "mdl/MapFormat.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 class QComboBox;
