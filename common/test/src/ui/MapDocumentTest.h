@@ -20,6 +20,7 @@
 #pragma once
 
 #include "mdl/MapFormat.h"
+#include "mdl/TestGame.h"
 #include "ui/MapDocument.h"
 
 #include "kdl/task_manager.h"

@@ -725,22 +725,11 @@ Result<void> MapDocument::loadDocument(
 
   clearDocument();
 
-  return loadMap(m_game->config(), mapFormat, worldBounds, path, m_taskManager, logger())
+  return loadMap(game->config(), mapFormat, worldBounds, path, m_taskManager, logger())
          | kdl::transform([&](auto worldNode) {
              setWorld(worldBounds, std::move(worldNode), game, path);
              documentWasLoadedNotifier(this);
            });
-}
-
-void MapDocument::loadWorld(
-  const vm::bbox3d& worldBounds,
-  std::unique_ptr<mdl::WorldNode> worldNode,
-  std::shared_ptr<mdl::Game> game,
-  const std::filesystem::path& path)
-{
-  clearDocument();
-  setWorld(worldBounds, std::move(worldNode), game, path);
-  documentWasLoadedNotifier(this);
 }
 
 void MapDocument::saveDocument()

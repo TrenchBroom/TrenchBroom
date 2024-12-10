@@ -408,13 +408,12 @@ DocumentGameConfig loadMapDocument(
   const std::string& gameName,
   const mdl::MapFormat mapFormat)
 {
-  auto [document, game, gameConfig, taskManager] = newMapDocument(gameName, mapFormat);
+  auto taskManager = createTestTaskManager();
+  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
 
+  auto [game, gameConfig] = mdl::loadGame(gameName);
   document->loadDocument(
-    mapFormat,
-    document->worldBounds(),
-    document->game(),
-    std::filesystem::current_path() / mapPath)
+    mapFormat, vm::bbox3d{8192.0}, game, std::filesystem::current_path() / mapPath)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   document->processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
@@ -430,7 +429,7 @@ DocumentGameConfig newMapDocument(
   auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
-  document->newDocument(mapFormat, vm::bbox3d(8192.0), game)
+  document->newDocument(mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   return {
