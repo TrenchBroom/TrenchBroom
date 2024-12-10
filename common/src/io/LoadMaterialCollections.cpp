@@ -258,7 +258,7 @@ Result<mdl::Texture> loadTexture(
       return Error{"Palette is required for mip textures"};
     }
 
-    return fs.openFile(path) | kdl::join(*paletteResult)
+    return fs.openFile(path).join(*paletteResult)
            | kdl::and_then([&](auto file, const auto& palette) {
                auto reader = file->reader().buffer();
                const auto mask = getTextureMaskFromName(name);
