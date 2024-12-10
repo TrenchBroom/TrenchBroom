@@ -275,6 +275,8 @@ void LayerEditor::onRemoveLayer()
   {
     document->setCurrentLayer(defaultLayer);
   }
+
+  m_layerList->updateSelectionForRemoval();
   document->removeNodes({layer});
   transaction.commit();
 

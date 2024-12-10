@@ -90,6 +90,7 @@ public:
 
   mdl::LayerNode* selectedLayer() const;
   void setSelectedLayer(mdl::LayerNode* layer);
+  void updateSelectionForRemoval();
 
 private:
   size_t itemCount() const override;
