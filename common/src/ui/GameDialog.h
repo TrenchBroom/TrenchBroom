@@ -25,6 +25,7 @@
 #include "mdl/MapFormat.h"
 
 #include <filesystem>
+#include <optional>
 #include <string>
 
 class QComboBox;
@@ -55,11 +56,10 @@ protected:
   NotifierConnection m_notifierConnection;
 
 public:
-  // FIXME: return a tuple instead of taking in/out parameters
-  static bool showNewDocumentDialog(
-    QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat);
-  static bool showOpenDocumentDialog(
-    QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat);
+  static std::optional<std::tuple<std::string, mdl::MapFormat>> showNewDocumentDialog(
+    QWidget* parent = nullptr);
+  static std::optional<std::tuple<std::string, mdl::MapFormat>> showOpenDocumentDialog(
+    QWidget* parent = nullptr);
 
   std::string currentGameName() const;
   mdl::MapFormat currentMapFormat() const;

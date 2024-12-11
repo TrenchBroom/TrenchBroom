@@ -2153,25 +2153,6 @@ public:
   friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
-template <typename R>
-struct result_join
-{
-  R join;
-};
-
-template <typename R>
-auto join(R r)
-{
-  return result_join<R>{std::move(r)};
-}
-
-template <typename R1, typename R2>
-auto operator|(R1&& r1, result_join<R2> r2)
-{
-  static_assert(is_result_v<std::decay_t<R1>>, "Can only pipe a result type");
-  return std::forward<R1>(r1).join(std::move(r2.join));
-}
-
 template <typename F>
 struct result_and_then
 {

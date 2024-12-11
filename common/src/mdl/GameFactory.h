@@ -141,17 +141,6 @@ public:
   const GameConfig& gameConfig(const std::string& gameName) const;
 
   /**
-   * Scans the map file at the given path to find game type and map format comments and
-   * returns the name of the game and the map format.
-   *
-   * If no game comment is found or the game is unknown, an empty string is returned as
-   * the game name. If no map format comment is found or the format is unknown,
-   * MapFormat::Unknown is returned as the map format.
-   */
-  Result<std::pair<std::string, MapFormat>> detectGame(
-    const std::filesystem::path& path) const;
-
-  /**
    * Returns the directory for user game configurations.
    * Solely for showing these to the user.
    *

@@ -53,6 +53,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_GameEngineConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ImageFileSystem.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_LoadMaterialCollections.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/io/tst_MapHeader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_MaterialUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Md3Loader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_MdlLoader.cpp"
