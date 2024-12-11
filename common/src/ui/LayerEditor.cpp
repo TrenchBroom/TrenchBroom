@@ -247,6 +247,8 @@ void LayerEditor::onAddLayer()
     transaction.commit();
 
     m_layerList->setSelectedLayer(layerNode);
+
+    updateButtons();
   }
 }
 
@@ -273,8 +275,12 @@ void LayerEditor::onRemoveLayer()
   {
     document->setCurrentLayer(defaultLayer);
   }
+
+  m_layerList->updateSelectionForRemoval();
   document->removeNodes({layer});
   transaction.commit();
+
+  updateButtons();
 }
 
 bool LayerEditor::canRemoveLayer() const

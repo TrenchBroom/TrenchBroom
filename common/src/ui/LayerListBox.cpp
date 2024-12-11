@@ -189,6 +189,23 @@ void LayerListBox::setSelectedLayer(mdl::LayerNode* layer)
   setCurrentRow(-1);
 }
 
+void LayerListBox::updateSelectionForRemoval()
+{
+  const auto currentRow = this->currentRow();
+  if (currentRow < count() - 1)
+  {
+    setCurrentRow(currentRow + 1);
+  }
+  else if (currentRow > 0)
+  {
+    setCurrentRow(currentRow - 1);
+  }
+  else
+  {
+    setCurrentRow(-1);
+  }
+}
+
 void LayerListBox::connectObservers()
 {
   auto document = kdl::mem_lock(m_document);
