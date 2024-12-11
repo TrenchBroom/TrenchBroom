@@ -67,6 +67,12 @@ static const size_t ModelFaceIndex = 0x38;
 namespace
 {
 
+bool isBSPVersionSupported(const int version)
+{
+  // 29 is Quake, 30 is GoldSrc.
+  return version == 29 || version == 30;
+}
+
 struct MaterialInfo
 {
   vm::vec3f uAxis;
@@ -90,7 +96,11 @@ struct FaceInfo
 
 
 std::vector<mdl::Material> parseMaterials(
-  Reader reader, const mdl::Palette& palette, const FileSystem& fs, Logger& logger)
+  Reader reader,
+  const int version,
+  const mdl::Palette& palette,
+  const FileSystem& fs,
+  Logger& logger)
 {
   const auto materialCount = reader.readSize<int32_t>();
   auto result = std::vector<mdl::Material>{};
@@ -111,7 +121,8 @@ std::vector<mdl::Material> parseMaterials(
     const auto mask = getTextureMaskFromName(materialName);
 
     result.push_back(
-      readIdMipTexture(textureReader, palette, mask)
+      (version == 29 ? readIdMipTexture(textureReader, palette, mask)
+                     : readHlMipTexture(textureReader, mask))
       | kdl::or_else(makeReadTextureErrorHandler(fs, logger))
       | kdl::transform([&](auto texture) {
           auto textureResource = createTextureResource(std::move(texture));
@@ -290,7 +301,7 @@ bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
   }
 
   const auto version = reader.readInt<int32_t>();
-  return version == 29;
+  return isBSPVersionSupported(version);
 }
 
 Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
@@ -299,7 +310,7 @@ Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
   {
     auto reader = m_reader;
     const auto version = reader.readInt<int32_t>();
-    if (version != 29)
+    if (!isBSPVersionSupported(version))
     {
       return Error{"Unsupported BSP model version: " + std::to_string(version)};
     }
@@ -339,8 +350,8 @@ Result<mdl::EntityModelData> BspLoader::load(Logger& logger)
 
     auto data = mdl::EntityModelData{mdl::PitchType::Normal, mdl::Orientation::Oriented};
 
-    auto materials =
-      parseMaterials(reader.subReaderFromBegin(materialsOffset), m_palette, m_fs, logger);
+    auto materials = parseMaterials(
+      reader.subReaderFromBegin(materialsOffset), version, m_palette, m_fs, logger);
 
     auto& surface = data.addSurface(m_name, frameCount);
     surface.setSkins(std::move(materials));
