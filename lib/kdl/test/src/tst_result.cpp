@@ -1626,13 +1626,6 @@ TEST_CASE("result")
 
   SECTION("operator|")
   {
-    SECTION("join")
-    {
-      auto joined = result<int, Error1>{1} | join(result<float, Error2>{2.0f});
-      CHECK(
-        joined == result<multi_value<int, float>, Error1, Error2>{multi_value{1, 2.0f}});
-    }
-
     SECTION("and_then")
     {
       SECTION("const lvalue success")

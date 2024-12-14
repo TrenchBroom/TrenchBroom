@@ -41,8 +41,8 @@ Q_DECLARE_METATYPE(tb::mdl::MapFormat)
 namespace tb::ui
 {
 
-bool GameDialog::showNewDocumentDialog(
-  QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat)
+std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showNewDocumentDialog(
+  QWidget* parent)
 {
   auto dialog = GameDialog{
     "Select Game",
@@ -52,16 +52,17 @@ bool GameDialog::showNewDocumentDialog(
 
   if (dialog.exec() == QDialog::Rejected)
   {
-    return false;
+    return std::nullopt;
   }
 
-  gameName = dialog.currentGameName();
-  mapFormat = dialog.currentMapFormat();
-  return true;
+  return std::tuple{
+    dialog.currentGameName(),
+    dialog.currentMapFormat(),
+  };
 }
 
-bool GameDialog::showOpenDocumentDialog(
-  QWidget* parent, std::string& gameName, mdl::MapFormat& mapFormat)
+std::optional<std::tuple<std::string, mdl::MapFormat>> GameDialog::showOpenDocumentDialog(
+  QWidget* parent)
 {
   auto dialog = GameDialog{
     "Select Game",
@@ -71,12 +72,13 @@ bool GameDialog::showOpenDocumentDialog(
 
   if (dialog.exec() == QDialog::Rejected)
   {
-    return false;
+    return std::nullopt;
   }
 
-  gameName = dialog.currentGameName();
-  mapFormat = dialog.currentMapFormat();
-  return true;
+  return std::tuple{
+    dialog.currentGameName(),
+    dialog.currentMapFormat(),
+  };
 }
 
 std::string GameDialog::currentGameName() const

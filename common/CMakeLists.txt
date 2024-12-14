@@ -70,6 +70,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.cpp
         ${COMMON_SOURCE_DIR}/io/LoadShaders.cpp
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.cpp
+        ${COMMON_SOURCE_DIR}/io/MapHeader.cpp
         ${COMMON_SOURCE_DIR}/io/MapParser.cpp
         ${COMMON_SOURCE_DIR}/io/MapReader.cpp
         ${COMMON_SOURCE_DIR}/io/MaterialUtils.cpp
@@ -564,6 +565,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/LoadMaterialCollections.h
         ${COMMON_SOURCE_DIR}/io/LoadShaders.h
         ${COMMON_SOURCE_DIR}/io/MapFileSerializer.h
+        ${COMMON_SOURCE_DIR}/io/MapHeader.h
         ${COMMON_SOURCE_DIR}/io/MapParser.h
         ${COMMON_SOURCE_DIR}/io/MapReader.h
         ${COMMON_SOURCE_DIR}/io/MaterialUtils.h

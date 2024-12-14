@@ -28,6 +28,7 @@
 #include "io/ExportOptions.h"
 #include "io/GameConfigParser.h"
 #include "io/LoadMaterialCollections.h"
+#include "io/MapHeader.h"
 #include "io/NodeReader.h"
 #include "io/NodeWriter.h"
 #include "io/ObjSerializer.h"
@@ -748,6 +749,8 @@ void MapDocument::saveDocumentTo(const std::filesystem::path& path)
   ensure(m_world, "world is null");
 
   io::Disk::withOutputStream(path, [&](auto& stream) {
+    io::writeMapHeader(stream, m_game->config().name, m_world->mapFormat());
+
     auto writer = io::NodeWriter{*m_world, stream};
     writer.setExporting(false);
     writer.writeMap(m_taskManager);
