@@ -345,11 +345,8 @@ Result<mdl::Material> loadTextureMaterial(
   const auto isWad = kdl::path_to_lower(wadFileName.extension()) == ".wad";
 
   const auto prefixLength = kdl::path_length(materialConfig.root) + (isWad ? 1 : 0);
-  const auto pathMatcher = !materialConfig.extensions.empty()
-                             ? makeExtensionPathMatcher(materialConfig.extensions)
-                             : matchAnyPath;
-
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
+
   auto textureLoader = makeTextureResourceLoader(texturePath, name, fs, paletteResult);
   auto textureResource = createResource(std::move(textureLoader));
   return mdl::Material{std::move(name), std::move(textureResource)};
