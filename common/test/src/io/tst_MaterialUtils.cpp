@@ -21,10 +21,13 @@
 #include "io/DiskFileSystem.h"
 #include "io/MaterialUtils.h"
 #include "io/ReadFreeImageTexture.h"
+#include "io/TestEnvironment.h"
 
 #include "kdl/result.h"
 
 #include <filesystem>
+
+#include "catch/Matchers.h"
 
 #include "Catch2.h"
 
@@ -49,6 +52,34 @@ TEST_CASE("getMaterialNameFromPathSuffix")
   CAPTURE(prefixLength, path);
 
   CHECK(getMaterialNameFromPathSuffix(path, prefixLength) == expectedResult);
+}
+
+TEST_CASE("findMaterialFile")
+{
+  auto env = TestEnvironment{};
+  env.createDirectory("textures");
+  env.createFile("textures/test.png", "");
+  env.createFile("textures/test.jpg", "");
+  env.createFile("textures/other.txt", "");
+
+  const auto extensions = std::vector<std::string>{".png", ".jpg"};
+
+  auto diskFS = DiskFileSystem{env.dir()};
+  CHECK(
+    findMaterialFile(diskFS, "asdf/test.png", extensions)
+    == Result<std::filesystem::path>{std::filesystem::path{"asdf/test.png"}});
+  CHECK(
+    findMaterialFile(diskFS, "textures/test.png", extensions)
+    == Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}});
+  CHECK_THAT(
+    findMaterialFile(diskFS, "textures/test.tga", extensions),
+    MatchesAnyOf(std::vector{
+      Result<std::filesystem::path>{std::filesystem::path{"textures/test.png"}},
+      Result<std::filesystem::path>{std::filesystem::path{"textures/test.jpg"}},
+    }));
+  CHECK(
+    findMaterialFile(diskFS, "textures/other.png", extensions)
+    == Result<std::filesystem::path>{std::filesystem::path{"textures/other.png"}});
 }
 
 TEST_CASE("makeReadTextureErrorHandler")

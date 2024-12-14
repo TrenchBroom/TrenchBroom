@@ -50,6 +50,11 @@ class FileSystem;
 std::string getMaterialNameFromPathSuffix(
   const std::filesystem::path& path, size_t prefixLength);
 
+Result<std::filesystem::path> findMaterialFile(
+  const FileSystem& fs,
+  const std::filesystem::path& materialPath,
+  const std::vector<std::string>& extensions);
+
 bool checkTextureDimensions(size_t width, size_t height);
 
 size_t mipSize(size_t width, size_t height, size_t mipLevel);
