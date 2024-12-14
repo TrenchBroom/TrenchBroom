@@ -34,6 +34,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
+#include "ui/Transaction.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
@@ -770,6 +771,36 @@ TEST_CASE("MapDocumentTest")
             mdl::MapFormat::Unknown),
           io::WorldReaderException);
       }
+    }
+  }
+
+  SECTION("exportDocumentAs")
+  {
+    auto env = io::TestEnvironment{};
+
+    SECTION("omit layers from export")
+    {
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
+
+      {
+        auto [document, game, gameConfig, taskManager] =
+          ui::newMapDocument("Quake", mdl::MapFormat::Valve);
+
+        auto layer = mdl::Layer{"Layer"};
+        layer.setOmitFromExport(true);
+
+        auto* layerNode = new mdl::LayerNode{std::move(layer)};
+        document->addNodes({{document->world(), {layerNode}}});
+
+        REQUIRE(
+          document->exportDocumentAs(io::MapExportOptions{env.dir() / newDocumentPath})
+            .is_success());
+        REQUIRE(env.fileExists(newDocumentPath));
+      }
+
+      auto [document, game, gameConfig, taskManager] =
+        ui::loadMapDocument(env.dir() / newDocumentPath, "Quake", mdl::MapFormat::Valve);
+      CHECK(document->world()->customLayers().empty());
     }
   }
 

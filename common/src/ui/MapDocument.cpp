@@ -779,7 +779,7 @@ Result<void> MapDocument::exportDocumentAs(const io::ExportOptions& options)
       [&](const io::MapExportOptions& mapOptions) {
         return io::Disk::withOutputStream(mapOptions.exportPath, [&](auto& stream) {
           auto writer = io::NodeWriter{*m_world, stream};
-          writer.setExporting(false);
+          writer.setExporting(true);
           writer.writeMap(m_taskManager);
         });
       }),
