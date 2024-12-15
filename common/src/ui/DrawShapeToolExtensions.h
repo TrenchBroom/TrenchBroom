@@ -20,17 +20,13 @@
 #pragma once
 
 #include "Result.h"
+#include "mdl/BrushBuilder.h"
 #include "ui/DrawShapeToolExtension.h"
 
 #include <memory>
 #include <vector>
 
 class QWidget;
-
-namespace tb::mdl
-{
-enum class RadiusMode;
-}
 
 namespace tb::ui
 {
@@ -64,8 +60,7 @@ private:
 
 struct CircularShapeParameters : AxisAlignedShapeParameters
 {
-  size_t numSides;
-  mdl::RadiusMode radiusMode;
+  mdl::CircleShape circleShape;
 };
 
 class DrawShapeToolCircularShapeExtensionPage

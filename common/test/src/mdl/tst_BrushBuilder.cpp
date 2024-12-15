@@ -160,8 +160,7 @@ TEST_CASE("BrushBuilderTest.createCylinder")
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   const auto cylinder = builder.createCylinder(
     vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
-    4,
-    RadiusMode::ToEdge,
+    EdgeAlignedCircle{4},
     vm::axis::z,
     "someName");
 
@@ -185,8 +184,7 @@ TEST_CASE("BrushBuilderTest.createHollowCylinder")
   const auto cylinder = builder.createHollowCylinder(
     vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
     8.0,
-    8,
-    RadiusMode::ToEdge,
+    EdgeAlignedCircle{8},
     vm::axis::z,
     "someName");
 
