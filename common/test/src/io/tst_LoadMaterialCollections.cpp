@@ -124,6 +124,38 @@ auto createResource(mdl::ResourceLoader<mdl::Texture> resourceLoader)
 
 } // namespace
 
+TEST_CASE("loadMaterial")
+{
+  auto fs = VirtualFileSystem{};
+  auto logger = NullLogger{};
+
+  const auto workDir = std::filesystem::current_path();
+
+  auto taskManager = kdl::task_manager{};
+
+  const auto testDir = workDir / "fixture/test/io/LoadMaterial";
+  fs.mount("", std::make_unique<DiskFileSystem>(testDir));
+
+  const auto materialConfig = mdl::MaterialConfig{
+    "textures",
+    {".png", ".jpg"},
+    "",
+    std::nullopt,
+    "scripts",
+    {},
+  };
+
+  CHECK(loadMaterial(fs, materialConfig, "material.jpg", createResource, {}, std::nullopt)
+          .is_success());
+
+  SECTION("find alternative file extensions")
+  {
+    CHECK(
+      loadMaterial(fs, materialConfig, "material.png", createResource, {}, std::nullopt)
+        .is_success());
+  }
+}
+
 TEST_CASE("loadMaterialCollections")
 {
   auto fs = VirtualFileSystem{};
