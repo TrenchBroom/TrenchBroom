@@ -40,6 +40,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/el/tst_Interpolator.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AssimpLoader.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_CompilationConfigParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DefParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_DiskFileSystem.cpp"
