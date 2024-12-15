@@ -34,6 +34,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
+#include "ui/Transaction.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
@@ -698,72 +699,108 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
 
 TEST_CASE("MapDocumentTest")
 {
-  SECTION("Writing map header")
+  SECTION("saveDocumentTo")
   {
-    auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
-      "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
-      "Quake",
-      mdl::MapFormat::Unknown);
-    REQUIRE(document->world()->mapFormat() == mdl::MapFormat::Valve);
-
-    auto env = io::TestEnvironment{};
-
-    const auto newDocumentPath = std::filesystem::path{"test.map"};
-    document->saveDocumentTo(env.dir() / newDocumentPath);
-    REQUIRE(env.fileExists(newDocumentPath));
-
-    const auto newDocumentContent = env.loadFile(newDocumentPath);
-    auto istr = std::istringstream{newDocumentContent};
-
-    CHECK(
-      io::readMapHeader(istr)
-      == Result<std::pair<std::optional<std::string>, mdl::MapFormat>>{
-        std::pair{"Quake", mdl::MapFormat::Valve}});
-  }
-
-  SECTION("Format detection")
-  {
-    SECTION("detectValveFormatMap")
+    SECTION("Writing map header")
     {
       auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
         "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
         "Quake",
         mdl::MapFormat::Unknown);
-      CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
-      CHECK(document->world()->defaultLayer()->childCount() == 1);
-    }
+      REQUIRE(document->world()->mapFormat() == mdl::MapFormat::Valve);
 
-    SECTION("detectStandardFormatMap")
-    {
-      auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
-        "fixture/test/ui/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
-        "Quake",
-        mdl::MapFormat::Unknown);
-      CHECK(document->world()->mapFormat() == mdl::MapFormat::Standard);
-      CHECK(document->world()->defaultLayer()->childCount() == 1);
-    }
+      auto env = io::TestEnvironment{};
 
-    SECTION("detectEmptyMap")
-    {
-      auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
-        "fixture/test/ui/MapDocumentTest/emptyMapWithoutFormatTag.map",
-        "Quake",
-        mdl::MapFormat::Unknown);
-      // an empty map detects as Valve because Valve is listed first in the Quake game
-      // config
-      CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
-      CHECK(document->world()->defaultLayer()->childCount() == 0);
-    }
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
+      document->saveDocumentTo(env.dir() / newDocumentPath);
+      REQUIRE(env.fileExists(newDocumentPath));
 
-    SECTION("mixedFormats")
+      const auto newDocumentContent = env.loadFile(newDocumentPath);
+      auto istr = std::istringstream{newDocumentContent};
+
+      CHECK(
+        io::readMapHeader(istr)
+        == Result<std::pair<std::optional<std::string>, mdl::MapFormat>>{
+          std::pair{"Quake", mdl::MapFormat::Valve}});
+    }
+  }
+
+  SECTION("loadDocument")
+  {
+    SECTION("Format detection")
     {
-      // map has both Standard and Valve brushes
-      CHECK_THROWS_AS(
-        ui::loadMapDocument(
-          "fixture/test/ui/MapDocumentTest/mixedFormats.map",
+      SECTION("detectValveFormatMap")
+      {
+        auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
+          "fixture/test/ui/MapDocumentTest/valveFormatMapWithoutFormatTag.map",
           "Quake",
-          mdl::MapFormat::Unknown),
-        io::WorldReaderException);
+          mdl::MapFormat::Unknown);
+        CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
+        CHECK(document->world()->defaultLayer()->childCount() == 1);
+      }
+
+      SECTION("detectStandardFormatMap")
+      {
+        auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
+          "fixture/test/ui/MapDocumentTest/standardFormatMapWithoutFormatTag.map",
+          "Quake",
+          mdl::MapFormat::Unknown);
+        CHECK(document->world()->mapFormat() == mdl::MapFormat::Standard);
+        CHECK(document->world()->defaultLayer()->childCount() == 1);
+      }
+
+      SECTION("detectEmptyMap")
+      {
+        auto [document, game, gameConfig, taskManager] = ui::loadMapDocument(
+          "fixture/test/ui/MapDocumentTest/emptyMapWithoutFormatTag.map",
+          "Quake",
+          mdl::MapFormat::Unknown);
+        // an empty map detects as Valve because Valve is listed first in the Quake game
+        // config
+        CHECK(document->world()->mapFormat() == mdl::MapFormat::Valve);
+        CHECK(document->world()->defaultLayer()->childCount() == 0);
+      }
+
+      SECTION("mixedFormats")
+      {
+        // map has both Standard and Valve brushes
+        CHECK_THROWS_AS(
+          ui::loadMapDocument(
+            "fixture/test/ui/MapDocumentTest/mixedFormats.map",
+            "Quake",
+            mdl::MapFormat::Unknown),
+          io::WorldReaderException);
+      }
+    }
+  }
+
+  SECTION("exportDocumentAs")
+  {
+    auto env = io::TestEnvironment{};
+
+    SECTION("omit layers from export")
+    {
+      const auto newDocumentPath = std::filesystem::path{"test.map"};
+
+      {
+        auto [document, game, gameConfig, taskManager] =
+          ui::newMapDocument("Quake", mdl::MapFormat::Valve);
+
+        auto layer = mdl::Layer{"Layer"};
+        layer.setOmitFromExport(true);
+
+        auto* layerNode = new mdl::LayerNode{std::move(layer)};
+        document->addNodes({{document->world(), {layerNode}}});
+
+        REQUIRE(
+          document->exportDocumentAs(io::MapExportOptions{env.dir() / newDocumentPath})
+            .is_success());
+        REQUIRE(env.fileExists(newDocumentPath));
+      }
+
+      auto [document, game, gameConfig, taskManager] =
+        ui::loadMapDocument(env.dir() / newDocumentPath, "Quake", mdl::MapFormat::Valve);
+      CHECK(document->world()->customLayers().empty());
     }
   }
 
