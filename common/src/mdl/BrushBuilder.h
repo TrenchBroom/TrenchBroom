@@ -35,11 +35,37 @@ class Brush;
 class ModelFactory;
 enum class MapFormat;
 
-enum class RadiusMode
+struct VertexAlignedCircle;
+
+struct EdgeAlignedCircle
 {
-  ToEdge,
-  ToVertex,
+  size_t numSides = 8;
+
+  EdgeAlignedCircle();
+  explicit EdgeAlignedCircle(size_t numSides);
+  explicit EdgeAlignedCircle(const VertexAlignedCircle& circleShape);
 };
+
+struct VertexAlignedCircle
+{
+  size_t numSides = 8;
+
+  VertexAlignedCircle();
+  explicit VertexAlignedCircle(size_t numSides);
+  explicit VertexAlignedCircle(const EdgeAlignedCircle& circleShape);
+};
+
+using CircleShape = std::variant<EdgeAlignedCircle, VertexAlignedCircle>;
+
+template <typename To>
+To convertCircleShape(const CircleShape& from)
+{
+  return std::visit(
+    kdl::overload(
+      [](const EdgeAlignedCircle& edgeAligned) { return To{edgeAligned}; },
+      [](const VertexAlignedCircle& vertexAligned) { return To{vertexAligned}; }),
+    from);
+}
 
 class BrushBuilder
 {
@@ -89,32 +115,28 @@ public:
 
   Result<Brush> createCylinder(
     const vm::bbox3d& bounds,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<std::vector<Brush>> createHollowCylinder(
     const vm::bbox3d& bounds,
     double thickness,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
 
   Result<Brush> createCone(
     const vm::bbox3d& bounds,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<Brush> createUVSphere(
     const vm::bbox3d& bounds,
-    size_t numSides,
+    const CircleShape& circleShape,
     size_t numRings,
-    RadiusMode radiusMode,
     vm::axis::type axis,
     const std::string& textureName) const;
 
@@ -126,4 +148,5 @@ public:
   Result<Brush> createBrush(
     const Polyhedron3& polyhedron, const std::string& materialName) const;
 };
+
 } // namespace tb::mdl

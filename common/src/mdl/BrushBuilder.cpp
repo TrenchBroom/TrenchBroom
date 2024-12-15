@@ -41,6 +41,30 @@
 namespace tb::mdl
 {
 
+EdgeAlignedCircle::EdgeAlignedCircle() = default;
+
+EdgeAlignedCircle::EdgeAlignedCircle(const size_t numSides_)
+  : numSides{numSides_}
+{
+}
+
+EdgeAlignedCircle::EdgeAlignedCircle(const VertexAlignedCircle& circleShape)
+  : EdgeAlignedCircle{circleShape.numSides}
+{
+}
+
+VertexAlignedCircle::VertexAlignedCircle() = default;
+
+VertexAlignedCircle::VertexAlignedCircle(const size_t numSides_)
+  : numSides{numSides_}
+{
+}
+
+VertexAlignedCircle::VertexAlignedCircle(const EdgeAlignedCircle& circleShape)
+  : VertexAlignedCircle{circleShape.numSides}
+{
+}
+
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
   : m_mapFormat{mapFormat}
   , m_worldBounds{worldBounds}
@@ -189,44 +213,47 @@ Result<Brush> BrushBuilder::createCuboid(
 
 namespace
 {
-auto makeUnitCircle(const size_t numSides, const RadiusMode radiusMode)
+auto makeUnitCircle(const CircleShape& circleShape)
 {
-  auto vertices = std::vector<vm::vec2d>{};
 
-  switch (radiusMode)
-  {
-  case RadiusMode::ToEdge:
-    for (size_t i = 0; i < numSides; ++i)
-    {
-      const auto angle =
-        (double(i) + 0.5) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
-      const auto a = vm::Cd::pi() / double(numSides); // Half angle
-      const auto ca = std::cos(a);
-      const auto x = std::cos(angle) / ca;
-      const auto y = std::sin(angle) / ca;
-      vertices.emplace_back(x, y);
-    }
-    break;
-  case RadiusMode::ToVertex:
-    for (size_t i = 0; i < numSides; ++i)
-    {
-      const auto angle =
-        double(i) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
-      const auto x = std::cos(angle);
-      const auto y = std::sin(angle);
-      vertices.emplace_back(x, y);
-    }
-    break;
-    switchDefault();
-  }
-
-  return vertices;
+  return std::visit(
+    kdl::overload(
+      [](const EdgeAlignedCircle& edgeAligned) {
+        ensure(edgeAligned.numSides > 2, "shape has at least three sides");
+        auto vertices = std::vector<vm::vec2d>{};
+        for (size_t i = 0; i < edgeAligned.numSides; ++i)
+        {
+          const auto angle =
+            (double(i) + 0.5) * vm::Cd::two_pi() / double(edgeAligned.numSides)
+            - vm::Cd::half_pi();
+          const auto a = vm::Cd::pi() / double(edgeAligned.numSides); // Half angle
+          const auto ca = std::cos(a);
+          const auto x = std::cos(angle) / ca;
+          const auto y = std::sin(angle) / ca;
+          vertices.emplace_back(x, y);
+        }
+        return vertices;
+      },
+      [](const VertexAlignedCircle& vertexAligned) {
+        ensure(vertexAligned.numSides > 2, "shape has at least three sides");
+        auto vertices = std::vector<vm::vec2d>{};
+        for (size_t i = 0; i < vertexAligned.numSides; ++i)
+        {
+          const auto angle = double(i) * vm::Cd::two_pi() / double(vertexAligned.numSides)
+                             - vm::Cd::half_pi();
+          const auto x = std::cos(angle);
+          const auto y = std::sin(angle);
+          vertices.emplace_back(x, y);
+        }
+        return vertices;
+      }),
+    circleShape);
 }
 
-auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
+auto makeUnitCylinder(const CircleShape& circleShape)
 {
   auto vertices = std::vector<vm::vec3d>{};
-  for (const auto& v : makeUnitCircle(numSides, radiusMode))
+  for (const auto& v : makeUnitCircle(circleShape))
   {
     vertices.emplace_back(v.x(), v.y(), -1.0);
     vertices.emplace_back(v.x(), v.y(), +1.0);
@@ -237,20 +264,17 @@ auto makeUnitCylinder(const size_t numSides, const RadiusMode radiusMode)
 
 Result<Brush> BrushBuilder::createCylinder(
   const vm::bbox3d& bounds,
-  const size_t numSides,
-  const RadiusMode radiusMode,
+  const CircleShape& circleShape,
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  ensure(numSides > 2, "cylinder has at least three sides");
-
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
 
-  const auto cylinder = makeUnitCylinder(numSides, radiusMode);
+  const auto cylinder = makeUnitCylinder(circleShape);
   const auto vertices =
     cylinder | std::views::transform([&](const auto& v) { return transform * v; })
     | kdl::to_vector;
@@ -261,10 +285,9 @@ Result<Brush> BrushBuilder::createCylinder(
 namespace
 {
 
-auto makeHollowCylinderOuterCircle(
-  const vm::vec2d& size, const size_t numSides, const RadiusMode radiusMode)
+auto makeHollowCylinderOuterCircle(const vm::vec2d& size, const CircleShape& circleShape)
 {
-  const auto unitCircle = makeUnitCircle(numSides, radiusMode);
+  const auto unitCircle = makeUnitCircle(circleShape);
   return unitCircle
          | std::views::transform(
            [t = vm::scaling_matrix(size / 2.0)](const auto& v) { return t * v; })
@@ -343,29 +366,30 @@ auto makeHollowCylinderFragmentVertices(
 Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
   const vm::bbox3d& bounds,
   const double thickness,
-  const size_t numSides,
-  const RadiusMode radiusMode,
+  const CircleShape& circleShape,
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  ensure(numSides > 2, "cylinder has at least three sides");
-
   const auto rotation = vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
   const auto rotatedSize = rotation * bounds.size();
 
-  const auto outerCircle =
-    makeHollowCylinderOuterCircle(rotatedSize.xy(), numSides, radiusMode);
+  const auto outerCircle = makeHollowCylinderOuterCircle(rotatedSize.xy(), circleShape);
 
   return makeHollowCylinderInnerCircle(outerCircle, thickness)
     .and_then([&](const auto& innerCircle) {
+      ensure(
+        innerCircle.size() == outerCircle.size(), "inner circle has same size as outer");
+
+      const auto numFragments = outerCircle.size();
+
       const auto transform =
         vm::translation_matrix(bounds.min + bounds.size() / 2.0) * rotation;
 
       auto brushes = std::vector<Result<Brush>>{};
-      brushes.reserve(numSides);
+      brushes.reserve(numFragments);
 
       const auto sz = rotatedSize.z() / 2.0;
-      for (size_t i = 0; i < numSides; ++i)
+      for (size_t i = 0; i < numFragments; ++i)
       {
         const auto fragmentVertices =
           makeHollowCylinderFragmentVertices(outerCircle, innerCircle, i, sz);
@@ -383,10 +407,10 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
 
 namespace
 {
-auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
+auto makeUnitCone(const CircleShape& circleShape)
 {
   auto vertices = std::vector<vm::vec3d>{};
-  for (const auto& v : makeUnitCircle(numSides, radiusMode))
+  for (const auto& v : makeUnitCircle(circleShape))
   {
     vertices.emplace_back(v.x(), v.y(), -1.0);
   }
@@ -397,20 +421,17 @@ auto makeUnitCone(const size_t numSides, const RadiusMode radiusMode)
 
 Result<Brush> BrushBuilder::createCone(
   const vm::bbox3d& bounds,
-  const size_t numSides,
-  const RadiusMode radiusMode,
+  const CircleShape& circleShape,
   const vm::axis::type axis,
   const std::string& textureName) const
 {
-  ensure(numSides > 2, "cylinder has at least three sides");
-
   const auto transform = vm::translation_matrix(bounds.min)
                          * vm::scaling_matrix(bounds.size())
                          * vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::scaling_matrix(vm::vec3d{0.5, 0.5, 0.5})
                          * vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::vec3d::axis(axis));
 
-  const auto cone = makeUnitCone(numSides, radiusMode);
+  const auto cone = makeUnitCone(circleShape);
   const auto vertices =
     cone | std::views::transform([&](const auto& v) { return transform * v; })
     | kdl::to_vector;
@@ -420,11 +441,11 @@ Result<Brush> BrushBuilder::createCone(
 
 namespace
 {
-auto makeRing(const double angle, const size_t numSides, const RadiusMode radiusMode)
+auto makeRing(const double angle, const CircleShape& circleShape)
 {
   const auto r = std::sin(angle);
   const auto z = std::cos(angle);
-  const auto circle = makeUnitCircle(numSides, radiusMode);
+  const auto circle = makeUnitCircle(circleShape);
   return circle
          | std::views::transform([&, t = vm::scaling_matrix(vm::vec2d{r, r})](
                                    const auto& v) { return vm::vec3d{t * v, z}; })
@@ -435,14 +456,14 @@ auto makeRing(const double angle, const size_t numSides, const RadiusMode radius
 
 Result<Brush> BrushBuilder::createUVSphere(
   const vm::bbox3d& bounds,
-  const size_t numSides,
+  const CircleShape& circleShape,
   const size_t numRings,
-  const RadiusMode radiusMode,
   const vm::axis::type axis,
   const std::string& textureName) const
 {
   const auto angleDelta = vm::Cd::pi() / (double(numRings) + 1.0);
-  auto previousRing = makeRing(angleDelta, numSides, radiusMode);
+  auto previousRing = makeRing(angleDelta, circleShape);
+  const auto numSides = previousRing.size();
 
   auto faces = std::vector<Result<BrushFace>>{};
 
@@ -460,7 +481,7 @@ Result<Brush> BrushBuilder::createUVSphere(
   // // quad rings
   for (size_t i = 0; i < numRings - 1; ++i)
   {
-    auto currentRing = makeRing(double(i + 2) * angleDelta, numSides, radiusMode);
+    auto currentRing = makeRing(double(i + 2) * angleDelta, circleShape);
     for (size_t j = 0; j < numSides; ++j)
     {
       const auto p1 = currentRing[(j + 1) % numSides];
