@@ -36,6 +36,7 @@ class ModelFactory;
 enum class MapFormat;
 
 struct VertexAlignedCircle;
+struct ScalableCircle;
 
 struct EdgeAlignedCircle
 {
@@ -44,6 +45,7 @@ struct EdgeAlignedCircle
   EdgeAlignedCircle();
   explicit EdgeAlignedCircle(size_t numSides);
   explicit EdgeAlignedCircle(const VertexAlignedCircle& circleShape);
+  explicit EdgeAlignedCircle(const ScalableCircle& circleShape);
 };
 
 struct VertexAlignedCircle
@@ -53,9 +55,20 @@ struct VertexAlignedCircle
   VertexAlignedCircle();
   explicit VertexAlignedCircle(size_t numSides);
   explicit VertexAlignedCircle(const EdgeAlignedCircle& circleShape);
+  explicit VertexAlignedCircle(const ScalableCircle& circleShape);
 };
 
-using CircleShape = std::variant<EdgeAlignedCircle, VertexAlignedCircle>;
+struct ScalableCircle
+{
+  size_t precision = 0;
+
+  ScalableCircle();
+  explicit ScalableCircle(size_t precision);
+  explicit ScalableCircle(const VertexAlignedCircle& circleShape);
+  explicit ScalableCircle(const EdgeAlignedCircle& circleShape);
+};
+
+using CircleShape = std::variant<EdgeAlignedCircle, VertexAlignedCircle, ScalableCircle>;
 
 template <typename To>
 To convertCircleShape(const CircleShape& from)
@@ -63,7 +76,8 @@ To convertCircleShape(const CircleShape& from)
   return std::visit(
     kdl::overload(
       [](const EdgeAlignedCircle& edgeAligned) { return To{edgeAligned}; },
-      [](const VertexAlignedCircle& vertexAligned) { return To{vertexAligned}; }),
+      [](const VertexAlignedCircle& vertexAligned) { return To{vertexAligned}; },
+      [](const ScalableCircle& scalable) { return To{scalable}; }),
     from);
 }
 
@@ -126,6 +140,11 @@ public:
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  Result<Brush> createScalableCylinder(
+    const vm::bbox3d& bounds,
+    size_t precision,
+    vm::axis::type axis,
+    const std::string& textureName) const;
 
   Result<Brush> createCone(
     const vm::bbox3d& bounds,

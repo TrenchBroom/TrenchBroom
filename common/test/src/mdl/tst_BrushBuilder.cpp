@@ -176,6 +176,37 @@ TEST_CASE("BrushBuilderTest.createCylinder")
     })});
 }
 
+TEST_CASE("BrushBuilderTest.createScalableCylinder")
+{
+  const auto worldBounds = vm::bbox3d{8192.0};
+
+  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+  const auto cylinder = builder.createCylinder(
+    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
+    ScalableCircle{0},
+    vm::axis::z,
+    "someName");
+
+  CHECK(
+    cylinder
+    == Result<Brush>{makeBrush({
+      {{-32, -8, 32}, {-32, 8, -32}, {-32, 8, 32}},
+      {{-24, -24, 32}, {-32, -8, -32}, {-32, -8, 32}},
+      {{-24, 24, 32}, {-32, 8, -32}, {-24, 24, -32}},
+      {{-8, -32, 32}, {-24, -24, -32}, {-24, -24, 32}},
+      {{-8, 32, 32}, {-24, 24, -32}, {-8, 32, -32}},
+      {{8, -32, 32}, {-8, -32, -32}, {-8, -32, 32}},
+      {{32, 8, -32}, {24, -24, -32}, {32, -8, -32}},
+      {{32, 8, 32}, {8, 32, 32}, {24, 24, 32}},
+      {{8, 32, 32}, {-8, 32, -32}, {8, 32, -32}},
+      {{24, -24, 32}, {8, -32, -32}, {8, -32, 32}},
+      {{24, 24, 32}, {8, 32, -32}, {24, 24, -32}},
+      {{32, -8, 32}, {24, -24, -32}, {24, -24, 32}},
+      {{32, 8, 32}, {24, 24, -32}, {32, 8, -32}},
+      {{32, 8, 32}, {32, -8, -32}, {32, -8, 32}},
+    })});
+}
+
 TEST_CASE("BrushBuilderTest.createHollowCylinder")
 {
   const auto worldBounds = vm::bbox3d{8192.0};

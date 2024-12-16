@@ -34,12 +34,27 @@
 #include "vm/mat_ext.h"
 
 #include <cassert>
+#include <cmath>
 #include <ranges>
 #include <string>
 #include <utility>
 
 namespace tb::mdl
 {
+namespace
+{
+
+auto numSidesToPrecision(const size_t numSides)
+{
+  return size_t(std::max(0.0, std::ceil(std::log2(double(numSides) / 12.0))));
+}
+
+auto precisionToNumSides(const size_t precision)
+{
+  return size_t(std::pow(2.0, precision) * 12);
+}
+
+} // namespace
 
 EdgeAlignedCircle::EdgeAlignedCircle() = default;
 
@@ -53,6 +68,11 @@ EdgeAlignedCircle::EdgeAlignedCircle(const VertexAlignedCircle& circleShape)
 {
 }
 
+EdgeAlignedCircle::EdgeAlignedCircle(const ScalableCircle& circleShape)
+  : numSides{precisionToNumSides(circleShape.precision)}
+{
+}
+
 VertexAlignedCircle::VertexAlignedCircle() = default;
 
 VertexAlignedCircle::VertexAlignedCircle(const size_t numSides_)
@@ -62,6 +82,28 @@ VertexAlignedCircle::VertexAlignedCircle(const size_t numSides_)
 
 VertexAlignedCircle::VertexAlignedCircle(const EdgeAlignedCircle& circleShape)
   : VertexAlignedCircle{circleShape.numSides}
+{
+}
+
+VertexAlignedCircle::VertexAlignedCircle(const ScalableCircle& circleShape)
+  : numSides{precisionToNumSides(circleShape.precision)}
+{
+}
+
+ScalableCircle::ScalableCircle() = default;
+
+ScalableCircle::ScalableCircle(const size_t precision_)
+  : precision{precision_}
+{
+}
+
+ScalableCircle::ScalableCircle(const VertexAlignedCircle& circleShape)
+  : precision{numSidesToPrecision(circleShape.numSides)}
+{
+}
+
+ScalableCircle::ScalableCircle(const EdgeAlignedCircle& circleShape)
+  : precision{numSidesToPrecision(circleShape.numSides)}
 {
 }
 
@@ -213,39 +255,88 @@ Result<Brush> BrushBuilder::createCuboid(
 
 namespace
 {
+auto makeEdgeAlignedUnitCircle(const size_t numSides)
+{
+  ensure(numSides > 2, "shape has at least three sides");
+  auto vertices = std::vector<vm::vec2d>{};
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto angle =
+      (double(i) + 0.5) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
+    const auto a = vm::Cd::pi() / double(numSides); // Half angle
+    const auto ca = std::cos(a);
+    const auto x = std::cos(angle) / ca;
+    const auto y = std::sin(angle) / ca;
+    vertices.emplace_back(x, y);
+  }
+  return vertices;
+}
+
+auto makeVertexAlignedUnitCircle(const size_t numSides)
+{
+  ensure(numSides > 2, "shape has at least three sides");
+  auto vertices = std::vector<vm::vec2d>{};
+  for (size_t i = 0; i < numSides; ++i)
+  {
+    const auto angle =
+      double(i) * vm::Cd::two_pi() / double(numSides) - vm::Cd::half_pi();
+    const auto x = std::cos(angle);
+    const auto y = std::sin(angle);
+    vertices.emplace_back(x, y);
+  }
+  return vertices;
+}
+
+auto makeScalableUnitCircle(const size_t precision)
+{
+  auto vertices = std::vector<vm::vec2d>{
+    {-0.25, +1.00},
+    {-0.75, +0.75},
+    {-1.00, +0.25},
+    {-1.00, -0.25},
+    {-0.75, -0.75},
+    {-0.25, -1.00},
+    {+0.25, -1.00},
+    {+0.75, -0.75},
+    {+1.00, -0.25},
+    {+1.00, +0.25},
+    {+0.75, +0.75},
+    {+0.25, +1.00},
+  };
+
+  // Clip off each corner to get a scalable unit circle with double the vertices
+  for (size_t i = 0; i < precision; ++i)
+  {
+
+    const auto previousVertices = std::exchange(vertices, std::vector<vm::vec2d>{});
+    const auto count = previousVertices.size();
+    for (size_t j = 0; j < previousVertices.size(); ++j)
+    {
+      const auto prev = previousVertices[(j + count - 1) % count];
+      const auto cur = previousVertices[j];
+      const auto next = previousVertices[(j + 1) % count];
+
+      vertices.push_back(prev + (cur - prev) * 0.75);
+      vertices.push_back(cur + (next - cur) * 0.25);
+    }
+  }
+
+  return vertices;
+}
+
 auto makeUnitCircle(const CircleShape& circleShape)
 {
 
   return std::visit(
     kdl::overload(
       [](const EdgeAlignedCircle& edgeAligned) {
-        ensure(edgeAligned.numSides > 2, "shape has at least three sides");
-        auto vertices = std::vector<vm::vec2d>{};
-        for (size_t i = 0; i < edgeAligned.numSides; ++i)
-        {
-          const auto angle =
-            (double(i) + 0.5) * vm::Cd::two_pi() / double(edgeAligned.numSides)
-            - vm::Cd::half_pi();
-          const auto a = vm::Cd::pi() / double(edgeAligned.numSides); // Half angle
-          const auto ca = std::cos(a);
-          const auto x = std::cos(angle) / ca;
-          const auto y = std::sin(angle) / ca;
-          vertices.emplace_back(x, y);
-        }
-        return vertices;
+        return makeEdgeAlignedUnitCircle(edgeAligned.numSides);
       },
       [](const VertexAlignedCircle& vertexAligned) {
-        ensure(vertexAligned.numSides > 2, "shape has at least three sides");
-        auto vertices = std::vector<vm::vec2d>{};
-        for (size_t i = 0; i < vertexAligned.numSides; ++i)
-        {
-          const auto angle = double(i) * vm::Cd::two_pi() / double(vertexAligned.numSides)
-                             - vm::Cd::half_pi();
-          const auto x = std::cos(angle);
-          const auto y = std::sin(angle);
-          vertices.emplace_back(x, y);
-        }
-        return vertices;
+        return makeVertexAlignedUnitCircle(vertexAligned.numSides);
+      },
+      [](const ScalableCircle& scalable) {
+        return makeScalableUnitCircle(scalable.precision);
       }),
     circleShape);
 }
@@ -288,49 +379,63 @@ namespace
 auto makeHollowCylinderOuterCircle(const vm::vec2d& size, const CircleShape& circleShape)
 {
   const auto unitCircle = makeUnitCircle(circleShape);
-  return unitCircle
-         | std::views::transform(
-           [t = vm::scaling_matrix(size / 2.0)](const auto& v) { return t * v; })
+  const auto transform = vm::scaling_matrix(size / 2.0);
+  return unitCircle | std::views::transform([&](const auto& v) { return transform * v; })
          | kdl::to_vector;
 }
 
-Result<std::vector<vm::vec2d>> makeHollowCylinderInnerCircle(
-  const std::vector<vm::vec2d>& outerCircle, const double thickness)
+auto makeHollowCylinderInnerCircle(
+  const std::vector<vm::vec2d>& outerCircle,
+  const double thickness,
+  const vm::vec2d& size,
+  const CircleShape& circleShape)
 {
-  const auto numSides = outerCircle.size();
+  return std::visit(
+    kdl::overload(
+      [&](const ScalableCircle& scalable) -> Result<std::vector<vm::vec2d>> {
+        const auto innerCircle = makeUnitCircle(scalable);
+        const auto thickness2d = vm::vec2d{thickness, thickness};
+        const auto transform = vm::scaling_matrix(size / 2.0 - thickness2d);
+        return innerCircle
+               | std::views::transform([&](const auto& v) { return transform * v; })
+               | kdl::to_vector;
+      },
+      [&](const auto& axisOrVertexAligned) -> Result<std::vector<vm::vec2d>> {
+        const auto numSides = axisOrVertexAligned.numSides;
+        auto outerLines = std::vector<vm::line2d>{};
+        outerLines.reserve(numSides);
+        for (size_t i = 0; i < numSides; ++i)
+        {
+          const auto p1 = outerCircle[i];
+          const auto p2 = outerCircle[(i + 1) % numSides];
+          outerLines.emplace_back(p1, vm::normalize(p2 - p1));
+        }
 
-  auto outerLines = std::vector<vm::line2d>{};
-  outerLines.reserve(numSides);
-  for (size_t i = 0; i < numSides; ++i)
-  {
-    const auto p1 = outerCircle[i];
-    const auto p2 = outerCircle[(i + 1) % numSides];
-    outerLines.emplace_back(p1, vm::normalize(p2 - p1));
-  }
+        const auto innerLines =
+          outerLines | std::views::transform([&](const auto& l) {
+            const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
+            return vm::line2d{l.point + offsetDir * thickness, l.direction};
+          })
+          | kdl::to_vector;
 
-  const auto innerLines =
-    outerLines | std::views::transform([&](const auto& l) {
-      const auto offsetDir = vm::vec2d{-l.direction.y(), l.direction.x()};
-      return vm::line2d{l.point + offsetDir * thickness, l.direction};
-    })
-    | kdl::to_vector;
+        auto innerCircle = std::vector<vm::vec2d>{};
+        innerCircle.reserve(numSides);
+        for (size_t i = 0; i < numSides; ++i)
+        {
+          const auto l1 = innerLines[(i + numSides - 1) % numSides];
+          const auto l2 = innerLines[i];
+          const auto d = vm::intersect_line_line(l1, l2);
+          if (!d)
+          {
+            return Error{"Failed to intersect lines"};
+          }
 
-  auto innerCircle = std::vector<vm::vec2d>{};
-  innerCircle.reserve(numSides);
-  for (size_t i = 0; i < numSides; ++i)
-  {
-    const auto l1 = innerLines[(i + numSides - 1) % numSides];
-    const auto l2 = innerLines[i];
-    const auto d = vm::intersect_line_line(l1, l2);
-    if (!d)
-    {
-      return Error{"Failed to intersect lines"};
-    }
+          innerCircle.push_back(vm::point_at_distance(l1, *d));
+        }
 
-    innerCircle.push_back(vm::point_at_distance(l1, *d));
-  }
-
-  return innerCircle;
+        return innerCircle;
+      }),
+    circleShape);
 }
 
 auto makeHollowCylinderFragmentVertices(
@@ -375,7 +480,8 @@ Result<std::vector<Brush>> BrushBuilder::createHollowCylinder(
 
   const auto outerCircle = makeHollowCylinderOuterCircle(rotatedSize.xy(), circleShape);
 
-  return makeHollowCylinderInnerCircle(outerCircle, thickness)
+  return makeHollowCylinderInnerCircle(
+           outerCircle, thickness, rotatedSize.xy(), circleShape)
     .and_then([&](const auto& innerCircle) {
       ensure(
         innerCircle.size() == outerCircle.size(), "inner circle has same size as outer");
