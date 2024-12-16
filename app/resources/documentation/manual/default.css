@@ -18,13 +18,16 @@ body.toc_toggled {
 
 /* Table of Contents and Content */
 
-body #toc_toggler, body #toc, body #content {
+body #toc_toggler,
+body #toc,
+body #content {
   padding: var(--spacing-x20000);
 }
 
 /* Table of Contents */
 
-body #toc_toggler, body #toc {
+body #toc_toggler,
+body #toc {
   background-color: var(--color-gray-97);
   box-shadow: 16px 0 24px -12px var(--color-gray-80);
 }
@@ -45,7 +48,7 @@ body #toc_toggler img {
   height: var(--sizing-x12500);
 }
 
-body #toc_toggler > a[href="#"] {
+body #toc_toggler>a[href="#"] {
   margin-top: auto;
 }
 
@@ -60,14 +63,14 @@ body #toc {
   overflow-y: auto;
 }
 
-body #toc #toc_inner > ul {
+body #toc #toc_inner>ul {
   margin-top: var(--spacing-x05000);
   margin-bottom: 0;
   margin-left: 0;
   list-style-type: none;
 }
 
-body #toc #toc_inner > ul > li > a {
+body #toc #toc_inner>ul>li>a {
   font-size: var(--typography-font-size-x11250);
   font-weight: var(--typography-font-weight-bold);
 }
@@ -81,11 +84,14 @@ body #content {
   overflow: hidden;
 }
 
-body #content > :last-child {
+body #content> :last-child {
   margin-bottom: 0;
 }
 
-body #content h1, body #content h2, body #content h3, body #content h4 {
+body #content h1,
+body #content h2,
+body #content h3,
+body #content h4 {
   display: inline-block;
   width: 100%;
   margin-top: var(--spacing-x05000);
@@ -146,4 +152,9 @@ body #content a[href="#"] {
   position: fixed;
   right: var(--spacing-x20000);
   bottom: var(--spacing-x20000);
+}
+
+td>img {
+  margin-bottom: 0;
+  vertical-align: middle;
 }
