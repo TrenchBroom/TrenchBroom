@@ -502,16 +502,6 @@
 	message(string) : "The map title"
 	sky(string) : "The sky environment map" : "unit1_"
 	ambient(string) : "The ambient light level" : "0 0 0"
-	brightness(float) : "Global light scale, a single positive scalar value" : "1"
-	saturation(float) : "Global light saturation, a single positive scalar value" : "1"
-	contrast(float) : "Global light contrast, a single positive scalar value" : "1"
-	ambient_intensity(float) : "Global ambient light intensity as a positive scalar value" : "1"
-	sun_intensity(float) : "Global sun light intensity as a positive scalar value" : "1"
-	point_intensity(float) : "Global point light intensity as a positive scalar value" : "1"
-	spot_intensity(float) : "Global spot light intensity as a positive scalar value" : "1"
-	face_intensity(float) : "Global face light intensity as a positive scalar value" : "1"
-	patch_intensity(float) : "Global patch light intensity as a positive scalar value" : "1"
-	caustic_intensity(float) : "Global caustic light intensity as positive scalar value" : "1"
 	weather(choices) : "Weather effects" : "none" =
 	[
 		"none" : "None"
