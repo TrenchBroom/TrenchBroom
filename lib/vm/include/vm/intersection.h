@@ -578,31 +578,20 @@ std::optional<T> intersect_ray_torus(
 template <typename T>
 constexpr std::optional<T> intersect_line_line(const line<T, 2>& l1, const line<T, 2>& l2)
 {
-  const auto p1 = l1.point;
-  const auto p2 = l1.point + l1.direction;
-  const auto p3 = l2.point;
-  const auto p4 = l2.point + l2.direction;
+  const auto m = mat<T, 2, 2>{
+    l1.direction.x(),
+    -l2.direction.x(),
+    l1.direction.y(),
+    -l2.direction.y(),
+  };
 
-  const auto x1 = p1.x();
-  const auto y1 = p1.y();
-  const auto x2 = p2.x();
-  const auto y2 = p2.y();
-  const auto x3 = p3.x();
-  const auto y3 = p3.y();
-  const auto x4 = p4.x();
-  const auto y4 = p4.y();
-
-  const auto d = (x1 - x2) * (y3 - y4) - (y1 - y2) * (x3 - x4);
-  if (is_zero(d, constants<T>::almost_zero()))
+  if (const auto m1 = invert(m))
   {
-    return std::nullopt;
+    const auto ts = *m1 * (l2.point - l1.point);
+    return ts.x();
   }
 
-  const auto nx = (x1 * y2 - y1 * x2) * (x3 - x4) - (x1 - x2) * (x3 * y4 - y3 * x4);
-  const auto ny = (x1 * y2 - y1 * x2) * (y3 - y4) - (y1 - y2) * (x3 * y4 - y3 * x4);
-
-  const auto p = vec<T, 2>{nx / d, ny / d};
-  return dot(p - l1.point, l1.direction);
+  return std::nullopt;
 }
 
 /**
