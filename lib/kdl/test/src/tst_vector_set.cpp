@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,50 +20,53 @@
 
 #include "kdl/vector_set.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
+{
+namespace
 {
 using vec = std::vector<int>;
 using vset = vector_set<int>;
 
-static vset create_vset_from_range(const vec& v)
+vset create_vset_from_range(const vec& v)
 {
-  return vset(std::begin(v), std::end(v));
+  return vset{std::begin(v), std::end(v)};
 }
 
-static vset create_vset_from_range(const vset::size_type capacity, const vec& v)
+vset create_vset_from_range(const vset::size_type capacity, const vec& v)
 {
-  return vset(capacity, std::begin(v), std::end(v));
+  return vset{capacity, std::begin(v), std::end(v)};
 }
 
-static vset create_vset_from_list(std::initializer_list<int> l)
+vset create_vset_from_list(std::initializer_list<int> l)
 {
-  return vset(std::move(l));
+  return vset{std::move(l)};
 }
 
-static vset create_vset_from_list(
-  const vset::size_type capacity, std::initializer_list<int> l)
+vset create_vset_from_list(const vset::size_type capacity, std::initializer_list<int> l)
 {
-  return vset(capacity, std::move(l));
+  return vset{capacity, std::move(l)};
 }
 
-static vset create_vset_from_vector(std::initializer_list<int> l)
+vset create_vset_from_vector(std::initializer_list<int> l)
 {
-  return vset(std::vector<int>(l));
+  return vset{std::vector<int>(l)};
 }
 
-static void assertVset(const vset& actual, const vec& expected)
+void assertVset(const vset& actual, const vec& expected)
 {
   CHECK(actual == create_vset_from_range(expected));
 }
 
-static void assertVset(
+void assertVset(
   const vset& actual, const vec& expected, const vset::size_type expectedCapacity)
 {
   CHECK(actual.capacity() == expectedCapacity);
   CHECK(actual == create_vset_from_range(expected));
 }
+
+} // namespace
 
 TEST_CASE("vector_set_test.constructor_default")
 {

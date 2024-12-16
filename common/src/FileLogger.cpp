@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,31 +19,29 @@
 
 #include "FileLogger.h"
 
-#include <QString>
-
 #include "Ensure.h"
-#include "IO/DiskIO.h"
-#include "IO/SystemPaths.h"
+#include "io/DiskIO.h"
+#include "io/SystemPaths.h"
 
 #include <cassert>
-#include <string>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace
 {
+
 std::ofstream openLogFile(const std::filesystem::path& path)
 {
-  return IO::Disk::createDirectory(path.parent_path())
-    .transform([&](auto) {
-      return std::ofstream{path, std::ios::out};
-    })
-    .if_error([](const auto& e) {
-      throw std::runtime_error{"Could not open log file: " + e.msg};
-    })
-    .value();
+  return io::Disk::createDirectory(path.parent_path())
+         | kdl::transform([&](auto) { return std::ofstream{path, std::ios::out}; })
+         | kdl::if_error([](const auto& e) {
+             throw std::runtime_error{"Could not open log file: " + e.msg};
+           })
+         | kdl::value();
 }
+
 } // namespace
+
 FileLogger::FileLogger(const std::filesystem::path& filePath)
   : m_stream{openLogFile(filePath)}
 {
@@ -52,11 +50,11 @@ FileLogger::FileLogger(const std::filesystem::path& filePath)
 
 FileLogger& FileLogger::instance()
 {
-  static FileLogger Instance(IO::SystemPaths::logFilePath());
+  static auto Instance = FileLogger{io::SystemPaths::logFilePath()};
   return Instance;
 }
 
-void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
+void FileLogger::doLog(const LogLevel /* level */, const std::string_view message)
 {
   assert(m_stream);
   if (m_stream)
@@ -65,8 +63,4 @@ void FileLogger::doLog(const LogLevel /* level */, const std::string& message)
   }
 }
 
-void FileLogger::doLog(const LogLevel level, const QString& message)
-{
-  log(level, message.toStdString());
-}
-} // namespace TrenchBroom
+} // namespace tb

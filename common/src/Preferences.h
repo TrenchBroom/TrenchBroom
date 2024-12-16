@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -22,14 +22,12 @@
 #include "Color.h"
 #include "Preference.h"
 
-#include <vecmath/util.h>
+#include "vm/util.h"
 
 #include <filesystem>
 #include <vector>
 
-namespace TrenchBroom
-{
-namespace Preferences
+namespace tb::Preferences
 {
 // NOTE: any QKeySequence preferences must be functions like CameraFly*
 // because QKeySequence docs specify that you can't create an instance before QApplication
@@ -129,7 +127,7 @@ extern Preference<int> TextureMinFilter;
 extern Preference<int> TextureMagFilter;
 extern Preference<bool> EnableMSAA;
 
-extern Preference<bool> TextureLock;
+extern Preference<bool> AlignmentLock;
 extern Preference<bool> UVLock;
 
 Preference<std::filesystem::path>& RendererFontPath();
@@ -140,10 +138,10 @@ extern Preference<Color> BrowserTextColor;
 extern Preference<Color> BrowserSubTextColor;
 extern Preference<Color> BrowserBackgroundColor;
 extern Preference<Color> BrowserGroupBackgroundColor;
-extern Preference<float> TextureBrowserIconSize;
-extern Preference<Color> TextureBrowserDefaultColor;
-extern Preference<Color> TextureBrowserSelectedColor;
-extern Preference<Color> TextureBrowserUsedColor;
+extern Preference<float> MaterialBrowserIconSize;
+extern Preference<Color> MaterialBrowserDefaultColor;
+extern Preference<Color> MaterialBrowserSelectedColor;
+extern Preference<Color> MaterialBrowserUsedColor;
 
 extern Preference<float> CameraLookSpeed;
 extern Preference<bool> CameraLookInvertH;
@@ -222,5 +220,5 @@ extern DynamicPreferencePattern<QKeySequence> FiltersEntitiesToggleVisible;
 extern DynamicPreferencePattern<QKeySequence> EntitiesCreate;
 
 const std::vector<DynamicPreferencePatternBase*>& dynaimcPreferencePatterns();
-} // namespace Preferences
-} // namespace TrenchBroom
+
+} // namespace tb::Preferences

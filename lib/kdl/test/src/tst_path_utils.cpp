@@ -20,7 +20,7 @@
 
 #include "kdl/path_utils.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
@@ -186,4 +186,5 @@ TEST_CASE("path_replace_extension")
   CHECK(path_replace_extension(path{"/asdf.ext"}, path{}) == path{"/asdf"});
   CHECK(path_replace_extension(path{"/asdf.xyz.ext"}, path{}) == path{"/asdf.xyz"});
 }
+
 } // namespace kdl

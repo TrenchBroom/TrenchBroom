@@ -1,0 +1,72 @@
+name: cpp-linter
+on: [pull_request]
+
+jobs:
+  cpp-linter:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    env:
+      # Record pull request head commit SHA
+      TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      TB_OS_IMAGE: ${{ matrix.os }}
+      # Tells vcpkg where binary packages are stored.
+      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/bincache
+      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
+      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: 'recursive'
+
+      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
+        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
+        shell: bash
+
+      # Set env vars needed for vcpkg to leverage the GitHub Actions cache as a storage
+      # for Binary Caching.
+      - name: Set vcpkg environment variables
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
+            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
+
+      # Dependencies
+      - name: Install common Linux dependencies
+        run: |
+          sudo apt update
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev
+
+      - name: Install Qt5
+        run: |
+          sudo apt update
+          sudo apt install qtbase5-dev libqt5svg5-dev
+
+      - name: Run cmake
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_SUPPRESS_PCH=1
+
+      - name: "Run clang-tidy"
+        uses: cpp-linter/cpp-linter-action@v2
+        id: linter
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          version: 18
+          style: 'file'  # Use .clang-format config file. 
+          tidy-checks: '' # Use .clang-tidy config file.
+          files-changed-only: false
+          database: ${{github.workspace}}/build
+          ignore: 'build|vcpkg-overlay-ports|lib/stackwalker|common/src/ui/GetVersion.cpp'
+          step-summary: true
+          thread-comments: true
+      - name: Fail fast?!
+        if: steps.linter.outputs.clang-tidy-checks-failed > 0
+        run: exit 1

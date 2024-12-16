@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include "string_format.h"
+#include "kdl/string_format.h"
 
 #include <algorithm>
 #include <filesystem>
@@ -28,6 +28,7 @@
 
 namespace kdl
 {
+
 inline size_t path_length(const std::filesystem::path& path)
 {
   return size_t(std::distance(path.begin(), path.end()));
@@ -48,7 +49,7 @@ inline std::filesystem::path path_front(const std::filesystem::path& path)
 
 inline std::filesystem::path path_to_lower(const std::filesystem::path& path)
 {
-  return std::filesystem::path{str_to_lower(path.u8string())};
+  return std::filesystem::path{str_to_lower(path.string())};
 }
 
 inline std::filesystem::path path_clip(

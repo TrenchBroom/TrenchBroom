@@ -20,14 +20,12 @@
 
 #pragma once
 
-#include <kdl/reflection_decl.h>
-#include <kdl/struct_io.h>
+#include "kdl/reflection_decl.h"
+#include "kdl/struct_io.h"
 
 #include <ostream>
 
-namespace kdl
-{
-namespace detail
+namespace kdl::detail
 {
 
 template <size_t C, size_t I, typename... V>
@@ -57,7 +55,7 @@ void print_reflective(
   print_reflective_member<std::tuple_size_v<std::tuple<V...>>, 0, V...>(
     sstr, member_names, member_values);
 }
-} // namespace detail
+} // namespace kdl::detail
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -85,5 +83,3 @@ void print_reflective(
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-
-} // namespace kdl

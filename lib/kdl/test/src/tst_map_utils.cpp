@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -26,10 +26,11 @@
 #include <string>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 template <typename K, typename V>
 void test_map_keys(const std::vector<K>& keys, const std::map<K, V>& map)
 {
@@ -178,10 +179,10 @@ TEST_CASE("map_utils_test.map_clear_and_delete")
 
   auto m = std::map<int, std::vector<deletable*>>(
     {{1, {}},
-     {2, {new deletable(d1), new deletable(d2)}},
+     {2, {new deletable{d1}, new deletable{d2}}},
      {3, {}},
-     {4, {new deletable(d3)}},
-     {5, {new deletable(d4)}}});
+     {4, {new deletable{d3}}},
+     {5, {new deletable{d4}}}});
 
   map_clear_and_delete(m);
   CHECK(m.empty());
@@ -190,4 +191,5 @@ TEST_CASE("map_utils_test.map_clear_and_delete")
   CHECK(d3);
   CHECK(d4);
 }
+
 } // namespace kdl

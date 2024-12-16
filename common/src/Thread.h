@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace TrenchBroom
+namespace tb
 {
 bool isMainThread();
 }

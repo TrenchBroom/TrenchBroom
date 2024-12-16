@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -19,17 +19,18 @@
 */
 
 #include "kdl/compact_trie.h"
-#include "kdl/vector_utils.h"
 
 #include <iterator>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+namespace
+{
 using test_index = compact_trie<std::string>;
 
-static void assertMatches(
+void assertMatches(
   const test_index& index,
   const std::string& pattern,
   std::vector<std::string> expectedMatches)
@@ -39,6 +40,8 @@ static void assertMatches(
 
   CHECK_THAT(matches, Catch::UnorderedEquals(expectedMatches));
 }
+
+} // namespace
 
 TEST_CASE("compact_trie_test.insert")
 {
@@ -208,4 +211,5 @@ TEST_CASE("compact_trie_test.get_keys")
     Catch::UnorderedEquals(
       std::vector<std::string>{"key", "key2", "key22", "key22bs", "k1"}));
 }
+
 } // namespace kdl

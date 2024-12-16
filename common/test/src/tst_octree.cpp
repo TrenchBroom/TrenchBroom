@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,16 +19,9 @@
 
 #include "octree.h"
 
-#include <kdl/string_utils.h>
-
-#include <vecmath/bbox.h>
-#include <vecmath/forward.h>
-#include <vecmath/ray.h>
-#include <vecmath/vec.h>
-
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 namespace detail
 {
@@ -686,7 +679,10 @@ TEST_CASE("octree.find_containers")
 {
   auto tree = octree<double, int>{32.0};
 
-  SECTION("empty tree") { CHECK(tree.find_containers({0, 0, 0}).empty()); }
+  SECTION("empty tree")
+  {
+    CHECK(tree.find_containers({0, 0, 0}).empty());
+  }
 
   SECTION("single node")
   {
@@ -721,4 +717,4 @@ TEST_CASE("octree.find_containers")
     CHECK(tree.find_containers({64, 64, 64}) == std::vector<int>{1});
   }
 }
-} // namespace TrenchBroom
+} // namespace tb

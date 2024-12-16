@@ -21,11 +21,12 @@
 
 #include "Logger.h"
 
+#include <string_view>
 #include <unordered_map>
-#include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
+
 class TestLogger : public Logger
 {
 private:
@@ -36,7 +37,7 @@ public:
   std::size_t countMessages(LogLevel level) const;
 
 private:
-  void doLog(LogLevel level, const std::string& message) override;
-  void doLog(LogLevel level, const QString& message) override;
+  void doLog(LogLevel level, std::string_view message) override;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

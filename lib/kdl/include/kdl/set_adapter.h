@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,13 +20,13 @@
 
 #pragma once
 
-#include "collection_utils.h"
+#include "kdl/collection_utils.h"
 
-#include <algorithm> // for std::sort, std::unique, std::lower_bound, std::upper_bound
+#include <algorithm>
 #include <cassert>
-#include <functional> // for std::less
-#include <iterator>   // for std::distance
-#include <memory>     // for std::allocator
+#include <functional>
+#include <iterator>
+#include <memory>
 
 // uncomment this to enable checking the invariant in debug builds
 // #define KDL_SET_ADAPTER_DEBUG 1
@@ -35,8 +35,9 @@ namespace kdl
 {
 namespace detail
 {
+
 template <typename T, typename Allocator, typename Compare>
-static void sort_unique(std::vector<T, Allocator>& vec, const Compare& cmp)
+void sort_unique(std::vector<T, Allocator>& vec, const Compare& cmp)
 {
   auto eq = [&cmp](const auto& lhs, const auto& rhs) {
     return !cmp(lhs, rhs) && !cmp(rhs, lhs);
@@ -44,6 +45,7 @@ static void sort_unique(std::vector<T, Allocator>& vec, const Compare& cmp)
   std::sort(std::begin(vec), std::end(vec), cmp);
   vec.erase(std::unique(std::begin(vec), std::end(vec), eq), std::end(vec));
 }
+
 } // namespace detail
 
 /**
@@ -103,9 +105,9 @@ public:
    * @param cmp the comparator
    */
   template <typename CC>
-  const_set_adapter(CC&& data, const Compare& cmp = Compare())
-    : m_data(std::forward<CC>(data))
-    , m_cmp(cmp)
+  explicit const_set_adapter(CC&& data, Compare cmp = {})
+    : m_data{std::forward<CC>(data)}
+    , m_cmp{std::move(cmp)}
   {
     assert(check_invariant());
   }
@@ -205,14 +207,7 @@ public:
   const_iterator find(const K& k) const
   {
     auto it = lower_bound(k);
-    if (it != end() && is_equivalent(k, *it))
-    {
-      return it;
-    }
-    else
-    {
-      return end();
-    }
+    return it != end() && is_equivalent(k, *it) ? it : end();
   }
 
   /**
@@ -325,7 +320,7 @@ bool operator==(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
   return lhs.size() == rhs.size()
-         && col_lexicographical_compare(lhs, rhs, Compare()) == 0;
+         && col_lexicographical_compare(lhs, rhs, Compare{}) == 0;
 }
 
 /**
@@ -344,7 +339,7 @@ bool operator!=(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
   return lhs.size() != rhs.size()
-         || col_lexicographical_compare(lhs, rhs, Compare()) != 0;
+         || col_lexicographical_compare(lhs, rhs, Compare{}) != 0;
 }
 
 /**
@@ -362,7 +357,7 @@ template <typename C1, typename C2, typename Compare>
 bool operator<(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
-  return col_lexicographical_compare(lhs, rhs, Compare()) < 0;
+  return col_lexicographical_compare(lhs, rhs, Compare{}) < 0;
 }
 
 /**
@@ -380,7 +375,7 @@ template <typename C1, typename C2, typename Compare>
 bool operator<=(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
-  return col_lexicographical_compare(lhs, rhs, Compare()) <= 0;
+  return col_lexicographical_compare(lhs, rhs, Compare{}) <= 0;
 }
 
 /**
@@ -398,7 +393,7 @@ template <typename C1, typename C2, typename Compare>
 bool operator>(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
-  return col_lexicographical_compare(lhs, rhs, Compare()) > 0;
+  return col_lexicographical_compare(lhs, rhs, Compare{}) > 0;
 }
 
 /**
@@ -416,7 +411,7 @@ template <typename C1, typename C2, typename Compare>
 bool operator>=(
   const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
 {
-  return col_lexicographical_compare(lhs, rhs, Compare()) >= 0;
+  return col_lexicographical_compare(lhs, rhs, Compare{}) >= 0;
 }
 
 /**
@@ -604,26 +599,22 @@ public:
 
   /**
    * Inserts a copy of the given value using the given hint to speed up insertion. If the
-   given hint points to the
-   * position of the first element that compares greater than the given value, then this
-   function need not perform a
-   * search for the insert position. If the given hint does not point to such a value,
-   then the insert position is
-   * determined by a binary search.
+   * given hint points to the position of the first element that compares greater than the
+   * given value, then this function need not perform a search for the insert position. If
+   * the given hint does not point to such a value, then the insert position is determined
+   * by a binary search.
    *
    * If this set already contains a value that is equivalent to the given value, nothing
-   happens.
+   * happens.
    *
    * Postcondition: this set contains a value equivalent to the given value and its size
-   has increased by one if the
-   * given value could be inserted
-
+   * has increased by one if the given value could be inserted
+   *
    * @param hint an iterator pointing to the first element of this set that is greater
-   than the given value, or the
-   * end iterator if no such value exists
+   * than the given value, or the end iterator if no such value exists
    * @param value the value to insert
    * @return an iterator pointing to the inserted value, or to the value that prevented
-   insertion
+   * insertion
    */
   iterator insert(const_iterator hint, const value_type& value)
   {
@@ -634,27 +625,22 @@ public:
 
   /**
    * Inserts the given value using the given hint to speed up insertion. If the given hint
-   points to the position of
-   * the first element that compares greater than the given value, then this function need
-   not perform a search for
-   * the insert position. If the given hint does not point to such a value, then the
-   insert position is determined by
+   * points to the position of the first element that compares greater than the given
+   * value, then this function need not perform a search for the insert position. If the
+   * given hint does not point to such a value, then the insert position is determined by
    * a binary search.
    *
    * If this set already contains a value that is equivalent to the given value, nothing
-   happens. If the value could
-   * be inserted, it will have been moved into this set.
+   * happens. If the value could be inserted, it will have been moved into this set.
    *
    * Postcondition: this set contains a value equivalent to the given value and its size
-   has increased by one if the
-   * given value could be inserted
+   * has increased by one if the given value could be inserted.
 
    * @param hint an iterator pointing to the first element of this set that is greater
-   than the given value, or the
-   * end iterator if no such value exists
+   * than the given value, or the end iterator if no such value exists
    * @param value the value to insert
    * @return an iterator pointing to the inserted value, or to the value that prevented
-   insertion
+   * insertion
    */
   iterator insert(const_iterator hint, value_type&& value)
   {
@@ -667,10 +653,9 @@ public:
    * Inserts the values from the given range [first, last) into this set.
    *
    * Postcondition: for each value in the given range, this set contains an equivalent
-   value and its size has
-   * increased by one if the by the number of unique values in the given range which were
-   not present in this set
-
+   * value and its size has increased by one if the by the number of unique values in the
+   * given range which were not present in this set
+   *
    * @tparam I the iterator type
    * @param first the beginning of the range of values to insert
    * @param last the end of the range of values to insert (past-the-end iterator)
@@ -688,19 +673,17 @@ public:
 
   /**
    * Inserts the values from the given range [first, last) into this set. The given count
-   can be used to avoid costly
-   * reallocations of the underlying vector. It should be at least the number of unique
-   items in the given range which
-   * are not yet present in this set.
+   * can be used to avoid costly reallocations of the underlying vector. It should be at
+   * least the number of unique items in the given range which are not yet present in this
+   * set.
    *
    * Postcondition: for each value in the given range, this set contains an equivalent
-   value and its size has
-   * increased by one if the by the number of unique values in the given range which were
-   not present in this set
-
+   * value and its size has increased by one if the by the number of unique values in the
+   * given range which were not present in this set
+   *
    * @tparam I the iterator type
    * @param count the value by which to increase the underlying vector's capacity before
-   insertion
+   * insertion
    * @param first the beginning of the range of values to insert
    * @param last the end of the range of values to insert (past-the-end iterator)
    */
@@ -799,13 +782,11 @@ public:
 
   /**
    * Erases the value at the given position from this set. If the given position is not
-   valid in this set, then the
-   * behavior is undefined.
+   * valid in this set, then the behavior is undefined.
    *
    * Postcondition: the set does not contain the value that was previously at the given
-   position the size has
-   * decreased by one
-
+   * position the size has decreased by one.
+   *
    * @param pos the position of the value to erase from this set
    */
   void erase(const_iterator pos)
@@ -816,13 +797,11 @@ public:
 
   /**
    * Erases all values in the given range [first, last) from this set. If the given range
-   is not valid for this set,
-   * then the behavior is undefined.
+   * is not valid for this set,  then the behavior is undefined.
    *
    * Postcondition: the set does not contain any of the values in the given range, and the
-   size has decreased by the
-   * length of the given range
-
+   * size has decreased by the length of the given range
+   *
    * @param first the start of the range to erase
    * @param last the end of the range to erase (past-the-end iterator)
    * @return an iterator to the value following the last erased value
@@ -876,14 +855,7 @@ public:
   iterator find(const K& x)
   {
     auto it = lower_bound(x);
-    if (it != end() && is_equivalent(x, *it))
-    {
-      return it;
-    }
-    else
-    {
-      return end();
-    }
+    return it != end() && is_equivalent(x, *it) ? it : end();
   }
 
   /**
@@ -1001,7 +973,7 @@ private:
  */
 template <typename C, typename Compare = std::less<typename C::value_type>>
 const_set_adapter<const C&, Compare> wrap_set(
-  const C& data, const Compare& cmp = Compare())
+  const C& data, const Compare& cmp = Compare{})
 {
   return const_set_adapter<const C&, Compare>(data, cmp);
 }
@@ -1019,7 +991,7 @@ const_set_adapter<const C&, Compare> wrap_set(
  * @return a set adapter using the given collection as its underlying collection
  */
 template <typename C, typename Compare = std::less<typename C::value_type>>
-set_adapter<C&, Compare> wrap_set(C& data, const Compare& cmp = Compare())
+set_adapter<C&, Compare> wrap_set(C& data, const Compare& cmp = Compare{})
 {
   return set_adapter<C&, Compare>(data, cmp);
 }
@@ -1037,9 +1009,10 @@ set_adapter<C&, Compare> wrap_set(C& data, const Compare& cmp = Compare())
  * @return a set adapter using the given collection as its underlying collection
  */
 template <typename C, typename Compare = std::less<typename C::value_type>>
-set_adapter<C, Compare> create_set(C data, const Compare& cmp = Compare())
+set_adapter<C, Compare> create_set(C data, const Compare& cmp = Compare{})
 {
   detail::sort_unique(data, cmp);
   return set_adapter<C, Compare>(std::move(data), cmp);
 }
+
 } // namespace kdl

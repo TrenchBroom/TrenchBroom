@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,11 +19,15 @@
 
 #pragma once
 
+#include "FileLocation.h"
+
 #include <exception>
+#include <optional>
 #include <string>
 
-namespace TrenchBroom
+namespace tb
 {
+
 class Exception : public std::exception
 {
 protected:
@@ -36,22 +40,12 @@ public:
   const char* what() const noexcept override;
 };
 
-class EntityAttributeException : public Exception
-{
-public:
-  using Exception::Exception;
-};
-
 class ParserException : public Exception
 {
 public:
   using Exception::Exception;
-  ParserException(size_t line, size_t column, const std::string& str = "");
-  explicit ParserException(size_t line, const std::string& str = "");
-
-private:
-  static std::string buildMessage(size_t line, size_t column, const std::string& str);
-  static std::string buildMessage(size_t line, const std::string& str);
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
 };
 
 class VboException : public Exception
@@ -95,4 +89,5 @@ class FileFormatException : public Exception
 public:
   using Exception::Exception;
 };
-} // namespace TrenchBroom
+
+} // namespace tb

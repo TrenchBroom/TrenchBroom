@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -24,11 +24,9 @@
 
 #include <filesystem>
 #include <fstream>
-#include <string>
+#include <string_view>
 
-class QString;
-
-namespace TrenchBroom
+namespace tb
 {
 
 class FileLogger : public Logger
@@ -42,9 +40,9 @@ public:
   static FileLogger& instance();
 
 private:
-  void doLog(LogLevel level, const std::string& message) override;
-  void doLog(LogLevel level, const QString& message) override;
+  void doLog(LogLevel level, std::string_view message) override;
 
   deleteCopyAndMove(FileLogger);
 };
-} // namespace TrenchBroom
+
+} // namespace tb

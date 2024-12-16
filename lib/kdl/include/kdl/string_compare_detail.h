@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,11 +20,11 @@
 
 #pragma once
 
-#include "collection_utils.h"
+#include "kdl/collection_utils.h"
 
-#include <algorithm> // for std::mismatch, std::sort, std::search, std::equal
+#include <algorithm>
 #include <string_view>
-#include <vector> // used in str_matches_glob
+#include <vector>
 
 namespace kdl
 {

@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,9 +22,11 @@
 
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
+{
+namespace
 {
 class element;
 using element_link = intrusive_circular_link<element>;
@@ -37,15 +39,15 @@ private:
 
 public:
   element()
-    : m_link(this)
+    : m_link{this}
   {
   }
 
   virtual ~element() = default;
 
-  const element& next() const { return *m_link.next(); }
+  [[maybe_unused]] const element& next() const { return *m_link.next(); }
 
-  const element& previous() const { return *m_link.previous(); }
+  [[maybe_unused]] const element& previous() const { return *m_link.previous(); }
 };
 
 class delete_tracking_element : public element
@@ -66,8 +68,15 @@ public:
 class get_link
 {
 public:
-  element_link& operator()(element* element) const { return element->m_link; }
-  const element_link& operator()(const element* element) const { return element->m_link; }
+  [[maybe_unused]] element_link& operator()(element* element) const
+  {
+    return element->m_link;
+  }
+
+  [[maybe_unused]] const element_link& operator()(const element* element) const
+  {
+    return element->m_link;
+  }
 };
 
 using list = intrusive_circular_list<element, get_link>;
@@ -118,6 +127,8 @@ void assertList(
     assertLinks(actual.front(), expected);
   }
 }
+
+} // namespace
 
 TEST_CASE("intrusive_circular_list_test.constructor_default")
 {

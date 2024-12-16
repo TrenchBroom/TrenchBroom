@@ -1,7 +1,7 @@
 #version 120
 
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,7 +20,7 @@
  */
 
 uniform float Brightness;
-uniform sampler2D Texture;
+uniform sampler2D Material;
 uniform bool ApplyTinting;
 uniform vec4 TintColor;
 uniform bool GrayScale;
@@ -30,7 +30,7 @@ varying vec4 worldCoordinates;
 vec3 applySoftMapBoundsTint(vec3 inputFragColor, vec3 worldCoords);
 
 void main() {
-    vec4 texel = texture2D(Texture, gl_TexCoord[0].st);
+    vec4 texel = texture2D(Material, gl_TexCoord[0].st);
 
     // Assume alpha masked or opaque.
     // TODO: Make this optional if we gain support for translucent textures

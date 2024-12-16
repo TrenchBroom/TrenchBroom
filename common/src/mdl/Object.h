@@ -1,0 +1,63 @@
+/*
+ Copyright (C) 2010 Kristian Duske
+
+ This file is part of TrenchBroom.
+
+ TrenchBroom is free software: you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation, either version 3 of the License, or
+ (at your option) any later version.
+
+ TrenchBroom is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#pragma once
+
+#include <string>
+
+namespace tb::mdl
+{
+
+class GroupNode;
+class LayerNode;
+class Node;
+
+class Object
+{
+protected:
+  std::string m_linkId;
+
+  Object();
+
+public:
+  virtual ~Object();
+
+  const std::string& linkId() const;
+  void setLinkId(std::string linkId);
+  void cloneLinkId(Object& object) const;
+
+  Node* container();
+  const Node* container() const;
+
+  LayerNode* containingLayer();
+  const LayerNode* containingLayer() const;
+
+  GroupNode* containingGroup();
+  const GroupNode* containingGroup() const;
+
+  bool containedInGroup() const;
+  bool containingGroupOpened() const;
+
+private: // subclassing interface
+  virtual Node* doGetContainer() = 0;
+  virtual LayerNode* doGetContainingLayer() = 0;
+  virtual GroupNode* doGetContainingGroup() = 0;
+};
+
+} // namespace tb::mdl

@@ -21,15 +21,12 @@
 #pragma once
 
 #include <array>
-#include <iosfwd>
 #include <string_view>
-#include <tuple>
+#include <tuple> // IWYU pragma: keep
 
-namespace kdl
+namespace kdl::detail
 {
 
-namespace detail
-{
 constexpr size_t reflection_count_tokens(const std::string_view str)
 {
   constexpr auto ws = std::string_view{" \n\t\r"};
@@ -71,26 +68,28 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {
     return result;
   }
-
-  str = str.substr(str.find_first_not_of(ws));
-  for (auto i = 0u; i < C - 1; ++i)
+  else
   {
-    const auto c = str.find_first_of(",");
-    const auto e = str.substr(0, c).find_last_not_of(ws);
+    str = str.substr(str.find_first_not_of(ws));
+    for (auto i = 0u; i < C - 1; ++i)
+    {
+      const auto c = str.find_first_of(",");
+      const auto e = str.substr(0, c).find_last_not_of(ws);
 
-    result[i] = str.substr(0, e + 1);
-    str = str.substr(str.find_first_not_of(ws, c + 1));
-  }
+      result[i] = str.substr(0, e + 1);
+      str = str.substr(str.find_first_not_of(ws, c + 1));
+    }
 
-  auto e = str.find_last_not_of(ws);
-  if (e == std::string_view::npos)
-  {
-    e = str.size() - 1;
+    auto e = str.find_last_not_of(ws);
+    if (e == std::string_view::npos)
+    {
+      e = str.size() - 1;
+    }
+    result[C - 1] = str.substr(0, e + 1);
+    return result;
   }
-  result[C - 1] = str.substr(0, e + 1);
-  return result;
 }
-} // namespace detail
+} // namespace kdl::detail
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -103,19 +102,25 @@ constexpr auto reflection_split_tokens(std::string_view str)
   {                                                                                      \
     return kdl::detail::reflection_split_tokens<C>(#__VA_ARGS__);                        \
   }                                                                                      \
-  [[maybe_unused]] auto members() const { return std::forward_as_tuple(__VA_ARGS__); }
+  [[maybe_unused]] auto members() const                                                  \
+  {                                                                                      \
+    return std::forward_as_tuple(__VA_ARGS__);                                           \
+  }
 
 #define kdl_reflect_members_0()                                                          \
   [[maybe_unused]] constexpr static auto member_names()                                  \
   {                                                                                      \
     return std::array<std::string_view, 0>{};                                            \
   }                                                                                      \
-  [[maybe_unused]] auto members() const { return std::tuple<>{}; }
+  [[maybe_unused]] auto members() const                                                  \
+  {                                                                                      \
+    return std::tuple<>{};                                                               \
+  }
 
 #define kdl_reflect_relational_operators(type_name)                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator==(const KDL_T& lhs, const KDL_T& rhs)                             \
     ->decltype(lhs.members() == rhs.members())                                           \
   {                                                                                      \
@@ -123,7 +128,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator!=(const KDL_T& lhs, const KDL_T& rhs)                             \
     ->decltype(lhs.members() != rhs.members())                                           \
   {                                                                                      \
@@ -131,7 +136,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator<(const KDL_T& lhs, const KDL_T& rhs)                              \
     ->decltype(lhs.members() < rhs.members())                                            \
   {                                                                                      \
@@ -139,7 +144,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator<=(const KDL_T& lhs, const KDL_T& rhs)                             \
     ->decltype(lhs.members() <= rhs.members())                                           \
   {                                                                                      \
@@ -147,7 +152,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator>(const KDL_T& lhs, const KDL_T& rhs)                              \
     ->decltype(lhs.members() > rhs.members())                                            \
   {                                                                                      \
@@ -155,7 +160,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
-    typename std::enable_if<std::is_same_v<type_name, KDL_T>, bool>::type = true>        \
+    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
   friend auto operator>=(const KDL_T& lhs, const KDL_T& rhs)                             \
     ->decltype(lhs.members() >= rhs.members())                                           \
   {                                                                                      \
@@ -176,5 +181,3 @@ constexpr auto reflection_split_tokens(std::string_view str)
 #ifdef __clang__
 #pragma clang diagnostic pop
 #endif
-
-} // namespace kdl

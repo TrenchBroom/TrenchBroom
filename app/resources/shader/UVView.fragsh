@@ -1,7 +1,7 @@
 #version 120
 
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
  
  This file is part of TrenchBroom.
  
@@ -20,8 +20,8 @@
  */
 
 uniform float Brightness;
-uniform bool ApplyTexture;
-uniform sampler2D Texture;
+uniform bool ApplyMaterial;
+uniform sampler2D Material;
 uniform bool RenderGrid;
 uniform vec2 GridSizes;
 uniform vec4 GridColor;
@@ -73,8 +73,8 @@ void gridLinesSoft(vec2 inCoords) {
 }
 
 void main() {
-	if (ApplyTexture)
-		gl_FragColor = texture2D(Texture, gl_TexCoord[0].st);
+	if (ApplyMaterial)
+		gl_FragColor = texture2D(Material, gl_TexCoord[0].st);
 	else
 		gl_FragColor = faceColor;
 

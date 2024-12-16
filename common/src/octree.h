@@ -19,30 +19,28 @@
 
 #pragma once
 
-#include "Ensure.h"
 #include "Exceptions.h"
 
-#include <kdl/overload.h>
-#include <kdl/reflection_decl.h>
-#include <kdl/reflection_impl.h>
-#include <kdl/vector_utils.h>
+#include "kdl/overload.h"
+#include "kdl/reflection_decl.h"
+#include "kdl/reflection_impl.h"
+#include "kdl/vector_utils.h"
 
-#include <vecmath/bbox.h>
-#include <vecmath/bbox_io.h>
-#include <vecmath/intersection.h>
-#include <vecmath/ray.h>
-#include <vecmath/scalar.h>
+#include "vm/bbox.h"
+#include "vm/intersection.h"
+#include "vm/ray.h"
+#include "vm/scalar.h"
 
 #include <algorithm>
 #include <cassert>
 #include <cmath>
+#include <cstdint>
 #include <optional>
-#include <ostream>
 #include <unordered_map>
 #include <variant>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 namespace detail
 {
@@ -137,6 +135,12 @@ public:
     detail::node_address address;
     std::vector<U> data;
 
+    leaf_node(detail::node_address i_address, std::vector<U> i_data)
+      : address{std::move(i_address)}
+      , data{std::move(i_data)}
+    {
+    }
+
     leaf_node(const leaf_node&) = delete;
     leaf_node(leaf_node&&) noexcept = default;
 
@@ -168,17 +172,17 @@ public:
 
     inner_node(const detail::node_address i_address, std::vector<U> i_data)
       : inner_node{
-        i_address,
-        std::move(i_data),
-        kdl::vec_from(
-          node{leaf_node{get_child(i_address, 0), {}}},
-          node{leaf_node{get_child(i_address, 1), {}}},
-          node{leaf_node{get_child(i_address, 2), {}}},
-          node{leaf_node{get_child(i_address, 3), {}}},
-          node{leaf_node{get_child(i_address, 4), {}}},
-          node{leaf_node{get_child(i_address, 5), {}}},
-          node{leaf_node{get_child(i_address, 6), {}}},
-          node{leaf_node{get_child(i_address, 7), {}}})}
+          i_address,
+          std::move(i_data),
+          kdl::vec_from(
+            node{leaf_node{get_child(i_address, 0), {}}},
+            node{leaf_node{get_child(i_address, 1), {}}},
+            node{leaf_node{get_child(i_address, 2), {}}},
+            node{leaf_node{get_child(i_address, 3), {}}},
+            node{leaf_node{get_child(i_address, 4), {}}},
+            node{leaf_node{get_child(i_address, 5), {}}},
+            node{leaf_node{get_child(i_address, 6), {}}},
+            node{leaf_node{get_child(i_address, 7), {}}})}
     {
     }
 
@@ -542,8 +546,7 @@ public:
         },
         [&](const auto& node) {
           const auto bounds = get_address(node).to_bounds(m_min_size);
-          return bounds.contains(ray.origin)
-                 || !vm::is_nan(vm::intersect_ray_bbox(ray, bounds));
+          return bounds.contains(ray.origin) || vm::intersect_ray_bbox(ray, bounds);
         });
     }
   }
@@ -639,4 +642,4 @@ private:
   }
 };
 
-} // namespace TrenchBroom
+} // namespace tb

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <vector>
 
 namespace kdl
@@ -29,19 +30,17 @@ private:
   std::vector<bool> m_bits;
 
 public:
-  bitset(const size_t initialSize = 64)
+  explicit bitset(const std::size_t initialSize = 64)
     : m_bits(initialSize, false)
   {
   }
 
-  bool operator[](const size_t index) const
+  bool operator[](const std::size_t index) const
   {
-    if (index >= m_bits.size())
-      return false;
-    return m_bits[index];
+    return index < m_bits.size() ? m_bits[index] : false;
   }
 
-  std::vector<bool>::reference operator[](const size_t index)
+  std::vector<bool>::reference operator[](const std::size_t index)
   {
     if (index >= m_bits.size())
     {
@@ -52,4 +51,5 @@ public:
 
   void reset() { m_bits = std::vector<bool>(64, false); }
 };
+
 } // namespace kdl

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -21,7 +21,7 @@
 
 #include <QApplication>
 
-#include "Notifier.h"
+#include "kdl/task_manager.h"
 
 #include <filesystem>
 #include <memory>
@@ -32,13 +32,13 @@ class QMenu;
 class QSettings;
 class QTimer;
 
-namespace TrenchBroom
+namespace tb
 {
 class Logger;
+}
 
-namespace View
+namespace tb::ui
 {
-class ExecutableEvent;
 class FrameManager;
 class RecentDocuments;
 class WelcomeWindow;
@@ -47,6 +47,7 @@ class TrenchBroomApp : public QApplication
 {
   Q_OBJECT
 private:
+  kdl::task_manager m_taskManager = kdl::task_manager{256};
   std::unique_ptr<FrameManager> m_frameManager;
   std::unique_ptr<RecentDocuments> m_recentDocuments;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
@@ -69,7 +70,7 @@ private:
   void loadStyle();
 
 public:
-  const std::vector<std::filesystem::path>& recentDocuments() const;
+  std::vector<std::filesystem::path> recentDocuments() const;
   void addRecentDocumentMenu(QMenu& menu);
   void removeRecentDocumentMenu(QMenu& menu);
   void updateRecentDocument(const std::filesystem::path& path);
@@ -108,5 +109,5 @@ void setCrashReportGUIEnbled(bool guiEnabled);
   const std::string& stacktrace, const std::string& reason);
 bool isReportingCrash();
 
-} // namespace View
-} // namespace TrenchBroom
+
+} // namespace tb::ui

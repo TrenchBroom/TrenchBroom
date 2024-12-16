@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -26,10 +26,11 @@
 #include <set>
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 TEST_CASE("vector_utils_test.vec_at")
 {
   const auto cv = std::vector<int>{1, 2, 3};
@@ -63,53 +64,31 @@ base::~base() = default;
 
 struct derived : public base
 {
-  ~derived() override;
+  ~derived() override = default;
 };
 
-derived::~derived() = default;
-
-TEST_CASE("vector_utils_test.vec_element_cast")
+struct other : public base
 {
-  auto vd = std::vector<derived*>{new derived(), new derived()};
-  auto vb = vec_element_cast<base*>(vd);
+  ~other() override = default;
+};
 
-  CHECK(vb.size() == vd.size());
-  for (std::size_t i = 0u; i < vd.size(); ++i)
-  {
-    CHECK(vb[i] == vd[i]);
-  }
+TEST_CASE("vector_utils_test.vec_dynamic_cast")
+{
+  auto d = std::make_unique<derived>();
+  auto o = std::make_unique<other>();
+  const auto vd = std::vector<base*>{d.get(), o.get()};
 
-  auto vbd = vec_element_cast<derived*>(vb);
-  CHECK(vbd.size() == vb.size());
-  for (std::size_t i = 0u; i < vb.size(); ++i)
-  {
-    CHECK(vbd[i] == vb[i]);
-  }
-
-  vec_clear_and_delete(vd);
+  CHECK(vec_dynamic_cast<derived>(vd) == std::vector<derived*>{d.get()});
+  CHECK(vec_dynamic_cast<other>(vd) == std::vector<other*>{o.get()});
 }
 
-TEST_CASE("vector_utils_test.vec_index_of")
+TEST_CASE("vector_utils_test.vec_static_cast")
 {
-  using vec = std::vector<int>;
+  auto d1 = std::make_unique<derived>();
+  auto d2 = std::make_unique<derived>();
+  const auto vd = std::vector<derived*>{d1.get(), d2.get()};
 
-  CHECK(vec_index_of(vec{}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, 1) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 1) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 3) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, 2) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, 4) == std::nullopt);
-
-  CHECK(vec_index_of(vec{}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{2}, [](const auto& i) { return i == 1; }) == std::nullopt);
-  CHECK(vec_index_of(vec{1}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 1; }) == 0u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 3; }) == 2u);
-  CHECK(vec_index_of(vec{1, 2, 2}, [](const auto& i) { return i == 2; }) == 1u);
-  CHECK(vec_index_of(vec{1, 2, 3}, [](const auto& i) { return i == 4; }) == std::nullopt);
+  CHECK(vec_static_cast<base*>(vd) == std::vector<base*>{d1.get(), d2.get()});
 }
 
 TEST_CASE("vector_utils_test.vec_contains")
@@ -137,7 +116,7 @@ template <typename T, typename... R>
 static auto makeVec(T&& t, R... r)
 {
   std::vector<T> result;
-  result.push_back(std::move(t));
+  result.push_back(std::forward<T>(t));
   (..., result.push_back(std::forward<R>(r)));
   return result;
 }
@@ -159,6 +138,20 @@ TEST_CASE("vector_utils_test.vec_concat_move")
 
   CHECK(*v[0] == 1);
   CHECK(*v[1] == 2);
+}
+
+TEST_CASE("vector_utils_test.vec_push_back")
+{
+  using ivec = std::vector<int>;
+  using svec = std::vector<std::string>;
+
+  CHECK_THAT(vec_push_back(ivec{}), Catch::Equals(ivec{}));
+  CHECK_THAT(vec_push_back(ivec{}, 1), Catch::Equals(ivec{1}));
+  CHECK_THAT(vec_push_back(ivec{1}, 2, 3), Catch::Equals(ivec{1, 2, 3}));
+
+  CHECK_THAT(
+    vec_push_back(svec{}, "hey", std::string{"there"}),
+    Catch::Equals(svec{"hey", "there"}));
 }
 
 TEST_CASE("vector_utils_test.vec_slice")
@@ -489,4 +482,5 @@ TEST_CASE("vector_utils_test.vec_clear_and_delete")
   CHECK(d2);
   CHECK(d3);
 }
+
 } // namespace kdl

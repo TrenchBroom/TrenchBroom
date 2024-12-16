@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,8 +20,10 @@
 
 #pragma once
 
+#include <array>
 #include <cassert>
 #include <cstddef>
+#include <initializer_list>
 #include <utility>
 
 namespace kdl
@@ -40,7 +42,9 @@ class enum_array
   static_assert(Size > 0u, "enum_array must have size > 0");
 
 private:
-  T m_array[Size]; // force value initialization to 0
+  // force value initialization to 0
+  std::array<T, Size> m_array = {};
+
 public:
   using iterator = T*;
   using const_iterator = const T*;
@@ -51,16 +55,13 @@ public:
   /**
    * Creates a new empty array. The array values are value initialized.
    */
-  enum_array()
-    : m_array{}
-  {
-  }
+  enum_array() {}
 
   /**
    * Creates a new array with the values in the given initializer list.
    */
   enum_array(std::initializer_list<T> list)
-    : m_array(list)
+    : m_array{std::move(list)}
   {
   }
 
@@ -174,4 +175,5 @@ public:
    */
   const_reverse_iterator crend() const { return std::crend(m_array); }
 };
+
 } // namespace kdl

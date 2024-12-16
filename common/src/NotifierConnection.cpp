@@ -21,10 +21,11 @@
 
 #include "Notifier.h"
 
-#include <kdl/memory_utils.h>
+#include "kdl/memory_utils.h"
 
-namespace TrenchBroom
+namespace tb
 {
+
 NotifierConnection::NotifierConnection() = default;
 
 NotifierConnection::NotifierConnection(
@@ -64,4 +65,5 @@ void NotifierConnection::disconnect()
   }
   m_connections.clear();
 }
-} // namespace TrenchBroom
+
+} // namespace tb

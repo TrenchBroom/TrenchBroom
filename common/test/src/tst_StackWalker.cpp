@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2010 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -21,13 +21,15 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
 TEST_CASE("StackWalkerTest.testStackTraceSymbols")
+
 {
   const std::string stackTrace = TrenchBroomStackWalker::getStackTrace();
 
   // FIXME: doesn't work on CI right now
   // EXPECT_THAT(stackTrace, HasSubstr("testStackTraceSymbols"));
 }
-} // namespace TrenchBroom
+
+} // namespace tb

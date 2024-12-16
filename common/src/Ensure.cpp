@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2010-2017 Kristian Duske
+Copyright (C) 2010 Kristian Duske
 
 This file is part of TrenchBroom.
 
@@ -19,15 +19,11 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Ensure.h"
 
-#include "TrenchBroomApp.h"
-#include "TrenchBroomStackWalker.h"
-
 #include <cassert>
-#include <sstream>
 
 #ifndef NDEBUG
 // for debug builds, ensure is just an assertion
-void TrenchBroom::ensureFailed(
+void tb::ensureFailed(
   const char* /* file */,
   const int /* line */,
   const char* /* condition */,
@@ -36,8 +32,13 @@ void TrenchBroom::ensureFailed(
   assert(0);
 }
 #else
+#include "TrenchBroomApp.h"
+#include "TrenchBroomStackWalker.h"
+
+#include <sstream>
+
 // for release builds, ensure generates a crash report
-void TrenchBroom::ensureFailed(
+void tb::ensureFailed(
   const char* file, const int line, const char* condition, const char* message)
 {
   std::stringstream reason;
@@ -45,6 +46,6 @@ void TrenchBroom::ensureFailed(
          << "' failed: " << message;
 
   const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
-  TrenchBroom::View::reportCrashAndExit(stacktrace, reason.str());
+  tb::ui::reportCrashAndExit(stacktrace, reason.str());
 }
 #endif

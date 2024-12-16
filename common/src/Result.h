@@ -19,13 +19,14 @@
 
 #pragma once
 
-#include <kdl/result_forward.h>
+#include "Error.h"
 
-namespace TrenchBroom
+#include "kdl/result.h"
+
+namespace tb
 {
-struct Error;
 
 template <typename Value, typename FirstError = Error, typename... MoreErrors>
 using Result = kdl::result<Value, FirstError, MoreErrors...>;
 
-} // namespace TrenchBroom
+} // namespace tb

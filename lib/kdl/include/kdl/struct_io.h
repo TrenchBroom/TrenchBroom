@@ -20,8 +20,7 @@
 
 #pragma once
 
-#include <kdl/std_io.h>
-#include <kdl/traits.h>
+#include "kdl/std_io.h"
 
 #include <ostream>
 

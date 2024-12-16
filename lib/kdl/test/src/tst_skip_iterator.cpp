@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -22,10 +22,11 @@
 
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 TEST_CASE("skip_iterator_test.prefix_increment")
 {
   std::vector<int> vec({1, 2, 3, 4, 5});
@@ -85,4 +86,5 @@ TEST_CASE("skip_iterator_test.oneElement_sequence")
   CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 1, 2)) == std::end(vec));
   CHECK(std::next(skip_iterator(std::begin(vec), std::end(vec), 2, 2)) == std::end(vec));
 }
+
 } // namespace kdl

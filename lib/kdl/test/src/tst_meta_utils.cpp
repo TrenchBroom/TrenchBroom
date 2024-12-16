@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,10 +20,11 @@
 
 #include "kdl/meta_utils.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 TEST_CASE("meta_utils_test.contains")
 {
   static_assert(meta_contains_v<int, int>);
@@ -73,4 +74,5 @@ TEST_CASE("meta_utils_test.remove_duplicates")
                 meta_remove_duplicates_t<int, float, int, double, bool, float>,
                 meta_type_list<int, float, double, bool>>);
 }
+
 } // namespace kdl

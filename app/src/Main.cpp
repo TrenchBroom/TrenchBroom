@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -23,13 +23,13 @@
 #include <QSurfaceFormat>
 #include <QtGlobal>
 
-#include "IO/SystemPaths.h"
-#include "Model/GameFactory.h"
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
-#include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
-#include "View/MapFrame.h"
+#include "io/SystemPaths.h"
+#include "mdl/GameFactory.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapFrame.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
@@ -75,7 +75,7 @@ int main(int argc, char* argv[])
     {
       if (strcmp(argv[i], "--portable") == 0)
       {
-        TrenchBroom::IO::SystemPaths::setPortable();
+        tb::io::SystemPaths::setPortable();
         QSettings::setPath(
           QSettings::IniFormat, QSettings::UserScope, QString("./config"));
       }
@@ -83,8 +83,8 @@ int main(int argc, char* argv[])
   }
 
   // PreferenceManager is destroyed by TrenchBroomApp::~TrenchBroomApp()
-  TrenchBroom::PreferenceManager::createInstance<TrenchBroom::AppPreferenceManager>();
-  TrenchBroom::View::TrenchBroomApp app(argc, argv);
+  tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
+  tb::ui::TrenchBroomApp app(argc, argv);
 
   app.parseCommandLineAndShowFrame();
   return app.exec();

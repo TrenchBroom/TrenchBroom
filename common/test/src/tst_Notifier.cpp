@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -24,8 +24,11 @@
 
 #include "Catch2.h"
 
-namespace TrenchBroom
+namespace tb
 {
+namespace
+{
+
 class Observed
 {
 public:
@@ -56,8 +59,10 @@ public:
 
   void notify1(const int& a1) { notify1Calls.push_back(a1); }
 
-  void notify2(const int& a1, const int& a2) { notify2Calls.push_back({a1, a2}); }
+  void notify2(const int& a1, const int& a2) { notify2Calls.emplace_back(a1, a2); }
 };
+
+} // namespace
 
 TEST_CASE("NotifierTest.testAddRemoveObservers")
 {
@@ -147,19 +152,20 @@ struct Param
 
 TEST_CASE("NotifierTest.notifyObservers - test type qualifiers and value categories")
 {
+  // clang-format off
   /*
                                observer takes argument
-   notifier takes argument   | by value | by lvalue reference | by const lvalue reference
-   | by rvalue reference
+   notifier takes argument   | by value | by lvalue reference | by const lvalue reference | by rvalue reference
    ==========================|==========|=====================|===========================|====================
-   by value                  |    X     |                     |              X | X by
-   lvalue reference       |    X     |          X          |              X            |
-   by const lvalue reference |    X     |                     |              X | by rvalue
-   reference       |    X     |                     |              X            | X
+   by value                  |    X     |                     |              X            |         X
+   by lvalue reference       |    X     |          X          |              X            |
+   by const lvalue reference |    X     |                     |              X            |
+   by rvalue reference       |    X     |                     |              X            |         X
 
    Cells marked with an 'X' should be supported since the type system allows the
    observer's argument to bind to the notifier's argument.
    */
+  // clang-format on
 
   size_t copyCount = 0;
   size_t moveCount = 0;
@@ -417,4 +423,5 @@ TEST_CASE("NotifyBeforeAndAfter")
     CHECK(moveCount <= 3);
   }
 }
-} // namespace TrenchBroom
+
+} // namespace tb

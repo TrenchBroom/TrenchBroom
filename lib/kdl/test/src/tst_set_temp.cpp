@@ -1,5 +1,5 @@
 /*
- Copyright 2010-2019 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,10 +20,11 @@
 
 #include "kdl/set_temp.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 TEST_CASE("set_temp_test.set_unset")
 {
   int value = 0;
@@ -87,4 +88,5 @@ TEST_CASE("dec_temp.dec_inc")
   }
   CHECK(value == 0);
 }
+
 } // namespace kdl

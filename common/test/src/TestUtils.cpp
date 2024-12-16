@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,37 +19,40 @@
 
 #include "TestUtils.h"
 
-#include "Assets/Texture.h"
 #include "Ensure.h"
-#include "Error.h"
-#include "IO/DiskIO.h"
-#include "IO/GameConfigParser.h"
-#include "Model/BezierPatch.h"
-#include "Model/BrushFace.h"
-#include "Model/BrushNode.h"
-#include "Model/EntityNode.h"
-#include "Model/GameImpl.h"
-#include "Model/GroupNode.h"
-#include "Model/ParallelTexCoordSystem.h"
-#include "Model/ParaxialTexCoordSystem.h"
-#include "Model/PatchNode.h"
 #include "TestLogger.h"
-#include "View/MapDocument.h"
-#include "View/MapDocumentCommandFacade.h"
+#include "io/DiskIO.h"
+#include "io/GameConfigParser.h"
+#include "mdl/BezierPatch.h"
+#include "mdl/BrushFace.h"
+#include "mdl/BrushNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/GameImpl.h"
+#include "mdl/GroupNode.h"
+#include "mdl/Material.h"
+#include "mdl/ParallelUVCoordSystem.h"
+#include "mdl/ParaxialUVCoordSystem.h"
+#include "mdl/PatchNode.h"
+#include "mdl/Resource.h"
+#include "mdl/Texture.h"
+#include "mdl/WorldNode.h"
+#include "ui/MapDocument.h"
+#include "ui/MapDocumentCommandFacade.h"
 
-#include <kdl/result.h>
-#include <kdl/string_compare.h>
+#include "kdl/result.h"
 
-#include <vecmath/polygon.h>
-#include <vecmath/scalar.h>
-#include <vecmath/segment.h>
+#include "vm/polygon.h"
+#include "vm/scalar.h"
+#include "vm/segment.h"
 
-#include <sstream>
 #include <string>
 
-namespace TrenchBroom
+#include "Catch2.h"
+
+namespace tb
 {
-bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
+
+bool uvCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 {
   for (size_t i = 0; i < 2; ++i)
   {
@@ -58,7 +61,9 @@ bool texCoordsEqual(const vm::vec2f& tc1, const vm::vec2f& tc2)
 
     if (!(vm::is_equal(distRemainder, 0.0f, vm::Cf::almost_zero())
           || vm::is_equal(distRemainder, 1.0f, vm::Cf::almost_zero())))
+    {
       return false;
+    }
   }
   return true;
 }
@@ -79,7 +84,7 @@ bool pointExactlyIntegral(const vm::vec3d& point)
 /**
  * Assumes the UV's have been divided by the texture size.
  */
-bool UVListsEqual(
+bool uvListsEqual(
   const std::vector<vm::vec2f>& uvs, const std::vector<vm::vec2f>& transformedVertUVs)
 {
   if (uvs.size() != transformedVertUVs.size())
@@ -90,7 +95,7 @@ bool UVListsEqual(
   {
     return false;
   }
-  if (!texCoordsEqual(uvs[0], transformedVertUVs[0]))
+  if (!uvCoordsEqual(uvs[0], transformedVertUVs[0]))
   {
     return false;
   }
@@ -98,7 +103,7 @@ bool UVListsEqual(
   for (size_t i = 1; i < uvs.size(); ++i)
   {
     // note, just checking:
-    //   texCoordsEqual(uvs[i], transformedVertUVs[i]);
+    //   uvCoordsEqual(uvs[i], transformedVertUVs[i]);
     // would be too lenient.
     const vm::vec2f expected = uvs[i] - uvs[0];
     const vm::vec2f actual = transformedVertUVs[i] - transformedVertUVs[0];
@@ -110,38 +115,36 @@ bool UVListsEqual(
   return true;
 }
 
-TEST_CASE("TestUtilsTest.testTexCoordsEqual")
+TEST_CASE("TestUtilsTest.testUVCoordsEqual")
 {
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(2.00001, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(2.0, -3.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(-2.0, -3.0), vm::vec2f(-10.0, 2.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-1.0, 1.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-0.00001, 0.0)));
-  CHECK(texCoordsEqual(vm::vec2f(0.25, 0.0), vm::vec2f(-0.75, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.0, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(1.0, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(2.00001, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(2.0, -3.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(-2.0, -3.0), vm::vec2f(-10.0, 2.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-1.0, 1.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(-0.00001, 0.0)));
+  CHECK(uvCoordsEqual(vm::vec2f(0.25, 0.0), vm::vec2f(-0.75, 0.0)));
 
-  CHECK_FALSE(texCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
-  CHECK_FALSE(texCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
+  CHECK_FALSE(uvCoordsEqual(vm::vec2f(0.0, 0.0), vm::vec2f(0.1, 0.1)));
+  CHECK_FALSE(uvCoordsEqual(vm::vec2f(-0.25, 0.0), vm::vec2f(0.25, 0.0)));
 }
 
-TEST_CASE("TestUtilsTest.UVListsEqual")
+TEST_CASE("TestUtilsTest.uvListsEqual")
 {
-  CHECK(UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}}));
-  CHECK(UVListsEqual(
+  CHECK(uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {1, 0}, {0, 1}}));
+  CHECK(uvListsEqual(
     {{0, 0}, {1, 0}, {0, 1}},
-    {{10, 0}, {11, 0}, {10, 1}})); // translation by whole texture increments OK
+    {{10, 0}, {11, 0}, {10, 1}})); // translation by whole UV increments OK
 
-  CHECK_FALSE(UVListsEqual(
+  CHECK_FALSE(uvListsEqual(
     {{0, 0}, {1, 0}, {0, 1}},
-    {{10.5, 0},
-     {11.5, 0},
-     {10.5, 1}})); // translation by partial texture increments not OK
+    {{10.5, 0}, {11.5, 0}, {10.5, 1}})); // translation by partial UV increments not OK
   CHECK_FALSE(
-    UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
+    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {0, 1}, {1, 0}})); // wrong order
   CHECK_FALSE(
-    UVListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
+    uvListsEqual({{0, 0}, {1, 0}, {0, 1}}, {{0, 0}, {2, 0}, {0, 2}})); // unwanted scaling
 }
 
 TEST_CASE("TestUtilsTest.pointExactlyIntegral")
@@ -155,7 +158,12 @@ TEST_CASE("TestUtilsTest.pointExactlyIntegral")
   CHECK_FALSE(pointExactlyIntegral(vm::vec3d(1024.5, 1024.5, 1024.5)));
 }
 
-namespace IO
+std::unique_ptr<kdl::task_manager> createTestTaskManager()
+{
+  return std::make_unique<kdl::task_manager>(1);
+}
+
+namespace io
 {
 std::string readTextFile(const std::filesystem::path& path)
 {
@@ -167,61 +175,61 @@ std::string readTextFile(const std::filesystem::path& path)
                (std::istreambuf_iterator<char>(stream)),
                std::istreambuf_iterator<char>()};
            })
-    .value();
+         | kdl::value();
 }
-} // namespace IO
+} // namespace io
 
-namespace Model
+namespace mdl
 {
 BrushFace createParaxial(
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2,
-  const std::string& textureName)
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2,
+  const std::string& materialName)
 {
-  const BrushFaceAttributes attributes(textureName);
+  const BrushFaceAttributes attributes(materialName);
   return BrushFace::create(
            point0,
            point1,
            point2,
            attributes,
-           std::make_unique<ParaxialTexCoordSystem>(point0, point1, point2, attributes))
-    .value();
+           std::make_unique<ParaxialUVCoordSystem>(point0, point1, point2, attributes))
+         | kdl::value();
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::segment3>& edges)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::segment3d>& edges)
 {
-  std::vector<vm::vec3> result;
-  vm::segment3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::segment3d::get_vertices(
     std::begin(edges), std::end(edges), std::back_inserter(result));
   return result;
 }
 
-std::vector<vm::vec3> asVertexList(const std::vector<vm::polygon3>& faces)
+std::vector<vm::vec3d> asVertexList(const std::vector<vm::polygon3d>& faces)
 {
-  std::vector<vm::vec3> result;
-  vm::polygon3::get_vertices(
+  std::vector<vm::vec3d> result;
+  vm::polygon3d::get_vertices(
     std::begin(faces), std::end(faces), std::back_inserter(result));
   return result;
 }
 
-void assertTexture(
-  const std::string& expected, const BrushNode* brushNode, const vm::vec3& faceNormal)
+void assertMaterial(
+  const std::string& expected, const BrushNode* brushNode, const vm::vec3d& faceNormal)
 {
-  assertTexture(expected, brushNode->brush(), faceNormal);
+  assertMaterial(expected, brushNode->brush(), faceNormal);
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3)
 {
-  return assertTexture(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3}));
+  return assertMaterial(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const vm::vec3d& v1,
@@ -229,44 +237,44 @@ void assertTexture(
   const vm::vec3d& v3,
   const vm::vec3d& v4)
 {
-  return assertTexture(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3, v4}));
+  return assertMaterial(expected, brushNode, std::vector<vm::vec3d>({v1, v2, v3, v4}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const BrushNode* brushNode,
   const std::vector<vm::vec3d>& vertices)
 {
-  return assertTexture(expected, brushNode, vm::polygon3d(vertices));
+  return assertMaterial(expected, brushNode, vm::polygon3d(vertices));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const BrushNode* brushNode, const vm::polygon3d& vertices)
 {
-  assertTexture(expected, brushNode->brush(), vertices);
+  assertMaterial(expected, brushNode->brush(), vertices);
 }
 
-void assertTexture(
-  const std::string& expected, const Brush& brush, const vm::vec3& faceNormal)
+void assertMaterial(
+  const std::string& expected, const Brush& brush, const vm::vec3d& faceNormal)
 {
   const auto faceIndex = brush.findFace(faceNormal);
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
   const vm::vec3d& v2,
   const vm::vec3d& v3)
 {
-  return assertTexture(expected, brush, std::vector<vm::vec3d>({v1, v2, v3}));
+  return assertMaterial(expected, brush, std::vector<vm::vec3d>({v1, v2, v3}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected,
   const Brush& brush,
   const vm::vec3d& v1,
@@ -274,27 +282,27 @@ void assertTexture(
   const vm::vec3d& v3,
   const vm::vec3d& v4)
 {
-  return assertTexture(expected, brush, std::vector<vm::vec3d>({v1, v2, v3, v4}));
+  return assertMaterial(expected, brush, std::vector<vm::vec3d>({v1, v2, v3, v4}));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const std::vector<vm::vec3d>& vertices)
 {
-  return assertTexture(expected, brush, vm::polygon3d(vertices));
+  return assertMaterial(expected, brush, vm::polygon3d(vertices));
 }
 
-void assertTexture(
+void assertMaterial(
   const std::string& expected, const Brush& brush, const vm::polygon3d& vertices)
 {
   const auto faceIndex = brush.findFace(vertices, 0.0001);
   REQUIRE(faceIndex);
 
   const BrushFace& face = brush.face(*faceIndex);
-  CHECK(face.attributes().textureName() == expected);
+  CHECK(face.attributes().materialName() == expected);
 }
 
 void transformNode(
-  Node& node, const vm::mat4x4& transformation, const vm::bbox3& worldBounds)
+  Node& node, const vm::mat4x4d& transformation, const vm::bbox3d& worldBounds)
 {
   node.accept(kdl::overload(
     [](const WorldNode*) {},
@@ -307,8 +315,11 @@ void transformNode(
       groupNode->visitChildren(thisLambda);
     },
     [&](auto&& thisLambda, EntityNode* entityNode) {
+      const auto updateAngleProperty =
+        entityNode->entityPropertyConfig().updateAnglePropertyAfterTransform;
+
       auto entity = entityNode->entity();
-      entity.transform(entityNode->entityPropertyConfig(), transformation);
+      entity.transform(transformation, updateAngleProperty);
       entityNode->setEntity(std::move(entity));
 
       entityNode->visitChildren(thisLambda);
@@ -331,98 +342,103 @@ GameAndConfig loadGame(const std::string& gameName)
   const auto configPath =
     std::filesystem::current_path() / "fixture/games" / gameName / "GameConfig.cfg";
   const auto gamePath =
-    std::filesystem::current_path() / "fixture/test/Model/Game" / gameName;
-  const auto configStr = IO::readTextFile(configPath);
-  auto configParser = IO::GameConfigParser(configStr, configPath);
-  auto config = std::make_unique<Model::GameConfig>(configParser.parse());
-  auto game = std::make_shared<Model::GameImpl>(*config, gamePath, logger);
+    std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
+  const auto configStr = io::readTextFile(configPath);
+  auto configParser = io::GameConfigParser(configStr, configPath);
+  auto config = std::make_unique<mdl::GameConfig>(configParser.parse());
+  auto game = std::make_shared<mdl::GameImpl>(*config, gamePath, logger);
 
   // We would ideally just return game, but GameImpl captures a raw reference
   // to the GameConfig.
   return {std::move(game), std::move(config)};
 }
 
-const Model::BrushFace* findFaceByPoints(
-  const std::vector<Model::BrushFace>& faces,
-  const vm::vec3& point0,
-  const vm::vec3& point1,
-  const vm::vec3& point2)
+const mdl::BrushFace* findFaceByPoints(
+  const std::vector<mdl::BrushFace>& faces,
+  const vm::vec3d& point0,
+  const vm::vec3d& point1,
+  const vm::vec3d& point2)
 {
-  for (const Model::BrushFace& face : faces)
+  for (const mdl::BrushFace& face : faces)
   {
     if (
       face.points()[0] == point0 && face.points()[1] == point1
       && face.points()[2] == point2)
+    {
       return &face;
+    }
   }
   return nullptr;
 }
 
-void checkFaceTexCoordSystem(const Model::BrushFace& face, const bool expectParallel)
+void checkFaceUVCoordSystem(const mdl::BrushFace& face, const bool expectParallel)
 {
-  auto snapshot = face.takeTexCoordSystemSnapshot();
-  auto* check = dynamic_cast<Model::ParallelTexCoordSystemSnapshot*>(snapshot.get());
+  auto snapshot = face.takeUVCoordSystemSnapshot();
+  auto* check = dynamic_cast<mdl::ParallelUVCoordSystemSnapshot*>(snapshot.get());
   const bool isParallel = (check != nullptr);
   CHECK(isParallel == expectParallel);
 }
 
-void checkBrushTexCoordSystem(
-  const Model::BrushNode* brushNode, const bool expectParallel)
+void checkBrushUVCoordSystem(const mdl::BrushNode* brushNode, const bool expectParallel)
 {
   const auto& faces = brushNode->brush().faces();
   CHECK(faces.size() == 6u);
-  checkFaceTexCoordSystem(faces[0], expectParallel);
-  checkFaceTexCoordSystem(faces[1], expectParallel);
-  checkFaceTexCoordSystem(faces[2], expectParallel);
-  checkFaceTexCoordSystem(faces[3], expectParallel);
-  checkFaceTexCoordSystem(faces[4], expectParallel);
-  checkFaceTexCoordSystem(faces[5], expectParallel);
+  checkFaceUVCoordSystem(faces[0], expectParallel);
+  checkFaceUVCoordSystem(faces[1], expectParallel);
+  checkFaceUVCoordSystem(faces[2], expectParallel);
+  checkFaceUVCoordSystem(faces[3], expectParallel);
+  checkFaceUVCoordSystem(faces[4], expectParallel);
+  checkFaceUVCoordSystem(faces[5], expectParallel);
 }
 
-void setLinkedGroupId(GroupNode& groupNode, std::string linkedGroupId)
+void setLinkId(Node& node, std::string linkId)
 {
-  auto group = groupNode.group();
-  group.setLinkedGroupId(std::move(linkedGroupId));
-  groupNode.setGroup(std::move(group));
+  node.accept(kdl::overload(
+    [](const WorldNode*) {},
+    [](const LayerNode*) {},
+    [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
-} // namespace Model
 
-namespace View
+} // namespace mdl
+
+namespace ui
 {
 DocumentGameConfig loadMapDocument(
   const std::filesystem::path& mapPath,
   const std::string& gameName,
-  const Model::MapFormat mapFormat)
+  const mdl::MapFormat mapFormat)
 {
-  auto [document, game, gameConfig] = newMapDocument(gameName, mapFormat);
+  auto taskManager = createTestTaskManager();
+  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
 
-  document
-    ->loadDocument(
-      mapFormat,
-      document->worldBounds(),
-      document->game(),
-      std::filesystem::current_path() / mapPath)
-    .transform_error([](auto e) { throw std::runtime_error{e.msg}; });
+  auto [game, gameConfig] = mdl::loadGame(gameName);
+  document->loadDocument(
+    mapFormat, vm::bbox3d{8192.0}, game, std::filesystem::current_path() / mapPath)
+    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  return {std::move(document), std::move(game), std::move(gameConfig)};
+  document->processResourcesSync(mdl::ProcessContext{false, [](auto, auto) {}});
+
+  return {
+    std::move(document), std::move(game), std::move(gameConfig), std::move(taskManager)};
 }
 
 DocumentGameConfig newMapDocument(
-  const std::string& gameName, const Model::MapFormat mapFormat)
+  const std::string& gameName, const mdl::MapFormat mapFormat)
 {
-  auto [game, gameConfig] = Model::loadGame(gameName);
+  auto taskManager = createTestTaskManager();
+  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
 
-  auto document = MapDocumentCommandFacade::newMapDocument();
-  document->newDocument(mapFormat, vm::bbox3(8192.0), game).transform_error([](auto e) {
-    throw std::runtime_error{e.msg};
-  });
+  auto [game, gameConfig] = mdl::loadGame(gameName);
+  document->newDocument(mapFormat, vm::bbox3d{8192.0}, game)
+    | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-  return {std::move(document), std::move(game), std::move(gameConfig)};
+  return {
+    std::move(document), std::move(game), std::move(gameConfig), std::move(taskManager)};
 }
-} // namespace View
+} // namespace ui
 
 int getComponentOfPixel(
-  const Assets::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const Component component)
@@ -469,7 +485,7 @@ int getComponentOfPixel(
     }
   }
 
-  const auto& mip0DataBuffer = texture.buffersIfUnprepared().at(0);
+  const auto& mip0DataBuffer = texture.buffersIfLoaded().at(0);
   assert(texture.width() * texture.height() * 4 == mip0DataBuffer.size());
   assert(x < texture.width());
   assert(y < texture.height());
@@ -480,7 +496,7 @@ int getComponentOfPixel(
 }
 
 void checkColor(
-  const Assets::Texture& texture,
+  const mdl::Texture& texture,
   const std::size_t x,
   const std::size_t y,
   const int r,
@@ -512,43 +528,24 @@ void checkColor(
   }
 }
 
-// GlobMatcher
-
-GlobMatcher::GlobMatcher(const std::string& glob)
-  : m_glob(glob)
+int getComponentOfPixel(
+  const mdl::Material& material, std::size_t x, std::size_t y, Component component)
 {
+  ensure(material.texture(), "expected material to have a texture");
+  return getComponentOfPixel(*material.texture(), x, y, component);
 }
 
-bool GlobMatcher::match(const std::string& value) const
+void checkColor(
+  const mdl::Material& material,
+  const std::size_t x,
+  const std::size_t y,
+  const int r,
+  const int g,
+  const int b,
+  const int a,
+  const ColorMatch match)
 {
-  return kdl::cs::str_matches_glob(value, m_glob);
+  ensure(material.texture(), "expected material to have a texture");
+  return checkColor(*material.texture(), x, y, r, g, b, a, match);
 }
-
-std::string GlobMatcher::describe() const
-{
-  std::stringstream ss;
-  ss << "matches glob \"" << m_glob << "\"";
-  return ss.str();
-}
-
-GlobMatcher MatchesGlob(const std::string& glob)
-{
-  return GlobMatcher(glob);
-}
-
-TEST_CASE("TestUtilsTest.testUnorderedApproxVecMatcher")
-{
-  using V = std::vector<vm::vec3>;
-  CHECK_THAT((V{{1, 1, 1}}), UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}}, 0.02));
-  CHECK_THAT(
-    (V{{0, 0, 0}, {1, 1, 1}}),
-    UnorderedApproxVecMatches(V{{1.01, 1.01, 1.01}, {-0.01, -0.01, -0.01}}, 0.02));
-
-  CHECK_THAT(
-    (V{{1, 1, 1}}),
-    !UnorderedApproxVecMatches(
-      V{{1.01, 1.01, 1.01}, {1, 1, 1}}, 0.02)); // different number of elements
-  CHECK_THAT(
-    (V{{1, 1, 1}}), !UnorderedApproxVecMatches(V{{1.05, 1.01, 1.01}}, 0.02)); // too far
-}
-} // namespace TrenchBroom
+} // namespace tb

@@ -18,9 +18,9 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include <kdl/tuple_utils.h>
+#include "kdl/tuple_utils.h"
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
@@ -76,4 +76,5 @@ TEST_CASE("tup_capture")
       "can capture multiple arguments");
   }
 }
+
 } // namespace kdl

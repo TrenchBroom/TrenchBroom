@@ -21,15 +21,15 @@
 
 #include "NotifierConnection.h"
 
-#include <kdl/set_temp.h>
-#include <kdl/tuple_utils.h>
+#include "kdl/set_temp.h"
+#include "kdl/tuple_utils.h"
 
 #include <cassert>
 #include <functional>
 #include <memory>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 /**
  * Base class for notifier state. This is only necessary so that NotifierConnection is
@@ -63,12 +63,11 @@ private:
   {
     Callback callback;
     size_t id;
-    bool pendingRemove;
+    bool pendingRemove = false;
 
     Observer(Callback i_callback, const size_t i_id)
       : callback{std::move(i_callback)}
       , id{i_id}
-      , pendingRemove{false}
     {
     }
   };
@@ -76,10 +75,10 @@ private:
   class NotifierState : public NotifierStateBase
   {
   private:
-    size_t m_nextId{0};
+    size_t m_nextId = 0;
     std::vector<Observer> m_observers;
     std::vector<Observer> m_toAdd;
-    bool m_notifying{false};
+    bool m_notifying = false;
 
   public:
     ~NotifierState() override = default;
@@ -118,7 +117,7 @@ private:
     {
       processPendingObservers();
 
-      const kdl::set_temp notifying(m_notifying);
+      const auto notifying = kdl::set_temp{m_notifying};
       for (const auto& observer : m_observers)
       {
         if (!observer.pendingRemove)
@@ -221,11 +220,12 @@ public:
    * @param callback the observer callback to call when the notification happens
    */
   template <typename R, typename MemberCallback>
-  [[nodiscard]] NotifierConnection connect(R* receiver, MemberCallback callback)
+  [[nodiscard]] NotifierConnection connect(R* receiver_, MemberCallback callback_)
   {
-    return connect([receiver = receiver, callback = std::move(callback)](auto&&... args) {
-      std::invoke(callback, receiver, std::forward<decltype(args)>(args)...);
-    });
+    return connect(
+      [receiver = receiver_, callback = std::move(callback_)](auto&&... args) {
+        std::invoke(callback, receiver, std::forward<decltype(args)>(args)...);
+      });
   }
 
   /**
@@ -362,4 +362,5 @@ NotifyBeforeAndAfter(bool, Notifier<AA...>&, Notifier<AA...>&, NA&&...)
 template <typename... AA, typename... NA>
 NotifyBeforeAndAfter(Notifier<AA...>&, Notifier<AA...>&, NA&&...)
   -> NotifyBeforeAndAfter<AA...>;
-} // namespace TrenchBroom
+
+} // namespace tb

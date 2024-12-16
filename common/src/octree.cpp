@@ -19,12 +19,11 @@
 
 #include "octree.h"
 
-namespace TrenchBroom
-{
-namespace detail
+namespace tb::detail
 {
 namespace
 {
+
 [[maybe_unused]] bool is_valid_address(
   const int16_t x, const int16_t y, const int16_t z, const uint16_t size)
 {
@@ -36,6 +35,7 @@ namespace
   return (is_root(x) && is_root(y) && is_root(z))
          || (is_valid(x) && is_valid(y) && is_valid(z));
 }
+
 } // namespace
 
 node_address::node_address(
@@ -148,5 +148,5 @@ node_address get_container(const node_address& address1, const node_address& add
   }
   return container;
 }
-} // namespace detail
-} // namespace TrenchBroom
+
+} // namespace tb::detail

@@ -24,7 +24,7 @@ BEGIN
             VALUE "FileDescription", "TrenchBroom Level Editor"
             VALUE "FileVersion", VERSION_RC
             VALUE "InternalName", "TrenchBroom.exe"
-            VALUE "LegalCopyright", "Copyright (C) 2010-2018"
+            VALUE "LegalCopyright", "Copyright (C) 2010"
             VALUE "OriginalFilename", "TrenchBroom.exe"
             VALUE "ProductName", "TrenchBroom"
             VALUE "ProductVersion", VERSION_STR

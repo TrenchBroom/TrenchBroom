@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010-2017 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -34,15 +34,13 @@
 #include <QStringBuilder>
 #include <QTimer>
 
-#include "IO/PathQt.h"
-#include "IO/SystemPaths.h"
 #include "Preferences.h"
-#include "View/Actions.h"
+#include "io/PathQt.h"
+#include "io/SystemPaths.h"
 
-#include <string>
 #include <vector>
 
-namespace TrenchBroom
+namespace tb
 {
 // PreferenceManager
 
@@ -74,11 +72,9 @@ bool shouldSaveInstantly()
 
 AppPreferenceManager::AppPreferenceManager()
   : m_saveInstantly{shouldSaveInstantly()}
-  , m_fileSystemWatcher{nullptr}
-  , m_fileReadWriteDisabled{false}
 {
   m_saveTimer.setSingleShot(true);
-  connect(&m_saveTimer, &QTimer::timeout, this, [this] {
+  connect(&m_saveTimer, &QTimer::timeout, this, [&] {
     qDebug() << "Saving preferences";
     saveChangesImmediately();
   });
@@ -106,7 +102,7 @@ void AppPreferenceManager::initialize()
       m_fileSystemWatcher,
       &QFileSystemWatcher::QFileSystemWatcher::fileChanged,
       this,
-      [this]() {
+      [&]() {
         qDebug() << "Reloading preferences after file change";
         loadCacheFromDisk();
       });
@@ -120,21 +116,19 @@ bool AppPreferenceManager::saveInstantly() const
 
 void AppPreferenceManager::saveChanges()
 {
-  if (m_unsavedPreferences.empty())
+  if (!m_unsavedPreferences.empty())
   {
-    return;
-  }
+    for (auto* pref : m_unsavedPreferences)
+    {
+      savePreferenceToCache(*pref);
+      preferenceDidChangeNotifier(pref->path());
+    }
+    m_unsavedPreferences.clear();
 
-  for (auto* pref : m_unsavedPreferences)
-  {
-    savePreferenceToCache(*pref);
-    preferenceDidChangeNotifier(pref->path());
-  }
-  m_unsavedPreferences.clear();
-
-  if (!m_fileReadWriteDisabled)
-  {
-    m_saveTimer.start(500);
+    if (!m_fileReadWriteDisabled)
+    {
+      m_saveTimer.start(500);
+    }
   }
 }
 
@@ -152,7 +146,7 @@ void AppPreferenceManager::discardChanges()
 void AppPreferenceManager::saveChangesImmediately()
 {
   writePreferencesToFile(m_preferencesFilePath, m_cache)
-    .transform_error(kdl::overload(
+    | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
@@ -252,10 +246,10 @@ void AppPreferenceManager::loadCacheFromDisk()
 
   // Reload m_cache
   readPreferencesFromFile(m_preferencesFilePath)
-    .transform([&](std::map<std::filesystem::path, QJsonValue>&& prefs) {
-      m_cache = std::move(prefs);
-    })
-    .transform_error(kdl::overload(
+    | kdl::transform([&](std::map<std::filesystem::path, QJsonValue>&& prefs) {
+        m_cache = std::move(prefs);
+      })
+    | kdl::transform_error(kdl::overload(
       [&](const PreferenceErrors::FileAccessError&) {
         // This happens e.g. if you don't have read permissions for
         // m_preferencesFilePath
@@ -323,7 +317,7 @@ void AppPreferenceManager::loadPreferenceFromCache(PreferenceBase& pref)
   {
     // FIXME: Log to TB console
     const auto variantValue = jsonValue.toVariant();
-    qDebug() << "Failed to load preference " << IO::pathAsGenericQString(pref.path())
+    qDebug() << "Failed to load preference " << io::pathAsGenericQString(pref.path())
              << " from JSON value: " << variantValue.toString() << " ("
              << variantValue.typeName() << ")";
 
@@ -391,7 +385,7 @@ void togglePref(Preference<bool>& preference)
 
 QString preferenceFilePath()
 {
-  return IO::pathAsQString(IO::SystemPaths::userDataDirectory() / "Preferences.json");
+  return io::pathAsQString(io::SystemPaths::userDataDirectory() / "Preferences.json");
 }
 
 namespace
@@ -485,7 +479,7 @@ ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData)
   auto result = std::map<std::filesystem::path, QJsonValue>{};
   for (auto it = object.constBegin(); it != object.constEnd(); ++it)
   {
-    result[IO::pathFromQString(it.key())] = it.value();
+    result[io::pathFromQString(it.key())] = it.value();
   }
   return result;
 }
@@ -494,12 +488,13 @@ QByteArray writePreferencesToJson(
   const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   auto rootObject = QJsonObject{};
-  for (auto [key, val] : prefs)
+  for (const auto& [key, val] : prefs)
   {
-    rootObject[IO::pathAsGenericQString(key)] = val;
+    rootObject[io::pathAsGenericQString(key)] = val;
   }
 
   auto document = QJsonDocument{rootObject};
   return document.toJson(QJsonDocument::Indented);
 }
-} // namespace TrenchBroom
+
+} // namespace tb

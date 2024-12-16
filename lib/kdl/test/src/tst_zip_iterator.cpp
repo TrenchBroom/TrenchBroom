@@ -18,15 +18,15 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#include "kdl/std_io.h"
 #include "kdl/zip_iterator.h"
 
 #include <vector>
 
-#include <catch2/catch.hpp>
+#include "catch2.h"
 
 namespace kdl
 {
+
 TEST_CASE("zip_iterator_test.construct")
 {
   using Catch::Matchers::Equals;
@@ -55,4 +55,5 @@ TEST_CASE("zip_iterator_test.make_zip_range")
   CHECK_THAT(
     vz, Equals(std::vector<std::tuple<int, int, int>>{{1, 4, 7}, {2, 5, 8}, {3, 6, 9}}));
 }
+
 } // namespace kdl
