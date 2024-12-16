@@ -101,35 +101,58 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
 {
   auto* numSidesLabel = new QLabel{tr("Number of Sides: ")};
   auto* numSidesBox = new QSpinBox{};
-  numSidesBox->setRange(3, 256);
+  numSidesBox->setRange(3, 96);
 
-  std::visit(
-    kdl::overload(
-      [&](mdl::EdgeAlignedCircle& circleShape) {
-        numSidesBox->setValue(int(circleShape.numSides));
-      },
-      [&](mdl::VertexAlignedCircle& circleShape) {
-        numSidesBox->setValue(int(circleShape.numSides));
-      }),
-    m_parameters.circleShape);
+  auto* precisionBox = new QComboBox{};
+  precisionBox->addItems({"12", "24", "48", "96"});
 
-  auto* radiusModeEdgeButton =
-    createBitmapToggleButton("RadiusModeEdge.svg", tr("Radius is to edge"));
-  radiusModeEdgeButton->setIconSize({24, 24});
-  radiusModeEdgeButton->setObjectName("toolButton_withBorder");
-  radiusModeEdgeButton->setChecked(
+  auto* numSidesWidget = new QStackedWidget{};
+  numSidesWidget->addWidget(numSidesBox);
+  numSidesWidget->addWidget(precisionBox);
+
+  const auto updateNumSides = [=, this]() {
+    std::visit(
+      kdl::overload(
+        [&](mdl::EdgeAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](mdl::VertexAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](const mdl::ScalableCircle& circleShape) {
+          precisionBox->setCurrentIndex(int(circleShape.precision));
+          numSidesWidget->setCurrentWidget(precisionBox);
+        }),
+      m_parameters.circleShape);
+  };
+
+  auto* edgeAlignedCircleButton =
+    createBitmapToggleButton("CircleEdgeAligned.svg", tr("Align edge to bounding box"));
+  edgeAlignedCircleButton->setIconSize({24, 24});
+  edgeAlignedCircleButton->setObjectName("toolButton_withBorder");
+  edgeAlignedCircleButton->setChecked(
     std::holds_alternative<mdl::EdgeAlignedCircle>(m_parameters.circleShape));
 
-  auto* radiusModeVertexButton =
-    createBitmapToggleButton("RadiusModeVertex.svg", tr("Radius is to vertex"));
-  radiusModeVertexButton->setIconSize({24, 24});
-  radiusModeVertexButton->setObjectName("toolButton_withBorder");
-  radiusModeVertexButton->setChecked(
+  auto* vertexAlignedCircleButton = createBitmapToggleButton(
+    "CircleVertexAligned.svg", tr("Align vertices to bounding box"));
+  vertexAlignedCircleButton->setIconSize({24, 24});
+  vertexAlignedCircleButton->setObjectName("toolButton_withBorder");
+  vertexAlignedCircleButton->setChecked(
     std::holds_alternative<mdl::VertexAlignedCircle>(m_parameters.circleShape));
 
+  auto* scalableCircleButton =
+    createBitmapToggleButton("CircleScalable.svg", tr("Scalable circle shape"));
+  scalableCircleButton->setIconSize({24, 24});
+  scalableCircleButton->setObjectName("toolButton_withBorder");
+  scalableCircleButton->setChecked(
+    std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape));
+
   auto* radiusModeButtonGroup = new QButtonGroup{};
-  radiusModeButtonGroup->addButton(radiusModeEdgeButton);
-  radiusModeButtonGroup->addButton(radiusModeVertexButton);
+  radiusModeButtonGroup->addButton(edgeAlignedCircleButton);
+  radiusModeButtonGroup->addButton(vertexAlignedCircleButton);
+  radiusModeButtonGroup->addButton(scalableCircleButton);
 
   connect(
     numSidesBox,
@@ -143,22 +166,47 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
           },
           [&](mdl::VertexAlignedCircle& circleShape) {
             circleShape.numSides = size_t(numSides);
+          },
+          [&](mdl::ScalableCircle&) {}),
+        m_parameters.circleShape);
+    });
+  connect(
+    precisionBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto precision) {
+      std::visit(
+        kdl::overload(
+          [&](mdl::EdgeAlignedCircle&) {},
+          [&](mdl::VertexAlignedCircle&) {},
+          [&](mdl::ScalableCircle& circleShape) {
+            circleShape.precision = size_t(precision);
           }),
         m_parameters.circleShape);
     });
-  connect(radiusModeEdgeButton, &QToolButton::clicked, this, [&]() {
+  connect(edgeAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
     m_parameters.circleShape =
       mdl::convertCircleShape<mdl::EdgeAlignedCircle>(m_parameters.circleShape);
+    updateNumSides();
   });
-  connect(radiusModeVertexButton, &QToolButton::clicked, this, [&]() {
+  connect(vertexAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
     m_parameters.circleShape =
       mdl::convertCircleShape<mdl::VertexAlignedCircle>(m_parameters.circleShape);
+    updateNumSides();
+  });
+  connect(scalableCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.circleShape =
+      mdl::convertCircleShape<mdl::ScalableCircle>(m_parameters.circleShape);
+    updateNumSides();
   });
 
   addWidget(numSidesLabel);
-  addWidget(numSidesBox);
-  addWidget(radiusModeEdgeButton);
-  addWidget(radiusModeVertexButton);
+  addWidget(numSidesWidget);
+  addWidget(edgeAlignedCircleButton);
+  addWidget(vertexAlignedCircleButton);
+  addWidget(scalableCircleButton);
+
+  updateNumSides();
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(

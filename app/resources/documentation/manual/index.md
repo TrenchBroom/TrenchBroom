@@ -460,9 +460,26 @@ Cone                   Creates a cone with a variable number of sides
 Spheroid (UV)          Creates a spheroid shape made up of triangles and quads with two poles
 Spheroid (Icosahedron) Creates a spheroid shape made up of triangles, based on an icosahedron
 
-Note that the cylinder, cone and UV sphere shapes all have similar options, namely the number of sides and radius mode.
+Note that the cylinder, cone and UV sphere shapes all have similar options, namely the number of sides and a circle mode.
 By using the same values for these options across different shapes, TrenchBroom will create shapes that fit onto each other perfectly.
-The radius mode setting controls how a shape is oriented on the plane perpendicular to its axis.
+
+There are three circle modes that can be selected via the corresponding buttons:
+
+Mode                                Description
+----                                -----------
+![](images/CircleEdgeAligned.png)   Creates a circle with 4 edges aligned to the bounding box
+![](images/CircleVertexAligned.png) Creates a circle with 4 vertices aligned to the bounding box
+![](images/CircleScalable.png)      Creates a scalable circle
+
+The last shape requires some explanation. It is not a perfect circle, rather, its vertices are slightly displaced so as to be perfectly aligned on the grid. Consider the following example.
+
+![A scalable hollow cylinder](images/ScalableHollowCylinder.png)
+
+This hollow cylinder is scalable because its vertices are all aligned on the grid. Scaling it larger or smaller will keep the vertices neatly on an integer grid, and this can be beneficial for Quake-like map compilers because they usually handle geometry better when it is aligned on the grid. Scalable shapes can only have 12, 24, 48 or 96 sides. These types of curves are also called [CZG curves](https://www.quaketerminus.com/hosted/happymaps/curv_tut.htm).
+
+![Asymmetric scalable cylinder](images/ScalableCylinderStretch.gif)
+
+If you create an asymmetric scalable shape, it will not be scaled to fit the bounding box drawn with the mouse like the other shapes. Rather, only the middle portion of it will be elongated so that the vertices remain on the grid. This even applies to cones and UV spheres so that the different shapes still fit together.
 
 ### Creating Complex Shapes
 
