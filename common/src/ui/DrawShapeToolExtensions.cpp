@@ -24,6 +24,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QToolButton>
 
 #include "mdl/BrushBuilder.h"
@@ -100,42 +101,112 @@ DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage
 {
   auto* numSidesLabel = new QLabel{tr("Number of Sides: ")};
   auto* numSidesBox = new QSpinBox{};
-  numSidesBox->setRange(3, 256);
-  numSidesBox->setValue(int(m_parameters.numSides));
+  numSidesBox->setRange(3, 96);
 
-  auto* radiusModeEdgeButton =
-    createBitmapToggleButton("RadiusModeEdge.svg", tr("Radius is to edge"));
-  radiusModeEdgeButton->setIconSize({24, 24});
-  radiusModeEdgeButton->setObjectName("toolButton_withBorder");
-  radiusModeEdgeButton->setChecked(m_parameters.radiusMode == mdl::RadiusMode::ToEdge);
+  auto* precisionBox = new QComboBox{};
+  precisionBox->addItems({"12", "24", "48", "96"});
 
-  auto* radiusModeVertexButton =
-    createBitmapToggleButton("RadiusModeVertex.svg", tr("Radius is to vertex"));
-  radiusModeVertexButton->setIconSize({24, 24});
-  radiusModeVertexButton->setObjectName("toolButton_withBorder");
-  radiusModeVertexButton->setChecked(
-    m_parameters.radiusMode == mdl::RadiusMode::ToVertex);
+  auto* numSidesWidget = new QStackedWidget{};
+  numSidesWidget->addWidget(numSidesBox);
+  numSidesWidget->addWidget(precisionBox);
+
+  const auto updateNumSides = [=, this]() {
+    std::visit(
+      kdl::overload(
+        [&](mdl::EdgeAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](mdl::VertexAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](const mdl::ScalableCircle& circleShape) {
+          precisionBox->setCurrentIndex(int(circleShape.precision));
+          numSidesWidget->setCurrentWidget(precisionBox);
+        }),
+      m_parameters.circleShape);
+  };
+
+  auto* edgeAlignedCircleButton =
+    createBitmapToggleButton("CircleEdgeAligned.svg", tr("Align edge to bounding box"));
+  edgeAlignedCircleButton->setIconSize({24, 24});
+  edgeAlignedCircleButton->setObjectName("toolButton_withBorder");
+  edgeAlignedCircleButton->setChecked(
+    std::holds_alternative<mdl::EdgeAlignedCircle>(m_parameters.circleShape));
+
+  auto* vertexAlignedCircleButton = createBitmapToggleButton(
+    "CircleVertexAligned.svg", tr("Align vertices to bounding box"));
+  vertexAlignedCircleButton->setIconSize({24, 24});
+  vertexAlignedCircleButton->setObjectName("toolButton_withBorder");
+  vertexAlignedCircleButton->setChecked(
+    std::holds_alternative<mdl::VertexAlignedCircle>(m_parameters.circleShape));
+
+  auto* scalableCircleButton =
+    createBitmapToggleButton("CircleScalable.svg", tr("Scalable circle shape"));
+  scalableCircleButton->setIconSize({24, 24});
+  scalableCircleButton->setObjectName("toolButton_withBorder");
+  scalableCircleButton->setChecked(
+    std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape));
 
   auto* radiusModeButtonGroup = new QButtonGroup{};
-  radiusModeButtonGroup->addButton(radiusModeEdgeButton);
-  radiusModeButtonGroup->addButton(radiusModeVertexButton);
+  radiusModeButtonGroup->addButton(edgeAlignedCircleButton);
+  radiusModeButtonGroup->addButton(vertexAlignedCircleButton);
+  radiusModeButtonGroup->addButton(scalableCircleButton);
 
   connect(
     numSidesBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    [&](const auto numSides) { m_parameters.numSides = size_t(numSides); });
-  connect(radiusModeEdgeButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = mdl::RadiusMode::ToEdge;
+    [&](const auto numSides) {
+      std::visit(
+        kdl::overload(
+          [&](mdl::EdgeAlignedCircle& circleShape) {
+            circleShape.numSides = size_t(numSides);
+          },
+          [&](mdl::VertexAlignedCircle& circleShape) {
+            circleShape.numSides = size_t(numSides);
+          },
+          [&](mdl::ScalableCircle&) {}),
+        m_parameters.circleShape);
+    });
+  connect(
+    precisionBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto precision) {
+      std::visit(
+        kdl::overload(
+          [&](mdl::EdgeAlignedCircle&) {},
+          [&](mdl::VertexAlignedCircle&) {},
+          [&](mdl::ScalableCircle& circleShape) {
+            circleShape.precision = size_t(precision);
+          }),
+        m_parameters.circleShape);
+    });
+  connect(edgeAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.circleShape =
+      mdl::convertCircleShape<mdl::EdgeAlignedCircle>(m_parameters.circleShape);
+    updateNumSides();
   });
-  connect(radiusModeVertexButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = mdl::RadiusMode::ToVertex;
+  connect(vertexAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.circleShape =
+      mdl::convertCircleShape<mdl::VertexAlignedCircle>(m_parameters.circleShape);
+    updateNumSides();
+  });
+  connect(scalableCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.circleShape =
+      mdl::convertCircleShape<mdl::ScalableCircle>(m_parameters.circleShape);
+    updateNumSides();
   });
 
   addWidget(numSidesLabel);
-  addWidget(numSidesBox);
-  addWidget(radiusModeEdgeButton);
-  addWidget(radiusModeVertexButton);
+  addWidget(numSidesWidget);
+  addWidget(edgeAlignedCircleButton);
+  addWidget(vertexAlignedCircleButton);
+  addWidget(scalableCircleButton);
+
+  updateNumSides();
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
@@ -174,7 +245,7 @@ DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, false, 16.0}
+  , m_parameters{vm::axis::z, mdl::EdgeAlignedCircle{8}, false, 16.0}
 {
 }
 
@@ -209,15 +280,13 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
            ? builder.createHollowCylinder(
                bounds,
                m_parameters.thickness,
-               m_parameters.numSides,
-               m_parameters.radiusMode,
+               m_parameters.circleShape,
                m_parameters.axis,
                document->currentMaterialName())
            : builder
                .createCylinder(
                  bounds,
-                 m_parameters.numSides,
-                 m_parameters.radiusMode,
+                 m_parameters.circleShape,
                  m_parameters.axis,
                  document->currentMaterialName())
                .transform([](auto brush) { return std::vector{std::move(brush)}; });
@@ -235,7 +304,7 @@ DrawShapeToolConeShapeExtensionPage::DrawShapeToolConeShapeExtensionPage(
 DrawShapeToolConeExtension::DrawShapeToolConeExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge}
+  , m_parameters{vm::axis::z, mdl::EdgeAlignedCircle{8}}
 {
 }
 
@@ -268,8 +337,7 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   return builder
     .createCone(
       bounds,
-      m_parameters.numSides,
-      m_parameters.radiusMode,
+      m_parameters.circleShape,
       m_parameters.axis,
       document->currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
@@ -364,7 +432,7 @@ DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, 8}
+  , m_parameters{vm::axis::z, mdl::EdgeAlignedCircle{8}, 8}
 {
 }
 
@@ -398,9 +466,8 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   return builder
     .createUVSphere(
       bounds,
-      m_parameters.numSides,
+      m_parameters.circleShape,
       m_parameters.numRings,
-      m_parameters.radiusMode,
       m_parameters.axis,
       document->currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
