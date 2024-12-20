@@ -155,15 +155,28 @@ private:
       // The max length of the bounds along any of the ortho axes:
       const auto maxLength = vm::get_abs_max_component(bounds.size() * orthoAxes);
 
-      // A vector where the ortho axes have maxLength and the view axis has the size of
-      // the bounds in that direction
-      const auto lengthDiff = viewAxis * bounds.size() + orthoAxes * maxLength;
+      if (inputState.modifierKeysDown(ModifierKeys::Alt))
+      {
+        const auto lengthDiff = vm::vec3d{maxLength, maxLength, maxLength};
 
-      // The direction in which the user is dragging per component:
-      const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
-      bounds = vm::bbox3d{
-        vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d{1, 1, 1} - dragDir),
-        vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+        // The direction in which the user is dragging per component:
+        const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
+        bounds = vm::bbox3d{
+          vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d{1, 1, 1} - dragDir),
+          vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+      }
+      else
+      {
+        // A vector where the ortho axes have maxLength and the view axis has the size of
+        // the bounds in that direction
+        const auto lengthDiff = viewAxis * bounds.size() + orthoAxes * maxLength;
+
+        // The direction in which the user is dragging per component:
+        const auto dragDir = vm::step(initialHandlePosition, currentHandlePosition);
+        bounds = vm::bbox3d{
+          vm::mix(bounds.min, bounds.max - lengthDiff, vm::vec3d{1, 1, 1} - dragDir),
+          vm::mix(bounds.max, bounds.min + lengthDiff, dragDir)};
+      }
     }
 
     return vm::intersect(bounds, m_worldBounds);
@@ -212,7 +225,9 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
   }
 
   if (!inputState.checkModifierKeys(
-        ModifierKeyPressed::No, ModifierKeyPressed::No, ModifierKeyPressed::DontCare))
+        ModifierKeyPressed::No,
+        ModifierKeyPressed::DontCare,
+        ModifierKeyPressed::DontCare))
   {
     return nullptr;
   }
