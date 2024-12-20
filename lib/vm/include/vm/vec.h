@@ -269,7 +269,7 @@ public:
    */
   constexpr vec<T, 2> xz() const
   {
-    static_assert(S > 1);
+    static_assert(S > 2);
     return vec<T, 2>(x(), z());
   }
 
@@ -280,7 +280,7 @@ public:
    */
   constexpr vec<T, 2> yz() const
   {
-    static_assert(S > 1);
+    static_assert(S > 2);
     return vec<T, 2>(y(), z());
   }
 
