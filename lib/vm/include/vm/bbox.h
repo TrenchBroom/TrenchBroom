@@ -245,6 +245,105 @@ public:
 
 public:
   /**
+   * Projects this bounding box to the X axis.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 1> x() const
+  {
+    static_assert(S > 0);
+    return bbox<T, 1>{min.x(), max.x()};
+  }
+
+  /**
+   * Projects this bounding box to the Y axis.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 1> y() const
+  {
+    static_assert(S > 1);
+    return bbox<T, 1>{min.y(), max.y()};
+  }
+
+  /**
+   * Projects this bounding box to the Z axis.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 1> z() const
+  {
+    static_assert(S > 2);
+    return bbox<T, 1>{min.z(), max.z()};
+  }
+
+  /**
+   * Projects this bounding box to the W axis.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 1> w() const
+  {
+    static_assert(S > 3);
+    return bbox<T, 1>{min.w(), max.w()};
+  }
+
+  /**
+   * Projects this bounding box to the XY plane.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 2> xy() const
+  {
+    static_assert(S > 1);
+    return bbox<T, 2>{min.xy(), max.xy()};
+  }
+
+  /**
+   * Projects this bounding box to the XZ plane.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 2> xz() const
+  {
+    static_assert(S > 2);
+    return bbox<T, 2>{min.xz(), max.xz()};
+  }
+
+  /**
+   * Projects this bounding box to the YZ plane.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 2> yz() const
+  {
+    static_assert(S > 2);
+    return bbox<T, 2>{min.yz(), max.yz()};
+  }
+
+  /**
+   * Projects this bounding box to the XYZ space.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 3> xyz() const
+  {
+    static_assert(S > 2);
+    return bbox<T, 3>{min.xyz(), max.xyz()};
+  }
+
+  /**
+   * Projects this bounding box to the XYZW space.
+   *
+   * @return the projected bounding box
+   */
+  bbox<T, 4> xyzw() const
+  {
+    static_assert(S > 3);
+    return bbox<T, 4>{min.xyzw(), max.xyzw()};
+  }
+
+  /**
    * Checks whether a bounding box with the given min and max points satisfies its
    * invariant. The invariant states that for each component, the corresponding value of
    * the min point must not exceed the corresponding value of the max point.
