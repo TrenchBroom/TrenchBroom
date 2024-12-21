@@ -136,7 +136,7 @@ Download Xcode from the App Store.
 Open a command prompt and execute this command to install required dependencies:
 
 ```bash
-brew install cmake qt@5 pandoc python pkg-config
+brew install cmake qt pandoc python pkg-config
 ```
 
 Finally, build the project:
@@ -144,7 +144,7 @@ Finally, build the project:
 ```bash
 mkdir build-xcode
 cd build-xcode
-cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt@5)"
+cmake .. -GXcode -DCMAKE_PREFIX_PATH="$(brew --prefix qt)"
 open TrenchBroom.xcodeproj
 ```
 
