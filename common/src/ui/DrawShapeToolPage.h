@@ -47,7 +47,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  Notifier<> settingsDidChangeNotifier;
+  Notifier<> applyParametersNotifier;
 
   explicit DrawShapeToolPage(
     std::weak_ptr<MapDocument> document,

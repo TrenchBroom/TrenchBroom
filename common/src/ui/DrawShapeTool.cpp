@@ -22,7 +22,6 @@
 #include "mdl/Brush.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "ui/DrawShapeToolExtension.h"
-#include "ui/DrawShapeToolExtensions.h"
 #include "ui/DrawShapeToolPage.h"
 #include "ui/MapDocument.h"
 #include "ui/Transaction.h"
@@ -38,25 +37,23 @@ namespace tb::ui
 
 DrawShapeTool::DrawShapeTool(std::weak_ptr<MapDocument> document)
   : CreateBrushesToolBase{true, document}
-  , m_extensionManager{createDrawShapeToolExtensions(document)}
+  , m_extensionManager{document}
 {
 }
 
 void DrawShapeTool::update(const vm::bbox3d& bounds)
 {
-  m_extensionManager.currentExtension().createBrushes(bounds)
-    | kdl::transform([&](auto brushes) {
-        updateBrushes(
-          brushes | std::views::transform([](auto brush) {
-            return std::make_unique<mdl::BrushNode>(std::move(brush));
-          })
-          | kdl::to_vector);
+  m_extensionManager.createBrushes(bounds) | kdl::transform([&](auto brushes) {
+    updateBrushes(
+      brushes | std::views::transform([](auto brush) {
+        return std::make_unique<mdl::BrushNode>(std::move(brush));
       })
-    | kdl::transform_error([&](auto e) {
-        clearBrushes();
-        auto document = kdl::mem_lock(m_document);
-        document->error() << "Could not update brushes: " << e;
-      });
+      | kdl::to_vector);
+  }) | kdl::transform_error([&](auto e) {
+    clearBrushes();
+    auto document = kdl::mem_lock(m_document);
+    document->error() << "Could not update brushes: " << e;
+  });
 }
 
 bool DrawShapeTool::cancel()
@@ -74,11 +71,11 @@ bool DrawShapeTool::cancel()
 QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
 {
   auto* page = new DrawShapeToolPage{m_document, m_extensionManager, parent};
-  m_notifierConnection += page->settingsDidChangeNotifier.connect([&]() {
+  m_notifierConnection += page->applyParametersNotifier.connect([&]() {
     auto document = kdl::mem_lock(m_document);
     if (document->hasSelectedNodes())
     {
-      m_extensionManager.currentExtension().createBrushes(document->selectionBounds())
+      m_extensionManager.createBrushes(document->selectionBounds())
         | kdl::transform([](auto brushes) {
             return brushes | std::views::transform([](auto brush) {
                      return std::make_unique<mdl::BrushNode>(std::move(brush));

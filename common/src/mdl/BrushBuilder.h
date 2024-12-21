@@ -21,6 +21,7 @@
 
 #include "BrushFaceAttributes.h"
 #include "Result.h"
+#include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
 
 #include "vm/bbox.h"
@@ -34,52 +35,6 @@ namespace tb::mdl
 class Brush;
 class ModelFactory;
 enum class MapFormat;
-
-struct VertexAlignedCircle;
-struct ScalableCircle;
-
-struct EdgeAlignedCircle
-{
-  size_t numSides = 8;
-
-  EdgeAlignedCircle();
-  explicit EdgeAlignedCircle(size_t numSides);
-  explicit EdgeAlignedCircle(const VertexAlignedCircle& circleShape);
-  explicit EdgeAlignedCircle(const ScalableCircle& circleShape);
-};
-
-struct VertexAlignedCircle
-{
-  size_t numSides = 8;
-
-  VertexAlignedCircle();
-  explicit VertexAlignedCircle(size_t numSides);
-  explicit VertexAlignedCircle(const EdgeAlignedCircle& circleShape);
-  explicit VertexAlignedCircle(const ScalableCircle& circleShape);
-};
-
-struct ScalableCircle
-{
-  size_t precision = 0;
-
-  ScalableCircle();
-  explicit ScalableCircle(size_t precision);
-  explicit ScalableCircle(const VertexAlignedCircle& circleShape);
-  explicit ScalableCircle(const EdgeAlignedCircle& circleShape);
-};
-
-using CircleShape = std::variant<EdgeAlignedCircle, VertexAlignedCircle, ScalableCircle>;
-
-template <typename To>
-To convertCircleShape(const CircleShape& from)
-{
-  return std::visit(
-    kdl::overload(
-      [](const EdgeAlignedCircle& edgeAligned) { return To{edgeAligned}; },
-      [](const VertexAlignedCircle& vertexAligned) { return To{vertexAligned}; },
-      [](const ScalableCircle& scalable) { return To{scalable}; }),
-    from);
-}
 
 class BrushBuilder
 {

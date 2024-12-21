@@ -42,71 +42,6 @@
 
 namespace tb::mdl
 {
-namespace
-{
-
-auto numSidesToPrecision(const size_t numSides)
-{
-  return size_t(std::max(0.0, std::ceil(std::log2(double(numSides) / 12.0))));
-}
-
-auto precisionToNumSides(const size_t precision)
-{
-  return size_t(std::pow(2.0, precision) * 12);
-}
-
-} // namespace
-
-EdgeAlignedCircle::EdgeAlignedCircle() = default;
-
-EdgeAlignedCircle::EdgeAlignedCircle(const size_t numSides_)
-  : numSides{numSides_}
-{
-}
-
-EdgeAlignedCircle::EdgeAlignedCircle(const VertexAlignedCircle& circleShape)
-  : EdgeAlignedCircle{circleShape.numSides}
-{
-}
-
-EdgeAlignedCircle::EdgeAlignedCircle(const ScalableCircle& circleShape)
-  : numSides{precisionToNumSides(circleShape.precision)}
-{
-}
-
-VertexAlignedCircle::VertexAlignedCircle() = default;
-
-VertexAlignedCircle::VertexAlignedCircle(const size_t numSides_)
-  : numSides{numSides_}
-{
-}
-
-VertexAlignedCircle::VertexAlignedCircle(const EdgeAlignedCircle& circleShape)
-  : VertexAlignedCircle{circleShape.numSides}
-{
-}
-
-VertexAlignedCircle::VertexAlignedCircle(const ScalableCircle& circleShape)
-  : numSides{precisionToNumSides(circleShape.precision)}
-{
-}
-
-ScalableCircle::ScalableCircle() = default;
-
-ScalableCircle::ScalableCircle(const size_t precision_)
-  : precision{precision_}
-{
-}
-
-ScalableCircle::ScalableCircle(const VertexAlignedCircle& circleShape)
-  : precision{numSidesToPrecision(circleShape.numSides)}
-{
-}
-
-ScalableCircle::ScalableCircle(const EdgeAlignedCircle& circleShape)
-  : precision{numSidesToPrecision(circleShape.numSides)}
-{
-}
 
 BrushBuilder::BrushBuilder(const MapFormat mapFormat, const vm::bbox3d& worldBounds)
   : m_mapFormat{mapFormat}
@@ -618,14 +553,14 @@ namespace
 auto subDivideRatios(const std::vector<double>& ratios)
 {
   auto newRatios = std::vector<double>{};
-  newRatios.push_back(0.0);
+  newRatios.push_back(ratios.front());
   for (size_t j = 1; j < ratios.size(); ++j)
   {
     const auto previousSize = ratios[j - 1];
     const auto currentSize = ratios[j];
     newRatios.push_back((previousSize + currentSize) / 2.0);
   }
-  newRatios.push_back(1.0);
+  newRatios.push_back(ratios.back());
   return newRatios;
 }
 
