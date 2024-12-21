@@ -24,6 +24,7 @@
 #include "kdl/set_temp.h"
 #include "kdl/tuple_utils.h"
 
+#include <algorithm>
 #include <cassert>
 #include <functional>
 #include <memory>
@@ -152,10 +153,8 @@ private:
     typename std::vector<Observer>::iterator findObserver(
       std::vector<Observer>& observers, const size_t id)
     {
-      return std::find_if(
-        std::begin(observers), std::end(observers), [&](const auto& observer) {
-          return observer.id == id;
-        });
+      return std::ranges::find_if(
+        observers, [&](const auto& observer) { return observer.id == id; });
     }
 
     void processPendingObservers()
