@@ -3,7 +3,7 @@ on: [pull_request]
 
 jobs:
   cpp-linter:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     permissions:
       pull-requests: write
 
