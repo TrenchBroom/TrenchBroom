@@ -121,7 +121,7 @@ cmake --build . --target TrenchBroom
 
 ---
 
-## Mac OS X
+## macOS
 
 ### Prerequisites
 
