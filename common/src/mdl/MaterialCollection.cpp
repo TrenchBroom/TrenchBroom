@@ -21,6 +21,7 @@
 
 #include "kdl/reflection_impl.h"
 
+#include <algorithm>
 #include <string>
 #include <vector>
 
@@ -81,10 +82,8 @@ Material* MaterialCollection::materialByIndex(const size_t index)
 
 const Material* MaterialCollection::materialByName(const std::string& name) const
 {
-  const auto it =
-    std::find_if(m_materials.begin(), m_materials.end(), [&](const auto& material) {
-      return material.name() == name;
-    });
+  const auto it = std::ranges::find_if(
+    m_materials, [&](const auto& material) { return material.name() == name; });
   return it != m_materials.end() ? &*it : nullptr;
 }
 

@@ -55,11 +55,8 @@ void DrawShapeToolPage::createGui()
   m_extensionButton->setObjectName("toolButton_withBorder");
 
   m_extensionPages = new QStackedLayout{};
-  for (auto* extension : m_extensionManager.extensions())
+  for (auto* extensionPage : m_extensionManager.createToolPages())
   {
-    auto* extensionPage = extension->createToolPage();
-    m_notifierConnection +=
-      extensionPage->settingsDidChangeNotifier.connect(settingsDidChangeNotifier);
     m_extensionPages->addWidget(extensionPage);
   }
 

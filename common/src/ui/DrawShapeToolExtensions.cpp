@@ -24,6 +24,7 @@
 #include <QComboBox>
 #include <QLabel>
 #include <QSpinBox>
+#include <QStackedWidget>
 #include <QToolButton>
 
 #include "mdl/BrushBuilder.h"
@@ -54,13 +55,14 @@ const std::filesystem::path& DrawShapeToolCuboidExtension::iconPath() const
   return path;
 }
 
-DrawShapeToolExtensionPage* DrawShapeToolCuboidExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolCuboidExtension::createToolPage(
+  ShapeParameters&, QWidget* parent)
 {
   return new DrawShapeToolExtensionPage{parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
-  const vm::bbox3d& bounds) const
+  const vm::bbox3d& bounds, const ShapeParameters&) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
@@ -74,107 +76,188 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCuboidExtension::createBrushes(
 }
 
 DrawShapeToolAxisAlignedShapeExtensionPage::DrawShapeToolAxisAlignedShapeExtensionPage(
-  AxisAlignedShapeParameters& parameters, QWidget* parent)
+  ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
   auto* axisLabel = new QLabel{tr("Axis: ")};
   auto* axisComboBox = new QComboBox{};
   axisComboBox->addItems({tr("X"), tr("Y"), tr("Z")});
-  axisComboBox->setCurrentIndex(int(parameters.axis));
 
   connect(
     axisComboBox,
     QOverload<int>::of(&QComboBox::currentIndexChanged),
     this,
-    [&](const auto index) { m_parameters.axis = vm::axis::type(index); });
+    [&](const auto index) { m_parameters.setAxis(vm::axis::type(index)); });
 
   addWidget(axisLabel);
   addWidget(axisComboBox);
+
+  const auto updateWidgets = [=, this]() {
+    axisComboBox->setCurrentIndex(int(m_parameters.axis()));
+  };
+  updateWidgets();
+
+  m_notifierConnection +=
+    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
 }
 
 DrawShapeToolCircularShapeExtensionPage::DrawShapeToolCircularShapeExtensionPage(
-  CircularShapeParameters& parameters, QWidget* parent)
+  ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolAxisAlignedShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
   auto* numSidesLabel = new QLabel{tr("Number of Sides: ")};
   auto* numSidesBox = new QSpinBox{};
-  numSidesBox->setRange(3, 256);
-  numSidesBox->setValue(int(m_parameters.numSides));
+  numSidesBox->setRange(3, 96);
 
-  auto* radiusModeEdgeButton =
-    createBitmapToggleButton("RadiusModeEdge.svg", tr("Radius is to edge"));
-  radiusModeEdgeButton->setIconSize({24, 24});
-  radiusModeEdgeButton->setObjectName("toolButton_withBorder");
-  radiusModeEdgeButton->setChecked(m_parameters.radiusMode == mdl::RadiusMode::ToEdge);
+  auto* precisionBox = new QComboBox{};
+  precisionBox->addItems({"12", "24", "48", "96"});
 
-  auto* radiusModeVertexButton =
-    createBitmapToggleButton("RadiusModeVertex.svg", tr("Radius is to vertex"));
-  radiusModeVertexButton->setIconSize({24, 24});
-  radiusModeVertexButton->setObjectName("toolButton_withBorder");
-  radiusModeVertexButton->setChecked(
-    m_parameters.radiusMode == mdl::RadiusMode::ToVertex);
+  auto* numSidesWidget = new QStackedWidget{};
+  numSidesWidget->addWidget(numSidesBox);
+  numSidesWidget->addWidget(precisionBox);
+
+  auto* edgeAlignedCircleButton =
+    createBitmapToggleButton("CircleEdgeAligned.svg", tr("Align edge to bounding box"));
+  edgeAlignedCircleButton->setIconSize({24, 24});
+  edgeAlignedCircleButton->setObjectName("toolButton_withBorder");
+
+  auto* vertexAlignedCircleButton = createBitmapToggleButton(
+    "CircleVertexAligned.svg", tr("Align vertices to bounding box"));
+  vertexAlignedCircleButton->setIconSize({24, 24});
+  vertexAlignedCircleButton->setObjectName("toolButton_withBorder");
+
+  auto* scalableCircleButton =
+    createBitmapToggleButton("CircleScalable.svg", tr("Scalable circle shape"));
+  scalableCircleButton->setIconSize({24, 24});
+  scalableCircleButton->setObjectName("toolButton_withBorder");
 
   auto* radiusModeButtonGroup = new QButtonGroup{};
-  radiusModeButtonGroup->addButton(radiusModeEdgeButton);
-  radiusModeButtonGroup->addButton(radiusModeVertexButton);
+  radiusModeButtonGroup->addButton(edgeAlignedCircleButton);
+  radiusModeButtonGroup->addButton(vertexAlignedCircleButton);
+  radiusModeButtonGroup->addButton(scalableCircleButton);
 
   connect(
     numSidesBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    [&](const auto numSides) { m_parameters.numSides = size_t(numSides); });
-  connect(radiusModeEdgeButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = mdl::RadiusMode::ToEdge;
+    [&](const auto numSides) {
+      m_parameters.setCircleShape(std::visit(
+        kdl::overload(
+          [&](const mdl::EdgeAlignedCircle&) -> mdl::CircleShape {
+            return mdl::EdgeAlignedCircle{size_t(numSides)};
+          },
+          [&](const mdl::VertexAlignedCircle&) -> mdl::CircleShape {
+            return mdl::VertexAlignedCircle{size_t(numSides)};
+          },
+          [&](const mdl::ScalableCircle& circleShape) -> mdl::CircleShape {
+            return circleShape;
+          }),
+        m_parameters.circleShape()));
+    });
+  connect(
+    precisionBox,
+    QOverload<int>::of(&QComboBox::currentIndexChanged),
+    this,
+    [&](const auto precision) {
+      m_parameters.setCircleShape(std::visit(
+        kdl::overload(
+          [&](const mdl::ScalableCircle&) -> mdl::CircleShape {
+            return mdl::ScalableCircle{size_t(precision)};
+          },
+          [](const auto& circleShape) -> mdl::CircleShape { return circleShape; }),
+        m_parameters.circleShape()));
+    });
+  connect(edgeAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.setCircleShape(
+      mdl::convertCircleShape<mdl::EdgeAlignedCircle>(m_parameters.circleShape()));
   });
-  connect(radiusModeVertexButton, &QToolButton::clicked, this, [&]() {
-    m_parameters.radiusMode = mdl::RadiusMode::ToVertex;
+  connect(vertexAlignedCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.setCircleShape(
+      mdl::convertCircleShape<mdl::VertexAlignedCircle>(m_parameters.circleShape()));
+  });
+  connect(scalableCircleButton, &QToolButton::clicked, this, [=, this]() {
+    m_parameters.setCircleShape(
+      mdl::convertCircleShape<mdl::ScalableCircle>(m_parameters.circleShape()));
   });
 
   addWidget(numSidesLabel);
-  addWidget(numSidesBox);
-  addWidget(radiusModeEdgeButton);
-  addWidget(radiusModeVertexButton);
+  addWidget(numSidesWidget);
+  addWidget(edgeAlignedCircleButton);
+  addWidget(vertexAlignedCircleButton);
+  addWidget(scalableCircleButton);
+
+  const auto updateWidgets = [=, this]() {
+    std::visit(
+      kdl::overload(
+        [&](const mdl::EdgeAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](const mdl::VertexAlignedCircle& circleShape) {
+          numSidesBox->setValue(int(circleShape.numSides));
+          numSidesWidget->setCurrentWidget(numSidesBox);
+        },
+        [&](const mdl::ScalableCircle& circleShape) {
+          precisionBox->setCurrentIndex(int(circleShape.precision));
+          numSidesWidget->setCurrentWidget(precisionBox);
+        }),
+      m_parameters.circleShape());
+
+    edgeAlignedCircleButton->setChecked(
+      std::holds_alternative<mdl::EdgeAlignedCircle>(m_parameters.circleShape()));
+    vertexAlignedCircleButton->setChecked(
+      std::holds_alternative<mdl::VertexAlignedCircle>(m_parameters.circleShape()));
+    scalableCircleButton->setChecked(
+      std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
+  };
+  updateWidgets();
+
+  m_notifierConnection +=
+    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
 }
 
 DrawShapeToolCylinderShapeExtensionPage::DrawShapeToolCylinderShapeExtensionPage(
-  std::weak_ptr<MapDocument> document,
-  CylinderShapeParameters& parameters,
-  QWidget* parent)
+  std::weak_ptr<MapDocument> document, ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
   auto* hollowCheckBox = new QCheckBox{tr("Hollow")};
-  hollowCheckBox->setChecked(m_parameters.hollow);
 
   auto* thicknessLabel = new QLabel{tr("Thickness: ")};
   auto* thicknessBox = new QDoubleSpinBox{};
-  thicknessBox->setEnabled(parameters.hollow);
+  thicknessBox->setEnabled(parameters.hollow());
   thicknessBox->setRange(1, 128);
-  thicknessBox->setValue(parameters.thickness);
 
-  connect(
-    hollowCheckBox, &QCheckBox::toggled, this, [&, thicknessBox](const auto hollow) {
-      m_parameters.hollow = hollow;
-      thicknessBox->setEnabled(hollow);
-    });
+  connect(hollowCheckBox, &QCheckBox::toggled, this, [&](const auto hollow) {
+    m_parameters.setHollow(hollow);
+  });
   connect(
     thicknessBox,
     QOverload<double>::of(&QDoubleSpinBox::valueChanged),
     this,
-    [&](const auto thickness) { m_parameters.thickness = thickness; });
+    [&](const auto thickness) { m_parameters.setThickness(thickness); });
 
   addWidget(hollowCheckBox);
   addWidget(thicknessLabel);
   addWidget(thicknessBox);
   addApplyButton(document);
+
+  const auto updateWidgets = [=, this]() {
+    hollowCheckBox->setChecked(m_parameters.hollow());
+    thicknessBox->setEnabled(m_parameters.hollow());
+    thicknessBox->setValue(m_parameters.thickness());
+  };
+  updateWidgets();
+
+  m_notifierConnection +=
+    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
 }
 
 DrawShapeToolCylinderExtension::DrawShapeToolCylinderExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, false, 16.0}
 {
 }
 
@@ -191,13 +274,13 @@ const std::filesystem::path& DrawShapeToolCylinderExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolCylinderExtension::createToolPage(
-  QWidget* parent)
+  ShapeParameters& parameters, QWidget* parent)
 {
-  return new DrawShapeToolCylinderShapeExtensionPage{m_document, m_parameters, parent};
+  return new DrawShapeToolCylinderShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
-  const vm::bbox3d& bounds) const
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
@@ -205,29 +288,26 @@ Result<std::vector<mdl::Brush>> DrawShapeToolCylinderExtension::createBrushes(
     document->world()->mapFormat(),
     document->worldBounds(),
     game->config().faceAttribsConfig.defaults};
-  return m_parameters.hollow
+  return parameters.hollow()
            ? builder.createHollowCylinder(
                bounds,
-               m_parameters.thickness,
-               m_parameters.numSides,
-               m_parameters.radiusMode,
-               m_parameters.axis,
+               parameters.thickness(),
+               parameters.circleShape(),
+               parameters.axis(),
                document->currentMaterialName())
            : builder
                .createCylinder(
                  bounds,
-                 m_parameters.numSides,
-                 m_parameters.radiusMode,
-                 m_parameters.axis,
+                 parameters.circleShape(),
+                 parameters.axis(),
                  document->currentMaterialName())
                .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
 DrawShapeToolConeShapeExtensionPage::DrawShapeToolConeShapeExtensionPage(
-  std::weak_ptr<MapDocument> document,
-  CircularShapeParameters& parameters,
-  QWidget* parent)
+  std::weak_ptr<MapDocument> document, ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
+  , m_parameters{parameters}
 {
   addApplyButton(document);
 }
@@ -235,7 +315,6 @@ DrawShapeToolConeShapeExtensionPage::DrawShapeToolConeShapeExtensionPage(
 DrawShapeToolConeExtension::DrawShapeToolConeExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge}
 {
 }
 
@@ -251,13 +330,14 @@ const std::filesystem::path& DrawShapeToolConeExtension::iconPath() const
   return path;
 }
 
-DrawShapeToolExtensionPage* DrawShapeToolConeExtension::createToolPage(QWidget* parent)
+DrawShapeToolExtensionPage* DrawShapeToolConeExtension::createToolPage(
+  ShapeParameters& parameters, QWidget* parent)
 {
-  return new DrawShapeToolConeShapeExtensionPage{m_document, m_parameters, parent};
+  return new DrawShapeToolConeShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
-  const vm::bbox3d& bounds) const
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
@@ -268,40 +348,43 @@ Result<std::vector<mdl::Brush>> DrawShapeToolConeExtension::createBrushes(
   return builder
     .createCone(
       bounds,
-      m_parameters.numSides,
-      m_parameters.radiusMode,
-      m_parameters.axis,
+      parameters.circleShape(),
+      parameters.axis(),
       document->currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
 DrawShapeToolIcoSphereShapeExtensionPage::DrawShapeToolIcoSphereShapeExtensionPage(
-  std::weak_ptr<MapDocument> document,
-  IcoSphereShapeParameters& parameters,
-  QWidget* parent)
+  std::weak_ptr<MapDocument> document, ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolExtensionPage{parent}
   , m_parameters{parameters}
 {
   auto* accuracyLabel = new QLabel{tr("Accuracy: ")};
   auto* accuracyBox = new QSpinBox{};
   accuracyBox->setRange(0, 4);
-  accuracyBox->setValue(int(m_parameters.accuracy));
 
   connect(
     accuracyBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    [&](const auto accuracy) { m_parameters.accuracy = size_t(accuracy); });
+    [&](const auto accuracy) { m_parameters.setAccuracy(size_t(accuracy)); });
 
   addWidget(accuracyLabel);
   addWidget(accuracyBox);
   addApplyButton(document);
+
+  const auto updateWidgets = [=, this]() {
+    accuracyBox->setValue(int(m_parameters.accuracy()));
+  };
+  updateWidgets();
+
+  m_notifierConnection +=
+    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
 }
 
 DrawShapeToolIcoSphereExtension::DrawShapeToolIcoSphereExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{1}
 {
 }
 
@@ -318,13 +401,13 @@ const std::filesystem::path& DrawShapeToolIcoSphereExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolIcoSphereExtension::createToolPage(
-  QWidget* parent)
+  ShapeParameters& parameters, QWidget* parent)
 {
-  return new DrawShapeToolIcoSphereShapeExtensionPage{m_document, m_parameters, parent};
+  return new DrawShapeToolIcoSphereShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
-  const vm::bbox3d& bounds) const
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
@@ -334,37 +417,51 @@ Result<std::vector<mdl::Brush>> DrawShapeToolIcoSphereExtension::createBrushes(
     game->config().faceAttribsConfig.defaults};
 
   return builder
-    .createIcoSphere(bounds, m_parameters.accuracy, document->currentMaterialName())
+    .createIcoSphere(bounds, parameters.accuracy(), document->currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
 
 DrawShapeToolUVSphereShapeExtensionPage::DrawShapeToolUVSphereShapeExtensionPage(
-  std::weak_ptr<MapDocument> document,
-  UVSphereShapeParameters& parameters,
-  QWidget* parent)
+  std::weak_ptr<MapDocument> document, ShapeParameters& parameters, QWidget* parent)
   : DrawShapeToolCircularShapeExtensionPage{parameters, parent}
   , m_parameters{parameters}
 {
   auto* numRingsLabel = new QLabel{tr("Number of Rings: ")};
   auto* numRingsBox = new QSpinBox{};
   numRingsBox->setRange(1, 256);
-  numRingsBox->setValue(int(m_parameters.numRings));
+
+  auto* numRingsLayout = new QHBoxLayout{};
+  numRingsLayout->setContentsMargins(QMargins{});
+  numRingsLayout->setSpacing(LayoutConstants::MediumHMargin);
+  numRingsLayout->addWidget(numRingsLabel);
+  numRingsLayout->addWidget(numRingsBox);
+
+  auto* numRingsWidget = new QWidget{};
+  numRingsWidget->setLayout(numRingsLayout);
 
   connect(
     numRingsBox,
     QOverload<int>::of(&QSpinBox::valueChanged),
     this,
-    [&](const auto numRings) { m_parameters.numRings = size_t(numRings); });
+    [&](const auto numRings) { m_parameters.setNumRings(size_t(numRings)); });
 
-  addWidget(numRingsLabel);
-  addWidget(numRingsBox);
+  addWidget(numRingsWidget);
   addApplyButton(document);
+
+  const auto updateWidgets = [=, this]() {
+    numRingsWidget->setVisible(
+      !std::holds_alternative<mdl::ScalableCircle>(m_parameters.circleShape()));
+    numRingsBox->setValue(int(m_parameters.numRings()));
+  };
+  updateWidgets();
+
+  m_notifierConnection +=
+    m_parameters.parametersDidChangeNotifier.connect(std::move(updateWidgets));
 }
 
 DrawShapeToolUVSphereExtension::DrawShapeToolUVSphereExtension(
   std::weak_ptr<MapDocument> document)
   : DrawShapeToolExtension{std::move(document)}
-  , m_parameters{vm::axis::z, 8, mdl::RadiusMode::ToEdge, 8}
 {
 }
 
@@ -381,13 +478,13 @@ const std::filesystem::path& DrawShapeToolUVSphereExtension::iconPath() const
 }
 
 DrawShapeToolExtensionPage* DrawShapeToolUVSphereExtension::createToolPage(
-  QWidget* parent)
+  ShapeParameters& parameters, QWidget* parent)
 {
-  return new DrawShapeToolUVSphereShapeExtensionPage{m_document, m_parameters, parent};
+  return new DrawShapeToolUVSphereShapeExtensionPage{m_document, parameters, parent};
 }
 
 Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
-  const vm::bbox3d& bounds) const
+  const vm::bbox3d& bounds, const ShapeParameters& parameters) const
 {
   auto document = kdl::mem_lock(m_document);
   const auto game = document->game();
@@ -398,10 +495,9 @@ Result<std::vector<mdl::Brush>> DrawShapeToolUVSphereExtension::createBrushes(
   return builder
     .createUVSphere(
       bounds,
-      m_parameters.numSides,
-      m_parameters.numRings,
-      m_parameters.radiusMode,
-      m_parameters.axis,
+      parameters.circleShape(),
+      parameters.numRings(),
+      parameters.axis(),
       document->currentMaterialName())
     .transform([](auto brush) { return std::vector{std::move(brush)}; });
 }
@@ -417,6 +513,5 @@ std::vector<std::unique_ptr<DrawShapeToolExtension>> createDrawShapeToolExtensio
   result.push_back(std::make_unique<DrawShapeToolIcoSphereExtension>(document));
   return result;
 }
-
 
 } // namespace tb::ui

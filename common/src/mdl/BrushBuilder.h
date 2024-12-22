@@ -21,6 +21,7 @@
 
 #include "BrushFaceAttributes.h"
 #include "Result.h"
+#include "mdl/CircleShape.h"
 #include "mdl/Polyhedron3.h"
 
 #include "vm/bbox.h"
@@ -34,12 +35,6 @@ namespace tb::mdl
 class Brush;
 class ModelFactory;
 enum class MapFormat;
-
-enum class RadiusMode
-{
-  ToEdge,
-  ToVertex,
-};
 
 class BrushBuilder
 {
@@ -89,32 +84,33 @@ public:
 
   Result<Brush> createCylinder(
     const vm::bbox3d& bounds,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<std::vector<Brush>> createHollowCylinder(
     const vm::bbox3d& bounds,
     double thickness,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
+  Result<Brush> createScalableCylinder(
+    const vm::bbox3d& bounds,
+    size_t precision,
+    vm::axis::type axis,
+    const std::string& textureName) const;
 
   Result<Brush> createCone(
     const vm::bbox3d& bounds,
-    size_t numSides,
-    RadiusMode radiusMode,
+    const CircleShape& circleShape,
     vm::axis::type axis,
     const std::string& textureName) const;
 
   Result<Brush> createUVSphere(
     const vm::bbox3d& bounds,
-    size_t numSides,
+    const CircleShape& circleShape,
     size_t numRings,
-    RadiusMode radiusMode,
     vm::axis::type axis,
     const std::string& textureName) const;
 
@@ -126,4 +122,5 @@ public:
   Result<Brush> createBrush(
     const Polyhedron3& polyhedron, const std::string& materialName) const;
 };
+
 } // namespace tb::mdl

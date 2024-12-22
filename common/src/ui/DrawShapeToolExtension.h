@@ -24,6 +24,7 @@
 #include "Notifier.h"
 #include "Result.h"
 #include "mdl/Brush.h"
+#include "mdl/BrushBuilder.h"
 
 #include <filesystem>
 #include <memory>
@@ -41,13 +42,54 @@ protected:
   NotifierConnection m_notifierConnection;
 
 public:
-  Notifier<> settingsDidChangeNotifier;
+  Notifier<> applyParametersNotifier;
 
   explicit DrawShapeToolExtensionPage(QWidget* parent = nullptr);
 
 protected:
   void addWidget(QWidget* widget);
   void addApplyButton(std::weak_ptr<MapDocument> document);
+};
+
+class ShapeParameters
+{
+private:
+  // For axis aligned shapes
+  vm::axis::type m_axis = vm::axis::z;
+
+  // For circular shapes
+  mdl::CircleShape m_circleShape = mdl::EdgeAlignedCircle{8};
+
+  // For hollow shapes
+  bool m_hollow = false;
+  double m_thickness = 16.0;
+
+  // For UV sphere
+  size_t m_numRings = 8;
+
+  // For ICO sphere
+  size_t m_accuracy = 1;
+
+public:
+  Notifier<> parametersDidChangeNotifier;
+
+  vm::axis::type axis() const;
+  void setAxis(vm::axis::type axis);
+
+  const mdl::CircleShape& circleShape() const;
+  void setCircleShape(mdl::CircleShape circleShape);
+
+  bool hollow() const;
+  void setHollow(bool hollow);
+
+  double thickness() const;
+  void setThickness(double thickness);
+
+  size_t numRings() const;
+  void setNumRings(size_t numRings);
+
+  size_t accuracy() const;
+  void setAccuracy(size_t accuracy);
 };
 
 class DrawShapeToolExtension
@@ -61,9 +103,10 @@ public:
   virtual ~DrawShapeToolExtension();
   virtual const std::string& name() const = 0;
   virtual const std::filesystem::path& iconPath() const = 0;
-  virtual DrawShapeToolExtensionPage* createToolPage(QWidget* parent = nullptr) = 0;
+  virtual DrawShapeToolExtensionPage* createToolPage(
+    ShapeParameters& parameters, QWidget* parent = nullptr) = 0;
   virtual Result<std::vector<mdl::Brush>> createBrushes(
-    const vm::bbox3d& bounds) const = 0;
+    const vm::bbox3d& bounds, const ShapeParameters& parameters) const = 0;
 };
 
 class DrawShapeToolExtensionManager
@@ -71,15 +114,18 @@ class DrawShapeToolExtensionManager
 public:
   Notifier<size_t> currentExtensionDidChangeNotifier;
 
-  explicit DrawShapeToolExtensionManager(
-    std::vector<std::unique_ptr<DrawShapeToolExtension>> extensions);
+  explicit DrawShapeToolExtensionManager(std::weak_ptr<MapDocument> document);
 
   const std::vector<DrawShapeToolExtension*> extensions() const;
 
-  DrawShapeToolExtension& currentExtension();
+  const DrawShapeToolExtension& currentExtension() const;
   bool setCurrentExtensionIndex(size_t currentExtensionIndex);
 
+  std::vector<DrawShapeToolExtensionPage*> createToolPages(QWidget* parent = nullptr);
+  Result<std::vector<mdl::Brush>> createBrushes(const vm::bbox3d& bounds) const;
+
 private:
+  ShapeParameters m_parameters;
   std::vector<std::unique_ptr<DrawShapeToolExtension>> m_extensions;
   size_t m_currentExtensionIndex = 0;
 };

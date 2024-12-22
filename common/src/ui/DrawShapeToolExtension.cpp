@@ -23,10 +23,12 @@
 #include <QPushButton>
 
 #include "Ensure.h"
+#include "ui/DrawShapeToolExtensions.h"
 #include "ui/MapDocument.h"
 #include "ui/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::ui
@@ -52,14 +54,97 @@ void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> docum
 {
   auto* applyButton = new QPushButton{tr("Apply")};
   applyButton->setEnabled(false);
-  connect(
-    applyButton, &QPushButton::clicked, this, [&]() { settingsDidChangeNotifier(); });
+  connect(applyButton, &QPushButton::clicked, this, [&]() { applyParametersNotifier(); });
 
   addWidget(applyButton);
 
   auto doc = kdl::mem_lock(document);
   m_notifierConnection += doc->selectionDidChangeNotifier.connect(
     [=](const auto&) { applyButton->setEnabled(doc->hasSelectedNodes()); });
+}
+
+vm::axis::type ShapeParameters::axis() const
+{
+  return m_axis;
+}
+
+void ShapeParameters::setAxis(const vm::axis::type axis)
+{
+  if (axis != m_axis)
+  {
+    m_axis = axis;
+    parametersDidChangeNotifier();
+  }
+}
+
+const mdl::CircleShape& ShapeParameters::circleShape() const
+{
+  return m_circleShape;
+}
+
+void ShapeParameters::setCircleShape(mdl::CircleShape circleShape)
+{
+  if (circleShape != m_circleShape)
+  {
+    m_circleShape = std::move(circleShape);
+    parametersDidChangeNotifier();
+  }
+}
+
+bool ShapeParameters::hollow() const
+{
+  return m_hollow;
+}
+
+void ShapeParameters::setHollow(const bool hollow)
+{
+  if (hollow != m_hollow)
+  {
+    m_hollow = hollow;
+    parametersDidChangeNotifier();
+  }
+}
+
+double ShapeParameters::thickness() const
+{
+  return m_thickness;
+}
+
+void ShapeParameters::setThickness(const double thickness)
+{
+  if (thickness != m_thickness)
+  {
+    m_thickness = thickness;
+    parametersDidChangeNotifier();
+  }
+}
+
+size_t ShapeParameters::numRings() const
+{
+  return m_numRings;
+}
+
+void ShapeParameters::setNumRings(const size_t numRings)
+{
+  if (numRings != m_numRings)
+  {
+    m_numRings = numRings;
+    parametersDidChangeNotifier();
+  }
+}
+
+size_t ShapeParameters::accuracy() const
+{
+  return m_accuracy;
+}
+
+void ShapeParameters::setAccuracy(const size_t accuracy)
+{
+  if (accuracy != m_accuracy)
+  {
+    m_accuracy = accuracy;
+    parametersDidChangeNotifier();
+  }
 }
 
 DrawShapeToolExtension::DrawShapeToolExtension(std::weak_ptr<MapDocument> document)
@@ -70,8 +155,8 @@ DrawShapeToolExtension::DrawShapeToolExtension(std::weak_ptr<MapDocument> docume
 DrawShapeToolExtension::~DrawShapeToolExtension() = default;
 
 DrawShapeToolExtensionManager::DrawShapeToolExtensionManager(
-  std::vector<std::unique_ptr<DrawShapeToolExtension>> extensions)
-  : m_extensions{std::move(extensions)}
+  std::weak_ptr<MapDocument> document)
+  : m_extensions{createDrawShapeToolExtensions(document)}
 {
   ensure(!m_extensions.empty(), "extensions must not be empty");
 }
@@ -83,7 +168,7 @@ const std::vector<DrawShapeToolExtension*> DrawShapeToolExtensionManager::extens
     m_extensions, [](const auto& extension) { return extension.get(); });
 }
 
-DrawShapeToolExtension& DrawShapeToolExtensionManager::currentExtension()
+const DrawShapeToolExtension& DrawShapeToolExtensionManager::currentExtension() const
 {
   return *m_extensions[m_currentExtensionIndex];
 }
@@ -98,6 +183,21 @@ bool DrawShapeToolExtensionManager::setCurrentExtensionIndex(size_t currentExten
   }
 
   return false;
+}
+
+std::vector<DrawShapeToolExtensionPage*> DrawShapeToolExtensionManager::createToolPages(
+  QWidget* parent)
+{
+  return m_extensions | std::views::transform([&](const auto& extension) {
+           return extension->createToolPage(m_parameters, parent);
+         })
+         | kdl::to_vector;
+}
+
+Result<std::vector<mdl::Brush>> DrawShapeToolExtensionManager::createBrushes(
+  const vm::bbox3d& bounds) const
+{
+  return currentExtension().createBrushes(bounds, m_parameters);
 }
 
 } // namespace tb::ui
