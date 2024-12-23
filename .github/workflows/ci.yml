@@ -189,7 +189,7 @@ jobs:
             build/*.AppImage
             build/*.AppImage.md5
             build/*.dmg
-            build/*.md5
+            build/*.dmg.md5
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
         env:
