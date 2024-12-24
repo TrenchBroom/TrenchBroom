@@ -55,172 +55,203 @@ auto makeBrush(const std::vector<std::tuple<vm::vec3d, vm::vec3d, vm::vec3d>>& f
 
 } // namespace
 
-TEST_CASE("BrushBuilderTest.createCube")
+TEST_CASE("BrushBuilder")
 {
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  const auto cube = builder.createCube(128.0, "someName") | kdl::value();
-  CHECK(cube.fullySpecified());
-  CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
-
-  const auto faces = cube.faces();
-  CHECK(faces.size() == 6u);
-
-  for (size_t i = 0; i < faces.size(); ++i)
+  SECTION("createCube")
   {
-    CHECK(faces[i].attributes().materialName() == "someName");
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+
+    const auto cube = builder.createCube(128.0, "someName") | kdl::value();
+    CHECK(cube.fullySpecified());
+    CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
+
+    const auto faces = cube.faces();
+    CHECK(faces.size() == 6u);
+
+    for (size_t i = 0; i < faces.size(); ++i)
+    {
+      CHECK(faces[i].attributes().materialName() == "someName");
+    }
   }
-}
 
-TEST_CASE("BrushBuilderTest.createCubeDefaults")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
-  defaultAttribs.setOffset({0.5f, 0.5f});
-  defaultAttribs.setScale({0.5f, 0.5f});
-  defaultAttribs.setRotation(45.0f);
-  defaultAttribs.setSurfaceContents(1);
-  defaultAttribs.setSurfaceFlags(2);
-  defaultAttribs.setSurfaceValue(0.1f);
-  defaultAttribs.setColor(Color{255, 255, 255, 255});
-
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
-  const auto cube = builder.createCube(128.0, "someName") | kdl::value();
-  CHECK(cube.fullySpecified());
-  CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
-
-  const auto faces = cube.faces();
-  CHECK(faces.size() == 6u);
-
-  for (size_t i = 0; i < faces.size(); ++i)
+  SECTION("createCubeDefaults")
   {
-    CHECK(faces[i].attributes().materialName() == "someName");
-    CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
-    CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
-    CHECK(faces[i].attributes().rotation() == 45.0f);
-    CHECK(faces[i].attributes().surfaceContents() == 1);
-    CHECK(faces[i].attributes().surfaceFlags() == 2);
-    CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-    CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+    auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
+    defaultAttribs.setOffset({0.5f, 0.5f});
+    defaultAttribs.setScale({0.5f, 0.5f});
+    defaultAttribs.setRotation(45.0f);
+    defaultAttribs.setSurfaceContents(1);
+    defaultAttribs.setSurfaceFlags(2);
+    defaultAttribs.setSurfaceValue(0.1f);
+    defaultAttribs.setColor(Color{255, 255, 255, 255});
+
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+
+    const auto cube = builder.createCube(128.0, "someName") | kdl::value();
+    CHECK(cube.fullySpecified());
+    CHECK(cube.bounds() == vm::bbox3d{-64.0, +64.0});
+
+    const auto faces = cube.faces();
+    CHECK(faces.size() == 6u);
+
+    for (size_t i = 0; i < faces.size(); ++i)
+    {
+      CHECK(faces[i].attributes().materialName() == "someName");
+      CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
+      CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
+      CHECK(faces[i].attributes().rotation() == 45.0f);
+      CHECK(faces[i].attributes().surfaceContents() == 1);
+      CHECK(faces[i].attributes().surfaceFlags() == 2);
+      CHECK(faces[i].attributes().surfaceValue() == 0.1f);
+      CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+    }
   }
-}
 
-TEST_CASE("BrushBuilderTest.createBrushDefaults")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
-  defaultAttribs.setOffset({0.5f, 0.5f});
-  defaultAttribs.setScale({0.5f, 0.5f});
-  defaultAttribs.setRotation(45.0f);
-  defaultAttribs.setSurfaceContents(1);
-  defaultAttribs.setSurfaceFlags(2);
-  defaultAttribs.setSurfaceValue(0.1f);
-  defaultAttribs.setColor(Color{255, 255, 255, 255});
-
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
-  const auto brush = builder.createBrush(
-                       Polyhedron3{
-                         vm::vec3d{-64, -64, -64},
-                         vm::vec3d{-64, -64, +64},
-                         vm::vec3d{-64, +64, -64},
-                         vm::vec3d{-64, +64, +64},
-                         vm::vec3d{+64, -64, -64},
-                         vm::vec3d{+64, -64, +64},
-                         vm::vec3d{+64, +64, -64},
-                         vm::vec3d{+64, +64, +64},
-                       },
-                       "someName")
-                     | kdl::value();
-  CHECK(brush.fullySpecified());
-  CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
-
-  const auto faces = brush.faces();
-  CHECK(faces.size() == 6u);
-
-  for (size_t i = 0; i < faces.size(); ++i)
+  SECTION("createBrushDefaults")
   {
-    CHECK(faces[i].attributes().materialName() == "someName");
-    CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
-    CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
-    CHECK(faces[i].attributes().rotation() == 45.0f);
-    CHECK(faces[i].attributes().surfaceContents() == 1);
-    CHECK(faces[i].attributes().surfaceFlags() == 2);
-    CHECK(faces[i].attributes().surfaceValue() == 0.1f);
-    CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+    auto defaultAttribs = BrushFaceAttributes{"defaultMaterial"};
+    defaultAttribs.setOffset({0.5f, 0.5f});
+    defaultAttribs.setScale({0.5f, 0.5f});
+    defaultAttribs.setRotation(45.0f);
+    defaultAttribs.setSurfaceContents(1);
+    defaultAttribs.setSurfaceFlags(2);
+    defaultAttribs.setSurfaceValue(0.1f);
+    defaultAttribs.setColor(Color{255, 255, 255, 255});
+
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds, defaultAttribs};
+
+    const auto brush = builder.createBrush(
+                         Polyhedron3{
+                           vm::vec3d{-64, -64, -64},
+                           vm::vec3d{-64, -64, +64},
+                           vm::vec3d{-64, +64, -64},
+                           vm::vec3d{-64, +64, +64},
+                           vm::vec3d{+64, -64, -64},
+                           vm::vec3d{+64, -64, +64},
+                           vm::vec3d{+64, +64, -64},
+                           vm::vec3d{+64, +64, +64},
+                         },
+                         "someName")
+                       | kdl::value();
+    CHECK(brush.fullySpecified());
+    CHECK(brush.bounds() == vm::bbox3d{-64.0, +64.0});
+
+    const auto faces = brush.faces();
+    CHECK(faces.size() == 6u);
+
+    for (size_t i = 0; i < faces.size(); ++i)
+    {
+      CHECK(faces[i].attributes().materialName() == "someName");
+      CHECK(faces[i].attributes().offset() == vm::vec2f{0.5f, 0.5f});
+      CHECK(faces[i].attributes().scale() == vm::vec2f{0.5f, 0.5f});
+      CHECK(faces[i].attributes().rotation() == 45.0f);
+      CHECK(faces[i].attributes().surfaceContents() == 1);
+      CHECK(faces[i].attributes().surfaceFlags() == 2);
+      CHECK(faces[i].attributes().surfaceValue() == 0.1f);
+      CHECK(faces[i].attributes().color() == Color{255, 255, 255, 255});
+    }
   }
-}
 
-TEST_CASE("BrushBuilderTest.createCylinder")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
+  SECTION("createCylinder")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
 
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  const auto cylinder = builder.createCylinder(
-    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
-    EdgeAlignedCircle{4},
-    vm::axis::z,
-    "someName");
+    SECTION("Edge aligned cylinder")
+    {
+      const auto cylinder = builder.createCylinder(
+        vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
+        EdgeAlignedCircle{4},
+        vm::axis::z,
+        "someName");
 
-  CHECK(
-    cylinder
-    == Result<Brush>{makeBrush({
-      {{-32, -32, 32}, {-32, 32, -32}, {-32, 32, 32}},
-      {{32, -32, 32}, {-32, -32, -32}, {-32, -32, 32}},
-      {{32, 32, -32}, {-32, -32, -32}, {32, -32, -32}},
-      {{32, 32, 32}, {-32, -32, 32}, {-32, 32, 32}},
-      {{32, 32, 32}, {-32, 32, -32}, {32, 32, -32}},
-      {{32, 32, 32}, {32, -32, -32}, {32, -32, 32}},
-    })});
-}
+      CHECK(
+        cylinder
+        == Result<Brush>{makeBrush({
+          {{-32, -32, 32}, {-32, 32, -32}, {-32, 32, 32}},
+          {{32, -32, 32}, {-32, -32, -32}, {-32, -32, 32}},
+          {{32, 32, -32}, {-32, -32, -32}, {32, -32, -32}},
+          {{32, 32, 32}, {-32, -32, 32}, {-32, 32, 32}},
+          {{32, 32, 32}, {-32, 32, -32}, {32, 32, -32}},
+          {{32, 32, 32}, {32, -32, -32}, {32, -32, 32}},
+        })});
+    }
 
-TEST_CASE("BrushBuilderTest.createScalableCylinder")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
+    SECTION("Scalable Cylinder")
+    {
+      SECTION("In square bounds")
+      {
+        const auto cylinder = builder.createCylinder(
+          vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
+          ScalableCircle{0},
+          vm::axis::z,
+          "someName");
 
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  const auto cylinder = builder.createCylinder(
-    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
-    ScalableCircle{0},
-    vm::axis::z,
-    "someName");
+        CHECK(
+          cylinder
+          == Result<Brush>{makeBrush({
+            {{-32, -8, 32}, {-32, 8, -32}, {-32, 8, 32}},
+            {{-24, -24, 32}, {-32, -8, -32}, {-32, -8, 32}},
+            {{-24, 24, 32}, {-32, 8, -32}, {-24, 24, -32}},
+            {{-8, -32, 32}, {-24, -24, -32}, {-24, -24, 32}},
+            {{-8, 32, 32}, {-24, 24, -32}, {-8, 32, -32}},
+            {{8, -32, 32}, {-8, -32, -32}, {-8, -32, 32}},
+            {{32, 8, -32}, {24, -24, -32}, {32, -8, -32}},
+            {{32, 8, 32}, {8, 32, 32}, {24, 24, 32}},
+            {{8, 32, 32}, {-8, 32, -32}, {8, 32, -32}},
+            {{24, -24, 32}, {8, -32, -32}, {8, -32, 32}},
+            {{24, 24, 32}, {8, 32, -32}, {24, 24, -32}},
+            {{32, -8, 32}, {24, -24, -32}, {24, -24, 32}},
+            {{32, 8, 32}, {24, 24, -32}, {32, 8, -32}},
+            {{32, 8, 32}, {32, -8, -32}, {32, -8, 32}},
+          })});
+      }
 
-  CHECK(
-    cylinder
-    == Result<Brush>{makeBrush({
-      {{-32, -8, 32}, {-32, 8, -32}, {-32, 8, 32}},
-      {{-24, -24, 32}, {-32, -8, -32}, {-32, -8, 32}},
-      {{-24, 24, 32}, {-32, 8, -32}, {-24, 24, -32}},
-      {{-8, -32, 32}, {-24, -24, -32}, {-24, -24, 32}},
-      {{-8, 32, 32}, {-24, 24, -32}, {-8, 32, -32}},
-      {{8, -32, 32}, {-8, -32, -32}, {-8, -32, 32}},
-      {{32, 8, -32}, {24, -24, -32}, {32, -8, -32}},
-      {{32, 8, 32}, {8, 32, 32}, {24, 24, 32}},
-      {{8, 32, 32}, {-8, 32, -32}, {8, 32, -32}},
-      {{24, -24, 32}, {8, -32, -32}, {8, -32, 32}},
-      {{24, 24, 32}, {8, 32, -32}, {24, 24, -32}},
-      {{32, -8, 32}, {24, -24, -32}, {24, -24, 32}},
-      {{32, 8, 32}, {24, 24, -32}, {32, 8, -32}},
-      {{32, 8, 32}, {32, -8, -32}, {32, -8, 32}},
-    })});
-}
+      SECTION("In rectangular bounds")
+      {
+        const auto cylinder = builder.createCylinder(
+          vm::bbox3d{{-64, -32, -32}, {64, 32, 32}},
+          ScalableCircle{0},
+          vm::axis::z,
+          "someName");
 
-TEST_CASE("BrushBuilderTest.createHollowCylinder")
-{
-  const auto worldBounds = vm::bbox3d{8192.0};
+        CHECK(
+          cylinder
+          == Result<Brush>{makeBrush({
+            {{-64, -8, 32}, {-64, 8, -32}, {-64, 8, 32}},
+            {{-56, -24, 32}, {-64, -8, -32}, {-64, -8, 32}},
+            {{-56, 24, 32}, {-64, 8, -32}, {-56, 24, -32}},
+            {{-40, -32, 32}, {-56, -24, -32}, {-56, -24, 32}},
+            {{-40, 32, 32}, {-56, 24, -32}, {-40, 32, -32}},
+            {{40, -32, 32}, {-40, -32, -32}, {-40, -32, 32}},
+            {{64, 8, -32}, {56, -24, -32}, {64, -8, -32}},
+            {{64, 8, 32}, {40, 32, 32}, {56, 24, 32}},
+            {{40, 32, 32}, {-40, 32, -32}, {40, 32, -32}},
+            {{56, -24, 32}, {40, -32, -32}, {40, -32, 32}},
+            {{56, 24, 32}, {40, 32, -32}, {56, 24, -32}},
+            {{64, -8, 32}, {56, -24, -32}, {56, -24, 32}},
+            {{64, 8, 32}, {56, 24, -32}, {64, 8, -32}},
+            {{64, 8, 32}, {64, -8, -32}, {64, -8, 32}},
+          })});
+      }
+    }
+  }
 
-  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  const auto cylinder = builder.createHollowCylinder(
-    vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
-    8.0,
-    EdgeAlignedCircle{8},
-    vm::axis::z,
-    "someName");
 
-  CHECK(cylinder.is_success());
-  CHECK(cylinder.value().size() == 8);
+  SECTION("createHollowCylinder")
+  {
+    auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+    const auto cylinder = builder.createHollowCylinder(
+      vm::bbox3d{{-32, -32, -32}, {32, 32, 32}},
+      8.0,
+      EdgeAlignedCircle{8},
+      vm::axis::z,
+      "someName");
+
+    CHECK(cylinder.is_success());
+    CHECK(cylinder.value().size() == 8);
+  }
 }
 
 } // namespace tb::mdl
