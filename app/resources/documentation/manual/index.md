@@ -1304,7 +1304,7 @@ Note that if you remove all members of a set of linked groups, either by separat
 
 ![Linked Groups in 3D view (macOS)](images/LinkedGroups.png)
 
-Linked groups are rendered with a different color than regular linked groups. If you select a linked group, the editor will render arrows emanating from the selected group and ending in the other linked groups to indicate which groups will be updated when the selected group changes. These arrows are still shown if you open a linked group.
+Linked groups are rendered with a different color than regular groups. If you select a linked group, the editor will render arrows emanating from the selected group and ending in the other linked groups to indicate which groups will be updated when the selected group changes. These arrows are still shown if you open a linked group.
 
 ### Linked Groups in the Map File {#linked_groups_map_file}
 
@@ -1713,7 +1713,7 @@ Every expression is made of one single term. A term is something that can be eva
 
 A name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
 
-  Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+  Name       = ( "\_" | Alpha ) { "\_" | Alpha | Numeric }
 
 `MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
