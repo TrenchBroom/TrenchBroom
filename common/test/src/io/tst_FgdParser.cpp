@@ -392,6 +392,27 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
   CHECK(stringPropertyDefinition2->defaultValue() == "DefaultValue");
 }
 
+TEST_CASE("FgdParserTest.parsePropertyDefinitionWithNumericKey")
+{
+  const auto file = R"(
+    @PointClass = info_notnull : "Wildcard entity" // I love you
+    [
+       123(string) : "Something" : : "Long description 1"
+       456(string) : "Something" : : "Long description 1"
+    ]
+)";
+
+  auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+  auto status = TestParserStatus{};
+  auto definitions = parser.parseDefinitions(status);
+  REQUIRE(definitions.size() == 1u);
+
+  const auto& definition = *definitions[0];
+  CHECK(definition.propertyDefinition("123") != nullptr);
+  CHECK(definition.propertyDefinition("456") != nullptr);
+}
+
 /**
  * Support having an integer (or decimal) as a default for a string propertyDefinition.
  * Technically a type mismatch, but appears in the wild; see:
