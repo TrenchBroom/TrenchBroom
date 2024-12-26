@@ -52,11 +52,11 @@ In this section we introduce some technical terms related to mapping in Quake-en
 
 In Quake-engine based games, levels are usually called maps. The following simple specification of the structure of a map is written in extended Backus-Naur-Form (EBNF), a simple syntax to define hierarchical structures that is widely used in computer science to define the syntax of computer languages. Don't worry, you don't have to understand EBNF as we will explain the definitions line by line.
 
-    1. Map 			= Entity {Entity}
-    2. Entity 		= {Property} {Brush}
-    3. Property		= Key Value
-    4. Brush 		= {Face}
-    5. Face         = Plane Texture Offset Scale Rotation ...
+    1. `Map      = Entity {Entity}`
+    2. `Entity   = {Property} {Brush}`
+    3. `Property = Key Value`
+    4. `Brush    = {Face}`
+    5. `Face     = Plane Texture Offset Scale Rotation ...`
 
 The first line specifies that a **map** contains an entity followed by zero or more entities. In EBNF, the braces surrounding the word "Entity" indicate that it stands for a possibly empty sequence of entities. Altogether, line one means that a map is just a sequence of one or more entities. An **entity** is a possibly empty sequence of properties followed by zero or more brushes. A **property** is just a key-value pair, and both the key and the value are strings (this information was omitted from the EBNF).
 
@@ -68,10 +68,10 @@ In this document, we use the term _object_ to refer to entities and brushes.
 
 TrenchBroom organizes the objects of a map a bit differently than how they are organized in the map files. Firstly, TrenchBroom introduces two additional concepts: [Layers](#layers) and [Groups](#groups). Secondly, the worldspawn entity is hidden from you and its properties are associated with the map. To differentiate TrenchBroom's view from the view that other tools and compilers have, we use the term "world" instead of "map" here. In the remainder of this document, we will use the term "map" again.
 
-    1. World 			= {Property} DefaultLayer {Layer}
-    2. DefaultLayer 	= Layer
-    3. Layer 			= Name {Group} {Entity} {Brush}
-    4. Group 			= Name {Group} {Entity} {Brush}
+    1. `World        = {Property} DefaultLayer {Layer}`
+    2. `DefaultLayer = Layer`
+    3. `Layer        = Name {Group} {Entity} {Brush}`
+    4. `Group        = Name {Group} {Entity} {Brush}`
 
 The first line defines the structure of a map as TrenchBroom sees it. To TrenchBroom, a **World** consists of zero or more properties, a default layer, and zero or more additional layers. The second line specifies that the **DefaultLayer** is just a layer. Then, the third line defines what a **Layer** is: A layer has a name (just a string), and it contains zero or more groups, zero or more entities, and zero or more brushes. In TrenchBroom, layers are used to partition a map into several large areas in order to reduce visual clutter by hiding them. In contrast, groups are used to merge a small number of objects into one object so that they can all be edited as one. Like layers, a **Group** is composed of a name, zero or more groups, zero or more entities, and zero or more brushes. In case you didn't notice, groups induce a hierarchy, that is, a group can contain other sub-groups. All other definitions are exactly the same as in the previous section.
 
@@ -85,12 +85,12 @@ In standard map files, the geometry of a brush is defined by a set of faces. Apa
 
 The plane points are given as three groups of three numbers. Each group is made up of three numbers that specify the X,Y and Z coordinates of the respective plane point. The three points, p1, p2 and p3, define two vectors, v1 and v2, as follows:
 
-    *p2
-   /|\
-    |
-    v2
-    |
-  p1*--v1--->*p3
+      *p2
+     /|\
+      |
+      v2
+      |
+    p1*--v1--->*p3
 
 The normal of the plane is in the direction of the cross product of v1 and v2. In the diagram above, the plane normal points towards you. Together with its normal, the plane divides three dimensional space into two half spaces: The upper half space above the plane, and the lower half space below the plane. In this interpretation, the volume of the brush is the intersection of the lower half spaces defined by the face planes. This way of defining brushes has the advantage that all brushes are automatically convex. However, this representation of brushes does not directly contain any other geometric information of the brush, particularly its vertices, edges, and facets, which must be computed from the plane representation. In TrenchBroom, the vertices, edges, and facets are called the **brush geometry**. TrenchBroom uses the same method as the BSP compilers to compute the brush geometry. Having the brush geometry is necessary mainly for two things: Rendering and vertex editing.
 
@@ -1304,7 +1304,7 @@ Note that if you remove all members of a set of linked groups, either by separat
 
 ![Linked Groups in 3D view (macOS)](images/LinkedGroups.png)
 
-Linked groups are rendered with a different color than regular linked groups. If you select a linked group, the editor will render arrows emanating from the selected group and ending in the other linked groups to indicate which groups will be updated when the selected group changes. These arrows are still shown if you open a linked group.
+Linked groups are rendered with a different color than regular groups. If you select a linked group, the editor will render arrows emanating from the selected group and ending in the other linked groups to indicate which groups will be updated when the selected group changes. These arrows are still shown if you open a linked group.
 
 ### Linked Groups in the Map File {#linked_groups_map_file}
 
@@ -1457,23 +1457,23 @@ In this preference pane, you can choose the layout of the editing area. There ar
 
 Layout      Description
 ------      -----------
-One Pane 	One cycleable 3D / XY / XZ / XY viewport
-Two Panes 	One 3D and one cycleable XY / XZ / XY viewport
+One Pane    One cycleable 3D / XY / XZ / XY viewport
+Two Panes   One 3D and one cycleable XY / XZ / XY viewport
 Three Panes One 3D, one XY viewport and one cycleable XZ / YZ 2D viewport
-Four Panes 	One 3D, one XY viewport, one XZ viewport, and one YZ viewport
+Four Panes  One 3D, one XY viewport, one XZ viewport, and one YZ viewport
 
 Cycleable 2D viewports can be cycled by pressing #action(Controls/Map view/Cycle map view).
 
 The remaining settings affect how the viewports are rendered.
 
-Setting 					Description
-------- 					-----------
-Brightness 					The brightness of the textures (affects the 3D viewport, the entity and the material browser)
-Grid 						Opacity of the grid in the 3D and 2D viewports
-Coordinate System Axes 		Show the coordinate system axes in the 3D and 2D viewports
-Filter Mode 				Texture filtering mode in the 3D viewport
+Setting                     Description
+-------                     -----------
+Brightness                  The brightness of the textures (affects the 3D viewport, the entity and the material browser)
+Grid                        Opacity of the grid in the 3D and 2D viewports
+Coordinate System Axes      Show the coordinate system axes in the 3D and 2D viewports
+Filter Mode                 Texture filtering mode in the 3D viewport
 Enable multisampling        Whether rendering is antialiased
-Material Browser Icon Size   The size of the material icons in the material browser
+Material Browser Icon Size  The size of the material icons in the material browser
 Renderer Font Size          Text size in the map viewports (e.g. entity classnames)
 
 ## Mouse Input {#mouse_input}
@@ -1482,12 +1482,12 @@ Renderer Font Size          Text size in the map viewports (e.g. entity classnam
 
 The mouse input preference pane allows you to change how TrenchBroom interprets mouse movements.
 
-Setting 	Description
-------- 	-----------
-Mouse Look 	Sensitivity and axis inversion for mouse look and orbiting (right click and drag)
-Mouse Pan 	Sensitivity and axis inversion for mouse panning (middle click and drag)
-Mouse Move 	Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
-Move Keys 	Keyboard shortcuts for moving around in the map, with a separate slider to control the speed.
+Setting     Description
+-------     -----------
+Mouse Look  Sensitivity and axis inversion for mouse look and orbiting (right click and drag)
+Mouse Pan   Sensitivity and axis inversion for mouse panning (middle click and drag)
+Mouse Move  Sensitivity and settings for moving the camera with the mouse. If you use a tablet, the setting "Alt+MMB drag to move camera" might make navigation easier for you.
+Move Keys   Keyboard shortcuts for moving around in the map, with a separate slider to control the speed.
 
 ## Keyboard Shortcuts {#keyboard_shortcuts}
 
@@ -1540,7 +1540,7 @@ TrenchBroom supports compiling your maps from inside the editor. This means that
 This dialog allows you to create compilation profiles, which are listed on the left of the dialog. Each compilation profile has a name, a working directory, and a list of tasks. Click the '+' button below the profile list to create a new compilation profile, or click the '-' button to delete the selected profile. To duplicate a profile, right click on it and select "Duplicate" from the menu. If you select a profile, you can edit its name, working directory, and tasks on the right side of the dialog.
 
 Name
-:	The name of this compilation profile. Need not be unique and can even be empty.
+:    The name of this compilation profile. Need not be unique and can even be empty.
 
 Working directory
 :   A working directory for the compilation profile. This is optional, but very useful because it can be referred to as a variable when specifying the parameters of each task (see below). Variables are allowed (see below).
@@ -1553,7 +1553,7 @@ The checkbox on each task lets you selectively exclude a task from running when 
 There are three types of tasks, each with different parameters:
 
 Export Map
-:	Exports the map to a file. This file should be different from the actual file where the map is stored.
+:    Exports the map to a file. This file should be different from the actual file where the map is stored.
 
     Layers marked "Omit From Export" will not be present in the exported map.
 
@@ -1562,7 +1562,7 @@ Export Map
     Target      The path of the exported file. Variables are allowed.
 
 Run Tool
-:	Runs an external tool and captures its output. Note that for the Tool parameter's value, you can use a compilation tool variable defined in the [game configuration](#game_configuration), as discussed below.
+:    Runs an external tool and captures its output. Note that for the Tool parameter's value, you can use a compilation tool variable defined in the [game configuration](#game_configuration), as discussed below.
 
     Parameter   Description
     ---------   -----------
@@ -1570,7 +1570,7 @@ Run Tool
     Parameters  The parameters that should be passed to the tool when it is executed. Variables are allowed.
 
 Copy Files
-:	Copies one or more files.
+:    Copies one or more files.
 
     Parameter   Description
     ---------   -----------
@@ -1578,7 +1578,7 @@ Copy Files
     Target      The directory to copy the files to. The directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
 Rename File
-:	Renames or moves one file.
+:    Renames or moves one file.
 
     Parameter   Description
     ---------   -----------
@@ -1586,7 +1586,7 @@ Rename File
     Target      The new path for the file. The path must end in a filename. The containing directory is recursively created if it does not exist. Existing files are overwritten without prompt. Variables are allowed.
 
 Delete Files
-:	Deletes one or more files.
+:    Deletes one or more files.
 
     Parameter   Description
     ---------   -----------
@@ -1594,16 +1594,16 @@ Delete Files
 
 You can use [expressions](#expression_language) when specifying the working directory of a profile and also for the task parameters. The following table lists the available variables, their scopes, and their meaning. A scope of 'Tool' indicates that the variable is available when specifying tool parameters. A scope of 'Workdir' indicates that the variable is only available when specifying the working directory. Note that TrenchBroom helps you to enter variables by popping up an autocompletion list.
 
-Variable 		Scope 			Description
--------- 	    ----- 			-----------
-`WORK_DIR_PATH`	Tool 			The full path to the working directory.
-`MAP_DIR_PATH` 	Tool, Workdir 	The full path to the directory where the currently edited map is stored.
-`MAP_BASE_NAME`	Tool, Workdir 	The base name (without extension) of the currently edited map.
-`MAP_FULL_NAME`	Tool, Workdir 	The full name (with extension) of the currently edited map.
-`GAME_DIR_PATH`	Tool, Workdir 	The full path to the current game as specified in the game preferences.
-`MODS` 			Tool, Workdir 	An array containing all enabled mods for the current map.
-`APP_DIR_PATH` 	Tool, Workdir 	The full path to the directory containing the TrenchBroom application binary.
-`CPU_COUNT` 	Tool 			The number of CPUs in the current machine.
+Variable         Scope             Description
+--------         -----             -----------
+`WORK_DIR_PATH`  Tool              The full path to the working directory.
+`MAP_DIR_PATH`   Tool, Workdir     The full path to the directory where the currently edited map is stored.
+`MAP_BASE_NAME`  Tool, Workdir     The base name (without extension) of the currently edited map.
+`MAP_FULL_NAME`  Tool, Workdir     The full name (with extension) of the currently edited map.
+`GAME_DIR_PATH`  Tool, Workdir     The full path to the current game as specified in the game preferences.
+`MODS`           Tool, Workdir     An array containing all enabled mods for the current map.
+`APP_DIR_PATH`   Tool, Workdir     The full path to the directory containing the TrenchBroom application binary.
+`CPU_COUNT`      Tool              The number of CPUs in the current machine.
 
 If the [game configuration](#game_configuration) for the current game includes compilation tools, then the names of those tools are also available as variables in the Tool scope. The following screenshot is a section of a compilation profile showing the use of such variables.
 
@@ -1634,11 +1634,11 @@ There are two ways to launch a game engine from within TrenchBroom. Either click
 
 In this dialog, you can select the game engine of choice, edit its parameters, and launch the engine. To select an engine, click on it in the list on the right hand side of the dialog. If you wish to edit the list of engines, you can bring up the game engine profile dialog by clicking on the 'Configure engines...' button. You can then edit its parameters in the text box at the bottom of the left hand side of the dialog. Note that you can use the following variables in this text box:
 
-Variable 		Description
--------- 	    -----------
-`MAP_BASE_NAME`	The base name (without extension) of the currently edited map.
-`GAME_DIR_PATH`	The full path to the current game as specified in the game preferences.
-`MODS` 			An array containing all enabled mods for the current map.
+Variable         Description
+--------         -----------
+`MAP_BASE_NAME`  The base name (without extension) of the currently edited map.
+`GAME_DIR_PATH`  The full path to the current game as specified in the game preferences.
+`MODS`           An array containing all enabled mods for the current map.
 
 The `MODS` variable is useful to pass a parameter to the engine to choose a mod. Usually, this will be the last mod in the mods for the current map. Since the `MODS` variable is an array that contains all mods for the map, its individual entries are accessed using the subscript operator (see below). To access the last entry in the array, you can use the expression `$MODS[-1]`.
 
@@ -1652,16 +1652,16 @@ TrenchBroom contains a simple expression language that can be used to easily emb
 
 Every expression can be evaluated to a value. For example, the string `"This is a string."` is a valid expression that will be evaluated to a value of type `String` containing the string `This is a string.`. The expression language defines the following types.
 
-Type 		Description
----- 	    -----------
-Boolean 	A value of this type can either be true or false.
-String 		A string of characters.
-Number 		A floating point number.
-Array 		An array is a list of values.
-Map 		A map is a list of key-value pairs. Synonyms: dictionary, table.
-Range 		The range type is only used internally.
-Null 		The type of `null` values.
-Undefined	The type of undefined values.
+Type       Description
+----       -----------
+Boolean    A value of this type can either be true or false.
+String     A string of characters.
+Number     A floating point number.
+Array      An array is a list of values.
+Map        A map is a list of key-value pairs. Synonyms: dictionary, table.
+Range      The range type is only used internally.
+Null       The type of `null` values.
+Undefined  The type of undefined values.
 
 #### Type Conversion {#el_type_conversion}
 
@@ -1696,34 +1696,34 @@ A string value can be converted to a number value if and only if the string is a
 
 Every expression is made of one single term. A term is something that can be evaluated, such as an addition (`7.0 + 3.0`) or a variable (which is then evaluated to its value).
 
-  Expression     = GroupedTerm | Term
-  GroupedTerm    = "(" Term ")"
-  Term           = SimpleTerm | Switch | CompoundTerm
+    Expression     = GroupedTerm | Term
+    GroupedTerm    = "(" Term ")"
+    Term           = SimpleTerm | Switch | CompoundTerm
 
-  SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
-  CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
+    SimpleTerm     = Name | Literal | Subscript | UnaryTerm | GroupedTerm
+    CompoundTerm   = AlgebraicTerm | LogicalTerm | ComparisonTerm | Case
 
-  UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
-  AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
-  LogicalTerm    = LogicalAnd | LogicalOr
-  BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
-  ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
+    UnaryTerm      = Plus | Minus | LogicalNegation | BinaryNegation
+    AlgebraicTerm  = Addition | Subtraction | Multiplication | Division | Modulus
+    LogicalTerm    = LogicalAnd | LogicalOr
+    BinaryTerm     = BinaryAnd | BinaryXor | BinaryOr | BinaryLeftShift | BinaryRightShift
+    ComparisonTerm = Less | LessOrEqual | Equal | Inequal | GreaterOrEqual | Greater
 
 ### Names and Literals
 
 A name is a string that begins with an alphabetic character or an underscore, possibly followed by more alphanumeric characters and underscores.
 
-  Name       = ( "_" | Alpha ) { "_" | Alpha | Numeric }
+    Name = ( "_" | Alpha ) { "_" | Alpha | Numeric }
 
 `MODS`, `_var1`, `_123` are all valid names while `1_MODS`, `$MODS`, `_$MODS` are not. When an expression is evaluated, all variable names are simply replaced by the values of the variables they reference. If a value is not of type `String`, it will be converted to that type. If the value is not convertible to type `String`, then an error will be thrown.
 
 A literal is either a string, a number, a boolean, an array, or a map literal.
 
-  Literal        = String | Number | Boolean | Array | Map
+    Literal = String | Number | Boolean | Array | Map
 
-  Boolean        = "true" | "false"
-  String         = """ { Char } """ | "'" { Char } "'"
-  Number         = Numeric { Numeric } [ "." Numeric { Numeric } ]
+    Boolean = "true" | "false"
+    String  = """ { Char } """ | "'" { Char } "'"
+    Number  = Numeric { Numeric } [ "." Numeric { Numeric } ]
 
 Note that strings can either be enclosed by double or single quotes, but you cannot mix these two styles. If you enclose a string by double quotes, you need to escape all literal double quotes within the string with backslashes like so: "this is a \\"fox\\"", but this is not necessary when using single quotes to enclose that string: 'this is a "fox"' is also a valid string literal.
 
@@ -1731,34 +1731,34 @@ Further note that number literals need not contain a fractional part and can be 
 
 Array literals can be specified by giving a comma-separated list of expressions or ranges enclosed in brackets.
 
-  Array          = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
-  ExpOrRange     = Expression | Range
-  Range 		   = Expression ".." Expression
+    Array      = "[" [ ExpOrRange { "," ExpOrRange } ] "]"
+    ExpOrRange = Expression | Range
+    Range      = Expression ".." Expression
 
 An array literal is a possibly empty comma-separated list of expressions or ranges. A range is a special type that represents a range of integer values. Ranges are specified by two expressions separated by two dots. A range denotes a list of number values, so both expressions must evaluate to a value that is convertible to type `Number`. The first expression denotes the starting value of the range, and the second expression denotes the ending value of the range, both of which are inclusive. The range `1.0..3.0` therefore denotes the list `1.0`, `2.0`, `3.0`. Note that the starting value may also be greater than the ending value, e.g. `3.0..1.0`, which denotes the same list as `1.0..3.0`, but in the opposite order.
 
 The following table gives some examples of valid array literal expressions.
 
-Expression Value
----------- -----
-[]         An empty array.
-[1,2,3]    An array containing the values `1.0`, `2.0`, and `3.0`.
-[1..3]     An array containing the values `1.0`, `2.0`, and `3.0`.
-[1,2,4..6] An array containing the values `1.0`, `2.0`, `4.0`, `5.0`, and `6.0`.
-[1+1,3.0]  An array containing the values `2.0` and `3.0`.
-[-5,-1]    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
+Expression   Value
+----------   -----
+`[]`         An empty array.
+`[1,2,3]`    An array containing the values `1.0`, `2.0`, and `3.0`.
+`[1..3]`     An array containing the values `1.0`, `2.0`, and `3.0`.
+`[1,2,4..6]` An array containing the values `1.0`, `2.0`, `4.0`, `5.0`, and `6.0`.
+`[1+1,3.0]`  An array containing the values `2.0` and `3.0`.
+`[-5,-1]`    An array containing the values `-5.0`, `-4.0`, ..., `-1.0`.
 
 A map is a comma-separated list of of key-value pairs, enclosed in braces. Note that keys are strings or names. To use certain special characters or whitespace in the key, it must be given as a string. The value is separated from the key by a colon character.
 
-  Map            = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
-  KeyValuePair   = StringOrName ":" Expression
-  StringOrName   = String | Name
+    Map          = "{" [ KeyValuePair { "," KeyValuePair } ] "}"
+    KeyValuePair = StringOrName ":" Expression
+    StringOrName = String | Name
 
 An example of a valid map expression looks as follows:
 
     {
-      "some key"   : "a string",
-      other_key  : 1+2,
+      "some key":  "a string",
+      other_key:   1+2,
       another_key: [1..3]
     }
 
@@ -1768,9 +1768,9 @@ This expression evaluates to a map containing the value `"a string"` under the k
 
 Certain values such as strings, arrays, or maps can be subscripted to access some of their elements.
 
-  Subscript      = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
-  ExpOrAnyRange  = ExpOrRange | AutoRange
-  AutoRange      = ".." Expression | Expression ".."
+    Subscript     = SimpleTerm "[" ExpOrAnyRange { "," ExpOrAnyRange } "]"
+    ExpOrAnyRange = ExpOrRange | AutoRange
+    AutoRange     = ".." Expression | Expression ".."
 
 A subscript expression comprises of two parts: The expression that is being indexed and the indexing expression. The former can be any expression that evaluates to a value of type `String`, `Array` or `Map`, while the latter is a list of expressions or ranges. Depending of the type of the expression being subscripted, only certain values are allows as indices. The following sections explain which types of indexing values are permissible for the three subscriptable types.
 
@@ -1828,7 +1828,7 @@ Just like string subscripts, array subscripts are very powerful because they all
 
 Simple subscripting with integer indices behaves as expected:
 
-  arr[0] // 7
+    arr[0] // 7
     arr[3] // "test"
     arr[4] // [10, 11, 12]
 
@@ -1901,24 +1901,24 @@ Like arrays, maps can contain other subscriptable values such as strings, arrays
 
 A unary operator is an operator that applies to a single operand. In TrenchBroom's expression language, there are four unary operators: unary plus, unary minus, logical negation, and binary negation.
 
-  Plus            = "+" SimpleTerm
-  Minus           = "-" SimpleTerm
-  LogicalNegation = "!" SimpleTerm
-  BinaryNegation  = "~" SimpleTerm
+    Plus            = "+" SimpleTerm
+    Minus           = "-" SimpleTerm
+    LogicalNegation = "!" SimpleTerm
+    BinaryNegation  = "~" SimpleTerm
 
 The following table explains the effects of applying the unary operators to values depending on the type of the values.
 
 -------------------------------------------------------------------------------------------------------
-Operator 	        `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
---------           ----              ----         ----         ----    ----    ----    ----    ----
-`Plus`             convert to number see below    no effect    error   error   error   error   error
+Operator         `Boolean`         `String`     `Number`     `Array` `Map`   `Range` `Null`  `Undefined`
+--------          ----              ----         ----         ----    ----    ----    ----    ----
+`Plus`            convert to number see below    no effect    error   error   error   error   error
 
-`Minus`            convert to number see below    negate value error   error   error   error   error
-                   and negate value
+`Minus`           convert to number see below    negate value error   error   error   error   error
+                  and negate value
 
-`LogicalNegation`  invert value      error        error        error   error   error   error   error
+`LogicalNegation` invert value      error        error        error   error   error   error   error
 
-`BinaryNegation`   error             see below    invert bits  error   error   error   error   error
+`BinaryNegation`  error             see below    invert bits  error   error   error   error   error
 -------------------------------------------------------------------------------------------------------
 
 Note on using applying a unary operator to a value of type `String`: Every operator except `LogicalNegation` will try to convert a value of type `String` to a number if possible.
@@ -1944,11 +1944,11 @@ A binary operator is an operator that takes two operands. Binary operators are s
 
 Algebraic terms are terms that use the binary operators `+`, `-`, `*`, `/`, or `%`.
 
-  Addition       = SimpleTerm "+" Expression
-  Subtraction    = SimpleTerm "-" Expression
-  Multiplication = SimpleTerm "*" Expression
-  Division       = SimpleTerm "/" Expression
-  Modulus        = SimpleTerm "%" Expression
+    Addition       = SimpleTerm "+" Expression
+    Subtraction    = SimpleTerm "-" Expression
+    Multiplication = SimpleTerm "*" Expression
+    Division       = SimpleTerm "/" Expression
+    Modulus        = SimpleTerm "%" Expression
 
 All of these operators can be applied to operands of type `Boolean` or `Number`. If an operand is of type `Boolean`, it is converted to type `Number` before the operation is applied.
 
@@ -1973,12 +1973,12 @@ Note that the value under key `'k3'` is `4` and not `3`!
 
 Logical terms can be applied to if both operands are of type `Boolean`. If one of the operands is not of type `Boolean`, an error is thrown.
 
-  LogicalAnd    = SimpleTerm "&&" Expression
-  LogicalOr     = SimpleTerm "||" Expression
+    LogicalAnd = SimpleTerm "&&" Expression
+    LogicalOr  = SimpleTerm "||" Expression
 
 The following table shows the effects of applying the logical operators.
 
-  Left    Right   &&      ||
+Left     Right   &&      ||
 -------- ------- ----    ----
 `true`   `true`  `true`  `true`
 `true`   `false` `false` `true`
@@ -2011,12 +2011,12 @@ Here are some examples of the operators in use:
 
 Comparison operators always return a boolean value depending on the result of the comparison.
 
-  Less           = SimpleTerm "<"  Expression
-  LessOrEqual    = SimpleTerm "<=" Expression
-  Equal          = SimpleTerm "==" Expression
-  InEqual        = SimpleTerm "!=" Expression
-  GreaterOrEqual = SimpleTerm ">=" Expression
-  Greater        = SimpleTerm ">"  Expression
+    Less           = SimpleTerm "<"  Expression
+    LessOrEqual    = SimpleTerm "<=" Expression
+    Equal          = SimpleTerm "==" Expression
+    InEqual        = SimpleTerm "!=" Expression
+    GreaterOrEqual = SimpleTerm ">=" Expression
+    Greater        = SimpleTerm ">"  Expression
 
  Left        Right      Effect
 ------      -------     ------
@@ -2161,29 +2161,29 @@ Remember that the switch expression will return the value of the first expressio
 
 Since an expression can be another instance of a binary operator, you can simply chain binary operators and write `1 + 2 + 3`. In that case, operators of the same precedence are evaluated from left to right. The following table explains the precedence of the available binary operators. In the table, higher numbers indicate higher precedence.
 
-Operator Name 					Precedence
-----     ----                   ----
-`*`      Multiplication			12
-`/`      Division				12
-`%`      Modulus				12
-`+`      Addition 				11
-`-`      Subtraction 			11
-`<<` 	 Bitwise shift left     10
-`>>` 	 Bitwise shift right    10
-`<`      Less 					9
-`<=`     Less or equal 			9
-`>`      Greater 				9
-`>=`     Greater or equal 		9
-`==`     Equal 					8
-`!=`     Inequal 				8
-`&` 	 Bitwise and   			7
-`^` 	 Bitwise xor   			6
-`|` 	 Bitwise or             5
-`&&`     Logical and 			4
-`||`     Logical or 			3
-`..`     Range 					2
-`->`     Case 					1
-` `      Other operators        13
+Operator Name                Precedence
+----     ----                ----
+`*`      Multiplication      12
+`/`      Division            12
+`%`      Modulus             12
+`+`      Addition            11
+`-`      Subtraction         11
+`<<`     Bitwise shift left  10
+`>>`     Bitwise shift right 10
+`<`      Less                9
+`<=`     Less or equal       9
+`>`      Greater             9
+`>=`     Greater or equal    9
+`==`     Equal               8
+`!=`     Inequal             8
+`&`      Bitwise and         7
+`^`      Bitwise xor         6
+`|`      Bitwise or          5
+`&&`     Logical and         4
+`||`     Logical or          3
+`..`     Range               2
+`->`     Case                1
+` `      Other operators     13
 
 Some examples:
 
@@ -2198,9 +2198,9 @@ If the builtin precedence does not reflect your intention, you can use parenthes
 
 In EBNF, terminal rules are those which only contain terminal symbols on the right hand side. A symbol is terminal if it is enclosed in double quotes. Note that for the `Char` rule, we have chosen to not enumerate all actual ASCII characters and have used a placeholder string instead.
 
-  Alpha          = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
-  Numeric        = "0" | "1" | ... "9"
-  Char           = Any ASCII character
+    Alpha   = "a" | "b" | ... "z" | "A" | "B" | ... "Z"
+    Numeric = "0" | "1" | ... "9"
+    Char    = Any ASCII character
 
 This concludes the manual for TrenchBroom's expression language.
 
@@ -2239,11 +2239,11 @@ Thereby, the ellipsis contains the actual information about the model to display
 
 The placeholders `MODEL`, `SKIN`, `FRAME` and `SCALE_EXPRESSION` have the following meaning
 
-Placeholder 		Description
------------     	-----------
-`MODEL` 			The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
-`SKIN` 				The 0-based index of the skin to display. Optional, defaults to 0.
-`FRAME` 			The 0-based index of the frame to display. Optional, defaults to 0.
+Placeholder         Description
+-----------         -----------
+`MODEL`             The path to the model file relative to the game path, with an optional colon at the beginning. Mandatory.
+`SKIN`              The 0-based index of the skin to display. Optional, defaults to 0.
+`FRAME`             The 0-based index of the frame to display. Optional, defaults to 0.
 `SCALE_EXPRESSION`  An expression that is evaluated against an entities' properties to determine the model scale.
 
 If the expression evaluates to a value of type string, then that is interpreted as a map containing only a `path` key with the string as its value. In other words, if the expression evaluates to a string, then that value is interpreted as the path to a model. Think of such expressions as shorthands that allow you to define a simple model like so:
@@ -2260,23 +2260,23 @@ If the model expression has a scale expression, then its result is used as the s
 
 So a valid model definitions might look like this:
 
-  // use the model found at the given path with skin 0 and frame 0
-  model("progs/armor")
+    // use the model found at the given path with skin 0 and frame 0
+    model("progs/armor")
 
-  // use the model found at the given path with skin 1 and frame 0
+    // use the model found at the given path with skin 1 and frame 0
     model({
       "path": "progs/armor",
       "skin": 1
     })
 
-  // use the model found at the given path with skin 1 and frame 3
+    // use the model found at the given path with skin 1 and frame 3
     model({
       "path" : "progs/armor",
       "skin" : 1,
       "frame": 3
     })
 
-  // set a fixed uniform model scale factor 2
+    // set a fixed uniform model scale factor 2
     model({
       "path" : "progs/armor",
       "scale" : 2
@@ -2285,16 +2285,16 @@ So a valid model definitions might look like this:
 Sometimes, the actual model that is displayed in game depends on the value of an entity property. TrenchBroom allows you to mimic this behavior by using conditional expressions using the switch and case operators and by referring to the entity properties as variables in the expressions. Let's look at an example where we combine several model definitions using a literal value.
 
     model({{
-    dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
-                         { "path": "progs/voreling.mdl" }
+      dangle == "1" -> { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 },
+                      { "path": "progs/voreling.mdl" }
     }})
 
 The voreling has two states, either as a normal monster, standing on the ground, or hanging from the ceiling. The model expression contains a switch expression (note the double braces) that comprises of a case expression (note the arrow operator) and a literal map expression. You can interpret this expression as follows:
 
-  dangle == "1"                                             // If the value of property 'dangle' equals "1"
-  ->            											  // then
-  { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
-  ,                                                         // Otherwise,
+    dangle == "1"                                             // If the value of property 'dangle' equals "1"
+    ->                                                        // then
+    { "path": "progs/voreling.mdl", "skin": 0, "frame": 13 }  // use this as the model.
+    ,                                                         // Otherwise,
     { "path": "progs/voreling.mdl" }                          // use this as the model.
 
 If you have problems understanding this syntax, you should read the section on TrenchBroom's [expression language](#expression_language).
@@ -2302,9 +2302,9 @@ If you have problems understanding this syntax, you should read the section on T
 The following example shows a combination of model definitions using flag values.
 
     model({{
-        spawnflags == 2 -> "maps/b_bh100.bsp",
-        spawnflags == 1 -> "maps/b_bh10.bsp",
-                           "maps/b_bh25.bsp"
+      spawnflags == 2 -> "maps/b_bh100.bsp",
+      spawnflags == 1 -> "maps/b_bh10.bsp",
+                         "maps/b_bh25.bsp"
     }})
 
 As you can see, there are three models attached to the Health kit, `maps/b_bh25.bsp, maps/b_bh10.bsp` and `maps/b_bh100.bsp`. This is because the Health kit uses three different models depending on what spawnflags are checked. If `ROTTEN` is checked, it uses `maps/b_bh10.bsp`, which is the dim (rotten) health kit and if `MEGAHEALTH` is checked, then it uses maps/b_bh100.bsp which is the megahealth powerup. If neither are checked, it uses the standard health kit.
@@ -2339,11 +2339,11 @@ However, nothing prevents us from using variables instead of hardcoded literals,
 
 The placeholders `PATHKEY`, `SKINKEY` and `FRAMEKEY` have the following meaning
 
-Placeholder 		Description
------------     	-----------
-`PATHKEY` 			The name of the entity property key in which the model path is stored.
-`SKINKEY` 			The name of the entity property key in which the model skin index is stored. Optional.
-`FRAMEKEY` 			The name of the entity property key in which the model frame index is stored. Optional.
+Placeholder  Description
+-----------  -----------
+`PATHKEY`    The name of the entity property key in which the model path is stored.
+`SKINKEY`    The name of the entity property key in which the model skin index is stored. Optional.
+`FRAMEKEY`   The name of the entity property key in which the model frame index is stored. Optional.
 
 A valid dynamic model definition might look like this:
 
@@ -2355,12 +2355,12 @@ A valid dynamic model definition might look like this:
 
 Then, if you create an entity with the appropriate classname and specifies three properties as follows
 
-  {
-    "classname" "mydynamicmodelentity"
-    "mdl" "progs/armor.mdl"
-    "skin" "2"
-    "frame" "1"
-  }
+    {
+      "classname" "mydynamicmodelentity"
+      "mdl" "progs/armor.mdl"
+      "skin" "2"
+      "frame" "1"
+    }
 
 TrenchBroom will display the second frame of the `progs/armor.mdl` model using its third skin. If you change these values, the model will be updated in the 3D and 2D viewports accordingly.
 
@@ -2368,42 +2368,41 @@ TrenchBroom will display the second frame of the `progs/armor.mdl` model using i
 
 In both files, the model definitions are just specified alongside with other entity property definitions (note the semicolon after the model definition -- this is only necessary in DEF files). An example from a DEF file might look as follows.
 
-  /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
-  {
-      model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
-  }
-  Health box. Normally gives 25 points.
+    /*QUAKED item_health (.3 .3 1) (0 0 0) (32 32 32) ROTTEN MEGAHEALTH
+    {
+      model({{ spawnflags == 2 -> "maps/b_bh100.bsp", spawnflags == 1 -> "maps/b_bh10.bsp", "maps/b_bh25.bsp" }});
+    }
+    Health box. Normally gives 25 points.
 
-  Flags:
-  "rotten"
-  gives 15 points
-  "megahealth"
-  will add 100 health, then rot you down to your maximum health limit
-  one point per second
-  */
+    Flags:
+    "rotten"
+    gives 15 points
+    "megahealth"
+    will add 100 health, then rot you down to your maximum health limit
+    one point per second
+    */
 
 An example from an FGD file might look as follows.
 
-  @PointClass base(Monster) size(-32 -32 -24, 32 32 64)
-      model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
-      = monster_gaunt : "Gaunt"
-  [
-      perch(choices) : "Starting pose" : 0 =
-      [
-          0 : "Flying"
-          1 : "On ground"
-      ]
-  ]
+    @PointClass base(Monster) size(-32 -32 -24, 32 32 64)
+                model({{ perch == "1" -> "progs/gaunt.mdl", { "path": "progs/gaunt.mdl", "skin": 0, "frame": 24 } }})
+                = monster_gaunt : "Gaunt"
+    [
+      perch(choices) : "Starting pose" : 0 =
+      [
+        0 : "Flying"
+        1 : "On ground"
+      ]
+    ]
 
 To improve compatibility to other editors, the model definition can also be named _studio_ or _studioprop_ in FGD files.
 
 In an ENT file, the same model specification might look like this.
 
-    <point
-      name="ammo_bfg" color=".3 .3 1"
-      box="-16 -16 -16 16 16 16"
-      model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
-  />
+    <point name="ammo_bfg" color=".3 .3 1"
+           box="-16 -16 -16 16 16 16"
+           model="{{ perch == '1' -> 'progs/gaunt.mdl', { 'path': 'progs/gaunt.mdl', 'skin': 0, 'frame': 24 } }}"
+    />
 
 ## Point Files and Portal Files
 
@@ -2467,96 +2466,96 @@ Game configuration files need to specify the following information.
 The game configuration is an [expression language](#expression_language) map with a specific structure, which is explained using an example.
 
     {
-        "version": 4, // mandatory, indicates the version of the file's syntax
-        "name": "Example Resembling Quake 2", // mandatory, the name to use in the UI
-        "icon": "Icon.png", // optional, the icon to show in the UI
-        "fileformats": [ // supported file formats, each with optional initial map to use as "new map"
-            { "format": "Quake2" },
-            { "format": "Quake2 (Valve)", "initialmap": "initial_valve.map" }
+      "version": 4, // mandatory, indicates the version of the file's syntax
+      "name": "Example Resembling Quake 2", // mandatory, the name to use in the UI
+      "icon": "Icon.png", // optional, the icon to show in the UI
+      "fileformats": [ // supported file formats, each with optional initial map to use as "new map"
+        { "format": "Quake2" },
+        { "format": "Quake2 (Valve)", "initialmap": "initial_valve.map" }
+      ],
+      "filesystem": { // defines the file system used to search for game assets
+        "searchpath": "baseq2", // the path in the game folder at which to search for assets
+        "packageformat": { "extension": ".pak", "format": "idpak" } // the package file format
+      },
+      "textures": { // where to search for textures and how to read them, see below
+        "root": "textures",
+        "extensions": [ ".wal" ],
+        "palette": "pics/colormap.pcx",
+      },
+      "entities": { // the builtin entity definition files for this game
+        "definitions": [ "Quake2.fgd" ],
+        "defaultcolor": "0.6 0.6 0.6 1.0",
+        "scale": [ modelscale, modelscale_vec ]
+      },
+      "tags": { // "smart tags" select or modify a brush/face based on its characteristics
+        "brush": [
+          {
+            "name": "Trigger",
+            "attribs": [ "transparent" ],
+            "match": "classname",
+            "pattern": "trigger*",
+            "texture": "trigger"
+          }
         ],
-        "filesystem": { // defines the file system used to search for game assets
-            "searchpath": "baseq2", // the path in the game folder at which to search for assets
-            "packageformat": { "extension": ".pak", "format": "idpak" } // the package file format
-        },
-        "textures": { // where to search for textures and how to read them, see below
-            "root": "textures",
-            "extensions": [ ".wal" ],
-            "palette": "pics/colormap.pcx",
-        },
-        "entities": { // the builtin entity definition files for this game
-            "definitions": [ "Quake2.fgd" ],
-            "defaultcolor": "0.6 0.6 0.6 1.0",
-            "scale": [ modelscale, modelscale_vec ]
-        },
-        "tags": { // "smart tags" select or modify a brush/face based on its characteristics
-            "brush": [
-                {
-                    "name": "Trigger",
-                    "attribs": [ "transparent" ],
-                    "match": "classname",
-                    "pattern": "trigger*",
-                    "texture": "trigger"
-                }
-            ],
-            "brushface": [
-                {
-                    "name": "Clip",
-                    "attribs": [ "transparent" ],
-                    "match": "texture",
-                    "pattern": "clip"
-                },
-                {
-                    "name": "Liquid",
-                    "match": "contentflag",
-                    "flags": [ "lava", "water" ]
-                },
-                {
-                    "name": "Transparent",
-                    "attribs": [ "transparent" ],
-                    "match": "surfaceflag",
-                    "flags": [ "trans33" ]
-                }
-            ]
-        },
-        "faceattribs": { // bitflags assigned to a face to affect its behavior
-            "surfaceflags": [
-                {
-                    "name": "light",
-                    "description": "Emit light from the surface, brightness is specified in the 'value' field"
-                },
-                {
-                    "name": "trans33",
-                    "description": "The surface is 33% transparent"
-                },
-                {
-                    "name": "hint",
-                    "description": "Make a primary bsp splitter"
-                }
-            ],
-            "contentflags": [
-                {
-                    "name": "solid",
-                    "description": "Default for all brushes"
-                },
-                {
-                    "name": "lava",
-                    "description": "The brush is lava"
-                },
-                {
-                    "unused": true
-                },
-                {
-                    "name": "water",
-                    "description": "The brush is water"
-                }
-            ]
-        },
-        "softMapBounds":"-4096 -4096 -4096 4096 4096 4096",
-        "compilationTools": [
-            { "name": "bsp" },
-            { "name": "vis" },
-            { "name": "rad" }
+        "brushface": [
+          {
+            "name": "Clip",
+            "attribs": [ "transparent" ],
+            "match": "texture",
+            "pattern": "clip"
+          },
+          {
+            "name": "Liquid",
+            "match": "contentflag",
+            "flags": [ "lava", "water" ]
+          },
+          {
+            "name": "Transparent",
+            "attribs": [ "transparent" ],
+            "match": "surfaceflag",
+            "flags": [ "trans33" ]
+          }
         ]
+      },
+      "faceattribs": { // bitflags assigned to a face to affect its behavior
+        "surfaceflags": [
+          {
+            "name": "light",
+            "description": "Emit light from the surface, brightness is specified in the 'value' field"
+          },
+          {
+            "name": "trans33",
+            "description": "The surface is 33% transparent"
+          },
+          {
+            "name": "hint",
+            "description": "Make a primary bsp splitter"
+          }
+        ],
+        "contentflags": [
+          {
+            "name": "solid",
+            "description": "Default for all brushes"
+          },
+          {
+            "name": "lava",
+            "description": "The brush is lava"
+          },
+          {
+            "unused": true
+          },
+          {
+            "name": "water",
+            "description": "The brush is water"
+          }
+        ]
+      },
+      "softMapBounds":"-4096 -4096 -4096 4096 4096 4096",
+      "compilationTools": [
+        { "name": "bsp" },
+        { "name": "vis" },
+        { "name": "rad" }
+      ]
     }
 
 #### Versions
@@ -2643,13 +2642,13 @@ zip          Zip file, often uses other extensions such as pk3
 
 Every material configuration consists of a root search directory, and optionally a list of included file extensions, a palette path, an attribute for wad file lists and a list of exclusion patterns.
 
-  "materials": {
-        "root": "textures",
-        "extensions": [ ".D" ],
-        "palette": "pics/colormap.pcx",
-        "attribute": "wad",
-        "excludes": [ "*_norm", "*_gloss" ],
-  },
+    "materials": {
+      "root": "textures",
+      "extensions": [ ".D" ],
+      "palette": "pics/colormap.pcx",
+      "attribute": "wad",
+      "excludes": [ "*_norm", "*_gloss" ],
+    },
 
 The `root` key specifies the folder at which to search for the material packages. This folder is relative to the game file system set up according to the `filesystem` configuration earlier in the file. TrenchBroom will create a material collection for each folder contained in the root folder specified here.
 
@@ -2663,10 +2662,10 @@ The `attribute` key specifies the name of a worldspawn property where TrenchBroo
 
 The optional `excludes` key specifies a list of patterns matched against material names which will be ignored and not displayed in the [material browser](#material_browser). Wildcards `*` and `?` are allowed. Use backslashes to escape literal `*` and `?` chars.
 
-  "materials": {
-        "root": "textures",
-        "extensions": [ "" ],
-        "excludes": [ "*_norm", "*_gloss" ]
+    "materials": {
+      "root": "textures",
+      "extensions": [ "" ],
+      "excludes": [ "*_norm", "*_gloss" ]
     },
 
 #### Entity Configuration {#game_configuration_files_entities}
@@ -2706,17 +2705,17 @@ Each smart tag definition also makes one or more related [keyboard shortcuts](#k
 The tags are specified separately for brushes and faces under the corresponding keys:
 
     "tags": {
-        "brush": [ ... ],
-        "brushface": [ ... ]
+      "brush": [ ... ],
+      "brushface": [ ... ]
     }
 
 Each of these keys has a list of tags. Each tag looks as follows.
 
     {
-        "name": "Clip",
-        "attribs": [ "transparent" ],
-        "match": "material",
-        "pattern": "clip"
+      "name": "Clip",
+      "attribs": [ "transparent" ],
+      "match": "material",
+      "pattern": "clip"
     },
 
 The only attribute type currently supported in the `attribs` list is "transparent", which as mentioned above will cause faces matching this tag to be rendered with partial transparency in the 3D viewport.
@@ -2755,33 +2754,33 @@ The value for each of those keys is a list of flag definitions. Note that the po
 Consider the following example:
 
     "faceattribs": {
-        "surfaceflags": [
-            {
-                "name": "light",
-                "description": "Emit light from the surface, brightness is specified in the 'value' field"
-            }, // value 1
-            {
-                "name": "slick",
-                "description": "The surface is slippery"
-            } // value 2
-        ],
-        "contentflags": [
-            {
-                "name": "solid",
-                "description": "Default for all brushes"
-            }, // value 1
-            {
-                "name": "window",
-                "description": "Brush is a window (not really used)"
-            }, // value 2
-            {
-                "unused": true
-            }, // value 4
-            {
-                "name": "playerclip",
-                "description": "Player cannot pass through the brush (other things can)"
-            }, // value 8
-        ]
+      "surfaceflags": [
+        {
+          "name": "light",
+          "description": "Emit light from the surface, brightness is specified in the 'value' field"
+        }, // value 1
+        {
+          "name": "slick",
+          "description": "The surface is slippery"
+        } // value 2
+      ],
+      "contentflags": [
+        {
+          "name": "solid",
+          "description": "Default for all brushes"
+        }, // value 1
+        {
+          "name": "window",
+          "description": "Brush is a window (not really used)"
+        }, // value 2
+        {
+          "unused": true
+        }, // value 4
+        {
+          "name": "playerclip",
+          "description": "Player cannot pass through the brush (other things can)"
+        }, // value 8
+      ]
     }
 
 There are two surface flags with values 1 and 2, and three valid content flags with values 1, 2, and 8. Note that the third element in the contentflags list, marked as unused, is just a placeholder. This is necessary so that the next flag, "playerclip", receives the correct value of 8.
@@ -2790,9 +2789,9 @@ For any flag definition *not* marked as unused, the `name` key is mandatory and 
 
 Note that before version 4 of the game config format, the `unused` key is not available for flag definitions. You can still effectively skip unused flag values in version 3 with placeholder flag definitions that by convention simply have the name "unused", for example the third element in the contentflags list above could instead be
 
-            {
-                "name": "unused"
-            }, // value 4
+    {
+      "name": "unused"
+    }, // value 4
 
 This approach will however cause flags named "unused" to appear in the flag editor UI.
 
@@ -2827,8 +2826,8 @@ The optional `compilationTools` list identifies tool names that will appear in t
 Each element in the list is an object that must have a `name` key and may optionally have a `description` key (used for tooltips). An example from the Quake 3 game configuration that defines two tools:
 
     "compilationTools": [
-        { "name": "q3map2", "description": "Path to your q3map2 executable, which performs the main bsp/vis/light compilation phases" },
-        { "name": "bspc", "description": "Path to your bspc or mbspc executable, which creates .aas files for bot support" }
+      { "name": "q3map2", "description": "Path to your q3map2 executable, which performs the main bsp/vis/light compilation phases" },
+      { "name": "bspc", "description": "Path to your bspc or mbspc executable, which creates .aas files for bot support" }
     ]
 
 # Getting Involved
