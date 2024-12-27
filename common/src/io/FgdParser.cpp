@@ -594,8 +594,10 @@ std::vector<std::shared_ptr<mdl::PropertyDefinition>> FgdParser::parsePropertyDe
   auto propertyDefinitions = std::vector<std::shared_ptr<mdl::PropertyDefinition>>{};
 
   expect(status, FgdToken::OBracket, m_tokenizer.nextToken());
-  auto token =
-    expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
+  auto token = expect(
+    status,
+    FgdToken::Word | FgdToken::Integer | FgdToken::CBracket,
+    m_tokenizer.nextToken());
 
   while (token.type() != FgdToken::CBracket)
   {
@@ -616,7 +618,10 @@ std::vector<std::shared_ptr<mdl::PropertyDefinition>> FgdParser::parsePropertyDe
         fmt::format("Skipping duplicate property definition: '{}'", propertyKey));
     }
 
-    token = expect(status, FgdToken::Word | FgdToken::CBracket, m_tokenizer.nextToken());
+    token = expect(
+      status,
+      FgdToken::Word | FgdToken::Integer | FgdToken::CBracket,
+      m_tokenizer.nextToken());
   }
 
   return propertyDefinitions;
