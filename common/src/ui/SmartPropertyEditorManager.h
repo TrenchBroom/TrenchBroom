@@ -66,6 +66,7 @@ public:
 private:
   SmartPropertyEditor* activeEditor() const;
   void createEditors();
+  void registerEditor(SmartPropertyEditorMatcher matcher, SmartPropertyEditor* editor);
 
   void connectObservers();
 
