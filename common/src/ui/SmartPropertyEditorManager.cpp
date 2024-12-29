@@ -22,7 +22,6 @@
 #include <QStackedLayout>
 #include <QWidget>
 
-#include "Macros.h"
 #include "mdl/EntityNodeBase.h"
 #include "mdl/PropertyDefinition.h"
 #include "ui/MapDocument.h"
@@ -85,7 +84,10 @@ SmartPropertyEditorManager::SmartPropertyEditorManager(
   std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
+  , m_stackedLayout{new QStackedLayout{this}}
 {
+  setLayout(m_stackedLayout);
+
   createEditors();
   activateEditor(defaultEditor(), "");
   connectObservers();
@@ -113,36 +115,35 @@ void SmartPropertyEditorManager::createEditors()
 {
   assert(m_editors.empty());
 
-  m_editors.emplace_back(
+  registerEditor(
     makeSmartTypeEditorMatcher(mdl::PropertyDefinitionType::FlagsProperty),
-    new SmartFlagsEditor{m_document});
-  m_editors.emplace_back(
-    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
-    new SmartColorEditor{m_document});
-  m_editors.emplace_back(
+    new SmartFlagsEditor{m_document, this});
+  registerEditor(
     makeSmartTypeWithSameDefinitionEditorMatcher(
       mdl::PropertyDefinitionType::ChoiceProperty),
-    new SmartChoiceEditor{m_document});
-  m_editors.emplace_back(
+    new SmartChoiceEditor{m_document, this});
+  registerEditor(
     [&](const auto& propertyKey, const auto& nodes) {
-      return propertyKey
-               == kdl::mem_lock(m_document)->game()->config().materialConfig.property
-             && nodes.size() == 1
+      return nodes.size() == 1
              && nodes.front()->entity().classname()
-                  == mdl::EntityPropertyValues::WorldspawnClassname;
+                  == mdl::EntityPropertyValues::WorldspawnClassname
+             && propertyKey
+                  == kdl::mem_lock(m_document)->game()->config().materialConfig.property;
     },
-    new SmartWadEditor{m_document});
-  m_editors.emplace_back(
+    new SmartWadEditor{m_document, this});
+  registerEditor(
+    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
+    new SmartColorEditor{m_document, this});
+  registerEditor(
     [](const auto&, const auto&) { return true; },
-    new SmartDefaultPropertyEditor{m_document});
+    new SmartDefaultPropertyEditor{m_document, this});
+}
 
-  m_stackedLayout = new QStackedLayout{};
-  for (auto& [matcher, editor] : m_editors)
-  {
-    unused(matcher);
-    m_stackedLayout->addWidget(editor);
-  }
-  setLayout(m_stackedLayout);
+void SmartPropertyEditorManager::registerEditor(
+  SmartPropertyEditorMatcher matcher, SmartPropertyEditor* editor)
+{
+  m_editors.emplace_back(std::move(matcher), editor);
+  m_stackedLayout->addWidget(editor);
 }
 
 void SmartPropertyEditorManager::connectObservers()
