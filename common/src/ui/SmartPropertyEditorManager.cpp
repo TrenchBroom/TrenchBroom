@@ -119,9 +119,6 @@ void SmartPropertyEditorManager::createEditors()
     makeSmartTypeEditorMatcher(mdl::PropertyDefinitionType::FlagsProperty),
     new SmartFlagsEditor{m_document, this});
   registerEditor(
-    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
-    new SmartColorEditor{m_document, this});
-  registerEditor(
     makeSmartTypeWithSameDefinitionEditorMatcher(
       mdl::PropertyDefinitionType::ChoiceProperty),
     new SmartChoiceEditor{m_document, this});
@@ -134,6 +131,9 @@ void SmartPropertyEditorManager::createEditors()
                   == kdl::mem_lock(m_document)->game()->config().materialConfig.property;
     },
     new SmartWadEditor{m_document, this});
+  registerEditor(
+    makeSmartPropertyEditorKeyMatcher({"color", "*_color", "*_color2", "*_colour"}),
+    new SmartColorEditor{m_document, this});
   registerEditor(
     [](const auto&, const auto&) { return true; },
     new SmartDefaultPropertyEditor{m_document, this});
