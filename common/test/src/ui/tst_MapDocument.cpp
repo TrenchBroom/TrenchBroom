@@ -35,6 +35,7 @@
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
 
+#include "kdl/k.h"
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -357,7 +358,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
         "",
         std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
           std::make_shared<mdl::StringPropertyDefinition>(
-            "some_default_prop", "", "", !true(readOnly), "value"),
+            "some_default_prop", "", "", !K(readOnly), "value"),
         },
         mdl::ModelDefinition{},
         mdl::DecalDefinition{});
@@ -429,7 +430,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
         "",
         std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
           std::make_shared<mdl::StringPropertyDefinition>(
-            "some_default_prop", "", "", !true(readOnly), "value"),
+            "some_default_prop", "", "", !K(readOnly), "value"),
         });
       auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
 
@@ -465,11 +466,11 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       "",
       std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
         std::make_shared<mdl::StringPropertyDefinition>(
-          "some_prop", "", "", !true(readOnly)),
+          "some_prop", "", "", !K(readOnly)),
         std::make_shared<mdl::StringPropertyDefinition>(
-          "default_prop_a", "", "", !true(readOnly), "default_value_a"),
+          "default_prop_a", "", "", !K(readOnly), "default_value_a"),
         std::make_shared<mdl::StringPropertyDefinition>(
-          "default_prop_b", "", "", !true(readOnly), "default_value_b"),
+          "default_prop_b", "", "", !K(readOnly), "default_value_b"),
       },
       mdl::ModelDefinition{},
       mdl::DecalDefinition{});
