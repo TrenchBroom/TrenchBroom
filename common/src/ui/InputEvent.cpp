@@ -281,8 +281,8 @@ void InputEventRecorder::recordEvent(const QMouseEvent& qEvent)
 {
   auto type = getEventType(qEvent);
   auto button = getButton(qEvent);
-  const auto posX = static_cast<float>(qEvent.localPos().x());
-  const auto posY = static_cast<float>(qEvent.localPos().y());
+  const auto posX = static_cast<float>(qEvent.position().x());
+  const auto posY = static_cast<float>(qEvent.position().y());
 
   if (type == MouseEvent::Type::Down)
   {
@@ -473,8 +473,8 @@ void InputEventRecorder::recordEvent(const QNativeGestureEvent& qEvent)
       }
     }
 
-    const auto posX = float(qEvent.localPos().x());
-    const auto posY = float(qEvent.localPos().y());
+    const auto posX = float(qEvent.position().x());
+    const auto posY = float(qEvent.position().y());
     const auto value = float(qEvent.value());
     m_queue.enqueueEvent(GestureEvent{*type, posX, posY, value});
   }

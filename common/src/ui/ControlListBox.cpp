@@ -100,9 +100,7 @@ void ControlListBoxItemRenderer::setSelected(
   {
     const auto dontUpdate =
       child->property(ControlListBox::LabelColorShouldNotUpdateWhenSelected);
-    if (
-      dontUpdate.isValid() && dontUpdate.canConvert(QMetaType::Bool)
-      && dontUpdate.toBool())
+    if (dontUpdate.isValid() && dontUpdate.canConvert<bool>() && dontUpdate.toBool())
     {
       continue;
     }

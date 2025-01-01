@@ -305,7 +305,7 @@ void EntityPropertyGrid::createGui(std::weak_ptr<MapDocument> document)
   m_showDefaultPropertiesCheckBox = new QCheckBox{tr("Show default properties")};
   connect(
     m_showDefaultPropertiesCheckBox,
-    &QCheckBox::stateChanged,
+    &QCheckBox::checkStateChanged,
     this,
     [&](const int state) { m_model->setShowDefaultRows(state == Qt::Checked); });
   m_showDefaultPropertiesCheckBox->setChecked(m_model->showDefaultRows());

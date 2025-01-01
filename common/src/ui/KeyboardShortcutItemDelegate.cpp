@@ -30,7 +30,7 @@ KeyboardShortcutItemDelegate::KeyboardShortcutItemDelegate()
 {
   auto* itemEditorFactory = new QItemEditorFactory{};
   itemEditorFactory->registerEditor(
-    QVariant::KeySequence, new QStandardItemEditorCreator<KeySequenceEdit>{});
+    QMetaType::Type::QKeySequence, new QStandardItemEditorCreator<KeySequenceEdit>{});
   setItemEditorFactory(itemEditorFactory);
 }
 

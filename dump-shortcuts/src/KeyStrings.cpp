@@ -189,7 +189,7 @@ KeyStrings::KeyStrings()
   putKey(Qt::Key_twosuperior);
   putKey(Qt::Key_threesuperior);
   putKey(Qt::Key_acute);
-  putKey(Qt::Key_mu);
+  putKey(Qt::Key_micro);
   putKey(Qt::Key_paragraph);
   putKey(Qt::Key_periodcentered);
   putKey(Qt::Key_cedilla);
