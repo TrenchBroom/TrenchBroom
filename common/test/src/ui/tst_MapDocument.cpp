@@ -34,7 +34,6 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
-#include "ui/Transaction.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/result.h"

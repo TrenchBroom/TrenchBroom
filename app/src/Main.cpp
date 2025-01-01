@@ -26,10 +26,6 @@
 #include "PreferenceManager.h"
 #include "TrenchBroomApp.h"
 #include "io/SystemPaths.h"
-#include "mdl/GameFactory.h"
-#include "ui/MapDocument.h"
-#include "ui/MapDocumentCommandFacade.h"
-#include "ui/MapFrame.h"
 
 extern void qt_set_sequence_auto_mnemonic(bool b);
 

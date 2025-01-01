@@ -66,6 +66,54 @@
 namespace tb::ui
 {
 
+namespace
+{
+
+QTextCodec* codecForEncoding(const MapTextEncoding encoding)
+{
+  switch (encoding)
+  {
+  case MapTextEncoding::Quake:
+    // Quake uses the full 1-255 range for its bitmap font.
+    // So using a "just assume UTF-8" approach would not work here.
+    // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
+    return QTextCodec::codecForLocale();
+  case MapTextEncoding::Iso88591:
+    return QTextCodec::codecForName("ISO 8859-1");
+  case MapTextEncoding::Utf8:
+    return QTextCodec::codecForName("UTF-8");
+    switchDefault();
+  }
+}
+
+QString fileDialogDirToString(const FileDialogDir dir)
+{
+  switch (dir)
+  {
+  case FileDialogDir::Map:
+    return "Map";
+  case FileDialogDir::MaterialCollection:
+    return "TextureCollection";
+  case FileDialogDir::CompileTool:
+    return "CompileTool";
+  case FileDialogDir::Engine:
+    return "Engine";
+  case FileDialogDir::EntityDefinition:
+    return "EntityDefinition";
+  case FileDialogDir::GamePath:
+    return "GamePath";
+    switchDefault();
+  }
+}
+
+QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
+{
+  return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
+    .arg(fileDialogDirToString(dir));
+}
+
+} // namespace
+
 SyncHeightEventFilter::SyncHeightEventFilter(
   QWidget* primary, QWidget* secondary, QObject* parent)
   : QObject{parent}
@@ -102,32 +150,6 @@ bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event)
   {
     return QObject::eventFilter(target, event);
   }
-}
-
-static QString fileDialogDirToString(const FileDialogDir dir)
-{
-  switch (dir)
-  {
-  case FileDialogDir::Map:
-    return "Map";
-  case FileDialogDir::MaterialCollection:
-    return "TextureCollection";
-  case FileDialogDir::CompileTool:
-    return "CompileTool";
-  case FileDialogDir::Engine:
-    return "Engine";
-  case FileDialogDir::EntityDefinition:
-    return "EntityDefinition";
-  case FileDialogDir::GamePath:
-    return "GamePath";
-    switchDefault();
-  }
-}
-
-static QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
-{
-  return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
-    .arg(fileDialogDirToString(dir));
 }
 
 QString fileDialogDefaultDirectory(const FileDialogDir dir)
@@ -565,23 +587,6 @@ void showModelessDialog(QDialog* dialog)
   dialog->show();
   dialog->raise();
   dialog->activateWindow();
-}
-
-static QTextCodec* codecForEncoding(const MapTextEncoding encoding)
-{
-  switch (encoding)
-  {
-  case MapTextEncoding::Quake:
-    // Quake uses the full 1-255 range for its bitmap font.
-    // So using a "just assume UTF-8" approach would not work here.
-    // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
-    return QTextCodec::codecForLocale();
-  case MapTextEncoding::Iso88591:
-    return QTextCodec::codecForName("ISO 8859-1");
-  case MapTextEncoding::Utf8:
-    return QTextCodec::codecForName("UTF-8");
-    switchDefault();
-  }
 }
 
 QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string)
