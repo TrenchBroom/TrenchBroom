@@ -30,8 +30,6 @@ jobs:
             tb-build-type: asan
           - os: windows-2022
             tb-arch: x64
-          - os: windows-2022
-            tb-arch: Win32
     env:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -82,19 +80,12 @@ jobs:
           # See: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
           echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Install Qt on Windows (x64)
-        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'x64' }}
+      - name: Install Qt on Windows
+        if: ${{ matrix.os == 'windows-2022' }}
         uses: jurplel/install-qt-action@v3
         with:
           version: '5.15.2'
           arch: 'win64_msvc2019_64'
-
-      - name: Install Qt on Windows (Win32)
-        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'Win32' }}
-        uses: jurplel/install-qt-action@v3
-        with:
-          version: '5.15.2'
-          arch: 'win32_msvc2019'
 
       - name: Install macOS dependencies
         if: ${{ matrix.os == 'macos-13' }}
@@ -136,20 +127,10 @@ jobs:
       # These need to be separate, otherwise all of the artifacts are bundled into
       # one .zip file.
 
-      # Windows 2022 x32
-      - name: Upload win32 artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'Win32' }}
-        with:
-          name: windows-2022-x32
-          path: |
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
-
       # Windows 2022 x64
       - name: Upload win64 artifact
         uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2022' && matrix.tb-arch == 'x64' }}
+        if: ${{ matrix.os == 'windows-2022' }}
         with:
           name: windows-2022-x64
           path: |
