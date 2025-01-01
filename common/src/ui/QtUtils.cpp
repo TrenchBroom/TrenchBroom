@@ -78,8 +78,6 @@ QTextCodec* codecForEncoding(const MapTextEncoding encoding)
     // So using a "just assume UTF-8" approach would not work here.
     // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
     return QTextCodec::codecForLocale();
-  case MapTextEncoding::Iso88591:
-    return QTextCodec::codecForName("ISO 8859-1");
   case MapTextEncoding::Utf8:
     return QTextCodec::codecForName("UTF-8");
     switchDefault();
