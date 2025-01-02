@@ -27,6 +27,9 @@
 #include "TrenchBroomApp.h"
 #include "io/SystemPaths.h"
 
+static_assert(
+  QT_VERSION >= QT_VERSION_CHECK(6, 7, 0), "TrenchBroom requires Qt 6.7.0 or later");
+
 extern void qt_set_sequence_auto_mnemonic(bool b);
 
 int main(int argc, char* argv[])
