@@ -179,7 +179,7 @@ void StandardMapParser::parseBrushesOrPatches(ParserStatus& status)
   while (token.type() != QuakeMapToken::Eof)
   {
     expect(QuakeMapToken::OBrace, token);
-    parseBrushOrBrushPrimitiveOrPatch(status);
+    parseObject(status);
     token = m_tokenizer.peekToken();
   }
 }
@@ -210,49 +210,31 @@ void StandardMapParser::parseEntity(ParserStatus& status)
   }
 
   expect(QuakeMapToken::OBrace, token);
-
-  auto beginEntityCalled = false;
+  const auto startLocation = token.location();
 
   auto properties = std::vector<mdl::EntityProperty>();
   auto propertyKeys = EntityPropertyKeys();
+  parseEntityProperties(properties, propertyKeys, status);
 
-  const auto startLocation = token.location();
+  onBeginEntity(startLocation, properties, status);
+  parseObjects(status);
 
-  token = m_tokenizer.peekToken();
-  while (token.type() != QuakeMapToken::Eof)
+  token = m_tokenizer.nextToken(QuakeMapToken::Comment);
+  expect(QuakeMapToken::CBrace, token);
+
+  onEndEntity(token.location(), status);
+}
+
+void StandardMapParser::parseEntityProperties(
+  std::vector<mdl::EntityProperty>& properties,
+  EntityPropertyKeys& keys,
+  ParserStatus& status)
+{
+  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  while (token.hasType(QuakeMapToken::String))
   {
-    switch (token.type())
-    {
-    case QuakeMapToken::Comment:
-      m_tokenizer.nextToken();
-      break;
-    case QuakeMapToken::String:
-      parseEntityProperty(properties, propertyKeys, status);
-      break;
-    case QuakeMapToken::OBrace:
-      if (!beginEntityCalled)
-      {
-        onBeginEntity(startLocation, properties, status);
-        beginEntityCalled = true;
-      }
-      parseBrushOrBrushPrimitiveOrPatch(status);
-      break;
-    case QuakeMapToken::CBrace:
-      m_tokenizer.nextToken();
-      if (!beginEntityCalled)
-      {
-        onBeginEntity(startLocation, properties, status);
-      }
-      onEndEntity(token.location(), status);
-      return;
-    default:
-      expect(
-        QuakeMapToken::Comment | QuakeMapToken::String | QuakeMapToken::OBrace
-          | QuakeMapToken::CBrace,
-        token);
-    }
-
-    token = m_tokenizer.peekToken();
+    parseEntityProperty(properties, keys, status);
+    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
   }
 }
 
@@ -261,7 +243,7 @@ void StandardMapParser::parseEntityProperty(
   EntityPropertyKeys& keys,
   ParserStatus& status)
 {
-  auto token = m_tokenizer.nextToken();
+  auto token = m_tokenizer.nextToken(QuakeMapToken::Comment);
   assert(token.type() == QuakeMapToken::String);
   const auto name = token.data();
 
@@ -281,12 +263,22 @@ void StandardMapParser::parseEntityProperty(
   }
 }
 
-void StandardMapParser::parseBrushOrBrushPrimitiveOrPatch(ParserStatus& status)
+void StandardMapParser::parseObjects(ParserStatus& status)
+{
+  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  while (token.hasType(QuakeMapToken::OBrace))
+  {
+    parseObject(status);
+    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  }
+}
+
+void StandardMapParser::parseObject(ParserStatus& status)
 {
   // consume initial opening brace
   auto token = expect(
     QuakeMapToken::OBrace | QuakeMapToken::CBrace | QuakeMapToken::Eof,
-    m_tokenizer.nextToken());
+    m_tokenizer.nextToken(QuakeMapToken::Comment));
 
   if (token.hasType(QuakeMapToken::Eof | QuakeMapToken::CBrace))
   {
@@ -358,14 +350,11 @@ void StandardMapParser::parseBrush(
 {
   auto beginBrushCalled = false;
 
-  auto token = m_tokenizer.peekToken();
+  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
   while (!token.hasType(QuakeMapToken::Eof))
   {
     switch (token.type())
     {
-    case QuakeMapToken::Comment:
-      m_tokenizer.nextToken();
-      break;
     case QuakeMapToken::OParenthesis:
       // TODO 2427: handle brush primitives
       if (!beginBrushCalled && !primitive)
@@ -395,7 +384,7 @@ void StandardMapParser::parseBrush(
     }
     }
 
-    token = m_tokenizer.peekToken();
+    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
   }
 }
 
