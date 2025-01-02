@@ -60,7 +60,7 @@ signals:
   void end();
 
 protected:
-  Result<std::string> interpolate(const std::string& spec);
+  Result<std::string> interpolate(const std::string& spec) const;
 
 private:
   virtual void doExecute() = 0;
@@ -159,7 +159,8 @@ private:
 
 private:
   void startProcess();
-  Result<std::string> cmd();
+  Result<std::string> program() const;
+  Result<std::vector<std::string>> parameters() const;
 private slots:
   void processErrorOccurred(QProcess::ProcessError processError);
   void processFinished(int exitCode, QProcess::ExitStatus exitStatus);
