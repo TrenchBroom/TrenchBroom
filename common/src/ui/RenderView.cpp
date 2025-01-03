@@ -139,12 +139,12 @@ static auto mouseEventWithFullPrecisionLocalPos(
   // and screen pos have full precision. We can't directly map the windowPos because
   // mapTo takes QPoint, so we just map the origin and subtract that.
   const auto localPos =
-    event->windowPos() - QPointF{widget->mapTo(widget->window(), QPoint{0, 0})};
+    event->scenePosition() - QPointF{widget->mapTo(widget->window(), QPoint{0, 0})};
   return QMouseEvent{
     event->type(),
     localPos,
-    event->windowPos(),
-    event->screenPos(),
+    event->scenePosition(),
+    event->globalPosition(),
     event->button(),
     event->buttons(),
     event->modifiers(),

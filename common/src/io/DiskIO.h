@@ -25,10 +25,12 @@
 
 #include "kdl/result.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <filesystem>
 #include <fstream>
 #include <memory>
-#include <string>
 
 namespace tb::io
 {
@@ -62,7 +64,8 @@ auto withStream(
     auto stream = Stream{path, mode};
     if (!stream)
     {
-      return ResultType{Error{"Could not open stream for file '" + path.string() + "'"}};
+      return ResultType{
+        Error{fmt::format("Failed to open stream for file {}", fmt::streamed(path))}};
     }
     if constexpr (kdl::is_result_v<FnResultType>)
     {
@@ -88,8 +91,8 @@ auto withStream(
   }
   catch (const std::filesystem::filesystem_error& e)
   {
-    return ResultType{
-      Error{"Could not open stream for file '" + path.string() + "': " + e.what()}};
+    return ResultType{Error{fmt::format(
+      "Failed to open stream for file {}: {}", fmt::streamed(path), e.what())}};
   }
 }
 

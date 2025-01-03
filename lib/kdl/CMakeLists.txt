@@ -31,6 +31,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/intrusive_circular_list.h"
     "${KDL_INCLUDE_DIR}/kdl/invoke.h"
+    "${KDL_INCLUDE_DIR}/kdl/k.h"
     "${KDL_INCLUDE_DIR}/kdl/map_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/memory_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/meta_utils.h"

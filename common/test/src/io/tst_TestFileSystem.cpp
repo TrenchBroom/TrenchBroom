@@ -23,6 +23,9 @@
 
 #include "kdl/result.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <filesystem>
 
 #include "Catch2.h"
@@ -84,8 +87,9 @@ TEST_CASE("TestFileSystem")
   {
     CHECK(
       fs.find("does_not_exist", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{
-        Error{"Path does not denote a directory: 'does_not_exist'"}});
+      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+        "Path {} does not denote a directory",
+        fmt::streamed(std::filesystem::path{"does_not_exist"}))}});
 
     CHECK(
       fs.find("", TraversalMode::Flat)

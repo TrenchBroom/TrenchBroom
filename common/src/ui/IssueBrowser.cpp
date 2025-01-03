@@ -57,7 +57,7 @@ QWidget* IssueBrowser::createTabBarPage(QWidget* parent)
   m_showHiddenIssuesCheckBox = new QCheckBox{"Show hidden issues"};
   connect(
     m_showHiddenIssuesCheckBox,
-    &QCheckBox::stateChanged,
+    &QCheckBox::checkStateChanged,
     this,
     &IssueBrowser::showHiddenIssuesChanged);
 

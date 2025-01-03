@@ -32,6 +32,7 @@
 #include "mdl/ValidatorRegistry.h"
 #include "octree.h"
 
+#include "kdl/k.h"
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"
 
@@ -171,7 +172,7 @@ std::vector<const LayerNode*> WorldNode::customLayersUserSorted() const
 
 void WorldNode::createDefaultLayer()
 {
-  m_defaultLayer = new LayerNode{Layer{"Default Layer", true(defaultLayer)}};
+  m_defaultLayer = new LayerNode{Layer{"Default Layer", K(defaultLayer)}};
   addChild(m_defaultLayer);
   assert(m_defaultLayer->layer().sortIndex() == Layer::defaultLayerSortIndex());
 }

@@ -406,7 +406,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Toggle clip side"},
     QObject::tr("Toggle Clip Side"),
     ActionContext::AnyView | ActionContext::AnyOrNoSelection | ActionContext::ClipTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Return},
+    QKeySequence{Qt::CTRL | Qt::Key_Return},
     [](auto& context) { context.view()->toggleClipSide(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->clipToolActive();
@@ -489,7 +489,7 @@ void ActionManager::createViewActions()
       "objects forward"),
     QObject::tr("Duplicate and Move Forward"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Up},
+    QKeySequence{Qt::CTRL | Qt::Key_Up},
     [](auto& context) {
       context.view()->duplicateAndMoveObjects(vm::direction::forward);
     },
@@ -501,7 +501,7 @@ void ActionManager::createViewActions()
       "objects backward"),
     QObject::tr("Duplicate and Move Backward"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Down},
+    QKeySequence{Qt::CTRL | Qt::Key_Down},
     [](auto& context) {
       context.view()->duplicateAndMoveObjects(vm::direction::backward);
     },
@@ -511,7 +511,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Duplicate and move objects left"},
     QObject::tr("Duplicate and Move Left"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Left},
+    QKeySequence{Qt::CTRL | Qt::Key_Left},
     [](auto& context) { context.view()->duplicateAndMoveObjects(vm::direction::left); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -519,7 +519,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Duplicate and move objects right"},
     QObject::tr("Duplicate and Move Right"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Right},
+    QKeySequence{Qt::CTRL | Qt::Key_Right},
     [](auto& context) { context.view()->duplicateAndMoveObjects(vm::direction::right); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -529,7 +529,7 @@ void ActionManager::createViewActions()
       "objects up"),
     QObject::tr("Duplicate and Move Up"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_PageUp},
+    QKeySequence{Qt::CTRL | Qt::Key_PageUp},
     [](auto& context) { context.view()->duplicateAndMoveObjects(vm::direction::up); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -539,7 +539,7 @@ void ActionManager::createViewActions()
       "objects down"),
     QObject::tr("Duplicate and Move Down"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_PageDown},
+    QKeySequence{Qt::CTRL | Qt::Key_PageDown},
     [](auto& context) { context.view()->duplicateAndMoveObjects(vm::direction::down); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -551,7 +551,7 @@ void ActionManager::createViewActions()
     QObject::tr("Roll Clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_Up},
+    QKeySequence{Qt::ALT | Qt::Key_Up},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::roll, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -560,7 +560,7 @@ void ActionManager::createViewActions()
     QObject::tr("Roll Counter-clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_Down},
+    QKeySequence{Qt::ALT | Qt::Key_Down},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::roll, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -569,7 +569,7 @@ void ActionManager::createViewActions()
     QObject::tr("Yaw Clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_Left},
+    QKeySequence{Qt::ALT | Qt::Key_Left},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::yaw, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -578,7 +578,7 @@ void ActionManager::createViewActions()
     QObject::tr("Yaw Counter-clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_Right},
+    QKeySequence{Qt::ALT | Qt::Key_Right},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::yaw, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -587,7 +587,7 @@ void ActionManager::createViewActions()
     QObject::tr("Pitch Clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_PageUp},
+    QKeySequence{Qt::ALT | Qt::Key_PageUp},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::pitch, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -596,7 +596,7 @@ void ActionManager::createViewActions()
     QObject::tr("Pitch Counter-clockwise"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_PageDown},
+    QKeySequence{Qt::ALT | Qt::Key_PageDown},
     [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::pitch, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -616,7 +616,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures up (coarse)"},
     QObject::tr("Move Textures Up (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_Up},
+    QKeySequence{Qt::SHIFT | Qt::Key_Up},
     [](auto& context) {
       context.view()->moveUV(vm::direction::up, MapViewBase::UVActionMode::Coarse);
     },
@@ -626,7 +626,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures up (fine)"},
     QObject::tr("Move Textures Up (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Up},
+    QKeySequence{Qt::CTRL | Qt::Key_Up},
     [](auto& context) {
       context.view()->moveUV(vm::direction::up, MapViewBase::UVActionMode::Fine);
     },
@@ -646,7 +646,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures down (coarse)"},
     QObject::tr("Move Textures Down (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_Down},
+    QKeySequence{Qt::SHIFT | Qt::Key_Down},
     [](auto& context) {
       context.view()->moveUV(vm::direction::down, MapViewBase::UVActionMode::Coarse);
     },
@@ -656,7 +656,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures down (fine)"},
     QObject::tr("Move Textures Down (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Down},
+    QKeySequence{Qt::CTRL | Qt::Key_Down},
     [](auto& context) {
       context.view()->moveUV(vm::direction::down, MapViewBase::UVActionMode::Fine);
     },
@@ -676,7 +676,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures left (coarse)"},
     QObject::tr("Move Textures Left (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_Left},
+    QKeySequence{Qt::SHIFT | Qt::Key_Left},
     [](auto& context) {
       context.view()->moveUV(vm::direction::left, MapViewBase::UVActionMode::Coarse);
     },
@@ -686,7 +686,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures left (fine)"},
     QObject::tr("Move Textures Left (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Left},
+    QKeySequence{Qt::CTRL | Qt::Key_Left},
     [](auto& context) {
       context.view()->moveUV(vm::direction::left, MapViewBase::UVActionMode::Fine);
     },
@@ -706,7 +706,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures right (coarse)"},
     QObject::tr("Move Textures Right (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_Right},
+    QKeySequence{Qt::SHIFT | Qt::Key_Right},
     [](auto& context) {
       context.view()->moveUV(vm::direction::right, MapViewBase::UVActionMode::Coarse);
     },
@@ -716,7 +716,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Move textures right (fine)"},
     QObject::tr("Move Textures Right (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_Right},
+    QKeySequence{Qt::CTRL | Qt::Key_Right},
     [](auto& context) {
       context.view()->moveUV(vm::direction::right, MapViewBase::UVActionMode::Fine);
     },
@@ -736,7 +736,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Rotate textures clockwise (coarse)"},
     QObject::tr("Rotate Textures Clockwise (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_PageUp},
+    QKeySequence{Qt::SHIFT | Qt::Key_PageUp},
     [](auto& context) {
       context.view()->rotateUV(true, MapViewBase::UVActionMode::Coarse);
     },
@@ -746,7 +746,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Rotate textures clockwise (fine)"},
     QObject::tr("Rotate Textures Clockwise (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_PageUp},
+    QKeySequence{Qt::CTRL | Qt::Key_PageUp},
     [](auto& context) {
       context.view()->rotateUV(true, MapViewBase::UVActionMode::Fine);
     },
@@ -766,7 +766,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Rotate textures counter-clockwise (coarse)"},
     QObject::tr("Rotate Textures Counter-clockwise (Coarse)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_PageDown},
+    QKeySequence{Qt::SHIFT | Qt::Key_PageDown},
     [](auto& context) {
       context.view()->rotateUV(false, MapViewBase::UVActionMode::Coarse);
     },
@@ -776,7 +776,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Rotate textures counter-clockwise (fine)"},
     QObject::tr("Rotate Textures Counter-clockwise (Fine)"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_PageDown},
+    QKeySequence{Qt::CTRL | Qt::Key_PageDown},
     [](auto& context) {
       context.view()->rotateUV(false, MapViewBase::UVActionMode::Fine);
     },
@@ -794,7 +794,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Flip textures horizontally"},
     QObject::tr("Flip textures horizontally"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_F},
+    QKeySequence{Qt::CTRL | Qt::Key_F},
     [](auto& context) { context.view()->flipUV(vm::direction::right); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -802,7 +802,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Flip textures vertically"},
     QObject::tr("Flip textures vertically"),
     ActionContext::View3D | ActionContext::FaceSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_F},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_F},
     [](auto& context) { context.view()->flipUV(vm::direction::up); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -810,7 +810,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset texture alignment"},
     QObject::tr("Reset texture alignment"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::Key_R},
+    QKeySequence{Qt::SHIFT | Qt::Key_R},
     [](auto& context) { context.view()->resetUV(); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -818,7 +818,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset texture alignment to world aligned"},
     QObject::tr("Reset texture alignment to world aligned"),
     ActionContext::AnyView | ActionContext::AnySelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::SHIFT + Qt::ALT + Qt::Key_R},
+    QKeySequence{Qt::SHIFT | Qt::ALT | Qt::Key_R},
     [](auto& context) { context.view()->resetUVToWorld(); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -828,7 +828,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Make structural"},
     QObject::tr("Make Structural"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::ALT + Qt::Key_S},
+    QKeySequence{Qt::ALT | Qt::Key_S},
     [](auto& context) { context.view()->makeStructural(); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -990,7 +990,7 @@ void ActionManager::createViewActions()
     std::filesystem::path{"Controls/Map view/Reset camera zoom"},
     QObject::tr("Reset Camera Zoom"),
     ActionContext::View3D | ActionContext::AnyOrNoTool | ActionContext::AnyOrNoSelection,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_Z},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_Z},
     [](auto& context) { context.view()->resetCameraZoom(); },
     [](const auto& context) { return context.hasDocument(); },
   });
@@ -1209,7 +1209,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Repeat",
     QObject::tr("Repeat Last Commands"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_R},
+    QKeySequence{Qt::CTRL | Qt::Key_R},
     [](auto& context) { context.frame()->repeatLastCommands(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1217,7 +1217,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Clear Repeatable Commands",
     QObject::tr("Clear Repeatable Commands"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_R},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_R},
     [](auto& context) { context.frame()->clearRepeatableCommands(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->hasRepeatableCommands();
@@ -1265,7 +1265,7 @@ void ActionManager::createEditMenu()
       std::filesystem::path{"Menu/Edit/Paste at Original Position"},
       QObject::tr("Paste at Original Position"),
       ActionContext::Any,
-      QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_V},
+      QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_V},
       [](auto& context) { context.frame()->pasteAtOriginalPosition(); },
       [](const auto& context) {
         return context.hasDocument() && context.frame()->canPaste();
@@ -1276,7 +1276,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Duplicate",
     QObject::tr("Duplicate"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_D},
+    QKeySequence{Qt::CTRL | Qt::Key_D},
     [](auto& context) { context.frame()->duplicateSelection(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDuplicateSelectino();
@@ -1314,7 +1314,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Select Siblings",
     QObject::tr("Select Siblings"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_B},
+    QKeySequence{Qt::CTRL | Qt::Key_B},
     [](auto& context) { context.frame()->selectSiblings(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSelectSiblings();
@@ -1324,7 +1324,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Select Touching",
     QObject::tr("Select Touching"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_T},
+    QKeySequence{Qt::CTRL | Qt::Key_T},
     [](auto& context) { context.frame()->selectTouching(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSelectByBrush();
@@ -1334,7 +1334,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Select Inside",
     QObject::tr("Select Inside"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_E},
+    QKeySequence{Qt::CTRL | Qt::Key_E},
     [](auto& context) { context.frame()->selectInside(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSelectByBrush();
@@ -1344,7 +1344,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Select Tall"},
     QObject::tr("Select Tall"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_E},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_E},
     [](auto& context) { context.frame()->selectTall(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSelectTall();
@@ -1364,7 +1364,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Select Inverse"},
     QObject::tr("Select Inverse"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_A},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_A},
     [](auto& context) { context.frame()->selectInverse(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSelectInverse();
@@ -1374,7 +1374,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Select None"},
     QObject::tr("Select None"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_A},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_A},
     [](auto& context) { context.frame()->selectNone(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDeselect();
@@ -1385,7 +1385,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Group"},
     QObject::tr("Group Selected Objects"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_G},
+    QKeySequence{Qt::CTRL | Qt::Key_G},
     [](auto& context) { context.frame()->groupSelectedObjects(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canGroupSelectedObjects();
@@ -1395,7 +1395,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Ungroup",
     QObject::tr("Ungroup Selected Objects"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_G},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_G},
     [](auto& context) { context.frame()->ungroupSelectedObjects(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canUngroupSelectedObjects();
@@ -1407,7 +1407,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Create Linked Duplicate"},
     QObject::tr("Create Linked Duplicate"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_D},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_D},
     [](auto& context) { context.document()->createLinkedDuplicate(); },
     [](const auto& context) {
       return context.hasDocument() && context.document()->canCreateLinkedDuplicate();
@@ -1449,7 +1449,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Controls/Map view/Flip objects horizontally"},
     QObject::tr("Flip Horizontally"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::Key_F},
+    QKeySequence{Qt::CTRL | Qt::Key_F},
     [](auto& context) { context.view()->flipObjects(vm::direction::left); },
     [](const auto& context) {
       return context.hasDocument() && context.view() && context.view()->canFlipObjects();
@@ -1460,7 +1460,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Controls/Map view/Flip objects vertically"},
     QObject::tr("Flip Vertically"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_F},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_F},
     [](auto& context) { context.view()->flipObjects(vm::direction::up); },
     [](const auto& context) {
       return context.hasDocument() && context.view() && context.view()->canFlipObjects();
@@ -1471,7 +1471,7 @@ void ActionManager::createEditMenu()
     std::filesystem::path{"Menu/Edit/Move objects"},
     QObject::tr("Move..."),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_M},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_M},
     [](auto& context) { context.frame()->moveSelectedObjects(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canMoveSelectedObjects();
@@ -1596,7 +1596,7 @@ void ActionManager::createEditMenu()
     "Controls/Map view/Deactivate current tool",
     QObject::tr("Deactivate Current Tool"),
     ActionContext::Any,
-    QKeySequence{+Qt::SHIFT + Qt::Key_Escape},
+    QKeySequence{Qt::SHIFT | Qt::Key_Escape},
     [](auto& context) { context.view()->deactivateTool(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
@@ -1610,7 +1610,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/CSG/Convex Merge",
     QObject::tr("Convex Merge"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_J},
+    QKeySequence{Qt::CTRL | Qt::Key_J},
     [](auto& context) { context.frame()->csgConvexMerge(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDoCsgConvexMerge();
@@ -1620,7 +1620,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/CSG/Subtract",
     QObject::tr("Subtract"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_K},
+    QKeySequence{Qt::CTRL | Qt::Key_K},
     [](auto& context) { context.frame()->csgSubtract(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDoCsgSubtract();
@@ -1630,7 +1630,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/CSG/Hollow",
     QObject::tr("Hollow"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_K},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_K},
     [](auto& context) { context.frame()->csgHollow(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDoCsgHollow();
@@ -1640,7 +1640,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/CSG/Intersect",
     QObject::tr("Intersect"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_L},
+    QKeySequence{Qt::CTRL | Qt::Key_L},
     [](auto& context) { context.frame()->csgIntersect(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canDoCsgIntersect();
@@ -1652,7 +1652,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Snap Vertices to Integer",
     QObject::tr("Snap Vertices to Integer"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_V},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_V},
     [](auto& context) { context.frame()->snapVerticesToInteger(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSnapVertices();
@@ -1662,7 +1662,7 @@ void ActionManager::createEditMenu()
     "Menu/Edit/Snap Vertices to Grid",
     QObject::tr("Snap Vertices to Grid"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::SHIFT + Qt::Key_V},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::SHIFT | Qt::Key_V},
     [](auto& context) { context.frame()->snapVerticesToGrid(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canSnapVertices();
@@ -1719,7 +1719,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Grid/Snap to Grid",
     QObject::tr("Snap to Grid"),
     ActionContext::Any,
-    QKeySequence{+Qt::ALT + Qt::Key_0},
+    QKeySequence{Qt::ALT | Qt::Key_0},
     [](auto& context) { context.frame()->toggleSnapToGrid(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
@@ -1905,7 +1905,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Camera/Reset 2D Cameras",
     QObject::tr("Reset 2D Cameras"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_U},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_U},
     [](auto& context) { context.frame()->reset2dCameras(); },
     [](const auto& context) {
       return context.hasDocument() && !pref(Preferences::Link2DCameras);
@@ -1915,7 +1915,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Camera/Focus on Selection",
     QObject::tr("Focus Camera on Selection"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_U},
+    QKeySequence{Qt::CTRL | Qt::Key_U},
     [](auto& context) { context.frame()->focusCameraOnSelection(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canFocusCamera();
@@ -1935,7 +1935,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Isolate",
     QObject::tr("Isolate Selection"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_I},
+    QKeySequence{Qt::CTRL | Qt::Key_I},
     [](auto& context) { context.frame()->isolateSelection(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canIsolateSelection();
@@ -1945,7 +1945,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Hide",
     QObject::tr("Hide Selection"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_I},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_I},
     [](auto& context) { context.frame()->hideSelection(); },
     [](const auto& context) {
       return context.hasDocument() && context.frame()->canHideSelection();
@@ -1955,7 +1955,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Show All",
     QObject::tr("Show All"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::SHIFT + Qt::Key_I},
+    QKeySequence{Qt::CTRL | Qt::SHIFT | Qt::Key_I},
     [](auto& context) { context.frame()->showAll(); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1964,7 +1964,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Switch to Map Inspector",
     QObject::tr("Show Map Inspector"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_1},
+    QKeySequence{Qt::CTRL | Qt::Key_1},
     [](auto& context) { context.frame()->switchToInspectorPage(InspectorPage::Map); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1972,7 +1972,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Switch to Entity Inspector",
     QObject::tr("Show Entity Inspector"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_2},
+    QKeySequence{Qt::CTRL | Qt::Key_2},
     [](auto& context) { context.frame()->switchToInspectorPage(InspectorPage::Entity); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1980,7 +1980,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Switch to Face Inspector",
     QObject::tr("Show Face Inspector"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_3},
+    QKeySequence{Qt::CTRL | Qt::Key_3},
     [](auto& context) { context.frame()->switchToInspectorPage(InspectorPage::Face); },
     [](const auto& context) { return context.hasDocument(); },
   }));
@@ -1989,7 +1989,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Toggle Toolbar",
     QObject::tr("Toggle Toolbar"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::ALT + Qt::Key_T},
+    QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_T},
     [](auto& context) { context.frame()->toggleToolbar(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
@@ -2000,7 +2000,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Toggle Info Panel",
     QObject::tr("Toggle Info Panel"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_4},
+    QKeySequence{Qt::CTRL | Qt::Key_4},
     [](auto& context) { context.frame()->toggleInfoPanel(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
@@ -2011,7 +2011,7 @@ void ActionManager::createViewMenu()
     "Menu/View/Toggle Inspector",
     QObject::tr("Toggle Inspector"),
     ActionContext::Any,
-    QKeySequence{+Qt::CTRL + Qt::Key_5},
+    QKeySequence{Qt::CTRL | Qt::Key_5},
     [](auto& context) { context.frame()->toggleInspector(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
@@ -2024,9 +2024,9 @@ void ActionManager::createViewMenu()
     ActionContext::Any,
 #ifdef Q_OS_MACOS
     // Command + Space opens Spotlight so we can't use it, so use Ctrl + Space instead.
-    QKeySequence{+Qt::META + Qt::Key_Space},
+    QKeySequence{Qt::META | Qt::Key_Space},
 #else
-    QKeySequence{+Qt::CTRL + Qt::Key_Space},
+    QKeySequence{Qt::CTRL | Qt::Key_Space},
 #endif
     [](auto& context) { context.frame()->toggleMaximizeCurrentView(); },
     [](const auto& context) { return context.hasDocument(); },

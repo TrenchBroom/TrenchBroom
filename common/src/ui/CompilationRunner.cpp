@@ -47,6 +47,7 @@
 #include <fmt/std.h>
 
 #include <filesystem>
+#include <ranges>
 #include <string>
 
 namespace tb::ui
@@ -86,7 +87,7 @@ void CompilationTaskRunner::terminate()
   doTerminate();
 }
 
-Result<std::string> CompilationTaskRunner::interpolate(const std::string& spec)
+Result<std::string> CompilationTaskRunner::interpolate(const std::string& spec) const
 {
   try
   {
@@ -315,44 +316,59 @@ void CompilationRunToolTaskRunner::startProcess()
   assert(m_process == nullptr);
 
   emit start();
-  workDir(m_context).join(cmd()).and_then(
-    [&](const auto& workDir, const auto& cmd) -> Result<void> {
-      m_context << "#### Executing '" << QString::fromStdString(cmd) << "'\n";
+  workDir(m_context)
+      .join(program())
+      .join(parameters())
+      .and_then(
+        [&](const auto& workDir, const auto& program, const auto& parameters)
+          -> Result<void> {
+          const auto programStr = QString::fromStdString(program);
+          const auto parameterStrs =
+            parameters | std::views::transform([](const auto& p) {
+              return QString::fromStdString(p);
+            });
+          const auto parameterStrList =
+            QStringList{parameterStrs.begin(), parameterStrs.end()};
 
-      if (!m_context.test())
-      {
-        m_process = new QProcess{this};
-        connect(
-          m_process,
-          &QProcess::errorOccurred,
-          this,
-          &CompilationRunToolTaskRunner::processErrorOccurred);
-        connect(
-          m_process,
-          QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
-          this,
-          &CompilationRunToolTaskRunner::processFinished);
-        connect(
-          m_process,
-          &QProcess::readyReadStandardError,
-          this,
-          &CompilationRunToolTaskRunner::processReadyReadStandardError);
-        connect(
-          m_process,
-          &QProcess::readyReadStandardOutput,
-          this,
-          &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
+          m_context << "#### Executing '" << programStr << " "
+                    << parameterStrList.join(" ") << "'\n";
 
-        m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
-        m_process->setWorkingDirectory(QString::fromStdString(workDir));
-        m_process->start(QString::fromStdString(cmd));
-        if (!m_process->waitForStarted())
-        {
-          return Error{"Failed to start process"};
-        }
-      }
-      return Result<void>{};
-    })
+          if (!m_context.test())
+          {
+            m_process = new QProcess{this};
+            connect(
+              m_process,
+              &QProcess::errorOccurred,
+              this,
+              &CompilationRunToolTaskRunner::processErrorOccurred);
+            connect(
+              m_process,
+              QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+              this,
+              &CompilationRunToolTaskRunner::processFinished);
+            connect(
+              m_process,
+              &QProcess::readyReadStandardError,
+              this,
+              &CompilationRunToolTaskRunner::processReadyReadStandardError);
+            connect(
+              m_process,
+              &QProcess::readyReadStandardOutput,
+              this,
+              &CompilationRunToolTaskRunner::processReadyReadStandardOutput);
+
+            m_process->setProcessEnvironment(QProcessEnvironment::systemEnvironment());
+            m_process->setWorkingDirectory(QString::fromStdString(workDir));
+            m_process->setArguments(parameterStrList);
+            m_process->setProgram(programStr);
+            m_process->start();
+            if (!m_process->waitForStarted())
+            {
+              return Error{"Failed to start process"};
+            }
+          }
+          return Result<void>{};
+        })
     | kdl::transform([&]() {
         if (m_context.test())
         {
@@ -365,16 +381,16 @@ void CompilationRunToolTaskRunner::startProcess()
       });
 }
 
-Result<std::string> CompilationRunToolTaskRunner::cmd()
+Result<std::string> CompilationRunToolTaskRunner::program() const
 {
-  return interpolate(m_task.toolSpec)
-    .join(interpolate(m_task.parameterSpec))
-    .transform([](const auto& interpolatedToolPath, const auto& parameters) {
-      const auto toolPath = std::filesystem::path{interpolatedToolPath};
-      return toolPath.empty()     ? ""
-             : parameters.empty() ? fmt::format(R"("{}")", toolPath)
-                                  : fmt::format(R"("{}" {})", toolPath, parameters);
-    });
+  return interpolate(m_task.toolSpec);
+}
+
+Result<std::vector<std::string>> CompilationRunToolTaskRunner::parameters() const
+{
+  return interpolate(m_task.parameterSpec).transform([](const auto& parameters) {
+    return kdl::str_split(parameters, " ");
+  });
 }
 
 void CompilationRunToolTaskRunner::processErrorOccurred(

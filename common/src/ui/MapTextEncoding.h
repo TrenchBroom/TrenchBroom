@@ -25,8 +25,7 @@ namespace tb::ui
 enum class MapTextEncoding
 {
   Quake,
-  Iso88591,
-  Utf8
+  Utf8,
 };
 
 } // namespace tb::ui

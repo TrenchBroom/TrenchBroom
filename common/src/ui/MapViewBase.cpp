@@ -1373,8 +1373,8 @@ void MapViewBase::beforePopupMenu() {}
 void MapViewBase::dragEnterEvent(QDragEnterEvent* dragEnterEvent)
 {
   if (dragEnter(
-        static_cast<float>(dragEnterEvent->posF().x()),
-        static_cast<float>(dragEnterEvent->posF().y()),
+        static_cast<float>(dragEnterEvent->position().x()),
+        static_cast<float>(dragEnterEvent->position().y()),
         dragEnterEvent->mimeData()->text().toStdString()))
   {
     dragEnterEvent->acceptProposedAction();
@@ -1389,8 +1389,8 @@ void MapViewBase::dragLeaveEvent(QDragLeaveEvent*)
 void MapViewBase::dragMoveEvent(QDragMoveEvent* dragMoveEvent)
 {
   dragMove(
-    static_cast<float>(dragMoveEvent->posF().x()),
-    static_cast<float>(dragMoveEvent->posF().y()),
+    static_cast<float>(dragMoveEvent->position().x()),
+    static_cast<float>(dragMoveEvent->position().y()),
     dragMoveEvent->mimeData()->text().toStdString());
   dragMoveEvent->acceptProposedAction();
 }
@@ -1398,8 +1398,8 @@ void MapViewBase::dragMoveEvent(QDragMoveEvent* dragMoveEvent)
 void MapViewBase::dropEvent(QDropEvent* dropEvent)
 {
   dragDrop(
-    static_cast<float>(dropEvent->posF().x()),
-    static_cast<float>(dropEvent->posF().y()),
+    static_cast<float>(dropEvent->position().x()),
+    static_cast<float>(dropEvent->position().y()),
     dropEvent->mimeData()->text().toStdString());
   dropEvent->acceptProposedAction();
 }

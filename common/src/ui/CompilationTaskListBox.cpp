@@ -483,7 +483,7 @@ Variables are allowed.)");
     &CompilationRunToolTaskEditor::parameterSpecChanged);
   connect(
     m_treatNonZeroResultCodeAsError,
-    &QCheckBox::stateChanged,
+    &QCheckBox::checkStateChanged,
     this,
     &CompilationRunToolTaskEditor::treatNonZeroResultCodeAsErrorChanged);
 }

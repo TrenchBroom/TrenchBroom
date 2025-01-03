@@ -79,7 +79,7 @@ QString toString(const QKeySequence& keySequence)
 
   if (keySequence.count() > 0)
   {
-    const auto keyWithModifier = keySequence[0];
+    const auto keyWithModifier = keySequence[0].toCombined();
     const auto key = keyWithModifier & ~(static_cast<int>(Qt::KeyboardModifierMask));
 
     const auto keyPortableText = QKeySequence{key}.toString(QKeySequence::PortableText);
@@ -171,7 +171,6 @@ int main(int argc, char* argv[])
   qt_set_sequence_auto_mnemonic(false);
 
   auto out = QTextStream{stdout};
-  out.setCodec("UTF-8");
 
   tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
 

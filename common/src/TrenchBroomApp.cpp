@@ -77,10 +77,15 @@
 #include <cstdlib>
 #include <iostream>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
+
+#if defined(_WIN32) && defined(_MSC_VER)
+#include <windows.h>
+#endif
 
 namespace tb::ui
 {

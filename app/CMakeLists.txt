@@ -140,8 +140,9 @@ macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
             message(STATUS "macdeployqt requested")
 
             # Get macdeployqt path (hack)
-            get_target_property(TB_QMAKE_PATH Qt5::qmake IMPORTED_LOCATION)
+            get_target_property(TB_QMAKE_PATH Qt6::qmake IMPORTED_LOCATION)
             string(REPLACE "qmake" "macdeployqt" TB_MACDEPLOYQT_PATH "${TB_QMAKE_PATH}")
+            message(STATUS "macdeployqt found: ${TB_MACDEPLOYQT_PATH}")
 
             add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
                     COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>/../..")
@@ -164,15 +165,21 @@ macro(configure_app_target APP_TARGET_NAME SHOULD_BUILD_MANUAL)
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
                 COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:fmt::fmt>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Svg>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>"
-                COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>/platforms"
-                COMMAND ${CMAKE_COMMAND} -E make_directory    "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>/styles"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>/platforms"
-                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>/styles")
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>")
+
+        # If requested, run windeployqt which copies the Qt dlls into the deployable folder, along with necessary
+        # runtime dlls by the compiler
+        if(TB_RUN_WINDEPLOYQT)
+            message(STATUS "windeployqt requested")
+
+            # Get windeployqt path (hack)
+            get_target_property(TB_QMAKE_PATH Qt6::qmake IMPORTED_LOCATION)
+            string(REPLACE "qmake" "windeployqt" TB_WINDEPLOYQT_PATH "${TB_QMAKE_PATH}")
+            message(STATUS "windeployqt found: ${TB_WINDEPLOYQT_PATH}")
+
+            add_custom_command(TARGET ${APP_TARGET_NAME} POST_BUILD
+                    COMMAND "${TB_WINDEPLOYQT_PATH}" --no-compiler-runtime "$<TARGET_FILE_DIR:${APP_TARGET_NAME}>")
+        endif()
     endif()
 
     # Generate a small stripped PDB for release builds so we get stack traces with symbols
@@ -265,11 +272,6 @@ endif()
 
 # Platform specific CPack configuration
 if(WIN32)
-    if(COMPILER_IS_MSVC)
-        # set(CMAKE_INSTALLL_DEBUG_LIBRARIES OFF)
-        # INCLUDE(InstallRequiredSystemLibraries)
-    endif()
-
     # Copy PDB files (msvc debug symbols)
     if(COMPILER_IS_MSVC)
         if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR CMAKE_BUILD_TYPE STREQUAL "RelWithDebInfo")
@@ -299,14 +301,13 @@ if(WIN32)
         endforeach()
     ]])
 
-    #Qt plugins
-    install(FILES
-            $<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>
-            DESTINATION platforms COMPONENT TrenchBroom)
-    install(FILES
-            $<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>
-            DESTINATION styles COMPONENT TrenchBroom)
+    # Qt plugins etc.
+    install(DIRECTORY
+            "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
+            "$<TARGET_FILE_DIR:TrenchBroom>/styles"
+            DESTINATION . COMPONENT TrenchBroom)
 
+    
     #Manual
     install(FILES ${INDEX_OUTPUT_PATH} DESTINATION manual COMPONENT TrenchBroom)
     install(FILES ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} DESTINATION manual COMPONENT TrenchBroom)
@@ -317,10 +318,10 @@ if(WIN32)
             ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE}
             DESTINATION manual/images COMPONENT TrenchBroom)
     install(DIRECTORY
-            "${APP_DIR}/resources/graphics/images"
-            "${APP_DIR}/resources/fonts"
             "${APP_DIR}/resources/defaults"
+            "${APP_DIR}/resources/fonts"
             "${APP_DIR}/resources/games"
+            "${APP_DIR}/resources/graphics/images"
             "${APP_DIR}/resources/shader"
             "${APP_DIR}/resources/stylesheets"
             DESTINATION . COMPONENT TrenchBroom)

@@ -46,7 +46,7 @@ public:
 protected:
   bool event(QEvent* event) override;
   void keyPressEvent(QKeyEvent* event) override;
-  QStyleOptionViewItem viewOptions() const override;
+  void initViewItemOption(QStyleOptionViewItem* option) const override;
   void keyboardSearch(const QString& search) override;
   void mousePressEvent(QMouseEvent* event) override;
   void mouseReleaseEvent(QMouseEvent* event) override;

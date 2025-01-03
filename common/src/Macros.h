@@ -25,8 +25,6 @@
 // usually only used in assertions and thus may become unused in release builds.
 #define unused(x) ((void)x)
 
-#define true(x) true
-
 // The following macro is used to silence a compiler warning in MSVC and GCC when a switch
 // is used in a function to compute a return value, and there is no default path.
 #ifdef __clang__

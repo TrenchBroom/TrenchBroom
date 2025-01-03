@@ -21,7 +21,7 @@
 
 #include <QApplication>
 #include <QDebug>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QWindow>
 
 namespace tb::ui
@@ -73,7 +73,7 @@ PopupWindow::PopupWindow(QWidget* parent)
 
 void PopupWindow::positionTouchingWidget(QWidget* refWidget)
 {
-  const auto screenGeom = QApplication::desktop()->availableGeometry(refWidget);
+  const auto screenGeom = QGuiApplication::primaryScreen()->availableGeometry();
   const auto refWidgetRectOnScreen =
     QRect{refWidget->mapToGlobal(QPoint{0, 0}), refWidget->size()};
   const auto ourSize = size();

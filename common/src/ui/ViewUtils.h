@@ -19,12 +19,13 @@
 
 #pragma once
 
+#include <QStringList>
+
 #include <memory>
 #include <string>
 
 class QWidget;
 class QString;
-class QStringList;
 
 namespace tb
 {

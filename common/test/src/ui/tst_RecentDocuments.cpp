@@ -23,10 +23,6 @@
 
 #include "ui/RecentDocuments.h"
 
-#include "kdl/range_to_vector.h"
-
-#include <ranges>
-
 #include "Catch2.h"
 
 namespace tb::ui
@@ -36,9 +32,12 @@ namespace
 
 std::vector<QString> getTexts(const QList<QAction*>& actions)
 {
-  return actions
-         | std::views::transform([](const auto* action) { return action->text(); })
-         | kdl::to_vector;
+  auto result = std::vector<QString>{};
+  for (const auto* action : actions)
+  {
+    result.push_back(action->text());
+  }
+  return result;
 }
 
 } // namespace

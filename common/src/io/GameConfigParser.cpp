@@ -656,10 +656,6 @@ mdl::GameConfig GameConfigParser::parse()
   const auto root = parseConfigFile().evaluate(evaluationContext, trace);
   expectType(root, trace, el::ValueType::Map);
 
-  const auto& version = root["version"];
-  checkVersion(version, trace);
-  m_version = version.integerValue();
-
   expectStructure(
     root,
     trace,
@@ -667,6 +663,10 @@ mdl::GameConfig GameConfigParser::parse()
       {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'materials': 'Map', 'entities': 'Map'},
       {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
     ])");
+
+  const auto& version = root["version"];
+  checkVersion(version, trace);
+  m_version = version.integerValue();
 
   auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"], trace);
   auto fileSystemConfig = parseFileSystemConfig(root["filesystem"], trace);
