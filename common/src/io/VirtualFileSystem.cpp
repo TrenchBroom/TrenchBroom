@@ -28,6 +28,9 @@
 #include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <optional>
 #include <unordered_map>
 
@@ -92,7 +95,7 @@ Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
     }
   }
 
-  return Error{"Failed to make absolute path of '" + path.string() + "'"};
+  return Error{fmt::format("Failed to make absolute path of {}", fmt::streamed(path))};
 }
 
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
@@ -291,7 +294,7 @@ Result<std::shared_ptr<File>> VirtualFileSystem::doOpenFile(
     }
   }
 
-  return Error{"'" + path.string() + "' not found"};
+  return Error{fmt::format("{} not found", fmt::streamed(path))};
 }
 
 WritableVirtualFileSystem::WritableVirtualFileSystem(
