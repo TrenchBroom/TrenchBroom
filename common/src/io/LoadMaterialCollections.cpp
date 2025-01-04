@@ -343,13 +343,10 @@ Result<mdl::Material> loadTextureMaterial(
   const mdl::CreateTextureResource& createResource,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
-  // If the texture comes from a wad file, we omit the wad filename from the texture name.
-  const auto wadFileName = kdl::path_length(texturePath) > 1
-                             ? texturePath.parent_path().filename()
-                             : std::filesystem::path{};
-  const auto isWad = kdl::path_to_lower(wadFileName.extension()) == ".wad";
-
-  const auto prefixLength = kdl::path_length(materialConfig.root) + (isWad ? 1 : 0);
+  const auto prefixLength = kdl::path_length(materialConfig.root);
+  const auto pathMatcher = !materialConfig.extensions.empty()
+                             ? makeExtensionPathMatcher(materialConfig.extensions)
+                             : matchAnyPath;
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
 
   auto textureLoader = makeTextureResourceLoader(

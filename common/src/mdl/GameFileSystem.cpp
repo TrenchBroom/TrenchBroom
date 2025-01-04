@@ -196,7 +196,7 @@ void GameFileSystem::mountWads(
     io::Disk::openFile(resolvedWadPath) | kdl::and_then([](auto file) {
       return io::createImageFileSystem<io::WadFileSystem>(std::move(file));
     }) | kdl::transform([&](auto fs) {
-      m_wadMountPoints.push_back(mount(rootPath / wadPath.filename(), std::move(fs)));
+      m_wadMountPoints.push_back(mount(rootPath, std::move(fs)));
     }) | kdl::transform_error([&](auto e) {
       logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;
     });
