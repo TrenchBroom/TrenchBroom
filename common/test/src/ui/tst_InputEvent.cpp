@@ -66,13 +66,24 @@ auto getEvents(InputEventRecorder& r)
   return p.events();
 }
 
+QKeyEvent makeKeyEvent(const QEvent::Type type)
+{
+  return QKeyEvent{type, 0, Qt::NoModifier};
+}
+
+QMouseEvent makeMouseEvent(
+  QEvent::Type type,
+  const QPointF& pos,
+  const Qt::MouseButton button = Qt::NoButton,
+  const Qt::KeyboardModifiers modifiers = Qt::NoModifier)
+{
+  return QMouseEvent{type, pos, {}, button, button, modifiers};
+}
+
 QWheelEvent makeWheelEvent(const QPoint& angleDelta)
 {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
-  return {{}, {}, {}, angleDelta, Qt::NoButton, nullptr, Qt::ScrollUpdate, false};
-#else
-  return {{}, {}, {}, angleDelta, 0, Qt::Orientation::Horizontal, Qt::NoButton, 0};
-#endif
+  return QWheelEvent{
+    {}, {}, {}, angleDelta, Qt::NoButton, Qt::NoModifier, Qt::ScrollUpdate, false};
 }
 
 } // namespace
@@ -209,8 +220,8 @@ TEST_CASE("InputEventRecorder")
 
   SECTION("recordKeyEvents")
   {
-    r.recordEvent(QKeyEvent{QEvent::KeyPress, 0, nullptr, nullptr, 0});
-    r.recordEvent(QKeyEvent{QEvent::KeyRelease, 0, nullptr, nullptr, 0});
+    r.recordEvent(makeKeyEvent(QEvent::KeyPress));
+    r.recordEvent(makeKeyEvent(QEvent::KeyRelease));
 
     CHECK(
       getEvents(r)
@@ -222,22 +233,9 @@ TEST_CASE("InputEventRecorder")
 
   SECTION("recordLeftClick")
   {
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {2.0f, 5.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -250,38 +248,13 @@ TEST_CASE("InputEventRecorder")
 
   SECTION("recordLeftDoubleClick")
   {
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonDblClick,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonDblClick, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {2.0f, 5.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -297,22 +270,10 @@ TEST_CASE("InputEventRecorder")
 
   SECTION("recordCtrlLeftClick")
   {
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      Qt::MetaModifier});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(
+      QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton, Qt::MetaModifier));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {2.0f, 5.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -325,22 +286,10 @@ TEST_CASE("InputEventRecorder")
 
   SECTION("recordRightClick")
   {
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::RightButton,
-      Qt::RightButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::RightButton,
-      Qt::RightButton,
-      nullptr});
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::RightButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {2.0f, 5.0f}, Qt::RightButton));
 
     CHECK(
       getEvents(r)
@@ -354,10 +303,8 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordMotionWithCollation")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::NoButton, Qt::NoButton, nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::NoButton, Qt::NoButton, nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {6.0f, 3.0f}));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {12.0f, 8.0f}));
 
     CHECK(
       getEvents(r)
@@ -459,24 +406,10 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordLeftClickWithQuickSmallMotion")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {4.0f, 3.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {4.0f, 3.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {4.0f, 3.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -491,25 +424,11 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordLeftClickWithSlowSmallMotion")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {4.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {4.0f, 3.0f}, Qt::LeftButton));
     std::this_thread::sleep_for(200ms);
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {4.0f, 3.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {4.0f, 3.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -524,24 +443,10 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordLeftClickWithAccidentalDrag")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {6.0f, 3.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {6.0f, 3.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {6.0f, 3.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -557,25 +462,11 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordLeftDrag")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {6.0f, 3.0f}, Qt::LeftButton));
     std::this_thread::sleep_for(200ms);
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {6.0f, 3.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {6.0f, 3.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)
@@ -591,27 +482,12 @@ TEST_CASE("InputEventRecorder")
   SECTION("recordLeftDragWithCollation")
   {
     using namespace std::chrono_literals;
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonPress,
-      {2.0f, 5.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {6.0f, 3.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseButtonPress, {2.0f, 5.0f}, Qt::LeftButton));
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {6.0f, 3.0f}, Qt::LeftButton));
     std::this_thread::sleep_for(200ms);
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseMove, {12.0f, 8.0f}, {}, {}, Qt::LeftButton, Qt::LeftButton, nullptr});
-    r.recordEvent(QMouseEvent{
-      QEvent::MouseButtonRelease,
-      {12.0f, 8.0f},
-      {},
-      {},
-      Qt::LeftButton,
-      Qt::LeftButton,
-      nullptr});
+    r.recordEvent(makeMouseEvent(QEvent::MouseMove, {12.0f, 8.0f}, Qt::LeftButton));
+    r.recordEvent(
+      makeMouseEvent(QEvent::MouseButtonRelease, {12.0f, 8.0f}, Qt::LeftButton));
 
     CHECK(
       getEvents(r)

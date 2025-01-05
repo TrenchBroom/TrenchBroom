@@ -1492,7 +1492,7 @@ void MapFrame::selectByLineNumber()
     if (!string.isEmpty())
     {
       auto positions = std::vector<size_t>{};
-      for (const auto& token : string.split(QRegExp{"[, ]"}))
+      for (const auto& token : string.split(QRegularExpression{"[, ]"}))
       {
         bool ok;
         const auto position = token.toLong(&ok);
@@ -2483,9 +2483,7 @@ DebugPaletteWindow::DebugPaletteWindow(QWidget* parent)
     {QPalette::AlternateBase, "AlternateBase"},
     {QPalette::ToolTipBase, "ToolTipBase"},
     {QPalette::ToolTipText, "ToolTipText"},
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0))
     {QPalette::PlaceholderText, "PlaceholderText"},
-#endif
     {QPalette::Text, "Text"},
     {QPalette::Button, "Button"},
     {QPalette::ButtonText, "ButtonText"},

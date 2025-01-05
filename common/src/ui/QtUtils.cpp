@@ -27,6 +27,7 @@
 #include <QDialog>
 #include <QDir>
 #include <QFont>
+#include <QGuiApplication>
 #include <QHeaderView>
 #include <QKeySequence>
 #include <QLabel>
@@ -38,8 +39,9 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QStringBuilder>
+#include <QStringDecoder>
+#include <QStringEncoder>
 #include <QTableView>
-#include <QTextCodec>
 #include <QToolButton>
 #include <QVBoxLayout>
 #include <QWindow>
@@ -54,17 +56,54 @@
 #include "ui/MapTextEncoding.h"
 #include "ui/ViewConstants.h"
 
-// QDesktopWidget was deprecated in Qt 5.10 and we should use QGuiApplication::screenAt
-// in 5.10 and above Used in centerOnScreen
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
-#include <QGuiApplication>
-#else
-#include <QApplication>
-#include <QDesktopWidget>
-#endif
-
 namespace tb::ui
 {
+
+namespace
+{
+
+QStringConverter::Encoding codecForEncoding(const MapTextEncoding encoding)
+{
+  switch (encoding)
+  {
+  case MapTextEncoding::Quake:
+    // Quake uses the full 1-255 range for its bitmap font.
+    // So using a "just assume UTF-8" approach would not work here.
+    // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
+    return QStringConverter::System;
+  case MapTextEncoding::Utf8:
+    return QStringConverter::Utf8;
+    switchDefault();
+  }
+}
+
+QString fileDialogDirToString(const FileDialogDir dir)
+{
+  switch (dir)
+  {
+  case FileDialogDir::Map:
+    return "Map";
+  case FileDialogDir::MaterialCollection:
+    return "TextureCollection";
+  case FileDialogDir::CompileTool:
+    return "CompileTool";
+  case FileDialogDir::Engine:
+    return "Engine";
+  case FileDialogDir::EntityDefinition:
+    return "EntityDefinition";
+  case FileDialogDir::GamePath:
+    return "GamePath";
+    switchDefault();
+  }
+}
+
+QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
+{
+  return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
+    .arg(fileDialogDirToString(dir));
+}
+
+} // namespace
 
 SyncHeightEventFilter::SyncHeightEventFilter(
   QWidget* primary, QWidget* secondary, QObject* parent)
@@ -102,32 +141,6 @@ bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event)
   {
     return QObject::eventFilter(target, event);
   }
-}
-
-static QString fileDialogDirToString(const FileDialogDir dir)
-{
-  switch (dir)
-  {
-  case FileDialogDir::Map:
-    return "Map";
-  case FileDialogDir::MaterialCollection:
-    return "TextureCollection";
-  case FileDialogDir::CompileTool:
-    return "CompileTool";
-  case FileDialogDir::Engine:
-    return "Engine";
-  case FileDialogDir::EntityDefinition:
-    return "EntityDefinition";
-  case FileDialogDir::GamePath:
-    return "GamePath";
-    switchDefault();
-  }
-}
-
-static QString fileDialogDefaultDirectorySettingsPath(const FileDialogDir dir)
-{
-  return QString::fromLatin1("FileDialog/%1/DefaultDirectory")
-    .arg(fileDialogDirToString(dir));
 }
 
 QString fileDialogDefaultDirectory(const FileDialogDir dir)
@@ -210,17 +223,13 @@ void setHint(QLineEdit* ctrl, const char* hint)
 
 void centerOnScreen(QWidget* window)
 {
-#if QT_VERSION >= QT_VERSION_CHECK(5, 10, 0)
   const auto* screen =
-    QGuiApplication::screenAt(window->mapToGlobal({window->width() / 2, 0}));
+    QGuiApplication::screenAt(window->mapToGlobal(QPoint{window->width() / 2, 0}));
   if (screen == nullptr)
   {
     return;
   }
   const auto screenGeometry = screen->availableGeometry();
-#else
-  const auto screenGeometry = QApplication::desktop()->availableGeometry(window);
-#endif
   window->setGeometry(QStyle::alignedRect(
     Qt::LeftToRight, Qt::AlignCenter, window->size(), screenGeometry));
 }
@@ -567,37 +576,19 @@ void showModelessDialog(QDialog* dialog)
   dialog->activateWindow();
 }
 
-static QTextCodec* codecForEncoding(const MapTextEncoding encoding)
-{
-  switch (encoding)
-  {
-  case MapTextEncoding::Quake:
-    // Quake uses the full 1-255 range for its bitmap font.
-    // So using a "just assume UTF-8" approach would not work here.
-    // See: https://github.com/TrenchBroom/TrenchBroom/issues/3122
-    return QTextCodec::codecForLocale();
-  case MapTextEncoding::Iso88591:
-    return QTextCodec::codecForName("ISO 8859-1");
-  case MapTextEncoding::Utf8:
-    return QTextCodec::codecForName("UTF-8");
-    switchDefault();
-  }
-}
-
 QString mapStringToUnicode(const MapTextEncoding encoding, const std::string& string)
 {
-  auto* codec = codecForEncoding(encoding);
-  ensure(codec != nullptr, "null codec");
-
-  return codec->toUnicode(QByteArray::fromStdString(string));
+  const auto codec = codecForEncoding(encoding);
+  auto decode = QStringDecoder{codec};
+  return decode(QByteArray::fromStdString(string));
 }
 
 std::string mapStringFromUnicode(const MapTextEncoding encoding, const QString& string)
 {
-  auto* codec = codecForEncoding(encoding);
-  ensure(codec != nullptr, "null codec");
+  const auto codec = codecForEncoding(encoding);
+  auto encode = QStringEncoder{codec};
 
-  return codec->fromUnicode(string).toStdString();
+  return QByteArray{encode(string)}.toStdString();
 }
 
 QString nativeModifierLabel(const int modifier)

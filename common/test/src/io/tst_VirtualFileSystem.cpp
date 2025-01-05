@@ -24,6 +24,9 @@
 
 #include "kdl/result.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include "Catch2.h"
 
 namespace tb::io
@@ -39,11 +42,14 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == Result<std::filesystem::path>{Error{"Failed to make absolute path of ''"}});
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}",
+          fmt::streamed(std::filesystem::path{""}))}});
       CHECK(
         vfs.makeAbsolute("foo/bar")
-        == Result<std::filesystem::path>{
-          Error{"Failed to make absolute path of 'foo/bar'"}});
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}",
+          fmt::streamed(std::filesystem::path{"foo/bar"}))}});
     }
 
     SECTION("pathInfo")
@@ -56,22 +62,31 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.find("", TraversalMode::Flat)
-        == Result<std::vector<std::filesystem::path>>{
-          Error{"Path does not denote a directory: ''"}});
+        == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+          "Path {} does not denote a directory",
+          fmt::streamed(std::filesystem::path{""}))}});
       CHECK(
         vfs.find("foo/bar", TraversalMode::Flat)
-        == Result<std::vector<std::filesystem::path>>{
-          Error{"Path does not denote a directory: 'foo/bar'"}});
+        == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+          "Path {} does not denote a directory",
+          fmt::streamed(std::filesystem::path{"foo/bar"}))}});
+      ;
     }
 
     SECTION("openFile")
     {
-      CHECK(vfs.openFile("") == Result<std::shared_ptr<File>>{Error{"'' not found"}});
       CHECK(
-        vfs.openFile("foo") == Result<std::shared_ptr<File>>{Error{"'foo' not found"}});
+        vfs.openFile("")
+        == Result<std::shared_ptr<File>>{
+          Error{fmt::format("{} not found", fmt::streamed(std::filesystem::path{""}))}});
+      CHECK(
+        vfs.openFile("foo")
+        == Result<std::shared_ptr<File>>{Error{
+          fmt::format("{} not found", fmt::streamed(std::filesystem::path{"foo"}))}});
       CHECK(
         vfs.openFile("foo/bar")
-        == Result<std::shared_ptr<File>>{Error{"'foo/bar' not found"}});
+        == Result<std::shared_ptr<File>>{Error{
+          fmt::format("{} not found", fmt::streamed(std::filesystem::path{"foo/bar"}))}});
     }
   }
 
@@ -341,7 +356,8 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.openFile("bar/bat") == Result<std::shared_ptr<File>>{bar_bat_fs2});
       CHECK(
         vfs.openFile("bar/cat")
-        == Result<std::shared_ptr<File>>{Error{"'bar/cat' not found"}});
+        == Result<std::shared_ptr<File>>{Error{
+          fmt::format("{} not found", fmt::streamed(std::filesystem::path{"bar/cat"}))}});
     }
   }
 
@@ -377,7 +393,9 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == Result<std::filesystem::path>{Error{"Failed to make absolute path of ''"}});
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}",
+          fmt::streamed(std::filesystem::path{""}))}});
       CHECK(vfs.makeAbsolute("foo/bar") == Result<std::filesystem::path>{"/fs1/bar"});
       CHECK(vfs.makeAbsolute("bar/foo") == Result<std::filesystem::path>{"/fs2/foo"});
     }
@@ -485,7 +503,9 @@ TEST_CASE("VirtualFileSystem")
     {
       CHECK(
         vfs.makeAbsolute("")
-        == Result<std::filesystem::path>{Error{"Failed to make absolute path of ''"}});
+        == Result<std::filesystem::path>{Error{fmt::format(
+          "Failed to make absolute path of {}",
+          fmt::streamed(std::filesystem::path{""}))}});
       CHECK(vfs.makeAbsolute("foo/bar") == Result<std::filesystem::path>{"/fs2/"});
       CHECK(vfs.makeAbsolute("foo/bar/foo") == Result<std::filesystem::path>{"/fs2/foo"});
       CHECK(
@@ -654,7 +674,8 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.openFile("foo/bar/e") == Result<std::shared_ptr<File>>{fs1_foo_bar_e});
       CHECK(
         vfs.openFile("foo/bar/f")
-        == Result<std::shared_ptr<File>>{Error{"'foo/bar/f' not found"}});
+        == Result<std::shared_ptr<File>>{Error{fmt::format(
+          "{} not found", fmt::streamed(std::filesystem::path{"foo/bar/f"}))}});
       CHECK(vfs.openFile("foo/bar/g") == Result<std::shared_ptr<File>>{fs2_foo_bar_g});
     }
   }

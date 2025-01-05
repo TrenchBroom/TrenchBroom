@@ -34,6 +34,7 @@
 #include "ui/MapDocument.h"
 #include "ui/TransactionScope.h"
 
+#include "kdl/k.h"
 #include "kdl/memory_utils.h"
 
 #include <string>
@@ -42,7 +43,7 @@ namespace tb::ui
 {
 
 CreateEntityTool::CreateEntityTool(std::weak_ptr<MapDocument> document)
-  : Tool{true(initiallyActive)}
+  : Tool{K(initiallyActive)}
   , m_document{std::move(document)}
 {
 }

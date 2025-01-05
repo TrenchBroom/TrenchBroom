@@ -154,7 +154,7 @@ int MultiCompletionLineEdit::findRightBoundary() const
     cursorPosition() == t.length() || m_leftDelimiter.pattern().isEmpty()
     || m_rightDelimiter.pattern().isEmpty())
   {
-    return t.length();
+    return int(t.length());
   }
 
   const auto suffix = this->text().mid(cursorPosition());
@@ -173,7 +173,8 @@ int MultiCompletionLineEdit::findFirstMatch(
   const QString& str, const QRegularExpression& expression) const
 {
   auto matches = expression.globalMatch(str);
-  return matches.hasNext() && matches.isValid() ? matches.next().capturedStart() : -1;
+  return matches.hasNext() && matches.isValid() ? int(matches.next().capturedStart())
+                                                : -1;
 }
 
 int MultiCompletionLineEdit::findLastMatch(
@@ -188,7 +189,7 @@ int MultiCompletionLineEdit::findLastMatch(
       lastMatch = matches.next();
     }
 
-    return lastMatch.capturedStart();
+    return int(lastMatch.capturedStart());
   }
   return -1;
 }
@@ -210,7 +211,7 @@ void MultiCompletionLineEdit::insertCompletion(const QString& string)
 
   auto oldText = this->text();
   setText(oldText.replace(leftBoundary, rightBoundary - leftBoundary, string));
-  setCursorPosition(leftBoundary + string.length());
+  setCursorPosition(leftBoundary + int(string.length()));
 }
 
 } // namespace tb::ui

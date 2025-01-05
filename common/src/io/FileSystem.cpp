@@ -25,6 +25,9 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
+#include <fmt/format.h>
+#include <fmt/ostream.h>
+
 #include <string>
 #include <vector>
 
@@ -40,12 +43,12 @@ Result<std::vector<std::filesystem::path>> FileSystem::find(
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
 
   if (pathInfo(path) != PathInfo::Directory)
   {
-    return Error{"Path does not denote a directory: '" + path.string() + "'"};
+    return Error{fmt::format("Path {} does not denote a directory", fmt::streamed(path))};
   }
 
   return doFind(path, traversalMode) | kdl::transform([&](auto paths) {
@@ -60,12 +63,12 @@ Result<std::shared_ptr<File>> FileSystem::openFile(
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
 
   if (pathInfo(path) != PathInfo::File)
   {
-    return Error{"'" + path.string() + "' not found"};
+    return Error{fmt::format("{} not found", fmt::streamed(path))};
   }
 
   return doOpenFile(path);
@@ -78,7 +81,7 @@ Result<void> WritableFileSystem::createFileAtomic(
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
 
   const auto tmpPath = kdl::path_add_extension(path, "tmp");
@@ -91,7 +94,7 @@ Result<void> WritableFileSystem::createFile(
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
   return doCreateFile(path, contents);
 }
@@ -100,7 +103,7 @@ Result<bool> WritableFileSystem::createDirectory(const std::filesystem::path& pa
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
   return doCreateDirectory(path);
 }
@@ -109,7 +112,7 @@ Result<bool> WritableFileSystem::deleteFile(const std::filesystem::path& path)
 {
   if (path.is_absolute())
   {
-    return Error{"Path '" + path.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(path))};
   }
   return doDeleteFile(path);
 }
@@ -119,11 +122,11 @@ Result<void> WritableFileSystem::copyFile(
 {
   if (sourcePath.is_absolute())
   {
-    return Error{"'" + sourcePath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(sourcePath))};
   }
   if (destPath.is_absolute())
   {
-    return Error{"'" + destPath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(destPath))};
   }
   return doCopyFile(sourcePath, destPath);
 }
@@ -133,11 +136,11 @@ Result<void> WritableFileSystem::moveFile(
 {
   if (sourcePath.is_absolute())
   {
-    return Error{"'" + sourcePath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(sourcePath))};
   }
   if (destPath.is_absolute())
   {
-    return Error{"'" + destPath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(destPath))};
   }
   return doMoveFile(sourcePath, destPath);
 }
@@ -147,11 +150,11 @@ Result<void> WritableFileSystem::renameDirectory(
 {
   if (sourcePath.is_absolute())
   {
-    return Error{"'" + sourcePath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(sourcePath))};
   }
   if (destPath.is_absolute())
   {
-    return Error{"'" + destPath.string() + "' is absolute"};
+    return Error{fmt::format("Path {} is absolute", fmt::streamed(destPath))};
   }
   return doRenameDirectory(sourcePath, destPath);
 }

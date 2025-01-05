@@ -506,12 +506,12 @@ QWidget* ViewEditor::createRendererPanel(QWidget* parent)
 
   connect(
     m_renderModeRadioGroup,
-    static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+    &QButtonGroup::idClicked,
     this,
     &ViewEditor::faceRenderModeChanged);
   connect(
     m_entityLinkRadioGroup,
-    static_cast<void (QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked),
+    &QButtonGroup::idClicked,
     this,
     &ViewEditor::entityLinkModeChanged);
 

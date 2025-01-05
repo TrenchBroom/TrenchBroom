@@ -20,7 +20,7 @@ pandoc --version
 mkdir build
 cd build
 
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" -DTB_SUPPRESS_PCH=1 || exit 1
+cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" -DTB_SUPPRESS_PCH=1 || exit 1
 cmake --build . --config Release -- -j $(nproc) || exit 1
 
 # Run tests (wxgtk needs an X server running for the app to initialize)

@@ -42,16 +42,16 @@ jobs:
           sudo apt update
           sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev
 
-      - name: Install Qt5
-        run: |
-          sudo apt update
-          sudo apt install qtbase5-dev libqt5svg5-dev
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.0'
 
       - name: Run cmake
         run: |
           mkdir -p build
           cd build
-          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_SUPPRESS_PCH=1
+          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_SUPPRESS_PCH=1
 
       - name: "Run clang-tidy"
         uses: cpp-linter/cpp-linter-action@v2

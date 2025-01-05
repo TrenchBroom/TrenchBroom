@@ -123,20 +123,24 @@ TEST_CASE("DiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.find("c:\\", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{"Path 'c:\\' is absolute"}});
+      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"c:\\"}))}});
 #else
     CHECK(
       fs.find("/", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{"Path '/' is absolute"}});
+      == Result<std::vector<std::filesystem::path>>{Error{
+        fmt::format("Path {} is absolute", fmt::streamed(std::filesystem::path{"/"}))}});
 #endif
     CHECK(
       fs.find("..", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{
-        Error{"Path does not denote a directory: '..'"}});
+      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+        "Path {} does not denote a directory",
+        fmt::streamed(std::filesystem::path{".."}))}});
     CHECK(
       fs.find("asdf/bleh", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{
-        Error{"Path does not denote a directory: 'asdf/bleh'"}});
+      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
+        "Path {} does not denote a directory",
+        fmt::streamed(std::filesystem::path{"asdf/bleh"}))}});
 
     CHECK_THAT(
       fs.find(".", TraversalMode::Flat),
@@ -187,19 +191,28 @@ TEST_CASE("DiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.openFile("c:\\hopefully_nothing.here")
-      == Result<std::shared_ptr<File>>{
-        Error{"Path 'c:\\hopefully_nothing.here' is absolute"}});
+      == Result<std::shared_ptr<File>>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing.here"}))}});
 #else
     CHECK(
       fs.openFile("/hopefully_nothing.here")
-      == Result<std::shared_ptr<File>>{
-        Error{"Path '/hopefully_nothing.here' is absolute"}});
+      == Result<std::shared_ptr<File>>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing.here"}))}});
 #endif
-    CHECK(fs.openFile("..") == Result<std::shared_ptr<File>>{Error{"'..' not found"}});
-    CHECK(fs.openFile(".") == Result<std::shared_ptr<File>>{Error{"'.' not found"}});
+    CHECK(
+      fs.openFile("..")
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("{} not found", fmt::streamed(std::filesystem::path{".."}))}});
+    CHECK(
+      fs.openFile(".")
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("{} not found", fmt::streamed(std::filesystem::path{"."}))}});
     CHECK(
       fs.openFile("anotherDir")
-      == Result<std::shared_ptr<File>>{Error{"'anotherDir' not found"}});
+      == Result<std::shared_ptr<File>>{Error{fmt::format(
+        "{} not found", fmt::streamed(std::filesystem::path{"anotherDir"}))}});
 
     const auto checkOpenFile = [&](const auto& path) {
       const auto file = fs.openFile(path) | kdl::value();
@@ -233,30 +246,26 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.createDirectory("c:\\hopefully_nothing_here")
-      == Result<bool>{Error{"Path 'c:\\hopefully_nothing_here' is absolute"}});
+      == Result<bool>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing_here"}))}});
 #else
     CHECK(
       fs.createDirectory("/hopefully_nothing_here")
-      == Result<bool>{Error{"Path '/hopefully_nothing_here' is absolute"}});
+      == Result<bool>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing_here"}))}});
 #endif
     CHECK(
       fs.createDirectory("..")
-      == Result<bool>{Error{"Failed to make absolute path of '..'"}});
-    CHECK_THAT(
-      fs.createDirectory("test.txt"),
-      MatchesAnyOf({
-        // macOS
-        Result<bool>{Error{
-          "Failed to create '" + (env.dir() / "test.txt").string() + "': File exists"}},
-        // Linux
-        Result<bool>{Error{
-          "Failed to create '" + (env.dir() / "test.txt").string()
-          + "': Not a directory"}},
-        // Windows
-        Result<bool>{Error{
-          "Failed to create '" + (env.dir() / "test.txt").string()
-          + "': Cannot create a file when that file already exists."}},
-      }));
+      == Result<bool>{Error{fmt::format(
+        "Failed to make absolute path of {}",
+        fmt::streamed(std::filesystem::path{".."}))}});
+    CHECK(
+      fs.createDirectory("test.txt")
+      == Result<bool>{Error{fmt::format(
+        "Failed to create {}: path denotes a file",
+        fmt::streamed(env.dir() / "test.txt"))}});
 
     CHECK(fs.createDirectory("") == Result<bool>{false});
     CHECK(fs.createDirectory(".") == Result<bool>{false});
@@ -282,31 +291,40 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.deleteFile("c:\\hopefully_nothing_here.txt")
-      == Result<bool>{Error{"Path 'c:\\hopefully_nothing_here.txt' is absolute"}});
+      == Result<bool>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing_here.txt"}))}});
     CHECK(
       fs.deleteFile("c:\\dir1\\asdf.txt")
-      == Result<bool>{Error{"Path 'c:\\dir1\\asdf.txt' is absolute"}});
+      == Result<bool>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\dir1\\asdf.txt"}))}});
 #else
     CHECK(
       fs.deleteFile("/hopefully_nothing_here.txt")
-      == Result<bool>{Error{"Path '/hopefully_nothing_here.txt' is absolute"}});
+      == Result<bool>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing_here.txt"}))}});
 #endif
     CHECK(
       fs.deleteFile("")
-      == Result<bool>{Error{
-        "Failed to delete '" + (env.dir()).string() + "': path denotes a directory"}});
+      == Result<bool>{Error{fmt::format(
+        "Failed to delete {}: path denotes a directory", fmt::streamed(env.dir()))}});
     CHECK(
       fs.deleteFile(".")
-      == Result<bool>{Error{
-        "Failed to delete '" + (env.dir() / "").string()
-        + "': path denotes a directory"}});
+      == Result<bool>{Error{fmt::format(
+        "Failed to delete {}: path denotes a directory",
+        fmt::streamed(env.dir() / "."))}});
     CHECK(
-      fs.deleteFile("..") == Result<bool>{Error{"Failed to make absolute path of '..'"}});
+      fs.deleteFile("..")
+      == Result<bool>{Error{fmt::format(
+        "Failed to make absolute path of {}",
+        fmt::streamed(std::filesystem::path{".."}))}});
     CHECK(
       fs.deleteFile("dir1")
-      == Result<bool>{Error{
-        "Failed to delete '" + (env.dir() / "dir1").string()
-        + "': path denotes a directory"}});
+      == Result<bool>{Error{fmt::format(
+        "Failed to delete {}: path denotes a directory",
+        fmt::streamed(env.dir() / "dir1"))}});
 
     CHECK(fs.deleteFile("asdf.txt") == Result<bool>{false});
     CHECK(fs.deleteFile("test.txt") == Result<bool>{true});
@@ -329,17 +347,23 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.moveFile("c:\\hopefully_nothing_here.txt", "dest.txt")
-      == Result<void>{Error{"'c:\\hopefully_nothing_here.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing_here.txt"}))}});
     CHECK(
       fs.moveFile("test.txt", "C:\\dest.txt")
-      == Result<void>{Error{"'C:\\dest.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"C:\\dest.txt"}))}});
 #else
     CHECK(
       fs.moveFile("/hopefully_nothing_here.txt", "dest.txt")
-      == Result<void>{Error{"'/hopefully_nothing_here.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing_here.txt"}))}});
     CHECK(
       fs.moveFile("test.txt", "/dest.txt")
-      == Result<void>{Error{"'/dest.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"/dest.txt"}))}});
 #endif
 
     CHECK(fs.moveFile("test.txt", "test2.txt") == Result<void>{});
@@ -365,17 +389,23 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.renameDirectory("c:\\hopefully_nothing_here", "dest")
-      == Result<void>{Error{"'c:\\hopefully_nothing_here' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing_here"}))}});
     CHECK(
       fs.renameDirectory("test", "C:\\dest")
-      == Result<void>{Error{"'C:\\dest' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"C:\\dest"}))}});
 #else
     CHECK(
       fs.renameDirectory("/hopefully_nothing_here", "dir1/newDir")
-      == Result<void>{Error{"'/hopefully_nothing_here' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing_here"}))}});
     CHECK(
       fs.renameDirectory("anotherDir", "/dir1/newDir")
-      == Result<void>{Error{"'/dir1/newDir' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"/dir1/newDir"}))}});
 #endif
 
     CHECK(fs.renameDirectory("anotherDir", "dir1/newDir") == Result<void>{});
@@ -391,17 +421,23 @@ TEST_CASE("WritableDiskFileSystemTest")
 #if defined _WIN32
     CHECK(
       fs.copyFile("c:\\hopefully_nothing_here.txt", "dest.txt")
-      == Result<void>{Error{"'c:\\hopefully_nothing_here.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"c:\\hopefully_nothing_here.txt"}))}});
     CHECK(
       fs.copyFile("test.txt", "C:\\dest.txt")
-      == Result<void>{Error{"'C:\\dest.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"C:\\dest.txt"}))}});
 #else
     CHECK(
       fs.copyFile("/hopefully_nothing_here.txt", "dest.txt")
-      == Result<void>{Error{"'/hopefully_nothing_here.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute",
+        fmt::streamed(std::filesystem::path{"/hopefully_nothing_here.txt"}))}});
     CHECK(
       fs.copyFile("test.txt", "/dest.txt")
-      == Result<void>{Error{"'/dest.txt' is absolute"}});
+      == Result<void>{Error{fmt::format(
+        "Path {} is absolute", fmt::streamed(std::filesystem::path{"/dest.txt"}))}});
 #endif
 
     CHECK(fs.copyFile("test.txt", "test2.txt") == Result<void>{});

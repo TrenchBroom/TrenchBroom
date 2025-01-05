@@ -212,8 +212,8 @@ void CellView::mouseReleaseEvent(QMouseEvent* event)
   if (event->button() == Qt::LeftButton)
   {
     const auto top = m_scrollBar ? m_scrollBar->value() : 0;
-    const auto x = float(event->localPos().x());
-    const auto y = float(event->localPos().y() + top);
+    const auto x = float(event->position().x());
+    const auto y = float(event->position().y() + top);
     doLeftClick(m_layout, x, y);
   }
 }
@@ -277,8 +277,8 @@ void CellView::startDrag(const QMouseEvent* event)
   if (dndEnabled())
   {
     const auto top = m_scrollBar ? m_scrollBar->value() : 0;
-    const auto x = float(event->localPos().x());
-    const auto y = float(event->localPos().y() + top);
+    const auto x = float(event->position().x());
+    const auto y = float(event->position().y() + top);
     if (const Cell* cell = m_layout.cellAt(x, y))
     {
       /*

@@ -185,7 +185,7 @@ set(TEST_FIXTURE_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/fixture")
 add_library(common-test-utils OBJECT ${COMMON_TEST_UTILS_SOURCE})
 set_compiler_config(common-test-utils)
 target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
-target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt5::Test)
+target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
     target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2)
@@ -226,16 +226,7 @@ if(WIN32)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:tinyxml2::tinyxml2>" "${TEST_RESOURCE_DEST_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:miniz::miniz>" "${TEST_RESOURCE_DEST_DIR}"
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:fmt::fmt>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Widgets>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Gui>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Core>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Svg>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::Test>" "${TEST_RESOURCE_DEST_DIR}"
-        COMMAND ${CMAKE_COMMAND} -E make_directory    "${TEST_RESOURCE_DEST_DIR}/platforms"
-        COMMAND ${CMAKE_COMMAND} -E make_directory    "${TEST_RESOURCE_DEST_DIR}/styles"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsIntegrationPlugin>" "${TEST_RESOURCE_DEST_DIR}/platforms"
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:Qt5::QWindowsVistaStylePlugin>" "${TEST_RESOURCE_DEST_DIR}/styles")
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different "$<TARGET_FILE:GLEW::GLEW>" "${TEST_RESOURCE_DEST_DIR}")
 endif()
 
 # Copy some resource files required when initializing TrenchBroomApp
