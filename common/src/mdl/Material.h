@@ -86,6 +86,7 @@ class Material
 {
 private:
   std::string m_name;
+  std::string m_collectionName;
   std::filesystem::path m_absolutePath;
   std::filesystem::path m_relativePath;
 
@@ -107,6 +108,7 @@ private:
   kdl_reflect_decl(
     Material,
     m_name,
+    m_collectionName,
     m_absolutePath,
     m_relativePath,
     m_textureResource,
@@ -127,6 +129,9 @@ public:
   ~Material();
 
   const std::string& name() const;
+
+  const std::string& collectionName() const;
+  void setCollectionName(std::string collectionName);
 
   /**
    * Absolute path of the material

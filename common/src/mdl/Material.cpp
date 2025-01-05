@@ -101,6 +101,7 @@ Material::~Material() = default;
 
 Material::Material(Material&& other)
   : m_name{std::move(other.m_name)}
+  , m_collectionName{std::move(other.m_collectionName)}
   , m_absolutePath{std::move(other.m_absolutePath)}
   , m_relativePath{std::move(other.m_relativePath)}
   , m_textureResource{std::move(other.m_textureResource)}
@@ -114,6 +115,7 @@ Material::Material(Material&& other)
 Material& Material::operator=(Material&& other)
 {
   m_name = std::move(other.m_name);
+  m_collectionName = std::move(other.m_collectionName);
   m_absolutePath = std::move(other.m_absolutePath);
   m_relativePath = std::move(other.m_relativePath);
   m_textureResource = std::move(other.m_textureResource);
@@ -127,6 +129,16 @@ Material& Material::operator=(Material&& other)
 const std::string& Material::name() const
 {
   return m_name;
+}
+
+const std::string& Material::collectionName() const
+{
+  return m_collectionName;
+}
+
+void Material::setCollectionName(std::string collectionName)
+{
+  m_collectionName = std::move(collectionName);
 }
 
 const std::filesystem::path& Material::absolutePath() const
