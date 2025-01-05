@@ -1,0 +1,13 @@
+execute_process(
+  COMMAND
+    @CMAKE_COMMAND@ -E env
+      OUTPUT=@CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@
+      QMAKE=@TB_QMAKE_PATH@
+    @TB_LINUXDEPLOY_PATH@
+    --appdir=${CPACK_TEMPORARY_DIRECTORY}
+    --output=appimage
+    --desktop-file=@APP_RESOURCE_DIR@/linux/trenchbroom.desktop
+    --icon-file=@APP_RESOURCE_DIR@/graphics/images/AppIcon.png
+    --icon-filename=trenchbroom
+    --plugin qt
+)
