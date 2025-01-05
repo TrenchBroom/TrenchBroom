@@ -38,6 +38,33 @@
 namespace tb
 {
 
+template <typename T>
+class PointerMatcher : public Catch::MatcherBase<const T*>
+{
+  T m_expected;
+
+public:
+  explicit PointerMatcher(T expected)
+    : m_expected{std::move(expected)}
+  {
+  }
+
+  bool match(const T* const& in) const override { return in && *in == m_expected; }
+
+  std::string describe() const override
+  {
+    auto str = std::stringstream{};
+    str << kdl::make_streamable(m_expected);
+    return str.str();
+  }
+};
+
+template <typename T>
+auto MatchesPointer(T expected)
+{
+  return PointerMatcher<T>{std::move(expected)};
+}
+
 template <typename M, typename T, typename... E>
 class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
 {
