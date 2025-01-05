@@ -18,6 +18,7 @@
  */
 
 #include "io/File.h"
+#include "io/FileSystemMetadata.h"
 #include "io/TestFileSystem.h"
 #include "io/TraversalMode.h"
 #include "io/VirtualFileSystem.h"
@@ -26,6 +27,8 @@
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+
+#include "catch/Matchers.h"
 
 #include "Catch2.h"
 
@@ -94,27 +97,32 @@ TEST_CASE("VirtualFileSystem")
   {
     auto foo_bar_baz = makeObjectFile(1);
     auto bar_foo = makeObjectFile(2);
+    auto md = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+    };
 
     vfs.mount(
       "",
-      std::make_unique<TestFileSystem>(Entry{DirectoryEntry{
-        "",
-        {
-          DirectoryEntry{
-            "foo",
-            {
-              DirectoryEntry{
-                "bar",
-                {
-                  FileEntry{"baz", foo_bar_baz},
-                }},
-            }},
-          DirectoryEntry{
-            "bar",
-            {
-              FileEntry{"foo", bar_foo},
-            }},
-        }}}));
+      std::make_unique<TestFileSystem>(
+        Entry{DirectoryEntry{
+          "",
+          {
+            DirectoryEntry{
+              "foo",
+              {
+                DirectoryEntry{
+                  "bar",
+                  {
+                    FileEntry{"baz", foo_bar_baz},
+                  }},
+              }},
+            DirectoryEntry{
+              "bar",
+              {
+                FileEntry{"foo", bar_foo},
+              }},
+          }}},
+        md));
 
     SECTION("makeAbsolute")
     {
@@ -130,6 +138,15 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
       CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
       CHECK(vfs.pathInfo("foo/baz") == PathInfo::Unknown);
+    }
+
+    SECTION("metadata")
+    {
+      CHECK_THAT(vfs.metadata("", "key1"), MatchesPointer(md.at("key1")));
+      CHECK_THAT(vfs.metadata("foo", "key1"), MatchesPointer(md.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar", "key1"), MatchesPointer(md.at("key1")));
+      CHECK(vfs.metadata("foo/bar", "key2") == nullptr);
+      CHECK(vfs.metadata("does/not/exist", "key1") == nullptr);
     }
 
     SECTION("find")
@@ -201,6 +218,14 @@ TEST_CASE("VirtualFileSystem")
     auto bar_bat_fs2 = makeObjectFile(4);
     auto bar_cat = makeObjectFile(5);
 
+    auto md_fs1 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+    };
+    auto md_fs2 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/other/path"}}},
+      {"key2", FileSystemMetadata{std::filesystem::path{"/yet_another/path"}}},
+    };
+
     vfs.mount(
       "",
       std::make_unique<TestFileSystem>(
@@ -224,6 +249,7 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"cat", nullptr},
               }},
           }}},
+        md_fs1,
         "/fs1"));
     vfs.mount(
       "",
@@ -244,6 +270,7 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"foo", nullptr},
               }},
           }}},
+        md_fs2,
         "/fs2"));
 
     SECTION("makeAbsolute")
@@ -277,6 +304,17 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("bat") == PathInfo::Unknown);
       CHECK(vfs.pathInfo("bar/dat") == PathInfo::Unknown);
       CHECK(vfs.pathInfo("bat/foo") == PathInfo::Unknown);
+    }
+
+    SECTION("metadata")
+    {
+      CHECK_THAT(vfs.metadata("", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("bar/foo", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK(vfs.metadata("bar/foo", "key2") == nullptr);
+      CHECK_THAT(vfs.metadata("bar/bat", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("bar/bat", "key2"), MatchesPointer(md_fs2.at("key2")));
+      CHECK_THAT(vfs.metadata("bar/baz", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("bar/baz", "key2"), MatchesPointer(md_fs2.at("key2")));
     }
 
     SECTION("find")
@@ -366,6 +404,15 @@ TEST_CASE("VirtualFileSystem")
     auto foo_bar_baz = makeObjectFile(1);
     auto bar_foo = makeObjectFile(2);
 
+    auto md_fs1 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+    };
+    auto md_fs2 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/other/path"}}},
+      {"key2", FileSystemMetadata{std::filesystem::path{"/yet_another/path"}}},
+    };
+
+
     vfs.mount(
       "foo",
       std::make_unique<TestFileSystem>(
@@ -378,6 +425,7 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"baz", foo_bar_baz},
               }},
           }}},
+        md_fs1,
         "/fs1"));
     vfs.mount(
       "bar",
@@ -387,6 +435,7 @@ TEST_CASE("VirtualFileSystem")
           {
             FileEntry{"foo", bar_foo},
           }}},
+        md_fs2,
         "/fs2"));
 
     SECTION("makeAbsolute")
@@ -409,6 +458,16 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("bar") == PathInfo::Directory);
       CHECK(vfs.pathInfo("bar/foo") == PathInfo::File);
       CHECK(vfs.pathInfo("baz") == PathInfo::Unknown);
+    }
+
+    SECTION("metadata")
+    {
+      CHECK(vfs.metadata("", "key1") == nullptr);
+      CHECK(vfs.metadata("baz", "key1") == nullptr);
+      CHECK_THAT(vfs.metadata("foo", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("bar", "key2"), MatchesPointer(md_fs2.at("key2")));
+      CHECK_THAT(vfs.metadata("bar/foo", "key2"), MatchesPointer(md_fs2.at("key2")));
     }
 
     SECTION("find")
@@ -476,6 +535,14 @@ TEST_CASE("VirtualFileSystem")
     auto foo_bar_baz = makeObjectFile(1);
     auto foo_bar_foo = makeObjectFile(2);
 
+    auto md_fs1 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+    };
+    auto md_fs2 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/other/path"}}},
+    };
+
+
     vfs.mount(
       "foo",
       std::make_unique<TestFileSystem>(
@@ -488,6 +555,7 @@ TEST_CASE("VirtualFileSystem")
                 FileEntry{"baz", foo_bar_baz},
               }},
           }}},
+        md_fs1,
         "/fs1"));
     vfs.mount(
       "foo/bar",
@@ -497,6 +565,7 @@ TEST_CASE("VirtualFileSystem")
           {
             FileEntry{"foo", foo_bar_foo},
           }}},
+        md_fs2,
         "/fs2"));
 
     SECTION("makeAbsolute")
@@ -519,6 +588,15 @@ TEST_CASE("VirtualFileSystem")
       CHECK(vfs.pathInfo("foo/bar") == PathInfo::Directory);
       CHECK(vfs.pathInfo("foo/bar/foo") == PathInfo::File);
       CHECK(vfs.pathInfo("foo/bar/baz") == PathInfo::File);
+    }
+
+    SECTION("metadata")
+    {
+      CHECK(vfs.metadata("", "key1") == nullptr);
+      CHECK(vfs.metadata("baz", "key1") == nullptr);
+      CHECK_THAT(vfs.metadata("foo", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/foo", "key1"), MatchesPointer(md_fs2.at("key1")));
     }
 
     SECTION("find")
@@ -579,6 +657,14 @@ TEST_CASE("VirtualFileSystem")
     auto fs2_foo_bar_d = makeObjectFile(7);
     auto fs2_foo_bar_g = makeObjectFile(8);
 
+    auto md_fs1 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+    };
+    auto md_fs2 = std::unordered_map<std::string, FileSystemMetadata>{
+      {"key1", FileSystemMetadata{std::filesystem::path{"/some/other/path"}}},
+    };
+
+
     vfs.mount(
       "foo",
       std::make_unique<TestFileSystem>(
@@ -595,6 +681,7 @@ TEST_CASE("VirtualFileSystem")
                 DirectoryEntry{"g", {}},       // overridden by fs2_foo_bar_g
               }},
           }}},
+        md_fs1,
         "/fs1"));
     vfs.mount(
       "foo/bar",
@@ -608,12 +695,26 @@ TEST_CASE("VirtualFileSystem")
             DirectoryEntry{"f", {}},       // overrides fs1_foo_bar_f
             FileEntry{"g", fs2_foo_bar_g}, // overrides directory in fs1
           }}},
+        md_fs2,
         "/fs2"));
 
     SECTION("pathInfo")
     {
       CHECK(vfs.pathInfo("foo/bar/f") == PathInfo::Directory);
       CHECK(vfs.pathInfo("foo/bar/g") == PathInfo::File);
+    }
+
+    SECTION("metadata")
+    {
+      CHECK_THAT(vfs.metadata("foo", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/a", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/b", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/c", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/d", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/e", "key1"), MatchesPointer(md_fs1.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/f", "key1"), MatchesPointer(md_fs2.at("key1")));
+      CHECK_THAT(vfs.metadata("foo/bar/g", "key1"), MatchesPointer(md_fs2.at("key1")));
     }
 
     SECTION("find")

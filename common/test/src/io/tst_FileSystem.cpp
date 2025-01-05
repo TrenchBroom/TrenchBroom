@@ -34,24 +34,26 @@ namespace tb::io
 
 TEST_CASE("FileSystem")
 {
-  auto fs = TestFileSystem{DirectoryEntry{
-    "",
-    {
-      DirectoryEntry{
-        "some_dir",
-        {
-          DirectoryEntry{
-            "nested_dir",
-            {
-              FileEntry{"nested_dir_file_2.map", makeObjectFile(2)},
-              FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
-            }},
-          FileEntry{"some_dir_file_1.TXT", makeObjectFile(3)},
-          FileEntry{"some_dir_file_2.doc", makeObjectFile(4)},
-        }},
-      FileEntry{"root_file.map", makeObjectFile(5)},
-      FileEntry{"root_file.jpg", makeObjectFile(6)},
-    }}};
+  auto fs = TestFileSystem{
+    DirectoryEntry{
+      "",
+      {
+        DirectoryEntry{
+          "some_dir",
+          {
+            DirectoryEntry{
+              "nested_dir",
+              {
+                FileEntry{"nested_dir_file_2.map", makeObjectFile(2)},
+                FileEntry{"nested_dir_file_1.txt", makeObjectFile(1)},
+              }},
+            FileEntry{"some_dir_file_1.TXT", makeObjectFile(3)},
+            FileEntry{"some_dir_file_2.doc", makeObjectFile(4)},
+          }},
+        FileEntry{"root_file.map", makeObjectFile(5)},
+        FileEntry{"root_file.jpg", makeObjectFile(6)},
+      }},
+    {}};
 
   SECTION("makeAbsolute")
   {

@@ -125,6 +125,25 @@ PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
            : PathInfo::Unknown;
 }
 
+const FileSystemMetadata* VirtualFileSystem::metadata(
+  const std::filesystem::path& path, const std::string& key) const
+{
+  for (auto it = m_mountPoints.rbegin(); it != m_mountPoints.rend(); ++it)
+  {
+    const auto& mountPoint = *it;
+    if (matches(mountPoint, path))
+    {
+      const auto pathSuffix = suffix(mountPoint, path);
+      if (const auto pathInfo = mountPoint.mountedFileSystem->pathInfo(pathSuffix);
+          pathInfo != PathInfo::Unknown)
+      {
+        return mountPoint.mountedFileSystem->metadata(pathSuffix, key);
+      }
+    }
+  }
+
+  return nullptr;
+}
 
 VirtualMountPointId VirtualFileSystem::mount(
   const std::filesystem::path& path, std::unique_ptr<FileSystem> fs)
@@ -314,6 +333,12 @@ Result<std::filesystem::path> WritableVirtualFileSystem::makeAbsolute(
 PathInfo WritableVirtualFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   return m_virtualFs.pathInfo(path);
+}
+
+const FileSystemMetadata* WritableVirtualFileSystem::metadata(
+  const std::filesystem::path& path, const std::string& key) const
+{
+  return m_virtualFs.metadata(path, key);
 }
 
 Result<std::vector<std::filesystem::path>> WritableVirtualFileSystem::doFind(

@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "Result.h"
 #include "io/FileSystem.h"
+#include "io/FileSystemMetadata.h"
 
 #include "kdl/path_hash.h"
 #include "kdl/result.h"
@@ -59,6 +60,7 @@ class ImageFileSystemBase : public FileSystem
 {
 protected:
   ImageEntry m_root;
+  std::unordered_map<std::string, FileSystemMetadata> m_metadata;
 
   ImageFileSystemBase();
 
@@ -73,10 +75,15 @@ public:
    */
   Result<void> reload();
 
+  void setMetadata(std::unordered_map<std::string, FileSystemMetadata> metadata);
+
 protected:
   void addFile(const std::filesystem::path& path, GetImageFile getFile);
 
   PathInfo pathInfo(const std::filesystem::path& path) const override;
+
+  const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const override;
 
 private:
   Result<std::vector<std::filesystem::path>> doFind(
@@ -100,6 +107,9 @@ public:
     ensure(m_file, "file must not be null");
   }
 };
+
+std::unordered_map<std::string, FileSystemMetadata> makeImageFileSystemMetadata(
+  std::filesystem::path imageFilePath);
 
 template <typename T, typename... Args>
 Result<std::unique_ptr<T>> createImageFileSystem(Args&&... args)
