@@ -147,8 +147,8 @@ jobs:
         with:
           name: macos-13
           path: |
-            build/*.dmg
-            build/*.md5
+            cmakebuild/*.dmg
+            cmakebuild/*.md5
 
       # Create release
 
@@ -162,8 +162,8 @@ jobs:
           files: |
             build/*.AppImage
             build/*.AppImage.md5
-            build/*.dmg
-            build/*.dmg.md5
+            cmakebuild/*.dmg
+            cmakebuild/*.dmg.md5
             cmakebuild/*.7z
             cmakebuild/*.7z.md5
         env:
