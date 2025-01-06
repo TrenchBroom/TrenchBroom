@@ -59,23 +59,6 @@ auto setLinkIds(const std::vector<std::tuple<mdl::Node*, std::string>>& linkIds)
              }));
          })
          | kdl::to_vector;
-
-  return kdl::vec_transform(linkIds, [](const auto& nodeAndLinkId) {
-    auto* node = std::get<mdl::Node*>(nodeAndLinkId);
-    const auto& linkId = std::get<std::string>(nodeAndLinkId);
-    return node->accept(kdl::overload(
-      [&](const mdl::WorldNode*) -> std::tuple<mdl::Node*, std::string> {
-        ensure(false, "no unexpected world node");
-      },
-      [](const mdl::LayerNode*) -> std::tuple<mdl::Node*, std::string> {
-        ensure(false, "no unexpected layer node");
-      },
-      [&](mdl::Object* object) -> std::tuple<mdl::Node*, std::string> {
-        auto oldLinkId = object->linkId();
-        object->setLinkId(std::move(linkId));
-        return {node, std::move(oldLinkId)};
-      }));
-  });
 }
 
 } // namespace
