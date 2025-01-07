@@ -343,13 +343,10 @@ Result<mdl::Material> loadTextureMaterial(
   const mdl::CreateTextureResource& createResource,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
-  // If the texture comes from a wad file, we omit the wad filename from the texture name.
-  const auto wadFileName = kdl::path_length(texturePath) > 1
-                             ? texturePath.parent_path().filename()
-                             : std::filesystem::path{};
-  const auto isWad = kdl::path_to_lower(wadFileName.extension()) == ".wad";
-
-  const auto prefixLength = kdl::path_length(materialConfig.root) + (isWad ? 1 : 0);
+  const auto prefixLength = kdl::path_length(materialConfig.root);
+  const auto pathMatcher = !materialConfig.extensions.empty()
+                             ? makeExtensionPathMatcher(materialConfig.extensions)
+                             : matchAnyPath;
   auto name = getMaterialNameFromPathSuffix(texturePath, prefixLength);
 
   auto textureLoader = makeTextureResourceLoader(
@@ -358,26 +355,55 @@ Result<mdl::Material> loadTextureMaterial(
   return mdl::Material{std::move(name), std::move(textureResource)};
 }
 
+std::string materialCollectionName(
+  const FileSystem& fs,
+  const mdl::MaterialConfig& materialConfig,
+  const std::filesystem::path& materialPath)
+{
+  const auto prefixLength = kdl::path_length(materialConfig.root);
+  if (const auto collectionPath =
+        kdl::path_clip(materialPath, prefixLength).parent_path();
+      !collectionPath.empty())
+  {
+    // If the file was loaded from a subdirectory of the root, use the parent path.
+    return materialPath.parent_path().generic_string();
+  }
+
+  if (const auto* metadata =
+        fs.metadata(materialPath, io::FileSystemMetadataKeys::ImageFilePath);
+      metadata && std::holds_alternative<std::filesystem::path>(*metadata))
+  {
+    if (const auto imageFileName = std::get<std::filesystem::path>(*metadata).filename();
+        kdl::ci::str_is_equal(imageFileName.extension().string(), ".wad"))
+    {
+      // If the texture was loaded from a WAD file, use the WAD file name as the
+      // collection name.
+      return imageFileName.filename().generic_string();
+    }
+  }
+
+  // Otherwise, just use the root directory name.
+  return materialConfig.root.generic_string();
+}
+
 std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
   std::vector<mdl::Material> materials)
 {
-  const auto getMaterialCollectionPath = [&](const auto& material) {
-    return material.relativePath().parent_path();
-  };
-
   materials = kdl::vec_sort(std::move(materials), [&](const auto& lhs, const auto& rhs) {
-    return getMaterialCollectionPath(lhs) < getMaterialCollectionPath(rhs);
+    return lhs.collectionName() < rhs.collectionName()   ? true
+           : lhs.collectionName() > rhs.collectionName() ? false
+                                                         : lhs.name() < rhs.name();
   });
 
   auto materialsByCollection =
     kdl::make_grouped_range(materials, [&](const auto& lhs, const auto& rhs) {
-      return getMaterialCollectionPath(lhs) == getMaterialCollectionPath(rhs);
+      return lhs.collectionName() == rhs.collectionName();
     });
 
   return kdl::vec_transform(materialsByCollection, [&](auto groupedMaterials) {
     assert(!groupedMaterials.empty());
 
-    auto materialCollectionPath = getMaterialCollectionPath(groupedMaterials.front());
+    auto materialCollectionName = groupedMaterials.front().collectionName();
 
     auto materialsForCollection = std::vector<mdl::Material>(
       std::move_iterator{groupedMaterials.begin()},
@@ -389,7 +415,7 @@ std::vector<mdl::MaterialCollection> groupMaterialsIntoCollections(
       });
 
     return mdl::MaterialCollection{
-      std::move(materialCollectionPath), std::move(materialsForCollection)};
+      std::move(materialCollectionName), std::move(materialsForCollection)};
   });
 }
 
@@ -419,6 +445,8 @@ Result<mdl::Material> loadMaterial(
                | kdl::transform([&](auto absPath) { material.setAbsolutePath(absPath); })
                | kdl::or_else([](auto) { return kdl::void_success; });
              material.setRelativePath(materialPath);
+             material.setCollectionName(
+               materialCollectionName(fs, materialConfig, materialPath));
              return material;
            });
 }

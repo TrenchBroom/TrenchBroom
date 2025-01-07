@@ -44,6 +44,9 @@ public:
 
   PathInfo pathInfo(const std::filesystem::path& path) const override;
 
+  const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const override;
+
 protected:
   Result<std::vector<std::filesystem::path>> doFind(
     const std::filesystem::path& path, const TraversalMode& traversalMode) const override;

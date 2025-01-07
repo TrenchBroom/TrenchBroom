@@ -115,31 +115,33 @@ void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger
 namespace
 {
 Result<std::unique_ptr<io::FileSystem>> createImageFileSystem(
-  const std::string& packageFormat, std::filesystem::path path)
+  const std::string& packageFormat, const std::filesystem::path& path)
 {
+  const auto setMetadataAndCast = [&](auto fs) {
+    fs->setMetadata(io::makeImageFileSystemMetadata(path));
+    return std::unique_ptr<io::FileSystem>{std::move(fs)};
+  };
+
   if (kdl::ci::str_is_equal(packageFormat, "idpak"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([](auto file) {
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
              return io::createImageFileSystem<io::IdPakFileSystem>(std::move(file));
            })
-           | kdl::transform(
-             [](auto fs) { return std::unique_ptr<io::FileSystem>{std::move(fs)}; });
+           | kdl::transform(setMetadataAndCast);
   }
   else if (kdl::ci::str_is_equal(packageFormat, "dkpak"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([](auto file) {
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
              return io::createImageFileSystem<io::DkPakFileSystem>(std::move(file));
            })
-           | kdl::transform(
-             [](auto fs) { return std::unique_ptr<io::FileSystem>{std::move(fs)}; });
+           | kdl::transform(setMetadataAndCast);
   }
   else if (kdl::ci::str_is_equal(packageFormat, "zip"))
   {
-    return io::Disk::openFile(path) | kdl::and_then([](auto file) {
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
              return io::createImageFileSystem<io::ZipFileSystem>(std::move(file));
            })
-           | kdl::transform(
-             [](auto fs) { return std::unique_ptr<io::FileSystem>{std::move(fs)}; });
+           | kdl::transform(setMetadataAndCast);
   }
   return Error{"Unknown package format: " + packageFormat};
 }
@@ -196,7 +198,8 @@ void GameFileSystem::mountWads(
     io::Disk::openFile(resolvedWadPath) | kdl::and_then([](auto file) {
       return io::createImageFileSystem<io::WadFileSystem>(std::move(file));
     }) | kdl::transform([&](auto fs) {
-      m_wadMountPoints.push_back(mount(rootPath / wadPath.filename(), std::move(fs)));
+      fs->setMetadata(io::makeImageFileSystemMetadata(resolvedWadPath));
+      m_wadMountPoints.push_back(mount(rootPath, std::move(fs)));
     }) | kdl::transform_error([&](auto e) {
       logger.error() << "Could not load wad file at '" << wadPath << "': " << e.msg;
     });

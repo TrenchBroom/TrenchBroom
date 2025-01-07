@@ -20,6 +20,7 @@
 #include "Result.h"
 #include "io/File.h"
 #include "io/FileSystem.h"
+#include "io/FileSystemMetadata.h"
 #include "io/PathInfo.h"
 
 #include "kdl/reflection_decl.h"
@@ -27,6 +28,7 @@
 #include <filesystem>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <variant>
 
 namespace tb::io
@@ -63,14 +65,20 @@ class TestFileSystem : public FileSystem
 {
 private:
   Entry m_root;
+  std::unordered_map<std::string, FileSystemMetadata> m_metadata;
   std::filesystem::path m_absolutePathPrefix;
 
 public:
-  explicit TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix = {"/"});
+  explicit TestFileSystem(
+    Entry root,
+    std::unordered_map<std::string, FileSystemMetadata> metadata,
+    std::filesystem::path absolutePathPrefix = {"/"});
 
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
+  const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const override;
 
 private:
   const Entry* findEntry(std::filesystem::path path) const;

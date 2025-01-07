@@ -28,6 +28,8 @@
 
 #include <filesystem>
 
+#include "catch/Matchers.h"
+
 #include "Catch2.h"
 
 namespace tb::io
@@ -42,24 +44,30 @@ TEST_CASE("TestFileSystem")
   auto nested_dir_file_1 = makeObjectFile(5);
   auto nested_dir_file_2 = makeObjectFile(6);
 
-  auto fs = TestFileSystem{DirectoryEntry{
-    "",
-    {
-      DirectoryEntry{
-        "some_dir",
-        {
-          DirectoryEntry{
-            "nested_dir",
-            {
-              FileEntry{"nested_dir_file_1", nested_dir_file_1},
-              FileEntry{"nested_dir_file_2", nested_dir_file_2},
-            }},
-          FileEntry{"some_dir_file_1", some_dir_file_1},
-          FileEntry{"some_dir_file_2", some_dir_file_2},
-        }},
-      FileEntry{"root_file_1", root_file_1},
-      FileEntry{"root_file_2", root_file_2},
-    }}};
+  auto metadata = std::unordered_map<std::string, FileSystemMetadata>{
+    {"key1", FileSystemMetadata{std::filesystem::path{"/some/path"}}},
+  };
+
+  auto fs = TestFileSystem{
+    DirectoryEntry{
+      "",
+      {
+        DirectoryEntry{
+          "some_dir",
+          {
+            DirectoryEntry{
+              "nested_dir",
+              {
+                FileEntry{"nested_dir_file_1", nested_dir_file_1},
+                FileEntry{"nested_dir_file_2", nested_dir_file_2},
+              }},
+            FileEntry{"some_dir_file_1", some_dir_file_1},
+            FileEntry{"some_dir_file_2", some_dir_file_2},
+          }},
+        FileEntry{"root_file_1", root_file_1},
+        FileEntry{"root_file_2", root_file_2},
+      }},
+    metadata};
 
   SECTION("makeAbsolute")
   {
@@ -81,6 +89,20 @@ TEST_CASE("TestFileSystem")
     CHECK(fs.pathInfo("some_dir/does_not_exist") == PathInfo::Unknown);
     CHECK(fs.pathInfo("some_dir/nested_dir/nested_dir_file_1") == PathInfo::File);
     CHECK(fs.pathInfo("some_dir/nested_dir/does_not_exist") == PathInfo::Unknown);
+  }
+
+  SECTION("metadata")
+  {
+    CHECK_THAT(fs.metadata("root_file_1", "key1"), MatchesPointer(metadata.at("key1")));
+    CHECK_THAT(fs.metadata("some_dir", "key1"), MatchesPointer(metadata.at("key1")));
+    CHECK_THAT(
+      fs.metadata("some_dir/some_dir_file_1", "key1"),
+      MatchesPointer(metadata.at("key1")));
+    CHECK_THAT(
+      fs.metadata("some_dir/nested_dir", "key1"), MatchesPointer(metadata.at("key1")));
+    CHECK(fs.metadata("root_file_1", "key2") == nullptr);
+    CHECK(fs.metadata("does_not_exist", "key1") == nullptr);
+    CHECK(fs.metadata("some_dir/does_not_exist", "key1") == nullptr);
   }
 
   SECTION("find")

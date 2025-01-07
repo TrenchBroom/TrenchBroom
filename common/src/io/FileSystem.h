@@ -21,6 +21,7 @@
 
 #include "Result.h"
 #include "io/File.h"
+#include "io/FileSystemMetadata.h"
 #include "io/PathMatcher.h"
 
 #include <filesystem>
@@ -50,6 +51,12 @@ public:
   /** Indicates whether the given path denotes a file, a directory, or is unknown.
    */
   virtual PathInfo pathInfo(const std::filesystem::path& path) const = 0;
+
+  /** Returns the meta data associated with the given path and key, or null if no metadata
+   * is associated with the given path and key.
+   */
+  virtual const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const = 0;
 
   /** Returns a vector of paths listing the contents of the directory  at the given path
    * that satisfy the given path matcher. The returned paths are relative to the root of

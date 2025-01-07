@@ -59,6 +59,8 @@ public:
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
+  const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const override;
 
   VirtualMountPointId mount(
     const std::filesystem::path& path, std::unique_ptr<FileSystem> fs);
@@ -87,6 +89,8 @@ public:
   Result<std::filesystem::path> makeAbsolute(
     const std::filesystem::path& path) const override;
   PathInfo pathInfo(const std::filesystem::path& path) const override;
+  const FileSystemMetadata* metadata(
+    const std::filesystem::path& path, const std::string& key) const override;
 
 private:
   Result<std::vector<std::filesystem::path>> doFind(

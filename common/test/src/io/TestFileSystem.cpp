@@ -64,8 +64,12 @@ const Entry* getChild(const Entry& entry, const std::string& name)
 }
 } // namespace
 
-TestFileSystem::TestFileSystem(Entry root, std::filesystem::path absolutePathPrefix)
+TestFileSystem::TestFileSystem(
+  Entry root,
+  std::unordered_map<std::string, FileSystemMetadata> metadata,
+  std::filesystem::path absolutePathPrefix)
   : m_root{std::move(root)}
+  , m_metadata{std::move(metadata)}
   , m_absolutePathPrefix{std::move(absolutePathPrefix)}
 {
 }
@@ -85,6 +89,19 @@ PathInfo TestFileSystem::pathInfo(const std::filesystem::path& path) const
 {
   const auto* entry = findEntry(path);
   return entry ? getEntryType(*entry) : PathInfo::Unknown;
+}
+
+const FileSystemMetadata* TestFileSystem::metadata(
+  const std::filesystem::path& path, const std::string& key) const
+{
+  if (findEntry(path))
+  {
+    if (const auto it = m_metadata.find(key); it != m_metadata.end())
+    {
+      return &it->second;
+    }
+  }
+  return nullptr;
 }
 
 Result<std::filesystem::path> TestFileSystem::makeAbsolute(

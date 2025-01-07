@@ -167,12 +167,9 @@ TEST_CASE("loadMaterialCollections")
 
   SECTION("WAD file")
   {
-    const auto mountPoint = GENERATE("textures", "textures/cr8_czg.wad");
-    CAPTURE(mountPoint);
-
     const auto wadPath = workDir / "fixture/test/io/Wad/cr8_czg.wad";
     fs.mount("", std::make_unique<DiskFileSystem>(workDir)); // to find the palette
-    fs.mount(mountPoint, openFS<WadFileSystem>(wadPath));
+    fs.mount("textures", openFS<WadFileSystem>(wadPath));
 
     const auto materialConfig = mdl::MaterialConfig{
       "textures",
@@ -187,7 +184,7 @@ TEST_CASE("loadMaterialCollections")
       loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
       MatchesMaterialCollections({
         {
-          mountPoint,
+          "cr8_czg.wad",
           {
             MaterialInfo{"blowjob_machine", 128, 128},
             MaterialInfo{"bongs2", 128, 128},
@@ -213,6 +210,55 @@ TEST_CASE("loadMaterialCollections")
           },
         },
       }));
+
+    SECTION("Multiple WAD files with name conflicts")
+    {
+      const auto additionalWadPath = workDir / "fixture/test/io/Wad/cr8_a_excerpt.wad";
+      fs.mount("textures", openFS<WadFileSystem>(additionalWadPath));
+
+      // Overriding is determined by load order: Wads that are loaded later override
+      // textures from other wads that were loaded before. But the texture collections are
+      // sorted by name and not by load order!
+      CHECK_THAT(
+        loadMaterialCollections(fs, materialConfig, createResource, taskManager, logger),
+        MatchesMaterialCollections({
+          {
+            "cr8_a_excerpt.wad", // sorting does not depend on load order
+            {
+              MaterialInfo{"added", 128, 128},
+              // overrides texture from cr8_czg.wad
+              MaterialInfo{"cr8_czg_1", 64, 128},
+            },
+          },
+          {
+            "cr8_czg.wad",
+            {
+              MaterialInfo{"blowjob_machine", 128, 128},
+              MaterialInfo{"bongs2", 128, 128},
+              MaterialInfo{"can-o-jam", 64, 64},
+              MaterialInfo{"cap4can-o-jam", 64, 64},
+              MaterialInfo{"coffin1", 128, 128},
+              MaterialInfo{"coffin2", 128, 128},
+              // overridden from cr8_a_excerpt.wad
+              // MaterialInfo{"cr8_czg_1", 64, 64},
+              MaterialInfo{"cr8_czg_2", 64, 64},
+              MaterialInfo{"cr8_czg_3", 64, 128},
+              MaterialInfo{"cr8_czg_4", 64, 128},
+              MaterialInfo{"cr8_czg_5", 64, 128},
+              MaterialInfo{"crackpipes", 128, 128},
+              MaterialInfo{"czg_backhole", 128, 128},
+              MaterialInfo{"czg_fronthole", 128, 128},
+              MaterialInfo{"dex_5", 128, 128},
+              MaterialInfo{"eat_me", 64, 64},
+              MaterialInfo{"for_sux-m-ass", 64, 64},
+              MaterialInfo{"lasthopeofhuman", 128, 128},
+              MaterialInfo{"polished_turd", 64, 64},
+              MaterialInfo{"speedM_1", 128, 128},
+              MaterialInfo{"u_get_this", 64, 64},
+            },
+          },
+        }));
+    }
   }
 
   SECTION("Quake 3 shaders")

@@ -66,6 +66,12 @@ PathInfo DiskFileSystem::pathInfo(const std::filesystem::path& path) const
          | kdl::value();
 }
 
+const FileSystemMetadata* DiskFileSystem::metadata(
+  const std::filesystem::path&, const std::string&) const
+{
+  return nullptr;
+}
+
 Result<std::vector<std::filesystem::path>> DiskFileSystem::doFind(
   const std::filesystem::path& path, const TraversalMode& traversalMode) const
 {
