@@ -28,6 +28,7 @@
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
+#include "kdl/k.h"
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
@@ -261,7 +262,7 @@ void AseLoader::parseMaterialListMaterialMapDiffuseBitmap(
 {
   expectDirective("BITMAP");
   const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-  path = std::filesystem::path(token.data());
+  path = kdl::parse_path(token.data(), K(replace_backslashes));
 }
 
 void AseLoader::parseGeomObject(

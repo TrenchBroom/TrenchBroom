@@ -30,6 +30,8 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
+#include "kdl/k.h"
+#include "kdl/path_utils.h"
 #include "kdl/task_manager.h"
 
 #include <filesystem>
@@ -58,7 +60,7 @@ TEST_CASE("AseLoaderTest")
 
   auto taskManager = kdl::task_manager{};
 
-  SECTION("loadWithoutException")
+  SECTION("Models load without exception")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/wedge_with_shader";
@@ -82,11 +84,25 @@ TEST_CASE("AseLoaderTest")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.load(logger);
-    CHECK(model.is_success());
+    auto modelResult = loader.load(logger);
+    CHECK(modelResult.is_success());
+
+    SECTION("Windows paths are converted to generic paths")
+    {
+      for (const auto& surface : modelResult.value().surfaces())
+      {
+        for (size_t i = 0; i < surface.skinCount(); ++i)
+        {
+          const auto* skin = surface.skin(i);
+          CHECK(
+            skin->relativePath()
+            == kdl::parse_path(skin->relativePath().string(), K(replace_backslashes)));
+        }
+      }
+    }
   }
 
-  SECTION("fallbackToMaterialName")
+  SECTION("Fall back to material name if bitmap directive is missing")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/fallback_to_materialname";
@@ -117,7 +133,7 @@ TEST_CASE("AseLoaderTest")
     CHECK(modelData.value().surface(0).skin(0)->name() == "textures/bigtile");
   }
 
-  SECTION("loadDefaultMaterial")
+  SECTION("Fall back to default material if texture cannot be loaded")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/load_default_material";
