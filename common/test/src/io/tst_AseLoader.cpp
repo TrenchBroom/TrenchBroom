@@ -30,6 +30,8 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
+#include "kdl/k.h"
+#include "kdl/path_utils.h"
 #include "kdl/task_manager.h"
 
 #include <filesystem>
@@ -82,8 +84,22 @@ TEST_CASE("AseLoaderTest")
     auto reader = aseFile->reader().buffer();
     auto loader = AseLoader{"wedge", reader.stringView(), loadMaterial};
 
-    auto model = loader.load(logger);
-    CHECK(model.is_success());
+    auto modelResult = loader.load(logger);
+    CHECK(modelResult.is_success());
+
+    SECTION("Windows paths are converted to generic paths")
+    {
+      for (const auto& surface : modelResult.value().surfaces())
+      {
+        for (size_t i = 0; i < surface.skinCount(); ++i)
+        {
+          const auto* skin = surface.skin(i);
+          CHECK(
+            skin->relativePath()
+            == kdl::parse_path(skin->relativePath().string(), K(replace_backslashes)));
+        }
+      }
+    }
   }
 
   SECTION("Fall back to material name if bitmap directive is missing")
