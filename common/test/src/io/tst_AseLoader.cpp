@@ -58,7 +58,7 @@ TEST_CASE("AseLoaderTest")
 
   auto taskManager = kdl::task_manager{};
 
-  SECTION("loadWithoutException")
+  SECTION("Models load without exception")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/wedge_with_shader";
@@ -86,7 +86,7 @@ TEST_CASE("AseLoaderTest")
     CHECK(model.is_success());
   }
 
-  SECTION("fallbackToMaterialName")
+  SECTION("Fall back to material name if bitmap directive is missing")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/fallback_to_materialname";
@@ -117,7 +117,7 @@ TEST_CASE("AseLoaderTest")
     CHECK(modelData.value().surface(0).skin(0)->name() == "textures/bigtile");
   }
 
-  SECTION("loadDefaultMaterial")
+  SECTION("Fall back to default material if texture cannot be loaded")
   {
     const auto basePath =
       std::filesystem::current_path() / "fixture/test/io/Ase/load_default_material";

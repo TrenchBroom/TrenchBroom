@@ -261,7 +261,7 @@ void AseLoader::parseMaterialListMaterialMapDiffuseBitmap(
 {
   expectDirective("BITMAP");
   const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-  path = std::filesystem::path(token.data());
+  path = std::filesystem::path{token.data()};
 }
 
 void AseLoader::parseGeomObject(
