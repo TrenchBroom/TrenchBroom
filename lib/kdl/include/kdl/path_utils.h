@@ -25,9 +25,20 @@
 #include <algorithm>
 #include <filesystem>
 #include <numeric>
+#include <string>
 
 namespace kdl
 {
+
+inline std::filesystem::path parse_path(
+  std::string str, const bool replace_backslashes = true)
+{
+  if (replace_backslashes)
+  {
+    std::ranges::replace_if(str, [](char c) { return c == '\\'; }, '/');
+  }
+  return std::filesystem::path{std::move(str)};
+}
 
 inline size_t path_length(const std::filesystem::path& path)
 {

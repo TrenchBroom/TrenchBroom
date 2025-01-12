@@ -18,6 +18,7 @@
  DEALINGS IN THE SOFTWARE.
 */
 
+#include "kdl/k.h"
 #include "kdl/path_utils.h"
 
 #include "catch2.h"
@@ -25,6 +26,17 @@
 namespace kdl
 {
 using std::filesystem::path;
+
+TEST_CASE("parse_path")
+{
+  CHECK(parse_path(R"()") == path{R"()"});
+  CHECK(parse_path(R"(/)") == path{R"(/)"});
+  CHECK(parse_path(R"(\)") == path{R"(/)"});
+  CHECK(parse_path(R"(\)", !K(replace_backslashes)) == path{R"(\)"});
+  CHECK(parse_path(R"(a/b/c)") == path{R"(a/b/c)"});
+  CHECK(parse_path(R"(a\b\c)") == path{R"(a/b/c)"});
+  CHECK(parse_path(R"(a\b\c)", !K(replace_backslashes)) == path{R"(a\b\c)"});
+}
 
 TEST_CASE("path_length")
 {
