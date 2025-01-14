@@ -134,9 +134,10 @@ if(APPLE)
     # Set the path to the plist template
     set_target_properties(TrenchBroom PROPERTIES MACOSX_BUNDLE_INFO_PLIST "${APP_RESOURCE_DIR}/mac/TrenchBroom-Info.plist")
 
-    # If requested, run macdeployqt which copies the Qt frameworks into the TrenchBroom.app bundle
-    # and modifies the TrenchBroom executable to refer to these private copies of the framework instead
-    # of the ones in /usr/local. This is slow so only do it if requested.
+    # If requested, run macdeployqt which copies the Qt frameworks into the
+    # TrenchBroom.app bundle and modifies the TrenchBroom executable to refer to these
+    # private copies of the framework instead of the ones in /usr/local. This is slow so
+    # only do it if requested.
     if(TB_RUN_MACDEPLOYQT)
         message(STATUS "macdeployqt requested")
 
@@ -145,8 +146,26 @@ if(APPLE)
         string(REPLACE "qmake" "macdeployqt" TB_MACDEPLOYQT_PATH "${TB_QMAKE_PATH}")
         message(STATUS "macdeployqt found: ${TB_MACDEPLOYQT_PATH}")
 
-        add_custom_command(TARGET TrenchBroom POST_BUILD
+        if(TB_SIGN_MAC_BUNDLE)
+            # Have macdeployqt codesign the app bundle. See Build.md for more details on
+            # how to set up the signing identity.
+            add_custom_command(TARGET TrenchBroom POST_BUILD
+                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:TrenchBroom>/../.."
+                        "-codesign=${TB_SIGN_IDENTITY}"
+                        "-sign-for-notarization=${TB_SIGN_IDENTITY}"
+                        "-hardened-runtime"
+                        "-verbose=2"
+                COMMAND "codesign"
+                        "--verify"
+                        "--verbose=3"
+                        "--deep"
+                        "--strict"
+                        "$<TARGET_FILE_DIR:TrenchBroom>/../.."
+                VERBATIM)
+        else()
+            add_custom_command(TARGET TrenchBroom POST_BUILD
                 COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:TrenchBroom>/../..")
+        endif()
     endif()
 endif()
 
@@ -324,6 +343,7 @@ elseif(APPLE)
     set(CPACK_GENERATOR "DragNDrop")
 
     set(CPACK_PACKAGE_FILE_EXT "dmg")
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SignMacOsBundle.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/sign_macos_bundle.sh" @ONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.sh" @ONLY)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     # add architecture to filename
