@@ -51,7 +51,7 @@ jobs:
         run: |
           mkdir -p build
           cd build
-          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_SUPPRESS_PCH=1
+          cmake .. -GNinja -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DTB_ENABLE_PCH=0
 
       - name: "Run clang-tidy"
         uses: cpp-linter/cpp-linter-action@v2
