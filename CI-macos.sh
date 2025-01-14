@@ -12,8 +12,8 @@ brew --prefix qt@6
 
 # Build TB
 
-BUILD_TYPE_VALUE="Release"
-TB_ENABLE_ASAN_VALUE="NO"
+TB_BUILD_TYPE="Release"
+TB_ENABLE_ASAN=0
 
 # Note: When this variable is changed, vcpkg will need to recompile all dependencies.
 # However, vcpkg will not detect the change and will happily keep using any cached binaries (see
@@ -25,18 +25,18 @@ TB_ENABLE_ASAN_VALUE="NO"
 export MACOSX_DEPLOYMENT_TARGET=10.15
 
 if [[ $TB_DEBUG_BUILD == "true" ]] ; then
-    BUILD_TYPE_VALUE="Debug"
-    TB_ENABLE_ASAN_VALUE="YES"
+    TB_BUILD_TYPE="Debug"
+    TB_ENABLE_ASAN=1
 fi
 
-echo "Build type: $BUILD_TYPE_VALUE"
-echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
+echo "Build type: $TB_BUILD_TYPE"
+echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN"
 
 mkdir cmakebuild
 cd cmakebuild
-cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,-fatal_warnings" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" || exit 1
+cmake .. -GNinja -DCMAKE_BUILD_TYPE="$TB_BUILD_TYPE" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,-fatal_warnings" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" || exit 1
 
-cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
+cmake --build . --config "$TB_BUILD_TYPE" || exit 1
 
 BUILD_DIR=$(pwd)
 
