@@ -267,7 +267,7 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
 endif()
 
 # Common CPack configuration
-set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
+set(APP_PACKAGE_FILE_NAME "TrenchBroom-${APP_PLATFORM_NAME}-${CMAKE_SYSTEM_PROCESSOR}-${GIT_DESCRIBE}-${CMAKE_BUILD_TYPE}")
 set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "TrenchBroom Level Editor")
 set(CPACK_PACKAGE_VENDOR "TrenchBroom")
@@ -346,10 +346,6 @@ elseif(APPLE)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SignMacOsBundle.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/sign_macos_bundle.sh" @ONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.sh" @ONLY)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-    # add architecture to filename
-    set(APP_PACKAGE_FILE_NAME "${APP_PACKAGE_FILE_NAME}.${CMAKE_SYSTEM_PROCESSOR}")
-    set(CPACK_PACKAGE_FILE_NAME ${APP_PACKAGE_FILE_NAME})
-
     set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 
     set(LINUX_RESOURCE_LOCATION "share/TrenchBroom")
