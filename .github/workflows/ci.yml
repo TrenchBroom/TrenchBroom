@@ -19,7 +19,7 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, windows-2022]
+        os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
@@ -85,7 +85,7 @@ jobs:
         with:
           version: '6.7.0'
 
-      - name: Install macOS dependencies
+      - name: Install macOS 13 dependencies
         if: ${{ matrix.os == 'macos-13' }}
         run: |
           # workaround for https://github.com/actions/runner-images/issues/4020
@@ -96,8 +96,13 @@ jobs:
           brew link --overwrite python@3.12
           brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
 
+      - name: Install macOS 14 dependencies
+        if: ${{ matrix.os == 'macos-14' }}
+        run: |
+          brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
+
       - name: Import macOS signing certificates
-        if: ${{ matrix.os == 'macos-13' && matrix.tb-build-type != 'asan' }}
+        if: ${{ (matrix.os == 'macos-13' && matrix.tb-build-type != 'asan') || matrix.os == 'macos-14' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}
@@ -105,12 +110,12 @@ jobs:
 
       # Run build script
       - name: Linux build
-        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           ./CI-linux.sh
 
       - name: macOS build
-        if: ${{ matrix.os == 'macos-13' }}
+        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
         run: |
           if [ '${{ matrix.tb-build-type }}' == 'asan' ]; then
             export DTB_SIGN_MAC_BUNDLE=0
@@ -155,11 +160,20 @@ jobs:
             cmakebuild/*.md5
 
       # macOS
-      - name: Upload macOS artifact
+      - name: Upload macOS 13 artifact
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-13' && matrix.tb-build-type != 'asan' }}
         with:
           name: macos-13
+          path: |
+            cmakebuild/*.dmg
+            cmakebuild/*.md5
+
+      - name: Upload macOS 14 artifact
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'macos-14' }}
+        with:
+          name: macos-14
           path: |
             cmakebuild/*.dmg
             cmakebuild/*.md5
