@@ -153,6 +153,88 @@ cmake .. -GNinja -DCMAKE_PREFIX_PATH="<QT_INSTALL_DIR>/macos"
 cmake --build . --target TrenchBroom
 ```
 
+#### Signing and notarization
+
+The app bundle and the DMG should be signed and notarized, otherwise macOS' gatekeeper
+will refuse to run the app. The signing and notarization process is taken care of by CI,
+but a number of prerequisites must be in place for it to work:
+
+1. An Apple developer account.
+2. A certificate of type "Developer ID Application".
+3. An application specific password for notarization.
+
+Read on to find out how to prepare CI for signing and notarization.
+
+##### Prequisites for signing
+
+Prerequisite: Xcode is logged into an Apple developer account.
+
+To create a certificate for signing, open Xcode and go to account settings. Select the
+Apple ID to use for signing and click on "Manage Certificates". Add a new certificate of
+type "Developer ID Application". The certificate should be created and stored in your
+Mac's keychain.
+
+Now the certificate and it's corresponding private key must be imported into CI. This is
+done by the `apple-actions/import-codesign-certs@v3` action (see `ci.yml`), but the action
+requires that the certificate and private key are stored in a `.p12` file. To create such
+a file, open Keychain Access on your mac and find the following two entries:
+- the certificate (`Developer ID Application: <developer account user name> (<group id>)`)
+- the private key (`Mac Developer ID Application: <developer account user name>`)
+
+Select the two entries, right click and select "Export 2 items...". In the dialog, set the
+file format to `.p12` and choose a location for the exported file. Then choose a secure
+password for it -- take note of the password as we will need it again!
+
+The `apple-actions/import-codesign-certs@v3` action accesses the `.p12` file contents and
+the password via two github action secrets:
+- `ACTIONS_MAC_SIGN_CERTIFICATES_P12` contains the base64 encoded `.p12` file contents. To
+  put this data on the pasteboard, type the following in a terminal: 
+  `base64 -i <path to .p12 file> | pbcopy`.
+- `ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD`: the password that we used to secure the
+  `.p12` file.
+
+Create these two secrets in the github repository settings.
+
+With the certificate and private key in place, we only need to tell `macdeployqt` which
+signing identity it should use. For this, we create another github action secret:
+- `ACTIONS_MAC_SIGN_IDENTITY`: Set this to the developer account name used when creating
+  the certificate. For example, if the certificate is named `Developer ID Application:
+  Roger Workman (1234567)`, then the signing identity is "Roger Workman".
+
+Now all prerequisites for signing the app bundle and the dmg file should be in place and
+we can move on the prerequisites for notarization.
+
+##### Prequisites for notarization
+
+Notarization is a process in which Apple scans the app bundle for malware and other
+problems. For this, the app must be submitted to Apple using `notarytool`. This is also
+taken care of on CI, but the process also requires some prerequisites, namely three more
+github action secrets:
+- `ACTIONS_MAC_NOTARIZATION_EMAIL`: This is the primary email address for the Apple
+  developer account used for signing.
+- `ACTIONS_MAC_NOTARIZATION_TEAM_ID`: This is the team ID associated with the signing
+  certificate. For example, if the certificate is named `Developer ID Application: Roger
+  Workman (1234567)`, then the team ID is "1234567".
+- `ACTIONS_MAC_NOTARIZATION_PASSWORD`: This is an application specific password created
+  for the Apple developer account that is used for signing. To create an application
+  specific password, [follow these instructions](https://support.apple.com/en-us/102654).
+
+##### Summary
+
+To summarize, singing and notarization is automated on CI, but it requires six github
+action secrets to be present:
+- `ACTIONS_MAC_SIGN_CERTIFICATES_P12`: a base64 encoded `.p12` file containing the signing
+  certificate and associated private key
+- `ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD`: the password used to secure the `.p12`
+  file
+- `ACTIONS_MAC_SIGN_IDENTITY`: the identity associated with the signing certificate
+- `ACTIONS_MAC_NOTARIZATION_EMAIL`: the email address of the Apple developer account for
+  notarization
+- `ACTIONS_MAC_NOTARIZATION_TEAM_ID`: the team ID associated with the signing certificate
+- `ACTIONS_MAC_NOTARIZATION_PASSWORD`: an application specific password
+
+Once all these secrets are in place, CI should produce a signed and notarized dmg file.
+
 ---
 
 ## How to release

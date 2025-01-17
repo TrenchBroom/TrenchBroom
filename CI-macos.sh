@@ -12,31 +12,55 @@ brew --prefix qt@6
 
 # Build TB
 
-BUILD_TYPE_VALUE="Release"
-TB_ENABLE_ASAN_VALUE="NO"
+TB_BUILD_TYPE="Release"
+TB_ENABLE_ASAN=0
 
 # Note: When this variable is changed, vcpkg will need to recompile all dependencies.
-# However, vcpkg will not detect the change and will happily keep using any cached binaries (see
-# the lukka/run-vcpkg workflow step for details). This will cause a mismatch between the deployment
-# target under which the binaries were compiled and the new deployment target used here.
-# Therefore, when this variable is changed, the vcpkg binary cache must be invalidated. The easiest
-# way to do that is to update vcpkg to the latest version because the vcpkg commit ID is part of the
-# cache key for the binary cache.
+# However, vcpkg will not detect the change and will happily keep using any cached
+# binaries (see the lukka/run-vcpkg workflow step for details). This will cause a mismatch
+# between the deployment target under which the binaries were compiled and the new
+# deployment target used here. Therefore, when this variable is changed, the vcpkg binary
+# cache must be invalidated. The easiest way to do that is to update vcpkg to the latest
+# version because the vcpkg commit ID is part of the cache key for the binary cache.
 export MACOSX_DEPLOYMENT_TARGET=10.15
 
 if [[ $TB_DEBUG_BUILD == "true" ]] ; then
-    BUILD_TYPE_VALUE="Debug"
-    TB_ENABLE_ASAN_VALUE="YES"
+    TB_BUILD_TYPE="Debug"
+    TB_ENABLE_ASAN=1
 fi
 
-echo "Build type: $BUILD_TYPE_VALUE"
-echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN_VALUE"
+echo "Build type: $TB_BUILD_TYPE"
+echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN"
+echo "TB_SIGN_MAC_BUNDLE: $TB_SIGN_MAC_BUNDLE"
+
+# Note: The app bundle and the DMG should be signed and notarized, otherwise macOS'
+# gatekeeper will refuse to run the app. The app itself is signed as a post-build step
+# using macdeployqt, and the dmg is signed and notarized by the ./app/sign_macos_bundle.sh
+# script that is called when the build was successful. This script is generated from the
+# cmake template SignMacOsBundle.cmake.in. See Build.md for more details on how to set up
+# the necessary prerequisites for signing and notarizing the app and the DMG.
+
 
 mkdir cmakebuild
 cd cmakebuild
-cmake .. -GNinja -DCMAKE_BUILD_TYPE="$BUILD_TYPE_VALUE" -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,-fatal_warnings" -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN_VALUE" -DTB_RUN_MACDEPLOYQT=1 -DTB_SUPPRESS_PCH=1 -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" || exit 1
+cmake .. \
+  -GNinja \
+  -DCMAKE_PREFIX_PATH="$QT_ROOT_DIR" \
+  -DCMAKE_BUILD_TYPE="$TB_BUILD_TYPE" \
+  -DCMAKE_CXX_FLAGS="-Werror" \
+  -DCMAKE_EXE_LINKER_FLAGS="-Wl,-fatal_warnings" \
+  -DTB_ENABLE_CCACHE=0 \
+  -DTB_ENABLE_PCH=0 \
+  -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN" \
+  -DTB_RUN_MACDEPLOYQT=1 \
+  -DTB_SIGN_MAC_BUNDLE=$DTB_SIGN_MAC_BUNDLE \
+  -DTB_SIGN_IDENTITY="$TB_SIGN_IDENTITY" \
+  -DTB_NOTARIZATION_EMAIL="$TB_NOTARIZATION_EMAIL" \
+  -DTB_NOTARIZATION_TEAM_ID="$TB_NOTARIZATION_TEAM_ID" \
+  -DTB_NOTARIZATION_PASSWORD="$TB_NOTARIZATION_PASSWORD" \
+  || exit 1
 
-cmake --build . --config "$BUILD_TYPE_VALUE" || exit 1
+cmake --build . --config "$TB_BUILD_TYPE" || exit 1
 
 BUILD_DIR=$(pwd)
 
@@ -65,7 +89,8 @@ echo waiting...; while pgrep XProtect; do sleep 3; done;
 
 # retry up to 3 times to work around hdiutil failing to create a DMG image
 retry --tries=3 --fail="exit 1" cpack
-./app/generate_checksum.sh
+./app/sign_macos_bundle.sh || exit 1
+./app/generate_checksum.sh || exit 1
 
 echo "Deployment target (minos):"
 otool -l ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
