@@ -31,8 +31,6 @@
 
 #include <filesystem>
 
-#include "catch/Matchers.h"
-
 #include "Catch2.h"
 
 namespace tb::io
