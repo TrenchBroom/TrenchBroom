@@ -28,6 +28,9 @@
 #include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 namespace tb::io::Disk
 {
 namespace
@@ -117,8 +120,8 @@ Result<std::vector<std::filesystem::path>> find(
   const auto fixedPath = fixPath(path);
   if (pathInfoForFixedPath(fixedPath) != PathInfo::Directory)
   {
-    return Error{fmt::format(
-      "Failed to open {}: path does not denote a directory", fmt::streamed(path))};
+    return Error{
+      fmt::format("Failed to open {}: path does not denote a directory", path)};
   }
 
   auto error = std::error_code{};
@@ -148,8 +151,7 @@ Result<std::vector<std::filesystem::path>> find(
 
   if (error)
   {
-    return Error{
-      fmt::format("Failed to open {}: {}", fmt::streamed(path), error.message())};
+    return Error{fmt::format("Failed to open {}: {}", path, error.message())};
   }
 
   return result;
@@ -160,8 +162,7 @@ Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path)
   const auto fixedPath = fixPath(path);
   if (pathInfoForFixedPath(fixedPath) != PathInfo::File)
   {
-    return Error{
-      fmt::format("Failed to open {}: path does not denote a file", fmt::streamed(path))};
+    return Error{fmt::format("Failed to open {}: path does not denote a file", path)};
   }
 
   return createCFile(fixedPath);
@@ -175,8 +176,7 @@ Result<bool> createDirectory(const std::filesystem::path& path)
   case PathInfo::Directory:
     return false;
   case PathInfo::File:
-    return Error{
-      fmt::format("Failed to create {}: path denotes a file", fmt::streamed(path))};
+    return Error{fmt::format("Failed to create {}: path denotes a file", path)};
   case PathInfo::Unknown: {
     auto error = std::error_code{};
     const auto created = std::filesystem::create_directories(fixedPath, error);
@@ -184,8 +184,7 @@ Result<bool> createDirectory(const std::filesystem::path& path)
     {
       return created;
     }
-    return Error{
-      fmt::format("Failed to create {}: {}", fmt::streamed(path), error.message())};
+    return Error{fmt::format("Failed to create {}: {}", path, error.message())};
   }
     switchDefault();
   }
@@ -197,8 +196,7 @@ Result<bool> deleteFile(const std::filesystem::path& path)
   switch (pathInfoForFixedPath(fixedPath))
   {
   case PathInfo::Directory:
-    return Error{
-      fmt::format("Failed to delete {}: path denotes a directory", fmt::streamed(path))};
+    return Error{fmt::format("Failed to delete {}: path denotes a directory", path)};
   case PathInfo::File: {
     auto error = std::error_code{};
     if (std::filesystem::remove(fixedPath, error) && !error)
@@ -207,8 +205,7 @@ Result<bool> deleteFile(const std::filesystem::path& path)
     }
     if (error)
     {
-      return Error{
-        fmt::format("Failed to delete {}: {}", fmt::streamed(path), error.message())};
+      return Error{fmt::format("Failed to delete {}: {}", path, error.message())};
     }
     return false;
   }
@@ -224,8 +221,8 @@ Result<void> copyFile(
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfoForFixedPath(fixedSourcePath) != PathInfo::File)
   {
-    return Error{fmt::format(
-      "Failed to copy {}: path does not denote a file", fmt::streamed(sourcePath))};
+    return Error{
+      fmt::format("Failed to copy {}: path does not denote a file", sourcePath)};
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -243,11 +240,8 @@ Result<void> copyFile(
       error)
     || error)
   {
-    return Error{fmt::format(
-      "Failed to copy {} to {}: {}",
-      fmt::streamed(sourcePath),
-      fmt::streamed(destPath),
-      error.message())};
+    return Error{
+      fmt::format("Failed to copy {} to {}: {}", sourcePath, destPath, error.message())};
   }
 
   return kdl::void_success;
@@ -259,8 +253,8 @@ Result<void> moveFile(
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfoForFixedPath(fixedSourcePath) != PathInfo::File)
   {
-    return Error{fmt::format(
-      "Failed to move {}: path does not denote a file", fmt::streamed(sourcePath))};
+    return Error{
+      fmt::format("Failed to move {}: path does not denote a file", sourcePath)};
   }
 
   auto fixedDestPath = fixPath(destPath);
@@ -273,11 +267,8 @@ Result<void> moveFile(
   std::filesystem::rename(fixedSourcePath, fixedDestPath, error);
   if (error)
   {
-    return Error{fmt::format(
-      "Failed to move {} to {}: {}",
-      fmt::streamed(sourcePath),
-      fmt::streamed(destPath),
-      error.message())};
+    return Error{
+      fmt::format("Failed to move {} to {}: {}", sourcePath, destPath, error.message())};
   }
 
   return kdl::void_success;
@@ -289,18 +280,15 @@ Result<void> renameDirectory(
   const auto fixedSourcePath = fixPath(sourcePath);
   if (pathInfoForFixedPath(fixedSourcePath) != PathInfo::Directory)
   {
-    return Error{fmt::format(
-      "Failed to rename {}: path does not denote a directory",
-      fmt::streamed(sourcePath))};
+    return Error{
+      fmt::format("Failed to rename {}: path does not denote a directory", sourcePath)};
   }
 
   auto fixedDestPath = fixPath(destPath);
   if (pathInfoForFixedPath(fixedDestPath) != PathInfo::Unknown)
   {
     return Error{fmt::format(
-      "Failed to rename {} to {}: target path already exists",
-      fmt::streamed(sourcePath),
-      fmt::streamed(destPath))};
+      "Failed to rename {} to {}: target path already exists", sourcePath, destPath)};
   }
 
   auto error = std::error_code{};
@@ -308,10 +296,7 @@ Result<void> renameDirectory(
   if (error)
   {
     return Error{fmt::format(
-      "Failed to rename {} to {}: {}",
-      fmt::streamed(sourcePath),
-      fmt::streamed(destPath),
-      error.message())};
+      "Failed to rename {} to {}: {}", sourcePath, destPath, error.message())};
   }
 
   return kdl::void_success;

@@ -27,7 +27,7 @@
 #include "io/TraversalMode.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <filesystem>
 
@@ -135,12 +135,12 @@ TEST_CASE("DiskIO")
       Disk::find("asdf/bleh", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Failed to open {}: path does not denote a directory",
-        fmt::streamed(std::filesystem::path{"asdf/bleh"}))}});
+        std::filesystem::path{"asdf/bleh"})}});
     CHECK(
       Disk::find(env.dir() / "does/not/exist", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Failed to open {}: path does not denote a directory",
-        fmt::streamed(env.dir() / "does/not/exist"))}});
+        env.dir() / "does/not/exist")}});
 
     CHECK_THAT(
       Disk::find(env.dir(), TraversalMode::Flat) | kdl::value(),
@@ -205,18 +205,18 @@ TEST_CASE("DiskIO")
       Disk::openFile("asdf/bleh")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
-        fmt::streamed(std::filesystem::path{"asdf/bleh"}))}});
+        std::filesystem::path{"asdf/bleh"})}});
     CHECK(
       Disk::openFile(env.dir() / "does/not/exist")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
-        fmt::streamed(env.dir() / "does/not/exist"))}});
+        env.dir() / "does/not/exist")}});
 
     CHECK(
       Disk::openFile(env.dir() / "does_not_exist.txt")
       == Result<std::shared_ptr<CFile>>{Error{fmt::format(
         "Failed to open {}: path does not denote a file",
-        fmt::streamed(env.dir() / "does_not_exist.txt"))}});
+        env.dir() / "does_not_exist.txt")}});
 
     auto file = Disk::openFile(env.dir() / "test.txt");
     CHECK(file.is_success());
@@ -238,8 +238,7 @@ TEST_CASE("DiskIO")
       CHECK(
         Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
         == Error{fmt::format(
-          "Failed to open stream for file {}",
-          fmt::streamed(env.dir() / "does not exist.txt"))});
+          "Failed to open stream for file {}", env.dir() / "does not exist.txt")});
 
       CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
       CHECK(
@@ -297,8 +296,7 @@ TEST_CASE("DiskIO")
     CHECK(
       Disk::createDirectory(env.dir() / "test.txt")
       == Result<bool>{Error{fmt::format(
-        "Failed to create {}: path denotes a file",
-        fmt::streamed(env.dir() / "test.txt"))}});
+        "Failed to create {}: path denotes a file", env.dir() / "test.txt")}});
 
 #ifndef _WIN32
     // These tests don't work on Windows due to differences in permissions
@@ -317,8 +315,7 @@ TEST_CASE("DiskIO")
     CHECK(
       Disk::deleteFile(env.dir() / "anotherDir")
       == Result<bool>{Error{fmt::format(
-        "Failed to delete {}: path denotes a directory",
-        fmt::streamed(env.dir() / "anotherDir"))}});
+        "Failed to delete {}: path denotes a directory", env.dir() / "anotherDir")}});
     CHECK(Disk::deleteFile(env.dir() / "does_not_exist") == Result<bool>{false});
 
 #ifndef _WIN32
@@ -357,7 +354,7 @@ TEST_CASE("DiskIO")
         Disk::copyFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to copy {}: path does not denote a file",
-          fmt::streamed(env.dir() / "does_not_exist.txt"))}});
+          env.dir() / "does_not_exist.txt")}});
     }
 
     SECTION("copy directory")
@@ -367,8 +364,7 @@ TEST_CASE("DiskIO")
       CHECK(
         Disk::copyFile(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
-          "Failed to copy {}: path does not denote a file",
-          fmt::streamed(env.dir() / "anotherDir"))}});
+          "Failed to copy {}: path does not denote a file", env.dir() / "anotherDir")}});
     }
 
     SECTION("copy file into directory")
@@ -462,7 +458,7 @@ TEST_CASE("DiskIO")
         Disk::moveFile(env.dir() / "does_not_exist.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to move {}: path does not denote a file",
-          fmt::streamed(env.dir() / "does_not_exist.txt"))}});
+          env.dir() / "does_not_exist.txt")}});
     }
 
     SECTION("move directory")
@@ -472,8 +468,7 @@ TEST_CASE("DiskIO")
       CHECK(
         Disk::moveFile(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
-          "Failed to move {}: path does not denote a file",
-          fmt::streamed(env.dir() / "anotherDir"))}});
+          "Failed to move {}: path does not denote a file", env.dir() / "anotherDir")}});
       CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
     }
 
@@ -569,7 +564,7 @@ TEST_CASE("DiskIO")
           env.dir() / "does_not_exist", env.dir() / "dir1/does_not_exist")
         == Result<void>{Error{fmt::format(
           "Failed to rename {}: path does not denote a directory",
-          fmt::streamed(env.dir() / "does_not_exist"))}});
+          env.dir() / "does_not_exist")}});
     }
 
     SECTION("rename file")
@@ -580,7 +575,7 @@ TEST_CASE("DiskIO")
         Disk::renameDirectory(env.dir() / "test.txt", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to rename {}: path does not denote a directory",
-          fmt::streamed(env.dir() / "test.txt"))}});
+          env.dir() / "test.txt")}});
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
     }
 
@@ -593,8 +588,8 @@ TEST_CASE("DiskIO")
         Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "test.txt")
         == Result<void>{Error{fmt::format(
           "Failed to rename {} to {}: target path already exists",
-          fmt::streamed(env.dir() / "anotherDir"),
-          fmt::streamed(env.dir() / "test.txt"))}});
+          env.dir() / "anotherDir",
+          env.dir() / "test.txt")}});
 
       CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
       CHECK(Disk::pathInfo(env.dir() / "test.txt") == PathInfo::File);
@@ -609,8 +604,8 @@ TEST_CASE("DiskIO")
         Disk::renameDirectory(env.dir() / "anotherDir", env.dir() / "dir1")
         == Result<void>{Error{fmt::format(
           "Failed to rename {} to {}: target path already exists",
-          fmt::streamed(env.dir() / "anotherDir"),
-          fmt::streamed(env.dir() / "dir1"))}});
+          env.dir() / "anotherDir",
+          env.dir() / "dir1")}});
 
       CHECK(Disk::pathInfo(env.dir() / "anotherDir") == PathInfo::Directory);
       CHECK(Disk::pathInfo(env.dir() / "dir1") == PathInfo::Directory);

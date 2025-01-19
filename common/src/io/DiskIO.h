@@ -26,7 +26,7 @@
 #include "kdl/result.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <filesystem>
 #include <fstream>
@@ -64,8 +64,7 @@ auto withStream(
     auto stream = Stream{path, mode};
     if (!stream)
     {
-      return ResultType{
-        Error{fmt::format("Failed to open stream for file {}", fmt::streamed(path))}};
+      return ResultType{Error{fmt::format("Failed to open stream for file {}", path)}};
     }
     if constexpr (kdl::is_result_v<FnResultType>)
     {
@@ -91,8 +90,8 @@ auto withStream(
   }
   catch (const std::filesystem::filesystem_error& e)
   {
-    return ResultType{Error{fmt::format(
-      "Failed to open stream for file {}: {}", fmt::streamed(path), e.what())}};
+    return ResultType{
+      Error{fmt::format("Failed to open stream for file {}: {}", path, e.what())}};
   }
 }
 
