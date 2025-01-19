@@ -19,6 +19,8 @@
 
 #include "TestEnvironment.h"
 
+#include <QString>
+
 #include "Macros.h"
 
 #include <fmt/format.h>
@@ -28,12 +30,26 @@
 
 #include "Catch2.h"
 
+
 namespace tb::io
 {
 
+namespace
+{
+auto makeSandboxPath()
+{
+  // have a non-ASCII character in the directory name to help catch
+  // filename encoding bugs
+  const auto cyrillic = "Кристиян";
+  const auto hiraganaLetterSmallA = "ぁ";
+  return std::filesystem::current_path() / generateUuid() / cyrillic
+         / hiraganaLetterSmallA;
+}
+} // namespace
+
 TestEnvironment::TestEnvironment(
   const std::filesystem::path& dir, const SetupFunction& setup)
-  : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
+  : m_sandboxPath{makeSandboxPath()}
   , m_dir{m_sandboxPath / dir}
 {
   if (!dir.is_relative())

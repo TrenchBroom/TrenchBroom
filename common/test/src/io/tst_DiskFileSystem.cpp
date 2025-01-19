@@ -40,25 +40,17 @@ namespace
 {
 TestEnvironment makeTestEnvironment()
 {
-  // have a non-ASCII character in the directory name to help catch
-  // filename encoding bugs
-  const auto hiraganaLetterSmallA = QString(static_cast<QChar>(0x3041));
-  const auto dir = (QString::fromStdString(Catch::getResultCapture().getCurrentTestName())
-                    + hiraganaLetterSmallA)
-                     .toStdString();
+  return TestEnvironment{[](TestEnvironment& env) {
+    env.createDirectory("dir1");
+    env.createDirectory("dir2");
+    env.createDirectory("anotherDir");
+    env.createDirectory("anotherDir/subDirTest");
 
-  return TestEnvironment{
-    dir, [](TestEnvironment& env) {
-      env.createDirectory("dir1");
-      env.createDirectory("dir2");
-      env.createDirectory("anotherDir");
-      env.createDirectory("anotherDir/subDirTest");
-
-      env.createFile("test.txt", "some content");
-      env.createFile("test2.map", "//test file\n{}");
-      env.createFile("anotherDir/subDirTest/test2.map", "//sub dir test file\n{}");
-      env.createFile("anotherDir/test3.map", "//yet another test file\n{}");
-    }};
+    env.createFile("test.txt", "some content");
+    env.createFile("test2.map", "//test file\n{}");
+    env.createFile("anotherDir/subDirTest/test2.map", "//sub dir test file\n{}");
+    env.createFile("anotherDir/test3.map", "//yet another test file\n{}");
+  }};
 }
 
 } // namespace
