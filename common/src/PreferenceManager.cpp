@@ -38,7 +38,11 @@
 #include "io/PathQt.h"
 #include "io/SystemPaths.h"
 
+#include "kdl/overload.h"
+#include "kdl/path_utils.h"
+
 #include <vector>
+
 
 namespace tb
 {
@@ -96,7 +100,7 @@ void AppPreferenceManager::initialize()
   loadCacheFromDisk();
 
   m_fileSystemWatcher = new QFileSystemWatcher{this};
-  if (m_fileSystemWatcher->addPath(m_preferencesFilePath))
+  if (m_fileSystemWatcher->addPath(io::pathAsQString(m_preferencesFilePath)))
   {
     connect(
       m_fileSystemWatcher,
@@ -178,7 +182,7 @@ void AppPreferenceManager::showErrorAndDisableFileReadWrite(
       "%2\n\nPlease correct the problem (%3) and restart TrenchBroom.\n"
       "Further settings changes will not be saved this session.")
       .arg(reason)
-      .arg(m_preferencesFilePath)
+      .arg(io::pathAsQString(m_preferencesFilePath))
       .arg(suggestion);
 
   QTimer::singleShot(0, [=] {
@@ -383,21 +387,21 @@ void togglePref(Preference<bool>& preference)
   prefs.saveChanges();
 }
 
-QString preferenceFilePath()
+std::filesystem::path preferenceFilePath()
 {
-  return io::pathAsQString(io::SystemPaths::userDataDirectory() / "Preferences.json");
+  return io::SystemPaths::userDataDirectory() / "Preferences.json";
 }
 
 namespace
 {
-QLockFile getLockFile(const QString& preferenceFilePath)
+QLockFile getLockFile(const std::filesystem::path& preferenceFilePath)
 {
-  const auto lockFilePath = preferenceFilePath + ".lck";
-  return QLockFile{lockFilePath};
+  const auto lockFilePath = kdl::path_add_extension(preferenceFilePath, ".lck");
+  return QLockFile{io::pathAsQString(lockFilePath)};
 }
 } // namespace
 
-ReadPreferencesResult readPreferencesFromFile(const QString& path)
+ReadPreferencesResult readPreferencesFromFile(const std::filesystem::path& path)
 {
   auto lockFile = getLockFile(path);
   if (!lockFile.lock())
@@ -424,7 +428,8 @@ ReadPreferencesResult readPreferencesFromFile(const QString& path)
 }
 
 WritePreferencesResult writePreferencesToFile(
-  const QString& path, const std::map<std::filesystem::path, QJsonValue>& prefs)
+  const std::filesystem::path& path,
+  const std::map<std::filesystem::path, QJsonValue>& prefs)
 {
   const auto serialized = writePreferencesToJson(prefs);
 
@@ -440,7 +445,7 @@ WritePreferencesResult writePreferencesToFile(
     return PreferenceErrors::LockFileError{};
   }
 
-  auto saveFile = QSaveFile{path};
+  auto saveFile = QSaveFile{io::pathAsQString(path)};
   if (!saveFile.open(QIODevice::WriteOnly))
   {
     return PreferenceErrors::FileAccessError{};

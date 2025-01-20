@@ -22,19 +22,30 @@
 #include <QJsonValue>
 #include <QString>
 
-#include <ostream>
+#include <fmt/format.h>
+
+#include "Catch2.h"
 
 // These are so Catch can print Qt types
 
-inline void PrintTo(const QString& string, std::ostream* ostream)
+namespace Catch
 {
-  *ostream << qUtf8Printable(string);
-}
 
-inline void PrintTo(const QJsonValue& value, std::ostream* ostream)
+template <>
+struct StringMaker<QString>
 {
-  const QVariant asVariant = value.toVariant();
+  static std::string convert(QString const& value) { return qUtf8Printable(value); }
+};
 
-  *ostream << "QJsonValue<" << asVariant.typeName() << ">("
-           << qUtf8Printable(asVariant.toString()) << ")";
-}
+template <>
+struct StringMaker<QJsonValue>
+{
+  static std::string convert(QJsonValue const& value)
+  {
+    const auto asVariant = value.toVariant();
+    return fmt::format(
+      "QJsonValue<{}>({})", asVariant.typeName(), qUtf8Printable(asVariant.toString()));
+  }
+};
+
+} // namespace Catch

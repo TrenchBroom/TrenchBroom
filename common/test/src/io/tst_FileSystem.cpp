@@ -25,7 +25,7 @@
 #include "kdl/result.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include "Catch2.h"
 
@@ -80,32 +80,31 @@ TEST_CASE("FileSystem")
 #if defined(_WIN32)
     CHECK(
       fs.find("c:\\", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"c:\\"}))}});
+      == Result<std::vector<std::filesystem::path>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\"})}});
     CHECK(
       fs.find("c:\\foo", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"c:\\foo"}))}});
+      == Result<std::vector<std::filesystem::path>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\foo"})}});
 #else
     CHECK(
       fs.find("/", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{
-        fmt::format("Path {} is absolute", fmt::streamed(std::filesystem::path{"/"}))}});
+      == Result<std::vector<std::filesystem::path>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"/"})}});
     CHECK(
       fs.find("/foo", TraversalMode::Flat)
-      == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"/foo"}))}});
+      == Result<std::vector<std::filesystem::path>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"/foo"})}});
 #endif
     CHECK(
       fs.find("does_not_exist", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
         "Path {} does not denote a directory",
-        fmt::streamed(std::filesystem::path{"does_not_exist"}))}});
+        std::filesystem::path{"does_not_exist"})}});
     CHECK(
       fs.find("root_file.map", TraversalMode::Flat)
       == Result<std::vector<std::filesystem::path>>{Error{fmt::format(
-        "Path {} does not denote a directory",
-        fmt::streamed(std::filesystem::path{"root_file.map"}))}});
+        "Path {} does not denote a directory", std::filesystem::path{"root_file.map"})}});
 
     CHECK(
       fs.find("", TraversalMode::Flat)
@@ -161,27 +160,27 @@ TEST_CASE("FileSystem")
 #if defined(_WIN32)
     CHECK(
       fs.openFile("c:\\")
-      == Result<std::shared_ptr<File>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"c:\\"}))}});
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\"})}});
     CHECK(
       fs.openFile("c:\\foo")
-      == Result<std::shared_ptr<File>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"c:\\foo"}))}});
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"c:\\foo"})}});
 #else
     CHECK(
       fs.openFile("/")
-      == Result<std::shared_ptr<File>>{Error{
-        fmt::format("Path {} is absolute", fmt::streamed(std::filesystem::path{"/"}))}});
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"/"})}});
 
     CHECK(
       fs.openFile("/foo")
-      == Result<std::shared_ptr<File>>{Error{fmt::format(
-        "Path {} is absolute", fmt::streamed(std::filesystem::path{"/foo"}))}});
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("Path {} is absolute", std::filesystem::path{"/foo"})}});
 #endif
     CHECK(
       fs.openFile("does_not_exist")
-      == Result<std::shared_ptr<File>>{Error{fmt::format(
-        "{} not found", fmt::streamed(std::filesystem::path{"does_not_exist"}))}});
+      == Result<std::shared_ptr<File>>{
+        Error{fmt::format("{} not found", std::filesystem::path{"does_not_exist"})}});
   }
 }
 

@@ -29,7 +29,7 @@
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <memory>
 #include <string>
@@ -53,7 +53,7 @@ Result<std::filesystem::path> DiskFileSystem::makeAbsolute(
   const auto canonicalPath = path.lexically_normal();
   if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
   {
-    return Error{fmt::format("Failed to make absolute path of {}", fmt::streamed(path))};
+    return Error{fmt::format("Failed to make absolute path of {}", path)};
   }
   return canonicalPath.empty() ? m_root : m_root / canonicalPath;
 }

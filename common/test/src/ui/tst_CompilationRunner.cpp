@@ -125,10 +125,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
   SECTION("toolReturnsZeroExitCode")
   {
-    auto testEnvironment = io::TestEnvironment{};
-    testEnvironment.createFile("test.txt", "hello world");
-
-    auto variables = CompilationVariables{document, testEnvironment.dir().string()};
+    auto variables = el::NullVariableStore{};
     auto output = QTextEdit{};
     auto outputAdapter = TextOutputAdapter{&output};
 

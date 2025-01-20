@@ -157,7 +157,7 @@ private:
   using DynamicPreferences =
     std::map<std::filesystem::path, std::unique_ptr<PreferenceBase>>;
 
-  QString m_preferencesFilePath;
+  std::filesystem::path m_preferencesFilePath;
   bool m_saveInstantly;
   UnsavedPreferences m_unsavedPreferences;
   QTimer m_saveTimer;
@@ -293,12 +293,13 @@ using ReadPreferencesResult = Result<
 using WritePreferencesResult =
   Result<void, PreferenceErrors::FileAccessError, PreferenceErrors::LockFileError>;
 
-QString preferenceFilePath();
-ReadPreferencesResult readPreferencesFromFile(const QString& path);
+std::filesystem::path preferenceFilePath();
+ReadPreferencesResult readPreferencesFromFile(const std::filesystem::path& path);
 ReadPreferencesResult readPreferences();
 
 WritePreferencesResult writePreferencesToFile(
-  const QString& path, const std::map<std::filesystem::path, QJsonValue>& prefs);
+  const std::filesystem::path& path,
+  const std::map<std::filesystem::path, QJsonValue>& prefs);
 ReadPreferencesResult parsePreferencesFromJson(const QByteArray& jsonData);
 QByteArray writePreferencesToJson(
   const std::map<std::filesystem::path, QJsonValue>& prefs);

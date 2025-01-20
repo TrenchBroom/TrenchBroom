@@ -19,22 +19,24 @@
 
 #include "PathQt.h"
 
+#include <QFile>
+
 namespace tb::io
 {
 
 QString pathAsQString(const std::filesystem::path& path)
 {
-  return QString::fromStdString(path.string());
+  return QFile{path}.fileName();
 }
 
 QString pathAsGenericQString(const std::filesystem::path& path)
 {
-  return QString::fromStdString(path.generic_string());
+  return QFile{path}.fileName();
 }
 
 std::filesystem::path pathFromQString(const QString& path)
 {
-  return std::filesystem::path{path.toStdString()};
+  return QFile{path}.filesystemFileName();
 }
 
 } // namespace tb::io

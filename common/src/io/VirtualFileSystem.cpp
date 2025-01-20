@@ -29,7 +29,7 @@
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
-#include <fmt/ostream.h>
+#include <fmt/std.h>
 
 #include <optional>
 #include <unordered_map>
@@ -95,7 +95,7 @@ Result<std::filesystem::path> VirtualFileSystem::makeAbsolute(
     }
   }
 
-  return Error{fmt::format("Failed to make absolute path of {}", fmt::streamed(path))};
+  return Error{fmt::format("Failed to make absolute path of {}", path)};
 }
 
 PathInfo VirtualFileSystem::pathInfo(const std::filesystem::path& path) const
@@ -313,7 +313,7 @@ Result<std::shared_ptr<File>> VirtualFileSystem::doOpenFile(
     }
   }
 
-  return Error{fmt::format("{} not found", fmt::streamed(path))};
+  return Error{fmt::format("{} not found", path)};
 }
 
 WritableVirtualFileSystem::WritableVirtualFileSystem(
