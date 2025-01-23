@@ -23,6 +23,8 @@
 
 #include "PreferenceManager.h"
 
+#include <kdl/path_utils.h>
+
 #include "vm/approx.h"
 
 #include <filesystem>
@@ -31,6 +33,7 @@
 #include <string>
 
 #include "Catch2.h"
+
 
 inline std::ostream& operator<<(std::ostream& lhs, const QJsonValue& rhs)
 {

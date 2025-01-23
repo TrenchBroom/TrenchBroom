@@ -86,7 +86,7 @@ static QString imagePathToString(const std::filesystem::path& imagePath)
   const auto fullPath = imagePath.is_absolute()
                           ? imagePath
                           : SystemPaths::findResourceFile("images" / imagePath);
-  return pathAsQString(fullPath);
+  return pathAsQPath(fullPath);
 }
 
 QPixmap loadPixmapResource(const std::filesystem::path& imagePath)

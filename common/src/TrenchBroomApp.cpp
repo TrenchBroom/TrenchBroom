@@ -303,7 +303,7 @@ QPalette TrenchBroomApp::darkPalette()
 bool TrenchBroomApp::loadStyleSheets()
 {
   const auto path = io::SystemPaths::findResourceFile("stylesheets/base.qss");
-  if (auto file = QFile{io::pathAsQString(path)}; file.exists())
+  if (auto file = QFile{io::pathAsQPath(path)}; file.exists())
   {
     // closed automatically by destructor
     file.open(QFile::ReadOnly | QFile::Text);
@@ -777,8 +777,8 @@ void reportCrashAndExit(const std::string& stacktrace, const std::string& reason
     }
 
     // Copy the log file
-    if (!QFile::copy(
-          io::pathAsQString(io::SystemPaths::logFilePath()), io::pathAsQString(logPath)))
+    auto ec = std::error_code{};
+    if (!std::filesystem::copy_file(io::SystemPaths::logFilePath(), logPath, ec) || ec)
     {
       logPath = std::filesystem::path{};
     }

@@ -237,7 +237,7 @@ void MapFrame::updateTitle()
   setWindowModified(m_document->modified());
   setWindowTitle(
     QString::fromStdString(m_document->filename()) + QString("[*] - TrenchBroom"));
-  setWindowFilePath(io::pathAsQString(m_document->path()));
+  setWindowFilePath(io::pathAsQPath(m_document->path()));
 }
 
 void MapFrame::updateTitleDelayed()
@@ -966,7 +966,7 @@ bool MapFrame::saveDocumentAs()
     const auto fileName = originalPath.filename();
 
     const auto newFileName = QFileDialog::getSaveFileName(
-      this, tr("Save map file"), io::pathAsQString(originalPath), "Map files (*.map)");
+      this, tr("Save map file"), io::pathAsQPath(originalPath), "Map files (*.map)");
     if (newFileName.isEmpty())
     {
       return false;
@@ -1026,7 +1026,7 @@ bool MapFrame::exportDocumentAsMap()
   const auto& originalPath = m_document->path();
 
   const auto newFileName = QFileDialog::getSaveFileName(
-    this, tr("Export Map file"), io::pathAsQString(originalPath), "Map files (*.map)");
+    this, tr("Export Map file"), io::pathAsQPath(originalPath), "Map files (*.map)");
   if (newFileName.isEmpty())
   {
     return false;
@@ -1118,7 +1118,7 @@ bool MapFrame::confirmRevertDocument()
 void MapFrame::loadPointFile()
 {
   const auto defaultDir = !m_document->path().empty()
-                            ? io::pathAsQString(m_document->path().parent_path())
+                            ? io::pathAsQPath(m_document->path().parent_path())
                             : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
@@ -1162,7 +1162,7 @@ bool MapFrame::canReloadPointFile() const
 void MapFrame::loadPortalFile()
 {
   const auto defaultDir = !m_document->path().empty()
-                            ? io::pathAsQString(m_document->path().parent_path())
+                            ? io::pathAsQPath(m_document->path().parent_path())
                             : QString{};
 
   const auto fileName = QFileDialog::getOpenFileName(
