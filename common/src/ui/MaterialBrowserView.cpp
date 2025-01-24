@@ -457,6 +457,12 @@ void MaterialBrowserView::doContextMenu(
       auto doc = kdl::mem_lock(m_document);
       doc->selectFacesWithMaterial(material);
     });
+
+    menu.addAction(tr("Select Brushes"), this, [&, material = &cellData(*cell)]() {
+      auto doc = kdl::mem_lock(m_document);
+      doc->selectBrushesWithMaterial(material);
+    });
+
     menu.exec(event->globalPos());
   }
 }

@@ -314,6 +314,34 @@ std::vector<BrushFaceHandle> collectSelectableBrushFaces(
     });
 }
 
+std::vector<BrushFaceHandle> collectSelectableBrushFaces(
+  Node* node, const EditorContext& editorContext)
+{
+  std::vector<BrushFaceHandle> result;
+
+  node->accept(kdl::overload(
+    [&](BrushNode* brushNode) {
+      const auto& brush = brushNode->brush();
+
+      for (size_t i = 0; i < brush.faceCount(); ++i)
+      {
+        const auto& face = brush.face(i);
+
+        if (editorContext.selectable(brushNode, face))
+        {
+          result.emplace_back(brushNode, i);
+        }
+      }
+    },
+    [](const WorldNode*) {},
+    [](const LayerNode*) {},
+    [](const GroupNode*) {},
+    [](const EntityNode*) {},
+    [](const PatchNode*) {}));
+
+  return result;
+}
+
 vm::bbox3d computeLogicalBounds(
   const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds)
 {

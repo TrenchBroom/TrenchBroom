@@ -1592,6 +1592,30 @@ void MapDocument::selectFacesWithMaterial(const mdl::Material* material)
   transaction.commit();
 }
 
+void MapDocument::selectBrushesWithMaterial(const mdl::Material* material)
+{
+  const auto brushes = kdl::vec_filter(
+    mdl::collectSelectableNodes(std::vector<mdl::Node*>{m_world.get()}, *m_editorContext),
+    [&](const auto& node) {
+      const auto faces = mdl::collectSelectableBrushFaces(node, *m_editorContext);
+
+      for (const auto faceHandle : faces)
+      {
+        if (faceHandle.face().material() == material)
+        {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+  auto transaction = Transaction{*this, "Select Brushes with Material"};
+  deselectAll();
+  selectNodes(brushes);
+  transaction.commit();
+}
+
 void MapDocument::selectTall(const vm::axis::type cameraAxis)
 {
   const auto cameraAbsDirection = vm::vec3d::axis(cameraAxis);
