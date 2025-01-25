@@ -262,7 +262,7 @@ void AseLoader::parseMaterialListMaterialMapDiffuseBitmap(
 {
   expectDirective("BITMAP");
   const auto token = expect(AseToken::String, m_tokenizer.nextToken());
-  path = kdl::parse_path(token.data(), K(replace_backslashes));
+  path = kdl::parse_path(token.data(), K(convert_separators));
 }
 
 void AseLoader::parseGeomObject(

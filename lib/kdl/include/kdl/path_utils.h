@@ -30,12 +30,17 @@
 namespace kdl
 {
 
+template <typename char_type>
 inline std::filesystem::path parse_path(
-  std::string str, const bool replace_backslashes = true)
+  std::basic_string<char_type> str, const bool convert_separators = true)
 {
-  if (replace_backslashes)
+  if (convert_separators)
   {
-    std::ranges::replace_if(str, [](char c) { return c == '\\'; }, '/');
+    constexpr auto pref_sep = char_type(std::filesystem::path::preferred_separator);
+    const auto win_sep = char_type('\\');
+    const auto x_sep = char_type('/');
+    std::ranges::replace_if(
+      str, [&](const auto c) { return c == win_sep || c == x_sep; }, pref_sep);
   }
   return std::filesystem::path{std::move(str)};
 }

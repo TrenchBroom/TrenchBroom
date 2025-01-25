@@ -96,7 +96,7 @@ TEST_CASE("AseLoaderTest")
           const auto* skin = surface.skin(i);
           CHECK(
             skin->relativePath()
-            == kdl::parse_path(skin->relativePath().string(), K(replace_backslashes)));
+            == kdl::parse_path(skin->relativePath().string(), K(convert_separators)));
         }
       }
     }

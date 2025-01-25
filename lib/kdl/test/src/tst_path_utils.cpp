@@ -25,20 +25,21 @@
 
 namespace kdl
 {
+using namespace std::string_literals;
 using std::filesystem::path;
 
 TEST_CASE("parse_path")
 {
-  CHECK(parse_path(R"()") == path{R"()"});
-  CHECK(parse_path(R"(/)") == path{R"(/)"});
-  CHECK(parse_path(R"(\)") == path{R"(/)"});
-  CHECK(parse_path(R"(\)", !K(replace_backslashes)) == path{R"(\)"});
-  CHECK(parse_path(R"(a/b/c)") == path{R"(a/b/c)"});
-  CHECK(parse_path(R"(a\b\c)") == path{R"(a/b/c)"});
-  CHECK(parse_path(R"(a\b\c)", !K(replace_backslashes)) == path{R"(a\b\c)"});
+  CHECK(parse_path(R"()"s) == path{R"()"});
+  CHECK(parse_path(R"(/)"s) == path{R"(/)"});
+  CHECK(parse_path(R"(\)"s) == path{R"(/)"});
+  CHECK(parse_path(R"(\)"s, !K(replace_backslashes)) == path{R"(\)"});
+  CHECK(parse_path(R"(a/b/c)"s) == path{R"(a/b/c)"});
+  CHECK(parse_path(R"(a\b\c)"s) == path{R"(a/b/c)"});
+  CHECK(parse_path(R"(a\b\c)"s, !K(replace_backslashes)) == path{R"(a\b\c)"});
 }
 
-TEST_CASE("path_length")
+TEST_CASE("path_length"s)
 {
   CHECK(path_length(path{}) == 0);
   CHECK(path_length(path{""}) == 0);
