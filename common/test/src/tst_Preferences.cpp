@@ -18,10 +18,12 @@
  */
 
 #include <QKeySequence>
+#include <QLockFile>
 #include <QString>
 #include <QTextStream>
 
 #include "PreferenceManager.h"
+#include "io/PathQt.h"
 
 #include <kdl/path_utils.h>
 
@@ -283,6 +285,22 @@ TEST_CASE("Preferences")
     testSerialize<PreferenceSerializer, QKeySequence>(
       QJsonValue{"Meta+W"},
       QKeySequence::fromString("Meta+W")); // "Meta" in Qt = Control in macOS
+  }
+
+  SECTION("Preference lock file")
+  {
+// ensure that a lock file can be created in a directory with non-ASCII characters
+#ifdef _WIN32
+    const auto lockFilePath =
+      std::filesystem::path{LR"(fixture\test\Кристиян\ぁ\preferences-v2.json.lck)"};
+#else
+    const auto lockFilePath =
+      std::filesystem::path{R"(fixture/test/Кристиян/ぁ/preferences-v2.json.lck)"};
+#endif
+    std::filesystem::create_directories(lockFilePath.parent_path());
+
+    auto lockFile = QLockFile{io::pathAsQPath(lockFilePath)};
+    CHECK(lockFile.lock());
   }
 }
 
