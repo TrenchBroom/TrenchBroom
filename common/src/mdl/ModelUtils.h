@@ -71,8 +71,6 @@ std::vector<Node*> collectSelectableNodes(
 std::vector<BrushFaceHandle> collectSelectedBrushFaces(const std::vector<Node*>& nodes);
 std::vector<BrushFaceHandle> collectSelectableBrushFaces(
   const std::vector<Node*>& nodes, const EditorContext& editorContext);
-std::vector<BrushFaceHandle> collectSelectableBrushFaces(
-  Node* node, const EditorContext& editorContext);
 
 vm::bbox3d computeLogicalBounds(
   const std::vector<Node*>& nodes, const vm::bbox3d& defaultBounds = vm::bbox3d());
