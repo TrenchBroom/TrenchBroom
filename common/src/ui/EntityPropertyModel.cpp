@@ -196,6 +196,45 @@ std::map<std::string, PropertyRow> rowsForEntityNodes(
 
 } // namespace
 
+std::vector<PropertyRow> rowsForEntityNode(
+  mdl::EntityNodeBase* node,
+  const bool showDefaultRows,
+  const bool showProtectedProperties)
+{
+  auto result = kdl::vector_set<PropertyRow>{};
+
+  // Add explicitly set properties
+  for (const auto& property : node->entity().properties())
+  {
+    result.insert(PropertyRow{property.key(), node});
+  }
+
+  // Add default properties from the entity definition
+  if (showDefaultRows)
+  {
+    if (const auto* entityDefinition = node->entity().definition())
+    {
+      for (const auto& propertyDefinition : entityDefinition->propertyDefinitions())
+      {
+        result.insert(PropertyRow{propertyDefinition->key(), node});
+      }
+    }
+  }
+
+  if (showProtectedProperties)
+  {
+    const auto& protectedProperties = node->entity().protectedProperties();
+
+    std::transform(
+      std::begin(protectedProperties),
+      std::end(protectedProperties),
+      std::inserter(result, result.begin()),
+      [node](const auto& prop) { return PropertyRow{prop, node}; });
+  }
+
+  return result.release_data();
+}
+
 std::ostream& operator<<(std::ostream& lhs, const ValueType& rhs)
 {
   switch (rhs)

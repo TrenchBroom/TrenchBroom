@@ -198,6 +198,7 @@ void centerOnScreen(QWidget* window);
 QWidget* makeDefault(QWidget* widget);
 QWidget* makeEmphasized(QWidget* widget);
 QWidget* makeUnemphasized(QWidget* widget);
+QWidget* toggleEmphasized(QWidget* widget, bool state);
 QWidget* makeInfo(QWidget* widget);
 QWidget* makeSmall(QWidget* widget);
 QWidget* makeHeader(QWidget* widget);

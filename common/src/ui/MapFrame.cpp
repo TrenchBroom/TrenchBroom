@@ -63,6 +63,7 @@
 #include "mdl/WorldNode.h"
 #include "ui/ActionBuilder.h"
 #include "ui/Actions.h"
+#include "ui/AdvancedEntitySelectDialog.h"
 #include "ui/Autosaver.h"
 #include "ui/ChoosePathTypeDialog.h"
 #include "ui/ClipTool.h"
@@ -1512,6 +1513,15 @@ void MapFrame::selectInverse()
   if (canSelectInverse())
   {
     m_document->selectInverse();
+  }
+}
+
+void MapFrame::selectAdvanced()
+{
+  if (canSelect())
+  {
+    auto dialog = AdvancedEntitySelectDialog{this, m_document};
+    dialog.exec();
   }
 }
 

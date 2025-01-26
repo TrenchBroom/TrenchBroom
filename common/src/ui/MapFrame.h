@@ -258,6 +258,7 @@ public:
   void selectTall();
   void selectByLineNumber();
   void selectInverse();
+  void selectAdvanced();
   void selectNone();
 
   bool canSelect() const;
