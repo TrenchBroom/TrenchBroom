@@ -99,6 +99,12 @@ inline std::filesystem::path path_pop_front(const std::filesystem::path& path)
   return path_clip(path, 1, path_length(path));
 }
 
+inline bool path_has_extension(
+  const std::filesystem::path& path, const std::filesystem::path extension)
+{
+  return path.extension() == extension;
+}
+
 inline std::filesystem::path path_add_extension(
   std::filesystem::path path, const std::filesystem::path& extension)
 {

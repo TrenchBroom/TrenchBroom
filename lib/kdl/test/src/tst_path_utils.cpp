@@ -151,6 +151,16 @@ TEST_CASE("path_pop_front")
   CHECK(path_pop_front(path{"asdf/blah"}) == path{"blah"});
 }
 
+TEST_CASE("path_has_extension")
+{
+  CHECK(path_has_extension(path{}, ""));
+  CHECK(path_has_extension(path{"blah"}, ""));
+  CHECK_FALSE(path_has_extension(path{"blah.map"}, "map"));
+  CHECK(path_has_extension(path{"blah.map"}, ".map"));
+  CHECK(path_has_extension(path{"asdf/blah.map"}, ".map"));
+  CHECK_FALSE(path_has_extension(path{"asdf/blah.MAP"}, ".map"));
+}
+
 TEST_CASE("path_add_extension")
 {
   CHECK(path_add_extension(path{}, path{}) == path{});
