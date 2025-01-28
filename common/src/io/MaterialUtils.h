@@ -53,7 +53,7 @@ std::string getMaterialNameFromPathSuffix(
 Result<std::filesystem::path> findMaterialFile(
   const FileSystem& fs,
   const std::filesystem::path& materialPath,
-  const std::vector<std::string>& extensions);
+  const std::vector<std::filesystem::path>& extensions);
 
 bool checkTextureDimensions(size_t width, size_t height);
 

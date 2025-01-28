@@ -248,13 +248,13 @@ Result<mdl::Material> loadShaderMaterial(
 Result<mdl::Texture> loadTexture(
   const std::filesystem::path& path,
   const std::string& name,
-  const std::vector<std::string>& extensions,
+  const std::vector<std::filesystem::path>& extensions,
   const FileSystem& fs,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
   return findMaterialFile(fs, path, extensions)
     .and_then([&](const auto& actualPath) -> Result<mdl::Texture> {
-      const auto extension = kdl::str_to_lower(actualPath.extension().string());
+      const auto extension = kdl::path_to_lower(actualPath.extension());
       if (extension == ".d")
       {
         if (!paletteResult)
@@ -317,14 +317,14 @@ Result<mdl::Texture> loadTexture(
                });
       }
 
-      return Error{"Unknown texture file extension: " + extension};
+      return Error{fmt::format("Unknown texture file extension: {}", extension)};
     });
 }
 
 mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   const std::filesystem::path& path,
   const std::string& name,
-  const std::vector<std::string>& extensions,
+  const std::vector<std::filesystem::path>& extensions,
   const FileSystem& fs,
   const std::optional<Result<mdl::Palette>>& paletteResult)
 {
@@ -374,7 +374,7 @@ std::string materialCollectionName(
       metadata && std::holds_alternative<std::filesystem::path>(*metadata))
   {
     if (const auto imageFileName = std::get<std::filesystem::path>(*metadata).filename();
-        kdl::ci::str_is_equal(imageFileName.extension().string(), ".wad"))
+        kdl::path_has_extension(kdl::path_to_lower(imageFileName), ".wad"))
     {
       // If the texture was loaded from a WAD file, use the WAD file name as the
       // collection name.

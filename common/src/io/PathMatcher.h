@@ -32,7 +32,7 @@ enum class PathInfo;
 using GetPathInfo = std::function<PathInfo(const std::filesystem::path&)>;
 using PathMatcher = std::function<bool(const std::filesystem::path&, const GetPathInfo&)>;
 
-PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions);
+PathMatcher makeExtensionPathMatcher(std::vector<std::filesystem::path> extensions);
 PathMatcher makeFilenamePathMatcher(std::string filename);
 PathMatcher makePathInfoPathMatcher(std::vector<PathInfo> pathInfos);
 

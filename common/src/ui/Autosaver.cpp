@@ -123,7 +123,7 @@ io::PathMatcher makeBackupPathMatcher(std::filesystem::path mapBasename_)
       const auto backupNum = backupExtension.empty() ? "" : backupExtension.substr(1);
 
       return getPathInfo(path) == io::PathInfo::File
-             && kdl::ci::str_is_equal(path.extension().string(), ".map")
+             && kdl::path_to_lower(path.extension()) == ".map"
              && backupBasename == mapBasename && kdl::str_is_numeric(backupNum)
              && kdl::str_to_size(backupNum).value_or(0u) > 0u;
     };

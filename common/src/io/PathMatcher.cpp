@@ -19,18 +19,20 @@
 
 #include "PathMatcher.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/string_compare.h"
 #include "kdl/vector_utils.h"
 
 namespace tb::io
 {
 
-PathMatcher makeExtensionPathMatcher(std::vector<std::string> extensions_)
+PathMatcher makeExtensionPathMatcher(std::vector<std::filesystem::path> extensions_)
 {
   return [extensions = std::move(extensions_)](
            const std::filesystem::path& path, const GetPathInfo&) {
     return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-      return kdl::ci::str_is_equal(path.extension().string(), extension);
+      return kdl::path_has_extension(
+        kdl::path_to_lower(path), kdl::path_to_lower(extension));
     });
   };
 }

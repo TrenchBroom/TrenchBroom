@@ -32,6 +32,7 @@
 #include "render/MaterialIndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_format.h"
 
@@ -295,7 +296,7 @@ BspLoader::BspLoader(
 
 bool BspLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".bsp")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".bsp"))
   {
     return false;
   }

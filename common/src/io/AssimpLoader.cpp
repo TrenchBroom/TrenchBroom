@@ -794,7 +794,7 @@ AssimpLoader::AssimpLoader(std::filesystem::path path, const FileSystem& fs)
 bool AssimpLoader::canParse(const std::filesystem::path& path)
 {
   // clang-format off
-  static const auto supportedExtensions = std::vector<std::string>{
+  static const auto supportedExtensions = std::vector<std::filesystem::path>{
     // Quake model formats have been omitted since Trenchbroom's got its own parsers
     // already.
     ".3mf",  ".dae",      ".xml",          ".blend",    ".bvh",       ".3ds",  ".ase",
@@ -809,8 +809,7 @@ bool AssimpLoader::canParse(const std::filesystem::path& path)
     ".csm",  ".ply",      ".cob",          ".scn",      ".xgl"};
   // clang-format on
 
-  return kdl::vec_contains(
-    supportedExtensions, kdl::str_to_lower(path.extension().string()));
+  return kdl::vec_contains(supportedExtensions, kdl::path_to_lower(path.extension()));
 }
 
 Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)

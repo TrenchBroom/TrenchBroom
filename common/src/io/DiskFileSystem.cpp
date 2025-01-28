@@ -51,7 +51,7 @@ Result<std::filesystem::path> DiskFileSystem::makeAbsolute(
   const std::filesystem::path& path) const
 {
   const auto canonicalPath = path.lexically_normal();
-  if (!canonicalPath.empty() && kdl::path_front(canonicalPath).string() == "..")
+  if (!canonicalPath.empty() && kdl::path_front(canonicalPath) == "..")
   {
     return Error{fmt::format("Failed to make absolute path of {}", path)};
   }

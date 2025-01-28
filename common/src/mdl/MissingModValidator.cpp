@@ -31,6 +31,9 @@
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <cassert>
 #include <filesystem>
 #include <memory>
@@ -124,7 +127,7 @@ void MissingModValidator::doValidate(
   {
     const auto mod = searchPath.string();
     issues.push_back(std::make_unique<MissingModIssue>(
-      entityNode, mod, "Mod '" + mod + "' could not be used: " + message));
+      entityNode, mod, fmt::format("Mod '{}' could not be used: {}", mod, message)));
   }
 
   m_lastMods = std::move(mods);

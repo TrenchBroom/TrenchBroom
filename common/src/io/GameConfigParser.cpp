@@ -29,6 +29,7 @@
 #include "mdl/TagAttribute.h"
 #include "mdl/TagMatcher.h"
 
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/vec_io.h"
@@ -36,6 +37,7 @@
 #include <fmt/format.h>
 
 #include <algorithm>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <vector>
@@ -49,10 +51,12 @@ std::string prependDot(const std::string& extension)
   return !extension.empty() && extension.front() != '.' ? "." + extension : extension;
 }
 
-std::vector<std::string> prependDot(const std::vector<std::string>& extensions)
+std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::string>& strs)
 {
-  return kdl::vec_transform(
-    extensions, [](const auto& extension) { return prependDot(extension); });
+  return strs | std::views::transform([](const auto& str) {
+           return std::filesystem::path{prependDot(str)};
+         })
+         | kdl::to_vector;
 }
 
 void checkVersion(const el::Value& version, const el::EvaluationTrace& trace)
@@ -540,7 +544,7 @@ mdl::PackageFormatConfig parsePackageFormatConfig(
     expectType(value["extension"], trace, el::typeForName("String"));
 
     return mdl::PackageFormatConfig{
-      {prependDot(value["extension"].stringValue())},
+      extensionsToPaths({value["extension"].stringValue()}),
       formatValue.stringValue(),
     };
   }
@@ -549,7 +553,7 @@ mdl::PackageFormatConfig parsePackageFormatConfig(
     expectType(value["extensions"], trace, el::typeForName("Array"));
 
     return mdl::PackageFormatConfig{
-      prependDot(value["extensions"].asStringList()),
+      extensionsToPaths(value["extensions"].asStringList()),
       formatValue.stringValue(),
     };
   }
@@ -558,13 +562,13 @@ mdl::PackageFormatConfig parsePackageFormatConfig(
     "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'"};
 }
 
-std::vector<std::string> parseMaterialExtensions(
+std::vector<std::filesystem::path> parseMaterialExtensions(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   if (value["extensions"] != el::Value::Null)
   {
     // version 8
-    return prependDot(value["extensions"].asStringList());
+    return extensionsToPaths(value["extensions"].asStringList());
   }
   // version 7
   return parsePackageFormatConfig(value["format"], trace).extensions;

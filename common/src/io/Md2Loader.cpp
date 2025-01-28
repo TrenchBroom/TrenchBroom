@@ -422,7 +422,7 @@ Md2Loader::Md2Loader(
 
 bool Md2Loader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::path_to_lower(path.extension()) != ".md2")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".md2"))
   {
     return false;
   }

@@ -27,6 +27,7 @@
 #include "io/Reader.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_format.h"
 
@@ -216,7 +217,7 @@ Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& p
 {
   try
   {
-    const auto extension = kdl::str_to_lower(path.extension().string());
+    const auto extension = kdl::path_to_lower(path.extension());
     if (extension == ".lmp")
     {
       auto reader = file.reader().buffer();

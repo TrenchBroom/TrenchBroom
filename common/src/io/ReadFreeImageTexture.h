@@ -23,7 +23,7 @@
 #include "Result.h"
 #include "render/GL.h"
 
-#include <string_view>
+#include <filesystem>
 
 namespace tb::mdl
 {
@@ -42,6 +42,6 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(const uint8_t* begin, size_t
 
 Result<mdl::Texture> readFreeImageTexture(Reader& reader);
 
-bool isSupportedFreeImageExtension(std::string_view extension);
+bool isSupportedFreeImageExtension(const std::filesystem::path& extension);
 
 } // namespace tb::io

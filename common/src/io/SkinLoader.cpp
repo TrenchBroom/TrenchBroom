@@ -29,6 +29,7 @@
 #include "mdl/Material.h"
 #include "mdl/Palette.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
 namespace tb::io
@@ -48,7 +49,7 @@ mdl::Material loadSkin(
 {
   return fs.openFile(path)
          | kdl::and_then([&](auto file) -> Result<mdl::Material, ReadMaterialError> {
-             const auto extension = kdl::str_to_lower(path.extension().string());
+             const auto extension = kdl::path_to_lower(path.extension());
              auto reader = file->reader().buffer();
              return (extension == ".wal" ? readWalTexture(reader, palette)
                                          : readFreeImageTexture(reader))

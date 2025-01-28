@@ -130,7 +130,7 @@ AseLoader::AseLoader(
 
 bool AseLoader::canParse(const std::filesystem::path& path)
 {
-  return kdl::str_to_lower(path.extension().string()) == ".ase";
+  return kdl::path_has_extension(kdl::path_to_lower(path), ".ase");
 }
 
 Result<mdl::EntityModelData> AseLoader::load(Logger& logger)
