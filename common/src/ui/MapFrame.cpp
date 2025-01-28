@@ -101,6 +101,7 @@
 #include "vm/vec_io.h"
 
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <cassert>
 #include <chrono>
@@ -951,7 +952,8 @@ bool MapFrame::saveDocument()
     QMessageBox::critical(
       this,
       "",
-      QString::fromStdString("Unknown error while saving " + m_document->path().string()),
+      QString::fromStdString(
+        fmt::format("Unknown error while saving {}", m_document->path())),
       QMessageBox::Ok);
     return false;
   }

@@ -30,6 +30,9 @@
 #include "kdl/reflection_impl.h"
 #include "kdl/string_format.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <cstring>
 #include <ostream>
 #include <string>
@@ -231,11 +234,11 @@ Result<Palette> loadPalette(const io::File& file, const std::filesystem::path& p
     }
 
     return Error{
-      "Could not load palette file '" + path.string() + "': Unknown palette format"};
+      fmt::format("Could not load palette file {}: Unknown palette format", path)};
   }
   catch (const Exception& e)
   {
-    return Error{"Could not load palette file '" + path.string() + "': " + e.what()};
+    return Error{fmt::format("Could not load palette file {}: {}", path, e.what())};
   }
 }
 

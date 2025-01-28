@@ -49,11 +49,13 @@
 #include <assimp/scene.h>
 #include <assimp/types.h>
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <optional>
 #include <ranges>
 #include <string_view>
 #include <utility>
+
 
 namespace tb::io
 {
@@ -281,7 +283,7 @@ std::vector<mdl::Texture> loadTexturesForMaterial(
     logger.error(fmt::format(
       "No diffuse textures found for material {} of model '{}', loading fallback texture",
       materialIndex,
-      modelPath.string()));
+      modelPath));
 
     textures.push_back(loadFallbackOrDefaultTexture(fs, logger));
   }
@@ -829,9 +831,7 @@ Result<mdl::EntityModelData> AssimpLoader::load(tb::Logger& logger)
     if (!scene)
     {
       return Error{fmt::format(
-        "Assimp couldn't import model from '{}': {}",
-        m_path.string(),
-        importer.GetErrorString())};
+        "Assimp couldn't import model from '{}': {}", m_path, importer.GetErrorString())};
     }
 
     // Create model data.

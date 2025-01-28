@@ -51,6 +51,7 @@
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <string>
 
@@ -149,7 +150,7 @@ Result<std::filesystem::path> findShaderTexture(
              {
                return candidates.front();
              }
-             return Error{fmt::format("File not found: {}", texturePath.string())};
+             return Error{fmt::format("File not found: {}", texturePath)};
            });
 }
 
@@ -330,8 +331,7 @@ mdl::ResourceLoader<mdl::Texture> makeTextureResourceLoader(
   return [&, path, name, paletteResult]() -> Result<mdl::Texture> {
     return loadTexture(path, name, extensions, fs, paletteResult)
            | kdl::or_else([&](auto e) -> Result<mdl::Texture> {
-               return Error{
-                 fmt::format("Could not load texture '{}': {}", path.string(), e.msg)};
+               return Error{fmt::format("Could not load texture '{}': {}", path, e.msg)};
              });
   };
 }

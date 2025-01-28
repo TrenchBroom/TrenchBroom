@@ -24,10 +24,12 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "QtUtils.h"
+#include "io/PathQt.h"
 
 #include "kdl/path_utils.h"
 
 #include <filesystem>
+
 
 namespace tb::ui
 {
@@ -109,10 +111,9 @@ QVariant ColorModel::data(const QModelIndex& index, const int role) const
     case 0:
       return {}; // Leave first cell empty
     case 1:
-      return QString::fromStdString(kdl::path_front(colorPreference->path()).string());
+      return io::pathAsQString(kdl::path_front(colorPreference->path()));
     case 2:
-      return QString::fromStdString(
-        kdl::path_pop_front(colorPreference->path()).generic_string());
+      return io::pathAsGenericQString(kdl::path_pop_front(colorPreference->path()));
       switchDefault();
     }
   }

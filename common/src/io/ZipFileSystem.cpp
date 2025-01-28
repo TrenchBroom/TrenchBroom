@@ -23,6 +23,9 @@
 
 #include "kdl/result.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <memory>
 #include <string>
 
@@ -81,7 +84,7 @@ Result<void> ZipFileSystem::doReadDirectory()
         auto stat = mz_zip_archive_file_stat{};
         if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
-          return Error{"mz_zip_reader_file_stat failed for " + path.string()};
+          return Error{fmt::format("mz_zip_reader_file_stat failed for {}", path)};
         }
 
         const auto uncompressedSize = static_cast<size_t>(stat.m_uncomp_size);
@@ -90,7 +93,7 @@ Result<void> ZipFileSystem::doReadDirectory()
 
         if (!mz_zip_reader_extract_to_mem(&m_archive, i, begin, uncompressedSize, 0))
         {
-          return Error{"mz_zip_reader_extract_to_mem failed for " + path.string()};
+          return Error{fmt::format("mz_zip_reader_extract_to_mem failed for {}", path)};
         }
 
         return std::static_pointer_cast<File>(

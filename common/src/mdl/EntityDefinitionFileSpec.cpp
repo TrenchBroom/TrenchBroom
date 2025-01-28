@@ -21,6 +21,9 @@
 
 #include "kdl/string_compare.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <cassert>
 #include <string>
 
@@ -113,9 +116,9 @@ const std::filesystem::path& EntityDefinitionFileSpec::path() const
 
 std::string EntityDefinitionFileSpec::asString() const
 {
-  return !valid()    ? ""
-         : builtin() ? "builtin:" + m_path.string()
-                     : "external:" + m_path.string();
+  return !valid()    ? std::string{}
+         : builtin() ? fmt::format("builtin:{}", m_path)
+                     : fmt::format("external:{}", m_path);
 }
 
 EntityDefinitionFileSpec::EntityDefinitionFileSpec(

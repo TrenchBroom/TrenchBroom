@@ -26,6 +26,9 @@
 #include "kdl/overload.h"
 #include "kdl/path_utils.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <cassert>
 #include <memory>
 
@@ -292,12 +295,12 @@ Result<std::shared_ptr<File>> ImageFileSystemBase::doOpenFile(
         kdl::overload(
           [&](const ImageDirectoryEntry&) {
             return Result<std::shared_ptr<File>>{
-              Error{"Cannot open directory entry at '" + path.string() + "'"}};
+              Error{fmt::format("Cannot open directory entry at {}", path)}};
           },
           [](const ImageFileEntry& fileEntry) { return fileEntry.getFile(); }),
         entry);
     },
-    Result<std::shared_ptr<File>>{Error{"'" + path.string() + "' not found"}});
+    Result<std::shared_ptr<File>>{Error{fmt::format("{} not found", path)}});
 }
 
 std::unordered_map<std::string, FileSystemMetadata> makeImageFileSystemMetadata(

@@ -70,6 +70,7 @@
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <chrono>
 #include <clocale>
@@ -392,7 +393,7 @@ bool TrenchBroomApp::openDocument(const std::filesystem::path& path)
   const auto checkFileExists = [&]() {
     return io::Disk::pathInfo(absPath) == io::PathInfo::File
              ? Result<void>{}
-             : Result<void>{Error{"'" + path.string() + "' not found"}};
+             : Result<void>{Error{fmt::format("{} not found", path)}};
   };
 
   auto* frame = static_cast<MapFrame*>(nullptr);
@@ -543,9 +544,7 @@ void TrenchBroomApp::openDocument()
 void TrenchBroomApp::showManual()
 {
   const auto manualPath = io::SystemPaths::findResourceFile("manual/index.html");
-  const auto manualPathString = manualPath.string();
-  const auto manualPathUrl =
-    QUrl::fromLocalFile(QString::fromStdString(manualPathString));
+  const auto manualPathUrl = QUrl::fromLocalFile(io::pathAsQString(manualPath));
   QDesktopServices::openUrl(manualPathUrl);
 }
 
@@ -570,8 +569,8 @@ void TrenchBroomApp::debugShowCrashReportDialog()
 }
 
 /**
- * If we catch exceptions in main() that are otherwise uncaught, Qt prints a warning to
- * override QCoreApplication::notify() and catch exceptions there instead.
+ * If we catch exceptions in main() that are otherwise uncaught, Qt prints a warning
+ * to override QCoreApplication::notify() and catch exceptions there instead.
  */
 bool TrenchBroomApp::notify(QObject* receiver, QEvent* event)
 {
@@ -717,8 +716,7 @@ std::filesystem::path crashReportBasePath()
   {
     ++index;
 
-    const auto testCrashLogName =
-      fmt::format("{}-{}.txt", crashLogPath.stem().string(), index);
+    const auto testCrashLogName = fmt::format("{}-{}.txt", crashLogPath.stem(), index);
     testCrashLogPath = crashLogPath.parent_path() / testCrashLogName;
   }
 
@@ -818,5 +816,4 @@ static void CrashHandler(int /* signum */)
   tb::ui::reportCrashAndExit(tb::TrenchBroomStackWalker::getStackTrace(), "SIGSEGV");
 }
 #endif
-
 } // namespace tb::ui
