@@ -117,6 +117,25 @@ jobs:
             cmakebuild/*.md5
 
       # macOS
+      - name: macOS - Set up signing environment
+        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        run: |
+            if [[ "${{ matrix.tb-build-type }}" != "asan" ]] && 
+               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}" ]] && 
+               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}" ]] && 
+               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]]
+               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" ]]
+               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" ]]
+               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" ]]; then
+              echo "TB_SIGN_MAC_BUNDLE=true" >> $GITHUB_ENV
+              echo "TB_SIGN_IDENTITY=${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" >> $GITHUB_ENV
+              echo "TB_NOTARIZATION_EMAIL=${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" >> $GITHUB_ENV
+              echo "TB_NOTARIZATION_TEAM_ID=${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" >> $GITHUB_ENV
+              echo "TB_NOTARIZATION_PASSWORD=${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" >> $GITHUB_ENV
+            else
+              echo "TB_SIGN_MAC_BUNDLE=false" >> $GITHUB_ENV
+            fi
+
       - name: macOS 13 - Install dependencies
         if: ${{ matrix.os == 'macos-13' }}
         run: |
@@ -134,7 +153,7 @@ jobs:
           brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
 
       - name: macOS 14 - Import signing certificates
-        if: ${{ (matrix.os == 'macos-13' || matrix.os == 'macos-14') && matrix.tb-build-type != 'asan' }}
+        if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}
@@ -142,18 +161,7 @@ jobs:
 
       - name: macOS - Build
         if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
-        run: |
-          if [ '${{ matrix.tb-build-type }}' != 'asan' ]; then
-            export DTB_SIGN_MAC_BUNDLE=1
-            export TB_SIGN_IDENTITY="${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}"
-            export TB_NOTARIZATION_EMAIL="${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}"
-            export TB_NOTARIZATION_TEAM_ID="${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}"
-            export TB_NOTARIZATION_PASSWORD="${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}"
-          else
-            export DTB_SIGN_MAC_BUNDLE=0
-            export TB_DEBUG_BUILD=true
-          fi
-          ./CI-macos.sh
+        run: ./CI-macos.sh
 
       - name: macOS 13 - Upload artifacts
         uses: actions/upload-artifact@v4
