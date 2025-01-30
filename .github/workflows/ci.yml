@@ -60,14 +60,14 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      # Dependencies
-      - name: Install Linux dependencies
-        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
-        run: |
-          sudo apt update
-          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
+      # Install Qt
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.0'
 
-      - name: Install Pandoc (Windows)
+      # Windows
+      - name: Windows - Install dependencies
         if: ${{ matrix.os == 'windows-2022' }}
         run: |
           # Chocolatey was taking 3 minutes to install pandoc; just install it directly
@@ -80,12 +80,44 @@ jobs:
           # See: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
           echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
-        with:
-          version: '6.7.0'
+      - name: Windows - Build
+        if: ${{ matrix.os == 'windows-2022' }}
+        run: cmd.exe /c CI-windows.bat
+        env:
+          TB_ARCH: ${{ matrix.tb-arch }}
 
-      - name: Install macOS 13 dependencies
+      - name: Windows - Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'windows-2022' }}
+        with:
+          name: windows-2022-x64
+          path: |
+            cmakebuild/*.7z
+            cmakebuild/*.7z.md5
+
+      # Linux
+      - name: Linux - Install dependencies
+        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
+        run: |
+          sudo apt update
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
+
+      - name: Linux - Build
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        run: |
+          ./CI-linux.sh
+
+      - name: Linux - Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        with:
+          name: ubuntu-22.04
+          path: |
+            cmakebuild/*.AppImage
+            cmakebuild/*.md5
+
+      # macOS
+      - name: macOS 13 - Install dependencies
         if: ${{ matrix.os == 'macos-13' }}
         run: |
           # workaround for https://github.com/actions/runner-images/issues/4020
@@ -96,25 +128,19 @@ jobs:
           brew link --overwrite python@3.12
           brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
 
-      - name: Install macOS 14 dependencies
+      - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
         run: |
           brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
 
-      - name: Import macOS signing certificates
+      - name: macOS 14 - Import signing certificates
         if: ${{ (matrix.os == 'macos-13' && matrix.tb-build-type != 'asan') || matrix.os == 'macos-14' }}
         uses: apple-actions/import-codesign-certs@v3
         with:
           p12-file-base64: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}
 
-      # Run build script
-      - name: Linux build
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        run: |
-          ./CI-linux.sh
-
-      - name: macOS build
+      - name: macOS - Build
         if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
         run: |
           if [ '${{ matrix.tb-build-type }}' == 'asan' ]; then
@@ -129,38 +155,7 @@ jobs:
           fi
           ./CI-macos.sh
 
-      - name: Windows build
-        if: ${{ matrix.os == 'windows-2022' }}
-        run: cmd.exe /c CI-windows.bat
-        env:
-          TB_ARCH: ${{ matrix.tb-arch }}
-
-      # Upload artifacts.
-      # These need to be separate, otherwise all of the artifacts are bundled into
-      # one .zip file.
-
-      # Windows 2022 x64
-      - name: Upload win64 artifact
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'windows-2022' }}
-        with:
-          name: windows-2022-x64
-          path: |
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
-
-      # Ubuntu 22.04
-      - name: Upload Linux artifacts
-        uses: actions/upload-artifact@v4
-        if: ${{ matrix.os == 'ubuntu-22.04' }}
-        with:
-          name: ubuntu-22.04
-          path: |
-            cmakebuild/*.AppImage
-            cmakebuild/*.md5
-
-      # macOS
-      - name: Upload macOS 13 artifact
+      - name: macOS 13 - Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-13' && matrix.tb-build-type != 'asan' }}
         with:
@@ -169,7 +164,7 @@ jobs:
             cmakebuild/*.dmg
             cmakebuild/*.md5
 
-      - name: Upload macOS 14 artifact
+      - name: macOS 14 - Upload artifacts
         uses: actions/upload-artifact@v4
         if: ${{ matrix.os == 'macos-14' }}
         with:
