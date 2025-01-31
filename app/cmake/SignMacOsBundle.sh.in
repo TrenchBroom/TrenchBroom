@@ -1,6 +1,6 @@
 #!/bin/bash
 
-if [[ "@TB_SIGN_MAC_BUNDLE@" == "1" ]] ; then
+if [[ "@TB_SIGN_MAC_BUNDLE@" == "true" ]] ; then
   # Sign the .dmg file
   codesign --sign "@TB_SIGN_IDENTITY@" \
     --timestamp \
