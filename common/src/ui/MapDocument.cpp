@@ -136,6 +136,7 @@
 #include <cassert>
 #include <cstdlib>
 #include <map>
+#include <ranges>
 #include <sstream>
 #include <string>
 #include <type_traits>
@@ -1589,6 +1590,24 @@ void MapDocument::selectFacesWithMaterial(const mdl::Material* material)
   auto transaction = Transaction{*this, "Select Faces with Material"};
   deselectAll();
   selectBrushFaces(faces);
+  transaction.commit();
+}
+
+void MapDocument::selectBrushesWithMaterial(const mdl::Material* material)
+{
+  const auto selectableNodes =
+    mdl::collectSelectableNodes(std::vector<mdl::Node*>{m_world.get()}, *m_editorContext);
+  const auto brushes =
+    selectableNodes | std::views::filter([&](const auto& node) {
+      return std::ranges::any_of(
+        mdl::collectSelectableBrushFaces({node}, *m_editorContext),
+        [&](const auto& faceHandle) { return faceHandle.face().material() == material; });
+    })
+    | kdl::to_vector;
+
+  auto transaction = Transaction{*this, "Select Brushes with Material"};
+  deselectAll();
+  selectNodes(brushes);
   transaction.commit();
 }
 

@@ -912,6 +912,8 @@ Below the material browser, there are the same controls as in the [entity browse
 
 To select all faces having a certain material, right click that material in the material browser and click "Select Faces" from the popup menu.
 
+To select all brushes having a face with certain material, right click that material in the material browser and click "Select Brushes" from the popup menu.
+
 ### Filtering Material Collections
 
 ![Filtering material collections](images/TextureCollectionEditor.png) To filter out material collections, click on the "Settings" button in the material browser's title bar. This reveals a UI to enable or disable individual material collections. Select one or more material collections from the "Available" section and click on the "+" icon to enable them. To disable material collections, select them in the "Enabled" section and click on the "-" icon. Click on the circular arrow icon to reload all material collections.
