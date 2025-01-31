@@ -27,6 +27,7 @@
 #include "render/IndexRangeMapBuilder.h" // IWYU pragma: keep
 #include "render/PrimType.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
 #include "kdl/result_fold.h" // IWYU pragma: keep
@@ -309,7 +310,7 @@ Md3Loader::Md3Loader(
 
 bool Md3Loader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".md3")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".md3"))
   {
     return false;
   }

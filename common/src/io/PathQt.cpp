@@ -19,24 +19,43 @@
 
 #include "PathQt.h"
 
-#include <QFile>
+#include <QFileInfo>
+
+#include "kdl/path_utils.h"
 
 namespace tb::io
 {
 
-QString pathAsQString(const std::filesystem::path& path)
+QString pathAsQPath(const std::filesystem::path& path)
 {
   return QFile{path}.fileName();
+}
+
+QString pathAsQString(const std::filesystem::path& path)
+{
+#ifdef _WIN32
+  return QString::fromStdWString(path.wstring());
+#else
+  return QString::fromStdString(path.string());
+#endif
 }
 
 QString pathAsGenericQString(const std::filesystem::path& path)
 {
-  return QFile{path}.fileName();
+#ifdef _WIN32
+  return QString::fromStdWString(path.generic_wstring());
+#else
+  return QString::fromStdString(path.generic_string());
+#endif
 }
 
 std::filesystem::path pathFromQString(const QString& path)
 {
-  return QFile{path}.filesystemFileName();
+#ifdef _WIN32
+  return std::filesystem::path{kdl::parse_path(path.toStdWString())};
+#else
+  return std::filesystem::path{kdl::parse_path(path.toStdString())};
+#endif
 }
 
 } // namespace tb::io

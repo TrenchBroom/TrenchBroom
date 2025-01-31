@@ -42,10 +42,14 @@
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialManager.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/result.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
+
+#include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <string>
 #include <vector>
@@ -62,12 +66,12 @@ GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& l
 Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefinitions(
   io::ParserStatus& status, const std::filesystem::path& path) const
 {
-  const auto extension = path.extension().string();
+  const auto extension = kdl::path_to_lower(path.extension());
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
   try
   {
-    if (kdl::ci::str_is_equal(".fgd", extension))
+    if (extension == ".fgd")
     {
       return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
@@ -75,7 +79,7 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefin
                return parser.parseDefinitions(status);
              });
     }
-    if (kdl::ci::str_is_equal(".def", extension))
+    if (extension == ".def")
     {
       return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
@@ -83,7 +87,7 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefin
                return parser.parseDefinitions(status);
              });
     }
-    if (kdl::ci::str_is_equal(".ent", extension))
+    if (extension == ".ent")
     {
       return io::Disk::openFile(path) | kdl::transform([&](auto file) {
                auto reader = file->reader().buffer();
@@ -92,7 +96,7 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefin
              });
     }
 
-    return Error{"Unknown entity definition format: '" + path.string() + "'"};
+    return Error{fmt::format("Unknown entity definition format: {}", path)};
   }
   catch (const ParserException& e)
   {
@@ -143,7 +147,7 @@ Game::PathErrors GameImpl::checkAdditionalSearchPaths(
     const auto absPath = m_gamePath / searchPath;
     if (!absPath.is_absolute() || io::Disk::pathInfo(absPath) != io::PathInfo::Directory)
     {
-      result.emplace(searchPath, "Directory not found: '" + searchPath.string() + "'");
+      result.emplace(searchPath, fmt::format("Directory not found: {}", searchPath));
     }
   }
   return result;
@@ -181,7 +185,7 @@ bool GameImpl::isEntityDefinitionFile(const std::filesystem::path& path) const
   static const auto extensions = {".fgd", ".def", ".ent"};
 
   return std::any_of(extensions.begin(), extensions.end(), [&](const auto& extension) {
-    return kdl::ci::str_is_equal(extension, path.extension().string());
+    return kdl::path_has_extension(kdl::path_to_lower(path), extension);
   });
 }
 

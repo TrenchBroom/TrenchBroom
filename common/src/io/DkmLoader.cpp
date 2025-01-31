@@ -401,7 +401,7 @@ Result<std::filesystem::path> findSkin(const std::string& skin, const FileSystem
   }
 
   // try "wal" extension instead
-  if (kdl::str_to_lower(skinPath.extension().string()) == ".bmp")
+  if (kdl::path_has_extension(kdl::path_to_lower(skinPath), ".bmp"))
   {
     const auto walPath = kdl::path_replace_extension(skinPath, ".wal");
     if (fs.pathInfo(walPath) == PathInfo::File)
@@ -499,7 +499,7 @@ DkmLoader::DkmLoader(std::string name, const Reader& reader, const FileSystem& f
 
 bool DkmLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::path_to_lower(path.extension()) != ".dkm")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".dkm"))
   {
     return false;
   }

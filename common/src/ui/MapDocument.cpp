@@ -132,6 +132,9 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <algorithm>
 #include <cassert>
 #include <cstdlib>
@@ -142,6 +145,7 @@
 #include <type_traits>
 #include <unordered_map>
 #include <vector>
+
 
 namespace tb::ui
 {
@@ -723,7 +727,7 @@ Result<void> MapDocument::loadDocument(
   std::shared_ptr<mdl::Game> game,
   const std::filesystem::path& path)
 {
-  info("Loading document from " + path.string());
+  info(fmt::format("Loading document from {}", path));
 
   clearDocument();
 
@@ -4680,7 +4684,7 @@ void MapDocument::loadEntityDefinitions()
 
   m_entityDefinitionManager->loadDefinitions(path, *m_game, status)
     | kdl::transform([&]() {
-        info("Loaded entity definition file " + path.filename().string());
+        info(fmt::format("Loaded entity definition file {}", path.filename()));
         createEntityDefinitionActions();
       })
     | kdl::transform_error([&](auto e) {

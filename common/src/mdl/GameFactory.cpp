@@ -39,6 +39,9 @@
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -262,9 +265,10 @@ Result<std::vector<std::string>> GameFactory::loadGameConfigs(
              kdl::vec_transform(configFiles, [&](const auto& configFilePath) {
                return loadGameConfig(gamePathConfig, configFilePath)
                       | kdl::transform_error([&](auto e) {
-                          errors.push_back(
-                            "Failed to load game configuration file '"
-                            + configFilePath.string() + "': " + e.msg);
+                          errors.push_back(fmt::format(
+                            "Failed to load game configuration file {}: {}",
+                            configFilePath,
+                            e.msg));
                         });
              });
              return errors;

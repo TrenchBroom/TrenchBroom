@@ -61,6 +61,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_NodeReader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_NodeWriter.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ObjSerializer.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/io/tst_PathQt.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Quake3ShaderParser.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_ReadDdsTexture.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_Reader.cpp"

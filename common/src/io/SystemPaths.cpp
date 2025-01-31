@@ -29,7 +29,6 @@
 #include "io/PathInfo.h"
 #include "io/PathQt.h"
 
-#include <optional>
 #include <vector>
 
 namespace tb::io::SystemPaths
@@ -95,7 +94,7 @@ std::filesystem::path findResourceFile(const std::filesystem::path& file)
 
   return io::pathFromQString(QStandardPaths::locate(
     QStandardPaths::AppDataLocation,
-    io::pathAsQString(file),
+    io::pathAsQPath(file),
     QStandardPaths::LocateOption::LocateFile));
 }
 
@@ -113,7 +112,7 @@ std::vector<std::filesystem::path> findResourceDirectories(
 
   const auto dirs = QStandardPaths::locateAll(
     QStandardPaths::AppDataLocation,
-    io::pathAsQString(directory),
+    io::pathAsQPath(directory),
     QStandardPaths::LocateOption::LocateDirectory);
 
   for (const auto& dir : dirs)

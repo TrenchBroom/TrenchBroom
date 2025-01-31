@@ -100,7 +100,7 @@ void AppPreferenceManager::initialize()
   loadCacheFromDisk();
 
   m_fileSystemWatcher = new QFileSystemWatcher{this};
-  if (m_fileSystemWatcher->addPath(io::pathAsQString(m_preferencesFilePath)))
+  if (m_fileSystemWatcher->addPath(io::pathAsQPath(m_preferencesFilePath)))
   {
     connect(
       m_fileSystemWatcher,
@@ -397,7 +397,7 @@ namespace
 QLockFile getLockFile(const std::filesystem::path& preferenceFilePath)
 {
   const auto lockFilePath = kdl::path_add_extension(preferenceFilePath, ".lck");
-  return QLockFile{io::pathAsQString(lockFilePath)};
+  return QLockFile{io::pathAsQPath(lockFilePath)};
 }
 } // namespace
 
@@ -445,7 +445,7 @@ WritePreferencesResult writePreferencesToFile(
     return PreferenceErrors::LockFileError{};
   }
 
-  auto saveFile = QSaveFile{io::pathAsQString(path)};
+  auto saveFile = QSaveFile{io::pathAsQPath(path)};
   if (!saveFile.open(QIODevice::WriteOnly))
   {
     return PreferenceErrors::FileAccessError{};

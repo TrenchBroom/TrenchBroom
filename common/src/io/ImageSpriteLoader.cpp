@@ -103,7 +103,7 @@ ImageSpriteLoader::ImageSpriteLoader(
 
 bool ImageSpriteLoader::canParse(const std::filesystem::path& path)
 {
-  return isSupportedFreeImageExtension(path.extension().string());
+  return isSupportedFreeImageExtension(path.extension());
 }
 
 Result<mdl::EntityModelData> ImageSpriteLoader::load(Logger& logger)

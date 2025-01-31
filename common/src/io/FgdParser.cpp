@@ -36,6 +36,7 @@
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <algorithm>
 #include <memory>
@@ -1069,23 +1070,20 @@ std::vector<EntityDefinitionClassInfo> FgdParser::handleInclude(
       m_tokenizer.restoreStateAndSource(snapshot);
     }};
 
-  status.debug(
-    m_tokenizer.location(), fmt::format("Parsing included file '{}'", path.string()));
+  status.debug(m_tokenizer.location(), fmt::format("Parsing included file '{}'", path));
 
   const auto filePath = currentRoot() / path;
   return m_fs->openFile(filePath) | kdl::transform([&](auto file) {
            status.debug(
              m_tokenizer.location(),
-             fmt::format("Resolved '{}' to '{}'", path.string(), filePath.string()));
+             fmt::format("Resolved '{}' to '{}'", path, filePath));
 
            if (isRecursiveInclude(filePath))
            {
              status.error(
                m_tokenizer.location(),
                fmt::format(
-                 "Skipping recursively included file: {} ({})",
-                 path.string(),
-                 filePath.string()));
+                 "Skipping recursively included file: {} ({})", path, filePath));
              return std::vector<EntityDefinitionClassInfo>{};
            }
 

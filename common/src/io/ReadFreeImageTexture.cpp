@@ -27,6 +27,7 @@
 #include "mdl/Texture.h"
 #include "mdl/TextureBuffer.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/resource.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
@@ -222,12 +223,12 @@ std::vector<std::string> getSupportedFreeImageExtensions()
 }
 } // namespace
 
-bool isSupportedFreeImageExtension(const std::string_view extension)
+bool isSupportedFreeImageExtension(const std::filesystem::path& extension)
 {
   InitFreeImage::initialize();
 
   static const auto extensions = getSupportedFreeImageExtensions();
-  return kdl::vec_contains(extensions, kdl::str_to_lower(extension));
+  return kdl::vec_contains(extensions, kdl::path_to_lower(extension));
 }
 
 } // namespace tb::io

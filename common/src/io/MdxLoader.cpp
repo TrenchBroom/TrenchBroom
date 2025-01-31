@@ -413,7 +413,7 @@ MdxLoader::MdxLoader(std::string name, const Reader& reader, const FileSystem& f
 
 bool MdxLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::path_to_lower(path.extension()) != ".mdx")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".mdx"))
   {
     return false;
   }

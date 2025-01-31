@@ -30,12 +30,17 @@
 namespace kdl
 {
 
+template <typename char_type>
 inline std::filesystem::path parse_path(
-  std::string str, const bool replace_backslashes = true)
+  std::basic_string<char_type> str, const bool convert_separators = true)
 {
-  if (replace_backslashes)
+  if (convert_separators)
   {
-    std::ranges::replace_if(str, [](char c) { return c == '\\'; }, '/');
+    constexpr auto pref_sep = char_type(std::filesystem::path::preferred_separator);
+    const auto win_sep = char_type('\\');
+    const auto x_sep = char_type('/');
+    std::ranges::replace_if(
+      str, [&](const auto c) { return c == win_sep || c == x_sep; }, pref_sep);
   }
   return std::filesystem::path{std::move(str)};
 }
@@ -92,6 +97,12 @@ inline std::filesystem::path path_clip(
 inline std::filesystem::path path_pop_front(const std::filesystem::path& path)
 {
   return path_clip(path, 1, path_length(path));
+}
+
+inline bool path_has_extension(
+  const std::filesystem::path& path, const std::filesystem::path extension)
+{
+  return path.extension() == extension;
 }
 
 inline std::filesystem::path path_add_extension(

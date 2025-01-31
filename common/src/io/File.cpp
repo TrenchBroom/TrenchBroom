@@ -22,6 +22,7 @@
 #include "kdl/result.h"
 
 #include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <cstdio>
 #include <cstring>
@@ -69,8 +70,7 @@ Result<kdl::resource<std::FILE*>> openPathAsFILE(
 
   if (!file)
   {
-    return Error{
-      fmt::format("Failed to open '{}': {}", path.string(), std::strerror(errno))};
+    return Error{fmt::format("Failed to open '{}': {}", path, std::strerror(errno))};
   }
 
   return kdl::resource{file, std::fclose};

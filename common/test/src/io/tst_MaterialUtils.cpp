@@ -62,7 +62,7 @@ TEST_CASE("findMaterialFile")
   env.createFile("textures/test.jpg", "");
   env.createFile("textures/other.txt", "");
 
-  const auto extensions = std::vector<std::string>{".png", ".jpg"};
+  const auto extensions = std::vector<std::filesystem::path>{".png", ".jpg"};
 
   auto diskFS = DiskFileSystem{env.dir()};
   CHECK(

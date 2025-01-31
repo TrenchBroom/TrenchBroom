@@ -26,9 +26,26 @@
 namespace tb::io
 {
 
+/**
+ * Returns a QString representation of the given path that is usable with Qt's own file
+ * handling classes. These paths use forward slashes as separators on all platforms.
+ */
+QString pathAsQPath(const std::filesystem::path& path);
+
+/**
+ * Returns a platform-specific Qt string representation of the given path.
+ */
 QString pathAsQString(const std::filesystem::path& path);
+
+/**
+ * Returns a generic Qt string representation of the given path using the generic path
+ * separators as per the std::filesystem::path::generic_string function.
+ */
 QString pathAsGenericQString(const std::filesystem::path& path);
 
+/**
+ * Returns a std::filesystem::path representation of the given QString path.
+ */
 std::filesystem::path pathFromQString(const QString& path);
 
 } // namespace tb::io

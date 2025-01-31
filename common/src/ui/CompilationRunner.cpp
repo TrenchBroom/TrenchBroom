@@ -164,7 +164,7 @@ void CompilationCopyFilesTaskRunner::doExecute()
                | kdl::and_then([&](const auto& pathsToCopy) {
                    const auto pathStrsToCopy = kdl::vec_transform(
                      pathsToCopy,
-                     [](const auto& path) { return "'" + path.string() + "'"; });
+                     [](const auto& path) { return fmt::format("{}", path); });
 
                    m_context << "#### Copying to '" << io::pathAsQString(targetPath)
                              << "/': "
@@ -256,8 +256,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
     return io::Disk::find(targetDirPath, io::TraversalMode::Recursive, targetPathMatcher)
            | kdl::transform([&](const auto& pathsToDelete) {
                const auto pathStrsToDelete = kdl::vec_transform(
-                 pathsToDelete,
-                 [](const auto& path) { return "'" + path.string() + "'"; });
+                 pathsToDelete, [](const auto& path) { return fmt::format("{}", path); });
                m_context << "#### Deleting: "
                          << QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "))
                          << "\n";

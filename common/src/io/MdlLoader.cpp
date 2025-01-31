@@ -30,6 +30,7 @@
 #include "render/IndexRangeMapBuilder.h"
 #include "render/PrimType.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/string_format.h"
 
 #include <fmt/format.h>
@@ -505,7 +506,7 @@ MdlLoader::MdlLoader(std::string name, const Reader& reader, const mdl::Palette&
 
 bool MdlLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::str_to_lower(path.extension().string()) != ".mdl")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".mdl"))
   {
     return false;
   }

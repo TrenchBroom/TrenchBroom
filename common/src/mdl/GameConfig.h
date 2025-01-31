@@ -48,7 +48,7 @@ struct MapFormatConfig
 
 struct PackageFormatConfig
 {
-  std::vector<std::string> extensions;
+  std::vector<std::filesystem::path> extensions;
   std::string format;
 
   kdl_reflect_decl(PackageFormatConfig, extensions, format);
@@ -65,7 +65,7 @@ struct FileSystemConfig
 struct MaterialConfig
 {
   std::filesystem::path root;
-  std::vector<std::string> extensions;
+  std::vector<std::filesystem::path> extensions;
   std::filesystem::path palette;
   std::optional<std::string> property;
   std::filesystem::path shaderSearchPath;

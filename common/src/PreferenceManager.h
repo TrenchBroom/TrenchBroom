@@ -32,8 +32,10 @@
 #include "Preference.h"
 #include "Result.h"
 
-#include "kdl/result.h"
 #include "kdl/vector_set.h"
+
+#include <fmt/format.h>
+#include <fmt/std.h>
 
 #include <filesystem>
 #include <map>
@@ -94,7 +96,7 @@ public:
     auto* pref = dynamic_cast<Preference<T>*>(prefBase);
     ensure(
       pref != nullptr,
-      ("Preference " + path.string() + " must be of the expected type").c_str());
+      fmt::format("Preference {} must be of the expected type", path).c_str());
     return *pref;
   }
 

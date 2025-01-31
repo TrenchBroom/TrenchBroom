@@ -37,6 +37,9 @@
 
 #include <kdl/result.h>
 
+#include <fmt/format.h>
+#include <fmt/std.h>
+
 namespace tb::io
 {
 
@@ -120,7 +123,7 @@ Result<mdl::EntityModelData> loadEntityModelData(
                auto loader = io::AssimpLoader{path, fs};
                return loader.load(logger);
              }
-             return Error{"Unknown model format: '" + path.string() + "'"};
+             return Error{fmt::format("Unknown model format: {}", path)};
            })
          | kdl::or_else([&](const auto& e) {
              return Result<mdl::EntityModelData>{Error{

@@ -236,7 +236,7 @@ SprLoader::SprLoader(std::string name, const Reader& reader, const mdl::Palette&
 
 bool SprLoader::canParse(const std::filesystem::path& path, Reader reader)
 {
-  if (kdl::path_to_lower(path.extension()) != ".spr")
+  if (!kdl::path_has_extension(kdl::path_to_lower(path), ".spr"))
   {
     return false;
   }
