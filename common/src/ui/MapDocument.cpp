@@ -384,7 +384,8 @@ bool applyAndSwap(
 }
 } // namespace
 
-const vm::bbox3d MapDocument::DefaultWorldBounds(-32768.0, 32768.0);
+const auto DEFAULT_WORLD_BOUND = 131072.0;
+const vm::bbox3d MapDocument::DefaultWorldBounds(-DEFAULT_WORLD_BOUND, DEFAULT_WORLD_BOUND);
 const std::string MapDocument::DefaultDocumentName("unnamed.map");
 
 MapDocument::MapDocument(kdl::task_manager& taskManager)

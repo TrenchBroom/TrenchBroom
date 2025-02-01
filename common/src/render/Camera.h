@@ -77,7 +77,7 @@ public:
 
 private:
   float m_nearPlane = 1.0f;
-  float m_farPlane = 65536.0f;
+  float m_farPlane = 262144.0f;
   Viewport m_viewport = Viewport{0, 0, 1024, 768};
   float m_zoom = 1.0f;
   vm::vec3f m_position;
