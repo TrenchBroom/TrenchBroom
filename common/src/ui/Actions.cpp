@@ -1371,6 +1371,16 @@ void ActionManager::createEditMenu()
     },
   }));
   editMenu.addItem(addAction(Action{
+    std::filesystem::path{"Menu/Edit/Select Advanced"},
+    QObject::tr("Select Advanced"),
+    ActionContext::Any,
+    QKeySequence{},
+    [](auto& context) { context.frame()->selectAdvanced(); },
+    [](const auto& context) {
+      return context.hasDocument() && context.frame()->canSelect();
+    },
+  }));
+  editMenu.addItem(addAction(Action{
     std::filesystem::path{"Menu/Edit/Select None"},
     QObject::tr("Select None"),
     ActionContext::Any,
