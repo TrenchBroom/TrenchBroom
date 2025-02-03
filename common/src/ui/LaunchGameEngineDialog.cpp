@@ -263,16 +263,8 @@ void LaunchGameEngineDialog::launchEngine()
       throw Exception{"Unknown error"};
     }
 #else
-    const auto commandAndArgs = QString::fromLatin1("\"%1\" %2")
-                                  .arg(io::pathAsQString(profile->path))
-                                  .arg(QString::fromStdString(parameters));
-
-    const auto oldWorkDir = QDir::currentPath();
-    QDir::setCurrent(workDir);
-    const auto success = QProcess::startDetached(commandAndArgs);
-    QDir::setCurrent(oldWorkDir);
-
-    if (!success)
+    const auto arguments = QStringList{QString::fromStdString(parameters)};
+    if (!QProcess::startDetached(io::pathAsQString(profile->path), arguments, workDir))
     {
       throw Exception{"Unknown error"};
     }
