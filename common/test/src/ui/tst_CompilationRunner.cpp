@@ -64,18 +64,18 @@ public:
     : m_runner{runner}
   {
     QObject::connect(&m_runner, &CompilationTaskRunner::start, [&]() {
-      started = true;
       auto lock = std::unique_lock<std::mutex>{m_mutex};
+      started = true;
       m_condition.notify_all();
     });
     QObject::connect(&m_runner, &CompilationTaskRunner::error, [&]() {
-      errored = true;
       auto lock = std::unique_lock<std::mutex>{m_mutex};
+      errored = true;
       m_condition.notify_all();
     });
     QObject::connect(&m_runner, &CompilationTaskRunner::end, [&]() {
-      ended = true;
       auto lock = std::unique_lock<std::mutex>{m_mutex};
+      ended = true;
       m_condition.notify_all();
     });
   }

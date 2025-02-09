@@ -31,8 +31,6 @@ public:
   explicit AppInfoPanel(QWidget* parent = nullptr);
 
 private:
-  void createGui();
-
   void versionInfoClicked();
 };
 
