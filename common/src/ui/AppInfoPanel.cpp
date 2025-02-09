@@ -38,11 +38,6 @@ namespace tb::ui
 AppInfoPanel::AppInfoPanel(QWidget* parent)
   : QWidget{parent}
 {
-  createGui();
-}
-
-void AppInfoPanel::createGui()
-{
   auto appIconImage = io::loadPixmapResource("AppIcon.png");
   auto* appIcon = new QLabel{};
   appIcon->setPixmap(appIconImage);
