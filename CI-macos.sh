@@ -88,8 +88,7 @@ cd "$BUILD_DIR"
 echo killing...; sudo pkill -9 XProtect >/dev/null || true;
 echo waiting...; while pgrep XProtect; do sleep 3; done;
 
-# retry up to 3 times to work around hdiutil failing to create a DMG image
-retry --tries=3 --fail="exit 1" cpack
+cpack || exit 1
 ./app/sign_macos_archive.sh || exit 1
 ./app/generate_checksum.sh || exit 1
 

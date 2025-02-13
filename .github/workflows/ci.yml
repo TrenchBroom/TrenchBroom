@@ -145,12 +145,12 @@ jobs:
           # this issue can always reoccur when brew updates their python formula
           brew unlink python@3.12
           brew link --overwrite python@3.12
-          brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
