@@ -333,10 +333,10 @@ if(WIN32)
             "${APP_DIR}/resources/shader"
             "${APP_DIR}/resources/stylesheets"
             DESTINATION . COMPONENT TrenchBroom)
-    set(CPACK_GENERATOR "7Z")
+    set(CPACK_GENERATOR "ZIP")
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 
-    set(CPACK_PACKAGE_FILE_EXT "7z")
+    set(CPACK_PACKAGE_FILE_EXT "zip")
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.bat.in" "${CMAKE_BINARY_DIR}/generate_checksum.bat" @ONLY)
 elseif(APPLE)
     install(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
