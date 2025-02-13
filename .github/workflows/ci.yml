@@ -120,12 +120,17 @@ jobs:
       - name: macOS - Set up signing environment
         if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
         run: |
+            if [[ "${{ matrix.tb-build-type }}" == "asan" ]]; then
+              echo "TB_ENABLE_ASAN=true" >> $GITHUB_ENV
+            else
+              echo "TB_ENABLE_ASAN=false" >> $GITHUB_ENV
+            fi
             if [[ "${{ matrix.tb-build-type }}" != "asan" ]] && 
                [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}" ]] && 
                [[ -n "${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}" ]] && 
-               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]]
-               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" ]]
-               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" ]]
+               [[ -n "${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" ]] &&
+               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_EMAIL }}" ]] &&
+               [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_TEAM_ID }}" ]] &&
                [[ -n "${{ secrets.ACTIONS_MAC_NOTARIZATION_PASSWORD }}" ]]; then
               echo "TB_SIGN_MAC_BUNDLE=true" >> $GITHUB_ENV
               echo "TB_SIGN_IDENTITY=${{ secrets.ACTIONS_MAC_SIGN_IDENTITY }}" >> $GITHUB_ENV
