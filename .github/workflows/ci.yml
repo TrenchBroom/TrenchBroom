@@ -92,8 +92,8 @@ jobs:
         with:
           name: windows-2022-x64
           path: |
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
+            cmakebuild/*.zip
+            cmakebuild/*.zip.md5
 
       # Linux
       - name: Linux - Install dependencies
@@ -195,8 +195,8 @@ jobs:
             cmakebuild/*.AppImage.md5
             cmakebuild/*.dmg
             cmakebuild/*.dmg.md5
-            cmakebuild/*.7z
-            cmakebuild/*.7z.md5
+            cmakebuild/*.zip
+            cmakebuild/*.zip.md5
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
