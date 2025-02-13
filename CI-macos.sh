@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o verbose
+# set -o verbose
 
 # Check versions
 qmake -v
@@ -9,11 +9,6 @@ pandoc --version
 
 # Qt install prefix
 brew --prefix qt@6
-
-# Build TB
-
-TB_BUILD_TYPE="Release"
-TB_ENABLE_ASAN=0
 
 # Note: When this variable is changed, vcpkg will need to recompile all dependencies.
 # However, vcpkg will not detect the change and will happily keep using any cached
@@ -24,12 +19,14 @@ TB_ENABLE_ASAN=0
 # version because the vcpkg commit ID is part of the cache key for the binary cache.
 export MACOSX_DEPLOYMENT_TARGET=10.15
 
-if [[ $TB_DEBUG_BUILD == "true" ]] ; then
+# Build TB
+
+TB_BUILD_TYPE="Release"
+if [[ $TB_ENABLE_ASAN == "true" ]] ; then
     TB_BUILD_TYPE="Debug"
-    TB_ENABLE_ASAN=1
 fi
 
-echo "Build type: $TB_BUILD_TYPE"
+echo "TB_BUILD_TYPE: $TB_BUILD_TYPE"
 echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN"
 echo "TB_SIGN_MAC_BUNDLE: $TB_SIGN_MAC_BUNDLE"
 
@@ -75,28 +72,32 @@ cd "$BUILD_DIR/common/test"
 ./common-test || exit 1
 ./common-regression-test || exit 1
 
-if [[ $TB_DEBUG_BUILD != "true" ]] ; then
+if [[ $TB_BUILD_TYPE == "Release" ]] ; then
     cd "$BUILD_DIR/common/benchmark"
     ./common-benchmark || exit 1
 else
     echo "Skipping common-benmchark because this is a debug build"
 fi
 
-cd "$BUILD_DIR"
+if [[ $TB_ENABLE_ASAN == "false" ]] ; then
+  cd "$BUILD_DIR"
 
-# see https://github.com/actions/runner-images/issues/7522
-echo killing...; sudo pkill -9 XProtect >/dev/null || true;
-echo waiting...; while pgrep XProtect; do sleep 3; done;
+  # see https://github.com/actions/runner-images/issues/7522
+  echo killing...; sudo pkill -9 XProtect >/dev/null || true;
+  echo waiting...; while pgrep XProtect; do sleep 3; done;
 
-cpack || exit 1
-./app/sign_macos_archive.sh || exit 1
-./app/generate_checksum.sh || exit 1
+  cpack || exit 1
+  ./app/sign_macos_archive.sh || exit 1
+  ./app/generate_checksum.sh || exit 1
 
-echo "Deployment target (minos):"
-otool -l ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
+  echo "Deployment target (minos):"
+  otool -l ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom | grep minos
 
-echo "Shared libraries used:"
-otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+  echo "Shared libraries used:"
+  otool -L ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
 
-echo "Binary type:"
-file ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+  echo "Binary type:"
+  file ./app/TrenchBroom.app/Contents/MacOS/TrenchBroom
+else
+    echo "Skipping packaging because this is an ASAN build"
+fi
