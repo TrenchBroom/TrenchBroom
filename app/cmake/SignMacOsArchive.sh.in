@@ -1,29 +1,23 @@
 #!/bin/bash
 
 if [[ "@TB_SIGN_MAC_BUNDLE@" == "true" ]] ; then
-  # Sign the .dmg file
+  # Sign the archive file
   codesign --sign "@TB_SIGN_IDENTITY@" \
     --timestamp \
     --verbose=2 \
     @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ \
     || exit 1
 
-  # Verify that the .dmg file is properly signed
+  # Verify that the archive file is properly signed
   codesign --verify --verbose=3 --deep --strict \
     @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ \
     || exit 1
 
-  # Submit the .dmg file for notarization and wait for the result
+  # Submit the archive file for notarization and wait for the result
   xcrun notarytool submit @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ \
     --apple-id "@TB_NOTARIZATION_EMAIL@" \
     --team-id "@TB_NOTARIZATION_TEAM_ID@" \
     --password "@TB_NOTARIZATION_PASSWORD@" \
     --wait \
     || exit 1
-
-  # Staple the notarization ticket to the .dmg file
-  xcrun stapler staple @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ || exit 1
-
-  # Verify that the .dmg file is properly stapled
-  xcrun stapler validate @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ || exit 1
 fi

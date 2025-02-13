@@ -150,7 +150,7 @@ if(APPLE)
             # Have macdeployqt codesign the app bundle. See Build.md for more details on
             # how to set up the signing identity.
             add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:TrenchBroom>/../.."
+                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_BUNDLE_DIR:TrenchBroom>"
                         "-codesign=${TB_SIGN_IDENTITY}"
                         "-sign-for-notarization=${TB_SIGN_IDENTITY}"
                         "-hardened-runtime"
@@ -160,11 +160,11 @@ if(APPLE)
                         "--verbose=3"
                         "--deep"
                         "--strict"
-                        "$<TARGET_FILE_DIR:TrenchBroom>/../.."
+                        "$<TARGET_BUNDLE_DIR:TrenchBroom>"
                 VERBATIM)
         else()
             add_custom_command(TARGET TrenchBroom POST_BUILD
-                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_FILE_DIR:TrenchBroom>/../..")
+                COMMAND "${TB_MACDEPLOYQT_PATH}" "$<TARGET_BUNDLE_DIR:TrenchBroom>")
         endif()
     endif()
 endif()
@@ -340,10 +340,12 @@ if(WIN32)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.bat.in" "${CMAKE_BINARY_DIR}/generate_checksum.bat" @ONLY)
 elseif(APPLE)
     install(TARGETS TrenchBroom BUNDLE DESTINATION . COMPONENT TrenchBroom)
-    set(CPACK_GENERATOR "DragNDrop")
 
-    set(CPACK_PACKAGE_FILE_EXT "dmg")
-    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SignMacOsBundle.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/sign_macos_bundle.sh" @ONLY)
+    set(CPACK_PACKAGE_FILE_EXT "zip")
+    set(CPACK_GENERATOR "ZIP")
+    set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
+
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/SignMacOsArchive.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/sign_macos_archive.sh" @ONLY)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/GenerateChecksum.sh.in" "${CMAKE_CURRENT_BINARY_DIR}/generate_checksum.sh" @ONLY)
 elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")

@@ -145,12 +145,12 @@ jobs:
           # this issue can always reoccur when brew updates their python formula
           brew unlink python@3.12
           brew link --overwrite python@3.12
-          brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install cmake p7zip pandoc ninja autoconf automake kadwanev/brew/retry
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}
@@ -169,7 +169,7 @@ jobs:
         with:
           name: macos-13
           path: |
-            cmakebuild/*.dmg
+            cmakebuild/*.zip
             cmakebuild/*.md5
 
       - name: macOS 14 - Upload artifacts
@@ -178,7 +178,7 @@ jobs:
         with:
           name: macos-14
           path: |
-            cmakebuild/*.dmg
+            cmakebuild/*.zip
             cmakebuild/*.md5
 
       # Create release
@@ -193,8 +193,6 @@ jobs:
           files: |
             cmakebuild/*.AppImage
             cmakebuild/*.AppImage.md5
-            cmakebuild/*.dmg
-            cmakebuild/*.dmg.md5
             cmakebuild/*.zip
             cmakebuild/*.zip.md5
         env:
