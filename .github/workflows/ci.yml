@@ -169,7 +169,7 @@ jobs:
         with:
           name: macos-13
           path: |
-            cmakebuild/*.dmg
+            cmakebuild/*.zip
             cmakebuild/*.md5
 
       - name: macOS 14 - Upload artifacts
@@ -178,7 +178,7 @@ jobs:
         with:
           name: macos-14
           path: |
-            cmakebuild/*.dmg
+            cmakebuild/*.zip
             cmakebuild/*.md5
 
       # Create release
@@ -193,8 +193,6 @@ jobs:
           files: |
             cmakebuild/*.AppImage
             cmakebuild/*.AppImage.md5
-            cmakebuild/*.dmg
-            cmakebuild/*.dmg.md5
             cmakebuild/*.zip
             cmakebuild/*.zip.md5
         env:

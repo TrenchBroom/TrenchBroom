@@ -155,7 +155,7 @@ cmake --build . --target TrenchBroom
 
 #### Signing and notarization
 
-The app bundle and the DMG should be signed and notarized, otherwise macOS' gatekeeper
+The app bundle and the archive should be signed and notarized, otherwise macOS' gatekeeper
 will refuse to run the app. The signing and notarization process is taken care of by CI,
 but a number of prerequisites must be in place for it to work:
 
@@ -201,8 +201,8 @@ signing identity it should use. For this, we create another github action secret
   the certificate. For example, if the certificate is named `Developer ID Application:
   Roger Workman (1234567)`, then the signing identity is "Roger Workman".
 
-Now all prerequisites for signing the app bundle and the dmg file should be in place and
-we can move on the prerequisites for notarization.
+Now all prerequisites for signing the app bundle and the archive file should be in place
+and we can move on the prerequisites for notarization.
 
 ##### Prequisites for notarization
 
@@ -233,7 +233,7 @@ action secrets to be present:
 - `ACTIONS_MAC_NOTARIZATION_TEAM_ID`: the team ID associated with the signing certificate
 - `ACTIONS_MAC_NOTARIZATION_PASSWORD`: an application specific password
 
-Once all these secrets are in place, CI should produce a signed and notarized dmg file.
+Once all these secrets are in place, CI should produce a signed and notarized archive file.
 
 ---
 

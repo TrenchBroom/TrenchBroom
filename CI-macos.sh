@@ -33,12 +33,13 @@ echo "Build type: $TB_BUILD_TYPE"
 echo "TB_ENABLE_ASAN: $TB_ENABLE_ASAN"
 echo "TB_SIGN_MAC_BUNDLE: $TB_SIGN_MAC_BUNDLE"
 
-# Note: The app bundle and the DMG should be signed and notarized, otherwise macOS'
+# Note: The app bundle and the archive should be signed and notarized, otherwise macOS'
 # gatekeeper will refuse to run the app. The app itself is signed as a post-build step
-# using macdeployqt, and the dmg is signed and notarized by the ./app/sign_macos_bundle.sh
-# script that is called when the build was successful. This script is generated from the
-# cmake template SignMacOsBundle.cmake.in. See Build.md for more details on how to set up
-# the necessary prerequisites for signing and notarizing the app and the DMG.
+# using macdeployqt, and the archive is signed and notarized by the
+# ./app/sign_macos_archive.sh script that is called when the build was successful. This
+# script is generated from the cmake template SignMacOsBundle.cmake.in. See Build.md for
+# more details on how to set up the necessary prerequisites for signing and notarizing the
+# app and the archive.
 
 
 mkdir cmakebuild
@@ -89,7 +90,7 @@ echo waiting...; while pgrep XProtect; do sleep 3; done;
 
 # retry up to 3 times to work around hdiutil failing to create a DMG image
 retry --tries=3 --fail="exit 1" cpack
-./app/sign_macos_bundle.sh || exit 1
+./app/sign_macos_archive.sh || exit 1
 ./app/generate_checksum.sh || exit 1
 
 echo "Deployment target (minos):"
