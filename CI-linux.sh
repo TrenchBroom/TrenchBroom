@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o verbose
+# set -o verbose
 
 # install linuxdeploy
 wget -nc https://github.com/linuxdeploy/linuxdeploy/releases/download/1-alpha-20240109-1/linuxdeploy-x86_64.AppImage
