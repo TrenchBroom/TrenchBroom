@@ -26,6 +26,7 @@ target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
     "${KDL_INCLUDE_DIR}/kdl/result_error.h"
+    "${KDL_INCLUDE_DIR}/kdl/filesystem_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/functional.h"
     "${KDL_INCLUDE_DIR}/kdl/grouped_range.h"
     "${KDL_INCLUDE_DIR}/kdl/hash_utils.h"

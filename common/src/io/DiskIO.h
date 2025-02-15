@@ -23,7 +23,7 @@
 #include "io/File.h"
 #include "io/PathMatcher.h"
 
-#include "kdl/result.h"
+#include "kdl/filesystem_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
@@ -55,44 +55,8 @@ Result<std::shared_ptr<CFile>> openFile(const std::filesystem::path& path);
 template <typename Stream, typename F>
 auto withStream(
   const std::filesystem::path& path, const std::ios::openmode mode, const F& function)
-  -> kdl::wrap_result_t<decltype(function(std::declval<Stream&>())), Error>
 {
-  using FnResultType = decltype(function(std::declval<Stream&>()));
-  using ResultType = kdl::wrap_result_t<FnResultType, Error>;
-  try
-  {
-    auto stream = Stream{path, mode};
-    if (!stream)
-    {
-      return ResultType{Error{fmt::format("Failed to open stream for file {}", path)}};
-    }
-    if constexpr (kdl::is_result_v<FnResultType>)
-    {
-      if constexpr (std::is_same_v<typename FnResultType::value_type, void>)
-      {
-        return function(stream) | kdl::and_then([]() { return ResultType{}; });
-      }
-      else
-      {
-        return function(stream)
-               | kdl::and_then([](auto x) { return ResultType{std::move(x)}; });
-      }
-    }
-    else if constexpr (std::is_same_v<typename ResultType::value_type, void>)
-    {
-      function(stream);
-      return ResultType{};
-    }
-    else
-    {
-      return ResultType{function(stream)};
-    }
-  }
-  catch (const std::filesystem::filesystem_error& e)
-  {
-    return ResultType{
-      Error{fmt::format("Failed to open stream for file {}: {}", path, e.what())}};
-  }
+  return kdl::with_stream<Stream, F>(path, mode, function);
 }
 
 template <typename F>

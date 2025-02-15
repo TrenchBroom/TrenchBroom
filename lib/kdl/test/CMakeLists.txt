@@ -5,6 +5,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_binary_relation.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_compact_trie.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_filesystem_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_functional.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_grouped_range.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_hash_utils.cpp"

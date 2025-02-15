@@ -237,8 +237,7 @@ TEST_CASE("DiskIO")
     {
       CHECK(
         Disk::withInputStream(env.dir() / "does not exist.txt", readAll)
-        == Error{fmt::format(
-          "Failed to open stream for file {}", env.dir() / "does not exist.txt")});
+        == Error{"Failed to open stream"});
 
       CHECK(Disk::withInputStream(env.dir() / "test.txt", readAll) == "some content");
       CHECK(
