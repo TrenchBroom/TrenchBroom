@@ -20,8 +20,9 @@
 
 #pragma once
 
-#include "kdl/range_io.h" // IWYU pragma: export
-#include "kdl/std_io.h"   // IWYU pragma: export
+#include "kdl/range_io.h"  // IWYU pragma: export
+#include "kdl/result_io.h" // IWYU pragma: export
+#include "kdl/std_io.h"    // IWYU pragma: export
 
 // The catch2 header must be included only when all stream insertion
 // operators used in assertions are visible. We add this new wrapper header
