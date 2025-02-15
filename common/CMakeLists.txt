@@ -11,7 +11,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
         ${COMMON_SOURCE_DIR}/Ensure.cpp
-        ${COMMON_SOURCE_DIR}/Error.cpp
         ${COMMON_SOURCE_DIR}/Exceptions.cpp
         ${COMMON_SOURCE_DIR}/FileLocation.cpp
         ${COMMON_SOURCE_DIR}/FileLogger.cpp
