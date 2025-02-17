@@ -1,0 +1,3 @@
+// Combined Half-Life and SDHLT FGD
+@include "sdhlt.fgd"
+@include "HalfLife.fgd"
