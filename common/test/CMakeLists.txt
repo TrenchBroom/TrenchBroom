@@ -132,6 +132,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_GroupNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_HandleDragTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_InputEvent.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_LaunchGameEngine.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_LayerNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MapDocument.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MoveHandleDragTracker.cpp"

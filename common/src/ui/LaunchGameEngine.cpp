@@ -28,43 +28,81 @@
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
 
+#include "kdl/cmd_utils.h"
+
 namespace tb::ui
 {
+namespace
+{
+
+auto arguments(const mdl::GameEngineProfile& profile, const el::VariableStore& variables)
+{
+  const auto parameters =
+    el::interpolate(profile.parameterSpec, el::EvaluationContext{variables});
+
+  auto result = QStringList{};
+  for (const auto& parameter : kdl::cmd_parse_args(parameters))
+  {
+    result.push_back(QString::fromStdString(parameter));
+  }
+  return result;
+}
+
+} // namespace
 
 Result<void> launchGameEngineProfile(
-  const mdl::GameEngineProfile& profile, const el::VariableStore& variables)
+  const mdl::GameEngineProfile& profile,
+  const el::VariableStore& variables,
+  const std::optional<std::filesystem::path>& logFilePath)
 {
   try
   {
-    const auto parameters =
-      el::interpolate(profile.parameterSpec, el::EvaluationContext{variables});
-
     const auto workDir = io::pathAsQString(profile.path.parent_path());
+    const auto engineArguments = arguments(profile, variables);
 
+    auto process = QProcess{};
+    process.setWorkingDirectory(workDir);
+
+    if (logFilePath)
+    {
+      const auto qLogFilePath = io::pathAsQString(*logFilePath);
+      process.setStandardOutputFile(qLogFilePath);
+      process.setStandardErrorFile(qLogFilePath);
+    }
+
+    constexpr auto isMacOs =
 #ifdef __APPLE__
-    // We have to launch apps via the 'open' command so that we can properly pass
-    // parameters.
-    const auto arguments = QStringList{
-      "-a",
-      io::pathAsQString(profile.path),
-      "--args",
-      QString::fromStdString(parameters)};
-
-    if (!QProcess::startDetached("/usr/bin/open", arguments, workDir))
-    {
-      return Result<void>{Error{"Unknown error"}};
-    }
+      true;
 #else
-    const auto arguments = QStringList{QString::fromStdString(parameters)};
-    if (!QProcess::startDetached(io::pathAsQString(profile.path), arguments, workDir))
-    {
-      return Result<void>{Error{"Unknown error"}};
-    }
+      false;
 #endif
+
+    if (profile.path.extension() == ".app" && isMacOs)
+    {
+      // We have to launch apps via the 'open' command so that we can properly pass
+      // parameters.
+      auto launchArguments = QStringList{};
+      launchArguments << "-a" << io::pathAsQString(profile.path) << "--args";
+      launchArguments.append(engineArguments);
+
+      process.setProgram("/usr/bin/open");
+      process.setArguments(launchArguments);
+    }
+    else
+    {
+      process.setProgram(io::pathAsQString(profile.path));
+      process.setArguments(engineArguments);
+    }
+
+    if (!process.startDetached())
+    {
+      return Result<void>{Error{fmt::format(
+        "Failed to launch game engine: {}", process.errorString().toStdString())}};
+    }
   }
   catch (const Exception& e)
   {
-    return Result<void>{Error{e.what()}};
+    return Result<void>{Error{fmt::format("Failed to launch game engine: {}", e.what())}};
   }
 
   return Result<void>{};
