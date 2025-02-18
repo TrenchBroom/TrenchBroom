@@ -3,6 +3,7 @@ target_sources(kdl-test PRIVATE
         "${CMAKE_CURRENT_SOURCE_DIR}/src/run_all.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/test_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_binary_relation.cpp"
+        "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_cmd_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_collection_utils.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_compact_trie.cpp"
         "${CMAKE_CURRENT_SOURCE_DIR}/src/tst_filesystem_utils.cpp"
