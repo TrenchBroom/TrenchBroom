@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,20 +19,13 @@
 
 #pragma once
 
-#include <QWidget>
+#include "upd/UpdateConfig.h"
+
+#include <optional>
 
 namespace tb::ui
 {
 
-class AppInfoPanel : public QWidget
-{
-  Q_OBJECT
-
-public:
-  explicit AppInfoPanel(QWidget* parent = nullptr);
-
-private:
-  void versionInfoClicked();
-};
+std::optional<upd::UpdateConfig> makeUpdateConfig();
 
 } // namespace tb::ui

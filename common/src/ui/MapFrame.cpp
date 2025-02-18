@@ -91,6 +91,7 @@
 #include "ui/SwitchableMapViewContainer.h"
 #include "ui/VertexTool.h"
 #include "ui/ViewUtils.h"
+#include "upd/Updater.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -447,8 +448,11 @@ void MapFrame::updateToolBarWidgets()
 
 void MapFrame::createStatusBar()
 {
+  auto& app = TrenchBroomApp::instance();
+
   m_statusBarLabel = new QLabel{};
-  statusBar()->addWidget(m_statusBarLabel);
+  statusBar()->addWidget(m_statusBarLabel, 1);
+  statusBar()->addWidget(app.updater().createUpdateIndicator());
 }
 
 namespace

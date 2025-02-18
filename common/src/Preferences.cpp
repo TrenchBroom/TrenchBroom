@@ -28,6 +28,9 @@
 namespace tb::Preferences
 {
 
+Preference<bool> AutoCheckForUpdates("updater/Check for updates automatically", false);
+Preference<bool> IncludePreReleaseUpdates("updater/Include pre-releases", false);
+
 Preference<int> MapViewLayout(
   "Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane));
 
