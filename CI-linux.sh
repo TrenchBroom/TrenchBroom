@@ -33,6 +33,9 @@ cd "$BUILD_DIR/lib/vm/test"
 cd "$BUILD_DIR/lib/kdl/test"
 ./kdl-test || exit 1
 
+cd "$BUILD_DIR/lib/upd/test"
+./upd-test || exit 1
+
 cd "$BUILD_DIR/common/test"
 xvfb-run -a ./common-test || exit 1
 xvfb-run -a ./common-regression-test || exit 1

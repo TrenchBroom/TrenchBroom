@@ -26,11 +26,13 @@
 #include <QStringBuilder>
 #include <QVBoxLayout>
 
+#include "TrenchBroomApp.h"
 #include "io/ResourceUtils.h"
 #include "ui/BorderLine.h"
 #include "ui/ClickableLabel.h"
 #include "ui/GetVersion.h"
 #include "ui/QtUtils.h"
+#include "upd/Updater.h"
 
 namespace tb::ui
 {
@@ -67,6 +69,19 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
   connect(build, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
   connect(qtVersion, &ClickableLabel::clicked, this, &AppInfoPanel::versionInfoClicked);
 
+  auto& app = TrenchBroomApp::instance();
+  auto* updateIndicator = app.updater().createUpdateIndicator();
+  makeInfo(updateIndicator);
+
+  auto* versionLayout = new QHBoxLayout{};
+  versionLayout->setContentsMargins(0, 0, 0, 0);
+  versionLayout->setSpacing(LayoutConstants::MediumHMargin);
+  versionLayout->addWidget(version);
+  versionLayout->addWidget(updateIndicator);
+
+  auto* versionWidget = new QWidget{};
+  versionWidget->setLayout(versionLayout);
+
   auto* layout = new QVBoxLayout{};
   layout->setContentsMargins(20, 20, 20, 20);
   layout->setSpacing(2);
@@ -75,7 +90,7 @@ AppInfoPanel::AppInfoPanel(QWidget* parent)
   layout->addWidget(appName, 0, Qt::AlignHCenter);
   layout->addWidget(appLine);
   layout->addWidget(appClaim, 0, Qt::AlignHCenter);
-  layout->addWidget(version, 0, Qt::AlignHCenter);
+  layout->addWidget(versionWidget, 0, Qt::AlignHCenter);
   layout->addWidget(build, 0, Qt::AlignHCenter);
   layout->addWidget(qtVersion, 0, Qt::AlignHCenter);
   layout->addStretch();

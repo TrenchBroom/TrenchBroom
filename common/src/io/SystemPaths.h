@@ -25,6 +25,11 @@
 namespace tb::io::SystemPaths
 {
 /**
+ * Returns the path to the TrenchBroom executable.
+ */
+std::filesystem::path appFile();
+
+/**
  * Returns the directory containing the TrenchBroom executable (this will be inside the
  * .app bundle on macOS).
  */
@@ -35,6 +40,8 @@ std::filesystem::path appDirectory();
  * e.g. `C:\\Users\\<user>\\AppData\\Roaming\\TrenchBroom`
  */
 std::filesystem::path userDataDirectory();
+
+std::filesystem::path tempDirectory();
 
 std::filesystem::path logFilePath();
 

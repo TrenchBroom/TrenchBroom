@@ -29,8 +29,15 @@
 #include <vector>
 
 class QMenu;
+class QNetworkAccessManager;
 class QSettings;
 class QTimer;
+
+namespace upd
+{
+class HttpClient;
+class Updater;
+} // namespace upd
 
 namespace tb
 {
@@ -47,11 +54,14 @@ class TrenchBroomApp : public QApplication
 {
   Q_OBJECT
 private:
+  QNetworkAccessManager* m_networkManager = nullptr;
+  upd::HttpClient* m_httpClient = nullptr;
+  upd::Updater* m_updater = nullptr;
   kdl::task_manager m_taskManager = kdl::task_manager{256};
   std::unique_ptr<FrameManager> m_frameManager;
   std::unique_ptr<RecentDocuments> m_recentDocuments;
   std::unique_ptr<WelcomeWindow> m_welcomeWindow;
-  QTimer* m_recentDocumentsReloadTimer;
+  QTimer* m_recentDocumentsReloadTimer = nullptr;
 
 public:
   static TrenchBroomApp& instance();
@@ -60,8 +70,10 @@ public:
   ~TrenchBroomApp() override;
 
 public:
+  void askForAutoUpdates();
   void parseCommandLineAndShowFrame();
 
+  upd::Updater& updater();
   FrameManager* frameManager();
 
 private:

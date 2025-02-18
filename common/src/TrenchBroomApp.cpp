@@ -44,7 +44,10 @@
 #include "ui/PreferenceDialog.h"
 #include "ui/QtUtils.h"
 #include "ui/RecentDocuments.h"
+#include "ui/UpdateConfig.h"
 #include "ui/WelcomeWindow.h"
+#include "upd/QtHttpClient.h"
+#include "upd/Updater.h"
 
 #include "kdl/vector_utils.h"
 #ifdef __APPLE__
@@ -59,6 +62,7 @@
 #include <QFileDialog>
 #include <QMenuBar>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
 #include <QPalette>
 #include <QProxyStyle>
 #include <QStandardPaths>
@@ -150,6 +154,9 @@ LONG WINAPI TrenchBroomUnhandledExceptionFilter(PEXCEPTION_POINTERS pExceptionPt
 
 TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   : QApplication{argc, argv}
+  , m_networkManager{new QNetworkAccessManager{this}}
+  , m_httpClient{new upd::QtHttpClient{*m_networkManager}}
+  , m_updater{new upd::Updater{*m_httpClient, makeUpdateConfig(), this}}
   , m_taskManager{std::thread::hardware_concurrency()}
 {
   using namespace std::chrono_literals;
@@ -236,11 +243,42 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
     }
   }
 #endif
+
+  if (pref(Preferences::AutoCheckForUpdates))
+  {
+    m_updater->checkForUpdates();
+  }
 }
 
 TrenchBroomApp::~TrenchBroomApp()
 {
   PreferenceManager::destroyInstance();
+}
+
+void TrenchBroomApp::askForAutoUpdates()
+{
+  if (pref(Preferences::AskForAutoUpdates))
+  {
+    auto& prefs = PreferenceManager::instance();
+
+    const auto enableAutoCheck =
+      QMessageBox::question(
+        nullptr,
+        "TrenchBroom",
+        tr(
+          R"(TrenchBroom can check for updates automatically. Would you like to enable this now?)"),
+        QMessageBox::Yes | QMessageBox::No)
+      == QMessageBox::Yes;
+
+    prefs.set(Preferences::AutoCheckForUpdates, enableAutoCheck);
+    prefs.set(Preferences::AskForAutoUpdates, false);
+    prefs.saveChanges();
+
+    if (enableAutoCheck)
+    {
+      updater().checkForUpdates();
+    }
+  }
 }
 
 void TrenchBroomApp::parseCommandLineAndShowFrame()
@@ -249,6 +287,11 @@ void TrenchBroomApp::parseCommandLineAndShowFrame()
   parser.addOption(QCommandLineOption("portable"));
   parser.process(*this);
   openFilesOrWelcomeFrame(parser.positionalArguments());
+}
+
+upd::Updater& TrenchBroomApp::updater()
+{
+  return *m_updater;
 }
 
 FrameManager* TrenchBroomApp::frameManager()

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -14,25 +14,37 @@
  GNU General Public License for more details.
 
  You should have received a copy of the GNU General Public License
- along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
+ along with TrenchBroom.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
 
-#include <QWidget>
+#include "ui/PreferencePane.h"
+
+class QCheckBox;
 
 namespace tb::ui
 {
 
-class AppInfoPanel : public QWidget
+class UpdatePreferencePane : public PreferencePane
 {
   Q_OBJECT
+private:
+  QCheckBox* m_autoCheckForUpdates = nullptr;
+  QCheckBox* m_includePreReleaseUpdates = nullptr;
+  bool m_disableNotifiers = false;
 
 public:
-  explicit AppInfoPanel(QWidget* parent = nullptr);
+  explicit UpdatePreferencePane(QWidget* parent = nullptr);
 
 private:
-  void versionInfoClicked();
+  void createGui();
+  QWidget* createUpdatePreferences();
+
+  bool canResetToDefaults() override;
+  void doResetToDefaults() override;
+  void updateControls() override;
+  bool validate() override;
 };
 
 } // namespace tb::ui

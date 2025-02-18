@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2021 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,32 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "TestPreferenceManager.h"
+#pragma once
 
-#include "Preferences.h"
+#include "upd/UpdateConfig.h"
 
-namespace tb
+#include <optional>
+
+namespace tb::ui
 {
 
-void TestPreferenceManager::initialize()
-{
-  set(Preferences::AskForAutoUpdates, false);
-}
+std::optional<upd::UpdateConfig> makeUpdateConfig();
 
-bool TestPreferenceManager::saveInstantly() const
-{
-  return false;
-}
-
-void TestPreferenceManager::saveChanges() {}
-
-void TestPreferenceManager::discardChanges() {}
-
-void TestPreferenceManager::validatePreference(PreferenceBase& preference)
-{
-  preference.setValid(true);
-}
-
-void TestPreferenceManager::savePreference(PreferenceBase&) {}
-
-} // namespace tb
+} // namespace tb::ui
