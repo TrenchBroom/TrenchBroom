@@ -199,6 +199,8 @@ macro(configure_test_target TARGET)
     set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
 endmacro()
 
+add_subdirectory(cmd-tool)
+
 file(GENERATE
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ReturnExitCode.h"
   CONTENT "#define RETURN_EXITCODE_PATH \"$<TARGET_FILE:return-exitcode>\"")
