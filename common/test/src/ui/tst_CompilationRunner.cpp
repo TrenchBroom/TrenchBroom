@@ -165,6 +165,38 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     CHECK(exec.ended == !treatNonZeroResultCodeAsError);
   }
 
+  SECTION("argumentPassing")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{document, variables, outputAdapter, false};
+
+    auto task = mdl::CompilationRunTool{
+      true, CMD_TOOL_PATH, R"(--printArgs 1 2 str "escaped str")", false};
+    auto runner = CompilationRunToolTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    REQUIRE(exec.started);
+    REQUIRE_FALSE(exec.errored);
+    REQUIRE(exec.ended);
+
+    /*! EXPECTED:
+    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
+2
+str
+escaped str)"));
+    ACTUAL: */
+    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
+2
+str
+"escaped
+str")"));
+  }
+
 #if !defined(_WIN32) && !defined(_WIN64)
   // the test is unreliable on Windows
   SECTION("toolAborts")
