@@ -23,8 +23,10 @@
 #include "kdl/result.h"
 #include "kdl/result_error.h"
 
+#include <chrono>
 #include <filesystem>
 #include <fstream>
+#include <random>
 #include <sstream>
 
 namespace kdl
@@ -108,5 +110,57 @@ inline auto read_file(const std::filesystem::path& path)
     return oss.str();
   });
 }
+
+class tmp_file
+{
+private:
+  std::filesystem::path m_path;
+  bool m_auto_remove = true;
+
+public:
+  tmp_file()
+    : m_path(std::filesystem::temp_directory_path() / generateUniqueFileName())
+  {
+    // create an empty file
+    auto ofs = std::ofstream{m_path};
+  }
+
+  ~tmp_file()
+  {
+    if (m_auto_remove)
+    {
+      // ignore any errors
+      auto ec = std::error_code{};
+      std::filesystem::remove(m_path, ec);
+    }
+  }
+
+  const std::filesystem::path& path() const { return m_path; }
+
+  // NOLINTNEXTLINE
+  operator std::filesystem::path() const { return m_path; }
+
+  void set_auto_remove(const bool auto_remove) { m_auto_remove = auto_remove; }
+
+private:
+  static std::string generateUniqueFileName()
+  {
+    const auto now = std::chrono::system_clock::now();
+    const auto nowTimeT = std::chrono::system_clock::to_time_t(now);
+    const auto nowMs =
+      std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch())
+        .count()
+      % 1000;
+
+    auto rd = std::random_device{};
+    auto gen = std::mt19937{rd()};
+    auto dis = std::uniform_int_distribution<>{0, 9999};
+    const auto randomNum = dis(gen);
+
+    auto ss = std::ostringstream{};
+    ss << "kdl_tmp_file_" << nowTimeT << "_" << nowMs << "_" << randomNum;
+    return ss.str();
+  }
+};
 
 } // namespace kdl
