@@ -45,10 +45,20 @@ int main(int argc, char* argv[])
     return std::stoi(arguments.back());
   }
 
+  if (!arguments.empty() && arguments.front() == "--printArgs")
+  {
+    for (size_t i = 1; i < arguments.size(); ++i)
+    {
+      std::cout << arguments[i] << '\n';
+    }
+    return 0;
+  }
+
   std::cout << "Usage:\n"
             << "  --abort      Abort the program by calling std::abort\n"
             << "  --crash      Crash the program by raising the SIGSEGV signal\n"
-            << "  --exit n     Return exit code n\n";
+            << "  --exit n     Return exit code n\n"
+            << "  --printArgs  Print all remaining arguments line by line\n";
 
   return -1;
 }
