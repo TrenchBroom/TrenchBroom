@@ -27,9 +27,6 @@
 #include <QProcess>
 #include <QPushButton>
 
-#include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
-#include "io/PathQt.h"
 #include "mdl/GameConfig.h"
 #include "mdl/GameEngineProfile.h"
 #include "mdl/GameFactory.h"
@@ -38,6 +35,7 @@
 #include "ui/CurrentGameIndicator.h"
 #include "ui/GameEngineDialog.h"
 #include "ui/GameEngineProfileListBox.h"
+#include "ui/LaunchGameEngine.h"
 #include "ui/MapDocument.h"
 #include "ui/MultiCompletionLineEdit.h"
 #include "ui/QtUtils.h"
@@ -239,45 +237,15 @@ void LaunchGameEngineDialog::editGameEngines()
 
 void LaunchGameEngineDialog::launchEngine()
 {
-  try
-  {
-    const auto* profile = m_gameEngineList->selectedProfile();
-    ensure(profile != nullptr, "profile is null");
+  const auto* profile = m_gameEngineList->selectedProfile();
+  ensure(profile != nullptr, "profile is null");
 
-    const auto parameters =
-      el::interpolate(profile->parameterSpec, el::EvaluationContext{variables()});
-
-    const auto workDir = io::pathAsQString(profile->path.parent_path());
-
-#ifdef __APPLE__
-    // We have to launch apps via the 'open' command so that we can properly pass
-    // parameters.
-    const auto arguments = QStringList{
-      "-a",
-      io::pathAsQString(profile->path),
-      "--args",
-      QString::fromStdString(parameters)};
-
-    if (!QProcess::startDetached("/usr/bin/open", arguments, workDir))
-    {
-      throw Exception{"Unknown error"};
-    }
-#else
-    const auto arguments = QStringList{QString::fromStdString(parameters)};
-    if (!QProcess::startDetached(io::pathAsQString(profile->path), arguments, workDir))
-    {
-      throw Exception{"Unknown error"};
-    }
-#endif
-
-    accept();
-  }
-  catch (const Exception& e)
-  {
-    const auto message = kdl::str_to_string("Could not launch game engine: ", e.what());
-    QMessageBox::critical(
-      this, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
-  }
+  launchGameEngineProfile(*profile, variables())
+    | kdl::transform_error([](const auto& e) {
+        const auto message = kdl::str_to_string("Could not launch game engine: ", e.msg);
+        QMessageBox::critical(
+          nullptr, "TrenchBroom", QString::fromStdString(message), QMessageBox::Ok);
+      });
 }
 
 void LaunchGameEngineDialog::done(const int r)

@@ -380,6 +380,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/KeyboardShortcutModel.cpp
         ${COMMON_SOURCE_DIR}/ui/KeySequenceEdit.cpp
         ${COMMON_SOURCE_DIR}/ui/Lasso.cpp
+        ${COMMON_SOURCE_DIR}/ui/LaunchGameEngine.cpp
         ${COMMON_SOURCE_DIR}/ui/LaunchGameEngineDialog.cpp
         ${COMMON_SOURCE_DIR}/ui/LayerEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/LayerListBox.cpp
@@ -915,6 +916,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/KeyboardShortcutModel.h
         ${COMMON_SOURCE_DIR}/ui/KeySequenceEdit.h
         ${COMMON_SOURCE_DIR}/ui/Lasso.h
+        ${COMMON_SOURCE_DIR}/ui/LaunchGameEngine.h
         ${COMMON_SOURCE_DIR}/ui/LaunchGameEngineDialog.h
         ${COMMON_SOURCE_DIR}/ui/LayerEditor.h
         ${COMMON_SOURCE_DIR}/ui/LayerListBox.h
