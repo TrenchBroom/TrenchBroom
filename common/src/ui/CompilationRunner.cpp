@@ -37,6 +37,7 @@
 #include "ui/CompilationVariables.h"
 #include "ui/MapDocument.h" // IWYU pragma: keep
 
+#include "kdl/cmd_utils.h"
 #include "kdl/functional.h"
 #include "kdl/overload.h"
 #include "kdl/result_fold.h"
@@ -388,7 +389,7 @@ Result<std::string> CompilationRunToolTaskRunner::program() const
 Result<std::vector<std::string>> CompilationRunToolTaskRunner::parameters() const
 {
   return interpolate(m_task.parameterSpec).transform([](const auto& parameters) {
-    return kdl::str_split(parameters, " ");
+    return kdl::cmd_parse_args(parameters);
   });
 }
 

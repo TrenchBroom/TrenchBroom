@@ -184,17 +184,10 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     REQUIRE_FALSE(exec.errored);
     REQUIRE(exec.ended);
 
-    /*! EXPECTED:
     CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
 2
 str
 escaped str)"));
-    ACTUAL: */
-    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
-2
-str
-"escaped
-str")"));
   }
 
 #if !defined(_WIN32) && !defined(_WIN64)
