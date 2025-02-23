@@ -313,6 +313,7 @@ if(WIN32)
     install(DIRECTORY
             "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
             "$<TARGET_FILE_DIR:TrenchBroom>/styles"
+            "$<TARGET_FILE_DIR:TrenchBroom>/tls"
             DESTINATION . COMPONENT TrenchBroom)
 
     
