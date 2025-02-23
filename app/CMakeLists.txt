@@ -374,7 +374,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     install(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
 
     # configure AppImage via an external CPack generator
-    set(CPACK_PACKAGE_FILE_EXT "AppImage")
+    set(CPACK_PACKAGE_FILE_EXT "zip")
     set(TB_LINUXDEPLOY_PATH "../linuxdeploy-x86_64.AppImage")
     get_target_property(TB_QMAKE_PATH Qt6::qmake IMPORTED_LOCATION)
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cmake/AppImageGenerator.cmake.in" "${CMAKE_BINARY_DIR}/AppImageGenerator.cmake" @ONLY)

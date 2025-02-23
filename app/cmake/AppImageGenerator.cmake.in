@@ -1,7 +1,7 @@
 execute_process(
   COMMAND
     @CMAKE_COMMAND@ -E env
-      OUTPUT=@CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@
+      OUTPUT=TrenchBroom.AppImage
       QMAKE=@TB_QMAKE_PATH@
     @TB_LINUXDEPLOY_PATH@
     --appdir=${CPACK_TEMPORARY_DIRECTORY}
@@ -10,4 +10,10 @@ execute_process(
     --icon-file=@APP_RESOURCE_DIR@/graphics/images/AppIcon.png
     --icon-filename=trenchbroom
     --plugin qt
+  COMMAND_ERROR_IS_FATAL ANY
+)
+execute_process(
+  COMMAND
+    @CMAKE_COMMAND@ -E tar cv @CPACK_PACKAGE_FILE_NAME@.@CPACK_PACKAGE_FILE_EXT@ --format=zip TrenchBroom.AppImage
+  COMMAND_ERROR_IS_FATAL ANY
 )
