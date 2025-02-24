@@ -31,6 +31,11 @@ kdl-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 cd "%BUILD_DIR%"
 
+cd lib\upd\test\Release
+upd-test.exe
+IF %ERRORLEVEL% NEQ 0 GOTO ERROR
+cd "%BUILD_DIR%"
+
 cd common\test\Release
 common-test.exe
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
