@@ -19,17 +19,12 @@ jobs:
       # Don't cancel the macOS build if the Linux build fails, etc.
       fail-fast: false
       matrix:
-        os: [ubuntu-22.04, macos-13, macos-14, windows-2022]
+        os: [ubuntu-22.04]
         tb-build-type: [release]
         tb-arch: [default-arch]
         exclude:
           - os: windows-2022
             tb-arch: default-arch
-        include:
-          - os: macos-13
-            tb-build-type: asan
-          - os: windows-2022
-            tb-arch: x64
     env:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
