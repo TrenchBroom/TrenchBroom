@@ -19,18 +19,11 @@
 
 #pragma once
 
-#include "kdl/reflection_decl.h"
-
-#include <string>
+#include "kdl/result_error.h"
 
 namespace tb
 {
 
-struct Error
-{
-  std::string msg;
-
-  kdl_reflect_decl(Error, msg);
-};
+using Error = kdl::result_error;
 
 } // namespace tb

@@ -21,10 +21,13 @@ target_link_libraries(kdl INTERFACE Threads::Threads)
 target_sources(kdl INTERFACE
     "${KDL_INCLUDE_DIR}/kdl/binary_relation.h"
     "${KDL_INCLUDE_DIR}/kdl/bitset.h"
+    "${KDL_INCLUDE_DIR}/kdl/cmd_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/collection_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie_forward.h"
     "${KDL_INCLUDE_DIR}/kdl/compact_trie.h"
     "${KDL_INCLUDE_DIR}/kdl/enum_array.h"
+    "${KDL_INCLUDE_DIR}/kdl/result_error.h"
+    "${KDL_INCLUDE_DIR}/kdl/filesystem_utils.h"
     "${KDL_INCLUDE_DIR}/kdl/functional.h"
     "${KDL_INCLUDE_DIR}/kdl/grouped_range.h"
     "${KDL_INCLUDE_DIR}/kdl/hash_utils.h"

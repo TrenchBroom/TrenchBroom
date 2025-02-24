@@ -132,6 +132,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_GroupNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_HandleDragTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_InputEvent.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_LaunchGameEngine.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_LayerNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MapDocument.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MoveHandleDragTracker.cpp"
@@ -199,15 +200,17 @@ macro(configure_test_target TARGET)
     set_target_properties(${TARGET} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "$<TARGET_FILE_DIR:${TARGET}>")
 endmacro()
 
+add_subdirectory(cmd-tool)
+
 file(GENERATE
-  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/ReturnExitCode.h"
-  CONTENT "#define RETURN_EXITCODE_PATH \"$<TARGET_FILE:return-exitcode>\"")
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>/CmdTool.h"
+  CONTENT "#define CMD_TOOL_PATH \"$<TARGET_FILE:cmd-tool>\"")
 
 add_executable(common-test ${COMMON_TEST_SOURCE})
 target_include_directories(common-test PRIVATE ${COMMON_TEST_SOURCE_DIR})
 target_include_directories(common-test PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 configure_test_target(common-test)
-add_dependencies(common-test return-exitcode)
+add_dependencies(common-test cmd-tool)
 
 add_executable(common-regression-test ${COMMON_REGRESSION_TEST_SOURCE})
 target_include_directories(common-regression-test PRIVATE ${COMMON_TEST_SOURCE_DIR})

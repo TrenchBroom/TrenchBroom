@@ -21,8 +21,8 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 #include <QTextEdit>
 #include <QtTest/QSignalSpy>
 
+#include "CmdTool.h"
 #include "MapDocumentTest.h"
-#include "ReturnExitCode.h"
 #include "TestUtils.h"
 #include "TrenchBroomApp.h"
 #include "el/VariableStore.h"
@@ -133,7 +133,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
-      true, RETURN_EXITCODE_PATH, "--exit 0", treatNonZeroResultCodeAsError};
+      true, CMD_TOOL_PATH, "--exit 0", treatNonZeroResultCodeAsError};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};
@@ -154,7 +154,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
-      true, RETURN_EXITCODE_PATH, "--exit 1", treatNonZeroResultCodeAsError};
+      true, CMD_TOOL_PATH, "--exit 1", treatNonZeroResultCodeAsError};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};
@@ -163,6 +163,31 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
     CHECK(exec.started);
     CHECK(exec.errored == treatNonZeroResultCodeAsError);
     CHECK(exec.ended == !treatNonZeroResultCodeAsError);
+  }
+
+  SECTION("argumentPassing")
+  {
+    auto variables = el::NullVariableStore{};
+    auto output = QTextEdit{};
+    auto outputAdapter = TextOutputAdapter{&output};
+
+    auto context = CompilationContext{document, variables, outputAdapter, false};
+
+    auto task = mdl::CompilationRunTool{
+      true, CMD_TOOL_PATH, R"(--printArgs 1 2 str "escaped str")", false};
+    auto runner = CompilationRunToolTaskRunner{context, task};
+
+    auto exec = ExecuteTask{runner};
+    REQUIRE(exec.executeAndWait(5000ms));
+
+    REQUIRE(exec.started);
+    REQUIRE_FALSE(exec.errored);
+    REQUIRE(exec.ended);
+
+    CHECK_THAT(output.toPlainText().toStdString(), Catch::Contains(R"(1
+2
+str
+escaped str)"));
   }
 
 #if !defined(_WIN32) && !defined(_WIN64)
@@ -177,7 +202,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
-      true, RETURN_EXITCODE_PATH, "--abort", treatNonZeroResultCodeAsError};
+      true, CMD_TOOL_PATH, "--abort", treatNonZeroResultCodeAsError};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};
@@ -201,7 +226,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CompilationRunToolTaskRunner")
 
     const auto treatNonZeroResultCodeAsError = GENERATE(true, false);
     auto task = mdl::CompilationRunTool{
-      true, RETURN_EXITCODE_PATH, "--crash", treatNonZeroResultCodeAsError};
+      true, CMD_TOOL_PATH, "--crash", treatNonZeroResultCodeAsError};
     auto runner = CompilationRunToolTaskRunner{context, task};
 
     auto exec = ExecuteTask{runner};

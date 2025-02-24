@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2023 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,13 +17,29 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Error.h"
+#pragma once
 
-#include "kdl/reflection_impl.h"
+#include "Result.h"
 
-namespace tb
+#include <filesystem>
+#include <optional>
+
+namespace tb::el
+{
+class VariableStore;
+}
+
+namespace tb::mdl
+{
+struct GameEngineProfile;
+}
+
+namespace tb::ui
 {
 
-kdl_reflect_impl(Error);
+Result<void> launchGameEngineProfile(
+  const mdl::GameEngineProfile& profile,
+  const el::VariableStore& variables,
+  const std::optional<std::filesystem::path>& logFilePath = std::nullopt);
 
-} // namespace tb
+} // namespace tb::ui

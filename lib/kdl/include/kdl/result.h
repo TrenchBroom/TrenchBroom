@@ -2153,17 +2153,14 @@ public:
   friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
+namespace detail
+{
+
 template <typename F>
 struct result_and_then
 {
   F and_then;
 };
-
-template <typename F>
-auto and_then(F f)
-{
-  return result_and_then<F>{std::move(f)};
-}
 
 template <typename R, typename F>
 auto operator|(R&& r, const result_and_then<F>& t)
@@ -2178,12 +2175,6 @@ struct result_or_else
   F or_else;
 };
 
-template <typename F>
-auto or_else(F f)
-{
-  return result_or_else<F>{std::move(f)};
-}
-
 template <typename R, typename F>
 auto operator|(R&& r, const result_or_else<F>& t)
 {
@@ -2196,12 +2187,6 @@ struct result_transform
 {
   F transform;
 };
-
-template <typename F>
-auto transform(F f)
-{
-  return result_transform<F>{std::move(f)};
-}
 
 template <typename R, typename F>
 auto operator|(R&& r, const result_transform<F>& t)
@@ -2216,12 +2201,6 @@ struct result_transform_error
   F transform_error;
 };
 
-template <typename F>
-auto transform_error(F f)
-{
-  return result_transform_error<F>{std::move(f)};
-}
-
 template <typename R, typename F>
 auto operator|(R&& r, const result_transform_error<F>& t)
 {
@@ -2235,12 +2214,6 @@ struct result_if_error
   F if_error;
 };
 
-template <typename F>
-auto if_error(F f)
-{
-  return result_if_error<F>{std::move(f)};
-}
-
 template <typename R, typename F>
 auto operator|(R&& r, const result_if_error<F>& i)
 {
@@ -2251,11 +2224,6 @@ auto operator|(R&& r, const result_if_error<F>& i)
 struct result_value
 {
 };
-
-inline result_value value()
-{
-  return result_value{};
-}
 
 template <typename R>
 auto operator|(R&& r, const result_value&)
@@ -2270,12 +2238,6 @@ struct result_value_or
   T m_alternative;
 };
 
-template <typename T>
-auto value_or(T alternative)
-{
-  return result_value_or<T>{std::move(alternative)};
-}
-
 template <typename R, typename T>
 auto operator|(R&& r, result_value_or<T> v)
 {
@@ -2286,11 +2248,6 @@ auto operator|(R&& r, result_value_or<T> v)
 struct result_error
 {
 };
-
-inline result_error error()
-{
-  return result_error{};
-}
 
 template <typename R>
 auto operator|(R&& r, const result_error&)
@@ -2303,16 +2260,64 @@ struct result_is_success
 {
 };
 
-inline result_is_success is_success()
-{
-  return result_is_success{};
-}
-
 template <typename R>
 auto operator|(R&& r, const result_is_success&)
 {
   static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
   return std::forward<R>(r).is_success();
+}
+
+} // namespace detail
+
+template <typename F>
+auto and_then(F f)
+{
+  return detail::result_and_then<F>{std::move(f)};
+}
+
+template <typename F>
+auto or_else(F f)
+{
+  return detail::result_or_else<F>{std::move(f)};
+}
+
+template <typename F>
+auto transform(F f)
+{
+  return detail::result_transform<F>{std::move(f)};
+}
+
+template <typename F>
+auto transform_error(F f)
+{
+  return detail::result_transform_error<F>{std::move(f)};
+}
+
+template <typename F>
+auto if_error(F f)
+{
+  return detail::result_if_error<F>{std::move(f)};
+}
+
+inline auto value()
+{
+  return detail::result_value{};
+}
+
+template <typename T>
+auto value_or(T alternative)
+{
+  return detail::result_value_or<T>{std::move(alternative)};
+}
+
+inline auto error()
+{
+  return detail::result_error{};
+}
+
+inline auto is_success()
+{
+  return detail::result_is_success{};
 }
 
 } // namespace kdl
