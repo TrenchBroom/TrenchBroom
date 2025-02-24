@@ -113,7 +113,7 @@ jobs:
         with:
           name: ubuntu-22.04
           path: |
-            cmakebuild/*.AppImage
+            cmakebuild/*.zip
             cmakebuild/*.md5
 
       # macOS
@@ -196,8 +196,6 @@ jobs:
         with:
           draft: true
           files: |
-            cmakebuild/*.AppImage
-            cmakebuild/*.AppImage.md5
             cmakebuild/*.zip
             cmakebuild/*.zip.md5
         env:
