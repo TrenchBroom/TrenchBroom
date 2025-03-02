@@ -249,6 +249,16 @@ QWidget* makeEmphasized(QWidget* widget)
   return widget;
 }
 
+QWidget* toggleEmphasized(QWidget* widget, bool state)
+{
+  if (state)
+  {
+    return makeEmphasized(widget);
+  }
+
+  return makeUnemphasized(widget);
+}
+
 QWidget* makeUnemphasized(QWidget* widget)
 {
   widget->setFont(QFont{});

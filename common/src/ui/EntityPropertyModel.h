@@ -118,6 +118,11 @@ public:
     m_tooltip);
 };
 
+std::vector<PropertyRow> rowsForEntityNode(
+  mdl::EntityNodeBase* node,
+  const bool showDefaultRows,
+  const bool showProtectedProperties);
+
 /**
  * Model for the QTableView.
  *
