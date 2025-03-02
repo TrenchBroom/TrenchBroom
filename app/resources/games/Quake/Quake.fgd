@@ -177,10 +177,23 @@
 	item_key1 : "Silver key" []
 @PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/w_g_key.mdl" }) =
 	item_key2 : "Gold key" []
-@PointClass size(-16 -16 -24, 16 16 32) base(Item, Appearflags) model({ "path": ":progs/end1.mdl" }) =
-	item_sigil : "Sigil"
+@PointClass base(Appearflags, Item) size(-16 -16 -24, 16 16 32)	model({{
+	spawnflags  & 8 ->  {"path":	"progs/end4.mdl"},
+	spawnflags  & 4 ->  {"path":	"progs/end3.mdl"},
+	spawnflags  & 2 ->  {"path":	"progs/end2.mdl"},
+	  			                    "progs/end1.mdl"
+	}}) = item_sigil : "Sigil
+
+The item_sigil is the Rune located at the end of each of the four episodes of Vanilla Quake. These Runes are persistent in that once one is collected they will stay with the player throughout the rest of the game unlike other pickups such as weapons, ammo or armor that will reset if the player enters a level named 'Start'. It serves three purposes.
+
+1) To indicate to the player that they have reached a goal in the game.
+2) To trigger a func_episodegate in the start level that is linked to the Rune.
+3) To trigger a func_bossgate in the start level once all four Runes have been collected.
+
+The last two functions are only available after the player exits a level through a ((trigger_changelevel)) and is sent to another level."
+
 [
-	spawnflags(Flags) =
+	spawnflags(flags) =
 	[
 		1 : "Episode 1" : 1
 		2 : "Episode 2" : 0
@@ -229,12 +242,17 @@
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/tarbaby.mdl" }) = monster_tarbaby : "Spawn" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/fish.mdl" }) = monster_fish : "Rotfish" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/oldone.mdl" }) = monster_oldone : "Shub-Niggurath" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/zombie.mdl" }) = monster_zombie : "Zombie"
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({{
+	spawnflags	&	1	->	{"path":"progs/zombie.mdl", "frame": 192},
+							 "progs/zombie.mdl"
+}}) = monster_zombie  : "Zombie
+
+They rip pieces of their flesh off themselves and throw them as their attack. They have 60HP and to kill them they must be gibbed using up their full HP. If you do not, they will simply fall over, regenerate to full HP and get up again."
 [
-	spawnflags(Flags) =
+	spawnflags(flags) =
 	[
-		1 : "Crucified" : 0
-		2 : "Ambush" : 0
+		1 : "Crucified" : 0 : "The Zombie will become a writhing crucified Zombie prop that can be used as level decoration and is not treated as a monster in game."
+		2 : "Ambush" : 0 : "The Zombie will not wake up from seeing other monsters wake up or hearing sounds."
 	]
 ]
 
@@ -292,7 +310,7 @@
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame2.mdl" }) =
+@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model({ "path": "progs/flame2.mdl", "frame":1 }) =
 	light_flame_large_yellow : "Large yellow flame"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
@@ -328,25 +346,41 @@
 	target(string) : "First stop target"
 	targetname(target_source) : "Name"
 ]
-@PointClass base(Appearflags, Targetname) color(220 150 150) = trap_spikeshooter : "Triggered shooter"
+@PointClass base(Appearflags, Targetname) model(
+	{{
+		spawnflags & 2 ->	":progs/laser.mdl",
+		spawnflags & 1 ->	":progs/s_spike.mdl",
+					":progs/s_spike.mdl"
+	}}) =	trap_spikeshooter : "Triggered shooter
+
+Fires a stream of spikes when triggered. By default it fires a normal spike doing 9 HP of damage, and by setting it's spawnflags can be made to fire a 18 HP superspike or a 15 HP laser shot."
 [
-	spawnflags(Flags) =
+	spawnflags(flags) =
 	[
-		1 : "Spike" : 0
-		2 : "Laser" : 0
+		0 : "Spike" : 0 : "9 HP"
+		1 : "Superspike" : 0 : "18 HP"
+		2 : "Laser" : 0 : "15 HP"
 	]
 ]
-@PointClass base(Appearflags) color(220 150 150) = trap_shooter : "Continuous shooter"
+	
+@PointClass base(Appearflags) color(220 150 150) model(
+	{{
+		spawnflags & 2 ->	":progs/laser.mdl",
+		spawnflags & 1 ->	":progs/s_spike.mdl",
+					":progs/s_spike.mdl"
+	}}) = trap_shooter : "Continuous shooter
+
+Fires continous stream of spikes with options to delay the 1st shot and then set a single delay time of every shot there after. By default it fires a normal spike doing 9 HP of damage, and by setting it's spawnflags can be made to fire a 18 HP superspike or a 15 HP laser shot."
 [
 	nextthink(integer) : "Delay before first spike"
 	wait(integer) : "Delay between spikes"
 	spawnflags(Flags) =
 	[
-		1 : "Spike" : 0
-		2 : "Laser" : 0
+		0 : "Spike" : 0 : "9 HP"
+		1 : "Superspike" : 0 : "18 HP"
+		2 : "Laser" : 0 : "15 HP"
 	]
 ]
-
 @SolidClass = func_group : "Group of brushes for in-editor use" []
 @SolidClass = func_detail : "Group of brushes for certain compilers" []
 @SolidClass = func_detail_illusionary : "func_detail variant with no collision (players / monsters / gunfire) and doesn't split world faces." []
