@@ -229,12 +229,17 @@
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/tarbaby.mdl" }) = monster_tarbaby : "Spawn" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 24) model({ "path": ":progs/fish.mdl" }) = monster_fish : "Rotfish" []
 @PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/oldone.mdl" }) = monster_oldone : "Shub-Niggurath" []
-@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({ "path": ":progs/zombie.mdl" }) = monster_zombie : "Zombie"
+@PointClass base(Monster) size(-16 -16 -24, 16 16 32) model({{
+	spawnflags	&	1	->	{"path":"progs/zombie.mdl", "frame": 192},
+							 "progs/zombie.mdl"
+}}) = monster_zombie  : "Zombie
+
+They rip pieces of their flesh off themselves and throw them as their attack. They have 60HP and to kill them they must be gibbed using up their full HP. If you do not, they will simply fall over, regenerate to full HP and get up again."
 [
-	spawnflags(Flags) =
+	spawnflags(flags) =
 	[
-		1 : "Crucified" : 0
-		2 : "Ambush" : 0
+		1 : "Crucified" : 0 : "The Zombie will become a writhing crucified Zombie prop that can be used as level decoration and is not treated as a monster in game."
+		2 : "Ambush" : 0 : "The Zombie will not wake up from seeing other monsters wake up or hearing sounds."
 	]
 ]
 
