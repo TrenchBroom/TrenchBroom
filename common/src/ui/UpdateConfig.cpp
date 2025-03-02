@@ -159,13 +159,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
     return std::nullopt;
   }
 
-  const auto currentVersion = parseUpdateVersion(QString{"v%1"}.arg(getBuildVersion()));
-  if (!currentVersion)
-  {
-    return std::nullopt;
-  }
-
-  auto checkForUpdates = makeCheckForUpdates(*currentVersion);
+  auto checkForUpdates = makeCheckForUpdates(TemporalVersion{2024, 2});
 
   const auto scriptPath = getScriptPath();
   const auto appFolderPath = getAppFolderPath();
