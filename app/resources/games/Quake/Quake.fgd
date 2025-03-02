@@ -310,7 +310,7 @@ They rip pieces of their flesh off themselves and throw them as their attack. Th
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
 	]
-@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model({ "path": ":progs/flame2.mdl" }) =
+@PointClass size(-8 -8 -12, 8 8 20) base(Appearflags, Light, Target, Targetname) model({ "path": "progs/flame2.mdl", "frame":1 }) =
 	light_flame_large_yellow : "Large yellow flame"
 	[
 		spawnflags(Flags) = [ 1 : "Start off" : 0 ]
