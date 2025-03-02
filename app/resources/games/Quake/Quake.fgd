@@ -346,25 +346,41 @@ They rip pieces of their flesh off themselves and throw them as their attack. Th
 	target(string) : "First stop target"
 	targetname(target_source) : "Name"
 ]
-@PointClass base(Appearflags, Targetname) color(220 150 150) = trap_spikeshooter : "Triggered shooter"
+@PointClass base(Appearflags, Targetname) model(
+	{{
+		spawnflags & 2 ->	":progs/laser.mdl",
+		spawnflags & 1 ->	":progs/s_spike.mdl",
+					":progs/s_spike.mdl"
+	}}) =	trap_spikeshooter : "Triggered shooter
+
+Fires a stream of spikes when triggered. By default it fires a normal spike doing 9 HP of damage, and by setting it's spawnflags can be made to fire a 18 HP superspike or a 15 HP laser shot."
 [
-	spawnflags(Flags) =
+	spawnflags(flags) =
 	[
-		1 : "Spike" : 0
-		2 : "Laser" : 0
+		0 : "Spike" : 0 : "9 HP"
+		1 : "Superspike" : 0 : "18 HP"
+		2 : "Laser" : 0 : "15 HP"
 	]
 ]
-@PointClass base(Appearflags) color(220 150 150) = trap_shooter : "Continuous shooter"
+	
+@PointClass base(Appearflags) color(220 150 150) model(
+	{{
+		spawnflags & 2 ->	":progs/laser.mdl",
+		spawnflags & 1 ->	":progs/s_spike.mdl",
+					":progs/s_spike.mdl"
+	}}) = trap_shooter : "Continuous shooter
+
+Fires continous stream of spikes with options to delay the 1st shot and then set a single delay time of every shot there after. By default it fires a normal spike doing 9 HP of damage, and by setting it's spawnflags can be made to fire a 18 HP superspike or a 15 HP laser shot."
 [
 	nextthink(integer) : "Delay before first spike"
 	wait(integer) : "Delay between spikes"
 	spawnflags(Flags) =
 	[
-		1 : "Spike" : 0
-		2 : "Laser" : 0
+		0 : "Spike" : 0 : "9 HP"
+		1 : "Superspike" : 0 : "18 HP"
+		2 : "Laser" : 0 : "15 HP"
 	]
 ]
-
 @SolidClass = func_group : "Group of brushes for in-editor use" []
 @SolidClass = func_detail : "Group of brushes for certain compilers" []
 @SolidClass = func_detail_illusionary : "func_detail variant with no collision (players / monsters / gunfire) and doesn't split world faces." []
