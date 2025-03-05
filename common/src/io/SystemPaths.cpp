@@ -43,6 +43,11 @@ std::filesystem::path appImageDirectory()
 
 } // namespace
 
+std::filesystem::path appFile()
+{
+  return io::pathFromQString(QCoreApplication::applicationFilePath());
+}
+
 std::filesystem::path appDirectory()
 {
   return io::pathFromQString(QCoreApplication::applicationDirPath());
@@ -61,6 +66,12 @@ std::filesystem::path userDataDirectory()
   return io::pathFromQString(
     QStandardPaths::writableLocation(QStandardPaths::AppDataLocation));
 #endif
+}
+
+std::filesystem::path tempDirectory()
+{
+  return io::pathFromQString(
+    QStandardPaths::writableLocation(QStandardPaths::TempLocation));
 }
 
 std::filesystem::path logFilePath()

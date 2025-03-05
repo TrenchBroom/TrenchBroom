@@ -78,6 +78,10 @@ if(APPLE)
     set_source_files_properties(${MACOSX_STYLESHEET_FILES} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/stylesheets)
     set(APP_SOURCE ${APP_SOURCE} ${MACOSX_STYLESHEET_FILES})
 
+    # Configure update scripts
+    set_source_files_properties(${LIB_UPDATE_SCRIPT} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/update)
+    set(APP_SOURCE ${APP_SOURCE} ${LIB_UPDATE_SCRIPT})
+
     # Configure manual files
     set_source_files_properties(${INDEX_OUTPUT_PATH} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
     set_source_files_properties(${DOC_MANUAL_TARGET_FILES_ABSOLUTE} PROPERTIES MACOSX_PACKAGE_LOCATION Resources/manual)
@@ -248,6 +252,11 @@ if(WIN32 OR ${CMAKE_SYSTEM_NAME} MATCHES "Linux|FreeBSD")
             COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/stylesheets/"
             COMMAND ${CMAKE_COMMAND} -E copy_directory "${APP_RESOURCE_DIR}/stylesheets" "${APP_RESOURCE_DEST_DIR}/stylesheets")
 
+    # Copy update scripts to resources directory
+    add_custom_command(TARGET TrenchBroom POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/update/"
+            COMMAND ${CMAKE_COMMAND} -E copy "${LIB_UPDATE_SCRIPT}" "${APP_RESOURCE_DEST_DIR}/update")
+
     # Copy manual files to resource directory
     add_custom_command(TARGET TrenchBroom POST_BUILD
             COMMAND ${CMAKE_COMMAND} -E make_directory "${APP_RESOURCE_DEST_DIR}/manual/"
@@ -313,6 +322,7 @@ if(WIN32)
     install(DIRECTORY
             "$<TARGET_FILE_DIR:TrenchBroom>/platforms"
             "$<TARGET_FILE_DIR:TrenchBroom>/styles"
+            "$<TARGET_FILE_DIR:TrenchBroom>/tls"
             DESTINATION . COMPONENT TrenchBroom)
 
     
@@ -333,6 +343,9 @@ if(WIN32)
             "${APP_DIR}/resources/shader"
             "${APP_DIR}/resources/stylesheets"
             DESTINATION . COMPONENT TrenchBroom)
+    install(FILES
+            ${LIB_UPDATE_SCRIPT}
+            DESTINATION update COMPONENT TrenchBroom)
     set(CPACK_GENERATOR "ZIP")
     set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY FALSE)
 
@@ -370,6 +383,7 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/images"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/shader"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/stylesheets"     DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
+    install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/update"          DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(FILES "${CMAKE_SOURCE_DIR}/LICENSE.txt"                 DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
     install(FILES "${APP_DIR}/resources/linux/copyright"            DESTINATION ${LINUX_RESOURCE_LOCATION} COMPONENT TrenchBroom)
 

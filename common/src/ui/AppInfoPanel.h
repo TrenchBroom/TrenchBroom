@@ -27,12 +27,11 @@ namespace tb::ui
 class AppInfoPanel : public QWidget
 {
   Q_OBJECT
+
 public:
   explicit AppInfoPanel(QWidget* parent = nullptr);
 
 private:
-  void createGui();
-
   void versionInfoClicked();
 };
 

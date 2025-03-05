@@ -1,0 +1,39 @@
+# Update-Library
+
+A library to update github-hosted Qt6 applications on multiple platforms. The library is
+flexible and can be adapted to different requirements, update processes and platforms. It
+implements an update process that contains the following steps:
+
+- Checking for updates
+- Downloading an update
+- Preparing the update for installation
+- Scheduling the update for installation when the application terminates
+- Triggering the update when the application terminates
+
+## Checking for Updates
+
+To check for an update, the library queries the github API to find all releases. The
+releases are filtered depending on whether pre-releases should be included, then the
+appropriate asset for the platform is selected.
+
+The selection criteria for an asset are configurable by passing a function.
+
+To parse and compare versions, a user defined version type must be provided, along with
+a parsing function and a function to describe a version as a string.
+
+## Downloading an Update
+
+If an update has been found and an appropriate asset could be selected, the update can be
+downloaded to a temporary location. The library performs the download, providing feedback
+about the progress via a dialog.
+
+## Preparing an Update
+
+Once the update is downloaded to a temporary location, it can be prepared. This step is
+also configurable - for example, a downloaded .zip file could be extraced in this step.
+
+## Scheduling an Update
+
+Updates are installed when the application quits by launching a script. The library
+contains example scripts for Windows, Linux and macOS. These scripts simply install an
+update by replacing the application itself with a file or folder.

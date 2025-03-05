@@ -469,6 +469,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsCommandBase.cpp
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsHelper.cpp
+        ${COMMON_SOURCE_DIR}/ui/UpdateConfig.cpp
+        ${COMMON_SOURCE_DIR}/ui/UpdatePreferencePane.cpp
+        ${COMMON_SOURCE_DIR}/ui/UpdateVersion.cpp
         ${COMMON_SOURCE_DIR}/ui/UVCameraTool.cpp
         ${COMMON_SOURCE_DIR}/ui/UVEditor.cpp
         ${COMMON_SOURCE_DIR}/ui/UVOffsetTool.cpp
@@ -1008,6 +1011,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsCommand.h
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsCommandBase.h
         ${COMMON_SOURCE_DIR}/ui/UpdateLinkedGroupsHelper.h
+        ${COMMON_SOURCE_DIR}/ui/UpdateConfig.h
+        ${COMMON_SOURCE_DIR}/ui/UpdatePreferencePane.h
+        ${COMMON_SOURCE_DIR}/ui/UpdateVersion.h
         ${COMMON_SOURCE_DIR}/ui/UVCameraTool.h
         ${COMMON_SOURCE_DIR}/ui/UVEditor.h
         ${COMMON_SOURCE_DIR}/ui/UVOffsetTool.h
@@ -1035,7 +1041,7 @@ set(COMMON_HEADER
 add_library(common OBJECT ${COMMON_SOURCE} ${COMMON_HEADER})
 set_target_properties(common PROPERTIES AUTOMOC TRUE)
 target_include_directories(common PUBLIC ${COMMON_SOURCE_DIR})
-target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl vm GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg fmt::fmt assimp::assimp)
+target_link_libraries(common PUBLIC tinyxml2::tinyxml2 kdl upd vm GLEW::GLEW miniz::miniz freeimage::FreeImage freetype OpenGL::GL Qt6::Widgets Qt6::OpenGL Qt6::OpenGLWidgets Qt6::Svg fmt::fmt assimp::assimp)
 
 # use precompiled headers on CMake 3.16 or later
 if (TB_ENABLE_PCH AND ${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.16.0")

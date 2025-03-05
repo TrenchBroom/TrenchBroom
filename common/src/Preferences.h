@@ -35,6 +35,10 @@ namespace tb::Preferences
 // NOTE: When adding a new preference here, always update the staticPreferences()
 // implementation
 
+extern Preference<bool> AskForAutoUpdates;
+extern Preference<bool> AutoCheckForUpdates;
+extern Preference<bool> IncludePreReleaseUpdates;
+
 extern Preference<int> MapViewLayout;
 
 QString systemTheme();

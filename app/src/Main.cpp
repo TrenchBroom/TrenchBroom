@@ -81,6 +81,7 @@ int main(int argc, char* argv[])
   tb::PreferenceManager::createInstance<tb::AppPreferenceManager>();
   tb::ui::TrenchBroomApp app(argc, argv);
 
+  app.askForAutoUpdates();
   app.parseCommandLineAndShowFrame();
   return app.exec();
 }
