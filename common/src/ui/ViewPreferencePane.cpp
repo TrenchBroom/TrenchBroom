@@ -176,8 +176,12 @@ QWidget* ViewPreferencePane::createViewPreferences()
   m_rendererFontSizeCombo->setValidator(new QIntValidator{1, 96});
 
   auto* layout = new FormWithSectionsLayout{};
-  layout->setContentsMargins(0, LayoutConstants::MediumVMargin, 0, 0);
-  layout->setVerticalSpacing(2);
+  layout->setContentsMargins(
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin);
+  layout->setVerticalSpacing(LayoutConstants::WideVMargin);
   // override the default to make the sliders take up maximum width
   layout->setFieldGrowthPolicy(QFormLayout::ExpandingFieldsGrow);
 

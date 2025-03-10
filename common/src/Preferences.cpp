@@ -28,6 +28,11 @@
 namespace tb::Preferences
 {
 
+// Must be set to false for tests, see TestPreferenceManager::initialize
+Preference<bool> AskForAutoUpdates("updater/Ask for auto updates", true);
+Preference<bool> AutoCheckForUpdates("updater/Check for updates automatically", false);
+Preference<bool> IncludePreReleaseUpdates("updater/Include pre-releases", false);
+
 Preference<int> MapViewLayout(
   "Views/Map view layout", static_cast<int>(ui::MapViewLayout::OnePane));
 

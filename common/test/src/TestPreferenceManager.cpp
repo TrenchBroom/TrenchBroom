@@ -19,10 +19,15 @@
 
 #include "TestPreferenceManager.h"
 
+#include "Preferences.h"
+
 namespace tb
 {
 
-void TestPreferenceManager::initialize() {}
+void TestPreferenceManager::initialize()
+{
+  set(Preferences::AskForAutoUpdates, false);
+}
 
 bool TestPreferenceManager::saveInstantly() const
 {

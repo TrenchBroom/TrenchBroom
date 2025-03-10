@@ -84,6 +84,15 @@ void GamesPreferencePane::createGui()
   glbLayout->addWidget(new BorderLine(BorderLine::Direction::Horizontal));
   glbLayout->addLayout(buttonLayout);
 
+  auto* stwLayout = new QVBoxLayout{};
+  stwLayout->setContentsMargins(
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin,
+    LayoutConstants::DialogOuterMargin);
+  stwLayout->setSpacing(LayoutConstants::WideVMargin);
+  stwLayout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
+
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(QMargins{});
   layout->setSpacing(0);
@@ -92,7 +101,7 @@ void GamesPreferencePane::createGui()
   layout->addLayout(glbLayout);
   layout->addWidget(new BorderLine(BorderLine::Direction::Vertical));
   layout->addSpacing(LayoutConstants::MediumVMargin);
-  layout->addWidget(m_stackedWidget, 1, Qt::AlignTop);
+  layout->addLayout(stwLayout, 1);
 
   setMinimumWidth(600);
 

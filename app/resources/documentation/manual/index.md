@@ -1511,6 +1511,33 @@ Note that if you assign a keyboard shortcut to different actions in the same con
 
 # Advanced Topics
 
+## Automatic Updates
+
+TrenchBroom can check for updates. If an update is available, it can be downloaded and installed from within TrenchBroom. If "Check for updates on startup" is enabled in the preferences, TrenchBroom will perform an update check when it starts.
+
+TrenchBroom will notify you of a new update in the following places:
+
+- The welcome window
+- The "About TrenchBroom" dialog
+- The update preferences
+- The status bar
+
+In each of these places, the status of the updater will be shown as a text. If a user action is available, a clickable link will appear. For example, if an update is available, a link labeled "Update available" appears. Clicking the link will bring up a dialog where the update can be downloaded and installed.
+
+![Update Indicator (macOS)](images/UpdateIndicator.png)
+
+In the above screenshot, the updater hasn't performed an update check yet, so the link is labeled "Check for updates". Clicking this link will start an update check.
+
+![Update Preferences (macOS)](images/UpdatePreferences.png)
+
+The updater can be configured in the Preferences. The following settings are available:
+
+- Check for updates on startup: If this is checked, the TrenchBroom will check for updates automatically when it starts.
+- Include pre-releases: If this is checked, then TrenchBroom will include pre-releases in the update check. Pre-releases are versions of TrenchBroom that are not yet considered stable. 
+They may contain new features or bug fixes that are not yet part of a stable release.
+
+Note that TrenchBroom doesn't send any private information about your or your computer when it performs an update check. We don't collect any data about you. To perform the update check, TrenchBroom sends one request to GitHub via HTTPS, and to download an update, it sends another HTTPS requests to wherever the update file ist hosted (currently these files are all hosted on GitHub, too).
+
 ## Command Repetition
 
 Editing brushwork often consists of repeating the same steps over and over. As an example, consider building a spiral stair case. You start by cutting out a brush that represents one step of the stair case. Then you duplicate that brush, move it upward and rotate it about the center axis of the stair case. And the you repeat these actions for every step of the stairset. TrenchBroom has a feature called *command repetition* that is designed to automate some part of this process for you.
