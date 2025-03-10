@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
 
@@ -72,7 +73,7 @@ public:
    *
    * @throws ParserException if the shader is not well-formed
    */
-  std::vector<mdl::Quake3Shader> parse(ParserStatus& status);
+  Result<std::vector<mdl::Quake3Shader>> parse(ParserStatus& status);
 
 private:
   void parseTexture(mdl::Quake3Shader& shader, ParserStatus& status);
