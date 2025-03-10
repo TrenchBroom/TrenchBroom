@@ -23,12 +23,15 @@
 #include <QString>
 #include <QStringList>
 
+#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
 
 #include "kdl/cmd_utils.h"
+
+#include <fmt/format.h>
 
 namespace tb::ui
 {

@@ -28,6 +28,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 
+#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
 #include "mdl/CompilationProfile.h"

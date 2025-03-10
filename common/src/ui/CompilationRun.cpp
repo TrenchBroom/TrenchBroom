@@ -20,6 +20,7 @@
 #include "CompilationRun.h"
 
 #include "Ensure.h"
+#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolator.h"
 #include "mdl/CompilationProfile.h"
