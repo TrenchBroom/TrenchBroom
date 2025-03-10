@@ -45,6 +45,45 @@ struct to_string
 
 TEST_CASE("string_utils")
 {
+  SECTION("str_find_next_delimited_string")
+  {
+    using T = std::tuple<
+      std::string_view,
+      std::string_view,
+      std::string_view,
+      std::optional<char>,
+      std::optional<delimited_string>>;
+
+    // clang-format off
+    const auto 
+    [str, 
+     start_delim, end_delim, escape_char,  expectedResult] = GENERATE(values<T>({
+    {R"()",  
+     "${",        "}",       '\\',         std::nullopt},
+    {R"(${asdf})",  
+     "${",        "}",       '\\',         delimited_string{0, 7}},
+    {R"(   ${asdf}   )",  
+     "${",        "}",       '\\',         delimited_string{3, 7}},
+    {R"(${as\}df})",  
+     "${",        "}",       '\\',         delimited_string{0, 9}},
+    {R"(\${asdf\})",  
+     "${",       "}",        std::nullopt, delimited_string{1, 8}},
+    {R"(as}df)",  
+     "${",        "}",       '\\',         std::nullopt},
+     {R"(${as}df})",  
+     "${",        "}",       '\\',         delimited_string{0, 5}},
+    {R"(${as${df}gh})",  
+     "${",        "}",       '\\',         delimited_string{0, 12}},
+    {R"(${asdf)",  
+     "${",       "}",        '\\',         delimited_string{0, std::nullopt}},
+     }));
+      // clang-format off
+
+    CHECK(
+      str_find_next_delimited_string(str, start_delim, end_delim, escape_char)
+      == expectedResult);
+  }
+
   SECTION("str_split")
   {
     CHECK_THAT(str_split("", " "), Catch::Equals(std::vector<std::string>{}));

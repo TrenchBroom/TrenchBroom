@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "kdl/reflection_decl.h"
 
 #include <cassert>
 #include <iterator>
@@ -31,6 +32,38 @@
 
 namespace kdl
 {
+struct delimited_string
+{
+  std::size_t start;
+  std::optional<std::size_t> length;
+
+  kdl_reflect_decl(delimited_string, start, length);
+};
+
+/**
+ * Find the next occurrence of a delimited substring in the given string. The substring is
+ * delimited by the given start and end delimiters, which can be escaped using the given
+ * escape character.
+ *
+ * Nested delimeted strings are skipped, that is, only the outermost delimited string is
+ * returned.
+ *
+ * If an unterminated delimited string is found, the function returns a delimited_string
+ * with its length set to std::nullopt.
+ *
+ * @param str the string to search
+ * @param start_delim the start delimiter
+ * @param end_delim the end delimiter
+ * @param escape_char the escape character
+ * @return the position of the start delimiter and the length of the delimited string
+ * (incl. the delimiters), or nullopt if no delimited string can be found
+ */
+std::optional<delimited_string> str_find_next_delimited_string(
+  std::string_view str,
+  std::string_view start_delim,
+  std::string_view end_delim,
+  std::optional<char> escape_char = std::nullopt);
+
 /**
  * Splits the given strings along the given delimiters and returns a list of the nonempty
  * parts.

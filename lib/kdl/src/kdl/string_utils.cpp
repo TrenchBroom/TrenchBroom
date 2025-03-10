@@ -20,6 +20,7 @@
 
 #include "kdl/string_utils.h"
 
+#include "kdl/reflection_impl.h"
 #include "kdl/string_format.h"
 
 #include <algorithm>
@@ -44,6 +45,61 @@ auto skip_whitespace(const std::string_view str)
 }
 
 } // namespace
+
+kdl_reflect_impl(delimited_string);
+
+std::optional<delimited_string> str_find_next_delimited_string(
+  const std::string_view str,
+  const std::string_view start_delim,
+  const std::string_view end_delim,
+  const std::optional<char> escape_char)
+{
+  std::optional<std::size_t> start;
+  std::size_t depth = 0;
+  auto escaped = false;
+
+  for (size_t i = 0; i < str.size(); ++i)
+  {
+    const auto c = str[i];
+    if (c == escape_char && !escaped)
+    {
+      escaped = true;
+    }
+    else
+    {
+      if (str.substr(i, start_delim.size()) == start_delim && !escaped)
+      {
+        if (!start)
+        {
+          start = i;
+        }
+        else
+        {
+          ++depth;
+        }
+      }
+      else if (start && str.substr(i, end_delim.size()) == end_delim && !escaped)
+      {
+        if (depth == 0)
+        {
+          return delimited_string{*start, i + end_delim.size() - *start};
+        }
+        else
+        {
+          --depth;
+        }
+      }
+      escaped = false;
+    }
+  }
+
+  if (start)
+  {
+    return delimited_string{*start, std::nullopt};
+  }
+
+  return std::nullopt;
+}
 
 std::vector<std::string> str_split(
   const std::string_view str, const std::string_view delims)
