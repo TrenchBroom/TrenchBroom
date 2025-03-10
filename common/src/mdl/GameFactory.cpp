@@ -327,10 +327,13 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
     if (m_configFs->pathInfo(path) == io::PathInfo::File)
     {
       m_configFs->openFile(path).join(m_configFs->makeAbsolute(path))
-        | kdl::transform([&](auto profilesFile, auto absolutePath) {
+        | kdl::and_then([&](auto profilesFile, auto absolutePath) {
             auto reader = profilesFile->reader().buffer();
             auto parser = io::CompilationConfigParser{reader.stringView(), absolutePath};
-            gameConfig.compilationConfig = parser.parse();
+            return parser.parse();
+          })
+        | kdl::transform([&](auto compilationConfig) {
+            gameConfig.compilationConfig = std::move(compilationConfig);
             gameConfig.compilationConfigParseFailed = false;
           })
         | kdl::transform_error([&](auto e) {

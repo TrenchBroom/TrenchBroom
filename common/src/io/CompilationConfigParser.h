@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "Result.h"
 #include "io/ConfigParserBase.h"
 #include "mdl/CompilationConfig.h"
 
@@ -33,7 +34,7 @@ class CompilationConfigParser : public ConfigParserBase
 public:
   explicit CompilationConfigParser(std::string_view str, std::filesystem::path path = {});
 
-  mdl::CompilationConfig parse();
+  Result<mdl::CompilationConfig> parse();
 
   deleteCopyAndMove(CompilationConfigParser);
 };
