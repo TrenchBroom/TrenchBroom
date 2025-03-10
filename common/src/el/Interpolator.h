@@ -19,22 +19,12 @@
 
 #pragma once
 
-#include "el/EL_Forward.h"
-#include "io/ELParser.h"
-
 #include <string>
 #include <string_view>
 
 namespace tb::el
 {
-
-class Interpolator : private io::ELParser
-{
-public:
-  explicit Interpolator(std::string_view str);
-
-  std::string interpolate(const EvaluationContext& context);
-};
+class EvaluationContext;
 
 std::string interpolate(std::string_view str, const EvaluationContext& context);
 

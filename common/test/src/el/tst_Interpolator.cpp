@@ -27,71 +27,68 @@
 
 namespace tb::el
 {
-namespace
+TEST_CASE("interpolate")
 {
-void interpolateAndCheck(
-  const std::string& expression,
-  const std::string& expected,
-  const EvaluationContext& context = EvaluationContext())
-{
-  CHECK(Interpolator(expression).interpolate(context) == expected);
-}
+  SECTION("interpolateEmptyString")
+  {
+    CHECK(interpolate("", {}) == "");
+    CHECK(interpolate("   ", {}) == "   ");
+  }
 
-} // namespace
+  SECTION("interpolateStringWithoutExpression")
+  {
+    CHECK(interpolate(" asdfasdf  sdf ", {}) == " asdfasdf  sdf ");
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateEmptyString")
-{
-  interpolateAndCheck("", "");
-  interpolateAndCheck("   ", "   ");
-}
+  SECTION("interpolateStringWithSimpleExpression")
+  {
+    CHECK(interpolate(" asdfasdf ${'asdf'}  sdf ", {}) == " asdfasdf asdf  sdf ");
+    CHECK(
+      interpolate(" asdfasdf ${'asdf'} ${'AND'}  sdf ", {})
+      == " asdfasdf asdf AND  sdf ");
+    CHECK(
+      interpolate(" asdfasdf ${'asdf'}${' AND'}  sdf ", {})
+      == " asdfasdf asdf AND  sdf ");
+    CHECK(interpolate(" ${ true } ", {}) == " true ");
+    CHECK(interpolate(" ${ 'this'+' and ' }${'that'} ", {}) == " this and that ");
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithoutExpression")
-{
-  interpolateAndCheck(" asdfasdf  sdf ", " asdfasdf  sdf ");
-}
+  SECTION("interpolateStringWithNestedExpression")
+  {
+    CHECK(
+      interpolate(" asdfasdf ${ 'nested ${TEST} expression' }  sdf ", {})
+      == " asdfasdf nested ${TEST} expression  sdf ");
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithSimpleExpression")
-{
-  interpolateAndCheck(" asdfasdf ${'asdf'}  sdf ", " asdfasdf asdf  sdf ");
-  interpolateAndCheck(" asdfasdf ${'asdf'} ${'AND'}  sdf ", " asdfasdf asdf AND  sdf ");
-  interpolateAndCheck(" asdfasdf ${'asdf'}${' AND'}  sdf ", " asdfasdf asdf AND  sdf ");
-  interpolateAndCheck(" ${ true } ", " true ");
-  interpolateAndCheck(" ${ 'this'+' and ' }${'that'} ", " this and that ");
-}
+  SECTION("interpolateStringWithVariable")
+  {
+    auto context = EvaluationContext{};
+    context.declareVariable("TEST", Value{"interesting"});
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithNestedExpression")
-{
-  interpolateAndCheck(
-    " asdfasdf ${ 'nested ${TEST} expression' }  sdf ",
-    " asdfasdf nested ${TEST} expression  sdf ");
-}
+    CHECK(interpolate(" an ${TEST} expression", context) == " an interesting expression");
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithVariable")
-{
-  EvaluationContext context;
-  context.declareVariable("TEST", Value("interesting"));
-  interpolateAndCheck(" an ${TEST} expression", " an interesting expression", context);
-}
+  SECTION("interpolateStringWithBackslashAndVariable")
+  {
+    auto context = EvaluationContext{};
+    context.declareVariable("TEST", Value("interesting"));
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithBackslashAndVariable")
-{
-  EvaluationContext context;
-  context.declareVariable("TEST", Value("interesting"));
-  interpolateAndCheck(
-    " an \\${TEST} expression", " an \\interesting expression", context);
-}
+    CHECK(
+      interpolate(" an \\${TEST} expression", context) == " an \\interesting expression");
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithUnknownVariable")
-{
-  EvaluationContext context;
-  CHECK_THROWS(interpolate(" an ${TEST} expression", context));
-}
+  SECTION("interpolateStringWithUnknownVariable")
+  {
+    auto context = EvaluationContext{};
+    CHECK_THROWS(interpolate(" an ${TEST} expression", context));
+  }
 
-TEST_CASE("ELInterpolatorTest.interpolateStringWithUnterminatedEL")
-{
-  EvaluationContext context;
-  CHECK_THROWS(interpolate(" an ${TEST", context));
-  CHECK_THROWS(interpolate(" an ${TEST expression", context));
+  SECTION("interpolateStringWithUnterminatedEL")
+  {
+    auto context = EvaluationContext{};
+    CHECK_THROWS(interpolate(" an ${TEST", context));
+    CHECK_THROWS(interpolate(" an ${TEST expression", context));
+  }
 }
 
 } // namespace tb::el
