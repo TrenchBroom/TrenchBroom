@@ -39,7 +39,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/el/ELTestUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/tst_EL.cpp"
         "${COMMON_TEST_SOURCE_DIR}/el/tst_Expression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/el/tst_Interpolator.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/el/tst_Interpolate.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AseLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_AssimpLoader.cpp"
         "${COMMON_TEST_SOURCE_DIR}/io/tst_BspLoader.cpp"

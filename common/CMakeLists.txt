@@ -6,7 +6,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationTrace.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
-        ${COMMON_SOURCE_DIR}/el/Interpolator.cpp
+        ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
         ${COMMON_SOURCE_DIR}/el/Types.cpp
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
@@ -501,7 +501,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/el/EvaluationTrace.h
         ${COMMON_SOURCE_DIR}/el/Expression.h
-        ${COMMON_SOURCE_DIR}/el/Interpolator.h
+        ${COMMON_SOURCE_DIR}/el/Interpolate.h
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h
         ${COMMON_SOURCE_DIR}/el/VariableStore.h

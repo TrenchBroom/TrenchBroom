@@ -20,7 +20,7 @@
 #include "CompilationContext.h"
 
 #include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
+#include "el/Interpolate.h"
 #include "el/Types.h"
 
 #include "kdl/memory_utils.h"

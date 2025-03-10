@@ -25,7 +25,7 @@
 
 #include "Exceptions.h"
 #include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
+#include "el/Interpolate.h"
 #include "io/PathQt.h"
 #include "mdl/GameEngineProfile.h"
 

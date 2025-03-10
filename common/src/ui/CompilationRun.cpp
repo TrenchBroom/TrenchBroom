@@ -22,7 +22,7 @@
 #include "Ensure.h"
 #include "Exceptions.h"
 #include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
+#include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "ui/CompilationContext.h"
 #include "ui/CompilationRunner.h"
