@@ -345,7 +345,7 @@ GameAndConfig loadGame(const std::string& gameName)
     std::filesystem::current_path() / "fixture/test/mdl/Game" / gameName;
   const auto configStr = io::readTextFile(configPath);
   auto configParser = io::GameConfigParser(configStr, configPath);
-  auto config = std::make_unique<mdl::GameConfig>(configParser.parse());
+  auto config = std::make_unique<mdl::GameConfig>(configParser.parse().value());
   auto game = std::make_shared<mdl::GameImpl>(*config, gamePath, logger);
 
   // We would ideally just return game, but GameImpl captures a raw reference

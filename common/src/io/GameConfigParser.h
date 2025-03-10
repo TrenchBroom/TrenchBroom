@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "Result.h"
 #include "io/ConfigParserBase.h"
 #include "mdl/GameConfig.h"
 
@@ -44,7 +45,7 @@ private:
 public:
   explicit GameConfigParser(std::string_view str, const std::filesystem::path& path = {});
 
-  mdl::GameConfig parse();
+  Result<mdl::GameConfig> parse();
 
   deleteCopyAndMove(GameConfigParser);
 };

@@ -45,7 +45,7 @@ TEST_CASE("GameTest.loadCorruptPackages")
       std::filesystem::current_path() / "fixture/games/" / game / "GameConfig.cfg";
     const auto configStr = io::readTextFile(configPath);
     auto configParser = io::GameConfigParser(configStr, configPath);
-    auto config = configParser.parse();
+    auto config = configParser.parse().value();
 
     const auto gamePath =
       std::filesystem::current_path() / "fixture/test/mdl/Game/CorruptPak";
