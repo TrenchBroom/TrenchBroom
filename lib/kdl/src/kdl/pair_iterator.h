@@ -29,6 +29,7 @@
 
 namespace kdl
 {
+
 template <typename I>
 class pair_iterator
 {
@@ -140,4 +141,5 @@ auto make_pair_range(R&& r)
   using I = decltype(make_pair_begin(std::forward<R>(r)));
   return range<I>{make_pair_begin(r), make_pair_end(r)};
 }
+
 } // namespace kdl

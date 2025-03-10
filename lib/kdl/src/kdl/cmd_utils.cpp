@@ -17,16 +17,12 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
-
-#include <string>
-#include <string_view>
-#include <vector>
+#include "kdl/cmd_utils.h"
 
 namespace kdl
 {
 
-inline auto cmd_parse_args(const std::string_view str)
+std::vector<std::string> cmd_parse_args(const std::string_view str)
 {
   auto result = std::vector<std::string>{};
 

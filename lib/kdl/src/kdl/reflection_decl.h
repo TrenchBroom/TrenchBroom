@@ -89,6 +89,7 @@ constexpr auto reflection_split_tokens(std::string_view str)
     return result;
   }
 }
+
 } // namespace kdl::detail
 
 #ifdef __clang__

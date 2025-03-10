@@ -1,5 +1,5 @@
 /*
- Copyright 2025 Kristian Duske
+ Copyright 2023 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,20 +18,22 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kdl/regex_utils.h"
 
-#include "kdl/reflection_impl.h"
-
-#include <string>
+#include <regex>
 
 namespace kdl
 {
 
-struct result_error
+std::string regex_escape(const std::string& str)
 {
-  std::string msg;
+  static const auto chars = std::regex{R"([\.\^\$\-\+\(\)\[\]\{\}\|\?\*)"};
+  return std::regex_replace(str, chars, "\\$&");
+}
 
-  kdl_reflect_inline(result_error, msg);
-};
+std::string regex_escape(const std::filesystem::path& path)
+{
+  return regex_escape(path.string());
+}
 
 } // namespace kdl

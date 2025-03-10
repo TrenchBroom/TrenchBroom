@@ -31,10 +31,7 @@ namespace kdl
  */
 struct path_hash
 {
-  auto operator()(const std::filesystem::path& path) const
-  {
-    return std::filesystem::hash_value(path);
-  }
+  std::size_t operator()(const std::filesystem::path& path) const;
 };
 
 } // namespace kdl

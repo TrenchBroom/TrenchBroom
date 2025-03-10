@@ -20,11 +20,8 @@
 
 #pragma once
 
-#include "kdl/string_format.h"
 
-#include <algorithm>
 #include <cassert>
-#include <charconv>
 #include <iterator>
 #include <optional>
 #include <sstream>
@@ -45,73 +42,21 @@ namespace kdl
  * @param delims the delimiters to split with
  * @return the parts
  */
-inline std::vector<std::string> str_split(
-  const std::string_view str, const std::string_view delims)
-{
-  if (str.empty())
-  {
-    return {};
-  }
-
-  if (delims.empty())
-  {
-    return {std::string{str}};
-  }
-
-  std::vector<std::string> result;
-  std::stringstream buf;
-
-  const auto appendPart = [&]() {
-    auto part = str_trim(buf.str());
-    if (!part.empty())
-    {
-      result.push_back(std::move(part));
-    }
-    buf.str("");
-  };
-
-  for (auto i = 0u; i < str.size(); ++i)
-  {
-    const auto c = str[i];
-    if (c == '\\' && i < str.size() - 1u)
-    {
-      // maybe escaped delimiter or backslash
-      const auto n = str[i + 1];
-      if (n == '\\' || delims.find(n) != std::string_view::npos)
-      {
-        buf << n;
-        ++i;
-        continue;
-      }
-    }
-
-    if (delims.find(c) != std::string_view::npos)
-    {
-      appendPart();
-    }
-    else
-    {
-      buf << c;
-    }
-  }
-
-  appendPart();
-
-  return result;
-}
+std::vector<std::string> str_split(std::string_view str, std::string_view delims);
 
 /**
- * Joins the objects in the given range [it, end) using the given delimiters. The objects
- * are converted to string using the stream insertion operator and a string stream.
+ * Joins the objects in the given range [it, end) using the given delimiters. The
+ * objects are converted to string using the stream insertion operator and a string
+ * stream.
  *
- * Given an object o, let "o" be the string representation of o obtained using the stream
- * insertion operator <<.
+ * Given an object o, let "o" be the string representation of o obtained using the
+ * stream insertion operator <<.
  *
  * If the given range is [], an empty string is returned.
  * If the given range is [o1], the result "o1".
  * If the given range is [o1, o2], then the result is "o1" + delim_for_two + "o2".
- * If the given range is [o1, o2, ..., on] with n > 2, the result is "o1" + delim + "o2" +
- * delim +
+ * If the given range is [o1, o2, ..., on] with n > 2, the result is "o1" + delim + "o2"
+ * + delim +
  * ... + delim + "on-1" + last_delim + "on".
  *
  * @tparam I the range iterator type
@@ -119,8 +64,8 @@ inline std::vector<std::string> str_split(
  * @param end the end of the range
  * @param delim the delimiter to insert for ranges of length > 2
  * @param last_delim the delimter to insert for ranges of length 2
- * @param delim_for_two the delimiter to insert before the last object in ranges of length
- * > 2
+ * @param delim_for_two the delimiter to insert before the last object in ranges of
+ * length > 2
  * @return the joined string
  */
 template <typename I>
@@ -136,7 +81,7 @@ std::string str_join(
     return "";
   }
 
-  std::stringstream result;
+  auto result = std::stringstream{};
   result << *it++;
 
   if (it == end)
@@ -202,7 +147,7 @@ std::string str_join(
   const C& c,
   const std::string_view delim,
   const std::string_view last_delim,
-  const std::string_view& delim_for_two)
+  const std::string_view delim_for_two)
 {
   return str_join(std::begin(c), std::end(c), delim, last_delim, delim_for_two);
 }
@@ -212,8 +157,8 @@ std::string str_join(
  * used as the delimiter for collections of two objects as well as for the last two
  * objects in collections of more than two objects.
  *
- * @see str_join(I, I, const std::string_view&, const std::string_view&, const
- * std::string_view&)
+ * @see str_join(I, I, const std::string_view, const std::string_view, const
+ * std::string_view)
  *
  * @tparam C the collection type
  * @param c the collection of objects to join
@@ -221,7 +166,7 @@ std::string str_join(
  * @return the joined string
  */
 template <typename C>
-std::string str_join(const C& c, const std::string_view& delim = ", ")
+std::string str_join(const C& c, const std::string_view delim = ", ")
 {
   return str_join(std::begin(c), std::end(c), delim, delim, delim);
 }
@@ -235,38 +180,8 @@ std::string str_join(const C& c, const std::string_view& delim = ", ")
  * @param replacement the string to replace needle with
  * @return the modified string
  */
-inline std::string str_replace_every(
-  const std::string_view& haystack,
-  const std::string_view& needle,
-  const std::string_view& replacement)
-{
-  if (haystack.empty() || needle.empty() || needle == replacement)
-  {
-    return std::string(haystack);
-  }
-
-  std::ostringstream result;
-  auto it = std::begin(haystack);
-  auto end = std::search(
-    std::begin(haystack), std::end(haystack), std::begin(needle), std::end(needle));
-  while (end != std::end(haystack))
-  {
-    // copy everything up to needle
-    std::copy(it, end, std::ostream_iterator<char>(result));
-
-    // copy replacement
-    result << replacement;
-
-    // advance to just after needle
-    it =
-      std::next(end, static_cast<std::string::iterator::difference_type>(needle.size()));
-    end = std::search(it, std::end(haystack), std::begin(needle), std::end(needle));
-  }
-
-  // copy the remainder
-  std::copy(it, end, std::ostream_iterator<char>(result));
-  return result.str();
-}
+std::string str_replace_every(
+  std::string_view haystack, std::string_view needle, std::string_view replacement);
 
 /**
  * Returns a concatenation of the string representations of the given objects by means of
@@ -284,15 +199,6 @@ std::string str_to_string(Args&&... args)
   return str.str();
 }
 
-namespace detail
-{
-inline auto skip_whitespace(const std::string_view str)
-{
-  const auto first = str.find_first_not_of(Whitespace);
-  return first != std::string::npos ? str.substr(first) : std::string_view{};
-}
-} // namespace detail
-
 /**
  * Interprets the given string as a signed integer and returns it. If the given string
  * cannot be parsed, returns an empty optional.
@@ -301,14 +207,7 @@ inline auto skip_whitespace(const std::string_view str)
  * @return the signed integer value or an empty optional if the given string cannot be
  * interpreted as a signed integer
  */
-inline std::optional<int> str_to_int(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  int value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<int> str_to_int(std::string_view str);
 
 /**
  * Interprets the given string as a signed long integer and returns it. If the given
@@ -318,14 +217,7 @@ inline std::optional<int> str_to_int(std::string_view str)
  * @return the signed long integer value or an empty optional if the given string cannot
  * be interpreted as a signed long integer
  */
-inline std::optional<long> str_to_long(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  long value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<long> str_to_long(std::string_view str);
 
 /**
  * Interprets the given string as a signed long long integer and returns it. If the given
@@ -335,14 +227,7 @@ inline std::optional<long> str_to_long(std::string_view str)
  * @return the signed long long integer value or an empty optional if the given string
  * cannot be interpreted as a signed long long integer
  */
-inline std::optional<long long> str_to_long_long(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  long long value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<long long> str_to_long_long(std::string_view str);
 
 /**
  * Interprets the given string as an unsigned long integer and returns it. If the given
@@ -352,14 +237,7 @@ inline std::optional<long long> str_to_long_long(std::string_view str)
  * @return the unsigned long integer value or an empty optional if the given string cannot
  * be interpreted as an unsigned long integer
  */
-inline std::optional<unsigned long> str_to_u_long(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  unsigned long value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<unsigned long> str_to_u_long(std::string_view str);
 
 /**
  * Interprets the given string as an unsigned long long integer and returns it. If the
@@ -369,14 +247,7 @@ inline std::optional<unsigned long> str_to_u_long(std::string_view str)
  * @return the unsigned long long integer value or an empty optional if the given string
  * cannot be interpreted as an unsigned long long integer
  */
-inline std::optional<unsigned long long> str_to_u_long_long(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  unsigned long long value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<unsigned long long> str_to_u_long_long(std::string_view str);
 
 /**
  * Interprets the given string as a std::size_t and returns it. If the given string cannot
@@ -386,14 +257,7 @@ inline std::optional<unsigned long long> str_to_u_long_long(std::string_view str
  * @return the std::size_t value or an empty optional if the given string cannot be
  * interpreted as an std::size_t
  */
-inline std::optional<std::size_t> str_to_size(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-  size_t value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-}
+std::optional<std::size_t> str_to_size(std::string_view str);
 
 /**
  * Interprets the given string as a 32 bit floating point value and returns it. If the
@@ -403,30 +267,7 @@ inline std::optional<std::size_t> str_to_size(std::string_view str)
  * @return the 32 bit floating point value value or an empty optional if the given string
  * cannot be interpreted as an 32 bit floating point value
  */
-inline std::optional<float> str_to_float(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for float
-  try
-  {
-    return stof(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
-  float value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-#endif
-}
+std::optional<float> str_to_float(std::string_view str);
 
 /**
  * Interprets the given string as a 64 bit floating point value and returns it. If the
@@ -436,30 +277,7 @@ inline std::optional<float> str_to_float(std::string_view str)
  * @return the 64 bit floating point value value or an empty optional if the given string
  * cannot be interpreted as an 64 bit floating point value
  */
-inline std::optional<double> str_to_double(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for double
-  try
-  {
-    return stod(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
-  double value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-#endif
-}
+std::optional<double> str_to_double(std::string_view str);
 
 /**
  * Interprets the given string as a long double value value and returns it. If the given
@@ -469,28 +287,6 @@ inline std::optional<double> str_to_double(std::string_view str)
  * @return the long double value value value or an empty optional if the given string
  * cannot be interpreted as an long double value value
  */
-inline std::optional<long double> str_to_long_double(std::string_view str)
-{
-  str = detail::skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for double
-  try
-  {
-    return stold(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
-  long double value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-#endif
-}
+std::optional<long double> str_to_long_double(std::string_view str);
+
 } // namespace kdl

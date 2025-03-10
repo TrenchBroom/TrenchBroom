@@ -22,7 +22,7 @@
 #include "Notifier.h"
 #include "mdl/TagType.h"
 
-#include "kdl/bitset.h"
+#include "kdl/dynamic_bitset.h"
 
 namespace tb::mdl
 {
@@ -42,7 +42,7 @@ class EditorContext
 {
 private:
   TagType::Type m_hiddenTags;
-  kdl::bitset m_hiddenEntityDefinitions;
+  kdl::dynamic_bitset m_hiddenEntityDefinitions;
 
   bool m_blockSelection;
 

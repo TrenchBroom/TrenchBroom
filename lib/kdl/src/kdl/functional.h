@@ -25,9 +25,9 @@
 
 namespace kdl
 {
-
 namespace detail
 {
+
 template <typename T, size_t... I>
 auto lift_and_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 {
@@ -43,6 +43,7 @@ auto lift_or_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
     return (... || std::get<I>(tuple_of_functions)(std::forward<decltype(x)>(x)...));
   };
 }
+
 } // namespace detail
 
 template <typename... F>
