@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Macros.h"
+#include "Result.h"
 #include "io/ConfigParserBase.h"
 #include "mdl/GameEngineConfig.h"
 
@@ -34,7 +35,7 @@ class GameEngineConfigParser : public ConfigParserBase
 public:
   GameEngineConfigParser(std::string_view str, std::filesystem::path path);
 
-  mdl::GameEngineConfig parse();
+  Result<mdl::GameEngineConfig> parse();
 
   deleteCopyAndMove(GameEngineConfigParser);
 };

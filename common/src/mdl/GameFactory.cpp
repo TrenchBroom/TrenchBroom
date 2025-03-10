@@ -335,29 +335,23 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
 void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
 {
   const auto path = gameConfig.configFileFolder() / "GameEngineProfiles.cfg";
-  try
+  if (m_configFs->pathInfo(path) == io::PathInfo::File)
   {
-    if (m_configFs->pathInfo(path) == io::PathInfo::File)
-    {
-      m_configFs->openFile(path).join(m_configFs->makeAbsolute(path))
-        | kdl::transform([&](auto profilesFile, auto absolutePath) {
-            auto reader = profilesFile->reader().buffer();
-            auto parser = io::GameEngineConfigParser{reader.stringView(), absolutePath};
-            gameConfig.gameEngineConfig = parser.parse();
-            gameConfig.gameEngineConfigParseFailed = false;
-          })
-        | kdl::transform_error([&](auto e) {
-            std::cerr << "Could not load game engine configuration '" << path
-                      << "': " << e.msg << "\n";
-            gameConfig.gameEngineConfigParseFailed = true;
-          });
-    }
-  }
-  catch (const ParserException& e)
-  {
-    std::cerr << "Could not load game engine configuration '" << path << "': " << e.what()
-              << "\n";
-    gameConfig.gameEngineConfigParseFailed = true;
+    m_configFs->openFile(path).join(m_configFs->makeAbsolute(path))
+      | kdl::and_then([&](auto profilesFile, auto absolutePath) {
+          auto reader = profilesFile->reader().buffer();
+          auto parser = io::GameEngineConfigParser{reader.stringView(), absolutePath};
+          return parser.parse();
+        })
+      | kdl::transform([&](auto gameEngineConfig) {
+          gameConfig.gameEngineConfig = std::move(gameEngineConfig);
+          gameConfig.gameEngineConfigParseFailed = false;
+        })
+      | kdl::transform_error([&](auto e) {
+          std::cerr << "Could not load game engine configuration '" << path
+                    << "': " << e.msg << "\n";
+          gameConfig.gameEngineConfigParseFailed = true;
+        });
   }
 }
 
