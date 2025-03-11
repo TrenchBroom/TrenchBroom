@@ -180,15 +180,17 @@ void CompilationDialog::startCompilation(const bool test)
     ensure(profile != nullptr, "profile is not null");
     ensure(!profile->tasks.empty(), "profile has tasks");
 
-    if (test)
-    {
-      m_run.test(*profile, m_mapFrame->document(), m_output);
-    }
-    else
-    {
-      m_run.run(*profile, m_mapFrame->document(), m_output);
-    }
+    runProfile(*profile, test) | kdl::transform_error([&](const auto& e) {
+      m_output->setText(tr("Compilation failed: %1").arg(QString::fromStdString(e.msg)));
+    });
   }
+}
+
+Result<void> CompilationDialog::runProfile(
+  const mdl::CompilationProfile& profile, const bool test)
+{
+  return test ? m_run.test(profile, m_mapFrame->document(), m_output)
+              : m_run.run(profile, m_mapFrame->document(), m_output);
 }
 
 void CompilationDialog::stopCompilation()

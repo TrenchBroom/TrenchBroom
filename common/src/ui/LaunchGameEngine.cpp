@@ -23,7 +23,6 @@
 #include <QString>
 #include <QStringList>
 
-#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "io/PathQt.h"
@@ -40,15 +39,15 @@ namespace
 
 auto arguments(const mdl::GameEngineProfile& profile, const el::VariableStore& variables)
 {
-  const auto parameters =
-    el::interpolate(profile.parameterSpec, el::EvaluationContext{variables});
-
-  auto result = QStringList{};
-  for (const auto& parameter : kdl::cmd_parse_args(parameters))
-  {
-    result.push_back(QString::fromStdString(parameter));
-  }
-  return result;
+  return el::interpolate(profile.parameterSpec, el::EvaluationContext{variables})
+         | kdl::transform([](const auto parameters) {
+             auto result = QStringList{};
+             for (const auto& parameter : kdl::cmd_parse_args(parameters))
+             {
+               result.push_back(QString::fromStdString(parameter));
+             }
+             return result;
+           });
 }
 
 } // namespace
@@ -58,57 +57,53 @@ Result<void> launchGameEngineProfile(
   const el::VariableStore& variables,
   const std::optional<std::filesystem::path>& logFilePath)
 {
-  try
-  {
-    const auto workDir = io::pathAsQString(profile.path.parent_path());
-    const auto engineArguments = arguments(profile, variables);
+  const auto workDir = io::pathAsQString(profile.path.parent_path());
+  return arguments(profile, variables) | kdl::and_then([&](const auto& engineArguments) {
+           auto process = QProcess{};
+           process.setWorkingDirectory(workDir);
 
-    auto process = QProcess{};
-    process.setWorkingDirectory(workDir);
+           if (logFilePath)
+           {
+             const auto qLogFilePath = io::pathAsQString(*logFilePath);
+             process.setStandardOutputFile(qLogFilePath);
+             process.setStandardErrorFile(qLogFilePath);
+           }
 
-    if (logFilePath)
-    {
-      const auto qLogFilePath = io::pathAsQString(*logFilePath);
-      process.setStandardOutputFile(qLogFilePath);
-      process.setStandardErrorFile(qLogFilePath);
-    }
-
-    constexpr auto isMacOs =
+           constexpr auto isMacOs =
 #ifdef __APPLE__
-      true;
+             true;
 #else
-      false;
+             false;
 #endif
 
-    if (profile.path.extension() == ".app" && isMacOs)
-    {
-      // We have to launch apps via the 'open' command so that we can properly pass
-      // parameters.
-      auto launchArguments = QStringList{};
-      launchArguments << "-a" << io::pathAsQString(profile.path) << "--args";
-      launchArguments.append(engineArguments);
+           if (profile.path.extension() == ".app" && isMacOs)
+           {
+             // We have to launch apps via the 'open' command so that we can properly
+             // pass parameters.
+             auto launchArguments = QStringList{};
+             launchArguments << "-a" << io::pathAsQString(profile.path) << "--args";
+             launchArguments.append(engineArguments);
 
-      process.setProgram("/usr/bin/open");
-      process.setArguments(launchArguments);
-    }
-    else
-    {
-      process.setProgram(io::pathAsQString(profile.path));
-      process.setArguments(engineArguments);
-    }
+             process.setProgram("/usr/bin/open");
+             process.setArguments(launchArguments);
+           }
+           else
+           {
+             process.setProgram(io::pathAsQString(profile.path));
+             process.setArguments(engineArguments);
+           }
 
-    if (!process.startDetached())
-    {
-      return Result<void>{Error{fmt::format(
-        "Failed to launch game engine: {}", process.errorString().toStdString())}};
-    }
-  }
-  catch (const Exception& e)
-  {
-    return Result<void>{Error{fmt::format("Failed to launch game engine: {}", e.what())}};
-  }
+           if (!process.startDetached())
+           {
+             return Result<void>{Error{process.errorString().toStdString()}};
+           }
 
-  return Result<void>{};
+           return Result<void>{};
+         })
+         | kdl::or_else([](const auto& e) {
+             return Result<void>{
+               Error{fmt::format("Failed to launch game engine: {}", e.msg)}};
+           });
 }
 
 } // namespace tb::ui

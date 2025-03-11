@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "Result.h"
+
 #include <string>
 #include <string_view>
 
@@ -26,6 +28,6 @@ namespace tb::el
 {
 class EvaluationContext;
 
-std::string interpolate(std::string_view str, const EvaluationContext& context);
+Result<std::string> interpolate(std::string_view str, const EvaluationContext& context);
 
 } // namespace tb::el

@@ -50,7 +50,7 @@ bool CompilationContext::test() const
   return m_test;
 }
 
-std::string CompilationContext::interpolate(const std::string& input) const
+Result<std::string> CompilationContext::interpolate(const std::string& input) const
 {
   return el::interpolate(input, el::EvaluationContext{*m_variables});
 }

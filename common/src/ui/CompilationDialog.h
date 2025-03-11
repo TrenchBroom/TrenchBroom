@@ -27,6 +27,11 @@ class QLabel;
 class QPushButton;
 class QTextEdit;
 
+namespace tb::mdl
+{
+struct CompilationProfile;
+}
+
 namespace tb::ui
 {
 class CompilationProfileManager;
@@ -57,6 +62,7 @@ private:
 
   void updateCompileButtons();
   void startCompilation(bool test);
+  Result<void> runProfile(const mdl::CompilationProfile& profile, bool test);
   void stopCompilation();
   void closeEvent(QCloseEvent* event) override;
 private slots:

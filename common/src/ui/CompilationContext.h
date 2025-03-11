@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/VariableStore.h"
 #include "ui/TextOutputAdapter.h"
 
@@ -48,7 +49,7 @@ public:
   std::shared_ptr<MapDocument> document() const;
   bool test() const;
 
-  std::string interpolate(const std::string& input) const;
+  Result<std::string> interpolate(const std::string& input) const;
   std::string variableValue(const std::string& variableName) const;
 
   template <typename T>

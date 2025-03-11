@@ -99,12 +99,20 @@ auto substituteValues(
 
 } // namespace
 
-std::string interpolate(const std::string_view str, const EvaluationContext& context)
+Result<std::string> interpolate(
+  const std::string_view str, const EvaluationContext& context)
 {
-  const auto expressionsPositions = findExpressions(str);
-  const auto expressions = parseExpressions(str, expressionsPositions);
-  const auto values = evaluateExpressions(expressions, context);
-  return substituteValues(str, expressionsPositions, values);
+  try
+  {
+    const auto expressionsPositions = findExpressions(str);
+    const auto expressions = parseExpressions(str, expressionsPositions);
+    const auto values = evaluateExpressions(expressions, context);
+    return substituteValues(str, expressionsPositions, values);
+  }
+  catch (const Exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace tb::el

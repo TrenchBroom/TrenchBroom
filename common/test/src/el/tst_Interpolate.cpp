@@ -80,14 +80,14 @@ TEST_CASE("interpolate")
   SECTION("interpolateStringWithUnknownVariable")
   {
     auto context = EvaluationContext{};
-    CHECK_THROWS(interpolate(" an ${TEST} expression", context));
+    CHECK(interpolate(" an ${TEST} expression", context).is_error());
   }
 
   SECTION("interpolateStringWithUnterminatedEL")
   {
     auto context = EvaluationContext{};
-    CHECK_THROWS(interpolate(" an ${TEST", context));
-    CHECK_THROWS(interpolate(" an ${TEST expression", context));
+    CHECK(interpolate(" an ${TEST", context).is_error());
+    CHECK(interpolate(" an ${TEST expression", context).is_error());
   }
 }
 
