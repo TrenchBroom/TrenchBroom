@@ -128,7 +128,8 @@ Result<std::vector<mdl::Quake3Shader>> Quake3ShaderParser::parse(ParserStatus& s
   try
   {
     auto result = std::vector<mdl::Quake3Shader>{};
-    while (!m_tokenizer.peekToken(Quake3ShaderToken::Eol).hasType(Quake3ShaderToken::Eof))
+    while (!m_tokenizer.skipAndPeekToken(Quake3ShaderToken::Eol)
+              .hasType(Quake3ShaderToken::Eof))
     {
       auto shader = mdl::Quake3Shader{};
       parseTexture(shader, status);
@@ -145,8 +146,8 @@ Result<std::vector<mdl::Quake3Shader>> Quake3ShaderParser::parse(ParserStatus& s
 
 void Quake3ShaderParser::parseBody(mdl::Quake3Shader& shader, ParserStatus& status)
 {
-  expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-  auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+  expect(Quake3ShaderToken::OBrace, m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol));
+  auto token = m_tokenizer.skipAndPeekToken(Quake3ShaderToken::Eol);
   expect(
     Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String,
     token);
@@ -161,15 +162,15 @@ void Quake3ShaderParser::parseBody(mdl::Quake3Shader& shader, ParserStatus& stat
     {
       parseBodyEntry(shader, status);
     }
-    token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+    token = m_tokenizer.skipAndPeekToken(Quake3ShaderToken::Eol);
   }
-  expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+  expect(Quake3ShaderToken::CBrace, m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol));
 }
 
 void Quake3ShaderParser::parseStage(mdl::Quake3Shader& shader, ParserStatus& status)
 {
-  expect(Quake3ShaderToken::OBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
-  auto token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+  expect(Quake3ShaderToken::OBrace, m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol));
+  auto token = m_tokenizer.skipAndPeekToken(Quake3ShaderToken::Eol);
   expect(
     Quake3ShaderToken::CBrace | Quake3ShaderToken::OBrace | Quake3ShaderToken::String,
     token);
@@ -178,16 +179,16 @@ void Quake3ShaderParser::parseStage(mdl::Quake3Shader& shader, ParserStatus& sta
   while (!token.hasType(Quake3ShaderToken::CBrace))
   {
     parseStageEntry(stage, status);
-    token = m_tokenizer.peekToken(Quake3ShaderToken::Eol);
+    token = m_tokenizer.skipAndPeekToken(Quake3ShaderToken::Eol);
   }
-  expect(Quake3ShaderToken::CBrace, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+  expect(Quake3ShaderToken::CBrace, m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol));
 }
 
 void Quake3ShaderParser::parseTexture(
   mdl::Quake3Shader& shader, ParserStatus& /* status */)
 {
-  const auto token =
-    expect(Quake3ShaderToken::String, m_tokenizer.nextToken(Quake3ShaderToken::Eol));
+  const auto token = expect(
+    Quake3ShaderToken::String, m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol));
   const auto pathStr = token.data();
   if (!pathStr.empty() && pathStr[0] == '/')
   {
@@ -203,7 +204,7 @@ void Quake3ShaderParser::parseTexture(
 void Quake3ShaderParser::parseBodyEntry(
   mdl::Quake3Shader& shader, ParserStatus& /* status */)
 {
-  auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
+  auto token = m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
 
   const auto key = token.data();
@@ -249,7 +250,7 @@ void Quake3ShaderParser::parseBodyEntry(
 void Quake3ShaderParser::parseStageEntry(
   mdl::Quake3ShaderStage& stage, ParserStatus& status)
 {
-  auto token = m_tokenizer.nextToken(Quake3ShaderToken::Eol);
+  auto token = m_tokenizer.skipAndNextToken(Quake3ShaderToken::Eol);
   expect(Quake3ShaderToken::String, token);
 
   const auto key = token.data();

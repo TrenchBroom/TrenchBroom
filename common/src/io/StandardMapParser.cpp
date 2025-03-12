@@ -219,7 +219,7 @@ void StandardMapParser::parseEntity(ParserStatus& status)
   onBeginEntity(startLocation, properties, status);
   parseObjects(status);
 
-  token = m_tokenizer.nextToken(QuakeMapToken::Comment);
+  token = m_tokenizer.skipAndNextToken(QuakeMapToken::Comment);
   expect(QuakeMapToken::CBrace, token);
 
   onEndEntity(token.location(), status);
@@ -230,11 +230,11 @@ void StandardMapParser::parseEntityProperties(
   EntityPropertyKeys& keys,
   ParserStatus& status)
 {
-  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  auto token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   while (token.hasType(QuakeMapToken::String))
   {
     parseEntityProperty(properties, keys, status);
-    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+    token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   }
 }
 
@@ -243,7 +243,7 @@ void StandardMapParser::parseEntityProperty(
   EntityPropertyKeys& keys,
   ParserStatus& status)
 {
-  auto token = m_tokenizer.nextToken(QuakeMapToken::Comment);
+  auto token = m_tokenizer.skipAndNextToken(QuakeMapToken::Comment);
   assert(token.type() == QuakeMapToken::String);
   const auto name = token.data();
 
@@ -265,11 +265,11 @@ void StandardMapParser::parseEntityProperty(
 
 void StandardMapParser::parseObjects(ParserStatus& status)
 {
-  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  auto token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   while (token.hasType(QuakeMapToken::OBrace))
   {
     parseObject(status);
-    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+    token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   }
 }
 
@@ -278,7 +278,7 @@ void StandardMapParser::parseObject(ParserStatus& status)
   // consume initial opening brace
   auto token = expect(
     QuakeMapToken::OBrace | QuakeMapToken::CBrace | QuakeMapToken::Eof,
-    m_tokenizer.nextToken(QuakeMapToken::Comment));
+    m_tokenizer.skipAndNextToken(QuakeMapToken::Comment));
 
   if (token.hasType(QuakeMapToken::Eof | QuakeMapToken::CBrace))
   {
@@ -350,7 +350,7 @@ void StandardMapParser::parseBrush(
 {
   auto beginBrushCalled = false;
 
-  auto token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+  auto token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   while (!token.hasType(QuakeMapToken::Eof))
   {
     switch (token.type())
@@ -384,7 +384,7 @@ void StandardMapParser::parseBrush(
     }
     }
 
-    token = m_tokenizer.peekToken(QuakeMapToken::Comment);
+    token = m_tokenizer.skipAndPeekToken(QuakeMapToken::Comment);
   }
 }
 

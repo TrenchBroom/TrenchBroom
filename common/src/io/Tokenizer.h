@@ -247,7 +247,9 @@ public:
 
   virtual ~Tokenizer() = default;
 
-  Token nextToken(const TokenType skipTokens = 0u)
+  Token nextToken() { return emitToken(); }
+
+  Token skipAndNextToken(const TokenType skipTokens)
   {
     auto token = emitToken();
     while (token.hasType(skipTokens))
@@ -257,10 +259,16 @@ public:
     return token;
   }
 
-  Token peekToken(const TokenType skipTokens = 0u)
+  Token peekToken()
   {
     auto oldState = SaveAndRestoreState{m_state};
-    return nextToken(skipTokens);
+    return nextToken();
+  }
+
+  Token skipAndPeekToken(const TokenType skipTokens)
+  {
+    auto oldState = SaveAndRestoreState{m_state};
+    return skipAndNextToken(skipTokens);
   }
 
   void skipToken(const TokenType skipTokens = ~0u)
