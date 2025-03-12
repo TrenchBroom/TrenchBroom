@@ -107,8 +107,6 @@ private:
   bool isRecursiveInclude(const std::filesystem::path& path) const;
 
 private:
-  TokenNameMap tokenNames() const override;
-
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
   void parseClassInfoOrInclude(
@@ -120,11 +118,11 @@ private:
   EntityDefinitionClassInfo parseBaseClassInfo(ParserStatus& status);
   EntityDefinitionClassInfo parseClassInfo(
     ParserStatus& status, EntityDefinitionClassType classType);
-  void skipMainClass(ParserStatus& status);
+  void skipMainClass();
 
-  std::vector<std::string> parseSuperClasses(ParserStatus& status);
+  std::vector<std::string> parseSuperClasses();
   mdl::ModelDefinition parseModel(ParserStatus& status, bool allowEmptyExpression);
-  mdl::DecalDefinition parseDecal(ParserStatus& status);
+  mdl::DecalDefinition parseDecal();
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
 
@@ -148,21 +146,21 @@ private:
   std::unique_ptr<mdl::PropertyDefinition> parseChoicesPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
   std::unique_ptr<mdl::PropertyDefinition> parseFlagsPropertyDefinition(
-    ParserStatus& status, std::string propertyKey);
+    std::string propertyKey);
   std::unique_ptr<mdl::PropertyDefinition> parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 
   bool parseReadOnlyFlag(ParserStatus& status);
-  std::string parsePropertyDescription(ParserStatus& status);
+  std::string parsePropertyDescription();
   std::optional<std::string> parseDefaultStringValue(ParserStatus& status);
   std::optional<int> parseDefaultIntegerValue(ParserStatus& status);
   std::optional<float> parseDefaultFloatValue(ParserStatus& status);
-  std::optional<std::string> parseDefaultChoiceValue(ParserStatus& status);
+  std::optional<std::string> parseDefaultChoiceValue();
 
-  vm::vec3d parseVector(ParserStatus& status);
-  vm::bbox3d parseSize(ParserStatus& status);
-  Color parseColor(ParserStatus& status);
-  std::string parseString(ParserStatus& status);
+  vm::vec3d parseVector();
+  vm::bbox3d parseSize();
+  Color parseColor();
+  std::string parseString();
 
   std::vector<EntityDefinitionClassInfo> parseInclude(ParserStatus& status);
   std::vector<EntityDefinitionClassInfo> handleInclude(

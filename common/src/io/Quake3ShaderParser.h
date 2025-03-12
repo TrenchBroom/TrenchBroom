@@ -82,9 +82,6 @@ private:
   void parseBodyEntry(mdl::Quake3Shader& shader, ParserStatus& status);
   void parseStageEntry(mdl::Quake3ShaderStage& stage, ParserStatus& status);
   void skipRemainderOfEntry();
-
-private:
-  TokenNameMap tokenNames() const override;
 };
 
 } // namespace tb::io

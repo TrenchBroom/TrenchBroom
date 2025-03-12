@@ -22,13 +22,10 @@
 #include "Exceptions.h"
 #include "io/Token.h"
 
-#include "kdl/range_to_vector.h"
 #include "kdl/string_utils.h"
 
 #include <fmt/format.h>
 
-#include <map>
-#include <ranges>
 #include <string>
 #include <vector>
 
@@ -39,48 +36,13 @@ class ParserStatus;
 template <typename TokenType>
 class Parser
 {
-protected:
-  using TokenNameMap = std::map<TokenType, std::string>;
-
 private:
   using Token = TokenTemplate<TokenType>;
-  mutable TokenNameMap m_tokenNames;
 
 public:
   virtual ~Parser() = default;
 
 protected:
-  bool check(const TokenType typeMask, const Token& token) const
-  {
-    return token.hasType(typeMask);
-  }
-
-  const Token& expect(const TokenType typeMask, const Token& token) const
-  {
-    if (!check(typeMask, token))
-    {
-      throw ParserException{token.location(), expectString(tokenName(typeMask), token)};
-    }
-    return token;
-  }
-
-  const Token& expect(
-    ParserStatus& status, const TokenType typeMask, const Token& token) const
-  {
-    if (!check(typeMask, token))
-    {
-      expect(status, tokenName(typeMask), token);
-    }
-    return token;
-  }
-
-  void expect(
-    ParserStatus& /* status */, const std::string& typeName, const Token& token) const
-  {
-    const auto msg = expectString(typeName, token);
-    throw ParserException{token.location(), msg};
-  }
-
   void expect(const std::string& expected, const Token& token) const
   {
     if (token.data() != expected)
@@ -107,36 +69,6 @@ protected:
         kdl::str_join(expected, "', '", "', or '", "' or '"),
         token.data())};
   }
-
-private:
-  std::string expectString(const std::string& expected, const Token& token) const
-  {
-    return fmt::format(
-      "Expected {}, but got {} (raw data: '{}')",
-      expected,
-      tokenName(token.type()),
-      token.data());
-  }
-
-protected:
-  std::string tokenName(const TokenType typeMask) const
-  {
-    if (m_tokenNames.empty())
-    {
-      m_tokenNames = tokenNames();
-    }
-
-    const auto filterByType = std::views::filter(
-      [&typeMask](const auto& pair) { return (typeMask & pair.first) != 0; });
-
-    const auto names = m_tokenNames | filterByType | std::views::values | kdl::to_vector;
-    return names.empty()       ? "unknown token type"
-           : names.size() == 1 ? names[0]
-                               : kdl::str_join(names, ", ", ", or ", " or ");
-  }
-
-private:
-  virtual TokenNameMap tokenNames() const = 0;
 };
 
 } // namespace tb::io

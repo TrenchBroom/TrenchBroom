@@ -66,12 +66,9 @@ public:
 
 private:
   el::ExpressionNode parseModelDefinition(ParserStatus& status);
-  el::ExpressionNode parseStaticModelDefinition(ParserStatus& status);
+  el::ExpressionNode parseStaticModelDefinition();
   el::ExpressionNode parseDynamicModelDefinition(ParserStatus& status);
-  el::ExpressionNode parseNamedValue(ParserStatus& status, const std::string& name);
-
-private:
-  TokenNameMap tokenNames() const override;
+  el::ExpressionNode parseNamedValue(const std::string& name);
 };
 
 } // namespace tb::io

@@ -179,8 +179,6 @@ private: // parsing
   size_t parseSizeArgument();
   vm::vec3f parseVecArgument();
 
-  TokenNameMap tokenNames() const override;
-
 private: // model construction
   Result<mdl::EntityModelData> buildModelData(Logger& logger, const Scene& scene) const;
   bool checkIndices(Logger& logger, const MeshFace& face, const Mesh& mesh) const;

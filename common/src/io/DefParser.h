@@ -79,27 +79,23 @@ public:
   DefParser(std::string_view str, const Color& defaultEntityColor);
 
 private:
-  TokenNameMap tokenNames() const override;
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
   std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-  std::unique_ptr<mdl::PropertyDefinition> parseSpawnflags(ParserStatus& status);
+  std::unique_ptr<mdl::PropertyDefinition> parseSpawnflags();
   void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
   bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
-  void parseDefaultProperty(ParserStatus& status);
-  std::string parseBaseProperty(ParserStatus& status);
-  std::unique_ptr<mdl::PropertyDefinition> parseChoicePropertyDefinition(
-    ParserStatus& status);
+  void parseDefaultProperty();
+  std::string parseBaseProperty();
+  std::unique_ptr<mdl::PropertyDefinition> parseChoicePropertyDefinition();
   mdl::ModelDefinition parseModelDefinition(ParserStatus& status);
 
   std::string parseDescription();
 
-  vm::vec3d parseVector(ParserStatus& status);
-  vm::bbox3d parseBounds(ParserStatus& status);
-  Color parseColor(ParserStatus& status);
-
-  Token nextTokenIgnoringNewlines();
+  vm::vec3d parseVector();
+  vm::bbox3d parseBounds();
+  Color parseColor();
 };
 
 } // namespace tb::io

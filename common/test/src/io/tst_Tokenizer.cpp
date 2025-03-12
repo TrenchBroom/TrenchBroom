@@ -43,6 +43,22 @@ static const Type Eof = 1 << 7;       // end of file
 
 namespace
 {
+auto tokenNames()
+{
+  using namespace SimpleToken;
+
+  return Tokenizer<Type>::TokenNameMap{
+    {Integer, "integer"},
+    {Decimal, "decimal"},
+    {String, "string"},
+    {OBrace, "'{'"},
+    {CBrace, "'}'"},
+    {Equals, "'='"},
+    {Semicolon, "';'"},
+    {Eof, "end of file"},
+  };
+}
+
 class SimpleTokenizer : public Tokenizer<SimpleToken::Type>
 {
 public:
@@ -95,7 +111,7 @@ private:
 
 public:
   explicit SimpleTokenizer(std::string_view str)
-    : Tokenizer<SimpleToken::Type>{std::move(str), "", 0}
+    : Tokenizer<SimpleToken::Type>{tokenNames(), std::move(str), "", 0}
   {
   }
 };

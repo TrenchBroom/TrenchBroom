@@ -23,12 +23,16 @@
 #include "Macros.h"
 #include "Token.h"
 
+#include "kdl/range_to_vector.h"
 #include "kdl/string_format.h"
+
+#include <fmt/format.h>
 
 #include <cassert>
 #include <string>
 #include <string_view>
 #include <tuple>
+#include <unordered_map>
 
 namespace tb::io
 {
@@ -208,6 +212,7 @@ class Tokenizer : public TokenizerBase
 {
 public:
   using Token = TokenTemplate<TokenType>;
+  using TokenNameMap = std::unordered_map<TokenType, std::string>;
 
 private:
   class SaveAndRestoreState
@@ -226,6 +231,8 @@ private:
     ~SaveAndRestoreState() { m_target = m_snapshot; }
   };
 
+  TokenNameMap m_tokenNames;
+
 public:
   static const std::string& Whitespace()
   {
@@ -233,45 +240,84 @@ public:
     return whitespace;
   }
 
-public:
+protected:
   Tokenizer(
+    TokenNameMap tokenNames,
     std::string_view str,
     std::string_view escapableChars,
     const char escapeChar,
     const size_t line = 1,
     const size_t column = 1)
-    : TokenizerBase{
-        str.data(), str.data() + str.size(), escapableChars, escapeChar, line, column}
+    : TokenizerBase{str.data(), str.data() + str.size(), escapableChars, escapeChar, line, column}
+    , m_tokenNames{std::move(tokenNames)}
   {
   }
 
+public:
   virtual ~Tokenizer() = default;
 
-  Token nextToken() { return emitToken(); }
+  std::string tokenName(const TokenType typeMask) const
+  {
+    const auto filterByType = std::views::filter(
+      [&typeMask](const auto& pair) { return (typeMask & pair.first) != 0; });
 
-  Token skipAndNextToken(const TokenType skipTokens)
+    const auto names = m_tokenNames | filterByType | std::views::values | kdl::to_vector;
+    return names.empty()       ? "unknown token type"
+           : names.size() == 1 ? names[0]
+                               : kdl::str_join(names, ", ", ", or ", " or ");
+  }
+
+  std::string expectString(const Token& token, const std::string_view expected) const
+  {
+    return fmt::format(
+      "Expected {}, but got {} (raw data: '{}')",
+      expected,
+      tokenName(token.type()),
+      token.data());
+  }
+
+  Token expect(Token token, const TokenType expectedTokens) const
+  {
+    if (!token.hasType(expectedTokens))
+    {
+      throw ParserException{
+        token.location(), expectString(token, tokenName(expectedTokens))};
+    }
+    return token;
+  }
+
+  Token nextToken(const TokenType expectedTokens = ~static_cast<TokenType>(0))
+  {
+    return expect(emitToken(), expectedTokens);
+  }
+
+  Token skipAndNextToken(
+    const TokenType skipTokens,
+    const TokenType expectedTokens = ~static_cast<TokenType>(0))
   {
     auto token = emitToken();
     while (token.hasType(skipTokens))
     {
       token = emitToken();
     }
-    return token;
+    return expect(std::move(token), expectedTokens);
   }
 
-  Token peekToken()
+  Token peekToken(const TokenType expectedTokens = ~static_cast<TokenType>(0))
   {
     auto oldState = SaveAndRestoreState{m_state};
-    return nextToken();
+    return nextToken(expectedTokens);
   }
 
-  Token skipAndPeekToken(const TokenType skipTokens)
+  Token skipAndPeekToken(
+    const TokenType skipTokens,
+    const TokenType expectedTokens = ~static_cast<TokenType>(0))
   {
     auto oldState = SaveAndRestoreState{m_state};
-    return skipAndNextToken(skipTokens);
+    return skipAndNextToken(skipTokens, expectedTokens);
   }
 
-  void skipToken(const TokenType skipTokens = ~0u)
+  void skipToken(const TokenType skipTokens = ~static_cast<TokenType>(0))
   {
     if (peekToken().hasType(skipTokens))
     {

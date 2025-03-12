@@ -135,9 +135,6 @@ private:
   el::ExpressionNode parseUnaryOperator();
   el::ExpressionNode parseSwitch();
   el::ExpressionNode parseCompoundTerm(el::ExpressionNode lhs);
-
-private:
-  TokenNameMap tokenNames() const override;
 };
 
 } // namespace tb::io
