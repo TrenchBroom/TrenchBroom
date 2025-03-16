@@ -23,8 +23,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <iosfwd>
-
 namespace tb
 {
 struct FileLocation;
