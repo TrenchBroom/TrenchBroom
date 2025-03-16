@@ -1186,6 +1186,7 @@ TEST_CASE("Expression")
     const auto
     [expression,                expectedExpression] = GENERATE(values<T>({
     {"3 + 7",                   lit(10)},
+    {"x == 1",                  eq(var("x"), lit(1))},
     {"[1, 2, 3]",               lit(ArrayType{Value{1}, Value{2}, Value{3}})},
     {"[1 + 2, 2, a]",           arr({lit(3), lit(2), var("a")})},
     {"{a:1, b:2, c:3}",         lit(MapType{{"a", Value{1}}, {"b", Value{2}}, {"c", Value{3}}})},
@@ -1193,7 +1194,11 @@ TEST_CASE("Expression")
     {"{{ x -> 2, true -> 1 }}", swt({
                                     cs(var("x"), lit(2)),
                                     lit(1),
-                                })}
+                                })},
+    {"{{ x == 1 -> 2, 1 }}",    swt({
+                                    cs(eq(var("x"), lit(1)), lit(2)),
+                                    lit(1),
+                                })},
     }));
     // clang-format on
 

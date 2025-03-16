@@ -905,24 +905,20 @@ Expression optimize(const ArrayExpression& expression)
     expression.elements
     | std::views::transform([](const auto& x) { return x.optimize(); });
 
-  auto values = ArrayType{};
-  values.reserve(expression.elements.size());
+  const auto isLiteral = std::ranges::all_of(
+    optimizedExpressions, [](const auto& x) { return x.isLiteral(); });
 
-  const auto evaluationContext = EvaluationContext{};
-  for (const auto& optimizedExpression : optimizedExpressions)
+  if (isLiteral)
   {
-    if (auto value = optimizedExpression.evaluate(evaluationContext);
-        value != Value::Undefined)
-    {
-      values.push_back(std::move(value));
-    }
-    else
-    {
-      return ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector};
-    }
+    const auto evaluationContext = EvaluationContext{};
+    return LiteralExpression{Value{
+      optimizedExpressions | std::views::transform([&](const auto& x) {
+        return x.evaluate(evaluationContext);
+      })
+      | kdl::to_vector}};
   }
 
-  return LiteralExpression{Value{std::move(values)}};
+  return ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector};
 }
 
 Expression optimize(const MapExpression& expression)
@@ -932,35 +928,32 @@ Expression optimize(const MapExpression& expression)
       return std::pair{entry.first, entry.second.optimize()};
     });
 
-  auto values = MapType{};
+  const auto isLiteral = std::ranges::all_of(
+    optimizedExpressions, [](const auto& entry) { return entry.second.isLiteral(); });
 
-  const auto evaluationContext = EvaluationContext{};
-  for (const auto& [key, element] : optimizedExpressions)
+  if (isLiteral)
   {
-    if (auto value = element.evaluate(evaluationContext); value != Value::Undefined)
-    {
-      values.emplace(key, std::move(value));
-    }
-    else
-    {
-      return MapExpression{
-        std::move(optimizedExpressions)
-        | kdl::to<std::map<std::string, ExpressionNode>>()};
-    }
+    const auto evaluationContext = EvaluationContext{};
+    return LiteralExpression{Value{
+      optimizedExpressions | std::views::transform([&](const auto& entry) {
+        return std::pair{entry.first, entry.second.evaluate(evaluationContext)};
+      })
+      | kdl::to<MapType>()}};
   }
 
-  return LiteralExpression{Value{std::move(values)}};
+  return MapExpression{
+    std::move(optimizedExpressions) | kdl::to<std::map<std::string, ExpressionNode>>()};
 }
 
 Expression optimize(const UnaryExpression& expression)
 {
   const auto evaluationContext = EvaluationContext{};
   auto optimizedOperand = expression.operand.optimize();
-  if (auto value = evaluateUnaryExpression(
-        expression.operation, optimizedOperand.evaluate(evaluationContext));
-      value != Value::Undefined)
+
+  if (optimizedOperand.isLiteral())
   {
-    return LiteralExpression{std::move(value)};
+    return LiteralExpression{evaluateUnaryExpression(
+      expression.operation, optimizedOperand.evaluate(evaluationContext))};
   }
 
   return UnaryExpression{expression.operation, std::move(optimizedOperand)};
@@ -983,9 +976,14 @@ Expression optimize(const BinaryExpression& expression)
     return optimizedRightOperand->evaluate(evaluationContext);
   };
 
-  if (auto value = evaluateBinaryExpression(
-        expression.operation, evaluateLeftOperand, evaluateRightOperand);
-      value != Value::Undefined)
+  auto value = evaluateBinaryExpression(
+    expression.operation, evaluateLeftOperand, evaluateRightOperand);
+
+  const auto isLiteral =
+    (!optimizedLeftOperand || optimizedLeftOperand->isLiteral())
+    && (!optimizedRightOperand || optimizedRightOperand->isLiteral());
+
+  if (isLiteral)
   {
     return LiteralExpression{std::move(value)};
   }
@@ -1001,18 +999,15 @@ Expression optimize(const SubscriptExpression& expression)
   auto optimizedLeftOperand = expression.leftOperand.optimize();
   auto optimizedRightOperand = expression.rightOperand.optimize();
 
-  const auto evaluationContext = EvaluationContext{};
-  if (auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
-      leftValue != Value::Undefined)
+  const auto isLiteral =
+    optimizedLeftOperand.isLiteral() && optimizedRightOperand.isLiteral();
+
+  if (isLiteral)
   {
-    if (auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
-        rightValue != Value::Undefined)
-    {
-      if (auto value = leftValue[rightValue]; value != Value::Undefined)
-      {
-        return LiteralExpression{std::move(value)};
-      }
-    }
+    const auto evaluationContext = EvaluationContext{};
+    auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
+    auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
+    return LiteralExpression{leftValue[rightValue]};
   }
 
   return SubscriptExpression{
@@ -1023,15 +1018,15 @@ Expression optimize(const SwitchExpression& expression)
 {
   if (expression.cases.empty())
   {
-    return SwitchExpression{expression.cases};
+    return LiteralExpression{Value::Undefined};
   }
 
   const auto evaluationContext = EvaluationContext{};
+
   auto firstOptimizedExpression = expression.cases.front().optimize();
-  if (auto firstValue = firstOptimizedExpression.evaluate(evaluationContext);
-      firstValue != Value::Undefined)
+  if (firstOptimizedExpression.isLiteral())
   {
-    return LiteralExpression{std::move(firstValue)};
+    return LiteralExpression{firstOptimizedExpression.evaluate(evaluationContext)};
   }
 
   auto optimizedExpressions =
@@ -1122,6 +1117,11 @@ ExpressionNode::ExpressionNode(
   , m_location{std::move(location)}
 {
   rebalanceByPrecedence();
+}
+
+bool ExpressionNode::isLiteral() const
+{
+  return std::holds_alternative<LiteralExpression>(*m_expression);
 }
 
 Value ExpressionNode::evaluate(

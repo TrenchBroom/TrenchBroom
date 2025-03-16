@@ -112,6 +112,8 @@ public:
   explicit ExpressionNode(
     Expression&& expression, std::optional<FileLocation> location = std::nullopt);
 
+  bool isLiteral() const;
+
   template <typename Visitor>
   VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
 
