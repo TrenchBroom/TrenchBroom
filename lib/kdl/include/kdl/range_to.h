@@ -31,7 +31,7 @@ namespace detail
 
 // Type acts as a tag to find the correct operator| overload
 template <typename C>
-struct and_then_helper
+struct to_container_helper
 {
 };
 
@@ -39,7 +39,7 @@ struct and_then_helper
 template <typename Container, std::ranges::range R>
   requires std::
     convertible_to<std::ranges::range_value_t<R>, typename Container::value_type>
-  Container operator|(R&& r, and_then_helper<Container>)
+  Container operator|(R&& r, to_container_helper<Container>)
 {
   return Container{get_begin(r), get_end(r)};
 }
@@ -50,7 +50,7 @@ template <std::ranges::range Container>
   requires(!std::ranges::view<Container>)
 auto to()
 {
-  return detail::and_then_helper<Container>{};
+  return detail::to_container_helper<Container>{};
 }
 
 } // namespace kdl
