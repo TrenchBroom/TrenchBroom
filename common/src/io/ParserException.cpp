@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,21 +17,45 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
+#include "ParserException.h"
+
+#include <sstream>
 
 namespace tb
 {
-
-Exception::Exception() noexcept = default;
-
-Exception::Exception(std::string str) noexcept
-  : m_msg{std::move(str)}
+namespace
 {
+
+std::string buildMessage(
+  const std::optional<FileLocation>& location, const std::string& str)
+{
+  auto msg = std::stringstream();
+
+  msg << "At ";
+  if (location)
+  {
+    msg << *location;
+  }
+  else
+  {
+    msg << "unknown location";
+  }
+
+  msg << ":";
+  if (!str.empty())
+  {
+    msg << " " << str;
+  }
+  return msg.str();
 }
 
-const char* Exception::what() const noexcept
+} // namespace
+
+
+ParserException::ParserException(
+  const std::optional<FileLocation>& location, const std::string& str)
+  : Exception{buildMessage(location, str)}
 {
-  return m_msg.c_str();
 }
 
 } // namespace tb

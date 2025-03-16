@@ -19,11 +19,11 @@
 
 #include "ConfigParserBase.h"
 
-#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 
 #include <fmt/format.h>
 

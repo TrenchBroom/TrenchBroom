@@ -17,21 +17,24 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#pragma once
+
 #include "Exceptions.h"
+#include "FileLocation.h"
+
+#include <optional>
+#include <string>
 
 namespace tb
 {
 
-Exception::Exception() noexcept = default;
-
-Exception::Exception(std::string str) noexcept
-  : m_msg{std::move(str)}
+class ParserException : public Exception
 {
-}
+public:
+  using Exception::Exception;
 
-const char* Exception::what() const noexcept
-{
-  return m_msg.c_str();
-}
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
+};
 
 } // namespace tb

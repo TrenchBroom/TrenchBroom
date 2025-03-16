@@ -19,6 +19,7 @@
 
 #include "GameEngineConfigParser.h"
 
+#include "Exceptions.h"
 #include "Macros.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"

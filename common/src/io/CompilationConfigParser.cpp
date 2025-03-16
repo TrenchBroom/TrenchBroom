@@ -22,6 +22,7 @@
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 #include "mdl/CompilationConfig.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"

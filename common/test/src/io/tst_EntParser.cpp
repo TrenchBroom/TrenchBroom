@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
 #include "io/DiskIO.h"
 #include "io/EntParser.h"
 #include "io/TestParserStatus.h"
@@ -63,7 +62,7 @@ TEST_CASE("EntParserTest.parseIncludedEntFiles")
     auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
     auto status = TestParserStatus{};
-    CHECK_NOTHROW(parser.parseDefinitions(status));
+    CHECK(parser.parseDefinitions(status).is_success());
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
@@ -92,7 +91,7 @@ TEST_CASE("EntParserTest.parseEmptyFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("EntParserTest.parseWhitespaceFile")
@@ -105,7 +104,7 @@ TEST_CASE("EntParserTest.parseWhitespaceFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("EntParserTest.parseMalformedXML")
@@ -119,7 +118,7 @@ TEST_CASE("EntParserTest.parseMalformedXML")
   auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
   auto status = TestParserStatus{};
-  CHECK_THROWS_AS(parser.parseDefinitions(status), ParserException);
+  CHECK(parser.parseDefinitions(status).is_error());
 }
 
 TEST_CASE("EntParserTest.parseSimplePointEntityDefinition")
@@ -164,10 +163,10 @@ Updated: 2011-03-02
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -277,10 +276,10 @@ Target this entity with a misc_model to have the model attached to the entity (s
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* brushDefinition =
-    dynamic_cast<const mdl::BrushEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::BrushEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a brush entity definition");
   CHECK(brushDefinition != nullptr);
 
@@ -358,10 +357,10 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -423,10 +422,10 @@ TEST_CASE("EntParserTest.parseBooleanProperty")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  REQUIRE(definitions.size() == 1u);
+  REQUIRE(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   REQUIRE(pointDefinition != nullptr);
 
   const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
@@ -462,10 +461,10 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -497,10 +496,10 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -523,10 +522,10 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
   UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.front().get());
+    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
   UNSCOPED_INFO("Definition must be a point entity definition");
   CHECK(pointDefinition != nullptr);
 
@@ -551,9 +550,10 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = static_cast<mdl::PointEntityDefinition&>(*definitions[0]);
+  const auto& definition =
+    static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 

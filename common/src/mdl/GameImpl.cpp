@@ -69,39 +69,32 @@ Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefin
   const auto extension = kdl::path_to_lower(path.extension());
   const auto& defaultColor = m_config.entityConfig.defaultColor;
 
-  try
+  if (extension == ".fgd")
   {
-    if (extension == ".fgd")
-    {
-      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
-               auto reader = file->reader().buffer();
-               auto parser = io::FgdParser{reader.stringView(), defaultColor, path};
-               return parser.parseDefinitions(status);
-             });
-    }
-    if (extension == ".def")
-    {
-      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
-               auto reader = file->reader().buffer();
-               auto parser = io::DefParser{reader.stringView(), defaultColor};
-               return parser.parseDefinitions(status);
-             });
-    }
-    if (extension == ".ent")
-    {
-      return io::Disk::openFile(path) | kdl::transform([&](auto file) {
-               auto reader = file->reader().buffer();
-               auto parser = io::EntParser{reader.stringView(), defaultColor};
-               return parser.parseDefinitions(status);
-             });
-    }
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             auto parser = io::FgdParser{reader.stringView(), defaultColor, path};
+             return parser.parseDefinitions(status);
+           });
+  }
+  if (extension == ".def")
+  {
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             auto parser = io::DefParser{reader.stringView(), defaultColor};
+             return parser.parseDefinitions(status);
+           });
+  }
+  if (extension == ".ent")
+  {
+    return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
+             auto reader = file->reader().buffer();
+             auto parser = io::EntParser{reader.stringView(), defaultColor};
+             return parser.parseDefinitions(status);
+           });
+  }
 
-    return Error{fmt::format("Unknown entity definition format: {}", path)};
-  }
-  catch (const ParserException& e)
-  {
-    return Error{e.what()};
-  }
+  return Error{fmt::format("Unknown entity definition format: {}", path)};
 }
 
 const GameConfig& GameImpl::config() const

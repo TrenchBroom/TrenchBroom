@@ -19,6 +19,7 @@
 
 #include "NodeReader.h"
 
+#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"

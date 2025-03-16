@@ -19,6 +19,7 @@
 
 #include "EntityDefinitionParser.h"
 
+#include "Exceptions.h"
 #include "Macros.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/ParserStatus.h"
@@ -475,11 +476,18 @@ EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
 
 EntityDefinitionParser::~EntityDefinitionParser() {}
 
-std::vector<std::unique_ptr<mdl::EntityDefinition>> EntityDefinitionParser::
+Result<std::vector<std::unique_ptr<mdl::EntityDefinition>>> EntityDefinitionParser::
   parseDefinitions(ParserStatus& status)
 {
-  const auto classInfos = parseClassInfos(status);
-  return createDefinitions(status, classInfos, m_defaultEntityColor);
+  try
+  {
+    const auto classInfos = parseClassInfos(status);
+    return createDefinitions(status, classInfos, m_defaultEntityColor);
+  }
+  catch (const Exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace tb::io

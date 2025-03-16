@@ -23,6 +23,7 @@
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Tag.h"
 #include "mdl/TagAttribute.h"

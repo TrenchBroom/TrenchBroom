@@ -21,6 +21,7 @@
 
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/ModelDefinition.h"
 

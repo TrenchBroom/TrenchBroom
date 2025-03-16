@@ -19,9 +19,11 @@
 
 #include "ELParser.h"
 
+#include "Exceptions.h"
 #include "FileLocation.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 
 #include "kdl/string_format.h"
 

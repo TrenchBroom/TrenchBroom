@@ -19,9 +19,9 @@
 
 #pragma once
 
-#include "Exceptions.h"
 #include "Macros.h"
 #include "Token.h"
+#include "io/ParserException.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/string_format.h"

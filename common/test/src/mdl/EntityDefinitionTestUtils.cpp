@@ -39,9 +39,10 @@ ModelSpecification getModelSpecification(
 {
   auto status = io::TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  REQUIRE(definitions.is_success());
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == EntityDefinitionType::PointEntity);
 
   return getModelSpecification(definition, entityPropertiesStr);
@@ -75,9 +76,10 @@ void assertDecalDefinition(
 {
   auto status = io::TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  REQUIRE(definitions.is_success());
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == EntityDefinitionType::PointEntity);
 
   assertDecalDefinition(expected, definition, entityPropertiesStr);

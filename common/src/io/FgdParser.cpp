@@ -24,6 +24,7 @@
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
 #include "io/ParseModelDefinition.h"
+#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/PropertyDefinition.h"
 

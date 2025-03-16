@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "Result.h"
 
 #include <memory>
 #include <vector>
@@ -48,7 +49,7 @@ public:
   explicit EntityDefinitionParser(const Color& defaultEntityColor);
   virtual ~EntityDefinitionParser();
 
-  std::vector<std::unique_ptr<mdl::EntityDefinition>> parseDefinitions(
+  Result<std::vector<std::unique_ptr<mdl::EntityDefinition>>> parseDefinitions(
     ParserStatus& status);
 
 private:

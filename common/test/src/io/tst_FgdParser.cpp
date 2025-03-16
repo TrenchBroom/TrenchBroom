@@ -52,7 +52,7 @@ TEST_CASE("FgdParserTest.parseIncludedFgdFiles")
     auto parser = FgdParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}, path};
 
     auto status = TestParserStatus{};
-    CHECK_NOTHROW(parser.parseDefinitions(status));
+    CHECK(parser.parseDefinitions(status).is_success());
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
@@ -81,7 +81,7 @@ TEST_CASE("FgdParserTest.parseEmptyFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("FgdParserTest.parseWhitespaceFile")
@@ -91,7 +91,7 @@ TEST_CASE("FgdParserTest.parseWhitespaceFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("FgdParserTest.parseCommentsFile")
@@ -103,7 +103,7 @@ TEST_CASE("FgdParserTest.parseCommentsFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("FgdParserTest.parseEmptyFlagDescription")
@@ -123,7 +123,7 @@ TEST_CASE("FgdParserTest.parseEmptyFlagDescription")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 }
 
 TEST_CASE("FgdParserTest.parseSolidClass")
@@ -148,9 +148,9 @@ TEST_CASE("FgdParserTest.parseSolidClass")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "worldspawn");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -176,9 +176,9 @@ TEST_CASE("FgdParserTest.parsePointClass")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -206,7 +206,7 @@ TEST_CASE("FgdParserTest.parseBaseProperty")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
@@ -240,9 +240,9 @@ TEST_CASE("FgdParserTest.parsePointClassWithBaseClasses")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -269,9 +269,9 @@ TEST_CASE("FgdParserTest.parsePointClassWithUnknownClassProperties")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -294,9 +294,9 @@ TEST_CASE("FgdParserTest.parseType_TargetSourcePropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -325,9 +325,9 @@ TEST_CASE("FgdParserTest.parseType_TargetDestinationPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -358,9 +358,9 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -406,9 +406,9 @@ TEST_CASE("FgdParserTest.parsePropertyDefinitionWithNumericKey")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  REQUIRE(definitions.size() == 1u);
+  REQUIRE(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.propertyDefinition("123") != nullptr);
   CHECK(definition.propertyDefinition("456") != nullptr);
 }
@@ -430,9 +430,9 @@ TEST_CASE("FgdParserTest.parseStringPropertyDefinition_IntDefault")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -478,9 +478,9 @@ TEST_CASE("FgdParserTest.parseIntegerPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -526,9 +526,9 @@ TEST_CASE("FgdParserTest.parseReadOnlyPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.propertyDefinitions().size() == 2u);
 
   const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
@@ -552,9 +552,9 @@ TEST_CASE("FgdParserTest.parseFloatPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -630,9 +630,9 @@ TEST_CASE("FgdParserTest.parseChoicePropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -750,9 +750,9 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "info_notnull");
   CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
@@ -843,7 +843,7 @@ TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 }
 
 static const auto FgdDecalDefinitionTemplate =
@@ -912,10 +912,10 @@ decor_goddess_statue : "Goddess Statue" []
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto& definition =
-    static_cast<const mdl::PointEntityDefinition&>(*definitions[0]);
+    static_cast<const mdl::PointEntityDefinition&>(*definitions.value()[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
 }
 
@@ -929,10 +929,10 @@ decor_goddess_statue : "Goddess Statue" [])";
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
   const auto& definition =
-    static_cast<const mdl::PointEntityDefinition&>(*definitions[0]);
+    static_cast<const mdl::PointEntityDefinition&>(*definitions.value()[0]);
   CHECK(definition.bounds() == vm::bbox3d{{-32.0, -32.0, 0.0}, {32.0, 32.0, 256.0}});
 }
 
@@ -945,12 +945,8 @@ decor_goddess_statue : "Goddess Statue" [])";
 
   auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  CHECK_THROWS_WITH(
-    [&]() {
-      auto status = TestParserStatus{};
-      parser.parseDefinitions(status);
-    }(),
-    Catch::Matchers::StartsWith("At line 3, column 8:"));
+  auto status = TestParserStatus{};
+  CHECK(parser.parseDefinitions(status).is_error());
 }
 
 TEST_CASE("FgdParserTest.parseErrorAfterModel")
@@ -962,12 +958,8 @@ model({"path"
 
   auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  CHECK_THROWS_WITH(
-    [&]() {
-      auto status = TestParserStatus{};
-      parser.parseDefinitions(status);
-    }(),
-    Catch::Matchers::StartsWith("At line 4, column 64:"));
+  auto status = TestParserStatus{};
+  CHECK(parser.parseDefinitions(status).is_error());
 }
 
 TEST_CASE("FgdParserTest.parseInclude")
@@ -981,13 +973,12 @@ TEST_CASE("FgdParserTest.parseInclude")
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
-  CHECK(defs.size() == 2u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "worldspawn";
-  }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "info_player_start";
-  }));
+  REQUIRE(defs.is_success());
+  CHECK(defs.value().size() == 2u);
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "info_player_start"; }));
 }
 
 TEST_CASE("FgdParserTest.parseNestedInclude")
@@ -1001,16 +992,14 @@ TEST_CASE("FgdParserTest.parseNestedInclude")
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
-  CHECK(defs.size() == 3u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "worldspawn";
-  }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "info_player_start";
-  }));
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "info_player_coop";
-  }));
+  REQUIRE(defs.is_success());
+  CHECK(defs.value().size() == 3u);
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "info_player_start"; }));
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "info_player_coop"; }));
 }
 
 TEST_CASE("FgdParserTest.parseRecursiveInclude")
@@ -1024,10 +1013,10 @@ TEST_CASE("FgdParserTest.parseRecursiveInclude")
 
   auto status = TestParserStatus{};
   auto defs = parser.parseDefinitions(status);
-  CHECK(defs.size() == 1u);
-  CHECK(std::any_of(std::begin(defs), std::end(defs), [](const auto& def) {
-    return def->name() == "worldspawn";
-  }));
+  REQUIRE(defs.is_success());
+  CHECK(defs.value().size() == 1u);
+  CHECK(std::ranges::any_of(
+    defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
 }
 
 TEST_CASE("FgdParserTest.parseStringContinuations")
@@ -1043,9 +1032,9 @@ TEST_CASE("FgdParserTest.parseStringContinuations")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions.front();
+  const auto& definition = *definitions.value().front();
   CHECK(
     definition.description()
     == R"(This is an example description for this example entity. It will appear in the help dialog for this entity)");

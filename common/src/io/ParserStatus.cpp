@@ -19,9 +19,9 @@
 
 #include "ParserStatus.h"
 
-#include "Exceptions.h"
 #include "FileLocation.h"
 #include "Logger.h"
+#include "io/ParserException.h"
 
 #include <cassert>
 #include <sstream>
