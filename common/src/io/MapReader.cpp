@@ -80,26 +80,27 @@ MapReader::MapReader(
 {
 }
 
-void MapReader::readEntities(
+Result<void> MapReader::readEntities(
   const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
   m_worldBounds = worldBounds;
-  parseEntities(status);
-  createNodes(status, taskManager);
+  return parseEntities(status)
+         | kdl::transform([&]() { createNodes(status, taskManager); });
 }
 
-void MapReader::readBrushes(
+Result<void> MapReader::readBrushes(
   const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
   m_worldBounds = worldBounds;
-  parseBrushesOrPatches(status);
-  createNodes(status, taskManager);
+  return parseBrushesOrPatches(status)
+         | kdl::transform([&]() { createNodes(status, taskManager); });
 }
 
-void MapReader::readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status)
+Result<void> MapReader::readBrushFaces(
+  const vm::bbox3d& worldBounds, ParserStatus& status)
 {
   m_worldBounds = worldBounds;
-  parseBrushFaces(status);
+  return parseBrushFaces(status);
 }
 
 // implement MapParser interface

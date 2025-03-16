@@ -185,31 +185,58 @@ StandardMapParser::StandardMapParser(
 
 StandardMapParser::~StandardMapParser() = default;
 
-void StandardMapParser::parseEntities(ParserStatus& status)
+Result<void> StandardMapParser::parseEntities(ParserStatus& status)
 {
-  while (m_tokenizer.peekToken(QuakeMapToken::OBrace | QuakeMapToken::Eof)
-           .hasType(QuakeMapToken::OBrace))
+  try
   {
-    parseEntity(status);
+    while (m_tokenizer.peekToken(QuakeMapToken::OBrace | QuakeMapToken::Eof)
+             .hasType(QuakeMapToken::OBrace))
+    {
+      parseEntity(status);
+    }
+
+    return kdl::void_success;
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
   }
 }
 
-void StandardMapParser::parseBrushesOrPatches(ParserStatus& status)
+Result<void> StandardMapParser::parseBrushesOrPatches(ParserStatus& status)
 {
-  while (m_tokenizer.peekToken(QuakeMapToken::OBrace | QuakeMapToken::Eof)
-           .hasType(QuakeMapToken::OBrace))
+  try
   {
-    parseObject(status);
+    while (m_tokenizer.peekToken(QuakeMapToken::OBrace | QuakeMapToken::Eof)
+             .hasType(QuakeMapToken::OBrace))
+    {
+      parseObject(status);
+    }
+
+    return kdl::void_success;
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
   }
 }
 
-void StandardMapParser::parseBrushFaces(ParserStatus& status)
+Result<void> StandardMapParser::parseBrushFaces(ParserStatus& status)
 {
-  while (m_tokenizer.peekToken(QuakeMapToken::OParenthesis | QuakeMapToken::Eof)
-           .hasType(QuakeMapToken::OParenthesis))
+  try
   {
-    // TODO 2427: detect the face type when parsing Quake3 map faces!
-    parseFace(status, false);
+    while (m_tokenizer.peekToken(QuakeMapToken::OParenthesis | QuakeMapToken::Eof)
+             .hasType(QuakeMapToken::OParenthesis))
+    {
+      // TODO 2427: detect the face type when parsing Quake3 map faces!
+      parseFace(status, false);
+    }
+
+    return kdl::void_success;
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
   }
 }
 

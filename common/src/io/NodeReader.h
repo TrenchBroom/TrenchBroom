@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/MapReader.h"
 
 #include <string>
@@ -58,7 +59,7 @@ public:
     mdl::MapFormat targetMapFormat,
     const mdl::EntityPropertyConfig& entityPropertyConfig);
 
-  static std::vector<mdl::Node*> read(
+  static Result<std::vector<mdl::Node*>> read(
     const std::string& str,
     mdl::MapFormat preferredMapFormat,
     const vm::bbox3d& worldBounds,
@@ -67,7 +68,7 @@ public:
     kdl::task_manager& taskManager);
 
 private:
-  static std::vector<mdl::Node*> readAsFormat(
+  static Result<std::vector<mdl::Node*>> readAsFormat(
     mdl::MapFormat sourceMapFormat,
     mdl::MapFormat targetMapFormat,
     const std::string& str,

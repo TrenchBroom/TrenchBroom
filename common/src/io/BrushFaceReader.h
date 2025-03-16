@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/MapReader.h"
 
 #include <string_view>
@@ -49,7 +50,8 @@ private:
 public:
   BrushFaceReader(std::string_view str, mdl::MapFormat sourceAndTargetMapFormat);
 
-  std::vector<mdl::BrushFace> read(const vm::bbox3d& worldBounds, ParserStatus& status);
+  Result<std::vector<mdl::BrushFace>> read(
+    const vm::bbox3d& worldBounds, ParserStatus& status);
 
 private: // implement MapReader interface
   mdl::Node* onWorldNode(

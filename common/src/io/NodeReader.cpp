@@ -19,7 +19,6 @@
 
 #include "NodeReader.h"
 
-#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
@@ -45,7 +44,7 @@ NodeReader::NodeReader(
 {
 }
 
-std::vector<mdl::Node*> NodeReader::read(
+Result<std::vector<mdl::Node*>> NodeReader::read(
   const std::string& str,
   const mdl::MapFormat preferredMapFormat,
   const vm::bbox3d& worldBounds,
@@ -64,18 +63,20 @@ std::vector<mdl::Node*> NodeReader::read(
           entityPropertyConfig,
           status,
           taskManager);
-        !result.empty())
+        result.is_success())
     {
-      for (const auto& error : mdl::initializeLinkIds(result))
-      {
-        status.error("Could not restore linked groups: " + error.msg);
-      }
-      return result;
+      return std::move(result) | kdl::transform([&](auto nodes) {
+               for (const auto& error : mdl::initializeLinkIds(nodes))
+               {
+                 status.error("Could not restore linked groups: " + error.msg);
+               }
+               return nodes;
+             });
     }
   }
 
   // All formats failed
-  return {};
+  return Error{"Could not parse map data"};
 }
 
 /**
@@ -87,7 +88,7 @@ std::vector<mdl::Node*> NodeReader::read(
  *
  * @returns the parsed nodes; caller is responsible for freeing them.
  */
-std::vector<mdl::Node*> NodeReader::readAsFormat(
+Result<std::vector<mdl::Node*>> NodeReader::readAsFormat(
   const mdl::MapFormat sourceMapFormat,
   const mdl::MapFormat targetMapFormat,
   const std::string& str,
@@ -96,42 +97,37 @@ std::vector<mdl::Node*> NodeReader::readAsFormat(
   ParserStatus& status,
   kdl::task_manager& taskManager)
 {
-  {
-    auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
-    try
-    {
-      reader.readEntities(worldBounds, status, taskManager);
-      status.info(
-        "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " entities");
-      return reader.m_nodes;
-    }
-    catch (const ParserException& e)
-    {
-      status.info(
-        "Couldn't parse as " + mdl::formatName(sourceMapFormat)
-        + " entities: " + e.what());
-      kdl::vec_clear_and_delete(reader.m_nodes);
-    }
-  }
+  auto entityReader =
+    NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
+  return entityReader.readEntities(worldBounds, status, taskManager)
+         | kdl::transform([&]() {
+             status.info(
+               "Parsed successfully as " + mdl::formatName(sourceMapFormat)
+               + " entities");
+             return entityReader.m_nodes;
+           })
+         | kdl::or_else([&](const auto& entityReaderError) {
+             status.info(
+               "Couldn't parse as " + mdl::formatName(sourceMapFormat)
+               + " entities: " + entityReaderError.msg);
+             kdl::vec_clear_and_delete(entityReader.m_nodes);
 
-  {
-    auto reader = NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
-    try
-    {
-      reader.readBrushes(worldBounds, status, taskManager);
-      status.info(
-        "Parsed successfully as " + mdl::formatName(sourceMapFormat) + " brushes");
-      return reader.m_nodes;
-    }
-    catch (const ParserException& e)
-    {
-      status.info(
-        "Couldn't parse as " + mdl::formatName(sourceMapFormat)
-        + " brushes: " + e.what());
-      kdl::vec_clear_and_delete(reader.m_nodes);
-    }
-  }
-  return {};
+             auto brushReader =
+               NodeReader{str, sourceMapFormat, targetMapFormat, entityPropertyConfig};
+             return brushReader.readBrushes(worldBounds, status, taskManager)
+                    | kdl::transform([&]() {
+                        status.info(
+                          "Parsed successfully as " + mdl::formatName(sourceMapFormat)
+                          + " brushes");
+                        return brushReader.m_nodes;
+                      })
+                    | kdl::if_error([&](const auto& brushReaderError) {
+                        status.info(
+                          "Couldn't parse as " + mdl::formatName(sourceMapFormat)
+                          + " brushes: " + brushReaderError.msg);
+                        kdl::vec_clear_and_delete(brushReader.m_nodes);
+                      });
+           });
 }
 
 mdl::Node* NodeReader::onWorldNode(std::unique_ptr<mdl::WorldNode>, ParserStatus&)

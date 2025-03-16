@@ -24,14 +24,12 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
-#include "mdl/HitAdapter.h"
 #include "mdl/MapFormat.h"
 
+#include "kdl/collection_utils.h"
 #include "kdl/task_manager.h"
-#include "kdl/vector_utils.h"
 
 #include <string>
-#include <vector>
 
 #include "Catch2.h"
 
@@ -63,9 +61,11 @@ TEST_CASE("BrushNode_Regression")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
 
-    kdl::vec_clear_and_delete(nodes);
+    CHECK(nodes.value().size() == 1u);
+
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1185")
@@ -87,9 +87,10 @@ TEST_CASE("BrushNode_Regression")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1697")
@@ -193,9 +194,10 @@ TEST_CASE("BrushNode_Regression")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1194")
@@ -214,9 +216,10 @@ TEST_CASE("BrushNode_Regression")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    CHECK(nodes.empty());
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().empty());
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1332")
@@ -249,7 +252,7 @@ TEST_CASE("BrushNode_Regression")
       {},
       status,
       taskManager); // assertion failure
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1395")
@@ -300,7 +303,7 @@ TEST_CASE("BrushNode_Regression")
       {},
       status,
       taskManager); // assertion failure
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_1801")
@@ -328,7 +331,7 @@ TEST_CASE("BrushNode_Regression")
       {},
       status,
       taskManager); // assertion failure
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("buildBrush_2361")
@@ -547,17 +550,19 @@ TEST_CASE("BrushNode_Regression")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
-    CHECK(nodes.at(0)->hasChildren());
-    CHECK(nodes.at(0)->children().size() == 2u);
+    REQUIRE(nodes.is_success());
 
-    auto* pipe = static_cast<BrushNode*>(nodes.at(0)->children().at(0));
-    auto* cube = static_cast<BrushNode*>(nodes.at(0)->children().at(1));
+    CHECK(nodes.value().size() == 1u);
+    CHECK(nodes.value().at(0)->hasChildren());
+    CHECK(nodes.value().at(0)->children().size() == 2u);
+
+    auto* pipe = static_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
+    auto* cube = static_cast<BrushNode*>(nodes.value().at(0)->children().at(1));
 
     CHECK(pipe->intersects(cube));
     CHECK(cube->intersects(pipe));
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 }
 

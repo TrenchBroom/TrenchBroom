@@ -40,26 +40,20 @@ namespace tb::io
 {
 namespace
 {
-std::string formatParserExceptions(
-  const std::vector<std::tuple<mdl::MapFormat, std::string>>& parserExceptions)
+
+std::string formatParserErrors(
+  const std::vector<std::tuple<mdl::MapFormat, std::string>>& errors)
 {
   auto result = std::stringstream{};
-  for (const auto& [mapFormat, message] : parserExceptions)
+  for (const auto& [mapFormat, message] : errors)
   {
     result << "Error parsing as " << mdl::formatName(mapFormat) << ": " << message
            << "\n";
   }
   return result.str();
 }
+
 } // namespace
-
-WorldReaderException::WorldReaderException() = default;
-
-WorldReaderException::WorldReaderException(
-  const std::vector<std::tuple<mdl::MapFormat, std::string>>& parserExceptions)
-  : Exception{formatParserExceptions(parserExceptions)}
-{
-}
 
 WorldReader::WorldReader(
   std::string_view str,
@@ -72,7 +66,7 @@ WorldReader::WorldReader(
   m_worldNode->disableNodeTreeUpdates();
 }
 
-std::unique_ptr<mdl::WorldNode> WorldReader::tryRead(
+Result<std::unique_ptr<mdl::WorldNode>> WorldReader::tryRead(
   std::string_view str,
   const std::vector<mdl::MapFormat>& mapFormatsToTry,
   const vm::bbox3d& worldBounds,
@@ -80,7 +74,7 @@ std::unique_ptr<mdl::WorldNode> WorldReader::tryRead(
   ParserStatus& status,
   kdl::task_manager& taskManager)
 {
-  auto parserExceptions = std::vector<std::tuple<mdl::MapFormat, std::string>>{};
+  auto parserErrors = std::vector<std::tuple<mdl::MapFormat, std::string>>{};
 
   for (const auto mapFormat : mapFormatsToTry)
   {
@@ -89,24 +83,27 @@ std::unique_ptr<mdl::WorldNode> WorldReader::tryRead(
       continue;
     }
 
-    try
+    auto reader = WorldReader{str, mapFormat, entityPropertyConfig};
+    if (auto result = reader.read(worldBounds, status, taskManager); result.is_success())
     {
-      auto reader = WorldReader{str, mapFormat, entityPropertyConfig};
-      return reader.read(worldBounds, status, taskManager);
+      return result;
     }
-    catch (const ParserException& e)
+    else
     {
-      parserExceptions.emplace_back(mapFormat, std::string{e.what()});
+      std::visit(
+        [&](const auto& e) { parserErrors.emplace_back(mapFormat, e.msg); },
+        result.error());
     }
   }
 
-  if (!parserExceptions.empty())
+  if (!parserErrors.empty())
   {
-    // No format parsed successfully. Just throw the parse error from the last one.
-    throw WorldReaderException{parserExceptions};
+    // No format parsed successfully. Just return the parse error from the last one.
+    return Error{formatParserErrors(parserErrors)};
   }
+
   // mapFormatsToTry was empty or all elements were mdl::MapFormat::Unknown
-  throw WorldReaderException{{{mdl::MapFormat::Unknown, "No valid formats to parse as"}}};
+  return Error{"No valid formats to parse as"};
 }
 
 namespace
@@ -173,15 +170,16 @@ void setLinkIds(mdl::WorldNode& worldNode, ParserStatus& status)
 
 } // namespace
 
-std::unique_ptr<mdl::WorldNode> WorldReader::read(
+Result<std::unique_ptr<mdl::WorldNode>> WorldReader::read(
   const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager)
 {
-  readEntities(worldBounds, status, taskManager);
-  sanitizeLayerSortIndicies(*m_worldNode, status);
-  setLinkIds(*m_worldNode, status);
-  m_worldNode->rebuildNodeTree();
-  m_worldNode->enableNodeTreeUpdates();
-  return std::move(m_worldNode);
+  return readEntities(worldBounds, status, taskManager) | kdl::transform([&]() {
+           sanitizeLayerSortIndicies(*m_worldNode, status);
+           setLinkIds(*m_worldNode, status);
+           m_worldNode->rebuildNodeTree();
+           m_worldNode->enableNodeTreeUpdates();
+           return std::move(m_worldNode);
+         });
 }
 
 mdl::Node* WorldReader::onWorldNode(

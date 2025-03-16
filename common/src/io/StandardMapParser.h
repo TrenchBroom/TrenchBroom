@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/MapParser.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
@@ -104,9 +105,9 @@ public:
   ~StandardMapParser() override;
 
 protected:
-  void parseEntities(ParserStatus& status);
-  void parseBrushesOrPatches(ParserStatus& status);
-  void parseBrushFaces(ParserStatus& status);
+  Result<void> parseEntities(ParserStatus& status);
+  Result<void> parseBrushesOrPatches(ParserStatus& status);
+  Result<void> parseBrushFaces(ParserStatus& status);
 
   void reset();
 

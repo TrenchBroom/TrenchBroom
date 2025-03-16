@@ -65,14 +65,6 @@ private:
 public:
   explicit Quake3ShaderParser(std::string_view str);
 
-  /**
-   * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.
-   *
-   * @return the value of the qer_editorimage entry or an empty string if no such value
-   * was found
-   *
-   * @throws ParserException if the shader is not well-formed
-   */
   Result<std::vector<mdl::Quake3Shader>> parse(ParserStatus& status);
 
 private:
