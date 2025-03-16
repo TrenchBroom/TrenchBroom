@@ -43,20 +43,20 @@ using V = Value;
 Value evaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
-  return io::ELParser::parseStrict(expression).evaluate(context);
+  return io::ELParser::parseStrict(expression).value().evaluate(context);
 }
 
 Value tryEvaluate(const std::string& expression, const MapType& variables = {})
 {
   const auto context = EvaluationContext{VariableTable{variables}};
-  return io::ELParser::parseStrict(expression).evaluate(context);
+  return io::ELParser::parseStrict(expression).value().evaluate(context);
 }
 
 std::vector<std::string> preorderVisit(const std::string& str)
 {
   auto result = std::vector<std::string>{};
 
-  io::ELParser::parseStrict(str).accept(kdl::overload(
+  io::ELParser::parseStrict(str).value().accept(kdl::overload(
     [&](const LiteralExpression& literalExpression) {
       result.push_back(fmt::format("{}", fmt::streamed(literalExpression)));
     },
@@ -1204,7 +1204,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK(io::ELParser::parseStrict(expression).optimize() == expectedExpression);
+    CHECK(io::ELParser::parseStrict(expression).value().optimize() == expectedExpression);
   }
 
   SECTION("accept")

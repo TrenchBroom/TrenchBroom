@@ -23,8 +23,10 @@
 #include "el/Value.h"
 #include "io/ELParser.h"
 
+#include "kdl/result_fold.h"
 #include "kdl/string_utils.h"
 
+#include <ranges>
 #include <sstream>
 #include <string>
 
@@ -34,7 +36,8 @@ namespace tb::el
 namespace
 {
 
-auto findExpressions(std::string_view str)
+Result<std::vector<std::tuple<std::size_t, std::size_t>>> findExpressions(
+  std::string_view str)
 {
   auto result = std::vector<std::tuple<std::size_t, std::size_t>>{};
   size_t totalOffset = 0;
@@ -42,7 +45,7 @@ auto findExpressions(std::string_view str)
   {
     if (!part->length)
     {
-      throw ParserException{FileLocation{0, part->start}, "Unterminated expression"};
+      return Error{fmt::format("At position {}: Unterminated expression", part->start)};
     }
 
     result.emplace_back(totalOffset + part->start, *part->length);
@@ -54,47 +57,57 @@ auto findExpressions(std::string_view str)
 
 auto parseExpressions(
   const std::string_view str,
-  const std::vector<std::tuple<std::size_t, std::size_t>>& expressionsPositions)
+  const std::vector<std::tuple<std::size_t, std::size_t>>& expressionPositions)
 {
-  auto result = std::vector<el::ExpressionNode>{};
-  result.reserve(expressionsPositions.size());
-  for (const auto& [start, length] : expressionsPositions)
-  {
-    const auto expressionStr = str.substr(start + 2, length - 3);
-    auto parser = io::ELParser{io::ELParser::Mode::Strict, expressionStr};
-    result.push_back(parser.parse());
-  }
-  return result;
+  return expressionPositions | std::views::transform([&](const auto& expressionPosition) {
+           const auto [start, length] = expressionPosition;
+           const auto expressionStr = str.substr(start + 2, length - 3);
+           auto parser = io::ELParser{io::ELParser::Mode::Strict, expressionStr};
+           return parser.parse();
+         })
+         | kdl::fold;
 }
 
 auto evaluateExpressions(
   const std::vector<el::ExpressionNode>& expressions, const EvaluationContext& context)
 {
-  auto result = std::vector<el::Value>{};
-  result.reserve(expressions.size());
-  for (const auto& expression : expressions)
-  {
-    result.push_back(expression.evaluate(context));
-  }
-  return result;
+  return expressions
+         | std::views::transform([&](const auto& expression) -> Result<el::Value> {
+             try
+             {
+               return expression.evaluate(context);
+             }
+             catch (const Exception& e)
+             {
+               return Error{e.what()};
+             }
+           })
+         | kdl::fold;
 }
 
-auto substituteValues(
+Result<std::string> substituteValues(
   const std::string_view str,
   const std::vector<std::tuple<std::size_t, std::size_t>>& expressionsPositions,
   const std::vector<el::Value>& values)
 {
-  auto result = std::stringstream{};
-  std::size_t previousEnd = 0;
-  for (std::size_t i = 0; i < expressionsPositions.size(); ++i)
+  try
   {
-    const auto [start, length] = expressionsPositions[i];
-    result << str.substr(previousEnd, start - previousEnd);
-    result << values[i].convertTo(el::ValueType::String).stringValue();
-    previousEnd = start + length;
+    auto result = std::stringstream{};
+    std::size_t previousEnd = 0;
+    for (std::size_t i = 0; i < expressionsPositions.size(); ++i)
+    {
+      const auto [start, length] = expressionsPositions[i];
+      result << str.substr(previousEnd, start - previousEnd);
+      result << values[i].convertTo(el::ValueType::String).stringValue();
+      previousEnd = start + length;
+    }
+    result << str.substr(previousEnd);
+    return result.str();
   }
-  result << str.substr(previousEnd);
-  return result.str();
+  catch (const Exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace
@@ -102,17 +115,15 @@ auto substituteValues(
 Result<std::string> interpolate(
   const std::string_view str, const EvaluationContext& context)
 {
-  try
-  {
-    const auto expressionsPositions = findExpressions(str);
-    const auto expressions = parseExpressions(str, expressionsPositions);
-    const auto values = evaluateExpressions(expressions, context);
-    return substituteValues(str, expressionsPositions, values);
-  }
-  catch (const Exception& e)
-  {
-    return Error{e.what()};
-  }
+  return findExpressions(str) | kdl::and_then([&](const auto& expressionPositions) {
+           return parseExpressions(str, expressionPositions)
+                  | kdl::and_then([&](const auto& expressions) {
+                      return evaluateExpressions(expressions, context);
+                    })
+                  | kdl::and_then([&](const auto& values) {
+                      return substituteValues(str, expressionPositions, values);
+                    });
+         });
 }
 
 } // namespace tb::el

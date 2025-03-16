@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/EL_Forward.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
@@ -62,7 +63,7 @@ public:
   TokenizerState tokenizerState() const;
 
 public:
-  el::ExpressionNode parse(ParserStatus& status);
+  Result<el::ExpressionNode> parse(ParserStatus& status);
 
 private:
   el::ExpressionNode parseModelDefinition(ParserStatus& status);

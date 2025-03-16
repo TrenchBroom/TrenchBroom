@@ -18,7 +18,6 @@
  */
 
 #include "el/ELTestUtils.h"
-#include "el/Expression.h"
 #include "io/ELParser.h"
 
 #include <string>
@@ -43,16 +42,16 @@ TEST_CASE("ELParser")
 {
   SECTION("emptyExpression")
   {
-    CHECK_THROWS_AS(parse(""), ParserException);
-    CHECK_THROWS_AS(parse("    "), ParserException);
-    CHECK_THROWS_AS(parse("\n"), ParserException);
+    CHECK(parse("").is_error());
+    CHECK(parse("    ").is_error());
+    CHECK(parse("\n").is_error());
   }
 
   SECTION("Literals")
   {
     SECTION("Strings")
     {
-      CHECK_THROWS_AS(parse(R"("asdf)"), ParserException);
+      CHECK(parse(R"("asdf)").is_error());
       CHECK(parse(R"("asdf")") == lit("asdf"));
       // MSVC complains about an illegal escape sequence if we use a raw string literal
       // for the expression
@@ -61,7 +60,7 @@ TEST_CASE("ELParser")
 
     SECTION("Numbers")
     {
-      CHECK_THROWS_AS(parse("1.123.34"), ParserException);
+      CHECK(parse("1.123.34").is_error());
 
       CHECK(parse("1") == lit(1.0));
       CHECK(parse("1.0") == lit(1.0));
@@ -115,13 +114,12 @@ TEST_CASE("ELParser")
           {"outerkey2", lit("asdf")},
         }));
 
-      CHECK_THROWS_AS(
-        parse(R"({
+      CHECK(parse(R"({
   "profiles": [],
   "version": 1
 }
-asdf)"),
-        ParserException);
+asdf)")
+              .is_error());
     }
   }
 
@@ -152,8 +150,8 @@ asdf)"),
     SECTION("Bitwise negation")
     {
       CHECK(parse("~393") == bitNeg(lit(393)));
-      CHECK_THROWS_AS(parse("~"), ParserException);
-      CHECK_THROWS_AS(parse("~~"), ParserException);
+      CHECK(parse("~").is_error());
+      CHECK(parse("~~").is_error());
     }
   }
 
@@ -214,7 +212,7 @@ asdf)"),
     SECTION("Bitwise xor")
     {
       CHECK(parse("23 ^ 24") == bitXOr(lit(23), lit(24)));
-      CHECK_THROWS_AS(parse("23 ^^ 23"), ParserException);
+      CHECK(parse("23 ^^ 23").is_error());
     }
 
     SECTION("Bitwise shift left")
@@ -307,7 +305,7 @@ asdf)"),
 
   SECTION("Groups")
   {
-    CHECK_THROWS_AS(parse("()"), ParserException);
+    CHECK(parse("()").is_error());
     CHECK(parse("(1)") == grp(lit(1)));
     CHECK(parse("(2+1)*3") == mul(grp(add(lit(2), lit(1))), lit(3)));
     CHECK(

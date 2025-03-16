@@ -118,9 +118,16 @@ TokenizerState LegacyModelDefinitionParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-el::ExpressionNode LegacyModelDefinitionParser::parse(ParserStatus& status)
+Result<el::ExpressionNode> LegacyModelDefinitionParser::parse(ParserStatus& status)
 {
-  return parseModelDefinition(status);
+  try
+  {
+    return parseModelDefinition(status);
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 el::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status)

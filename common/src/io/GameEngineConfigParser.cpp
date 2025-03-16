@@ -22,7 +22,6 @@
 #include "Macros.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
-#include "el/Expression.h"
 #include "el/Value.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
@@ -70,26 +69,30 @@ GameEngineConfigParser::GameEngineConfigParser(
 
 Result<mdl::GameEngineConfig> GameEngineConfigParser::parse()
 {
-  try
-  {
-    const auto context = el::EvaluationContext{};
-    auto trace = el::EvaluationTrace{};
+  return parseConfigFile()
+         | kdl::and_then([&](const auto& expression) -> Result<mdl::GameEngineConfig> {
+             try
+             {
+               const auto context = el::EvaluationContext{};
+               auto trace = el::EvaluationTrace{};
 
-    const auto root = parseConfigFile().evaluate(context, trace);
-    expectType(root, trace, el::ValueType::Map);
+               const auto root = expression.evaluate(context, trace);
+               expectType(root, trace, el::ValueType::Map);
 
-    expectStructure(root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+               expectStructure(
+                 root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-    const auto version = root["version"].numberValue();
-    unused(version);
-    assert(version == 1.0);
+               const auto version = root["version"].numberValue();
+               unused(version);
+               assert(version == 1.0);
 
-    return mdl::GameEngineConfig{parseProfiles(root["profiles"], trace)};
-  }
-  catch (const Exception& e)
-  {
-    return Error{e.what()};
-  }
+               return mdl::GameEngineConfig{parseProfiles(root["profiles"], trace)};
+             }
+             catch (const Exception& e)
+             {
+               return Error{e.what()};
+             }
+           });
 }
 
 } // namespace tb::io

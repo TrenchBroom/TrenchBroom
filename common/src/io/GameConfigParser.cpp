@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
-#include "el/Expression.h"
 #include "el/Value.h"
 #include "mdl/GameConfig.h"
 #include "mdl/Tag.h"
@@ -654,54 +653,59 @@ Result<mdl::GameConfig> GameConfigParser::parse()
 {
   using mdl::GameConfig;
 
-  try
-  {
-    const auto evaluationContext = el::EvaluationContext{};
-    auto trace = el::EvaluationTrace{};
+  return parseConfigFile()
+         | kdl::and_then([&](const auto& expression) -> Result<mdl::GameConfig> {
+             try
+             {
+               const auto evaluationContext = el::EvaluationContext{};
+               auto trace = el::EvaluationTrace{};
+               const auto root = expression.evaluate(evaluationContext, trace);
 
-    const auto root = parseConfigFile().evaluate(evaluationContext, trace);
-    expectType(root, trace, el::ValueType::Map);
+               expectType(root, trace, el::ValueType::Map);
 
-    expectStructure(
-      root,
-      trace,
-      R"([
-      {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'materials': 'Map', 'entities': 'Map'},
-      {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
-    ])");
+               expectStructure(
+                 root,
+                 trace,
+                 R"([
+               {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'materials': 'Map', 'entities': 'Map'},
+               {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
+             ])");
 
-    const auto& version = root["version"];
-    checkVersion(version, trace);
-    m_version = version.integerValue();
+               const auto& version = root["version"];
+               checkVersion(version, trace);
+               m_version = version.integerValue();
 
-    auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"], trace);
-    auto fileSystemConfig = parseFileSystemConfig(root["filesystem"], trace);
-    auto materialConfig = parseMaterialConfig(root["materials"], trace);
-    auto entityConfig = parseEntityConfig(root["entities"], trace);
-    auto faceAttribsConfig = parseFaceAttribsConfig(root["faceattribs"], trace);
-    auto tags = parseTags(root["tags"], trace, faceAttribsConfig);
-    auto softMapBounds = parseSoftMapBounds(root["softMapBounds"], trace);
-    auto compilationTools = parseCompilationTools(root["compilationTools"], trace);
+               auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"], trace);
+               auto fileSystemConfig = parseFileSystemConfig(root["filesystem"], trace);
+               auto materialConfig = parseMaterialConfig(root["materials"], trace);
+               auto entityConfig = parseEntityConfig(root["entities"], trace);
+               auto faceAttribsConfig =
+                 parseFaceAttribsConfig(root["faceattribs"], trace);
+               auto tags = parseTags(root["tags"], trace, faceAttribsConfig);
+               auto softMapBounds = parseSoftMapBounds(root["softMapBounds"], trace);
+               auto compilationTools =
+                 parseCompilationTools(root["compilationTools"], trace);
 
-    return GameConfig{
-      root["name"].stringValue(),
-      m_path,
-      std::filesystem::path{root["icon"].stringValue()},
-      root["experimental"].booleanValue(),
-      std::move(mapFormatConfigs),
-      std::move(fileSystemConfig),
-      std::move(materialConfig),
-      std::move(entityConfig),
-      std::move(faceAttribsConfig),
-      std::move(tags),
-      std::move(softMapBounds),
-      std::move(compilationTools),
-    };
-  }
-  catch (const Exception& e)
-  {
-    return Error{e.what()};
-  }
+               return GameConfig{
+                 root["name"].stringValue(),
+                 m_path,
+                 std::filesystem::path{root["icon"].stringValue()},
+                 root["experimental"].booleanValue(),
+                 std::move(mapFormatConfigs),
+                 std::move(fileSystemConfig),
+                 std::move(materialConfig),
+                 std::move(entityConfig),
+                 std::move(faceAttribsConfig),
+                 std::move(tags),
+                 std::move(softMapBounds),
+                 std::move(compilationTools),
+               };
+             }
+             catch (const Exception& e)
+             {
+               return Error{e.what()};
+             }
+           });
 }
 
 std::optional<vm::bbox3d> parseSoftMapBoundsString(const std::string& string)

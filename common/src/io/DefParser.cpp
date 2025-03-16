@@ -21,10 +21,9 @@
 
 #include "Exceptions.h"
 #include "FileLocation.h"
-#include "el/ELExceptions.h"
-#include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/LegacyModelDefinitionParser.h"
+#include "io/ParseModelDefinition.h"
 #include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/ModelDefinition.h"
@@ -384,55 +383,9 @@ mdl::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)
 {
   m_tokenizer.nextToken(DefToken::OParenthesis);
 
-  const auto snapshot = m_tokenizer.snapshot();
-  const auto line = m_tokenizer.line();
-  const auto column = m_tokenizer.column();
-  const auto location = m_tokenizer.location();
-
-  try
-  {
-    auto parser =
-      ELParser{ELParser::Mode::Lenient, m_tokenizer.remainder(), line, column};
-    auto expression = parser.parse();
-
-    // advance our tokenizer by the amount that the `parser` parsed
-    m_tokenizer.adoptState(parser.tokenizerState());
-    m_tokenizer.nextToken(DefToken::CParenthesis);
-
-    expression.optimize();
-    return mdl::ModelDefinition{std::move(expression)};
-  }
-  catch (const ParserException& e)
-  {
-    try
-    {
-      m_tokenizer.restore(snapshot);
-
-      auto parser = LegacyModelDefinitionParser{m_tokenizer.remainder(), line, column};
-      auto expression = parser.parse(status);
-
-      // advance our tokenizer by the amount that `parser` parsed
-      m_tokenizer.adoptState(parser.tokenizerState());
-      m_tokenizer.nextToken(DefToken::CParenthesis);
-
-      expression.optimize();
-      status.warn(
-        location,
-        fmt::format(
-          "Legacy model expressions are deprecated, replace with '{}'",
-          expression.asString()));
-      return mdl::ModelDefinition{std::move(expression)};
-    }
-    catch (const ParserException&)
-    {
-      m_tokenizer.restore(snapshot);
-      throw e;
-    }
-  }
-  catch (const el::EvaluationError& evaluationError)
-  {
-    throw ParserException{location, evaluationError.what()};
-  }
+  return io::parseModelDefinition(m_tokenizer, status, DefToken::CParenthesis)
+         | kdl::if_error([](const auto& e) { throw ParserException{e.msg}; })
+         | kdl::value();
 }
 
 std::string DefParser::parseDescription()

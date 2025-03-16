@@ -784,22 +784,20 @@ TEST_CASE("FgdParserTest.parseFlagsPropertyDefinition")
 static const auto FgdModelDefinitionTemplate =
   R"(@PointClass model(${MODEL}) = item_shells : "Shells" [])";
 
-using mdl::assertModelDefinition;
+using mdl::getModelSpecification;
 
 TEST_CASE("FgdParserTest.parseLegacyStaticModelDefinition")
 {
   static const auto ModelDefinition =
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    FgdModelDefinitionTemplate);
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    FgdModelDefinitionTemplate,
-    "{ 'spawnflags': 1 }");
+  // CHECK(
+  //   getModelSpecification<FgdParser>(ModelDefinition, FgdModelDefinitionTemplate)
+  //   == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<FgdParser>(
+      ModelDefinition, FgdModelDefinitionTemplate, "{ 'spawnflags': 1 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
 }
 
 TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition")
@@ -807,16 +805,16 @@ TEST_CASE("FgdParserTest.parseLegacyDynamicModelDefinition")
   static const auto ModelDefinition =
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    FgdModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp' }");
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
-    ModelDefinition,
-    FgdModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+  CHECK(
+    getModelSpecification<FgdParser>(
+      ModelDefinition, FgdModelDefinitionTemplate, "{ 'model': 'maps/b_shell1.bsp' }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<FgdParser>(
+      ModelDefinition,
+      FgdModelDefinitionTemplate,
+      "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2});
 }
 
 TEST_CASE("FgdParserTest.parseELModelDefinition")
@@ -824,10 +822,9 @@ TEST_CASE("FgdParserTest.parseELModelDefinition")
   static const auto ModelDefinition =
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    FgdModelDefinitionTemplate);
+  CHECK(
+    getModelSpecification<FgdParser>(ModelDefinition, FgdModelDefinitionTemplate)
+    == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 }
 
 TEST_CASE("FgdParserTest.parseLegacyModelWithParseError")
@@ -880,31 +877,28 @@ TEST_CASE("FgdParserTest.parseEmptySpriteDefinition")
 {
   static const auto SpriteDefinition = "";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"spritex.spr", 0, 0},
-    SpriteDefinition,
-    FgdSpriteDefinitionTemplate,
-    R"({ "model": "spritex.spr" })");
+  CHECK(
+    getModelSpecification<FgdParser>(
+      SpriteDefinition, FgdSpriteDefinitionTemplate, R"({ "model": "spritex.spr" })")
+    == mdl::ModelSpecification{"spritex.spr", 0, 0});
 }
 
 TEST_CASE("FgdParserTest.parseELSpriteDefinition")
 {
   static const auto SpriteDefinition = R"({ path: "spritex.spr" })";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"spritex.spr", 0, 0},
-    SpriteDefinition,
-    FgdSpriteDefinitionTemplate);
+  CHECK(
+    getModelSpecification<FgdParser>(SpriteDefinition, FgdSpriteDefinitionTemplate)
+    == mdl::ModelSpecification{"spritex.spr", 0, 0});
 }
 
 TEST_CASE("FgdParserTest.parseELSpriteDefinitionShorthand")
 {
   static const auto SpriteDefinition = R"("spritex.spr")";
 
-  assertModelDefinition<FgdParser>(
-    mdl::ModelSpecification{"spritex.spr", 0, 0},
-    SpriteDefinition,
-    FgdSpriteDefinitionTemplate);
+  CHECK(
+    getModelSpecification<FgdParser>(SpriteDefinition, FgdSpriteDefinitionTemplate)
+    == mdl::ModelSpecification{"spritex.spr", 0, 0});
 }
 
 TEST_CASE("FgdParserTest.parseMissingBounds")

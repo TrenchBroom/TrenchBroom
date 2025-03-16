@@ -378,22 +378,20 @@ static const auto DefModelDefinitionTemplate = R"(
   }
   */)";
 
-using mdl::assertModelDefinition;
+using mdl::getModelSpecification;
 
 TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
   static const auto ModelDefinition =
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate);
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'spawnflags': 1 }");
+  CHECK(
+    getModelSpecification<DefParser>(ModelDefinition, DefModelDefinitionTemplate)
+    == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition, DefModelDefinitionTemplate, "{ 'spawnflags': 1 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
 }
 
 TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
@@ -401,16 +399,16 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
   static const auto ModelDefinition =
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp' }");
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition, DefModelDefinitionTemplate, "{ 'model': 'maps/b_shell1.bsp' }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition,
+      DefModelDefinitionTemplate,
+      "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2});
 }
 
 TEST_CASE("DefParserTest.parseELModelDefinition")
@@ -418,10 +416,9 @@ TEST_CASE("DefParserTest.parseELModelDefinition")
   static const std::string ModelDefinition =
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate);
+  CHECK(
+    getModelSpecification<DefParser>(ModelDefinition, DefModelDefinitionTemplate)
+    == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 }
 
 TEST_CASE("DefParserTest.parseInvalidBounds")

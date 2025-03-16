@@ -34,10 +34,8 @@
 
 namespace tb::mdl
 {
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  io::EntityDefinitionParser& parser,
-  const std::string& entityPropertiesStr)
+ModelSpecification getModelSpecification(
+  io::EntityDefinitionParser& parser, const std::string& entityPropertiesStr)
 {
   auto status = io::TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
@@ -46,31 +44,28 @@ void assertModelDefinition(
   const auto& definition = *definitions[0];
   CHECK(definition.type() == EntityDefinitionType::PointEntity);
 
-  assertModelDefinition(expected, definition, entityPropertiesStr);
+  return getModelSpecification(definition, entityPropertiesStr);
 }
 
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  const EntityDefinition& definition,
-  const std::string& entityPropertiesStr)
+ModelSpecification getModelSpecification(
+  const EntityDefinition& definition, const std::string& entityPropertiesStr)
 {
   assert(definition.type() == EntityDefinitionType::PointEntity);
 
   const auto& pointDefinition = static_cast<const PointEntityDefinition&>(definition);
   const auto& modelDefinition = pointDefinition.modelDefinition();
-  assertModelDefinition(expected, modelDefinition, entityPropertiesStr);
+  return getModelSpecification(modelDefinition, entityPropertiesStr);
 }
 
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  const ModelDefinition& actual,
-  const std::string& entityPropertiesStr)
+ModelSpecification getModelSpecification(
+  const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+                                     .value()
                                      .evaluate(el::EvaluationContext{})
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
-  CHECK(actual.modelSpecification(variableStore) == expected);
+  return modelDefinition.modelSpecification(variableStore);
 }
 
 void assertDecalDefinition(
@@ -106,6 +101,7 @@ void assertDecalDefinition(
   const std::string& entityPropertiesStr)
 {
   const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+                                     .value()
                                      .evaluate(el::EvaluationContext{})
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};

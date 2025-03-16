@@ -38,7 +38,8 @@ TEST_CASE("EntityTest.modelScaleExpressionThrows")
     spawnflags & 1 ->   ":maps/b_bh10.bsp",
                         ":maps/b_bh25.bsp"
 }})"}
-                                 .parse();
+                                 .parse()
+                                 .value();
 
   auto definition = PointEntityDefinition{
     "some_name", Color{}, vm::bbox3d{32.0}, "", {}, ModelDefinition{modelExpression}, {}};

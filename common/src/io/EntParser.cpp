@@ -26,6 +26,7 @@
 #include "el/Value.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionClassInfo.h"
+#include "io/ParseModelDefinition.h"
 #include "io/ParserStatus.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
@@ -591,28 +592,21 @@ mdl::ModelDefinition parseModel(const tinyxml2::XMLElement& element)
   }
 
   const auto model = parseString(element, "model");
-  try
-  {
-    auto parser = ELParser{ELParser::Mode::Lenient, model};
-    auto expression = parser.parse();
-    expression.optimize();
-    return mdl::ModelDefinition{std::move(expression)};
-  }
-  catch (const ParserException&)
-  {
-    const auto lineNum = static_cast<size_t>(element.GetLineNum());
-    auto expression = el::ExpressionNode{
-      el::LiteralExpression{el::Value{el::MapType{{
-        {mdl::ModelSpecificationKeys::Path, el::Value{model}},
-      }}}},
-      FileLocation{lineNum}};
-    return mdl::ModelDefinition{std::move(expression)};
-  }
-  catch (const el::EvaluationError& evaluationError)
-  {
-    const auto line = static_cast<size_t>(element.GetLineNum());
-    throw ParserException{FileLocation{line}, evaluationError.what()};
-  }
+
+  auto parser = ELParser{ELParser::Mode::Lenient, model};
+  return parser.parse() | kdl::transform_error([&](auto) {
+           const auto lineNum = static_cast<size_t>(element.GetLineNum());
+           return el::ExpressionNode{
+             el::LiteralExpression{el::Value{el::MapType{{
+               {mdl::ModelSpecificationKeys::Path, el::Value{model}},
+             }}}},
+             FileLocation{lineNum}};
+         })
+         | kdl::and_then(io::optimizeModelExpression)
+         | kdl::transform(
+           [](auto expression) { return mdl::ModelDefinition{std::move(expression)}; })
+         | kdl::if_error([](const auto& e) { throw ParserException{e.msg}; })
+         | kdl::value();
 }
 
 EntityDefinitionClassInfo parsePointClassInfo(

@@ -329,24 +329,31 @@ TokenizerState ELParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-el::ExpressionNode ELParser::parseStrict(const std::string& str)
+Result<el::ExpressionNode> ELParser::parseStrict(const std::string& str)
 {
   return ELParser{Mode::Strict, str}.parse();
 }
 
-el::ExpressionNode ELParser::parseLenient(const std::string& str)
+Result<el::ExpressionNode> ELParser::parseLenient(const std::string& str)
 {
   return ELParser(Mode::Lenient, str).parse();
 }
 
-el::ExpressionNode ELParser::parse()
+Result<el::ExpressionNode> ELParser::parse()
 {
-  auto result = parseExpression();
-  if (m_mode == Mode::Strict)
+  try
   {
-    m_tokenizer.peekToken(ELToken::Eof); // avoid trailing garbage
+    auto result = parseExpression();
+    if (m_mode == Mode::Strict)
+    {
+      m_tokenizer.peekToken(ELToken::Eof); // avoid trailing garbage
+    }
+    return result;
   }
-  return result;
+  catch (const Exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 el::ExpressionNode ELParser::parseExpression()
