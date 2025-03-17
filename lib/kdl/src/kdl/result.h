@@ -929,6 +929,11 @@ public:
   }
 
   /**
+   * Silence warnings about unused results.
+   */
+  void ignore() const {}
+
+  /**
    * Indicates whether the given result contains a value.
    */
   bool is_success() const { return m_value.index() == 0u; }
@@ -1535,6 +1540,11 @@ public:
   }
 
   /**
+   * Silence warnings about unused results.
+   */
+  void ignore() const {}
+
+  /**
    * Indicates whether the given result contains a value.
    */
   bool is_success() const { return m_value.index() == 0u; }
@@ -2122,6 +2132,11 @@ public:
   }
 
   /**
+   * Silence warnings about unused results.
+   */
+  void ignore() const {}
+
+  /**
    * Indicates whether this result is empty.
    */
   bool is_success() const
@@ -2256,6 +2271,16 @@ auto operator|(R&& r, const result_error&)
   return std::forward<R>(r).error();
 }
 
+struct result_ignore
+{
+};
+
+template <typename R>
+void operator|(R&&, const result_ignore&)
+{
+  static_assert(is_result_v<std::decay_t<R>>, "Can only pipe a result type");
+}
+
 struct result_is_success
 {
 };
@@ -2313,6 +2338,11 @@ auto value_or(T alternative)
 inline auto error()
 {
   return detail::result_error{};
+}
+
+inline auto ignore()
+{
+  return detail::result_ignore{};
 }
 
 inline auto is_success()
