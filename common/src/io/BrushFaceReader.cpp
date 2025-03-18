@@ -32,18 +32,11 @@ BrushFaceReader::BrushFaceReader(
 {
 }
 
-std::vector<mdl::BrushFace> BrushFaceReader::read(
+Result<std::vector<mdl::BrushFace>> BrushFaceReader::read(
   const vm::bbox3d& worldBounds, ParserStatus& status)
 {
-  try
-  {
-    readBrushFaces(worldBounds, status);
-    return std::move(m_brushFaces);
-  }
-  catch (const ParserException&)
-  {
-    throw;
-  }
+  return readBrushFaces(worldBounds, status)
+         | kdl::transform([&]() { return std::move(m_brushFaces); });
 }
 
 mdl::Node* BrushFaceReader::onWorldNode(std::unique_ptr<mdl::WorldNode>, ParserStatus&)

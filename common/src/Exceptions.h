@@ -19,10 +19,7 @@
 
 #pragma once
 
-#include "FileLocation.h"
-
 #include <exception>
-#include <optional>
 #include <string>
 
 namespace tb
@@ -38,14 +35,6 @@ public:
   explicit Exception(std::string str) noexcept;
 
   const char* what() const noexcept override;
-};
-
-class ParserException : public Exception
-{
-public:
-  using Exception::Exception;
-  explicit ParserException(
-    const std::optional<FileLocation>& location, const std::string& str = "");
 };
 
 class VboException : public Exception

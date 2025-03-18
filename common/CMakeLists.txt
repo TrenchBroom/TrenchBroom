@@ -6,7 +6,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationTrace.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
-        ${COMMON_SOURCE_DIR}/el/Interpolator.cpp
+        ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
         ${COMMON_SOURCE_DIR}/el/Types.cpp
         ${COMMON_SOURCE_DIR}/el/Value.cpp
         ${COMMON_SOURCE_DIR}/el/VariableStore.cpp
@@ -62,6 +62,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/io/NodeSerializer.cpp
         ${COMMON_SOURCE_DIR}/io/NodeWriter.cpp
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.cpp
+        ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.cpp
+        ${COMMON_SOURCE_DIR}/io/ParserException.cpp
         ${COMMON_SOURCE_DIR}/io/ParserStatus.cpp
         ${COMMON_SOURCE_DIR}/io/PathInfo.cpp
         ${COMMON_SOURCE_DIR}/io/PathMatcher.cpp
@@ -501,7 +503,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
         ${COMMON_SOURCE_DIR}/el/EvaluationTrace.h
         ${COMMON_SOURCE_DIR}/el/Expression.h
-        ${COMMON_SOURCE_DIR}/el/Interpolator.h
+        ${COMMON_SOURCE_DIR}/el/Interpolate.h
         ${COMMON_SOURCE_DIR}/el/Types.h
         ${COMMON_SOURCE_DIR}/el/Value.h
         ${COMMON_SOURCE_DIR}/el/VariableStore.h
@@ -558,7 +560,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/io/NodeSerializer.h
         ${COMMON_SOURCE_DIR}/io/NodeWriter.h
         ${COMMON_SOURCE_DIR}/io/ObjSerializer.h
+        ${COMMON_SOURCE_DIR}/io/ParseModelDefinition.h
         ${COMMON_SOURCE_DIR}/io/Parser.h
+        ${COMMON_SOURCE_DIR}/io/ParserException.h
         ${COMMON_SOURCE_DIR}/io/ParserStatus.h
         ${COMMON_SOURCE_DIR}/io/PathInfo.h
         ${COMMON_SOURCE_DIR}/io/PathMatcher.h

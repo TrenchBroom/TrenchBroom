@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright (C) 2025 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -19,37 +19,13 @@
 
 #pragma once
 
-#include <cstddef>
+#include <string>
+#include <string_view>
 #include <vector>
 
 namespace kdl
 {
-class bitset
-{
-private:
-  std::vector<bool> m_bits;
 
-public:
-  explicit bitset(const std::size_t initialSize = 64)
-    : m_bits(initialSize, false)
-  {
-  }
-
-  bool operator[](const std::size_t index) const
-  {
-    return index < m_bits.size() ? m_bits[index] : false;
-  }
-
-  std::vector<bool>::reference operator[](const std::size_t index)
-  {
-    if (index >= m_bits.size())
-    {
-      m_bits.insert(std::end(m_bits), index - m_bits.size() + 1, false);
-    }
-    return m_bits[index];
-  }
-
-  void reset() { m_bits = std::vector<bool>(64, false); }
-};
+std::vector<std::string> cmd_parse_args(std::string_view str);
 
 } // namespace kdl

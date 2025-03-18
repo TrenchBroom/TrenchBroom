@@ -17,10 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/ELExceptions.h"
-#include "el/EvaluationContext.h"
-#include "el/Expression.h"
-#include "el/Value.h"
+#include "el/ELTestUtils.h"
 #include "io/ELParser.h"
 
 #include <string>
@@ -29,398 +26,294 @@
 
 namespace tb::io
 {
+using namespace el;
 
-static auto evaluate(
-  const std::string& str, const el::EvaluationContext& context = el::EvaluationContext{})
+namespace
 {
-  return ELParser::parseStrict(str).evaluate(context);
+
+auto parse(const std::string& str)
+{
+  return ELParser::parseStrict(str);
 }
 
-TEST_CASE("ELParserTest.parseEmptyExpression")
+} // namespace
+
+TEST_CASE("ELParser")
 {
-  CHECK_THROWS_AS(evaluate(""), ParserException);
-  CHECK_THROWS_AS(evaluate("    "), ParserException);
-  CHECK_THROWS_AS(evaluate("\n"), ParserException);
+  SECTION("emptyExpression")
+  {
+    CHECK(parse("").is_error());
+    CHECK(parse("    ").is_error());
+    CHECK(parse("\n").is_error());
+  }
+
+  SECTION("Literals")
+  {
+    SECTION("Strings")
+    {
+      CHECK(parse(R"("asdf)").is_error());
+      CHECK(parse(R"("asdf")") == lit("asdf"));
+      // MSVC complains about an illegal escape sequence if we use a raw string literal
+      // for the expression
+      CHECK(parse("\"asdf\\\" \\\"asdf\"") == lit(R"(asdf" "asdf)"));
+    }
+
+    SECTION("Numbers")
+    {
+      CHECK(parse("1.123.34").is_error());
+
+      CHECK(parse("1") == lit(1.0));
+      CHECK(parse("1.0") == lit(1.0));
+      CHECK(parse("01.00") == lit(1.0));
+      CHECK(parse(".0") == lit(0.0));
+      CHECK(parse("0") == lit(0.0));
+    }
+
+    SECTION("Booleans")
+    {
+      CHECK(parse("true") == lit(true));
+      CHECK(parse("false") == lit(false));
+    }
+
+    SECTION("Arrays")
+    {
+      CHECK(parse("[]") == arr());
+      CHECK(
+        parse(R"([ 1.0 , "test",[ true] ])")
+        == arr({
+          lit(1.0),
+          lit("test"),
+          arr({lit(true)}),
+        }));
+    }
+
+    SECTION("Ranges")
+    {
+      CHECK(parse("[1..3]") == arr({bRng(lit(1.0), lit(3.0))}));
+      CHECK(parse("[][1..3]") == scr(arr(), bRng(lit(1.0), lit(3.0))));
+      CHECK(parse("[][..3]") == scr(arr(), rbRng(lit(3.0))));
+      CHECK(parse("[][1..]") == scr(arr(), lbRng(lit(1.0))));
+    }
+
+    SECTION("Maps")
+    {
+      CHECK(parse("{}") == map());
+      CHECK(
+        parse(
+          R"( { "testkey1": 1, "testkey2"   :"asdf", "testkey3":{"nestedKey":true} })")
+        == map({
+          {"testkey1", lit(1.0)},
+          {"testkey2", lit("asdf")},
+          {"testkey3", map({{"nestedKey", lit(true)}})},
+        }));
+      CHECK(parse(R"([ { "key": "value" } ])") == arr({map({{"key", lit("value")}})}));
+      CHECK(
+        parse(R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })")
+        == map({
+          {"outerkey1", arr({map({{"key", lit("value")}})})},
+          {"outerkey2", lit("asdf")},
+        }));
+
+      CHECK(parse(R"({
+  "profiles": [],
+  "version": 1
 }
+asdf)")
+              .is_error());
+    }
+  }
 
-TEST_CASE("ELParserTest.parseStringLiteral")
-{
-  CHECK_THROWS_AS(evaluate(R"("asdf)"), ParserException);
+  SECTION("Variables")
+  {
+    CHECK(parse("test") == var("test"));
+  }
 
-  const auto context = el::EvaluationContext{};
-  CHECK(evaluate(R"("asdf")") == el::Value{"asdf"});
-}
+  SECTION("Unary operators")
+  {
+    SECTION("Unary plus")
+    {
+      CHECK(parse("+1.0") == plus(lit(1)));
+    }
 
-TEST_CASE("ELParserTest.parseStringLiteralWithDoubleQuotationMarks")
-{
-  // MSVC complains about an illegal escape sequence if we use a raw string literal for
-  // the expression
-  CHECK(evaluate("\"asdf\\\" \\\"asdf\"") == el::Value(R"(asdf" "asdf)"));
-}
+    SECTION("Unary minus")
+    {
+      CHECK(parse("-1.0") == minus(lit(1)));
+    }
 
-TEST_CASE("ELParserTest.parseNumberLiteral")
-{
-  CHECK_THROWS_AS(evaluate("1.123.34"), ParserException);
+    SECTION("Logical negation")
+    {
+      CHECK(parse("!true") == logNeg(lit(true)));
+      CHECK(parse("!false") == logNeg(lit(false)));
+      CHECK(parse("!0") == logNeg(lit(0)));
+    }
 
-  CHECK(evaluate("1") == el::Value{1.0});
-  CHECK(evaluate("1.0") == el::Value{1.0});
-  CHECK(evaluate("01.00") == el::Value{1.0});
-  CHECK(evaluate(".0") == el::Value{0.0});
-  CHECK(evaluate("0") == el::Value{0.0});
-}
+    SECTION("Bitwise negation")
+    {
+      CHECK(parse("~393") == bitNeg(lit(393)));
+      CHECK(parse("~").is_error());
+      CHECK(parse("~~").is_error());
+    }
+  }
 
-TEST_CASE("ELParserTest.parseBooleanLiteral")
-{
-  CHECK(evaluate("true") == el::Value{true});
-  CHECK(evaluate("false") == el::Value{false});
-}
+  SECTION("Binary operators")
+  {
+    SECTION("Addition")
+    {
+      CHECK(parse("2 + 3") == add(lit(2.0), lit(3.0)));
+      CHECK(parse("\"as\"+\"df\"") == add(lit("as"), lit("df")));
+      CHECK(parse("2 + 3 + 4") == add(add(lit(2.0), lit(3.0)), lit(4.0)));
+    }
 
-TEST_CASE("ELParserTest.parseArrayLiteral")
-{
-  CHECK(evaluate("[]") == el::Value{el::ArrayType{}});
-  CHECK(
-    evaluate(R"([ 1.0 , "test",[ true] ])")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{"test"},
-      el::Value{el::ArrayType{{
-        el::Value{true},
-      }}},
-    }}});
+    SECTION("Subtraction")
+    {
+      CHECK(parse("2-3.0") == sub(lit(2.0), lit(3.0)));
+      CHECK(parse("2-3 -  4") == sub(sub(lit(2.0), lit(3.0)), lit(4.0)));
+      CHECK(parse("2-3-4-2") == sub(sub(sub(lit(2.0), lit(3.0)), lit(4.0)), lit(2.0)));
+    }
 
-  CHECK(
-    evaluate("[1..3]")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{2.0},
-      el::Value{3.0},
-    }}});
-  CHECK(
-    evaluate("[3..1]")
-    == el::Value{el::ArrayType{{
-      el::Value{3.0},
-      el::Value{2.0},
-      el::Value{1.0},
-    }}});
-  CHECK(
-    evaluate("[1..1]")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-    }}});
-  CHECK(
-    evaluate("[1..0]")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{0.0},
-    }}});
-  CHECK(
-    evaluate("[-2..1]")
-    == el::Value{el::ArrayType{{
-      el::Value{-2.0},
-      el::Value{-1.0},
-      el::Value{0.0},
-      el::Value{1.0},
-    }}});
-}
+    SECTION("Multiplication")
+    {
+      CHECK(parse("2 * 3.0") == mul(lit(2.0), lit(3.0)));
+      CHECK(parse("2 * 3 * 4") == mul(mul(lit(2.0), lit(3.0)), lit(4.0)));
+    }
 
-TEST_CASE("ELParserTest.parseMapLiteral")
-{
-  CHECK(evaluate("{}") == el::Value{el::MapType{}});
-  CHECK(
-    evaluate(R"( { "testkey1": 1, "testkey2"   :"asdf", "testkey3":{"nestedKey":true} })")
-    == el::Value{el::MapType{
-      {"testkey1", el::Value{1.0}},
-      {"testkey2", el::Value{"asdf"}},
-      {"testkey3",
-       el::Value{el::MapType{
-         {"nestedKey", el::Value{true}},
-       }}},
-    }});
-}
+    SECTION("Division")
+    {
+      CHECK(parse("12 / 2.0") == div(lit(12.0), lit(2.0)));
+      CHECK(parse("12 / 2 / 2") == div(div(lit(12.0), lit(2.0)), lit(2.0)));
+    }
 
-TEST_CASE("ELParserTest.parseMapLiteralNestedInArray")
-{
-  CHECK(
-    evaluate(R"([ { "key": "value" } ])")
-    == el::Value{el::ArrayType{{
-      el::Value{el::MapType{
-        {"key", el::Value{"value"}},
-      }},
-    }}});
-}
+    SECTION("Modulus")
+    {
+      CHECK(parse("12 % 2.0") == mod(lit(12.0), lit(2.0)));
+      CHECK(parse("12 % 5 % 3") == mod(mod(lit(12.0), lit(5.0)), lit(3.0)));
+    }
 
-TEST_CASE("ELParserTest.parseMapLiteralNestedInArrayNestedInMap")
-{
-  CHECK(
-    evaluate(R"({ "outerkey1": [ { "key": "value" } ], "outerkey2": "asdf" })")
-    == el::Value{el::MapType{
-      {"outerkey1",
-       el::Value{el::ArrayType{{
-         el::Value{el::MapType{
-           {"key", el::Value{"value"}},
-         }},
-       }}}},
-      {"outerkey2", el::Value{"asdf"}},
-    }});
-}
+    SECTION("Logical and")
+    {
+      CHECK(parse("true && true") == logAnd(lit(true), lit(true)));
+    }
 
-TEST_CASE("ELParserTest.parseMapLiteralWithTrailingGarbage")
-{
-  CHECK_THROWS_AS(
-    evaluate(R"({
-	"profiles": [],
-	"version": 1
-}
-asdf)"),
-    ParserException);
-}
+    SECTION("Logical or")
+    {
+      CHECK(parse("true || true") == logOr(lit(true), lit(true)));
+    }
 
-TEST_CASE("ELParserTest.parseVariable")
-{
-  auto context = el::EvaluationContext{};
-  context.declareVariable("test", el::Value{1.0});
+    SECTION("Bitwise and")
+    {
+      CHECK(parse("23 & 24") == bitAnd(lit(23), lit(24)));
+    }
 
-  CHECK(evaluate("test", context) == el::Value{1.0});
-}
+    SECTION("Bitwise or")
+    {
+      CHECK(parse("23 | 24") == bitOr(lit(23), lit(24)));
+    }
 
-TEST_CASE("ELParserTest.parseUnaryPlus")
-{
-  CHECK(evaluate("+1.0") == el::Value{1.0});
-}
+    SECTION("Bitwise xor")
+    {
+      CHECK(parse("23 ^ 24") == bitXOr(lit(23), lit(24)));
+      CHECK(parse("23 ^^ 23").is_error());
+    }
 
-TEST_CASE("ELParserTest.parseUnaryMinus")
-{
-  CHECK(evaluate("-1.0") == el::Value{-1.0});
-}
+    SECTION("Bitwise shift left")
+    {
+      CHECK(parse("1 << 7") == bitShL(lit(1), lit(7)));
+    }
 
-TEST_CASE("ELParserTest.parseLogicalNegation")
-{
-  CHECK(evaluate("!true") == el::Value{false});
-  CHECK(evaluate("!false") == el::Value{true});
-  CHECK_THROWS_AS(evaluate("!0"), el::EvaluationError);
-  CHECK_THROWS_AS(evaluate("!1"), el::EvaluationError);
-  CHECK_THROWS_AS(evaluate("!'true'"), el::EvaluationError);
-}
+    SECTION("Bitwise shift right")
+    {
+      CHECK(parse("8 >> 2") == bitShR(lit(8), lit(2)));
+    }
 
-TEST_CASE("ELParserTest.parseBitwiseNegation")
-{
-  CHECK(evaluate("~393") == el::Value{~393});
-  CHECK_THROWS_AS(evaluate("~"), ParserException);
-  CHECK_THROWS_AS(evaluate("~~"), ParserException);
-}
+    SECTION("Case operator")
+    {
+      CHECK(parse("true -> 1") == cs(lit(true), lit(1)));
+    }
 
-TEST_CASE("ELParserTest.parseAddition")
-{
-  CHECK(evaluate("2 + 3") == el::Value{5.0});
-  CHECK(evaluate("\"as\"+\"df\"") == el::Value{"asdf"});
-  CHECK(evaluate("2 + 3 + 4") == el::Value{9.0});
-}
+    SECTION("Comparison operators")
+    {
+      CHECK(parse("1 < 2") == ls(lit(1), lit(2)));
+      CHECK(parse("1 <= 2") == lsEq(lit(1), lit(2)));
+      CHECK(parse("1 > 2") == gr(lit(1), lit(2)));
+      CHECK(parse("1 >= 2") == grEq(lit(1), lit(2)));
+      CHECK(parse("1 == 2") == eq(lit(1), lit(2)));
+      CHECK(parse("1 != 2") == neq(lit(1), lit(2)));
+    }
 
-TEST_CASE("ELParserTest.parseSubtraction")
-{
-  CHECK(evaluate("2 - 3.0") == el::Value{-1.0});
-  CHECK(evaluate("2 - 3 - 4") == el::Value{-5.0});
-  CHECK(evaluate("2 - 3 - 4 - 2") == el::Value{-7.0});
-}
+    SECTION("Operator combinations")
+    {
+      CHECK(parse("1 + 2 * 3") == add(lit(1), mul(lit(2), lit(3))));
+      CHECK(parse("1 * 2 + 3") == add(mul(lit(1), lit(2)), lit(3)));
+      CHECK(parse("1 + 2 * 3 + 2") == add(add(lit(1), mul(lit(2), lit(3))), lit(2)));
+      CHECK(
+        parse("1 + 2 * 3 + 2 * 2")
+        == add(add(lit(1), mul(lit(2), lit(3))), mul(lit(2), lit(2))));
+      CHECK(parse("3 + 2 < 3 + 3") == ls(add(lit(3), lit(2)), add(lit(3), lit(3))));
+      CHECK(
+        parse("3 + 2 < 3 + 3 + 0 && true")
+        == logAnd(ls(add(lit(3), lit(2)), add(add(lit(3), lit(3)), lit(0))), lit(true)));
+      CHECK(
+        parse("false && false || true")
+        == logOr(logAnd(lit(false), lit(false)), lit(true)));
+      CHECK(
+        parse("false && (false || true)")
+        == logAnd(lit(false), grp(logOr(lit(false), lit(true)))));
+    }
+  }
 
-TEST_CASE("ELParserTest.parseMultiplication")
-{
-  CHECK(evaluate("2 * 3.0") == el::Value{6.0});
+  SECTION("Subscript")
+  {
+    CHECK(
+      parse(R"([ 1.0, 2.0, "test" ][0])")
+      == scr(arr({lit(1.0), lit(2.0), lit("test")}), lit(0)));
+    CHECK(
+      parse(R"([ 1.0, 2.0, "test" ][1+1])")
+      == scr(arr({lit(1.0), lit(2.0), lit("test")}), add(lit(1), lit(1))));
+    CHECK(
+      parse(R"({ "key1":1, "key2":2, "key3":"test"}["key1"])")
+      == scr(
+        map({
+          {"key1", lit(1.0)},
+          {"key2", lit(2.0)},
+          {"key3", lit("test")},
+        }),
+        lit("key1")));
+    CHECK(
+      parse(R"([ 1.0, [ 2.0, "test"] ][1][0])")
+      == scr(scr(arr({lit(1.0), arr({lit(2.0), lit("test")})}), lit(1)), lit(0)));
+    CHECK(
+      parse(R"([ 1.0, 2.0, "test" ][0,1,2])")
+      == scr(arr({lit(1.0), lit(2.0), lit("test")}), arr({lit(0), lit(1), lit(2)})));
+    CHECK(
+      parse(R"([ 1.0, 2.0, "test" ][0..2])")
+      == scr(arr({lit(1.0), lit(2.0), lit("test")}), bRng(lit(0), lit(2))));
+    CHECK(
+      parse(R"([ 1.0, 2.0, "test" ][0..2,3])")
+      == scr(
+        arr({lit(1.0), lit(2.0), lit("test")}), arr({bRng(lit(0), lit(2)), lit(3)})));
+  }
 
-  CHECK(evaluate("2 * 3 * 4") == el::Value{24.0});
-  CHECK(evaluate("2 * 3 * 4 * 2") == el::Value{48.0});
-}
+  SECTION("Switch")
+  {
+    CHECK(parse("{{}}") == swt({}));
+    CHECK(parse("{{'asdf'}}") == swt({lit("asdf")}));
+    CHECK(parse("{{'fdsa', 'asdf'}}") == swt({lit("fdsa"), lit("asdf")}));
+    CHECK(
+      parse("{{false -> 'fdsa', 'asdf'}}")
+      == swt({cs(lit(false), lit("fdsa")), lit("asdf")}));
+  }
 
-TEST_CASE("ELParserTest.parseDivision")
-{
-  CHECK(evaluate("12 / 2.0") == el::Value{6.0});
-  CHECK(evaluate("12 / 2 / 2") == el::Value{3.0});
-  CHECK(evaluate("12 / 2 / 2 / 3") == el::Value{1.0});
-}
-
-TEST_CASE("ELParserTest.parseModulus")
-{
-  CHECK(evaluate("12 % 2.0") == el::Value{0.0});
-  CHECK(evaluate("12 % 5 % 3") == el::Value{2.0});
-  CHECK(evaluate("12 % 5 % 3 % 3") == el::Value{2.0});
-}
-
-TEST_CASE("ELParserTest.parseLogicalAnd")
-{
-  CHECK(evaluate("true && true") == el::Value{true});
-  CHECK(evaluate("false && true") == el::Value{false});
-  CHECK(evaluate("true && false") == el::Value{false});
-  CHECK(evaluate("false && false") == el::Value{false});
-}
-
-TEST_CASE("ELParserTest.parseLogicalOr")
-{
-  CHECK(evaluate("true || true") == el::Value{true});
-  CHECK(evaluate("false || true") == el::Value{true});
-  CHECK(evaluate("true || false") == el::Value{true});
-  CHECK(evaluate("false || false") == el::Value{false});
-}
-
-TEST_CASE("ELParserTest.parseBitwiseAnd")
-{
-  CHECK(evaluate("23 & 24") == el::Value{23 & 24});
-}
-
-TEST_CASE("ELParserTest.parseBitwiseOr")
-{
-  CHECK(evaluate("23 | 24") == el::Value{23 | 24});
-}
-
-TEST_CASE("ELParserTest.parseBitwiseXor")
-{
-  CHECK(evaluate("23 ^ 24") == el::Value{(23 ^ 24)});
-  CHECK_THROWS_AS(evaluate("23 ^^ 23"), ParserException);
-}
-
-TEST_CASE("ELParserTest.parseBitwiseShiftLeft")
-{
-  CHECK(evaluate("1 << 7") == el::Value{1 << 7});
-}
-
-TEST_CASE("ELParserTest.parseBitwiseShiftRight")
-{
-  CHECK(evaluate("8 >> 2") == el::Value{8 >> 2});
-}
-
-TEST_CASE("ELParserTest.parseSubscript")
-{
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][0])") == el::Value{1.0});
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][1])") == el::Value{2.0});
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][2])") == el::Value{"test"});
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][-1])") == el::Value{"test"});
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][-2])") == el::Value{2.0});
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][-3])") == el::Value{1.0});
-
-  CHECK(evaluate(R"([ 1.0, 2.0, "test" ][1 + 1])") == el::Value{"test"});
-
-  CHECK(evaluate(R"({ "key1":1, "key2":2, "key3":"test"}["key1"])") == el::Value{1.0});
-  CHECK(evaluate(R"({ "key1":1, "key2":2, "key3":"test"}["key2"])") == el::Value{2.0});
-  CHECK(evaluate(R"({ "key1":1, "key2":2, "key3":"test"}["key3"])") == el::Value{"test"});
-
-  CHECK(evaluate(R"([ 1.0, [ 2.0, "test"] ][0])") == el::Value{1.0});
-  CHECK(evaluate(R"([ 1.0, [ 2.0, "test"] ][1][0])") == el::Value{2.0});
-  CHECK(evaluate(R"([ 1.0, [ 2.0, "test"] ][1][1])") == el::Value{"test"});
-
-  CHECK(
-    evaluate(R"({ "key1":1, "key2":2, "key3":[ 1, 2]}["key3"][1])") == el::Value{2.0});
-
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][0,1,2])")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{2.0},
-      el::Value{"test"},
-    }}});
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][0..2])")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{2.0},
-      el::Value{"test"},
-    }}});
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][2..0])")
-    == el::Value{el::ArrayType{{
-      el::Value{"test"},
-      el::Value{2.0},
-      el::Value{1.0},
-    }}});
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][0,1..2])")
-    == el::Value{el::ArrayType{{
-      el::Value{1.0},
-      el::Value{2.0},
-      el::Value{"test"},
-    }}});
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][1..])")
-    == el::Value{el::ArrayType{{
-      el::Value{2.0},
-      el::Value{"test"},
-    }}});
-  CHECK(
-    evaluate(R"([ 1.0, 2.0, "test" ][..1])")
-    == el::Value{el::ArrayType{{
-      el::Value{"test"},
-      el::Value{2.0},
-    }}});
-
-  CHECK(evaluate(R"("test"[3,2,1,0])") == el::Value{"tset"});
-  CHECK(evaluate(R"("test"[2,1,0])") == el::Value{"set"});
-  CHECK(evaluate(R"("test"[2..1])") == el::Value{"se"});
-
-  CHECK(evaluate(R"("test"[..0])") == el::Value{"tset"});
-  CHECK(evaluate(R"("test"[1..])") == el::Value{"est"});
-}
-
-TEST_CASE("ELParserTest.parseCaseOperator")
-{
-  CHECK(evaluate("true -> false") == el::Value{false});
-  CHECK(evaluate("true -> true && true") == el::Value{true});
-  CHECK(evaluate("1 < 3 -> 2 + 3") == el::Value{5});
-  CHECK(evaluate("false -> true") == el::Value::Undefined);
-}
-
-TEST_CASE("ELParserTest.parseBinaryNegation")
-{
-  CHECK(evaluate("~1") == el::Value{~1l});
-}
-
-TEST_CASE("ELParserTest.parseSwitchExpression")
-{
-  CHECK(evaluate("{{}}") == el::Value::Undefined);
-  CHECK(evaluate("{{'asdf'}}") == el::Value{"asdf"});
-  CHECK(evaluate("{{'fdsa', 'asdf'}}") == el::Value{"fdsa"});
-  CHECK(evaluate("{{false -> 'fdsa', 'asdf'}}") == el::Value{"asdf"});
-  CHECK(evaluate("{{false -> false}}") == el::Value::Undefined);
-}
-
-TEST_CASE("ELParserTest.testComparisonOperators")
-{
-  CHECK(evaluate(R"(1 < 2)") == el::Value{true});
-  CHECK(evaluate(R"(2 < 2)") == el::Value{false});
-  CHECK(evaluate(R"(1 <= 2)") == el::Value{true});
-  CHECK(evaluate(R"(2 <= 2)") == el::Value{true});
-  CHECK(evaluate(R"(3 <= 2)") == el::Value{false});
-
-  CHECK(evaluate(R"("test" == "test")") == el::Value{true});
-  CHECK(evaluate(R"("test1" == "test")") == el::Value{false});
-  CHECK(evaluate(R"("test" != "test")") == el::Value{false});
-  CHECK(evaluate(R"("test1" != "test")") == el::Value{true});
-
-  CHECK(evaluate(R"(2 > 1)") == el::Value{true});
-  CHECK(evaluate(R"(2 > 2)") == el::Value{false});
-  CHECK(evaluate(R"(2 >= 1)") == el::Value{true});
-  CHECK(evaluate(R"(2 >= 2)") == el::Value{true});
-  CHECK(evaluate(R"(2 >= 3)") == el::Value{false});
-}
-
-TEST_CASE("ELParserTest.testOperatorPrecedence")
-{
-  CHECK(evaluate("7 + 2 * 3") == evaluate("2 * 3 + 7"));
-  CHECK(evaluate("7 + 2 * 3 + 2") == evaluate("2 * 3 + 7 + 2"));
-  CHECK(evaluate("7 + 2 * 3 + 2 * 2") == evaluate("2 * 3 + 7 + 2 * 2"));
-  CHECK(evaluate("7 + 2 / 3 + 2 * 2") == evaluate("2 / 3 + 7 + 2 * 2"));
-
-  CHECK(evaluate("3 + 2 < 3 + 3") == evaluate("(3 + 2) < (3 + 3)"));
-  CHECK(
-    evaluate("3 + 2 < 3 + 3 + 0 && true") == evaluate("((3 + 2) < (3 + 3 + 0)) && true"));
-  CHECK(evaluate("false && false || true") == el::Value{true});
-  CHECK(evaluate("false && (false || true)") == el::Value{false});
-}
-
-TEST_CASE("ELParserTest.testParseGrouping")
-{
-  CHECK_THROWS_AS(evaluate("()"), ParserException);
-  CHECK(evaluate("(1)") == el::Value{1.0});
-  CHECK(evaluate("(2+1)*3") == el::Value{9.0});
-  CHECK(evaluate("(2+1)*(2+1)") == el::Value{9.0});
-  CHECK(evaluate("(2+1)*((1+1)*2)") == el::Value{12.0});
+  SECTION("Groups")
+  {
+    CHECK(parse("()").is_error());
+    CHECK(parse("(1)") == grp(lit(1)));
+    CHECK(parse("(2+1)*3") == mul(grp(add(lit(2), lit(1))), lit(3)));
+    CHECK(
+      parse("(2+1)*(2+1)") == mul(grp(add(lit(2), lit(1))), grp(add(lit(2), lit(1)))));
+    CHECK(
+      parse("(2+1)*((1+1)*2)")
+      == mul(grp(add(lit(2), lit(1))), grp(mul(grp(add(lit(1), lit(1))), lit(2)))));
+  }
 }
 
 } // namespace tb::io

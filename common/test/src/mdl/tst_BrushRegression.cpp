@@ -59,12 +59,13 @@ void assertCannotSnapTo(
 
   const auto nodes =
     io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-  CHECK(nodes.size() == 1u);
+  REQUIRE(nodes.is_success());
+  CHECK(nodes.value().size() == 1u);
 
-  auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+  auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
   CHECK_FALSE(brush.canSnapVertices(worldBounds, gridSize));
 
-  kdl::col_delete_all(nodes);
+  kdl::col_delete_all(nodes.value());
 }
 
 void assertCannotSnap(const std::string& data, kdl::task_manager& taskManager)
@@ -81,9 +82,10 @@ void assertSnapTo(
 
   const auto nodes =
     io::NodeReader::read(data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-  CHECK(nodes.size() == 1u);
+  REQUIRE(nodes.is_success());
+  REQUIRE(nodes.value().size() == 1u);
 
-  auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+  auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
   CHECK(brush.canSnapVertices(worldBounds, gridSize));
 
   CHECK(brush.snapVertices(worldBounds, gridSize).is_success());
@@ -98,7 +100,7 @@ void assertSnapTo(
     }
   }
 
-  kdl::col_delete_all(nodes);
+  kdl::col_delete_all(nodes.value());
 }
 
 void assertSnapToInteger(const std::string& data, kdl::task_manager& taskManager)
@@ -404,9 +406,10 @@ TEST_CASE("Brush_Regression")
 
     const auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
 
-    auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+    auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
     const auto p = vm::vec3d{192, 128, 352};
 
     const auto oldVertexPositions = std::vector{p};
@@ -418,7 +421,7 @@ TEST_CASE("Brush_Regression")
     CHECK(newVertexPositions.size() == 1u);
     CHECK(newVertexPositions.front() == vm::approx(p + delta));
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("moveVerticesFail_2158")
@@ -468,9 +471,10 @@ TEST_CASE("Brush_Regression")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, vm::bbox3d{4096.0}, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
 
-    auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+    auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
 
     const auto vertexPositions = std::vector{
       brush.findClosestVertexPosition(
@@ -485,7 +489,7 @@ TEST_CASE("Brush_Regression")
     CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3d{16, 0, 0}));
     CHECK_NOTHROW(brush.moveVertices(worldBounds, vertexPositions, vm::vec3d{16, 0, 0}));
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("removeVertexWithCorrectMaterials_2082")
@@ -511,9 +515,10 @@ TEST_CASE("Brush_Regression")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
 
-    auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+    auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
 
     const auto p1 = vm::vec3d{32, 32, 0};
     const auto p2 = vm::vec3d{-16, 32, 0};
@@ -570,7 +575,7 @@ TEST_CASE("Brush_Regression")
     assertMaterial("*slime1", brush, std::vector{p8, p9, p11});
     assertMaterial("*teleport", brush, std::vector{p9, p10, p11});
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("snapIssue1198")
@@ -864,9 +869,10 @@ TEST_CASE("Brush_Regression")
 
     auto nodes = io::NodeReader::read(
       data, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    REQUIRE(nodes.value().size() == 1u);
 
-    auto brush = static_cast<BrushNode*>(nodes.front())->brush();
+    auto brush = static_cast<BrushNode*>(nodes.value().front())->brush();
 
     const auto vertex1 =
       brush.findClosestVertexPosition(vm::vec3d{-5774.7302805949275, 488, 1108});
@@ -879,7 +885,7 @@ TEST_CASE("Brush_Regression")
     CHECK_NOTHROW(brush.moveEdges(
       worldBounds, std::vector<vm::segment3d>{segment}, vm::vec3d{0, -4, 0}));
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("moveFaceFailure_1499")
@@ -926,10 +932,11 @@ TEST_CASE("Brush_Regression")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(!nodes.empty());
+    REQUIRE(nodes.is_success());
+    REQUIRE(!nodes.value().empty());
 
     auto points = std::vector<vm::vec3d>{};
-    for (const auto* node : nodes)
+    for (const auto* node : nodes.value())
     {
       if (const auto* brushNode = dynamic_cast<const BrushNode*>(node))
       {
@@ -977,7 +984,7 @@ TEST_CASE("Brush_Regression")
       CHECK(polyhedron.hasVertex(position, 01));
     }
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("convexMergeIncorrectResult_2789")
@@ -993,10 +1000,11 @@ TEST_CASE("Brush_Regression")
 
     const auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    REQUIRE(nodes.size() == 28);
+    REQUIRE(nodes.is_success());
+    REQUIRE(nodes.value().size() == 28);
 
     auto points = std::vector<vm::vec3d>{};
-    for (const auto* node : nodes)
+    for (const auto* node : nodes.value())
     {
       const auto* brushNode = dynamic_cast<const BrushNode*>(node);
       REQUIRE(brushNode != nullptr);
@@ -1031,7 +1039,7 @@ TEST_CASE("Brush_Regression")
       {1024, -128, 795},        {1024, 128, 512},         {1024, 128, 795}};
     CHECK(polyhedron.hasAllVertices(expectedPositions, 01));
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("subtractTruncatedCones")
@@ -1102,16 +1110,20 @@ TEST_CASE("Brush_Regression")
     const auto subtrahendNodes = io::NodeReader::read(
       subtrahendStr, MapFormat::Valve, worldBounds, {}, status, taskManager);
 
-    const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
-    const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+    REQUIRE(minuendNodes.is_success());
+    REQUIRE(subtrahendNodes.is_success());
+
+    const auto& minuend = static_cast<BrushNode*>(minuendNodes.value().front())->brush();
+    const auto& subtrahend =
+      static_cast<BrushNode*>(subtrahendNodes.value().front())->brush();
 
     const auto result =
       minuend.subtract(MapFormat::Valve, worldBounds, "some_material", subtrahend)
       | kdl::fold;
     CHECK_FALSE(result.is_error());
 
-    kdl::col_delete_all(minuendNodes);
-    kdl::col_delete_all(subtrahendNodes);
+    kdl::col_delete_all(minuendNodes.value());
+    kdl::col_delete_all(subtrahendNodes.value());
   }
 
   SECTION("subtractDome")
@@ -1137,14 +1149,18 @@ TEST_CASE("Brush_Regression")
     const auto subtrahendNodes = io::NodeReader::read(
       subtrahendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
 
-    const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
-    const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+    REQUIRE(minuendNodes.is_success());
+    REQUIRE(subtrahendNodes.is_success());
+
+    const auto& minuend = static_cast<BrushNode*>(minuendNodes.value().front())->brush();
+    const auto& subtrahend =
+      static_cast<BrushNode*>(subtrahendNodes.value().front())->brush();
 
     const auto result =
       minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend);
 
-    kdl::col_delete_all(minuendNodes);
-    kdl::col_delete_all(subtrahendNodes);
+    kdl::col_delete_all(minuendNodes.value());
+    kdl::col_delete_all(subtrahendNodes.value());
   }
 
   SECTION("subtractPipeFromCubeWithMissingFragments")
@@ -1182,16 +1198,20 @@ TEST_CASE("Brush_Regression")
     const auto subtrahendNodes = io::NodeReader::read(
       subtrahendStr, MapFormat::Standard, worldBounds, {}, status, taskManager);
 
-    const auto& minuend = static_cast<BrushNode*>(minuendNodes.front())->brush();
-    const auto& subtrahend = static_cast<BrushNode*>(subtrahendNodes.front())->brush();
+    REQUIRE(minuendNodes.is_success());
+    REQUIRE(subtrahendNodes.is_success());
+
+    const auto& minuend = static_cast<BrushNode*>(minuendNodes.value().front())->brush();
+    const auto& subtrahend =
+      static_cast<BrushNode*>(subtrahendNodes.value().front())->brush();
 
     const auto fragments =
       minuend.subtract(MapFormat::Standard, worldBounds, "some_material", subtrahend)
       | kdl::fold | kdl::value();
     CHECK(fragments.size() == 8u);
 
-    kdl::col_delete_all(minuendNodes);
-    kdl::col_delete_all(subtrahendNodes);
+    kdl::col_delete_all(minuendNodes.value());
+    kdl::col_delete_all(subtrahendNodes.value());
   }
 
   SECTION("healEdgesCrash")
@@ -1214,7 +1234,9 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
+    REQUIRE(nodes.is_success());
+
+    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
 
@@ -1240,7 +1262,7 @@ TEST_CASE("Brush_Regression")
       CHECK(brush.hasVertex(position, 0.01));
     }
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("healEdgesCrash2")
@@ -1271,7 +1293,9 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
+    REQUIRE(nodes.is_success());
+
+    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
 
@@ -1293,7 +1317,7 @@ TEST_CASE("Brush_Regression")
       CHECK(brush.hasVertex(position, 01));
     }
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("healEdgesCrash3")
@@ -1410,7 +1434,9 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
+    REQUIRE(nodes.is_success());
+
+    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().front());
     REQUIRE(brushNode != nullptr);
     const auto brush = brushNode->brush();
 
@@ -1430,7 +1456,7 @@ TEST_CASE("Brush_Regression")
       CHECK(brush.hasVertex(position, 01));
     }
 
-    kdl::col_delete_all(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("findInitialEdgeFail")
@@ -1453,9 +1479,10 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Standard, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    REQUIRE(nodes.value().size() == 1u);
 
-    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.front());
+    const auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().front());
     REQUIRE(brushNode != nullptr);
     const auto& brush = brushNode->brush();
 
@@ -1502,7 +1529,8 @@ TEST_CASE("Brush_Regression")
     auto status = io::TestParserStatus{};
     const auto nodes = io::NodeReader::read(
       brushString, MapFormat::Quake2, worldBounds, {}, status, taskManager);
-    CHECK(nodes.size() == 1u);
+    REQUIRE(nodes.is_success());
+    CHECK(nodes.value().size() == 1u);
   }
 }
 

@@ -35,7 +35,7 @@ namespace
 ModelDefinition makeModelDefinition(const std::string& expression)
 {
   auto parser = io::ELParser{io::ELParser::Mode::Strict, expression};
-  return ModelDefinition{parser.parse()};
+  return ModelDefinition{parser.parse().value()};
 }
 
 } // namespace
@@ -156,7 +156,8 @@ TEST_CASE("ModelDefinition")
     const auto defaultScaleExpression =
       globalScaleExpressionStr
         ? std::optional<el::ExpressionNode>{io::ELParser::parseStrict(
-            *globalScaleExpressionStr)}
+                                              *globalScaleExpressionStr)
+                                              .value()}
         : std::nullopt;
 
     CHECK(modelDefinition.scale(variables, defaultScaleExpression) == expectedScale);

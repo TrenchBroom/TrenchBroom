@@ -29,6 +29,7 @@
 
 #include "kdl/path_utils.h"
 #include "kdl/resource.h"
+#include "kdl/string_format.h"
 #include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 

@@ -29,7 +29,7 @@
 #include <QPushButton>
 
 #include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
+#include "el/Interpolate.h"
 #include "mdl/CompilationProfile.h"
 #include "mdl/CompilationTask.h"
 #include "ui/BorderLine.h"
@@ -111,16 +111,11 @@ void CompilationTaskEditorBase::updateItem()
 
 void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 {
-  auto workDir = std::string{};
-  try
-  {
-    workDir = el::interpolate(
+  const auto workDir =
+    el::interpolate(
       m_profile.workDirSpec,
-      el::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}});
-  }
-  catch (const Exception&)
-  {
-  }
+      el::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}})
+    | kdl::value_or(std::string{});
 
   const auto variables = CompilationVariables{kdl::mem_lock(m_document), workDir};
   completer->setModel(new VariableStoreModel{variables});

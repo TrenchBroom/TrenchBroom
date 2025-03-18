@@ -47,21 +47,16 @@ namespace
 Result<std::vector<mdl::Quake3Shader>> loadShader(
   const FileSystem& fs, const std::filesystem::path& path, Logger& logger)
 {
-  return fs.openFile(path) | kdl::transform([&](auto file) {
+  return fs.openFile(path) | kdl::and_then([&](auto file) {
            auto bufferedReader = file->reader().buffer();
-           try
-           {
-             auto parser = Quake3ShaderParser{bufferedReader.stringView()};
-             auto status = SimpleParserStatus{logger, path.string()};
-             return parser.parse(status);
-           }
-           catch (const ParserException& e)
-           {
-             logger.warn() << "Skipping malformed shader file " << path << ": "
-                           << e.what();
+           auto parser = Quake3ShaderParser{bufferedReader.stringView()};
+           auto status = SimpleParserStatus{logger, path.string()};
+           return parser.parse(status);
+         })
+         | kdl::transform_error([&](const auto& e) {
+             logger.warn() << "Skipping malformed shader file " << path << ": " << e.msg;
              return std::vector<mdl::Quake3Shader>{};
-           }
-         });
+           });
 }
 
 } // namespace

@@ -21,6 +21,7 @@
 
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 #include "io/ParserStatus.h"
 #include "mdl/ModelDefinition.h"
 
@@ -33,10 +34,29 @@
 
 namespace tb::io
 {
+namespace
+{
+
+auto tokenNames()
+{
+  using namespace MdlToken;
+
+  return LegacyModelDefinitionTokenizer::TokenNameMap{
+    {Integer, "integer"},
+    {String, "quoted string"},
+    {Word, "word"},
+    {Comma, "','"},
+    {Equality, "'='"},
+    {CParenthesis, "')'"},
+    {Eof, "end of file"},
+  };
+}
+
+} // namespace
 
 LegacyModelDefinitionTokenizer::LegacyModelDefinitionTokenizer(
   const std::string_view str, const size_t line, const size_t column)
-  : Tokenizer{str, "", 0, line, column}
+  : Tokenizer{tokenNames(), str, "", 0, line, column}
 {
 }
 
@@ -99,17 +119,24 @@ TokenizerState LegacyModelDefinitionParser::tokenizerState() const
   return m_tokenizer.snapshot();
 }
 
-el::ExpressionNode LegacyModelDefinitionParser::parse(ParserStatus& status)
+Result<el::ExpressionNode> LegacyModelDefinitionParser::parse(ParserStatus& status)
 {
-  return parseModelDefinition(status);
+  try
+  {
+    return parseModelDefinition(status);
+  }
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 el::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatus& status)
 {
-  auto token = m_tokenizer.peekToken();
+  auto token =
+    m_tokenizer.peekToken(MdlToken::String | MdlToken::Word | MdlToken::CParenthesis);
   const auto startLocation = token.location();
 
-  expect(status, MdlToken::String | MdlToken::Word | MdlToken::CParenthesis, token);
   if (token.hasType(MdlToken::CParenthesis))
   {
     return el::ExpressionNode{
@@ -119,18 +146,17 @@ el::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatu
   auto modelExpressions = std::vector<el::ExpressionNode>{};
   do
   {
-    expect(status, MdlToken::String | MdlToken::Word, token = m_tokenizer.peekToken());
+    token = m_tokenizer.peekToken(MdlToken::String | MdlToken::Word);
     if (token.hasType(MdlToken::String))
     {
-      modelExpressions.push_back(parseStaticModelDefinition(status));
+      modelExpressions.push_back(parseStaticModelDefinition());
     }
     else
     {
       modelExpressions.push_back(parseDynamicModelDefinition(status));
     }
 
-    expect(
-      status, MdlToken::Comma | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
+    token = m_tokenizer.peekToken(MdlToken::Comma | MdlToken::CParenthesis);
     if (token.hasType(MdlToken::Comma))
     {
       m_tokenizer.nextToken();
@@ -143,11 +169,9 @@ el::ExpressionNode LegacyModelDefinitionParser::parseModelDefinition(ParserStatu
     el::SwitchExpression{std::move(modelExpressions)}, startLocation};
 }
 
-el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
-  ParserStatus& status)
+el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition()
 {
-  auto token = m_tokenizer.nextToken();
-  expect(status, MdlToken::String, token);
+  auto token = m_tokenizer.nextToken(MdlToken::String);
   const auto startLocation = token.location();
 
   auto map = el::MapType{};
@@ -155,26 +179,20 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
 
   auto indices = std::vector<size_t>{};
 
-  expect(
-    status,
-    MdlToken::Integer | MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis,
-    token = m_tokenizer.peekToken());
+  token = m_tokenizer.peekToken(
+    MdlToken::Integer | MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis);
   if (token.hasType(MdlToken::Integer))
   {
     token = m_tokenizer.nextToken();
     indices.push_back(token.toInteger<size_t>());
-    expect(
-      status,
-      MdlToken::Integer | MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis,
-      token = m_tokenizer.peekToken());
+    token = m_tokenizer.peekToken(
+      MdlToken::Integer | MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis);
     if (token.hasType(MdlToken::Integer))
     {
       token = m_tokenizer.nextToken();
       indices.push_back(token.toInteger<size_t>());
-      expect(
-        status,
-        MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis,
-        token = m_tokenizer.peekToken());
+      token =
+        m_tokenizer.peekToken(MdlToken::Word | MdlToken::Comma | MdlToken::CParenthesis);
     }
   }
 
@@ -199,9 +217,8 @@ el::ExpressionNode LegacyModelDefinitionParser::parseStaticModelDefinition(
     auto keyExpression =
       el::ExpressionNode{el::VariableExpression{std::move(attributeKey)}, location};
 
-    expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
-
-    expect(status, MdlToken::String | MdlToken::Integer, token = m_tokenizer.nextToken());
+    m_tokenizer.nextToken(MdlToken::Equality);
+    token = m_tokenizer.nextToken(MdlToken::String | MdlToken::Integer);
     if (token.hasType(MdlToken::String))
     {
       auto attributeValue = token.data();
@@ -247,25 +264,21 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
   const auto location = token.location();
 
   auto map = std::map<std::string, el::ExpressionNode>{
-    {mdl::ModelSpecificationKeys::Path, parseNamedValue(status, "pathKey")},
+    {mdl::ModelSpecificationKeys::Path, parseNamedValue("pathKey")},
   };
 
-  expect(
-    status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken());
-
+  token = m_tokenizer.peekToken(MdlToken::Word | MdlToken::CParenthesis);
   if (!token.hasType(MdlToken::CParenthesis))
   {
     do
     {
       if (kdl::ci::str_is_equal("skinKey", token.data()))
       {
-        map.emplace(
-          mdl::ModelSpecificationKeys::Skin, parseNamedValue(status, "skinKey"));
+        map.emplace(mdl::ModelSpecificationKeys::Skin, parseNamedValue("skinKey"));
       }
       else if (kdl::ci::str_is_equal("frameKey", token.data()))
       {
-        map.emplace(
-          mdl::ModelSpecificationKeys::Frame, parseNamedValue(status, "frameKey"));
+        map.emplace(mdl::ModelSpecificationKeys::Frame, parseNamedValue("frameKey"));
       }
       else
       {
@@ -274,20 +287,17 @@ el::ExpressionNode LegacyModelDefinitionParser::parseDynamicModelDefinition(
         status.error(token.location(), msg);
         throw ParserException{token.location(), msg};
       }
-    } while (
-      expect(
-        status, MdlToken::Word | MdlToken::CParenthesis, token = m_tokenizer.peekToken())
-        .hasType(MdlToken::Word));
+      token = m_tokenizer.peekToken(MdlToken::Word | MdlToken::CParenthesis);
+    } while (token.hasType(MdlToken::Word));
   }
 
   return el::ExpressionNode{el::MapExpression{std::move(map)}, location};
 }
 
-el::ExpressionNode LegacyModelDefinitionParser::parseNamedValue(
-  ParserStatus& status, const std::string& name)
+el::ExpressionNode LegacyModelDefinitionParser::parseNamedValue(const std::string& name)
 {
   auto token = Token{};
-  expect(status, MdlToken::Word, token = m_tokenizer.nextToken());
+  token = m_tokenizer.nextToken(MdlToken::Word);
 
   const auto location = token.location();
   if (!kdl::ci::str_is_equal(name, token.data()))
@@ -296,24 +306,10 @@ el::ExpressionNode LegacyModelDefinitionParser::parseNamedValue(
       location, fmt::format("Expected '{}', but got '{}'", name, token.data())};
   }
 
-  expect(status, MdlToken::Equality, token = m_tokenizer.nextToken());
-  expect(status, MdlToken::String, token = m_tokenizer.nextToken());
+  token = m_tokenizer.nextToken(MdlToken::Equality);
+  token = m_tokenizer.nextToken(MdlToken::String);
 
   return el::ExpressionNode{el::VariableExpression{token.data()}, location};
 }
 
-LegacyModelDefinitionParser::TokenNameMap LegacyModelDefinitionParser::tokenNames() const
-{
-  using namespace MdlToken;
-
-  return {
-    {Integer, "integer"},
-    {String, "quoted string"},
-    {Word, "word"},
-    {Comma, "','"},
-    {Equality, "'='"},
-    {CParenthesis, "')'"},
-    {Eof, "end of file"},
-  };
-}
 } // namespace tb::io

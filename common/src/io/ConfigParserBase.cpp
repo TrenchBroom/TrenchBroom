@@ -19,11 +19,11 @@
 
 #include "ConfigParserBase.h"
 
-#include "Exceptions.h"
 #include "el/EvaluationContext.h"
 #include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
+#include "io/ParserException.h"
 
 #include <fmt/format.h>
 
@@ -40,7 +40,7 @@ ConfigParserBase::ConfigParserBase(const std::string_view str, std::filesystem::
 
 ConfigParserBase::~ConfigParserBase() = default;
 
-el::ExpressionNode ConfigParserBase::parseConfigFile()
+Result<el::ExpressionNode> ConfigParserBase::parseConfigFile()
 {
   return m_parser.parse();
 }
@@ -63,25 +63,27 @@ void expectStructure(
   const el::Value& value, const el::EvaluationTrace& trace, const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
-  const auto expected = parser.parse().evaluate(el::EvaluationContext());
-  assert(expected.type() == el::ValueType::Array);
+  parser.parse() | kdl::transform([&](const auto& expression) {
+    const auto expected = expression.evaluate(el::EvaluationContext());
+    assert(expected.type() == el::ValueType::Array);
 
-  const auto mandatory = expected[0];
-  assert(mandatory.type() == el::ValueType::Map);
+    const auto mandatory = expected[0];
+    assert(mandatory.type() == el::ValueType::Map);
 
-  const auto optional = expected[1];
-  assert(optional.type() == el::ValueType::Map);
+    const auto optional = expected[1];
+    assert(optional.type() == el::ValueType::Map);
 
-  // Are all mandatory keys present?
-  for (const auto& key : mandatory.keys())
-  {
-    const auto typeName = mandatory[key].stringValue();
-    if (typeName != "*")
+    // Are all mandatory keys present?
+    for (const auto& key : mandatory.keys())
     {
-      const auto type = el::typeForName(typeName);
-      expectMapEntry(value, trace, key, type);
+      const auto typeName = mandatory[key].stringValue();
+      if (typeName != "*")
+      {
+        const auto type = el::typeForName(typeName);
+        expectMapEntry(value, trace, key, type);
+      }
     }
-  }
+  }) | kdl::transform_error([](const auto& e) { throw ParserException{e.msg}; });
 }
 
 void expectMapEntry(

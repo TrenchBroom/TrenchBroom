@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/MapParser.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
@@ -104,9 +105,9 @@ public:
   ~StandardMapParser() override;
 
 protected:
-  void parseEntities(ParserStatus& status);
-  void parseBrushesOrPatches(ParserStatus& status);
-  void parseBrushFaces(ParserStatus& status);
+  Result<void> parseEntities(ParserStatus& status);
+  Result<void> parseBrushesOrPatches(ParserStatus& status);
+  Result<void> parseBrushFaces(ParserStatus& status);
 
   void reset();
 
@@ -146,21 +147,18 @@ private:
   template <size_t S = 3, typename T = double>
   vm::vec<T, S> parseFloatVector(const QuakeMapToken::Type o, const QuakeMapToken::Type c)
   {
-    expect(o, m_tokenizer.nextToken());
+    m_tokenizer.nextToken(o);
     vm::vec<T, S> vec;
     for (size_t i = 0; i < S; i++)
     {
-      vec[i] = expect(QuakeMapToken::Number, m_tokenizer.nextToken()).toFloat<T>();
+      vec[i] = m_tokenizer.nextToken(QuakeMapToken::Number).toFloat<T>();
     }
-    expect(c, m_tokenizer.nextToken());
+    m_tokenizer.nextToken(c);
     return vec;
   }
 
   float parseFloat();
   int parseInteger();
-
-private: // implement Parser interface
-  TokenNameMap tokenNames() const override;
 };
 
 } // namespace tb::io

@@ -74,7 +74,10 @@ TEST_CASE("WorldReader_Regression")
 })";
 
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status, taskManager);
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);
@@ -108,7 +111,10 @@ TEST_CASE("WorldReader_Regression")
 }
 })";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status, taskManager);
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);
@@ -133,7 +139,10 @@ TEST_CASE("WorldReader_Regression")
 }
 })";
     auto reader = WorldReader{data, mdl::MapFormat::Standard, {}};
-    auto world = reader.read(worldBounds, status, taskManager);
+    auto worldResult = reader.read(worldBounds, status, taskManager);
+    REQUIRE(worldResult.is_success());
+
+    const auto& world = worldResult.value();
     REQUIRE(world != nullptr);
 
     CHECK(world->childCount() == 1u);

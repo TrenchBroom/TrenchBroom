@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/EL_Forward.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
@@ -62,16 +63,13 @@ public:
   TokenizerState tokenizerState() const;
 
 public:
-  el::ExpressionNode parse(ParserStatus& status);
+  Result<el::ExpressionNode> parse(ParserStatus& status);
 
 private:
   el::ExpressionNode parseModelDefinition(ParserStatus& status);
-  el::ExpressionNode parseStaticModelDefinition(ParserStatus& status);
+  el::ExpressionNode parseStaticModelDefinition();
   el::ExpressionNode parseDynamicModelDefinition(ParserStatus& status);
-  el::ExpressionNode parseNamedValue(ParserStatus& status, const std::string& name);
-
-private:
-  TokenNameMap tokenNames() const override;
+  el::ExpressionNode parseNamedValue(const std::string& name);
 };
 
 } // namespace tb::io

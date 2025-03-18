@@ -769,7 +769,7 @@ TEST_CASE("MapDocumentTest")
             "fixture/test/ui/MapDocumentTest/mixedFormats.map",
             "Quake",
             mdl::MapFormat::Unknown),
-          io::WorldReaderException);
+          std::runtime_error);
       }
     }
   }

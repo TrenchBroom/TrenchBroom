@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
 
@@ -64,15 +65,7 @@ private:
 public:
   explicit Quake3ShaderParser(std::string_view str);
 
-  /**
-   * Parses a Quake 3 shader and returns the value of the qer_editorimage entry.
-   *
-   * @return the value of the qer_editorimage entry or an empty string if no such value
-   * was found
-   *
-   * @throws ParserException if the shader is not well-formed
-   */
-  std::vector<mdl::Quake3Shader> parse(ParserStatus& status);
+  Result<std::vector<mdl::Quake3Shader>> parse(ParserStatus& status);
 
 private:
   void parseTexture(mdl::Quake3Shader& shader, ParserStatus& status);
@@ -81,9 +74,6 @@ private:
   void parseBodyEntry(mdl::Quake3Shader& shader, ParserStatus& status);
   void parseStageEntry(mdl::Quake3ShaderStage& stage, ParserStatus& status);
   void skipRemainderOfEntry();
-
-private:
-  TokenNameMap tokenNames() const override;
 };
 
 } // namespace tb::io

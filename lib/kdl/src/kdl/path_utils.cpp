@@ -18,39 +18,21 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
+#include "kdl/path_utils.h"
 
 #include "kdl/string_format.h"
 
-#include <algorithm>
-#include <filesystem>
 #include <numeric>
-#include <string>
 
 namespace kdl
 {
 
-template <typename char_type>
-inline std::filesystem::path parse_path(
-  std::basic_string<char_type> str, const bool convert_separators = true)
-{
-  if (convert_separators)
-  {
-    constexpr auto pref_sep = char_type(std::filesystem::path::preferred_separator);
-    const auto win_sep = char_type('\\');
-    const auto x_sep = char_type('/');
-    std::ranges::replace_if(
-      str, [&](const auto c) { return c == win_sep || c == x_sep; }, pref_sep);
-  }
-  return std::filesystem::path{std::move(str)};
-}
-
-inline size_t path_length(const std::filesystem::path& path)
+size_t path_length(const std::filesystem::path& path)
 {
   return size_t(std::distance(path.begin(), path.end()));
 }
 
-inline bool path_has_prefix(
+bool path_has_prefix(
   const std::filesystem::path& path, const std::filesystem::path& prefix)
 {
   const auto [i_path, i_prefix] =
@@ -58,17 +40,17 @@ inline bool path_has_prefix(
   return i_prefix == prefix.end();
 }
 
-inline std::filesystem::path path_front(const std::filesystem::path& path)
+std::filesystem::path path_front(const std::filesystem::path& path)
 {
   return path.begin() == path.end() ? std::filesystem::path{} : *path.begin();
 }
 
-inline std::filesystem::path path_to_lower(const std::filesystem::path& path)
+std::filesystem::path path_to_lower(const std::filesystem::path& path)
 {
   return std::filesystem::path{str_to_lower(path.string())};
 }
 
-inline std::filesystem::path path_clip(
+std::filesystem::path path_clip(
   const std::filesystem::path& path, const size_t index, size_t length)
 {
   using difftype =
@@ -88,35 +70,34 @@ inline std::filesystem::path path_clip(
     [](auto result, const auto& component) { return result /= component; });
 }
 
-inline std::filesystem::path path_clip(
-  const std::filesystem::path& path, const size_t index)
+std::filesystem::path path_clip(const std::filesystem::path& path, const size_t index)
 {
   return path_clip(path, index, path_length(path));
 }
 
-inline std::filesystem::path path_pop_front(const std::filesystem::path& path)
+std::filesystem::path path_pop_front(const std::filesystem::path& path)
 {
   return path_clip(path, 1, path_length(path));
 }
 
-inline bool path_has_extension(
+bool path_has_extension(
   const std::filesystem::path& path, const std::filesystem::path extension)
 {
   return path.extension() == extension;
 }
 
-inline std::filesystem::path path_add_extension(
+std::filesystem::path path_add_extension(
   std::filesystem::path path, const std::filesystem::path& extension)
 {
   return path += extension;
 }
 
-inline std::filesystem::path path_remove_extension(std::filesystem::path path)
+std::filesystem::path path_remove_extension(std::filesystem::path path)
 {
   return path.replace_extension();
 }
 
-inline std::filesystem::path path_replace_extension(
+std::filesystem::path path_replace_extension(
   std::filesystem::path path, const std::filesystem::path& extension)
 {
   return path.replace_extension(extension);

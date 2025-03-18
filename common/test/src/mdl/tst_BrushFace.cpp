@@ -32,9 +32,9 @@
 #include "mdl/Polyhedron.h"
 #include "mdl/Texture.h"
 
+#include "kdl/collection_utils.h"
 #include "kdl/result.h"
 #include "kdl/task_manager.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"
@@ -654,7 +654,9 @@ TEST_CASE("BrushFace")
     auto status = io::TestParserStatus{};
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+    REQUIRE(nodes.is_success());
+
+    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
 
     auto brush = pyramidLight->brush();
@@ -690,7 +692,7 @@ TEST_CASE("BrushFace")
     CHECK(negXFace->uAxis() == vm::approx{newXAxis});
     CHECK(negXFace->vAxis() == vm::approx{newYAxis});
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/1995
@@ -716,7 +718,9 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+    REQUIRE(nodes.is_success());
+
+    auto* pyramidLight = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(pyramidLight != nullptr);
 
     auto brush = pyramidLight->brush();
@@ -764,7 +768,7 @@ TEST_CASE("BrushFace")
     CHECK(posXFace->uAxis() == vm::approx{vm::vec3d{0, -1, 0}});
     CHECK(posXFace->vAxis() == vm::approx{vm::vec3d{0, 0, -1}});
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   // https://github.com/TrenchBroom/TrenchBroom/issues/2315
@@ -791,7 +795,9 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+    REQUIRE(nodes.is_success());
+
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     CHECK(brushNode != nullptr);
 
     auto brush = brushNode->brush();
@@ -809,7 +815,7 @@ TEST_CASE("BrushFace")
               true)
             .is_success());
 
-    kdl::vec_clear_and_delete(nodes);
+    kdl::col_delete_all(nodes.value());
   }
 
   SECTION("formatConversion")
@@ -881,7 +887,9 @@ TEST_CASE("BrushFace")
 
     auto nodes =
       io::NodeReader::read(data, MapFormat::Valve, worldBounds, {}, status, taskManager);
-    auto* brushNode = dynamic_cast<BrushNode*>(nodes.at(0)->children().at(0));
+    REQUIRE(nodes.is_success());
+
+    auto* brushNode = dynamic_cast<BrushNode*>(nodes.value().at(0)->children().at(0));
     REQUIRE(brushNode != nullptr);
 
     auto brush = brushNode->brush();

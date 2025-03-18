@@ -1,5 +1,5 @@
 /*
- Copyright 2024 Kristian Duske
+ Copyright 2023 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,37 +20,44 @@
 
 #pragma once
 
-#include "kdl/range_utils.h"
-
-#include <ranges>
+#include <cstddef>
+#include <tuple>
 
 namespace kdl
 {
 namespace detail
 {
 
-// Type acts as a tag to find the correct operator| overload
-template <typename C>
-struct and_then_helper
+template <typename T, size_t... I>
+auto lift_and_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 {
-};
+  return [tuple_of_functions = std::forward<T>(tuple_of_functions_)](auto&&... x) {
+    return (... && std::get<I>(tuple_of_functions)(std::forward<decltype(x)>(x)...));
+  };
+}
 
-// This actually does the work
-template <typename Container, std::ranges::range R>
-  requires std::
-    convertible_to<std::ranges::range_value_t<R>, typename Container::value_type>
-  Container operator|(R&& r, and_then_helper<Container>)
+template <typename T, size_t... I>
+auto lift_or_impl(T&& tuple_of_functions_, const std::index_sequence<I...>&)
 {
-  return Container{get_begin(r), get_end(r)};
+  return [tuple_of_functions = std::forward<T>(tuple_of_functions_)](auto&&... x) {
+    return (... || std::get<I>(tuple_of_functions)(std::forward<decltype(x)>(x)...));
+  };
 }
 
 } // namespace detail
 
-template <std::ranges::range Container>
-  requires(!std::ranges::view<Container>)
-auto to()
+template <typename... F>
+auto lift_and(F&&... fun)
 {
-  return detail::and_then_helper<Container>{};
+  return detail::lift_and_impl(
+    std::tuple{std::forward<F>(fun)...}, std::make_index_sequence<sizeof...(F)>{});
+}
+
+template <typename... F>
+auto lift_or(F&&... fun)
+{
+  return detail::lift_or_impl(
+    std::tuple{std::forward<F>(fun)...}, std::make_index_sequence<sizeof...(F)>{});
 }
 
 } // namespace kdl

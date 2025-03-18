@@ -19,37 +19,8 @@
 
 #include "Exceptions.h"
 
-#include <sstream>
-
 namespace tb
 {
-namespace
-{
-
-std::string buildMessage(
-  const std::optional<FileLocation>& location, const std::string& str)
-{
-  auto msg = std::stringstream();
-
-  msg << "At ";
-  if (location)
-  {
-    msg << *location;
-  }
-  else
-  {
-    msg << "unknown location";
-  }
-
-  msg << ":";
-  if (!str.empty())
-  {
-    msg << " " << str;
-  }
-  return msg.str();
-}
-
-} // namespace
 
 Exception::Exception() noexcept = default;
 
@@ -61,12 +32,6 @@ Exception::Exception(std::string str) noexcept
 const char* Exception::what() const noexcept
 {
   return m_msg.c_str();
-}
-
-ParserException::ParserException(
-  const std::optional<FileLocation>& location, const std::string& str)
-  : Exception{buildMessage(location, str)}
-{
 }
 
 } // namespace tb

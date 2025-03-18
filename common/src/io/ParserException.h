@@ -19,23 +19,22 @@
 
 #pragma once
 
-#include "el/EL_Forward.h"
-#include "io/ELParser.h"
+#include "Exceptions.h"
+#include "FileLocation.h"
 
+#include <optional>
 #include <string>
-#include <string_view>
 
-namespace tb::el
+namespace tb
 {
 
-class Interpolator : private io::ELParser
+class ParserException : public Exception
 {
 public:
-  explicit Interpolator(std::string_view str);
+  using Exception::Exception;
 
-  std::string interpolate(const EvaluationContext& context);
+  explicit ParserException(
+    const std::optional<FileLocation>& location, const std::string& str = "");
 };
 
-std::string interpolate(std::string_view str, const EvaluationContext& context);
-
-} // namespace tb::el
+} // namespace tb

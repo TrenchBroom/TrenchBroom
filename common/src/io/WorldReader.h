@@ -19,12 +19,10 @@
 
 #pragma once
 
-#include "Exceptions.h"
+#include "Result.h"
 #include "io/MapReader.h"
 
 #include <memory>
-#include <string>
-#include <tuple>
 #include <vector>
 
 namespace kdl
@@ -42,14 +40,6 @@ namespace tb::io
 {
 class ParserStatus;
 
-class WorldReaderException : public Exception
-{
-public:
-  WorldReaderException();
-  explicit WorldReaderException(
-    const std::vector<std::tuple<mdl::MapFormat, std::string>>& parserExceptions);
-};
-
 /**
  * MapReader subclass for loading a whole .map file.
  */
@@ -63,22 +53,22 @@ public:
     mdl::MapFormat sourceAndTargetMapFormat,
     const mdl::EntityPropertyConfig& entityPropertyConfig);
 
-  std::unique_ptr<mdl::WorldNode> read(
+  Result<std::unique_ptr<mdl::WorldNode>> read(
     const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
 
   /**
    * Try to parse the given string as the given map formats, in order.
-   * Returns the world if parsing is successful, otherwise throws an exception.
+   * Returns the world if parsing is successful, otherwise returns an error.
    *
    * @param str the string to parse
    * @param mapFormatsToTry formats to try, in order
    * @param worldBounds world bounds
    * @param status status
    * @param taskManager the task manager to use for parallel tasks
-   * @return the world node
-   * @throws WorldReaderException if `str` can't be parsed by any of the given formats
+   * @return the world node or an error if `str` can't be parsed by any of the given
+   * formats
    */
-  static std::unique_ptr<mdl::WorldNode> tryRead(
+  static Result<std::unique_ptr<mdl::WorldNode>> tryRead(
     std::string_view str,
     const std::vector<mdl::MapFormat>& mapFormatsToTry,
     const vm::bbox3d& worldBounds,

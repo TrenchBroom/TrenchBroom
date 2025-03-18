@@ -607,7 +607,7 @@ Result<std::unique_ptr<mdl::WorldNode>> loadMap(
     config.entityConfig.scaleExpression, config.entityConfig.setDefaultProperties};
 
   auto parserStatus = io::SimpleParserStatus{logger};
-  return io::Disk::openFile(path) | kdl::transform([&](auto file) {
+  return io::Disk::openFile(path) | kdl::and_then([&](auto file) {
            auto fileReader = file->reader().buffer();
            if (mapFormat == mdl::MapFormat::Unknown)
            {
@@ -848,32 +848,34 @@ PasteType MapDocument::paste(const std::string& str)
   auto parserStatus = io::SimpleParserStatus{logger()};
 
   // Try parsing as entities, then as brushes, in all compatible formats
-  if (const auto nodes = io::NodeReader::read(
-        str,
-        m_world->mapFormat(),
-        m_worldBounds,
-        m_world->entityPropertyConfig(),
-        parserStatus,
-        m_taskManager);
-      !nodes.empty())
-  {
-    return pasteNodes(nodes) ? PasteType::Node : PasteType::Failed;
-  }
-
-  // Try parsing as brush faces
-  try
-  {
-    auto reader = io::BrushFaceReader{str, m_world->mapFormat()};
-    if (const auto faces = reader.read(m_worldBounds, parserStatus); !faces.empty())
-    {
-      return pasteBrushFaces(faces) ? PasteType::BrushFace : PasteType::Failed;
-    }
-  }
-  catch (const ParserException& e)
-  {
-    error() << "Could not parse clipboard contents: " << e.what();
-  }
-  return PasteType::Failed;
+  return io::NodeReader::read(
+           str,
+           m_world->mapFormat(),
+           m_worldBounds,
+           m_world->entityPropertyConfig(),
+           parserStatus,
+           m_taskManager)
+         | kdl::transform([&](auto nodes) {
+             return pasteNodes(nodes) ? PasteType::Node : PasteType::Failed;
+           })
+         | kdl::or_else([&](const auto& nodeError) {
+             // Try parsing as brush faces
+             auto reader = io::BrushFaceReader{str, m_world->mapFormat()};
+             return reader.read(m_worldBounds, parserStatus)
+                    | kdl::transform([&](const auto& faces) {
+                        return !faces.empty() && pasteBrushFaces(faces)
+                                 ? PasteType::BrushFace
+                                 : PasteType::Failed;
+                      })
+                    | kdl::transform_error([&](const auto& faceError) {
+                        error() << "Could not parse clipboard contents as nodes: "
+                                << nodeError.msg;
+                        error() << "Could not parse clipboard contents as faces: "
+                                << faceError.msg;
+                        return PasteType::Failed;
+                      });
+           })
+         | kdl::value();
 }
 
 namespace

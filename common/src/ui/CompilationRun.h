@@ -21,6 +21,8 @@
 
 #include <QObject>
 
+#include "Result.h"
+
 #include <memory>
 #include <string>
 
@@ -51,11 +53,11 @@ public:
   ~CompilationRun() override;
 
   bool running() const;
-  void run(
+  Result<void> run(
     const mdl::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
-  void test(
+  Result<void> test(
     const mdl::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput);
@@ -63,14 +65,14 @@ public:
 
 private:
   bool doIsRunning() const;
-  void run(
+  Result<void> run(
     const mdl::CompilationProfile& profile,
     std::shared_ptr<MapDocument> document,
     QTextEdit* currentOutput,
     bool test);
 
 private:
-  std::string buildWorkDir(
+  Result<std::string> buildWorkDir(
     const mdl::CompilationProfile& profile, std::shared_ptr<MapDocument> document);
   void cleanup();
 signals:

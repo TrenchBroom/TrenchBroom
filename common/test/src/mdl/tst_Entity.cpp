@@ -176,7 +176,8 @@ TEST_CASE("EntityTest")
       spawnflags == 0 -> "maps/b_shell0.bsp",
       spawnflags == 1 -> "maps/b_shell1.bsp",
                          "maps/b_shell2.bsp"
-  }})");
+  }})")
+                             .value();
 
     auto definition = PointEntityDefinition{
       "some_name",
@@ -197,7 +198,7 @@ TEST_CASE("EntityTest")
 
   SECTION("decalSpecification")
   {
-    auto decalExpression = io::ELParser::parseStrict(R"({ texture: texture })");
+    auto decalExpression = io::ELParser::parseStrict(R"({ texture: texture })").value();
 
     auto definition = PointEntityDefinition{
       "some_name",

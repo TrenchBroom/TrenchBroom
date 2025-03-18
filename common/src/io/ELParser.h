@@ -19,7 +19,9 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/EL_Forward.h"
+#include "el/Expression.h"
 #include "io/Parser.h"
 #include "io/Tokenizer.h"
 
@@ -113,10 +115,10 @@ public:
   ELParser(ELParser::Mode mode, std::string_view str, size_t line = 1, size_t column = 1);
   TokenizerState tokenizerState() const;
 
-  static el::ExpressionNode parseStrict(const std::string& str);
-  static el::ExpressionNode parseLenient(const std::string& str);
+  static Result<el::ExpressionNode> parseStrict(const std::string& str);
+  static Result<el::ExpressionNode> parseLenient(const std::string& str);
 
-  el::ExpressionNode parse();
+  Result<el::ExpressionNode> parse();
 
 private:
   el::ExpressionNode parseExpression();
@@ -135,9 +137,6 @@ private:
   el::ExpressionNode parseUnaryOperator();
   el::ExpressionNode parseSwitch();
   el::ExpressionNode parseCompoundTerm(el::ExpressionNode lhs);
-
-private:
-  TokenNameMap tokenNames() const override;
 };
 
 } // namespace tb::io

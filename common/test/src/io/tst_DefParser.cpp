@@ -48,7 +48,7 @@ TEST_CASE("DefParserTest.parseIncludedDefFiles")
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
     auto status = TestParserStatus{};
-    CHECK_NOTHROW(parser.parseDefinitions(status));
+    CHECK(parser.parseDefinitions(status).is_success());
 
     /* Disabled because our files are full of previously undetected problems
     if (status.countStatus(LogLevel::Warn) > 0u) {
@@ -84,7 +84,7 @@ TEST_CASE("DefParserTest.parseExtraDefFiles")
     auto parser = DefParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
     auto status = TestParserStatus{};
-    CHECK_NOTHROW(parser.parseDefinitions(status));
+    CHECK(parser.parseDefinitions(status).is_success());
     CHECK(status.countStatus(LogLevel::Warn) == 0u);
     CHECK(status.countStatus(LogLevel::Error) == 0u);
   }
@@ -97,7 +97,7 @@ TEST_CASE("DefParserTest.parseEmptyFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("DefParserTest.parseWhitespaceFile")
@@ -110,7 +110,7 @@ TEST_CASE("DefParserTest.parseWhitespaceFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("DefParserTest.parseCommentsFile")
@@ -123,7 +123,7 @@ TEST_CASE("DefParserTest.parseCommentsFile")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.empty());
+  CHECK(definitions.value().empty());
 }
 
 TEST_CASE("DefParserTest.parseSolidClass")
@@ -149,9 +149,9 @@ Set sounds to the cd track to play.
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "worldspawn");
   CHECK(definition.color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
@@ -176,9 +176,9 @@ TEST_CASE("DefParserTest.parsePointClass")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "monster_zombie");
   CHECK(definition.color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
@@ -220,9 +220,9 @@ TEST_CASE("DefParserTest.parseSpawnflagWithSkip")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
@@ -265,9 +265,9 @@ TEST_CASE("DefParserTest.parseBrushEntityWithMissingBBoxAndNoQuestionMark")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
   CHECK(definition.name() == "item_health");
   CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
@@ -330,9 +330,9 @@ TEST_CASE("DefParserTest.parsePointClassWithBaseClasses")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions[0];
+  const auto& definition = *definitions.value()[0];
   CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
   CHECK(definition.name() == "light");
 
@@ -378,22 +378,20 @@ static const auto DefModelDefinitionTemplate = R"(
   }
   */)";
 
-using mdl::assertModelDefinition;
+using mdl::getModelSpecification;
 
 TEST_CASE("DefParserTest.parseLegacyStaticModelDefinition")
 {
   static const auto ModelDefinition =
     R"(":maps/b_shell0.bsp", ":maps/b_shell1.bsp" spawnflags = 1)";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate);
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'spawnflags': 1 }");
+  CHECK(
+    getModelSpecification<DefParser>(ModelDefinition, DefModelDefinitionTemplate)
+    == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition, DefModelDefinitionTemplate, "{ 'spawnflags': 1 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
 }
 
 TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
@@ -401,16 +399,16 @@ TEST_CASE("DefParserTest.parseLegacyDynamicModelDefinition")
   static const auto ModelDefinition =
     R"(pathKey = "model" skinKey = "skin" frameKey = "frame")";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp' }");
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2},
-    ModelDefinition,
-    DefModelDefinitionTemplate,
-    "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }");
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition, DefModelDefinitionTemplate, "{ 'model': 'maps/b_shell1.bsp' }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 0, 0});
+  CHECK(
+    getModelSpecification<DefParser>(
+      ModelDefinition,
+      DefModelDefinitionTemplate,
+      "{ 'model': 'maps/b_shell1.bsp', 'skin': 1, 'frame': 2 }")
+    == mdl::ModelSpecification{"maps/b_shell1.bsp", 1, 2});
 }
 
 TEST_CASE("DefParserTest.parseELModelDefinition")
@@ -418,10 +416,9 @@ TEST_CASE("DefParserTest.parseELModelDefinition")
   static const std::string ModelDefinition =
     R"({{ spawnflags == 1 -> 'maps/b_shell1.bsp', 'maps/b_shell0.bsp' }})";
 
-  assertModelDefinition<DefParser>(
-    mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0},
-    ModelDefinition,
-    DefModelDefinitionTemplate);
+  CHECK(
+    getModelSpecification<DefParser>(ModelDefinition, DefModelDefinitionTemplate)
+    == mdl::ModelSpecification{"maps/b_shell0.bsp", 0, 0});
 }
 
 TEST_CASE("DefParserTest.parseInvalidBounds")
@@ -441,9 +438,10 @@ TEST_CASE("DefParserTest.parseInvalidBounds")
 
   auto status = TestParserStatus{};
   auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.size() == 1u);
+  CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = static_cast<mdl::PointEntityDefinition&>(*definitions[0]);
+  const auto& definition =
+    static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
   CHECK(definition.bounds() == vm::bbox3d{8.0});
 }
 

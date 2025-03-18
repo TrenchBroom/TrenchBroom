@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/EL_Forward.h"
 #include "io/ELParser.h"
 
@@ -43,7 +44,7 @@ public:
   virtual ~ConfigParserBase();
 
 protected:
-  el::ExpressionNode parseConfigFile();
+  Result<el::ExpressionNode> parseConfigFile();
 };
 
 void expectType(

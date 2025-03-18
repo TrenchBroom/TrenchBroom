@@ -46,56 +46,13 @@ private:
   std::queue<pending_task> m_pending_tasks;
   bool m_running = true;
 
-
-  auto make_worker_func()
-  {
-    return [&] {
-      while (true)
-      {
-        auto lock = std::unique_lock{m_pending_tasks_mutex};
-        m_pending_tasks_cv.wait(
-          lock, [&] { return !m_running || !m_pending_tasks.empty(); });
-
-        if (!m_running)
-        {
-          break;
-        }
-
-        if (!m_pending_tasks.empty())
-        {
-          auto task = std::move(m_pending_tasks.front());
-          m_pending_tasks.pop();
-          lock.unlock();
-
-          task();
-        }
-      }
-    };
-  }
+  std::function<void()> make_worker_func();
 
 public:
   explicit task_manager(
-    const std::size_t max_concurrent_tasks = std::thread::hardware_concurrency())
-  {
-    for (size_t i = 0; i < max_concurrent_tasks; ++i)
-    {
-      m_workers.emplace_back(make_worker_func());
-    }
-  }
+    std::size_t max_concurrent_tasks = std::thread::hardware_concurrency());
 
-  ~task_manager()
-  {
-    {
-      auto lock = std::lock_guard{m_pending_tasks_mutex};
-      m_running = false;
-    }
-
-    m_pending_tasks_cv.notify_all();
-    for (auto& worker : m_workers)
-    {
-      worker.join();
-    }
-  }
+  ~task_manager();
 
   template <typename task_result>
   auto run_task(std::function<task_result()> task)

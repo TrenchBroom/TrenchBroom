@@ -32,7 +32,7 @@ TEST_CASE("Quake3ShaderParserTest.parseEmptyShader")
   auto parser = Quake3ShaderParser{data};
   auto status = TestParserStatus{};
 
-  CHECK(parser.parse(status).empty());
+  CHECK(parser.parse(status).value().empty());
 }
 
 TEST_CASE("Quake3ShaderParserTest.parseSingleShaderWithEmptyBlock")
@@ -45,7 +45,7 @@ textures/liquids/lavahell2 //path and name of new texture
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "textures/liquids/lavahell2",      // shaderPath
       "",                                // editorImage
@@ -93,7 +93,7 @@ textures/liquids/lavahell2 //path and name of new texture
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "textures/liquids/lavahell2",       // shaderPath
       "",                                 // editorImage
@@ -145,7 +145,7 @@ textures/liquids/lavahell2 //path and name of new texture
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "textures/liquids/lavahell2",       // shaderPath
       "textures/eerie/lavahell.tga",      // editorImage
@@ -197,7 +197,7 @@ textures/eerie/ironcrosslt2_10000
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "textures/eerie/ironcrosslt2_10000",            // shaderPath
       "textures/gothic_light/ironcrosslt2.tga",       // editorImage
@@ -257,7 +257,7 @@ textures/eerie/ironcrosslt2_10000
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "textures/eerie/ironcrosslt2_10000",            // shaderPath
       "textures/gothic_light/ironcrosslt2.tga",       // editorImage
@@ -352,7 +352,7 @@ textures/liquids/lavahell2 //path and name of new texture
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{
       {
         "textures/eerie/ironcrosslt2_10000",            // shaderPath
@@ -478,7 +478,7 @@ TEST_CASE("Quake3ShaderParserTest.parseBlendFuncParameters")
   auto status = TestParserStatus{};
 
   CHECK_THAT(
-    parser.parse(status),
+    parser.parse(status).value(),
     Catch::UnorderedEquals(std::vector<mdl::Quake3Shader>{{
       "waterBubble",                     // shaderPath
       "",                                // editorImage

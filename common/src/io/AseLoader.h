@@ -28,6 +28,7 @@
 #include <array>
 #include <filesystem>
 #include <functional>
+#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -177,8 +178,6 @@ private: // parsing
   void expectSizeArgument(size_t expected);
   size_t parseSizeArgument();
   vm::vec3f parseVecArgument();
-
-  TokenNameMap tokenNames() const override;
 
 private: // model construction
   Result<mdl::EntityModelData> buildModelData(Logger& logger, const Scene& scene) const;

@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2010 Kristian Duske
+ Copyright 2023 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,20 +21,12 @@
 #pragma once
 
 #include <filesystem>
+#include <string>
 
 namespace kdl
 {
 
-/** Provide a hash function for std::filesystem::path.
- *
- * See https://stackoverflow.com/a/73555861
- */
-struct path_hash
-{
-  auto operator()(const std::filesystem::path& path) const
-  {
-    return std::filesystem::hash_value(path);
-  }
-};
+std::string regex_escape(const std::string& str);
+std::string regex_escape(const std::filesystem::path& path);
 
 } // namespace kdl

@@ -1,5 +1,5 @@
 /*
- Copyright 2023 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -18,24 +18,14 @@
  DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#include <filesystem>
-#include <regex>
-#include <string>
+#include "kdl/path_hash.h"
 
 namespace kdl
 {
 
-inline std::string regex_escape(const std::string& str)
+std::size_t path_hash::operator()(const std::filesystem::path& path) const
 {
-  static const auto chars = std::regex{R"([\.\^\$\-\+\(\)\[\]\{\}\|\?\*)"};
-  return std::regex_replace(str, chars, "\\$&");
-}
-
-inline std::string regex_escape(const std::filesystem::path& path)
-{
-  return regex_escape(path.string());
+  return std::filesystem::hash_value(path);
 }
 
 } // namespace kdl

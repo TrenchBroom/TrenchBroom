@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Color.h"
+#include "mdl/ModelSpecification.h"
 
 #include "kdl/string_utils.h"
 
@@ -38,29 +39,22 @@ struct ModelSpecification;
 class DecalDefinition;
 struct DecalSpecification;
 
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  io::EntityDefinitionParser& parser,
-  const std::string& entityPropertiesStr = "{}");
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  const EntityDefinition& definition,
-  const std::string& entityPropertiesStr = "{}");
-void assertModelDefinition(
-  const ModelSpecification& expected,
-  const ModelDefinition& actual,
-  const std::string& entityPropertiesStr = "{}");
+ModelSpecification getModelSpecification(
+  io::EntityDefinitionParser& parser, const std::string& entityPropertiesStr = "{}");
+ModelSpecification getModelSpecification(
+  const EntityDefinition& definition, const std::string& entityPropertiesStr = "{}");
+ModelSpecification getModelSpecification(
+  const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr = "{}");
 
 template <typename Parser>
-void assertModelDefinition(
-  const ModelSpecification& expected,
+ModelSpecification getModelSpecification(
   const std::string& modelStr,
   const std::string& templateStr,
   const std::string& entityPropertiesStr = "{}")
 {
   const auto defStr = kdl::str_replace_every(templateStr, "${MODEL}", modelStr);
   auto parser = Parser{defStr, Color{1, 1, 1, 1}};
-  assertModelDefinition(expected, parser, entityPropertiesStr);
+  return getModelSpecification(parser, entityPropertiesStr);
 }
 
 void assertDecalDefinition(

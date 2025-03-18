@@ -22,6 +22,7 @@
 #include "FileLocation.h"
 #include "Logger.h"
 #include "Result.h"
+#include "io/ParserException.h"
 #include "io/ResourceUtils.h"
 #include "mdl/EntityModel.h"
 #include "render/MaterialIndexRangeMap.h"
@@ -30,16 +31,37 @@
 
 #include "kdl/k.h"
 #include "kdl/path_utils.h"
-#include "kdl/string_format.h"
 
 #include <functional>
 #include <string>
 
 namespace tb::io
 {
+namespace
+{
+
+auto tokenNames()
+{
+  using namespace AseToken;
+
+  return Tokenizer<Type>::TokenNameMap{
+    {Directive, "directive"},
+    {OBrace, "'{'"},
+    {CBrace, "'}'"},
+    {String, "quoted string"},
+    {Integer, "integer"},
+    {Decimal, "decimal"},
+    {Keyword, "keyword"},
+    {ArgumentName, "argument name"},
+    {Colon, "':'"},
+    {Eof, "end of file"},
+  };
+}
+
+} // namespace
 
 AseTokenizer::AseTokenizer(const std::string_view str)
-  : Tokenizer{str, "", 0}
+  : Tokenizer{tokenNames(), str, "", 0}
 {
 }
 
@@ -150,7 +172,7 @@ Result<mdl::EntityModelData> AseLoader::load(Logger& logger)
 void AseLoader::parseAseFile(Logger& logger, Scene& scene)
 {
   expectDirective("3DSMAX_ASCIIEXPORT");
-  expect(AseToken::Integer, m_tokenizer.nextToken());
+  m_tokenizer.nextToken(AseToken::Integer);
 
   skipDirective("COMMENT");
 
@@ -239,7 +261,7 @@ void AseLoader::parseMaterialListMaterial(
 void AseLoader::parseMaterialListMaterialName(Logger&, std::string& name)
 {
   expectDirective("MATERIAL_NAME");
-  const auto token = expect(AseToken::String, m_tokenizer.nextToken());
+  const auto token = m_tokenizer.nextToken(AseToken::String);
   name = token.data();
 }
 
@@ -261,7 +283,7 @@ void AseLoader::parseMaterialListMaterialMapDiffuseBitmap(
   Logger& /* logger */, std::filesystem::path& path)
 {
   expectDirective("BITMAP");
-  const auto token = expect(AseToken::String, m_tokenizer.nextToken());
+  const auto token = m_tokenizer.nextToken(AseToken::String);
   path = kdl::parse_path(token.data(), K(convert_separators));
 }
 
@@ -297,7 +319,7 @@ void AseLoader::parseGeomObject(
 void AseLoader::parseGeomObjectNodeName(Logger& /* logger */, GeomObject& geomObject)
 {
   expectDirective("NODE_NAME");
-  const auto token = expect(AseToken::String, m_tokenizer.nextToken());
+  const auto token = m_tokenizer.nextToken(AseToken::String);
   geomObject.name = token.data();
 }
 
@@ -450,7 +472,7 @@ void AseLoader::parseGeomObjectMeshFace(
   m_tokenizer.skipToken(AseToken::Integer);
 
   expectDirective("MESH_MTLID");
-  expect(AseToken::Integer, m_tokenizer.nextToken());
+  m_tokenizer.nextToken(AseToken::Integer);
 
   faces.emplace_back(MeshFace{
     {MeshFaceVertex{vertexIndexA, 0},
@@ -519,7 +541,7 @@ void AseLoader::parseGeomObjectMeshTFace(
 void AseLoader::parseBlock(
   const std::map<std::string, std::function<void(void)>>& handlers)
 {
-  expect(AseToken::OBrace, m_tokenizer.nextToken());
+  m_tokenizer.nextToken(AseToken::OBrace);
   auto token = m_tokenizer.peekToken();
   while (token.hasType(AseToken::Directive))
   {
@@ -534,18 +556,18 @@ void AseLoader::parseBlock(
     }
     token = m_tokenizer.peekToken();
   }
-  expect(AseToken::CBrace, m_tokenizer.nextToken());
+  m_tokenizer.nextToken(AseToken::CBrace);
 }
 
 void AseLoader::expectDirective(const std::string& name)
 {
-  auto token = expect(AseToken::Directive, m_tokenizer.nextToken());
+  auto token = m_tokenizer.nextToken(AseToken::Directive);
   expect(name, token);
 }
 
 void AseLoader::skipDirective(const std::string& name)
 {
-  auto token = expect(AseToken::Directive, m_tokenizer.peekToken());
+  auto token = m_tokenizer.peekToken(AseToken::Directive);
   if (token.data() == name)
   {
     m_tokenizer.nextToken();
@@ -559,19 +581,19 @@ void AseLoader::skipDirective(const std::string& name)
     // skip block
     if (m_tokenizer.peekToken().hasType(AseToken::OBrace))
     {
-      expect(AseToken::OBrace, m_tokenizer.nextToken());
+      m_tokenizer.nextToken(AseToken::OBrace);
       while (!m_tokenizer.peekToken().hasType(AseToken::CBrace))
       {
         skipDirective();
       }
-      expect(AseToken::CBrace, m_tokenizer.nextToken());
+      m_tokenizer.nextToken(AseToken::CBrace);
     }
   }
 }
 
 void AseLoader::skipDirective()
 {
-  expect(AseToken::Directive, m_tokenizer.nextToken());
+  m_tokenizer.nextToken(AseToken::Directive);
 
   // skip arguments
   while (!m_tokenizer.peekToken().hasType(
@@ -583,18 +605,18 @@ void AseLoader::skipDirective()
   // skip block
   if (m_tokenizer.peekToken().hasType(AseToken::OBrace))
   {
-    expect(AseToken::OBrace, m_tokenizer.nextToken());
+    m_tokenizer.nextToken(AseToken::OBrace);
     while (!m_tokenizer.peekToken().hasType(AseToken::CBrace))
     {
       skipDirective();
     }
-    expect(AseToken::CBrace, m_tokenizer.nextToken());
+    m_tokenizer.nextToken(AseToken::CBrace);
   }
 }
 
 void AseLoader::expectArgumentName(const std::string& expected)
 {
-  const auto token = expect(AseToken::ArgumentName, m_tokenizer.nextToken());
+  const auto token = m_tokenizer.nextToken(AseToken::ArgumentName);
   const auto& actual = token.data();
   if (actual != expected)
   {
@@ -619,7 +641,7 @@ void AseLoader::expectSizeArgument(const size_t expected)
 
 size_t AseLoader::parseSizeArgument()
 {
-  const auto token = expect(AseToken::Integer, m_tokenizer.nextToken());
+  const auto token = m_tokenizer.nextToken(AseToken::Integer);
   auto i = token.toInteger<int>();
   if (i < 0)
   {
@@ -635,25 +657,9 @@ size_t AseLoader::parseSizeArgument()
 vm::vec3f AseLoader::parseVecArgument()
 {
   return {
-    expect(AseToken::Decimal, m_tokenizer.nextToken()).toFloat<float>(),
-    expect(AseToken::Decimal, m_tokenizer.nextToken()).toFloat<float>(),
-    expect(AseToken::Decimal, m_tokenizer.nextToken()).toFloat<float>()};
-}
-
-AseLoader::TokenNameMap AseLoader::tokenNames() const
-{
-  TokenNameMap result;
-  result[AseToken::Directive] = "directive";
-  result[AseToken::OBrace] = "'{'";
-  result[AseToken::CBrace] = "'}'";
-  result[AseToken::String] = "quoted string";
-  result[AseToken::Integer] = "integer";
-  result[AseToken::Decimal] = "decimal";
-  result[AseToken::Keyword] = "keyword";
-  result[AseToken::ArgumentName] = "argument name";
-  result[AseToken::Colon] = "':'";
-  result[AseToken::Eof] = "end of file";
-  return result;
+    m_tokenizer.nextToken(AseToken::Decimal).toFloat<float>(),
+    m_tokenizer.nextToken(AseToken::Decimal).toFloat<float>(),
+    m_tokenizer.nextToken(AseToken::Decimal).toFloat<float>()};
 }
 
 Result<mdl::EntityModelData> AseLoader::buildModelData(

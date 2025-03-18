@@ -20,7 +20,7 @@
 #include "CompilationContext.h"
 
 #include "el/EvaluationContext.h"
-#include "el/Interpolator.h"
+#include "el/Interpolate.h"
 #include "el/Types.h"
 
 #include "kdl/memory_utils.h"
@@ -50,7 +50,7 @@ bool CompilationContext::test() const
   return m_test;
 }
 
-std::string CompilationContext::interpolate(const std::string& input) const
+Result<std::string> CompilationContext::interpolate(const std::string& input) const
 {
   return el::interpolate(input, el::EvaluationContext{*m_variables});
 }

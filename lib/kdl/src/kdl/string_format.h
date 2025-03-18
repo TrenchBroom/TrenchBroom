@@ -20,8 +20,6 @@
 
 #pragma once
 
-#include <cassert>
-#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -45,33 +43,24 @@ constexpr auto EscapeChar = '\\';
  * @param negative the string to return if the predicate is false
  * @return the string
  */
-inline std::string str_select(
-  const bool predicate, const std::string_view positive, const std::string_view negative)
-{
-  return std::string(predicate ? positive : negative);
-}
+std::string str_select(
+  bool predicate, std::string_view positive, std::string_view negative);
 
 /**
  * Returns either of the given strings depending on the given count.
  *
- * @tparam C the type of the count parameter
  * @param count the count which determines the string to return
  * @param singular the string to return if count == 1
  * @param plural the string to return otherwise
  * @return one of the given strings depending on the given count
  */
-template <typename C>
-inline std::string str_plural(
-  const C count, const std::string_view singular, const std::string_view plural)
-{
-  return str_select(count == static_cast<C>(1), singular, plural);
-}
+std::string str_plural(
+  std::size_t count, std::string_view singular, std::string_view plural);
 
 /**
  * Returns either of the given strings depending on the given count. The returned string
  * is prefixed with the given prefix and suffixed with the given suffix.
  *
- * @tparam C the type of the count parameter
  * @param prefix the prefix
  * @param count the count which determines the string to return
  * @param singular the string to return if count == T(1)
@@ -80,18 +69,12 @@ inline std::string str_plural(
  * @return one of the given strings depending on the given count, with the given prefix
  * and suffix
  */
-template <typename C>
 std::string str_plural(
-  const std::string_view prefix,
-  const C count,
-  const std::string_view singular,
-  const std::string_view plural,
-  const std::string_view suffix = "")
-{
-  std::stringstream result;
-  result << prefix << str_plural(count, singular, plural) << suffix;
-  return result.str();
-}
+  std::string_view prefix,
+  std::size_t count,
+  std::string_view singular,
+  std::string_view plural,
+  std::string_view suffix = "");
 
 /**
  * Trims the longest prefix and the longest suffix consisting only of the given characters
@@ -102,28 +85,7 @@ std::string str_plural(
  * the given string
  * @return the trimmed string
  */
-inline std::string str_trim(
-  const std::string_view s, const std::string_view chars = Whitespace)
-{
-  if (s.empty() || chars.empty())
-  {
-    return std::string(s);
-  }
-
-  const auto first = s.find_first_not_of(chars);
-  if (first == std::string::npos)
-  {
-    return "";
-  }
-
-  const auto last = s.find_last_not_of(chars);
-  if (first > last)
-  {
-    return "";
-  }
-
-  return std::string(s.substr(first, last - first + 1));
-}
+std::string str_trim(std::string_view s, std::string_view chars = Whitespace);
 
 /**
  * Convers the given ASCII character to lowercase.
@@ -131,17 +93,7 @@ inline std::string str_trim(
  * @param c the character to convert
  * @return the converted character
  */
-inline char str_to_lower(const char c)
-{
-  if (c < 'A' || c > 'Z')
-  {
-    return c;
-  }
-  else
-  {
-    return static_cast<char>(c + 'a' - 'A');
-  }
-}
+char str_to_lower(char c);
 
 /**
  * Convers the given ASCII character to uppercase.
@@ -149,17 +101,7 @@ inline char str_to_lower(const char c)
  * @param c the character to convert
  * @return the converted character
  */
-inline char str_to_upper(const char c)
-{
-  if (c < 'a' || c > 'z')
-  {
-    return c;
-  }
-  else
-  {
-    return static_cast<char>(c - 'a' + 'A');
-  }
-}
+char str_to_upper(char c);
 
 /**
  * Convers the given string to lowercase (only supports ASCII).
@@ -167,18 +109,7 @@ inline char str_to_upper(const char c)
  * @param str the string to convert
  * @return the converted string
  */
-inline std::string str_to_lower(const std::string_view str)
-{
-  auto result = std::string();
-  result.reserve(str.size());
-
-  for (const auto c : str)
-  {
-    result.push_back(str_to_lower(c));
-  }
-
-  return result;
-}
+std::string str_to_lower(std::string_view str);
 
 /**
  * Convers the given string to uppercase (only supports ASCII).
@@ -186,18 +117,7 @@ inline std::string str_to_lower(const std::string_view str)
  * @param str the string to convert
  * @return the converted string
  */
-inline std::string str_to_upper(const std::string_view str)
-{
-  auto result = std::string();
-  result.reserve(str.size());
-
-  for (const auto c : str)
-  {
-    result.push_back(str_to_upper(c));
-  }
-
-  return result;
-}
+std::string str_to_upper(std::string_view str);
 
 /**
  * Converts the first character and any character following one (or multiple) of the given
@@ -210,34 +130,7 @@ inline std::string str_to_upper(const std::string_view str)
  * @param delims the delimiters, defaults to whitespace
  * @return the capitalized string
  */
-inline std::string str_capitalize(
-  const std::string_view str, const std::string_view delims = Whitespace)
-{
-  auto result = std::string();
-  result.reserve(str.size());
-
-  bool initial = true;
-  for (const auto c : str)
-  {
-    if (delims.find(c) != std::string::npos)
-    {
-      initial = true;
-      result.push_back(c);
-    }
-    else if (initial)
-    {
-      result.push_back(str_to_upper(c));
-      initial = false;
-    }
-    else
-    {
-      result.push_back(c);
-      initial = false;
-    }
-  }
-
-  return result;
-}
+std::string str_capitalize(std::string_view str, std::string_view delims = Whitespace);
 
 /**
  * Returns a string where the given characters are escaped by the given escape char, which
@@ -248,25 +141,8 @@ inline std::string str_capitalize(
  * @param esc the escape character
  * @return the escaped string
  */
-inline std::string str_escape(
-  const std::string_view str, const std::string_view chars, char esc = EscapeChar)
-{
-  if (str.empty())
-  {
-    return "";
-  }
-
-  std::stringstream buffer;
-  for (const auto c : str)
-  {
-    if (c == esc || chars.find_first_of(c) != std::string::npos)
-    {
-      buffer << esc;
-    }
-    buffer << c;
-  }
-  return buffer.str();
-}
+std::string str_escape(
+  std::string_view str, std::string_view chars, char esc = EscapeChar);
 
 /**
  * Returns a string where the given characters are escaped by the given escape char, which
@@ -282,42 +158,8 @@ inline std::string str_escape(
  * @param esc the escape character
  * @return the escaped string
  */
-inline std::string str_escape_if_necessary(
-  const std::string_view str, const std::string_view chars, char esc = EscapeChar)
-{
-  assert(chars.find(esc) == std::string::npos);
-
-  if (str.empty())
-  {
-    return "";
-  }
-
-  std::stringstream buffer;
-  auto escaped = false;
-  for (const auto c : str)
-  {
-    const auto needsEscaping = (chars.find(c) != std::string::npos);
-    if (needsEscaping)
-    {
-      // if 'c' is not prefixed by 'esc', insert an 'esc'
-      if (!escaped)
-      {
-        buffer << esc;
-      }
-    }
-
-    if (c == esc)
-    {
-      escaped = !escaped;
-    }
-    else
-    {
-      escaped = false;
-    }
-    buffer << c;
-  }
-  return buffer.str();
-}
+std::string str_escape_if_necessary(
+  std::string_view str, std::string_view chars, char esc = EscapeChar);
 
 /**
  * Unescapes any escaped characters in the given string. An escaped character is unescaped
@@ -328,44 +170,8 @@ inline std::string str_escape_if_necessary(
  * @param esc the escape character
  * @return the unescaped string
  */
-inline std::string str_unescape(
-  const std::string_view str, const std::string_view chars, char esc = EscapeChar)
-{
-  if (str.empty())
-  {
-    return "";
-  }
-
-  std::stringstream buffer;
-  auto escaped = false;
-  for (const auto c : str)
-  {
-    if (c == esc)
-    {
-      if (escaped)
-      {
-        buffer << c;
-      }
-      escaped = !escaped;
-    }
-    else
-    {
-      if (escaped && chars.find_first_of(c) == std::string::npos)
-      {
-        buffer << '\\';
-      }
-      buffer << c;
-      escaped = false;
-    }
-  }
-
-  if (escaped)
-  {
-    buffer << '\\';
-  }
-
-  return buffer.str();
-}
+std::string str_unescape(
+  std::string_view str, std::string_view chars, char esc = EscapeChar);
 
 /**
  * Checks whether the given string consists of only whitespace.
@@ -375,11 +181,7 @@ inline std::string str_unescape(
  * @return true if the given string consists of only whitespace characters and false
  * otherwise
  */
-inline bool str_is_blank(
-  const std::string_view str, const std::string_view whitespace = Whitespace)
-{
-  return str.find_first_not_of(whitespace) == std::string::npos;
-}
+bool str_is_blank(std::string_view str, std::string_view whitespace = Whitespace);
 
 /**
  * Checks whether the given string consists of only numeric characters, i.e. '0', '1',
@@ -389,15 +191,6 @@ inline bool str_is_blank(
  * @return true if the given string consists of only numeric characters, and false
  * otherwise.
  */
-inline bool str_is_numeric(const std::string_view str)
-{
-  for (const auto c : str)
-  {
-    if (c < '0' || c > '9')
-    {
-      return false;
-    }
-  }
-  return true;
-}
+bool str_is_numeric(std::string_view str);
+
 } // namespace kdl

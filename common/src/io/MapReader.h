@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FileLocation.h"
+#include "Result.h"
 #include "io/StandardMapParser.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
@@ -131,24 +132,18 @@ protected:
 
   /**
    * Attempts to parse as one or more entities.
-   *
-   * @throws ParserException if parsing fails
    */
-  void readEntities(
+  Result<void> readEntities(
     const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
   /**
    * Attempts to parse as one or more brushes without any enclosing entity.
-   *
-   * @throws ParserException if parsing fails
    */
-  void readBrushes(
+  Result<void> readBrushes(
     const vm::bbox3d& worldBounds, ParserStatus& status, kdl::task_manager& taskManager);
   /**
    * Attempts to parse as one or more brush faces.
-   *
-   * @throws ParserException if parsing fails
    */
-  void readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status);
+  Result<void> readBrushFaces(const vm::bbox3d& worldBounds, ParserStatus& status);
 
 protected: // implement MapParser interface
   void onBeginEntity(

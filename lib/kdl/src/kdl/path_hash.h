@@ -1,5 +1,5 @@
 /*
- Copyright 2025 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  Permission is hereby granted, free of charge, to any person obtaining a copy of this
  software and associated documentation files (the "Software"), to deal in the Software
@@ -20,18 +20,18 @@
 
 #pragma once
 
-#include "kdl/reflection_impl.h"
-
-#include <string>
+#include <filesystem>
 
 namespace kdl
 {
 
-struct result_error
+/** Provide a hash function for std::filesystem::path.
+ *
+ * See https://stackoverflow.com/a/73555861
+ */
+struct path_hash
 {
-  std::string msg;
-
-  kdl_reflect_inline(result_error, msg);
+  std::size_t operator()(const std::filesystem::path& path) const;
 };
 
 } // namespace kdl
