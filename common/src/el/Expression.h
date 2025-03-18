@@ -20,6 +20,7 @@
 #pragma once
 
 #include "FileLocation.h"
+#include "Result.h"
 #include "el/EL_Forward.h"
 #include "el/Value.h"
 
@@ -117,15 +118,15 @@ public:
   template <typename Visitor>
   VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
 
-  Value evaluate(
+  Result<Value> evaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
-  Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+  Result<Value> evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
 
   Value tryEvaluate(
     const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
   Value tryEvaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
 
-  ExpressionNode optimize() const;
+  Result<ExpressionNode> optimize() const;
 
   const std::optional<FileLocation>& location() const;
 

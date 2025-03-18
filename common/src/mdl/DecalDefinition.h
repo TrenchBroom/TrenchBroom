@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/Expression.h"
 
 #include "kdl/reflection_decl.h"
@@ -61,17 +62,14 @@ public:
    *
    * @param variableStore the variable store to use when interpolating variables
    * @return the decal specification
-   *
-   * @throws el::Exception if the expression could not be evaluated
    */
-  DecalSpecification decalSpecification(const el::VariableStore& variableStore) const;
+  Result<DecalSpecification> decalSpecification(
+    const el::VariableStore& variableStore) const;
 
   /**
    * Evaluates the decal expresion.
    *
    * @return the decal specification
-   *
-   * @throws el::Exception if the expression could not be evaluated
    */
   DecalSpecification defaultDecalSpecification() const;
 

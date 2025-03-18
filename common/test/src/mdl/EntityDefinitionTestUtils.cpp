@@ -20,7 +20,6 @@
 #include "EntityDefinitionTestUtils.h"
 
 #include "el/EvaluationContext.h"
-#include "el/Value.h"
 #include "el/VariableStore.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionParser.h"
@@ -64,9 +63,10 @@ ModelSpecification getModelSpecification(
   const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
                                      .value()
                                      .evaluate(el::EvaluationContext{})
+                                     .value()
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
-  return modelDefinition.modelSpecification(variableStore);
+  return modelDefinition.modelSpecification(variableStore).value();
 }
 
 void assertDecalDefinition(
@@ -105,6 +105,7 @@ void assertDecalDefinition(
   const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
                                      .value()
                                      .evaluate(el::EvaluationContext{})
+                                     .value()
                                      .mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
   CHECK(actual.decalSpecification(variableStore) == expected);

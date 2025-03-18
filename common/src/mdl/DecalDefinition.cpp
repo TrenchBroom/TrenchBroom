@@ -85,15 +85,16 @@ void DecalDefinition::append(const DecalDefinition& other)
   m_expression = el::ExpressionNode{el::SwitchExpression{std::move(cases)}, location};
 }
 
-DecalSpecification DecalDefinition::decalSpecification(
+Result<DecalSpecification> DecalDefinition::decalSpecification(
   const el::VariableStore& variableStore) const
 {
-  return convertToDecal(m_expression.evaluate(el::EvaluationContext{variableStore}));
+  return m_expression.evaluate(el::EvaluationContext{variableStore})
+         | kdl::transform([&](const auto& value) { return convertToDecal(value); });
 }
 
 DecalSpecification DecalDefinition::defaultDecalSpecification() const
 {
-  return decalSpecification(el::NullVariableStore{});
+  return convertToDecal(m_expression.tryEvaluate(el::EvaluationContext{}));
 }
 
 kdl_reflect_impl(DecalDefinition);

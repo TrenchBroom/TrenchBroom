@@ -20,8 +20,9 @@
 #pragma once
 
 #include "Logger.h"
-#include "el/ELExceptions.h"
 #include "mdl/ModelSpecification.h"
+
+#include "kdl/result.h"
 
 #include <string_view>
 
@@ -38,22 +39,17 @@ namespace tb::mdl
  * @param classname the classname to use when logging errors
  * @param getModelSpec the lambda to evaluate, must return a ModelSpecification
  * @return the model specification returned by the lambda, or an empty model specification
- * if the lambda throws an EL exception
+ * if the lambda fails
  */
 template <typename GetModelSpec>
 ModelSpecification safeGetModelSpecification(
   Logger& logger, std::string_view classname, GetModelSpec getModelSpec)
 {
-  try
-  {
-    return getModelSpec();
-  }
-  catch (const el::Exception& e)
-  {
-    logger.error() << "Could not get entity model for entity '" << classname
-                   << "': " << e.what();
-    return ModelSpecification{};
-  }
+  return getModelSpec() | kdl::if_error([&](const auto& e) {
+           logger.error() << "Could not get entity model for entity '" << classname
+                          << "': " << e.msg;
+         })
+         | kdl::value_or(ModelSpecification{});
 }
 
 } // namespace tb::mdl

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/Expression.h"
 #include "mdl/ModelSpecification.h"
 
@@ -63,17 +64,14 @@ public:
    *
    * @param variableStore the variable store to use when interpolating variables
    * @return the model specification
-   *
-   * @throws el::Exception if the expression could not be evaluated
    */
-  ModelSpecification modelSpecification(const el::VariableStore& variableStore) const;
+  Result<ModelSpecification> modelSpecification(
+    const el::VariableStore& variableStore) const;
 
   /**
    * Evaluates the model expresion.
    *
    * @return the model specification
-   *
-   * @throws el::Exception if the expression could not be evaluated
    */
   ModelSpecification defaultModelSpecification() const;
 
@@ -82,10 +80,8 @@ public:
    * variables, and returns the scale value configured for the model, if any. If the model
    * expression doesn't have its own scale expression, then the given scale expression is
    * used instead.
-   *
-   * @throws el::Exception if the expression could not be evaluated
    */
-  vm::vec3d scale(
+  Result<vm::vec3d> scale(
     const el::VariableStore& variableStore,
     const std::optional<el::ExpressionNode>& defaultScaleExpression) const;
 

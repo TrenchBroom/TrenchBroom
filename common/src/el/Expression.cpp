@@ -28,6 +28,7 @@
 #include "kdl/overload.h"
 #include "kdl/range_to.h"
 #include "kdl/range_to_vector.h"
+#include "kdl/result_fold.h"
 #include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
@@ -41,14 +42,14 @@ namespace
 {
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator&, const LiteralExpression& expression, const EvaluationContext&)
 {
   return expression.value;
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator&,
   const VariableExpression& expression,
   const EvaluationContext& context)
@@ -57,7 +58,7 @@ Value evaluate(
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator, const ArrayExpression& expression, const EvaluationContext&)
 {
   auto array = ArrayType{};
@@ -65,16 +66,24 @@ Value evaluate(
 
   for (const auto& element : expression.elements)
   {
-    auto value = element.accept(evaluator);
-    if (value.hasType(ValueType::Range))
+    if (auto valueResult = element.accept(evaluator); valueResult.is_success())
     {
-      const auto& range = std::get<BoundedRange>(value.rangeValue());
-      array.reserve(array.size() + range.length());
-      range.forEach([&](const auto& i) { array.emplace_back(i); });
+      valueResult | kdl::transform([&](auto& value) {
+        if (value.hasType(ValueType::Range))
+        {
+          const auto& range = std::get<BoundedRange>(value.rangeValue());
+          array.reserve(array.size() + range.length());
+          range.forEach([&](const auto& i) { array.emplace_back(i); });
+        }
+        else
+        {
+          array.push_back(std::move(value));
+        }
+      }) | kdl::ignore();
     }
     else
     {
-      array.push_back(std::move(value));
+      return valueResult;
     }
   }
 
@@ -82,123 +91,169 @@ Value evaluate(
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator, const MapExpression& expression, const EvaluationContext&)
 {
-  auto map = MapType{};
-  for (const auto& [key, element] : expression.elements)
-  {
-    map.emplace(key, element.accept(evaluator));
-  }
-
-  return Value{std::move(map)};
+  return expression.elements | std::views::transform([&](const auto& elem) {
+           const auto& [key, elementExpression] = elem;
+           return elementExpression.accept(evaluator)
+                  | kdl::transform([&](auto elementValue) {
+                      return std::pair{key, std::move(elementValue)};
+                    });
+         })
+         | kdl::fold | kdl::transform([](auto entries) {
+             return Value{std::move(entries) | kdl::to<MapType>()};
+           });
 }
 
-Value evaluateUnaryPlus(const Value& v)
+Result<Value> evaluateUnaryPlus(const Value& v)
 {
-  switch (v.type())
+  try
   {
-  case ValueType::Boolean:
-  case ValueType::Number:
-    return Value{v.convertTo(ValueType::Number).numberValue()};
-  case ValueType::String:
-    if (const auto result = v.tryConvertTo(ValueType::Number))
+    switch (v.type())
     {
-      return Value{result->numberValue()};
+    case ValueType::Boolean:
+    case ValueType::Number:
+      return Value{v.convertTo(ValueType::Number).numberValue()};
+    case ValueType::String:
+      if (const auto result = v.tryConvertTo(ValueType::Number))
+      {
+        return Value{result->numberValue()};
+      }
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
     }
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
+    return Error{fmt::format(
+      "Cannot apply unary plus to value '{}' of type '{}'", v.describe(), v.typeName())};
   }
-  throw EvaluationError{fmt::format(
-    "Cannot apply unary plus to value '{}' of type '{}'", v.describe(), v.typeName())};
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
 }
 
-Value evaluateUnaryMinus(const Value& v)
+Result<Value> evaluateUnaryMinus(const Value& v)
 {
-  switch (v.type())
+  try
   {
-  case ValueType::Boolean:
-  case ValueType::Number:
-    return Value{-v.convertTo(ValueType::Number).numberValue()};
-  case ValueType::String:
-    if (const auto result = v.tryConvertTo(ValueType::Number))
+    switch (v.type())
     {
-      return Value{-result->numberValue()};
+    case ValueType::Boolean:
+    case ValueType::Number:
+      return Value{-v.convertTo(ValueType::Number).numberValue()};
+    case ValueType::String:
+      if (const auto result = v.tryConvertTo(ValueType::Number))
+      {
+        return Value{-result->numberValue()};
+      }
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
     }
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
+    return Error{fmt::format(
+      "Cannot apply unary minus to value '{}' of type '{}'", v.describe(), v.typeName())};
   }
-  throw EvaluationError{fmt::format(
-    "Cannot apply unary minus to value '{}' of type '{}'", v.describe(), v.typeName())};
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
 }
 
-Value evaluateLogicalNegation(const Value& v)
+Result<Value> evaluateLogicalNegation(const Value& v)
 {
-  switch (v.type())
+  try
   {
-  case ValueType::Boolean:
-    return Value{!v.booleanValue()};
-  case ValueType::Number:
-  case ValueType::String:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
-  }
-  throw EvaluationError{fmt::format(
-    "Cannot apply logical negation to value '{}' of type '{}'",
-    v.describe(),
-    v.typeName())};
-}
-
-Value evaluateBitwiseNegation(const Value& v)
-{
-  switch (v.type())
-  {
-  case ValueType::Number:
-    return Value{~v.integerValue()};
-  case ValueType::String:
-    if (const auto result = v.tryConvertTo(ValueType::Number))
+    switch (v.type())
     {
-      return Value{~result->integerValue()};
+    case ValueType::Boolean:
+      return Value{!v.booleanValue()};
+    case ValueType::Number:
+    case ValueType::String:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
     }
-  case ValueType::Boolean:
-  case ValueType::Array:
-  case ValueType::Map:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
+    return Error{fmt::format(
+      "Cannot apply logical negation to value '{}' of type '{}'",
+      v.describe(),
+      v.typeName())};
   }
-  throw EvaluationError{fmt::format(
-    "Cannot apply bitwise negation to value '{}' of type '{}'",
-    v.describe(),
-    v.typeName())};
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
 }
 
-Value evaluateLeftBoundedRange(const Value& v)
+Result<Value> evaluateBitwiseNegation(const Value& v)
 {
-  const auto first = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
-  return Value{LeftBoundedRange{first}};
+  try
+  {
+    switch (v.type())
+    {
+    case ValueType::Number:
+      return Value{~v.integerValue()};
+    case ValueType::String:
+      if (const auto result = v.tryConvertTo(ValueType::Number))
+      {
+        return Value{~result->integerValue()};
+      }
+    case ValueType::Boolean:
+    case ValueType::Array:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    return Error{fmt::format(
+      "Cannot apply bitwise negation to value '{}' of type '{}'",
+      v.describe(),
+      v.typeName())};
+  }
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
 }
 
-Value evaluateRightBoundedRange(const Value& v)
+Result<Value> evaluateLeftBoundedRange(const Value& v)
 {
-  const auto last = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
-  return Value{RightBoundedRange{last}};
+  try
+  {
+    const auto first = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+    return Value{LeftBoundedRange{first}};
+  }
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
 }
 
-Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& operand)
+Result<Value> evaluateRightBoundedRange(const Value& v)
+{
+  try
+  {
+    const auto last = static_cast<long>(v.convertTo(ValueType::Number).numberValue());
+    return Value{RightBoundedRange{last}};
+  }
+  catch (const ConversionError& e)
+  {
+    return Error{e.what()};
+  }
+}
+
+Result<Value> evaluateUnaryExpression(
+  const UnaryOperation& operator_, const Value& operand)
 {
   if (operand == Value::Undefined)
   {
@@ -226,16 +281,17 @@ Value evaluateUnaryExpression(const UnaryOperation& operator_, const Value& oper
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator, const UnaryExpression& expression, const EvaluationContext&)
 {
-  return evaluateUnaryExpression(
-    expression.operation, expression.operand.accept(evaluator));
+  return expression.operand.accept(evaluator) | kdl::and_then([&](auto value) {
+           return evaluateUnaryExpression(expression.operation, value);
+         });
 }
 
-template <typename Eval>
+template <typename EvaluateOperator>
 std::optional<Value> tryEvaluateAlgebraicOperator(
-  const Value& lhs, const Value& rhs, const Eval& eval)
+  const Value& lhs, const Value& rhs, const EvaluateOperator& evaluateOperator)
 {
   if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
   {
@@ -246,8 +302,8 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
     lhs.hasType(ValueType::Boolean, ValueType::Number)
     && rhs.hasType(ValueType::Boolean, ValueType::Number))
   {
-    return Value{
-      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
+    return Value{evaluateOperator(
+      lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
   }
 
   if (
@@ -255,7 +311,7 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
   {
     if (const auto rhsAsNumber = rhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(lhs.convertTo(ValueType::Number), *rhsAsNumber)};
+      return Value{evaluateOperator(lhs.convertTo(ValueType::Number), *rhsAsNumber)};
     }
   }
 
@@ -264,360 +320,329 @@ std::optional<Value> tryEvaluateAlgebraicOperator(
   {
     if (const auto lhsAsNumber = lhs.tryConvertTo(ValueType::Number))
     {
-      return Value{eval(*lhsAsNumber, rhs.convertTo(ValueType::Number))};
+      return Value{evaluateOperator(*lhsAsNumber, rhs.convertTo(ValueType::Number))};
     }
   }
 
   return std::nullopt;
 }
 
-Value evaluateAddition(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateAddition(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (
-    const auto result = tryEvaluateAlgebraicOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue() + rhsNumber.numberValue();
-      }))
-  {
-    return *result;
-  }
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (
+               const auto result = tryEvaluateAlgebraicOperator(
+                 lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+                   return lhsNumber.numberValue() + rhsNumber.numberValue();
+                 }))
+             {
+               return *result;
+             }
 
-  if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
-  {
-    return Value{
-      lhs.convertTo(ValueType::String).stringValue()
-      + rhs.convertTo(ValueType::String).stringValue()};
-  }
+             if (lhs.hasType(ValueType::String) && rhs.hasType(ValueType::String))
+             {
+               return Value{
+                 lhs.convertTo(ValueType::String).stringValue()
+                 + rhs.convertTo(ValueType::String).stringValue()};
+             }
 
-  if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
-  {
-    return Value{kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue())};
-  }
+             if (lhs.hasType(ValueType::Array) && rhs.hasType(ValueType::Array))
+             {
+               return Value{kdl::vec_concat(lhs.arrayValue(), rhs.arrayValue())};
+             }
 
-  if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))
-  {
-    return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
-  }
+             if (lhs.hasType(ValueType::Map) && rhs.hasType(ValueType::Map))
+             {
+               return Value{kdl::map_union(lhs.mapValue(), rhs.mapValue())};
+             }
 
-  throw EvaluationError{fmt::format(
-    "Cannot add '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
-}
-
-Value evaluateSubtraction(const Value& lhs, const Value& rhs)
-{
-  if (
-    const auto result = tryEvaluateAlgebraicOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue() - rhsNumber.numberValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot subtract '{}' of type '{}' from '{}' of type '{}'",
-    rhs.describe(),
-    typeName(rhs.type()),
-    lhs.describe(),
-    typeName(lhs.type()))};
-}
-
-Value evaluateMultiplication(const Value& lhs, const Value& rhs)
-{
-  if (
-    const auto result = tryEvaluateAlgebraicOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue() * rhsNumber.numberValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot multiply '{}' of type '{}' by '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
-}
-
-Value evaluateDivision(const Value& lhs, const Value& rhs)
-{
-  if (
-    const auto result = tryEvaluateAlgebraicOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.numberValue() / rhsNumber.numberValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot divide '{}' of type '{}' by '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
-}
-
-Value evaluateModulus(const Value& lhs, const Value& rhs)
-{
-  if (
-    const auto result = tryEvaluateAlgebraicOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return std::fmod(lhsNumber.numberValue(), rhsNumber.numberValue());
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot take '{}' of type '{}' modulo '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+             return Error{fmt::format(
+               "Cannot add '{}' of type '{}' to '{}' of type '{}'",
+               lhs.describe(),
+               typeName(lhs.type()),
+               rhs.describe(),
+               typeName(rhs.type()))};
+           });
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
-Value evaluateLogicalAnd(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+Result<Value> evaluateSubtraction(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  const auto lhs = evaluateLhs();
-  auto rhs = std::make_optional<Value>();
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (
+               const auto result = tryEvaluateAlgebraicOperator(
+                 lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+                   return lhsNumber.numberValue() - rhsNumber.numberValue();
+                 }))
+             {
+               return *result;
+             }
 
-  if (lhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
-  if (lhs.hasType(ValueType::Boolean, ValueType::Null))
-  {
-    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
-    if (!lhsValue)
-    {
-      return Value{false};
-    }
-
-    rhs = evaluateRhs();
-    if (rhs->hasType(ValueType::Boolean, ValueType::Null))
-    {
-      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
-    }
-  }
-
-  if (!rhs)
-  {
-    rhs = evaluateRhs();
-  }
-
-  if (rhs->hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator && '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs->describe(),
-    typeName(rhs->type()))};
+             return Error{fmt::format(
+               "Cannot subtract '{}' of type '{}' from '{}' of type '{}'",
+               rhs.describe(),
+               typeName(rhs.type()),
+               lhs.describe(),
+               typeName(lhs.type()))};
+           });
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
-Value evaluateLogicalOr(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+Result<Value> evaluateMultiplication(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  const auto lhs = evaluateLhs();
-  auto rhs = std::make_optional<Value>();
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (
+               const auto result = tryEvaluateAlgebraicOperator(
+                 lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+                   return lhsNumber.numberValue() * rhsNumber.numberValue();
+                 }))
+             {
+               return *result;
+             }
 
-  if (lhs.hasType(ValueType::Undefined))
+             return Error{fmt::format(
+               "Cannot multiply '{}' of type '{}' by '{}' of type '{}'",
+               lhs.describe(),
+               typeName(lhs.type()),
+               rhs.describe(),
+               typeName(rhs.type()))};
+           });
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateDivision(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (
+               const auto result = tryEvaluateAlgebraicOperator(
+                 lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+                   return lhsNumber.numberValue() / rhsNumber.numberValue();
+                 }))
+             {
+               return *result;
+             }
+
+             return Error{fmt::format(
+               "Cannot divide '{}' of type '{}' by '{}' of type '{}'",
+               lhs.describe(),
+               typeName(lhs.type()),
+               rhs.describe(),
+               typeName(rhs.type()))};
+           });
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateModulus(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (
+               const auto result = tryEvaluateAlgebraicOperator(
+                 lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
+                   return std::fmod(lhsNumber.numberValue(), rhsNumber.numberValue());
+                 }))
+             {
+               return *result;
+             }
+
+             return Error{fmt::format(
+               "Cannot take '{}' of type '{}' modulo '{}' of type '{}'",
+               lhs.describe(),
+               typeName(lhs.type()),
+               rhs.describe(),
+               typeName(rhs.type()))};
+           });
+}
+
+Result<Value> undefinedOrError(
+  const Value& lhs, const Value& rhs, const std::string_view operatorName)
+{
+  if (rhs.hasType(ValueType::Undefined))
   {
     return Value::Undefined;
   }
-
-  if (lhs.hasType(ValueType::Boolean, ValueType::Null))
+  else
   {
-    const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
-    if (lhsValue)
-    {
-      return Value{true};
-    }
-
-    rhs = evaluateRhs();
-    if (rhs->hasType(ValueType::Boolean, ValueType::Null))
-    {
-      return Value{rhs->convertTo(ValueType::Boolean).booleanValue()};
-    }
+    return Error{fmt::format(
+      "Cannot apply operator {} '{}' of type '{}' to '{}' of type '{}'",
+      operatorName,
+      lhs.describe(),
+      typeName(lhs.type()),
+      rhs.describe(),
+      typeName(rhs.type()))};
   }
-
-  if (!rhs)
-  {
-    rhs = evaluateRhs();
-  }
-
-  if (rhs->hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator || '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs->describe(),
-    typeName(rhs->type()))};
 }
 
-template <typename Eval>
-std::optional<Value> tryEvaluateBitwiseOperator(
-  const Value& lhs, const Value& rhs, const Eval& eval)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateLogicalOperatorWithShortCircuiting(
+  const EvaluateLhs& evaluateLhs,
+  const EvaluateRhs& evaluateRhs,
+  const bool lhsValue,
+  const std::string_view operatorName)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
+  return evaluateLhs() | kdl::and_then([&](const auto& lhs) -> Result<Value> {
+           if (lhs.hasType(ValueType::Undefined))
+           {
+             return Value::Undefined;
+           }
 
-  if (lhs.convertibleTo(ValueType::Number) && rhs.convertibleTo(ValueType::Number))
-  {
-    return Value{
-      eval(lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
-  }
+           if (lhs.hasType(ValueType::Boolean, ValueType::Null))
+           {
+             if (lhs.convertTo(ValueType::Boolean).booleanValue() == lhsValue)
+             {
+               return Value{lhsValue};
+             }
 
-  return std::nullopt;
+             return evaluateRhs() | kdl::and_then([&](const auto& rhs) -> Result<Value> {
+                      if (rhs.hasType(ValueType::Boolean, ValueType::Null))
+                      {
+                        return Value{rhs.convertTo(ValueType::Boolean).booleanValue()};
+                      }
+
+                      return undefinedOrError(lhs, rhs, operatorName);
+                    });
+           }
+
+           return evaluateRhs() | kdl::and_then([&](const auto& rhs) {
+                    return undefinedOrError(lhs, rhs, operatorName);
+                  });
+         });
 }
 
-Value evaluateBitwiseAnd(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateLogicalAnd(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (
-    const auto result = tryEvaluateBitwiseOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue() & rhsNumber.integerValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator & '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+  return evaluateLogicalOperatorWithShortCircuiting(
+    evaluateLhs, evaluateRhs, false, "&&");
 }
 
-Value evaluateBitwiseXOr(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateLogicalOr(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (
-    const auto result = tryEvaluateBitwiseOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue() ^ rhsNumber.integerValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator ^ '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+  return evaluateLogicalOperatorWithShortCircuiting(evaluateLhs, evaluateRhs, true, "||");
 }
 
-Value evaluateBitwiseOr(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs, typename EvaluateOperator>
+Result<Value> tryEvaluateBitwiseOperator(
+  const EvaluateLhs& evaluateLhs,
+  const EvaluateRhs& evaluateRhs,
+  const EvaluateOperator& evaluateOperator,
+  const std::string_view operatorName)
 {
-  if (
-    const auto result = tryEvaluateBitwiseOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue() | rhsNumber.integerValue();
-      }))
-  {
-    return *result;
-  }
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([&](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+             {
+               return Value::Undefined;
+             }
 
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator | '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+             if (
+               lhs.convertibleTo(ValueType::Number)
+               && rhs.convertibleTo(ValueType::Number))
+             {
+               return Value{evaluateOperator(
+                 lhs.convertTo(ValueType::Number), rhs.convertTo(ValueType::Number))};
+             }
+
+             return Error{fmt::format(
+               "Cannot apply operator {} to '{}' of type '{}' and '{}' of type '{}'",
+               operatorName,
+               lhs.describe(),
+               typeName(lhs.type()),
+               rhs.describe(),
+               typeName(rhs.type()))};
+           });
 }
 
-Value evaluateBitwiseShiftLeft(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateBitwiseAnd(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (
-    const auto result = tryEvaluateBitwiseOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue() << rhsNumber.integerValue();
-      }))
-  {
-    return *result;
-  }
-
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator << '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+  return tryEvaluateBitwiseOperator(
+    evaluateLhs,
+    evaluateRhs,
+    [](const auto& lhsNumber, const auto& rhsNumber) {
+      return lhsNumber.integerValue() & rhsNumber.integerValue();
+    },
+    "&");
 }
 
-Value evaluateBitwiseShiftRight(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateBitwiseXOr(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (
-    const auto result = tryEvaluateBitwiseOperator(
-      lhs, rhs, [](const auto& lhsNumber, const auto& rhsNumber) {
-        return lhsNumber.integerValue() >> rhsNumber.integerValue();
-      }))
-  {
-    return *result;
-  }
+  return tryEvaluateBitwiseOperator(
+    evaluateLhs,
+    evaluateRhs,
+    [](const auto& lhsNumber, const auto& rhsNumber) {
+      return lhsNumber.integerValue() ^ rhsNumber.integerValue();
+    },
+    "^");
+}
 
-  throw EvaluationError{fmt::format(
-    "Cannot apply operator >> '{}' of type '{}' to '{}' of type '{}'",
-    lhs.describe(),
-    typeName(lhs.type()),
-    rhs.describe(),
-    typeName(rhs.type()))};
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateBitwiseOr(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return tryEvaluateBitwiseOperator(
+    evaluateLhs,
+    evaluateRhs,
+    [](const auto& lhsNumber, const auto& rhsNumber) {
+      return lhsNumber.integerValue() | rhsNumber.integerValue();
+    },
+    "|");
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateBitwiseShiftLeft(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return tryEvaluateBitwiseOperator(
+    evaluateLhs,
+    evaluateRhs,
+    [](const auto& lhsNumber, const auto& rhsNumber) {
+      return lhsNumber.integerValue() << rhsNumber.integerValue();
+    },
+    "<<");
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateBitwiseShiftRight(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return tryEvaluateBitwiseOperator(
+    evaluateLhs,
+    evaluateRhs,
+    [](const auto& lhsNumber, const auto& rhsNumber) {
+      return lhsNumber.integerValue() >> rhsNumber.integerValue();
+    },
+    ">>");
 }
 
 int compareAsBooleans(const Value& lhs, const Value& rhs)
 {
-  const bool lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
-  const bool rhsValue = rhs.convertTo(ValueType::Boolean).booleanValue();
-  if (lhsValue == rhsValue)
-  {
-    return 0;
-  }
-  else if (lhsValue)
-  {
-    return 1;
-  }
-  else
-  {
-    return -1;
-  }
+  const auto lhsValue = lhs.convertTo(ValueType::Boolean).booleanValue();
+  const auto rhsValue = rhs.convertTo(ValueType::Boolean).booleanValue();
+  return lhsValue == rhsValue ? 0 : lhsValue ? 1 : -1;
 }
 
 int compareAsNumbers(const Value& lhs, const Value& rhs)
 {
-  const NumberType diff = lhs.convertTo(ValueType::Number).numberValue()
-                          - rhs.convertTo(ValueType::Number).numberValue();
-  if (diff < 0.0)
-  {
-    return -1;
-  }
-  else if (diff > 0.0)
-  {
-    return 1;
-  }
-  else
-  {
-    return 0;
-  }
+  const auto diff = lhs.convertTo(ValueType::Number).numberValue()
+                    - rhs.convertTo(ValueType::Number).numberValue();
+  return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
 }
 
 int evaluateCompare(const Value& lhs, const Value& rhs)
@@ -769,36 +794,66 @@ int evaluateCompare(const Value& lhs, const Value& rhs)
   }
 }
 
-Value evaluateBoundedRange(const Value& lhs, const Value& rhs)
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<int> evaluateCompare(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
-  {
-    return Value::Undefined;
-  }
-
-  const auto from = static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
-  const auto to = static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
-
-  return Value{BoundedRange{from, to}};
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<int> {
+             try
+             {
+               return evaluateCompare(lhs, rhs);
+             }
+             catch (const EvaluationError& e)
+             {
+               return Error{e.what()};
+             }
+           });
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
-Value evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+Result<Value> evaluateBoundedRange(
+  const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
 {
-  const auto lhs = evaluateLhs();
+  return evaluateLhs().join(evaluateRhs())
+         | kdl::and_then([](const auto& lhs, const auto& rhs) -> Result<Value> {
+             if (lhs.hasType(ValueType::Undefined) || rhs.hasType(ValueType::Undefined))
+             {
+               return Value::Undefined;
+             }
 
-  if (
-    lhs.type() != ValueType::Undefined
-    && lhs.convertTo(ValueType::Boolean).booleanValue())
-  {
-    return evaluateRhs();
-  }
+             try
+             {
+               const auto from =
+                 static_cast<long>(lhs.convertTo(ValueType::Number).numberValue());
+               const auto to =
+                 static_cast<long>(rhs.convertTo(ValueType::Number).numberValue());
 
-  return Value::Undefined;
+               return Value{BoundedRange{from, to}};
+             }
+             catch (const ConversionError& e)
+             {
+               return Error{e.what()};
+             }
+           });
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
+Result<Value> evaluateCase(const EvaluateLhs& evaluateLhs, const EvaluateRhs& evaluateRhs)
+{
+  return evaluateLhs() | kdl::and_then([&](auto lhs) -> Result<Value> {
+           if (
+             lhs.type() != ValueType::Undefined
+             && lhs.convertTo(ValueType::Boolean).booleanValue())
+           {
+             return evaluateRhs();
+           }
+           return Value::Undefined;
+         });
 }
 
 template <typename EvalualateLhs, typename EvaluateRhs>
-Value evaluateBinaryExpression(
+Result<Value> evaluateBinaryExpression(
   const BinaryOperation operator_,
   const EvalualateLhs& evaluateLhs,
   const EvaluateRhs& evaluateRhs)
@@ -806,43 +861,49 @@ Value evaluateBinaryExpression(
   switch (operator_)
   {
   case BinaryOperation::Addition:
-    return evaluateAddition(evaluateLhs(), evaluateRhs());
+    return evaluateAddition(evaluateLhs, evaluateRhs);
   case BinaryOperation::Subtraction:
-    return evaluateSubtraction(evaluateLhs(), evaluateRhs());
+    return evaluateSubtraction(evaluateLhs, evaluateRhs);
   case BinaryOperation::Multiplication:
-    return evaluateMultiplication(evaluateLhs(), evaluateRhs());
+    return evaluateMultiplication(evaluateLhs, evaluateRhs);
   case BinaryOperation::Division:
-    return evaluateDivision(evaluateLhs(), evaluateRhs());
+    return evaluateDivision(evaluateLhs, evaluateRhs);
   case BinaryOperation::Modulus:
-    return evaluateModulus(evaluateLhs(), evaluateRhs());
+    return evaluateModulus(evaluateLhs, evaluateRhs);
   case BinaryOperation::LogicalAnd:
     return evaluateLogicalAnd(evaluateLhs, evaluateRhs);
   case BinaryOperation::LogicalOr:
     return evaluateLogicalOr(evaluateLhs, evaluateRhs);
   case BinaryOperation::BitwiseAnd:
-    return evaluateBitwiseAnd(evaluateLhs(), evaluateRhs());
+    return evaluateBitwiseAnd(evaluateLhs, evaluateRhs);
   case BinaryOperation::BitwiseXOr:
-    return evaluateBitwiseXOr(evaluateLhs(), evaluateRhs());
+    return evaluateBitwiseXOr(evaluateLhs, evaluateRhs);
   case BinaryOperation::BitwiseOr:
-    return evaluateBitwiseOr(evaluateLhs(), evaluateRhs());
+    return evaluateBitwiseOr(evaluateLhs, evaluateRhs);
   case BinaryOperation::BitwiseShiftLeft:
-    return evaluateBitwiseShiftLeft(evaluateLhs(), evaluateRhs());
+    return evaluateBitwiseShiftLeft(evaluateLhs, evaluateRhs);
   case BinaryOperation::BitwiseShiftRight:
-    return evaluateBitwiseShiftRight(evaluateLhs(), evaluateRhs());
+    return evaluateBitwiseShiftRight(evaluateLhs, evaluateRhs);
   case BinaryOperation::Less:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) < 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value < 0}; });
   case BinaryOperation::LessOrEqual:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) <= 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value <= 0}; });
   case BinaryOperation::Greater:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) > 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value > 0}; });
   case BinaryOperation::GreaterOrEqual:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) >= 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value >= 0}; });
   case BinaryOperation::Equal:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) == 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value == 0}; });
   case BinaryOperation::NotEqual:
-    return Value{evaluateCompare(evaluateLhs(), evaluateRhs()) != 0};
+    return evaluateCompare(evaluateLhs, evaluateRhs)
+           | kdl::transform([](const auto value) { return Value{value != 0}; });
   case BinaryOperation::BoundedRange:
-    return Value{evaluateBoundedRange(evaluateLhs(), evaluateRhs())};
+    return evaluateBoundedRange(evaluateLhs, evaluateRhs);
   case BinaryOperation::Case:
     return evaluateCase(evaluateLhs, evaluateRhs);
     switchDefault();
@@ -850,7 +911,7 @@ Value evaluateBinaryExpression(
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator,
   const BinaryExpression& expression,
   const EvaluationContext&)
@@ -862,18 +923,18 @@ Value evaluate(
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator,
   const SubscriptExpression& expression,
   const EvaluationContext&)
 {
-  const auto leftValue = expression.leftOperand.accept(evaluator);
-  const auto rightValue = expression.rightOperand.accept(evaluator);
-  return leftValue[rightValue];
+  return expression.leftOperand.accept(evaluator).join(
+           expression.rightOperand.accept(evaluator))
+         | kdl::transform([](const auto& lhs, const auto& rhs) { return lhs[rhs]; });
 }
 
 template <typename Evaluator>
-Value evaluate(
+Result<Value> evaluate(
   const Evaluator& evaluator,
   const SwitchExpression& expression,
   const EvaluationContext&)
@@ -888,158 +949,211 @@ Value evaluate(
   return Value::Undefined;
 }
 
-
-Expression optimize(const LiteralExpression& expression)
+Result<Expression> optimize(const LiteralExpression& expression)
 {
-  return LiteralExpression{expression.value};
+  return Expression{LiteralExpression{expression.value}};
 }
 
-Expression optimize(const VariableExpression& expression)
+Result<Expression> optimize(const VariableExpression& expression)
 {
-  return VariableExpression{expression.variableName};
+  return Expression{VariableExpression{expression.variableName}};
 }
 
-Expression optimize(const ArrayExpression& expression)
+Result<Expression> optimize(const ArrayExpression& expression)
 {
-  auto optimizedExpressions =
-    expression.elements
-    | std::views::transform([](const auto& x) { return x.optimize(); });
+  return expression.elements
+         | std::views::transform([](const auto& x) { return x.optimize(); }) | kdl::fold
+         | kdl::and_then([](const auto& optimizedExpressions) {
+             const auto isLiteral = std::ranges::all_of(
+               optimizedExpressions, [](const auto& x) { return x.isLiteral(); });
 
-  const auto isLiteral = std::ranges::all_of(
-    optimizedExpressions, [](const auto& x) { return x.isLiteral(); });
+             if (isLiteral)
+             {
+               const auto evaluationContext = EvaluationContext{};
+               return optimizedExpressions | std::views::transform([&](const auto& x) {
+                        return x.evaluate(evaluationContext);
+                      })
+                      | kdl::fold | kdl::transform([](auto values) {
+                          return Expression{LiteralExpression{Value{std::move(values)}}};
+                        });
+             }
 
-  if (isLiteral)
-  {
-    const auto evaluationContext = EvaluationContext{};
-    return LiteralExpression{Value{
-      optimizedExpressions | std::views::transform([&](const auto& x) {
-        return x.evaluate(evaluationContext);
-      })
-      | kdl::to_vector}};
-  }
-
-  return ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector};
+             return Result<Expression>{
+               ArrayExpression{std::move(optimizedExpressions) | kdl::to_vector}};
+           });
 }
 
-Expression optimize(const MapExpression& expression)
+Result<Expression> optimize(const MapExpression& expression)
 {
-  auto optimizedExpressions =
-    expression.elements | std::views::transform([](const auto& entry) {
-      return std::pair{entry.first, entry.second.optimize()};
-    });
+  return expression.elements | std::views::transform([](const auto& entry) {
+           return entry.second.optimize()
+                  | kdl::and_then(
+                    [&](auto optimizedExpression)
+                      -> Result<std::pair<std::string, ExpressionNode>> {
+                      return std::pair{entry.first, std::move(optimizedExpression)};
+                    });
+         })
+         | kdl::fold | kdl::and_then([](auto optimizedExpressions) -> Result<Expression> {
+             const auto isLiteral = std::ranges::all_of(
+               optimizedExpressions,
+               [](const auto& entry) { return entry.second.isLiteral(); });
 
-  const auto isLiteral = std::ranges::all_of(
-    optimizedExpressions, [](const auto& entry) { return entry.second.isLiteral(); });
+             if (isLiteral)
+             {
+               const auto evaluationContext = EvaluationContext{};
+               return optimizedExpressions
+                      | std::views::transform([&](const auto& entry) {
+                          return entry.second.evaluate(evaluationContext)
+                                 | kdl::and_then(
+                                   [&](auto value)
+                                     -> Result<std::pair<std::string, Value>> {
+                                     return std::pair{entry.first, std::move(value)};
+                                   });
+                        })
+                      | kdl::fold | kdl::transform([](auto entries) {
+                          return Expression{LiteralExpression{
+                            Value{std::move(entries) | kdl::to<MapType>()}}};
+                        });
+             }
 
-  if (isLiteral)
-  {
-    const auto evaluationContext = EvaluationContext{};
-    return LiteralExpression{Value{
-      optimizedExpressions | std::views::transform([&](const auto& entry) {
-        return std::pair{entry.first, entry.second.evaluate(evaluationContext)};
-      })
-      | kdl::to<MapType>()}};
-  }
-
-  return MapExpression{
-    std::move(optimizedExpressions) | kdl::to<std::map<std::string, ExpressionNode>>()};
+             return Expression{MapExpression{
+               std::move(optimizedExpressions)
+               | kdl::to<std::map<std::string, ExpressionNode>>()}};
+           });
 }
 
-Expression optimize(const UnaryExpression& expression)
+Result<Expression> optimize(const UnaryExpression& expression)
 {
-  const auto evaluationContext = EvaluationContext{};
-  auto optimizedOperand = expression.operand.optimize();
+  return expression.operand.optimize()
+         | kdl::and_then([&](auto optimizedOperand) -> Result<Expression> {
+             if (optimizedOperand.isLiteral())
+             {
+               const auto evaluationContext = EvaluationContext{};
+               return optimizedOperand.evaluate(evaluationContext)
+                      | kdl::and_then([&](auto value) {
+                          return evaluateUnaryExpression(expression.operation, value);
+                        })
+                      | kdl::transform([](auto value) {
+                          return Expression{LiteralExpression{std::move(value)}};
+                        });
+             }
 
-  if (optimizedOperand.isLiteral())
-  {
-    return LiteralExpression{evaluateUnaryExpression(
-      expression.operation, optimizedOperand.evaluate(evaluationContext))};
-  }
-
-  return UnaryExpression{expression.operation, std::move(optimizedOperand)};
+             return Expression{
+               UnaryExpression{expression.operation, std::move(optimizedOperand)}};
+           });
 }
 
-Expression optimize(const BinaryExpression& expression)
+Result<Expression> optimize(const BinaryExpression& expression)
 {
-  auto optimizedLeftOperand = std::optional<ExpressionNode>{};
-  auto optimizedRightOperand = std::optional<ExpressionNode>{};
+  auto optimizedLeftOperand = std::optional<Result<ExpressionNode>>{};
+  auto optimizedRightOperand = std::optional<Result<ExpressionNode>>{};
 
   const auto evaluationContext = EvaluationContext{};
 
   const auto evaluateLeftOperand = [&] {
     optimizedLeftOperand = expression.leftOperand.optimize();
-    return optimizedLeftOperand->evaluate(evaluationContext);
+    return *optimizedLeftOperand
+           | kdl::and_then([&](auto x) { return x.evaluate(evaluationContext); });
   };
 
   const auto evaluateRightOperand = [&] {
     optimizedRightOperand = expression.rightOperand.optimize();
-    return optimizedRightOperand->evaluate(evaluationContext);
+    return *optimizedRightOperand
+           | kdl::and_then([&](auto x) { return x.evaluate(evaluationContext); });
   };
 
-  auto value = evaluateBinaryExpression(
-    expression.operation, evaluateLeftOperand, evaluateRightOperand);
+  return evaluateBinaryExpression(
+           expression.operation, evaluateLeftOperand, evaluateRightOperand)
+         | kdl::and_then([&](auto value) -> Result<Expression> {
+             // evaluation succeeded, so if an operand was evaluated, it was a success
+             const auto isLiteral =
+               (!optimizedLeftOperand || optimizedLeftOperand->value().isLiteral())
+               && (!optimizedRightOperand || optimizedRightOperand->value().isLiteral());
 
-  const auto isLiteral =
-    (!optimizedLeftOperand || optimizedLeftOperand->isLiteral())
-    && (!optimizedRightOperand || optimizedRightOperand->isLiteral());
+             if (isLiteral)
+             {
+               return Expression{LiteralExpression{std::move(value)}};
+             }
 
-  if (isLiteral)
-  {
-    return LiteralExpression{std::move(value)};
-  }
+             // evaluate any operands that were not evaluated due to short circuiting
+             if (!optimizedLeftOperand)
+             {
+               optimizedLeftOperand = expression.leftOperand.optimize();
+             }
 
-  return BinaryExpression{
-    expression.operation,
-    std::move(optimizedLeftOperand).value_or(expression.leftOperand.optimize()),
-    std::move(optimizedRightOperand).value_or(expression.rightOperand.optimize())};
+             if (!optimizedRightOperand)
+             {
+               optimizedRightOperand = expression.rightOperand.optimize();
+             }
+
+             return optimizedLeftOperand->join(*optimizedRightOperand)
+                    | kdl::transform([&](auto left, auto right) {
+                        return Expression{BinaryExpression{
+                          expression.operation,
+                          ExpressionNode{std::move(left)},
+                          ExpressionNode{std::move(right)}}};
+                      });
+           });
 }
 
-Expression optimize(const SubscriptExpression& expression)
+Result<Expression> optimize(const SubscriptExpression& expression)
 {
-  auto optimizedLeftOperand = expression.leftOperand.optimize();
-  auto optimizedRightOperand = expression.rightOperand.optimize();
+  return expression.leftOperand.optimize().join(expression.rightOperand.optimize())
+         | kdl::and_then(
+           [](
+             auto optimizedLeftOperand,
+             auto optimizedRightOperand) -> Result<Expression> {
+             const auto isLiteral =
+               optimizedLeftOperand.isLiteral() && optimizedRightOperand.isLiteral();
 
-  const auto isLiteral =
-    optimizedLeftOperand.isLiteral() && optimizedRightOperand.isLiteral();
+             if (isLiteral)
+             {
+               const auto evaluationContext = EvaluationContext{};
+               return optimizedLeftOperand.evaluate(evaluationContext)
+                        .join(optimizedRightOperand.evaluate(evaluationContext))
+                      | kdl::transform([](auto leftValue, auto rightValue) {
+                          return Expression{LiteralExpression{leftValue[rightValue]}};
+                        });
+             }
 
-  if (isLiteral)
-  {
-    const auto evaluationContext = EvaluationContext{};
-    auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
-    auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
-    return LiteralExpression{leftValue[rightValue]};
-  }
-
-  return SubscriptExpression{
-    std::move(optimizedLeftOperand), std::move(optimizedRightOperand)};
+             return Expression{SubscriptExpression{
+               std::move(optimizedLeftOperand), std::move(optimizedRightOperand)}};
+           });
 }
 
-Expression optimize(const SwitchExpression& expression)
+Result<Expression> optimize(const SwitchExpression& expression)
 {
   if (expression.cases.empty())
   {
-    return LiteralExpression{Value::Undefined};
+    return Expression{LiteralExpression{Value::Undefined}};
   }
 
   const auto evaluationContext = EvaluationContext{};
 
-  auto firstOptimizedExpression = expression.cases.front().optimize();
-  if (firstOptimizedExpression.isLiteral())
-  {
-    return LiteralExpression{firstOptimizedExpression.evaluate(evaluationContext)};
-  }
+  return expression.cases.front().optimize()
+         | kdl::and_then([&](auto firstOptimizedExpression) -> Result<Expression> {
+             if (firstOptimizedExpression.isLiteral())
+             {
+               return firstOptimizedExpression.evaluate(evaluationContext)
+                      | kdl::transform([](auto value) {
+                          return Expression{LiteralExpression{std::move(value)}};
+                        });
+             }
 
-  auto optimizedExpressions =
-    std::vector<ExpressionNode>{std::move(firstOptimizedExpression)};
-  for (size_t i = 1u; i < expression.cases.size(); ++i)
-  {
-    optimizedExpressions.push_back(expression.cases[i].optimize());
-  }
+             return expression.cases | std::views::drop(1)
+                    | std::views::transform([](const auto& x) { return x.optimize(); })
+                    | kdl::fold | kdl::transform([&](auto optimizedExpressions) {
+                        optimizedExpressions.insert(
+                          optimizedExpressions.begin(),
+                          std::move(firstOptimizedExpression));
 
-  return SwitchExpression{std::move(optimizedExpressions)};
+                        return Expression{
+                          SwitchExpression{std::move(optimizedExpressions)}};
+                      });
+           });
 }
 
-Expression optimizeExpression(const Expression& expression)
+Result<Expression> optimizeExpression(const Expression& expression)
 {
   return std::visit([](const auto& x) { return optimize(x); }, expression);
 }
@@ -1124,21 +1238,23 @@ bool ExpressionNode::isLiteral() const
   return std::holds_alternative<LiteralExpression>(*m_expression);
 }
 
-Value ExpressionNode::evaluate(
+Result<Value> ExpressionNode::evaluate(
   const EvaluationContext& context, EvaluationTrace* trace) const
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
-      auto value = el::evaluate(evaluator, expression, context);
-      if (trace)
-      {
-        trace->addTrace(value, containingNode);
-      }
-      return value;
+      return el::evaluate(evaluator, expression, context)
+             | kdl::transform([&](auto value) {
+                 if (trace)
+                 {
+                   trace->addTrace(value, containingNode);
+                 }
+                 return value;
+               });
     });
 }
 
-Value ExpressionNode::evaluate(
+Result<Value> ExpressionNode::evaluate(
   const EvaluationContext& context, EvaluationTrace& trace) const
 {
   return evaluate(context, &trace);
@@ -1148,21 +1264,19 @@ Value ExpressionNode::tryEvaluate(
   const EvaluationContext& context, EvaluationTrace* trace) const
 {
   return accept(
-    [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
-      try
-      {
-        auto value = el::evaluate(evaluator, expression, context);
-        if (trace)
-        {
-          trace->addTrace(value, containingNode);
-        }
-        return value;
-      }
-      catch (const EvaluationError&)
-      {
-        return Value::Undefined;
-      }
-    });
+           [&](const auto& evaluator, const auto& expression, const auto& containingNode)
+             -> Result<Value> {
+             return el::evaluate(evaluator, expression, context)
+                    | kdl::transform_error([](const auto&) { return Value::Undefined; })
+                    | kdl::transform([&](auto value) {
+                        if (trace)
+                        {
+                          trace->addTrace(value, containingNode);
+                        }
+                        return value;
+                      });
+           })
+         | kdl::value();
 }
 
 Value ExpressionNode::tryEvaluate(
@@ -1171,10 +1285,13 @@ Value ExpressionNode::tryEvaluate(
   return tryEvaluate(context, &trace);
 }
 
-ExpressionNode ExpressionNode::optimize() const
+Result<ExpressionNode> ExpressionNode::optimize() const
 {
-  return ExpressionNode{
-    std::make_shared<Expression>(optimizeExpression(*m_expression)), m_location};
+  return optimizeExpression(*m_expression)
+         | kdl::transform([&](auto optimizedExpression) {
+             return ExpressionNode{
+               std::make_shared<Expression>(std::move(optimizedExpression)), m_location};
+           });
 }
 
 const std::optional<FileLocation>& ExpressionNode::location() const

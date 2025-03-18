@@ -230,10 +230,7 @@ void EntityBrowserView::addEntityToLayout(
     const auto actualFont =
       fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
     const auto actualSize = fontManager().font(actualFont).measure(definition->name());
-    const auto spec =
-      mdl::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
-        return definition->modelDefinition().defaultModelSpecification();
-      });
+    const auto spec = definition->modelDefinition().defaultModelSpecification();
 
     const auto modelScale = vm::vec3f{mdl::safeGetModelScale(
       definition->modelDefinition(),

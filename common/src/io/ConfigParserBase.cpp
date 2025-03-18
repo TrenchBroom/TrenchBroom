@@ -63,8 +63,9 @@ void expectStructure(
   const el::Value& value, const el::EvaluationTrace& trace, const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
-  parser.parse() | kdl::transform([&](const auto& expression) {
-    const auto expected = expression.evaluate(el::EvaluationContext());
+  parser.parse() | kdl::and_then([&](const auto& expression) {
+    return expression.evaluate(el::EvaluationContext{});
+  }) | kdl::transform([&](const auto& expected) {
     assert(expected.type() == el::ValueType::Array);
 
     const auto mandatory = expected[0];

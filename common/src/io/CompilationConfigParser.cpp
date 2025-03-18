@@ -181,30 +181,35 @@ CompilationConfigParser::CompilationConfigParser(
 
 Result<mdl::CompilationConfig> CompilationConfigParser::parse()
 {
-  return parseConfigFile()
-         | kdl::and_then([&](const auto& expression) -> Result<mdl::CompilationConfig> {
-             try
-             {
+  try
+  {
+    return parseConfigFile()
+           | kdl::and_then([&](const auto& expression) -> Result<mdl::CompilationConfig> {
                const auto context = el::EvaluationContext{};
                auto trace = el::EvaluationTrace{};
 
-               const auto root = expression.evaluate(context, trace);
-               expectType(root, trace, el::ValueType::Map);
+               return expression.evaluate(context, trace)
+                      | kdl::transform([&](const auto& root) {
+                          expectType(root, trace, el::ValueType::Map);
 
-               expectStructure(
-                 root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+                          expectStructure(
+                            root,
+                            trace,
+                            "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-               const auto version = root["version"].numberValue();
-               unused(version);
-               assert(version == 1.0);
+                          const auto version = root["version"].numberValue();
+                          unused(version);
+                          assert(version == 1.0);
 
-               return mdl::CompilationConfig{parseProfiles(root["profiles"], trace)};
-             }
-             catch (const Exception& e)
-             {
-               return Error{e.what()};
-             }
-           });
+                          return mdl::CompilationConfig{
+                            parseProfiles(root["profiles"], trace)};
+                        });
+             });
+  }
+  catch (const Exception& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace tb::io

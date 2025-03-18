@@ -175,12 +175,18 @@ void Entity::setModel(const EntityModel* model)
 
 const EntityModelFrame* Entity::modelFrame() const
 {
-  return m_model && m_model->data()
-           ? m_model->data()->frame(modelSpecification().frameIndex)
-           : nullptr;
+  if (m_model && m_model->data())
+  {
+    if (const auto modelSpec = modelSpecification(); modelSpec.is_success())
+    {
+      return m_model->data()->frame(modelSpec.value().frameIndex);
+    }
+  }
+
+  return nullptr;
 }
 
-ModelSpecification Entity::modelSpecification() const
+Result<ModelSpecification> Entity::modelSpecification() const
 {
   if (
     const auto* pointDefinition =
@@ -189,10 +195,8 @@ ModelSpecification Entity::modelSpecification() const
     const auto variableStore = EntityPropertiesVariableStore{*this};
     return pointDefinition->modelDefinition().modelSpecification(variableStore);
   }
-  else
-  {
-    return ModelSpecification{};
-  }
+
+  return ModelSpecification{};
 }
 
 const vm::mat4x4d& Entity::modelTransformation(
@@ -218,7 +222,7 @@ const vm::mat4x4d& Entity::modelTransformation(
   return *m_cachedModelTransformation;
 }
 
-DecalSpecification Entity::decalSpecification() const
+Result<DecalSpecification> Entity::decalSpecification() const
 {
   if (
     const auto* pointDefinition =
@@ -227,10 +231,8 @@ DecalSpecification Entity::decalSpecification() const
     const auto variableStore = EntityPropertiesVariableStore{*this};
     return pointDefinition->decalDefinition().decalSpecification(variableStore);
   }
-  else
-  {
-    return DecalSpecification{};
-  }
+
+  return DecalSpecification{};
 }
 
 void Entity::unsetEntityDefinitionAndModel()

@@ -17,7 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Exceptions.h"
+#include "Error.h"
+#include "Result.h"
 #include "TestLogger.h"
 #include "mdl/AssetUtils.h"
 
@@ -38,29 +39,19 @@ TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
   // regular execution is fine
   SECTION("Regular execution")
   {
-    CHECK_NOTHROW(
-      actual = safeGetModelSpecification(logger, "", [&]() { return expected; }));
+    CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", [&]() {
+                    return Result<ModelSpecification>{expected};
+                  }));
     CHECK(logger.countMessages() == 0u);
     CHECK(actual.has_value());
     CHECK(*actual == expected);
   }
 
-  // only ELExceptions are caught, and nothing is logged
-  SECTION("Only ELExceptions are caught, and nothing is logged")
+  SECTION("Return an error logs and returns an empty model spec")
   {
-    CHECK_THROWS_AS(
-      safeGetModelSpecification(
-        logger, "", []() -> ModelSpecification { throw AssetException(); }),
-      AssetException);
-    CHECK(logger.countMessages() == 0u);
-  }
-
-  // throwing an EL exception logs and returns an empty model spec
-  SECTION("Throwing an EL exception logs and returns an empty model spec")
-  {
-    CHECK_NOTHROW(
-      actual = safeGetModelSpecification(
-        logger, "", []() -> ModelSpecification { throw el::Exception(); }));
+    CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", []() {
+                    return Result<ModelSpecification>{Error{}};
+                  }));
     CHECK(logger.countMessages() == 1u);
     CHECK(logger.countMessages(LogLevel::Error) == 1u);
     CHECK(actual.has_value());
