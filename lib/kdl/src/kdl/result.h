@@ -46,6 +46,58 @@ public:
   }
 };
 
+template <typename T>
+concept is_reference = std::is_reference_v<T>;
+
+template <is_reference T>
+struct reference_value
+{
+  T value;
+
+  friend bool operator==(const reference_value& lhs, const reference_value& rhs)
+  {
+    return &lhs.value == &rhs.value;
+  }
+
+  friend bool operator!=(const reference_value& lhs, const reference_value& rhs)
+  {
+    return !(lhs == rhs);
+  }
+};
+
+template <typename V>
+struct reference_visitor
+{
+  V visitor;
+
+  template <typename T>
+  auto operator()(const reference_value<T>& reference) const
+  {
+    return visitor(reference.value);
+  }
+
+  template <typename T>
+  auto operator()(reference_value<T>& reference) const
+  {
+    return visitor(reference.value);
+  }
+
+  template <typename T>
+  auto operator()(reference_value<T>&& reference) const
+  {
+    return visitor(reference.value);
+  }
+
+  template <typename T>
+  auto operator()(T&& value) const
+  {
+    return visitor(std::forward<T>(value));
+  }
+};
+
+template <typename V>
+reference_visitor(V) -> reference_visitor<V>;
+
 template <typename... Values>
 struct multi_value
 {
@@ -297,6 +349,48 @@ public:
   result(result<Value, ErrorSubset...> other)
     : m_value{std::move(other).visit(overload(
         [](Value&& v) -> variant_type { return std::move(v); },
+        [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+  {
+    static_assert(
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
+      "Error types of result type to convert must be a subset of target result type");
+  }
+
+  /**
+   * Converting constructor from a reference result.
+   *
+   * The given result type must reference the same value type and a subset of the error
+   * types of this result type. The referenced value wrapped by the given result is copied
+   * into this result, while the error wrapped by the given result is moved.
+   *
+   * @param other the result to convert
+   */
+  template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
+  result(result<Value&, ErrorSubset...> other)
+    : m_value{std::move(other).visit(overload(
+        [](Value& v) -> variant_type { return v; },
+        [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+  {
+    static_assert(
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
+      "Error types of result type to convert must be a subset of target result type");
+  }
+
+  /**
+   * Converting constructor from a const reference result.
+   *
+   * The given result type must reference the same value type and a subset of the error
+   * types of this result type. The referenced value wrapped by the given result is copied
+   * into this result, while the error wrapped by the given result is moved.
+   *
+   * @param other the result to convert
+   */
+  template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
+  result(result<const Value&, ErrorSubset...> other)
+    : m_value{std::move(other).visit(overload(
+        [](const Value& v) -> variant_type { return v; },
         [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
   {
     static_assert(
@@ -962,6 +1056,542 @@ public:
   friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
 };
 
+template <is_reference Reference, typename... Errors>
+class [[nodiscard]] result<Reference, Errors...>
+{
+public:
+  using value_type = reference_value<Reference>;
+  using error_variant = std::variant<Errors...>;
+  static constexpr auto error_count = std::tuple_size_v<std::tuple<Errors...>>;
+
+  template <typename OtherValue>
+  using with_value_type = result<OtherValue, Errors...>;
+
+private:
+  using variant_type = std::variant<value_type, Errors...>;
+  variant_type m_value;
+
+  explicit result(variant_type&& v)
+    : m_value{std::move(v)}
+  {
+  }
+
+public:
+  /**
+   * Creates a new result that wraps the given reference.
+   *
+   * @param r the reference
+   */
+  // NOLINTNEXTLINE
+  result(Reference r)
+    : m_value{reference_value<Reference>{r}}
+  {
+  }
+
+  /**
+   * Creates a new result that wraps the given error.
+   *
+   * @tparam T the type of the error, must match one of the error types of this result
+   * @param r the error
+   */
+  template <
+    typename T,
+    typename std::enable_if_t<std::disjunction_v<
+      std::is_same<int, int>, // avoid empty disjunction if Errors is empty
+      std::is_convertible<T, Errors>...>>* = nullptr>
+  // NOLINTNEXTLINE
+  result(T&& r)
+    : m_value{std::forward<T>(r)}
+  {
+  }
+
+  /**
+   * Converting constructor.
+   *
+   * The given result type must have the same reference type and a subset of the error
+   * types of this result type. The value or error wrapped by the given result is moved
+   * into this result.
+   *
+   * @param other the result to convert
+   */
+  template <typename... ErrorSubset>
+  // NOLINTNEXTLINE
+  result(result<Reference, ErrorSubset...> other)
+    : m_value{std::move(other).visit(overload(
+        [](Reference r) -> variant_type { return value_type{r}; },
+        [](auto&& e) -> variant_type { return std::forward<decltype(e)>(e); }))}
+  {
+    static_assert(
+      meta_is_subset_v<meta_type_list<ErrorSubset...>, meta_type_list<Errors...>>,
+      "Error types of result type to convert must be a subset of target result type");
+  }
+  /**
+   * Visits the reference or error contained in this result.
+   *
+   * The given visitor must accept the reference type and all error types of this result.
+   * The error contained in this result is passed to the visitor by const lvalue
+   * reference.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does not
+   * return anything
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) const&
+  {
+    return std::visit(reference_visitor{visitor}, m_value);
+  }
+
+  /**
+   * Visits the reference or error contained in this result.
+   *
+   * The given visitor must accept the reference type and all error types of this result.
+   * The error contained in this result is passed to the visitor by non const lvalue
+   * reference.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does not
+   * return anything
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &
+  {
+    return std::visit(reference_visitor{visitor}, m_value);
+  }
+
+  /**
+   * Visits the reference or error contained in this result.
+   *
+   * The given visitor must accept the reference type and all error types of this result.
+   * The error contained in this result is passed to the visitor by rvalue reference.
+   *
+   * @tparam Visitor the type of the visitor
+   * @param visitor the visitor to apply
+   * @return the value returned by the given visitor or void if the given visitor does
+   * not return anything
+   */
+  template <typename Visitor>
+  auto visit(const Visitor& visitor) &&
+  {
+    return std::visit(reference_visitor{visitor}, std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then
+   */
+  template <typename F>
+  auto and_then(const F& f) const&
+  {
+    using My_Result = result<Reference, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) { return Cm_Result{f(r)}; },
+        [](const auto& e) { return Cm_Result{e}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then
+   */
+  template <typename F>
+  auto and_then(const F& f) &
+  {
+    using My_Result = result<Reference, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) { return Cm_Result{f(r)}; },
+        [](auto& e) { return Cm_Result{e}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::and_then
+   */
+  template <typename F>
+  auto and_then(const F& f) &&
+  {
+    using My_Result = result<Reference, Errors...>;
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+
+    using Cm_Result = typename detail::chain_results<My_Result, Fn_Result>::type;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) { return Cm_Result{f(r)}; },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; })},
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else
+   */
+  template <typename F>
+  auto or_else(const F& f) const&
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, value_type>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Fn_Result{r}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else
+   */
+  template <typename F>
+  auto or_else(const F& f) &
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, value_type>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Fn_Result{r}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::or_else
+   */
+  template <typename F>
+  auto or_else(const F& f) &&
+  {
+    static_assert(
+      sizeof...(Errors) > 0,
+      "Cannot apply or_else to a result type with empty error type list");
+
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
+
+    static_assert(is_result_v<Fn_Result>, "Function must return a result type");
+    static_assert(
+      std::is_same_v<typename Fn_Result::value_type, value_type>,
+      "Function must return result with same value type");
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Fn_Result{r}; },
+        [&](auto&& e) { return f(std::forward<decltype(e)>(e)); })},
+      std::move(m_value));
+  }
+
+  /**
+   * See result<Value, Errors...>::transform
+   */
+  template <typename F>
+  auto transform(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(r);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(r)};
+          }
+        },
+        [](const auto& e) { return Cm_Result{e}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::transform
+   */
+  template <typename F>
+  auto transform(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(r);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(r)};
+          }
+        },
+        [](auto& e) { return Cm_Result{e}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::transform
+   */
+  template <typename F>
+  auto transform(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<Reference>()));
+    using Cm_Result = result<Fn_Result, Errors...>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [&](Reference r) {
+          if constexpr (std::is_same_v<typename Cm_Result::value_type, void>)
+          {
+            f(r);
+            return Cm_Result{};
+          }
+          else
+          {
+            return Cm_Result{f(r)};
+          }
+        },
+        [](auto&& e) { return Cm_Result{std::forward<decltype(e)>(e)}; })},
+      std::move(m_value));
+  }
+
+#ifdef _MSC_VER
+// MSVC issues an unreachable code warning if the given function throws.
+#pragma warning(push)
+#pragma warning(disable : 4702)
+#endif
+  /**
+   * See result<Value, Errors...>::transform_error
+   */
+  template <typename F>
+  auto transform_error(const F& f) const&
+  {
+    using Fn_Result = decltype(f(std::declval<const meta_front_t<Errors...>&>()));
+    static_assert(
+      std::is_reference_v<Fn_Result>, "Function must return a reference type");
+
+    using Cm_Result = result<Reference>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Cm_Result{r}; },
+        [&](const auto& e) { return Cm_Result{f(e)}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::transform_error
+   */
+  template <typename F>
+  auto transform_error(const F& f) &
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&>()));
+    static_assert(
+      std::is_reference_v<Fn_Result>, "Function must return a reference type");
+
+    using Cm_Result = result<Reference>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Cm_Result{r}; },
+        [&](auto& e) { return Cm_Result{f(e)}; })},
+      m_value);
+  }
+
+  /**
+   * See result<Value, Errors...>::transform_error
+   */
+  template <typename F>
+  auto transform_error(const F& f) &&
+  {
+    using Fn_Result = decltype(f(std::declval<meta_front_t<Errors...>&&>()));
+    static_assert(
+      std::is_reference_v<Fn_Result>, "Function must return a reference type");
+
+    using Cm_Result = result<Reference>;
+
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) { return Cm_Result{r}; },
+        [&](auto&& e) { return Cm_Result{f(std::forward<decltype(e)>(e))}; })},
+      std::move(m_value));
+  }
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
+  /**
+   * See result<Value, Errors...>::if_error
+   */
+  template <typename F>
+  auto if_error(const F& f) const&
+  {
+    std::visit(
+      reference_visitor{overload([](Reference) {}, [&](const auto& e) { f(e); })},
+      m_value);
+    return *this;
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error
+   */
+  template <typename F>
+  auto if_error(const F& f) &
+  {
+    std::visit(
+      reference_visitor{overload([](Reference) {}, [&](auto& e) { f(e); })}, m_value);
+    return *this;
+  }
+
+  /**
+   * See result<Value, Errors...>::if_error
+   */
+  template <typename F>
+  auto if_error(const F& f) &&
+  {
+    std::visit(
+      reference_visitor{
+        overload([](Reference) {}, [&](auto&& e) { f(std::forward<decltype(e)>(e)); })},
+      std::move(m_value));
+    return std::move(*this);
+  }
+
+  /**
+   * Returns the reference contained in this result if it is successful. Otherwise, throws
+   * `bad_result_access`.
+   *
+   * @return the reference in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto value() const
+  {
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference r) -> const Reference { return r; },
+        [](const auto&) -> const Reference { throw bad_result_access{}; })},
+      m_value);
+  }
+
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a variant containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() const&
+  {
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference) -> error_variant { throw bad_result_access{}; },
+        [](const auto& e) -> error_variant { return e; })},
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a variant containing a copy of the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &
+  {
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference) -> error_variant { throw bad_result_access{}; },
+        [](auto& e) -> error_variant { return e; })},
+      m_value);
+  }
+
+  /**
+   * Returns a the error contained in this result if it not successful. Otherwise,
+   * throws `bad_result_access`.
+   *
+   * @return a variant containing the error in this result
+   *
+   * @throw bad_result_access if this result is an error
+   */
+  auto error() &&
+  {
+    return std::visit(
+      reference_visitor{overload(
+        [](Reference) -> error_variant { throw bad_result_access{}; },
+        [](auto&& e) -> error_variant { return std::forward<decltype(e)>(e); })},
+      std::move(m_value));
+  }
+
+  /**
+   * Silence warnings about unused results.
+   */
+  void ignore() const {}
+
+  /**
+   * Indicates whether the given result contains a value.
+   */
+  bool is_success() const { return m_value.index() == 0u; }
+
+  /**
+   * Indicates whether the given result contains an error.
+   */
+  bool is_error() const { return !is_success(); }
+
+  /**
+   * Indicates whether the given result contains the given type of error.
+   */
+  template <typename E>
+  bool is_error_type() const
+  {
+    static_assert((... || std::is_convertible_v<E, Errors>), "E must be an error type");
+
+    return std::holds_alternative<E>(m_value);
+  }
+
+  friend bool operator==(const result& lhs, const result& rhs)
+  {
+    return lhs.m_value == rhs.m_value;
+  }
+
+  friend bool operator!=(const result& lhs, const result& rhs) { return !(lhs == rhs); }
+};
+
 template <typename... Values, typename... Errors>
 class [[nodiscard]] result<multi_value<Values...>, Errors...>
 {
@@ -990,8 +1620,8 @@ public:
    * result. If the value is passed by (const) lvalue reference, it is copied into this
    * result, if it s passed by rvalue reference, then it is moved into this result.
    *
-   * @tparam T the type of the value, must match the value type or one of the error types
-   * of this result
+   * @tparam T the type of the value, must match the value type or one of the error
+   * types of this result
    * @param v the value
    */
   template <
@@ -1412,7 +2042,7 @@ public:
   auto if_error(const F& f) &
   {
     std::visit(overload([](value_type&) {}, [&](auto& e) { f(e); }), m_value);
-    return std::move(*this);
+    return *this;
   }
 
   /**
@@ -2071,7 +2701,7 @@ public:
         [](detail::void_success_value_type&&) {},
         [&](auto&& e) { f(std::forward<decltype(e)>(e)); }),
       std::move(m_value));
-    return *this;
+    return std::move(*this);
   }
 
   /**
