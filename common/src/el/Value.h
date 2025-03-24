@@ -109,8 +109,8 @@ public:
   const MapType& mapValue() const;
   const RangeType& rangeValue() const;
 
-  const std::vector<std::string> asStringList() const;
-  const std::vector<std::string> asStringSet() const;
+  std::vector<std::string> asStringList() const;
+  std::vector<std::string> asStringSet() const;
 
   size_t length() const;
   bool convertibleTo(ValueType toType) const;

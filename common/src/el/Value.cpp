@@ -23,12 +23,14 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
-#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <cmath>
 #include <iterator>
+#include <ranges>
 #include <sstream>
 #include <string>
 
@@ -144,27 +146,12 @@ const BooleanType& Value::booleanValue() const
   return std::visit(
     kdl::overload(
       [&](const BooleanType& b) -> const BooleanType& { return b; },
-      [&](const StringType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const BooleanType& {
         static const BooleanType b = false;
         return b;
       },
-      [&](const UndefinedType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const BooleanType& {
+        throw DereferenceError{describe(), type(), ValueType::String};
       }),
     *m_value);
 }
@@ -173,28 +160,13 @@ const StringType& Value::stringValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
       [&](const StringType& s) -> const StringType& { return s; },
-      [&](const NumberType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const StringType& {
         static const StringType s;
         return s;
       },
-      [&](const UndefinedType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const StringType& {
+        throw DereferenceError{describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -203,28 +175,13 @@ const NumberType& Value::numberValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
       [&](const NumberType& n) -> const NumberType& { return n; },
-      [&](const ArrayType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const NumberType& {
         static const NumberType n = 0.0;
         return n;
       },
-      [&](const UndefinedType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const NumberType& {
+        throw DereferenceError{describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -238,28 +195,13 @@ const ArrayType& Value::arrayValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
       [&](const ArrayType& a) -> const ArrayType& { return a; },
-      [&](const MapType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const ArrayType& {
         static const ArrayType a(0);
         return a;
       },
-      [&](const UndefinedType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const ArrayType& {
+        throw DereferenceError{describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -268,28 +210,13 @@ const MapType& Value::mapValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
       [&](const MapType& m) -> const MapType& { return m; },
-      [&](const RangeType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const MapType& {
         static const MapType m;
         return m;
       },
-      [&](const UndefinedType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const MapType& {
+        throw DereferenceError{describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -298,56 +225,24 @@ const RangeType& Value::rangeValue() const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
       [&](const RangeType& r) -> const RangeType& { return r; },
-      [&](const NullType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Null};
-      },
-      [&](const UndefinedType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const RangeType& {
+        throw DereferenceError{describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const std::vector<std::string> Value::asStringList() const
+std::vector<std::string> Value::asStringList() const
 {
-  const ArrayType& array = arrayValue();
-  auto result = std::vector<std::string>{};
-  result.reserve(array.size());
-
-  for (const auto& entry : array)
-  {
-    result.push_back(entry.convertTo(ValueType::String).stringValue());
-  }
-
-  return result;
+  return arrayValue() | std::views::transform([&](const auto& entry) {
+           return entry.convertTo(ValueType::String).stringValue();
+         })
+         | kdl::to_vector;
 }
 
-const std::vector<std::string> Value::asStringSet() const
+std::vector<std::string> Value::asStringSet() const
 {
-  const ArrayType& array = arrayValue();
-  auto result = kdl::vector_set<std::string>(array.size());
-
-  for (const auto& entry : array)
-  {
-    result.insert(entry.convertTo(ValueType::String).stringValue());
-  }
-
-  return result.release_data();
+  return kdl::vec_sort_and_remove_duplicates(asStringList());
 }
 
 size_t Value::length() const
