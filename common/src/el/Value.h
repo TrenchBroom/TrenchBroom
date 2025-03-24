@@ -121,16 +121,12 @@ public:
   void appendToStream(
     std::ostream& str, bool multiline = true, const std::string& indent = "") const;
 
-  bool contains(const Value& indexValue) const;
   bool contains(size_t index) const;
   bool contains(const std::string& key) const;
   std::vector<std::string> keys() const;
 
-  Value operator[](const Value& indexValue) const;
   Value operator[](size_t index) const;
-  Value operator[](int index) const;
   Value operator[](const std::string& key) const;
-  Value operator[](const char* key) const;
 
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator!=(const Value& lhs, const Value& rhs);

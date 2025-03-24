@@ -861,15 +861,222 @@ Value evaluate(
     [&] { return expression.rightOperand.accept(evaluator); });
 }
 
+size_t computeIndex(const long index, const size_t indexableSize)
+{
+  const auto size = static_cast<long>(indexableSize);
+  return (index >= 0 && index < size) || (index < 0 && index >= -size)
+           ? static_cast<size_t>((size + index % size) % size)
+           : static_cast<size_t>(size);
+}
+
+size_t computeIndex(const Value& indexValue, const size_t indexableSize)
+{
+  return computeIndex(
+    static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
+    indexableSize);
+}
+
+void computeIndexArray(
+  const LeftBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const RightBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length(indexableSize));
+  range.forEach(
+    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
+    indexableSize);
+}
+
+void computeIndexArray(
+  const BoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
+{
+  result.reserve(result.size() + range.length());
+  range.forEach([&](const auto i) { result.push_back(computeIndex(i, indexableSize)); });
+}
+
+void computeIndexArray(
+  const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
+{
+  switch (indexValue.type())
+  {
+  case ValueType::Array: {
+    const ArrayType& indexArray = indexValue.arrayValue();
+    result.reserve(result.size() + indexArray.size());
+    for (size_t i = 0; i < indexArray.size(); ++i)
+    {
+      computeIndexArray(indexArray[i], indexableSize, result);
+    }
+    break;
+  }
+  case ValueType::Range: {
+    std::visit(
+      [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
+      indexValue.rangeValue());
+    break;
+  }
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::String:
+  case ValueType::Map:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    result.push_back(computeIndex(indexValue, indexableSize));
+    break;
+  }
+}
+
+std::vector<size_t> computeIndexArray(const Value& indexValue, const size_t indexableSize)
+{
+  auto result = std::vector<size_t>{};
+  computeIndexArray(indexValue, indexableSize, result);
+  return result;
+}
+
+Value evaluateSubscript(const Value& lhs, const Value& rhs)
+{
+  switch (lhs.type())
+  {
+  case ValueType::String:
+    switch (rhs.type())
+    {
+    case ValueType::Boolean:
+    case ValueType::Number: {
+      const auto& str = lhs.stringValue();
+      const auto index = computeIndex(rhs, str.length());
+      auto result = std::stringstream{};
+      if (index < str.length())
+      {
+        result << str[index];
+      }
+      return Value{result.str()};
+    }
+    case ValueType::Array:
+    case ValueType::Range: {
+      const auto& str = lhs.stringValue();
+      const auto indices = computeIndexArray(rhs, str.length());
+      auto result = std::stringstream{};
+      for (size_t i = 0; i < indices.size(); ++i)
+      {
+        const auto index = indices[i];
+        if (index < str.length())
+        {
+          result << str[index];
+        }
+      }
+      return Value{result.str()};
+    }
+    case ValueType::String:
+    case ValueType::Map:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Array:
+    switch (rhs.type())
+    {
+    case ValueType::Boolean:
+    case ValueType::Number: {
+      const auto& array = lhs.arrayValue();
+      const auto index = computeIndex(rhs, array.size());
+      if (index >= array.size())
+      {
+        throw IndexOutOfBoundsError{lhs, rhs, index};
+      }
+      return array[index];
+    }
+    case ValueType::Array:
+    case ValueType::Range: {
+      const auto& array = lhs.arrayValue();
+      const auto indices = computeIndexArray(rhs, array.size());
+      auto result = ArrayType{};
+      result.reserve(indices.size());
+      for (size_t i = 0; i < indices.size(); ++i)
+      {
+        const auto index = indices[i];
+        if (index >= array.size())
+        {
+          throw IndexOutOfBoundsError{lhs, rhs, index};
+        }
+        result.push_back(array[index]);
+      }
+      return Value{std::move(result)};
+    }
+    case ValueType::String:
+    case ValueType::Map:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Map:
+    switch (rhs.type())
+    {
+    case ValueType::String: {
+      const auto& map = lhs.mapValue();
+      const auto& key = rhs.stringValue();
+      const auto it = map.find(key);
+      if (it == std::end(map))
+      {
+        return Value{UndefinedType::Value};
+      }
+      return it->second;
+    }
+    case ValueType::Array: {
+      const auto& map = lhs.mapValue();
+      const auto& keys = rhs.arrayValue();
+      auto result = MapType{};
+      for (size_t i = 0; i < keys.size(); ++i)
+      {
+        const auto& keyValue = keys[i];
+        if (keyValue.type() != ValueType::String)
+        {
+          throw ConversionError{keyValue.describe(), keyValue.type(), ValueType::String};
+        }
+        const auto& key = keyValue.stringValue();
+        const auto it = map.find(key);
+        if (it != std::end(map))
+        {
+          result.insert(std::pair{key, it->second});
+        }
+      }
+      return Value{std::move(result)};
+    }
+    case ValueType::Boolean:
+    case ValueType::Number:
+    case ValueType::Map:
+    case ValueType::Range:
+    case ValueType::Null:
+    case ValueType::Undefined:
+      break;
+    }
+    break;
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    break;
+  }
+
+  throw IndexError{lhs, rhs};
+}
+
 template <typename Evaluator>
 Value evaluate(
   const Evaluator& evaluator,
   const SubscriptExpression& expression,
   const EvaluationContext&)
 {
-  const auto leftValue = expression.leftOperand.accept(evaluator);
-  const auto rightValue = expression.rightOperand.accept(evaluator);
-  return leftValue[rightValue];
+  return evaluateSubscript(
+    expression.leftOperand.accept(evaluator), expression.rightOperand.accept(evaluator));
 }
 
 template <typename Evaluator>
@@ -1005,9 +1212,9 @@ Expression optimize(const SubscriptExpression& expression)
   if (isLiteral)
   {
     const auto evaluationContext = EvaluationContext{};
-    auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
-    auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
-    return LiteralExpression{leftValue[rightValue]};
+    const auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
+    const auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
+    return LiteralExpression{evaluateSubscript(leftValue, rightValue)};
   }
 
   return SubscriptExpression{
