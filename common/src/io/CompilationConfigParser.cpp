@@ -42,8 +42,9 @@ mdl::CompilationExportMap parseExportTask(
   expectStructure(
     value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["target"].stringValue()};
+  const auto enabled =
+    value.contains("enabled") ? value.at("enabled").booleanValue() : true;
+  return {enabled, value.at("target").stringValue()};
 }
 
 mdl::CompilationCopyFiles parseCopyTask(
@@ -55,8 +56,9 @@ mdl::CompilationCopyFiles parseCopyTask(
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
+  const auto enabled =
+    value.contains("enabled") ? value.at("enabled").booleanValue() : true;
+  return {enabled, value.at("source").stringValue(), value.at("target").stringValue()};
 }
 
 mdl::CompilationRenameFile parseRenameTask(
@@ -68,8 +70,9 @@ mdl::CompilationRenameFile parseRenameTask(
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["source"].stringValue(), value["target"].stringValue()};
+  const auto enabled =
+    value.contains("enabled") ? value.at("enabled").booleanValue() : true;
+  return {enabled, value.at("source").stringValue(), value.at("target").stringValue()};
 }
 
 mdl::CompilationDeleteFiles parseDeleteTask(
@@ -78,8 +81,9 @@ mdl::CompilationDeleteFiles parseDeleteTask(
   expectStructure(
     value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
-  return {enabled, value["target"].stringValue()};
+  const auto enabled =
+    value.contains("enabled") ? value.at("enabled").booleanValue() : true;
+  return {enabled, value.at("target").stringValue()};
 }
 
 mdl::CompilationRunTool parseToolTask(
@@ -91,23 +95,24 @@ mdl::CompilationRunTool parseToolTask(
     "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
     "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
 
-  const auto enabled = value.contains("enabled") ? value["enabled"].booleanValue() : true;
+  const auto enabled =
+    value.contains("enabled") ? value.at("enabled").booleanValue() : true;
   const auto treatNonZeroResultCodeAsError =
     value.contains("treatNonZeroResultCodeAsError")
-      ? value["treatNonZeroResultCodeAsError"].booleanValue()
+      ? value.at("treatNonZeroResultCodeAsError").booleanValue()
       : false;
 
   return {
     enabled,
-    value["tool"].stringValue(),
-    value["parameters"].stringValue(),
+    value.at("tool").stringValue(),
+    value.at("parameters").stringValue(),
     treatNonZeroResultCodeAsError};
 }
 
 mdl::CompilationTask parseTask(const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectMapEntry(value, trace, "type", el::ValueType::String);
-  const auto typeName = value["type"].stringValue();
+  const auto typeName = value.at("type").stringValue();
 
   if (typeName == "export")
   {
@@ -141,7 +146,7 @@ std::vector<mdl::CompilationTask> parseTasks(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseTask(value[i], trace));
+    result.push_back(parseTask(value.at(i), trace));
   }
   return result;
 }
@@ -153,9 +158,9 @@ mdl::CompilationProfile parseProfile(
     value, trace, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
   return {
-    value["name"].stringValue(),
-    value["workdir"].stringValue(),
-    parseTasks(value["tasks"], trace)};
+    value.at("name").stringValue(),
+    value.at("workdir").stringValue(),
+    parseTasks(value.at("tasks"), trace)};
 }
 
 std::vector<mdl::CompilationProfile> parseProfiles(
@@ -166,7 +171,7 @@ std::vector<mdl::CompilationProfile> parseProfiles(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value[i], trace));
+    result.push_back(parseProfile(value.at(i), trace));
   }
   return result;
 }
@@ -194,11 +199,11 @@ Result<mdl::CompilationConfig> CompilationConfigParser::parse()
                expectStructure(
                  root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-               const auto version = root["version"].numberValue();
+               const auto version = root.at("version").numberValue();
                unused(version);
                assert(version == 1.0);
 
-               return mdl::CompilationConfig{parseProfiles(root["profiles"], trace)};
+               return mdl::CompilationConfig{parseProfiles(root.at("profiles"), trace)};
              }
              catch (const Exception& e)
              {

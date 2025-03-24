@@ -67,16 +67,16 @@ void expectStructure(
     const auto expected = expression.evaluate(el::EvaluationContext());
     assert(expected.type() == el::ValueType::Array);
 
-    const auto mandatory = expected[0];
+    const auto mandatory = expected.at(0);
     assert(mandatory.type() == el::ValueType::Map);
 
-    const auto optional = expected[1];
+    const auto optional = expected.at(1);
     assert(optional.type() == el::ValueType::Map);
 
     // Are all mandatory keys present?
     for (const auto& key : mandatory.keys())
     {
-      const auto typeName = mandatory[key].stringValue();
+      const auto typeName = mandatory.at(key).stringValue();
       if (typeName != "*")
       {
         const auto type = el::typeForName(typeName);

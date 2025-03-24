@@ -125,8 +125,8 @@ public:
   bool contains(const std::string& key) const;
   std::vector<std::string> keys() const;
 
-  Value operator[](size_t index) const;
-  Value operator[](const std::string& key) const;
+  Value at(size_t index) const;
+  Value at(const std::string& key) const;
 
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator!=(const Value& lhs, const Value& rhs);

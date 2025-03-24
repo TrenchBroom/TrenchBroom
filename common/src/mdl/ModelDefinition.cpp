@@ -85,9 +85,9 @@ static ModelSpecification convertToModel(const el::Value& value)
   {
   case el::ValueType::Map:
     return ModelSpecification{
-      path(value[ModelSpecificationKeys::Path]),
-      index(value[ModelSpecificationKeys::Skin]),
-      index(value[ModelSpecificationKeys::Frame])};
+      path(value.at(ModelSpecificationKeys::Path)),
+      index(value.at(ModelSpecificationKeys::Skin)),
+      index(value.at(ModelSpecificationKeys::Frame))};
   case el::ValueType::String:
     return ModelSpecification{path(value), 0, 0};
   case el::ValueType::Boolean:
@@ -176,7 +176,7 @@ vm::vec3d ModelDefinition::scale(
   switch (value.type())
   {
   case el::ValueType::Map:
-    if (const auto scale = convertToScale(value[ModelSpecificationKeys::Scale]))
+    if (const auto scale = convertToScale(value.at(ModelSpecificationKeys::Scale)))
     {
       return *scale;
     }

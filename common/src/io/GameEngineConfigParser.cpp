@@ -42,9 +42,9 @@ mdl::GameEngineProfile parseProfile(
     value, trace, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
   return {
-    value["name"].stringValue(),
-    std::filesystem::path{value["path"].stringValue()},
-    value["parameters"].stringValue()};
+    value.at("name").stringValue(),
+    std::filesystem::path{value.at("path").stringValue()},
+    value.at("parameters").stringValue()};
 }
 
 std::vector<mdl::GameEngineProfile> parseProfiles(
@@ -55,7 +55,7 @@ std::vector<mdl::GameEngineProfile> parseProfiles(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value[i], trace));
+    result.push_back(parseProfile(value.at(i), trace));
   }
   return result;
 }
@@ -83,11 +83,11 @@ Result<mdl::GameEngineConfig> GameEngineConfigParser::parse()
                expectStructure(
                  root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
-               const auto version = root["version"].numberValue();
+               const auto version = root.at("version").numberValue();
                unused(version);
                assert(version == 1.0);
 
-               return mdl::GameEngineConfig{parseProfiles(root["profiles"], trace)};
+               return mdl::GameEngineConfig{parseProfiles(root.at("profiles"), trace)};
              }
              catch (const Exception& e)
              {

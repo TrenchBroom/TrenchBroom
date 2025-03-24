@@ -868,7 +868,7 @@ std::vector<std::string> Value::keys() const
   return kdl::map_keys(mapValue());
 }
 
-Value Value::operator[](const size_t index) const
+Value Value::at(const size_t index) const
 {
   switch (type())
   {
@@ -901,7 +901,7 @@ Value Value::operator[](const size_t index) const
   throw IndexError{*this, index};
 }
 
-Value Value::operator[](const std::string& key) const
+Value Value::at(const std::string& key) const
 {
   switch (type())
   {

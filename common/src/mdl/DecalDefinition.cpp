@@ -43,7 +43,7 @@ DecalSpecification convertToDecal(const el::Value& value)
   switch (value.type())
   {
   case el::ValueType::Map:
-    return {materialName(value[DecalSpecificationKeys::Material])};
+    return {materialName(value.at(DecalSpecificationKeys::Material))};
   case el::ValueType::String:
     return {materialName(value)};
   case el::ValueType::Boolean:

@@ -94,24 +94,24 @@ std::vector<mdl::CompilationTool> parseCompilationTools(
   for (size_t i = 0; i < value.length(); ++i)
   {
     expectStructure(
-      value[i],
+      value.at(i),
       trace,
       R"([
         {'name': 'String'},
         {'description': 'String'}
       ])");
 
-    if (value[i]["description"] != el::Value::Null)
+    if (value.at(i).at("description") != el::Value::Null)
     {
       result.push_back(mdl::CompilationTool{
-        value[i]["name"].stringValue(),
-        value[i]["description"].stringValue(),
+        value.at(i).at("name").stringValue(),
+        value.at(i).at("description").stringValue(),
       });
     }
     else
     {
       result.push_back(mdl::CompilationTool{
-        value[i]["name"].stringValue(),
+        value.at(i).at("name").stringValue(),
         std::nullopt,
       });
     }
@@ -151,7 +151,7 @@ std::vector<mdl::TagAttribute> parseTagAttributes(
   result.reserve(value.length());
   for (size_t i = 0; i < value.length(); ++i)
   {
-    const auto& entry = value[i];
+    const auto& entry = value.at(i);
     const auto& name = entry.stringValue();
 
     if (name == mdl::TagAttributes::Transparency.name)
@@ -202,17 +202,17 @@ void parseSurfaceParmTag(
   const el::EvaluationTrace& trace,
   std::vector<mdl::SmartTag>& result)
 {
-  auto attribs = parseTagAttributes(value["attribs"], trace);
+  auto attribs = parseTagAttributes(value.at("attribs"), trace);
   auto matcher = std::unique_ptr<mdl::SurfaceParmTagMatcher>{};
-  if (value["pattern"].type() == el::ValueType::String)
+  if (value.at("pattern").type() == el::ValueType::String)
   {
     matcher =
-      std::make_unique<mdl::SurfaceParmTagMatcher>(value["pattern"].stringValue());
+      std::make_unique<mdl::SurfaceParmTagMatcher>(value.at("pattern").stringValue());
   }
-  else if (value["pattern"].type() == el::ValueType::Array)
+  else if (value.at("pattern").type() == el::ValueType::Array)
   {
     matcher = std::make_unique<mdl::SurfaceParmTagMatcher>(
-      kdl::vector_set{value["pattern"].asStringSet()});
+      kdl::vector_set{value.at("pattern").asStringSet()});
   }
   else
   {
@@ -237,7 +237,7 @@ void parseFaceTags(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    const auto& entry = value[i];
+    const auto& entry = value.at(i);
 
     expectStructure(
       entry,
@@ -246,38 +246,38 @@ void parseFaceTags(
         {'name': 'String', 'match': 'String'},
         {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' }
       ])");
-    checkTagName(entry["name"], trace, result);
+    checkTagName(entry.at("name"), trace, result);
 
-    const auto match = entry["match"].stringValue();
+    const auto match = entry.at("match").stringValue();
     if (match == "material")
     {
       expectMapEntry(entry, trace, "pattern", el::ValueType::String);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<mdl::MaterialNameTagMatcher>(entry["pattern"].stringValue()));
+        entry.at("name").stringValue(),
+        parseTagAttributes(entry.at("attribs"), trace),
+        std::make_unique<mdl::MaterialNameTagMatcher>(entry.at("pattern").stringValue()));
     }
     else if (match == "surfaceparm")
     {
-      parseSurfaceParmTag(entry["name"].stringValue(), entry, trace, result);
+      parseSurfaceParmTag(entry.at("name").stringValue(), entry, trace, result);
     }
     else if (match == "contentflag")
     {
       expectMapEntry(entry, trace, "flags", el::ValueType::Array);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
+        entry.at("name").stringValue(),
+        parseTagAttributes(entry.at("attribs"), trace),
         std::make_unique<mdl::ContentFlagsTagMatcher>(
-          parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags)));
+          parseFlagValue(entry.at("flags"), faceAttribsConfig.contentFlags)));
     }
     else if (match == "surfaceflag")
     {
       expectMapEntry(entry, trace, "flags", el::ValueType::Array);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
+        entry.at("name").stringValue(),
+        parseTagAttributes(entry.at("attribs"), trace),
         std::make_unique<mdl::SurfaceFlagsTagMatcher>(
-          parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags)));
+          parseFlagValue(entry.at("flags"), faceAttribsConfig.surfaceFlags)));
     }
     else
     {
@@ -300,7 +300,7 @@ void parseBrushTags(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    const auto entry = value[i];
+    const auto entry = value.at(i);
 
     expectStructure(
       entry,
@@ -309,16 +309,16 @@ void parseBrushTags(
         {'name': 'String', 'match': 'String'},
         {'attribs': 'Array', 'pattern': 'String', 'material': 'String' }
       ])");
-    checkTagName(entry["name"], trace, result);
+    checkTagName(entry.at("name"), trace, result);
 
-    const auto match = entry["match"].stringValue();
+    const auto match = entry.at("match").stringValue();
     if (match == "classname")
     {
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
+        entry.at("name").stringValue(),
+        parseTagAttributes(entry.at("attribs"), trace),
         std::make_unique<mdl::EntityClassNameTagMatcher>(
-          entry["pattern"].stringValue(), entry["material"].stringValue()));
+          entry.at("pattern").stringValue(), entry.at("material").stringValue()));
     }
     else
     {
@@ -348,8 +348,8 @@ std::vector<mdl::SmartTag> parseTags(
       {'brush': 'Array', 'brushface': 'Array'}
     ])");
 
-  parseBrushTags(value["brush"], trace, result);
-  parseFaceTags(value["brushface"], trace, faceAttribsConfig, result);
+  parseBrushTags(value.at("brush"), trace, result);
+  parseFaceTags(value.at("brushface"), trace, faceAttribsConfig, result);
   return result;
 }
 
@@ -373,51 +373,51 @@ mdl::BrushFaceAttributes parseFaceAttribsDefaults(
       {'materialName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}
     ])");
 
-  if (value["materialName"] != el::Value::Null)
+  if (value.at("materialName") != el::Value::Null)
   {
-    defaults = mdl::BrushFaceAttributes{value["materialName"].stringValue()};
+    defaults = mdl::BrushFaceAttributes{value.at("materialName").stringValue()};
   }
-  if (value["offset"] != el::Value::Null && value["offset"].length() == 2)
+  if (value.at("offset") != el::Value::Null && value.at("offset").length() == 2)
   {
-    const auto offset = value["offset"];
-    defaults.setOffset(vm::vec2f(offset[0].numberValue(), offset[1].numberValue()));
+    const auto offset = value.at("offset");
+    defaults.setOffset(vm::vec2f(offset.at(0).numberValue(), offset.at(1).numberValue()));
   }
-  if (value["scale"] != el::Value::Null && value["scale"].length() == 2)
+  if (value.at("scale") != el::Value::Null && value.at("scale").length() == 2)
   {
-    const auto scale = value["scale"];
-    defaults.setScale(vm::vec2f(scale[0].numberValue(), scale[1].numberValue()));
+    const auto scale = value.at("scale");
+    defaults.setScale(vm::vec2f(scale.at(0).numberValue(), scale.at(1).numberValue()));
   }
-  if (value["rotation"] != el::Value::Null)
+  if (value.at("rotation") != el::Value::Null)
   {
-    defaults.setRotation(float(value["rotation"].numberValue()));
+    defaults.setRotation(float(value.at("rotation").numberValue()));
   }
-  if (value["surfaceContents"] != el::Value::Null)
+  if (value.at("surfaceContents") != el::Value::Null)
   {
     int defaultSurfaceContents = 0;
-    for (size_t i = 0; i < value["surfaceContents"].length(); ++i)
+    for (size_t i = 0; i < value.at("surfaceContents").length(); ++i)
     {
-      auto name = value["surfaceContents"][i].stringValue();
+      auto name = value.at("surfaceContents").at(i).stringValue();
       defaultSurfaceContents = defaultSurfaceContents | contentFlags.flagValue(name);
     }
     defaults.setSurfaceContents(defaultSurfaceContents);
   }
-  if (value["surfaceFlags"] != el::Value::Null)
+  if (value.at("surfaceFlags") != el::Value::Null)
   {
     int defaultSurfaceFlags = 0;
-    for (size_t i = 0; i < value["surfaceFlags"].length(); ++i)
+    for (size_t i = 0; i < value.at("surfaceFlags").length(); ++i)
     {
-      auto name = value["surfaceFlags"][i].stringValue();
+      auto name = value.at("surfaceFlags").at(i).stringValue();
       defaultSurfaceFlags = defaultSurfaceFlags | surfaceFlags.flagValue(name);
     }
     defaults.setSurfaceFlags(defaultSurfaceFlags);
   }
-  if (value["surfaceValue"] != el::Value::Null)
+  if (value.at("surfaceValue") != el::Value::Null)
   {
-    defaults.setSurfaceValue(float(value["surfaceValue"].numberValue()));
+    defaults.setSurfaceValue(float(value.at("surfaceValue").numberValue()));
   }
-  if (value["color"] != el::Value::Null)
+  if (value.at("color") != el::Value::Null)
   {
-    defaults.setColor(Color::parse(value["color"].stringValue()).value_or(Color{}));
+    defaults.setColor(Color::parse(value.at("color").stringValue()).value_or(Color{}));
   }
 
   return defaults;
@@ -429,7 +429,7 @@ void parseFlag(
   const size_t index,
   std::vector<mdl::FlagConfig>& flags)
 {
-  if (value["unused"].booleanValue())
+  if (value.at("unused").booleanValue())
   {
     expectStructure(
       value,
@@ -450,8 +450,8 @@ void parseFlag(
       ])");
 
     flags.push_back(mdl::FlagConfig{
-      value["name"].stringValue(),
-      value["description"].stringValue(),
+      value.at("name").stringValue(),
+      value.at("description").stringValue(),
       1 << index,
     });
   }
@@ -472,7 +472,7 @@ mdl::FlagsConfig parseFlagsConfig(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    parseFlag(value[i], trace, i, flags);
+    parseFlag(value.at(i), trace, i, flags);
   }
 
   return mdl::FlagsConfig{flags};
@@ -498,10 +498,10 @@ mdl::FaceAttribsConfig parseFaceAttribsConfig(
       {'defaults': 'Map'}
     ])");
 
-  auto surfaceFlags = parseFlagsConfig(value["surfaceflags"], trace);
-  auto contentFlags = parseFlagsConfig(value["contentflags"], trace);
+  auto surfaceFlags = parseFlagsConfig(value.at("surfaceflags"), trace);
+  auto contentFlags = parseFlagsConfig(value.at("contentflags"), trace);
   auto defaults =
-    parseFaceAttribsDefaults(value["defaults"], trace, surfaceFlags, contentFlags);
+    parseFaceAttribsDefaults(value.at("defaults"), trace, surfaceFlags, contentFlags);
 
   return mdl::FaceAttribsConfig{
     std::move(surfaceFlags),
@@ -524,11 +524,11 @@ mdl::EntityConfig parseEntityConfig(
 
   return mdl::EntityConfig{
     kdl::vec_transform(
-      value["definitions"].asStringList(),
+      value.at("definitions").asStringList(),
       [](const auto& str) { return std::filesystem::path{str}; }),
-    Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
-    trace.getExpression(value["scale"]),
-    value["setDefaultProperties"].booleanValue(),
+    Color::parse(value.at("defaultcolor").stringValue()).value_or(Color{}),
+    trace.getExpression(value.at("scale")),
+    value.at("setDefaultProperties").booleanValue(),
   };
 }
 
@@ -536,24 +536,24 @@ mdl::PackageFormatConfig parsePackageFormatConfig(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
   expectMapEntry(value, trace, "format", el::typeForName("String"));
-  const auto formatValue = value["format"];
+  const auto formatValue = value.at("format");
   expectType(formatValue, trace, el::typeForName("String"));
 
-  if (value["extension"] != el::Value::Null)
+  if (value.at("extension") != el::Value::Null)
   {
-    expectType(value["extension"], trace, el::typeForName("String"));
+    expectType(value.at("extension"), trace, el::typeForName("String"));
 
     return mdl::PackageFormatConfig{
-      extensionsToPaths({value["extension"].stringValue()}),
+      extensionsToPaths({value.at("extension").stringValue()}),
       formatValue.stringValue(),
     };
   }
-  else if (value["extensions"] != el::Value::Null)
+  else if (value.at("extensions") != el::Value::Null)
   {
-    expectType(value["extensions"], trace, el::typeForName("Array"));
+    expectType(value.at("extensions"), trace, el::typeForName("Array"));
 
     return mdl::PackageFormatConfig{
-      extensionsToPaths(value["extensions"].asStringList()),
+      extensionsToPaths(value.at("extensions").asStringList()),
       formatValue.stringValue(),
     };
   }
@@ -565,13 +565,13 @@ mdl::PackageFormatConfig parsePackageFormatConfig(
 std::vector<std::filesystem::path> parseMaterialExtensions(
   const el::Value& value, const el::EvaluationTrace& trace)
 {
-  if (value["extensions"] != el::Value::Null)
+  if (value.at("extensions") != el::Value::Null)
   {
     // version 8
-    return extensionsToPaths(value["extensions"].asStringList());
+    return extensionsToPaths(value.at("extensions").asStringList());
   }
   // version 7
-  return parsePackageFormatConfig(value["format"], trace).extensions;
+  return parsePackageFormatConfig(value.at("format"), trace).extensions;
 }
 
 mdl::MaterialConfig parseMaterialConfig(
@@ -586,14 +586,14 @@ mdl::MaterialConfig parseMaterialConfig(
     ])");
 
   return mdl::MaterialConfig{
-    std::filesystem::path{value["root"].stringValue()},
+    std::filesystem::path{value.at("root").stringValue()},
     parseMaterialExtensions(value, trace),
-    std::filesystem::path{value["palette"].stringValue()},
-    value["attribute"] != el::Value::Null
-      ? std::optional{value["attribute"].stringValue()}
+    std::filesystem::path{value.at("palette").stringValue()},
+    value.at("attribute") != el::Value::Null
+      ? std::optional{value.at("attribute").stringValue()}
       : std::nullopt,
-    std::filesystem::path{value["shaderSearchPath"].stringValue()},
-    value["excludes"].asStringList(),
+    std::filesystem::path{value.at("shaderSearchPath").stringValue()},
+    value.at("excludes").asStringList(),
   };
 }
 
@@ -609,8 +609,8 @@ mdl::FileSystemConfig parseFileSystemConfig(
     ])");
 
   return mdl::FileSystemConfig{
-    std::filesystem::path{value["searchpath"].stringValue()},
-    parsePackageFormatConfig(value["packageformat"], trace),
+    std::filesystem::path{value.at("searchpath").stringValue()},
+    parsePackageFormatConfig(value.at("packageformat"), trace),
   };
 }
 
@@ -625,7 +625,7 @@ std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
   for (size_t i = 0; i < value.length(); ++i)
   {
     expectStructure(
-      value[i],
+      value.at(i),
       trace,
       R"([
         {'format': 'String'},
@@ -633,8 +633,8 @@ std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
       ])");
 
     result.push_back(mdl::MapFormatConfig{
-      value[i]["format"].stringValue(),
-      std::filesystem::path{value[i]["initialmap"].stringValue()},
+      value.at(i).at("format").stringValue(),
+      std::filesystem::path{value.at(i).at("initialmap").stringValue()},
     });
   }
 
@@ -672,26 +672,28 @@ Result<mdl::GameConfig> GameConfigParser::parse()
                {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
              ])");
 
-               const auto& version = root["version"];
+               const auto& version = root.at("version");
                checkVersion(version, trace);
                m_version = version.integerValue();
 
-               auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"], trace);
-               auto fileSystemConfig = parseFileSystemConfig(root["filesystem"], trace);
-               auto materialConfig = parseMaterialConfig(root["materials"], trace);
-               auto entityConfig = parseEntityConfig(root["entities"], trace);
+               auto mapFormatConfigs =
+                 parseMapFormatConfigs(root.at("fileformats"), trace);
+               auto fileSystemConfig =
+                 parseFileSystemConfig(root.at("filesystem"), trace);
+               auto materialConfig = parseMaterialConfig(root.at("materials"), trace);
+               auto entityConfig = parseEntityConfig(root.at("entities"), trace);
                auto faceAttribsConfig =
-                 parseFaceAttribsConfig(root["faceattribs"], trace);
-               auto tags = parseTags(root["tags"], trace, faceAttribsConfig);
-               auto softMapBounds = parseSoftMapBounds(root["softMapBounds"], trace);
+                 parseFaceAttribsConfig(root.at("faceattribs"), trace);
+               auto tags = parseTags(root.at("tags"), trace, faceAttribsConfig);
+               auto softMapBounds = parseSoftMapBounds(root.at("softMapBounds"), trace);
                auto compilationTools =
-                 parseCompilationTools(root["compilationTools"], trace);
+                 parseCompilationTools(root.at("compilationTools"), trace);
 
                return GameConfig{
-                 root["name"].stringValue(),
+                 root.at("name").stringValue(),
                  m_path,
-                 std::filesystem::path{root["icon"].stringValue()},
-                 root["experimental"].booleanValue(),
+                 std::filesystem::path{root.at("icon").stringValue()},
+                 root.at("experimental").booleanValue(),
                  std::move(mapFormatConfigs),
                  std::move(fileSystemConfig),
                  std::move(materialConfig),
