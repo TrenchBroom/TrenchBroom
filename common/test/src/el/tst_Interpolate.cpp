@@ -20,6 +20,7 @@
 #include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "el/Value.h"
+#include "el/VariableStore.h"
 
 #include <string>
 
@@ -62,16 +63,14 @@ TEST_CASE("interpolate")
 
   SECTION("interpolateStringWithVariable")
   {
-    auto context = EvaluationContext{};
-    context.declareVariable("TEST", Value{"interesting"});
+    auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
 
     CHECK(interpolate(" an ${TEST} expression", context) == " an interesting expression");
   }
 
   SECTION("interpolateStringWithBackslashAndVariable")
   {
-    auto context = EvaluationContext{};
-    context.declareVariable("TEST", Value("interesting"));
+    auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
 
     CHECK(
       interpolate(" an \\${TEST} expression", context) == " an \\interesting expression");

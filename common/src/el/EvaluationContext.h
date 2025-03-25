@@ -36,10 +36,9 @@ private:
 public:
   EvaluationContext();
   explicit EvaluationContext(const VariableStore& store);
-  virtual ~EvaluationContext();
+  ~EvaluationContext();
 
-  virtual Value variableValue(const std::string& name) const;
-  virtual void declareVariable(const std::string& name, const Value& value);
+  Value variableValue(const std::string& name) const;
 
   deleteCopyAndMove(EvaluationContext);
 };

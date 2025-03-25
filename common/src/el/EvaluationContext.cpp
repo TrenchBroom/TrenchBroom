@@ -44,9 +44,4 @@ Value EvaluationContext::variableValue(const std::string& name) const
   return m_store->value(name);
 }
 
-void EvaluationContext::declareVariable(const std::string& name, const Value& value)
-{
-  m_store->declare(name, value);
-}
-
 } // namespace tb::el
