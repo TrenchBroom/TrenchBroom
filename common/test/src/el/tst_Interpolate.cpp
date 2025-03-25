@@ -30,48 +30,51 @@ namespace tb::el
 {
 TEST_CASE("interpolate")
 {
+
   SECTION("interpolateEmptyString")
   {
-    CHECK(interpolate("", {}) == "");
-    CHECK(interpolate("   ", {}) == "   ");
+    auto context = EvaluationContext{};
+    CHECK(interpolate("", context) == "");
+    CHECK(interpolate("   ", context) == "   ");
   }
 
   SECTION("interpolateStringWithoutExpression")
   {
-    CHECK(interpolate(" asdfasdf  sdf ", {}) == " asdfasdf  sdf ");
+    auto context = EvaluationContext{};
+    CHECK(interpolate(" asdfasdf  sdf ", context) == " asdfasdf  sdf ");
   }
 
   SECTION("interpolateStringWithSimpleExpression")
   {
-    CHECK(interpolate(" asdfasdf ${'asdf'}  sdf ", {}) == " asdfasdf asdf  sdf ");
+    auto context = EvaluationContext{};
+    CHECK(interpolate(" asdfasdf ${'asdf'}  sdf ", context) == " asdfasdf asdf  sdf ");
     CHECK(
-      interpolate(" asdfasdf ${'asdf'} ${'AND'}  sdf ", {})
+      interpolate(" asdfasdf ${'asdf'} ${'AND'}  sdf ", context)
       == " asdfasdf asdf AND  sdf ");
     CHECK(
-      interpolate(" asdfasdf ${'asdf'}${' AND'}  sdf ", {})
+      interpolate(" asdfasdf ${'asdf'}${' AND'}  sdf ", context)
       == " asdfasdf asdf AND  sdf ");
-    CHECK(interpolate(" ${ true } ", {}) == " true ");
-    CHECK(interpolate(" ${ 'this'+' and ' }${'that'} ", {}) == " this and that ");
+    CHECK(interpolate(" ${ true } ", context) == " true ");
+    CHECK(interpolate(" ${ 'this'+' and ' }${'that'} ", context) == " this and that ");
   }
 
   SECTION("interpolateStringWithNestedExpression")
   {
+    auto context = EvaluationContext{};
     CHECK(
-      interpolate(" asdfasdf ${ 'nested ${TEST} expression' }  sdf ", {})
+      interpolate(" asdfasdf ${ 'nested ${TEST} expression' }  sdf ", context)
       == " asdfasdf nested ${TEST} expression  sdf ");
   }
 
   SECTION("interpolateStringWithVariable")
   {
     auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
-
     CHECK(interpolate(" an ${TEST} expression", context) == " an interesting expression");
   }
 
   SECTION("interpolateStringWithBackslashAndVariable")
   {
     auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
-
     CHECK(
       interpolate(" an \\${TEST} expression", context) == " an \\interesting expression");
   }

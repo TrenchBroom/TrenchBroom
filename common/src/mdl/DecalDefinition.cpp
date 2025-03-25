@@ -88,7 +88,8 @@ void DecalDefinition::append(const DecalDefinition& other)
 DecalSpecification DecalDefinition::decalSpecification(
   const el::VariableStore& variableStore) const
 {
-  return convertToDecal(m_expression.evaluate(el::EvaluationContext{variableStore}));
+  auto evaluationContext = el::EvaluationContext{variableStore};
+  return convertToDecal(m_expression.evaluate(evaluationContext));
 }
 
 DecalSpecification DecalDefinition::defaultDecalSpecification() const

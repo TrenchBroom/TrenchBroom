@@ -42,13 +42,13 @@ using V = Value;
 
 Value evaluate(const std::string& expression, const MapType& variables = {})
 {
-  const auto context = EvaluationContext{VariableTable{variables}};
+  auto context = EvaluationContext{VariableTable{variables}};
   return io::ELParser::parseStrict(expression).value().evaluate(context);
 }
 
 Value tryEvaluate(const std::string& expression, const MapType& variables = {})
 {
-  const auto context = EvaluationContext{VariableTable{variables}};
+  auto context = EvaluationContext{VariableTable{variables}};
   return io::ELParser::parseStrict(expression).value().evaluate(context);
 }
 

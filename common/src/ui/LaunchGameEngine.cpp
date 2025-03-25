@@ -39,7 +39,8 @@ namespace
 
 auto arguments(const mdl::GameEngineProfile& profile, const el::VariableStore& variables)
 {
-  return el::interpolate(profile.parameterSpec, el::EvaluationContext{variables})
+  auto context = el::EvaluationContext{variables};
+  return el::interpolate(profile.parameterSpec, context)
          | kdl::transform([](const auto parameters) {
              auto result = QStringList{};
              for (const auto& parameter : kdl::cmd_parse_args(parameters))

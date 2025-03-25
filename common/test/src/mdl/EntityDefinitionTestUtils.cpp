@@ -61,10 +61,9 @@ ModelSpecification getModelSpecification(
 ModelSpecification getModelSpecification(
   const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
-                                     .value()
-                                     .evaluate(el::EvaluationContext{})
-                                     .mapValue();
+  auto context = el::EvaluationContext{};
+  const auto entityPropertiesMap =
+    io::ELParser::parseStrict(entityPropertiesStr).value().evaluate(context).mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
   return modelDefinition.modelSpecification(variableStore);
 }
@@ -102,10 +101,9 @@ void assertDecalDefinition(
   const DecalDefinition& actual,
   const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
-                                     .value()
-                                     .evaluate(el::EvaluationContext{})
-                                     .mapValue();
+  auto context = el::EvaluationContext{};
+  const auto entityPropertiesMap =
+    io::ELParser::parseStrict(entityPropertiesStr).value().evaluate(context).mapValue();
   const auto variableStore = el::VariableTable{entityPropertiesMap};
   CHECK(actual.decalSpecification(variableStore) == expected);
 }

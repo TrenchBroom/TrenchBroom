@@ -22,7 +22,6 @@
 #include "Exceptions.h"
 #include "Macros.h"
 #include "el/EvaluationContext.h"
-#include "el/EvaluationTrace.h"
 #include "el/Value.h"
 #include "mdl/GameEngineConfig.h"
 #include "mdl/GameEngineProfile.h"
@@ -36,10 +35,12 @@ namespace
 {
 
 mdl::GameEngineProfile parseProfile(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
-    value, trace, "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
+    value,
+    context,
+    "[ {'name': 'String', 'path': 'String'}, { 'parameters': 'String' } ]");
 
   return {
     value.at("name").stringValue(),
@@ -48,14 +49,14 @@ mdl::GameEngineProfile parseProfile(
 }
 
 std::vector<mdl::GameEngineProfile> parseProfiles(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   auto result = std::vector<mdl::GameEngineProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value.at(i), trace));
+    result.push_back(parseProfile(value.at(i), context));
   }
   return result;
 }
@@ -74,20 +75,18 @@ Result<mdl::GameEngineConfig> GameEngineConfigParser::parse()
          | kdl::and_then([&](const auto& expression) -> Result<mdl::GameEngineConfig> {
              try
              {
-               const auto context = el::EvaluationContext{};
-               auto trace = el::EvaluationTrace{};
-
-               const auto root = expression.evaluate(context, trace);
-               expectType(root, trace, el::ValueType::Map);
+               auto context = el::EvaluationContext{};
+               const auto root = expression.evaluate(context);
+               expectType(root, context, el::ValueType::Map);
 
                expectStructure(
-                 root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+                 root, context, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
                const auto version = root.at("version").numberValue();
                unused(version);
                assert(version == 1.0);
 
-               return mdl::GameEngineConfig{parseProfiles(root.at("profiles"), trace)};
+               return mdl::GameEngineConfig{parseProfiles(root.at("profiles"), context)};
              }
              catch (const Exception& e)
              {

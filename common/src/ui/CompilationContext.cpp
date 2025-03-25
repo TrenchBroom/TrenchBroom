@@ -52,7 +52,8 @@ bool CompilationContext::test() const
 
 Result<std::string> CompilationContext::interpolate(const std::string& input) const
 {
-  return el::interpolate(input, el::EvaluationContext{*m_variables});
+  auto context = el::EvaluationContext{*m_variables};
+  return el::interpolate(input, context);
 }
 
 std::string CompilationContext::variableValue(const std::string& variableName) const

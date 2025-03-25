@@ -20,7 +20,6 @@
 #include "CompilationConfigParser.h"
 
 #include "el/EvaluationContext.h"
-#include "el/EvaluationTrace.h"
 #include "el/Value.h"
 #include "io/ParserException.h"
 #include "mdl/CompilationConfig.h"
@@ -37,10 +36,12 @@ namespace
 {
 
 mdl::CompilationExportMap parseExportTask(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
-    value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+    value,
+    context,
+    "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled =
     value.contains("enabled") ? value.at("enabled").booleanValue() : true;
@@ -48,11 +49,11 @@ mdl::CompilationExportMap parseExportTask(
 }
 
 mdl::CompilationCopyFiles parseCopyTask(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
     value,
-    trace,
+    context,
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
@@ -62,11 +63,11 @@ mdl::CompilationCopyFiles parseCopyTask(
 }
 
 mdl::CompilationRenameFile parseRenameTask(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
     value,
-    trace,
+    context,
     "[ {'type': 'String', 'source': 'String', 'target': 'String'}, { 'enabled': "
     "'Boolean' } ]");
 
@@ -76,10 +77,12 @@ mdl::CompilationRenameFile parseRenameTask(
 }
 
 mdl::CompilationDeleteFiles parseDeleteTask(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
-    value, trace, "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
+    value,
+    context,
+    "[ {'type': 'String', 'target': 'String'}, { 'enabled': 'Boolean' } ]");
 
   const auto enabled =
     value.contains("enabled") ? value.at("enabled").booleanValue() : true;
@@ -87,11 +90,11 @@ mdl::CompilationDeleteFiles parseDeleteTask(
 }
 
 mdl::CompilationRunTool parseToolTask(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
     value,
-    trace,
+    context,
     "[ {'type': 'String', 'tool': 'String', 'parameters': 'String'}, { 'enabled': "
     "'Boolean', 'treatNonZeroResultCodeAsError': 'Boolean' } ]");
 
@@ -109,69 +112,70 @@ mdl::CompilationRunTool parseToolTask(
     treatNonZeroResultCodeAsError};
 }
 
-mdl::CompilationTask parseTask(const el::Value& value, const el::EvaluationTrace& trace)
+mdl::CompilationTask parseTask(
+  const el::Value& value, const el::EvaluationContext& context)
 {
-  expectMapEntry(value, trace, "type", el::ValueType::String);
+  expectMapEntry(value, context, "type", el::ValueType::String);
   const auto typeName = value.at("type").stringValue();
 
   if (typeName == "export")
   {
-    return parseExportTask(value, trace);
+    return parseExportTask(value, context);
   }
   if (typeName == "copy")
   {
-    return parseCopyTask(value, trace);
+    return parseCopyTask(value, context);
   }
   if (typeName == "rename")
   {
-    return parseRenameTask(value, trace);
+    return parseRenameTask(value, context);
   }
   if (typeName == "delete")
   {
-    return parseDeleteTask(value, trace);
+    return parseDeleteTask(value, context);
   }
   if (typeName == "tool")
   {
-    return parseToolTask(value, trace);
+    return parseToolTask(value, context);
   }
 
   throw ParserException{fmt::format("Unknown compilation task type '{}'", typeName)};
 }
 
 std::vector<mdl::CompilationTask> parseTasks(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   auto result = std::vector<mdl::CompilationTask>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseTask(value.at(i), trace));
+    result.push_back(parseTask(value.at(i), context));
   }
   return result;
 }
 
 mdl::CompilationProfile parseProfile(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   expectStructure(
-    value, trace, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
+    value, context, "[ {'name': 'String', 'workdir': 'String', 'tasks': 'Array'}, {} ]");
 
   return {
     value.at("name").stringValue(),
     value.at("workdir").stringValue(),
-    parseTasks(value.at("tasks"), trace)};
+    parseTasks(value.at("tasks"), context)};
 }
 
 std::vector<mdl::CompilationProfile> parseProfiles(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::Value& value, const el::EvaluationContext& context)
 {
   auto result = std::vector<mdl::CompilationProfile>{};
   result.reserve(value.length());
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    result.push_back(parseProfile(value.at(i), trace));
+    result.push_back(parseProfile(value.at(i), context));
   }
   return result;
 }
@@ -190,20 +194,19 @@ Result<mdl::CompilationConfig> CompilationConfigParser::parse()
          | kdl::and_then([&](const auto& expression) -> Result<mdl::CompilationConfig> {
              try
              {
-               const auto context = el::EvaluationContext{};
-               auto trace = el::EvaluationTrace{};
+               auto context = el::EvaluationContext{};
 
-               const auto root = expression.evaluate(context, trace);
-               expectType(root, trace, el::ValueType::Map);
+               const auto root = expression.evaluate(context);
+               expectType(root, context, el::ValueType::Map);
 
                expectStructure(
-                 root, trace, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
+                 root, context, "[ {'version': 'Number', 'profiles': 'Array'}, {} ]");
 
                const auto version = root.at("version").numberValue();
                unused(version);
                assert(version == 1.0);
 
-               return mdl::CompilationConfig{parseProfiles(root.at("profiles"), trace)};
+               return mdl::CompilationConfig{parseProfiles(root.at("profiles"), context)};
              }
              catch (const Exception& e)
              {

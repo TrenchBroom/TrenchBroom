@@ -20,7 +20,6 @@
 #include "ConfigParserBase.h"
 
 #include "el/EvaluationContext.h"
-#include "el/EvaluationTrace.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "io/ParserException.h"
@@ -46,12 +45,12 @@ Result<el::ExpressionNode> ConfigParserBase::parseConfigFile()
 }
 
 void expectType(
-  const el::Value& value, const el::EvaluationTrace& trace, const el::ValueType type)
+  const el::Value& value, const el::EvaluationContext& context, const el::ValueType type)
 {
   if (value.type() != type)
   {
     throw ParserException{
-      *trace.getLocation(value),
+      *context.location(value),
       fmt::format(
         "Expected value of type '{}', but got type '{}'",
         el::typeName(type),
@@ -60,11 +59,15 @@ void expectType(
 }
 
 void expectStructure(
-  const el::Value& value, const el::EvaluationTrace& trace, const std::string& structure)
+  const el::Value& value,
+  const el::EvaluationContext& context,
+  const std::string& structure)
 {
   auto parser = ELParser{ELParser::Mode::Strict, structure};
   parser.parse() | kdl::transform([&](const auto& expression) {
-    const auto expected = expression.evaluate(el::EvaluationContext());
+    auto expContext = el::EvaluationContext{};
+
+    const auto expected = expression.evaluate(expContext);
     assert(expected.type() == el::ValueType::Array);
 
     const auto mandatory = expected.at(0);
@@ -80,7 +83,7 @@ void expectStructure(
       if (typeName != "*")
       {
         const auto type = el::typeForName(typeName);
-        expectMapEntry(value, trace, key, type);
+        expectMapEntry(value, context, key, type);
       }
     }
   }) | kdl::transform_error([](const auto& e) { throw ParserException{e.msg}; });
@@ -88,7 +91,7 @@ void expectStructure(
 
 void expectMapEntry(
   const el::Value& value,
-  const el::EvaluationTrace& trace,
+  const el::EvaluationContext& context,
   const std::string& key,
   const el::ValueType type)
 {
@@ -97,9 +100,9 @@ void expectMapEntry(
   if (it == std::end(map))
   {
     throw ParserException{
-      *trace.getLocation(value), fmt::format("Expected map entry '{}'", key)};
+      *context.location(value), fmt::format("Expected map entry '{}'", key)};
   }
-  expectType(it->second, trace, type);
+  expectType(it->second, context, type);
 }
 
 } // namespace tb::io

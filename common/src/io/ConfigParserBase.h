@@ -48,12 +48,14 @@ protected:
 };
 
 void expectType(
-  const el::Value& value, const el::EvaluationTrace& trace, el::ValueType type);
+  const el::Value& value, const el::EvaluationContext& context, el::ValueType type);
 void expectStructure(
-  const el::Value& value, const el::EvaluationTrace& trace, const std::string& structure);
+  const el::Value& value,
+  const el::EvaluationContext& context,
+  const std::string& structure);
 void expectMapEntry(
   const el::Value& value,
-  const el::EvaluationTrace& trace,
+  const el::EvaluationContext& context,
   const std::string& key,
   el::ValueType type);
 } // namespace tb::io

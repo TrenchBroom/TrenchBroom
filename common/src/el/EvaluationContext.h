@@ -19,11 +19,15 @@
 
 #pragma once
 
+#include "FileLocation.h"
 #include "Macros.h"
-#include "el/EL_Forward.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <memory>
+#include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace tb::el
 {
@@ -31,14 +35,20 @@ namespace tb::el
 class EvaluationContext
 {
 private:
-  std::unique_ptr<VariableStore> m_store;
+  std::unique_ptr<VariableStore> m_variables;
+  std::unordered_map<Value, ExpressionNode> m_trace;
 
 public:
   EvaluationContext();
-  explicit EvaluationContext(const VariableStore& store);
+  explicit EvaluationContext(const VariableStore& variables);
   ~EvaluationContext();
 
   Value variableValue(const std::string& name) const;
+
+  std::optional<ExpressionNode> expression(const Value& value) const;
+  std::optional<FileLocation> location(const Value& value) const;
+
+  void trace(const Value& value, const ExpressionNode& expression);
 
   deleteCopyAndMove(EvaluationContext);
 };

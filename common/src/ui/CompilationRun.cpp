@@ -112,9 +112,8 @@ Result<void> CompilationRun::run(
 Result<std::string> CompilationRun::buildWorkDir(
   const mdl::CompilationProfile& profile, std::shared_ptr<MapDocument> document)
 {
-  return el::interpolate(
-    profile.workDirSpec,
-    el::EvaluationContext{CompilationWorkDirVariables{std::move(document)}});
+  auto context = el::EvaluationContext{CompilationWorkDirVariables{std::move(document)}};
+  return el::interpolate(profile.workDirSpec, context);
 }
 
 void CompilationRun::cleanup()

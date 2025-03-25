@@ -28,12 +28,12 @@ namespace tb::el
 {
 
 EvaluationContext::EvaluationContext()
-  : m_store{std::make_unique<VariableTable>()}
+  : m_variables{std::make_unique<VariableTable>()}
 {
 }
 
 EvaluationContext::EvaluationContext(const VariableStore& store)
-  : m_store{store.clone()}
+  : m_variables{store.clone()}
 {
 }
 
@@ -41,7 +41,28 @@ EvaluationContext::~EvaluationContext() = default;
 
 Value EvaluationContext::variableValue(const std::string& name) const
 {
-  return m_store->value(name);
+  return m_variables->value(name);
 }
+
+std::optional<ExpressionNode> EvaluationContext::expression(const Value& value) const
+{
+  const auto it = m_trace.find(value);
+  return it != m_trace.end() ? std::optional{it->second} : std::nullopt;
+}
+
+std::optional<FileLocation> EvaluationContext::location(const Value& value) const
+{
+  if (const auto expression = this->expression(value))
+  {
+    return expression->location();
+  }
+  return std::nullopt;
+}
+
+void EvaluationContext::trace(const Value& value, const ExpressionNode& expression)
+{
+  m_trace.emplace(value, expression);
+}
+
 
 } // namespace tb::el

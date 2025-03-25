@@ -22,7 +22,6 @@
 #include "Value.h"
 #include "el/ELExceptions.h"
 #include "el/EvaluationContext.h"
-#include "el/EvaluationTrace.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
@@ -49,9 +48,7 @@ Value evaluate(
 
 template <typename Evaluator>
 Value evaluate(
-  const Evaluator&,
-  const VariableExpression& expression,
-  const EvaluationContext& context)
+  const Evaluator&, const VariableExpression& expression, EvaluationContext& context)
 {
   return context.variableValue(expression.variableName);
 }
@@ -1117,7 +1114,7 @@ Expression optimize(const ArrayExpression& expression)
 
   if (isLiteral)
   {
-    const auto evaluationContext = EvaluationContext{};
+    auto evaluationContext = EvaluationContext{};
     return LiteralExpression{Value{
       optimizedExpressions | std::views::transform([&](const auto& x) {
         return x.evaluate(evaluationContext);
@@ -1140,7 +1137,7 @@ Expression optimize(const MapExpression& expression)
 
   if (isLiteral)
   {
-    const auto evaluationContext = EvaluationContext{};
+    auto evaluationContext = EvaluationContext{};
     return LiteralExpression{Value{
       optimizedExpressions | std::views::transform([&](const auto& entry) {
         return std::pair{entry.first, entry.second.evaluate(evaluationContext)};
@@ -1154,7 +1151,7 @@ Expression optimize(const MapExpression& expression)
 
 Expression optimize(const UnaryExpression& expression)
 {
-  const auto evaluationContext = EvaluationContext{};
+  auto evaluationContext = EvaluationContext{};
   auto optimizedOperand = expression.operand.optimize();
 
   if (optimizedOperand.isLiteral())
@@ -1171,7 +1168,7 @@ Expression optimize(const BinaryExpression& expression)
   auto optimizedLeftOperand = std::optional<ExpressionNode>{};
   auto optimizedRightOperand = std::optional<ExpressionNode>{};
 
-  const auto evaluationContext = EvaluationContext{};
+  auto evaluationContext = EvaluationContext{};
 
   const auto evaluateLeftOperand = [&] {
     optimizedLeftOperand = expression.leftOperand.optimize();
@@ -1211,7 +1208,7 @@ Expression optimize(const SubscriptExpression& expression)
 
   if (isLiteral)
   {
-    const auto evaluationContext = EvaluationContext{};
+    auto evaluationContext = EvaluationContext{};
     const auto leftValue = optimizedLeftOperand.evaluate(evaluationContext);
     const auto rightValue = optimizedRightOperand.evaluate(evaluationContext);
     return LiteralExpression{evaluateSubscript(leftValue, rightValue)};
@@ -1228,7 +1225,7 @@ Expression optimize(const SwitchExpression& expression)
     return LiteralExpression{Value::Undefined};
   }
 
-  const auto evaluationContext = EvaluationContext{};
+  auto evaluationContext = EvaluationContext{};
 
   auto firstOptimizedExpression = expression.cases.front().optimize();
   if (firstOptimizedExpression.isLiteral())
@@ -1331,38 +1328,24 @@ bool ExpressionNode::isLiteral() const
   return std::holds_alternative<LiteralExpression>(*m_expression);
 }
 
-Value ExpressionNode::evaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value ExpressionNode::evaluate(EvaluationContext& context) const
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
       auto value = el::evaluate(evaluator, expression, context);
-      if (trace)
-      {
-        trace->addTrace(value, containingNode);
-      }
+      context.trace(value, containingNode);
       return value;
     });
 }
 
-Value ExpressionNode::evaluate(
-  const EvaluationContext& context, EvaluationTrace& trace) const
-{
-  return evaluate(context, &trace);
-}
-
-Value ExpressionNode::tryEvaluate(
-  const EvaluationContext& context, EvaluationTrace* trace) const
+Value ExpressionNode::tryEvaluate(EvaluationContext& context) const
 {
   return accept(
     [&](const auto& evaluator, const auto& expression, const auto& containingNode) {
       try
       {
         auto value = el::evaluate(evaluator, expression, context);
-        if (trace)
-        {
-          trace->addTrace(value, containingNode);
-        }
+        context.trace(value, containingNode);
         return value;
       }
       catch (const EvaluationError&)
@@ -1370,12 +1353,6 @@ Value ExpressionNode::tryEvaluate(
         return Value::Undefined;
       }
     });
-}
-
-Value ExpressionNode::tryEvaluate(
-  const EvaluationContext& context, EvaluationTrace& trace) const
-{
-  return tryEvaluate(context, &trace);
 }
 
 ExpressionNode ExpressionNode::optimize() const

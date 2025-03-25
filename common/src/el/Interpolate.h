@@ -28,6 +28,6 @@ namespace tb::el
 {
 class EvaluationContext;
 
-Result<std::string> interpolate(std::string_view str, const EvaluationContext& context);
+Result<std::string> interpolate(std::string_view str, EvaluationContext& context);
 
 } // namespace tb::el

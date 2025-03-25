@@ -4,7 +4,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/Color.cpp
         ${COMMON_SOURCE_DIR}/el/ELExceptions.cpp
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.cpp
-        ${COMMON_SOURCE_DIR}/el/EvaluationTrace.cpp
         ${COMMON_SOURCE_DIR}/el/Expression.cpp
         ${COMMON_SOURCE_DIR}/el/Interpolate.cpp
         ${COMMON_SOURCE_DIR}/el/Types.cpp
@@ -501,7 +500,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/el/EL_Forward.h
         ${COMMON_SOURCE_DIR}/el/ELExceptions.h
         ${COMMON_SOURCE_DIR}/el/EvaluationContext.h
-        ${COMMON_SOURCE_DIR}/el/EvaluationTrace.h
         ${COMMON_SOURCE_DIR}/el/Expression.h
         ${COMMON_SOURCE_DIR}/el/Interpolate.h
         ${COMMON_SOURCE_DIR}/el/Types.h

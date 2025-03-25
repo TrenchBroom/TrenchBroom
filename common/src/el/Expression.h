@@ -117,13 +117,8 @@ public:
   template <typename Visitor>
   VisitorResultType_t<Visitor> accept(const Visitor& visitor) const;
 
-  Value evaluate(
-    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
-  Value evaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
-
-  Value tryEvaluate(
-    const EvaluationContext& context, EvaluationTrace* trace = nullptr) const;
-  Value tryEvaluate(const EvaluationContext& context, EvaluationTrace& trace) const;
+  Value evaluate(EvaluationContext& context) const;
+  Value tryEvaluate(EvaluationContext& context) const;
 
   ExpressionNode optimize() const;
 

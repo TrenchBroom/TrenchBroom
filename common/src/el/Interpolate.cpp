@@ -69,7 +69,7 @@ auto parseExpressions(
 }
 
 auto evaluateExpressions(
-  const std::vector<el::ExpressionNode>& expressions, const EvaluationContext& context)
+  const std::vector<el::ExpressionNode>& expressions, EvaluationContext& context)
 {
   return expressions
          | std::views::transform([&](const auto& expression) -> Result<el::Value> {
@@ -112,8 +112,7 @@ Result<std::string> substituteValues(
 
 } // namespace
 
-Result<std::string> interpolate(
-  const std::string_view str, const EvaluationContext& context)
+Result<std::string> interpolate(const std::string_view str, EvaluationContext& context)
 {
   return findExpressions(str) | kdl::and_then([&](const auto& expressionPositions) {
            return parseExpressions(str, expressionPositions)

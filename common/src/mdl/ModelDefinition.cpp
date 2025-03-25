@@ -105,13 +105,13 @@ static ModelSpecification convertToModel(const el::Value& value)
 ModelSpecification ModelDefinition::modelSpecification(
   const el::VariableStore& variableStore) const
 {
-  const auto context = el::EvaluationContext{variableStore};
+  auto context = el::EvaluationContext{variableStore};
   return convertToModel(m_expression.evaluate(context));
 }
 
 ModelSpecification ModelDefinition::defaultModelSpecification() const
 {
-  const auto context = el::EvaluationContext{};
+  auto context = el::EvaluationContext{};
   return convertToModel(m_expression.tryEvaluate(context));
 }
 
@@ -170,7 +170,7 @@ vm::vec3d ModelDefinition::scale(
   const el::VariableStore& variableStore,
   const std::optional<el::ExpressionNode>& defaultScaleExpression) const
 {
-  const auto context = el::EvaluationContext{variableStore};
+  auto context = el::EvaluationContext{variableStore};
   const auto value = m_expression.evaluate(context);
 
   switch (value.type())
