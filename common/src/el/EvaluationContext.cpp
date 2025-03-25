@@ -49,14 +49,4 @@ void EvaluationContext::declareVariable(const std::string& name, const Value& va
   m_store->declare(name, value);
 }
 
-EvaluationStack::EvaluationStack(const EvaluationContext& next)
-  : m_next{next}
-{
-}
-
-Value EvaluationStack::variableValue(const std::string& name) const
-{
-  const auto& value = EvaluationContext::variableValue(name);
-  return value != Value::Undefined ? value : m_next.variableValue(name);
-}
 } // namespace tb::el

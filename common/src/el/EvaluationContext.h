@@ -44,17 +44,4 @@ public:
   deleteCopyAndMove(EvaluationContext);
 };
 
-class EvaluationStack : public EvaluationContext
-{
-private:
-  const EvaluationContext& m_next;
-
-public:
-  explicit EvaluationStack(const EvaluationContext& next);
-
-  Value variableValue(const std::string& name) const override;
-
-  deleteCopyAndMove(EvaluationStack);
-};
-
 } // namespace tb::el
