@@ -40,12 +40,17 @@ ConversionError::ConversionError(
 }
 
 DereferenceError::DereferenceError(
-  const std::string& value, const ValueType from, const ValueType to)
-  : Exception{fmt::format(
-      "Cannot dereference value '{}' of type '{}' as type '{}'",
-      value,
-      typeName(from),
-      typeName(to))}
+  const std::optional<FileLocation>& fileLocation,
+  const std::string& value,
+  const ValueType from,
+  const ValueType to)
+  : Exception{prependLocation(
+      fileLocation,
+      fmt::format(
+        "Cannot dereference value '{}' of type '{}' as type '{}'",
+        value,
+        typeName(from),
+        typeName(to)))}
 {
 }
 

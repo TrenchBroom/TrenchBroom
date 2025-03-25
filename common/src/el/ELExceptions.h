@@ -20,6 +20,7 @@
 #pragma once
 
 #include "Exceptions.h"
+#include "FileLocation.h"
 
 #include <string>
 
@@ -43,7 +44,11 @@ public:
 class DereferenceError : public Exception
 {
 public:
-  DereferenceError(const std::string& value, ValueType from, ValueType to);
+  DereferenceError(
+    const std::optional<FileLocation>& fileLocation,
+    const std::string& value,
+    ValueType from,
+    ValueType to);
 };
 
 class EvaluationError : public Exception

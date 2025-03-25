@@ -151,7 +151,7 @@ const BooleanType& Value::booleanValue() const
         return b;
       },
       [&](const auto&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::String};
       }),
     *m_value);
 }
@@ -166,7 +166,7 @@ const StringType& Value::stringValue() const
         return s;
       },
       [&](const auto&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -181,7 +181,7 @@ const NumberType& Value::numberValue() const
         return n;
       },
       [&](const auto&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -201,7 +201,7 @@ const ArrayType& Value::arrayValue() const
         return a;
       },
       [&](const auto&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -216,7 +216,7 @@ const MapType& Value::mapValue() const
         return m;
       },
       [&](const auto&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
@@ -227,7 +227,7 @@ const RangeType& Value::rangeValue() const
     kdl::overload(
       [&](const RangeType& r) -> const RangeType& { return r; },
       [&](const auto&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
+        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
