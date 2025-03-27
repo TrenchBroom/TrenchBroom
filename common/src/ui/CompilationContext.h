@@ -50,7 +50,7 @@ public:
   bool test() const;
 
   Result<std::string> interpolate(const std::string& input) const;
-  std::string variableValue(const std::string& variableName) const;
+  Result<std::string> variableValue(const std::string& variableName) const;
 
   template <typename T>
   CompilationContext& operator<<(const T& t)

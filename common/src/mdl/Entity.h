@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "Result.h"
 #include "el/EL_Forward.h" // IWYU pragma: keep
 #include "mdl/AssetReference.h"
 #include "mdl/EntityProperties.h"
@@ -145,11 +146,11 @@ public: // property management
   void setModel(const EntityModel* model);
 
   const EntityModelFrame* modelFrame() const;
-  ModelSpecification modelSpecification() const;
+  Result<ModelSpecification> modelSpecification() const;
   const vm::mat4x4d& modelTransformation(
     const std::optional<el::ExpressionNode>& defaultModelScaleExpression) const;
 
-  DecalSpecification decalSpecification() const;
+  Result<DecalSpecification> decalSpecification() const;
 
   void unsetEntityDefinitionAndModel();
 

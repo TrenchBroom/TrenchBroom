@@ -35,6 +35,109 @@
 
 namespace tb::mdl
 {
+namespace
+{
+
+std::filesystem::path path(el::EvaluationContext& context, const el::Value& value)
+{
+  if (value.type() != el::ValueType::String)
+  {
+    return {};
+  }
+  const auto& path = value.stringValue(context);
+  return kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path;
+}
+
+size_t index(el::EvaluationContext& context, const el::Value& value)
+{
+  if (!value.convertibleTo(el::ValueType::Number))
+  {
+    return 0;
+  }
+
+  const auto intValue =
+    value.convertTo(context, el::ValueType::Number).integerValue(context);
+  return static_cast<size_t>(vm::max(0l, intValue));
+}
+
+ModelSpecification convertToModel(el::EvaluationContext& context, const el::Value& value)
+{
+  switch (value.type())
+  {
+  case el::ValueType::Map:
+    return ModelSpecification{
+      path(context, value.atOrDefault(context, ModelSpecificationKeys::Path)),
+      index(context, value.atOrDefault(context, ModelSpecificationKeys::Skin)),
+      index(context, value.atOrDefault(context, ModelSpecificationKeys::Frame)),
+    };
+  case el::ValueType::String:
+    return ModelSpecification{path(context, value), 0, 0};
+  case el::ValueType::Boolean:
+  case el::ValueType::Number:
+  case el::ValueType::Array:
+  case el::ValueType::Range:
+  case el::ValueType::Null:
+  case el::ValueType::Undefined:
+    break;
+  }
+
+  return ModelSpecification{};
+}
+
+std::optional<vm::vec3d> scaleValue(
+  el::EvaluationContext& context, const el::Value& value)
+{
+  if (value.type() == el::ValueType::Number)
+  {
+    const auto scale = value.numberValue(context);
+    return vm::vec3d{scale, scale, scale};
+  }
+
+  if (value.type() != el::ValueType::String)
+  {
+    return std::nullopt;
+  }
+
+  const auto stringValue = value.stringValue(context);
+  if (kdl::str_is_blank(stringValue))
+  {
+    return std::nullopt;
+  }
+
+  if (const auto scale = vm::parse<double, 3>(stringValue))
+  {
+    return *scale;
+  }
+
+  if (!value.convertibleTo(el::ValueType::Number))
+  {
+    return std::nullopt;
+  }
+
+  const auto scale = value.convertTo(context, el::ValueType::Number).numberValue(context);
+  return vm::vec3d{scale, scale, scale};
+}
+
+std::optional<vm::vec3d> convertToScale(
+  el::EvaluationContext& context, const el::Value& value)
+{
+  if (value.type() == el::ValueType::Array)
+  {
+    for (const auto& x : value.arrayValue(context))
+    {
+      if (const auto scale = scaleValue(context, x))
+      {
+        return scale;
+      }
+    }
+
+    return std::nullopt;
+  }
+
+  return scaleValue(context, value);
+}
+
+} // namespace
 
 ModelDefinition::ModelDefinition()
   : m_expression{el::LiteralExpression{el::Value::Undefined}}
@@ -59,146 +162,63 @@ void ModelDefinition::append(ModelDefinition other)
   m_expression = el::ExpressionNode{el::SwitchExpression{std::move(cases)}, location};
 }
 
-static std::filesystem::path path(const el::Value& value)
-{
-  if (value.type() != el::ValueType::String)
-  {
-    return {};
-  }
-  const auto& path = value.stringValue();
-  return kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path;
-}
-
-static size_t index(const el::Value& value)
-{
-  if (!value.convertibleTo(el::ValueType::Number))
-  {
-    return 0;
-  }
-  const auto intValue = value.convertTo(el::ValueType::Number).integerValue();
-  return static_cast<size_t>(vm::max(0l, intValue));
-}
-
-static ModelSpecification convertToModel(const el::Value& value)
-{
-  switch (value.type())
-  {
-  case el::ValueType::Map:
-    return ModelSpecification{
-      path(value.at(ModelSpecificationKeys::Path)),
-      index(value.at(ModelSpecificationKeys::Skin)),
-      index(value.at(ModelSpecificationKeys::Frame))};
-  case el::ValueType::String:
-    return ModelSpecification{path(value), 0, 0};
-  case el::ValueType::Boolean:
-  case el::ValueType::Number:
-  case el::ValueType::Array:
-  case el::ValueType::Range:
-  case el::ValueType::Null:
-  case el::ValueType::Undefined:
-    break;
-  }
-
-  return ModelSpecification{};
-}
-
-ModelSpecification ModelDefinition::modelSpecification(
+Result<ModelSpecification> ModelDefinition::modelSpecification(
   const el::VariableStore& variableStore) const
 {
-  auto context = el::EvaluationContext{variableStore};
-  return convertToModel(m_expression.evaluate(context));
+  return el::withEvaluationContext(
+    [&](auto& context) {
+      return convertToModel(context, m_expression.evaluate(context));
+    },
+    variableStore);
 }
 
-ModelSpecification ModelDefinition::defaultModelSpecification() const
+Result<ModelSpecification> ModelDefinition::defaultModelSpecification() const
 {
-  auto context = el::EvaluationContext{};
-  return convertToModel(m_expression.tryEvaluate(context));
+  return el::withEvaluationContext([&](auto& context) {
+    return convertToModel(context, m_expression.tryEvaluate(context));
+  });
 }
 
-static std::optional<vm::vec3d> scaleValue(const el::Value& value)
-{
-  if (value.type() == el::ValueType::Number)
-  {
-    const auto scale = value.numberValue();
-    return vm::vec3d{scale, scale, scale};
-  }
-
-  if (value.type() != el::ValueType::String)
-  {
-    return std::nullopt;
-  }
-
-  const auto stringValue = value.stringValue();
-  if (kdl::str_is_blank(stringValue))
-  {
-    return std::nullopt;
-  }
-
-  if (const auto scale = vm::parse<double, 3>(stringValue))
-  {
-    return *scale;
-  }
-
-  if (!value.convertibleTo(el::ValueType::Number))
-  {
-    return std::nullopt;
-  }
-
-  const auto scale = value.convertTo(el::ValueType::Number).numberValue();
-  return vm::vec3d{scale, scale, scale};
-}
-
-static std::optional<vm::vec3d> convertToScale(const el::Value& value)
-{
-  if (value.type() == el::ValueType::Array)
-  {
-    for (const auto& x : value.arrayValue())
-    {
-      if (const auto scale = scaleValue(x))
-      {
-        return scale;
-      }
-    }
-
-    return std::nullopt;
-  }
-
-  return scaleValue(value);
-}
-
-vm::vec3d ModelDefinition::scale(
+Result<vm::vec3d> ModelDefinition::scale(
   const el::VariableStore& variableStore,
   const std::optional<el::ExpressionNode>& defaultScaleExpression) const
 {
-  auto context = el::EvaluationContext{variableStore};
-  const auto value = m_expression.evaluate(context);
+  return el::withEvaluationContext(
+    [&](auto& context) {
+      const auto value = m_expression.evaluate(context);
 
-  switch (value.type())
-  {
-  case el::ValueType::Map:
-    if (const auto scale = convertToScale(value.at(ModelSpecificationKeys::Scale)))
-    {
-      return *scale;
-    }
-  case el::ValueType::String:
-  case el::ValueType::Boolean:
-  case el::ValueType::Number:
-  case el::ValueType::Array:
-  case el::ValueType::Range:
-  case el::ValueType::Null:
-  case el::ValueType::Undefined:
-    break;
-  }
+      switch (value.type())
+      {
+      case el::ValueType::Map:
+        if (
+          const auto scale = convertToScale(
+            context, value.atOrDefault(context, ModelSpecificationKeys::Scale)))
+        {
+          return *scale;
+        }
+      case el::ValueType::String:
+      case el::ValueType::Boolean:
+      case el::ValueType::Number:
+      case el::ValueType::Array:
+      case el::ValueType::Range:
+      case el::ValueType::Null:
+      case el::ValueType::Undefined:
+        break;
+      }
 
-  if (defaultScaleExpression)
-  {
-    if (const auto scale = convertToScale(defaultScaleExpression->evaluate(context)))
-    {
-      return *scale;
-    }
-  }
+      if (defaultScaleExpression)
+      {
+        if (
+          const auto scale =
+            convertToScale(context, defaultScaleExpression->evaluate(context)))
+        {
+          return *scale;
+        }
+      }
 
-  return vm::vec3d{1, 1, 1};
+      return vm::vec3d{1, 1, 1};
+    },
+    variableStore);
 }
 
 kdl_reflect_impl(ModelDefinition);
@@ -208,14 +228,8 @@ vm::vec3d safeGetModelScale(
   const el::VariableStore& variableStore,
   const std::optional<el::ExpressionNode>& defaultScaleExpression)
 {
-  try
-  {
-    return definition.scale(variableStore, defaultScaleExpression);
-  }
-  catch (const el::Exception&)
-  {
-    return vm::vec3d{1, 1, 1};
-  }
+  return definition.scale(variableStore, defaultScaleExpression)
+    .value_or(vm::vec3d{1, 1, 1});
 }
 
 } // namespace tb::mdl

@@ -19,14 +19,9 @@
 
 #include "ConfigParserBase.h"
 
-#include "el/EvaluationContext.h"
 #include "el/Expression.h"
-#include "el/Value.h"
-#include "io/ParserException.h"
 
 #include <fmt/format.h>
-
-#include <string>
 
 namespace tb::io
 {
@@ -42,67 +37,6 @@ ConfigParserBase::~ConfigParserBase() = default;
 Result<el::ExpressionNode> ConfigParserBase::parseConfigFile()
 {
   return m_parser.parse();
-}
-
-void expectType(
-  const el::Value& value, const el::EvaluationContext& context, const el::ValueType type)
-{
-  if (value.type() != type)
-  {
-    throw ParserException{
-      *context.location(value),
-      fmt::format(
-        "Expected value of type '{}', but got type '{}'",
-        el::typeName(type),
-        value.typeName())};
-  }
-}
-
-void expectStructure(
-  const el::Value& value,
-  const el::EvaluationContext& context,
-  const std::string& structure)
-{
-  auto parser = ELParser{ELParser::Mode::Strict, structure};
-  parser.parse() | kdl::transform([&](const auto& expression) {
-    auto expContext = el::EvaluationContext{};
-
-    const auto expected = expression.evaluate(expContext);
-    assert(expected.type() == el::ValueType::Array);
-
-    const auto mandatory = expected.at(0);
-    assert(mandatory.type() == el::ValueType::Map);
-
-    const auto optional = expected.at(1);
-    assert(optional.type() == el::ValueType::Map);
-
-    // Are all mandatory keys present?
-    for (const auto& key : mandatory.keys())
-    {
-      const auto typeName = mandatory.at(key).stringValue();
-      if (typeName != "*")
-      {
-        const auto type = el::typeForName(typeName);
-        expectMapEntry(value, context, key, type);
-      }
-    }
-  }) | kdl::transform_error([](const auto& e) { throw ParserException{e.msg}; });
-}
-
-void expectMapEntry(
-  const el::Value& value,
-  const el::EvaluationContext& context,
-  const std::string& key,
-  const el::ValueType type)
-{
-  const auto& map = value.mapValue();
-  const auto it = map.find(key);
-  if (it == std::end(map))
-  {
-    throw ParserException{
-      *context.location(value), fmt::format("Expected map entry '{}'", key)};
-  }
-  expectType(it->second, context, type);
 }
 
 } // namespace tb::io

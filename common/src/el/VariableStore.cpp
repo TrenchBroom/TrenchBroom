@@ -102,21 +102,9 @@ std::vector<std::string> VariableTable::names() const
   return kdl::map_keys(m_variables);
 }
 
-void VariableTable::declare(const std::string& name, const Value& value)
+void VariableTable::set(std::string name, Value value)
 {
-  if (!m_variables.try_emplace(name, value).second)
-  {
-    throw EvaluationError{fmt::format("Variable '{}' already declared", name)};
-  }
-}
-
-void VariableTable::assign(const std::string& name, const Value& value)
-{
-  if (auto it = m_variables.find(name); it != std::end(m_variables))
-  {
-    it->second = value;
-  }
-  throw EvaluationError{fmt::format("Cannot assign to undeclared variable '{}'", name)};
+  m_variables[std::move(name)] = std::move(value);
 }
 
 NullVariableStore::NullVariableStore() = default;
@@ -138,12 +126,9 @@ Value NullVariableStore::value(const std::string& /* name */) const
 
 std::vector<std::string> NullVariableStore::names() const
 {
-  return std::vector<std::string>{};
+  return {};
 }
 
-void NullVariableStore::declare(const std::string& /* name */, const Value& /* value */)
-{
-}
-void NullVariableStore::assign(const std::string& /* name */, const Value& /* value */) {}
+void NullVariableStore::set(const std::string, const Value) {}
 
 } // namespace tb::el

@@ -59,10 +59,19 @@ std::optional<FileLocation> EvaluationContext::location(const Value& value) cons
   return std::nullopt;
 }
 
-void EvaluationContext::trace(const Value& value, const ExpressionNode& expression)
+Value EvaluationContext::trace(Value value, const ExpressionNode& expression)
 {
   m_trace.emplace(value, expression);
+  return value;
 }
 
+Value EvaluationContext::trace(Value value, const Value& original)
+{
+  if (const auto expression = this->expression(original))
+  {
+    return this->trace(value, *expression);
+  }
+  return value;
+}
 
 } // namespace tb::el

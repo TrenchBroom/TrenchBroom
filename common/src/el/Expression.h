@@ -120,7 +120,7 @@ public:
   Value evaluate(EvaluationContext& context) const;
   Value tryEvaluate(EvaluationContext& context) const;
 
-  ExpressionNode optimize() const;
+  ExpressionNode optimize(EvaluationContext& context) const;
 
   const std::optional<FileLocation>& location() const;
 

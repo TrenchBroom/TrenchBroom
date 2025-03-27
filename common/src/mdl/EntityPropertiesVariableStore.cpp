@@ -54,16 +54,6 @@ std::vector<std::string> EntityPropertiesVariableStore::names() const
   return m_entity.propertyKeys();
 }
 
-void EntityPropertiesVariableStore::declare(
-  const std::string& /* name */, const el::Value& /* value */)
-{
-  throw el::EvaluationError{"Declaring properties directly is unsafe"};
-}
-
-void EntityPropertiesVariableStore::assign(
-  const std::string& /* name */, const el::Value& /* value */)
-{
-  throw el::EvaluationError{"Changing properties directly is unsafe"};
-}
+void EntityPropertiesVariableStore::set(const std::string, const el::Value) {}
 
 } // namespace tb::mdl

@@ -41,8 +41,7 @@ public:
   size_t size() const override;
   el::Value value(const std::string& name) const override;
   std::vector<std::string> names() const override;
-  void declare(const std::string& name, const el::Value& value) override;
-  void assign(const std::string& name, const el::Value& value) override;
+  void set(std::string name, el::Value value) override;
 
   deleteCopyAndMove(EntityPropertiesVariableStore);
 };

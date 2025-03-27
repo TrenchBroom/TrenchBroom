@@ -32,20 +32,22 @@ namespace tb::mdl
 
 namespace
 {
-std::string materialName(const el::Value& value)
+std::string materialName(const el::EvaluationContext& context, const el::Value& value)
 {
   using namespace std::string_literals;
-  return value.type() == el::ValueType::String ? value.stringValue() : ""s;
+  return value.type() == el::ValueType::String ? value.stringValue(context) : ""s;
 }
 
-DecalSpecification convertToDecal(const el::Value& value)
+DecalSpecification convertToDecal(
+  const el::EvaluationContext& context, const el::Value& value)
 {
   switch (value.type())
   {
   case el::ValueType::Map:
-    return {materialName(value.at(DecalSpecificationKeys::Material))};
+    return {materialName(
+      context, value.atOrDefault(context, DecalSpecificationKeys::Material))};
   case el::ValueType::String:
-    return {materialName(value)};
+    return {materialName(context, value)};
   case el::ValueType::Boolean:
   case el::ValueType::Number:
   case el::ValueType::Array:
@@ -85,14 +87,17 @@ void DecalDefinition::append(const DecalDefinition& other)
   m_expression = el::ExpressionNode{el::SwitchExpression{std::move(cases)}, location};
 }
 
-DecalSpecification DecalDefinition::decalSpecification(
+Result<DecalSpecification> DecalDefinition::decalSpecification(
   const el::VariableStore& variableStore) const
 {
-  auto evaluationContext = el::EvaluationContext{variableStore};
-  return convertToDecal(m_expression.evaluate(evaluationContext));
+  return el::withEvaluationContext(
+    [&](auto& context) {
+      return convertToDecal(context, m_expression.evaluate(context));
+    },
+    variableStore);
 }
 
-DecalSpecification DecalDefinition::defaultDecalSpecification() const
+Result<DecalSpecification> DecalDefinition::defaultDecalSpecification() const
 {
   return decalSpecification(el::NullVariableStore{});
 }

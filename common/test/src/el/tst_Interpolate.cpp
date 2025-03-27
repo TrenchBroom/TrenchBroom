@@ -17,7 +17,6 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "el/EvaluationContext.h"
 #include "el/Interpolate.h"
 #include "el/Value.h"
 #include "el/VariableStore.h"
@@ -33,63 +32,65 @@ TEST_CASE("interpolate")
 
   SECTION("interpolateEmptyString")
   {
-    auto context = EvaluationContext{};
-    CHECK(interpolate("", context) == "");
-    CHECK(interpolate("   ", context) == "   ");
+    const auto variables = VariableTable{};
+    CHECK(interpolate({variables}, "") == "");
+    CHECK(interpolate(variables, "   ") == "   ");
   }
 
   SECTION("interpolateStringWithoutExpression")
   {
-    auto context = EvaluationContext{};
-    CHECK(interpolate(" asdfasdf  sdf ", context) == " asdfasdf  sdf ");
+    const auto variables = VariableTable{};
+    CHECK(interpolate(variables, " asdfasdf  sdf ") == " asdfasdf  sdf ");
   }
 
   SECTION("interpolateStringWithSimpleExpression")
   {
-    auto context = EvaluationContext{};
-    CHECK(interpolate(" asdfasdf ${'asdf'}  sdf ", context) == " asdfasdf asdf  sdf ");
+    const auto variables = VariableTable{};
+    CHECK(interpolate(variables, " asdfasdf ${'asdf'}  sdf ") == " asdfasdf asdf  sdf ");
     CHECK(
-      interpolate(" asdfasdf ${'asdf'} ${'AND'}  sdf ", context)
+      interpolate(variables, " asdfasdf ${'asdf'} ${'AND'}  sdf ")
       == " asdfasdf asdf AND  sdf ");
     CHECK(
-      interpolate(" asdfasdf ${'asdf'}${' AND'}  sdf ", context)
+      interpolate(variables, " asdfasdf ${'asdf'}${' AND'}  sdf ")
       == " asdfasdf asdf AND  sdf ");
-    CHECK(interpolate(" ${ true } ", context) == " true ");
-    CHECK(interpolate(" ${ 'this'+' and ' }${'that'} ", context) == " this and that ");
+    CHECK(interpolate(variables, " ${ true } ") == " true ");
+    CHECK(interpolate(variables, " ${ 'this'+' and ' }${'that'} ") == " this and that ");
   }
 
   SECTION("interpolateStringWithNestedExpression")
   {
-    auto context = EvaluationContext{};
+    const auto variables = VariableTable{};
     CHECK(
-      interpolate(" asdfasdf ${ 'nested ${TEST} expression' }  sdf ", context)
+      interpolate(variables, " asdfasdf ${ 'nested ${TEST} expression' }  sdf ")
       == " asdfasdf nested ${TEST} expression  sdf ");
   }
 
   SECTION("interpolateStringWithVariable")
   {
-    auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
-    CHECK(interpolate(" an ${TEST} expression", context) == " an interesting expression");
+    const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
+    CHECK(
+      interpolate(variables, " an ${TEST} expression") == " an interesting expression");
   }
 
   SECTION("interpolateStringWithBackslashAndVariable")
   {
-    auto context = EvaluationContext{VariableTable{{{"TEST", Value{"interesting"}}}}};
+    const auto variables = VariableTable{{{"TEST", Value{"interesting"}}}};
     CHECK(
-      interpolate(" an \\${TEST} expression", context) == " an \\interesting expression");
+      interpolate(variables, " an \\${TEST} expression")
+      == " an \\interesting expression");
   }
 
   SECTION("interpolateStringWithUnknownVariable")
   {
-    auto context = EvaluationContext{};
-    CHECK(interpolate(" an ${TEST} expression", context).is_error());
+    const auto variables = VariableTable{};
+    CHECK(interpolate(variables, " an ${TEST} expression").is_error());
   }
 
   SECTION("interpolateStringWithUnterminatedEL")
   {
-    auto context = EvaluationContext{};
-    CHECK(interpolate(" an ${TEST", context).is_error());
-    CHECK(interpolate(" an ${TEST expression", context).is_error());
+    const auto variables = VariableTable{};
+    CHECK(interpolate(variables, " an ${TEST").is_error());
+    CHECK(interpolate(variables, " an ${TEST expression").is_error());
   }
 }
 

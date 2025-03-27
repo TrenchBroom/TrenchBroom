@@ -175,12 +175,18 @@ void Entity::setModel(const EntityModel* model)
 
 const EntityModelFrame* Entity::modelFrame() const
 {
-  return m_model && m_model->data()
-           ? m_model->data()->frame(modelSpecification().frameIndex)
-           : nullptr;
+  if (!m_model || !m_model->data())
+  {
+    return nullptr;
+  }
+
+  return modelSpecification() | kdl::transform([&](const auto& modelSpecification) {
+           return m_model->data()->frame(modelSpecification.frameIndex);
+         })
+         | kdl::value_or(nullptr);
 }
 
-ModelSpecification Entity::modelSpecification() const
+Result<ModelSpecification> Entity::modelSpecification() const
 {
   if (
     const auto* pointDefinition =
@@ -218,7 +224,7 @@ const vm::mat4x4d& Entity::modelTransformation(
   return *m_cachedModelTransformation;
 }
 
-DecalSpecification Entity::decalSpecification() const
+Result<DecalSpecification> Entity::decalSpecification() const
 {
   if (
     const auto* pointDefinition =

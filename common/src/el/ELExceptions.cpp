@@ -19,6 +19,7 @@
 
 #include "ELExceptions.h"
 
+#include "el/Expression.h"
 #include "el/Types.h"
 #include "el/Value.h"
 
@@ -30,12 +31,17 @@ namespace tb::el
 {
 
 ConversionError::ConversionError(
-  const std::string& value, const ValueType from, const ValueType to)
-  : Exception{fmt::format(
-      "Cannot convert value '{}' of type '{}' to type '{}'",
-      value,
-      typeName(from),
-      typeName(to))}
+  const std::optional<FileLocation>& fileLocation,
+  const std::string& value,
+  const ValueType from,
+  const ValueType to)
+  : Exception{prependLocation(
+      fileLocation,
+      fmt::format(
+        "Cannot convert value '{}' of type '{}' to type '{}'",
+        value,
+        typeName(from),
+        typeName(to)))}
 {
 }
 
@@ -54,80 +60,79 @@ DereferenceError::DereferenceError(
 {
 }
 
-IndexError::IndexError(const Value& indexableValue, const Value& indexValue)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using index '{}' of type '{}'",
-      indexableValue.describe(),
-      indexableValue.typeName(),
-      indexValue.describe(),
-      typeName(indexValue.type()))}
+EvaluationError::EvaluationError() = default;
+
+EvaluationError::EvaluationError(
+  const ExpressionNode& expression, const std::string_view reason)
+  : EvaluationError{
+      expression.location(),
+      fmt::format("Cannot evaluate expression '{}': {}", expression.asString(), reason)}
 {
 }
 
-IndexError::IndexError(const Value& indexableValue, const size_t /* index */)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using integral index",
-      indexableValue.describe(),
-      indexableValue.typeName())}
+EvaluationError::EvaluationError(
+  const std::optional<FileLocation>& location, std::string_view message)
+  : Exception{prependLocation(location, message)}
 {
 }
 
-IndexError::IndexError(const Value& indexableValue, const std::string& /* key */)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using string index",
-      indexableValue.describe(),
-      indexableValue.typeName())}
+IndexError::IndexError(
+  const ExpressionNode& expression, const Value& indexableValue, const Value& indexValue)
+  : EvaluationError{
+      expression,
+      fmt::format(
+        "'{}' is not a compatible index for '{}'",
+        indexValue.describe(),
+        indexableValue.describe())}
 {
 }
 
-IndexOutOfBoundsError::IndexOutOfBoundsError(
-  const Value& indexableValue, const Value& indexValue, const size_t outOfBoundsIndex)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using index '{}' of type '{}': Index value "
-      "{} "
-      "is out of bounds",
-      indexableValue.describe(),
-      indexableValue.typeName(),
-      indexValue.describe(),
-      typeName(indexValue.type()),
-      std::to_string(outOfBoundsIndex))}
-{
-}
-
-IndexOutOfBoundsError::IndexOutOfBoundsError(
+IndexError::IndexError(
+  const std::optional<FileLocation>& location,
   const Value& indexableValue,
-  const Value& indexValue,
-  const std::string& outOfBoundsIndex)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using index '{}' of type '{}': Key '{}' not "
-      "found",
-      indexableValue.describe(),
-      indexableValue.typeName(),
-      indexValue.describe(),
-      typeName(indexValue.type()),
-      outOfBoundsIndex)}
+  const size_t index)
+  : EvaluationError{
+      location,
+      fmt::format(
+        "{} is not a compatible index for '{}'", index, indexableValue.describe())}
+{
+}
+
+IndexError::IndexError(
+  const std::optional<FileLocation>& location,
+  const Value& indexableValue,
+  const std::string& key)
+  : EvaluationError{
+      location,
+      fmt::format(
+        "'{}' is not a compatible index for '{}'", key, indexableValue.describe())}
 {
 }
 
 IndexOutOfBoundsError::IndexOutOfBoundsError(
-  const Value& indexableValue, const size_t index)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using integral index: Index value {} is out "
-      "of "
-      "bounds",
-      indexableValue.describe(),
-      indexableValue.typeName(),
-      std::to_string(index))}
+  const ExpressionNode& expression, const Value& indexableValue, const size_t index)
+  : EvaluationError{
+      expression,
+      fmt::format("{} is out of bounds for '{}'", index, indexableValue.describe())}
 {
 }
 
 IndexOutOfBoundsError::IndexOutOfBoundsError(
-  const Value& indexableValue, const std::string& key)
-  : EvaluationError{fmt::format(
-      "Cannot index value '{}' of type '{}' using string index: Key '{}' not found",
-      indexableValue.describe(),
-      indexableValue.typeName(),
-      key)}
+  const std::optional<FileLocation>& location,
+  const Value& indexableValue,
+  const size_t index)
+  : EvaluationError{
+      location,
+      fmt::format("{} is out of bounds for '{}'", index, indexableValue.describe())}
+{
+}
+
+IndexOutOfBoundsError::IndexOutOfBoundsError(
+  const std::optional<FileLocation>& location,
+  const Value& indexableValue,
+  const std::string& key)
+  : EvaluationError{
+      location, fmt::format("'{}' not found in '{}'", key, indexableValue.describe())}
 {
 }
 

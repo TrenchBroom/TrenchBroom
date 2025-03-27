@@ -19,6 +19,7 @@
 
 #include "VariableStoreModel.h"
 
+#include "el/EvaluationContext.h"
 #include "el/VariableStore.h"
 
 namespace tb::ui
@@ -50,11 +51,23 @@ QVariant VariableStoreModel::data(const QModelIndex& index, const int role) cons
   }
 
   const auto& name = m_variableNames[size_t(index.row())];
-  return index.column() == 0
-           ? role == Qt::EditRole      ? QString::fromStdString("${" + name + "}")
-             : role == Qt::DisplayRole ? QString::fromStdString(name)
-                                       : QVariant{}
-           : QString::fromStdString(m_variables->value(name).stringValue());
+  if (index.column() == 0)
+  {
+    return role == Qt::EditRole      ? QString::fromStdString("${" + name + "}")
+           : role == Qt::DisplayRole ? QString::fromStdString(name)
+                                     : QVariant{};
+  }
+
+  return el::withEvaluationContext(
+           [&](auto& context) {
+             return QString::fromStdString(
+               context.variableValue(name).stringValue(context));
+           },
+           *m_variables)
+         | kdl::transform_error([](const auto& e) {
+             return QString{"Error: %1"}.arg(QString::fromStdString(e.msg));
+           })
+         | kdl::value();
 }
 
 } // namespace tb::ui

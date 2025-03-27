@@ -21,6 +21,8 @@
 
 #include "FileLocation.h"
 #include "Macros.h"
+#include "Result.h"
+#include "el/ELExceptions.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 
@@ -38,9 +40,10 @@ private:
   std::unique_ptr<VariableStore> m_variables;
   std::unordered_map<Value, ExpressionNode> m_trace;
 
-public:
   EvaluationContext();
   explicit EvaluationContext(const VariableStore& variables);
+
+public:
   ~EvaluationContext();
 
   Value variableValue(const std::string& name) const;
@@ -48,9 +51,58 @@ public:
   std::optional<ExpressionNode> expression(const Value& value) const;
   std::optional<FileLocation> location(const Value& value) const;
 
-  void trace(const Value& value, const ExpressionNode& expression);
+  Value trace(Value value, const ExpressionNode& expression);
+  Value trace(Value value, const Value& original);
+
+  template <typename F, typename... Args>
+  friend auto withEvaluationContext(const F& f, Args&&... args);
 
   deleteCopyAndMove(EvaluationContext);
 };
+
+template <typename F, typename... Args>
+auto withEvaluationContext(const F& f, Args&&... args)
+{
+  using ReturnType = decltype(f(std::declval<EvaluationContext&>()));
+  if constexpr (kdl::is_result_v<ReturnType>)
+  {
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      return f(context);
+    }
+    catch (const el::Exception& e)
+    {
+      return ReturnType{Error{e.what()}};
+    }
+  }
+  else if constexpr (std::is_same_v<ReturnType, void>)
+  {
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      f(context);
+      return Result<void>{};
+    }
+    catch (const el::Exception& e)
+    {
+      return Result<void>{Error{e.what()}};
+    }
+  }
+  else
+  {
+    using ResultType = Result<ReturnType>;
+
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      return ResultType{f(context)};
+    }
+    catch (const el::Exception& e)
+    {
+      return ResultType{Error{e.what()}};
+    }
+  }
+}
 
 } // namespace tb::el

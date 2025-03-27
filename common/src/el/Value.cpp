@@ -20,6 +20,7 @@
 #include "Value.h"
 
 #include "el/ELExceptions.h"
+#include "el/EvaluationContext.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
@@ -141,7 +142,7 @@ std::string Value::describe() const
   return asString(false);
 }
 
-const BooleanType& Value::booleanValue() const
+const BooleanType& Value::booleanValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
@@ -151,12 +152,13 @@ const BooleanType& Value::booleanValue() const
         return b;
       },
       [&](const auto&) -> const BooleanType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::String};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::String};
       }),
     *m_value);
 }
 
-const StringType& Value::stringValue() const
+const StringType& Value::stringValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
@@ -166,12 +168,13 @@ const StringType& Value::stringValue() const
         return s;
       },
       [&](const auto&) -> const StringType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const NumberType& Value::numberValue() const
+const NumberType& Value::numberValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
@@ -181,17 +184,18 @@ const NumberType& Value::numberValue() const
         return n;
       },
       [&](const auto&) -> const NumberType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-IntegerType Value::integerValue() const
+IntegerType Value::integerValue(const EvaluationContext& context) const
 {
-  return static_cast<IntegerType>(numberValue());
+  return static_cast<IntegerType>(numberValue(context));
 }
 
-const ArrayType& Value::arrayValue() const
+const ArrayType& Value::arrayValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
@@ -201,12 +205,13 @@ const ArrayType& Value::arrayValue() const
         return a;
       },
       [&](const auto&) -> const ArrayType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const MapType& Value::mapValue() const
+const MapType& Value::mapValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
@@ -216,33 +221,35 @@ const MapType& Value::mapValue() const
         return m;
       },
       [&](const auto&) -> const MapType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const RangeType& Value::rangeValue() const
+const RangeType& Value::rangeValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
       [&](const RangeType& r) -> const RangeType& { return r; },
       [&](const auto&) -> const RangeType& {
-        throw DereferenceError{std::nullopt, describe(), type(), ValueType::Boolean};
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-std::vector<std::string> Value::asStringList() const
+std::vector<std::string> Value::asStringList(const EvaluationContext& context) const
 {
-  return arrayValue() | std::views::transform([&](const auto& entry) {
-           return entry.convertTo(ValueType::String).stringValue();
+  return arrayValue(context) | std::views::transform([&](const auto& entry) {
+           return entry.stringValue(context);
          })
          | kdl::to_vector;
 }
 
-std::vector<std::string> Value::asStringSet() const
+std::vector<std::string> Value::asStringSet(const EvaluationContext& context) const
 {
-  return kdl::vec_sort_and_remove_duplicates(asStringList());
+  return kdl::vec_sort_and_remove_duplicates(asStringList(context));
 }
 
 size_t Value::length() const
@@ -416,7 +423,7 @@ bool Value::convertibleTo(const ValueType toType) const
     *m_value);
 }
 
-Value Value::convertTo(const ValueType toType) const
+Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
 {
   return std::visit(
     kdl::overload(
@@ -426,9 +433,9 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Boolean:
           return *this;
         case ValueType::String:
-          return Value{b ? "true" : "false"};
+          return context.trace(Value{b ? "true" : "false"}, *this);
         case ValueType::Number:
-          return Value{b ? 1.0 : 0.0};
+          return context.trace(Value{b ? 1.0 : 0.0}, *this);
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -437,13 +444,14 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const StringType& s) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()};
+          return context.trace(
+            Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()}, *this);
         case ValueType::String:
           return *this;
         case ValueType::Number: {
@@ -456,9 +464,9 @@ Value Value::convertTo(const ValueType toType) const
           const NumberType value = std::strtod(begin, &end);
           if (value == 0.0 && end == begin)
           {
-            throw ConversionError{describe(), type(), toType};
+            throw ConversionError{context.location(*this), describe(), type(), toType};
           }
-          return Value{value};
+          return context.trace(Value{value}, *this);
         }
         case ValueType::Array:
         case ValueType::Map:
@@ -468,15 +476,15 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const NumberType& n) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{n != 0.0};
+          return context.trace(Value{n != 0.0}, *this);
         case ValueType::String:
-          return Value{describe()};
+          return context.trace(Value{describe()}, *this);
         case ValueType::Number:
           return *this;
         case ValueType::Array:
@@ -487,7 +495,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const ArrayType&) -> Value {
         switch (toType)
@@ -504,7 +512,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const MapType&) -> Value {
         switch (toType)
@@ -521,7 +529,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const RangeType&) -> Value {
         switch (toType)
@@ -538,29 +546,29 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const NullType&) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{false};
+          return context.trace(Value{false}, *this);
         case ValueType::Null:
           return *this;
         case ValueType::Number:
-          return Value{0.0};
+          return context.trace(Value{0.0}, *this);
         case ValueType::String:
-          return Value{""};
+          return context.trace(Value{""}, *this);
         case ValueType::Array:
-          return Value{ArrayType{0}};
+          return context.trace(Value{ArrayType{0}}, *this);
         case ValueType::Map:
-          return Value{MapType{}};
+          return context.trace(Value{MapType{}}, *this);
         case ValueType::Range:
         case ValueType::Undefined:
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const UndefinedType&) -> Value {
         switch (toType)
@@ -577,16 +585,17 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       }),
     *m_value);
 }
 
-std::optional<Value> Value::tryConvertTo(const ValueType toType) const
+std::optional<Value> Value::tryConvertTo(
+  EvaluationContext& context, const ValueType toType) const
 {
   try
   {
-    return convertTo(toType);
+    return convertTo(context, toType);
   }
   catch (const ConversionError&)
   {
@@ -733,7 +742,7 @@ void Value::appendToStream(
     *m_value);
 }
 
-bool Value::contains(const size_t index) const
+bool Value::contains(const EvaluationContext&, const size_t index) const
 {
   switch (type())
   {
@@ -751,38 +760,37 @@ bool Value::contains(const size_t index) const
   return false;
 }
 
-bool Value::contains(const std::string& key) const
+bool Value::contains(const EvaluationContext& context, const std::string& key) const
 {
-  const MapType& map = mapValue();
+  const MapType& map = mapValue(context);
   const auto it = map.find(key);
   return it != std::end(map);
 }
 
-std::vector<std::string> Value::keys() const
+std::vector<std::string> Value::keys(const EvaluationContext& context) const
 {
-  return kdl::map_keys(mapValue());
+  return kdl::map_keys(mapValue(context));
 }
 
-Value Value::at(const size_t index) const
+Value Value::at(const EvaluationContext& context, const size_t index) const
 {
   switch (type())
   {
   case ValueType::String: {
-    const StringType& str = stringValue();
-    std::stringstream result;
+    const auto& str = stringValue(context);
     if (index < str.length())
     {
-      result << str[index];
+      return Value{str.substr(index, 1)};
     }
-    return Value{result.str()};
+    throw IndexOutOfBoundsError{context.location(*this), *this, index};
   }
   case ValueType::Array: {
-    const ArrayType& array = arrayValue();
-    if (index >= array.size())
+    const auto& array = arrayValue(context);
+    if (index < array.size())
     {
-      throw IndexOutOfBoundsError{*this, index};
+      return array[index];
     }
-    return array[index];
+    throw IndexOutOfBoundsError{context.location(*this), *this, index};
   }
   case ValueType::Map:
   case ValueType::Boolean:
@@ -793,17 +801,53 @@ Value Value::at(const size_t index) const
     break;
   }
 
-  throw IndexError{*this, index};
+  throw IndexError{context.location(*this), *this, index};
 }
 
-Value Value::at(const std::string& key) const
+Value Value::atOrDefault(
+  const EvaluationContext& context, const size_t index, Value defaultValue) const
+{
+  switch (type())
+  {
+  case ValueType::String: {
+    const auto& str = stringValue(context);
+    if (index < str.length())
+    {
+      return Value{str.substr(index, 1)};
+    }
+    return defaultValue;
+  }
+  case ValueType::Array: {
+    const auto& array = arrayValue(context);
+    if (index < array.size())
+    {
+      return array[index];
+    }
+    return defaultValue;
+  }
+  case ValueType::Map:
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    break;
+  }
+
+  throw IndexError{context.location(*this), *this, index};
+}
+
+Value Value::at(const EvaluationContext& context, const std::string& key) const
 {
   switch (type())
   {
   case ValueType::Map: {
-    const auto& map = mapValue();
-    const auto it = map.find(key);
-    return it != map.end() ? it->second : Value::Null;
+    const auto& map = mapValue(context);
+    if (const auto it = map.find(key); it != map.end())
+    {
+      return it->second;
+    }
+    throw IndexOutOfBoundsError{context.location(*this), *this, key};
   }
   case ValueType::String:
   case ValueType::Array:
@@ -815,7 +859,33 @@ Value Value::at(const std::string& key) const
     break;
   }
 
-  throw IndexError{*this, key};
+  throw IndexError{context.location(*this), *this, key};
+}
+
+Value Value::atOrDefault(
+  const EvaluationContext& context, const std::string& key, Value defaultValue) const
+{
+  switch (type())
+  {
+  case ValueType::Map: {
+    const auto& map = mapValue(context);
+    if (const auto it = map.find(key); it != map.end())
+    {
+      return it->second;
+    }
+    return defaultValue;
+  }
+  case ValueType::String:
+  case ValueType::Array:
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    break;
+  }
+
+  throw IndexError{context.location(*this), *this, key};
 }
 
 bool operator==(const Value& lhs, const Value& rhs)

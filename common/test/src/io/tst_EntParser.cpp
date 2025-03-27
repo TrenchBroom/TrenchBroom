@@ -505,7 +505,8 @@ TEST_CASE("EntParserTest.parseLegacyModelDefinition")
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
-    modelDefinition.defaultModelSpecification().path == "models/powerups/ammo/bfgam.md3");
+    modelDefinition.defaultModelSpecification().value().path
+    == "models/powerups/ammo/bfgam.md3");
 }
 
 TEST_CASE("EntParserTest.parseELStaticModelDefinition")
@@ -531,7 +532,7 @@ TEST_CASE("EntParserTest.parseELStaticModelDefinition")
 
   const auto& modelDefinition = pointDefinition->modelDefinition();
   CHECK(
-    modelDefinition.defaultModelSpecification().path
+    modelDefinition.defaultModelSpecification().value().path
     == "models/powerups/ammo/bfgam2.md3");
 }
 

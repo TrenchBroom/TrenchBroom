@@ -36,6 +36,7 @@ struct FileLocation;
 
 namespace tb::el
 {
+class EvaluationContext;
 
 class NullType
 {
@@ -101,32 +102,40 @@ public:
   std::string typeName() const;
   std::string describe() const;
 
-  const BooleanType& booleanValue() const;
-  const StringType& stringValue() const;
-  const NumberType& numberValue() const;
-  IntegerType integerValue() const;
-  const ArrayType& arrayValue() const;
-  const MapType& mapValue() const;
-  const RangeType& rangeValue() const;
+  const BooleanType& booleanValue(const EvaluationContext& context) const;
+  const StringType& stringValue(const EvaluationContext& context) const;
+  const NumberType& numberValue(const EvaluationContext& context) const;
+  IntegerType integerValue(const EvaluationContext& context) const;
+  const ArrayType& arrayValue(const EvaluationContext& context) const;
+  const MapType& mapValue(const EvaluationContext& context) const;
+  const RangeType& rangeValue(const EvaluationContext& context) const;
 
-  std::vector<std::string> asStringList() const;
-  std::vector<std::string> asStringSet() const;
+  std::vector<std::string> asStringList(const EvaluationContext& context) const;
+  std::vector<std::string> asStringSet(const EvaluationContext& context) const;
 
   size_t length() const;
   bool convertibleTo(ValueType toType) const;
-  Value convertTo(ValueType toType) const;
-  std::optional<Value> tryConvertTo(ValueType toType) const;
+  Value convertTo(EvaluationContext& context, ValueType toType) const;
+  std::optional<Value> tryConvertTo(EvaluationContext& context, ValueType toType) const;
 
   std::string asString(bool multiline = false) const;
   void appendToStream(
     std::ostream& str, bool multiline = true, const std::string& indent = "") const;
 
-  bool contains(size_t index) const;
-  bool contains(const std::string& key) const;
-  std::vector<std::string> keys() const;
+  bool contains(const EvaluationContext& context, size_t index) const;
+  bool contains(const EvaluationContext& context, const std::string& key) const;
 
-  Value at(size_t index) const;
-  Value at(const std::string& key) const;
+  std::vector<std::string> keys(const EvaluationContext& context) const;
+
+  Value at(const EvaluationContext& context, size_t index) const;
+  Value atOrDefault(
+    const EvaluationContext& context, size_t index, Value defaultValue = Null) const;
+
+  Value at(const EvaluationContext& context, const std::string& key) const;
+  Value atOrDefault(
+    const EvaluationContext& context,
+    const std::string& key,
+    Value defaultValue = Null) const;
 
   friend bool operator==(const Value& lhs, const Value& rhs);
   friend bool operator!=(const Value& lhs, const Value& rhs);

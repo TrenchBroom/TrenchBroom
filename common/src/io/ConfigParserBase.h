@@ -24,7 +24,6 @@
 #include "io/ELParser.h"
 
 #include <filesystem>
-#include <string>
 
 namespace tb::io
 {
@@ -46,16 +45,4 @@ public:
 protected:
   Result<el::ExpressionNode> parseConfigFile();
 };
-
-void expectType(
-  const el::Value& value, const el::EvaluationContext& context, el::ValueType type);
-void expectStructure(
-  const el::Value& value,
-  const el::EvaluationContext& context,
-  const std::string& structure);
-void expectMapEntry(
-  const el::Value& value,
-  const el::EvaluationContext& context,
-  const std::string& key,
-  el::ValueType type);
 } // namespace tb::io
