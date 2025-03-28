@@ -25,7 +25,7 @@ namespace tb::mdl
 {
 
 /**
- * This strzct represents an attribute of a tag. A tag can have multiple attributes, but
+ * This struct represents an attribute of a tag. A tag can have multiple attributes, but
  * the names must be unique.
  */
 struct TagAttribute
@@ -35,9 +35,9 @@ struct TagAttribute
   AttributeType type;
   std::string name;
 
-  friend bool operator==(const TagAttribute& lhs, const TagAttribute& rhs);
-  friend bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs);
-  friend bool operator<(const TagAttribute& lhs, const TagAttribute& rhs);
+  std::weak_ordering operator<=>(const TagAttribute& other) const;
+  bool operator==(const TagAttribute& other) const;
+
   friend std::ostream& operator<<(std::ostream& str, const TagAttribute& attr);
 };
 

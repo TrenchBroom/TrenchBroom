@@ -55,19 +55,14 @@ public:
   {
   }
 
-  bool operator<(const grouped_iterator& other) const
+  auto operator<=>(const grouped_iterator& other) const
   {
-    return m_group.begin() < other.m_group.begin();
+    return m_group.begin() < other.m_group.begin()    ? std::strong_ordering::less
+           : m_group.begin() == other.m_group.begin() ? std::strong_ordering::equal
+                                                      : std::strong_ordering::greater;
   }
-  bool operator>(const grouped_iterator& other) const
-  {
-    return m_group.begin() > other.m_group.begin();
-  }
-  bool operator==(const grouped_iterator& other) const
-  {
-    return m_group.begin() == other.m_group.begin();
-  }
-  bool operator!=(const grouped_iterator& other) const { return !(*this == other); }
+
+  bool operator==(const grouped_iterator& other) const { return *this <=> other == 0; }
 
   // prefix
   grouped_iterator& operator++()

@@ -57,29 +57,13 @@ public:
     }
   }
 
-  friend bool operator<(const pair_iterator& lhs, const pair_iterator& rhs)
+  auto operator<=>(const pair_iterator& rhs) const
   {
-    return std::forward_as_tuple(lhs.m_cur1, lhs.m_cur2)
-           < std::forward_as_tuple(rhs.m_cur1, rhs.m_cur2);
+    return std::forward_as_tuple(m_cur1, m_cur2)
+           <=> std::forward_as_tuple(rhs.m_cur1, rhs.m_cur2);
   }
 
-  friend bool operator>(const pair_iterator& lhs, const pair_iterator& rhs)
-  {
-    return std::forward_as_tuple(lhs.m_cur1, lhs.m_cur2)
-           > std::forward_as_tuple(rhs.m_cur1, rhs.m_cur2);
-  }
-
-  friend bool operator==(const pair_iterator& lhs, const pair_iterator& rhs)
-  {
-    return std::forward_as_tuple(lhs.m_cur1, lhs.m_cur2)
-           == std::forward_as_tuple(rhs.m_cur1, rhs.m_cur2);
-  }
-
-  friend bool operator!=(const pair_iterator& lhs, const pair_iterator& rhs)
-  {
-    return std::forward_as_tuple(lhs.m_cur1, lhs.m_cur2)
-           != std::forward_as_tuple(rhs.m_cur1, rhs.m_cur2);
-  }
+  bool operator==(const pair_iterator& rhs) const { return *this <=> rhs == 0; }
 
   pair_iterator& operator++()
   {

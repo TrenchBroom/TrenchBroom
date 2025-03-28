@@ -49,8 +49,9 @@ struct TemporalVersion
 
 using UpdateVersion = std::variant<SemanticVersion, TemporalVersion>;
 
+std::partial_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs);
+bool operator==(const UpdateVersion& lhs, const UpdateVersion& rhs);
 std::ostream& operator<<(std::ostream& lhs, const UpdateVersion& rhs);
-bool operator<(const UpdateVersion& lhs, const UpdateVersion& rhs);
 
 std::optional<UpdateVersion> parseUpdateVersion(const QString& tag);
 QString describeUpdateVersion(const UpdateVersion& version);

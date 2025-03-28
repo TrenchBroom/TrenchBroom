@@ -31,55 +31,31 @@
 
 namespace tb::render
 {
-PrimitiveRenderer::LineRenderAttributes::LineRenderAttributes(
-  const Color& color,
-  const float lineWidth,
-  const PrimitiveRendererOcclusionPolicy occlusionPolicy)
-  : m_color(color)
-  , m_lineWidth(lineWidth)
-  , m_occlusionPolicy(occlusionPolicy)
-{
-}
-
-bool PrimitiveRenderer::LineRenderAttributes::operator<(
+std::partial_ordering PrimitiveRenderer::LineRenderAttributes::operator<=>(
   const LineRenderAttributes& other) const
 {
-  // As a special exception, sort by descending alpha so opaque batches render first.
-  if (m_color.a() < other.m_color.a())
+  // compare by alpha first
+  if (const auto cmp = m_color.a() <=> other.m_color.a(); cmp != 0)
   {
-    return false;
+    return cmp;
   }
-  if (m_color.a() > other.m_color.a())
-  {
-    return true;
-  }
-  // alpha is equal; continue with the regular comparison.
 
-  if (m_lineWidth < other.m_lineWidth)
+  // alpha is equal; continue with the regular comparison.
+  if (const auto cmp = m_lineWidth <=> other.m_lineWidth; cmp != 0)
   {
-    return true;
+    return cmp;
   }
-  if (m_lineWidth > other.m_lineWidth)
+  if (const auto cmp = m_color <=> other.m_color; cmp != 0)
   {
-    return false;
+    return cmp;
   }
-  if (m_color < other.m_color)
-  {
-    return true;
-  }
-  if (m_color > other.m_color)
-  {
-    return false;
-  }
-  if (m_occlusionPolicy < other.m_occlusionPolicy)
-  {
-    return true;
-  }
-  if (m_occlusionPolicy > other.m_occlusionPolicy)
-  {
-    return false;
-  }
-  return false;
+  return m_occlusionPolicy <=> other.m_occlusionPolicy;
+}
+
+bool PrimitiveRenderer::LineRenderAttributes::operator==(
+  const LineRenderAttributes& other) const
+{
+  return *this <=> other == 0;
 }
 
 void PrimitiveRenderer::LineRenderAttributes::render(
@@ -119,45 +95,30 @@ PrimitiveRenderer::TriangleRenderAttributes::TriangleRenderAttributes(
 {
 }
 
-bool PrimitiveRenderer::TriangleRenderAttributes::operator<(
+std::partial_ordering PrimitiveRenderer::TriangleRenderAttributes::operator<=>(
   const TriangleRenderAttributes& other) const
 {
-  // As a special exception, sort by descending alpha so opaque batches render first.
-  if (m_color.a() < other.m_color.a())
+  // sort by alpha first
+  if (const auto cmp = m_color.a() <=> other.m_color.a(); cmp != 0)
   {
-    return false;
+    return cmp;
   }
-  if (m_color.a() > other.m_color.a())
-  {
-    return true;
-  }
-  // alpha is equal; continue with the regular comparison.
 
-  if (m_color < other.m_color)
+  if (const auto cmp = m_color <=> other.m_color; cmp != 0)
   {
-    return true;
+    return cmp;
   }
-  if (m_color > other.m_color)
+  if (const auto cmp = m_occlusionPolicy <=> other.m_occlusionPolicy; cmp != 0)
   {
-    return false;
+    return cmp;
   }
-  if (m_occlusionPolicy < other.m_occlusionPolicy)
-  {
-    return true;
-  }
-  if (m_occlusionPolicy > other.m_occlusionPolicy)
-  {
-    return false;
-  }
-  if (m_cullingPolicy < other.m_cullingPolicy)
-  {
-    return true;
-  }
-  if (m_cullingPolicy > other.m_cullingPolicy)
-  {
-    return false;
-  }
-  return false;
+  return m_cullingPolicy <=> other.m_cullingPolicy;
+}
+
+bool PrimitiveRenderer::TriangleRenderAttributes::operator==(
+  const TriangleRenderAttributes& other) const
+{
+  return *this <=> other == 0;
 }
 
 void PrimitiveRenderer::TriangleRenderAttributes::render(

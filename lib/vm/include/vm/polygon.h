@@ -278,7 +278,7 @@ public:
  * case, and 0 otherwise
  */
 template <typename T, size_t S>
-int compare(
+std::strong_ordering compare(
   const polygon<T, S>& lhs,
   const polygon<T, S>& rhs,
   const T epsilon = static_cast<T>(0.0))
@@ -321,9 +321,9 @@ bool isEqual(const polygon<T, S>& lhs, const polygon<T, S>& rhs, const T epsilon
  * @return true if the polygons are identical and false otherwise
  */
 template <typename T, size_t S>
-bool operator==(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
+std::strong_ordering operator<=>(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
 {
-  return compare(lhs, rhs, T(0.0)) == 0;
+  return compare(lhs, rhs, T(0.0));
 }
 
 /**
@@ -336,72 +336,9 @@ bool operator==(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
  * @return false if the polygons are identical and true otherwise
  */
 template <typename T, size_t S>
-bool operator!=(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
+bool operator==(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
 {
-  return compare(lhs, rhs, T(0.0)) != 0;
-}
-
-/**
- * Checks whether the first given polygon is less than the second polygon.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first polygon
- * @param rhs the second polygon
- * @return true if the first polygon is less than the second polygon and false otherwise
- */
-template <typename T, size_t S>
-bool operator<(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) < 0;
-}
-
-/**
- * Checks whether the first given polygon is less than or equal to the second polygon.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first polygon
- * @param rhs the second polygon
- * @return true if the first polygon is less than or equal to the second polygon and false
- * otherwise
- */
-template <typename T, size_t S>
-bool operator<=(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) <= 0;
-}
-
-/**
- * Checks whether the first given polygon is greater than the second polygon.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first polygon
- * @param rhs the second polygon
- * @return true if the first polygon is greater than the second polygon and false
- * otherwise
- */
-template <typename T, size_t S>
-bool operator>(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) > 0;
-}
-
-/**
- * Checks whether the first given polygon is greater than or equal to the second polygon.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first polygon
- * @param rhs the second polygon
- * @return true if the first polygon is greater than or equal to the second polygon and
- * false otherwise
- */
-template <typename T, size_t S>
-bool operator>=(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) >= 0;
+  return lhs <=> rhs == 0;
 }
 
 /**
@@ -424,7 +361,7 @@ bool operator>=(const polygon<T, S>& lhs, const polygon<T, S>& rhs)
  * case, and 0 otherwise
  */
 template <typename T, size_t S>
-int compareUnoriented(
+std::strong_ordering compareUnoriented(
   const polygon<T, S>& lhs,
   const polygon<T, S>& rhs,
   const T epsilon = static_cast<T>(0.0))
@@ -434,71 +371,61 @@ int compareUnoriented(
 
   if (lhsVerts.size() < rhsVerts.size())
   {
-    return -1;
+    return std::strong_ordering::less;
   }
-  else if (lhsVerts.size() > rhsVerts.size())
+
+  if (lhsVerts.size() > rhsVerts.size())
   {
-    return 1;
+    return std::strong_ordering::greater;
   }
-  else
+
+  const auto count = lhsVerts.size();
+  if (count == 0)
   {
-    const auto count = lhsVerts.size();
-    if (count == 0)
-    {
-      return 0;
-    }
+    return std::strong_ordering::equal;
+  }
 
-    // Compare first:
-    const auto cmp0 = compare(lhsVerts[0], rhsVerts[0], epsilon);
-    if (cmp0 < 0)
-    {
-      return -1;
-    }
-    else if (cmp0 > 0)
-    {
-      return +1;
-    }
+  // Compare first:
+  if (const auto cmp0 = compare(lhsVerts[0], rhsVerts[0], epsilon); cmp0 != 0)
+  {
+    return cmp0;
+  }
 
-    if (count == 1)
-    {
-      return 0;
-    }
+  if (count == 1)
+  {
+    return std::strong_ordering::equal;
+  }
 
-    // First vertices are identical. Now compare my second with other's second.
-    auto cmp1 = compare(lhsVerts[1], rhsVerts[1], epsilon);
-    if (cmp1 == 0)
+  // First vertices are identical. Now compare my second with other's second.
+  if (const auto cmp1 = compare(lhsVerts[1], rhsVerts[1], epsilon); cmp1 != 0)
+  {
+    // The second vertices are not identical, so we attempt a backward compare.
+    size_t i = 1;
+    while (i < count)
     {
-      // The second vertices are also identical, so we just do a forward compare.
-      return compare(
-        std::next(std::begin(lhsVerts), 2),
-        std::end(lhsVerts),
-        std::next(std::begin(rhsVerts), 2),
-        std::end(rhsVerts),
-        epsilon);
-    }
-    else
-    {
-      // The second vertices are not identical, so we attempt a backward compare.
-      size_t i = 1;
-      while (i < count)
+      const auto j = count - i;
+      if (const auto cmp = compare(lhsVerts[i], rhsVerts[j], epsilon); cmp != 0)
       {
-        const auto j = count - i;
-        const auto cmp = compare(lhsVerts[i], rhsVerts[j], epsilon);
-        if (cmp != 0)
-        {
-          // Backward compare failed, so make a forward compare
-          return compare(
-            std::next(std::begin(lhsVerts), 2),
-            std::end(lhsVerts),
-            std::next(std::begin(rhsVerts), 2),
-            std::end(rhsVerts),
-            epsilon);
-        }
-        ++i;
+        // Backward compare failed, so make a forward compare
+        return compare(
+          std::next(std::begin(lhsVerts), 2),
+          std::end(lhsVerts),
+          std::next(std::begin(rhsVerts), 2),
+          std::end(rhsVerts),
+          epsilon);
       }
-      return 0;
+      ++i;
     }
+    return std::strong_ordering::equal;
   }
+
+  // The second vertices are also identical, so we just do a forward compare.
+  return compare(
+    std::next(std::begin(lhsVerts), 2),
+    std::end(lhsVerts),
+    std::next(std::begin(rhsVerts), 2),
+    std::end(rhsVerts),
+    epsilon);
 }
 
 using polygon2f = polygon<float, 2>;

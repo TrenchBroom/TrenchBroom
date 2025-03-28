@@ -273,6 +273,19 @@ public:
    */
   const C& get_data() const { return m_data; }
 
+  std::weak_ordering operator<=>(const const_set_adapter& other) const
+  {
+    const auto cmp = col_lexicographical_compare(m_data, other.m_data, m_cmp);
+    return cmp < 0   ? std::weak_ordering::less
+           : cmp > 0 ? std::weak_ordering::greater
+                     : std::weak_ordering::equivalent;
+  }
+
+  bool operator==(const const_set_adapter& other) const
+  {
+    return size() == other.size() && *this <=> other == 0;
+  }
+
 protected:
   bool check_invariant()
   {
@@ -303,116 +316,6 @@ protected:
     return !m_cmp(lhs, rhs) && !m_cmp(rhs, lhs);
   }
 };
-
-/**
- * Checks whether the given set adapters are equal. Two set adapters are equal if they are
- * considered equivalent according to their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the given sets are equal and false otherwise
- */
-template <typename C1, typename C2, typename Compare>
-bool operator==(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return lhs.size() == rhs.size()
-         && col_lexicographical_compare(lhs, rhs, Compare{}) == 0;
-}
-
-/**
- * Checks whether the given set adapters are unequal. Two set adapters are equal if they
- * are considered equivalent according to their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the given sets are unequal and false otherwise
- */
-template <typename C1, typename C2, typename Compare>
-bool operator!=(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return lhs.size() != rhs.size()
-         || col_lexicographical_compare(lhs, rhs, Compare{}) != 0;
-}
-
-/**
- * Checks whether the first given set adapter is less than the second given set by
- * lexicographically comparing the set elements using their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the first set is less than the second set
- */
-template <typename C1, typename C2, typename Compare>
-bool operator<(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return col_lexicographical_compare(lhs, rhs, Compare{}) < 0;
-}
-
-/**
- * Checks whether the first given set adapter is less than or equal to the second given
- * set by lexicographically comparing the set elements using their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the first set is less than or equal to the second set
- */
-template <typename C1, typename C2, typename Compare>
-bool operator<=(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return col_lexicographical_compare(lhs, rhs, Compare{}) <= 0;
-}
-
-/**
- * Checks whether the first given set adapter is greater than the second given set by
- * lexicographically comparing the set elements using their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the first set is greater than the second set
- */
-template <typename C1, typename C2, typename Compare>
-bool operator>(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return col_lexicographical_compare(lhs, rhs, Compare{}) > 0;
-}
-
-/**
- * Checks whether the first given set adapter is greater than or equal to the second given
- * set by lexicographically comparing the set elements using their common comparator.
- *
- * @tparam C1 the type of the underlying collection of the first set
- * @tparam C2 the type of the underlying collection of the second set
- * @tparam Compare the common comparator of both sets
- * @param lhs the first set
- * @param rhs the second set
- * @return true if the first set is greater than or equal to the second set
- */
-template <typename C1, typename C2, typename Compare>
-bool operator>=(
-  const const_set_adapter<C1, Compare>& lhs, const const_set_adapter<C2, Compare>& rhs)
-{
-  return col_lexicographical_compare(lhs, rhs, Compare{}) >= 0;
-}
 
 /**
  * Adapts a collection to the full interface of std::set. The underlying collection is

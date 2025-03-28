@@ -55,19 +55,14 @@ public:
 private:
   using Vertex = GLVertexTypes::P3::Vertex;
 
-  class LineRenderAttributes
+  struct LineRenderAttributes
   {
-  private:
     Color m_color;
     float m_lineWidth;
     PrimitiveRendererOcclusionPolicy m_occlusionPolicy;
 
-  public:
-    LineRenderAttributes(
-      const Color& color,
-      float lineWidth,
-      PrimitiveRendererOcclusionPolicy occlusionPolicy);
-    bool operator<(const LineRenderAttributes& other) const;
+    std::partial_ordering operator<=>(const LineRenderAttributes& other) const;
+    bool operator==(const LineRenderAttributes& other) const;
 
     void render(IndexRangeRenderer& renderer, ActiveShader& shader, float dpiScale) const;
   };
@@ -90,7 +85,9 @@ private:
       const Color& color,
       PrimitiveRendererOcclusionPolicy occlusionPolicy,
       PrimitiveRendererCullingPolicy cullingPolicy);
-    bool operator<(const TriangleRenderAttributes& other) const;
+
+    std::partial_ordering operator<=>(const TriangleRenderAttributes& other) const;
+    bool operator==(const TriangleRenderAttributes& other) const;
 
     void render(IndexRangeRenderer& renderer, ActiveShader& shader) const;
   };

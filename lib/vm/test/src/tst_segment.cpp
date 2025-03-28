@@ -166,31 +166,31 @@ TEST_CASE("segment.compare")
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)))
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(1, 0, 0), vec3d(1, 2, 3)))
-    < 0);
+    == std::strong_ordering::less);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(2, 2, 3)))
-    < 0);
+    == std::strong_ordering::less);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(1, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)))
-    > 0);
+    == std::strong_ordering::greater);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(2, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)))
-    > 0);
+    == std::strong_ordering::greater);
 
   // with large epsilon
   CER_CHECK(
@@ -198,34 +198,34 @@ TEST_CASE("segment.compare")
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       2.0)
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(1, 0, 0), vec3d(1, 2, 3)),
       2.0)
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(2, 2, 3)),
       2.0)
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(1, 0, 0), vec3d(1, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)),
       2.0)
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       segment3d(vec3d(0, 0, 0), vec3d(2, 2, 3)),
       segment3d(vec3d(0, 0, 0), vec3d(1, 2, 3)))
-    > 0);
+    == std::strong_ordering::greater);
 }
 
 TEST_CASE("segment.is_equal")

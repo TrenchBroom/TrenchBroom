@@ -67,21 +67,6 @@ auto makeReleaseJson(const Release<TestVersion>& release)
 
 } // namespace
 
-bool operator<(const TestVersion& lhs, const TestVersion& rhs)
-{
-  return lhs.v < rhs.v;
-}
-
-bool operator==(const TestVersion& lhs, const TestVersion& rhs)
-{
-  return lhs.v == rhs.v;
-}
-
-bool operator!=(const TestVersion& lhs, const TestVersion& rhs)
-{
-  return !(lhs == rhs);
-}
-
 std::ostream& operator<<(std::ostream& lhs, const TestVersion& rhs)
 {
   return lhs << "TestVersion{v: " << rhs.v << "}";

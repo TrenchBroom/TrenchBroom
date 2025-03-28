@@ -284,19 +284,19 @@ TEST_CASE("mat.compare")
     compare(
       mat4x4d(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4),
       mat4x4d(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4))
-    == 0);
+    == std::strong_ordering::equal);
 
   CER_CHECK(
     compare(
       mat4x4d(1, 2, 3, 1, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4),
       mat4x4d(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4))
-    < 0)
+    == std::strong_ordering::less)
 
   CER_CHECK(
     compare(
       mat4x4d(1, 2, 3, 5, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4),
       mat4x4d(1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2, 3, 4))
-    > 0);
+    == std::strong_ordering::greater);
 }
 
 TEST_CASE("mat.is_equal")

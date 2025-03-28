@@ -30,10 +30,8 @@ struct TestVersion
 {
   int v;
 
-  friend bool operator<(const TestVersion& lhs, const TestVersion& rhs);
+  auto operator<=>(const TestVersion& other) const = default;
 
-  friend bool operator==(const TestVersion& lhs, const TestVersion& rhs);
-  friend bool operator!=(const TestVersion& lhs, const TestVersion& rhs);
   friend std::ostream& operator<<(std::ostream& lhs, const TestVersion& rhs);
 };
 

@@ -70,65 +70,16 @@ public:
     advance(offset);
   }
 
-  friend bool operator<(const skip_iterator& lhs, const skip_iterator& rhs)
-  {
-    return lhs.m_cur < rhs.m_cur;
-  }
+  auto operator<=>(const skip_iterator& rhs) const { return m_cur <=> rhs.m_cur; }
+  bool operator==(const skip_iterator& rhs) const { return *this <=> rhs == 0; }
 
-  friend bool operator<(const skip_iterator& lhs, const I& rhs)
+  auto operator<=>(const I& rhs) const
   {
-    return lhs.m_cur < rhs;
+    return m_cur < rhs   ? std::strong_ordering::less
+           : m_cur > rhs ? std::strong_ordering::greater
+                         : std::strong_ordering::equal;
   }
-
-  friend bool operator<(const I& lhs, const skip_iterator& rhs)
-  {
-    return lhs < rhs.m_cur;
-  }
-
-  friend bool operator>(const skip_iterator& lhs, const skip_iterator& rhs)
-  {
-    return lhs.m_cur > rhs.m_cur;
-  }
-
-  friend bool operator>(const skip_iterator& lhs, const I& rhs)
-  {
-    return lhs.m_cur > rhs;
-  }
-
-  friend bool operator>(const I& lhs, const skip_iterator& rhs)
-  {
-    return lhs > rhs.m_cur;
-  }
-
-  friend bool operator==(const skip_iterator& lhs, const skip_iterator& rhs)
-  {
-    return lhs.m_cur == rhs.m_cur;
-  }
-
-  friend bool operator==(const skip_iterator& lhs, const I& rhs)
-  {
-    return lhs.m_cur == rhs;
-  }
-
-  friend bool operator==(const I& lhs, const skip_iterator& rhs)
-  {
-    return lhs == rhs.m_cur;
-  }
-
-  friend bool operator!=(const skip_iterator& lhs, const skip_iterator& rhs)
-  {
-    return lhs.m_cur != rhs.m_cur;
-  }
-
-  friend bool operator!=(const skip_iterator& lhs, const I& rhs)
-  {
-    return lhs.m_cur != rhs;
-  }
-
-  friend bool operator!=(const I& lhs, const skip_iterator& rhs)
-  {
-    return lhs != rhs.m_cur;
-  }
+  bool operator==(const I& rhs) const { return *this <=> rhs == 0; }
 
   skip_iterator& operator++()
   {

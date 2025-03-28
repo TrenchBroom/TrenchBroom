@@ -24,19 +24,15 @@
 namespace tb::mdl
 {
 
-bool operator==(const TagAttribute& lhs, const TagAttribute& rhs)
+
+std::weak_ordering TagAttribute::operator<=>(const TagAttribute& other) const
 {
-  return lhs.name == rhs.name;
+  return name <=> other.name;
 }
 
-bool operator!=(const TagAttribute& lhs, const TagAttribute& rhs)
+bool TagAttribute::operator==(const TagAttribute& other) const
 {
-  return !(lhs == rhs);
-}
-
-bool operator<(const TagAttribute& lhs, const TagAttribute& rhs)
-{
-  return lhs.name < rhs.name;
+  return name == other.name;
 }
 
 std::ostream& operator<<(std::ostream& str, const TagAttribute& attr)

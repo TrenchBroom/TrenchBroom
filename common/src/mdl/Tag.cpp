@@ -76,19 +76,14 @@ const std::vector<TagAttribute>& Tag::attributes() const
   return m_attributes;
 }
 
-bool operator==(const Tag& lhs, const Tag& rhs)
+std::weak_ordering Tag::operator<=>(const Tag& other) const
 {
-  return lhs.m_name == rhs.m_name;
+  return m_name <=> other.m_name;
 }
 
-bool operator!=(const Tag& lhs, const Tag& rhs)
+bool Tag::operator==(const Tag& other) const
 {
-  return !(lhs == rhs);
-}
-
-bool operator<(const Tag& lhs, const Tag& rhs)
-{
-  return lhs.m_name < rhs.m_name;
+  return m_name == other.m_name;
 }
 
 void Tag::appendToStream(std::ostream& str) const
@@ -114,19 +109,14 @@ const Tag& TagReference::tag() const
   return *m_tag;
 }
 
-bool operator==(const TagReference& lhs, const TagReference& rhs)
+std::weak_ordering TagReference::operator<=>(const TagReference& other) const
 {
-  return *(lhs.m_tag) == *(rhs.m_tag);
+  return *m_tag <=> *other.m_tag;
 }
 
-bool operator!=(const TagReference& lhs, const TagReference& rhs)
+bool TagReference::operator==(const TagReference& other) const
 {
-  return !(lhs == rhs);
-}
-
-bool operator<(const TagReference& lhs, const TagReference& rhs)
-{
-  return *(lhs.m_tag) < *(rhs.m_tag);
+  return *m_tag == *other.m_tag;
 }
 
 Taggable::Taggable() = default;

@@ -104,9 +104,8 @@ public:
    */
   const std::vector<TagAttribute>& attributes() const;
 
-  friend bool operator==(const Tag& lhs, const Tag& rhs);
-  friend bool operator!=(const Tag& lhs, const Tag& rhs);
-  friend bool operator<(const Tag& lhs, const Tag& rhs);
+  std::weak_ordering operator<=>(const Tag& other) const;
+  bool operator==(const Tag& other) const;
 
   virtual void appendToStream(std::ostream& str) const;
 };
@@ -137,9 +136,8 @@ public:
    */
   const Tag& tag() const;
 
-  friend bool operator==(const TagReference& lhs, const TagReference& rhs);
-  friend bool operator!=(const TagReference& lhs, const TagReference& rhs);
-  friend bool operator<(const TagReference& lhs, const TagReference& rhs);
+  std::weak_ordering operator<=>(const TagReference& other) const;
+  bool operator==(const TagReference& other) const;
 };
 
 /**

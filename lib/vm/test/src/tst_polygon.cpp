@@ -164,38 +164,38 @@ TEST_CASE("polygon.get_vertices")
 
 TEST_CASE("polygon.compare")
 {
-  CHECK(compare(polygon3d(), polygon3d()) == 0);
+  CHECK(compare(polygon3d(), polygon3d()) == std::strong_ordering::equal);
 
   CHECK(
     compare(
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)},
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)})
-    == 0);
+    == std::strong_ordering::equal);
 
   CHECK(
     compare(
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)},
       polygon3d{vec3d(-2, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)},
       2.0)
-    == 0);
+    == std::strong_ordering::equal);
 
   CHECK(
     compare(
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0)},
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)})
-    < 0);
+    == std::strong_ordering::less);
 
   CHECK(
     compare(
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)},
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0)})
-    > 0);
+    == std::strong_ordering::greater);
 
   CHECK(
     compare(
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0)},
       polygon3d{vec3d(+1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)})
-    < 0);
+    == std::strong_ordering::less);
 
   CHECK(
     compare(
@@ -204,13 +204,13 @@ TEST_CASE("polygon.compare")
         vec3d(+1, -1, 0),
         vec3d(-1, +1, 0),
       })
-    < 0);
+    == std::strong_ordering::less);
 
   CHECK(
     compare(
       polygon3d{vec3d(+1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0), vec3d(+1, -1, 0)},
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0)})
-    > 0);
+    == std::strong_ordering::greater);
 
   CHECK(
     compare(
@@ -219,7 +219,7 @@ TEST_CASE("polygon.compare")
         vec3d(-1, +1, 0),
       },
       polygon3d{vec3d(-1, -1, 0), vec3d(-1, +1, 0), vec3d(+1, +1, 0)})
-    > 0);
+    == std::strong_ordering::greater);
 }
 
 TEST_CASE("polygon.operator_equal")
@@ -389,19 +389,21 @@ TEST_CASE("polygon.operator_greater_than_or_equal")
 TEST_CASE("polygon.compare_unoriented_empty_polygon")
 {
   polygon3d p1{};
-  CHECK(compareUnoriented(p1, polygon3d{}) == 0);
-  CHECK(compareUnoriented(p1, polygon3d{vec3d{0, 0, 0}}) == -1);
+  CHECK(compareUnoriented(p1, polygon3d{}) == std::strong_ordering::equal);
+  CHECK(compareUnoriented(p1, polygon3d{vec3d{0, 0, 0}}) == std::strong_ordering::less);
 
   polygon3d p2{vec3d{0, 0, 0}};
-  CHECK(compareUnoriented(p2, p1) == +1);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
+  CHECK(compareUnoriented(p2, p1) == std::strong_ordering::greater);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == std::strong_ordering::equal);
 }
 
 TEST_CASE("polygon.testBackwardComparePolygonWithOneVertex")
 {
   polygon3d p2{vec3d{0, 0, 0}};
-  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == 0);
-  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}, vec3d{0, 0, 0}}) == -1);
+  CHECK(compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}}) == std::strong_ordering::equal);
+  CHECK(
+    compareUnoriented(p2, polygon3d{vec3d{0, 0, 0}, vec3d{0, 0, 0}})
+    == std::strong_ordering::less);
 }
 
 TEST_CASE("polygon.compare_unoriented")
@@ -418,9 +420,9 @@ TEST_CASE("polygon.compare_unoriented")
     vec3d(+1.0, -1.0, 0.0),
     vec3d(-1.0, -1.0, 0.0),
   };
-  CHECK(compareUnoriented(p1, p1) == 0);
-  CHECK(compareUnoriented(p1, p2) == 0);
-  CHECK(compareUnoriented(p2, p1) == 0);
-  CHECK(compareUnoriented(p2, p2) == 0);
+  CHECK(compareUnoriented(p1, p1) == std::strong_ordering::equal);
+  CHECK(compareUnoriented(p1, p2) == std::strong_ordering::equal);
+  CHECK(compareUnoriented(p2, p1) == std::strong_ordering::equal);
+  CHECK(compareUnoriented(p2, p2) == std::strong_ordering::equal);
 }
 } // namespace vm

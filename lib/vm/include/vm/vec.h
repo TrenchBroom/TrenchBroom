@@ -386,7 +386,7 @@ public:
  * size is greater than the right hand size, and 0 if both sides are equal
  */
 template <typename T, std::size_t S>
-constexpr int compare(
+constexpr std::strong_ordering compare(
   const vec<T, S>& lhs, const vec<T, S>& rhs, const T epsilon = T(0.0))
 {
   for (size_t i = 0; i < S; ++i)
@@ -398,25 +398,25 @@ constexpr int compare(
     const bool rhsIsNaN = (rhs[i] != rhs[i]);
     if (!lhsIsNaN && rhsIsNaN)
     {
-      return -1;
+      return std::strong_ordering::less;
     }
-    else if (lhsIsNaN && !rhsIsNaN)
+    if (lhsIsNaN && !rhsIsNaN)
     {
-      return 1;
+      return std::strong_ordering::greater;
     }
-    else if (!lhsIsNaN && !rhsIsNaN)
+    if (!lhsIsNaN && !rhsIsNaN)
     {
       if (lhs[i] < rhs[i] - epsilon)
       {
-        return -1;
+        return std::strong_ordering::less;
       }
       else if (lhs[i] > rhs[i] + epsilon)
       {
-        return 1;
+        return std::strong_ordering::greater;
       }
     }
   }
-  return 0;
+  return std::strong_ordering::equal;
 }
 
 /**
@@ -439,36 +439,22 @@ constexpr int compare(
  * hand range is greater than the right hand range, and 0 if both ranges are equal
  */
 template <typename T, typename I1, typename I2>
-constexpr int compare(
+constexpr std::strong_ordering compare(
   I1 lhsCur, I1 lhsEnd, I2 rhsCur, I2 rhsEnd, const T epsilon = static_cast<T>(0.0))
 {
   while (lhsCur != lhsEnd && rhsCur != rhsEnd)
   {
-    const auto cmp = compare(*lhsCur, *rhsCur, epsilon);
-    if (cmp < 0)
+    if (const auto cmp = compare(*lhsCur, *rhsCur, epsilon); cmp != 0)
     {
-      return -1;
-    }
-    else if (cmp > 0)
-    {
-      return +1;
+      return cmp;
     }
     ++lhsCur;
     ++rhsCur;
   }
 
-  if (rhsCur != rhsEnd)
-  {
-    return -1;
-  }
-  else if (lhsCur != lhsEnd)
-  {
-    return +1;
-  }
-  else
-  {
-    return 0;
-  }
+  return rhsCur != rhsEnd   ? std::strong_ordering::less
+         : lhsCur != lhsEnd ? std::strong_ordering::greater
+                            : std::strong_ordering::equal;
 }
 
 /**
@@ -501,9 +487,9 @@ constexpr bool is_equal(const vec<T, S>& lhs, const vec<T, S>& rhs, const T epsi
  * otherwise
  */
 template <typename T, std::size_t S>
-constexpr bool operator==(const vec<T, S>& lhs, const vec<T, S>& rhs)
+constexpr std::strong_ordering operator<=>(const vec<T, S>& lhs, const vec<T, S>& rhs)
 {
-  return compare(lhs, rhs) == 0;
+  return compare(lhs, rhs);
 }
 
 /**
@@ -517,78 +503,9 @@ constexpr bool operator==(const vec<T, S>& lhs, const vec<T, S>& rhs)
  * false otherwise
  */
 template <typename T, std::size_t S>
-constexpr bool operator!=(const vec<T, S>& lhs, const vec<T, S>& rhs)
+constexpr bool operator==(const vec<T, S>& lhs, const vec<T, S>& rhs)
 {
-  return compare(lhs, rhs) != 0;
-}
-
-/**
- * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs,
- * rhs, 0.0) < 0.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the left hand vector
- * @param rhs the right hand vector
- * @return true if the given left hand vector is less than the given right hand vector
- */
-template <typename T, std::size_t S>
-constexpr bool operator<(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return compare(lhs, rhs) < 0;
-}
-
-/**
- * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs,
- * rhs, 0.0)
- * <= 0.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the left hand vector
- * @param rhs the right hand vector
- * @return true if the given left hand vector is less than or equal to the given right
- * hand vector
- */
-template <typename T, std::size_t S>
-constexpr bool operator<=(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return compare(lhs, rhs) <= 0;
-}
-
-/**
- * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs,
- * rhs, 0.0) > 0.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the left hand vector
- * @param rhs the right hand vector
- * @return true if the given left hand vector is greater than than the given right hand
- * vector
- */
-template <typename T, std::size_t S>
-constexpr bool operator>(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return compare(lhs, rhs) > 0;
-}
-
-/**
- * Lexicographically compares the given vectors component wise. Equivalent to compare(lhs,
- * rhs, 0.0)
- * >= 0.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the left hand vector
- * @param rhs the right hand vector
- * @return true if the given left hand vector is greater than or equal to than the given
- * right hand vector
- */
-template <typename T, std::size_t S>
-constexpr bool operator>=(const vec<T, S>& lhs, const vec<T, S>& rhs)
-{
-  return compare(lhs, rhs) >= 0;
+  return lhs <=> rhs == 0;
 }
 
 /* ========== slicing ========== */

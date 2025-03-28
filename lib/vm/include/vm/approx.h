@@ -41,131 +41,154 @@ private:
 
 public:
   constexpr explicit approx(const T value, const T epsilon)
-    : m_value(value)
-    , m_epsilon(epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
   {
     assert(epsilon >= T(0));
   }
   constexpr explicit approx(const T value)
-    : approx(value, vm::constants<T>::almost_zero())
+    : approx{value, vm::constants<T>::almost_zero()}
   {
   }
 
-  friend constexpr bool operator==(const T lhs, const approx<T>& rhs)
+  constexpr std::strong_ordering operator<=>(const T& rhs) const
   {
-    return lhs >= (rhs.m_value - rhs.m_epsilon) && lhs <= (rhs.m_value + rhs.m_epsilon);
+    return m_value == rhs              ? std::strong_ordering::equal
+           : m_value < rhs - m_epsilon ? std::strong_ordering::less
+           : m_value > rhs + m_epsilon ? std::strong_ordering::greater
+                                       : std::strong_ordering::equivalent;
   }
 
-  friend constexpr bool operator==(const std::optional<T>& lhs, const approx<T>& rhs)
+  constexpr bool operator==(const T& rhs) const { return *this <=> rhs == 0; }
+
+  constexpr std::strong_ordering operator<=>(const std::optional<T>& rhs) const
   {
-    return lhs && *lhs == rhs;
+    return !rhs ? std::strong_ordering::greater : *this <=> *rhs;
   }
 
-  friend constexpr bool operator==(const approx<T>& lhs, const T rhs)
+  constexpr bool operator==(const std::optional<T>& rhs) const
   {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator==(const approx<T>& lhs, const std::optional<T>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator!=(const T lhs, const approx<T>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(const std::optional<T>& lhs, const approx<T>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(const approx<T>& lhs, const T rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(const approx<T>& lhs, const std::optional<T>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator<(const T lhs, const approx<T>& rhs)
-  {
-    return lhs < (rhs.m_value - rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator<(const std::optional<T>& lhs, const approx<T>& rhs)
-  {
-    return !lhs || *lhs < rhs;
-  }
-
-  friend constexpr bool operator<(const approx<T> lhs, const T rhs)
-  {
-    return lhs.m_value < (rhs - lhs.m_epsilon);
-  }
-
-  friend constexpr bool operator<(const approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return rhs && lhs < *rhs;
-  }
-
-  friend constexpr bool operator<=(const T lhs, const approx<T>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(const std::optional<T>& lhs, const approx<T>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(const approx<T> lhs, const T rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(const approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>(const T lhs, const approx<T>& rhs) { return rhs < lhs; }
-
-  friend constexpr bool operator>(const std::optional<T>& lhs, const approx<T>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>(const approx<T> lhs, const T rhs) { return rhs < lhs; }
-
-  friend constexpr bool operator>(const approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>=(const T lhs, const approx<T>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(const std::optional<T>& lhs, const approx<T>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(const approx<T> lhs, const T rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(const approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
+    return *this <=> rhs == 0;
   }
 
   friend std::ostream& operator<<(std::ostream& str, const approx<T>& a)
+  {
+    str << a.m_value;
+    return str;
+  }
+};
+
+template <typename T, std::size_t S>
+class approx<vec<T, S>>
+{
+private:
+  const vec<T, S> m_value;
+  const T m_epsilon;
+
+public:
+  constexpr explicit approx(const vec<T, S> value, const T epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
+  {
+    assert(epsilon >= T(0));
+  }
+  constexpr explicit approx(const vec<T, S> value)
+    : approx{value, vm::constants<T>::almost_zero()}
+  {
+  }
+
+  constexpr std::strong_ordering operator<=>(const vec<T, S>& rhs) const
+  {
+    return compare(m_value, rhs, m_epsilon);
+  }
+
+  constexpr bool operator==(const T& rhs) const { return *this <=> rhs == 0; }
+
+  constexpr std::strong_ordering operator<=>(const std::optional<vec<T, S>>& rhs) const
+  {
+    return !rhs ? std::strong_ordering::greater : *this <=> *rhs;
+  }
+
+  constexpr bool operator==(const std::optional<vec<T, S>>& rhs) const
+  {
+    return *this <=> rhs == 0;
+  }
+
+  friend std::ostream& operator<<(std::ostream& str, const approx<vec<T, S>>& a)
+  {
+    str << a.m_value;
+    return str;
+  }
+};
+
+template <typename T, std::size_t R, std::size_t C>
+class approx<mat<T, R, C>>
+{
+private:
+  const mat<T, R, C> m_value;
+  const T m_epsilon;
+
+public:
+  constexpr explicit approx(const mat<T, R, C> value, const T epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
+  {
+    assert(epsilon >= T(0));
+  }
+  constexpr explicit approx(const mat<T, R, C> value)
+    : approx{value, vm::constants<T>::almost_zero()}
+  {
+  }
+
+  constexpr std::strong_ordering operator<=>(const mat<T, R, C>& rhs) const
+  {
+    return compare(m_value, rhs, m_epsilon);
+  }
+
+  constexpr bool operator==(const mat<T, R, C>& rhs) const { return *this <=> rhs == 0; }
+
+  constexpr std::strong_ordering operator<=>(const std::optional<mat<T, R, C>>& rhs) const
+  {
+    return !rhs ? std::strong_ordering::greater : *this <=> *rhs;
+  }
+
+  constexpr bool operator==(const std::optional<mat<T, R, C>>& rhs) const
+  {
+    return *this <=> rhs == 0;
+  }
+
+  friend std::ostream& operator<<(std::ostream& str, const approx<mat<T, R, C>>& a)
+  {
+    str << a.m_value;
+    return str;
+  }
+};
+
+template <typename T, std::size_t S>
+class approx<line<T, S>>
+{
+private:
+  const line<T, S> m_value;
+  const T m_epsilon;
+
+public:
+  constexpr explicit approx(const line<T, S> value, const T epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
+  {
+    assert(epsilon >= T(0));
+  }
+  constexpr explicit approx(const line<T, S> value)
+    : approx{value, vm::constants<T>::almost_zero()}
+  {
+  }
+
+  constexpr bool operator==(const line<T, S>& rhs) const
+  {
+    return is_equal(m_value, rhs, m_epsilon);
+  }
+
+  friend std::ostream& operator<<(std::ostream& str, const approx<line<T, S>>& a)
   {
     str << a.m_value;
     return str;
@@ -191,76 +214,19 @@ public:
   {
   }
 
-  friend constexpr bool operator==(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
+  constexpr std::strong_ordering operator<=>(const std::optional<T>& rhs) const
   {
-    return (!lhs && !rhs.m_value) || (lhs && rhs.m_value && *lhs >= (*rhs.m_value - rhs.m_epsilon) && *lhs <= (*rhs.m_value + rhs.m_epsilon));
+    return m_value == rhs                ? std::strong_ordering::equal
+           : !m_value                    ? std::strong_ordering::less
+           : !rhs                        ? std::strong_ordering::greater
+           : *m_value < *rhs - m_epsilon ? std::strong_ordering::less
+           : *m_value > *rhs + m_epsilon ? std::strong_ordering::greater
+                                         : std::strong_ordering::equivalent;
   }
 
-  friend constexpr bool operator==(
-    const optional_approx<T>& lhs, const std::optional<T>& rhs)
+  constexpr bool operator==(const std::optional<T>& rhs) const
   {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator!=(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const optional_approx<T>& lhs, const std::optional<T>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator<(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
-  {
-    return !lhs || (rhs.m_value && *lhs < (*rhs.m_value - rhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<(
-    const optional_approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return !lhs.m_value || (rhs && *lhs.m_value < (*rhs - lhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<=(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(
-    const optional_approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>(
-    const optional_approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>=(
-    const std::optional<T>& lhs, const optional_approx<T>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(
-    const optional_approx<T> lhs, const std::optional<T>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
+    return *this <=> rhs == 0;
   }
 
   friend std::ostream& operator<<(std::ostream& str, const optional_approx<T>& a)
@@ -278,307 +244,34 @@ public:
 };
 
 template <typename T>
-bool operator==(const std::vector<T>& lhs, const std::vector<approx<T>>& rhs)
+constexpr std::strong_ordering operator<=>(
+  const std::vector<T>& lhs, const std::vector<approx<T>>& rhs)
 {
-  if (lhs.size() != rhs.size())
+  if (lhs.size() < rhs.size())
   {
-    return false;
+    return std::strong_ordering::less;
+  }
+
+  if (lhs.size() > rhs.size())
+  {
+    return std::strong_ordering::greater;
   }
 
   for (size_t i = 0u; i < lhs.size(); ++i)
   {
-    if (lhs[i] != rhs[i])
+    if (const auto cmp = lhs[i] <=> rhs[i]; cmp != 0)
     {
-      return false;
+      return cmp;
     }
   }
 
-  return true;
+  return std::strong_ordering::equal;
 }
 
 template <typename T>
-bool operator==(const std::vector<approx<T>>& lhs, const std::vector<T>& rhs)
+constexpr bool operator==(const std::vector<T>& lhs, const std::vector<approx<T>>& rhs)
 {
-  return rhs == lhs;
+  return lhs <=> rhs == 0;
 }
 
-template <typename T>
-bool operator!=(const std::vector<T>& lhs, const std::vector<approx<T>>& rhs)
-{
-  return !(lhs == rhs);
-}
-
-template <typename T>
-bool operator!=(const std::vector<approx<T>>& lhs, const std::vector<T>& rhs)
-{
-  return !(lhs == rhs);
-}
-
-template <typename T, std::size_t S>
-class approx<vec<T, S>>
-{
-private:
-  const vec<T, S> m_value;
-  const T m_epsilon;
-
-public:
-  constexpr explicit approx(const vec<T, S> value, const T epsilon)
-    : m_value(value)
-    , m_epsilon(epsilon)
-  {
-    assert(epsilon >= T(0));
-  }
-  constexpr explicit approx(const vec<T, S> value)
-    : approx(value, vm::constants<T>::almost_zero())
-  {
-  }
-
-  friend constexpr bool operator==(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return is_equal(lhs, rhs.m_value, rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator==(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs && is_equal(*lhs, rhs.m_value, rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator==(const approx<vec<T, S>>& lhs, const vec<T, S>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator==(
-    const approx<vec<T, S>>& lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator!=(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(const approx<vec<T, S>>& lhs, const vec<T, S>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const approx<vec<T, S>>& lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator<(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs < (rhs.m_value - vec<T, S>::fill(rhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return !lhs || lhs < (rhs.m_value - vec<T, S>::fill(rhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
-  {
-    return lhs.m_value < (rhs - vec<T, S>::fill(lhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<(
-    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return rhs && lhs.m_value < (rhs - vec<T, S>::fill(lhs.m_epsilon));
-  }
-
-  friend constexpr bool operator<=(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator<=(
-    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return lhs < rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>(
-    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return rhs < lhs;
-  }
-
-  friend constexpr bool operator>=(const vec<T, S>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(
-    const std::optional<vec<T, S>>& lhs, const approx<vec<T, S>>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(const approx<vec<T, S>> lhs, const vec<T, S>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend constexpr bool operator>=(
-    const approx<vec<T, S>> lhs, const std::optional<vec<T, S>>& rhs)
-  {
-    return lhs > rhs || lhs == rhs;
-  }
-
-  friend std::ostream& operator<<(std::ostream& str, const approx<vec<T, S>>& a)
-  {
-    str << a.m_value;
-    return str;
-  }
-};
-
-template <typename T, std::size_t R, std::size_t C>
-class approx<mat<T, R, C>>
-{
-private:
-  const mat<T, R, C> m_value;
-  const T m_epsilon;
-
-public:
-  constexpr explicit approx(const mat<T, R, C> value, const T epsilon)
-    : m_value(value)
-    , m_epsilon(epsilon)
-  {
-    assert(epsilon >= T(0));
-  }
-  constexpr explicit approx(const mat<T, R, C> value)
-    : approx(value, vm::constants<T>::almost_zero())
-  {
-  }
-
-  friend constexpr bool operator==(
-    const mat<T, R, C>& lhs, const approx<mat<T, R, C>>& rhs)
-  {
-    return is_equal(lhs, rhs.m_value, rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator==(
-    const std::optional<mat<T, R, C>>& lhs, const approx<mat<T, R, C>>& rhs)
-  {
-    return lhs && is_equal(*lhs, rhs.m_value, rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator==(
-    const approx<mat<T, R, C>>& lhs, const mat<T, R, C>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator==(
-    const approx<mat<T, R, C>>& lhs, const std::optional<mat<T, R, C>>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator!=(
-    const mat<T, R, C>& lhs, const approx<mat<T, R, C>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const std::optional<mat<T, R, C>>& lhs, const approx<mat<T, R, C>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const approx<mat<T, R, C>>& lhs, const mat<T, R, C>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(
-    const approx<mat<T, R, C>>& lhs, const std::optional<mat<T, R, C>>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend std::ostream& operator<<(std::ostream& str, const approx<mat<T, R, C>>& a)
-  {
-    str << a.m_value;
-    return str;
-  }
-};
-
-template <typename T, std::size_t S>
-class approx<line<T, S>>
-{
-private:
-  const line<T, S> m_value;
-  const T m_epsilon;
-
-public:
-  constexpr explicit approx(const line<T, S> value, const T epsilon)
-    : m_value(value)
-    , m_epsilon(epsilon)
-  {
-    assert(epsilon >= T(0));
-  }
-  constexpr explicit approx(const line<T, S> value)
-    : approx(value, vm::constants<T>::almost_zero())
-  {
-  }
-
-  friend constexpr bool operator==(const line<T, S>& lhs, const approx<line<T, S>>& rhs)
-  {
-    return is_equal(lhs, rhs.m_value, rhs.m_epsilon);
-  }
-
-  friend constexpr bool operator==(const approx<line<T, S>>& lhs, const line<T, S>& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend std::ostream& operator<<(std::ostream& str, const approx<line<T, S>>& a)
-  {
-    str << a.m_value;
-    return str;
-  }
-};
 } // namespace vm

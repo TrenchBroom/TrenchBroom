@@ -37,22 +37,6 @@ FontDescriptor::FontDescriptor(
   assert(m_minChar <= m_maxChar);
 }
 
-int FontDescriptor::compare(const FontDescriptor& other) const
-{
-  return m_size < other.m_size         ? -1
-         : m_size > other.m_size       ? +1
-         : m_minChar < other.m_minChar ? -1
-         : m_minChar > other.m_minChar ? +1
-         : m_maxChar < other.m_maxChar ? -1
-         : m_maxChar > other.m_maxChar ? +1
-                                       : m_path.compare(other.m_path);
-}
-
-bool FontDescriptor::operator<(const FontDescriptor& other) const
-{
-  return compare(other) < 0;
-}
-
 const std::filesystem::path& FontDescriptor::path() const
 {
   return m_path;

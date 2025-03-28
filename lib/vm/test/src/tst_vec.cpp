@@ -193,27 +193,27 @@ TEST_CASE("vec.static_members")
 
 TEST_CASE("vec.compare")
 {
-  CER_CHECK(compare(vec3f{0, 0, 0}, vec3f{0, 0, 0}) == 0);
-  CER_CHECK(compare(vec3f{0, 0, 0}, vec3f{1, 1, 1}) == -1);
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(2, 1, 1)) == -1);
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 2, 1)) == -1);
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 1, 2)) == -1);
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(2, 0, 0)) == -1);
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 2, 0)) == -1);
+  CER_CHECK(compare(vec3f{0, 0, 0}, vec3f{0, 0, 0}) == std::strong_ordering::equal);
+  CER_CHECK(compare(vec3f{0, 0, 0}, vec3f{1, 1, 1}) == std::strong_ordering::less);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(2, 1, 1)) == std::strong_ordering::less);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 2, 1)) == std::strong_ordering::less);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 1, 2)) == std::strong_ordering::less);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(2, 0, 0)) == std::strong_ordering::less);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f(1, 2, 0)) == std::strong_ordering::less);
 
-  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f{0, 0, 0}) == +1);
-  CER_CHECK(compare(vec3f(2, 1, 1), vec3f{1, 1, 1}) == +1);
-  CER_CHECK(compare(vec3f(1, 2, 1), vec3f{1, 1, 1}) == +1);
-  CER_CHECK(compare(vec3f(1, 1, 2), vec3f{1, 1, 1}) == +1);
-  CER_CHECK(compare(vec3f(2, 0, 0), vec3f{1, 1, 1}) == +1);
-  CER_CHECK(compare(vec3f(1, 2, 0), vec3f{1, 1, 1}) == +1);
+  CER_CHECK(compare(vec3f{1, 1, 1}, vec3f{0, 0, 0}) == std::strong_ordering::greater);
+  CER_CHECK(compare(vec3f(2, 1, 1), vec3f{1, 1, 1}) == std::strong_ordering::greater);
+  CER_CHECK(compare(vec3f(1, 2, 1), vec3f{1, 1, 1}) == std::strong_ordering::greater);
+  CER_CHECK(compare(vec3f(1, 1, 2), vec3f{1, 1, 1}) == std::strong_ordering::greater);
+  CER_CHECK(compare(vec3f(2, 0, 0), vec3f{1, 1, 1}) == std::strong_ordering::greater);
+  CER_CHECK(compare(vec3f(1, 2, 0), vec3f{1, 1, 1}) == std::strong_ordering::greater);
 
-  CER_CHECK(compare(vec3f(1, 2, 0), vec3f::nan()) != 0)
-  CER_CHECK(compare(vec3f::nan(), vec3f(1, 2, 0)) != 0)
+  CER_CHECK(compare(vec3f(1, 2, 0), vec3f::nan()) != std::strong_ordering::equal)
+  CER_CHECK(compare(vec3f::nan(), vec3f(1, 2, 0)) != std::strong_ordering::equal)
   // This is inconsistent with how operator== on two float values that are nan returns
   // false, but it is consistent with the totalOrder() function from IEEE 754-2008 It's
   // unclear what we should do here and this may need revisiting.
-  CER_CHECK(compare(vec3f::nan(), vec3f::nan()) == 0);
+  CER_CHECK(compare(vec3f::nan(), vec3f::nan()) == std::strong_ordering::equal);
 }
 
 TEST_CASE("vec.compare_ranges")
@@ -224,27 +224,32 @@ TEST_CASE("vec.compare_ranges")
 
   // same length
   CER_CHECK(
-    compare<float>(std::begin(r1), std::end(r1), std::begin(r1), std::end(r1)) == 0);
+    compare<float>(std::begin(r1), std::end(r1), std::begin(r1), std::end(r1))
+    == std::strong_ordering::equal);
   CER_CHECK(
-    compare<float>(std::begin(r1), std::end(r1), std::begin(r2), std::end(r2)) == -1);
+    compare<float>(std::begin(r1), std::end(r1), std::begin(r2), std::end(r2))
+    == std::strong_ordering::less);
   CER_CHECK(
-    compare<float>(std::begin(r2), std::end(r2), std::begin(r1), std::end(r1)) == +1);
+    compare<float>(std::begin(r2), std::end(r2), std::begin(r1), std::end(r1))
+    == std::strong_ordering::greater);
 
   // prefi
   CER_CHECK(
     compare<float>(
       std::begin(r1), std::next(std::begin(r1)), std::begin(r1), std::end(r1))
-    == -1);
+    == std::strong_ordering::less);
   CER_CHECK(
     compare<float>(
       std::begin(r1), std::end(r1), std::begin(r1), std::next(std::begin(r1)))
-    == +1);
+    == std::strong_ordering::greater);
 
   // different length and not prefi
   CER_CHECK(
-    compare<float>(std::begin(r1), std::end(r1), std::begin(r3), std::end(r3)) == -1);
+    compare<float>(std::begin(r1), std::end(r1), std::begin(r3), std::end(r3))
+    == std::strong_ordering::less);
   CER_CHECK(
-    compare<float>(std::begin(r3), std::end(r3), std::begin(r1), std::end(r1)) == +1);
+    compare<float>(std::begin(r3), std::end(r3), std::begin(r1), std::end(r1))
+    == std::strong_ordering::greater);
 }
 
 TEST_CASE("vec.is_equal")
