@@ -19,21 +19,15 @@
 
 #include "io/ParseModelDefinition.h"
 
-#include "el/ELExceptions.h"
+#include "el/EvaluationContext.h"
 
 namespace tb::io
 {
 
 Result<el::ExpressionNode> optimizeModelExpression(const el::ExpressionNode& expression)
 {
-  try
-  {
-    return expression.optimize();
-  }
-  catch (const el::Exception& e)
-  {
-    return Error{e.what()};
-  }
+  return el::withEvaluationContext(
+    [&](auto& context) { return expression.optimize(context); });
 }
 
 } // namespace tb::io

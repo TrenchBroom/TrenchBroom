@@ -66,13 +66,13 @@ auto MatchesPointer(T expected)
 }
 
 template <typename M, typename T, typename... E>
-class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
+class DelegatingResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
 {
   M m_makeMatcher;
   kdl::result<T, E...> m_expected;
 
 public:
-  explicit ResultMatcher(M makeMatcher, kdl::result<T, E...> expected)
+  explicit DelegatingResultMatcher(M makeMatcher, kdl::result<T, E...> expected)
     : m_makeMatcher{std::move(makeMatcher)}
     , m_expected{std::move(expected)}
   {
@@ -108,17 +108,56 @@ public:
   }
 };
 
-template <typename M, typename T, typename... E>
-auto MatchesResult(M makeMatcher, kdl::result<T, E...> expected)
+template <typename T, typename... E>
+class ResultMatcher : public Catch::MatcherBase<kdl::result<T, E...>>
 {
-  return ResultMatcher<M, T, E...>{std::move(makeMatcher), std::move(expected)};
+  kdl::result<T, E...> m_expected;
+  bool m_matchErrorMsg;
+
+public:
+  explicit ResultMatcher(kdl::result<T, E...> expected, const bool matchErrorMsg = false)
+    : m_expected{std::move(expected)}
+    , m_matchErrorMsg{matchErrorMsg}
+  {
+  }
+
+  bool match(const kdl::result<T, E...>& in) const override
+  {
+    return m_expected.visit(kdl::overload(
+      [&](const T& lhs) {
+        return in.visit(kdl::overload(
+          [&](const T& rhs) { return lhs == rhs; }, [](const auto&) { return false; }));
+      },
+      (
+        [&](const E& lhs) {
+          return in.visit(kdl::overload(
+            [&](const E& rhs) { return !m_matchErrorMsg || lhs == rhs; },
+            [](const auto&) { return false; }));
+        },
+        ...)));
+  }
+
+  std::string describe() const override
+  {
+    auto str = std::stringstream{};
+    m_expected.visit(kdl::overload(
+      [&](const T& lhs) { str << "matches value " << lhs; },
+      ([&](const E& lhs) { str << "matches error " << lhs; }, ...)));
+    return str.str();
+  }
+};
+
+template <typename T, typename... E>
+auto MatchesResult(kdl::result<T, E...> expected, const bool matchErrorMsg = false)
+{
+  return ResultMatcher<T, E...>{std::move(expected), matchErrorMsg};
 }
 
 inline auto MatchesPathsResult(std::vector<std::filesystem::path> paths)
 {
-  return MatchesResult(
+  return DelegatingResultMatcher{
     [](auto&& x) { return Catch::UnorderedEquals(std::forward<decltype(x)>(x)); },
-    Result<std::vector<std::filesystem::path>>{std::move(paths)});
+    Result<std::vector<std::filesystem::path>>{std::move(paths)}};
 }
 
 template <typename T>

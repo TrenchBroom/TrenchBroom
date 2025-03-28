@@ -19,9 +19,7 @@
 
 #include "GameConfigParser.h"
 
-#include "Exceptions.h"
 #include "el/EvaluationContext.h"
-#include "el/EvaluationTrace.h"
 #include "el/Value.h"
 #include "io/ParserException.h"
 #include "mdl/GameConfig.h"
@@ -30,7 +28,6 @@
 #include "mdl/TagMatcher.h"
 
 #include "kdl/range_to_vector.h"
-#include "kdl/vector_utils.h"
 
 #include "vm/vec_io.h"
 
@@ -59,88 +56,70 @@ std::vector<std::filesystem::path> extensionsToPaths(const std::vector<std::stri
          | kdl::to_vector;
 }
 
-void checkVersion(const el::Value& version, const el::EvaluationTrace& trace)
+void checkVersion(const el::EvaluationContext& context, const el::Value& version)
 {
   const auto validVsns = std::vector<el::IntegerType>{9};
   const auto isValidVersion =
     version.convertibleTo(el::ValueType::Number)
-    && std::find(validVsns.begin(), validVsns.end(), version.integerValue())
+    && std::find(validVsns.begin(), validVsns.end(), version.integerValue(context))
          != validVsns.end();
 
   if (!isValidVersion)
   {
     throw ParserException{
-      *trace.getLocation(version),
+      *context.location(version),
       fmt::format(
         "Unsupported game configuration version {}; valid versions are: {}",
-        version.convertTo(el::ValueType::String).stringValue(),
+        version.integerValue(context),
         kdl::str_join(validVsns, ", "))};
   }
 }
 
 std::vector<mdl::CompilationTool> parseCompilationTools(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
   if (value == el::Value::Null)
   {
     return {};
   }
 
-  expectType(value, trace, el::typeForName("Array"));
+  return value.arrayValue(context) | std::views::transform([&](const auto& entry) {
+           auto name = entry.at(context, "name").stringValue(context);
 
-  auto result = std::vector<mdl::CompilationTool>{};
-  result.reserve(value.length());
+           const auto descriptionValue = entry.atOrDefault(context, "description");
+           auto description = descriptionValue != el::Value::Null
+                                ? std::optional{descriptionValue.stringValue(context)}
+                                : std::nullopt;
 
-  for (size_t i = 0; i < value.length(); ++i)
-  {
-    expectStructure(
-      value[i],
-      trace,
-      R"([
-        {'name': 'String'},
-        {'description': 'String'}
-      ])");
-
-    if (value[i]["description"] != el::Value::Null)
-    {
-      result.push_back(mdl::CompilationTool{
-        value[i]["name"].stringValue(),
-        value[i]["description"].stringValue(),
-      });
-    }
-    else
-    {
-      result.push_back(mdl::CompilationTool{
-        value[i]["name"].stringValue(),
-        std::nullopt,
-      });
-    }
-  }
-
-  return result;
+           return mdl::CompilationTool{
+             std::move(name),
+             std::move(description),
+           };
+         })
+         | kdl::to_vector;
 }
 
 std::optional<vm::bbox3d> parseSoftMapBounds(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
   if (value == el::Value::Null)
   {
     return std::nullopt;
   }
 
-  const auto bounds = parseSoftMapBoundsString(value.stringValue());
+  const auto bounds = parseSoftMapBoundsString(value.stringValue(context));
   if (!bounds.has_value())
   {
     // If a bounds is provided in the config, it must be valid
     throw ParserException{
-      *trace.getLocation(value),
+      *context.location(value),
       fmt::format("Can't parse soft map bounds '{}'", value.asString())};
   }
   return bounds;
 }
 
 std::vector<mdl::TagAttribute> parseTagAttributes(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
   auto result = std::vector<mdl::TagAttribute>{};
   if (value == el::Value::Null)
@@ -151,8 +130,8 @@ std::vector<mdl::TagAttribute> parseTagAttributes(
   result.reserve(value.length());
   for (size_t i = 0; i < value.length(); ++i)
   {
-    const auto& entry = value[i];
-    const auto& name = entry.stringValue();
+    const auto& entry = value.at(context, i);
+    const auto& name = entry.stringValue(context);
 
     if (name == mdl::TagAttributes::Transparency.name)
     {
@@ -161,16 +140,19 @@ std::vector<mdl::TagAttribute> parseTagAttributes(
     else
     {
       throw ParserException{
-        *trace.getLocation(value), fmt::format("Unexpected tag attribute '{}'", name)};
+        *context.location(value), fmt::format("Unexpected tag attribute '{}'", name)};
     }
   }
 
   return result;
 }
 
-int parseFlagValue(const el::Value& value, const mdl::FlagsConfig& flags)
+int parseFlagValue(
+  const el::EvaluationContext& context,
+  const el::Value& value,
+  const mdl::FlagsConfig& flags)
 {
-  const auto flagSet = value.asStringSet();
+  const auto flagSet = value.asStringSet(context);
   int flagValue = 0;
   for (const std::string& currentName : flagSet)
   {
@@ -181,52 +163,39 @@ int parseFlagValue(const el::Value& value, const mdl::FlagsConfig& flags)
 }
 
 void checkTagName(
+  const el::EvaluationContext& context,
   const el::Value& nameValue,
-  const el::EvaluationTrace& trace,
   const std::vector<mdl::SmartTag>& tags)
 {
-  const auto& name = nameValue.stringValue();
-  for (const auto& tag : tags)
+  const auto& name = nameValue.stringValue(context);
+  if (std::ranges::any_of(tags, [&](const auto& tag) { return tag.name() == name; }))
   {
-    if (tag.name() == name)
-    {
-      throw ParserException{
-        *trace.getLocation(nameValue), fmt::format("Duplicate tag '{}'", name)};
-    }
+    throw ParserException{
+      *context.location(nameValue), fmt::format("Duplicate tag '{}'", name)};
   }
 }
 
 void parseSurfaceParmTag(
+  const el::EvaluationContext& context,
   std::string name,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   std::vector<mdl::SmartTag>& result)
 {
-  auto attribs = parseTagAttributes(value["attribs"], trace);
-  auto matcher = std::unique_ptr<mdl::SurfaceParmTagMatcher>{};
-  if (value["pattern"].type() == el::ValueType::String)
-  {
-    matcher =
-      std::make_unique<mdl::SurfaceParmTagMatcher>(value["pattern"].stringValue());
-  }
-  else if (value["pattern"].type() == el::ValueType::Array)
-  {
-    matcher = std::make_unique<mdl::SurfaceParmTagMatcher>(
-      kdl::vector_set{value["pattern"].asStringSet()});
-  }
-  else
-  {
-    // Generate the type exception specifying Array as the
-    // expected type, since String is really a legacy type for
-    // backward compatibility.
-    expectMapEntry(value, trace, "pattern", el::ValueType::Array);
-  }
+  auto attribs = parseTagAttributes(context, value.atOrDefault(context, "attribs"));
+
+  const auto patternValue = value.at(context, "pattern");
+  auto matcher =
+    patternValue.type() == el::ValueType::String
+      ? std::make_unique<mdl::SurfaceParmTagMatcher>(patternValue.stringValue(context))
+      : std::make_unique<mdl::SurfaceParmTagMatcher>(
+          kdl::vector_set{patternValue.asStringSet(context)});
+
   result.emplace_back(std::move(name), std::move(attribs), std::move(matcher));
 }
 
 void parseFaceTags(
+  const el::EvaluationContext& context,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   const mdl::FaceAttribsConfig& faceAttribsConfig,
   std::vector<mdl::SmartTag>& result)
 {
@@ -235,62 +204,52 @@ void parseFaceTags(
     return;
   }
 
-  for (size_t i = 0; i < value.length(); ++i)
+  for (const auto& entry : value.arrayValue(context))
   {
-    const auto& entry = value[i];
+    const auto nameValue = entry.at(context, "name");
+    checkTagName(context, nameValue, result);
 
-    expectStructure(
-      entry,
-      trace,
-      R"([
-        {'name': 'String', 'match': 'String'},
-        {'attribs': 'Array', 'pattern': 'String', 'flags': 'Array' }
-      ])");
-    checkTagName(entry["name"], trace, result);
-
-    const auto match = entry["match"].stringValue();
+    const auto match = entry.at(context, "match").stringValue(context);
     if (match == "material")
     {
-      expectMapEntry(entry, trace, "pattern", el::ValueType::String);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<mdl::MaterialNameTagMatcher>(entry["pattern"].stringValue()));
+        nameValue.stringValue(context),
+        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
+        std::make_unique<mdl::MaterialNameTagMatcher>(
+          entry.at(context, "pattern").stringValue(context)));
     }
     else if (match == "surfaceparm")
     {
-      parseSurfaceParmTag(entry["name"].stringValue(), entry, trace, result);
+      parseSurfaceParmTag(context, nameValue.stringValue(context), entry, result);
     }
     else if (match == "contentflag")
     {
-      expectMapEntry(entry, trace, "flags", el::ValueType::Array);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<mdl::ContentFlagsTagMatcher>(
-          parseFlagValue(entry["flags"], faceAttribsConfig.contentFlags)));
+        nameValue.stringValue(context),
+        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
+        std::make_unique<mdl::ContentFlagsTagMatcher>(parseFlagValue(
+          context, entry.at(context, "flags"), faceAttribsConfig.contentFlags)));
     }
     else if (match == "surfaceflag")
     {
-      expectMapEntry(entry, trace, "flags", el::ValueType::Array);
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
-        std::make_unique<mdl::SurfaceFlagsTagMatcher>(
-          parseFlagValue(entry["flags"], faceAttribsConfig.surfaceFlags)));
+        nameValue.stringValue(context),
+        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
+        std::make_unique<mdl::SurfaceFlagsTagMatcher>(parseFlagValue(
+          context, entry.at(context, "flags"), faceAttribsConfig.surfaceFlags)));
     }
     else
     {
       throw ParserException{
-        *trace.getLocation(entry),
+        *context.location(entry),
         fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
 
 void parseBrushTags(
+  const el::EvaluationContext& context,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   std::vector<mdl::SmartTag>& result)
 {
   if (value == el::Value::Null)
@@ -298,40 +257,33 @@ void parseBrushTags(
     return;
   }
 
-  for (size_t i = 0; i < value.length(); ++i)
+  for (const auto& entry : value.arrayValue(context))
   {
-    const auto entry = value[i];
+    const auto nameValue = entry.at(context, "name");
+    checkTagName(context, nameValue, result);
 
-    expectStructure(
-      entry,
-      trace,
-      R"([
-        {'name': 'String', 'match': 'String'},
-        {'attribs': 'Array', 'pattern': 'String', 'material': 'String' }
-      ])");
-    checkTagName(entry["name"], trace, result);
-
-    const auto match = entry["match"].stringValue();
+    const auto match = entry.at(context, "match").stringValue(context);
     if (match == "classname")
     {
       result.emplace_back(
-        entry["name"].stringValue(),
-        parseTagAttributes(entry["attribs"], trace),
+        nameValue.stringValue(context),
+        parseTagAttributes(context, entry.atOrDefault(context, "attribs")),
         std::make_unique<mdl::EntityClassNameTagMatcher>(
-          entry["pattern"].stringValue(), entry["material"].stringValue()));
+          entry.at(context, "pattern").stringValue(context),
+          entry.atOrDefault(context, "material").stringValue(context)));
     }
     else
     {
       throw ParserException{
-        *trace.getLocation(entry),
+        *context.location(entry),
         fmt::format("Unexpected smart tag match type '{}'", match)};
     }
   }
 }
 
 std::vector<mdl::SmartTag> parseTags(
+  const el::EvaluationContext& context,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   const mdl::FaceAttribsConfig& faceAttribsConfig)
 {
   auto result = std::vector<mdl::SmartTag>{};
@@ -340,22 +292,15 @@ std::vector<mdl::SmartTag> parseTags(
     return result;
   }
 
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {},
-      {'brush': 'Array', 'brushface': 'Array'}
-    ])");
-
-  parseBrushTags(value["brush"], trace, result);
-  parseFaceTags(value["brushface"], trace, faceAttribsConfig, result);
+  parseBrushTags(context, value.atOrDefault(context, "brush"), result);
+  parseFaceTags(
+    context, value.atOrDefault(context, "brushface"), faceAttribsConfig, result);
   return result;
 }
 
 mdl::BrushFaceAttributes parseFaceAttribsDefaults(
+  const el::EvaluationContext& context,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   const mdl::FlagsConfig& surfaceFlags,
   const mdl::FlagsConfig& contentFlags)
 {
@@ -365,100 +310,91 @@ mdl::BrushFaceAttributes parseFaceAttribsDefaults(
     return defaults;
   }
 
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {},
-      {'materialName': 'String', 'offset': 'Array', 'scale': 'Array', 'rotation': 'Number', 'surfaceContents': 'Array', 'surfaceFlags': 'Array', 'surfaceValue': 'Number', 'color': 'String'}
-    ])");
+  if (const auto materialNameValue = value.atOrDefault(context, "materialName");
+      materialNameValue != el::Value::Null)
+  {
+    defaults = mdl::BrushFaceAttributes{materialNameValue.stringValue(context)};
+  }
 
-  if (value["materialName"] != el::Value::Null)
+  if (const auto offsetValue = value.atOrDefault(context, "offset");
+      offsetValue != el::Value::Null && offsetValue.length() == 2)
   {
-    defaults = mdl::BrushFaceAttributes{value["materialName"].stringValue()};
+    defaults.setOffset(vm::vec2f{
+      float(offsetValue.at(context, 0).numberValue(context)),
+      float(offsetValue.at(context, 1).numberValue(context))});
   }
-  if (value["offset"] != el::Value::Null && value["offset"].length() == 2)
+
+  if (const auto scaleValue = value.atOrDefault(context, "scale");
+      scaleValue != el::Value::Null && scaleValue.length() == 2)
   {
-    const auto offset = value["offset"];
-    defaults.setOffset(vm::vec2f(offset[0].numberValue(), offset[1].numberValue()));
+    defaults.setScale(vm::vec2f{
+      float(scaleValue.at(context, 0).numberValue(context)),
+      float(scaleValue.at(context, 1).numberValue(context))});
   }
-  if (value["scale"] != el::Value::Null && value["scale"].length() == 2)
+
+  if (const auto rotationValue = value.atOrDefault(context, "rotation");
+      rotationValue != el::Value::Null)
   {
-    const auto scale = value["scale"];
-    defaults.setScale(vm::vec2f(scale[0].numberValue(), scale[1].numberValue()));
+    defaults.setRotation(float(rotationValue.numberValue(context)));
   }
-  if (value["rotation"] != el::Value::Null)
-  {
-    defaults.setRotation(float(value["rotation"].numberValue()));
-  }
-  if (value["surfaceContents"] != el::Value::Null)
+
+  if (const auto surfaceContentsValue = value.atOrDefault(context, "surfaceContents");
+      surfaceContentsValue != el::Value::Null)
   {
     int defaultSurfaceContents = 0;
-    for (size_t i = 0; i < value["surfaceContents"].length(); ++i)
+    for (const auto& surfaceContentValue : surfaceContentsValue.arrayValue(context))
     {
-      auto name = value["surfaceContents"][i].stringValue();
+      const auto& name = surfaceContentValue.stringValue(context);
       defaultSurfaceContents = defaultSurfaceContents | contentFlags.flagValue(name);
     }
     defaults.setSurfaceContents(defaultSurfaceContents);
   }
-  if (value["surfaceFlags"] != el::Value::Null)
+
+  if (const auto surfaceFlagsValue = value.atOrDefault(context, "surfaceFlags");
+      surfaceFlagsValue != el::Value::Null)
   {
     int defaultSurfaceFlags = 0;
-    for (size_t i = 0; i < value["surfaceFlags"].length(); ++i)
+    for (const auto& surfaceFlagValue : surfaceFlagsValue.arrayValue(context))
     {
-      auto name = value["surfaceFlags"][i].stringValue();
+      const auto& name = surfaceFlagValue.stringValue(context);
       defaultSurfaceFlags = defaultSurfaceFlags | surfaceFlags.flagValue(name);
     }
     defaults.setSurfaceFlags(defaultSurfaceFlags);
   }
-  if (value["surfaceValue"] != el::Value::Null)
+
+  if (const auto surfaceValue = value.atOrDefault(context, "surfaceValue");
+      surfaceValue != el::Value::Null)
   {
-    defaults.setSurfaceValue(float(value["surfaceValue"].numberValue()));
+    defaults.setSurfaceValue(float(surfaceValue.numberValue(context)));
   }
-  if (value["color"] != el::Value::Null)
+
+  if (const auto colorValue = value.atOrDefault(context, "color");
+      colorValue != el::Value::Null)
   {
-    defaults.setColor(Color::parse(value["color"].stringValue()).value_or(Color{}));
+    defaults.setColor(Color::parse(colorValue.stringValue(context)).value_or(Color{}));
   }
 
   return defaults;
 }
 
 void parseFlag(
+  const el::EvaluationContext& context,
   const el::Value& value,
-  const el::EvaluationTrace& trace,
   const size_t index,
   std::vector<mdl::FlagConfig>& flags)
 {
-  if (value["unused"].booleanValue())
+  if (!value.atOrDefault(context, "unused").booleanValue(context))
   {
-    expectStructure(
-      value,
-      trace,
-      R"([
-        {},
-        {'name': 'String', 'description': 'String', 'unused': 'Boolean'}
-      ])");
-  }
-  else
-  {
-    expectStructure(
-      value,
-      trace,
-      R"([
-      {'name': 'String'},
-      {'description': 'String', 'unused': 'Boolean'}
-      ])");
-
     flags.push_back(mdl::FlagConfig{
-      value["name"].stringValue(),
-      value["description"].stringValue(),
+      value.at(context, "name").stringValue(context),
+      value.atOrDefault(context, "description").stringValue(context),
       1 << index,
     });
   }
 }
 
 mdl::FlagsConfig parseFlagsConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
   using mdl::GameConfig;
 
@@ -472,14 +408,14 @@ mdl::FlagsConfig parseFlagsConfig(
 
   for (size_t i = 0; i < value.length(); ++i)
   {
-    parseFlag(value[i], trace, i, flags);
+    parseFlag(context, value.at(context, i), i, flags);
   }
 
   return mdl::FlagsConfig{flags};
 }
 
 mdl::FaceAttribsConfig parseFaceAttribsConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
   if (value == el::Value::Null)
   {
@@ -490,155 +426,151 @@ mdl::FaceAttribsConfig parseFaceAttribsConfig(
     };
   }
 
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {'surfaceflags': 'Array', 'contentflags': 'Array'},
-      {'defaults': 'Map'}
-    ])");
-
-  auto surfaceFlags = parseFlagsConfig(value["surfaceflags"], trace);
-  auto contentFlags = parseFlagsConfig(value["contentflags"], trace);
-  auto defaults =
-    parseFaceAttribsDefaults(value["defaults"], trace, surfaceFlags, contentFlags);
+  auto surfaceFlags = parseFlagsConfig(context, value.at(context, "surfaceflags"));
+  auto contentFlags = parseFlagsConfig(context, value.at(context, "contentflags"));
+  auto defaults = parseFaceAttribsDefaults(
+    context, value.atOrDefault(context, "defaults"), surfaceFlags, contentFlags);
 
   return mdl::FaceAttribsConfig{
     std::move(surfaceFlags),
     std::move(contentFlags),
-    defaults,
+    std::move(defaults),
   };
 }
 
 mdl::EntityConfig parseEntityConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {'definitions': 'Array', 'defaultcolor': 'String'},
-      // scale is an expression
-      {'modelformats': 'Array', 'scale': '*', 'setDefaultProperties': 'Boolean'}
-    ])");
+  auto paths = value.at(context, "definitions").arrayValue(context)
+               | std::views::transform([&](const auto& v) {
+                   return std::filesystem::path{v.stringValue(context)};
+                 })
+               | kdl::to_vector;
+
+  const auto color = Color::parse(value.at(context, "defaultcolor").stringValue(context))
+                       .value_or(Color{});
 
   return mdl::EntityConfig{
-    kdl::vec_transform(
-      value["definitions"].asStringList(),
-      [](const auto& str) { return std::filesystem::path{str}; }),
-    Color::parse(value["defaultcolor"].stringValue()).value_or(Color{}),
-    trace.getExpression(value["scale"]),
-    value["setDefaultProperties"].booleanValue(),
+    std::move(paths),
+    color,
+    context.expression(value.atOrDefault(context, "scale")),
+    value.atOrDefault(context, "setDefaultProperties").booleanValue(context),
   };
 }
 
 mdl::PackageFormatConfig parsePackageFormatConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  expectMapEntry(value, trace, "format", el::typeForName("String"));
-  const auto formatValue = value["format"];
-  expectType(formatValue, trace, el::typeForName("String"));
-
-  if (value["extension"] != el::Value::Null)
+  const auto formatValue = value.at(context, "format");
+  if (const auto extension = value.atOrDefault(context, "extension");
+      extension != el::Value::Null)
   {
-    expectType(value["extension"], trace, el::typeForName("String"));
-
     return mdl::PackageFormatConfig{
-      extensionsToPaths({value["extension"].stringValue()}),
-      formatValue.stringValue(),
+      extensionsToPaths({extension.stringValue(context)}),
+      formatValue.stringValue(context),
     };
   }
-  else if (value["extensions"] != el::Value::Null)
-  {
-    expectType(value["extensions"], trace, el::typeForName("Array"));
-
-    return mdl::PackageFormatConfig{
-      extensionsToPaths(value["extensions"].asStringList()),
-      formatValue.stringValue(),
-    };
-  }
-  throw ParserException{
-    *trace.getLocation(value),
-    "Expected map entry 'extension' of type 'String' or 'extensions' of type 'Array'"};
+  return mdl::PackageFormatConfig{
+    extensionsToPaths(value.at(context, "extensions").asStringList(context)),
+    formatValue.stringValue(context),
+  };
 }
 
 std::vector<std::filesystem::path> parseMaterialExtensions(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  if (value["extensions"] != el::Value::Null)
+  if (const auto extensions = value.atOrDefault(context, "extensions");
+      extensions != el::Value::Null)
   {
     // version 8
-    return extensionsToPaths(value["extensions"].asStringList());
+    return extensionsToPaths(extensions.asStringList(context));
   }
   // version 7
-  return parsePackageFormatConfig(value["format"], trace).extensions;
+  return parsePackageFormatConfig(context, value.atOrDefault(context, "format"))
+    .extensions;
 }
 
 mdl::MaterialConfig parseMaterialConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {'root': 'String'},
-      {'extensions': 'String', 'format': 'Map', 'attribute': 'String', 'palette': 'String', 'shaderSearchPath': 'String', 'excludes': 'Array'}
-    ])");
-
   return mdl::MaterialConfig{
-    std::filesystem::path{value["root"].stringValue()},
-    parseMaterialExtensions(value, trace),
-    std::filesystem::path{value["palette"].stringValue()},
-    value["attribute"] != el::Value::Null
-      ? std::optional{value["attribute"].stringValue()}
+    std::filesystem::path{value.at(context, "root").stringValue(context)},
+    parseMaterialExtensions(context, value),
+    std::filesystem::path{value.atOrDefault(context, "palette").stringValue(context)},
+    value.contains(context, "attribute")
+      ? std::optional{value.at(context, "attribute").stringValue(context)}
       : std::nullopt,
-    std::filesystem::path{value["shaderSearchPath"].stringValue()},
-    value["excludes"].asStringList(),
+    std::filesystem::path{
+      value.atOrDefault(context, "shaderSearchPath").stringValue(context)},
+    value.atOrDefault(context, "excludes").asStringList(context),
   };
 }
 
 mdl::FileSystemConfig parseFileSystemConfig(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  expectStructure(
-    value,
-    trace,
-    R"([
-      {'searchpath': 'String', 'packageformat': 'Map'},
-      {}
-    ])");
-
   return mdl::FileSystemConfig{
-    std::filesystem::path{value["searchpath"].stringValue()},
-    parsePackageFormatConfig(value["packageformat"], trace),
+    std::filesystem::path{value.at(context, "searchpath").stringValue(context)},
+    parsePackageFormatConfig(context, value.at(context, "packageformat")),
   };
 }
 
 std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
-  const el::Value& value, const el::EvaluationTrace& trace)
+  const el::EvaluationContext& context, const el::Value& value)
 {
-  expectType(value, trace, el::typeForName("Array"));
+  return value.arrayValue(context) | std::views::transform([&](const auto& entry) {
+           return mdl::MapFormatConfig{
+             entry.at(context, "format").stringValue(context),
+             entry.atOrDefault(context, "initialmap").stringValue(context),
+           };
+         })
+         | kdl::to_vector;
+}
 
-  auto result = std::vector<mdl::MapFormatConfig>{};
-  result.reserve(value.length());
-
-  for (size_t i = 0; i < value.length(); ++i)
+Result<mdl::GameConfig> parseGameConfig(
+  el::EvaluationContext& context,
+  const el::ExpressionNode& expression,
+  const std::filesystem::path& configFilePath)
+{
+  try
   {
-    expectStructure(
-      value[i],
-      trace,
-      R"([
-        {'format': 'String'},
-        {'initialmap': 'String'}
-      ])");
+    const auto root = expression.evaluate(context);
 
-    result.push_back(mdl::MapFormatConfig{
-      value[i]["format"].stringValue(),
-      std::filesystem::path{value[i]["initialmap"].stringValue()},
-    });
+    checkVersion(context, root.at(context, "version"));
+
+    auto mapFormatConfigs =
+      parseMapFormatConfigs(context, root.at(context, "fileformats"));
+    auto fileSystemConfig =
+      parseFileSystemConfig(context, root.at(context, "filesystem"));
+    auto materialConfig = parseMaterialConfig(context, root.at(context, "materials"));
+    auto entityConfig = parseEntityConfig(context, root.at(context, "entities"));
+    auto faceAttribsConfig =
+      parseFaceAttribsConfig(context, root.atOrDefault(context, "faceattribs"));
+    auto tags = parseTags(context, root.atOrDefault(context, "tags"), faceAttribsConfig);
+    auto softMapBounds =
+      parseSoftMapBounds(context, root.atOrDefault(context, "softMapBounds"));
+    auto compilationTools =
+      parseCompilationTools(context, root.atOrDefault(context, "compilationTools"));
+
+    return mdl::GameConfig{
+      root.at(context, "name").stringValue(context),
+      configFilePath,
+      std::filesystem::path{root.atOrDefault(context, "icon").stringValue(context)},
+      root.atOrDefault(context, "experimental").booleanValue(context),
+      std::move(mapFormatConfigs),
+      std::move(fileSystemConfig),
+      std::move(materialConfig),
+      std::move(entityConfig),
+      std::move(faceAttribsConfig),
+      std::move(tags),
+      std::move(softMapBounds),
+      std::move(compilationTools),
+    };
   }
-
-  return result;
+  catch (const ParserException& e)
+  {
+    return Error{e.what()};
+  }
 }
 
 } // namespace
@@ -646,7 +578,6 @@ std::vector<mdl::MapFormatConfig> parseMapFormatConfigs(
 GameConfigParser::GameConfigParser(
   std::string_view str, const std::filesystem::path& path)
   : ConfigParserBase{std::move(str), path}
-  , m_version{0}
 {
 }
 
@@ -656,56 +587,9 @@ Result<mdl::GameConfig> GameConfigParser::parse()
 
   return parseConfigFile()
          | kdl::and_then([&](const auto& expression) -> Result<mdl::GameConfig> {
-             try
-             {
-               const auto evaluationContext = el::EvaluationContext{};
-               auto trace = el::EvaluationTrace{};
-               const auto root = expression.evaluate(evaluationContext, trace);
-
-               expectType(root, trace, el::ValueType::Map);
-
-               expectStructure(
-                 root,
-                 trace,
-                 R"([
-               {'version': 'Number', 'name': 'String', 'fileformats': 'Array', 'filesystem': 'Map', 'materials': 'Map', 'entities': 'Map'},
-               {'icon': 'String', 'experimental': 'Boolean', 'faceattribs': 'Map', 'tags': 'Map', 'softMapBounds': 'String'}
-             ])");
-
-               const auto& version = root["version"];
-               checkVersion(version, trace);
-               m_version = version.integerValue();
-
-               auto mapFormatConfigs = parseMapFormatConfigs(root["fileformats"], trace);
-               auto fileSystemConfig = parseFileSystemConfig(root["filesystem"], trace);
-               auto materialConfig = parseMaterialConfig(root["materials"], trace);
-               auto entityConfig = parseEntityConfig(root["entities"], trace);
-               auto faceAttribsConfig =
-                 parseFaceAttribsConfig(root["faceattribs"], trace);
-               auto tags = parseTags(root["tags"], trace, faceAttribsConfig);
-               auto softMapBounds = parseSoftMapBounds(root["softMapBounds"], trace);
-               auto compilationTools =
-                 parseCompilationTools(root["compilationTools"], trace);
-
-               return GameConfig{
-                 root["name"].stringValue(),
-                 m_path,
-                 std::filesystem::path{root["icon"].stringValue()},
-                 root["experimental"].booleanValue(),
-                 std::move(mapFormatConfigs),
-                 std::move(fileSystemConfig),
-                 std::move(materialConfig),
-                 std::move(entityConfig),
-                 std::move(faceAttribsConfig),
-                 std::move(tags),
-                 std::move(softMapBounds),
-                 std::move(compilationTools),
-               };
-             }
-             catch (const Exception& e)
-             {
-               return Error{e.what()};
-             }
+             return el::withEvaluationContext([&](auto& context) {
+               return parseGameConfig(context, expression, m_path);
+             });
            });
 }
 

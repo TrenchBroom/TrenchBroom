@@ -19,42 +19,12 @@
 
 #include "ParserException.h"
 
-#include <sstream>
-
 namespace tb
 {
-namespace
-{
-
-std::string buildMessage(
-  const std::optional<FileLocation>& location, const std::string& str)
-{
-  auto msg = std::stringstream();
-
-  msg << "At ";
-  if (location)
-  {
-    msg << *location;
-  }
-  else
-  {
-    msg << "unknown location";
-  }
-
-  msg << ":";
-  if (!str.empty())
-  {
-    msg << " " << str;
-  }
-  return msg.str();
-}
-
-} // namespace
-
 
 ParserException::ParserException(
   const std::optional<FileLocation>& location, const std::string& str)
-  : Exception{buildMessage(location, str)}
+  : Exception{prependLocation(location, str)}
 {
 }
 

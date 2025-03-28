@@ -19,6 +19,7 @@
 
 #include "Interpolate.h"
 
+#include "el/EvaluationContext.h"
 #include "el/Expression.h"
 #include "el/Value.h"
 #include "io/ELParser.h"
@@ -69,61 +70,52 @@ auto parseExpressions(
 }
 
 auto evaluateExpressions(
-  const std::vector<el::ExpressionNode>& expressions, const EvaluationContext& context)
+  EvaluationContext& context, const std::vector<el::ExpressionNode>& expressions)
 {
-  return expressions
-         | std::views::transform([&](const auto& expression) -> Result<el::Value> {
-             try
-             {
-               return expression.evaluate(context);
-             }
-             catch (const Exception& e)
-             {
-               return Error{e.what()};
-             }
-           })
-         | kdl::fold;
+  return expressions | std::views::transform([&](const auto& expression) {
+           return expression.evaluate(context);
+         })
+         | kdl::to_vector;
 }
 
-Result<std::string> substituteValues(
+auto substituteValues(
+  EvaluationContext& context,
   const std::string_view str,
   const std::vector<std::tuple<std::size_t, std::size_t>>& expressionsPositions,
   const std::vector<el::Value>& values)
 {
-  try
+  auto result = std::stringstream{};
+  std::size_t previousEnd = 0;
+  for (std::size_t i = 0; i < expressionsPositions.size(); ++i)
   {
-    auto result = std::stringstream{};
-    std::size_t previousEnd = 0;
-    for (std::size_t i = 0; i < expressionsPositions.size(); ++i)
-    {
-      const auto [start, length] = expressionsPositions[i];
-      result << str.substr(previousEnd, start - previousEnd);
-      result << values[i].convertTo(el::ValueType::String).stringValue();
-      previousEnd = start + length;
-    }
-    result << str.substr(previousEnd);
-    return result.str();
+    const auto [start, length] = expressionsPositions[i];
+    result << str.substr(previousEnd, start - previousEnd);
+    result << values[i].convertTo(context, el::ValueType::String).stringValue(context);
+    previousEnd = start + length;
   }
-  catch (const Exception& e)
-  {
-    return Error{e.what()};
-  }
+  result << str.substr(previousEnd);
+  return result.str();
 }
 
 } // namespace
 
 Result<std::string> interpolate(
-  const std::string_view str, const EvaluationContext& context)
+  const VariableStore& variables, const std::string_view str)
 {
-  return findExpressions(str) | kdl::and_then([&](const auto& expressionPositions) {
-           return parseExpressions(str, expressionPositions)
-                  | kdl::and_then([&](const auto& expressions) {
-                      return evaluateExpressions(expressions, context);
-                    })
-                  | kdl::and_then([&](const auto& values) {
-                      return substituteValues(str, expressionPositions, values);
-                    });
-         });
+  return withEvaluationContext(
+    [&](auto& context) {
+      return findExpressions(str) | kdl::and_then([&](const auto& expressionPositions) {
+               return parseExpressions(str, expressionPositions)
+                      | kdl::transform([&](const auto& expressions) {
+                          return evaluateExpressions(context, expressions);
+                        })
+                      | kdl::transform([&](const auto& values) {
+                          return substituteValues(
+                            context, str, expressionPositions, values);
+                        });
+             });
+    },
+    variables);
 }
 
 } // namespace tb::el

@@ -39,9 +39,6 @@ namespace tb::io
 
 class GameConfigParser : public ConfigParserBase
 {
-private:
-  el::IntegerType m_version;
-
 public:
   explicit GameConfigParser(std::string_view str, const std::filesystem::path& path = {});
 

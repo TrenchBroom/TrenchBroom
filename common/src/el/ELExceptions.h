@@ -20,11 +20,14 @@
 #pragma once
 
 #include "Exceptions.h"
+#include "FileLocation.h"
 
 #include <string>
+#include <string_view>
 
 namespace tb::el
 {
+class ExpressionNode;
 class Value;
 enum class ValueType;
 
@@ -34,42 +37,70 @@ public:
   using tb::Exception::Exception;
 };
 
-class ConversionError : public Exception
-{
-public:
-  ConversionError(const std::string& value, ValueType from, ValueType to);
-};
-
-class DereferenceError : public Exception
-{
-public:
-  DereferenceError(const std::string& value, ValueType from, ValueType to);
-};
-
-class EvaluationError : public Exception
+class InterpolationError : public tb::Exception
 {
 public:
   using Exception::Exception;
 };
 
+class ConversionError : public Exception
+{
+public:
+  ConversionError(
+    const std::optional<FileLocation>& fileLocation,
+    const std::string& value,
+    ValueType from,
+    ValueType to);
+};
+
+class DereferenceError : public Exception
+{
+public:
+  DereferenceError(
+    const std::optional<FileLocation>& fileLocation,
+    const std::string& value,
+    ValueType from,
+    ValueType to);
+};
+
+class EvaluationError : public Exception
+{
+public:
+  EvaluationError();
+  EvaluationError(const ExpressionNode& expression, std::string_view reason);
+  EvaluationError(const std::optional<FileLocation>& location, std::string_view message);
+};
+
 class IndexError : public EvaluationError
 {
 public:
-  IndexError(const Value& indexableValue, const Value& indexValue);
-  IndexError(const Value& indexableValue, size_t index);
-  IndexError(const Value& indexableValue, const std::string& key);
+  IndexError(
+    const ExpressionNode& expression,
+    const Value& indexableValue,
+    const Value& indexValue);
+  IndexError(
+    const std::optional<FileLocation>& location,
+    const Value& indexableValue,
+    size_t index);
+  IndexError(
+    const std::optional<FileLocation>& location,
+    const Value& indexableValue,
+    const std::string& key);
 };
 
 class IndexOutOfBoundsError : public EvaluationError
 {
 public:
   IndexOutOfBoundsError(
-    const Value& indexableValue, const Value& indexValue, size_t outOfBoundsIndex);
+    const ExpressionNode& expression, const Value& indexableValue, size_t index);
   IndexOutOfBoundsError(
+    const std::optional<FileLocation>& location,
     const Value& indexableValue,
-    const Value& indexValue,
-    const std::string& outOfBoundsIndex);
-  IndexOutOfBoundsError(const Value& indexableValue, size_t index);
-  IndexOutOfBoundsError(const Value& indexableValue, const std::string& key);
+    size_t index);
+  IndexOutOfBoundsError(
+    const std::optional<FileLocation>& location,
+    const Value& indexableValue,
+    const std::string& key);
 };
+
 } // namespace tb::el

@@ -121,6 +121,21 @@ TEST_CASE("result")
          == std::variant<Error1, Error2>{Error2{}}));
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+      CHECK((result<int&, Error1>{i}.value() == i));
+      CHECK((result<int&, Error1>{Error1{}}.error() == std::variant<Error1>{Error1{}}));
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+      CHECK((result<const int&, Error1>{i}.value() == i));
+      CHECK(
+        (result<const int&, Error1>{Error1{}}.error() == std::variant<Error1>{Error1{}}));
+    }
+
     SECTION("multi-valued result")
     {
       CHECK(
@@ -182,6 +197,76 @@ TEST_CASE("result")
       CHECK(
         result<int, Error1, Error2>{result<int, Error2>{Error2{}}}
         == result<int, Error1, Error2>{Error2{}});
+
+      SECTION("from reference result")
+      {
+        auto i = 1;
+        CHECK(
+          result<int, Error1, Error2>{result<int&, Error1>{i}}
+          == result<int, Error1, Error2>{1});
+      }
+
+      SECTION("from const reference result")
+      {
+        const auto i = 1;
+        CHECK(
+          result<int, Error1, Error2>{result<const int&, Error1>{i}}
+          == result<int, Error1, Error2>{1});
+      }
+    }
+
+    SECTION("reference result")
+    {
+      auto i = 1;
+
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error1, Error2>{i}}
+        == result<int&, Error1, Error2>{i});
+
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error2, Error1>{Error1{}}}
+        == result<int&, Error1, Error2>{Error1{}});
+
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error1>{i}}
+        == result<int&, Error1, Error2>{i});
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error1>{Error1{}}}
+        == result<int&, Error1, Error2>{Error1{}});
+
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error2>{i}}
+        == result<int&, Error1, Error2>{i});
+      CHECK(
+        result<int&, Error1, Error2>{result<int&, Error2>{Error2{}}}
+        == result<int&, Error1, Error2>{Error2{}});
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error1, Error2>{i}}
+        == result<const int&, Error1, Error2>{i});
+
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error2, Error1>{Error1{}}}
+        == result<const int&, Error1, Error2>{Error1{}});
+
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error1>{i}}
+        == result<const int&, Error1, Error2>{i});
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error1>{Error1{}}}
+        == result<const int&, Error1, Error2>{Error1{}});
+
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error2>{i}}
+        == result<const int&, Error1, Error2>{i});
+      CHECK(
+        result<const int&, Error1, Error2>{result<const int&, Error2>{Error2{}}}
+        == result<const int&, Error1, Error2>{Error2{}});
     }
 
     SECTION("multi-valued result")
@@ -313,6 +398,150 @@ TEST_CASE("result")
 
       CHECK(result<int, Error1, Error2>{Error2{}}.visit(overload(
         [](int&&) { return false; },
+        [](Error1&&) { return false; },
+        [](Error2&&) { return true; })));
+    }
+
+    SECTION("reference result")
+    {
+      auto i = 1;
+
+      const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+      CHECK(constLValueSuccess.visit(overload(
+        [&](int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      const auto constLValueError1 = result<int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError1.visit(overload(
+        [](const int&) { return false; },
+        [](const Error1&) { return true; },
+        [](const Error2&) { return false; })));
+      CHECK(constLValueError1.visit(overload(
+        [](int&) { return false; },
+        [](const Error1&) { return true; },
+        [](const Error2&) { return false; })));
+
+      const auto constLValueError2 = result<int&, Error1, Error2>{Error2{}};
+      CHECK(constLValueError2.visit(overload(
+        [](const int&) { return false; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return true; })));
+
+      auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+      CHECK(nonConstLValueSuccess.visit(overload(
+        [&](int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      auto nonConstLValueError1 = result<int&, Error1, Error2>{Error1{}};
+      CHECK(nonConstLValueError1.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&) { return true; },
+        [](Error2&) { return false; })));
+      CHECK(nonConstLValueError1.visit(overload(
+        [](int&) { return false; },
+        [](Error1&) { return true; },
+        [](Error2&) { return false; })));
+
+      auto nonConstLValueError2 = result<int&, Error1, Error2>{Error2{}};
+      CHECK(nonConstLValueError2.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&) { return false; },
+        [](Error2&) { return true; })));
+      CHECK(nonConstLValueError2.visit(overload(
+        [](int&) { return false; },
+        [](Error1&) { return false; },
+        [](Error2&) { return true; })));
+
+      CHECK(result<int&, Error1, Error2>{i}.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+      CHECK(result<int&, Error1, Error2>{i}.visit(overload(
+        [&](int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      CHECK(result<int&, Error1, Error2>{Error1{}}.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&&) { return true; },
+        [](Error2&&) { return false; })));
+      CHECK(result<int&, Error1, Error2>{Error1{}}.visit(overload(
+        [](int&) { return false; },
+        [](Error1&&) { return true; },
+        [](Error2&&) { return false; })));
+
+      CHECK(result<int&, Error1, Error2>{Error2{}}.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&&) { return false; },
+        [](Error2&&) { return true; })));
+      CHECK(result<int&, Error1, Error2>{Error2{}}.visit(overload(
+        [](int&) { return false; },
+        [](Error1&&) { return false; },
+        [](Error2&&) { return true; })));
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+
+      const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      const auto constLValueError1 = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError1.visit(overload(
+        [](const int&) { return false; },
+        [](const Error1&) { return true; },
+        [](const Error2&) { return false; })));
+
+      const auto constLValueError2 = result<const int&, Error1, Error2>{Error2{}};
+      CHECK(constLValueError2.visit(overload(
+        [](const int&) { return false; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return true; })));
+
+      auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      auto nonConstLValueError1 = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(nonConstLValueError1.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&) { return true; },
+        [](Error2&) { return false; })));
+
+      auto nonConstLValueError2 = result<const int&, Error1, Error2>{Error2{}};
+      CHECK(nonConstLValueError2.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&) { return false; },
+        [](Error2&) { return true; })));
+
+      CHECK(result<const int&, Error1, Error2>{i}.visit(overload(
+        [&](const int& x) { return &x == &i; },
+        [](const Error1&) { return false; },
+        [](const Error2&) { return false; })));
+
+      CHECK(result<const int&, Error1, Error2>{Error1{}}.visit(overload(
+        [](const int&) { return false; },
+        [](Error1&&) { return true; },
+        [](Error2&&) { return false; })));
+
+      CHECK(result<const int&, Error1, Error2>{Error2{}}.visit(overload(
+        [](const int&) { return false; },
         [](Error1&&) { return false; },
         [](Error2&&) { return true; })));
     }
@@ -744,6 +973,89 @@ TEST_CASE("result")
       }) == result<float, Error1, Error2, Error3>{Error1{}});
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+      auto s = std::string{"asdf"};
+      const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+
+      CHECK(constLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(constLValueSuccess.and_then([&](int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{Error3{}};
+      }) == result<std::string, Error1, Error2, Error3>{Error3{}});
+      CHECK(constLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string&, Error3>{s};
+      }) == result<std::string&, Error1, Error2, Error3>{s});
+
+      const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError.and_then([](const int&) {
+        FAIL();
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{Error1{}});
+
+      auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(nonConstLValueSuccess.and_then([&](int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(nonConstLValueSuccess.and_then([&](int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{Error3{}};
+      }) == result<std::string, Error1, Error2, Error3>{Error3{}});
+
+      CHECK(result<int&, Error1, Error2>{i}.and_then([](const int&) {
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(result<int&, Error1, Error2>{i}.and_then([](int&) {
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+      const auto s = std::string{"asdf"};
+      const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+
+      CHECK(constLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(constLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<const std::string&, Error3>{s};
+      }) == result<const std::string&, Error1, Error2, Error3>{s});
+
+      const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError.and_then([](const int&) {
+        FAIL();
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{Error1{}});
+
+      auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+      CHECK(nonConstLValueSuccess.and_then([&](const int& x) {
+        CHECK(&x == &i);
+        return result<std::string, Error3>{Error3{}};
+      }) == result<std::string, Error1, Error2, Error3>{Error3{}});
+
+      CHECK(result<const int&, Error1, Error2>{i}.and_then([](const int&) {
+        return result<std::string, Error3>{"fdsa"};
+      }) == result<std::string, Error1, Error2, Error3>{"fdsa"});
+    }
+
     SECTION("multi-valued result")
     {
       const auto constLValueSuccessToSuccess =
@@ -988,6 +1300,164 @@ TEST_CASE("result")
         == result<int, Error3>{Error3{}});
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+      auto j = 2;
+
+      const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.or_else([&](const auto&) {
+        FAIL();
+        return result<int&, Error3>{j};
+      }) == result<int&, Error3>{i});
+
+      const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(
+        constLValueError.or_else(overload(
+          [&](const Error1&) { return result<int&, Error3>{i}; },
+          [&](const Error2&) {
+            FAIL();
+            return result<int&, Error3>{j};
+          }))
+        == result<int&, Error3>{i});
+
+      CHECK(
+        constLValueError.or_else(overload(
+          [&](const Error1&) { return result<int&, Error3>{Error3{}}; },
+          [&](const Error2&) {
+            FAIL();
+            return result<int&, Error3>{i};
+          }))
+        == result<int&, Error3>{Error3{}});
+
+      auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.or_else([&](auto&) {
+        FAIL();
+        return result<int&, Error3>{j};
+      }) == result<int&, Error3>{i});
+
+      auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(
+        nonConstLValueError.or_else(overload(
+          [&](Error1&) { return result<int&, Error3>{i}; },
+          [&](Error2&) {
+            FAIL();
+            return result<int&, Error3>{j};
+          }))
+        == result<int&, Error3>{i});
+
+      CHECK(
+        nonConstLValueError.or_else(overload(
+          [&](Error1&) { return result<int&, Error3>{Error3{}}; },
+          [&](Error2&) {
+            FAIL();
+            return result<int&, Error3>{j};
+          }))
+        == result<int&, Error3>{Error3{}});
+
+      CHECK(result<int&, Error1, Error2>{i}.or_else([](auto&&) {
+        FAIL();
+        return result<int&, Error3>{Error3{}};
+      }) == result<int&, Error3>{i});
+
+      CHECK(
+        result<int&, Error1, Error2>{Error1{}}.or_else(overload(
+          [&](Error1&&) { return result<int&, Error3>{i}; },
+          [&](Error2&&) {
+            FAIL();
+            return result<int&, Error3>{j};
+          }))
+        == result<int&, Error3>{i});
+
+      CHECK(
+        result<int&, Error1, Error2>{Error1{}}.or_else(overload(
+          [&](Error1&&) { return result<int&, Error3>{Error3{}}; },
+          [&](Error2&&) {
+            FAIL();
+            return result<int&, Error3>{j};
+          }))
+        == result<int&, Error3>{Error3{}});
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+      const auto j = 2;
+
+      const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.or_else([&](const auto&) {
+        FAIL();
+        return result<const int&, Error3>{j};
+      }) == result<const int&, Error3>{i});
+
+      const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(
+        constLValueError.or_else(overload(
+          [&](const Error1&) { return result<const int&, Error3>{i}; },
+          [&](const Error2&) {
+            FAIL();
+            return result<const int&, Error3>{j};
+          }))
+        == result<const int&, Error3>{i});
+
+      CHECK(
+        constLValueError.or_else(overload(
+          [&](const Error1&) { return result<const int&, Error3>{Error3{}}; },
+          [&](const Error2&) {
+            FAIL();
+            return result<const int&, Error3>{i};
+          }))
+        == result<const int&, Error3>{Error3{}});
+
+      auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.or_else([&](auto&) {
+        FAIL();
+        return result<const int&, Error3>{j};
+      }) == result<const int&, Error3>{i});
+
+      auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(
+        nonConstLValueError.or_else(overload(
+          [&](Error1&) { return result<const int&, Error3>{i}; },
+          [&](Error2&) {
+            FAIL();
+            return result<const int&, Error3>{j};
+          }))
+        == result<const int&, Error3>{i});
+
+      CHECK(
+        nonConstLValueError.or_else(overload(
+          [&](Error1&) { return result<const int&, Error3>{Error3{}}; },
+          [&](Error2&) {
+            FAIL();
+            return result<const int&, Error3>{j};
+          }))
+        == result<const int&, Error3>{Error3{}});
+
+      CHECK(result<const int&, Error1, Error2>{i}.or_else([](auto&&) {
+        FAIL();
+        return result<const int&, Error3>{Error3{}};
+      }) == result<const int&, Error3>{i});
+
+      CHECK(
+        result<const int&, Error1, Error2>{Error1{}}.or_else(overload(
+          [&](Error1&&) { return result<const int&, Error3>{i}; },
+          [&](Error2&&) {
+            FAIL();
+            return result<const int&, Error3>{j};
+          }))
+        == result<const int&, Error3>{i});
+
+      CHECK(
+        result<const int&, Error1, Error2>{Error1{}}.or_else(overload(
+          [&](Error1&&) { return result<const int&, Error3>{Error3{}}; },
+          [&](Error2&&) {
+            FAIL();
+            return result<const int&, Error3>{j};
+          }))
+        == result<const int&, Error3>{Error3{}});
+    }
+
     SECTION("multi-valued result")
     {
       const auto constLValueSuccess =
@@ -1230,6 +1700,152 @@ TEST_CASE("result")
       }
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+
+      SECTION("transform to value")
+      {
+        const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+        CHECK(constLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+        CHECK(constLValueError.transform([](const int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+
+        auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+        CHECK(nonConstLValueSuccess.transform([&](int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+        CHECK(nonConstLValueError.transform([](int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+
+        CHECK(result<int&, Error1, Error2>{i}.transform([&](int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        CHECK(result<int&, Error1, Error2>{Error1{}}.transform([](int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+      }
+
+      SECTION("transform to void")
+      {
+        const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+        CHECK(constLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+        CHECK(constLValueError.transform([](const int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+
+        auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+        CHECK(nonConstLValueSuccess.transform([&](int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+        CHECK(nonConstLValueError.transform([](int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+
+        CHECK(result<int&, Error1, Error2>{i}.transform([&](int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        CHECK(result<int&, Error1, Error2>{Error1{}}.transform([](int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+      }
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+
+      SECTION("transform to value")
+      {
+        const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+        CHECK(constLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+        CHECK(constLValueError.transform([](const int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+
+        auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+        CHECK(nonConstLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+        CHECK(nonConstLValueError.transform([](const int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+
+        CHECK(result<const int&, Error1, Error2>{i}.transform([&](const int& x) {
+          CHECK(&x == &i);
+          return 2.0f;
+        }) == result<float, Error1, Error2>{2.0f});
+
+        CHECK(result<const int&, Error1, Error2>{Error1{}}.transform([](const int&) {
+          FAIL();
+          return 2.0f;
+        }) == result<float, Error1, Error2>{Error1{}});
+      }
+
+      SECTION("transform to void")
+      {
+        const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+        CHECK(constLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+        CHECK(constLValueError.transform([](const int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+
+        auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+        CHECK(nonConstLValueSuccess.transform([&](const int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+        CHECK(nonConstLValueError.transform([](const int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+
+        CHECK(result<const int&, Error1, Error2>{i}.transform([&](const int& x) {
+          CHECK(&x == &i);
+        }) == result<void, Error1, Error2>{});
+
+        CHECK(result<const int&, Error1, Error2>{Error1{}}.transform([](const int&) {
+          FAIL();
+        }) == result<void, Error1, Error2>{Error1{}});
+      }
+    }
+
     SECTION("multi-valued result")
     {
       SECTION("transform to value")
@@ -1464,6 +2080,92 @@ TEST_CASE("result")
         == result<int>{2});
     }
 
+    SECTION("reference result")
+    {
+      auto i = 1;
+      auto j = 2;
+
+      const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.transform_error([&](const auto&) -> int& {
+        FAIL();
+        return j;
+      }) == result<int&>{i});
+
+      const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(
+        constLValueError.transform_error(overload(
+          [&](const Error1&) -> int& { return i; },
+          [&](const Error2&) -> int& { return j; }))
+        == result<int&>{i});
+
+      auto nonConstLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.transform_error([&](auto&) -> int& {
+        FAIL();
+        return j;
+      }) == result<int&>{i});
+
+      auto nonConstLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(
+        nonConstLValueError.transform_error(overload(
+          [&](Error1&) -> int& { return i; }, [&](Error2&) -> int& { return j; }))
+        == result<int&>{i});
+
+      CHECK(result<int&, Error1, Error2>{i}.transform_error([&](auto&&) -> int& {
+        FAIL();
+        return j;
+      }) == result<int&>{i});
+
+      CHECK(
+        result<int&, Error1, Error2>{Error1{}}.transform_error(overload(
+          [&](Error1&&) -> int& { return i; }, [&](Error2&&) -> int& { return j; }))
+        == result<int&>{i});
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+      const auto j = 2;
+
+      const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.transform_error([&](const auto&) -> const int& {
+        FAIL();
+        return j;
+      }) == result<const int&>{i});
+
+      const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(
+        constLValueError.transform_error(overload(
+          [&](const Error1&) -> const int& { return i; },
+          [&](const Error2&) -> const int& { return j; }))
+        == result<const int&>{i});
+
+      auto nonConstLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(nonConstLValueSuccess.transform_error([&](auto&) -> const int& {
+        FAIL();
+        return j;
+      }) == result<const int&>{i});
+
+      auto nonConstLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(
+        nonConstLValueError.transform_error(overload(
+          [&](Error1&) -> const int& { return i; },
+          [&](Error2&) -> const int& { return j; }))
+        == result<const int&>{i});
+
+      CHECK(
+        result<const int&, Error1, Error2>{i}.transform_error([&](auto&&) -> const int& {
+          FAIL();
+          return j;
+        })
+        == result<const int&>{i});
+
+      CHECK(
+        result<const int&, Error1, Error2>{Error1{}}.transform_error(overload(
+          [&](Error1&&) -> const int& { return i; },
+          [&](Error2&&) -> const int& { return j; }))
+        == result<const int&>{i});
+    }
+
     SECTION("multi-valued result")
     {
       const auto constLValueSuccess =
@@ -1546,6 +2248,7 @@ TEST_CASE("result")
   SECTION("if_error")
   {
     auto called = false;
+
     SECTION("non-void result")
     {
       called = false;
@@ -1560,6 +2263,44 @@ TEST_CASE("result")
       CHECK(constLValueError.if_error([&](const auto&) {
         called = true;
       }) == result<int, Error1, Error2>{Error1{}});
+      CHECK(called);
+    }
+
+    SECTION("reference result")
+    {
+      auto i = 1;
+
+      called = false;
+      const auto constLValueSuccess = result<int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.if_error([&](const auto&) {
+        called = true;
+      }) == result<int&, Error1, Error2>{i});
+      CHECK_FALSE(called);
+
+      called = false;
+      const auto constLValueError = result<int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError.if_error([&](const auto&) {
+        called = true;
+      }) == result<int&, Error1, Error2>{Error1{}});
+      CHECK(called);
+    }
+
+    SECTION("const reference result")
+    {
+      const auto i = 1;
+
+      called = false;
+      const auto constLValueSuccess = result<const int&, Error1, Error2>{i};
+      CHECK(constLValueSuccess.if_error([&](const auto&) {
+        called = true;
+      }) == result<const int&, Error1, Error2>{i});
+      CHECK_FALSE(called);
+
+      called = false;
+      const auto constLValueError = result<const int&, Error1, Error2>{Error1{}};
+      CHECK(constLValueError.if_error([&](const auto&) {
+        called = true;
+      }) == result<const int&, Error1, Error2>{Error1{}});
       CHECK(called);
     }
 

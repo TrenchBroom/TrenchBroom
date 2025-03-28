@@ -19,11 +19,17 @@
 
 #pragma once
 
+#include "FileLocation.h"
 #include "Macros.h"
-#include "el/EL_Forward.h"
+#include "Result.h"
+#include "el/ELExceptions.h"
+#include "el/Expression.h"
+#include "el/Value.h"
 
 #include <memory>
+#include <optional>
 #include <string>
+#include <unordered_map>
 
 namespace tb::el
 {
@@ -31,30 +37,72 @@ namespace tb::el
 class EvaluationContext
 {
 private:
-  std::unique_ptr<VariableStore> m_store;
+  std::unique_ptr<VariableStore> m_variables;
+  std::unordered_map<Value, ExpressionNode> m_trace;
+
+  EvaluationContext();
+  explicit EvaluationContext(const VariableStore& variables);
 
 public:
-  EvaluationContext();
-  explicit EvaluationContext(const VariableStore& store);
-  virtual ~EvaluationContext();
+  ~EvaluationContext();
 
-  virtual Value variableValue(const std::string& name) const;
-  virtual void declareVariable(const std::string& name, const Value& value);
+  Value variableValue(const std::string& name) const;
+
+  std::optional<ExpressionNode> expression(const Value& value) const;
+  std::optional<FileLocation> location(const Value& value) const;
+
+  Value trace(Value value, const ExpressionNode& expression);
+  Value trace(Value value, const Value& original);
+
+  template <typename F, typename... Args>
+  friend auto withEvaluationContext(const F& f, Args&&... args);
 
   deleteCopyAndMove(EvaluationContext);
 };
 
-class EvaluationStack : public EvaluationContext
+template <typename F, typename... Args>
+auto withEvaluationContext(const F& f, Args&&... args)
 {
-private:
-  const EvaluationContext& m_next;
+  using ReturnType = decltype(f(std::declval<EvaluationContext&>()));
+  if constexpr (kdl::is_result_v<ReturnType>)
+  {
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      return f(context);
+    }
+    catch (const el::Exception& e)
+    {
+      return ReturnType{Error{e.what()}};
+    }
+  }
+  else if constexpr (std::is_same_v<ReturnType, void>)
+  {
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      f(context);
+      return Result<void>{};
+    }
+    catch (const el::Exception& e)
+    {
+      return Result<void>{Error{e.what()}};
+    }
+  }
+  else
+  {
+    using ResultType = Result<ReturnType>;
 
-public:
-  explicit EvaluationStack(const EvaluationContext& next);
-
-  Value variableValue(const std::string& name) const override;
-
-  deleteCopyAndMove(EvaluationStack);
-};
+    try
+    {
+      auto context = EvaluationContext{std::forward<Args>(args)...};
+      return ResultType{f(context)};
+    }
+    catch (const el::Exception& e)
+    {
+      return ResultType{Error{e.what()}};
+    }
+  }
+}
 
 } // namespace tb::el

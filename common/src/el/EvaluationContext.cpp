@@ -28,12 +28,12 @@ namespace tb::el
 {
 
 EvaluationContext::EvaluationContext()
-  : m_store{std::make_unique<VariableTable>()}
+  : m_variables{std::make_unique<VariableTable>()}
 {
 }
 
 EvaluationContext::EvaluationContext(const VariableStore& store)
-  : m_store{store.clone()}
+  : m_variables{store.clone()}
 {
 }
 
@@ -41,22 +41,37 @@ EvaluationContext::~EvaluationContext() = default;
 
 Value EvaluationContext::variableValue(const std::string& name) const
 {
-  return m_store->value(name);
+  return m_variables->value(name);
 }
 
-void EvaluationContext::declareVariable(const std::string& name, const Value& value)
+std::optional<ExpressionNode> EvaluationContext::expression(const Value& value) const
 {
-  m_store->declare(name, value);
+  const auto it = m_trace.find(value);
+  return it != m_trace.end() ? std::optional{it->second} : std::nullopt;
 }
 
-EvaluationStack::EvaluationStack(const EvaluationContext& next)
-  : m_next{next}
+std::optional<FileLocation> EvaluationContext::location(const Value& value) const
 {
+  if (const auto expression = this->expression(value))
+  {
+    return expression->location();
+  }
+  return std::nullopt;
 }
 
-Value EvaluationStack::variableValue(const std::string& name) const
+Value EvaluationContext::trace(Value value, const ExpressionNode& expression)
 {
-  const auto& value = EvaluationContext::variableValue(name);
-  return value != Value::Undefined ? value : m_next.variableValue(name);
+  m_trace.emplace(value, expression);
+  return value;
 }
+
+Value EvaluationContext::trace(Value value, const Value& original)
+{
+  if (const auto expression = this->expression(original))
+  {
+    return this->trace(value, *expression);
+  }
+  return value;
+}
+
 } // namespace tb::el

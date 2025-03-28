@@ -18,7 +18,9 @@
  */
 
 #include "Exceptions.h"
+#include "Result.h"
 #include "TestLogger.h"
+#include "el/ELExceptions.h"
 #include "mdl/AssetUtils.h"
 
 #include <optional>
@@ -28,43 +30,40 @@
 namespace tb::mdl
 {
 
-TEST_CASE("AssetUtilsTest.safeGetModelSpecification")
+TEST_CASE("AssetUtils")
 {
-  TestLogger logger;
-
-  const auto expected = ModelSpecification{"test/test", 1, 2};
-  std::optional<ModelSpecification> actual;
-
-  // regular execution is fine
-  SECTION("Regular execution")
+  SECTION("safeGetModelSpecification")
   {
-    CHECK_NOTHROW(
-      actual = safeGetModelSpecification(logger, "", [&]() { return expected; }));
-    CHECK(logger.countMessages() == 0u);
-    CHECK(actual.has_value());
-    CHECK(*actual == expected);
-  }
+    TestLogger logger;
 
-  // only ELExceptions are caught, and nothing is logged
-  SECTION("Only ELExceptions are caught, and nothing is logged")
-  {
-    CHECK_THROWS_AS(
-      safeGetModelSpecification(
-        logger, "", []() -> ModelSpecification { throw AssetException(); }),
-      AssetException);
-    CHECK(logger.countMessages() == 0u);
-  }
+    std::optional<ModelSpecification> actual;
 
-  // throwing an EL exception logs and returns an empty model spec
-  SECTION("Throwing an EL exception logs and returns an empty model spec")
-  {
-    CHECK_NOTHROW(
-      actual = safeGetModelSpecification(
-        logger, "", []() -> ModelSpecification { throw el::Exception(); }));
-    CHECK(logger.countMessages() == 1u);
-    CHECK(logger.countMessages(LogLevel::Error) == 1u);
-    CHECK(actual.has_value());
-    CHECK(*actual == ModelSpecification());
+    SECTION("Returning a specification logs nothing")
+    {
+      const auto expected = ModelSpecification{"test/test", 1, 2};
+
+      // regular execution is fine
+      SECTION("Regular execution")
+      {
+        CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", [&]() {
+                        return Result<ModelSpecification>{expected};
+                      }));
+        CHECK(logger.countMessages() == 0u);
+        CHECK(actual.has_value());
+        CHECK(*actual == expected);
+      }
+    }
+
+    SECTION("Returning an error logs and returns an empty model spec")
+    {
+      CHECK_NOTHROW(actual = safeGetModelSpecification(logger, "", []() {
+                      return Result<ModelSpecification>{Error{"some error"}};
+                    }));
+      CHECK(logger.countMessages() == 1u);
+      CHECK(logger.countMessages(LogLevel::Error) == 1u);
+      CHECK(actual.has_value());
+      CHECK(*actual == ModelSpecification());
+    }
   }
 }
 

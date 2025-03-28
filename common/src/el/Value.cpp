@@ -20,15 +20,18 @@
 #include "Value.h"
 
 #include "el/ELExceptions.h"
+#include "el/EvaluationContext.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
-#include "kdl/vector_set.h"
+#include "kdl/vector_utils.h"
 
 #include <cmath>
 #include <iterator>
+#include <ranges>
 #include <sstream>
 #include <string>
 
@@ -139,215 +142,114 @@ std::string Value::describe() const
   return asString(false);
 }
 
-const BooleanType& Value::booleanValue() const
+const BooleanType& Value::booleanValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
       [&](const BooleanType& b) -> const BooleanType& { return b; },
-      [&](const StringType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const BooleanType& {
         static const BooleanType b = false;
         return b;
       },
-      [&](const UndefinedType&) -> const BooleanType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const BooleanType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::String};
       }),
     *m_value);
 }
 
-const StringType& Value::stringValue() const
+const StringType& Value::stringValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
       [&](const StringType& s) -> const StringType& { return s; },
-      [&](const NumberType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const StringType& {
         static const StringType s;
         return s;
       },
-      [&](const UndefinedType&) -> const StringType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const StringType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const NumberType& Value::numberValue() const
+const NumberType& Value::numberValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
       [&](const NumberType& n) -> const NumberType& { return n; },
-      [&](const ArrayType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const NumberType& {
         static const NumberType n = 0.0;
         return n;
       },
-      [&](const UndefinedType&) -> const NumberType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const NumberType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-IntegerType Value::integerValue() const
+IntegerType Value::integerValue(const EvaluationContext& context) const
 {
-  return static_cast<IntegerType>(numberValue());
+  return static_cast<IntegerType>(numberValue(context));
 }
 
-const ArrayType& Value::arrayValue() const
+const ArrayType& Value::arrayValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
       [&](const ArrayType& a) -> const ArrayType& { return a; },
-      [&](const MapType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
-      [&](const RangeType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const ArrayType& {
         static const ArrayType a(0);
         return a;
       },
-      [&](const UndefinedType&) -> const ArrayType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const ArrayType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const MapType& Value::mapValue() const
+const MapType& Value::mapValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
       [&](const MapType& m) -> const MapType& { return m; },
-      [&](const RangeType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Range};
-      },
       [&](const NullType&) -> const MapType& {
         static const MapType m;
         return m;
       },
-      [&](const UndefinedType&) -> const MapType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const MapType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const RangeType& Value::rangeValue() const
+const RangeType& Value::rangeValue(const EvaluationContext& context) const
 {
   return std::visit(
     kdl::overload(
-      [&](const BooleanType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Boolean};
-      },
-      [&](const StringType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::String};
-      },
-      [&](const NumberType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Number};
-      },
-      [&](const ArrayType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Array};
-      },
-      [&](const MapType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Map};
-      },
       [&](const RangeType& r) -> const RangeType& { return r; },
-      [&](const NullType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Null};
-      },
-      [&](const UndefinedType&) -> const RangeType& {
-        throw DereferenceError{describe(), type(), ValueType::Undefined};
+      [&](const auto&) -> const RangeType& {
+        throw DereferenceError{
+          context.location(*this), describe(), type(), ValueType::Boolean};
       }),
     *m_value);
 }
 
-const std::vector<std::string> Value::asStringList() const
+std::vector<std::string> Value::asStringList(const EvaluationContext& context) const
 {
-  const ArrayType& array = arrayValue();
-  auto result = std::vector<std::string>{};
-  result.reserve(array.size());
-
-  for (const auto& entry : array)
-  {
-    result.push_back(entry.convertTo(ValueType::String).stringValue());
-  }
-
-  return result;
+  return arrayValue(context) | std::views::transform([&](const auto& entry) {
+           return entry.stringValue(context);
+         })
+         | kdl::to_vector;
 }
 
-const std::vector<std::string> Value::asStringSet() const
+std::vector<std::string> Value::asStringSet(const EvaluationContext& context) const
 {
-  const ArrayType& array = arrayValue();
-  auto result = kdl::vector_set<std::string>(array.size());
-
-  for (const auto& entry : array)
-  {
-    result.insert(entry.convertTo(ValueType::String).stringValue());
-  }
-
-  return result.release_data();
+  return kdl::vec_sort_and_remove_duplicates(asStringList(context));
 }
 
 size_t Value::length() const
@@ -521,7 +423,7 @@ bool Value::convertibleTo(const ValueType toType) const
     *m_value);
 }
 
-Value Value::convertTo(const ValueType toType) const
+Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
 {
   return std::visit(
     kdl::overload(
@@ -531,9 +433,9 @@ Value Value::convertTo(const ValueType toType) const
         case ValueType::Boolean:
           return *this;
         case ValueType::String:
-          return Value{b ? "true" : "false"};
+          return context.trace(Value{b ? "true" : "false"}, *this);
         case ValueType::Number:
-          return Value{b ? 1.0 : 0.0};
+          return context.trace(Value{b ? 1.0 : 0.0}, *this);
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -542,13 +444,14 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const StringType& s) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()};
+          return context.trace(
+            Value{!kdl::cs::str_is_equal(s, "false") && !s.empty()}, *this);
         case ValueType::String:
           return *this;
         case ValueType::Number: {
@@ -561,9 +464,9 @@ Value Value::convertTo(const ValueType toType) const
           const NumberType value = std::strtod(begin, &end);
           if (value == 0.0 && end == begin)
           {
-            throw ConversionError{describe(), type(), toType};
+            throw ConversionError{context.location(*this), describe(), type(), toType};
           }
-          return Value{value};
+          return context.trace(Value{value}, *this);
         }
         case ValueType::Array:
         case ValueType::Map:
@@ -573,15 +476,15 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const NumberType& n) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{n != 0.0};
+          return context.trace(Value{n != 0.0}, *this);
         case ValueType::String:
-          return Value{describe()};
+          return context.trace(Value{describe()}, *this);
         case ValueType::Number:
           return *this;
         case ValueType::Array:
@@ -592,7 +495,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const ArrayType&) -> Value {
         switch (toType)
@@ -609,7 +512,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const MapType&) -> Value {
         switch (toType)
@@ -626,7 +529,7 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const RangeType&) -> Value {
         switch (toType)
@@ -643,29 +546,29 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const NullType&) -> Value {
         switch (toType)
         {
         case ValueType::Boolean:
-          return Value{false};
+          return context.trace(Value{false}, *this);
         case ValueType::Null:
           return *this;
         case ValueType::Number:
-          return Value{0.0};
+          return context.trace(Value{0.0}, *this);
         case ValueType::String:
-          return Value{""};
+          return context.trace(Value{""}, *this);
         case ValueType::Array:
-          return Value{ArrayType{0}};
+          return context.trace(Value{ArrayType{0}}, *this);
         case ValueType::Map:
-          return Value{MapType{}};
+          return context.trace(Value{MapType{}}, *this);
         case ValueType::Range:
         case ValueType::Undefined:
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       },
       [&](const UndefinedType&) -> Value {
         switch (toType)
@@ -682,16 +585,17 @@ Value Value::convertTo(const ValueType toType) const
           break;
         }
 
-        throw ConversionError{describe(), type(), toType};
+        throw ConversionError{context.location(*this), describe(), type(), toType};
       }),
     *m_value);
 }
 
-std::optional<Value> Value::tryConvertTo(const ValueType toType) const
+std::optional<Value> Value::tryConvertTo(
+  EvaluationContext& context, const ValueType toType) const
 {
   try
   {
-    return convertTo(toType);
+    return convertTo(context, toType);
   }
   catch (const ConversionError&)
   {
@@ -838,198 +742,7 @@ void Value::appendToStream(
     *m_value);
 }
 
-namespace
-{
-
-size_t computeIndex(const long index, const size_t indexableSize)
-{
-  const auto size = static_cast<long>(indexableSize);
-  return (index >= 0 && index < size) || (index < 0 && index >= -size)
-           ? static_cast<size_t>((size + index % size) % size)
-           : static_cast<size_t>(size);
-}
-
-size_t computeIndex(const Value& indexValue, const size_t indexableSize)
-{
-  return computeIndex(
-    static_cast<long>(indexValue.convertTo(ValueType::Number).numberValue()),
-    indexableSize);
-}
-
-void computeIndexArray(
-  const LeftBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
-{
-  result.reserve(result.size() + range.length(indexableSize));
-  range.forEach(
-    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
-    indexableSize);
-}
-
-void computeIndexArray(
-  const RightBoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
-{
-  result.reserve(result.size() + range.length(indexableSize));
-  range.forEach(
-    [&](const auto i) { result.push_back(computeIndex(i, indexableSize)); },
-    indexableSize);
-}
-
-void computeIndexArray(
-  const BoundedRange& range, const size_t indexableSize, std::vector<size_t>& result)
-{
-  result.reserve(result.size() + range.length());
-  range.forEach([&](const auto i) { result.push_back(computeIndex(i, indexableSize)); });
-}
-
-void computeIndexArray(
-  const Value& indexValue, const size_t indexableSize, std::vector<size_t>& result)
-{
-  switch (indexValue.type())
-  {
-  case ValueType::Array: {
-    const ArrayType& indexArray = indexValue.arrayValue();
-    result.reserve(result.size() + indexArray.size());
-    for (size_t i = 0; i < indexArray.size(); ++i)
-    {
-      computeIndexArray(indexArray[i], indexableSize, result);
-    }
-    break;
-  }
-  case ValueType::Range: {
-    std::visit(
-      [&](const auto& x) { computeIndexArray(x, indexableSize, result); },
-      indexValue.rangeValue());
-    break;
-  }
-  case ValueType::Boolean:
-  case ValueType::Number:
-  case ValueType::String:
-  case ValueType::Map:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    result.push_back(computeIndex(indexValue, indexableSize));
-    break;
-  }
-}
-
-std::vector<size_t> computeIndexArray(const Value& indexValue, const size_t indexableSize)
-{
-  auto result = std::vector<size_t>{};
-  computeIndexArray(indexValue, indexableSize, result);
-  return result;
-}
-
-} // namespace
-
-bool Value::contains(const Value& indexValue) const
-{
-  switch (type())
-  {
-  case ValueType::String: {
-    switch (indexValue.type())
-    {
-    case ValueType::Boolean:
-    case ValueType::Number: {
-      const size_t index = computeIndex(indexValue, length());
-      return index < length();
-    }
-    case ValueType::Array:
-    case ValueType::Range: {
-      const std::vector<size_t> indices = computeIndexArray(indexValue, length());
-      for (size_t i = 0; i < indices.size(); ++i)
-      {
-        const size_t index = indices[i];
-        if (index >= length())
-        {
-          return false;
-        }
-      }
-      return true;
-    }
-    case ValueType::String:
-    case ValueType::Map:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  }
-  case ValueType::Array:
-    switch (indexValue.type())
-    {
-    case ValueType::Boolean:
-    case ValueType::Number: {
-      const size_t index = computeIndex(indexValue, length());
-      return index < length();
-    }
-    case ValueType::Array:
-    case ValueType::Range: {
-      const std::vector<size_t> indices = computeIndexArray(indexValue, length());
-      for (size_t i = 0; i < indices.size(); ++i)
-      {
-        const size_t index = indices[i];
-        if (index >= length())
-        {
-          return false;
-        }
-      }
-      return true;
-    }
-    case ValueType::String:
-    case ValueType::Map:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  case ValueType::Map:
-    switch (indexValue.type())
-    {
-    case ValueType::String: {
-      const MapType& map = mapValue();
-      const std::string& key = indexValue.stringValue();
-      const auto it = map.find(key);
-      return it != std::end(map);
-    }
-    case ValueType::Array: {
-      const MapType& map = mapValue();
-      const ArrayType& keys = indexValue.arrayValue();
-      for (size_t i = 0; i < keys.size(); ++i)
-      {
-        const Value& keyValue = keys[i];
-        if (keyValue.type() != ValueType::String)
-        {
-          throw ConversionError{keyValue.describe(), keyValue.type(), ValueType::String};
-        }
-        const std::string& key = keyValue.stringValue();
-        const auto it = map.find(key);
-        if (it == std::end(map))
-        {
-          return false;
-        }
-      }
-      return true;
-    }
-    case ValueType::Boolean:
-    case ValueType::Number:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  case ValueType::Boolean:
-  case ValueType::Number:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
-  }
-  return false;
-}
-
-bool Value::contains(const size_t index) const
+bool Value::contains(const EvaluationContext&, const size_t index) const
 {
   switch (type())
   {
@@ -1047,168 +760,37 @@ bool Value::contains(const size_t index) const
   return false;
 }
 
-bool Value::contains(const std::string& key) const
+bool Value::contains(const EvaluationContext& context, const std::string& key) const
 {
-  const MapType& map = mapValue();
+  const MapType& map = mapValue(context);
   const auto it = map.find(key);
   return it != std::end(map);
 }
 
-std::vector<std::string> Value::keys() const
+std::vector<std::string> Value::keys(const EvaluationContext& context) const
 {
-  return kdl::map_keys(mapValue());
+  return kdl::map_keys(mapValue(context));
 }
 
-Value Value::operator[](const Value& indexValue) const
-{
-  switch (type())
-  {
-  case ValueType::String:
-    switch (indexValue.type())
-    {
-    case ValueType::Boolean:
-    case ValueType::Number: {
-      const StringType& str = stringValue();
-      const size_t index = computeIndex(indexValue, str.length());
-      std::stringstream result;
-      if (index < str.length())
-      {
-        result << str[index];
-      }
-      return Value{result.str()};
-    }
-    case ValueType::Array:
-    case ValueType::Range: {
-      const StringType& str = stringValue();
-      const std::vector<size_t> indices = computeIndexArray(indexValue, str.length());
-      std::stringstream result;
-      for (size_t i = 0; i < indices.size(); ++i)
-      {
-        const size_t index = indices[i];
-        if (index < str.length())
-        {
-          result << str[index];
-        }
-      }
-      return Value{result.str()};
-    }
-    case ValueType::String:
-    case ValueType::Map:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  case ValueType::Array:
-    switch (indexValue.type())
-    {
-    case ValueType::Boolean:
-    case ValueType::Number: {
-      const ArrayType& array = arrayValue();
-      const size_t index = computeIndex(indexValue, array.size());
-      if (index >= array.size())
-      {
-        throw IndexOutOfBoundsError{*this, indexValue, index};
-      }
-      return array[index];
-    }
-    case ValueType::Array:
-    case ValueType::Range: {
-      const ArrayType& array = arrayValue();
-      const std::vector<size_t> indices = computeIndexArray(indexValue, array.size());
-      auto result = ArrayType{};
-      result.reserve(indices.size());
-      for (size_t i = 0; i < indices.size(); ++i)
-      {
-        const size_t index = indices[i];
-        if (index >= array.size())
-        {
-          throw IndexOutOfBoundsError{*this, indexValue, index};
-        }
-        result.push_back(array[index]);
-      }
-      return Value{std::move(result)};
-    }
-    case ValueType::String:
-    case ValueType::Map:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  case ValueType::Map:
-    switch (indexValue.type())
-    {
-    case ValueType::String: {
-      const MapType& map = mapValue();
-      const std::string& key = indexValue.stringValue();
-      const auto it = map.find(key);
-      if (it == std::end(map))
-      {
-        return Value{UndefinedType::Value};
-      }
-      return it->second;
-    }
-    case ValueType::Array: {
-      const MapType& map = mapValue();
-      const ArrayType& keys = indexValue.arrayValue();
-      MapType result;
-      for (size_t i = 0; i < keys.size(); ++i)
-      {
-        const Value& keyValue = keys[i];
-        if (keyValue.type() != ValueType::String)
-        {
-          throw ConversionError{keyValue.describe(), keyValue.type(), ValueType::String};
-        }
-        const std::string& key = keyValue.stringValue();
-        const auto it = map.find(key);
-        if (it != std::end(map))
-        {
-          result.insert(std::make_pair(key, it->second));
-        }
-      }
-      return Value{std::move(result)};
-    }
-    case ValueType::Boolean:
-    case ValueType::Number:
-    case ValueType::Map:
-    case ValueType::Range:
-    case ValueType::Null:
-    case ValueType::Undefined:
-      break;
-    }
-    break;
-  case ValueType::Boolean:
-  case ValueType::Number:
-  case ValueType::Range:
-  case ValueType::Null:
-  case ValueType::Undefined:
-    break;
-  }
-
-  throw IndexError{*this, indexValue};
-}
-
-Value Value::operator[](const size_t index) const
+Value Value::at(const EvaluationContext& context, const size_t index) const
 {
   switch (type())
   {
   case ValueType::String: {
-    const StringType& str = stringValue();
-    std::stringstream result;
+    const auto& str = stringValue(context);
     if (index < str.length())
     {
-      result << str[index];
+      return Value{str.substr(index, 1)};
     }
-    return Value{result.str()};
+    throw IndexOutOfBoundsError{context.location(*this), *this, index};
   }
   case ValueType::Array: {
-    const ArrayType& array = arrayValue();
-    if (index >= array.size())
+    const auto& array = arrayValue(context);
+    if (index < array.size())
     {
-      throw IndexOutOfBoundsError{*this, index};
+      return array[index];
     }
-    return array[index];
+    throw IndexOutOfBoundsError{context.location(*this), *this, index};
   }
   case ValueType::Map:
   case ValueType::Boolean:
@@ -1219,35 +801,53 @@ Value Value::operator[](const size_t index) const
     break;
   }
 
-  throw IndexError{*this, index};
+  throw IndexError{context.location(*this), *this, index};
 }
 
-Value Value::operator[](const int index) const
+Value Value::atOrDefault(
+  const EvaluationContext& context, const size_t index, Value defaultValue) const
 {
-  assert(index >= 0);
-  return this->operator[](static_cast<size_t>(index));
+  switch (type())
+  {
+  case ValueType::String: {
+    const auto& str = stringValue(context);
+    if (index < str.length())
+    {
+      return Value{str.substr(index, 1)};
+    }
+    return defaultValue;
+  }
+  case ValueType::Array: {
+    const auto& array = arrayValue(context);
+    if (index < array.size())
+    {
+      return array[index];
+    }
+    return defaultValue;
+  }
+  case ValueType::Map:
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    break;
+  }
+
+  throw IndexError{context.location(*this), *this, index};
 }
 
-Value Value::operator[](const std::string& key) const
-{
-  return this->operator[](key.c_str());
-}
-
-Value Value::operator[](const char* key) const
+Value Value::at(const EvaluationContext& context, const std::string& key) const
 {
   switch (type())
   {
   case ValueType::Map: {
-    const MapType& map = mapValue();
-    const auto it = map.find(key);
-    if (it == std::end(map))
-    {
-      return Value{NullType::Value};
-    }
-    else
+    const auto& map = mapValue(context);
+    if (const auto it = map.find(key); it != map.end())
     {
       return it->second;
     }
+    throw IndexOutOfBoundsError{context.location(*this), *this, key};
   }
   case ValueType::String:
   case ValueType::Array:
@@ -1259,7 +859,33 @@ Value Value::operator[](const char* key) const
     break;
   }
 
-  throw IndexError{*this, key};
+  throw IndexError{context.location(*this), *this, key};
+}
+
+Value Value::atOrDefault(
+  const EvaluationContext& context, const std::string& key, Value defaultValue) const
+{
+  switch (type())
+  {
+  case ValueType::Map: {
+    const auto& map = mapValue(context);
+    if (const auto it = map.find(key); it != map.end())
+    {
+      return it->second;
+    }
+    return defaultValue;
+  }
+  case ValueType::String:
+  case ValueType::Array:
+  case ValueType::Boolean:
+  case ValueType::Number:
+  case ValueType::Range:
+  case ValueType::Null:
+  case ValueType::Undefined:
+    break;
+  }
+
+  throw IndexError{context.location(*this), *this, key};
 }
 
 bool operator==(const Value& lhs, const Value& rhs)

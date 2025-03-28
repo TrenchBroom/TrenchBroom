@@ -21,6 +21,8 @@
 
 #include <iosfwd>
 #include <optional>
+#include <string>
+#include <string_view>
 
 namespace tb
 {
@@ -39,5 +41,8 @@ bool operator>(const FileLocation& lhs, const FileLocation& rhs);
 bool operator>=(const FileLocation& lhs, const FileLocation& rhs);
 
 std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs);
+
+std::string prependLocation(
+  const std::optional<FileLocation>& location, std::string_view str);
 
 } // namespace tb

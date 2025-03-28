@@ -20,6 +20,7 @@
 #include "FileLocation.h"
 
 #include <ostream>
+#include <sstream>
 
 namespace tb
 {
@@ -62,6 +63,29 @@ std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs)
     lhs << ", column " << *rhs.column;
   }
   return lhs;
+}
+
+std::string prependLocation(
+  const std::optional<FileLocation>& location, std::string_view str)
+{
+  auto msg = std::stringstream();
+
+  msg << "At ";
+  if (location)
+  {
+    msg << *location;
+  }
+  else
+  {
+    msg << "unknown location";
+  }
+
+  msg << ":";
+  if (!str.empty())
+  {
+    msg << " " << str;
+  }
+  return msg.str();
 }
 
 } // namespace tb

@@ -26,8 +26,8 @@
 
 namespace tb::el
 {
-class EvaluationContext;
+class VariableStore;
 
-Result<std::string> interpolate(std::string_view str, const EvaluationContext& context);
+Result<std::string> interpolate(const VariableStore& variables, std::string_view str);
 
 } // namespace tb::el

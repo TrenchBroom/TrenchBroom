@@ -113,8 +113,7 @@ void CompilationTaskEditorBase::updateCompleter(QCompleter* completer)
 {
   const auto workDir =
     el::interpolate(
-      m_profile.workDirSpec,
-      el::EvaluationContext{CompilationWorkDirVariables{kdl::mem_lock(m_document)}})
+      CompilationWorkDirVariables{kdl::mem_lock(m_document)}, m_profile.workDirSpec)
     | kdl::value_or(std::string{});
 
   const auto variables = CompilationVariables{kdl::mem_lock(m_document), workDir};

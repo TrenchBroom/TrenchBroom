@@ -28,8 +28,9 @@
 #include <fmt/ostream.h>
 
 #include <string>
-#include <variant>
 #include <vector>
+
+#include "catch/Matchers.h"
 
 #include "Catch2.h"
 
@@ -40,16 +41,13 @@ namespace
 
 using V = Value;
 
-Value evaluate(const std::string& expression, const MapType& variables = {})
+auto evaluate(const std::string& expression, const MapType& variables = {})
 {
-  const auto context = EvaluationContext{VariableTable{variables}};
-  return io::ELParser::parseStrict(expression).value().evaluate(context);
-}
-
-Value tryEvaluate(const std::string& expression, const MapType& variables = {})
-{
-  const auto context = EvaluationContext{VariableTable{variables}};
-  return io::ELParser::parseStrict(expression).value().evaluate(context);
+  return withEvaluationContext(
+    [&](auto& context) {
+      return io::ELParser::parseStrict(expression).value().evaluate(context);
+    },
+    VariableTable{variables});
 }
 
 std::vector<std::string> preorderVisit(const std::string& str)
@@ -185,76 +183,76 @@ TEST_CASE("Expression")
 
   SECTION("Operators")
   {
-    using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
+    using T = std::tuple<std::string, Result<Value>>;
 
     // clang-format off
     const auto
-    [expression,        expectedValueOrError] = GENERATE(values<T>({
+    [expression,        expectedResult] = GENERATE(values<T>({
     // Unary plus
     {"+true",           Value{1}},
     {"+false",          Value{0}},
     {"+1",              Value{1}},
-    {"+'test'",         EvaluationError{}},
+    {"+'test'",         Error{}},
     {"+'2'",            Value{2}},
-    {"+null",           EvaluationError{}},
-    {"+[]",             EvaluationError{}},
-    {"+{}",             EvaluationError{}},
+    {"+null",           Error{}},
+    {"+[]",             Error{}},
+    {"+{}",             Error{}},
 
     // Unary minus
     {"-true",           Value{-1}},
     {"-false",          Value{0}},
     {"-1",              Value{-1}},
     {"-'2'",            Value{-2}},
-    {"-'test'",         EvaluationError{}},
-    {"-null",           EvaluationError{}},
-    {"-[]",             EvaluationError{}},
-    {"-{}",             EvaluationError{}},
+    {"-'test'",         Error{}},
+    {"-null",           Error{}},
+    {"-[]",             Error{}},
+    {"-{}",             Error{}},
 
     // Addition
     {"true + true",     Value{2}},
     {"false + 3",       Value{3}},
-    {"true + 'test'",   EvaluationError{}},
+    {"true + 'test'",   Error{}},
     {"true + '1.23'",   Value{2.23}},
-    {"true + null",     EvaluationError{}},
-    {"true + []",       EvaluationError{}},
-    {"true + {}",       EvaluationError{}},
+    {"true + null",     Error{}},
+    {"true + []",       Error{}},
+    {"true + {}",       Error{}},
 
     {"1 + true",        Value{2}},
     {"3 + -1",          Value{2}},
     {"1 + '1.23'",      Value{2.23}},
-    {"1 + 'test'",      EvaluationError{}},
-    {"1 + null",        EvaluationError{}},
-    {"1 + []",          EvaluationError{}},
-    {"1 + {}",          EvaluationError{}},
+    {"1 + 'test'",      Error{}},
+    {"1 + null",        Error{}},
+    {"1 + []",          Error{}},
+    {"1 + {}",          Error{}},
 
-    {"'test' + true",   EvaluationError{}},
-    {"'test' + 2",      EvaluationError{}},
+    {"'test' + true",   Error{}},
+    {"'test' + 2",      Error{}},
     {"'1.23' + 2",      Value{3.23}},
     {"'this' + 'test'", Value{"thistest"}},
     {"'this' + '1.23'", Value{"this1.23"}},
-    {"'test' + null",   EvaluationError{}},
-    {"'test' + []",     EvaluationError{}},
-    {"'test' + {}",     EvaluationError{}},
+    {"'test' + null",   Error{}},
+    {"'test' + []",     Error{}},
+    {"'test' + {}",     Error{}},
 
-    {"null + true",     EvaluationError{}},
-    {"null + 2",        EvaluationError{}},
-    {"null + 'test'",   EvaluationError{}},
-    {"null + null",     EvaluationError{}},
-    {"null + []",       EvaluationError{}},
-    {"null + {}",       EvaluationError{}},
+    {"null + true",     Error{}},
+    {"null + 2",        Error{}},
+    {"null + 'test'",   Error{}},
+    {"null + null",     Error{}},
+    {"null + []",       Error{}},
+    {"null + {}",       Error{}},
 
-    {"[] + true",       EvaluationError{}},
-    {"[] + 2",          EvaluationError{}},
-    {"[] + 'test'",     EvaluationError{}},
-    {"[] + null",       EvaluationError{}},
+    {"[] + true",       Error{}},
+    {"[] + 2",          Error{}},
+    {"[] + 'test'",     Error{}},
+    {"[] + null",       Error{}},
     {"[1, 2] + [2, 3]", Value{ArrayType{Value{1}, Value{2}, Value{2}, Value{3}}}},
-    {"[] + {}",         EvaluationError{}},
+    {"[] + {}",         Error{}},
 
-    {"{} + true",       EvaluationError{}},
-    {"{} + 2",          EvaluationError{}},
-    {"{} + 'test'",     EvaluationError{}},
-    {"{} + null",       EvaluationError{}},
-    {"{} + []",         EvaluationError{}},
+    {"{} + true",       Error{}},
+    {"{} + 2",          Error{}},
+    {"{} + 'test'",     Error{}},
+    {"{} + null",       Error{}},
+    {"{} + []",         Error{}},
     {"{k1: 1, k2: 2, k3: 3} + {k3: 4, k4: 5}", Value{MapType{
         {"k1", Value{1}},
         {"k2", Value{2}},
@@ -265,197 +263,197 @@ TEST_CASE("Expression")
     // Subtraction
     {"true - true",     Value{0}},
     {"false - 3",       Value{-3}},
-    {"true - 'test'",   EvaluationError{}},
+    {"true - 'test'",   Error{}},
     {"true - '2.0'",    Value{-1.0}},
-    {"true - null",     EvaluationError{}},
-    {"true - []",       EvaluationError{}},
-    {"true - {}",       EvaluationError{}},
+    {"true - null",     Error{}},
+    {"true - []",       Error{}},
+    {"true - {}",       Error{}},
 
     {"1 - true",        Value{0}},
     {"3 - 1",           Value{2}},
-    {"1 - 'test'",      EvaluationError{}},
+    {"1 - 'test'",      Error{}},
     {"1 - '2.23'",      Value{-1.23}},
-    {"1 - null",        EvaluationError{}},
-    {"1 - []",          EvaluationError{}},
-    {"1 - {}",          EvaluationError{}},
+    {"1 - null",        Error{}},
+    {"1 - []",          Error{}},
+    {"1 - {}",          Error{}},
 
-    {"'test' - true",   EvaluationError{}},
-    {"'test' - 2",      EvaluationError{}},
+    {"'test' - true",   Error{}},
+    {"'test' - 2",      Error{}},
     {"'3.23' - 2",      Value{1.23}},
-    {"'this' - 'test'", EvaluationError{}},
-    {"'test' - null",   EvaluationError{}},
-    {"'test' - []",     EvaluationError{}},
-    {"'test' - {}",     EvaluationError{}},
+    {"'this' - 'test'", Error{}},
+    {"'test' - null",   Error{}},
+    {"'test' - []",     Error{}},
+    {"'test' - {}",     Error{}},
 
-    {"null - true",     EvaluationError{}},
-    {"null - 2",        EvaluationError{}},
-    {"null - 'test'",   EvaluationError{}},
-    {"null - null",     EvaluationError{}},
-    {"null - []",       EvaluationError{}},
-    {"null - {}",       EvaluationError{}},
+    {"null - true",     Error{}},
+    {"null - 2",        Error{}},
+    {"null - 'test'",   Error{}},
+    {"null - null",     Error{}},
+    {"null - []",       Error{}},
+    {"null - {}",       Error{}},
 
-    {"[] - true",       EvaluationError{}},
-    {"[] - 2",          EvaluationError{}},
-    {"[] - 'test'",     EvaluationError{}},
-    {"[] - null",       EvaluationError{}},
-    {"[] - []",         EvaluationError{}},
-    {"[] - {}",         EvaluationError{}},
+    {"[] - true",       Error{}},
+    {"[] - 2",          Error{}},
+    {"[] - 'test'",     Error{}},
+    {"[] - null",       Error{}},
+    {"[] - []",         Error{}},
+    {"[] - {}",         Error{}},
 
-    {"{} - true",       EvaluationError{}},
-    {"{} - 2",          EvaluationError{}},
-    {"{} - 'test'",     EvaluationError{}},
-    {"{} - null",       EvaluationError{}},
-    {"{} - []",         EvaluationError{}},
-    {"{} - {}",         EvaluationError{}},
+    {"{} - true",       Error{}},
+    {"{} - 2",          Error{}},
+    {"{} - 'test'",     Error{}},
+    {"{} - null",       Error{}},
+    {"{} - []",         Error{}},
+    {"{} - {}",         Error{}},
 
     // Multiplication
     {"true * true",     Value{1}},
     {"true * false",    Value{0}},
     {"true * 3",        Value{3}},
     {"true * '3'",      Value{3}},
-    {"true * 'test'",   EvaluationError{}},
-    {"true * null",     EvaluationError{}},
-    {"true * []",       EvaluationError{}},
-    {"true * {}",       EvaluationError{}},
+    {"true * 'test'",   Error{}},
+    {"true * null",     Error{}},
+    {"true * []",       Error{}},
+    {"true * {}",       Error{}},
 
     {"1 * true",        Value{1}},
     {"3 * 2",           Value{6}},
-    {"1 * 'test'",      EvaluationError{}},
+    {"1 * 'test'",      Error{}},
     {"2 * '2.23'",      Value{4.46}},
-    {"1 * null",        EvaluationError{}},
-    {"1 * []",          EvaluationError{}},
-    {"1 * {}",          EvaluationError{}},
+    {"1 * null",        Error{}},
+    {"1 * []",          Error{}},
+    {"1 * {}",          Error{}},
 
-    {"'test' * true",   EvaluationError{}},
-    {"'test' * 2",      EvaluationError{}},
+    {"'test' * true",   Error{}},
+    {"'test' * 2",      Error{}},
     {"'1.23' * 2",      Value{2.46}},
-    {"'this' * 'test'", EvaluationError{}},
-    {"'test' * null",   EvaluationError{}},
-    {"'test' * []",     EvaluationError{}},
-    {"'test' * {}",     EvaluationError{}},
+    {"'this' * 'test'", Error{}},
+    {"'test' * null",   Error{}},
+    {"'test' * []",     Error{}},
+    {"'test' * {}",     Error{}},
 
-    {"null * true",     EvaluationError{}},
-    {"null * 2",        EvaluationError{}},
-    {"null * 'test'",   EvaluationError{}},
-    {"null * null",     EvaluationError{}},
-    {"null * []",       EvaluationError{}},
-    {"null * {}",       EvaluationError{}},
+    {"null * true",     Error{}},
+    {"null * 2",        Error{}},
+    {"null * 'test'",   Error{}},
+    {"null * null",     Error{}},
+    {"null * []",       Error{}},
+    {"null * {}",       Error{}},
 
-    {"[] * true",       EvaluationError{}},
-    {"[] * 2",          EvaluationError{}},
-    {"[] * 'test'",     EvaluationError{}},
-    {"[] * null",       EvaluationError{}},
-    {"[] * []",         EvaluationError{}},
-    {"[] * {}",         EvaluationError{}},
+    {"[] * true",       Error{}},
+    {"[] * 2",          Error{}},
+    {"[] * 'test'",     Error{}},
+    {"[] * null",       Error{}},
+    {"[] * []",         Error{}},
+    {"[] * {}",         Error{}},
 
-    {"{} * true",       EvaluationError{}},
-    {"{} * 2",          EvaluationError{}},
-    {"{} * 'test'",     EvaluationError{}},
-    {"{} * null",       EvaluationError{}},
-    {"{} * []",         EvaluationError{}},
-    {"{} * {}",         EvaluationError{}},
+    {"{} * true",       Error{}},
+    {"{} * 2",          Error{}},
+    {"{} * 'test'",     Error{}},
+    {"{} * null",       Error{}},
+    {"{} * []",         Error{}},
+    {"{} * {}",         Error{}},
 
     // Division
     {"true / true",     Value{1}},
     {"true / false",    Value{std::numeric_limits<NumberType>::infinity()}},
     {"true / 3",        Value{1.0/3.0}},
     {"true / '2'",      Value{1.0/2.0}},
-    {"true / 'test'",   EvaluationError{}},
-    {"true / null",     EvaluationError{}},
-    {"true / []",       EvaluationError{}},
-    {"true / {}",       EvaluationError{}},
+    {"true / 'test'",   Error{}},
+    {"true / null",     Error{}},
+    {"true / []",       Error{}},
+    {"true / {}",       Error{}},
 
     {"1 / true",        Value{1}},
     {"3 / 2",           Value{1.5}},
-    {"1 / 'test'",      EvaluationError{}},
+    {"1 / 'test'",      Error{}},
     {"1 / '3.0'",       Value{1.0/3.0}},
-    {"1 / null",        EvaluationError{}},
-    {"1 / []",          EvaluationError{}},
-    {"1 / {}",          EvaluationError{}},
+    {"1 / null",        Error{}},
+    {"1 / []",          Error{}},
+    {"1 / {}",          Error{}},
 
-    {"'test' / true",   EvaluationError{}},
-    {"'test' / 2",      EvaluationError{}},
+    {"'test' / true",   Error{}},
+    {"'test' / 2",      Error{}},
     {"'3' / 2",         Value{3.0/2.0}},
-    {"'this' / 'test'", EvaluationError{}},
-    {"'test' / null",   EvaluationError{}},
-    {"'test' / []",     EvaluationError{}},
-    {"'test' / {}",     EvaluationError{}},
+    {"'this' / 'test'", Error{}},
+    {"'test' / null",   Error{}},
+    {"'test' / []",     Error{}},
+    {"'test' / {}",     Error{}},
 
-    {"null / true",     EvaluationError{}},
-    {"null / 2",        EvaluationError{}},
-    {"null / 'test'",   EvaluationError{}},
-    {"null / null",     EvaluationError{}},
-    {"null / []",       EvaluationError{}},
-    {"null / {}",       EvaluationError{}},
+    {"null / true",     Error{}},
+    {"null / 2",        Error{}},
+    {"null / 'test'",   Error{}},
+    {"null / null",     Error{}},
+    {"null / []",       Error{}},
+    {"null / {}",       Error{}},
 
-    {"[] / true",       EvaluationError{}},
-    {"[] / 2",          EvaluationError{}},
-    {"[] / 'test'",     EvaluationError{}},
-    {"[] / null",       EvaluationError{}},
-    {"[] / []",         EvaluationError{}},
-    {"[] / {}",         EvaluationError{}},
+    {"[] / true",       Error{}},
+    {"[] / 2",          Error{}},
+    {"[] / 'test'",     Error{}},
+    {"[] / null",       Error{}},
+    {"[] / []",         Error{}},
+    {"[] / {}",         Error{}},
 
-    {"{} / true",       EvaluationError{}},
-    {"{} / 2",          EvaluationError{}},
-    {"{} / 'test'",     EvaluationError{}},
-    {"{} / null",       EvaluationError{}},
-    {"{} / []",         EvaluationError{}},
-    {"{} / {}",         EvaluationError{}},
+    {"{} / true",       Error{}},
+    {"{} / 2",          Error{}},
+    {"{} / 'test'",     Error{}},
+    {"{} / null",       Error{}},
+    {"{} / []",         Error{}},
+    {"{} / {}",         Error{}},
 
 
     // Modulus
     {"true % true",     Value{0}},
     {"true % -2",       Value{1}},
-    {"true % 'test'",   EvaluationError{}},
+    {"true % 'test'",   Error{}},
     {"true % '1'",      Value{0}},
-    {"true % null",     EvaluationError{}},
-    {"true % []",       EvaluationError{}},
-    {"true % {}",       EvaluationError{}},
+    {"true % null",     Error{}},
+    {"true % []",       Error{}},
+    {"true % {}",       Error{}},
 
     {"3 % -2",          Value{1}},
     {"3 % '-2'",        Value{1}},
-    {"1 % 'test'",      EvaluationError{}},
-    {"1 % null",        EvaluationError{}},
-    {"1 % []",          EvaluationError{}},
-    {"1 % {}",          EvaluationError{}},
+    {"1 % 'test'",      Error{}},
+    {"1 % null",        Error{}},
+    {"1 % []",          Error{}},
+    {"1 % {}",          Error{}},
 
-    {"'test' % true",   EvaluationError{}},
-    {"'test' % 2",      EvaluationError{}},
+    {"'test' % true",   Error{}},
+    {"'test' % 2",      Error{}},
     {"'3' % 2",         Value{1}},
-    {"'this' % 'test'", EvaluationError{}},
-    {"'test' % null",   EvaluationError{}},
-    {"'test' % []",     EvaluationError{}},
-    {"'test' % {}",     EvaluationError{}},
+    {"'this' % 'test'", Error{}},
+    {"'test' % null",   Error{}},
+    {"'test' % []",     Error{}},
+    {"'test' % {}",     Error{}},
 
-    {"null % true",     EvaluationError{}},
-    {"null % 2",        EvaluationError{}},
-    {"null % 'test'",   EvaluationError{}},
-    {"null % null",     EvaluationError{}},
-    {"null % []",       EvaluationError{}},
-    {"null % {}",       EvaluationError{}},
+    {"null % true",     Error{}},
+    {"null % 2",        Error{}},
+    {"null % 'test'",   Error{}},
+    {"null % null",     Error{}},
+    {"null % []",       Error{}},
+    {"null % {}",       Error{}},
 
-    {"[] % true",       EvaluationError{}},
-    {"[] % 2",          EvaluationError{}},
-    {"[] % 'test'",     EvaluationError{}},
-    {"[] % null",       EvaluationError{}},
-    {"[] % []",         EvaluationError{}},
-    {"[] % {}",         EvaluationError{}},
+    {"[] % true",       Error{}},
+    {"[] % 2",          Error{}},
+    {"[] % 'test'",     Error{}},
+    {"[] % null",       Error{}},
+    {"[] % []",         Error{}},
+    {"[] % {}",         Error{}},
 
-    {"{} % true",       EvaluationError{}},
-    {"{} % 2",          EvaluationError{}},
-    {"{} % 'test'",     EvaluationError{}},
-    {"{} % null",       EvaluationError{}},
-    {"{} % []",         EvaluationError{}},
-    {"{} % {}",         EvaluationError{}},
+    {"{} % true",       Error{}},
+    {"{} % 2",          Error{}},
+    {"{} % 'test'",     Error{}},
+    {"{} % null",       Error{}},
+    {"{} % []",         Error{}},
+    {"{} % {}",         Error{}},
 
     // Logical negation
     {"!true",           Value{false}},
     {"!false",          Value{true}},
-    {"!1",              EvaluationError{}},
-    {"!'test'",         EvaluationError{}},
-    {"!null",           EvaluationError{}},
-    {"![]",             EvaluationError{}},
-    {"!{}",             EvaluationError{}},
+    {"!1",              Error{}},
+    {"!'test'",         Error{}},
+    {"!null",           Error{}},
+    {"![]",             Error{}},
+    {"!{}",             Error{}},
 
     // Logical conjunction
     {"false && false",  Value{false}},
@@ -477,90 +475,90 @@ TEST_CASE("Expression")
     {"~23423",          Value{~23423}},
     {"~23423.1",        Value{~23423}},
     {"~23423.8",        Value{~23423}},
-    {"~true",           EvaluationError{}},
+    {"~true",           Error{}},
     {"~'23423'",        Value{~23423}},
-    {"~'asdf'",         EvaluationError{}},
-    {"~null",           EvaluationError{}},
-    {"~[]",             EvaluationError{}},
-    {"~{}",             EvaluationError{}},
+    {"~'asdf'",         Error{}},
+    {"~null",           Error{}},
+    {"~[]",             Error{}},
+    {"~{}",             Error{}},
 
     // Bitwise and
     {"0 & 0",           Value{0 & 0}},
     {"123 & 456",       Value{123 & 456}},
     {"true & 123",      Value{1 & 123}},
     {"123 & true",      Value{123 & 1}},
-    {"'asdf' & 123",    EvaluationError{}},
+    {"'asdf' & 123",    Error{}},
     {"'456' & 123",     Value{456 & 123}},
-    {"123 & 'asdf'",    EvaluationError{}},
+    {"123 & 'asdf'",    Error{}},
     {"123 & '456'",     Value{123 & 456}},
     {"null & 123",      Value{0 & 123}},
     {"123 & null",      Value{123 & 0}},
-    {"[] & 123",        EvaluationError{}},
-    {"123 & []",        EvaluationError{}},
-    {"{} & 123",        EvaluationError{}},
-    {"123 & {}",        EvaluationError{}},
+    {"[] & 123",        Error{}},
+    {"123 & []",        Error{}},
+    {"{} & 123",        Error{}},
+    {"123 & {}",        Error{}},
 
     // Bitwise or
     {"0 | 0",           Value{0 | 0}},
     {"123 | 456",       Value{123 | 456}},
     {"true | 123",      Value{1 | 123}},
     {"123 | true",      Value{123 | 1}},
-    {"'asdf' | 123",    EvaluationError{}},
+    {"'asdf' | 123",    Error{}},
     {"'456' | 123",     Value{456 | 123}},
-    {"123 | 'asdf'",    EvaluationError{}},
+    {"123 | 'asdf'",    Error{}},
     {"123 | '456'",     Value{123 | 456}},
     {"null | 123",      Value{0 | 123}},
     {"123 | null",      Value{123 | 0}},
-    {"[] | 123",        EvaluationError{}},
-    {"123 | []",        EvaluationError{}},
-    {"{} | 123",        EvaluationError{}},
-    {"123 | {}",        EvaluationError{}},
+    {"[] | 123",        Error{}},
+    {"123 | []",        Error{}},
+    {"{} | 123",        Error{}},
+    {"123 | {}",        Error{}},
 
     // Bitwise xor
     {"0 ^ 0",           Value{0 ^ 0}},
     {"123 ^ 456",       Value{123 ^ 456}},
     {"true ^ 123",      Value{1 ^ 123}},
     {"123 ^ true",      Value{123 ^ 1}},
-    {"'asdf' ^ 123",    EvaluationError{}},
+    {"'asdf' ^ 123",    Error{}},
     {"'456' ^ 123",     Value{456 ^ 123}},
-    {"123 ^ 'asdf'",    EvaluationError{}},
+    {"123 ^ 'asdf'",    Error{}},
     {"123 ^ '456'",     Value{123 ^ 456}},
     {"null ^ 123",      Value{0 ^ 123}},
     {"123 ^ null",      Value{123 ^ 0}},
-    {"[] ^ 123",        EvaluationError{}},
-    {"123 ^ []",        EvaluationError{}},
-    {"{} ^ 123",        EvaluationError{}},
-    {"123 ^ {}",        EvaluationError{}},
+    {"[] ^ 123",        Error{}},
+    {"123 ^ []",        Error{}},
+    {"{} ^ 123",        Error{}},
+    {"123 ^ {}",        Error{}},
 
     // Bitwise shift left
     {"1 << 2",          Value{1 << 2}},
     {"true << 2",       Value{1 << 2}},
     {"1 << false",      Value{1 << 0}},
-    {"'asdf' << 2",     EvaluationError{}},
+    {"'asdf' << 2",     Error{}},
     {"'1' << 2",        Value{1 << 2}},
-    {"1 << 'asdf'",     EvaluationError{}},
+    {"1 << 'asdf'",     Error{}},
     {"1 << '2'",        Value{1 << 2}},
     {"null << 2",       Value{0 << 2}},
     {"1 << null",       Value{1 << 0}},
-    {"[] << 2",         EvaluationError{}},
-    {"1 << []",         EvaluationError{}},
-    {"{} << 2",         EvaluationError{}},
-    {"1 << {}",         EvaluationError{}},
+    {"[] << 2",         Error{}},
+    {"1 << []",         Error{}},
+    {"{} << 2",         Error{}},
+    {"1 << {}",         Error{}},
 
     // Bitwise shift right
     {"1 >> 2",          Value{1 >> 2}},
     {"true >> 2",       Value{1 >> 2}},
     {"1 >> false",      Value{1 >> 0}},
-    {"'asdf' >> 2",     EvaluationError{}},
+    {"'asdf' >> 2",     Error{}},
     {"'1' >> 2",        Value{1 >> 2}},
-    {"1 >> 'asdf'",     EvaluationError{}},
+    {"1 >> 'asdf'",     Error{}},
     {"1 >> '2'",        Value{1 >> 2}},
     {"null >> 2",       Value{0 >> 2}},
     {"1 >> null",       Value{1 >> 0}},
-    {"[] >> 2",         EvaluationError{}},
-    {"1 >> []",         EvaluationError{}},
-    {"{} >> 2",         EvaluationError{}},
-    {"1 >> {}",         EvaluationError{}},
+    {"[] >> 2",         Error{}},
+    {"1 >> []",         Error{}},
+    {"{} >> 2",         Error{}},
+    {"1 >> {}",         Error{}},
 
     // Comparison
     {"false < false",   Value{false}},
@@ -574,22 +572,22 @@ TEST_CASE("Expression")
     {"false < 'false'", Value{false}},
     {"false < ''",      Value{false}},
     {"false < null",    Value{false}},
-    {"false < []",      EvaluationError{}},
-    {"false < {}",      EvaluationError{}},
+    {"false < []",      Error{}},
+    {"false < {}",      Error{}},
 
     {"0 < 0",           Value{false}},
     {"0 < 1",           Value{true}},
-    {"0 < 'true'",      EvaluationError{}},
-    {"0 < 'false'",     EvaluationError{}},
+    {"0 < 'true'",      Error{}},
+    {"0 < 'false'",     Error{}},
     {"0 < ''",          Value{false}},
     {"0 < '0'",         Value{false}},
     {"0 < '1'",         Value{true}},
     {"0 < null",        Value{false}},
-    {"0 < []",          EvaluationError{}},
-    {"0 < {}",          EvaluationError{}},
+    {"0 < []",          Error{}},
+    {"0 < {}",          Error{}},
 
-    {"'a' < 0",         EvaluationError{}},
-    {"'a' < 1",         EvaluationError{}},
+    {"'a' < 0",         Error{}},
+    {"'a' < 1",         Error{}},
     {"'a' < 'true'",    Value{true}},
     {"'a' < 'false'",   Value{true}},
     {"'a' < ''",        Value{false}},
@@ -597,8 +595,8 @@ TEST_CASE("Expression")
     {"'a' < 'a'",       Value{false}},
     {"'aa' < 'ab'",     Value{true}},
     {"'a' < null",      Value{false}},
-    {"'a' < []",        EvaluationError{}},
-    {"'a' < {}",        EvaluationError{}},
+    {"'a' < []",        Error{}},
+    {"'a' < {}",        Error{}},
     {"'0' < 1",         Value{true}},
     {"'1' < 0",         Value{false}},
 
@@ -612,12 +610,12 @@ TEST_CASE("Expression")
     {"null < []",       Value{true}},
     {"null < {}",       Value{true}},
 
-    {"[] < true",       EvaluationError{}},
-    {"[] < false",      EvaluationError{}},
-    {"[] < 0",          EvaluationError{}},
-    {"[] < 1",          EvaluationError{}},
-    {"[] < ''",         EvaluationError{}},
-    {"[] < 'a'",        EvaluationError{}},
+    {"[] < true",       Error{}},
+    {"[] < false",      Error{}},
+    {"[] < 0",          Error{}},
+    {"[] < 1",          Error{}},
+    {"[] < ''",         Error{}},
+    {"[] < 'a'",        Error{}},
     {"[] < null",       Value{false}},
     {"[] < []",         Value{false}},
     {"[1] < [1]",       Value{false}},
@@ -626,16 +624,16 @@ TEST_CASE("Expression")
     {"[1,2] < [1,2]",   Value{false}},
     {"[1,2] < [1,2,3]", Value{true}},
     {"[1,2,3] < [1,2]", Value{false}},
-    {"[] < {}",         EvaluationError{}},
+    {"[] < {}",         Error{}},
 
-    {"{} < true",             EvaluationError{}},
-    {"{} < false",            EvaluationError{}},
-    {"{} < 0",                EvaluationError{}},
-    {"{} < 1",                EvaluationError{}},
-    {"{} < ''",               EvaluationError{}},
-    {"{} < 'a'",              EvaluationError{}},
+    {"{} < true",             Error{}},
+    {"{} < false",            Error{}},
+    {"{} < 0",                Error{}},
+    {"{} < 1",                Error{}},
+    {"{} < ''",               Error{}},
+    {"{} < 'a'",              Error{}},
     {"{} < null",             Value{false}},
-    {"{} < []",               EvaluationError{}},
+    {"{} < []",               Error{}},
     {"{} < {}",               Value{false}},
     {"{k1:1} < {k1:1}",       Value{false}},
     {"{k1:1} < {k2:1}",       Value{true}},
@@ -655,22 +653,22 @@ TEST_CASE("Expression")
     {"false <= 'false'", Value{true}},
     {"false <= ''",      Value{true}},
     {"false <= null",    Value{false}},
-    {"false <= []",      EvaluationError{}},
-    {"false <= {}",      EvaluationError{}},
+    {"false <= []",      Error{}},
+    {"false <= {}",      Error{}},
 
     {"0 <= 0",           Value{true}},
     {"0 <= 1",           Value{true}},
-    {"0 <= 'true'",      EvaluationError{}},
-    {"0 <= 'false'",     EvaluationError{}},
+    {"0 <= 'true'",      Error{}},
+    {"0 <= 'false'",     Error{}},
     {"0 <= ''",          Value{true}},
     {"0 <= '0'",         Value{true}},
     {"0 <= '1'",         Value{true}},
     {"0 <= null",        Value{false}},
-    {"0 <= []",          EvaluationError{}},
-    {"0 <= {}",          EvaluationError{}},
+    {"0 <= []",          Error{}},
+    {"0 <= {}",          Error{}},
 
-    {"'a' <= 0",         EvaluationError{}},
-    {"'a' <= 1",         EvaluationError{}},
+    {"'a' <= 0",         Error{}},
+    {"'a' <= 1",         Error{}},
     {"'a' <= 'true'",    Value{true}},
     {"'a' <= 'false'",   Value{true}},
     {"'a' <= ''",        Value{false}},
@@ -678,8 +676,8 @@ TEST_CASE("Expression")
     {"'a' <= 'a'",       Value{true}},
     {"'aa' <= 'ab'",     Value{true}},
     {"'a' <= null",      Value{false}},
-    {"'a' <= []",        EvaluationError{}},
-    {"'a' <= {}",        EvaluationError{}},
+    {"'a' <= []",        Error{}},
+    {"'a' <= {}",        Error{}},
     {"'0' <= 1",         Value{true}},
     {"'1' <= 0",         Value{false}},
 
@@ -693,12 +691,12 @@ TEST_CASE("Expression")
     {"null <= []",       Value{true}},
     {"null <= {}",       Value{true}},
 
-    {"[] <= true",       EvaluationError{}},
-    {"[] <= false",      EvaluationError{}},
-    {"[] <= 0",          EvaluationError{}},
-    {"[] <= 1",          EvaluationError{}},
-    {"[] <= ''",         EvaluationError{}},
-    {"[] <= 'a'",        EvaluationError{}},
+    {"[] <= true",       Error{}},
+    {"[] <= false",      Error{}},
+    {"[] <= 0",          Error{}},
+    {"[] <= 1",          Error{}},
+    {"[] <= ''",         Error{}},
+    {"[] <= 'a'",        Error{}},
     {"[] <= null",       Value{false}},
     {"[] <= []",         Value{true}},
     {"[1] <= [1]",       Value{true}},
@@ -707,16 +705,16 @@ TEST_CASE("Expression")
     {"[1,2] <= [1,2]",   Value{true}},
     {"[1,2] <= [1,2,3]", Value{true}},
     {"[1,2,3] <= [1,2]", Value{false}},
-    {"[] <= {}",         EvaluationError{}},
+    {"[] <= {}",         Error{}},
 
-    {"{} <= true",             EvaluationError{}},
-    {"{} <= false",            EvaluationError{}},
-    {"{} <= 0",                EvaluationError{}},
-    {"{} <= 1",                EvaluationError{}},
-    {"{} <= ''",               EvaluationError{}},
-    {"{} <= 'a'",              EvaluationError{}},
+    {"{} <= true",             Error{}},
+    {"{} <= false",            Error{}},
+    {"{} <= 0",                Error{}},
+    {"{} <= 1",                Error{}},
+    {"{} <= ''",               Error{}},
+    {"{} <= 'a'",              Error{}},
     {"{} <= null",             Value{false}},
-    {"{} <= []",               EvaluationError{}},
+    {"{} <= []",               Error{}},
     {"{} <= {}",               Value{true}},
     {"{k1:1} <= {k1:1}",       Value{true}},
     {"{k1:1} <= {k2:1}",       Value{true}},
@@ -736,22 +734,22 @@ TEST_CASE("Expression")
     {"'false' > false", Value{false}},
     {"'' > false",      Value{false}},
     {"null > false",    Value{false}},
-    {"[] > false",      EvaluationError{}},
-    {"{} > false",      EvaluationError{}},
+    {"[] > false",      Error{}},
+    {"{} > false",      Error{}},
 
     {"0 > 0",           Value{false}},
     {"1 > 0",           Value{true}},
-    {"'true' > 0",      EvaluationError{}},
-    {"'false' > 0",     EvaluationError{}},
+    {"'true' > 0",      Error{}},
+    {"'false' > 0",     Error{}},
     {"'' > 0",          Value{false}},
     {"'0' > 0",         Value{false}},
     {"'1' > 0",         Value{true}},
     {"null > 0",        Value{false}},
-    {"[] > 0",          EvaluationError{}},
-    {"{} > 0",          EvaluationError{}},
+    {"[] > 0",          Error{}},
+    {"{} > 0",          Error{}},
 
-    {"0 > 'a'",         EvaluationError{}},
-    {"1 > 'a'",         EvaluationError{}},
+    {"0 > 'a'",         Error{}},
+    {"1 > 'a'",         Error{}},
     {"'true' > 'a'",    Value{true}},
     {"'false' > 'a'",   Value{true}},
     {"'' > 'a'",        Value{false}},
@@ -759,8 +757,8 @@ TEST_CASE("Expression")
     {"'a' > 'a'",       Value{false}},
     {"'ab' > 'aa'",     Value{true}},
     {"null > 'a'",      Value{false}},
-    {"[] > 'a'",        EvaluationError{}},
-    {"{} > 'a'",        EvaluationError{}},
+    {"[] > 'a'",        Error{}},
+    {"{} > 'a'",        Error{}},
     {"1 > '0'",         Value{true}},
     {"0 > '1'",         Value{false}},
 
@@ -774,12 +772,12 @@ TEST_CASE("Expression")
     {"[] > null",       Value{true}},
     {"{} > null",       Value{true}},
 
-    {"true > []",       EvaluationError{}},
-    {"false > []",      EvaluationError{}},
-    {"0 > []",          EvaluationError{}},
-    {"1 > []",          EvaluationError{}},
-    {"'' > []",         EvaluationError{}},
-    {"'a' > []",        EvaluationError{}},
+    {"true > []",       Error{}},
+    {"false > []",      Error{}},
+    {"0 > []",          Error{}},
+    {"1 > []",          Error{}},
+    {"'' > []",         Error{}},
+    {"'a' > []",        Error{}},
     {"null > []",       Value{false}},
     {"[] > []",         Value{false}},
     {"[1] > [1]",       Value{false}},
@@ -788,16 +786,16 @@ TEST_CASE("Expression")
     {"[1,2] > [1,2]",   Value{false}},
     {"[1,2,3] > [1,2]", Value{true}},
     {"[1,2] > [1,2,3]", Value{false}},
-    {"{} > []",         EvaluationError{}},
+    {"{} > []",         Error{}},
 
-    {"true > {}",             EvaluationError{}},
-    {"false > {}",            EvaluationError{}},
-    {"0 > {}",                EvaluationError{}},
-    {"1 > {}",                EvaluationError{}},
-    {"'' > {}",               EvaluationError{}},
-    {"'a' > {}",              EvaluationError{}},
+    {"true > {}",             Error{}},
+    {"false > {}",            Error{}},
+    {"0 > {}",                Error{}},
+    {"1 > {}",                Error{}},
+    {"'' > {}",               Error{}},
+    {"'a' > {}",              Error{}},
     {"null > {}",             Value{false}},
-    {"[] > {}",               EvaluationError{}},
+    {"[] > {}",               Error{}},
     {"{} > {}",               Value{false}},
     {"{k1:1} > {k1:1}",       Value{false}},
     {"{k2:1} > {k1:1}",       Value{true}},
@@ -817,22 +815,22 @@ TEST_CASE("Expression")
     {"'false' >= false", Value{true}},
     {"'' >= false",      Value{true}},
     {"null >= false",    Value{false}},
-    {"[] >= false",      EvaluationError{}},
-    {"{} >= false",      EvaluationError{}},
+    {"[] >= false",      Error{}},
+    {"{} >= false",      Error{}},
 
     {"0 >= 0",           Value{true}},
     {"1 >= 0",           Value{true}},
-    {"'true' >= 0",      EvaluationError{}},
-    {"'false' >= 0",     EvaluationError{}},
+    {"'true' >= 0",      Error{}},
+    {"'false' >= 0",     Error{}},
     {"'' >= 0",          Value{true}},
     {"'0' >= 0",         Value{true}},
     {"'1' >= 0",         Value{true}},
     {"null >= 0",        Value{false}},
-    {"[] >= 0",          EvaluationError{}},
-    {"{} >= 0",          EvaluationError{}},
+    {"[] >= 0",          Error{}},
+    {"{} >= 0",          Error{}},
 
-    {"0 >= 'a'",         EvaluationError{}},
-    {"1 >= 'a'",         EvaluationError{}},
+    {"0 >= 'a'",         Error{}},
+    {"1 >= 'a'",         Error{}},
     {"'true' >= 'a'",    Value{true}},
     {"'false' >= 'a'",   Value{true}},
     {"'' >= 'a'",        Value{false}},
@@ -840,8 +838,8 @@ TEST_CASE("Expression")
     {"'a' >= 'a'",       Value{true}},
     {"'ab' >= 'aa'",     Value{true}},
     {"null >= 'a'",      Value{false}},
-    {"[] >= 'a'",        EvaluationError{}},
-    {"{} >= 'a'",        EvaluationError{}},
+    {"[] >= 'a'",        Error{}},
+    {"{} >= 'a'",        Error{}},
     {"1 >= '0'",         Value{true}},
     {"0 >= '1'",         Value{false}},
 
@@ -855,12 +853,12 @@ TEST_CASE("Expression")
     {"[] >= null",       Value{true}},
     {"{} >= null",       Value{true}},
 
-    {"true >= []",       EvaluationError{}},
-    {"false >= []",      EvaluationError{}},
-    {"0 >= []",          EvaluationError{}},
-    {"1 >= []",          EvaluationError{}},
-    {"'' >= []",         EvaluationError{}},
-    {"'a' >= []",        EvaluationError{}},
+    {"true >= []",       Error{}},
+    {"false >= []",      Error{}},
+    {"0 >= []",          Error{}},
+    {"1 >= []",          Error{}},
+    {"'' >= []",         Error{}},
+    {"'a' >= []",        Error{}},
     {"null >= []",       Value{false}},
     {"[] >= []",         Value{true}},
     {"[1] >= [1]",       Value{true}},
@@ -869,16 +867,16 @@ TEST_CASE("Expression")
     {"[1,2] >= [1,2]",   Value{true}},
     {"[1,2,3] >= [1,2]", Value{true}},
     {"[1,2] >= [1,2,3]", Value{false}},
-    {"{} >= []",         EvaluationError{}},
+    {"{} >= []",         Error{}},
 
-    {"true >= {}",             EvaluationError{}},
-    {"false >= {}",            EvaluationError{}},
-    {"0 >= {}",                EvaluationError{}},
-    {"1 >= {}",                EvaluationError{}},
-    {"'' >= {}",               EvaluationError{}},
-    {"'a' >= {}",              EvaluationError{}},
+    {"true >= {}",             Error{}},
+    {"false >= {}",            Error{}},
+    {"0 >= {}",                Error{}},
+    {"1 >= {}",                Error{}},
+    {"'' >= {}",               Error{}},
+    {"'a' >= {}",              Error{}},
     {"null >= {}",             Value{false}},
-    {"[] >= {}",               EvaluationError{}},
+    {"[] >= {}",               Error{}},
     {"{} >= {}",               Value{true}},
     {"{k1:1} >= {k1:1}",       Value{true}},
     {"{k2:1} >= {k1:1}",       Value{true}},
@@ -898,28 +896,28 @@ TEST_CASE("Expression")
     {"false == 'false'", Value{true}},
     {"false == ''",      Value{true}},
     {"false == null",    Value{false}},
-    {"false == []",      EvaluationError{}},
-    {"false == {}",      EvaluationError{}},
+    {"false == []",      Error{}},
+    {"false == {}",      Error{}},
 
     {"0 == 0",           Value{true}},
     {"0 == 1",           Value{false}},
-    {"0 == 'true'",      EvaluationError{}},
-    {"0 == 'false'",     EvaluationError{}},
+    {"0 == 'true'",      Error{}},
+    {"0 == 'false'",     Error{}},
     {"0 == ''",          Value{true}},
     {"0 == '0'",         Value{true}},
     {"0 == '1'",         Value{false}},
     {"0 == null",        Value{false}},
-    {"0 == []",          EvaluationError{}},
-    {"0 == {}",          EvaluationError{}},
+    {"0 == []",          Error{}},
+    {"0 == {}",          Error{}},
 
-    {"'a' == 0",         EvaluationError{}},
-    {"'a' == 1",         EvaluationError{}},
+    {"'a' == 0",         Error{}},
+    {"'a' == 1",         Error{}},
     {"'a' == 'b'",       Value{false}},
     {"'a' == 'a'",       Value{true}},
     {"'aa' == 'ab'",     Value{false}},
     {"'a' == null",      Value{false}},
-    {"'a' == []",        EvaluationError{}},
-    {"'a' == {}",        EvaluationError{}},
+    {"'a' == []",        Error{}},
+    {"'a' == {}",        Error{}},
     {"'0' == 0",         Value{true}},
     {"'0' == 1",         Value{false}},
 
@@ -933,12 +931,12 @@ TEST_CASE("Expression")
     {"null == []",       Value{false}},
     {"null == {}",       Value{false}},
 
-    {"[] == true",       EvaluationError{}},
-    {"[] == false",      EvaluationError{}},
-    {"[] == 0",          EvaluationError{}},
-    {"[] == 1",          EvaluationError{}},
-    {"[] == ''",         EvaluationError{}},
-    {"[] == 'a'",        EvaluationError{}},
+    {"[] == true",       Error{}},
+    {"[] == false",      Error{}},
+    {"[] == 0",          Error{}},
+    {"[] == 1",          Error{}},
+    {"[] == ''",         Error{}},
+    {"[] == 'a'",        Error{}},
     {"[] == null",       Value{false}},
     {"[] == []",         Value{true}},
     {"[1] == [1]",       Value{true}},
@@ -947,16 +945,16 @@ TEST_CASE("Expression")
     {"[1,2] == [1,2]",   Value{true}},
     {"[1,2] == [1,2,3]", Value{false}},
     {"[1,2,3] == [1,2]", Value{false}},
-    {"[] == {}",         EvaluationError{}},
+    {"[] == {}",         Error{}},
 
-    {"{} == true",             EvaluationError{}},
-    {"{} == false",            EvaluationError{}},
-    {"{} == 0",                EvaluationError{}},
-    {"{} == 1",                EvaluationError{}},
-    {"{} == ''",               EvaluationError{}},
-    {"{} == 'a'",              EvaluationError{}},
+    {"{} == true",             Error{}},
+    {"{} == false",            Error{}},
+    {"{} == 0",                Error{}},
+    {"{} == 1",                Error{}},
+    {"{} == ''",               Error{}},
+    {"{} == 'a'",              Error{}},
     {"{} == null",             Value{false}},
-    {"{} == []",               EvaluationError{}},
+    {"{} == []",               Error{}},
     {"{} == {}",               Value{true}},
     {"{k1:1} == {k1:1}",       Value{true}},
     {"{k1:1} == {k2:1}",       Value{false}},
@@ -974,24 +972,16 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    if (std::holds_alternative<Value>(expectedValueOrError))
-    {
-      const auto expectedValue = std::get<Value>(expectedValueOrError);
-      CHECK(evaluate(expression) == expectedValue);
-    }
-    else
-    {
-      CHECK_THROWS_AS(evaluate(expression), EvaluationError);
-    }
+    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
   }
 
   SECTION("Subscript")
   {
-    using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
+    using T = std::tuple<std::string, Result<Value>>;
 
     // clang-format off
     const auto
-    [expression,           expectedValueOrError] = GENERATE(values<T>({
+    [expression,                         expectedResult] = GENERATE(values<T>({
     // Positive indices
     {"'asdf'[0, 1]",                     Value{"as"}},
     {"'asdf'[0, 1, 2]",                  Value{"asd"}},
@@ -1040,7 +1030,7 @@ TEST_CASE("Expression")
 
     // Out of bounds
     {"'asdf'[5]",                        Value{""}},
-    {"[0, 1, 2, 3][5]",                  EvaluationError{}},
+    {"[0, 1, 2, 3][5]",                  Error{}},
     {"{a: 1, b: 2, c: 3}['d']",          Value::Undefined},
 
     }));
@@ -1048,24 +1038,16 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    if (std::holds_alternative<Value>(expectedValueOrError))
-    {
-      const auto expectedValue = std::get<Value>(expectedValueOrError);
-      CHECK(evaluate(expression) == expectedValue);
-    }
-    else
-    {
-      CHECK_THROWS_AS(evaluate(expression), EvaluationError);
-    }
+    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
   }
 
   SECTION("Switch")
   {
-    using T = std::tuple<std::string, std::variant<Value, EvaluationError>>;
+    using T = std::tuple<std::string, Result<Value>>;
 
     // clang-format off
     const auto
-    [expression, expectedValueOrError] = GENERATE(values<T>({
+    [expression, expectedResult] = GENERATE(values<T>({
     {R"(
     {{
     true -> 1,
@@ -1098,15 +1080,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    if (std::holds_alternative<Value>(expectedValueOrError))
-    {
-      const auto expectedValue = std::get<Value>(expectedValueOrError);
-      CHECK(evaluate(expression) == expectedValue);
-    }
-    else
-    {
-      CHECK_THROWS_AS(evaluate(expression), EvaluationError);
-    }
+    CHECK_THAT(evaluate(expression), MatchesResult(expectedResult));
   }
 
   SECTION("Operator precedence")
@@ -1175,7 +1149,7 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK(tryEvaluate(expression, variables) == expectedValue);
+    CHECK(evaluate(expression, variables) == expectedValue);
   }
 
   SECTION("optimize")
@@ -1204,7 +1178,13 @@ TEST_CASE("Expression")
 
     CAPTURE(expression);
 
-    CHECK(io::ELParser::parseStrict(expression).value().optimize() == expectedExpression);
+    withEvaluationContext([&,
+                           expression_ = expression,
+                           expectedExpression_ = expectedExpression](auto& context) {
+      CHECK(
+        io::ELParser::parseStrict(expression_).value().optimize(context)
+        == expectedExpression_);
+    }).ignore();
   }
 
   SECTION("accept")

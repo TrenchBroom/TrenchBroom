@@ -61,12 +61,15 @@ ModelSpecification getModelSpecification(
 ModelSpecification getModelSpecification(
   const ModelDefinition& modelDefinition, const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
-                                     .value()
-                                     .evaluate(el::EvaluationContext{})
-                                     .mapValue();
-  const auto variableStore = el::VariableTable{entityPropertiesMap};
-  return modelDefinition.modelSpecification(variableStore);
+  return el::withEvaluationContext([&](auto& context) {
+           const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+                                              .value()
+                                              .evaluate(context)
+                                              .mapValue(context);
+           const auto variableStore = el::VariableTable{entityPropertiesMap};
+           return modelDefinition.modelSpecification(variableStore);
+         })
+         | kdl::value();
 }
 
 void assertDecalDefinition(
@@ -102,11 +105,13 @@ void assertDecalDefinition(
   const DecalDefinition& actual,
   const std::string& entityPropertiesStr)
 {
-  const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
-                                     .value()
-                                     .evaluate(el::EvaluationContext{})
-                                     .mapValue();
-  const auto variableStore = el::VariableTable{entityPropertiesMap};
-  CHECK(actual.decalSpecification(variableStore) == expected);
+  el::withEvaluationContext([&](auto& context) {
+    const auto entityPropertiesMap = io::ELParser::parseStrict(entityPropertiesStr)
+                                       .value()
+                                       .evaluate(context)
+                                       .mapValue(context);
+    const auto variableStore = el::VariableTable{entityPropertiesMap};
+    CHECK(actual.decalSpecification(variableStore) == expected);
+  }).ignore();
 }
 } // namespace tb::mdl

@@ -28,7 +28,6 @@
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
 #include "mdl/ModelUtils.h"
-#include "mdl/Polyhedron.h"
 #include "mdl/Texture.h"
 #include "mdl/UVCoordSystem.h"
 #include "mdl/WorldNode.h"
@@ -49,8 +48,12 @@ namespace
 std::optional<mdl::DecalSpecification> getDecalSpecification(
   const mdl::EntityNode* entityNode)
 {
-  const auto decalSpec = entityNode->entity().decalSpecification();
-  return decalSpec.materialName.empty() ? std::nullopt : std::make_optional(decalSpec);
+  return entityNode->entity().decalSpecification() | kdl::transform([](auto decalSpec) {
+           return !decalSpec.materialName.empty()
+                    ? std::make_optional(std::move(decalSpec))
+                    : std::nullopt;
+         })
+         | kdl::value_or(std::nullopt);
 }
 
 using Vertex = render::GLVertexTypes::P3NT2::Vertex;
