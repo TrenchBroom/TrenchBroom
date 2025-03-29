@@ -828,21 +828,8 @@ typename Polyhedron<T, FP, VP>::Edge* Polyhedron<T, FP, VP>::removeEdge(Edge* ed
     return nullptr;
   }
 
-  // Lambda to check if v2 was removed. We check if v2 is still incident to v1. This is
-  // safe to do even if v2 was deleted because just check the addresses, and we also do
-  // not create additional vertices so we can be sure that v2's address does not contain a
-  // new valid vertex.
   const auto v2WasRemoved = [&]() {
-    auto* curEdge = v1->leaving();
-    do
-    {
-      if (curEdge->destination() == v2)
-      {
-        return false;
-      }
-      curEdge = curEdge->nextIncident();
-    } while (curEdge != v1->leaving());
-    return true;
+    return std::find(m_vertices.begin(), m_vertices.end(), v2) == m_vertices.end();
   };
 
   // merge f1 into n1:
