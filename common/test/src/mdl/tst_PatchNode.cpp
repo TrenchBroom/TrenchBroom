@@ -47,31 +47,28 @@ public:
     assert(epsilon >= double(0));
   }
   constexpr explicit approx(const GP value)
-    : approx{value, vm::constants<double>::almost_zero()}
+    : approx{value, constants<double>::almost_zero()}
   {
   }
 
-  friend constexpr bool operator==(const GP& lhs, const approx<GP>& rhs)
+  constexpr std::strong_ordering operator<=>(const GP& rhs) const
   {
-    return lhs.position == approx<vec3d>{rhs.m_value.position, rhs.m_epsilon}
-           && lhs.uvCoords == approx<vec2d>{rhs.m_value.uvCoords, rhs.m_epsilon}
-           && lhs.normal == approx<vec3d>{rhs.m_value.normal, rhs.m_epsilon};
+    if (const auto cmp = approx<vec3d>{m_value.position, m_epsilon} <=> rhs.position;
+        cmp != 0)
+    {
+      return cmp;
+    }
+
+    if (const auto cmp = approx<vec2d>{m_value.uvCoords, m_epsilon} <=> rhs.uvCoords;
+        cmp != 0)
+    {
+      return cmp;
+    }
+
+    return approx<vec3d>{m_value.normal, m_epsilon} <=> rhs.normal;
   }
 
-  friend constexpr bool operator==(const approx<GP>& lhs, const GP& rhs)
-  {
-    return rhs == lhs;
-  }
-
-  friend constexpr bool operator!=(const GP& lhs, const approx<GP>& rhs)
-  {
-    return !(lhs == rhs);
-  }
-
-  friend constexpr bool operator!=(const approx<GP>& lhs, const GP& rhs)
-  {
-    return !(lhs == rhs);
-  }
+  constexpr bool operator==(const GP& rhs) const { return *this <=> rhs == 0; }
 
   friend std::ostream& operator<<(std::ostream& str, const approx<GP>& a)
   {

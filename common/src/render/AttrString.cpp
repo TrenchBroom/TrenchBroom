@@ -21,7 +21,9 @@
 
 #include "Macros.h"
 
-#include <algorithm>
+#include "kdl/zip_iterator.h"
+
+#include <compare>
 
 namespace tb::render
 {
@@ -45,12 +47,6 @@ void AttrString::LineFunc::process(const std::string& str, const Justify justify
   }
 }
 
-AttrString::Line::Line(std::string i_string, const Justify i_justify)
-  : string{std::move(i_string)}
-  , justify{i_justify}
-{
-}
-
 AttrString::AttrString() = default;
 
 AttrString::AttrString(const std::string& string)
@@ -58,47 +54,28 @@ AttrString::AttrString(const std::string& string)
   appendLeftJustified(string);
 }
 
-bool AttrString::operator<(const AttrString& other) const
+std::strong_ordering AttrString::operator<=>(const AttrString& other) const
 {
-  return compare(other) < 0;
+  // AppleClang 15 doesn't provide operator<=> for std::vector, nor
+  // std::lexicographical_compare_three_way, so we have to do it manually
+  if (const auto cmp = m_lines.size() <=> other.m_lines.size(); cmp != 0)
+  {
+    return cmp;
+  }
+
+  for (const auto& [mine, theirs] : kdl::make_zip_range(m_lines, other.m_lines))
+  {
+    if (const auto cmp = mine <=> theirs; cmp != 0)
+    {
+      return cmp;
+    }
+  }
+  return std::strong_ordering::equal;
 }
 
-int AttrString::compare(const AttrString& other) const
+bool AttrString::operator==(const AttrString& other) const
 {
-  for (size_t i = 0; i < std::min(m_lines.size(), other.m_lines.size()); ++i)
-  {
-    const auto& myLine = m_lines[i];
-    const auto& otherLine = other.m_lines[i];
-
-    if (myLine.justify < otherLine.justify)
-    {
-      return -1;
-    }
-    if (myLine.justify > otherLine.justify)
-    {
-      return 1;
-    }
-
-    const int cmp = myLine.string.compare(otherLine.string);
-    if (cmp < 0)
-    {
-      return -1;
-    }
-    if (cmp > 0)
-    {
-      return 1;
-    }
-  }
-
-  if (m_lines.size() < other.m_lines.size())
-  {
-    return -1;
-  }
-  if (m_lines.size() > other.m_lines.size())
-  {
-    return 1;
-  }
-  return 0;
+  return *this <=> other == 0;
 }
 
 void AttrString::lines(LineFunc& func) const
@@ -111,17 +88,17 @@ void AttrString::lines(LineFunc& func) const
 
 void AttrString::appendLeftJustified(std::string string)
 {
-  m_lines.emplace_back(std::move(string), Justify::Left);
+  m_lines.push_back(Line{std::move(string), Justify::Left});
 }
 
 void AttrString::appendRightJustified(std::string string)
 {
-  m_lines.emplace_back(std::move(string), Justify::Right);
+  m_lines.push_back(Line{std::move(string), Justify::Right});
 }
 
 void AttrString::appendCentered(std::string string)
 {
-  m_lines.emplace_back(std::move(string), Justify::Center);
+  m_lines.push_back(Line{std::move(string), Justify::Center});
 }
 
 } // namespace tb::render

@@ -22,6 +22,8 @@
 // FIXME: there must not be dependencies from Assets or Model or Renderer to Qt
 #include <QMetaType>
 
+#include "kdl/reflection_decl.h"
+
 #include <filesystem>
 #include <string>
 
@@ -38,8 +40,12 @@ private:
     Unset
   };
 
+  friend std::ostream& operator<<(std::ostream& lhs, Type rhs);
+
   Type m_type = Type::Unset;
   std::filesystem::path m_path;
+
+  kdl_reflect_decl(EntityDefinitionFileSpec, m_type, m_path);
 
 public:
   EntityDefinitionFileSpec();
@@ -48,13 +54,6 @@ public:
   static EntityDefinitionFileSpec builtin(const std::filesystem::path& path);
   static EntityDefinitionFileSpec external(const std::filesystem::path& path);
   static EntityDefinitionFileSpec unset();
-
-  friend bool operator<(
-    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-  friend bool operator==(
-    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
-  friend bool operator!=(
-    const EntityDefinitionFileSpec& lhs, const EntityDefinitionFileSpec& rhs);
 
   bool valid() const;
   bool builtin() const;

@@ -36,25 +36,6 @@ AllocationTracker::Range::Range(Index p, Index s)
 {
 }
 
-bool AllocationTracker::Range::operator==(const Range& other) const
-{
-  return pos == other.pos && size == other.size;
-}
-
-bool AllocationTracker::Range::operator<(const Range& other) const
-{
-  if (pos < other.pos)
-  {
-    return true;
-  }
-  if (pos > other.pos)
-  {
-    return false;
-  }
-
-  return size < other.size;
-}
-
 static std::vector<AllocationTracker::Block*>::iterator findFirstLargerOrEqualBin(
   std::vector<AllocationTracker::Block*>& bins, const size_t desiredSize)
 {

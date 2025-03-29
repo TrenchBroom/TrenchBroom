@@ -64,23 +64,11 @@ public:
     }
   }
 
-  friend bool operator<(const product_iterator& lhs, const product_iterator& rhs)
-  {
-    return lhs.m_curs < rhs.m_curs;
-  }
-  friend bool operator>(const product_iterator& lhs, const product_iterator& rhs)
-  {
-    return lhs.m_curs > rhs.m_curs;
-  }
+  auto operator<=>(const product_iterator& rhs) const { return m_curs <=> rhs.m_curs; }
 
-  friend bool operator==(const product_iterator& lhs, const product_iterator& rhs)
+  bool operator==(const product_iterator& rhs) const
   {
-    return lhs.m_curs == rhs.m_curs;
-  }
-
-  friend bool operator!=(const product_iterator& lhs, const product_iterator& rhs)
-  {
-    return lhs.m_curs != rhs.m_curs;
+    return m_curs <=> rhs.m_curs == 0;
   }
 
   product_iterator& operator++()

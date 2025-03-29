@@ -119,53 +119,20 @@ constexpr auto reflection_split_tokens(std::string_view str)
   }
 
 #define kdl_reflect_relational_operators(type_name)                                      \
+public:                                                                                  \
   template <                                                                             \
     typename KDL_T,                                                                      \
     typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator==(const KDL_T& lhs, const KDL_T& rhs)                             \
-    ->decltype(lhs.members() == rhs.members())                                           \
+  auto operator<=>(const KDL_T& rhs) const                                               \
   {                                                                                      \
-    return lhs.members() == rhs.members();                                               \
+    return members() <=> rhs.members();                                                  \
   }                                                                                      \
   template <                                                                             \
     typename KDL_T,                                                                      \
     typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator!=(const KDL_T& lhs, const KDL_T& rhs)                             \
-    ->decltype(lhs.members() != rhs.members())                                           \
+  bool operator==(const KDL_T& rhs) const                                                \
   {                                                                                      \
-    return lhs.members() != rhs.members();                                               \
-  }                                                                                      \
-  template <                                                                             \
-    typename KDL_T,                                                                      \
-    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator<(const KDL_T& lhs, const KDL_T& rhs)                              \
-    ->decltype(lhs.members() < rhs.members())                                            \
-  {                                                                                      \
-    return lhs.members() < rhs.members();                                                \
-  }                                                                                      \
-  template <                                                                             \
-    typename KDL_T,                                                                      \
-    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator<=(const KDL_T& lhs, const KDL_T& rhs)                             \
-    ->decltype(lhs.members() <= rhs.members())                                           \
-  {                                                                                      \
-    return lhs.members() <= rhs.members();                                               \
-  }                                                                                      \
-  template <                                                                             \
-    typename KDL_T,                                                                      \
-    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator>(const KDL_T& lhs, const KDL_T& rhs)                              \
-    ->decltype(lhs.members() > rhs.members())                                            \
-  {                                                                                      \
-    return lhs.members() > rhs.members();                                                \
-  }                                                                                      \
-  template <                                                                             \
-    typename KDL_T,                                                                      \
-    typename std::enable_if_t<std::is_same_v<type_name, KDL_T>, bool> = true>            \
-  friend auto operator>=(const KDL_T& lhs, const KDL_T& rhs)                             \
-    ->decltype(lhs.members() >= rhs.members())                                           \
-  {                                                                                      \
-    return lhs.members() >= rhs.members();                                               \
+    return members() == rhs.members();                                                   \
   }
 
 #define kdl_stream_operator_decl(type_name)                                              \

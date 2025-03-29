@@ -43,7 +43,7 @@ void FontManager::clearCache()
 TextureFont& FontManager::font(const FontDescriptor& fontDescriptor)
 {
   auto it = m_cache.lower_bound(fontDescriptor);
-  if (it == std::end(m_cache) || it->first.compare(fontDescriptor) != 0)
+  if (it == std::end(m_cache) || it->first != fontDescriptor)
   {
     it = m_cache.insert(it, {fontDescriptor, m_factory->createFont(fontDescriptor)});
   }

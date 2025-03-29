@@ -109,13 +109,22 @@ struct EdgeInfo
   double rightDot;
   vm::segment3d segment;
   vm::line_distance<double> dist;
+
+  std::partial_ordering operator<=>(const EdgeInfo& other) const
+  {
+    return dist.distance <=> other.dist.distance;
+  }
+
+  bool operator==(const EdgeInfo& other) const { return *this <=> other == 0; }
 };
 
-bool operator<(const std::optional<EdgeInfo>& lhs, const std::optional<EdgeInfo>& rhs)
+std::partial_ordering operator<=>(
+  const std::optional<EdgeInfo>& lhs, const std::optional<EdgeInfo>& rhs)
 {
-  return lhs == std::nullopt   ? false
-         : rhs == std::nullopt ? true
-                               : lhs->dist.distance < rhs->dist.distance;
+  return !lhs && !rhs ? std::partial_ordering::unordered
+         : !lhs       ? std::partial_ordering::greater
+         : !rhs       ? std::partial_ordering::less
+                      : *lhs <=> *rhs;
 }
 
 std::optional<EdgeInfo> getEdgeInfo(

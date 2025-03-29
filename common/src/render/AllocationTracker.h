@@ -143,8 +143,7 @@ public:
 
     Range(Index p, Index s);
 
-    bool operator==(const Range& other) const;
-    bool operator<(const Range& other) const;
+    auto operator<=>(const Range& other) const = default;
   };
 
   std::vector<Range> freeBlocks() const;

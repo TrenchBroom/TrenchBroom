@@ -19,51 +19,15 @@
 
 #include "FileLocation.h"
 
+#include "kdl/reflection_impl.h"
+
 #include <ostream>
 #include <sstream>
 
 namespace tb
 {
 
-bool operator==(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return lhs.line == rhs.line && lhs.column == rhs.column;
-}
-
-bool operator!=(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return !(lhs == rhs);
-}
-
-bool operator<(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return lhs.line < rhs.line || (lhs.line == rhs.line && lhs.column < rhs.column);
-}
-
-bool operator<=(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return lhs < rhs || lhs == rhs;
-}
-
-bool operator>(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return !(lhs <= rhs);
-}
-
-bool operator>=(const FileLocation& lhs, const FileLocation& rhs)
-{
-  return !(lhs < rhs);
-}
-
-std::ostream& operator<<(std::ostream& lhs, const FileLocation& rhs)
-{
-  lhs << "line " << rhs.line;
-  if (rhs.column)
-  {
-    lhs << ", column " << *rhs.column;
-  }
-  return lhs;
-}
+kdl_reflect_impl(FileLocation);
 
 std::string prependLocation(
   const std::optional<FileLocation>& location, std::string_view str)
@@ -73,7 +37,11 @@ std::string prependLocation(
   msg << "At ";
   if (location)
   {
-    msg << *location;
+    msg << "line " << location->line;
+    if (location->column)
+    {
+      msg << ", column " << *location->column;
+    }
   }
   else
   {

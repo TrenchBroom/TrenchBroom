@@ -39,19 +39,14 @@ struct Release
   QString browserUrl;
   QList<Asset> assets;
 
-  friend bool operator<(const Release& lhs, const Release& rhs)
-  {
-    return lhs.version < rhs.version;
-  }
+  auto operator<=>(const Release& other) const { return version <=> other.version; }
 
-  friend bool operator==(const Release& lhs, const Release& rhs)
+  bool operator==(const Release& other) const
   {
-    return lhs.version == rhs.version && lhs.prerelease == rhs.prerelease
-           && lhs.draft == rhs.draft && lhs.name == rhs.name
-           && lhs.browserUrl == rhs.browserUrl && lhs.assets == rhs.assets;
+    return version == other.version && prerelease == other.prerelease
+           && draft == other.draft && name == other.name && browserUrl == other.browserUrl
+           && assets == other.assets;
   }
-
-  friend bool operator!=(const Release& lhs, const Release& rhs) { return !(lhs == rhs); }
 
   friend std::ostream& operator<<(std::ostream& lhs, const Release& rhs)
   {

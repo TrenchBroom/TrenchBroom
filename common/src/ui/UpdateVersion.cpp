@@ -60,16 +60,24 @@ std::ostream& operator<<(std::ostream& lhs, const UpdateVersion& rhs)
   return lhs;
 }
 
-bool operator<(const UpdateVersion& lhs, const UpdateVersion& rhs)
+std::partial_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs)
 {
   return std::visit(
     kdl::overload(
-      [](const SemanticVersion& l, const SemanticVersion& r) { return l < r; },
-      [](const SemanticVersion&, const TemporalVersion&) { return true; },
-      [](const TemporalVersion&, const SemanticVersion&) { return false; },
-      [](const TemporalVersion& l, const TemporalVersion& r) { return l < r; }),
+      [](const SemanticVersion& l, const SemanticVersion& r) -> std::partial_ordering {
+        return l <=> r;
+      },
+      [](const TemporalVersion& l, const TemporalVersion& r) -> std::partial_ordering {
+        return l <=> r;
+      },
+      [](const auto&, const auto&) { return std::partial_ordering::unordered; }),
     lhs,
     rhs);
+}
+
+bool operator==(const UpdateVersion& lhs, const UpdateVersion& rhs)
+{
+  return lhs <=> rhs == 0;
 }
 
 std::optional<UpdateVersion> parseUpdateVersion(const QString& tag)

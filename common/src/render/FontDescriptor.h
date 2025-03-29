@@ -24,6 +24,7 @@
 
 namespace tb::render
 {
+
 class FontDescriptor
 {
 private:
@@ -39,8 +40,8 @@ public:
     unsigned char minChar = ' ',
     unsigned char maxChar = '~');
 
-  int compare(const FontDescriptor& other) const;
-  bool operator<(const FontDescriptor& other) const;
+  std::weak_ordering operator<=>(const FontDescriptor& other) const = default;
+  bool operator==(const FontDescriptor& other) const = default;
 
   const std::filesystem::path& path() const;
   std::string name() const;
@@ -49,4 +50,5 @@ public:
   unsigned char maxChar() const;
   unsigned char charCount() const;
 };
+
 } // namespace tb::render

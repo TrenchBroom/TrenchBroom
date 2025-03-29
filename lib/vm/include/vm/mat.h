@@ -379,18 +379,17 @@ public:
  * case, and 0 if all columns compare equal
  */
 template <typename T, std::size_t R, std::size_t C>
-constexpr int compare(
+constexpr std::strong_ordering compare(
   const mat<T, R, C>& lhs, const mat<T, R, C>& rhs, const T epsilon = static_cast<T>(0.0))
 {
   for (std::size_t c = 0; c < C; c++)
   {
-    const auto cmp = compare(lhs[c], rhs[c], epsilon);
-    if (cmp != 0)
+    if (const auto cmp = compare(lhs[c], rhs[c], epsilon); cmp != 0)
     {
       return cmp;
     }
   }
-  return 0;
+  return std::strong_ordering::equal;
 }
 
 /**
@@ -444,9 +443,10 @@ constexpr bool is_zero(const mat<T, R, C>& m, const T epsilon)
  * @return true if all components of the given matrices are equal, and false otherwise
  */
 template <typename T, std::size_t R, std::size_t C>
-constexpr bool operator==(const mat<T, R, C>& lhs, const mat<T, R, C>& rhs)
+constexpr std::strong_ordering operator<=>(
+  const mat<T, R, C>& lhs, const mat<T, R, C>& rhs)
 {
-  return compare(lhs, rhs, static_cast<T>(0.0)) == 0;
+  return compare(lhs, rhs, static_cast<T>(0.0));
 }
 
 /**
@@ -457,12 +457,12 @@ constexpr bool operator==(const mat<T, R, C>& lhs, const mat<T, R, C>& rhs)
  * @tparam C the number of columns
  * @param lhs the first matrix
  * @param rhs the second matrix
- * @return false if all components of the given matrices are equal, and true otherwise
+ * @return true if all components of the given matrices are equal, and false otherwise
  */
 template <typename T, std::size_t R, std::size_t C>
-constexpr bool operator!=(const mat<T, R, C>& lhs, const mat<T, R, C>& rhs)
+constexpr bool operator==(const mat<T, R, C>& lhs, const mat<T, R, C>& rhs)
 {
-  return compare(lhs, rhs, static_cast<T>(0.0)) != 0;
+  return lhs <=> rhs == 0;
 }
 
 /* ========== arithmetic operators ========== */

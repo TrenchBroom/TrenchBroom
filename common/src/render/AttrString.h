@@ -53,19 +53,20 @@ private:
   {
     std::string string;
     Justify justify;
-    Line(std::string i_string, Justify i_justify);
-  };
-  using Lines = std::vector<Line>;
 
-  Lines m_lines;
+    auto operator<=>(const Line& other) const = default;
+  };
+
+  std::vector<Line> m_lines;
 
 public:
   AttrString();
 
   explicit AttrString(const std::string& string);
 
-  bool operator<(const AttrString& other) const;
-  int compare(const AttrString& other) const;
+
+  std::strong_ordering operator<=>(const AttrString& other) const;
+  bool operator==(const AttrString& other) const;
 
   void lines(LineFunc& func) const;
 

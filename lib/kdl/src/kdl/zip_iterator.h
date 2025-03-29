@@ -67,23 +67,15 @@ public:
   {
   }
 
-  friend bool operator<(const zip_iterator& lhs, const zip_iterator& rhs)
+  auto operator<=>(const zip_iterator& rhs) const
   {
-    return std::get<0>(lhs.m_iters) < std::get<0>(rhs.m_iters);
-  }
-  friend bool operator>(const zip_iterator& lhs, const zip_iterator& rhs)
-  {
-    return std::get<0>(lhs.m_iters) > std::get<0>(rhs.m_iters);
+    return std::get<0>(m_iters) < std::get<0>(rhs.m_iters) ? std::strong_ordering::less
+           : std::get<0>(m_iters) > std::get<0>(rhs.m_iters)
+             ? std::strong_ordering::greater
+             : std::strong_ordering::equal;
   }
 
-  friend bool operator==(const zip_iterator& lhs, const zip_iterator& rhs)
-  {
-    return std::get<0>(lhs.m_iters) == std::get<0>(rhs.m_iters);
-  }
-  friend bool operator!=(const zip_iterator& lhs, const zip_iterator& rhs)
-  {
-    return std::get<0>(lhs.m_iters) != std::get<0>(rhs.m_iters);
-  }
+  bool operator==(const zip_iterator& rhs) const { return *this <=> rhs == 0; }
 
   zip_iterator& operator++()
   {

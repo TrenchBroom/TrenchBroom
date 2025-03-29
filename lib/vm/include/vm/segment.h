@@ -235,24 +235,16 @@ public:
  * case, and 0 if the segments are equal
  */
 template <typename T, size_t S>
-constexpr int compare(
+constexpr std::strong_ordering compare(
   const segment<T, S>& lhs,
   const segment<T, S>& rhs,
   const T epsilon = static_cast<T>(0.0))
 {
-  const int startCmp = compare(lhs.start(), rhs.start(), epsilon);
-  if (startCmp < 0)
+  if (const auto cmp = compare(lhs.start(), rhs.start(), epsilon); cmp != 0)
   {
-    return -1;
+    return cmp;
   }
-  else if (startCmp > 0)
-  {
-    return 1;
-  }
-  else
-  {
-    return compare(lhs.end(), rhs.end(), epsilon);
-  }
+  return compare(lhs.end(), rhs.end(), epsilon);
 }
 
 /**
@@ -272,6 +264,13 @@ constexpr bool is_equal(
   return compare(lhs, rhs, epsilon) == 0;
 }
 
+template <typename T, size_t S>
+constexpr std::strong_ordering operator<=>(
+  const segment<T, S>& lhs, const segment<T, S>& rhs)
+{
+  return compare(lhs, rhs, T(0.0));
+}
+
 /**
  * Checks if the first given segment identical to the second segment.
  *
@@ -284,84 +283,7 @@ constexpr bool is_equal(
 template <typename T, size_t S>
 constexpr bool operator==(const segment<T, S>& lhs, const segment<T, S>& rhs)
 {
-  return compare(lhs, rhs, T(0.0)) == 0;
-}
-
-/**
- * Checks if the first given segment identical to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return false if the segments are identical and true otherwise
- */
-template <typename T, size_t S>
-constexpr bool operator!=(const segment<T, S>& lhs, const segment<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) != 0;
-}
-
-/**
- * Checks if the first given segment less than the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is less than the second and false otherwise
- */
-template <typename T, size_t S>
-constexpr bool operator<(const segment<T, S>& lhs, const segment<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) < 0;
-}
-
-/**
- * Checks if the first given segment less than or equal to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is less than or equal to the second and false
- * otherwise
- */
-template <typename T, size_t S>
-constexpr bool operator<=(const segment<T, S>& lhs, const segment<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) <= 0;
-}
-
-/**
- * Checks if the first given segment greater than the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is greater than the second and false otherwise
- */
-template <typename T, size_t S>
-constexpr bool operator>(const segment<T, S>& lhs, const segment<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) > 0;
-}
-
-/**
- * Checks if the first given segment greater than or equal to the second segment.
- *
- * @tparam T the component type
- * @tparam S the number of components
- * @param lhs the first segment
- * @param rhs the second segment
- * @return true if the first segment is greater than or equal to the second and false
- * otherwise
- */
-template <typename T, size_t S>
-constexpr bool operator>=(const segment<T, S>& lhs, const segment<T, S>& rhs)
-{
-  return compare(lhs, rhs, T(0.0)) >= 0;
+  return lhs <=> rhs == 0;
 }
 
 /**
