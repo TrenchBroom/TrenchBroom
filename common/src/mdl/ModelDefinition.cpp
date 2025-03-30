@@ -26,6 +26,7 @@
 #include "el/Value.h"
 #include "el/VariableStore.h"
 
+#include "kdl/path_utils.h"
 #include "kdl/reflection_impl.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
@@ -44,8 +45,9 @@ std::filesystem::path path(el::EvaluationContext& context, const el::Value& valu
   {
     return {};
   }
-  const auto& path = value.stringValue(context);
-  return kdl::cs::str_is_prefix(path, ":") ? path.substr(1) : path;
+  const auto& str = value.stringValue(context);
+  const auto path = kdl::cs::str_is_prefix(str, ":") ? str.substr(1) : str;
+  return kdl::parse_path(path);
 }
 
 size_t index(el::EvaluationContext& context, const el::Value& value)
