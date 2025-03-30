@@ -299,9 +299,9 @@ auto parseMeshVertices(Reader& reader, const size_t count)
 
   for (size_t i = 0; i < count; ++i)
   {
-    const auto vertexIndex = reader.readSize<int32_t>();
     const auto u = reader.readFloat<float>();
     const auto v = reader.readFloat<float>();
+    const auto vertexIndex = reader.readSize<int32_t>();
     vertices.push_back({vertexIndex, {u, v}});
   }
 
@@ -315,6 +315,8 @@ auto parseMeshes(Reader reader, const size_t commandCount)
   auto vertexCount = reader.readInt<int32_t>();
   for (size_t i = 0; i < commandCount && vertexCount != 0; ++i)
   {
+    /* const auto subObjectId = */ reader.readInt<int32_t>();
+
     const auto type =
       vertexCount < 0 ? render::PrimType::TriangleFan : render::PrimType::TriangleStrip;
     auto vertices = parseMeshVertices(reader, size_t(std::abs(vertexCount)));
