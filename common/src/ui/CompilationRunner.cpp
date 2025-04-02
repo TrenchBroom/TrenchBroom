@@ -40,14 +40,14 @@
 #include "kdl/cmd_utils.h"
 #include "kdl/functional.h"
 #include "kdl/overload.h"
+#include "kdl/path_utils.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/result_fold.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_utils.h"
 
 #include <fmt/format.h>
 #include <fmt/std.h>
 
-#include <filesystem>
 #include <ranges>
 #include <string>
 
@@ -115,7 +115,7 @@ void CompilationExportMapTaskRunner::doExecute()
   emit start();
 
   interpolate(m_task.targetSpec).and_then([&](const auto& interpolated) {
-    const auto targetPath = std::filesystem::path{interpolated};
+    const auto targetPath = kdl::parse_path(interpolated);
     m_context << "#### Exporting map file '" << io::pathAsQString(targetPath) << "'\n";
 
     if (!m_context.test())
@@ -153,8 +153,8 @@ void CompilationCopyFilesTaskRunner::doExecute()
   interpolate(m_task.sourceSpec)
       .join(interpolate(m_task.targetSpec))
       .and_then([&](const auto& interpolatedSource, const auto& interpolatedTarget) {
-        const auto sourcePath = std::filesystem::path{interpolatedSource};
-        const auto targetPath = std::filesystem::path{interpolatedTarget};
+        const auto sourcePath = kdl::parse_path(interpolatedSource);
+        const auto targetPath = kdl::parse_path(interpolatedTarget);
 
         const auto sourceDirPath = sourcePath.parent_path();
         const auto sourcePathMatcher = kdl::lift_and(
@@ -163,9 +163,11 @@ void CompilationCopyFilesTaskRunner::doExecute()
 
         return io::Disk::find(sourceDirPath, io::TraversalMode::Flat, sourcePathMatcher)
                | kdl::and_then([&](const auto& pathsToCopy) {
-                   const auto pathStrsToCopy = kdl::vec_transform(
-                     pathsToCopy,
-                     [](const auto& path) { return fmt::format("{}", path); });
+                   const auto pathStrsToCopy =
+                     pathsToCopy | std::views::transform([](const auto& path) {
+                       return fmt::format("{}", path);
+                     })
+                     | kdl::to_vector;
 
                    m_context << "#### Copying to '" << io::pathAsQString(targetPath)
                              << "/': "
@@ -176,8 +178,8 @@ void CompilationCopyFilesTaskRunner::doExecute()
                    {
                      return io::Disk::createDirectory(targetPath)
                             | kdl::and_then([&](auto) {
-                                return kdl::vec_transform(
-                                         pathsToCopy,
+                                return pathsToCopy
+                                       | std::views::transform(
                                          [&](const auto& pathToCopy) {
                                            return io::Disk::copyFile(
                                              pathToCopy, targetPath);
@@ -212,8 +214,8 @@ void CompilationRenameFileTaskRunner::doExecute()
   interpolate(m_task.sourceSpec)
       .join(interpolate(m_task.targetSpec))
       .and_then([&](const auto& interpolatedSource, const auto& interpolatedTarget) {
-        const auto sourcePath = std::filesystem::path{interpolatedSource};
-        const auto targetPath = std::filesystem::path{interpolatedTarget};
+        const auto sourcePath = kdl::parse_path(interpolatedSource);
+        const auto targetPath = kdl::parse_path(interpolatedTarget);
 
         m_context << "#### Renaming '" << io::pathAsQString(sourcePath) << "' to '"
                   << io::pathAsQString(targetPath) << "'\n";
@@ -247,7 +249,7 @@ void CompilationDeleteFilesTaskRunner::doExecute()
   emit start();
 
   interpolate(m_task.targetSpec).and_then([&](const auto& interpolated) {
-    const auto targetPath = std::filesystem::path{interpolated};
+    const auto targetPath = kdl::parse_path(interpolated);
 
     const auto targetDirPath = targetPath.parent_path();
     const auto targetPathMatcher = kdl::lift_and(
@@ -256,15 +258,19 @@ void CompilationDeleteFilesTaskRunner::doExecute()
 
     return io::Disk::find(targetDirPath, io::TraversalMode::Recursive, targetPathMatcher)
            | kdl::transform([&](const auto& pathsToDelete) {
-               const auto pathStrsToDelete = kdl::vec_transform(
-                 pathsToDelete, [](const auto& path) { return fmt::format("{}", path); });
+               const auto pathStrsToDelete =
+                 pathsToDelete | std::views::transform([](const auto& path) {
+                   return fmt::format("{}", path);
+                 })
+                 | kdl::to_vector;
+
                m_context << "#### Deleting: "
                          << QString::fromStdString(kdl::str_join(pathStrsToDelete, ", "))
                          << "\n";
 
                if (!m_context.test())
                {
-                 return kdl::vec_transform(pathsToDelete, io::Disk::deleteFile)
+                 return pathsToDelete | std::views::transform(io::Disk::deleteFile)
                         | kdl::fold;
                }
                return Result<std::vector<bool>>{std::vector<bool>{}};
@@ -322,7 +328,7 @@ void CompilationRunToolTaskRunner::startProcess()
       .and_then(
         [&](const auto& workDir, const auto& program, const auto& parameters)
           -> Result<void> {
-          const auto programStr = QString::fromStdString(program);
+          const auto programStr = io::pathAsQString(kdl::parse_path(program));
           const auto parameterStrs =
             parameters | std::views::transform([](const auto& p) {
               return QString::fromStdString(p);
