@@ -44,6 +44,10 @@
     {
       "name": "catch2",
       "version": "2.13.8"
+    },
+    {
+      "name": "rapidjson",
+      "version": "2025-02-26"
     }
   ]
 }
