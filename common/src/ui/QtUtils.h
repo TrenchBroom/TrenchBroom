@@ -19,9 +19,11 @@
 
 #pragma once
 
+#include "vm/vec.h"
 #undef CursorShape
 
 #include <QBoxLayout>
+#include <QLocale>
 #include <QObject>
 #include <QPointer>
 #include <QSettings>
@@ -265,5 +267,61 @@ std::string mapStringFromUnicode(MapTextEncoding encoding, const QString& string
  *         (e.g. "Ctrl" on Windows or the Command symbol on macOS)
  */
 QString nativeModifierLabel(int modifier);
+
+template <typename T, size_t S>
+QString toString(const vm::vec<T, S>& vec)
+{
+  const auto locale = QLocale{};
+  return QString{"%1 %2 %3"}
+    .arg(locale.toString(vec.x()))
+    .arg(locale.toString(vec.y()))
+    .arg(locale.toString(vec.z()));
+}
+
+template <std::floating_point T, size_t S>
+std::optional<vm::vec<T, S>> parse(const QString& str)
+{
+  const auto parts = str.split(' ', Qt::SkipEmptyParts);
+  if (parts.size() != S)
+  {
+    return std::nullopt;
+  }
+
+  const auto locale = QLocale{};
+  auto result = vm::vec<T, S>{};
+  for (size_t i = 0; i < S; ++i)
+  {
+    auto ok = false;
+    result[i] = static_cast<T>(locale.toDouble(parts[qsizetype(i)], &ok));
+    if (!ok)
+    {
+      return std::nullopt;
+    }
+  }
+  return result;
+}
+
+template <std::integral T, size_t S>
+std::optional<vm::vec<T, S>> parse(const QString& str)
+{
+  const auto parts = str.split(' ', Qt::SkipEmptyParts);
+  if (parts.size() != S)
+  {
+    return std::nullopt;
+  }
+
+  const auto locale = QLocale{};
+  auto result = vm::vec<T, S>{};
+  for (size_t i = 0; i < S; ++i)
+  {
+    auto ok = false;
+    result[i] = static_cast<T>(locale.toLong(parts[qsizetype(i)], &ok));
+    if (!ok)
+    {
+      return std::nullopt;
+    }
+  }
+  return result;
+}
 
 } // namespace tb::ui

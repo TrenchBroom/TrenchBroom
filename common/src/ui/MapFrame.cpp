@@ -1631,11 +1631,11 @@ void MapFrame::moveSelectedObjects()
     "Move Objects",
     "Enter coordinates: X Y Z",
     QLineEdit::Normal,
-    "0.0 0.0 0.0",
+    toString(vm::vec3d{}),
     &ok);
   if (ok)
   {
-    if (const auto offset = vm::parse<double, 3>(str.toStdString()))
+    if (const auto offset = parse<double, 3>(str))
     {
       m_document->translateObjects(*offset);
     }
@@ -2007,11 +2007,11 @@ void MapFrame::moveCameraToPosition()
     "Move Camera",
     "Enter a position (x y z) for the camera.",
     QLineEdit::Normal,
-    "0.0 0.0 0.0",
+    toString(vm::vec3d{}),
     &ok);
   if (ok)
   {
-    if (const auto position = vm::parse<float, 3>(str.toStdString()))
+    if (const auto position = parse<float, 3>(str))
     {
       m_mapView->moveCameraToPosition(*position, true);
     }
@@ -2273,7 +2273,7 @@ void MapFrame::debugSetWindowSize()
     this, "Window Size", "Enter Size (W H)", QLineEdit::Normal, "1920 1080", &ok);
   if (ok)
   {
-    if (const auto size = vm::parse<int, 2>(str.toStdString()))
+    if (const auto size = parse<int, 2>(str))
     {
       resize(size->x(), size->y());
     }

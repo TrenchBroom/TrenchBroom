@@ -38,8 +38,6 @@
 
 #include "kdl/memory_utils.h"
 
-#include "vm/vec_io.h"
-
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 
@@ -52,13 +50,12 @@ namespace
 
 std::optional<vm::vec3d> parseVec(const QString& qString)
 {
-  const auto string = qString.toStdString();
-  if (const auto vec = vm::parse<double, 3u>(string))
+  if (const auto vec = parse<double, 3u>(qString))
   {
     return *vec;
   }
 
-  if (const auto val = vm::parse<double, 1u>(string))
+  if (const auto val = parse<double, 1u>(qString))
   {
     return vm::vec3d::fill(val->x());
   }
@@ -72,9 +69,8 @@ QString formatVec(const std::optional<vm::bbox3d>& bbox, const bool max)
   {
     const auto& vec = max ? bbox->max : bbox->min;
     // Just print the first component to save space if all components are equal.
-    return QString::fromStdString(
-      vec.x() == vec.y() && vec.y() == vec.z() ? fmt::format("{}", vec.x())
-                                               : fmt::format("{}", fmt::streamed(vec)));
+    return vec.x() == vec.y() && vec.y() == vec.z() ? QString::number(vec.x())
+                                                    : toString(vec);
   }
 
   return QObject::tr("None");

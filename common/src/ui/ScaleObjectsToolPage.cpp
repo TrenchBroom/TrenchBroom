@@ -28,13 +28,13 @@
 #include <QStackedLayout>
 
 #include "ui/MapDocument.h"
+#include "ui/QtUtils.h"
 #include "ui/ScaleObjectsTool.h"
 #include "ui/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
 
 #include "vm/vec.h"
-#include "vm/vec_io.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -66,9 +66,8 @@ void ScaleObjectsToolPage::activate()
                                ? document->selectionBounds().size()
                                : vm::vec3d{0, 0, 0};
 
-  m_sizeTextBox->setText(
-    QString::fromStdString(fmt::format("{}", fmt::streamed(suggestedSize))));
-  m_factorsTextBox->setText("1.0 1.0 1.0");
+  m_sizeTextBox->setText(toString(suggestedSize));
+  m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
 }
 
 void ScaleObjectsToolPage::createGui()
@@ -132,15 +131,14 @@ std::optional<vm::vec3d> ScaleObjectsToolPage::getScaleFactors() const
   {
   case 0: {
     auto document = kdl::mem_lock(m_document);
-    if (
-      const auto desiredSize = vm::parse<double, 3>(m_sizeTextBox->text().toStdString()))
+    if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
     {
       return *desiredSize / document->selectionBounds().size();
     }
     return std::nullopt;
   }
   default:
-    return vm::parse<double, 3>(m_factorsTextBox->text().toStdString());
+    return parse<double, 3>(m_factorsTextBox->text());
   }
 }
 
