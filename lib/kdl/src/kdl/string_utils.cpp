@@ -20,6 +20,10 @@
 
 #include "kdl/string_utils.h"
 
+#if defined(__APPLE__)
+#include "fast_float/fast_float.h"
+#endif
+
 #include "kdl/reflection_impl.h"
 #include "kdl/string_format.h"
 
@@ -246,22 +250,14 @@ std::optional<std::size_t> str_to_size(std::string_view str)
 std::optional<float> str_to_float(std::string_view str)
 {
   str = skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for float
-  try
-  {
-    return stof(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
+
   float value;
+#if defined(__APPLE__)
+  return fast_float::from_chars(str.data(), str.data() + str.size(), value).ec
+             == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
+#else
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
            : std::nullopt;
@@ -271,22 +267,14 @@ std::optional<float> str_to_float(std::string_view str)
 std::optional<double> str_to_double(std::string_view str)
 {
   str = skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for double
-  try
-  {
-    return stod(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
+
   double value;
+#if defined(__APPLE__)
+  return fast_float::from_chars(str.data(), str.data() + str.size(), value).ec
+             == std::errc{}
+           ? std::optional{value}
+           : std::nullopt;
+#else
   return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
            ? std::optional{value}
            : std::nullopt;
