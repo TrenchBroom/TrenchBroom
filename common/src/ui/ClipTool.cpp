@@ -31,6 +31,7 @@
 #include "render/Camera.h"
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
+#include "ui/QtUtils.h"
 #include "ui/Selection.h"
 #include "ui/Transaction.h"
 
@@ -357,8 +358,7 @@ private:
     {
       const auto& point = m_points[i].point;
       renderService.renderHandle(vm::vec3f{point});
-      renderService.renderString(
-        fmt::format("{}: {}", i + 1, fmt::streamed(point)), vm::vec3f{point});
+      renderService.renderString(toString(point).toStdString(), vm::vec3f{point});
     }
   }
 

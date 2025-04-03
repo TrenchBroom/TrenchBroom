@@ -32,14 +32,13 @@
 #include "ui/BorderLine.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
+#include "ui/QtUtils.h"
 #include "ui/RotateObjectsTool.h"
 #include "ui/SpinControl.h"
 #include "ui/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to.h"
-
-#include "vm/vec_io.h"
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -194,8 +193,7 @@ void RotateObjectsToolPage::documentWasNewedOrLoaded(MapDocument*)
 
 void RotateObjectsToolPage::rotationCenterDidChange(const vm::vec3d& center)
 {
-  m_recentlyUsedCentersList->setCurrentText(
-    QString::fromStdString(fmt::format("{}", fmt::streamed(center))));
+  m_recentlyUsedCentersList->setCurrentText(toString(center));
 }
 
 void RotateObjectsToolPage::rotationCenterWasUsed(const vm::vec3d& center)
@@ -206,9 +204,7 @@ void RotateObjectsToolPage::rotationCenterWasUsed(const vm::vec3d& center)
   m_recentlyUsedCentersList->clear();
   m_recentlyUsedCentersList->addItems(
     m_recentlyUsedCenters | std::views::reverse
-    | std::views::transform([](const auto& c) {
-        return QString::fromStdString(fmt::format("{}", fmt::streamed(c)));
-      })
+    | std::views::transform([](const auto& c) { return toString(c); })
     | kdl::to<QStringList>());
 
   if (m_recentlyUsedCentersList->count() > 0)
@@ -236,9 +232,7 @@ void RotateObjectsToolPage::handleHitAreaDidChange(
 
 void RotateObjectsToolPage::centerChanged()
 {
-  if (
-    const auto center =
-      vm::parse<double, 3>(m_recentlyUsedCentersList->currentText().toStdString()))
+  if (const auto center = parse<double, 3>(m_recentlyUsedCentersList->currentText()))
   {
     m_tool.setRotationCenter(*center);
   }

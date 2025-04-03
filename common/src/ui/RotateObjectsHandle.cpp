@@ -27,6 +27,7 @@
 #include "render/RenderBatch.h"
 #include "render/RenderContext.h"
 #include "render/RenderService.h"
+#include "ui/QtUtils.h"
 
 #include "vm/intersection.h"
 #include "vm/mat_ext.h"
@@ -320,7 +321,7 @@ void RotateObjectsHandle::Handle3D::renderHighlight(
       renderService.setForegroundColor(pref(Preferences::InfoOverlayTextColor));
       renderService.setBackgroundColor(pref(Preferences::InfoOverlayBackgroundColor));
       renderService.renderString(
-        fmt::format("{}", fmt::streamed(m_position)), vm::vec3f{m_position});
+        toString(m_position).toStdString(), vm::vec3f{m_position});
       break;
     case HitArea::XAxis:
       renderService.setForegroundColor(pref(Preferences::XAxisColor));
