@@ -192,7 +192,7 @@ target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     set_compiler_config(${TARGET})
