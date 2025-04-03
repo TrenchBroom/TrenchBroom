@@ -83,6 +83,12 @@ target_include_directories(kdl PUBLIC ${KDL_SOURCE_DIR})
 find_package(Threads REQUIRED)
 target_link_libraries(kdl PUBLIC Threads::Threads)
 
+# Use the fast-float library for from_chars on AppleClang, where std::from_chars is not
+# available for floating point types.
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+target_link_libraries(kdl PRIVATE FastFloat::fast_float)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
     target_compile_options(kdl INTERFACE -Wall -Wextra -Wconversion -Wshadow-all -pedantic -Wno-c++98-compat -Wno-c++98-compat-pedantic -Wno-padded -Wno-exit-time-destructors -Wno-poison-system-directories)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

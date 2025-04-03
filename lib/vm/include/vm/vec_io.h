@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "vm/from_chars.h"
 #include "vm/vec.h"
 
 #include <optional>
@@ -44,7 +45,12 @@ std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
     {
       return std::nullopt;
     }
-    result[i] = static_cast<T>(std::atof(str.data() + pos));
+    if (
+      from_chars(str.data() + pos, str.data() + str.length(), result[i]).ec
+      != std::errc{})
+    {
+      return std::nullopt;
+    }
     if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
     {
       if (i < S - 1)
@@ -64,7 +70,7 @@ std::optional<vec<T, S>> doParse(const std::string_view str, size_t& pos)
  *     S ::= number of components
  *  COMP ::= WS, FLOAT;
  *    WS ::= " " | \\t | \\n | \\r | "(" | ")";
- * FLOAT ::= any floating point number parseable by std::atof
+ * FLOAT ::= any floating point number parseable by std::from_chars
  *
  * @tparam T the component type
  * @tparam S the number of components
