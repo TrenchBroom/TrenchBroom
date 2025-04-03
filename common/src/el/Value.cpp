@@ -27,6 +27,7 @@
 #include "kdl/range_to_vector.h"
 #include "kdl/string_compare.h"
 #include "kdl/string_format.h"
+#include "kdl/string_utils.h"
 #include "kdl/vector_utils.h"
 
 #include <cmath>
@@ -294,20 +295,8 @@ bool Value::convertibleTo(const ValueType toType) const
         case ValueType::Boolean:
         case ValueType::String:
           return true;
-        case ValueType::Number: {
-          if (kdl::str_is_blank(s))
-          {
-            return true;
-          }
-          const char* begin = s.c_str();
-          char* end;
-          const NumberType value = std::strtod(begin, &end);
-          if (value == 0.0 && end == begin)
-          {
-            return false;
-          }
-          return true;
-        }
+        case ValueType::Number:
+          return kdl::str_is_blank(s) || kdl::str_to_double(s) != std::nullopt;
         case ValueType::Array:
         case ValueType::Map:
         case ValueType::Range:
@@ -457,16 +446,13 @@ Value Value::convertTo(EvaluationContext& context, const ValueType toType) const
         case ValueType::Number: {
           if (kdl::str_is_blank(s))
           {
-            return Value{0.0};
+            return context.trace(Value{0.0}, *this);
           }
-          const char* begin = s.c_str();
-          char* end;
-          const NumberType value = std::strtod(begin, &end);
-          if (value == 0.0 && end == begin)
+          if (const auto x = kdl::str_to_double(s))
           {
-            throw ConversionError{context.location(*this), describe(), type(), toType};
+            return context.trace(Value{*x}, *this);
           }
-          return context.trace(Value{value}, *this);
+          throw ConversionError{context.location(*this), describe(), type(), toType};
         }
         case ValueType::Array:
         case ValueType::Map:
