@@ -19,7 +19,12 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "Ensure.h"
 
+#ifdef NDEBUG
+#include <fmt/format.h>
+#endif
+
 #include <cassert>
+
 
 #ifndef NDEBUG
 // for debug builds, ensure is just an assertion
@@ -41,11 +46,9 @@ void tb::ensureFailed(
 void tb::ensureFailed(
   const char* file, const int line, const char* condition, const char* message)
 {
-  std::stringstream reason;
-  reason << file << ":" << line << ": Condition '" << condition
-         << "' failed: " << message;
-
-  const std::string stacktrace = TrenchBroomStackWalker::getStackTrace();
-  tb::ui::reportCrashAndExit(stacktrace, reason.str());
+  const auto stacktrace = TrenchBroomStackWalker::getStackTrace();
+  const auto reason =
+    fmt::format("{} line {}: Condition '{}' failed ({})", file, line, condition, message);
+  tb::ui::reportCrashAndExit(stacktrace, reason);
 }
 #endif
