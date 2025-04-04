@@ -7,6 +7,9 @@ qmake -v
 cmake --version
 pandoc --version
 
+# CCache configuration
+ccache -p
+
 # Qt install prefix
 brew --prefix qt@6
 
@@ -47,7 +50,7 @@ cmake .. \
   -DCMAKE_BUILD_TYPE="$TB_BUILD_TYPE" \
   -DCMAKE_CXX_FLAGS="-Werror" \
   -DCMAKE_EXE_LINKER_FLAGS="-Wl,-fatal_warnings" \
-  -DTB_ENABLE_CCACHE=0 \
+  -DTB_ENABLE_CCACHE=1 \
   -DTB_ENABLE_PCH=0 \
   -DTB_ENABLE_ASAN="$TB_ENABLE_ASAN" \
   -DTB_RUN_MACDEPLOYQT=1 \
@@ -58,7 +61,9 @@ cmake .. \
   -DTB_NOTARIZATION_PASSWORD="$TB_NOTARIZATION_PASSWORD" \
   || exit 1
 
+ccache -z
 cmake --build . --config "$TB_BUILD_TYPE" || exit 1
+ccache -s
 
 BUILD_DIR=$(pwd)
 
