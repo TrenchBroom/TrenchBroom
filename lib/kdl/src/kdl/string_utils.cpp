@@ -293,29 +293,4 @@ std::optional<double> str_to_double(std::string_view str)
 #endif
 }
 
-std::optional<long double> str_to_long_double(std::string_view str)
-{
-  str = skip_whitespace(str);
-#if defined(__clang__) || (defined(__GNUC__) && __GNUC__ < 11)
-  // std::from_chars is not yet implemented for double
-  try
-  {
-    return stold(std::string{str});
-  }
-  catch (std::invalid_argument&)
-  {
-    return std::nullopt;
-  }
-  catch (std::out_of_range&)
-  {
-    return std::nullopt;
-  }
-#else
-  long double value;
-  return std::from_chars(str.data(), str.data() + str.size(), value).ec == std::errc{}
-           ? std::optional{value}
-           : std::nullopt;
-#endif
-}
-
 } // namespace kdl
