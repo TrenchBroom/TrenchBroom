@@ -31,6 +31,7 @@
 #include "vm/vec.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
+#include <algorithm>
 #include <sstream>
 #include <unordered_map>
 #include <unordered_set>
