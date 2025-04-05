@@ -15,13 +15,25 @@ pandoc --version
 ./linuxdeploy-x86_64.AppImage --version
 ./linuxdeploy-plugin-qt-x86_64.AppImage --plugin-version
 
+ccache -p
+
 # Build TB
 
 mkdir cmakebuild
 cd cmakebuild
+cmake .. \
+  -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DCMAKE_CXX_FLAGS="-Werror" \
+  -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" \
+  -DTB_ENABLE_CCACHE=1 \
+  -DTB_ENABLE_PCH=0 \
+  -DCMAKE_INSTALL_PREFIX=/usr \
+  || exit 1
 
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_PREFIX_PATH="cmake/packages;$QT_ROOT_DIR" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-Werror" -DCMAKE_EXE_LINKER_FLAGS="-Wl,--fatal-warnings" -DTB_ENABLE_PCH=0 || exit 1
+ccache -z
 cmake --build . --config Release -- -j $(nproc) || exit 1
+ccache -s
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
 
