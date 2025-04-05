@@ -24,6 +24,7 @@ target_sources(vm INTERFACE
     "${VM_INCLUDE_DIR}/vm/constexpr_util.h"
     "${VM_INCLUDE_DIR}/vm/convex_hull.h"
     "${VM_INCLUDE_DIR}/vm/distance.h"
+    "${VM_INCLUDE_DIR}/vm/from_chars.h"
     "${VM_INCLUDE_DIR}/vm/intersection.h"
     "${VM_INCLUDE_DIR}/vm/line_io.h"
     "${VM_INCLUDE_DIR}/vm/line.h"
@@ -55,6 +56,12 @@ elseif(MSVC EQUAL 1)
     target_compile_options(vm INTERFACE /w44365)
 else()
     message(FATAL_ERROR "Cannot set compile options for target")
+endif()
+
+# Use the fast-float library for from_chars on AppleClang, where std::from_chars is not
+# available for floating point types.
+if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+target_link_libraries(vm INTERFACE FastFloat::fast_float)
 endif()
 
 add_subdirectory(test)

@@ -37,6 +37,11 @@
       "name": "tinyxml2",
       "version>=": "9.0.0",
       "platform": "!linux"
+    },
+    {
+      "name": "fast-float",
+      "version>=": "6.1.4",
+      "platform": "osx"
     }
   ],
   "builtin-baseline": "9b75e789ece3f942159b8500584e35aafe3979ff",

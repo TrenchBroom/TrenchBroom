@@ -82,21 +82,16 @@ Color parseEntityColor(const std::string& str)
   const auto range = detectColorRange(components);
   assert(range != ColorRange::Mixed);
 
-  int r = 0, g = 0, b = 0;
-  if (range == ColorRange::Byte)
-  {
-    r = std::atoi(components[0].c_str());
-    g = std::atoi(components[1].c_str());
-    b = std::atoi(components[2].c_str());
-  }
-  else if (range == ColorRange::Float)
-  {
-    r = static_cast<int>(std::atof(components[0].c_str()) * 255.0);
-    g = static_cast<int>(std::atof(components[1].c_str()) * 255.0);
-    b = static_cast<int>(std::atof(components[2].c_str()) * 255.0);
-  }
-
-  return {r, g, b};
+  return range == ColorRange::Byte ? 
+  Color{
+      kdl::str_to_int(components[0]).value_or(0),
+      kdl::str_to_int(components[1]).value_or(0),
+      kdl::str_to_int(components[2]).value_or(0),
+  } : Color{
+    static_cast<int>(kdl::str_to_double(components[0]).value_or(0.0) * 255.0),
+    static_cast<int>(kdl::str_to_double(components[1]).value_or(0.0) * 255.0),
+    static_cast<int>(kdl::str_to_double(components[2]).value_or(0.0) * 255.0),
+  };
 }
 
 std::string entityColorAsString(const Color& color, const ColorRange::Type colorRange)
