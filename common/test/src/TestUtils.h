@@ -65,6 +65,7 @@ auto openFS(const std::filesystem::path& path)
 }
 
 std::string readTextFile(const std::filesystem::path& path);
+Result<std::string> readTextFile(const FileSystem& fs, const std::filesystem::path& path);
 
 } // namespace io
 
