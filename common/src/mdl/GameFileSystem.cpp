@@ -164,6 +164,7 @@ void GameFileSystem::addFileSystemPackages(
       io::TraversalMode::Flat,
       io::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
+          std::ranges::sort(packagePaths);
           return kdl::vec_transform(
                    std::move(packagePaths),
                    [&](auto packagePath) {
