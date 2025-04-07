@@ -100,8 +100,6 @@ jobs:
       - name: Windows - Build
         if: ${{ matrix.os == 'windows-2022' }}
         run: cmd.exe /c CI-windows.bat
-        env:
-          TB_ARCH: ${{ matrix.tb-arch }}
 
       - name: Windows - Upload artifacts
         uses: actions/upload-artifact@v4
