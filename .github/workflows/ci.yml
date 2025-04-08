@@ -40,23 +40,15 @@ jobs:
       VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
     steps:
-      - name: Windows - Set up ccache
-        if: ${{ matrix.os == 'windows-2022' }}
-        run: |
-          echo "CCACHE_DIR=${{ github.workspace }}\\.ccache" >> $env:GITHUB_ENV
-          echo "CCACHE_COMPRESS=true" >> $env:GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=6" >> $env:GITHUB_ENV
-          echo "CCACHE_MAXSIZE=500M" >> $env:GITHUB_ENV
-          echo "CCACHE_SLOPPINESS=file_stat_matches,file_macro,time_macros" >> $env:GITHUB_ENV
-
-      - name: Linux / macOS - Set up ccache
-        if: ${{ matrix.os != 'windows-2022' }}
-        run: |
-          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESS=true" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=6" >> $GITHUB_ENV
-          echo "CCACHE_MAXSIZE=500M" >> $GITHUB_ENV
-          echo "CCACHE_SLOPPINESS=file_stat_matches,file_macro,time_macros" >> $GITHUB_ENV
+      - name: Set up ccache
+        uses: actions/github-script@v7
+        with:
+          script: |
+            core.exportVariable('CCACHE_DIR', '${{ github.workspace }}/.ccache');
+            core.exportVariable('CCACHE_COMPRESS', 'true');
+            core.exportVariable('CCACHE_COMPRESSLEVEL', '6');
+            core.exportVariable('CCACHE_MAXSIZE', '500M');
+            core.exportVariable('CCACHE_SLOPPINESS', 'file_stat_matches,file_macro,time_macros');
 
       # See: https://github.com/actions/checkout
       - name: Checkout code
