@@ -26,7 +26,7 @@ cmake --build . --config Release
 
 IF %ERRORLEVEL% NEQ 0 GOTO ERROR
 
-ccache -s
+ccache -sv
 
 set BUILD_DIR="%cd%"
 

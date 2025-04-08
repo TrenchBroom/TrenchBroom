@@ -35,7 +35,7 @@ cmake .. \
 
 ccache -z
 cmake --build . --config Release -- -j $(nproc) || exit 1
-ccache -s
+ccache -sv
 
 # Run tests (wxgtk needs an X server running for the app to initialize)
 

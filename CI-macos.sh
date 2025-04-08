@@ -65,7 +65,7 @@ cmake .. \
 
 ccache -z
 cmake --build . --config "$TB_BUILD_TYPE" || exit 1
-ccache -s
+ccache -sv
 
 BUILD_DIR=$(pwd)
 
