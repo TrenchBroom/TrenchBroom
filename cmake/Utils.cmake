@@ -153,7 +153,7 @@ macro(set_compiler_config TARGET)
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
 
         # Generate debug symbols even for Release; we build a stripped pdb in Release mode, see TrenchBroomApp.cmake
-        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Zi>")
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Z7>")
     else()
         message(FATAL_ERROR "Cannot set compile options for target ${TARGET}")
     endif()

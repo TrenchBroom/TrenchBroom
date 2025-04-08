@@ -1,6 +1,6 @@
 # Using target_link_library to link an object library to qt requires 3.12
 # 3.14 is required for generator expressions in install(CODE)
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.25)
 
 # Fix warning with Ninja and cotire (see https://github.com/sakra/cotire/issues/81)
 if(POLICY CMP0058)
@@ -42,6 +42,9 @@ if(TB_ENABLE_CCACHE)
 
   if(CCACHE_PATH)
     message(STATUS "Found ccache: ${CCACHE_PATH}")
+
+    set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT Embedded)
+    cmake_policy(SET CMP0141 NEW)
 
     set(CMAKE_C_COMPILER_LAUNCHER "${CCACHE_PATH}")
     set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PATH}")

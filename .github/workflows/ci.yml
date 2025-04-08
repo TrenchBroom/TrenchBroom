@@ -40,7 +40,16 @@ jobs:
       VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
     steps:
-      - name: Set up ccache
+      - name: Windows - Set up ccache
+        if: ${{ matrix.os == 'windows-2022' }}
+        run: |
+          echo "CCACHE_DIR=${{ github.workspace }}\\.ccache" >> $env:GITHUB_ENV
+          echo "CCACHE_COMPRESS=true" >> $env:GITHUB_ENV
+          echo "CCACHE_COMPRESSLEVEL=6" >> $env:GITHUB_ENV
+          echo "CCACHE_MAXSIZE=1G" >> $env:GITHUB_ENV
+          echo "CCACHE_SLOPPINESS=file_stat_matches,file_macro,time_macros" >> $env:GITHUB_ENV
+
+      - name: Linux / macOS - Set up ccache
         if: ${{ matrix.os != 'windows-2022' }}
         run: |
           echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
@@ -58,7 +67,6 @@ jobs:
 
       - name: Restore ccache files
         uses: actions/cache@v4.2.3
-        if: ${{ matrix.os != 'windows-2022' }}
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ matrix.os }}-${{ matrix.tb-build-type }}-${{ github.run_id }}
@@ -87,6 +95,7 @@ jobs:
       - name: Windows - Install dependencies
         if: ${{ matrix.os == 'windows-2022' }}
         run: |
+          choco install ccache
           # Chocolatey was taking 3 minutes to install pandoc; just install it directly
           Invoke-WebRequest 'https://github.com/jgm/pandoc/releases/download/2.11.3.1/pandoc-2.11.3.1-windows-x86_64.zip' -OutFile 'pandoc.zip'
           if ("668A62A8990DEB2753753DF0C8D3F1BE567026FE" -ne (Get-FileHash -Path 'pandoc.zip' -Algorithm SHA1).Hash) { exit }
