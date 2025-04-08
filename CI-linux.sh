@@ -11,6 +11,8 @@ chmod u+x ./linuxdeploy-plugin-qt-x86_64.AppImage
 # Check versions
 qmake -v
 cmake --version
+ninja --version
+ccache --version
 pandoc --version
 ./linuxdeploy-x86_64.AppImage --version
 ./linuxdeploy-plugin-qt-x86_64.AppImage --plugin-version

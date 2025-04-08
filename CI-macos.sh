@@ -5,6 +5,8 @@
 # Check versions
 qmake -v
 cmake --version
+ninja --version
+ccache --version
 pandoc --version
 
 # CCache configuration
