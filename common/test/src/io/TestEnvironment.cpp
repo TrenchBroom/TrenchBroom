@@ -36,21 +36,20 @@ namespace tb::io
 
 namespace
 {
-auto makeSandboxPath()
+auto addNonAsciiDirs(const std::filesystem::path& rootPath)
 {
   // have a non-ASCII character in the directory name to help catch
   // filename encoding bugs
   const auto cyrillic = "Кристиян";
   const auto hiraganaLetterSmallA = "ぁ";
-  return std::filesystem::current_path() / generateUuid() / cyrillic
-         / hiraganaLetterSmallA;
+  return rootPath / cyrillic / hiraganaLetterSmallA;
 }
 } // namespace
 
 TestEnvironment::TestEnvironment(
   const std::filesystem::path& dir, const SetupFunction& setup)
-  : m_sandboxPath{makeSandboxPath()}
-  , m_dir{m_sandboxPath / dir}
+  : m_sandboxPath{std::filesystem::current_path() / generateUuid()}
+  , m_dir{addNonAsciiDirs(m_sandboxPath) / dir}
 {
   if (!dir.is_relative())
   {
