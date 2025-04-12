@@ -37,11 +37,12 @@ namespace
 auto loadTexture(const std::string& name)
 {
   auto diskFS =
-    DiskFileSystem{std::filesystem::current_path() / "fixture/test/io/Image/"};
+    DiskFileSystem{std::filesystem::current_path() / "fixture" / "test" / "io" / "Image"};
 
-  const auto file = diskFS.openFile(name) | kdl::value();
-  auto reader = file->reader().buffer();
-  return readFreeImageTexture(reader);
+  return diskFS.openFile(name) | kdl::and_then([](const auto& file) {
+           auto reader = file->reader().buffer();
+           return readFreeImageTexture(reader);
+         });
 }
 
 void assertTexture(const std::string& name, const size_t width, const size_t height)
@@ -51,42 +52,44 @@ void assertTexture(const std::string& name, const size_t width, const size_t hei
     CHECK(texture.height() == height);
     CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
     CHECK(texture.mask() == mdl::TextureMask::Off);
-  }) | kdl::transform_error([](const auto&) { FAIL(); });
+  }) | kdl::transform_error([](const auto& e) { FAIL(e.msg); });
 }
 
 // https://github.com/TrenchBroom/TrenchBroom/issues/2474
-void testImageContents(const mdl::Texture& texture, const ColorMatch match)
+void testImageContents(Result<mdl::Texture> result, const ColorMatch match)
 {
-  const std::size_t w = 64u;
-  const std::size_t h = 64u;
+  result | kdl::transform([&](const auto& texture) {
+    const std::size_t w = 64u;
+    const std::size_t h = 64u;
 
-  CHECK(texture.width() == w);
-  CHECK(texture.height() == h);
-  CHECK(texture.buffersIfLoaded().size() == 1u);
-  CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
-  CHECK(texture.mask() == mdl::TextureMask::Off);
+    CHECK(texture.width() == w);
+    CHECK(texture.height() == h);
+    CHECK(texture.buffersIfLoaded().size() == 1u);
+    CHECK((texture.format() == GL_BGRA || texture.format() == GL_RGBA));
+    CHECK(texture.mask() == mdl::TextureMask::Off);
 
-  for (std::size_t y = 0; y < h; ++y)
-  {
-    for (std::size_t x = 0; x < w; ++x)
+    for (std::size_t y = 0; y < h; ++y)
     {
-      if (x == 0 && y == 0)
+      for (std::size_t x = 0; x < w; ++x)
       {
-        // top left pixel is red
-        checkColor(texture, x, y, 255, 0, 0, 255, match);
-      }
-      else if (x == (w - 1) && y == (h - 1))
-      {
-        // bottom right pixel is green
-        checkColor(texture, x, y, 0, 255, 0, 255, match);
-      }
-      else
-      {
-        // others are 161, 161, 161
-        checkColor(texture, x, y, 161, 161, 161, 255, match);
+        if (x == 0 && y == 0)
+        {
+          // top left pixel is red
+          checkColor(texture, x, y, 255, 0, 0, 255, match);
+        }
+        else if (x == (w - 1) && y == (h - 1))
+        {
+          // bottom right pixel is green
+          checkColor(texture, x, y, 0, 255, 0, 255, match);
+        }
+        else
+        {
+          // others are 161, 161, 161
+          checkColor(texture, x, y, 161, 161, 161, 255, match);
+        }
       }
     }
-  }
+  }) | kdl::transform_error([](const auto& e) { FAIL(e.msg); });
 }
 
 } // namespace
@@ -97,8 +100,7 @@ TEST_CASE("readFreeImageTexture")
   {
     assertTexture("5x5.png", 5, 5);
     assertTexture("707x710.png", 707, 710);
-    testImageContents(
-      loadTexture("pngContentsTest.png") | kdl::value(), ColorMatch::Exact);
+    testImageContents(loadTexture("pngContentsTest.png"), ColorMatch::Exact);
     CHECK(loadTexture("corruptPngTest.png").is_error());
 
     // we don't support this format currently
@@ -107,8 +109,7 @@ TEST_CASE("readFreeImageTexture")
 
   SECTION("loading JPGs")
   {
-    testImageContents(
-      loadTexture("jpgContentsTest.jpg") | kdl::value(), ColorMatch::Approximate);
+    testImageContents(loadTexture("jpgContentsTest.jpg"), ColorMatch::Approximate);
   }
 
   SECTION("alpha mask")
