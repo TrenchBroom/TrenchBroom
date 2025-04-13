@@ -40,29 +40,12 @@ jobs:
       VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
 
     steps:
-      - name: Set up ccache
-        if: ${{ matrix.os != 'windows-2022' }}
-        run: |
-          echo "CCACHE_DIR=${{ github.workspace }}/.ccache" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESS=true" >> $GITHUB_ENV
-          echo "CCACHE_COMPRESSLEVEL=6" >> $GITHUB_ENV
-          echo "CCACHE_MAXSIZE=1G" >> $GITHUB_ENV
-          echo "CCACHE_SLOPPINESS=file_stat_matches,file_macro,time_macros" >> $GITHUB_ENV
-
       # See: https://github.com/actions/checkout
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
           submodules: 'recursive'
-
-      - name: Restore ccache files
-        uses: actions/cache@v4.2.3
-        if: ${{ matrix.os != 'windows-2022' }}
-        with:
-          path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ matrix.os }}-${{ matrix.tb-build-type }}-${{ github.run_id }}
-          restore-keys: ccache-${{ matrix.os }}-${{ matrix.tb-build-type }}
 
       - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
         run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
@@ -100,8 +83,6 @@ jobs:
       - name: Windows - Build
         if: ${{ matrix.os == 'windows-2022' }}
         run: cmd.exe /c CI-windows.bat
-        env:
-          TB_ARCH: ${{ matrix.tb-arch }}
 
       - name: Windows - Upload artifacts
         uses: actions/upload-artifact@v4
@@ -117,7 +98,7 @@ jobs:
         if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
         run: |
           sudo apt update
-          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2 ccache
+          sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
 
       - name: Linux - Build
         if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -167,12 +148,12 @@ jobs:
           # this issue can always reoccur when brew updates their python formula
           brew unlink python@3.12
           brew link --overwrite python@3.12
-          brew install cmake p7zip pandoc ninja autoconf automake ccache
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Install dependencies
         if: ${{ matrix.os == 'macos-14' }}
         run: |
-          brew install cmake p7zip pandoc ninja autoconf automake ccache
+          brew install cmake p7zip pandoc ninja autoconf automake
 
       - name: macOS 14 - Import signing certificates
         if: ${{ env.TB_SIGN_MAC_BUNDLE == 'true' }}

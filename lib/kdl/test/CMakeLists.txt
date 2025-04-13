@@ -47,7 +47,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "App
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     target_compile_options(kdl-test PRIVATE -Wall -Wextra -pedantic)
 elseif(MSVC EQUAL 1)
-    target_compile_options(kdl-test PRIVATE /W3 /EHsc /MP)
+    target_compile_options(kdl-test PRIVATE /W4 /EHsc /MP)
 else()
     message(FATAL_ERROR "Cannot set compile options")
 endif()
