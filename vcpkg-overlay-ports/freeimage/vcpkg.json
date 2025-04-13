@@ -8,7 +8,12 @@
   "dependencies": [
     "imath",
     "jxrlib",
-    "libjpeg-turbo",
+    {
+      "name": "libjpeg-turbo",
+      "features": [
+        "jpeg8"
+      ]
+    },
     "libpng",
     "libraw",
     {
