@@ -113,6 +113,11 @@ Result<mdl::Texture> readFreeImageTextureFromMemory(
       FreeImage_CloseMemory};
 
     const auto imageFormat = FreeImage_GetFileTypeFromMemory(*imageMemory);
+    if (imageFormat == FIF_UNKNOWN)
+    {
+      return Error{"Unknown image format"};
+    }
+
     auto image = kdl::resource{
       FreeImage_LoadFromMemory(imageFormat, *imageMemory), FreeImage_Unload};
 

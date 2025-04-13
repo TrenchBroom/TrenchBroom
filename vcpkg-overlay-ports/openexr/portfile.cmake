@@ -1,9 +1,9 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO AcademySoftwareFoundation/openexr
-    REF v3.1.7
-    SHA512 f72f5e728f10c06fca0172c9b4c1df752225c3aed7384b4eaa502f92f8547bb1df93fe96d4d132a81eb32b729cb9fd615be825aa6c5de78481d3038c0d47c4d5
-    HEAD_REF master
+    REF "v${VERSION}"
+    SHA512 0c43337fda2979b328202488a43711afb5d680781c933aa0d74970a3dcda1135fbd01228cb10e81e4628c0d19da2d3e5b781e147d609cdc8a796d2a51a90932f
+    HEAD_REF main
     PATCHES
       0001-hide-symbols-by-default.patch
 )
@@ -18,8 +18,10 @@ vcpkg_cmake_configure(
     OPTIONS
         ${OPTIONS}
         -DBUILD_TESTING=OFF
-        -DOPENEXR_INSTALL_EXAMPLES=OFF
-        -DBUILD_DOCS=OFF
+        -DBUILD_WEBSITE=OFF
+        -DCMAKE_REQUIRE_FIND_PACKAGE_libdeflate=ON
+        -DOPENEXR_BUILD_EXAMPLES=OFF
+        -DOPENEXR_INSTALL_PKG_CONFIG=ON
     OPTIONS_DEBUG
         -DOPENEXR_BUILD_TOOLS=OFF
         -DOPENEXR_INSTALL_TOOLS=OFF
@@ -28,11 +30,23 @@ vcpkg_cmake_install()
 vcpkg_copy_pdbs()
 
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/OpenEXR)
+
 vcpkg_fixup_pkgconfig()
 
 if(OPENEXR_INSTALL_TOOLS)
     vcpkg_copy_tools(
-        TOOL_NAMES exrenvmap exrheader exrinfo exrmakepreview exrmaketiled exrmultipart exrmultiview exrstdattr exr2aces
+        TOOL_NAMES
+            exr2aces
+            # not installed: exrcheck
+            exrenvmap
+            exrheader
+            exrinfo
+            exrmakepreview
+            exrmaketiled
+            exrmanifest
+            exrmultipart
+            exrmultiview
+            exrstdattr
         AUTO_CLEAN
     )
 endif()
@@ -43,4 +57,4 @@ file(REMOVE_RECURSE
 )
 
 file(INSTALL "${CMAKE_CURRENT_LIST_DIR}/usage" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
-file(INSTALL "${SOURCE_PATH}/LICENSE.md" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE.md")

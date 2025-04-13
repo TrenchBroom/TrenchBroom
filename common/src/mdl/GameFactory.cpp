@@ -68,7 +68,6 @@ Result<void> migrateConfigFiles(
     case io::PathInfo::Directory:
       break;
     case io::PathInfo::Unknown:
-      std::cout << "Migrating user config files for '" << config.name << "'\n";
       return io::Disk::renameDirectory(legacyDir, newDir);
     }
   }
@@ -324,11 +323,8 @@ void GameFactory::loadCompilationConfig(GameConfig& gameConfig)
           gameConfig.compilationConfig = std::move(compilationConfig);
           gameConfig.compilationConfigParseFailed = false;
         })
-      | kdl::transform_error([&](auto e) {
-          std::cerr << "Could not load compilation configuration '" << path
-                    << "': " << e.msg << "\n";
-          gameConfig.compilationConfigParseFailed = true;
-        });
+      | kdl::transform_error(
+        [&](auto) { gameConfig.compilationConfigParseFailed = true; });
   }
 }
 
@@ -347,11 +343,8 @@ void GameFactory::loadGameEngineConfig(GameConfig& gameConfig)
           gameConfig.gameEngineConfig = std::move(gameEngineConfig);
           gameConfig.gameEngineConfigParseFailed = false;
         })
-      | kdl::transform_error([&](auto e) {
-          std::cerr << "Could not load game engine configuration '" << path
-                    << "': " << e.msg << "\n";
-          gameConfig.gameEngineConfigParseFailed = true;
-        });
+      | kdl::transform_error(
+        [&](auto) { gameConfig.gameEngineConfigParseFailed = true; });
   }
 }
 
