@@ -21,6 +21,7 @@
 
 #pragma once
 
+#include "vm/from_chars.h"
 #include "vm/mat.h"
 
 #include <optional>
@@ -36,7 +37,7 @@ namespace vm
  *     C ::= number of columns
  *  COMP ::= WS, FLOAT;
  *    WS ::= " " | \\t | \\n | \\r | "(" | ")";
- * FLOAT ::= any floating point number parseable by std::atof
+ * FLOAT ::= any floating point number parseable by std::from_chars
  *
  * @tparam T the component type
  * @tparam R the number of rows
@@ -59,7 +60,12 @@ std::optional<mat<T, R, C>> parse(const std::string_view str)
       {
         return std::nullopt;
       }
-      result[c][r] = static_cast<T>(std::atof(str.data() + pos));
+      if (
+        from_chars(str.data() + pos, str.data() + str.length(), result[c][r]).ec
+        != std::errc{})
+      {
+        return std::nullopt;
+      }
       if ((pos = str.find_first_of(blank, pos)) == std::string::npos)
       {
         if ((r * C) + c < R * C - 1u)

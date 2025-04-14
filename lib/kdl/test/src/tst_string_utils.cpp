@@ -276,15 +276,5 @@ TEST_CASE("string_utils")
     CHECK(str_to_double(" ") == std::nullopt);
     CHECK(str_to_double("") == std::nullopt);
   }
-
-  SECTION("string_format_test.str_to_long_double")
-  {
-    CHECK(str_to_long_double("0") == 0.0L);
-    CHECK(str_to_long_double("1.0") == 1.0L);
-    CHECK(str_to_long_double("  1.0     ") == 1.0L);
-    CHECK(str_to_long_double("a123231.0") == std::nullopt);
-    CHECK(str_to_long_double(" ") == std::nullopt);
-    CHECK(str_to_long_double("") == std::nullopt);
-  }
 }
 } // namespace kdl

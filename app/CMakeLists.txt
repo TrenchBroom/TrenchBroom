@@ -113,7 +113,7 @@ get_build_platform(APP_PLATFORM_NAME)
 add_executable(TrenchBroom WIN32 MACOSX_BUNDLE)
 target_sources(TrenchBroom PRIVATE ${APP_SOURCE} ${INDEX_OUTPUT_PATH} ${DOC_MANUAL_TARGET_FILES_ABSOLUTE} ${DOC_MANUAL_SHORTCUTS_JS_TARGET_ABSOLUTE} ${DOC_MANUAL_TARGET_IMAGE_FILES_ABSOLUTE})
 
-target_link_libraries(TrenchBroom common) # common already comes with all its dependencies, no need to repeat them here
+target_link_libraries(TrenchBroom PRIVATE common fmt::fmt-header-only)
 # Xcode "new build system" does't allow custom commands to be depended on by two unrelated targets
 # In this case, ${INDEX_OUTPUT_PATH} is depended on by TrenchBroom and GenerateManual
 # so we must make TrenchBroom depend on GenerateManual (see #3608)

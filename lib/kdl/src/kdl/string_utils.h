@@ -312,14 +312,4 @@ std::optional<float> str_to_float(std::string_view str);
  */
 std::optional<double> str_to_double(std::string_view str);
 
-/**
- * Interprets the given string as a long double value value and returns it. If the given
- * string cannot be parsed, returns an empty optional.
- *
- * @param str the string
- * @return the long double value value value or an empty optional if the given string
- * cannot be interpreted as an long double value value
- */
-std::optional<long double> str_to_long_double(std::string_view str);
-
 } // namespace kdl

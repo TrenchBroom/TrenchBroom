@@ -217,7 +217,7 @@ vm::mat4x4d entityRotation(
     }
     else
     {
-      const auto angle = static_cast<double>(std::atof(it->value().c_str()));
+      const auto angle = kdl::str_to_double(it->value()).value_or(0.0);
       return vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(angle));
     }
   }
@@ -227,7 +227,7 @@ vm::mat4x4d entityRotation(
     {
       return vm::mat4x4d::identity();
     }
-    const auto angle = static_cast<double>(std::atof(it->value().c_str()));
+    const auto angle = kdl::str_to_double(it->value()).value_or(0.0);
     if (angle == -1.0)
     {
       return vm::mat4x4d::rot_90_y_cw();

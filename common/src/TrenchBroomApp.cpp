@@ -177,10 +177,6 @@ TrenchBroomApp::TrenchBroomApp(int& argc, char** argv)
   signal(SIGSEGV, CrashHandler);
 #endif
 
-  // always set this locale so that we can properly parse floats from text files
-  // regardless of the platforms locale
-  std::setlocale(LC_NUMERIC, "C");
-
   setApplicationName("TrenchBroom");
   // Needs to be "" otherwise Qt adds this to the paths returned by QStandardPaths
   // which would cause preferences to move from where they were with wx
