@@ -160,6 +160,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Undo.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateLinkedGroupsCommand.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateLinkedGroupsHelper.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_UpdateVersion.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Validator.cpp"
 )
 
@@ -193,7 +194,7 @@ target_include_directories(common-test-utils PUBLIC ${COMMON_TEST_SOURCE_DIR})
 target_link_libraries(common-test-utils PRIVATE common Catch2::Catch2 Qt6::Test)
 
 macro(configure_test_target TARGET)
-    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 fmt::fmt-header-only)
+    target_link_libraries(${TARGET} PRIVATE common common-test-utils Catch2::Catch2 upd fmt::fmt-header-only)
     set_target_properties(${TARGET} PROPERTIES AUTOMOC TRUE)
 
     set_compiler_config(${TARGET})

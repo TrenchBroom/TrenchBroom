@@ -43,14 +43,15 @@ TEST_CASE("UpdateVersion")
 
   CHECK_FALSE(
     UpdateVersion{SemanticVersion{1, 2, 3, 1}}
-    < UpdateVersion{SemanticVersion{1, 2, 3, _}});
-  CHECK_FALSE(
-    UpdateVersion{SemanticVersion{1, 2, 3, 1}}
     < UpdateVersion{SemanticVersion{1, 2, 3, 1}});
   CHECK(
     UpdateVersion{SemanticVersion{1, 2, 3, 1}}
     < UpdateVersion{SemanticVersion{1, 2, 3, 2}});
+
   CHECK(
+    UpdateVersion{SemanticVersion{1, 2, 3, 1}}
+    < UpdateVersion{SemanticVersion{1, 2, 3, _}});
+  CHECK_FALSE(
     UpdateVersion{SemanticVersion{1, 2, 3, _}}
     < UpdateVersion{SemanticVersion{1, 2, 3, 2}});
 
@@ -72,14 +73,15 @@ TEST_CASE("UpdateVersion")
 
   CHECK_FALSE(
     UpdateVersion{TemporalVersion{2022, 2, 1}}
-    < UpdateVersion{TemporalVersion{2022, 2, _}});
-  CHECK_FALSE(
-    UpdateVersion{TemporalVersion{2022, 2, 1}}
     < UpdateVersion{TemporalVersion{2022, 2, 1}});
   CHECK(
     UpdateVersion{TemporalVersion{2022, 2, 1}}
     < UpdateVersion{TemporalVersion{2022, 2, 2}});
+
   CHECK(
+    UpdateVersion{TemporalVersion{2022, 2, 1}}
+    < UpdateVersion{TemporalVersion{2022, 2, _}});
+  CHECK_FALSE(
     UpdateVersion{TemporalVersion{2022, 2, _}}
     < UpdateVersion{TemporalVersion{2022, 2, 1}});
 

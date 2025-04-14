@@ -38,6 +38,9 @@ struct SemanticVersion
   kdl_reflect_decl(SemanticVersion, major, minor, patch, rc);
 };
 
+std::strong_ordering operator<=>(const SemanticVersion& lhs, const SemanticVersion& rhs);
+bool operator==(const SemanticVersion& lhs, const SemanticVersion& rhs);
+
 struct TemporalVersion
 {
   int year;
@@ -47,9 +50,12 @@ struct TemporalVersion
   kdl_reflect_decl(TemporalVersion, year, no, rc);
 };
 
+std::strong_ordering operator<=>(const TemporalVersion& lhs, const TemporalVersion& rhs);
+bool operator==(const TemporalVersion& lhs, const TemporalVersion& rhs);
+
 using UpdateVersion = std::variant<SemanticVersion, TemporalVersion>;
 
-std::partial_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs);
+std::strong_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs);
 bool operator==(const UpdateVersion& lhs, const UpdateVersion& rhs);
 std::ostream& operator<<(std::ostream& lhs, const UpdateVersion& rhs);
 

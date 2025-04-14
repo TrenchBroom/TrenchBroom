@@ -52,7 +52,60 @@ std::optional<int> getCapture(const QRegularExpressionMatch& match, const int in
 } // namespace
 
 kdl_reflect_impl(SemanticVersion);
+
+std::strong_ordering operator<=>(const SemanticVersion& lhs, const SemanticVersion& rhs)
+{
+  if (const auto cmp = lhs.major <=> rhs.major; cmp != 0)
+  {
+    return cmp;
+  }
+  if (const auto cmp = lhs.minor <=> rhs.minor; cmp != 0)
+  {
+    return cmp;
+  }
+  if (const auto cmp = lhs.patch <=> rhs.patch; cmp != 0)
+  {
+    return cmp;
+  }
+  if (lhs.rc && rhs.rc)
+  {
+    return *lhs.rc <=> *rhs.rc;
+  }
+  return lhs.rc   ? std::strong_ordering::less
+         : rhs.rc ? std::strong_ordering::greater
+                  : std::strong_ordering::equal;
+}
+
+bool operator==(const SemanticVersion& lhs, const SemanticVersion& rhs)
+{
+  return lhs <=> rhs == 0;
+}
+
 kdl_reflect_impl(TemporalVersion);
+
+std::strong_ordering operator<=>(const TemporalVersion& lhs, const TemporalVersion& rhs)
+{
+  if (const auto cmp = lhs.year <=> rhs.year; cmp != 0)
+  {
+    return cmp;
+  }
+  if (const auto cmp = lhs.no <=> rhs.no; cmp != 0)
+  {
+    return cmp;
+  }
+  if (lhs.rc && rhs.rc)
+  {
+    return *lhs.rc <=> *rhs.rc;
+  }
+  return lhs.rc   ? std::strong_ordering::less
+         : rhs.rc ? std::strong_ordering::greater
+                  : std::strong_ordering::equal;
+}
+
+bool operator==(const TemporalVersion& lhs, const TemporalVersion& rhs)
+{
+  return lhs <=> rhs == 0;
+}
 
 std::ostream& operator<<(std::ostream& lhs, const UpdateVersion& rhs)
 {
@@ -60,17 +113,22 @@ std::ostream& operator<<(std::ostream& lhs, const UpdateVersion& rhs)
   return lhs;
 }
 
-std::partial_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs)
+std::strong_ordering operator<=>(const UpdateVersion& lhs, const UpdateVersion& rhs)
 {
   return std::visit(
     kdl::overload(
-      [](const SemanticVersion& l, const SemanticVersion& r) -> std::partial_ordering {
+      [](const SemanticVersion& l, const SemanticVersion& r) -> std::strong_ordering {
         return l <=> r;
       },
-      [](const TemporalVersion& l, const TemporalVersion& r) -> std::partial_ordering {
+      [](const TemporalVersion& l, const TemporalVersion& r) -> std::strong_ordering {
         return l <=> r;
       },
-      [](const auto&, const auto&) { return std::partial_ordering::unordered; }),
+      [](const SemanticVersion&, const TemporalVersion&) -> std::strong_ordering {
+        return std::strong_ordering::less;
+      },
+      [](const TemporalVersion&, const SemanticVersion&) -> std::strong_ordering {
+        return std::strong_ordering::greater;
+      }),
     lhs,
     rhs);
 }
