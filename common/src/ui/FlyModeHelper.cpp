@@ -47,11 +47,9 @@ bool eventMatchesShortcut(const QKeySequence& shortcut, QKeyEvent* event)
     return false;
   }
 
-  // NOTE: For triggering fly mode we only support single keys.
-  // e.g. you can't bind Shift+W to fly forward, only Shift or W.
-  const auto ourKey = shortcut[0].key();
-  const auto theirKey = event->key();
-  return ourKey == theirKey;
+  const auto eventCombo = event->keyCombination();
+  const auto eventSequence = QKeySequence{eventCombo};
+  return shortcut.matches(eventSequence) == QKeySequence::ExactMatch;
 }
 
 } // namespace
