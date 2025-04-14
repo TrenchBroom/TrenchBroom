@@ -96,14 +96,23 @@ void GameFileSystem::addGameFileSystems(
   Logger& logger)
 {
   const auto& fileSystemConfig = config.fileSystemConfig;
-  addFileSystemPath(gamePath / fileSystemConfig.searchPath, logger);
-  addFileSystemPackages(config, gamePath / fileSystemConfig.searchPath, logger);
+  addSearchPath(config, gamePath, fileSystemConfig.searchPath, logger);
 
   for (const auto& searchPath : additionalSearchPaths)
   {
-    addFileSystemPath(gamePath / searchPath, logger);
-    addFileSystemPackages(config, gamePath / searchPath, logger);
+    addSearchPath(config, gamePath, searchPath, logger);
   }
+}
+
+void GameFileSystem::addSearchPath(
+  const GameConfig& config,
+  const std::filesystem::path& gamePath,
+  const std::filesystem::path& searchPath,
+  Logger& logger)
+{
+  const auto fixedPath = io::Disk::fixPath(gamePath / searchPath);
+  addFileSystemPath(fixedPath, logger);
+  addFileSystemPackages(config, fixedPath, logger);
 }
 
 void GameFileSystem::addFileSystemPath(const std::filesystem::path& path, Logger& logger)
@@ -164,6 +173,7 @@ void GameFileSystem::addFileSystemPackages(
       io::TraversalMode::Flat,
       io::makeExtensionPathMatcher(packageExtensions))
       | kdl::and_then([&](auto packagePaths) {
+          std::ranges::sort(packagePaths);
           return kdl::vec_transform(
                    std::move(packagePaths),
                    [&](auto packagePath) {

@@ -23,6 +23,7 @@
 #include "TestLogger.h"
 #include "io/DiskIO.h"
 #include "io/GameConfigParser.h"
+#include "io/ReaderException.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
@@ -177,6 +178,21 @@ std::string readTextFile(const std::filesystem::path& path)
            })
          | kdl::value();
 }
+
+Result<std::string> readTextFile(const FileSystem& fs, const std::filesystem::path& path)
+{
+  try
+  {
+    return fs.openFile(path) | kdl::transform([](const auto file) {
+             return file->reader().readString(file->size());
+           });
+  }
+  catch (const ReaderException& e)
+  {
+    return Error{fmt::format("Failed to read file {}: {}", path, e.what())};
+  }
+}
+
 } // namespace io
 
 namespace mdl

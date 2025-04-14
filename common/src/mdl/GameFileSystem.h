@@ -57,6 +57,11 @@ private:
     const std::filesystem::path& gamePath,
     const std::vector<std::filesystem::path>& additionalSearchPaths,
     Logger& logger);
+  void addSearchPath(
+    const GameConfig& config,
+    const std::filesystem::path& gamePath,
+    const std::filesystem::path& searchPath,
+    Logger& logger);
   void addFileSystemPath(const std::filesystem::path& path, Logger& logger);
   void addFileSystemPackages(
     const GameConfig& config, const std::filesystem::path& searchPath, Logger& logger);
