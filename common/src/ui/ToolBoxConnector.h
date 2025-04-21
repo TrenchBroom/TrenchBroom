@@ -73,7 +73,7 @@ public:
 
 protected:
   void setToolBox(ToolBox& toolBox);
-  void addTool(std::unique_ptr<ToolController> tool);
+  void addToolController(std::unique_ptr<ToolController> toolController);
 
 public: // drag and drop
   bool dragEnter(float x, float y, const std::string& text);

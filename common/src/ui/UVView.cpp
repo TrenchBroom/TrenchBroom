@@ -175,12 +175,12 @@ bool UVView::event(QEvent* event)
 
 void UVView::createTools()
 {
-  addTool(std::make_unique<UVRotateTool>(m_document, m_helper));
-  addTool(std::make_unique<UVOriginTool>(m_helper));
-  addTool(std::make_unique<UVScaleTool>(m_document, m_helper));
-  addTool(std::make_unique<UVShearTool>(m_document, m_helper));
-  addTool(std::make_unique<UVOffsetTool>(m_document, m_helper));
-  addTool(std::make_unique<UVCameraTool>(m_camera));
+  addToolController(std::make_unique<UVRotateTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVOriginTool>(m_helper));
+  addToolController(std::make_unique<UVScaleTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVShearTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVOffsetTool>(m_document, m_helper));
+  addToolController(std::make_unique<UVCameraTool>(m_camera));
 }
 
 void UVView::connectObservers()
