@@ -494,13 +494,6 @@ void processRootNode(
     // display the model, we must choose EXACTLY ONE submodel from each body
     // part and render the meshes for those chosen submodels.
 
-    // Assimp HL models face sideways by default so spin by -90 on the z axis
-    // this MIGHT be needed for non-HL models as well. To be safe for now, we
-    // only do this for HL models.
-    const auto rotation = aiQuaternion{aiVector3t{0, 1, 0}, -vm::Cf::half_pi()};
-    const auto rotMatrix = aiMatrix4x4{rotation.GetMatrix()};
-    const auto newAxisTransform = axisTransform * rotMatrix;
-
     // loop through each body part
     for (unsigned int i = 0; i < hl1BodyParts->mNumChildren; ++i)
     {
@@ -509,7 +502,7 @@ void processRootNode(
       {
         // currently we don't have a way to know which submodel the user
         // might want to see, so just use the first one.
-        processNode(meshes, *bodypart.mChildren[0], scene, transform, newAxisTransform);
+        processNode(meshes, *bodypart.mChildren[0], scene, transform, axisTransform);
       }
     }
   }
