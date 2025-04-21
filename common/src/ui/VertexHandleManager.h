@@ -24,10 +24,13 @@
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
 
-#include "kdl/vector_set.h"
+#include "kdl/map_utils.h"
+#include "kdl/range_to.h"
+#include "kdl/vector_utils.h"
 
 #include <iterator>
 #include <map>
+#include <ranges>
 #include <vector>
 
 namespace tb::render
@@ -48,17 +51,15 @@ public:
   /**
    * Adds all handles of the the given range of brushes to this handle manager.
    *
-   * @tparam I the type of the given range iterators
-   * @param cur the beginning of the range
-   * @param end the end of the range
+   * @tparam R the type of the given range
+   * @param handles the handles to add
    */
-  template <typename I>
-  void addHandles(I cur, I end)
+  template <std::ranges::range R>
+  void addHandles(const R& handles)
   {
-    while (cur != end)
+    for (const auto& handle : handles)
     {
-      addHandles(*cur);
-      ++cur;
+      addHandles(handle);
     }
   }
 
@@ -72,17 +73,15 @@ public:
   /**
    * Removes all handles of the given range of brushes from this handle manager.
    *
-   * @tparam I the type of the range iterators
-   * @param cur the beginning of the range
-   * @param end the end of the range
+   * @tparam R the type of the given range
+   * @param handles the handles to remove
    */
-  template <typename I>
-  void removeHandles(I cur, I end)
+  template <std::ranges::range R>
+  void removeHandles(const R& handles)
   {
-    while (cur != end)
+    for (const auto& handle : handles)
     {
-      removeHandles(*cur);
-      ++cur;
+      removeHandles(handle);
     }
   }
 
@@ -99,9 +98,7 @@ class VertexHandleManagerBaseT : public VertexHandleManagerBase
 {
 public:
   using Handle = H;
-  using HandleList = std::vector<H>;
 
-private:
 protected:
   /**
    * Represents the status of a handle, i.e., how many duplicates exist at the same
@@ -109,49 +106,29 @@ protected:
    */
   struct HandleInfo
   {
-    size_t count;
-    bool selected;
-
-    HandleInfo()
-      : count(0)
-      , selected(false)
-    {
-    }
+    size_t count = 0;
+    bool selected = false;
 
     /**
      * Sets this handle to selected.
      *
      * @return true if and only if this handle was not previously selected
      */
-    bool select()
-    {
-      const bool result = !selected;
-      selected = true;
-      return result;
-    }
+    bool select() { return !std::exchange(selected, true); }
 
     /**
      * Sets this handle to deselected.
      *
      * @return true if and only if this handle was previously selected
      */
-    bool deselect()
-    {
-      const bool result = selected;
-      selected = false;
-      return result;
-    }
+    bool deselect() { return std::exchange(selected, false); }
 
     /**
      * Toggles the selection state of this handle.
      *
      * @return true if and only if this handle was previously selected
      */
-    bool toggle()
-    {
-      selected = !selected;
-      return selected;
-    }
+    bool toggle() { return std::exchange(selected, !selected); }
 
     /**
      * Increments the number of handles at the same coordinates.
@@ -164,26 +141,18 @@ protected:
     void dec() { --count; }
   };
 
-  using HandleMap = std::map<H, HandleInfo>;
-  using HandleEntry = typename HandleMap::value_type;
-
   /**
    * Maps a handle position to its info.
    */
-  HandleMap m_handles;
+  std::map<H, HandleInfo> m_handles;
 
   /**
    * The total number of selected handles, not counting duplicates.
    */
-  size_t m_selectedHandleCount;
+  size_t m_selectedHandleCount = 0;
 
 public:
-  VertexHandleManagerBaseT()
-    : m_selectedHandleCount(0)
-  {
-  }
-
-  ~VertexHandleManagerBaseT() override {}
+  ~VertexHandleManagerBaseT() override = default;
 
 public:
   /**
@@ -223,12 +192,11 @@ public:
    *
    * @return a list containing all handles
    */
-  HandleList allHandles() const
+  auto allHandles() const
   {
-    HandleList result;
+    auto result = std::vector<Handle>{};
     result.reserve(totalHandleCount());
-    collectHandles(
-      [](const HandleInfo& /* info */) { return true; }, std::back_inserter(result));
+    collectHandles([](const auto&) { return true; }, std::back_inserter(result));
     return result;
   }
 
@@ -237,12 +205,12 @@ public:
    *
    * @return a list containing all selected handles
    */
-  HandleList selectedHandles() const
+  auto selectedHandles() const
   {
-    HandleList result;
+    auto result = std::vector<Handle>{};
     result.reserve(selectedHandleCount());
     collectHandles(
-      [](const HandleInfo& info) { return info.selected; }, std::back_inserter(result));
+      [](const auto& info) { return info.selected; }, std::back_inserter(result));
     return result;
   }
 
@@ -251,12 +219,12 @@ public:
    *
    * @return a list containing all unselected handles
    */
-  HandleList unselectedHandles() const
+  auto unselectedHandles() const
   {
-    HandleList result;
+    auto result = std::vector<Handle>{};
     result.reserve(unselectedHandleCount());
     collectHandles(
-      [](const HandleInfo& info) { return !info.selected; }, std::back_inserter(result));
+      [](const auto& info) { return !info.selected; }, std::back_inserter(result));
     return result;
   }
 
@@ -329,10 +297,9 @@ public:
    */
   bool remove(const Handle& handle)
   {
-    const auto it = m_handles.find(handle);
-    if (it != std::end(m_handles))
+    if (const auto it = m_handles.find(handle); it != m_handles.end())
     {
-      HandleInfo& info = it->second;
+      auto& info = it->second;
       info.dec();
 
       if (info.count == 0)
@@ -358,17 +325,15 @@ public:
   /**
    * Selects the given range of handles.
    *
-   * @tparam I the type of the range iterator
-   * @param cur the beginning of the range
-   * @param end the end of the range
+   * @tparam R the type of the given range
+   * @param handles the handles to select
    */
-  template <typename I>
-  void select(I cur, I end)
+  template <std::ranges::range R>
+  void select(const R& handles)
   {
-    while (cur != end)
+    for (const auto& handle : handles)
     {
-      select(*cur);
-      ++cur;
+      select(handle);
     }
   }
 
@@ -380,23 +345,21 @@ public:
    */
   void select(const Handle& handle)
   {
-    forEachCloseHandle(handle, [this](HandleInfo& info) { select(info); });
+    forEachCloseHandle(handle, [&](auto& info) { select(info); });
   }
 
   /**
    * Deselects the given range of handles.
    *
-   * @tparam I the type of the range iterators
-   * @param cur the beginning of the range
-   * @param end the end of the range
+   * @tparam R the type of the given range
+   * @param handles the handles to deselect
    */
-  template <typename I>
-  void deselect(I cur, I end)
+  template <std::ranges::range R>
+  void deselect(const R& handles)
   {
-    while (cur != end)
+    for (const auto& handle : handles)
     {
-      deselect(*cur);
-      ++cur;
+      deselect(handle);
     }
   }
 
@@ -408,7 +371,7 @@ public:
    */
   void deselect(const Handle& handle)
   {
-    forEachCloseHandle(handle, [this](HandleInfo& info) { deselect(info); });
+    forEachCloseHandle(handle, [&](auto& info) { deselect(info); });
   }
 
   /**
@@ -425,30 +388,26 @@ public:
   /**
    * Toggles the selection of the given range of handles.
    *
-   * @tparam I the type of the range iterators
-   * @param begin the beginning of the range
-   * @param end the end of the range
+   * @tparam R the type of the given range
+   * @param handles the handles to toggle
    */
-  template <typename I>
-  void toggle(I begin, I end)
+  template <std::ranges::range R>
+  void toggle(const R& handles)
   {
-    using SelectionState = std::map<Handle, bool>;
-    SelectionState selectionState;
+    const auto selectionState = handles | std::views::transform([&](const auto& handle) {
+                                  return std::pair{handle, selected(handle)};
+                                })
+                                | kdl::to<std::map<Handle, bool>>();
 
-    for (auto cur = begin; cur != end; ++cur)
+    for (const auto& handle : handles)
     {
-      selectionState[*cur] = selected(*cur);
-    }
-
-    for (auto cur = begin; cur != end; ++cur)
-    {
-      if (selectionState[*cur])
+      if (kdl::map_find_or_default(selectionState, handle, false))
       {
-        deselect(*cur);
+        deselect(handle);
       }
       else
       {
-        select(*cur);
+        select(handle);
       }
     }
   }
@@ -527,66 +486,58 @@ public:
    * Finds and returns all brushes in the given range which are incident to the given
    * handle.
    *
-   * @tparam I the type of the range iterators
+   * @tparam R the type of the given brush range
    * @param handle the handle
-   * @param begin the beginning of the range of brushes
-   * @param end the end of the range of brushes
+   * @param brushes the handles to add
    * @return a set of all brushes that are incident to the given handle
    */
-  template <typename I>
+  template <std::ranges::range R>
   std::vector<mdl::BrushNode*> findIncidentBrushes(
-    const Handle& handle, I begin, I end) const
+    const Handle& handle, const R& brushes) const
   {
-    kdl::vector_set<mdl::BrushNode*> result;
-    findIncidentBrushes(handle, begin, end, std::inserter(result, result.end()));
-    return result.release_data();
+    auto result = std::vector<mdl::BrushNode*>{};
+    findIncidentBrushes(handle, brushes, std::back_inserter(result));
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
   /**
-   * Finds and returns all brushes in the given range which are incident to any handle in
-   * the given range.
+   * Finds and returns all brushes in the given range which are incident to any handle
+   * in the given range.
    *
-   * @tparam I1 the type of range iterators for the range of handles
-   * @tparam I2 the type of range iterators for the range of brushes
-   * @param hBegin the beginning of the range of handles
-   * @param hEnd the end of the range of handles
-   * @param bBegin the beginning of the range of brushes
-   * @param bEnd the end of the range of brushes
-   * @return a set containing all incident brushes
+   * @tparam HandleRange the type of the range of handles
+   * @tparam BrushRange the type of the range of brushes
+   * @param handles the range of handles
+   * @param brushes the range of brushes
+   * @return a vector containing all incident brushes
    */
-  template <typename I1, typename I2>
+  template <std::ranges::range HandleRange, std::ranges::range BrushRange>
   std::vector<mdl::BrushNode*> findIncidentBrushes(
-    I1 hBegin, I1 hEnd, I2 bBegin, I2 bEnd) const
+    const HandleRange& handles, const BrushRange& brushes) const
   {
-    kdl::vector_set<mdl::BrushNode*> result;
-    auto out = std::inserter(result, std::end(result));
-    for (auto hCur = hBegin; hCur != hEnd; ++hCur)
+    auto result = std::vector<mdl::BrushNode*>{};
+    auto out = std::back_inserter(result);
+
+    for (const auto& handle : handles)
     {
-      findIncidentBrushes(*hCur, bBegin, bEnd, out);
+      findIncidentBrushes(handle, brushes, out);
     }
-    return result.release_data();
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
   /**
    * Finds all brushes in the given range which are incident to the given handle.
    *
-   * @tparam I the type of the range iterators
+   * @tparam R the type of the given range of brushes
    * @tparam O an output iterator to append the resulting brushes to
    * @param handle the handle
-   * @param begin the beginning of the range of brushes
-   * @param end the end of the range of brushes
+   * @param brushes the range of brushes
    * @param out an output iterator that accepts the incident brushes
    */
-  template <typename I, typename O>
-  void findIncidentBrushes(const Handle& handle, I begin, I end, O out) const
+  template <std::ranges::range R, typename O>
+  void findIncidentBrushes(const Handle& handle, const R& brushes, O out) const
   {
-    for (auto cur = begin; cur != end; ++cur)
-    {
-      if (isIncident(handle, *cur))
-      {
-        out++ = *cur;
-      }
-    }
+    std::ranges::copy_if(
+      brushes, out, [&](const auto& brush) { return isIncident(handle, brush); });
   }
 
 private:
@@ -643,8 +594,8 @@ private:
  * intersects the picking ray with a sphere around the center point of each edge handle.
  *
  * Additionally, this manager can pick virtual handles. These virtual handles are points
- * where the edge handles intersect with a grid plane. Such handles are not added to this
- * manager explicitly, but are computed on the fly.
+ * where the edge handles intersect with a grid plane. Such handles are not added to
+ * this manager explicitly, but are computed on the fly.
  */
 class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3d>
 {
@@ -658,9 +609,9 @@ public:
 
 public:
   /**
-   * Picks a virtual handle at any position where an edge handle intersects with any grid
-   * plane. These virtual handles are points, but they are computed on the fly from the
-   * edge handles contained in this manager.
+   * Picks a virtual handle at any position where an edge handle intersects with any
+   * grid plane. These virtual handles are points, but they are computed on the fly from
+   * the edge handles contained in this manager.
    *
    * @param pickRay the picking ray
    * @param camera the camera
@@ -717,8 +668,8 @@ public:
 public:
   /**
    * Picks a virtual handle at any position where a face handle intersects with any two
-   * grid planes. These virtual handles are points, but they are computed on the fly from
-   * the face handles contained in this manager.
+   * grid planes. These virtual handles are points, but they are computed on the fly
+   * from the face handles contained in this manager.
    *
    * @param pickRay the picking ray
    * @param camera the camera

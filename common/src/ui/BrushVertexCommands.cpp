@@ -61,13 +61,13 @@ static auto collectBrushNodes(
 void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager)
 {
   const auto nodes = collectBrushNodes(m_nodes);
-  manager.removeHandles(std::begin(nodes), std::end(nodes));
+  manager.removeHandles(nodes);
 }
 
 void BrushVertexCommandBase::addHandles(VertexHandleManagerBase& manager)
 {
   const auto nodes = collectBrushNodes(m_nodes);
-  manager.addHandles(std::begin(nodes), std::end(nodes));
+  manager.addHandles(nodes);
 }
 
 void BrushVertexCommandBase::selectNewHandlePositions(
@@ -141,13 +141,13 @@ bool BrushVertexCommand::doCollateWith(UndoableCommand& command)
 void BrushVertexCommand::selectNewHandlePositions(
   VertexHandleManagerBaseT<vm::vec3d>& manager) const
 {
-  manager.select(std::begin(m_newVertexPositions), std::end(m_newVertexPositions));
+  manager.select(m_newVertexPositions);
 }
 
 void BrushVertexCommand::selectOldHandlePositions(
   VertexHandleManagerBaseT<vm::vec3d>& manager) const
 {
-  manager.select(std::begin(m_oldVertexPositions), std::end(m_oldVertexPositions));
+  manager.select(m_oldVertexPositions);
 }
 
 BrushEdgeCommand::BrushEdgeCommand(
@@ -177,13 +177,13 @@ bool BrushEdgeCommand::doCollateWith(UndoableCommand& command)
 void BrushEdgeCommand::selectNewHandlePositions(
   VertexHandleManagerBaseT<vm::segment3d>& manager) const
 {
-  manager.select(std::begin(m_newEdgePositions), std::end(m_newEdgePositions));
+  manager.select(m_newEdgePositions);
 }
 
 void BrushEdgeCommand::selectOldHandlePositions(
   VertexHandleManagerBaseT<vm::segment3d>& manager) const
 {
-  manager.select(std::begin(m_oldEdgePositions), std::end(m_oldEdgePositions));
+  manager.select(m_oldEdgePositions);
 }
 
 BrushFaceCommand::BrushFaceCommand(
@@ -212,13 +212,13 @@ bool BrushFaceCommand::doCollateWith(UndoableCommand& command)
 void BrushFaceCommand::selectNewHandlePositions(
   VertexHandleManagerBaseT<vm::polygon3d>& manager) const
 {
-  manager.select(std::begin(m_newFacePositions), std::end(m_newFacePositions));
+  manager.select(m_newFacePositions);
 }
 
 void BrushFaceCommand::selectOldHandlePositions(
   VertexHandleManagerBaseT<vm::polygon3d>& manager) const
 {
-  manager.select(std::begin(m_oldFacePositions), std::end(m_oldFacePositions));
+  manager.select(m_oldFacePositions);
 }
 
 } // namespace tb::ui

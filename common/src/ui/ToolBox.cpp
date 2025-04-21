@@ -360,8 +360,7 @@ void ToolBox::activateTool(Tool& tool)
 {
   if (tool.activate())
   {
-    auto it = m_suppressedTools.find(&tool);
-    if (it != std::end(m_suppressedTools))
+    if (auto it = m_suppressedTools.find(&tool); it != std::end(m_suppressedTools))
     {
       for (auto* suppress : it->second)
       {
@@ -382,8 +381,7 @@ void ToolBox::deactivateTool(Tool& tool)
     cancelMouseDrag();
   }
 
-  auto it = m_suppressedTools.find(&tool);
-  if (it != std::end(m_suppressedTools))
+  if (auto it = m_suppressedTools.find(&tool); it != std::end(m_suppressedTools))
   {
     for (auto* suppress : it->second)
     {

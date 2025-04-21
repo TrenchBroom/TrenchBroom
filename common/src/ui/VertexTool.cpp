@@ -176,7 +176,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
   {
     if (m_edgeHandles->selectedHandleCount() == 1)
     {
-      const vm::segment3d handle = m_edgeHandles->selectedHandles().front();
+      const auto handle = m_edgeHandles->selectedHandles().front();
       brushes = findIncidentBrushes(handle);
     }
   }
@@ -185,7 +185,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     assert(m_mode == Mode::SplitFace);
     if (m_faceHandles->selectedHandleCount() == 1)
     {
-      const vm::polygon3d handle = m_faceHandles->selectedHandles().front();
+      const auto handle = m_faceHandles->selectedHandles().front();
       brushes = findIncidentBrushes(handle);
     }
   }
@@ -284,8 +284,8 @@ bool VertexTool::doActivate()
   m_faceHandles->clear();
 
   const auto& brushes = selectedBrushes();
-  m_edgeHandles->addHandles(std::begin(brushes), std::end(brushes));
-  m_faceHandles->addHandles(std::begin(brushes), std::end(brushes));
+  m_edgeHandles->addHandles(brushes);
+  m_faceHandles->addHandles(brushes);
 
   m_mode = Mode::Move;
   return true;
