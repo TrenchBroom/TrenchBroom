@@ -140,7 +140,8 @@ endif()
 
 # Populate version variables using git
 get_git_describe("${GIT_EXECUTABLE}" "${CMAKE_SOURCE_DIR}" GIT_DESCRIBE)
-get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER)
+get_app_version(GIT_DESCRIBE APP_VERSION_YEAR APP_VERSION_NUMBER APP_VERSION_RC)
+get_app_version_str(APP_VERSION_YEAR APP_VERSION_NUMBER APP_VERSION_RC APP_VERSION_STR)
 set(APP_BUILD_TYPE "${CMAKE_BUILD_TYPE}")
 
 # Some global variables used in several targets
