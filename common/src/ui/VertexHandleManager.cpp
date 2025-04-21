@@ -176,11 +176,13 @@ void FaceHandleManager::pickGridHandle(
 {
   for (const auto& [position, info] : m_handles)
   {
-    if (const auto plane = vm::from_points(std::begin(position), std::end(position)))
+    if (
+      const auto plane =
+        vm::from_points(position.vertices().begin(), position.vertices().end()))
     {
       if (
         const auto distance = vm::intersect_ray_polygon(
-          pickRay, *plane, std::begin(position), std::end(position)))
+          pickRay, *plane, position.vertices().begin(), position.vertices().end()))
       {
         const auto pointHandle =
           grid.snap(vm::point_at_distance(pickRay, *distance), *plane);
