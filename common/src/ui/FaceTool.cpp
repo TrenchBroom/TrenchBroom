@@ -72,9 +72,10 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
   auto document = kdl::mem_lock(m_document);
 
   auto handles = m_faceHandles->selectedHandles();
-  if (document->moveFaces(std::move(handles), delta))
+  const auto transform = vm::translation_matrix(delta);
+  if (document->transformFaces(std::move(handles), transform))
   {
-    m_dragHandlePosition = m_dragHandlePosition.translate(delta);
+    m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
   }
   return MoveResult::Deny;

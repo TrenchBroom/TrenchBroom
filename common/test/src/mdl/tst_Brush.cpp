@@ -34,7 +34,6 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 #include "vm/vec.h"
-#include "vm/vec_ext.h"
 
 #include <string>
 #include <vector>
@@ -61,16 +60,18 @@ void assertCanMoveVertices(
   Brush brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
+  const auto transform = vm::translation_matrix(delta);
 
-  CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+  CHECK(brush.canTransformVertices(worldBounds, vertexPositions, transform));
 
-  REQUIRE(brush.moveVertices(worldBounds, vertexPositions, delta).is_success());
+  REQUIRE(brush.transformVertices(worldBounds, vertexPositions, transform).is_success());
 
-  auto movedVertexPositions = brush.findClosestVertexPositions(vertexPositions + delta);
+  auto movedVertexPositions =
+    brush.findClosestVertexPositions(transform * vertexPositions);
   movedVertexPositions =
     kdl::vec_sort_and_remove_duplicates(std::move(movedVertexPositions));
 
-  auto expectedVertexPositions = vertexPositions + delta;
+  auto expectedVertexPositions = transform * vertexPositions;
   expectedVertexPositions =
     kdl::vec_sort_and_remove_duplicates(std::move(expectedVertexPositions));
 
@@ -83,12 +84,13 @@ void assertMovingVerticesDeletes(
   Brush brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
+  const auto transform = vm::translation_matrix(delta);
 
-  CHECK(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+  CHECK(brush.canTransformVertices(worldBounds, vertexPositions, transform));
 
-  REQUIRE(brush.moveVertices(worldBounds, vertexPositions, delta).is_success());
+  REQUIRE(brush.transformVertices(worldBounds, vertexPositions, transform).is_success());
   const auto movedVertexPositions =
-    brush.findClosestVertexPositions(vertexPositions + delta);
+    brush.findClosestVertexPositions(transform * vertexPositions);
   CHECK(movedVertexPositions.empty());
 }
 
@@ -96,7 +98,8 @@ void assertCanNotMoveVertices(
   const Brush& brush, const std::vector<vm::vec3d> vertexPositions, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
-  CHECK_FALSE(brush.canMoveVertices(worldBounds, vertexPositions, delta));
+  const auto transform = vm::translation_matrix(delta);
+  CHECK_FALSE(brush.canTransformVertices(worldBounds, vertexPositions, transform));
 }
 
 void assertCanMoveVertex(
@@ -121,21 +124,23 @@ void assertCanNotMoveEdges(
   const Brush& brush, const std::vector<vm::segment3d> edges, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
-  CHECK_FALSE(brush.canMoveEdges(worldBounds, edges, delta));
+  const auto transform = vm::translation_matrix(delta);
+  CHECK_FALSE(brush.canTransformEdges(worldBounds, edges, transform));
 }
 
 void assertCanMoveFaces(
   Brush brush, const std::vector<vm::polygon3d> movingFaces, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
+  const auto transform = vm::translation_matrix(delta);
 
   const auto expectedMovedFaces =
     movingFaces
-    | std::views::transform([&](const auto& face) { return face.translate(delta); })
+    | std::views::transform([&](const auto& face) { return face.transform(transform); })
     | kdl::to_vector;
 
-  CHECK(brush.canMoveFaces(worldBounds, movingFaces, delta));
-  CHECK(brush.moveFaces(worldBounds, movingFaces, delta).is_success());
+  CHECK(brush.canTransformFaces(worldBounds, movingFaces, transform));
+  CHECK(brush.transformFaces(worldBounds, movingFaces, transform).is_success());
   const auto movedFaces = brush.findClosestFacePositions(expectedMovedFaces);
   CHECK(movedFaces == expectedMovedFaces);
 }
@@ -144,7 +149,8 @@ void assertCanNotMoveFaces(
   const Brush& brush, const std::vector<vm::polygon3d> movingFaces, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
-  CHECK_FALSE(brush.canMoveFaces(worldBounds, movingFaces, delta));
+  const auto transform = vm::translation_matrix(delta);
+  CHECK_FALSE(brush.canTransformFaces(worldBounds, movingFaces, transform));
 }
 
 void assertCanMoveFace(
@@ -159,10 +165,11 @@ void assertCanNotMoveFace(
   const Brush& brush, const std::optional<size_t>& topFaceIndex, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
+  const auto transform = vm::translation_matrix(delta);
 
   REQUIRE(topFaceIndex);
   const auto& topFace = brush.face(*topFaceIndex);
-  CHECK_FALSE(brush.canMoveFaces(worldBounds, {topFace.polygon()}, delta));
+  CHECK_FALSE(brush.canTransformFaces(worldBounds, {topFace.polygon()}, transform));
 }
 
 void assertCanMoveTopFace(const Brush& brush, const vm::vec3d delta)
@@ -434,9 +441,12 @@ TEST_CASE("BrushTest.moveVertex")
   const auto p9 = vm::vec3d{+16, +16, +32};
 
   auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p9 - p8).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+  const auto inverse = vm::translation_matrix(p8 - p9);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + (p9 - p8));
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx{p9});
@@ -451,8 +461,8 @@ TEST_CASE("BrushTest.moveVertex")
   assertMaterial("bottom", brush, p1, p3, p7, p5);
 
   oldVertexPositions = std::move(newVertexPositions);
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, p8 - p9).is_success());
-  newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + (p8 - p9));
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, inverse).is_success());
+  newVertexPositions = brush.findClosestVertexPositions(inverse * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx{p8});
@@ -463,6 +473,46 @@ TEST_CASE("BrushTest.moveVertex")
   assertMaterial("back", brush, p3, p4, p8, p7);
   assertMaterial("top", brush, p2, p6, p8, p4);
   assertMaterial("bottom", brush, p1, p3, p7, p5);
+}
+
+TEST_CASE("BrushTest.rotateVertices")
+{
+  const auto angle = GENERATE(35.0, 45.0, 72.0, 90.0, 180.0, 270.0);
+
+  CAPTURE(angle);
+
+  const auto worldBounds = vm::bbox3d{4096.0};
+
+  const auto p1 = vm::vec3d{-32, -32, -32};
+  const auto p2 = vm::vec3d{+32, -32, -32};
+  const auto p3 = vm::vec3d{-32, +32, -32};
+  const auto p4 = vm::vec3d{+32, +32, -32};
+  const auto p5 = vm::vec3d{-32, -32, +32};
+  const auto p6 = vm::vec3d{+32, -32, +32};
+  const auto p7 = vm::vec3d{-32, +32, +32};
+  const auto p8 = vm::vec3d{+32, +32, +32};
+
+  auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
+  auto brush =
+    builder.createBrush(std::vector{p1, p2, p3, p4, p5, p6, p7, p8}, "some_material")
+    | kdl::value();
+
+  const auto oldVertexPositions = std::vector{p1, p2, p3, p4};
+  const auto transform = vm::rotation_matrix(vm::vec3d{0, 0, 1}, vm::to_radians(angle));
+
+  REQUIRE(brush.canTransformVertices(worldBounds, oldVertexPositions, transform));
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
+  const auto newVertexPositions =
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
+
+  CHECK(
+    newVertexPositions
+    == std::vector{
+      vm::approx(transform * p1),
+      vm::approx(transform * p2),
+      vm::approx(transform * p3),
+      vm::approx(transform * p4),
+    });
 }
 
 TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
@@ -481,10 +531,12 @@ TEST_CASE("BrushTest.moveTetrahedronVertexToOpposideSide")
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush = builder.createBrush(points, "some_material") | kdl::value();
 
-  auto oldVertexPositions = std::vector<vm::vec3d>{top};
-  auto delta = vm::vec3d{0, 0, -32};
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
-  auto newVertexPositions = brush.findClosestVertexPositions(oldVertexPositions + delta);
+  const auto oldVertexPositions = std::vector<vm::vec3d>{top};
+  const auto transform = vm::translation_matrix(vm::vec3d{0, 0, -32});
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
+  auto newVertexPositions =
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx{vm::vec3d{0, 0, -16}});
@@ -511,10 +563,11 @@ TEST_CASE("BrushTest.moveVertexInwardWithoutMerges")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -579,10 +632,11 @@ TEST_CASE("BrushTest.moveVertexOutwardWithoutMerges")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -647,10 +701,11 @@ TEST_CASE("BrushTest.moveVertexWithOneOuterNeighbourMerge")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -713,10 +768,11 @@ TEST_CASE("BrushTest.moveVertexWithTwoOuterNeighbourMerges")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx{p9});
@@ -777,10 +833,11 @@ TEST_CASE("BrushTest.moveVertexWithAllOuterNeighbourMerges")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>{p8};
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx{p9});
@@ -839,10 +896,11 @@ TEST_CASE("BrushTest.moveVertexWithAllInnerNeighbourMerge")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 0u);
 
@@ -900,10 +958,11 @@ TEST_CASE("BrushTest.moveVertexUpThroughPlane")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -964,10 +1023,11 @@ TEST_CASE("BrushTest.moveVertexOntoEdge")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 0u);
 
@@ -1024,10 +1084,11 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertex")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
-  const auto delta = p7 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p7 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p7));
@@ -1085,10 +1146,11 @@ TEST_CASE("BrushTest.moveVertexOntoIncidentVertexInOppositeDirection")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p7});
-  const auto delta = p8 - p7;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p8 - p7);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p8));
@@ -1147,10 +1209,11 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p6});
-  const auto delta = p9 - p6;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p6);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -1209,10 +1272,11 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithoutDeletingVertex2")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p8});
-  const auto delta = p9 - p8;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p9 - p8);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 1u);
   CHECK(newVertexPositions[0] == vm::approx(p9));
@@ -1273,10 +1337,11 @@ TEST_CASE("BrushTest.moveVertexAndMergeColinearEdgesWithDeletingVertex")
   auto brush = builder.createBrush(originalPositions, "material") | kdl::value();
 
   const auto oldVertexPositions = std::vector<vm::vec3d>({p9});
-  const auto delta = p10 - p9;
-  CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+  const auto transform = vm::translation_matrix(p10 - p9);
+
+  CHECK(brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
   const auto newVertexPositions =
-    brush.findClosestVertexPositions(oldVertexPositions + delta);
+    brush.findClosestVertexPositions(transform * oldVertexPositions);
 
   CHECK(newVertexPositions.size() == 0u);
 
@@ -1326,9 +1391,10 @@ TEST_CASE("BrushTest.moveVerticesPastWorldBounds")
     | std::views::transform([](const auto* vertex) { return vertex->position(); })
     | kdl::to_vector;
 
-  CHECK(brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3d{16, 0, 0}));
-  CHECK_FALSE(
-    brush.canMoveVertices(worldBounds, allVertexPositions, vm::vec3d{8192, 0, 0}));
+  CHECK(brush.canTransformVertices(
+    worldBounds, allVertexPositions, vm::translation_matrix(vm::vec3d{16, 0, 0})));
+  CHECK_FALSE(brush.canTransformVertices(
+    worldBounds, allVertexPositions, vm::translation_matrix(vm::vec3d{8192, 0, 0})));
 }
 
 // NOTE: Different than movePolygonRemainingPoint, because in this case we allow
@@ -1366,7 +1432,7 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
     std::reverse(temp.begin(), temp.end());
     const auto flippedBaseQuadVertexPositions = std::vector<vm::vec3d>{temp};
 
-    const auto delta = vm::vec3d{0.0, 0.0, -129.0};
+    const auto transform = vm::translation_matrix(vm::vec3d{0.0, 0.0, -129.0});
 
     CHECK(brushCopy.faceCount() == 5u);
     CHECK(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
@@ -1375,11 +1441,12 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
     CHECK_FALSE(brushCopy.findFace(vm::vec3d{0, 0, 1}));
 
     const auto oldVertexPositions = std::vector<vm::vec3d>{peakPosition};
-    CHECK(brushCopy.canMoveVertices(worldBounds, oldVertexPositions, delta));
-    REQUIRE(brushCopy.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+    CHECK(brushCopy.canTransformVertices(worldBounds, oldVertexPositions, transform));
+    REQUIRE(brushCopy.transformVertices(worldBounds, oldVertexPositions, transform)
+              .is_success());
     const auto newVertexPositions =
-      brushCopy.findClosestVertexPositions(oldVertexPositions + delta);
-    CHECK(newVertexPositions == oldVertexPositions + delta);
+      brushCopy.findClosestVertexPositions(transform * oldVertexPositions);
+    CHECK(newVertexPositions == transform * oldVertexPositions);
 
     CHECK(brushCopy.faceCount() == 5u);
     CHECK_FALSE(brushCopy.findFace(vm::polygon3d{baseQuadVertexPositions}));
@@ -1567,10 +1634,13 @@ TEST_CASE("BrushTest.moveEdge")
 
   const auto originalEdge = vm::segment(p1, p2);
   auto oldEdgePositions = std::vector<vm::segment3d>{originalEdge};
-  auto delta = p1_2 - p1;
-  CHECK(brush.moveEdges(worldBounds, oldEdgePositions, delta).is_success());
+
+  const auto transform = vm::translation_matrix(p1_2 - p1);
+  const auto inverse = vm::translation_matrix(p1 - p1_2);
+
+  CHECK(brush.transformEdges(worldBounds, oldEdgePositions, transform).is_success());
   auto newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
-    oldEdgePositions, [&](const auto& s) { return s.translate(delta); }));
+    oldEdgePositions, [&](const auto& s) { return s.transform(transform); }));
 
   CHECK(newEdgePositions == std::vector<vm::segment3d>{{p1_2, p2_2}});
 
@@ -1583,13 +1653,12 @@ TEST_CASE("BrushTest.moveEdge")
   assertMaterial("bottom", brush, p1_2, p3, p5);
   assertMaterial("bottom", brush, p3, p7, p5);
 
-  CHECK(brush.canMoveEdges(worldBounds, newEdgePositions, p1 - p1_2));
+  CHECK(brush.canTransformEdges(worldBounds, newEdgePositions, inverse));
 
   oldEdgePositions = std::move(newEdgePositions);
-  delta = p1 - p1_2;
-  CHECK(brush.moveEdges(worldBounds, oldEdgePositions, delta).is_success());
+  CHECK(brush.transformEdges(worldBounds, oldEdgePositions, inverse).is_success());
   newEdgePositions = brush.findClosestEdgePositions(kdl::vec_transform(
-    oldEdgePositions, [&](const auto& s) { return s.translate(delta); }));
+    oldEdgePositions, [&](const auto& s) { return s.transform(inverse); }));
 
   CHECK(newEdgePositions == std::vector<vm::segment3d>{originalEdge});
 
@@ -1605,13 +1674,14 @@ static void assertCanMoveEdges(
   Brush brush, const std::vector<vm::segment3d> edges, const vm::vec3d delta)
 {
   const auto worldBounds = vm::bbox3d{4096.0};
+  const auto transform = vm::translation_matrix(delta);
 
   const auto expectedMovedEdges =
     edges | std::views::transform([&](const auto& edge) { return edge.translate(delta); })
     | kdl::to_vector;
 
-  CHECK(brush.canMoveEdges(worldBounds, edges, delta));
-  CHECK(brush.moveEdges(worldBounds, edges, delta).is_success());
+  CHECK(brush.canTransformEdges(worldBounds, edges, transform));
+  CHECK(brush.transformEdges(worldBounds, edges, transform).is_success());
   const auto movedEdges = brush.findClosestEdgePositions(
     kdl::vec_transform(edges, [&](const auto& s) { return s.translate(delta); }));
   CHECK(movedEdges == expectedMovedEdges);
@@ -1685,14 +1755,15 @@ TEST_CASE("BrushTest.moveFace")
     {+32, +32, +32},
     {-32, +32, +32},
   };
+  const auto transform = vm::translation_matrix(vm::vec3d{-16, -16, 0});
+  const auto inverse = vm::translation_matrix(vm::vec3d{+16, +16, 0});
 
-  CHECK(brush.canMoveFaces(worldBounds, {face}, {-16, -16, 0}));
+  CHECK(brush.canTransformFaces(worldBounds, {face}, transform));
 
   auto oldFacePositions = std::vector<vm::polygon3d>{face};
-  auto delta = vm::vec3d{-16, -16, 0};
-  CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
+  CHECK(brush.transformFaces(worldBounds, oldFacePositions, transform).is_success());
   auto newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
-    oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
+    oldFacePositions, [&](const auto& f) { return f.transform(transform); }));
 
   CHECK(newFacePositions.size() == 1u);
   CHECK(newFacePositions[0].hasVertex({-48, -48, +32}));
@@ -1701,10 +1772,9 @@ TEST_CASE("BrushTest.moveFace")
   CHECK(newFacePositions[0].hasVertex({+16, -48, +32}));
 
   oldFacePositions = std::move(newFacePositions);
-  delta = vm::vec3d{16, 16, 0};
-  CHECK(brush.moveFaces(worldBounds, oldFacePositions, delta).is_success());
+  CHECK(brush.transformFaces(worldBounds, oldFacePositions, inverse).is_success());
   newFacePositions = brush.findClosestFacePositions(kdl::vec_transform(
-    oldFacePositions, [&](const auto& f) { return f.translate(delta); }));
+    oldFacePositions, [&](const auto& f) { return f.transform(inverse); }));
 
   CHECK(newFacePositions.size() == 1u);
   CHECK(newFacePositions[0].vertices().size() == 4u);
@@ -1730,7 +1800,8 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
     {-64, -64, +16},
   };
 
-  CHECK_FALSE(brush.canMoveFaces(worldBounds, {face}, {0, 128, 0}));
+  const auto transform = vm::translation_matrix(vm::vec3d{0, 128, 0});
+  CHECK_FALSE(brush.canTransformFaces(worldBounds, {face}, transform));
 }
 
 TEST_CASE("BrushTest.movePolygonRemainingPoint")
@@ -2040,17 +2111,20 @@ TEST_CASE("moveFaceWithUVLock")
   }
 
   const auto delta = vm::vec3d{+8, 0, 0};
+  const auto transform = vm::translation_matrix(delta);
+
   const auto polygonToMove =
     vm::polygon3d{brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).vertexPositions()};
-  CHECK(brush.canMoveFaces(worldBounds, {polygonToMove}, delta));
+  CHECK(brush.canTransformFaces(worldBounds, {polygonToMove}, transform));
 
   // move top face by x=+8
   auto changed = brush;
   auto changedWithUVLock = brush;
 
-  REQUIRE(changed.moveFaces(worldBounds, {polygonToMove}, delta, false).is_success());
   REQUIRE(
-    changedWithUVLock.moveFaces(worldBounds, {polygonToMove}, delta, true).is_success());
+    changed.transformFaces(worldBounds, {polygonToMove}, transform, false).is_success());
+  REQUIRE(changedWithUVLock.transformFaces(worldBounds, {polygonToMove}, transform, true)
+            .is_success());
 
   // The move should be equivalent to shearing by this matrix
   const auto M = vm::shear_bbox_matrix(brush.bounds(), vm::vec3d{0, 0, 1}, delta);
