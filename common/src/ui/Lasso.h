@@ -25,6 +25,8 @@
 #include "vm/polygon.h"
 #include "vm/segment.h"
 
+#include <ranges>
+
 namespace tb::render
 {
 class Camera;
@@ -48,19 +50,14 @@ public:
 
   void update(const vm::vec3d& point);
 
-  template <typename I, typename O>
-  void selected(I cur, I end, O out) const
+  template <std::ranges::range R, typename O>
+  void selected(const R& handles, O out) const
   {
     const auto plane = getPlane();
     const auto box = getBox(getTransform());
-    while (cur != end)
-    {
-      if (selects(*cur, plane, box))
-      {
-        out = *cur;
-      }
-      ++cur;
-    }
+
+    std::ranges::copy_if(
+      handles, out, [&](const auto& handle) { return selects(handle, plane, box); });
   }
 
 private:
