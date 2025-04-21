@@ -131,8 +131,8 @@ void ShearObjectsTool::pick3D(
     const auto poly = polygonForBBoxSide(myBounds, side);
 
     if (
-      const auto dist =
-        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
+      const auto dist = vm::intersect_ray_polygon(
+        pickRay, poly.vertices().begin(), poly.vertices().end()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
       localPickResult.addHit(mdl::Hit{ShearToolSideHitType, *dist, hitPoint, side});
