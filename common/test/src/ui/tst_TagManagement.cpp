@@ -639,8 +639,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TagManagementTest")
     SECTION("No modification to brush") {}
     SECTION("Vertex manipulation")
     {
-      const auto result =
-        document->moveVertices({vm::vec3d::fill(16.0)}, vm::vec3d::fill(1.0));
+      const auto transform = vm::translation_matrix(vm::vec3d{1, 1, 1});
+      const auto vertex = vm::vec3d{16, 16, 16};
+      const auto result = document->transformVertices({vertex}, transform);
       REQUIRE(result.success);
       REQUIRE(result.hasRemainingVertices);
     }

@@ -154,18 +154,19 @@ bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
 VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
+  const auto transform = vm::translation_matrix(delta);
 
   if (m_mode == Mode::Move)
   {
     auto handles = m_vertexHandles->selectedHandles();
-    const auto result = document->moveVertices(std::move(handles), delta);
+    const auto result = document->transformVertices(std::move(handles), transform);
     if (result.success)
     {
       if (!result.hasRemainingVertices)
       {
         return MoveResult::Cancel;
       }
-      m_dragHandlePosition = m_dragHandlePosition + delta;
+      m_dragHandlePosition = transform * m_dragHandlePosition;
       return MoveResult::Continue;
     }
     return MoveResult::Deny;
@@ -192,13 +193,13 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
 
   if (!brushes.empty())
   {
-    const auto newVertexPosition = m_dragHandlePosition + delta;
+    const auto newVertexPosition = transform * m_dragHandlePosition;
     if (document->addVertex(newVertexPosition))
     {
       m_mode = Mode::Move;
       m_edgeHandles->deselectAll();
       m_faceHandles->deselectAll();
-      m_dragHandlePosition = m_dragHandlePosition + delta;
+      m_dragHandlePosition = transform * m_dragHandlePosition;
       m_vertexHandles->select(m_dragHandlePosition);
     }
     return MoveResult::Continue;

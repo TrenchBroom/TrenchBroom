@@ -165,19 +165,18 @@ public: // modifying face attributes
 public: // modifying vertices
   virtual bool snapVertices(double snapTo) = 0;
 
-  struct MoveVerticesResult
+  struct TransformVerticesResult
   {
     bool success;
     bool hasRemainingVertices;
-    MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
   };
 
-  virtual MoveVerticesResult moveVertices(
-    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) = 0;
-  virtual bool moveEdges(
-    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) = 0;
-  virtual bool moveFaces(
-    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) = 0;
+  virtual TransformVerticesResult transformVertices(
+    std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform) = 0;
+  virtual bool transformEdges(
+    std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform) = 0;
+  virtual bool transformFaces(
+    std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform) = 0;
 
 public: // search paths and mods
   virtual std::vector<std::string> mods() const = 0;

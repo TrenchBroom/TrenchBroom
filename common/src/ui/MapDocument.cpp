@@ -3978,8 +3978,8 @@ bool MapDocument::snapVertices(const double snapTo)
   return true;
 }
 
-MapDocument::MoveVerticesResult MapDocument::moveVertices(
-  std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta)
+MapDocument::TransformVerticesResult MapDocument::transformVertices(
+  std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform)
 {
   auto newVertexPositions = std::vector<vm::vec3d>{};
   auto newNodes = applyToNodeContents(
@@ -3996,16 +3996,16 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
           return true;
         }
 
-        if (!brush.canMoveVertices(m_worldBounds, verticesToMove, delta))
+        if (!brush.canTransformVertices(m_worldBounds, verticesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveVertices(
-                 m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformVertices(
+                 m_worldBounds, verticesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions =
-                     brush.findClosestVertexPositions(verticesToMove + delta);
+                     brush.findClosestVertexPositions(transform * verticesToMove);
                    newVertexPositions = kdl::vec_concat(
                      std::move(newVertexPositions), std::move(newPositions));
                  })
@@ -4035,14 +4035,14 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
     if (!result->success())
     {
       transaction.cancel();
-      return MoveVerticesResult{false, false};
+      return TransformVerticesResult{false, false};
     }
 
     setHasPendingChanges(changedLinkedGroups, true);
 
     if (!transaction.commit())
     {
-      return MoveVerticesResult{false, false};
+      return TransformVerticesResult{false, false};
     }
 
     const auto* moveVerticesResult =
@@ -4054,11 +4054,11 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
     return {moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices()};
   }
 
-  return MoveVerticesResult{false, false};
+  return TransformVerticesResult{false, false};
 }
 
-bool MapDocument::moveEdges(
-  std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta)
+bool MapDocument::transformEdges(
+  std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform)
 {
   auto newEdgePositions = std::vector<vm::segment3d>{};
   auto newNodes = applyToNodeContents(
@@ -4075,17 +4075,17 @@ bool MapDocument::moveEdges(
           return true;
         }
 
-        if (!brush.canMoveEdges(m_worldBounds, edgesToMove, delta))
+        if (!brush.canTransformEdges(m_worldBounds, edgesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveEdges(
-                 m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformEdges(
+                 m_worldBounds, edgesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
                      edgesToMove,
-                     [&](const auto& edge) { return edge.translate(delta); }));
+                     [&](const auto& edge) { return edge.transform(transform); }));
                    newEdgePositions = kdl::vec_concat(
                      std::move(newEdgePositions), std::move(newPositions));
                  })
@@ -4125,8 +4125,8 @@ bool MapDocument::moveEdges(
   return false;
 }
 
-bool MapDocument::moveFaces(
-  std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta)
+bool MapDocument::transformFaces(
+  std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform)
 {
   auto newFacePositions = std::vector<vm::polygon3d>{};
   auto newNodes = applyToNodeContents(
@@ -4143,17 +4143,17 @@ bool MapDocument::moveFaces(
           return true;
         }
 
-        if (!brush.canMoveFaces(m_worldBounds, facesToMove, delta))
+        if (!brush.canTransformFaces(m_worldBounds, facesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveFaces(
-                 m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformFaces(
+                 m_worldBounds, facesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
                      facesToMove,
-                     [&](const auto& face) { return face.translate(delta); }));
+                     [&](const auto& face) { return face.transform(transform); }));
                    newFacePositions = kdl::vec_concat(
                      std::move(newFacePositions), std::move(newPositions));
                  })

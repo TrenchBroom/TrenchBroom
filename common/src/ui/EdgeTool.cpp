@@ -71,9 +71,10 @@ EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
   auto document = kdl::mem_lock(m_document);
 
   auto handles = m_edgeHandles->selectedHandles();
-  if (document->moveEdges(std::move(handles), delta))
+  const auto transform = vm::translation_matrix(delta);
+  if (document->transformEdges(std::move(handles), transform))
   {
-    m_dragHandlePosition = translate(m_dragHandlePosition, delta);
+    m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
   }
   return MoveResult::Deny;

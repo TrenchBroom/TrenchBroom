@@ -37,7 +37,6 @@
 #include "vm/ray.h"
 #include "vm/segment.h"
 #include "vm/util.h"
-#include "vm/vec_ext.h"
 
 #include <iterator>
 #include <set>
@@ -548,21 +547,21 @@ std::vector<const BrushFace*> Brush::incidentFaces(const BrushVertex* vertex) co
   return result;
 }
 
-bool Brush::canMoveVertices(
+bool Brush::canTransformVertices(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::vec3d>& vertices,
-  const vm::vec3d& delta) const
+  const vm::mat4x4d& transform) const
 {
-  return doCanMoveVertices(worldBounds, vertices, delta, true).success;
+  return doCanTransformVertices(worldBounds, vertices, transform, true).success;
 }
 
-Result<void> Brush::moveVertices(
+Result<void> Brush::transformVertices(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::vec3d>& vertexPositions,
-  const vm::vec3d& delta,
+  const vm::mat4x4d& transform,
   const bool uvLock)
 {
-  return doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+  return doTransformVertices(worldBounds, vertexPositions, transform, uvLock);
 }
 
 bool Brush::canAddVertex(const vm::bbox3d& worldBounds, const vm::vec3d& position) const
@@ -671,10 +670,10 @@ Result<void> Brush::snapVertices(
   return updateFacesFromGeometry(worldBounds, matcher, newGeometry, uvLock);
 }
 
-bool Brush::canMoveEdges(
+bool Brush::canTransformEdges(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::segment3d>& edgePositions,
-  const vm::vec3d& delta) const
+  const vm::mat4x4d& transform) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   ensure(!edgePositions.empty(), "no edge positions");
@@ -684,7 +683,8 @@ bool Brush::canMoveEdges(
     std::begin(edgePositions),
     std::end(edgePositions),
     std::back_inserter(vertexPositions));
-  const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+  const auto result =
+    doCanTransformVertices(worldBounds, vertexPositions, transform, false);
 
   if (!result.success)
   {
@@ -693,7 +693,7 @@ bool Brush::canMoveEdges(
 
   for (const auto& edge : edgePositions)
   {
-    if (!result.geometry->hasEdge(edge.start() + delta, edge.end() + delta))
+    if (!result.geometry->hasEdge(transform * edge.start(), transform * edge.end()))
     {
       return false;
     }
@@ -702,26 +702,26 @@ bool Brush::canMoveEdges(
   return true;
 }
 
-Result<void> Brush::moveEdges(
+Result<void> Brush::transformEdges(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::segment3d>& edgePositions,
-  const vm::vec3d& delta,
+  const vm::mat4x4d& transform,
   const bool uvLock)
 {
-  assert(canMoveEdges(worldBounds, edgePositions, delta));
+  assert(canTransformEdges(worldBounds, edgePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
   vm::segment3d::get_vertices(
     std::begin(edgePositions),
     std::end(edgePositions),
     std::back_inserter(vertexPositions));
-  return doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+  return doTransformVertices(worldBounds, vertexPositions, transform, uvLock);
 }
 
-bool Brush::canMoveFaces(
+bool Brush::canTransformFaces(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::polygon3d>& facePositions,
-  const vm::vec3d& delta) const
+  const vm::mat4x4d& transform) const
 {
   ensure(m_geometry != nullptr, "geometry is null");
   ensure(!facePositions.empty(), "no face positions");
@@ -731,7 +731,8 @@ bool Brush::canMoveFaces(
     std::begin(facePositions),
     std::end(facePositions),
     std::back_inserter(vertexPositions));
-  const auto result = doCanMoveVertices(worldBounds, vertexPositions, delta, false);
+  const auto result =
+    doCanTransformVertices(worldBounds, vertexPositions, transform, false);
 
   if (!result.success)
   {
@@ -740,7 +741,7 @@ bool Brush::canMoveFaces(
 
   for (const auto& face : facePositions)
   {
-    if (!result.geometry->hasFace(face.vertices() + delta))
+    if (!result.geometry->hasFace(transform * face.vertices()))
     {
       return false;
     }
@@ -749,43 +750,44 @@ bool Brush::canMoveFaces(
   return true;
 }
 
-Result<void> Brush::moveFaces(
+Result<void> Brush::transformFaces(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::polygon3d>& facePositions,
-  const vm::vec3d& delta,
+  const vm::mat4x4d& transform,
   const bool uvLock)
 {
-  assert(canMoveFaces(worldBounds, facePositions, delta));
+  assert(canTransformFaces(worldBounds, facePositions, transform));
 
   std::vector<vm::vec3d> vertexPositions;
   vm::polygon3d::get_vertices(
     std::begin(facePositions),
     std::end(facePositions),
     std::back_inserter(vertexPositions));
-  return doMoveVertices(worldBounds, vertexPositions, delta, uvLock);
+  return doTransformVertices(worldBounds, vertexPositions, transform, uvLock);
 }
 
-Brush::CanMoveVerticesResult::CanMoveVerticesResult(const bool s, BrushGeometry&& g)
+Brush::CanTransformVerticesResult::CanTransformVerticesResult(
+  const bool s, BrushGeometry&& g)
   : success{s}
   , geometry{std::make_unique<BrushGeometry>(std::move(g))}
 {
 }
 
-Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::rejectVertexMove()
+Brush::CanTransformVerticesResult Brush::CanTransformVerticesResult::reject()
 {
   return {false, BrushGeometry{}};
 }
 
-Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(
+Brush::CanTransformVerticesResult Brush::CanTransformVerticesResult::accept(
   BrushGeometry&& result)
 {
   return {true, std::move(result)};
 }
 
 /*
- We determine whether a move is valid by considering the vertices being moved and the
- vertices remaining at their positions as polyhedra. Depending on whether or not they
- really are polyhedra, polygons, edges, points, or empty, we have to consider the
+ We determine whether a transform is valid by considering the vertices being transformed
+ and the vertices remaining at their positions as polyhedra. Depending on whether or not
+ they really are polyhedra, polygons, edges, points, or empty, we have to consider the
  following cases.
 
  REMAINING  || Empty   | Point  | Edge   | Polygon | Polyhedron
@@ -802,28 +804,31 @@ Brush::CanMoveVerticesResult Brush::CanMoveVerticesResult::acceptVertexMove(
  -----------||---------|--------|--------|---------|------------
  Polyhedron || ok      | invert | invert | invert  | check
 
- n/a    - This case can never occur.
- ok     - This case is always allowed, unless the brush becomes invalid, i.e., not a
- polyhedron. no     - This case is always forbidden. invert - This case is handled by
- swapping the remaining and the moving fragments and inverting the delta. This takes us
- from a cell at (column, row) to the cell at (row, column). check  - Check whether any
- of the moved vertices would travel through the remaining fragment, or vice versa if
- inverted case. Also check whether the brush would become invalid, i.e., not a
- polyhedron.
+ - n/a: This case can never occur.
+ - ok: This case is always allowed unless the brush becomes invalid.
+ - no: This case is always forbidden.
+ - invert: This case is handled by swapping the remaining and the moving fragments and
+   inverting the delta. This takes us from a cell at (column, row) to the cell at (row,
+   column).
+ - check: Check whether any of the moved vertices would travel through the remaining
+   fragment, or vice versa if inverted case. Also check whether the brush would become
+   invalid, i.e., not a polyhedron.
 
  If `allowVertexRemoval` is true, vertices can be moved inside a remaining polyhedron.
 
  */
-Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
+Brush::CanTransformVerticesResult Brush::doCanTransformVertices(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::vec3d>& vertexPositions,
-  vm::vec3d delta,
+  vm::mat4x4d transform,
   const bool allowVertexRemoval) const
 {
   // Should never occur, takes care of the first row.
-  if (vertexPositions.empty() || vm::is_zero(delta, vm::Cd::almost_zero()))
+  if (
+    vertexPositions.empty()
+    || vm::is_equal(transform, vm::mat4x4d::identity(), vm::Cd::almost_zero()))
   {
-    return CanMoveVerticesResult::rejectVertexMove();
+    return CanTransformVerticesResult::reject();
   }
 
   const auto vertexSet =
@@ -832,8 +837,8 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
   std::vector<vm::vec3d> remainingPoints;
   remainingPoints.reserve(vertexCount());
 
-  std::vector<vm::vec3d> movingPoints;
-  movingPoints.reserve(vertexCount());
+  std::vector<vm::vec3d> transformedPoints;
+  transformedPoints.reserve(vertexCount());
 
   std::vector<vm::vec3d> resultPoints;
   resultPoints.reserve(vertexCount());
@@ -843,43 +848,43 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
     const auto& position = vertex->position();
     if (!vertexSet.count(position))
     {
-      // the vertex is not moving
+      // the vertex is not transformed
       remainingPoints.push_back(position);
       resultPoints.push_back(position);
     }
     else
     {
-      // the vertex is moving
-      movingPoints.push_back(position);
-      resultPoints.push_back(position + delta);
+      // the vertex is transformed
+      transformedPoints.push_back(position);
+      resultPoints.push_back(transform * position);
     }
   }
 
   BrushGeometry remaining(remainingPoints);
-  BrushGeometry moving(movingPoints);
+  BrushGeometry transformed(transformedPoints);
   BrushGeometry result(resultPoints);
 
   // Will the result go out of world bounds?
   if (!worldBounds.contains(result.bounds()))
   {
-    return CanMoveVerticesResult::rejectVertexMove();
+    return CanTransformVerticesResult::reject();
   }
 
   // Special case, takes care of the first column.
-  if (moving.vertexCount() == vertexCount())
+  if (transformed.vertexCount() == vertexCount())
   {
-    return CanMoveVerticesResult::acceptVertexMove(std::move(result));
+    return CanTransformVerticesResult::accept(std::move(result));
   }
 
   // Will vertices be removed?
   if (!allowVertexRemoval)
   {
     // All moving vertices must still be present in the result
-    for (const auto& movingVertex : moving.vertexPositions())
+    for (const auto& movingVertex : transformed.vertexPositions())
     {
-      if (!result.hasVertex(movingVertex + delta))
+      if (!result.hasVertex(transform * movingVertex))
       {
-        return CanMoveVerticesResult::rejectVertexMove();
+        return CanTransformVerticesResult::reject();
       }
     }
   }
@@ -887,30 +892,39 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
   // Will the brush become invalid?
   if (!result.polyhedron())
   {
-    return CanMoveVerticesResult::rejectVertexMove();
+    return CanTransformVerticesResult::reject();
   }
 
   // One of the remaining two ok cases?
-  if ((moving.point() && remaining.polygon()) || (moving.edge() && remaining.edge()))
+  if (
+    (transformed.point() && remaining.polygon())
+    || (transformed.edge() && remaining.edge()))
   {
-    return CanMoveVerticesResult::acceptVertexMove(std::move(result));
+    return CanTransformVerticesResult::accept(std::move(result));
   }
 
   // Invert if necessary.
   if (
-    remaining.point() || remaining.edge() || (remaining.polygon() && moving.polyhedron()))
+    remaining.point() || remaining.edge()
+    || (remaining.polygon() && transformed.polyhedron()))
   {
+    const auto inverted = vm::invert(transform);
+    if (!inverted)
+    {
+      return CanTransformVerticesResult::reject();
+    }
+
     using std::swap;
-    swap(remaining, moving);
-    delta = -delta;
+    swap(remaining, transformed);
+    transform = *inverted;
   }
 
   // Now check if any of the moving vertices would travel through the remaining fragment
   // and out the other side.
-  for (const auto* vertex : moving.vertices())
+  for (const auto* vertex : transformed.vertices())
   {
     const auto& oldPos = vertex->position();
-    const auto newPos = oldPos + delta;
+    const auto newPos = transform * oldPos;
 
     for (const auto* face : remaining.faces())
     {
@@ -923,24 +937,24 @@ Brush::CanMoveVerticesResult Brush::doCanMoveVertices(
         const auto ray = vm::ray3d(oldPos, normalize(newPos - oldPos));
         if (face->intersectWithRay(ray, vm::side::back))
         {
-          return CanMoveVerticesResult::rejectVertexMove();
+          return CanTransformVerticesResult::reject();
         }
       }
     }
   }
 
-  return CanMoveVerticesResult::acceptVertexMove(std::move(result));
+  return CanTransformVerticesResult::accept(std::move(result));
 }
 
-Result<void> Brush::doMoveVertices(
+Result<void> Brush::doTransformVertices(
   const vm::bbox3d& worldBounds,
   const std::vector<vm::vec3d>& vertexPositions,
-  const vm::vec3d& delta,
+  const vm::mat4x4d& transform,
   const bool uvLock)
 {
   ensure(m_geometry != nullptr, "geometry is null");
   ensure(!vertexPositions.empty(), "no vertex positions");
-  assert(canMoveVertices(worldBounds, vertexPositions, delta));
+  assert(canTransformVertices(worldBounds, vertexPositions, transform));
 
   std::vector<vm::vec3d> newVertices;
   newVertices.reserve(vertexCount());
@@ -950,7 +964,7 @@ Result<void> Brush::doMoveVertices(
     const auto& position = vertex->position();
     if (kdl::vec_contains(vertexPositions, position))
     {
-      newVertices.push_back(position + delta);
+      newVertices.push_back(transform * position);
     }
     else
     {
@@ -965,8 +979,8 @@ Result<void> Brush::doMoveVertices(
   for (auto* oldVertex : m_geometry->vertices())
   {
     const auto& oldPosition = oldVertex->position();
-    const auto moved = kdl::vec_contains(vertexPositions, oldPosition);
-    const auto newPosition = moved ? oldPosition + delta : oldPosition;
+    const auto transformed = kdl::vec_contains(vertexPositions, oldPosition);
+    const auto newPosition = transformed ? transform * oldPosition : oldPosition;
     const auto* newVertex =
       newGeometry.findClosestVertex(newPosition, CloseVertexEpsilon);
     if (newVertex != nullptr)

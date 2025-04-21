@@ -634,12 +634,12 @@ public:
 public: // modifying vertices, declared in MapFacade interface
   bool snapVertices(double snapTo) override;
 
-  MoveVerticesResult moveVertices(
-    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) override;
-  bool moveEdges(
-    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) override;
-  bool moveFaces(
-    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) override;
+  TransformVerticesResult transformVertices(
+    std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform) override;
+  bool transformEdges(
+    std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform) override;
+  bool transformFaces(
+    std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform) override;
 
   bool addVertex(const vm::vec3d& vertexPosition);
   bool removeVertices(
