@@ -4,8 +4,8 @@ AAAAAAAA                ICON                    "@APP_RESOURCE_DIR@/win32/icons/
 APPICON                 ICON                    "@APP_RESOURCE_DIR@/win32/icons/DocIcon.ico"
 
 1 VERSIONINFO
- FILEVERSION VERSION_RC
- PRODUCTVERSION VERSION_RC
+ FILEVERSION VERSION_WIN_RC
+ PRODUCTVERSION VERSION_WIN_RC
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -22,7 +22,7 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "TrenchBroom"
             VALUE "FileDescription", "TrenchBroom Level Editor"
-            VALUE "FileVersion", VERSION_RC
+            VALUE "FileVersion", VERSION_WIN_RC
             VALUE "InternalName", "TrenchBroom.exe"
             VALUE "LegalCopyright", "Copyright (C) 2010"
             VALUE "OriginalFilename", "TrenchBroom.exe"
