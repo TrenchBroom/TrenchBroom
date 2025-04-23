@@ -1525,12 +1525,12 @@ void ActionManager::createEditMenu()
     QObject::tr("Scale Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_T},
-    [](auto& context) { context.frame()->toggleScaleObjectsTool(); },
+    [](auto& context) { context.frame()->toggleScaleTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->canToggleScaleObjectsTool();
+      return context.hasDocument() && context.frame()->canToggleScaleTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->scaleObjectsToolActive();
+      return context.hasDocument() && context.frame()->scaleToolActive();
     },
     std::filesystem::path{"ScaleTool.svg"},
   }));

@@ -3208,13 +3208,13 @@ bool MapDocument::rotate(
   return transformObjects("Rotate Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
+bool MapDocument::scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
 {
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors)
+bool MapDocument::scale(const vm::vec3d& center, const vm::vec3d& scaleFactors)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::scaling_matrix(scaleFactors)

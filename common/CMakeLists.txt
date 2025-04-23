@@ -426,9 +426,9 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/RotateTool.cpp
         ${COMMON_SOURCE_DIR}/ui/RotateToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/RotateToolPage.cpp
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsTool.cpp
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolController.cpp
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolPage.cpp
+        ${COMMON_SOURCE_DIR}/ui/ScaleTool.cpp
+        ${COMMON_SOURCE_DIR}/ui/ScaleToolController.cpp
+        ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.cpp
         ${COMMON_SOURCE_DIR}/ui/Selection.cpp
         ${COMMON_SOURCE_DIR}/ui/SelectionCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.cpp
@@ -969,9 +969,9 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/RotateTool.h
         ${COMMON_SOURCE_DIR}/ui/RotateToolController.h
         ${COMMON_SOURCE_DIR}/ui/RotateToolPage.h
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsTool.h
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolController.h
-        ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolPage.h
+        ${COMMON_SOURCE_DIR}/ui/ScaleTool.h
+        ${COMMON_SOURCE_DIR}/ui/ScaleToolController.h
+        ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.h
         ${COMMON_SOURCE_DIR}/ui/Selection.h
         ${COMMON_SOURCE_DIR}/ui/SelectionCommand.h
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.h

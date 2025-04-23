@@ -105,7 +105,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithBBox")
   REQUIRE_FALSE(document->canRepeatCommands());
   const auto oldBounds = brushNode1->logicalBounds();
   const auto newBounds = vm::bbox3d(oldBounds.min, 2.0 * oldBounds.max);
-  document->scaleObjects(oldBounds, newBounds);
+  document->scale(oldBounds, newBounds);
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();
@@ -124,7 +124,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors"
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
-  document->scaleObjects(brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
+  document->scale(brushNode1->logicalBounds().center(), vm::vec3d(2, 2, 2));
   CHECK(document->canRepeatCommands());
 
   auto* brushNode2 = createBrushNode();

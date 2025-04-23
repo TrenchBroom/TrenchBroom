@@ -366,7 +366,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
     }));
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
+TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scale")
 {
   const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
   const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
@@ -387,20 +387,20 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjects")
     == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
 
   // attempting an invalid scale has no effect
-  CHECK_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+  CHECK_FALSE(document->scale(initialBBox, invalidBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
   CHECK(
     brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
     == vm::plane3d{100.0, vm::vec3d{0, 0, 1}});
 
-  CHECK(document->scaleObjects(initialBBox, doubleBBox));
+  CHECK(document->scale(initialBBox, doubleBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
   CHECK(
     brush.face(*brush.findFace(vm::vec3d{0, 0, 1})).boundary()
     == vm::plane3d{200.0, vm::vec3d{0, 0, 1}});
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
+TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleInGroup")
 {
   const auto initialBBox = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
   const auto doubleBBox = vm::bbox3d{2.0 * initialBBox.min, 2.0 * initialBBox.max};
@@ -416,14 +416,14 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsInGroup")
   [[maybe_unused]] auto* group = document->groupSelection("my group");
 
   // attempting an invalid scale has no effect
-  CHECK_FALSE(document->scaleObjects(initialBBox, invalidBBox));
+  CHECK_FALSE(document->scale(initialBBox, invalidBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{200, 200, 200});
 
-  CHECK(document->scaleObjects(initialBBox, doubleBBox));
+  CHECK(document->scale(initialBBox, doubleBBox));
   CHECK(brushNode->logicalBounds().size() == vm::vec3d{400, 400, 400});
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
+TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleWithCenter")
 {
   const auto initialBBox = vm::bbox3d{{0, 0, 0}, {100, 100, 400}};
   const auto expectedBBox = vm::bbox3d{{-50, 0, 0}, {150, 100, 400}};
@@ -437,7 +437,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.scaleObjectsWithCenter")
   document->selectNodes({brushNode});
 
   const auto boundsCenter = initialBBox.center();
-  CHECK(document->scaleObjects(boundsCenter, vm::vec3d{2.0, 1.0, 1.0}));
+  CHECK(document->scale(boundsCenter, vm::vec3d{2.0, 1.0, 1.0}));
   CHECK(brushNode->logicalBounds() == expectedBBox);
 }
 

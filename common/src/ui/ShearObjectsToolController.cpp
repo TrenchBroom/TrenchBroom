@@ -31,7 +31,7 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 #include "ui/ShearObjectsTool.h"
 
 #include "kdl/memory_utils.h"

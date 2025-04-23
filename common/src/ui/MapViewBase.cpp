@@ -919,7 +919,7 @@ ActionContext::Type MapViewBase::actionContext() const
     : m_toolBox.clipToolActive()         ? ActionContext::ClipTool
     : m_toolBox.anyVertexToolActive()    ? ActionContext::AnyVertexTool
     : m_toolBox.rotateToolActive()       ? ActionContext::RotateTool
-    : m_toolBox.scaleObjectsToolActive() ? ActionContext::ScaleTool
+    : m_toolBox.scaleToolActive()        ? ActionContext::ScaleTool
     : m_toolBox.shearObjectsToolActive() ? ActionContext::ShearTool
                                          : ActionContext::NoTool;
   const auto selectionContext =

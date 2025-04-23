@@ -56,7 +56,7 @@
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
 #include "ui/RotateToolController.h"
-#include "ui/ScaleObjectsToolController.h"
+#include "ui/ScaleToolController.h"
 #include "ui/SelectionTool.h"
 #include "ui/SetBrushFaceAttributesTool.h"
 #include "ui/ShearObjectsToolController.h"
@@ -103,8 +103,8 @@ void MapView3D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
   addToolController(std::make_unique<RotateToolController3D>(toolBox.rotateTool()));
-  addToolController(std::make_unique<ScaleObjectsToolController3D>(
-    toolBox.scaleObjectsTool(), m_document));
+  addToolController(
+    std::make_unique<ScaleToolController3D>(toolBox.scaleTool(), m_document));
   addToolController(std::make_unique<ShearObjectsToolController3D>(
     toolBox.shearObjectsTool(), m_document));
   addToolController(std::make_unique<ExtrudeToolController3D>(toolBox.extrudeTool()));

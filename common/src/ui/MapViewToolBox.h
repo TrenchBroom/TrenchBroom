@@ -37,7 +37,7 @@ class DrawShapeTool;
 class MoveObjectsTool;
 class ExtrudeTool;
 class RotateTool;
-class ScaleObjectsTool;
+class ScaleTool;
 class ShearObjectsTool;
 class VertexTool;
 class EdgeTool;
@@ -57,7 +57,7 @@ private:
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
   std::unique_ptr<RotateTool> m_rotateTool;
-  std::unique_ptr<ScaleObjectsTool> m_scaleObjectsTool;
+  std::unique_ptr<ScaleTool> m_scaleTool;
   std::unique_ptr<ShearObjectsTool> m_shearObjectsTool;
   std::unique_ptr<VertexTool> m_vertexTool;
   std::unique_ptr<EdgeTool> m_edgeTool;
@@ -77,7 +77,7 @@ public: // tools
   MoveObjectsTool& moveObjectsTool();
   ExtrudeTool& extrudeTool();
   RotateTool& rotateTool();
-  ScaleObjectsTool& scaleObjectsTool();
+  ScaleTool& scaleTool();
   ShearObjectsTool& shearObjectsTool();
   VertexTool& vertexTool();
   EdgeTool& edgeTool();
@@ -99,8 +99,8 @@ public: // tools
   vm::vec3d rotateToolCenter() const;
   void moveRotationCenter(const vm::vec3d& delta);
 
-  void toggleScaleObjectsTool();
-  bool scaleObjectsToolActive() const;
+  void toggleScaleTool();
+  bool scaleToolActive() const;
 
   void toggleShearObjectsTool();
   bool shearObjectsToolActive() const;
