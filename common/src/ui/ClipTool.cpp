@@ -389,9 +389,12 @@ private:
     render::RenderBatch& renderBatch,
     const size_t index)
   {
-    auto renderService = render::RenderService{renderContext, renderBatch};
-    renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
-    renderService.renderHandleHighlight(vm::vec3f(m_points[index].point));
+    if (index < m_points.size())
+    {
+      auto renderService = render::RenderService{renderContext, renderBatch};
+      renderService.setForegroundColor(pref(Preferences::SelectedHandleColor));
+      renderService.renderHandleHighlight(vm::vec3f(m_points[index].point));
+    }
   }
 };
 
