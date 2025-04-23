@@ -116,6 +116,8 @@ public: // tools
   void toggleFaceTool();
   bool faceToolActive() const;
 
+  bool anyModalToolActive() const;
+
   void moveVertices(const vm::vec3d& delta);
 
 private: // Tool related methods

@@ -479,7 +479,7 @@ void MapViewBase::flipObjects(const vm::direction direction)
 bool MapViewBase::canFlipObjects() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !m_toolBox.anyToolActive() && document->hasSelectedNodes();
+  return !m_toolBox.anyModalToolActive() && document->hasSelectedNodes();
 }
 
 void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)

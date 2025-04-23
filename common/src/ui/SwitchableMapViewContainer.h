@@ -78,7 +78,7 @@ public:
   bool active() const;
   void switchToMapView(MapViewLayout viewId);
 
-  bool anyToolActive() const;
+  bool anyModalToolActive() const;
   void deactivateTool();
 
   bool assembleBrushToolActive() const;

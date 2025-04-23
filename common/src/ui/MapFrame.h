@@ -280,7 +280,7 @@ public:
   void moveSelectedObjects();
   bool canMoveSelectedObjects() const;
 
-  bool anyToolActive() const;
+  bool anyModalToolActive() const;
 
   void toggleAssembleBrushTool();
   bool canToggleAssembleBrushTool() const;

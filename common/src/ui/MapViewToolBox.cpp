@@ -234,6 +234,12 @@ bool MapViewToolBox::faceToolActive() const
   return m_faceTool->active();
 }
 
+bool MapViewToolBox::anyModalToolActive() const
+{
+  return rotateObjectsToolActive() || scaleObjectsToolActive() || shearObjectsToolActive()
+         || anyVertexToolActive();
+}
+
 void MapViewToolBox::moveVertices(const vm::vec3d& delta)
 {
   assert(anyVertexToolActive());

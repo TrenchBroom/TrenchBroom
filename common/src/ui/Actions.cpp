@@ -1598,7 +1598,7 @@ void ActionManager::createEditMenu()
     [](auto& context) { context.view()->deactivateTool(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
-      return context.hasDocument() && !context.frame()->anyToolActive();
+      return context.hasDocument() && !context.frame()->anyModalToolActive();
     },
     std::filesystem::path{"NoTool.svg"},
   }));
