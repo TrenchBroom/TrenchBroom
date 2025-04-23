@@ -62,6 +62,7 @@ private:
   std::unique_ptr<DropTracker> m_dropTracker;
   std::vector<Tool*> m_modalToolStack;
 
+  std::vector<std::vector<Tool*>> m_exclusiveToolGroups;
   std::unordered_map<Tool*, std::vector<Tool*>> m_suppressedTools;
 
   bool m_enabled = true;
@@ -114,6 +115,15 @@ public: // event handling
   bool cancel(ToolChain& chain);
 
 public: // tool management
+  template <typename... T>
+  void addExclusiveToolGroup(T&... exclusiveToolGroup)
+  {
+    if constexpr (sizeof...(exclusiveToolGroup) > 0)
+    {
+      m_exclusiveToolGroups.emplace_back(std::vector<Tool*>{&exclusiveToolGroup...});
+    }
+  }
+
   /**
    * Suppress a tool when another becomes active. The suppressed tool becomes temporarily
    * deactivated.
@@ -148,6 +158,7 @@ private:
   void activateTool(Tool& tool);
   void deactivateTool(Tool& tool);
 
+  std::vector<Tool*> excludedTools(const Tool& tool) const;
   std::vector<Tool*> currentlySuppressedTools() const;
 };
 

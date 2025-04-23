@@ -344,7 +344,13 @@ void ToolBox::renderTools(
 
 void ToolBox::activateTool(Tool& tool)
 {
-  deactivateCurrentTool();
+  for (auto* excludedTool : excludedTools(tool))
+  {
+    if (excludedTool->active())
+    {
+      deactivateTool(*excludedTool);
+    }
+  }
 
   const auto previouslySuppressedTools = currentlySuppressedTools();
   if (tool.activate())
@@ -384,6 +390,19 @@ void ToolBox::deactivateTool(Tool& tool)
     toolToRelease->activate();
     toolActivatedNotifier(*toolToRelease);
   }
+}
+
+std::vector<Tool*> ToolBox::excludedTools(const Tool& tool) const
+{
+  auto result = std::vector<Tool*>{};
+  for (const auto& exclusiveToolGroup : m_exclusiveToolGroups)
+  {
+    if (kdl::vec_contains(exclusiveToolGroup, &tool))
+    {
+      result = kdl::vec_concat(std::move(result), exclusiveToolGroup);
+    }
+  }
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 std::vector<Tool*> ToolBox::currentlySuppressedTools() const
