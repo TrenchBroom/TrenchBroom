@@ -294,9 +294,9 @@ public:
   bool canToggleRotateTool() const;
   bool rotateToolActive() const;
 
-  void toggleScaleObjectsTool();
-  bool canToggleScaleObjectsTool() const;
-  bool scaleObjectsToolActive() const;
+  void toggleScaleTool();
+  bool canToggleScaleTool() const;
+  bool scaleToolActive() const;
 
   void toggleShearObjectsTool();
   bool canToggleShearObjectsTool() const;

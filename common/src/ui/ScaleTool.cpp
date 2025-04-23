@@ -18,7 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScaleObjectsTool.h"
+#include "ScaleTool.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -28,7 +28,7 @@
 #include "render/Camera.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleObjectsToolPage.h"
+#include "ui/ScaleToolPage.h"
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
@@ -130,12 +130,9 @@ std::vector<BBoxSide> sidesWithOppositeSides(const std::vector<BBoxSide>& sides)
 
 } // namespace
 
-const mdl::HitType::Type ScaleObjectsTool::ScaleToolSideHitType =
-  mdl::HitType::freeType();
-const mdl::HitType::Type ScaleObjectsTool::ScaleToolEdgeHitType =
-  mdl::HitType::freeType();
-const mdl::HitType::Type ScaleObjectsTool::ScaleToolCornerHitType =
-  mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::ScaleToolSideHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::ScaleToolEdgeHitType = mdl::HitType::freeType();
+const mdl::HitType::Type ScaleTool::ScaleToolCornerHitType = mdl::HitType::freeType();
 
 // Scale tool helper functions
 
@@ -496,14 +493,14 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& h
   // center of the bbox) because all of these lines go through the center of the box
   // anyway, so the resulting line would be the same.
 
-  if (hit.type() == ScaleObjectsTool::ScaleToolSideHitType)
+  if (hit.type() == ScaleTool::ScaleToolSideHitType)
   {
     const auto draggingSide = hit.target<BBoxSide>();
 
     handleLine =
       vm::line3d{centerForBBoxSide(bboxAtDragStart, draggingSide), draggingSide.normal};
   }
-  else if (hit.type() == ScaleObjectsTool::ScaleToolEdgeHitType)
+  else if (hit.type() == ScaleTool::ScaleToolEdgeHitType)
   {
     const auto endEdge = hit.target<BBoxEdge>();
     const auto startEdge = oppositeEdge(endEdge);
@@ -516,7 +513,7 @@ vm::line3d handleLineForHit(const vm::bbox3d& bboxAtDragStart, const mdl::Hit& h
 
     handleLine = vm::line3d(handleLineStart, normalize(handleLineEnd - handleLineStart));
   }
-  else if (hit.type() == ScaleObjectsTool::ScaleToolCornerHitType)
+  else if (hit.type() == ScaleTool::ScaleToolCornerHitType)
   {
     const auto endCorner = hit.target<BBoxCorner>();
     const auto startCorner = oppositeCorner(endCorner);
@@ -541,19 +538,19 @@ vm::bbox3d moveBBoxForHit(
   const ProportionalAxes& proportional,
   const AnchorPos anchor)
 {
-  if (dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType)
+  if (dragStartHit.type() == ScaleTool::ScaleToolSideHitType)
   {
     const auto endSide = dragStartHit.target<BBoxSide>();
 
     return moveBBoxSide(bboxAtDragStart, endSide, delta, proportional, anchor);
   }
-  else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType)
+  else if (dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType)
   {
     const auto endEdge = dragStartHit.target<BBoxEdge>();
 
     return moveBBoxEdge(bboxAtDragStart, endEdge, delta, proportional, anchor);
   }
-  else if (dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType)
+  else if (dragStartHit.type() == ScaleTool::ScaleToolCornerHitType)
   {
     const auto endCorner = dragStartHit.target<BBoxCorner>();
 
@@ -566,33 +563,33 @@ vm::bbox3d moveBBoxForHit(
   }
 }
 
-// ScaleObjectsTool
+// ScaleTool
 
-ScaleObjectsTool::ScaleObjectsTool(std::weak_ptr<MapDocument> document)
+ScaleTool::ScaleTool(std::weak_ptr<MapDocument> document)
   : Tool{false}
   , m_document{std::move(document)}
 {
 }
 
-ScaleObjectsTool::~ScaleObjectsTool() = default;
+ScaleTool::~ScaleTool() = default;
 
-bool ScaleObjectsTool::doActivate()
+bool ScaleTool::doActivate()
 {
   m_toolPage->activate();
   return true;
 }
 
-const Grid& ScaleObjectsTool::grid() const
+const Grid& ScaleTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }
 
-const mdl::Hit& ScaleObjectsTool::dragStartHit() const
+const mdl::Hit& ScaleTool::dragStartHit() const
 {
   return m_dragStartHit;
 }
 
-bool ScaleObjectsTool::applies() const
+bool ScaleTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
   return !document->selectedNodes().empty();
@@ -642,7 +639,7 @@ BackSide pickBackSideOfBox(
   };
 }
 
-void ScaleObjectsTool::pickBackSides(
+void ScaleTool::pickBackSides(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -664,7 +661,7 @@ void ScaleObjectsTool::pickBackSides(
   }
 }
 
-void ScaleObjectsTool::pick2D(
+void ScaleTool::pick2D(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -712,7 +709,7 @@ void ScaleObjectsTool::pick2D(
   }
 }
 
-void ScaleObjectsTool::pick3D(
+void ScaleTool::pick3D(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -783,13 +780,13 @@ void ScaleObjectsTool::pick3D(
   }
 }
 
-vm::bbox3d ScaleObjectsTool::bounds() const
+vm::bbox3d ScaleTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->selectionBounds();
 }
 
-std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const
+std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const
 {
   auto sides = std::vector<BBoxSide>{};
 
@@ -845,12 +842,12 @@ std::vector<vm::polygon3f> ScaleObjectsTool::polygonsHighlightedByDrag() const
   return polysForSides(bounds(), sides);
 }
 
-bool ScaleObjectsTool::hasDragSide() const
+bool ScaleTool::hasDragSide() const
 {
   return dragSide().vertexCount() > 0;
 }
 
-vm::polygon3f ScaleObjectsTool::dragSide() const
+vm::polygon3f ScaleTool::dragSide() const
 {
   if (m_dragStartHit.type() == ScaleToolSideHitType)
   {
@@ -861,31 +858,31 @@ vm::polygon3f ScaleObjectsTool::dragSide() const
   return {};
 }
 
-bool ScaleObjectsTool::hasDragEdge() const
+bool ScaleTool::hasDragEdge() const
 {
   return m_dragStartHit.type() == ScaleToolEdgeHitType;
 }
 
-vm::segment3f ScaleObjectsTool::dragEdge() const
+vm::segment3f ScaleTool::dragEdge() const
 {
   assert(hasDragEdge());
   auto whichEdge = m_dragStartHit.target<BBoxEdge>();
   return vm::segment3f{pointsForBBoxEdge(bounds(), whichEdge)};
 }
 
-bool ScaleObjectsTool::hasDragCorner() const
+bool ScaleTool::hasDragCorner() const
 {
   return m_dragStartHit.type() == ScaleToolCornerHitType;
 }
 
-vm::vec3f ScaleObjectsTool::dragCorner() const
+vm::vec3f ScaleTool::dragCorner() const
 {
   assert(hasDragCorner());
   auto whichCorner = m_dragStartHit.target<BBoxCorner>();
   return vm::vec3f{pointForBBoxCorner(bounds(), whichCorner)};
 }
 
-bool ScaleObjectsTool::hasDragAnchor() const
+bool ScaleTool::hasDragAnchor() const
 {
   if (bounds().is_empty())
   {
@@ -897,7 +894,7 @@ bool ScaleObjectsTool::hasDragAnchor() const
          || type == ScaleToolSideHitType;
 }
 
-vm::vec3f ScaleObjectsTool::dragAnchor() const
+vm::vec3f ScaleTool::dragAnchor() const
 {
   if (m_anchorPos == AnchorPos::Center)
   {
@@ -933,13 +930,13 @@ vm::vec3f ScaleObjectsTool::dragAnchor() const
   return vm::vec3f{};
 }
 
-vm::bbox3d ScaleObjectsTool::bboxAtDragStart() const
+vm::bbox3d ScaleTool::bboxAtDragStart() const
 {
   ensure(m_resizing, "bboxAtDragStart() can only be called while resizing");
   return m_bboxAtDragStart;
 }
 
-std::vector<vm::vec3d> ScaleObjectsTool::cornerHandles() const
+std::vector<vm::vec3d> ScaleTool::cornerHandles() const
 {
   auto result = std::vector<vm::vec3d>{};
   if (!bounds().is_empty())
@@ -951,7 +948,7 @@ std::vector<vm::vec3d> ScaleObjectsTool::cornerHandles() const
   return result;
 }
 
-void ScaleObjectsTool::updatePickedHandle(const mdl::PickResult& pickResult)
+void ScaleTool::updatePickedHandle(const mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
@@ -991,27 +988,27 @@ void ScaleObjectsTool::updatePickedHandle(const mdl::PickResult& pickResult)
   refreshViews();
 }
 
-void ScaleObjectsTool::setAnchorPos(const AnchorPos pos)
+void ScaleTool::setAnchorPos(const AnchorPos pos)
 {
   m_anchorPos = pos;
 }
 
-AnchorPos ScaleObjectsTool::anchorPos() const
+AnchorPos ScaleTool::anchorPos() const
 {
   return m_anchorPos;
 }
 
-void ScaleObjectsTool::setProportionalAxes(const ProportionalAxes& proportionalAxes)
+void ScaleTool::setProportionalAxes(const ProportionalAxes& proportionalAxes)
 {
   m_proportionalAxes = proportionalAxes;
 }
 
-const ProportionalAxes& ScaleObjectsTool::proportionalAxes() const
+const ProportionalAxes& ScaleTool::proportionalAxes() const
 {
   return m_proportionalAxes;
 }
 
-void ScaleObjectsTool::startScaleWithHit(const mdl::Hit& hit)
+void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
 {
   ensure(hit.isMatch(), "must start with matching hit");
   ensure(
@@ -1029,7 +1026,7 @@ void ScaleObjectsTool::startScaleWithHit(const mdl::Hit& hit)
   m_resizing = true;
 }
 
-void ScaleObjectsTool::scaleByDelta(const vm::vec3d& delta)
+void ScaleTool::scaleByDelta(const vm::vec3d& delta)
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -1046,11 +1043,11 @@ void ScaleObjectsTool::scaleByDelta(const vm::vec3d& delta)
 
   if (!newBox.is_empty())
   {
-    document->scaleObjects(bounds(), newBox);
+    document->scale(bounds(), newBox);
   }
 }
 
-void ScaleObjectsTool::commitScale()
+void ScaleTool::commitScale()
 {
   auto document = kdl::mem_lock(m_document);
   if (vm::is_zero(m_dragCumulativeDelta, vm::Cd::almost_zero()))
@@ -1064,17 +1061,17 @@ void ScaleObjectsTool::commitScale()
   m_resizing = false;
 }
 
-void ScaleObjectsTool::cancelScale()
+void ScaleTool::cancelScale()
 {
   auto document = kdl::mem_lock(m_document);
   document->cancelTransaction();
   m_resizing = false;
 }
 
-QWidget* ScaleObjectsTool::doCreatePage(QWidget* parent)
+QWidget* ScaleTool::doCreatePage(QWidget* parent)
 {
   assert(m_toolPage == nullptr);
-  m_toolPage = new ScaleObjectsToolPage{m_document, parent};
+  m_toolPage = new ScaleToolPage{m_document, parent};
   return m_toolPage;
 }
 

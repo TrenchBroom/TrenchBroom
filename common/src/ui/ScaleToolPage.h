@@ -38,7 +38,7 @@ namespace tb::ui
 {
 class MapDocument;
 class Selection;
-class ScaleObjectsToolPage : public QWidget
+class ScaleToolPage : public QWidget
 {
   Q_OBJECT
 private:
@@ -55,8 +55,7 @@ private:
   NotifierConnection m_notifierConnection;
 
 public:
-  explicit ScaleObjectsToolPage(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
+  explicit ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
   void activate();
 
 private:

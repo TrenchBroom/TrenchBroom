@@ -1710,22 +1710,22 @@ bool MapFrame::rotateToolActive() const
   return m_mapView->rotateToolActive();
 }
 
-void MapFrame::toggleScaleObjectsTool()
+void MapFrame::toggleScaleTool()
 {
-  if (canToggleScaleObjectsTool())
+  if (canToggleScaleTool())
   {
-    m_mapView->toggleScaleObjectsTool();
+    m_mapView->toggleScaleTool();
   }
 }
 
-bool MapFrame::canToggleScaleObjectsTool() const
+bool MapFrame::canToggleScaleTool() const
 {
-  return m_mapView->canToggleScaleObjectsTool();
+  return m_mapView->canToggleScaleTool();
 }
 
-bool MapFrame::scaleObjectsToolActive() const
+bool MapFrame::scaleToolActive() const
 {
-  return m_mapView->scaleObjectsToolActive();
+  return m_mapView->scaleToolActive();
 }
 
 void MapFrame::toggleShearObjectsTool()

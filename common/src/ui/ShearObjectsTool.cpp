@@ -27,7 +27,7 @@
 #include "render/Camera.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
