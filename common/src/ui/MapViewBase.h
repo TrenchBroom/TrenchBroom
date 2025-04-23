@@ -210,7 +210,7 @@ public: // tool mode actions
 public: // misc actions
   void resetCameraZoom();
   void cancel();
-  void deactivateTool();
+  void deactivateCurrentTool();
 
 public: // reparenting objects
   void addSelectedObjectsToGroup();

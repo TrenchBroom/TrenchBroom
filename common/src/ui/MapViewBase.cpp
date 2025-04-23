@@ -623,9 +623,9 @@ void MapViewBase::cancel()
   }
 }
 
-void MapViewBase::deactivateTool()
+void MapViewBase::deactivateCurrentTool()
 {
-  m_toolBox.deactivateAllTools();
+  m_toolBox.deactivateCurrentTool();
 }
 
 void MapViewBase::createPointEntity()

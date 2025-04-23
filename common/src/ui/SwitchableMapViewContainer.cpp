@@ -130,9 +130,9 @@ bool SwitchableMapViewContainer::anyModalToolActive() const
   return m_toolBox->anyModalToolActive();
 }
 
-void SwitchableMapViewContainer::deactivateTool()
+void SwitchableMapViewContainer::deactivateCurrentTool()
 {
-  m_toolBox->deactivateAllTools();
+  m_toolBox->deactivateCurrentTool();
 }
 
 bool SwitchableMapViewContainer::assembleBrushToolActive() const

@@ -269,7 +269,7 @@ bool ToolBox::cancel(ToolChain& chain)
     return true;
   }
 
-  return deactivateAllTools();
+  return deactivateCurrentTool();
 }
 
 void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool)
@@ -290,7 +290,7 @@ void ToolBox::toggleTool(Tool& tool)
   }
 }
 
-bool ToolBox::deactivateAllTools()
+bool ToolBox::deactivateCurrentTool()
 {
   if (m_modalTool)
   {
@@ -298,6 +298,14 @@ bool ToolBox::deactivateAllTools()
     return true;
   }
   return false;
+}
+
+void ToolBox::deactivateAllTools()
+{
+  if (m_modalTool)
+  {
+    deactivateTool(*m_modalTool);
+  }
 }
 
 bool ToolBox::enabled() const
@@ -341,10 +349,7 @@ void ToolBox::renderTools(
 
 void ToolBox::activateTool(Tool& tool)
 {
-  if (m_modalTool)
-  {
-    deactivateTool(*m_modalTool);
-  }
+  deactivateCurrentTool();
 
   if (tool.activate())
   {
