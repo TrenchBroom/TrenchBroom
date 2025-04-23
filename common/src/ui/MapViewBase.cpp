@@ -416,22 +416,21 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
   transaction.commit();
 }
 
-void MapViewBase::rotateObjects(const vm::rotation_axis axisSpec, const bool clockwise)
+void MapViewBase::rotate(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedNodes())
   {
     const auto axis = rotationAxis(axisSpec, clockwise);
-    const auto angle = m_toolBox.rotateObjectsToolActive()
-                         ? vm::abs(m_toolBox.rotateToolAngle())
-                         : vm::Cd::half_pi();
+    const auto angle = m_toolBox.rotateToolActive() ? vm::abs(m_toolBox.rotateToolAngle())
+                                                    : vm::Cd::half_pi();
 
     const auto& grid = document->grid();
-    const auto center = m_toolBox.rotateObjectsToolActive()
+    const auto center = m_toolBox.rotateToolActive()
                           ? m_toolBox.rotateToolCenter()
                           : grid.referencePoint(document->selectionBounds());
 
-    document->rotateObjects(center, axis, angle);
+    document->rotate(center, axis, angle);
   }
 }
 
@@ -916,13 +915,13 @@ ActionContext::Type MapViewBase::actionContext() const
 
   const auto viewContext = viewActionContext();
   const auto toolContext =
-    m_toolBox.assembleBrushToolActive()   ? ActionContext::AssembleBrushTool
-    : m_toolBox.clipToolActive()          ? ActionContext::ClipTool
-    : m_toolBox.anyVertexToolActive()     ? ActionContext::AnyVertexTool
-    : m_toolBox.rotateObjectsToolActive() ? ActionContext::RotateTool
-    : m_toolBox.scaleObjectsToolActive()  ? ActionContext::ScaleTool
-    : m_toolBox.shearObjectsToolActive()  ? ActionContext::ShearTool
-                                          : ActionContext::NoTool;
+    m_toolBox.assembleBrushToolActive()  ? ActionContext::AssembleBrushTool
+    : m_toolBox.clipToolActive()         ? ActionContext::ClipTool
+    : m_toolBox.anyVertexToolActive()    ? ActionContext::AnyVertexTool
+    : m_toolBox.rotateToolActive()       ? ActionContext::RotateTool
+    : m_toolBox.scaleObjectsToolActive() ? ActionContext::ScaleTool
+    : m_toolBox.shearObjectsToolActive() ? ActionContext::ShearTool
+                                         : ActionContext::NoTool;
   const auto selectionContext =
     document->hasSelectedNodes()        ? ActionContext::NodeSelection
     : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection

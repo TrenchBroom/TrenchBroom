@@ -127,8 +127,7 @@ public:                                            // modifying transient node a
 
 public: // modifying objects
   virtual bool translateObjects(const vm::vec3d& delta) = 0;
-  virtual bool rotateObjects(
-    const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
+  virtual bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
   virtual bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
   virtual bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
   virtual bool shearObjects(

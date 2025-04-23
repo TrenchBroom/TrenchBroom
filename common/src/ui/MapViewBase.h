@@ -173,7 +173,7 @@ public: // move, rotate, flip actions
   void duplicateAndMoveObjects(vm::direction direction);
   void duplicateObjects();
 
-  void rotateObjects(vm::rotation_axis axis, bool clockwise);
+  void rotate(vm::rotation_axis axis, bool clockwise);
   vm::vec3d rotationAxis(vm::rotation_axis axis, bool clockwise) const;
 
   void flipObjects(vm::direction direction);

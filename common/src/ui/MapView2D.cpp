@@ -50,7 +50,7 @@
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
-#include "ui/RotateObjectsToolController.h"
+#include "ui/RotateToolController.h"
 #include "ui/ScaleObjectsToolController.h"
 #include "ui/SelectionTool.h"
 #include "ui/ShearObjectsToolController.h"
@@ -123,8 +123,7 @@ void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
   addToolController(std::make_unique<CameraTool2D>(*m_camera));
   addToolController(
     std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
-  addToolController(
-    std::make_unique<RotateObjectsToolController2D>(toolBox.rotateObjectsTool()));
+  addToolController(std::make_unique<RotateToolController2D>(toolBox.rotateTool()));
   addToolController(std::make_unique<ScaleObjectsToolController2D>(
     toolBox.scaleObjectsTool(), m_document));
   addToolController(std::make_unique<ShearObjectsToolController2D>(

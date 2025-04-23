@@ -29,7 +29,7 @@
 #include "ui/FaceTool.h"
 #include "ui/MapDocument.h"
 #include "ui/MoveObjectsTool.h"
-#include "ui/RotateObjectsTool.h"
+#include "ui/RotateTool.h"
 #include "ui/ScaleObjectsTool.h"
 #include "ui/ShearObjectsTool.h"
 #include "ui/VertexTool.h"
@@ -77,9 +77,9 @@ ExtrudeTool& MapViewToolBox::extrudeTool()
   return *m_extrudeTool;
 }
 
-RotateObjectsTool& MapViewToolBox::rotateObjectsTool()
+RotateTool& MapViewToolBox::rotateTool()
 {
-  return *m_rotateObjectsTool;
+  return *m_rotateTool;
 }
 
 ScaleObjectsTool& MapViewToolBox::scaleObjectsTool()
@@ -150,33 +150,33 @@ void MapViewToolBox::removeLastClipPoint()
   m_clipTool->removeLastPoint();
 }
 
-void MapViewToolBox::toggleRotateObjectsTool()
+void MapViewToolBox::toggleRotateTool()
 {
-  toggleTool(rotateObjectsTool());
+  toggleTool(rotateTool());
 }
 
-bool MapViewToolBox::rotateObjectsToolActive() const
+bool MapViewToolBox::rotateToolActive() const
 {
-  return m_rotateObjectsTool->active();
+  return m_rotateTool->active();
 }
 
 double MapViewToolBox::rotateToolAngle() const
 {
-  assert(rotateObjectsToolActive());
-  return m_rotateObjectsTool->angle();
+  assert(rotateToolActive());
+  return m_rotateTool->angle();
 }
 
 vm::vec3d MapViewToolBox::rotateToolCenter() const
 {
-  assert(rotateObjectsToolActive());
-  return m_rotateObjectsTool->rotationCenter();
+  assert(rotateToolActive());
+  return m_rotateTool->rotationCenter();
 }
 
 void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
 {
-  assert(rotateObjectsToolActive());
-  const vm::vec3d center = m_rotateObjectsTool->rotationCenter();
-  m_rotateObjectsTool->setRotationCenter(center + delta);
+  assert(rotateToolActive());
+  const vm::vec3d center = m_rotateTool->rotationCenter();
+  m_rotateTool->setRotationCenter(center + delta);
 }
 
 void MapViewToolBox::toggleScaleObjectsTool()
@@ -236,7 +236,7 @@ bool MapViewToolBox::faceToolActive() const
 
 bool MapViewToolBox::anyModalToolActive() const
 {
-  return rotateObjectsToolActive() || scaleObjectsToolActive() || shearObjectsToolActive()
+  return rotateToolActive() || scaleObjectsToolActive() || shearObjectsToolActive()
          || anyVertexToolActive();
 }
 
@@ -265,7 +265,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_drawShapeTool = std::make_unique<DrawShapeTool>(m_document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_document);
   m_extrudeTool = std::make_unique<ExtrudeTool>(m_document);
-  m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(m_document);
+  m_rotateTool = std::make_unique<RotateTool>(m_document);
   m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(m_document);
   m_shearObjectsTool = std::make_unique<ShearObjectsTool>(m_document);
   m_vertexTool = std::make_unique<VertexTool>(m_document);
@@ -274,7 +274,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
 
   addExclusiveToolGroup(
     assembleBrushTool(),
-    rotateObjectsTool(),
+    rotateTool(),
     scaleObjectsTool(),
     shearObjectsTool(),
     vertexTool(),
@@ -284,8 +284,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
 
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
-  suppressWhileActive(
-    rotateObjectsTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(rotateTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(
     scaleObjectsTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(
@@ -296,7 +295,7 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   suppressWhileActive(clipTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
-  registerTool(rotateObjectsTool(), bookCtrl);
+  registerTool(rotateTool(), bookCtrl);
   registerTool(scaleObjectsTool(), bookCtrl);
   registerTool(shearObjectsTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
@@ -364,9 +363,9 @@ void MapViewToolBox::selectionDidChange(const Selection&)
 
 void MapViewToolBox::updateToolPage()
 {
-  if (rotateObjectsToolActive())
+  if (rotateToolActive())
   {
-    rotateObjectsTool().showPage();
+    rotateTool().showPage();
   }
   else if (scaleObjectsToolActive())
   {

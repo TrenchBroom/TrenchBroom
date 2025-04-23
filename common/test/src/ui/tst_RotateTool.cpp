@@ -22,16 +22,16 @@
 #include "mdl/EntityNode.h"
 #include "ui/Grid.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/RotateObjectsTool.h"
+#include "ui/RotateTool.h"
 
 #include "Catch2.h"
 
 namespace tb::ui
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "RotateObjectsTool")
+TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
 {
-  auto tool = RotateObjectsTool{document};
+  auto tool = RotateTool{document};
   tool.activate();
 
   SECTION("resetRotationCenter")

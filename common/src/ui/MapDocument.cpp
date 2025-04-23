@@ -3199,7 +3199,7 @@ bool MapDocument::translateObjects(const vm::vec3d& delta)
   return transformObjects("Translate Objects", vm::translation_matrix(delta));
 }
 
-bool MapDocument::rotateObjects(
+bool MapDocument::rotate(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   const auto transformation = vm::translation_matrix(center)

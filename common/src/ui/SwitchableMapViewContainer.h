@@ -90,9 +90,9 @@ public:
   void toggleClipTool();
   ClipTool& clipTool();
 
-  bool rotateObjectsToolActive() const;
-  bool canToggleRotateObjectsTool() const;
-  void toggleRotateObjectsTool();
+  bool rotateToolActive() const;
+  bool canToggleRotateTool() const;
+  void toggleRotateTool();
 
   bool scaleObjectsToolActive() const;
   bool canToggleScaleObjectsTool() const;

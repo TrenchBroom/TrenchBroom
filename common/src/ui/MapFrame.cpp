@@ -1692,22 +1692,22 @@ bool MapFrame::clipToolActive() const
   return m_mapView->clipToolActive();
 }
 
-void MapFrame::toggleRotateObjectsTool()
+void MapFrame::toggleRotateTool()
 {
-  if (canToggleRotateObjectsTool())
+  if (canToggleRotateTool())
   {
-    m_mapView->toggleRotateObjectsTool();
+    m_mapView->toggleRotateTool();
   }
 }
 
-bool MapFrame::canToggleRotateObjectsTool() const
+bool MapFrame::canToggleRotateTool() const
 {
-  return m_mapView->canToggleRotateObjectsTool();
+  return m_mapView->canToggleRotateTool();
 }
 
-bool MapFrame::rotateObjectsToolActive() const
+bool MapFrame::rotateToolActive() const
 {
-  return m_mapView->rotateObjectsToolActive();
+  return m_mapView->rotateToolActive();
 }
 
 void MapFrame::toggleScaleObjectsTool()

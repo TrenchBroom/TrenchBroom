@@ -579,8 +579,7 @@ public: // modifying objects, declared in MapFacade interface
     const std::string& commandName, const vm::mat4x4d& transformation);
 
   bool translateObjects(const vm::vec3d& delta) override;
-  bool rotateObjects(
-    const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
+  bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
   bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) override;
   bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) override;
   bool shearObjects(

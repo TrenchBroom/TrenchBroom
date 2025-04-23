@@ -172,20 +172,20 @@ ClipTool& SwitchableMapViewContainer::clipTool()
   return m_toolBox->clipTool();
 }
 
-bool SwitchableMapViewContainer::rotateObjectsToolActive() const
+bool SwitchableMapViewContainer::rotateToolActive() const
 {
-  return m_toolBox->rotateObjectsToolActive();
+  return m_toolBox->rotateToolActive();
 }
 
-bool SwitchableMapViewContainer::canToggleRotateObjectsTool() const
+bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  return rotateObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return rotateToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-void SwitchableMapViewContainer::toggleRotateObjectsTool()
+void SwitchableMapViewContainer::toggleRotateTool()
 {
-  assert(canToggleRotateObjectsTool());
-  m_toolBox->toggleRotateObjectsTool();
+  assert(canToggleRotateTool());
+  m_toolBox->toggleRotateTool();
 }
 
 bool SwitchableMapViewContainer::scaleObjectsToolActive() const

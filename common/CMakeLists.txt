@@ -422,10 +422,10 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ReparentNodesCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/RepeatStack.cpp
         ${COMMON_SOURCE_DIR}/ui/ReplaceMaterialDialog.cpp
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsHandle.cpp
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsTool.cpp
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsToolController.cpp
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsToolPage.cpp
+        ${COMMON_SOURCE_DIR}/ui/RotateHandle.cpp
+        ${COMMON_SOURCE_DIR}/ui/RotateTool.cpp
+        ${COMMON_SOURCE_DIR}/ui/RotateToolController.cpp
+        ${COMMON_SOURCE_DIR}/ui/RotateToolPage.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsTool.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolPage.cpp
@@ -965,10 +965,10 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ReparentNodesCommand.h
         ${COMMON_SOURCE_DIR}/ui/RepeatStack.h
         ${COMMON_SOURCE_DIR}/ui/ReplaceMaterialDialog.h
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsHandle.h
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsTool.h
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsToolController.h
-        ${COMMON_SOURCE_DIR}/ui/RotateObjectsToolPage.h
+        ${COMMON_SOURCE_DIR}/ui/RotateHandle.h
+        ${COMMON_SOURCE_DIR}/ui/RotateTool.h
+        ${COMMON_SOURCE_DIR}/ui/RotateToolController.h
+        ${COMMON_SOURCE_DIR}/ui/RotateToolPage.h
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsTool.h
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolController.h
         ${COMMON_SOURCE_DIR}/ui/ScaleObjectsToolPage.h

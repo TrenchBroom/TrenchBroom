@@ -36,7 +36,7 @@ class CreateEntityTool;
 class DrawShapeTool;
 class MoveObjectsTool;
 class ExtrudeTool;
-class RotateObjectsTool;
+class RotateTool;
 class ScaleObjectsTool;
 class ShearObjectsTool;
 class VertexTool;
@@ -56,7 +56,7 @@ private:
   std::unique_ptr<DrawShapeTool> m_drawShapeTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
-  std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
+  std::unique_ptr<RotateTool> m_rotateTool;
   std::unique_ptr<ScaleObjectsTool> m_scaleObjectsTool;
   std::unique_ptr<ShearObjectsTool> m_shearObjectsTool;
   std::unique_ptr<VertexTool> m_vertexTool;
@@ -76,7 +76,7 @@ public: // tools
   DrawShapeTool& drawShapeTool();
   MoveObjectsTool& moveObjectsTool();
   ExtrudeTool& extrudeTool();
-  RotateObjectsTool& rotateObjectsTool();
+  RotateTool& rotateTool();
   ScaleObjectsTool& scaleObjectsTool();
   ShearObjectsTool& shearObjectsTool();
   VertexTool& vertexTool();
@@ -93,8 +93,8 @@ public: // tools
   void performClip();
   void removeLastClipPoint();
 
-  void toggleRotateObjectsTool();
-  bool rotateObjectsToolActive() const;
+  void toggleRotateTool();
+  bool rotateToolActive() const;
   double rotateToolAngle() const;
   vm::vec3d rotateToolCenter() const;
   void moveRotationCenter(const vm::vec3d& delta);

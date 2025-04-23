@@ -79,7 +79,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatRotate")
   document->selectNodes({entityNode});
 
   REQUIRE_FALSE(document->canRepeatCommands());
-  document->rotateObjects(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+  document->rotate(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
   CHECK(document->canRepeatCommands());
 
   REQUIRE(

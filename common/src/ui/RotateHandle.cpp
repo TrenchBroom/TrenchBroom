@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateObjectsHandle.h"
+#include "RotateHandle.h"
 
 #include "Macros.h"
 #include "PreferenceManager.h"
@@ -60,31 +60,31 @@ std::tuple<vm::vec<T, 3>, vm::vec<T, 3>, vm::vec<T, 3>> computeAxes(
 
 } // namespace
 
-const mdl::HitType::Type RotateObjectsHandle::HandleHitType = mdl::HitType::freeType();
+const mdl::HitType::Type RotateHandle::HandleHitType = mdl::HitType::freeType();
 
-RotateObjectsHandle::Handle::Handle(const vm::vec3d& position)
+RotateHandle::Handle::Handle(const vm::vec3d& position)
   : m_position{position}
 {
 }
 
-RotateObjectsHandle::Handle::~Handle() = default;
+RotateHandle::Handle::~Handle() = default;
 
-double RotateObjectsHandle::Handle::scalingFactor(const render::Camera& camera) const
+double RotateHandle::Handle::scalingFactor(const render::Camera& camera) const
 {
   return double(camera.perspectiveScalingFactor(vm::vec3f{m_position}));
 }
 
-double RotateObjectsHandle::Handle::majorRadius()
+double RotateHandle::Handle::majorRadius()
 {
   return double(pref(Preferences::RotateHandleRadius));
 }
 
-double RotateObjectsHandle::Handle::minorRadius()
+double RotateHandle::Handle::minorRadius()
 {
   return double(pref(Preferences::HandleRadius));
 }
 
-mdl::Hit RotateObjectsHandle::Handle::pickCenterHandle(
+mdl::Hit RotateHandle::Handle::pickCenterHandle(
   const vm::ray3d& pickRay, const render::Camera& camera) const
 {
   if (
@@ -97,7 +97,7 @@ mdl::Hit RotateObjectsHandle::Handle::pickCenterHandle(
   return mdl::Hit::NoHit;
 }
 
-mdl::Hit RotateObjectsHandle::Handle::pickRotateHandle(
+mdl::Hit RotateHandle::Handle::pickRotateHandle(
   const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
 {
   const auto transform = handleTransform(camera, area);
@@ -121,7 +121,7 @@ mdl::Hit RotateObjectsHandle::Handle::pickRotateHandle(
   return mdl::Hit::NoHit;
 }
 
-vm::mat4x4d RotateObjectsHandle::Handle::handleTransform(
+vm::mat4x4d RotateHandle::Handle::handleTransform(
   const render::Camera& camera, const HitArea area) const
 {
   const auto scalingFactor = this->scalingFactor(camera);
@@ -146,7 +146,7 @@ vm::mat4x4d RotateObjectsHandle::Handle::handleTransform(
   }
 }
 
-mdl::Hit RotateObjectsHandle::Handle2D::pick(
+mdl::Hit RotateHandle::Handle2D::pick(
   const vm::ray3d& pickRay, const render::Camera& camera) const
 {
   switch (vm::find_abs_max_component(camera.direction()))
@@ -166,7 +166,7 @@ mdl::Hit RotateObjectsHandle::Handle2D::pick(
   }
 }
 
-mdl::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(
+mdl::Hit RotateHandle::Handle2D::pickRotateHandle(
   const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
 {
   // Work around imprecision caused by 2D cameras being positioned at map bounds
@@ -199,7 +199,7 @@ mdl::Hit RotateObjectsHandle::Handle2D::pickRotateHandle(
   return Handle::pickRotateHandle(ray, camera, area);
 }
 
-void RotateObjectsHandle::Handle2D::renderHandle(
+void RotateHandle::Handle2D::renderHandle(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
 {
   const auto& camera = renderContext.camera();
@@ -220,10 +220,10 @@ void RotateObjectsHandle::Handle2D::renderHandle(
   }
 }
 
-void RotateObjectsHandle::Handle2D::renderHighlight(
+void RotateHandle::Handle2D::renderHighlight(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
-  RotateObjectsHandle::HitArea area) const
+  RotateHandle::HitArea area) const
 {
   if (const auto radius = float(majorRadius() * scalingFactor(renderContext.camera()));
       radius > 0.0f)
@@ -258,7 +258,7 @@ void RotateObjectsHandle::Handle2D::renderHighlight(
   }
 }
 
-mdl::Hit RotateObjectsHandle::Handle3D::pick(
+mdl::Hit RotateHandle::Handle3D::pick(
   const vm::ray3d& pickRay, const render::Camera& camera) const
 {
   return mdl::selectClosest(
@@ -268,7 +268,7 @@ mdl::Hit RotateObjectsHandle::Handle3D::pick(
     pickRotateHandle(pickRay, camera, HitArea::ZAxis));
 }
 
-void RotateObjectsHandle::Handle3D::renderHandle(
+void RotateHandle::Handle3D::renderHandle(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch) const
 {
   if (const auto radius = float(majorRadius() * scalingFactor(renderContext.camera()));
@@ -299,10 +299,10 @@ void RotateObjectsHandle::Handle3D::renderHandle(
   }
 }
 
-void RotateObjectsHandle::Handle3D::renderHighlight(
+void RotateHandle::Handle3D::renderHighlight(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
-  RotateObjectsHandle::HitArea area) const
+  RotateHandle::HitArea area) const
 {
   if (const auto radius = float(majorRadius() * scalingFactor(renderContext.camera()));
       radius > 0.0f)
@@ -348,7 +348,7 @@ void RotateObjectsHandle::Handle3D::renderHighlight(
   }
 }
 
-mdl::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
+mdl::Hit RotateHandle::Handle3D::pickRotateHandle(
   const vm::ray3d& pickRay, const render::Camera& camera, const HitArea area) const
 {
   if (const auto hit = Handle::pickRotateHandle(pickRay, camera, area); hit.isMatch())
@@ -367,45 +367,45 @@ mdl::Hit RotateObjectsHandle::Handle3D::pickRotateHandle(
   return mdl::Hit::NoHit;
 }
 
-RotateObjectsHandle::RotateObjectsHandle()
+RotateHandle::RotateHandle()
   : m_handle2D{m_position}
   , m_handle3D{m_position}
 {
 }
 
-const vm::vec3d& RotateObjectsHandle::position() const
+const vm::vec3d& RotateHandle::position() const
 {
   return m_position;
 }
 
-void RotateObjectsHandle::setPosition(const vm::vec3d& position)
+void RotateHandle::setPosition(const vm::vec3d& position)
 {
   m_position = position;
 }
 
-mdl::Hit RotateObjectsHandle::pick2D(
+mdl::Hit RotateHandle::pick2D(
   const vm::ray3d& pickRay, const render::Camera& camera) const
 {
   return m_handle2D.pick(pickRay, camera);
 }
 
-mdl::Hit RotateObjectsHandle::pick3D(
+mdl::Hit RotateHandle::pick3D(
   const vm::ray3d& pickRay, const render::Camera& camera) const
 {
   return m_handle3D.pick(pickRay, camera);
 }
 
-double RotateObjectsHandle::majorHandleRadius(const render::Camera& camera) const
+double RotateHandle::majorHandleRadius(const render::Camera& camera) const
 {
   return Handle::majorRadius() * m_handle3D.scalingFactor(camera);
 }
 
-double RotateObjectsHandle::minorHandleRadius(const render::Camera& camera) const
+double RotateHandle::minorHandleRadius(const render::Camera& camera) const
 {
   return Handle::minorRadius() * m_handle3D.scalingFactor(camera);
 }
 
-vm::vec3d RotateObjectsHandle::rotationAxis(const HitArea area) const
+vm::vec3d RotateHandle::rotationAxis(const HitArea area) const
 {
   switch (area)
   {
@@ -422,19 +422,19 @@ vm::vec3d RotateObjectsHandle::rotationAxis(const HitArea area) const
   }
 }
 
-void RotateObjectsHandle::renderHandle2D(
+void RotateHandle::renderHandle2D(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle2D.renderHandle(renderContext, renderBatch);
 }
 
-void RotateObjectsHandle::renderHandle3D(
+void RotateHandle::renderHandle3D(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle3D.renderHandle(renderContext, renderBatch);
 }
 
-void RotateObjectsHandle::renderHighlight2D(
+void RotateHandle::renderHighlight2D(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const HitArea area)
@@ -442,7 +442,7 @@ void RotateObjectsHandle::renderHighlight2D(
   m_handle2D.renderHighlight(renderContext, renderBatch, area);
 }
 
-void RotateObjectsHandle::renderHighlight3D(
+void RotateHandle::renderHighlight3D(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
   const HitArea area)
