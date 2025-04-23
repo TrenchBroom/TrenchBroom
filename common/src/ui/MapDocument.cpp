@@ -1351,6 +1351,21 @@ std::vector<mdl::BrushFaceHandle> MapDocument::selectedBrushFaces() const
   return m_selectedBrushFaces;
 }
 
+VertexHandleManager& MapDocument::vertexHandles()
+{
+  return m_vertexHandles;
+}
+
+EdgeHandleManager& MapDocument::edgeHandles()
+{
+  return m_edgeHandles;
+}
+
+FaceHandleManager& MapDocument::faceHandles()
+{
+  return m_faceHandles;
+}
+
 const vm::bbox3d& MapDocument::referenceBounds() const
 {
   return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();

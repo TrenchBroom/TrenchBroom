@@ -32,6 +32,7 @@
 #include "mdl/PortalFile.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
+#include "ui/VertexHandleManager.h"
 
 #include "vm/bbox.h"
 #include "vm/ray.h"
@@ -145,6 +146,10 @@ protected:
 
   mdl::NodeCollection m_selectedNodes;
   std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
+
+  VertexHandleManager m_vertexHandles;
+  EdgeHandleManager m_edgeHandles;
+  FaceHandleManager m_faceHandles;
 
   mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
@@ -398,6 +403,10 @@ public: // selection
    */
   std::vector<mdl::BrushFaceHandle> allSelectedBrushFaces() const override;
   std::vector<mdl::BrushFaceHandle> selectedBrushFaces() const override;
+
+  VertexHandleManager& vertexHandles();
+  EdgeHandleManager& edgeHandles();
+  FaceHandleManager& faceHandles();
 
   const vm::bbox3d& referenceBounds() const override;
   const vm::bbox3d& lastSelectionBounds() const override;

@@ -41,9 +41,6 @@ namespace tb::ui
 VertexTool::VertexTool(std::weak_ptr<MapDocument> document)
   : VertexToolBase{std::move(document)}
   , m_mode{Mode::Move}
-  , m_vertexHandles{std::make_unique<VertexHandleManager>()}
-  , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
-  , m_faceHandles{std::make_unique<FaceHandleManager>()}
   , m_guideRenderer{m_document}
 {
 }
@@ -51,19 +48,22 @@ VertexTool::VertexTool(std::weak_ptr<MapDocument> document)
 std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::vec3d& handle) const
 {
-  return findIncidentBrushes(*m_vertexHandles, handle);
+  auto document = kdl::mem_lock(m_document);
+  return findIncidentBrushes(document->vertexHandles(), handle);
 }
 
 std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::segment3d& handle) const
 {
-  return findIncidentBrushes(*m_edgeHandles, handle);
+  auto document = kdl::mem_lock(m_document);
+  return findIncidentBrushes(document->edgeHandles(), handle);
 }
 
 std::vector<mdl::BrushNode*> VertexTool::findIncidentBrushes(
   const vm::polygon3d& handle) const
 {
-  return findIncidentBrushes(*m_faceHandles, handle);
+  auto document = kdl::mem_lock(m_document);
+  return findIncidentBrushes(document->faceHandles(), handle);
 }
 
 void VertexTool::pick(
@@ -74,9 +74,9 @@ void VertexTool::pick(
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
 
-  m_vertexHandles->pick(pickRay, camera, pickResult);
-  m_edgeHandles->pickGridHandle(pickRay, camera, grid, pickResult);
-  m_faceHandles->pickGridHandle(pickRay, camera, grid, pickResult);
+  document->vertexHandles().pick(pickRay, camera, pickResult);
+  document->edgeHandles().pickGridHandle(pickRay, camera, grid, pickResult);
+  document->faceHandles().pickGridHandle(pickRay, camera, grid, pickResult);
 }
 
 bool VertexTool::deselectAll()
@@ -91,12 +91,14 @@ bool VertexTool::deselectAll()
 
 VertexHandleManager& VertexTool::handleManager()
 {
-  return *m_vertexHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->vertexHandles();
 }
 
 const VertexHandleManager& VertexTool::handleManager() const
 {
-  return *m_vertexHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->vertexHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
@@ -123,17 +125,19 @@ bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
   const auto& hit = hits.front();
   if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
   {
-    m_vertexHandles->deselectAll();
+    auto document = kdl::mem_lock(m_document);
+
+    document->vertexHandles().deselectAll();
     if (hit.hasType(EdgeHandleManager::HandleHitType))
     {
       const auto& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
-      m_edgeHandles->select(handle);
+      document->edgeHandles().select(handle);
       m_mode = Mode::SplitEdge;
     }
     else
     {
       const auto& handle = std::get<0>(hit.target<const FaceHandleManager::HitType&>());
-      m_faceHandles->select(handle);
+      document->faceHandles().select(handle);
       m_mode = Mode::SplitFace;
     }
     refreshViews();
@@ -158,7 +162,7 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
 
   if (m_mode == Mode::Move)
   {
-    auto handles = m_vertexHandles->selectedHandles();
+    auto handles = document->vertexHandles().selectedHandles();
     const auto result = document->transformVertices(std::move(handles), transform);
     if (result.success)
     {
@@ -175,18 +179,18 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
   auto brushes = std::vector<mdl::BrushNode*>{};
   if (m_mode == Mode::SplitEdge)
   {
-    if (m_edgeHandles->selectedHandleCount() == 1)
+    if (document->edgeHandles().selectedHandleCount() == 1)
     {
-      const auto handle = m_edgeHandles->selectedHandles().front();
+      const auto handle = document->edgeHandles().selectedHandles().front();
       brushes = findIncidentBrushes(handle);
     }
   }
   else
   {
     assert(m_mode == Mode::SplitFace);
-    if (m_faceHandles->selectedHandleCount() == 1)
+    if (document->faceHandles().selectedHandleCount() == 1)
     {
-      const auto handle = m_faceHandles->selectedHandles().front();
+      const auto handle = document->faceHandles().selectedHandles().front();
       brushes = findIncidentBrushes(handle);
     }
   }
@@ -197,10 +201,10 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
     if (document->addVertex(newVertexPosition))
     {
       m_mode = Mode::Move;
-      m_edgeHandles->deselectAll();
-      m_faceHandles->deselectAll();
+      document->edgeHandles().deselectAll();
+      document->faceHandles().deselectAll();
       m_dragHandlePosition = transform * m_dragHandlePosition;
-      m_vertexHandles->select(m_dragHandlePosition);
+      document->vertexHandles().select(m_dragHandlePosition);
     }
     return MoveResult::Continue;
   }
@@ -211,16 +215,20 @@ VertexTool::MoveResult VertexTool::move(const vm::vec3d& delta)
 
 void VertexTool::endMove()
 {
+  auto document = kdl::mem_lock(m_document);
+
   VertexToolBase::endMove();
-  m_edgeHandles->deselectAll();
-  m_faceHandles->deselectAll();
+  document->edgeHandles().deselectAll();
+  document->faceHandles().deselectAll();
   m_mode = Mode::Move;
 }
 void VertexTool::cancelMove()
 {
+  auto document = kdl::mem_lock(m_document);
+
   VertexToolBase::cancelMove();
-  m_edgeHandles->deselectAll();
-  m_faceHandles->deselectAll();
+  document->edgeHandles().deselectAll();
+  document->faceHandles().deselectAll();
   m_mode = Mode::Move;
 }
 
@@ -244,11 +252,13 @@ vm::vec3d VertexTool::getHandlePosition(const mdl::Hit& hit) const
 
 std::string VertexTool::actionName() const
 {
+  auto document = kdl::mem_lock(m_document);
+
   switch (m_mode)
   {
   case Mode::Move:
     return kdl::str_plural(
-      m_vertexHandles->selectedHandleCount(), "Move Vertex", "Move Vertices");
+      document->vertexHandles().selectedHandleCount(), "Move Vertex", "Move Vertices");
   case Mode::SplitEdge:
     return "Split Edge";
   case Mode::SplitFace:
@@ -261,7 +271,9 @@ void VertexTool::removeSelection()
 {
   assert(canRemoveSelection());
 
-  auto handles = m_vertexHandles->selectedHandles();
+  auto document = kdl::mem_lock(m_document);
+  auto handles = document->vertexHandles().selectedHandles();
+
   const auto commandName =
     kdl::str_plural(handles.size(), "Remove Brush Vertex", "Remove Brush Vertices");
   kdl::mem_lock(m_document)->removeVertices(commandName, std::move(handles));
@@ -281,12 +293,14 @@ bool VertexTool::doActivate()
 {
   VertexToolBase::doActivate();
 
-  m_edgeHandles->clear();
-  m_faceHandles->clear();
+  auto document = kdl::mem_lock(m_document);
+
+  document->edgeHandles().clear();
+  document->faceHandles().clear();
 
   const auto& brushes = selectedBrushes();
-  m_edgeHandles->addHandles(brushes);
-  m_faceHandles->addHandles(brushes);
+  document->edgeHandles().addHandles(brushes);
+  document->faceHandles().addHandles(brushes);
 
   m_mode = Mode::Move;
   return true;
@@ -296,42 +310,53 @@ bool VertexTool::doDeactivate()
 {
   VertexToolBase::doDeactivate();
 
-  m_edgeHandles->clear();
-  m_faceHandles->clear();
+  auto document = kdl::mem_lock(m_document);
+
+  document->edgeHandles().clear();
+  document->faceHandles().clear();
   return true;
 }
 
 void VertexTool::addHandles(const std::vector<mdl::Node*>& nodes)
 {
-  VertexToolBase::addHandles(nodes, *m_vertexHandles);
-  VertexToolBase::addHandles(nodes, *m_edgeHandles);
-  VertexToolBase::addHandles(nodes, *m_faceHandles);
+  auto document = kdl::mem_lock(m_document);
+
+  VertexToolBase::addHandles(nodes, document->vertexHandles());
+  VertexToolBase::addHandles(nodes, document->edgeHandles());
+  VertexToolBase::addHandles(nodes, document->faceHandles());
 }
 
 void VertexTool::removeHandles(const std::vector<mdl::Node*>& nodes)
 {
-  VertexToolBase::removeHandles(nodes, *m_vertexHandles);
-  VertexToolBase::removeHandles(nodes, *m_edgeHandles);
-  VertexToolBase::removeHandles(nodes, *m_faceHandles);
+  auto document = kdl::mem_lock(m_document);
+
+  VertexToolBase::removeHandles(nodes, document->vertexHandles());
+  VertexToolBase::removeHandles(nodes, document->edgeHandles());
+  VertexToolBase::removeHandles(nodes, document->faceHandles());
 }
 
 void VertexTool::addHandles(BrushVertexCommandBase* command)
 {
-  command->addHandles(*m_vertexHandles);
-  command->addHandles(*m_edgeHandles);
-  command->addHandles(*m_faceHandles);
+  auto document = kdl::mem_lock(m_document);
+
+  command->addHandles(document->vertexHandles());
+  command->addHandles(document->edgeHandles());
+  command->addHandles(document->faceHandles());
 }
 
 void VertexTool::removeHandles(BrushVertexCommandBase* command)
 {
-  command->removeHandles(*m_vertexHandles);
-  command->removeHandles(*m_edgeHandles);
-  command->removeHandles(*m_faceHandles);
+  auto document = kdl::mem_lock(m_document);
+
+  command->removeHandles(document->vertexHandles());
+  command->removeHandles(document->edgeHandles());
+  command->removeHandles(document->faceHandles());
 }
 
 void VertexTool::resetModeAfterDeselection()
 {
-  if (!m_vertexHandles->anySelected())
+  auto document = kdl::mem_lock(m_document);
+  if (!document->vertexHandles().anySelected())
   {
     m_mode = Mode::Move;
   }

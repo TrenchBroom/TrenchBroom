@@ -21,7 +21,6 @@
 
 #include "ui/VertexToolBase.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -40,9 +39,6 @@ namespace tb::ui
 {
 class EdgeTool : public VertexToolBase<vm::segment3d>
 {
-private:
-  std::unique_ptr<EdgeHandleManager> m_edgeHandles;
-
 public:
   explicit EdgeTool(std::weak_ptr<MapDocument> document);
 
