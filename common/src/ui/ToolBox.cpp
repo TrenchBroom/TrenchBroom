@@ -29,13 +29,14 @@
 #include "ui/ToolChain.h"
 #include "ui/ToolController.h"
 
+#include "kdl/vector_utils.h"
+
 #include <cassert>
 #include <string>
 #include <utility>
 
 namespace tb::ui
 {
-
 ToolBox::ToolBox() = default;
 ToolBox::~ToolBox() = default;
 
@@ -347,13 +348,10 @@ void ToolBox::activateTool(Tool& tool)
 
   if (tool.activate())
   {
-    if (auto it = m_suppressedTools.find(&tool); it != std::end(m_suppressedTools))
+    for (auto* suppressedTool : currentlySuppressedTools())
     {
-      for (auto* suppress : it->second)
-      {
-        suppress->deactivate();
-        toolDeactivatedNotifier(*suppress);
-      }
+      suppressedTool->deactivate();
+      toolDeactivatedNotifier(*suppressedTool);
     }
 
     m_modalTool = &tool;
@@ -368,18 +366,28 @@ void ToolBox::deactivateTool(Tool& tool)
     cancelMouseDrag();
   }
 
-  if (auto it = m_suppressedTools.find(&tool); it != std::end(m_suppressedTools))
+  for (auto* suppressedTool : currentlySuppressedTools())
   {
-    for (auto* suppress : it->second)
-    {
-      suppress->activate();
-      toolActivatedNotifier(*suppress);
-    }
+    suppressedTool->activate();
+    toolActivatedNotifier(*suppressedTool);
   }
 
   tool.deactivate();
   m_modalTool = nullptr;
   toolDeactivatedNotifier(tool);
+}
+
+std::vector<Tool*> ToolBox::currentlySuppressedTools() const
+{
+  auto result = std::vector<Tool*>{};
+  for (const auto& [primaryTool, suppressedTools] : m_suppressedTools)
+  {
+    if (primaryTool->active())
+    {
+      result = kdl::vec_concat(std::move(result), suppressedTools);
+    }
+  }
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 } // namespace tb::ui
