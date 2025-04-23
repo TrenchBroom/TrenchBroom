@@ -85,7 +85,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
         | kdl::transform([&](auto brushNodes) {
             auto transaction = Transaction{document, "Update Brushes"};
 
-            document->deleteObjects();
+            document->remove();
             const auto addedNodes = document->addNodes({
               {document->parentForNodes(),
                brushNodes | std::views::transform([](auto& node) {

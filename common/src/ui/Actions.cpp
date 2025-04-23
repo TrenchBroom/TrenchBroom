@@ -1448,9 +1448,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Flip Horizontally"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::Key_F},
-    [](auto& context) { context.view()->flipObjects(vm::direction::left); },
+    [](auto& context) { context.view()->flip(vm::direction::left); },
     [](const auto& context) {
-      return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+      return context.hasDocument() && context.view() && context.view()->canFlip();
     },
     std::filesystem::path{"FlipHorizontally.svg"},
   }));
@@ -1459,9 +1459,9 @@ void ActionManager::createEditMenu()
     QObject::tr("Flip Vertically"),
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::AnyOrNoTool,
     QKeySequence{Qt::CTRL | Qt::ALT | Qt::Key_F},
-    [](auto& context) { context.view()->flipObjects(vm::direction::up); },
+    [](auto& context) { context.view()->flip(vm::direction::up); },
     [](const auto& context) {
-      return context.hasDocument() && context.view() && context.view()->canFlipObjects();
+      return context.hasDocument() && context.view() && context.view()->canFlip();
     },
     std::filesystem::path{"FlipVertically.svg"},
   }));

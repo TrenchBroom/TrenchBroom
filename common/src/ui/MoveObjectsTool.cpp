@@ -75,10 +75,10 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
   if (m_duplicateObjects)
   {
     m_duplicateObjects = false;
-    document->duplicateObjects();
+    document->duplicate();
   }
 
-  return document->translateObjects(delta) ? MoveResult::Continue : MoveResult::Deny;
+  return document->translate(delta) ? MoveResult::Continue : MoveResult::Deny;
 }
 
 void MoveObjectsTool::endMove(const InputState&)

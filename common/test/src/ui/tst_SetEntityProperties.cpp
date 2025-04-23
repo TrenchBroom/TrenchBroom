@@ -421,7 +421,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};

@@ -264,7 +264,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGr
 
   SECTION("Cut and paste retains persistent group ID")
   {
-    document->deleteObjects();
+    document->remove();
     document->deselectAll();
     REQUIRE(document->paste(str) == PasteType::Node);
 
@@ -282,7 +282,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -305,7 +305,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
   CHECK(document->paste(copied) == PasteType::Node);
   CHECK(document->selectedNodes().groupCount() == 1u);
   CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
-  CHECK(document->translateObjects(delta));
+  CHECK(document->translate(delta));
   CHECK(document->selectionBounds() == box.translate(delta));
 }
 
@@ -387,7 +387,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
     SECTION("Pasting unknown linked group ID")
     {
       document->selectAllNodes();
-      document->deleteObjects();
+      document->remove();
 
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 1);
@@ -402,7 +402,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
     SECTION("If only one linked group exists")
     {
       document->selectNodes({linkedGroup});
-      document->deleteObjects();
+      document->remove();
 
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 2);
@@ -481,7 +481,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
     SECTION("If only one original group exists")
     {
       document->selectNodes({linkedGroup});
-      document->deleteObjects();
+      document->remove();
 
       CHECK(document->paste(data) == PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);

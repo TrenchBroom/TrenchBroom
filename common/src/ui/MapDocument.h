@@ -464,8 +464,8 @@ private:
     const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodesToAdd) const;
 
 public:
-  void deleteObjects() override;
-  void duplicateObjects() override;
+  void remove() override;
+  void duplicate() override;
 
 public: // entity management
   mdl::EntityNode* createPointEntity(
@@ -575,16 +575,15 @@ public: // modifying objects, declared in MapFacade interface
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodesToSwap);
-  bool transformObjects(
-    const std::string& commandName, const vm::mat4x4d& transformation);
+  bool transform(const std::string& commandName, const vm::mat4x4d& transformation);
 
-  bool translateObjects(const vm::vec3d& delta) override;
+  bool translate(const vm::vec3d& delta) override;
   bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
   bool scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) override;
   bool scale(const vm::vec3d& center, const vm::vec3d& scaleFactors) override;
   bool shear(
     const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) override;
-  bool flipObjects(const vm::vec3d& center, vm::axis::type axis) override;
+  bool flip(const vm::vec3d& center, vm::axis::type axis) override;
 
 public: // CSG operations, declared in MapFacade interface
   bool createBrush(const std::vector<vm::vec3d>& points);

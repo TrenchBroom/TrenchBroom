@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
   SECTION("translate brush")
   {
     document->selectNodes({brushNode});
-    document->translateObjects(vm::vec3d(1, 1, 1));
+    document->translate(vm::vec3d(1, 1, 1));
     CHECK(material->usageCount() == 6u);
 
     document->undoCommand();
@@ -65,7 +65,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
   SECTION("delete brush")
   {
     document->selectNodes({brushNode});
-    document->deleteObjects();
+    document->remove();
     CHECK(material->usageCount() == 0u);
 
     document->undoCommand();

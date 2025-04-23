@@ -1443,7 +1443,7 @@ void MapDocument::selectTouching(const bool del)
   auto transaction = Transaction{*this, "Select Touching"};
   if (del)
   {
-    deleteObjects();
+    remove();
   }
   else
   {
@@ -1463,7 +1463,7 @@ void MapDocument::selectInside(const bool del)
   auto transaction = Transaction{*this, "Select Inside"};
   if (del)
   {
-    deleteObjects();
+    remove();
   }
   else
   {
@@ -1673,7 +1673,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
         // delete the original selection brushes before searching for the objects to
         // select
         auto transaction = Transaction{*this, "Select Tall"};
-        deleteObjects();
+        remove();
 
         const auto nodesToSelect = kdl::vec_filter(
           mdl::collectContainedNodes(
@@ -1984,7 +1984,7 @@ bool MapDocument::checkReparenting(
   return true;
 }
 
-void MapDocument::deleteObjects()
+void MapDocument::remove()
 {
   const auto nodes = m_selectedNodes.nodes();
 
@@ -2036,7 +2036,7 @@ void resetLinkIdsOfNonGroupedNodes(
 
 } // namespace
 
-void MapDocument::duplicateObjects()
+void MapDocument::duplicate()
 {
   auto nodesToAdd = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
   auto nodesToSelect = std::vector<mdl::Node*>{};
@@ -2103,7 +2103,7 @@ void MapDocument::duplicateObjects()
   {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([&]() { duplicateObjects(); });
+  m_repeatStack->push([&]() { duplicate(); });
 }
 
 mdl::EntityNode* MapDocument::createPointEntity(
@@ -2130,7 +2130,7 @@ mdl::EntityNode* MapDocument::createPointEntity(
     return nullptr;
   }
   selectNodes({entityNode});
-  if (!translateObjects(delta))
+  if (!translate(delta))
   {
     transaction.cancel();
     return nullptr;
@@ -3079,7 +3079,7 @@ bool MapDocument::swapNodeContents(
     commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
 }
 
-bool MapDocument::transformObjects(
+bool MapDocument::transform(
   const std::string& commandName, const vm::mat4x4d& transformation)
 {
   auto nodesToTransform = std::vector<mdl::Node*>{};
@@ -3186,7 +3186,7 @@ bool MapDocument::transformObjects(
              if (success)
              {
                m_repeatStack->push([&, commandName, transformation]() {
-                 transformObjects(commandName, transformation);
+                 transform(commandName, transformation);
                });
              }
              return success;
@@ -3194,9 +3194,9 @@ bool MapDocument::transformObjects(
          | kdl::value_or(false);
 }
 
-bool MapDocument::translateObjects(const vm::vec3d& delta)
+bool MapDocument::translate(const vm::vec3d& delta)
 {
-  return transformObjects("Translate Objects", vm::translation_matrix(delta));
+  return transform("Translate Objects", vm::translation_matrix(delta));
 }
 
 bool MapDocument::rotate(
@@ -3205,13 +3205,13 @@ bool MapDocument::rotate(
   const auto transformation = vm::translation_matrix(center)
                               * vm::rotation_matrix(axis, angle)
                               * vm::translation_matrix(-center);
-  return transformObjects("Rotate Objects", transformation);
+  return transform("Rotate Objects", transformation);
 }
 
 bool MapDocument::scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
 {
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
 bool MapDocument::scale(const vm::vec3d& center, const vm::vec3d& scaleFactors)
@@ -3219,22 +3219,22 @@ bool MapDocument::scale(const vm::vec3d& center, const vm::vec3d& scaleFactors)
   const auto transformation = vm::translation_matrix(center)
                               * vm::scaling_matrix(scaleFactors)
                               * vm::translation_matrix(-center);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
 bool MapDocument::shear(
   const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta)
 {
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
-bool MapDocument::flipObjects(const vm::vec3d& center, const vm::axis::type axis)
+bool MapDocument::flip(const vm::vec3d& center, const vm::axis::type axis)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::mirror_matrix<double>(axis)
                               * vm::translation_matrix(-center);
-  return transformObjects("Flip Objects", transformation);
+  return transform("Flip Objects", transformation);
 }
 
 bool MapDocument::createBrush(const std::vector<vm::vec3d>& points)

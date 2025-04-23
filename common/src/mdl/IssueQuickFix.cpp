@@ -68,7 +68,7 @@ void IssueQuickFix::apply(
 IssueQuickFix makeDeleteNodesQuickFix()
 {
   return {"Delete Objects", [](MapFacade& facade, const std::vector<const Issue*>&) {
-            facade.deleteObjects();
+            facade.remove();
           }};
 }
 

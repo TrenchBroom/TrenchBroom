@@ -151,13 +151,13 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   document->deselectAll();
 
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(vm::vec3d(32.0, 0.0, 0.0));
+  document->translate(vm::vec3d(32.0, 0.0, 0.0));
   document->deselectAll();
 
   const auto originalBrushBounds = brushNode->physicalBounds();
 
   document->selectNodes({brushNode});
-  document->translateObjects(vm::vec3d(0.0, 16.0, 0.0));
+  document->translate(vm::vec3d(0.0, 16.0, 0.0));
 
   REQUIRE(
     brushNode->physicalBounds()
@@ -196,14 +196,14 @@ TEST_CASE_METHOD(MapDocumentTest, "SwapNodesContentCommandTest.updateLinkedGroup
   // moving the brush in linked group node will fail because it will go out of world
   // bounds
   document->selectNodes({linkedGroupNode});
-  REQUIRE(document->translateObjects(
+  REQUIRE(document->translate(
     document->worldBounds().max - linkedGroupNode->physicalBounds().size()));
   document->deselectAll();
 
   const auto originalBrushBounds = brushNode->physicalBounds();
 
   document->selectNodes({brushNode});
-  CHECK_FALSE(document->translateObjects(vm::vec3d(0.0, 16.0, 0.0)));
+  CHECK_FALSE(document->translate(vm::vec3d(0.0, 16.0, 0.0)));
 
   REQUIRE(brushNode->physicalBounds() == originalBrushBounds);
 

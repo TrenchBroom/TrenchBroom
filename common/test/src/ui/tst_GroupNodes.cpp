@@ -169,7 +169,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.undoMoveGroupContainingBrushEn
   auto* groupNode = document->groupSelection("test");
   CHECK(groupNode->selected());
 
-  CHECK(document->translateObjects(vm::vec3d{16, 0, 0}));
+  CHECK(document->translate(vm::vec3d{16, 0, 0}));
 
   CHECK_FALSE(hasEmptyName(entityNode->entity().propertyKeys()));
 
@@ -239,7 +239,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
       REQUIRE(document->paste(document->serializeSelectedNodes()) == PasteType::Node);
       break;
     case Mode::Duplicate:
-      document->duplicateObjects();
+      document->duplicate();
       break;
       switchDefault();
     }
@@ -583,7 +583,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity")
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups")
 {
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   auto* entityNode1 = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
@@ -1102,8 +1102,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.operationsOnSeveralGroupsInLin
   {
     document->selectNodes({groupNode, linkedGroupNode});
 
-    CHECK(
-      document->transformObjects("", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
+    CHECK(document->transform("", vm::translation_matrix(vm::vec3d{0.5, 0.5, 0.0})));
 
     // This could generate conflicts, because what snaps one group could misalign
     // another group in the link set. So, just reject the change.
@@ -1168,7 +1167,7 @@ TEST_CASE_METHOD(
   document->selectNodes({entityNode});
 
   // move the entity down
-  REQUIRE(document->translateObjects({0, 0, -256}));
+  REQUIRE(document->translate({0, 0, -256}));
   REQUIRE(
     entityNode->physicalBounds() == vm::bbox3d{{-8, -8, -256 - 8}, {8, 8, -256 + 8}});
 
@@ -1179,7 +1178,7 @@ TEST_CASE_METHOD(
   const auto zOffset = document->worldBounds().max.z();
   document->deselectAll();
   document->selectNodes({linkedGroupNode});
-  document->translateObjects({0, 0, document->worldBounds().max.z()});
+  document->translate({0, 0, document->worldBounds().max.z()});
   REQUIRE(
     linkedGroupNode->physicalBounds()
     == vm::bbox3d{{-8, -8, -256 - 8 + zOffset}, {8, 8, -256 + 8 + zOffset}});

@@ -46,7 +46,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleBrush")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -76,7 +76,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSingleEntity")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   auto* entityNode1 = new mdl::EntityNode{mdl::Entity{}};
   document->addNodes({{document->parentForNodes(), {entityNode1}}});
@@ -107,7 +107,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickSimpleGroup")
 
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -185,7 +185,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickNestedGroup")
 
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -351,7 +351,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};

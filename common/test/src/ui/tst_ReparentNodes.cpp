@@ -258,7 +258,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroups")
   document->deselectAll();
 
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(vm::vec3d{32, 0, 0});
+  document->translate(vm::vec3d{32, 0, 0});
   document->deselectAll();
 
   SECTION("Move node into group node")
@@ -369,7 +369,7 @@ TEST_CASE_METHOD(MapDocumentTest, "ReparentNodesTest.updateLinkedGroupsFails")
   // adding a brush to the linked group node will fail because it will go out of world
   // bounds
   document->selectNodes({linkedGroupNode});
-  document->translateObjects(document->worldBounds().max);
+  document->translate(document->worldBounds().max);
   document->deselectAll();
 
   auto* brushNode = createBrushNode();

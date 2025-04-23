@@ -108,8 +108,8 @@ public: // adding, removing, reparenting, and duplicating nodes
   virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
   virtual bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
-  virtual void deleteObjects() = 0;
-  virtual void duplicateObjects() = 0;
+  virtual void remove() = 0;
+  virtual void duplicate() = 0;
 
 public: // entity management
   virtual mdl::EntityNode* createPointEntity(
@@ -126,13 +126,13 @@ public:                                            // modifying transient node a
   virtual void resetLock(const std::vector<Node*>& nodes) = 0;
 
 public: // modifying objects
-  virtual bool translateObjects(const vm::vec3d& delta) = 0;
+  virtual bool translate(const vm::vec3d& delta) = 0;
   virtual bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
   virtual bool scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
   virtual bool scale(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
   virtual bool shear(
     const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) = 0;
-  virtual bool flipObjects(const vm::vec3d& center, vm::axis::type axis) = 0;
+  virtual bool flip(const vm::vec3d& center, vm::axis::type axis) = 0;
 
 public: // modifying entity properties
   virtual bool setProperty(
