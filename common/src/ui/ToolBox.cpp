@@ -292,9 +292,9 @@ void ToolBox::toggleTool(Tool& tool)
 
 bool ToolBox::deactivateCurrentTool()
 {
-  if (m_modalTool)
+  if (!m_modalToolStack.empty())
   {
-    deactivateTool(*m_modalTool);
+    deactivateTool(*m_modalToolStack.back());
     return true;
   }
   return false;
@@ -302,9 +302,10 @@ bool ToolBox::deactivateCurrentTool()
 
 void ToolBox::deactivateAllTools()
 {
-  if (m_modalTool)
+  while (!m_modalToolStack.empty())
   {
-    deactivateTool(*m_modalTool);
+    deactivateTool(*m_modalToolStack.back());
+    m_modalToolStack.pop_back();
   }
 }
 
@@ -351,15 +352,18 @@ void ToolBox::activateTool(Tool& tool)
 {
   deactivateCurrentTool();
 
+  const auto previouslySuppressedTools = currentlySuppressedTools();
   if (tool.activate())
   {
-    for (auto* suppressedTool : currentlySuppressedTools())
+    const auto toolsToSuppress =
+      kdl::set_difference(currentlySuppressedTools(), previouslySuppressedTools);
+    for (auto* toolToSuppress : toolsToSuppress)
     {
-      suppressedTool->deactivate();
-      toolDeactivatedNotifier(*suppressedTool);
+      toolToSuppress->deactivate();
+      toolDeactivatedNotifier(*toolToSuppress);
     }
 
-    m_modalTool = &tool;
+    m_modalToolStack.push_back(&tool);
     toolActivatedNotifier(tool);
   }
 }
@@ -371,15 +375,21 @@ void ToolBox::deactivateTool(Tool& tool)
     cancelMouseDrag();
   }
 
-  for (auto* suppressedTool : currentlySuppressedTools())
-  {
-    suppressedTool->activate();
-    toolActivatedNotifier(*suppressedTool);
-  }
+  const auto previouslySuppressedTools = currentlySuppressedTools();
 
   tool.deactivate();
-  m_modalTool = nullptr;
+  m_modalToolStack.erase(
+    std::remove(m_modalToolStack.begin(), m_modalToolStack.end(), &tool),
+    m_modalToolStack.end());
   toolDeactivatedNotifier(tool);
+
+  const auto toolsToRelease =
+    kdl::set_difference(previouslySuppressedTools, currentlySuppressedTools());
+  for (auto* toolToRelease : toolsToRelease)
+  {
+    toolToRelease->activate();
+    toolActivatedNotifier(*toolToRelease);
+  }
 }
 
 std::vector<Tool*> ToolBox::currentlySuppressedTools() const
