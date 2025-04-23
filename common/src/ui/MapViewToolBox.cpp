@@ -272,6 +272,16 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_edgeTool = std::make_unique<EdgeTool>(m_document);
   m_faceTool = std::make_unique<FaceTool>(m_document);
 
+  addExclusiveToolGroup(
+    assembleBrushTool(),
+    rotateObjectsTool(),
+    scaleObjectsTool(),
+    shearObjectsTool(),
+    vertexTool(),
+    edgeTool(),
+    faceTool(),
+    clipTool());
+
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
   suppressWhileActive(
