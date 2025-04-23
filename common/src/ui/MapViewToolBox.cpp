@@ -277,10 +277,12 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
     rotateTool(),
     scaleTool(),
     shearTool(),
-    vertexTool(),
     edgeTool(),
     faceTool(),
     clipTool());
+
+  addExclusiveToolGroup(
+    assembleBrushTool(), vertexTool(), edgeTool(), faceTool(), clipTool());
 
   suppressWhileActive(
     assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
