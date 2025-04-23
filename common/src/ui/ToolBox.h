@@ -24,9 +24,9 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class QWindow;
@@ -62,7 +62,7 @@ private:
   std::unique_ptr<DropTracker> m_dropTracker;
   Tool* m_modalTool = nullptr;
 
-  std::map<Tool*, std::vector<Tool*>> m_suppressedTools;
+  std::unordered_map<Tool*, std::vector<Tool*>> m_suppressedTools;
 
   bool m_enabled = true;
 
@@ -142,6 +142,8 @@ public: // rendering
 private:
   void activateTool(Tool& tool);
   void deactivateTool(Tool& tool);
+
+  std::vector<Tool*> currentlySuppressedTools() const;
 };
 
 } // namespace tb::ui
