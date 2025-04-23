@@ -27,14 +27,14 @@ namespace tb::ui
 
 EdgeTool::EdgeTool(std::weak_ptr<MapDocument> document)
   : VertexToolBase{std::move(document)}
-  , m_edgeHandles{std::make_unique<EdgeHandleManager>()}
 {
 }
 
 std::vector<mdl::BrushNode*> EdgeTool::findIncidentBrushes(
   const vm::segment3d& handle) const
 {
-  return findIncidentBrushes(*m_edgeHandles, handle);
+  auto document = kdl::mem_lock(m_document);
+  return findIncidentBrushes(document->edgeHandles(), handle);
 }
 
 void EdgeTool::pick(
@@ -42,17 +42,20 @@ void EdgeTool::pick(
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
-  m_edgeHandles->pickCenterHandle(pickRay, camera, pickResult);
+  auto document = kdl::mem_lock(m_document);
+  document->edgeHandles().pickCenterHandle(pickRay, camera, pickResult);
 }
 
 EdgeHandleManager& EdgeTool::handleManager()
 {
-  return *m_edgeHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->edgeHandles();
 }
 
 const EdgeHandleManager& EdgeTool::handleManager() const
 {
-  return *m_edgeHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->edgeHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> EdgeTool::handlePositionAndHitPoint(
@@ -70,7 +73,7 @@ EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
 
-  auto handles = m_edgeHandles->selectedHandles();
+  auto handles = document->edgeHandles().selectedHandles();
   const auto transform = vm::translation_matrix(delta);
   if (document->transformEdges(std::move(handles), transform))
   {
@@ -82,12 +85,16 @@ EdgeTool::MoveResult EdgeTool::move(const vm::vec3d& delta)
 
 std::string EdgeTool::actionName() const
 {
-  return kdl::str_plural(m_edgeHandles->selectedHandleCount(), "Move Edge", "Move Edges");
+  auto document = kdl::mem_lock(m_document);
+  return kdl::str_plural(
+    document->edgeHandles().selectedHandleCount(), "Move Edge", "Move Edges");
 }
 
 void EdgeTool::removeSelection()
 {
-  const auto handles = m_edgeHandles->selectedHandles();
+  auto document = kdl::mem_lock(m_document);
+
+  const auto handles = document->edgeHandles().selectedHandles();
   auto vertexPositions = std::vector<vm::vec3d>{};
   vertexPositions.reserve(2 * vertexPositions.size());
   vm::segment3d::get_vertices(

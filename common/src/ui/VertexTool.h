@@ -20,10 +20,8 @@
 #pragma once
 
 #include "render/PointGuideRenderer.h"
-#include "ui/VertexHandleManager.h"
 #include "ui/VertexToolBase.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -58,10 +56,6 @@ private:
   };
 
   Mode m_mode;
-
-  std::unique_ptr<VertexHandleManager> m_vertexHandles;
-  std::unique_ptr<EdgeHandleManager> m_edgeHandles;
-  std::unique_ptr<FaceHandleManager> m_faceHandles;
 
   mutable render::PointGuideRenderer m_guideRenderer;
 

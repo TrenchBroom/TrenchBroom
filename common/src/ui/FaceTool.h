@@ -23,7 +23,6 @@
 
 #include "vm/polygon.h"
 
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -33,9 +32,6 @@ class FaceHandleManager;
 
 class FaceTool : public VertexToolBase<vm::polygon3d>
 {
-private:
-  std::unique_ptr<FaceHandleManager> m_faceHandles;
-
 public:
   explicit FaceTool(std::weak_ptr<MapDocument> document);
 
