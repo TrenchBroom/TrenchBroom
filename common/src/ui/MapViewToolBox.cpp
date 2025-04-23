@@ -272,30 +272,18 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_edgeTool = std::make_unique<EdgeTool>(m_document);
   m_faceTool = std::make_unique<FaceTool>(m_document);
 
-  suppressWhileActive(moveObjectsTool(), assembleBrushTool());
-  suppressWhileActive(extrudeTool(), assembleBrushTool());
-  suppressWhileActive(drawShapeTool(), assembleBrushTool());
-  suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
-  suppressWhileActive(extrudeTool(), rotateObjectsTool());
-  suppressWhileActive(drawShapeTool(), rotateObjectsTool());
-  suppressWhileActive(moveObjectsTool(), scaleObjectsTool());
-  suppressWhileActive(extrudeTool(), scaleObjectsTool());
-  suppressWhileActive(drawShapeTool(), scaleObjectsTool());
-  suppressWhileActive(moveObjectsTool(), shearObjectsTool());
-  suppressWhileActive(extrudeTool(), shearObjectsTool());
-  suppressWhileActive(drawShapeTool(), shearObjectsTool());
-  suppressWhileActive(moveObjectsTool(), vertexTool());
-  suppressWhileActive(extrudeTool(), vertexTool());
-  suppressWhileActive(drawShapeTool(), vertexTool());
-  suppressWhileActive(moveObjectsTool(), edgeTool());
-  suppressWhileActive(extrudeTool(), edgeTool());
-  suppressWhileActive(drawShapeTool(), edgeTool());
-  suppressWhileActive(moveObjectsTool(), faceTool());
-  suppressWhileActive(extrudeTool(), faceTool());
-  suppressWhileActive(drawShapeTool(), faceTool());
-  suppressWhileActive(moveObjectsTool(), clipTool());
-  suppressWhileActive(extrudeTool(), clipTool());
-  suppressWhileActive(drawShapeTool(), clipTool());
+  suppressWhileActive(
+    assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(
+    rotateObjectsTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(
+    scaleObjectsTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(
+    shearObjectsTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(vertexTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(edgeTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(faceTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(clipTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
   registerTool(rotateObjectsTool(), bookCtrl);

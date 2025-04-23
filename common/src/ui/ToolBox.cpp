@@ -272,12 +272,6 @@ bool ToolBox::cancel(ToolChain& chain)
   return deactivateCurrentTool();
 }
 
-void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool)
-{
-  assert(&primaryTool != &suppressedTool);
-  m_suppressedTools[&primaryTool].push_back(&suppressedTool);
-}
-
 void ToolBox::toggleTool(Tool& tool)
 {
   if (tool.active())
