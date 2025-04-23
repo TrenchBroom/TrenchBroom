@@ -1298,7 +1298,7 @@ void MapFrame::copyToClipboard()
 bool MapFrame::canCutSelection() const
 {
   return widgetOrChildHasFocus(m_mapView) && m_document->hasSelectedNodes()
-         && !m_mapView->anyToolActive();
+         && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::canCopySelection() const
@@ -1419,7 +1419,7 @@ void MapFrame::deleteSelection()
     {
       m_mapView->faceTool().removeSelection();
     }
-    else if (!m_mapView->anyToolActive())
+    else if (!m_mapView->anyModalToolActive())
     {
       m_document->deleteObjects();
     }
@@ -1579,7 +1579,7 @@ void MapFrame::groupSelectedObjects()
 
 bool MapFrame::canGroupSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::ungroupSelectedObjects()
@@ -1592,7 +1592,7 @@ void MapFrame::ungroupSelectedObjects()
 
 bool MapFrame::canUngroupSelectedObjects() const
 {
-  return m_document->selectedNodes().hasGroups() && !m_mapView->anyToolActive();
+  return m_document->selectedNodes().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::renameSelectedGroups()
@@ -1648,12 +1648,12 @@ void MapFrame::moveSelectedObjects()
 
 bool MapFrame::canMoveSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
 }
 
-bool MapFrame::anyToolActive() const
+bool MapFrame::anyModalToolActive() const
 {
-  return m_mapView->anyToolActive();
+  return m_mapView->anyModalToolActive();
 }
 
 void MapFrame::toggleAssembleBrushTool()
@@ -1748,7 +1748,7 @@ bool MapFrame::shearObjectsToolActive() const
 
 bool MapFrame::anyVertexToolActive() const
 {
-  return vertexToolActive() || edgeToolActive() || faceToolActive();
+  return m_mapView->anyVertexToolActive();
 }
 
 void MapFrame::toggleVertexTool()

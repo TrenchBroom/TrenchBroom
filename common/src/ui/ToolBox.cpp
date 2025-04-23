@@ -268,13 +268,7 @@ bool ToolBox::cancel(ToolChain& chain)
     return true;
   }
 
-  if (anyToolActive())
-  {
-    deactivateAllTools();
-    return true;
-  }
-
-  return false;
+  return deactivateAllTools();
 }
 
 void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool)
@@ -283,33 +277,26 @@ void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool)
   m_suppressedTools[&primaryTool].push_back(&suppressedTool);
 }
 
-bool ToolBox::anyToolActive() const
-{
-  return m_modalTool != nullptr;
-}
-
 void ToolBox::toggleTool(Tool& tool)
 {
-  if (&tool == m_modalTool)
+  if (tool.active())
   {
-    deactivateTool(*m_modalTool);
+    deactivateTool(tool);
   }
   else
   {
-    if (m_modalTool)
-    {
-      deactivateTool(*m_modalTool);
-    }
     activateTool(tool);
   }
 }
 
-void ToolBox::deactivateAllTools()
+bool ToolBox::deactivateAllTools()
 {
   if (m_modalTool)
   {
     deactivateTool(*m_modalTool);
+    return true;
   }
+  return false;
 }
 
 bool ToolBox::enabled() const
@@ -353,6 +340,11 @@ void ToolBox::renderTools(
 
 void ToolBox::activateTool(Tool& tool)
 {
+  if (m_modalTool)
+  {
+    deactivateTool(*m_modalTool);
+  }
+
   if (tool.activate())
   {
     if (auto it = m_suppressedTools.find(&tool); it != std::end(m_suppressedTools))

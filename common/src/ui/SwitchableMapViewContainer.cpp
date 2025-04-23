@@ -125,10 +125,9 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   m_mapView->setFocus();
 }
 
-bool SwitchableMapViewContainer::anyToolActive() const
+bool SwitchableMapViewContainer::anyModalToolActive() const
 {
-  return assembleBrushToolActive() || clipToolActive() || rotateObjectsToolActive()
-         || scaleObjectsToolActive() || shearObjectsToolActive() || anyVertexToolActive();
+  return m_toolBox->anyModalToolActive();
 }
 
 void SwitchableMapViewContainer::deactivateTool()
