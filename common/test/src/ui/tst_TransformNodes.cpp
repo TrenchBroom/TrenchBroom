@@ -302,7 +302,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearCube")
     }));
 
   // Shear the -Y face by (50, 0, 0). That means the verts with Y=100 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3d{0, -1, 0}, vm::vec3d{50, 0, 0}));
+  CHECK(document->shear(initialBBox, vm::vec3d{0, -1, 0}, vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
@@ -348,7 +348,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.shearPillar")
     }));
 
   // Shear the +Z face by (50, 0, 0). That means the verts with Z=400 will get sheared.
-  CHECK(document->shearObjects(initialBBox, vm::vec3d{0, 0, 1}, vm::vec3d{50, 0, 0}));
+  CHECK(document->shear(initialBBox, vm::vec3d{0, 0, 1}, vm::vec3d{50, 0, 0}));
 
   CHECK_THAT(
     brushNode->brush().vertexPositions(),
