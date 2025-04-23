@@ -47,7 +47,7 @@ namespace tb::ui
 class Grid;
 class MapDocument;
 
-class ShearObjectsTool : public Tool
+class ShearTool : public Tool
 {
 public:
   static const mdl::HitType::Type ShearToolSideHitType;
@@ -61,8 +61,8 @@ private:
   vm::vec3d m_dragCumulativeDelta;
 
 public:
-  explicit ShearObjectsTool(std::weak_ptr<MapDocument> document);
-  ~ShearObjectsTool() override;
+  explicit ShearTool(std::weak_ptr<MapDocument> document);
+  ~ShearTool() override;
 
   const Grid& grid() const;
 

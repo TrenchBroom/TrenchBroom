@@ -130,7 +130,7 @@ public: // modifying objects
   virtual bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
   virtual bool scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
   virtual bool scale(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
-  virtual bool shearObjects(
+  virtual bool shear(
     const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) = 0;
   virtual bool flipObjects(const vm::vec3d& center, vm::axis::type axis) = 0;
 

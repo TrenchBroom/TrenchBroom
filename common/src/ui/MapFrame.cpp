@@ -1728,22 +1728,22 @@ bool MapFrame::scaleToolActive() const
   return m_mapView->scaleToolActive();
 }
 
-void MapFrame::toggleShearObjectsTool()
+void MapFrame::toggleShearTool()
 {
-  if (canToggleShearObjectsTool())
+  if (canToggleShearTool())
   {
-    m_mapView->toggleShearObjectsTool();
+    m_mapView->toggleShearTool();
   }
 }
 
-bool MapFrame::canToggleShearObjectsTool() const
+bool MapFrame::canToggleShearTool() const
 {
-  return m_mapView->canToggleShearObjectsTool();
+  return m_mapView->canToggleShearTool();
 }
 
-bool MapFrame::shearObjectsToolActive() const
+bool MapFrame::shearToolActive() const
 {
-  return m_mapView->shearObjectsToolActive();
+  return m_mapView->shearToolActive();
 }
 
 bool MapFrame::anyVertexToolActive() const

@@ -18,7 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ShearObjectsToolController.h"
+#include "ShearToolController.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -32,7 +32,7 @@
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/ScaleTool.h"
-#include "ui/ShearObjectsTool.h"
+#include "ui/ShearTool.h"
 
 #include "kdl/memory_utils.h"
 
@@ -89,13 +89,13 @@ HandlePositionProposer makeHandlePositionProposer(
     makeLineHandlePicker(sideways, handleOffset), makeRelativeHandleSnapper(grid));
 }
 
-class ShearObjectsDragDelegate : public HandleDragTrackerDelegate
+class ShearDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  ShearObjectsTool& m_tool;
+  ShearTool& m_tool;
 
 public:
-  explicit ShearObjectsDragDelegate(ShearObjectsTool& tool)
+  explicit ShearDragDelegate(ShearTool& tool)
     : m_tool{tool}
   {
   }
@@ -174,7 +174,7 @@ std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
   const vm::bbox3d& bounds, const auto& hit)
 {
   assert(hit.isMatch());
-  assert(hit.hasType(ShearObjectsTool::ShearToolSideHitType));
+  assert(hit.hasType(ShearTool::ShearToolSideHitType));
 
   const auto side = hit.template target<BBoxSide>();
   return {centerForBBoxSide(bounds, side), hit.hitPoint()};
@@ -182,36 +182,35 @@ std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
 
 } // namespace
 
-ShearObjectsToolController::ShearObjectsToolController(
-  ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
+ShearToolController::ShearToolController(
+  ShearTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-ShearObjectsToolController::~ShearObjectsToolController() = default;
+ShearToolController::~ShearToolController() = default;
 
-Tool& ShearObjectsToolController::tool()
+Tool& ShearToolController::tool()
 {
   return m_tool;
 }
 
-const Tool& ShearObjectsToolController::tool() const
+const Tool& ShearToolController::tool() const
 {
   return m_tool;
 }
 
-void ShearObjectsToolController::pick(
-  const InputState& inputState, mdl::PickResult& pickResult)
+void ShearToolController::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (m_tool.applies())
   {
-    // forward to either ShearObjectsTool::pick2D or ShearObjectsTool::pick3D
+    // forward to either ShearTool::pick2D or ShearTool::pick3D
     doPick(inputState.pickRay(), inputState.camera(), pickResult);
   }
 }
 
-void ShearObjectsToolController::mouseMove(const InputState& inputState)
+void ShearToolController::mouseMove(const InputState& inputState)
 {
   if (m_tool.applies() && !inputState.anyToolDragging())
   {
@@ -219,7 +218,7 @@ void ShearObjectsToolController::mouseMove(const InputState& inputState)
   }
 }
 
-std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ShearToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;
@@ -242,8 +241,7 @@ std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
 
   auto document = kdl::mem_lock(m_document);
 
-  const auto& hit =
-    inputState.pickResult().first(type(ShearObjectsTool::ShearToolSideHitType));
+  const auto& hit = inputState.pickResult().first(type(ShearTool::ShearToolSideHitType));
   if (!hit.isMatch())
   {
     return nullptr;
@@ -255,16 +253,16 @@ std::unique_ptr<GestureTracker> ShearObjectsToolController::acceptMouseDrag(
   const auto [handlePosition, hitPoint] =
     getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
   return createHandleDragTracker(
-    ShearObjectsDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
+    ShearDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
 }
 
-void ShearObjectsToolController::setRenderOptions(
+void ShearToolController::setRenderOptions(
   const InputState&, render::RenderContext& renderContext) const
 {
   renderContext.setForceHideSelectionGuide();
 }
 
-void ShearObjectsToolController::render(
+void ShearToolController::render(
   const InputState&,
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
@@ -301,34 +299,34 @@ void ShearObjectsToolController::render(
   }
 }
 
-bool ShearObjectsToolController::cancel()
+bool ShearToolController::cancel()
 {
   return false;
 }
 
-// ShearObjectsToolController2D
+// ShearToolController2D
 
-ShearObjectsToolController2D::ShearObjectsToolController2D(
-  ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
-  : ShearObjectsToolController{tool, std::move(document)}
+ShearToolController2D::ShearToolController2D(
+  ShearTool& tool, std::weak_ptr<MapDocument> document)
+  : ShearToolController{tool, std::move(document)}
 {
 }
 
-void ShearObjectsToolController2D::doPick(
+void ShearToolController2D::doPick(
   const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick2D(pickRay, camera, pickResult);
 }
 
-// ShearObjectsToolController3D
+// ShearToolController3D
 
-ShearObjectsToolController3D::ShearObjectsToolController3D(
-  ShearObjectsTool& tool, std::weak_ptr<MapDocument> document)
-  : ShearObjectsToolController{tool, std::move(document)}
+ShearToolController3D::ShearToolController3D(
+  ShearTool& tool, std::weak_ptr<MapDocument> document)
+  : ShearToolController{tool, std::move(document)}
 {
 }
 
-void ShearObjectsToolController3D::doPick(
+void ShearToolController3D::doPick(
   const vm::ray3d& pickRay, const render::Camera& camera, mdl::PickResult& pickResult)
 {
   m_tool.pick3D(pickRay, camera, pickResult);

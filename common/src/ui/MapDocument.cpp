@@ -3222,7 +3222,7 @@ bool MapDocument::scale(const vm::vec3d& center, const vm::vec3d& scaleFactors)
   return transformObjects("Scale Objects", transformation);
 }
 
-bool MapDocument::shearObjects(
+bool MapDocument::shear(
   const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta)
 {
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);

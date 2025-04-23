@@ -193,9 +193,9 @@ bool SwitchableMapViewContainer::scaleToolActive() const
   return m_toolBox->scaleToolActive();
 }
 
-bool SwitchableMapViewContainer::shearObjectsToolActive() const
+bool SwitchableMapViewContainer::shearToolActive() const
 {
-  return m_toolBox->shearObjectsToolActive();
+  return m_toolBox->shearToolActive();
 }
 
 bool SwitchableMapViewContainer::canToggleScaleTool() const
@@ -209,15 +209,15 @@ void SwitchableMapViewContainer::toggleScaleTool()
   m_toolBox->toggleScaleTool();
 }
 
-bool SwitchableMapViewContainer::canToggleShearObjectsTool() const
+bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  return shearObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return shearToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-void SwitchableMapViewContainer::toggleShearObjectsTool()
+void SwitchableMapViewContainer::toggleShearTool()
 {
-  assert(canToggleShearObjectsTool());
-  m_toolBox->toggleShearObjectsTool();
+  assert(canToggleShearTool());
+  m_toolBox->toggleShearTool();
 }
 
 bool SwitchableMapViewContainer::canToggleVertexTools() const

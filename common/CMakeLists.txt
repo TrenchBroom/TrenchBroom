@@ -437,8 +437,8 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/SetLinkIdsCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/SetLockStateCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/SetVisibilityCommand.cpp
-        ${COMMON_SOURCE_DIR}/ui/ShearObjectsTool.cpp
-        ${COMMON_SOURCE_DIR}/ui/ShearObjectsToolController.cpp
+        ${COMMON_SOURCE_DIR}/ui/ShearTool.cpp
+        ${COMMON_SOURCE_DIR}/ui/ShearToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/SignalDelayer.cpp
         ${COMMON_SOURCE_DIR}/ui/SliderWithLabel.cpp
         ${COMMON_SOURCE_DIR}/ui/SmartChoiceEditor.cpp
@@ -980,8 +980,8 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/SetLinkIdsCommand.h
         ${COMMON_SOURCE_DIR}/ui/SetLockStateCommand.h
         ${COMMON_SOURCE_DIR}/ui/SetVisibilityCommand.h
-        ${COMMON_SOURCE_DIR}/ui/ShearObjectsTool.h
-        ${COMMON_SOURCE_DIR}/ui/ShearObjectsToolController.h
+        ${COMMON_SOURCE_DIR}/ui/ShearTool.h
+        ${COMMON_SOURCE_DIR}/ui/ShearToolController.h
         ${COMMON_SOURCE_DIR}/ui/SignalDelayer.h
         ${COMMON_SOURCE_DIR}/ui/SliderWithLabel.h
         ${COMMON_SOURCE_DIR}/ui/SmartChoiceEditor.h

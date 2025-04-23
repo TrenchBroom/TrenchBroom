@@ -136,7 +136,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.repeatScaleWithFactors"
   CHECK(brushNode2->logicalBounds() == brushNode1->logicalBounds());
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects")
+TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shear")
 {
   auto* brushNode1 = createBrushNode();
   const auto originalBounds = brushNode1->logicalBounds();
@@ -145,7 +145,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RepeatableActionsTest.shearObjects")
   document->selectNodes({brushNode1});
 
   REQUIRE_FALSE(document->canRepeatCommands());
-  document->shearObjects(originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
+  document->shear(originalBounds, vm::vec3d{0, 0, 1}, vm::vec3d(32, 0, 0));
   REQUIRE(brushNode1->logicalBounds() != originalBounds);
   CHECK(document->canRepeatCommands());
 

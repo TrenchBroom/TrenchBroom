@@ -38,7 +38,7 @@ class MoveObjectsTool;
 class ExtrudeTool;
 class RotateTool;
 class ScaleTool;
-class ShearObjectsTool;
+class ShearTool;
 class VertexTool;
 class EdgeTool;
 class FaceTool;
@@ -58,7 +58,7 @@ private:
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
   std::unique_ptr<RotateTool> m_rotateTool;
   std::unique_ptr<ScaleTool> m_scaleTool;
-  std::unique_ptr<ShearObjectsTool> m_shearObjectsTool;
+  std::unique_ptr<ShearTool> m_shearTool;
   std::unique_ptr<VertexTool> m_vertexTool;
   std::unique_ptr<EdgeTool> m_edgeTool;
   std::unique_ptr<FaceTool> m_faceTool;
@@ -78,7 +78,7 @@ public: // tools
   ExtrudeTool& extrudeTool();
   RotateTool& rotateTool();
   ScaleTool& scaleTool();
-  ShearObjectsTool& shearObjectsTool();
+  ShearTool& shearTool();
   VertexTool& vertexTool();
   EdgeTool& edgeTool();
   FaceTool& faceTool();
@@ -102,8 +102,8 @@ public: // tools
   void toggleScaleTool();
   bool scaleToolActive() const;
 
-  void toggleShearObjectsTool();
-  bool shearObjectsToolActive() const;
+  void toggleShearTool();
+  bool shearToolActive() const;
 
   bool anyVertexToolActive() const;
 

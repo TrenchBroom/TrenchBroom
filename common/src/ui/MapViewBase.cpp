@@ -915,13 +915,13 @@ ActionContext::Type MapViewBase::actionContext() const
 
   const auto viewContext = viewActionContext();
   const auto toolContext =
-    m_toolBox.assembleBrushToolActive()  ? ActionContext::AssembleBrushTool
-    : m_toolBox.clipToolActive()         ? ActionContext::ClipTool
-    : m_toolBox.anyVertexToolActive()    ? ActionContext::AnyVertexTool
-    : m_toolBox.rotateToolActive()       ? ActionContext::RotateTool
-    : m_toolBox.scaleToolActive()        ? ActionContext::ScaleTool
-    : m_toolBox.shearObjectsToolActive() ? ActionContext::ShearTool
-                                         : ActionContext::NoTool;
+    m_toolBox.assembleBrushToolActive() ? ActionContext::AssembleBrushTool
+    : m_toolBox.clipToolActive()        ? ActionContext::ClipTool
+    : m_toolBox.anyVertexToolActive()   ? ActionContext::AnyVertexTool
+    : m_toolBox.rotateToolActive()      ? ActionContext::RotateTool
+    : m_toolBox.scaleToolActive()       ? ActionContext::ScaleTool
+    : m_toolBox.shearToolActive()       ? ActionContext::ShearTool
+                                        : ActionContext::NoTool;
   const auto selectionContext =
     document->hasSelectedNodes()        ? ActionContext::NodeSelection
     : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection

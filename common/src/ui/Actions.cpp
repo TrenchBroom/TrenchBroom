@@ -1539,12 +1539,12 @@ void ActionManager::createEditMenu()
     QObject::tr("Shear Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_G},
-    [](auto& context) { context.frame()->toggleShearObjectsTool(); },
+    [](auto& context) { context.frame()->toggleShearTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->canToggleShearObjectsTool();
+      return context.hasDocument() && context.frame()->canToggleShearTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->shearObjectsToolActive();
+      return context.hasDocument() && context.frame()->shearToolActive();
     },
     std::filesystem::path{"ShearTool.svg"},
   }));
