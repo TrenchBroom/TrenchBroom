@@ -60,7 +60,7 @@ class ToolBox : public QObject
 private:
   std::unique_ptr<GestureTracker> m_gestureTracker;
   std::unique_ptr<DropTracker> m_dropTracker;
-  Tool* m_modalTool = nullptr;
+  std::vector<Tool*> m_modalToolStack;
 
   std::unordered_map<Tool*, std::vector<Tool*>> m_suppressedTools;
 
