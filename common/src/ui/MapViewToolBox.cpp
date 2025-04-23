@@ -360,10 +360,33 @@ void MapViewToolBox::selectionDidChange(const Selection&)
 
 void MapViewToolBox::updateToolPage()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (auto* activeTool = this->activeTool())
+  if (rotateObjectsToolActive())
   {
-    activeTool->showPage();
+    rotateObjectsTool().showPage();
+  }
+  else if (scaleObjectsToolActive())
+  {
+    scaleObjectsTool().showPage();
+  }
+  else if (shearObjectsToolActive())
+  {
+    shearObjectsTool().showPage();
+  }
+  else if (vertexToolActive())
+  {
+    vertexTool().showPage();
+  }
+  else if (edgeToolActive())
+  {
+    edgeTool().showPage();
+  }
+  else if (faceToolActive())
+  {
+    faceTool().showPage();
+  }
+  else if (clipToolActive())
+  {
+    clipTool().showPage();
   }
   else
   {
