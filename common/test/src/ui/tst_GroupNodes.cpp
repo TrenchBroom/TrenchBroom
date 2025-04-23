@@ -195,8 +195,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.rotateGroupContainingBrushEnti
   CHECK(groupNode->selected());
 
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
-  CHECK(document->rotateObjects(
-    vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, static_cast<double>(10.0)));
+  CHECK(
+    document->rotate(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, static_cast<double>(10.0)));
   CHECK_FALSE(entityNode->entity().hasProperty("origin"));
 
   document->undoCommand();

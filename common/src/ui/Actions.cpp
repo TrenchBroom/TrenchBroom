@@ -552,7 +552,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Up},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::roll, true); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::roll, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -561,7 +561,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Down},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::roll, false); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::roll, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -570,7 +570,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Left},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::yaw, true); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::yaw, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -579,7 +579,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_Right},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::yaw, false); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::yaw, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -588,7 +588,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_PageUp},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::pitch, true); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::pitch, true); },
     [](const auto& context) { return context.hasDocument(); },
   });
   addAction(Action{
@@ -597,7 +597,7 @@ void ActionManager::createViewActions()
     ActionContext::AnyView | ActionContext::NodeSelection | ActionContext::RotateTool
       | ActionContext::NoTool,
     QKeySequence{Qt::ALT | Qt::Key_PageDown},
-    [](auto& context) { context.view()->rotateObjects(vm::rotation_axis::pitch, false); },
+    [](auto& context) { context.view()->rotate(vm::rotation_axis::pitch, false); },
     [](const auto& context) { return context.hasDocument(); },
   });
 
@@ -1513,12 +1513,12 @@ void ActionManager::createEditMenu()
     QObject::tr("Rotate Tool"),
     ActionContext::Any,
     QKeySequence{Qt::Key_R},
-    [](auto& context) { context.frame()->toggleRotateObjectsTool(); },
+    [](auto& context) { context.frame()->toggleRotateTool(); },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->canToggleRotateObjectsTool();
+      return context.hasDocument() && context.frame()->canToggleRotateTool();
     },
     [](const auto& context) {
-      return context.hasDocument() && context.frame()->rotateObjectsToolActive();
+      return context.hasDocument() && context.frame()->rotateToolActive();
     },
     std::filesystem::path{"RotateTool.svg"},
   }));

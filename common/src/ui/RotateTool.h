@@ -19,7 +19,7 @@
 
 #pragma once
 
-#include "ui/RotateObjectsHandle.h"
+#include "ui/RotateHandle.h"
 #include "ui/Tool.h"
 
 #include "vm/scalar.h"
@@ -38,25 +38,25 @@ namespace tb::ui
 class Grid;
 class MapDocument;
 
-class RotateObjectsTool : public Tool
+class RotateTool : public Tool
 {
 private:
   std::weak_ptr<MapDocument> m_document;
-  RotateObjectsHandle m_handle;
+  RotateHandle m_handle;
   double m_angle = vm::to_radians(15.0);
 
 public:
   Notifier<vm::vec3d> rotationCenterDidChangeNotifier;
   Notifier<vm::vec3d> rotationCenterWasUsedNotifier;
-  Notifier<RotateObjectsHandle::HitArea> handleHitAreaDidChangeNotifier;
+  Notifier<RotateHandle::HitArea> handleHitAreaDidChangeNotifier;
 
-  explicit RotateObjectsTool(std::weak_ptr<MapDocument> document);
+  explicit RotateTool(std::weak_ptr<MapDocument> document);
 
   bool doActivate() override;
 
   const Grid& grid() const;
 
-  void updateToolPageAxis(RotateObjectsHandle::HitArea area);
+  void updateToolPageAxis(RotateHandle::HitArea area);
 
   double angle() const;
   void setAngle(double angle);
@@ -78,7 +78,7 @@ public:
   mdl::Hit pick2D(const vm::ray3d& pickRay, const render::Camera& camera);
   mdl::Hit pick3D(const vm::ray3d& pickRay, const render::Camera& camera);
 
-  vm::vec3d rotationAxis(RotateObjectsHandle::HitArea area) const;
+  vm::vec3d rotationAxis(RotateHandle::HitArea area) const;
 
   void renderHandle2D(
     render::RenderContext& renderContext, render::RenderBatch& renderBatch);
@@ -87,11 +87,11 @@ public:
   void renderHighlight2D(
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area);
+    RotateHandle::HitArea area);
   void renderHighlight3D(
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area);
+    RotateHandle::HitArea area);
 
 private:
   QWidget* doCreatePage(QWidget* parent) override;

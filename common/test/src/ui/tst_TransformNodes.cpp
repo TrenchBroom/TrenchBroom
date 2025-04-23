@@ -208,7 +208,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
   CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
   // 90 degrees CCW about the Z axis through the center of the selection
-  document->rotateObjects(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+  document->rotate(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
@@ -245,7 +245,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   SECTION("Rotating some brushes, but not all")
   {
     document->selectNodes({brushNode1});
-    document->rotateObjects(
+    document->rotate(
       document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "45");
@@ -254,7 +254,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
   SECTION("Rotating all brushes")
   {
     document->selectNodes({brushNode1, brushNode2});
-    document->rotateObjects(
+    document->rotate(
       document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");
@@ -267,7 +267,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotateBrushEntity")
 
     document->deselectAll();
     document->selectNodes({groupNode});
-    document->rotateObjects(
+    document->rotate(
       document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
     CHECK(*entityNode->entity().property("angle") == "135");

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateObjectsToolPage.h"
+#include "RotateToolPage.h"
 
 #include <QCheckBox>
 #include <QComboBox>
@@ -33,7 +33,7 @@
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/RotateObjectsTool.h"
+#include "ui/RotateTool.h"
 #include "ui/SpinControl.h"
 #include "ui/ViewConstants.h"
 
@@ -48,8 +48,8 @@
 namespace tb::ui
 {
 
-RotateObjectsToolPage::RotateObjectsToolPage(
-  std::weak_ptr<MapDocument> document, RotateObjectsTool& tool, QWidget* parent)
+RotateToolPage::RotateToolPage(
+  std::weak_ptr<MapDocument> document, RotateTool& tool, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
   , m_tool{tool}
@@ -59,25 +59,25 @@ RotateObjectsToolPage::RotateObjectsToolPage(
   m_angle->setValue(vm::to_degrees(m_tool.angle()));
 }
 
-void RotateObjectsToolPage::connectObservers()
+void RotateToolPage::connectObservers()
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &RotateObjectsToolPage::selectionDidChange);
+    this, &RotateToolPage::selectionDidChange);
   m_notifierConnection += document->documentWasNewedNotifier.connect(
-    this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
+    this, &RotateToolPage::documentWasNewedOrLoaded);
   m_notifierConnection += document->documentWasLoadedNotifier.connect(
-    this, &RotateObjectsToolPage::documentWasNewedOrLoaded);
+    this, &RotateToolPage::documentWasNewedOrLoaded);
 
   m_notifierConnection += m_tool.rotationCenterDidChangeNotifier.connect(
-    this, &RotateObjectsToolPage::rotationCenterDidChange);
+    this, &RotateToolPage::rotationCenterDidChange);
   m_notifierConnection += m_tool.rotationCenterWasUsedNotifier.connect(
-    this, &RotateObjectsToolPage::rotationCenterWasUsed);
+    this, &RotateToolPage::rotationCenterWasUsed);
   m_notifierConnection += m_tool.handleHitAreaDidChangeNotifier.connect(
-    this, &RotateObjectsToolPage::handleHitAreaDidChange);
+    this, &RotateToolPage::handleHitAreaDidChange);
 }
 
-void RotateObjectsToolPage::createGui()
+void RotateToolPage::createGui()
 {
   auto* centerText = new QLabel{tr("Center")};
   m_recentlyUsedCentersList = new QComboBox{};
@@ -110,27 +110,24 @@ void RotateObjectsToolPage::createGui()
     m_recentlyUsedCentersList,
     &QComboBox::textActivated,
     this,
-    &RotateObjectsToolPage::centerChanged);
+    &RotateToolPage::centerChanged);
   connect(
     m_resetCenterButton,
     &QAbstractButton::clicked,
     this,
-    &RotateObjectsToolPage::resetCenterClicked);
+    &RotateToolPage::resetCenterClicked);
   connect(
     m_angle,
     QOverload<double>::of(&QDoubleSpinBox::valueChanged),
     this,
-    &RotateObjectsToolPage::angleChanged);
+    &RotateToolPage::angleChanged);
   connect(
-    m_rotateButton,
-    &QAbstractButton::clicked,
-    this,
-    &RotateObjectsToolPage::rotateClicked);
+    m_rotateButton, &QAbstractButton::clicked, this, &RotateToolPage::rotateClicked);
   connect(
     m_updateAnglePropertyAfterTransformCheckBox,
     &QCheckBox::clicked,
     this,
-    &RotateObjectsToolPage::updateAnglePropertyAfterTransformClicked);
+    &RotateToolPage::updateAnglePropertyAfterTransformClicked);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -166,7 +163,7 @@ void RotateObjectsToolPage::createGui()
   updateGui();
 }
 
-void RotateObjectsToolPage::updateGui()
+void RotateToolPage::updateGui()
 {
   const auto& grid = kdl::mem_lock(m_document)->grid();
   m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
@@ -181,22 +178,22 @@ void RotateObjectsToolPage::updateGui()
   }
 }
 
-void RotateObjectsToolPage::selectionDidChange(const Selection&)
+void RotateToolPage::selectionDidChange(const Selection&)
 {
   updateGui();
 }
 
-void RotateObjectsToolPage::documentWasNewedOrLoaded(MapDocument*)
+void RotateToolPage::documentWasNewedOrLoaded(MapDocument*)
 {
   updateGui();
 }
 
-void RotateObjectsToolPage::rotationCenterDidChange(const vm::vec3d& center)
+void RotateToolPage::rotationCenterDidChange(const vm::vec3d& center)
 {
   m_recentlyUsedCentersList->setCurrentText(toString(center));
 }
 
-void RotateObjectsToolPage::rotationCenterWasUsed(const vm::vec3d& center)
+void RotateToolPage::rotationCenterWasUsed(const vm::vec3d& center)
 {
   std::erase_if(m_recentlyUsedCenters, [&](const auto& c) { return c == center; });
   m_recentlyUsedCenters.push_back(center);
@@ -213,24 +210,23 @@ void RotateObjectsToolPage::rotationCenterWasUsed(const vm::vec3d& center)
   }
 }
 
-void RotateObjectsToolPage::handleHitAreaDidChange(
-  const RotateObjectsHandle::HitArea area)
+void RotateToolPage::handleHitAreaDidChange(const RotateHandle::HitArea area)
 {
-  if (area == RotateObjectsHandle::HitArea::XAxis)
+  if (area == RotateHandle::HitArea::XAxis)
   {
     m_axis->setCurrentIndex(0);
   }
-  else if (area == RotateObjectsHandle::HitArea::YAxis)
+  else if (area == RotateHandle::HitArea::YAxis)
   {
     m_axis->setCurrentIndex(1);
   }
-  else if (area == RotateObjectsHandle::HitArea::ZAxis)
+  else if (area == RotateHandle::HitArea::ZAxis)
   {
     m_axis->setCurrentIndex(2);
   }
 }
 
-void RotateObjectsToolPage::centerChanged()
+void RotateToolPage::centerChanged()
 {
   if (const auto center = parse<double, 3>(m_recentlyUsedCentersList->currentText()))
   {
@@ -238,36 +234,36 @@ void RotateObjectsToolPage::centerChanged()
   }
 }
 
-void RotateObjectsToolPage::resetCenterClicked()
+void RotateToolPage::resetCenterClicked()
 {
   m_tool.resetRotationCenter();
 }
 
-void RotateObjectsToolPage::angleChanged(double value)
+void RotateToolPage::angleChanged(double value)
 {
   const auto newAngleDegs = vm::correct(value);
   m_angle->setValue(newAngleDegs);
   m_tool.setAngle(vm::to_radians(newAngleDegs));
 }
 
-void RotateObjectsToolPage::rotateClicked()
+void RotateToolPage::rotateClicked()
 {
   const auto center = m_tool.rotationCenter();
   const auto axis = getAxis();
   const auto angle = vm::to_radians(m_angle->value());
 
   auto document = kdl::mem_lock(m_document);
-  document->rotateObjects(center, axis, angle);
+  document->rotate(center, axis, angle);
 }
 
-void RotateObjectsToolPage::updateAnglePropertyAfterTransformClicked()
+void RotateToolPage::updateAnglePropertyAfterTransformClicked()
 {
   auto document = kdl::mem_lock(m_document);
   document->world()->entityPropertyConfig().updateAnglePropertyAfterTransform =
     m_updateAnglePropertyAfterTransformCheckBox->isChecked();
 }
 
-vm::vec3d RotateObjectsToolPage::getAxis() const
+vm::vec3d RotateToolPage::getAxis() const
 {
   switch (m_axis->currentIndex())
   {

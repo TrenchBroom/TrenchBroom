@@ -290,9 +290,9 @@ public:
   bool canToggleClipTool() const;
   bool clipToolActive() const;
 
-  void toggleRotateObjectsTool();
-  bool canToggleRotateObjectsTool() const;
-  bool rotateObjectsToolActive() const;
+  void toggleRotateTool();
+  bool canToggleRotateTool() const;
+  bool rotateToolActive() const;
 
   void toggleScaleObjectsTool();
   bool canToggleScaleObjectsTool() const;

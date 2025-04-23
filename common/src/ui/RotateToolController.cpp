@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateObjectsToolController.h"
+#include "RotateToolController.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -33,8 +33,8 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MoveHandleDragTracker.h"
-#include "ui/RotateObjectsHandle.h"
-#include "ui/RotateObjectsTool.h"
+#include "ui/RotateHandle.h"
+#include "ui/RotateTool.h"
 #include "ui/ToolController.h"
 
 #include "vm/intersection.h"
@@ -100,21 +100,19 @@ using RenderHighlight = std::function<void(
   const InputState&,
   render::RenderContext&,
   render::RenderBatch&,
-  RotateObjectsHandle::HitArea)>;
+  RotateHandle::HitArea)>;
 
-class RotateObjectsDragDelegate : public HandleDragTrackerDelegate
+class RotateDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  RotateObjectsTool& m_tool;
-  RotateObjectsHandle::HitArea m_area;
+  RotateTool& m_tool;
+  RotateHandle::HitArea m_area;
   RenderHighlight m_renderHighlight;
   double m_angle = 0.0;
 
 public:
-  RotateObjectsDragDelegate(
-    RotateObjectsTool& tool,
-    const RotateObjectsHandle::HitArea area,
-    RenderHighlight renderHighlight)
+  RotateDragDelegate(
+    RotateTool& tool, const RotateHandle::HitArea area, RenderHighlight renderHighlight)
     : m_tool{tool}
     , m_area{area}
     , m_renderHighlight{std::move(renderHighlight)}
@@ -211,13 +209,13 @@ private:
   }
 };
 
-class RotateObjectsBase : public ToolController
+class RotatePartBase : public ToolController
 {
 protected:
-  RotateObjectsTool& m_tool;
+  RotateTool& m_tool;
 
 protected:
-  explicit RotateObjectsBase(RotateObjectsTool& tool)
+  explicit RotatePartBase(RotateTool& tool)
     : m_tool(tool)
   {
   }
@@ -236,15 +234,14 @@ private:
       return false;
     }
 
-    const auto& hit =
-      inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
+    const auto& hit = inputState.pickResult().first(type(RotateHandle::HandleHitType));
     if (!hit.isMatch())
     {
       return false;
     }
 
-    const auto area = hit.target<RotateObjectsHandle::HitArea>();
-    if (area == RotateObjectsHandle::HitArea::Center)
+    const auto area = hit.target<RotateHandle::HitArea>();
+    if (area == RotateHandle::HitArea::Center)
     {
       return false;
     }
@@ -264,15 +261,14 @@ private:
       return nullptr;
     }
 
-    const auto& hit =
-      inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
+    const auto& hit = inputState.pickResult().first(type(RotateHandle::HandleHitType));
     if (!hit.isMatch())
     {
       return nullptr;
     }
 
-    const auto area = hit.target<RotateObjectsHandle::HitArea>();
-    if (area == RotateObjectsHandle::HitArea::Center)
+    const auto area = hit.target<RotateHandle::HitArea>();
+    if (area == RotateHandle::HitArea::Center)
     {
       return nullptr;
     }
@@ -299,7 +295,7 @@ private:
 
       m_tool.beginRotation();
       return createHandleDragTracker(
-        RotateObjectsDragDelegate{m_tool, area, std::move(renderHighlight)},
+        RotateDragDelegate{m_tool, area, std::move(renderHighlight)},
         inputState,
         initialHandlePosition,
         initialHandlePosition);
@@ -317,18 +313,14 @@ private:
 
     if (!inputState.anyToolDragging())
     {
-      const auto& hit =
-        inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
+      const auto& hit = inputState.pickResult().first(type(RotateHandle::HandleHitType));
       if (hit.isMatch())
       {
-        const auto area = hit.target<RotateObjectsHandle::HitArea>();
-        if (area != RotateObjectsHandle::HitArea::Center)
+        const auto area = hit.target<RotateHandle::HitArea>();
+        if (area != RotateHandle::HitArea::Center)
         {
           doRenderHighlight(
-            inputState,
-            renderContext,
-            renderBatch,
-            hit.target<RotateObjectsHandle::HitArea>());
+            inputState, renderContext, renderBatch, hit.target<RotateHandle::HitArea>());
         }
       }
     }
@@ -341,17 +333,17 @@ private:
     const InputState& inputState,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) = 0;
+    RotateHandle::HitArea area) = 0;
 };
 
 class MoveRotationCenterDragDelegate : public MoveHandleDragTrackerDelegate
 {
 private:
-  RotateObjectsTool& m_tool;
+  RotateTool& m_tool;
   RenderHighlight m_renderHighlight;
 
 public:
-  MoveRotationCenterDragDelegate(RotateObjectsTool& tool, RenderHighlight renderHighlight)
+  MoveRotationCenterDragDelegate(RotateTool& tool, RenderHighlight renderHighlight)
     : m_tool{tool}
     , m_renderHighlight{std::move(renderHighlight)}
   {
@@ -378,7 +370,7 @@ public:
     render::RenderBatch& renderBatch) const override
   {
     m_renderHighlight(
-      inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
+      inputState, renderContext, renderBatch, RotateHandle::HitArea::Center);
   }
 
   DragHandleSnapper makeDragHandleSnapper(
@@ -391,10 +383,10 @@ public:
 class MoveCenterBase : public ToolController
 {
 protected:
-  RotateObjectsTool& m_tool;
+  RotateTool& m_tool;
 
 protected:
-  explicit MoveCenterBase(RotateObjectsTool& tool)
+  explicit MoveCenterBase(RotateTool& tool)
     : m_tool{tool}
   {
   }
@@ -415,15 +407,13 @@ protected:
       return nullptr;
     }
 
-    const auto& hit =
-      inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
+    const auto& hit = inputState.pickResult().first(type(RotateHandle::HandleHitType));
     if (!hit.isMatch())
     {
       return nullptr;
     }
 
-    if (
-      hit.target<RotateObjectsHandle::HitArea>() != RotateObjectsHandle::HitArea::Center)
+    if (hit.target<RotateHandle::HitArea>() != RotateHandle::HitArea::Center)
     {
       return nullptr;
     }
@@ -452,15 +442,13 @@ protected:
 
     if (!inputState.anyToolDragging())
     {
-      const auto& hit =
-        inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType));
+      const auto& hit = inputState.pickResult().first(type(RotateHandle::HandleHitType));
       if (
         hit.isMatch()
-        && hit.target<RotateObjectsHandle::HitArea>()
-             == RotateObjectsHandle::HitArea::Center)
+        && hit.target<RotateHandle::HitArea>() == RotateHandle::HitArea::Center)
       {
         doRenderHighlight(
-          inputState, renderContext, renderBatch, RotateObjectsHandle::HitArea::Center);
+          inputState, renderContext, renderBatch, RotateHandle::HitArea::Center);
       }
     }
   }
@@ -472,13 +460,13 @@ private:
     const InputState& inputState,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) = 0;
+    RotateHandle::HitArea area) = 0;
 };
 
 class MoveCenterPart2D : public MoveCenterBase
 {
 public:
-  explicit MoveCenterPart2D(RotateObjectsTool& tool)
+  explicit MoveCenterPart2D(RotateTool& tool)
     : MoveCenterBase{tool}
   {
   }
@@ -488,17 +476,17 @@ private:
     const InputState&,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) override
+    RotateHandle::HitArea area) override
   {
     m_tool.renderHighlight2D(renderContext, renderBatch, area);
   }
 };
 
-class RotateObjectsPart2D : public RotateObjectsBase
+class RotatePart2D : public RotatePartBase
 {
 public:
-  explicit RotateObjectsPart2D(RotateObjectsTool& tool)
-    : RotateObjectsBase{tool}
+  explicit RotatePart2D(RotateTool& tool)
+    : RotatePartBase{tool}
   {
   }
 
@@ -507,7 +495,7 @@ private:
     const InputState&,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) override
+    RotateHandle::HitArea area) override
   {
     m_tool.renderHighlight2D(renderContext, renderBatch, area);
   }
@@ -516,7 +504,7 @@ private:
 class MoveCenterPart3D : public MoveCenterBase
 {
 public:
-  explicit MoveCenterPart3D(RotateObjectsTool& tool)
+  explicit MoveCenterPart3D(RotateTool& tool)
     : MoveCenterBase{tool}
   {
   }
@@ -526,17 +514,17 @@ private:
     const InputState&,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) override
+    RotateHandle::HitArea area) override
   {
     m_tool.renderHighlight3D(renderContext, renderBatch, area);
   }
 };
 
-class RotateObjectsPart3D : public RotateObjectsBase
+class RotatePart3D : public RotatePartBase
 {
 public:
-  explicit RotateObjectsPart3D(RotateObjectsTool& tool)
-    : RotateObjectsBase{tool}
+  explicit RotatePart3D(RotateTool& tool)
+    : RotatePartBase{tool}
   {
   }
 
@@ -545,7 +533,7 @@ private:
     const InputState&,
     render::RenderContext& renderContext,
     render::RenderBatch& renderBatch,
-    RotateObjectsHandle::HitArea area) override
+    RotateHandle::HitArea area) override
   {
     m_tool.renderHighlight3D(renderContext, renderBatch, area);
   }
@@ -553,25 +541,24 @@ private:
 
 } // namespace
 
-RotateObjectsToolController::RotateObjectsToolController(RotateObjectsTool& tool)
+RotateToolController::RotateToolController(RotateTool& tool)
   : m_tool{tool}
 {
 }
 
-RotateObjectsToolController::~RotateObjectsToolController() = default;
+RotateToolController::~RotateToolController() = default;
 
-Tool& RotateObjectsToolController::tool()
+Tool& RotateToolController::tool()
 {
   return m_tool;
 }
 
-const Tool& RotateObjectsToolController::tool() const
+const Tool& RotateToolController::tool() const
 {
   return m_tool;
 }
 
-void RotateObjectsToolController::pick(
-  const InputState& inputState, mdl::PickResult& pickResult)
+void RotateToolController::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   const auto hit = doPick(inputState);
   if (hit.isMatch())
@@ -580,17 +567,17 @@ void RotateObjectsToolController::pick(
   }
 }
 
-void RotateObjectsToolController::setRenderOptions(
+void RotateToolController::setRenderOptions(
   const InputState& inputState, render::RenderContext& renderContext) const
 {
   using namespace mdl::HitFilters;
-  if (inputState.pickResult().first(type(RotateObjectsHandle::HandleHitType)).isMatch())
+  if (inputState.pickResult().first(type(RotateHandle::HandleHitType)).isMatch())
   {
     renderContext.setForceShowSelectionGuide();
   }
 }
 
-void RotateObjectsToolController::render(
+void RotateToolController::render(
   const InputState& inputState,
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
@@ -599,42 +586,42 @@ void RotateObjectsToolController::render(
   ToolControllerGroup::render(inputState, renderContext, renderBatch);
 }
 
-bool RotateObjectsToolController::cancel()
+bool RotateToolController::cancel()
 {
   return false;
 }
 
-RotateObjectsToolController2D::RotateObjectsToolController2D(RotateObjectsTool& tool)
-  : RotateObjectsToolController{tool}
+RotateToolController2D::RotateToolController2D(RotateTool& tool)
+  : RotateToolController{tool}
 {
   addController(std::make_unique<MoveCenterPart2D>(tool));
-  addController(std::make_unique<RotateObjectsPart2D>(tool));
+  addController(std::make_unique<RotatePart2D>(tool));
 }
 
-mdl::Hit RotateObjectsToolController2D::doPick(const InputState& inputState)
+mdl::Hit RotateToolController2D::doPick(const InputState& inputState)
 {
   return m_tool.pick2D(inputState.pickRay(), inputState.camera());
 }
 
-void RotateObjectsToolController2D::doRenderHandle(
+void RotateToolController2D::doRenderHandle(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_tool.renderHandle2D(renderContext, renderBatch);
 }
 
-RotateObjectsToolController3D::RotateObjectsToolController3D(RotateObjectsTool& tool)
-  : RotateObjectsToolController{tool}
+RotateToolController3D::RotateToolController3D(RotateTool& tool)
+  : RotateToolController{tool}
 {
   addController(std::make_unique<MoveCenterPart3D>(tool));
-  addController(std::make_unique<RotateObjectsPart3D>(tool));
+  addController(std::make_unique<RotatePart3D>(tool));
 }
 
-mdl::Hit RotateObjectsToolController3D::doPick(const InputState& inputState)
+mdl::Hit RotateToolController3D::doPick(const InputState& inputState)
 {
   return m_tool.pick3D(inputState.pickRay(), inputState.camera());
 }
 
-void RotateObjectsToolController3D::doRenderHandle(
+void RotateToolController3D::doRenderHandle(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_tool.renderHandle3D(renderContext, renderBatch);

@@ -22,7 +22,7 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
-#include "ui/RotateObjectsTool.h"
+#include "ui/RotateTool.h"
 
 #include "vm/vec.h"
 
@@ -35,16 +35,16 @@ class QPushButton;
 namespace tb::ui
 {
 class MapDocument;
-class RotateObjectsTool;
+class RotateTool;
 class Selection;
 class SpinControl;
 
-class RotateObjectsToolPage : public QWidget
+class RotateToolPage : public QWidget
 {
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
-  RotateObjectsTool& m_tool;
+  RotateTool& m_tool;
 
   QComboBox* m_recentlyUsedCentersList = nullptr;
   QPushButton* m_resetCenterButton = nullptr;
@@ -59,10 +59,8 @@ private:
   std::vector<vm::vec3d> m_recentlyUsedCenters;
 
 public:
-  RotateObjectsToolPage(
-    std::weak_ptr<MapDocument> document,
-    RotateObjectsTool& tool,
-    QWidget* parent = nullptr);
+  RotateToolPage(
+    std::weak_ptr<MapDocument> document, RotateTool& tool, QWidget* parent = nullptr);
 
 private:
   void connectObservers();
@@ -75,7 +73,7 @@ private:
 
   void rotationCenterDidChange(const vm::vec3d& center);
   void rotationCenterWasUsed(const vm::vec3d& center);
-  void handleHitAreaDidChange(RotateObjectsHandle::HitArea area);
+  void handleHitAreaDidChange(RotateHandle::HitArea area);
 
   void centerChanged();
   void resetCenterClicked();
