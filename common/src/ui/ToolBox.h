@@ -118,10 +118,14 @@ public: // tool management
    * Suppress a tool when another becomes active. The suppressed tool becomes temporarily
    * deactivated.
    *
-   * @param suppressedTool the tool that becomes supressed while the other is active
    * @param primaryTool the tool that controls when the suppressed tool is deactivated
+   * @param suppressedTool the tool that becomes supressed while the other is active
    */
-  void suppressWhileActive(Tool& suppressedTool, Tool& primaryTool);
+  template <typename... T>
+  void suppressWhileActive(Tool& primaryTool, T&... suppressedTool)
+  {
+    (m_suppressedTools[&primaryTool].push_back(&suppressedTool), ...);
+  }
 
   void toggleTool(Tool& tool);
   bool deactivateCurrentTool();
