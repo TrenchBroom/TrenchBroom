@@ -393,7 +393,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
   auto document = kdl::mem_lock(m_document);
   const auto& grid = document->grid();
   const auto delta = moveDirection(direction) * double(grid.actualSize());
-  document->translateObjects(delta);
+  document->translate(delta);
 }
 
 void MapViewBase::duplicateObjects()
@@ -401,7 +401,7 @@ void MapViewBase::duplicateObjects()
   auto document = kdl::mem_lock(m_document);
   if (document->hasSelectedNodes())
   {
-    document->duplicateObjects();
+    document->duplicate();
   }
 }
 
@@ -452,9 +452,9 @@ vm::vec3d MapViewBase::rotationAxis(
   return clockwise ? -axis : axis;
 }
 
-void MapViewBase::flipObjects(const vm::direction direction)
+void MapViewBase::flip(const vm::direction direction)
 {
-  if (canFlipObjects())
+  if (canFlip())
   {
     auto document = kdl::mem_lock(m_document);
 
@@ -468,11 +468,11 @@ void MapViewBase::flipObjects(const vm::direction direction)
     const auto center = halfGrid.referencePoint(document->selectionBounds());
     const auto axis = flipAxis(direction);
 
-    document->flipObjects(center, axis);
+    document->flip(center, axis);
   }
 }
 
-bool MapViewBase::canFlipObjects() const
+bool MapViewBase::canFlip() const
 {
   auto document = kdl::mem_lock(m_document);
   return !m_toolBox.anyModalToolActive() && document->hasSelectedNodes();

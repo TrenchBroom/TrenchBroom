@@ -118,7 +118,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
   const auto boundsCenter = document->selectionBounds().center();
   CHECK(boundsCenter == vm::approx{vm::vec3d{15.5, 15.5, 15.5}});
 
-  document->flipObjects(boundsCenter, vm::axis::x);
+  document->flip(boundsCenter, vm::axis::x);
 
   checkBrushIntegral(brushNode1);
   checkBrushIntegral(brushNode2);
@@ -127,7 +127,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
   CHECK(brushNode2->logicalBounds() == vm::bbox3d{{0.0, 0.0, 0.0}, {1.0, 31.0, 31.0}});
 }
 
-TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
+TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transform")
 {
   using CreateNode = std::function<mdl::Node*(const MapDocumentTest& test)>;
   const auto createNode = GENERATE_COPY(
@@ -165,7 +165,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.transformObjects")
     WHEN("The node is transformed")
     {
       document->selectNodes({node});
-      document->transformObjects("Transform Nodes", transformation);
+      document->transform("Transform Nodes", transformation);
 
       THEN("The transformation was applied to the node and its children")
       {
@@ -446,7 +446,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
@@ -473,7 +473,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translateLinkedGroup")
   setPref(Preferences::AlignmentLock, false);
 
   const auto delta = vm::vec3d{0.125, 0, 0};
-  REQUIRE(document->translateObjects(delta));
+  REQUIRE(document->translate(delta));
 
   auto getUVCoords =
     [](auto* brushNode, const vm::vec3d& normal) -> std::vector<vm::vec2f> {

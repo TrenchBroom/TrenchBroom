@@ -1271,7 +1271,7 @@ void MapFrame::cutSelection()
   {
     copyToClipboard();
     auto transaction = Transaction{m_document, "Cut"};
-    m_document->deleteObjects();
+    m_document->remove();
     transaction.commit();
   }
 }
@@ -1330,7 +1330,7 @@ void MapFrame::pasteAtCursorPosition()
         const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         m_document->show(nodes);
         m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-        if (!m_document->translateObjects(delta))
+        if (!m_document->translate(delta))
         {
           transaction.cancel();
           break;
@@ -1390,7 +1390,7 @@ void MapFrame::duplicateSelection()
 {
   if (canDuplicateSelectino())
   {
-    m_document->duplicateObjects();
+    m_document->duplicate();
   }
 }
 
@@ -1421,7 +1421,7 @@ void MapFrame::deleteSelection()
     }
     else if (!m_mapView->anyModalToolActive())
     {
-      m_document->deleteObjects();
+      m_document->remove();
     }
   }
 }
@@ -1637,7 +1637,7 @@ void MapFrame::moveSelectedObjects()
   {
     if (const auto offset = parse<double, 3>(str))
     {
-      m_document->translateObjects(*offset);
+      m_document->translate(*offset);
     }
     else
     {

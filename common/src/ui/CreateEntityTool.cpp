@@ -105,7 +105,7 @@ void CreateEntityTool::updateEntityPosition2D(const vm::ray3d& pickRay)
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    document->translateObjects(delta);
+    document->translate(delta);
   }
 }
 
@@ -137,7 +137,7 @@ void CreateEntityTool::updateEntityPosition3D(
 
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
-    document->translateObjects(delta);
+    document->translate(delta);
   }
 }
 

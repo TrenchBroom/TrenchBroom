@@ -33,7 +33,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
 {
   // delete default brush
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   GIVEN("An unrelated top level node")
   {
