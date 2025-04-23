@@ -173,7 +173,7 @@ MapFrame::~MapFrame()
   // so we don't try to log to a dangling pointer (#1885).
   m_document->setParentLogger(nullptr);
 
-  m_mapView->deactivateTool();
+  m_mapView->deactivateCurrentTool();
 
   m_notifierConnection.disconnect();
   removeRecentDocumentsMenu();

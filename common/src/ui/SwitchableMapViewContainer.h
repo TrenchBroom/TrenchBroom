@@ -79,7 +79,7 @@ public:
   void switchToMapView(MapViewLayout viewId);
 
   bool anyModalToolActive() const;
-  void deactivateTool();
+  void deactivateCurrentTool();
 
   bool assembleBrushToolActive() const;
   bool canToggleAssembleBrushTool() const;

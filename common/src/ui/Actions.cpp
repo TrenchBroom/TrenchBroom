@@ -1595,7 +1595,7 @@ void ActionManager::createEditMenu()
     QObject::tr("Deactivate Current Tool"),
     ActionContext::Any,
     QKeySequence{Qt::SHIFT | Qt::Key_Escape},
-    [](auto& context) { context.view()->deactivateTool(); },
+    [](auto& context) { context.view()->deactivateCurrentTool(); },
     [](const auto& context) { return context.hasDocument(); },
     [](const auto& context) {
       return context.hasDocument() && !context.frame()->anyModalToolActive();
