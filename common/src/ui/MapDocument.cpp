@@ -3082,6 +3082,11 @@ bool MapDocument::swapNodeContents(
 bool MapDocument::transform(
   const std::string& commandName, const vm::mat4x4d& transformation)
 {
+  if (m_vertexHandles.anySelected())
+  {
+    return transformVertices(m_vertexHandles.selectedHandles(), transformation).success;
+  }
+
   auto nodesToTransform = std::vector<mdl::Node*>{};
   auto entitiesToTransform = std::unordered_map<mdl::EntityNodeBase*, size_t>{};
 

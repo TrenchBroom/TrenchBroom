@@ -234,80 +234,120 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
 {
   auto builder =
     mdl::BrushBuilder{document->world()->mapFormat(), document->worldBounds()};
-  auto* brushNode1 = new mdl::BrushNode{
-    builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
-    | kdl::value()};
-  auto* brushNode2 = new mdl::BrushNode{
-    builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
-    | kdl::value()};
 
-  REQUIRE(checkBrushIntegral(brushNode1));
-  REQUIRE(checkBrushIntegral(brushNode2));
-
-  SECTION("two brushes")
+  SECTION("objects")
   {
-    document->addNodes({{document->parentForNodes(), {brushNode1, brushNode2}}});
-    document->selectNodes({brushNode1, brushNode2});
+    auto* brushNode1 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{0.0, 0.0, 0.0}, {30.0, 31.0, 31.0}}, "material")
+      | kdl::value()};
+    auto* brushNode2 = new mdl::BrushNode{
+      builder.createCuboid(vm::bbox3d{{30.0, 0.0, 0.0}, {31.0, 31.0, 31.0}}, "material")
+      | kdl::value()};
 
-    const auto boundsCenter = document->selectionBounds().center();
-    CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
+    REQUIRE(checkBrushIntegral(brushNode1));
+    REQUIRE(checkBrushIntegral(brushNode2));
 
-    // 90 degrees CCW about the Z axis through the center of the selection
-    document->rotate(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+    SECTION("two brushes")
+    {
+      document->addNodes({{document->parentForNodes(), {brushNode1, brushNode2}}});
+      document->selectNodes({brushNode1, brushNode2});
 
-    CHECK(checkBrushIntegral(brushNode1));
-    CHECK(checkBrushIntegral(brushNode2));
+      const auto boundsCenter = document->selectionBounds().center();
+      CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
-    const auto brush1ExpectedBounds = vm::bbox3d{{0.0, 0.0, 0.0}, {31.0, 30.0, 31.0}};
-    const auto brush2ExpectedBounds = vm::bbox3d{{0.0, 30.0, 0.0}, {31.0, 31.0, 31.0}};
+      // 90 degrees CCW about the Z axis through the center of the selection
+      document->rotate(boundsCenter, vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
 
-    // these should be exactly integral
-    CHECK(brushNode1->logicalBounds() == brush1ExpectedBounds);
-    CHECK(brushNode2->logicalBounds() == brush2ExpectedBounds);
+      CHECK(checkBrushIntegral(brushNode1));
+      CHECK(checkBrushIntegral(brushNode2));
+
+      const auto brush1ExpectedBounds = vm::bbox3d{{0.0, 0.0, 0.0}, {31.0, 30.0, 31.0}};
+      const auto brush2ExpectedBounds = vm::bbox3d{{0.0, 30.0, 0.0}, {31.0, 31.0, 31.0}};
+
+      // these should be exactly integral
+      CHECK(brushNode1->logicalBounds() == brush1ExpectedBounds);
+      CHECK(brushNode2->logicalBounds() == brush2ExpectedBounds);
+    }
+
+    SECTION("brush entity")
+    {
+      auto* entityNode = new mdl::EntityNode{mdl::Entity{{
+        {"classname", "func_door"},
+        {"angle", "45"},
+      }}};
+
+      document->addNodes({{document->parentForNodes(), {entityNode}}});
+      document->addNodes({{entityNode, {brushNode1, brushNode2}}});
+
+      REQUIRE(*entityNode->entity().property("angle") == "45");
+
+      SECTION("Rotating some brushes, but not all")
+      {
+        document->selectNodes({brushNode1});
+        document->rotate(
+          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+
+        CHECK(*entityNode->entity().property("angle") == "45");
+      }
+
+      SECTION("Rotating all brushes")
+      {
+        document->selectNodes({brushNode1, brushNode2});
+        document->rotate(
+          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+
+        CHECK(*entityNode->entity().property("angle") == "135");
+      }
+
+      SECTION("Rotating grouped brush entity")
+      {
+        document->selectNodes({entityNode});
+        auto* groupNode = document->groupSelection("some_name");
+
+        document->deselectAll();
+        document->selectNodes({groupNode});
+        document->rotate(
+          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+
+        CHECK(*entityNode->entity().property("angle") == "135");
+      }
+    }
   }
 
-  SECTION("brush entity")
+  SECTION("vertices")
   {
-    auto* entityNode = new mdl::EntityNode{mdl::Entity{{
-      {"classname", "func_door"},
-      {"angle", "45"},
-    }}};
+    auto* brushNode = new mdl::BrushNode{
+      builder.createCuboid(
+        vm::bbox3d{{-32.0, -32.0, -32.0}, {32.0, 32.0, 32.0}}, "material")
+      | kdl::value()};
 
-    document->addNodes({{document->parentForNodes(), {entityNode}}});
-    document->addNodes({{entityNode, {brushNode1, brushNode2}}});
+    document->addNodes({{document->parentForNodes(), {brushNode}}});
+    document->selectNodes({brushNode});
 
-    REQUIRE(*entityNode->entity().property("angle") == "45");
+    auto& vertexHandles = document->vertexHandles();
+    vertexHandles.addHandles(brushNode);
+    vertexHandles.select(std::vector<vm::vec3d>{
+      {-32, -32, 32},
+      {-32, 32, 32},
+      {32, -32, 32},
+      {32, 32, 32},
+    });
 
-    SECTION("Rotating some brushes, but not all")
-    {
-      document->selectNodes({brushNode1});
-      document->rotate(
-        document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+    document->rotate({0, 0, 0}, {0, 0, 1}, vm::to_radians(45.0));
 
-      CHECK(*entityNode->entity().property("angle") == "45");
-    }
+    const auto& brush = brushNode->brush();
+    const auto e = vm::constants<double>::almost_zero();
+    const auto x = 45.254833995939407;
 
-    SECTION("Rotating all brushes")
-    {
-      document->selectNodes({brushNode1, brushNode2});
-      document->rotate(
-        document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+    CHECK(brush.hasVertex({-x, 0, +32}, e));
+    CHECK(brush.hasVertex({+x, 0, +32}, e));
+    CHECK(brush.hasVertex({0, -x, +32}, e));
+    CHECK(brush.hasVertex({0, +x, +32}, e));
 
-      CHECK(*entityNode->entity().property("angle") == "135");
-    }
-
-    SECTION("Rotating grouped brush entity")
-    {
-      document->selectNodes({entityNode});
-      auto* groupNode = document->groupSelection("some_name");
-
-      document->deselectAll();
-      document->selectNodes({groupNode});
-      document->rotate(
-        document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
-
-      CHECK(*entityNode->entity().property("angle") == "135");
-    }
+    CHECK(brush.hasVertex({-32, -32, -32}, e));
+    CHECK(brush.hasVertex({-32, +32, -32}, e));
+    CHECK(brush.hasVertex({+32, -32, -32}, e));
+    CHECK(brush.hasVertex({+32, +32, -32}, e));
   }
 }
 
