@@ -440,15 +440,18 @@ void EntityRenderer::validateBounds()
       if (m_editorContext.visible(entityNode))
       {
         const auto pointEntity = !entityNode->hasChildren();
-        if (pointEntity && !entityNode->entity().model())
-        {
-          entityNode->logicalBounds().for_each_face(
-            makeColoredSolidBoundsVertexBuilder(solidVertices, boundsColor(entityNode)));
-        }
-        else if (pointEntity)
+        if (pointEntity)
         {
           entityNode->logicalBounds().for_each_edge(
             makeWireFrameBoundsVertexBuilder(pointEntityWireframeVertices));
+
+          const auto hasModel =
+            entityNode->entity().model() && entityNode->entity().model()->data();
+          if (!hasModel)
+          {
+            entityNode->logicalBounds().for_each_face(
+              makeColoredSolidBoundsVertexBuilder(solidVertices, m_boundsColor));
+          }
         }
         else
         {
@@ -477,17 +480,15 @@ void EntityRenderer::validateBounds()
       if (m_editorContext.visible(entityNode))
       {
         const auto isPointEntity = !entityNode->hasChildren();
-        const auto hasModel =
-          entityNode->entity().model() && entityNode->entity().model()->data();
         if (isPointEntity)
         {
-          if (hasModel)
-          {
-            entityNode->logicalBounds().for_each_edge(
-              makeColoredWireFrameBoundsVertexBuilder(
-                pointEntityWireframeVertices, boundsColor(entityNode)));
-          }
-          else
+          entityNode->logicalBounds().for_each_edge(
+            makeColoredWireFrameBoundsVertexBuilder(
+              pointEntityWireframeVertices, boundsColor(entityNode)));
+
+          const auto hasModel =
+            entityNode->entity().model() && entityNode->entity().model()->data();
+          if (!hasModel)
           {
             entityNode->logicalBounds().for_each_face(makeColoredSolidBoundsVertexBuilder(
               solidVertices, boundsColor(entityNode)));
