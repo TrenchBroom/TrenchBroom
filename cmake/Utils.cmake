@@ -149,6 +149,10 @@ macro(set_compiler_config TARGET)
         # workaround /external generating some spurious warnings
         # https://developercommunity.visualstudio.com/content/problem/220812/experimentalexternal-generates-a-lot-of-c4193-warn.html
         target_compile_options(${TARGET} PRIVATE /wd4193)
+        
+        # required to compile large objects; only needed in debug mode currently as release mode strips enough sections
+        # https://learn.microsoft.com/en-us/cpp/build/reference/bigobj-increase-number-of-sections-in-dot-obj-file
+        target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:DEBUG>:/bigobj>")
 
         target_compile_options(${TARGET} PRIVATE "$<$<CONFIG:RELEASE>:/Ox>")
 
