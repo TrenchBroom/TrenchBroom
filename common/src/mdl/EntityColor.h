@@ -20,26 +20,29 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace tb
 {
 class Color;
+}
 
-namespace ColorRange
+namespace tb::ColorRange
 {
 using Type = int;
 }
 
-namespace mdl
+namespace tb::mdl
 {
+
 class EntityNodeBase;
 
 ColorRange::Type detectColorRange(
   const std::string& entityNode, const std::vector<EntityNodeBase*>& nodes);
 
-const std::string convertEntityColor(const std::string& str, ColorRange::Type colorRange);
-Color parseEntityColor(const std::string& str);
+std::string convertEntityColor(std::string_view str, ColorRange::Type colorRange);
+Color parseEntityColor(std::string_view str);
 std::string entityColorAsString(const Color& color, ColorRange::Type colorRange);
-} // namespace mdl
-} // namespace tb
+
+} // namespace tb::mdl

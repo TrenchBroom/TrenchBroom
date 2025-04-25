@@ -32,6 +32,8 @@
 #include "kdl/overload.h"
 #include "kdl/string_utils.h"
 
+#include <fmt/format.h>
+
 #include <cassert>
 #include <sstream>
 #include <string>
@@ -69,44 +71,50 @@ ColorRange::Type detectColorRange(
   return result;
 }
 
-const std::string convertEntityColor(
-  const std::string& str, const ColorRange::Type colorRange)
+std::string convertEntityColor(
+  const std::string_view str, const ColorRange::Type colorRange)
 {
   const auto color = parseEntityColor(str);
   return entityColorAsString(color, colorRange);
 }
 
-Color parseEntityColor(const std::string& str)
+Color parseEntityColor(const std::string_view str)
 {
-  const auto components = kdl::str_split(str, " ");
-  const auto range = detectColorRange(components);
-  assert(range != ColorRange::Mixed);
+  if (const auto components = kdl::str_split(str, " "); components.size() == 3)
+  {
+    const auto range = detectColorRange(components);
+    assert(range != ColorRange::Mixed);
 
-  return range == ColorRange::Byte ? 
-  Color{
-      kdl::str_to_int(components[0]).value_or(0),
-      kdl::str_to_int(components[1]).value_or(0),
-      kdl::str_to_int(components[2]).value_or(0),
-  } : Color{
-    static_cast<int>(kdl::str_to_double(components[0]).value_or(0.0) * 255.0),
-    static_cast<int>(kdl::str_to_double(components[1]).value_or(0.0) * 255.0),
-    static_cast<int>(kdl::str_to_double(components[2]).value_or(0.0) * 255.0),
-  };
+    return range == ColorRange::Byte ? 
+    Color{
+        kdl::str_to_int(components[0]).value_or(0),
+        kdl::str_to_int(components[1]).value_or(0),
+        kdl::str_to_int(components[2]).value_or(0),
+    } : Color{
+      static_cast<int>(kdl::str_to_double(components[0]).value_or(0.0) * 255.0),
+      static_cast<int>(kdl::str_to_double(components[1]).value_or(0.0) * 255.0),
+      static_cast<int>(kdl::str_to_double(components[2]).value_or(0.0) * 255.0),
+    };
+  }
+
+  return Color{0, 0, 0};
 }
 
 std::string entityColorAsString(const Color& color, const ColorRange::Type colorRange)
 {
-  std::stringstream result;
-  if (colorRange == ColorRange::Byte)
+  switch (colorRange)
   {
-    result << int(color.r() * 255.0f) << " " << int(color.g() * 255.0f) << " "
-           << int(color.b() * 255.0f);
+  case ColorRange::Byte:
+    return fmt::format(
+      "{} {} {}",
+      int(color.r() * 255.0f),
+      int(color.g() * 255.0f),
+      int(color.b() * 255.0f));
+  case ColorRange::Float:
+    return fmt::format("{} {} {}", float(color.r()), float(color.g()), float(color.b()));
+  default:
+    return "";
   }
-  else if (colorRange == ColorRange::Float)
-  {
-    result << float(color.r()) << " " << float(color.g()) << " " << float(color.b());
-  }
-  return result.str();
 }
 
 } // namespace tb::mdl
