@@ -649,6 +649,13 @@ AssimpComputedMeshData computeMeshData(
   return {meshIndex, builder.vertices(), builder.indices()};
 }
 
+// These follow the Quake coordinate system, which is X forward, Y left, Z up.
+bool usesQuakeCoordinates(const aiScene& scene)
+{
+  auto const isHl1 = scene.mRootNode->FindNode(AiMdlHl1NodeBodyparts) != nullptr;
+  return isHl1;
+}
+
 aiMatrix4x4 getAxisTransform(const aiScene& scene)
 {
   if (scene.mMetaData)
@@ -668,15 +675,28 @@ aiMatrix4x4 getAxisTransform(const aiScene& scene)
 
     if (!metadataPresent)
     {
-      // By default, all 3D data from is provided in a right-handed coordinate system.
-      // +X to the right. -Z into the screen. +Y upwards.
-      upAxis = 1;
-      upAxisSign = 1;
-      frontAxis = 2;
-      frontAxisSign = 1;
-      coordAxis = 0;
-      coordAxisSign = 1;
-      unitScale = 1.0f;
+      if (usesQuakeCoordinates(scene))
+      {
+        upAxis = 1;
+        upAxisSign = 1;
+        frontAxis = 2;
+        frontAxisSign = 1;
+        coordAxis = 0;
+        coordAxisSign = 1;
+        unitScale = 1.0f;
+      }
+      else
+      {
+        // By default, all 3D data from assimp is provided in a right-handed coordinate
+        // system. +X to the right. -Z into the screen. +Y upwards.
+        upAxis = 1;
+        upAxisSign = 1;
+        frontAxis = 0;
+        frontAxisSign = -1;
+        coordAxis = 2;
+        coordAxisSign = 1;
+        unitScale = 1.0f;
+      }
     }
 
     auto up = aiVector3D{};
