@@ -32,7 +32,7 @@ TEST_CASE("AssimpLoaderTest.loadBlenderModel")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
+  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
   auto loader = AssimpLoader{"cube.dae", *fs};
@@ -49,7 +49,7 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
+  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
@@ -68,7 +68,7 @@ TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
+  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
   auto fs = std::make_shared<DiskFileSystem>(basePath);
 
   auto loader = AssimpLoader{"cube.mdl", *fs};
