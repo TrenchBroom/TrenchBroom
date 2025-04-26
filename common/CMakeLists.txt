@@ -284,6 +284,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/BorderLine.cpp
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/BrushVertexCommands.cpp
+        ${COMMON_SOURCE_DIR}/ui/BoxSelectionTool.cpp
         ${COMMON_SOURCE_DIR}/ui/CachingLogger.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.cpp
         ${COMMON_SOURCE_DIR}/ui/CameraLinkHelper.cpp
@@ -825,6 +826,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/BorderLine.h
         ${COMMON_SOURCE_DIR}/ui/BorderPanel.h
         ${COMMON_SOURCE_DIR}/ui/BrushVertexCommands.h
+        ${COMMON_SOURCE_DIR}/ui/BoxSelectionTool.h
         ${COMMON_SOURCE_DIR}/ui/CachingLogger.h
         ${COMMON_SOURCE_DIR}/ui/CameraAnimation.h
         ${COMMON_SOURCE_DIR}/ui/CameraLinkHelper.h

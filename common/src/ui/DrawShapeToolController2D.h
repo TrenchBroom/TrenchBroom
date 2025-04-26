@@ -44,6 +44,9 @@ private:
   const Tool& tool() const override;
 
   std::unique_ptr<GestureTracker> acceptMouseDrag(const InputState& inputState) override;
+  
+  // Selection
+  std::unique_ptr<GestureTracker> handleBoxSelection(const InputState& inputState);
 
   bool cancel() override;
 };

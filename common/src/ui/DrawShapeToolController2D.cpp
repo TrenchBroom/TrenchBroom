@@ -25,8 +25,25 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
+#include "ui/Transaction.h"
+#include "ui/BoxSelectionTool.h"
+#include "mdl/ModelUtils.h"
+#include "mdl/BrushBuilder.h"
+#include "mdl/BrushNode.h"
+#include "mdl/WorldNode.h"
+#include "mdl/LayerNode.h"
+#include "mdl/GroupNode.h"
+#include "mdl/EntityNode.h"
+#include "mdl/PatchNode.h"
+#include "render/RenderService.h"
+#include "render/RenderContext.h"
+#include "render/RenderBatch.h"
+#include "Color.h"
 
 #include "kdl/memory_utils.h"
+#include "kdl/result.h"
+#include "kdl/result_fold.h"
+#include "kdl/overload.h"
 
 #include "vm/intersection.h"
 
@@ -224,6 +241,16 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
     return nullptr;
   }
 
+  // If Alt is pressed, enter box selection mode
+  const auto modKeys = inputState.modifierKeys();
+  const bool altDown = (modKeys & ModifierKeys::Alt) != 0;
+  
+  if (altDown)
+  {
+    return handleBoxSelection(inputState);
+  }
+
+  // If no modifier keys are pressed, enter brush creation mode
   if (!inputState.checkModifierKeys(
         ModifierKeyPressed::No,
         ModifierKeyPressed::DontCare,
@@ -249,6 +276,32 @@ std::unique_ptr<GestureTracker> DrawShapeToolController2D::acceptMouseDrag(
       vm::point_at_distance(inputState.pickRay(), *distance);
     return createHandleDragTracker(
       DrawShapeDragDelegate{m_tool, document->worldBounds(), document->referenceBounds()},
+      inputState,
+      initialHandlePosition,
+      initialHandlePosition);
+  }
+
+  return nullptr;
+}
+
+std::unique_ptr<GestureTracker> DrawShapeToolController2D::handleBoxSelection(
+  const InputState& inputState)
+{
+  auto document = kdl::mem_lock(m_document);
+  
+  // Use the box selection tool implemented in BoxSelectionTool.cpp
+  const auto& bounds = document->referenceBounds();
+  const auto& camera = inputState.camera();
+  const auto plane = vm::plane3d{
+    bounds.min, vm::vec3d{vm::get_abs_max_component_axis(camera.direction())}};
+
+  if (const auto distance = vm::intersect_ray_plane(inputState.pickRay(), plane))
+  {
+    const auto initialHandlePosition =
+      vm::point_at_distance(inputState.pickRay(), *distance);
+    
+    return createHandleDragTracker(
+      BoxSelectionDragDelegate{m_tool, m_document},
       inputState,
       initialHandlePosition,
       initialHandlePosition);
