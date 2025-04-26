@@ -59,9 +59,9 @@ TEST_CASE("BezierPatch")
   {
     // clang-format off
     auto patch = BezierPatch{3, 3, { 
-      {-1, -1, -1}, {0, -1, 0}, {1, -1, 1},
-      {-1,  0, -1}, {0,  0, 0}, {1,  0, 1},
-      {-1,  1, -1}, {0,  1, 0}, {1,  1, 1},
+      {-1,  1,  0}, {0,  1,  1}, {1,  1,  2},
+      {-1,  0, -1}, {0,  0,  0}, {1,  0,  1},
+      {-1, -1, -2}, {0, -1, -1}, {1, -1,  0},
      }, ""};
     // clang-format on
 
@@ -71,11 +71,43 @@ TEST_CASE("BezierPatch")
 
       // clang-format off
       CHECK(patch.controlPoints() == std::vector<BezierPatch::Point>{
-        {1, -1, -1}, {2, -1, 0}, {3, -1, 1},
-        {1,  0, -1}, {2,  0, 0}, {3,  0, 1},
-        {1,  1, -1}, {2,  1, 0}, {3,  1, 1},
-        });
+        {1,  1,  0}, {2,  1,  1}, {3,  1,  2},
+        {1,  0, -1}, {2,  0,  0}, {3,  0,  1},
+        {1, -1, -2}, {2, -1, -1}, {3, -1,  0},
+          });
       // clang-format on
+    }
+
+    SECTION("mirror")
+    {
+      using T = std::tuple<vm::axis::type, std::vector<BezierPatch::Point>>;
+
+      // clang-format off
+      const auto&
+      [axis, expectedPoints] = GENERATE(values<T>({
+      {vm::axis::x, {
+        {-1,  1,  2}, {0,  1,  1}, {1,  1,  0},
+        {-1,  0,  1}, {0,  0,  0}, {1,  0, -1},
+        {-1, -1,  0}, {0, -1, -1}, {1, -1, -2},
+        }},
+      {vm::axis::y, {
+        { 1, -1,  2}, {0, -1,  1}, {-1, -1,  0},
+        { 1,  0,  1}, {0,  0,  0}, {-1,  0, -1},
+        { 1,  1,  0}, {0,  1, -1}, {-1,  1, -2},
+        }},
+      {vm::axis::z, {
+        { 1,  1, -2}, {0,  1, -1}, {-1,  1,  0},
+        { 1,  0, -1}, {0,  0,  0}, {-1,  0,  1},
+        { 1, -1,  0}, {0, -1,  1}, {-1, -1,  2},
+        }},
+      }));
+      // clang-format on
+
+      CAPTURE(axis);
+
+      patch.transform(vm::mirror_matrix<double>(axis));
+
+      CHECK(patch.controlPoints() == expectedPoints);
     }
   }
 }

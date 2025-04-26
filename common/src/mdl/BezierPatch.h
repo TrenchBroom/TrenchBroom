@@ -80,6 +80,7 @@ public: // control points:
   size_t surfaceColumnCount() const;
 
   const std::vector<Point>& controlPoints() const;
+  Point& controlPoint(size_t row, size_t col);
   const Point& controlPoint(size_t row, size_t col) const;
   void setControlPoint(size_t row, size_t col, Point controlPoint);
 
