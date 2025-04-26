@@ -28,54 +28,41 @@
 namespace tb::io
 {
 
-TEST_CASE("AssimpLoaderTest.loadBlenderModel")
+TEST_CASE("AssimpLoader")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
+  SECTION("cube")
+  {
+    const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
+    auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto loader = AssimpLoader{"cube.dae", *fs};
+    SECTION("dae")
+    {
+      auto loader = AssimpLoader{"cube.dae", *fs};
+      auto modelData = loader.load(logger);
+      REQUIRE(modelData.is_success());
 
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
+      CHECK(modelData.value().frameCount() == 1);
+      CHECK(modelData.value().surfaceCount() == 1);
+      CHECK(modelData.value().surface(0u).skinCount() == 1);
+    }
 
-  CHECK(modelData.value().frameCount() == 1);
-  CHECK(modelData.value().surfaceCount() == 1);
-  CHECK(modelData.value().surface(0u).skinCount() == 1);
-}
+    SECTION("mdl")
+    {
+      auto loader = AssimpLoader{"cube.mdl", *fs};
 
-TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
-{
-  auto logger = NullLogger{};
+      auto modelData = loader.load(logger);
+      REQUIRE(modelData.is_success());
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
-
-  auto loader = AssimpLoader{"cube.mdl", *fs};
-
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
-
-  CHECK(modelData.value().surfaceCount() == 4);
-  CHECK(modelData.value().surface(0).skinCount() == 1);
-  CHECK(modelData.value().surface(1).skinCount() == 3);
-  CHECK(modelData.value().surface(2).skinCount() == 1);
-  CHECK(modelData.value().surface(3).skinCount() == 1);
-}
-
-TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
-{
-  auto logger = NullLogger{};
-
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
-
-  auto loader = AssimpLoader{"cube.mdl", *fs};
-
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
-  CHECK(modelData.value().frameCount() == 3);
+      CHECK(modelData.value().surfaceCount() == 4);
+      CHECK(modelData.value().surface(0).skinCount() == 1);
+      CHECK(modelData.value().surface(1).skinCount() == 3);
+      CHECK(modelData.value().surface(2).skinCount() == 1);
+      CHECK(modelData.value().surface(3).skinCount() == 1);
+      CHECK(modelData.value().frameCount() == 3);
+    }
+  }
 }
 
 } // namespace tb::io
