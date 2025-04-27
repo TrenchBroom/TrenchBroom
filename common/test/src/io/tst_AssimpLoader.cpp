@@ -23,6 +23,8 @@
 #include "io/DiskFileSystem.h"
 #include "mdl/EntityModel.h"
 
+#include "vm/approx.h"
+
 #include "Catch2.h"
 
 namespace tb::io
@@ -62,6 +64,34 @@ TEST_CASE("AssimpLoader")
       CHECK(modelData.value().surface(3).skinCount() == 1);
       CHECK(modelData.value().frameCount() == 3);
     }
+  }
+
+  SECTION("alignment")
+  {
+    const auto modelPath = GENERATE(values<std::filesystem::path>({
+      "ase/cuboid.ase", // exported with -X forward and +Z up
+      "obj/cuboid.obj",
+      "fbx/cuboid.fbx", // exported with scale 0.01
+      "gltf/cuboid.gltf",
+      "glb/cuboid.glb",
+    }));
+
+    CAPTURE(modelPath);
+
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/io/assimp/alignment";
+    auto fs = std::make_shared<DiskFileSystem>(basePath);
+
+    auto loader = AssimpLoader{modelPath, *fs};
+
+    auto modelData = loader.load(logger);
+    REQUIRE(modelData.is_success());
+
+    REQUIRE(modelData.value().frameCount() == 1);
+    REQUIRE(modelData.value().surfaceCount() == 1);
+    REQUIRE(modelData.value().surface(0).skinCount() == 1);
+
+    CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
   }
 }
 
