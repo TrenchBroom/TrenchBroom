@@ -23,59 +23,76 @@
 #include "io/DiskFileSystem.h"
 #include "mdl/EntityModel.h"
 
+#include "vm/approx.h"
+
 #include "Catch2.h"
 
 namespace tb::io
 {
 
-TEST_CASE("AssimpLoaderTest.loadBlenderModel")
+TEST_CASE("AssimpLoader")
 {
   auto logger = NullLogger{};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
+  SECTION("cube")
+  {
+    const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp/cube";
+    auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-  auto loader = AssimpLoader{"cube.dae", *fs};
+    SECTION("dae")
+    {
+      auto loader = AssimpLoader{"cube.dae", *fs};
+      auto modelData = loader.load(logger);
+      REQUIRE(modelData.is_success());
 
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
+      CHECK(modelData.value().frameCount() == 1);
+      CHECK(modelData.value().surfaceCount() == 1);
+      CHECK(modelData.value().surface(0u).skinCount() == 1);
+    }
 
-  CHECK(modelData.value().frameCount() == 1);
-  CHECK(modelData.value().surfaceCount() == 1);
-  CHECK(modelData.value().surface(0u).skinCount() == 1);
-}
+    SECTION("mdl")
+    {
+      auto loader = AssimpLoader{"cube.mdl", *fs};
 
-TEST_CASE("AssimpLoaderTest.loadHLModelWithSkins")
-{
-  auto logger = NullLogger{};
+      auto modelData = loader.load(logger);
+      REQUIRE(modelData.is_success());
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
+      CHECK(modelData.value().surfaceCount() == 4);
+      CHECK(modelData.value().surface(0).skinCount() == 1);
+      CHECK(modelData.value().surface(1).skinCount() == 3);
+      CHECK(modelData.value().surface(2).skinCount() == 1);
+      CHECK(modelData.value().surface(3).skinCount() == 1);
+      CHECK(modelData.value().frameCount() == 3);
+    }
+  }
 
-  auto loader = AssimpLoader{"cube.mdl", *fs};
+  SECTION("alignment")
+  {
+    const auto modelPath = GENERATE(values<std::filesystem::path>({
+      "ase/cuboid.ase", // exported with -X forward and +Z up
+      "obj/cuboid.obj",
+      "fbx/cuboid.fbx", // exported with scale 0.01
+      "gltf/cuboid.gltf",
+      "glb/cuboid.glb",
+    }));
 
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
+    CAPTURE(modelPath);
 
-  CHECK(modelData.value().surfaceCount() == 4);
-  CHECK(modelData.value().surface(0).skinCount() == 1);
-  CHECK(modelData.value().surface(1).skinCount() == 3);
-  CHECK(modelData.value().surface(2).skinCount() == 1);
-  CHECK(modelData.value().surface(3).skinCount() == 1);
-}
+    const auto basePath =
+      std::filesystem::current_path() / "fixture/test/io/assimp/alignment";
+    auto fs = std::make_shared<DiskFileSystem>(basePath);
 
-TEST_CASE("AssimpLoaderTest.loadHLModelWithAnimations")
-{
-  auto logger = NullLogger{};
+    auto loader = AssimpLoader{modelPath, *fs};
 
-  const auto basePath = std::filesystem::current_path() / "fixture/test/io/assimp";
-  auto fs = std::make_shared<DiskFileSystem>(basePath);
+    auto modelData = loader.load(logger);
+    REQUIRE(modelData.is_success());
 
-  auto loader = AssimpLoader{"cube.mdl", *fs};
+    REQUIRE(modelData.value().frameCount() == 1);
+    REQUIRE(modelData.value().surfaceCount() == 1);
+    REQUIRE(modelData.value().surface(0).skinCount() == 1);
 
-  auto modelData = loader.load(logger);
-  CHECK(modelData.is_success());
-  CHECK(modelData.value().frameCount() == 3);
+    CHECK(vm::approx(modelData.value().bounds(0)) == vm::bbox3f{{0, 0, 0}, {2, 1, 3}});
+  }
 }
 
 } // namespace tb::io

@@ -20,6 +20,7 @@
 
 #pragma once
 
+#include "vm/bbox.h"
 #include "vm/line.h"
 #include "vm/mat.h"
 #include "vm/scalar.h"
@@ -158,6 +159,49 @@ public:
   }
 
   friend std::ostream& operator<<(std::ostream& str, const approx<mat<T, R, C>>& a)
+  {
+    str << a.m_value;
+    return str;
+  }
+};
+
+template <typename T, std::size_t S>
+class approx<bbox<T, S>>
+{
+private:
+  const bbox<T, S> m_value;
+  const T m_epsilon;
+
+public:
+  constexpr explicit approx(const bbox<T, S> value, const T epsilon)
+    : m_value{value}
+    , m_epsilon{epsilon}
+  {
+    assert(epsilon >= T(0));
+  }
+  constexpr explicit approx(const bbox<T, S> value)
+    : approx{value, vm::constants<T>::almost_zero()}
+  {
+  }
+
+  constexpr bool operator==(const bbox<T, S>& rhs) const
+  {
+    return is_equal(m_value, rhs, m_epsilon);
+  }
+
+  constexpr bool operator!=(const bbox<T, S>& rhs) const { return !(*this == rhs); }
+
+  constexpr bool operator==(const std::optional<bbox<T, S>>& rhs) const
+  {
+    return *rhs ? is_equal(m_value, *rhs, m_epsilon) : false;
+  }
+
+  constexpr bool operator!=(const std::optional<bbox<T, S>>& rhs) const
+  {
+    return !(*this == rhs);
+  }
+
+  friend std::ostream& operator<<(std::ostream& str, const approx<bbox<T, S>>& a)
   {
     str << a.m_value;
     return str;

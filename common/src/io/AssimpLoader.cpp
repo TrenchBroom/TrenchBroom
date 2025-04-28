@@ -649,63 +649,76 @@ AssimpComputedMeshData computeMeshData(
   return {meshIndex, builder.vertices(), builder.indices()};
 }
 
+bool useQuakeCoordinateSystem(const aiScene& scene)
+{
+  const auto isHl1 = scene.mRootNode->FindNode(AiMdlHl1NodeBodyparts) != nullptr;
+  return isHl1;
+}
+
 aiMatrix4x4 getAxisTransform(const aiScene& scene)
 {
-  if (scene.mMetaData)
+  // These MUST be in32_t, or the metadata 'Get' function will get confused.
+  int32_t xAxis = 0, yAxis = 0, zAxis = 0, xAxisSign = 0, yAxisSign = 0, zAxisSign = 0;
+  auto unitScale = 0.0f;
+
+  // TrenchBroom expects models to use the following coordinate system:
+  // +X out of the screen (forward)
+  // +Y points right
+  // +Z points up
+  if (!(scene.mMetaData && scene.mMetaData->Get("UpAxis", zAxis)
+        && scene.mMetaData->Get("UpAxisSign", zAxisSign)
+        && scene.mMetaData->Get("FrontAxis", xAxis)
+        && scene.mMetaData->Get("FrontAxisSign", xAxisSign)
+        && scene.mMetaData->Get("CoordAxis", yAxis)
+        && scene.mMetaData->Get("CoordAxisSign", yAxisSign)
+        && scene.mMetaData->Get("UnitScaleFactor", unitScale)))
   {
-    // These MUST be in32_t, or the metadata 'Get' function will get confused.
-    int32_t upAxis = 0, frontAxis = 0, coordAxis = 0, upAxisSign = 0, frontAxisSign = 0,
-            coordAxisSign = 0;
-    auto unitScale = 1.0f;
-
-    const auto metadataPresent = scene.mMetaData->Get("UpAxis", upAxis)
-                                 && scene.mMetaData->Get("UpAxisSign", upAxisSign)
-                                 && scene.mMetaData->Get("FrontAxis", frontAxis)
-                                 && scene.mMetaData->Get("FrontAxisSign", frontAxisSign)
-                                 && scene.mMetaData->Get("CoordAxis", coordAxis)
-                                 && scene.mMetaData->Get("CoordAxisSign", coordAxisSign)
-                                 && scene.mMetaData->Get("UnitScaleFactor", unitScale);
-
-    if (!metadataPresent)
+    // By default, all 3D data from is provided in a right-handed coordinate system.
+    if (useQuakeCoordinateSystem(scene))
     {
-      // By default, all 3D data from is provided in a right-handed coordinate system.
-      // +X to the right. -Z into the screen. +Y upwards.
-      upAxis = 1;
-      upAxisSign = 1;
-      frontAxis = 2;
-      frontAxisSign = 1;
-      coordAxis = 0;
-      coordAxisSign = 1;
+      // Quake models loaded by assimp use the following coordinate system:
+      // +X out of the screen (mapped to +X)
+      // +Y upwards (mapped to +Z)
+      // +Z to the left (mapped to -Y)
+      xAxis = 0;
+      xAxisSign = 1;
+      yAxis = 2;
+      yAxisSign = -1;
+      zAxis = 1;
+      zAxisSign = 1;
       unitScale = 1.0f;
     }
-
-    auto up = aiVector3D{};
-    auto front = aiVector3D{};
-    auto coord = aiVector3D{};
-    up[static_cast<unsigned int>(upAxis)] = float(upAxisSign) * unitScale;
-    front[static_cast<unsigned int>(frontAxis)] = float(frontAxisSign) * unitScale;
-    coord[static_cast<unsigned int>(coordAxis)] = float(coordAxisSign) * unitScale;
-
-    return aiMatrix4x4t{
-      coord.x,
-      coord.y,
-      coord.z,
-      0.0f,
-      -front.x,
-      -front.y,
-      -front.z,
-      0.0f,
-      up.x,
-      up.y,
-      up.z,
-      0.0f,
-      0.0f,
-      0.0f,
-      0.0f,
-      1.0f};
+    else
+    {
+      // assimp defaults to the following coordinate system:
+      // +X to the right (mapped to +Y)
+      // +Y upwards (mapped to +Z)
+      // +Z out of the screen (mapped to +X)
+      xAxis = 2;
+      xAxisSign = 1;
+      yAxis = 0;
+      yAxisSign = 1;
+      zAxis = 1;
+      zAxisSign = 1;
+      unitScale = 1.0f;
+    }
   }
 
-  return aiMatrix4x4{};
+  auto x = aiVector3D{};
+  auto y = aiVector3D{};
+  auto z = aiVector3D{};
+  x[static_cast<unsigned int>(xAxis)] = float(xAxisSign) * unitScale;
+  y[static_cast<unsigned int>(yAxis)] = float(yAxisSign) * unitScale;
+  z[static_cast<unsigned int>(zAxis)] = float(zAxisSign) * unitScale;
+
+  // clang-format off
+  return aiMatrix4x4t{
+    x.x,  x.y,  x.z,  0.0f, // X axis
+    y.x,  y.y,  y.z,  0.0f, // Y axis
+    z.x,  z.y,  z.z,  0.0f, // Z axis
+    0.0f, 0.0f, 0.0f, 1.0f,
+  };
+  // clang-format on
 }
 
 Result<void> loadSceneFrame(
