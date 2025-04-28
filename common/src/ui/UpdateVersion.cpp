@@ -198,15 +198,19 @@ namespace
 auto buildAssetPattern()
 {
 #if defined(_WIN32)
-  return QRegularExpression{R"(TrenchBroom-Win64-AMD64-v\d{4}\.\d+-Release.zip)"};
+  return QRegularExpression{
+    R"(TrenchBroom-Win64-AMD64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
 #elif defined(__APPLE__)
 #if defined(__arm64__)
-  return QRegularExpression{R"(TrenchBroom-macOS-arm64-v\d{4}\.\d+-Release.zip)"};
+  return QRegularExpression{
+    R"(TrenchBroom-macOS-arm64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
 #else
-  return QRegularExpression{R"(TrenchBroom-macOS-x86_64-v\d{4}\.\d+-Release.zip)"};
+  return QRegularExpression{
+    R"(TrenchBroom-macOS-x86_64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
 #endif
 #else
-  return QRegularExpression{R"(TrenchBroom-Linux-x86_64-v\d{4}\.\d+-Release.zip)"};
+  return QRegularExpression{
+    R"(TrenchBroom-Linux-x86_64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
 #endif
 }
 } // namespace
