@@ -94,6 +94,28 @@ TEST_CASE("UpdateVersion")
     < UpdateVersion{SemanticVersion{1, 2, 3, _}});
 }
 
+TEST_CASE("parseUpdateVersion")
+{
+  using T = std::tuple<QString, std::optional<UpdateVersion>>;
+
+  // clang-format off
+  const auto& 
+  [str,           expectedVersion] = GENERATE(values<T>({
+  {"",            std::nullopt},
+  {"asdf",        std::nullopt},
+  {"v2025.1a",    std::nullopt},
+  {"v3.2.x",      std::nullopt},
+  {"v3.2.1",      SemanticVersion{3, 2, 1}},
+  {"v2025.1",     TemporalVersion{2025, 1}},
+  {"v2025.1-RC2", TemporalVersion{2025, 1, 2}},
+  }));
+  // clang-format on
+
+  CAPTURE(str);
+
+  CHECK(parseUpdateVersion(str) == expectedVersion);
+}
+
 TEST_CASE("chooseAsset")
 {
   SECTION("with release candidates")

@@ -141,9 +141,9 @@ bool operator==(const UpdateVersion& lhs, const UpdateVersion& rhs)
 std::optional<UpdateVersion> parseUpdateVersion(const QString& tag)
 {
   static const auto temporalPattern =
-    QRegularExpression{R"(v(\d{4})\.(\d+)(?:-RC(\d+))?)"};
+    QRegularExpression{R"(^v(\d{4})\.(\d+)(?:-RC(\d+))?$)"};
   static const auto semanticPattern =
-    QRegularExpression{R"(v(\d+)\.(\d+)\.(\d+)(?:-RC(\d+))?)"};
+    QRegularExpression{R"(^v(\d+)\.(\d+)\.(\d+)(?:-RC(\d+))?$)"};
 
   if (const auto temporalMatch = temporalPattern.match(tag); temporalMatch.hasMatch())
   {
@@ -199,18 +199,18 @@ auto buildAssetPattern()
 {
 #if defined(_WIN32)
   return QRegularExpression{
-    R"(TrenchBroom-Win64-AMD64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
+    R"(TrenchBroom-Win64-AMD64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};
 #elif defined(__APPLE__)
 #if defined(__arm64__)
   return QRegularExpression{
-    R"(TrenchBroom-macOS-arm64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
+    R"(TrenchBroom-macOS-arm64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};
 #else
   return QRegularExpression{
-    R"(TrenchBroom-macOS-x86_64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
+    R"(TrenchBroom-macOS-x86_64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};
 #endif
 #else
   return QRegularExpression{
-    R"(TrenchBroom-Linux-x86_64-v\d{4}\.\d+(-RC\d+)?-Release.zip)"};
+    R"(TrenchBroom-Linux-x86_64-v\d{4}\.\d+(?:-RC(\d+))?-Release.zip)"};
 #endif
 }
 } // namespace
