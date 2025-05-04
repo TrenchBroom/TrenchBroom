@@ -26,6 +26,7 @@
 
 #include "vm/bbox_io.h" // IWYU pragma: keep
 #include "vm/bezier_surface.h"
+#include "vm/mat_ext.h"
 #include "vm/vec_io.h" // IWYU pragma: keep
 
 #include <cassert>
@@ -113,6 +114,11 @@ const std::vector<BezierPatch::Point>& BezierPatch::controlPoints() const
   return m_controlPoints;
 }
 
+BezierPatch::Point& BezierPatch::controlPoint(const size_t row, const size_t col)
+{
+  return const_cast<Point&>(const_cast<const BezierPatch*>(this)->controlPoint(row, col));
+}
+
 const BezierPatch::Point& BezierPatch::controlPoint(
   const size_t row, const size_t col) const
 {
@@ -170,6 +176,22 @@ void BezierPatch::transform(const vm::mat4x4d& transformation)
     builder.add(controlPoint.xyz());
   }
   m_bounds = builder.bounds();
+
+  using std::swap;
+
+  if (!vm::is_orientation_preserving_transform(transformation))
+  {
+    // reverse the control points along the u axis so that it's not inside out
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/4842
+    for (size_t c = 0; c < m_pointColumnCount / 2; ++c)
+    {
+      const auto d = m_pointColumnCount - c - 1;
+      for (size_t r = 0; r < m_pointRowCount; ++r)
+      {
+        swap(controlPoint(r, c), controlPoint(r, d));
+      }
+    }
+  }
 }
 
 using SurfaceControlPoints = std::array<std::array<BezierPatch::Point, 3u>, 3u>;
