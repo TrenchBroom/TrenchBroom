@@ -638,6 +638,23 @@ constexpr mat<T, 4, 4> mirror_matrix(const axis::type axis)
 }
 
 /**
+ * Returns true if the given matrix preserves orientation of a shape.
+ *
+ * For example, if this function returns false, then the control points of a Bezier curve
+ * must be reversed after transforming the curve with the matrix.
+ *
+ * @tparam T the component type
+ * @tparam S the number of columns and rows
+ * @param transform the transformation matrix to check
+ * @return true if the given matrix preserves the orientation of a shape
+ */
+template <typename T, size_t S>
+constexpr bool is_orientation_preserving_transform(const mat<T, S, S>& transform)
+{
+  return compute_determinant(extract_minor(transform, S - 1, S - 1)) > T(0);
+}
+
+/**
  * Returns a matrix that transforms to a coordinate system specified by the given axes and
  * offset.
  *

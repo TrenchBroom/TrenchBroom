@@ -315,6 +315,20 @@ TEST_CASE("mat_ext")
     CER_CHECK(mirZ * vec3d(0, 0, 1) == vec3d(0, 0, -1));
   }
 
+  SECTION("is_orientation_preserving_transform")
+  {
+    CER_CHECK(!is_orientation_preserving_transform(mirror_matrix<double>(axis::x)));
+    CER_CHECK(!is_orientation_preserving_transform(mirror_matrix<double>(axis::y)));
+    CER_CHECK(!is_orientation_preserving_transform(mirror_matrix<double>(axis::z)));
+
+    CER_CHECK(is_orientation_preserving_transform(translation_matrix(vec3d{1, 2, 3})));
+    CER_CHECK(is_orientation_preserving_transform(scaling_matrix(vec3d{1, 2, 3})));
+    CER_CHECK(!is_orientation_preserving_transform(scaling_matrix(vec3d{-1, 2, 3})));
+
+    CHECK(is_orientation_preserving_transform(
+      rotation_matrix(vec3d{0, 0, 1}, to_radians(23.0))));
+  }
+
   SECTION("coordinateSystemMatrix")
   {
     constexpr auto m = coordinate_system_matrix(
