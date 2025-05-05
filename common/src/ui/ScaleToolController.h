@@ -34,20 +34,19 @@ class RenderContext;
 namespace tb::ui
 {
 class MapDocument;
-class ScaleObjectsTool;
+class ScaleTool;
 
-class ScaleObjectsToolController : public ToolController
+class ScaleToolController : public ToolController
 {
 protected:
-  ScaleObjectsTool& m_tool;
+  ScaleTool& m_tool;
 
 private:
   std::weak_ptr<MapDocument> m_document;
 
 public:
-  explicit ScaleObjectsToolController(
-    ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
-  ~ScaleObjectsToolController() override;
+  explicit ScaleToolController(ScaleTool& tool, std::weak_ptr<MapDocument> document);
+  ~ScaleToolController() override;
 
 private:
   Tool& tool() override;
@@ -77,11 +76,10 @@ private:
     mdl::PickResult& pickResult) const = 0;
 };
 
-class ScaleObjectsToolController2D : public ScaleObjectsToolController
+class ScaleToolController2D : public ScaleToolController
 {
 public:
-  explicit ScaleObjectsToolController2D(
-    ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ScaleToolController2D(ScaleTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   void doPick(
@@ -90,11 +88,10 @@ private:
     mdl::PickResult& pickResult) const override;
 };
 
-class ScaleObjectsToolController3D : public ScaleObjectsToolController
+class ScaleToolController3D : public ScaleToolController
 {
 public:
-  explicit ScaleObjectsToolController3D(
-    ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ScaleToolController3D(ScaleTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   void doPick(

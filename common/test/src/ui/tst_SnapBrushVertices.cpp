@@ -31,7 +31,7 @@ namespace tb::ui
 TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244")
 {
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
 
   const auto brush = R"(
 // Game: Quake

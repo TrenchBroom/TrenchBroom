@@ -18,7 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ShearObjectsTool.h"
+#include "ShearTool.h"
 
 #include "Ensure.h"
 #include "mdl/Hit.h"
@@ -27,7 +27,7 @@
 #include "render/Camera.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
@@ -37,29 +37,28 @@
 namespace tb::ui
 {
 
-const mdl::HitType::Type ShearObjectsTool::ShearToolSideHitType =
-  mdl::HitType::freeType();
+const mdl::HitType::Type ShearTool::ShearToolSideHitType = mdl::HitType::freeType();
 
-ShearObjectsTool::ShearObjectsTool(std::weak_ptr<MapDocument> document)
+ShearTool::ShearTool(std::weak_ptr<MapDocument> document)
   : Tool{false}
   , m_document{std::move(document)}
 {
 }
 
-ShearObjectsTool::~ShearObjectsTool() = default;
+ShearTool::~ShearTool() = default;
 
-const Grid& ShearObjectsTool::grid() const
+const Grid& ShearTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }
 
-bool ShearObjectsTool::applies() const
+bool ShearTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
   return !document->selectedNodes().empty();
 }
 
-void ShearObjectsTool::pickBackSides(
+void ShearTool::pickBackSides(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -81,7 +80,7 @@ void ShearObjectsTool::pickBackSides(
   }
 }
 
-void ShearObjectsTool::pick2D(
+void ShearTool::pick2D(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -105,7 +104,7 @@ void ShearObjectsTool::pick2D(
   }
 }
 
-void ShearObjectsTool::pick3D(
+void ShearTool::pick3D(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -131,8 +130,8 @@ void ShearObjectsTool::pick3D(
     const auto poly = polygonForBBoxSide(myBounds, side);
 
     if (
-      const auto dist =
-        vm::intersect_ray_polygon(pickRay, std::begin(poly), std::end(poly)))
+      const auto dist = vm::intersect_ray_polygon(
+        pickRay, poly.vertices().begin(), poly.vertices().end()))
     {
       const auto hitPoint = vm::point_at_distance(pickRay, *dist);
       localPickResult.addHit(mdl::Hit{ShearToolSideHitType, *dist, hitPoint, side});
@@ -147,19 +146,19 @@ void ShearObjectsTool::pick3D(
   }
 }
 
-vm::bbox3d ShearObjectsTool::bounds() const
+vm::bbox3d ShearTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->selectionBounds();
 }
 
 // for rendering sheared bbox
-vm::bbox3d ShearObjectsTool::bboxAtDragStart() const
+vm::bbox3d ShearTool::bboxAtDragStart() const
 {
   return m_resizing ? m_bboxAtDragStart : bounds();
 }
 
-void ShearObjectsTool::startShearWithHit(const mdl::Hit& hit)
+void ShearTool::startShearWithHit(const mdl::Hit& hit)
 {
   ensure(hit.isMatch(), "must start with matching hit");
   ensure(hit.type() == ShearToolSideHitType, "wrong hit type");
@@ -174,7 +173,7 @@ void ShearObjectsTool::startShearWithHit(const mdl::Hit& hit)
   m_resizing = true;
 }
 
-void ShearObjectsTool::commitShear()
+void ShearTool::commitShear()
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -190,7 +189,7 @@ void ShearObjectsTool::commitShear()
   m_resizing = false;
 }
 
-void ShearObjectsTool::cancelShear()
+void ShearTool::cancelShear()
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -200,7 +199,7 @@ void ShearObjectsTool::cancelShear()
   m_resizing = false;
 }
 
-void ShearObjectsTool::shearByDelta(const vm::vec3d& delta)
+void ShearTool::shearByDelta(const vm::vec3d& delta)
 {
   ensure(m_resizing, "must be resizing already");
 
@@ -211,16 +210,16 @@ void ShearObjectsTool::shearByDelta(const vm::vec3d& delta)
   if (!vm::is_zero(delta, vm::Cd::almost_zero()))
   {
     const auto side = m_dragStartHit.target<BBoxSide>();
-    document->shearObjects(bounds(), side.normal, delta);
+    document->shear(bounds(), side.normal, delta);
   }
 }
 
-const mdl::Hit& ShearObjectsTool::dragStartHit() const
+const mdl::Hit& ShearTool::dragStartHit() const
 {
   return m_dragStartHit;
 }
 
-vm::mat4x4d ShearObjectsTool::bboxShearMatrix() const
+vm::mat4x4d ShearTool::bboxShearMatrix() const
 {
   // happens if you cmd+drag on an edge or corner
   if (!m_resizing || m_dragStartHit.type() != ShearToolSideHitType)
@@ -232,7 +231,7 @@ vm::mat4x4d ShearObjectsTool::bboxShearMatrix() const
   return vm::shear_bbox_matrix(m_bboxAtDragStart, side.normal, m_dragCumulativeDelta);
 }
 
-std::optional<vm::polygon3f> ShearObjectsTool::shearHandle() const
+std::optional<vm::polygon3f> ShearTool::shearHandle() const
 {
   // happens if you cmd+drag on an edge or corner
   if (m_dragStartHit.type() != ShearToolSideHitType)
@@ -249,7 +248,7 @@ std::optional<vm::polygon3f> ShearObjectsTool::shearHandle() const
   return vm::polygon3f{handle};
 }
 
-void ShearObjectsTool::updatePickedSide(const mdl::PickResult& pickResult)
+void ShearTool::updatePickedSide(const mdl::PickResult& pickResult)
 {
   using namespace mdl::HitFilters;
 
@@ -270,12 +269,12 @@ void ShearObjectsTool::updatePickedSide(const mdl::PickResult& pickResult)
   refreshViews();
 }
 
-bool ShearObjectsTool::constrainVertical() const
+bool ShearTool::constrainVertical() const
 {
   return m_constrainVertical;
 }
 
-void ShearObjectsTool::setConstrainVertical(const bool constrainVertical)
+void ShearTool::setConstrainVertical(const bool constrainVertical)
 {
   m_constrainVertical = constrainVertical;
 }

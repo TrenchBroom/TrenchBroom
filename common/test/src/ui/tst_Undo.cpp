@@ -55,7 +55,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
   SECTION("translate brush")
   {
     document->selectNodes({brushNode});
-    document->translateObjects(vm::vec3d(1, 1, 1));
+    document->translate(vm::vec3d(1, 1, 1));
     CHECK(material->usageCount() == 6u);
 
     document->undoCommand();
@@ -65,7 +65,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
   SECTION("delete brush")
   {
     document->selectNodes({brushNode});
-    document->deleteObjects();
+    document->remove();
     CHECK(material->usageCount() == 0u);
 
     document->undoCommand();
@@ -108,7 +108,7 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.undoRotation")
   CHECK(!entityNode->entity().hasProperty("angle"));
 
   document->selectNodes({entityNode});
-  document->rotateObjects(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
+  document->rotate(vm::vec3d{0, 0, 0}, vm::vec3d{0, 0, 1}, vm::to_radians(15.0));
   CHECK(entityNode->entity().hasProperty("angle"));
   CHECK(*entityNode->entity().property("angle") == "15");
 

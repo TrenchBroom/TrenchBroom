@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScaleObjectsToolPage.h"
+#include "ScaleToolPage.h"
 
 #include <QComboBox>
 #include <QHBoxLayout>
@@ -29,7 +29,7 @@
 
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 #include "ui/ViewConstants.h"
 
 #include "kdl/memory_utils.h"
@@ -42,8 +42,7 @@
 namespace tb::ui
 {
 
-ScaleObjectsToolPage::ScaleObjectsToolPage(
-  std::weak_ptr<MapDocument> document, QWidget* parent)
+ScaleToolPage::ScaleToolPage(std::weak_ptr<MapDocument> document, QWidget* parent)
   : QWidget{parent}
   , m_document{std::move(document)}
 {
@@ -52,14 +51,14 @@ ScaleObjectsToolPage::ScaleObjectsToolPage(
   updateGui();
 }
 
-void ScaleObjectsToolPage::connectObservers()
+void ScaleToolPage::connectObservers()
 {
   auto document = kdl::mem_lock(m_document);
   m_notifierConnection += document->selectionDidChangeNotifier.connect(
-    this, &ScaleObjectsToolPage::selectionDidChange);
+    this, &ScaleToolPage::selectionDidChange);
 }
 
-void ScaleObjectsToolPage::activate()
+void ScaleToolPage::activate()
 {
   const auto document = kdl::mem_lock(m_document);
   const auto suggestedSize = document->hasSelectedNodes()
@@ -70,7 +69,7 @@ void ScaleObjectsToolPage::activate()
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
 }
 
-void ScaleObjectsToolPage::createGui()
+void ScaleToolPage::createGui()
 {
   auto document = kdl::mem_lock(m_document);
 
@@ -82,10 +81,8 @@ void ScaleObjectsToolPage::createGui()
   m_book->addWidget(m_sizeTextBox);
   m_book->addWidget(m_factorsTextBox);
 
-  connect(
-    m_sizeTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::applyScale);
-  connect(
-    m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleObjectsToolPage::applyScale);
+  connect(m_sizeTextBox, &QLineEdit::returnPressed, this, &ScaleToolPage::applyScale);
+  connect(m_factorsTextBox, &QLineEdit::returnPressed, this, &ScaleToolPage::applyScale);
 
   m_scaleFactorsOrSize = new QComboBox{};
   m_scaleFactorsOrSize->addItem(tr("to size"));
@@ -99,7 +96,7 @@ void ScaleObjectsToolPage::createGui()
     &QStackedLayout::setCurrentIndex);
 
   m_button = new QPushButton(tr("Apply"));
-  connect(m_button, &QAbstractButton::clicked, this, &ScaleObjectsToolPage::applyScale);
+  connect(m_button, &QAbstractButton::clicked, this, &ScaleToolPage::applyScale);
 
   auto* layout = new QHBoxLayout{};
   layout->setContentsMargins(0, 0, 0, 0);
@@ -114,18 +111,18 @@ void ScaleObjectsToolPage::createGui()
   setLayout(layout);
 }
 
-void ScaleObjectsToolPage::updateGui()
+void ScaleToolPage::updateGui()
 {
   auto document = kdl::mem_lock(m_document);
   m_button->setEnabled(canScale());
 }
 
-bool ScaleObjectsToolPage::canScale() const
+bool ScaleToolPage::canScale() const
 {
   return kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-std::optional<vm::vec3d> ScaleObjectsToolPage::getScaleFactors() const
+std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
 {
   switch (m_scaleFactorsOrSize->currentIndex())
   {
@@ -142,12 +139,12 @@ std::optional<vm::vec3d> ScaleObjectsToolPage::getScaleFactors() const
   }
 }
 
-void ScaleObjectsToolPage::selectionDidChange(const Selection&)
+void ScaleToolPage::selectionDidChange(const Selection&)
 {
   updateGui();
 }
 
-void ScaleObjectsToolPage::applyScale()
+void ScaleToolPage::applyScale()
 {
   if (canScale())
   {
@@ -155,7 +152,7 @@ void ScaleObjectsToolPage::applyScale()
     {
       auto document = kdl::mem_lock(m_document);
       const auto box = document->selectionBounds();
-      document->scaleObjects(box.center(), *scaleFactors);
+      document->scale(box.center(), *scaleFactors);
     }
   }
 }

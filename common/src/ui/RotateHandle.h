@@ -36,7 +36,7 @@ class RenderContext;
 
 namespace tb::ui
 {
-class RotateObjectsHandle
+class RotateHandle
 {
 public:
   static const mdl::HitType::Type HandleHitType;
@@ -134,7 +134,7 @@ private:
   Handle3D m_handle3D;
 
 public:
-  RotateObjectsHandle();
+  RotateHandle();
 
   const vm::vec3d& position() const;
   void setPosition(const vm::vec3d& position);

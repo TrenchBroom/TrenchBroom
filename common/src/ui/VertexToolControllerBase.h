@@ -65,24 +65,12 @@ protected:
     virtual ~PartBase() = default;
 
   protected:
-    mdl::Hit findDraggableHandle(const InputState& inputState) const
-    {
-      return doFindDraggableHandle(inputState);
-    }
-
-    std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const
-    {
-      return doFindDraggableHandles(inputState);
-    }
-
-  private:
-    virtual mdl::Hit doFindDraggableHandle(const InputState& inputState) const
+    virtual mdl::Hit findDraggableHandle(const InputState& inputState) const
     {
       return findDraggableHandle(inputState, m_hitType);
     }
 
-    virtual std::vector<mdl::Hit> doFindDraggableHandles(
-      const InputState& inputState) const
+    virtual std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const
     {
       return findDraggableHandles(inputState, m_hitType);
     }

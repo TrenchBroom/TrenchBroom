@@ -17,15 +17,15 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "RotateObjectsTool.h"
+#include "RotateTool.h"
 
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Hit.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
-#include "ui/RotateObjectsHandle.h"
-#include "ui/RotateObjectsToolPage.h"
+#include "ui/RotateHandle.h"
+#include "ui/RotateToolPage.h"
 #include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
@@ -33,51 +33,51 @@
 namespace tb::ui
 {
 
-RotateObjectsTool::RotateObjectsTool(std::weak_ptr<MapDocument> document)
+RotateTool::RotateTool(std::weak_ptr<MapDocument> document)
   : Tool{false}
   , m_document{std::move(document)}
 {
 }
 
-bool RotateObjectsTool::doActivate()
+bool RotateTool::doActivate()
 {
   resetRotationCenter();
   return true;
 }
 
-const Grid& RotateObjectsTool::grid() const
+const Grid& RotateTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }
 
-void RotateObjectsTool::updateToolPageAxis(const RotateObjectsHandle::HitArea area)
+void RotateTool::updateToolPageAxis(const RotateHandle::HitArea area)
 {
   handleHitAreaDidChangeNotifier(area);
 }
 
-double RotateObjectsTool::angle() const
+double RotateTool::angle() const
 {
   return m_angle;
 }
 
-void RotateObjectsTool::setAngle(const double angle)
+void RotateTool::setAngle(const double angle)
 {
   m_angle = angle;
 }
 
-vm::vec3d RotateObjectsTool::rotationCenter() const
+vm::vec3d RotateTool::rotationCenter() const
 {
   return m_handle.position();
 }
 
-void RotateObjectsTool::setRotationCenter(const vm::vec3d& position)
+void RotateTool::setRotationCenter(const vm::vec3d& position)
 {
   m_handle.setPosition(position);
   rotationCenterDidChangeNotifier(position);
   refreshViews();
 }
 
-void RotateObjectsTool::resetRotationCenter()
+void RotateTool::resetRotationCenter()
 {
   auto document = kdl::mem_lock(m_document);
   const auto selectedNodes = document->selectedNodes();
@@ -94,94 +94,94 @@ void RotateObjectsTool::resetRotationCenter()
   }
 }
 
-double RotateObjectsTool::majorHandleRadius(const render::Camera& camera) const
+double RotateTool::majorHandleRadius(const render::Camera& camera) const
 {
   return m_handle.majorHandleRadius(camera);
 }
 
-double RotateObjectsTool::minorHandleRadius(const render::Camera& camera) const
+double RotateTool::minorHandleRadius(const render::Camera& camera) const
 {
   return m_handle.minorHandleRadius(camera);
 }
 
-void RotateObjectsTool::beginRotation()
+void RotateTool::beginRotation()
 {
   auto document = kdl::mem_lock(m_document);
   document->startTransaction("Rotate Objects", TransactionScope::LongRunning);
 }
 
-void RotateObjectsTool::commitRotation()
+void RotateTool::commitRotation()
 {
   auto document = kdl::mem_lock(m_document);
   document->commitTransaction();
   rotationCenterWasUsedNotifier(rotationCenter());
 }
 
-void RotateObjectsTool::cancelRotation()
+void RotateTool::cancelRotation()
 {
   auto document = kdl::mem_lock(m_document);
   document->cancelTransaction();
 }
 
-double RotateObjectsTool::snapRotationAngle(const double angle) const
+double RotateTool::snapRotationAngle(const double angle) const
 {
   auto document = kdl::mem_lock(m_document);
   return document->grid().snapAngle(angle);
 }
 
-void RotateObjectsTool::applyRotation(
+void RotateTool::applyRotation(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   auto document = kdl::mem_lock(m_document);
   document->rollbackTransaction();
-  document->rotateObjects(center, axis, angle);
+  document->rotate(center, axis, angle);
 }
 
-mdl::Hit RotateObjectsTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
+mdl::Hit RotateTool::pick2D(const vm::ray3d& pickRay, const render::Camera& camera)
 {
   return m_handle.pick2D(pickRay, camera);
 }
 
-mdl::Hit RotateObjectsTool::pick3D(const vm::ray3d& pickRay, const render::Camera& camera)
+mdl::Hit RotateTool::pick3D(const vm::ray3d& pickRay, const render::Camera& camera)
 {
   return m_handle.pick3D(pickRay, camera);
 }
 
-vm::vec3d RotateObjectsTool::rotationAxis(const RotateObjectsHandle::HitArea area) const
+vm::vec3d RotateTool::rotationAxis(const RotateHandle::HitArea area) const
 {
   return m_handle.rotationAxis(area);
 }
 
-void RotateObjectsTool::renderHandle2D(
+void RotateTool::renderHandle2D(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle.renderHandle2D(renderContext, renderBatch);
 }
 
-void RotateObjectsTool::renderHandle3D(
+void RotateTool::renderHandle3D(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   m_handle.renderHandle3D(renderContext, renderBatch);
 }
 
-void RotateObjectsTool::renderHighlight2D(
+void RotateTool::renderHighlight2D(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
-  const RotateObjectsHandle::HitArea area)
+  const RotateHandle::HitArea area)
 {
   m_handle.renderHighlight2D(renderContext, renderBatch, area);
 }
-void RotateObjectsTool::renderHighlight3D(
+void RotateTool::renderHighlight3D(
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch,
-  const RotateObjectsHandle::HitArea area)
+  const RotateHandle::HitArea area)
 {
   m_handle.renderHighlight3D(renderContext, renderBatch, area);
 }
 
-QWidget* RotateObjectsTool::doCreatePage(QWidget* parent)
+QWidget* RotateTool::doCreatePage(QWidget* parent)
 {
-  return new RotateObjectsToolPage{m_document, *this, parent};
+  return new RotateToolPage{m_document, *this, parent};
 }
 
 } // namespace tb::ui

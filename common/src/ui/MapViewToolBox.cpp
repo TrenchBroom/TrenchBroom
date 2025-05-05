@@ -29,9 +29,9 @@
 #include "ui/FaceTool.h"
 #include "ui/MapDocument.h"
 #include "ui/MoveObjectsTool.h"
-#include "ui/RotateObjectsTool.h"
-#include "ui/ScaleObjectsTool.h"
-#include "ui/ShearObjectsTool.h"
+#include "ui/RotateTool.h"
+#include "ui/ScaleTool.h"
+#include "ui/ShearTool.h"
 #include "ui/VertexTool.h"
 
 namespace tb::ui
@@ -77,19 +77,19 @@ ExtrudeTool& MapViewToolBox::extrudeTool()
   return *m_extrudeTool;
 }
 
-RotateObjectsTool& MapViewToolBox::rotateObjectsTool()
+RotateTool& MapViewToolBox::rotateTool()
 {
-  return *m_rotateObjectsTool;
+  return *m_rotateTool;
 }
 
-ScaleObjectsTool& MapViewToolBox::scaleObjectsTool()
+ScaleTool& MapViewToolBox::scaleTool()
 {
-  return *m_scaleObjectsTool;
+  return *m_scaleTool;
 }
 
-ShearObjectsTool& MapViewToolBox::shearObjectsTool()
+ShearTool& MapViewToolBox::shearTool()
 {
-  return *m_shearObjectsTool;
+  return *m_shearTool;
 }
 
 VertexTool& MapViewToolBox::vertexTool()
@@ -150,53 +150,53 @@ void MapViewToolBox::removeLastClipPoint()
   m_clipTool->removeLastPoint();
 }
 
-void MapViewToolBox::toggleRotateObjectsTool()
+void MapViewToolBox::toggleRotateTool()
 {
-  toggleTool(rotateObjectsTool());
+  toggleTool(rotateTool());
 }
 
-bool MapViewToolBox::rotateObjectsToolActive() const
+bool MapViewToolBox::rotateToolActive() const
 {
-  return m_rotateObjectsTool->active();
+  return m_rotateTool->active();
 }
 
 double MapViewToolBox::rotateToolAngle() const
 {
-  assert(rotateObjectsToolActive());
-  return m_rotateObjectsTool->angle();
+  assert(rotateToolActive());
+  return m_rotateTool->angle();
 }
 
 vm::vec3d MapViewToolBox::rotateToolCenter() const
 {
-  assert(rotateObjectsToolActive());
-  return m_rotateObjectsTool->rotationCenter();
+  assert(rotateToolActive());
+  return m_rotateTool->rotationCenter();
 }
 
 void MapViewToolBox::moveRotationCenter(const vm::vec3d& delta)
 {
-  assert(rotateObjectsToolActive());
-  const vm::vec3d center = m_rotateObjectsTool->rotationCenter();
-  m_rotateObjectsTool->setRotationCenter(center + delta);
+  assert(rotateToolActive());
+  const vm::vec3d center = m_rotateTool->rotationCenter();
+  m_rotateTool->setRotationCenter(center + delta);
 }
 
-void MapViewToolBox::toggleScaleObjectsTool()
+void MapViewToolBox::toggleScaleTool()
 {
-  toggleTool(scaleObjectsTool());
+  toggleTool(scaleTool());
 }
 
-bool MapViewToolBox::scaleObjectsToolActive() const
+bool MapViewToolBox::scaleToolActive() const
 {
-  return m_scaleObjectsTool->active();
+  return m_scaleTool->active();
 }
 
-void MapViewToolBox::toggleShearObjectsTool()
+void MapViewToolBox::toggleShearTool()
 {
-  toggleTool(shearObjectsTool());
+  toggleTool(shearTool());
 }
 
-bool MapViewToolBox::shearObjectsToolActive() const
+bool MapViewToolBox::shearToolActive() const
 {
-  return m_shearObjectsTool->active();
+  return m_shearTool->active();
 }
 
 bool MapViewToolBox::anyVertexToolActive() const
@@ -234,6 +234,12 @@ bool MapViewToolBox::faceToolActive() const
   return m_faceTool->active();
 }
 
+bool MapViewToolBox::anyModalToolActive() const
+{
+  return rotateToolActive() || scaleToolActive() || shearToolActive()
+         || anyVertexToolActive();
+}
+
 void MapViewToolBox::moveVertices(const vm::vec3d& delta)
 {
   assert(anyVertexToolActive());
@@ -259,42 +265,39 @@ void MapViewToolBox::createTools(QStackedLayout* bookCtrl)
   m_drawShapeTool = std::make_unique<DrawShapeTool>(m_document);
   m_moveObjectsTool = std::make_unique<MoveObjectsTool>(m_document);
   m_extrudeTool = std::make_unique<ExtrudeTool>(m_document);
-  m_rotateObjectsTool = std::make_unique<RotateObjectsTool>(m_document);
-  m_scaleObjectsTool = std::make_unique<ScaleObjectsTool>(m_document);
-  m_shearObjectsTool = std::make_unique<ShearObjectsTool>(m_document);
+  m_rotateTool = std::make_unique<RotateTool>(m_document);
+  m_scaleTool = std::make_unique<ScaleTool>(m_document);
+  m_shearTool = std::make_unique<ShearTool>(m_document);
   m_vertexTool = std::make_unique<VertexTool>(m_document);
   m_edgeTool = std::make_unique<EdgeTool>(m_document);
   m_faceTool = std::make_unique<FaceTool>(m_document);
 
-  suppressWhileActive(moveObjectsTool(), assembleBrushTool());
-  suppressWhileActive(extrudeTool(), assembleBrushTool());
-  suppressWhileActive(drawShapeTool(), assembleBrushTool());
-  suppressWhileActive(moveObjectsTool(), rotateObjectsTool());
-  suppressWhileActive(extrudeTool(), rotateObjectsTool());
-  suppressWhileActive(drawShapeTool(), rotateObjectsTool());
-  suppressWhileActive(moveObjectsTool(), scaleObjectsTool());
-  suppressWhileActive(extrudeTool(), scaleObjectsTool());
-  suppressWhileActive(drawShapeTool(), scaleObjectsTool());
-  suppressWhileActive(moveObjectsTool(), shearObjectsTool());
-  suppressWhileActive(extrudeTool(), shearObjectsTool());
-  suppressWhileActive(drawShapeTool(), shearObjectsTool());
-  suppressWhileActive(moveObjectsTool(), vertexTool());
-  suppressWhileActive(extrudeTool(), vertexTool());
-  suppressWhileActive(drawShapeTool(), vertexTool());
-  suppressWhileActive(moveObjectsTool(), edgeTool());
-  suppressWhileActive(extrudeTool(), edgeTool());
-  suppressWhileActive(drawShapeTool(), edgeTool());
-  suppressWhileActive(moveObjectsTool(), faceTool());
-  suppressWhileActive(extrudeTool(), faceTool());
-  suppressWhileActive(drawShapeTool(), faceTool());
-  suppressWhileActive(moveObjectsTool(), clipTool());
-  suppressWhileActive(extrudeTool(), clipTool());
-  suppressWhileActive(drawShapeTool(), clipTool());
+  addExclusiveToolGroup(
+    assembleBrushTool(),
+    rotateTool(),
+    scaleTool(),
+    shearTool(),
+    edgeTool(),
+    faceTool(),
+    clipTool());
+
+  addExclusiveToolGroup(
+    assembleBrushTool(), vertexTool(), edgeTool(), faceTool(), clipTool());
+
+  suppressWhileActive(
+    assembleBrushTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(rotateTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(scaleTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(shearTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(vertexTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(edgeTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(faceTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
+  suppressWhileActive(clipTool(), moveObjectsTool(), extrudeTool(), drawShapeTool());
 
   registerTool(moveObjectsTool(), bookCtrl);
-  registerTool(rotateObjectsTool(), bookCtrl);
-  registerTool(scaleObjectsTool(), bookCtrl);
-  registerTool(shearObjectsTool(), bookCtrl);
+  registerTool(rotateTool(), bookCtrl);
+  registerTool(scaleTool(), bookCtrl);
+  registerTool(shearTool(), bookCtrl);
   registerTool(extrudeTool(), bookCtrl);
   registerTool(assembleBrushTool(), bookCtrl);
   registerTool(clipTool(), bookCtrl);
@@ -360,10 +363,33 @@ void MapViewToolBox::selectionDidChange(const Selection&)
 
 void MapViewToolBox::updateToolPage()
 {
-  auto document = kdl::mem_lock(m_document);
-  if (auto* activeTool = this->activeTool())
+  if (rotateToolActive())
   {
-    activeTool->showPage();
+    rotateTool().showPage();
+  }
+  else if (scaleToolActive())
+  {
+    scaleTool().showPage();
+  }
+  else if (shearToolActive())
+  {
+    shearTool().showPage();
+  }
+  else if (vertexToolActive())
+  {
+    vertexTool().showPage();
+  }
+  else if (edgeToolActive())
+  {
+    edgeTool().showPage();
+  }
+  else if (faceToolActive())
+  {
+    faceTool().showPage();
+  }
+  else if (clipToolActive())
+  {
+    clipTool().showPage();
   }
   else
   {

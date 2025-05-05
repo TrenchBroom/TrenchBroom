@@ -35,20 +35,19 @@ namespace tb::ui
 {
 class GestureTracker;
 class MapDocument;
-class ShearObjectsTool;
+class ShearTool;
 
-class ShearObjectsToolController : public ToolController
+class ShearToolController : public ToolController
 {
 protected:
-  ShearObjectsTool& m_tool;
+  ShearTool& m_tool;
 
 private:
   std::weak_ptr<MapDocument> m_document;
 
 public:
-  explicit ShearObjectsToolController(
-    ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
-  ~ShearObjectsToolController() override;
+  explicit ShearToolController(ShearTool& tool, std::weak_ptr<MapDocument> document);
+  ~ShearToolController() override;
 
 private:
   Tool& tool() override;
@@ -75,11 +74,10 @@ private:
   bool cancel() override;
 };
 
-class ShearObjectsToolController2D : public ShearObjectsToolController
+class ShearToolController2D : public ShearToolController
 {
 public:
-  explicit ShearObjectsToolController2D(
-    ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ShearToolController2D(ShearTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   void doPick(
@@ -88,11 +86,10 @@ private:
     mdl::PickResult& pickResult) override;
 };
 
-class ShearObjectsToolController3D : public ShearObjectsToolController
+class ShearToolController3D : public ShearToolController
 {
 public:
-  explicit ShearObjectsToolController3D(
-    ShearObjectsTool& tool, std::weak_ptr<MapDocument> document);
+  explicit ShearToolController3D(ShearTool& tool, std::weak_ptr<MapDocument> document);
 
 private:
   void doPick(

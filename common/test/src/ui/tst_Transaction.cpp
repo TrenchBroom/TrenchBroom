@@ -32,7 +32,7 @@ namespace tb::ui
 TEST_CASE_METHOD(MapDocumentTest, "Transaction")
 {
   document->selectAllNodes();
-  document->deleteObjects();
+  document->remove();
   document->selectAllNodes();
 
   REQUIRE(document->selectedNodes().empty());
@@ -44,7 +44,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
 
   document->addNodes({{document->parentForNodes(), {entityNode}}});
   document->selectNodes({entityNode});
-  document->transformObjects("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
+  document->transform("translate", vm::translation_matrix(vm::vec3d{1, 0, 0}));
 
   REQUIRE(transaction.state() == Transaction::State::Running);
   REQUIRE(entityNode->entity().origin() == vm::vec3d{1, 0, 0});

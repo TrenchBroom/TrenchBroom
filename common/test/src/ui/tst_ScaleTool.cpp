@@ -18,14 +18,14 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 
 #include "Catch2.h"
 
 namespace tb::ui
 {
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional")
+TEST_CASE("ScaleToolTest.moveBBoxFace_NonProportional")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -83,7 +83,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_NonProportional")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional")
+TEST_CASE("ScaleToolTest.moveBBoxFace_Proportional")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -142,7 +142,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxFace_Proportional")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner")
+TEST_CASE("ScaleToolTest.moveBBoxCorner")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -176,7 +176,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxCorner")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional")
+TEST_CASE("ScaleToolTest.moveBBoxEdge_NonProportional")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -236,7 +236,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional_NegY")
+TEST_CASE("ScaleToolTest.moveBBoxEdge_NonProportional_NegY")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -265,7 +265,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_NonProportional_NegY")
     == exp2);
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional")
+TEST_CASE("ScaleToolTest.moveBBoxEdge_Proportional")
 {
   const auto input1 = vm::bbox3d{{-100, -100, -100}, {100, 100, 100}};
 
@@ -324,7 +324,7 @@ TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge_Proportional")
           .is_empty());
 }
 
-TEST_CASE("ScaleObjectsToolTest.moveBBoxEdge")
+TEST_CASE("ScaleToolTest.moveBBoxEdge")
 {
   const auto input1 = vm::bbox3d{{-64, -64, -16}, {64, 64, 16}};
 

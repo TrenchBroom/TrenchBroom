@@ -154,7 +154,7 @@ TEST_CASE("polygon.get_vertices")
   const auto ps = std::vector<polygon3d>{p1, p2};
 
   auto exp = p1.vertices();
-  exp.insert(std::end(exp), std::begin(p2), std::end(p2));
+  exp.insert(std::end(exp), p2.vertices().begin(), p2.vertices().end());
 
   auto act = std::vector<vec3d>();
   polygon3d::get_vertices(std::begin(ps), std::end(ps), std::back_inserter(act));

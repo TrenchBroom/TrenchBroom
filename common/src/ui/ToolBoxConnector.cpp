@@ -81,9 +81,9 @@ void ToolBoxConnector::setToolBox(ToolBox& toolBox)
   m_toolBox = &toolBox;
 }
 
-void ToolBoxConnector::addTool(std::unique_ptr<ToolController> tool)
+void ToolBoxConnector::addToolController(std::unique_ptr<ToolController> toolController)
 {
-  m_toolChain->append(std::move(tool));
+  m_toolChain->append(std::move(toolController));
 }
 
 bool ToolBoxConnector::dragEnter(const float x, const float y, const std::string& text)
