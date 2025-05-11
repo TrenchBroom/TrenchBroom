@@ -43,7 +43,7 @@ namespace
 struct EntityDefinitionInfo
 {
   EntityDefinitionType type;
-  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions;
+  std::vector<PropertyDefinition> propertyDefinitions;
   vm::bbox3d bounds = vm::bbox3d{16.0};
 };
 
@@ -80,7 +80,7 @@ TEST_CASE("entityRotationInfo")
   using namespace mdl;
 
   auto manglePropertyDef =
-    std::make_shared<StringPropertyDefinition>("mangle", "", "", false);
+    PropertyDefinition{"mangle", PropertyValueTypes::String{}, "", ""};
   auto normalPitch = EntityModel{
     "",
     createEntityModelDataResource(

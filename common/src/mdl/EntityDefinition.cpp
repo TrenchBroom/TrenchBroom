@@ -28,7 +28,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -89,13 +88,12 @@ void EntityDefinition::decUsageCount()
   assertResult((m_usageCount--) > 0);
 }
 
-const FlagsPropertyDefinition* EntityDefinition::spawnflags() const
+const PropertyDefinition* EntityDefinition::spawnflags() const
 {
   return safeGetFlagsPropertyDefinition(this, mdl::EntityPropertyKeys::Spawnflags);
 }
 
-const std::vector<std::shared_ptr<PropertyDefinition>>& EntityDefinition::
-  propertyDefinitions() const
+const std::vector<PropertyDefinition>& EntityDefinition::propertyDefinitions() const
 {
   return m_propertyDefinitions;
 }
@@ -119,12 +117,12 @@ const PropertyDefinition* EntityDefinition::safeGetPropertyDefinition(
     propertyDefinitions.begin(),
     propertyDefinitions.end(),
     [&](const auto& propertyDefinition) {
-      return propertyDefinition->key() == propertyKey;
+      return propertyDefinition.key == propertyKey;
     });
-  return it != propertyDefinitions.end() ? it->get() : nullptr;
+  return it != propertyDefinitions.end() ? &*it : nullptr;
 }
 
-const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
+const PropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
   const EntityDefinition* entityDefinition, const std::string& propertyKey)
 {
   if (entityDefinition == nullptr)
@@ -137,12 +135,11 @@ const FlagsPropertyDefinition* EntityDefinition::safeGetFlagsPropertyDefinition(
     propertyDefinitions.begin(),
     propertyDefinitions.end(),
     [&](const auto& propertyDefinition) {
-      return propertyDefinition->type() == PropertyDefinitionType::FlagsProperty
-             && propertyDefinition->key() == propertyKey;
+      return std::holds_alternative<PropertyValueTypes::Flags>(
+               propertyDefinition.valueType)
+             && propertyDefinition.key == propertyKey;
     });
-  return it != propertyDefinitions.end()
-           ? static_cast<FlagsPropertyDefinition*>(it->get())
-           : nullptr;
+  return it != propertyDefinitions.end() ? &*it : nullptr;
 }
 
 std::vector<EntityDefinition*> EntityDefinition::filterAndSort(
@@ -174,7 +171,7 @@ EntityDefinition::EntityDefinition(
   std::string name,
   const Color& color,
   std::string description,
-  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions)
+  std::vector<PropertyDefinition> propertyDefinitions)
   : m_index{0}
   , m_name{std::move(name)}
   , m_color{color}
@@ -189,7 +186,7 @@ PointEntityDefinition::PointEntityDefinition(
   const Color& color,
   const vm::bbox3d& bounds,
   std::string description,
-  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
+  std::vector<PropertyDefinition> propertyDefinitions,
   ModelDefinition modelDefinition,
   DecalDefinition decalDefinition)
   : EntityDefinition{std::move(name), color, std::move(description), std::move(propertyDefinitions)}
@@ -223,7 +220,7 @@ BrushEntityDefinition::BrushEntityDefinition(
   std::string name,
   const Color& color,
   std::string description,
-  std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions)
+  std::vector<PropertyDefinition> propertyDefinitions)
   : EntityDefinition{
       std::move(name), color, std::move(description), std::move(propertyDefinitions)}
 {

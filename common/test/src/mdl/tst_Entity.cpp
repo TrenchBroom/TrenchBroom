@@ -24,8 +24,6 @@
 #include "mdl/EntityProperties.h"
 #include "mdl/PropertyDefinition.h"
 
-#include "kdl/k.h"
-
 #include "vm/bbox.h"
 #include "vm/mat.h"
 #include "vm/mat_ext.h"
@@ -90,9 +88,8 @@ TEST_CASE("EntityTest")
       vm::bbox3d{32.0},
       "",
       {
-        std::make_shared<StringPropertyDefinition>("some_prop", "", "", !K(readOnly)),
-        std::make_shared<StringPropertyDefinition>(
-          "some_default_prop", "", "", !K(readOnly), "value"),
+        {"some_prop", PropertyValueTypes::String{}, "", ""},
+        {"some_default_prop", PropertyValueTypes::String{"value"}, "", ""},
       },
       {},
       {}};

@@ -31,21 +31,7 @@
 
 namespace tb::io
 {
-namespace
-{
-
-void assertPropertyDefinition(
-  const std::string& key,
-  const mdl::PropertyDefinitionType expectedType,
-  const mdl::EntityDefinition* entityDefinition)
-{
-  const auto* propDefinition = entityDefinition->propertyDefinition(key);
-  CHECK(propDefinition != nullptr);
-
-  CHECK(propDefinition->type() == expectedType);
-}
-
-} // namespace
+using namespace mdl::PropertyValueTypes;
 
 TEST_CASE("EntParser")
 {
@@ -183,50 +169,19 @@ Updated: 2011-03-02
       pointDefinition->bounds(),
       0.01));
 
-    CHECK(pointDefinition->propertyDefinitions().size() == 3u);
-
-    const auto* angleDefinition = pointDefinition->propertyDefinition("angle");
-    CHECK(angleDefinition != nullptr);
-
-    CHECK(angleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    CHECK(angleDefinition->key() == "angle");
-
-    CHECK(angleDefinition->shortDescription() == "Yaw Angle");
-
-      "Expected property definition's long description to match element text");
-      CHECK(angleDefinition->longDescription() == "Rotation angle of the sky surfaces.");
-
-      const auto* anglesDefinition = pointDefinition->propertyDefinition("angles");
-      CHECK(anglesDefinition != nullptr);
-
-      CHECK(anglesDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
-
-      CHECK(anglesDefinition->key() == "angles");
-
-      CHECK(anglesDefinition->shortDescription() == "Pitch Yaw Roll");
-
-      "Expected property definition's long description to match element text");
-      CHECK(
-        anglesDefinition->longDescription()
-        == "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
-
-      const auto* scaleDefinition = dynamic_cast<const mdl::FloatPropertyDefinition*>(
-        pointDefinition->propertyDefinition("_scale"));
-      CHECK(scaleDefinition != nullptr);
-
-      CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::FloatProperty);
-
-      CHECK(scaleDefinition->key() == "_scale");
-
-      CHECK(scaleDefinition->shortDescription() == "Scale");
-
-      CHECK(scaleDefinition->defaultValue() == 64.0f);
-
-      "Expected property definition's long description to match element text");
-      CHECK(
-    scaleDefinition->longDescription()
-    == "Scaling factor (default 64), good values are between 50 and 300, depending on the map.");
+    CHECK(
+      pointDefinition->propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"angle", Unknown{}, "Yaw Angle", R"(Rotation angle of the sky surfaces.)"},
+        {"angles",
+         Unknown{},
+         "Pitch Yaw Roll",
+         R"(Individual control of PITCH, YAW, and ROLL (default 0 0 0).)"},
+        {"_scale",
+         Float{64.0f},
+         "Scale",
+         R"(Scaling factor (default 64), good values are between 50 and 300, depending on the map.)"},
+      });
   }
 
   SECTION("parseSimpleGroupEntityDefinition")
@@ -277,31 +232,40 @@ Target this entity with a misc_model to have the model attached to the entity (s
 
     CHECK(vm::is_equal(Color{0.0f, 0.4f, 1.0f}, brushDefinition->color(), 0.01f));
 
-    CHECK(brushDefinition->propertyDefinitions().size() == 7u);
-    assertPropertyDefinition(
-      "noise", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-    assertPropertyDefinition(
-      "model2", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-    assertPropertyDefinition(
-      "color", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-    assertPropertyDefinition(
-      "targetname", mdl::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
-    assertPropertyDefinition(
-      "_castshadows", mdl::PropertyDefinitionType::IntegerProperty, brushDefinition);
-    assertPropertyDefinition(
-      "_celshader", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-    assertPropertyDefinition(
-      "spawnflags", mdl::PropertyDefinitionType::FlagsProperty, brushDefinition);
-
-    const auto* spawnflags = brushDefinition->spawnflags();
-    CHECK(spawnflags != nullptr);
-    CHECK(spawnflags->defaultValue() == 0);
-
     CHECK(
-      spawnflags->options()
-      == std::vector<mdl::FlagsPropertyOption>{
-        {1, "X_AXIS", "X Axis", false},
-        {2, "Y_AXIS", "Y Axis", false},
+      brushDefinition->propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"spawnflags",
+         Flags{{
+           {1, "X_AXIS", "X Axis"},
+           {2, "Y_AXIS", "Y Axis"},
+         }},
+         "",
+         ""},
+        {"noise",
+         Unknown{},
+         "Sound File",
+         R"(Path/name of .wav file to play. Use looping sounds only (e.g. sound/world/drone6.wav - see notes).)"},
+        {"model2",
+         Unknown{},
+         "Model File",
+         R"(Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).)"},
+        {"color",
+         Unknown{"1 1 1"},
+         "Model Light Color",
+         R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
+        {"targetname",
+         TargetSource{},
+         "Target Name",
+         R"(Used to attach a misc_model entity to this entity.)"},
+        {"_castshadows",
+         Integer{0},
+         "Shadow Caster Level",
+         R"(Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.)"},
+        {"_celshader",
+         Unknown{},
+         "Cel Shader",
+         R"(Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.)"},
       });
   }
 
@@ -339,18 +303,19 @@ Target this entity with a misc_model to have the model attached to the entity (s
       dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
     CHECK(pointDefinition != nullptr);
 
-    CHECK(pointDefinition->propertyDefinitions().size() == 1u);
-
-    const auto* colorIndexDefinition = dynamic_cast<const mdl::ChoicePropertyDefinition*>(
-      pointDefinition->propertyDefinition("count"));
-    CHECK(colorIndexDefinition != nullptr);
-
-    CHECK(colorIndexDefinition->type() == mdl::PropertyDefinitionType::ChoiceProperty);
-
-    CHECK(colorIndexDefinition->shortDescription() == "Text Color");
-
-    const auto expectedDescription =
-      R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
+    CHECK(
+      pointDefinition->propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"count",
+         Choice{
+           {
+             {"0", "white"},
+             {"1", "red"},
+             {"2", "green"},
+           },
+           "0"},
+         "Text Color",
+         R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
 0 : White (default)
 1 : Red
 2 : Green
@@ -358,15 +323,7 @@ Target this entity with a misc_model to have the model attached to the entity (s
 4 : Blue
 5 : Cyan
 6 : Magenta
-7 : White)";
-    CHECK(colorIndexDefinition->longDescription() == expectedDescription);
-
-    CHECK(
-      colorIndexDefinition->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"0", "white"},
-        {"1", "red"},
-        {"2", "green"},
+7 : White)"},
       });
   }
 
@@ -398,22 +355,18 @@ Target this entity with a misc_model to have the model attached to the entity (s
       dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
     REQUIRE(pointDefinition != nullptr);
 
-    const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
-      const auto* propertyDefinition =
-        dynamic_cast<const mdl::BooleanPropertyDefinition*>(
-          pointDefinition->propertyDefinition(key));
-      return propertyDefinition ? std::optional{propertyDefinition->defaultValue()}
-                                : std::nullopt;
-    };
-
-    CHECK(getDefaultValue("prop_true") == true);
-    CHECK(getDefaultValue("prop_false") == false);
-    CHECK(getDefaultValue("prop_True") == true);
-    CHECK(getDefaultValue("prop_False") == false);
-    CHECK(getDefaultValue("prop_0") == false);
-    CHECK(getDefaultValue("prop_1") == true);
-    CHECK(getDefaultValue("prop_2") == true);
-    CHECK(getDefaultValue("prop_n1") == true);
+    CHECK(
+      pointDefinition->propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"prop_true", Boolean{true}, "true", ""},
+        {"prop_false", Boolean{false}, "false", ""},
+        {"prop_True", Boolean{true}, "True", ""},
+        {"prop_False", Boolean{false}, "False", ""},
+        {"prop_0", Boolean{false}, "0", ""},
+        {"prop_1", Boolean{true}, "1", ""},
+        {"prop_2", Boolean{true}, "2", ""},
+        {"prop_n1", Boolean{true}, "-1", ""},
+      });
   }
 
   SECTION("parseInvalidRealPropertyDefinition")
@@ -437,14 +390,11 @@ Target this entity with a misc_model to have the model attached to the entity (s
       dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
     CHECK(pointDefinition != nullptr);
 
-    CHECK(pointDefinition->propertyDefinitions().size() == 1u);
-
-    const auto* scaleDefinition = dynamic_cast<const mdl::StringPropertyDefinition*>(
-      pointDefinition->propertyDefinition("_scale"));
-    CHECK(scaleDefinition != nullptr);
-    CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    CHECK(scaleDefinition->defaultValue() == "asdf");
+    CHECK(
+      pointDefinition->propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"_scale", Unknown{"asdf"}, "Scale", ""},
+      });
   }
 
   SECTION("parseLegacyModelDefinition")

@@ -48,16 +48,15 @@ void setDefaultProperties(
 {
   for (const auto& propertyDefinition : entityDefinition.propertyDefinitions())
   {
-    if (const auto defaultValue = PropertyDefinition::defaultValue(*propertyDefinition);
-        !defaultValue.empty())
+    if (const auto defaultValue = PropertyDefinition::defaultValue(propertyDefinition))
     {
-      const auto hasProperty = entity.hasProperty(propertyDefinition->key());
+      const auto hasProperty = entity.hasProperty(propertyDefinition.key);
       if (
         mode == SetDefaultPropertyMode::SetAll
         || (mode == SetDefaultPropertyMode::SetExisting && hasProperty)
         || (mode == SetDefaultPropertyMode::SetMissing && !hasProperty))
       {
-        entity.addOrUpdateProperty(propertyDefinition->key(), defaultValue);
+        entity.addOrUpdateProperty(propertyDefinition.key, *defaultValue);
       }
     }
   }

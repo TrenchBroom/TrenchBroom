@@ -37,70 +37,80 @@
 
 namespace tb::io
 {
+using namespace mdl::PropertyValueTypes;
+
 namespace
 {
-static constexpr auto DefaultSize = vm::bbox3d(-8, +8);
+constexpr auto DefaultSize = vm::bbox3d{-8, +8};
 
-std::shared_ptr<mdl::PropertyDefinition> mergeAttributes(
-  const mdl::PropertyDefinition& inheritingClassAttribute,
-  const mdl::PropertyDefinition& superClassAttribute)
+std::optional<mdl::PropertyDefinition> mergePropertyDefinitions(
+  const mdl::PropertyDefinition& inheritingClassPropertyDefinition,
+  const mdl::PropertyDefinition& superClassPropertyDefinition)
 {
-  assert(inheritingClassAttribute.key() == superClassAttribute.key());
+  assert(inheritingClassPropertyDefinition.key == superClassPropertyDefinition.key);
 
   // for now, only merge spawnflags
+  const auto* superClassFlags =
+    std::get_if<Flags>(&superClassPropertyDefinition.valueType);
+  const auto* inheritingClassFlags =
+    std::get_if<Flags>(&inheritingClassPropertyDefinition.valueType);
   if (
-    superClassAttribute.type() == mdl::PropertyDefinitionType::FlagsProperty
-    && inheritingClassAttribute.type() == mdl::PropertyDefinitionType::FlagsProperty
-    && superClassAttribute.key() == mdl::EntityPropertyKeys::Spawnflags
-    && inheritingClassAttribute.key() == mdl::EntityPropertyKeys::Spawnflags)
+    superClassFlags && inheritingClassFlags
+    && superClassPropertyDefinition.key == mdl::EntityPropertyKeys::Spawnflags
+    && inheritingClassPropertyDefinition.key == mdl::EntityPropertyKeys::Spawnflags)
   {
-
-    const auto& name = inheritingClassAttribute.key();
-    auto result = std::make_shared<mdl::FlagsPropertyDefinition>(name);
-
-    const auto& baseclassFlags =
-      static_cast<const mdl::FlagsPropertyDefinition&>(superClassAttribute);
-    const auto& classFlags =
-      static_cast<const mdl::FlagsPropertyDefinition&>(inheritingClassAttribute);
-
+    auto mergedFlags = std::vector<Flag>{};
+    int mergedDefaultValue = 0;
     for (int i = 0; i < 24; ++i)
     {
-      const auto* baseclassFlag = baseclassFlags.option(static_cast<int>(1 << i));
-      const auto* classFlag = classFlags.option(static_cast<int>(1 << i));
+      const auto flagValue = static_cast<int>(1 << i);
+      const auto* baseclassFlag = superClassFlags->flag(flagValue);
+      const auto* classFlag = inheritingClassFlags->flag(flagValue);
 
       if (baseclassFlag && !classFlag)
       {
-        result->addOption(
-          baseclassFlag->value(),
-          baseclassFlag->shortDescription(),
-          baseclassFlag->longDescription(),
-          baseclassFlag->isDefault());
+        if (superClassFlags->isDefault(flagValue))
+        {
+          mergedDefaultValue = mergedDefaultValue | flagValue;
+        }
+
+        mergedFlags.push_back(Flag{
+          baseclassFlag->value,
+          baseclassFlag->shortDescription,
+          baseclassFlag->longDescription});
       }
       else if (classFlag)
       {
-        result->addOption(
-          classFlag->value(),
-          classFlag->shortDescription(),
-          classFlag->longDescription(),
-          classFlag->isDefault());
+        if (inheritingClassFlags->isDefault(flagValue))
+        {
+          mergedDefaultValue = mergedDefaultValue | flagValue;
+        }
+
+        mergedFlags.push_back(Flag{
+          classFlag->value, classFlag->shortDescription, classFlag->longDescription});
       }
     }
 
-    return result;
+    return mdl::PropertyDefinition{
+      mdl::EntityPropertyKeys::Spawnflags,
+      Flags{std::move(mergedFlags), mergedDefaultValue},
+      inheritingClassPropertyDefinition.shortDescription,
+      inheritingClassPropertyDefinition.longDescription,
+      inheritingClassPropertyDefinition.readOnly};
   }
 
-  return nullptr;
+  return std::nullopt;
 }
 
 /**
- * Inherits the attributes from the super class to the inheriting class.
+ * Inherits the property definitions from the super class to the inheriting class.
  *
- * Most attributes are only inherited if they are not already present in the inheriting
- * class, except for the following:
+ * Most property definitions are only inherited if they are not already present in the
+ * inheriting class, except for the following:
  * - spawnflags are merged together
  * - model definitions are merged together
  */
-void inheritAttributes(
+void inheritPropertyDefinitions(
   EntityDefinitionClassInfo& inheritingClass, const EntityDefinitionClassInfo& superClass)
 {
   if (!inheritingClass.description)
@@ -116,20 +126,21 @@ void inheritAttributes(
     inheritingClass.size = superClass.size;
   }
 
-  for (const auto& attribute : superClass.propertyDefinitions)
+  for (const auto& propertyDefinition : superClass.propertyDefinitions)
   {
     auto it = std::ranges::find_if(
       inheritingClass.propertyDefinitions,
-      [&](const auto& a) { return a->key() == attribute->key(); });
+      [&](const auto& a) { return a.key == propertyDefinition.key; });
     if (it == std::end(inheritingClass.propertyDefinitions))
     {
-      inheritingClass.propertyDefinitions.push_back(attribute);
+      inheritingClass.propertyDefinitions.push_back(propertyDefinition);
     }
     else
     {
-      if (auto mergedAttribute = mergeAttributes(**it, *attribute))
+      if (
+        auto mergedPropertyDefinition = mergePropertyDefinitions(*it, propertyDefinition))
       {
-        *it = mergedAttribute;
+        *it = *mergedPropertyDefinition;
       }
     }
   }
@@ -210,21 +221,22 @@ void findSuperClassesAndInheritFrom(
  * inheriting class to the super class, then the inheritance hierarchy contains a cycle.
  * In this case, an error is added to the given status object and the recursion stops.
  *
- * Otherwise, the attributes from the given super class are copied to the inheriting
- * class. For the exact semantics of inheriting an attribute from a super class, see the
- * inheritAttributes function. Afterwards, the super classes of the given super class
- * are recursively inherited from.
+ * Otherwise, the property definitions from the given super class are copied to the
+ * inheriting class. For the exact semantics of inheriting an property definition from a
+ * super class, see the inheritPropertyDefinition function. Afterwards, the super classes
+ * of the given super class are recursively inherited from.
  *
- * By copying the attributes before recursing further into the super class hierarchy,
- * the attributes inherited from a class that is closer to the inheriting class in the
- * inheritance hierarchy take precedence over the attributes from a class that is
- * further. This means that attributes from the further class get overridden by
- * attributes from the closer class.
+ * By copying the property definitions before recursing further into the super class
+ * hierarchy, the property definitions inherited from a class that is closer to the
+ * inheriting class in the inheritance hierarchy take precedence over the property
+ * definitions from a class that is further. This means that property definitions from the
+ * further class get overridden by property definitions from the closer class.
  *
  * The following example illustrates this. Let A, B, C be classes such that A inherits
- * from B and B inherits from C. Then B has its attributes copied into A before C. And
- * since attributes are only copied if they are not present (with some exceptions), the
- * attributes from B take precedence over the attributes from C.
+ * from B and B inherits from C. Then B has its property definitions copied into A before
+ * C. And since property definitions are only copied if they are not present (with some
+ * exceptions), the property definitions from B take precedence over the property
+ * definitions from C.
  *
  * @param status the parser status to add errors to
  * @param inheritingClass class the class that is currently processed, i.e. the class
@@ -245,7 +257,7 @@ void inheritFromAndRecurse(
 {
   if (visited.insert(superClass.name).second)
   {
-    inheritAttributes(inheritingClass, superClass);
+    inheritPropertyDefinitions(inheritingClass, superClass);
     findSuperClassesAndInheritFrom(
       status, inheritingClass, superClass, findClassInfos, visited);
 
@@ -264,7 +276,8 @@ void inheritFromAndRecurse(
  *
  * The given `classWithSuperClasses` is used to determine the super classes to inherit
  * from. This can be the same as the given inheriting class, which is the class that
- * induces the inheritance hierarchy and to which the inherited attributes are added.
+ * induces the inheritance hierarchy and to which the inherited property definitions are
+ * added.
  *
  * For each super class name found at `classWithSuperClasses`, the function determines
  * which class should be inherited from. Since there can be multiple classes with the same
@@ -278,13 +291,13 @@ void inheritFromAndRecurse(
  * super classes is of type BaseClass, then use it as a super class. Otherwise, no super
  * class was found, return null.
  *
- * If a super class was found, inherit its attributes and recurse into its super classes
- * again by calling `inheritFromAndRecurse`.
+ * If a super class was found, inherit its property definitions and recurse into its super
+ * classes again by calling `inheritFromAndRecurse`.
  *
  * If the given `classWithSuperClasses` has multiple super classes, they are processed in
- * the order in which they were declared. This gives precedence to the attributes
- * inherited from a super class that was declared at a lower position than another super
- * class.
+ * the order in which they were declared. This gives precedence to the property
+ * definitions inherited from a super class that was declared at a lower position than
+ * another super class.
  *
  * @param status the parser status to add errors to
  * @param inheritingClass class the class that is currently processed, i.e. the class that
@@ -362,19 +375,20 @@ void findSuperClassesAndInheritFrom(
 
 /**
  * Resolves the inheritance hierarchy induced the given inheriting class by recursively
- * inheriting attributes from its super classes.
+ * inheriting property definitions from its super classes.
  *
  * The super classes are explored in a depth first order, with super classes of a given
- * class being explored in the order in which they were declared. Once an attribute has
- * been inherited from some super class, it takes precedence over an attribute of the same
- * name in some other super class that is visited later in the process.
+ * class being explored in the order in which they were declared. Once an property
+ * definition has been inherited from some super class, it takes precedence over an
+ * property definition of the same name in some other super class that is visited later in
+ * the process.
  *
  * @param status the parser status to add errors to
  * @param inheritingClass class the class that is currently processed, i.e. the class that
  * induces the inheritance hierarchy that is currently being resolved
  * @param findClassInfos a function that finds class infos by their names
- * @return a copy of the given inheriting class, with all attributes it inherits from its
- * super classes added
+ * @return a copy of the given inheriting class, with all property definitions it inherits
+ * from its super classes added
  */
 template <typename F>
 EntityDefinitionClassInfo resolveInheritance(
@@ -445,8 +459,8 @@ std::vector<std::unique_ptr<mdl::EntityDefinition>> createDefinitions(
 
 /**
  * Resolves the inheritance for every class that is not of type BaseClass in the given
- * vector and returns a vector of copies where the inherited attributes are added to the
- * inheriting classes.
+ * vector and returns a vector of copies where the inherited property definitions are
+ * added to the inheriting classes.
  *
  * Exposed for testing.
  */
