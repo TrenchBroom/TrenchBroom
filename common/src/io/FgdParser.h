@@ -126,28 +126,26 @@ private:
   std::string parseNamedValue(ParserStatus& status, const std::string& name);
   void skipClassProperty(ParserStatus& status);
 
-  std::vector<std::shared_ptr<mdl::PropertyDefinition>> parsePropertyDefinitions(
-    ParserStatus& status);
-  std::unique_ptr<mdl::PropertyDefinition> parsePropertyDefinition(
+  std::vector<mdl::PropertyDefinition> parsePropertyDefinitions(ParserStatus& status);
+  mdl::PropertyDefinition parsePropertyDefinition(
     ParserStatus& status,
     std::string propertyKey,
     const std::string& typeName,
     const FileLocation& location);
-  std::unique_ptr<mdl::PropertyDefinition> parseTargetSourcePropertyDefinition(
+  mdl::PropertyDefinition parseTargetSourcePropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseTargetDestinationPropertyDefinition(
+  mdl::PropertyDefinition parseTargetDestinationPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseStringPropertyDefinition(
+  mdl::PropertyDefinition parseStringPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseIntegerPropertyDefinition(
+  mdl::PropertyDefinition parseIntegerPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseFloatPropertyDefinition(
+  mdl::PropertyDefinition parseFloatPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseChoicesPropertyDefinition(
+  mdl::PropertyDefinition parseChoicesPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseFlagsPropertyDefinition(
-    std::string propertyKey);
-  std::unique_ptr<mdl::PropertyDefinition> parseUnknownPropertyDefinition(
+  mdl::PropertyDefinition parseFlagsPropertyDefinition(std::string propertyKey);
+  mdl::PropertyDefinition parseUnknownPropertyDefinition(
     ParserStatus& status, std::string propertyKey);
 
   bool parseReadOnlyFlag(ParserStatus& status);

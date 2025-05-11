@@ -34,7 +34,7 @@ namespace tb
 {
 namespace mdl
 {
-class PropertyDefinition;
+struct PropertyDefinition;
 class EntityDefinition;
 } // namespace mdl
 

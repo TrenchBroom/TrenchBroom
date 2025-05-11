@@ -19,6 +19,7 @@
 
 #include "EntityNodeBase.h"
 
+#include "Ensure.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 

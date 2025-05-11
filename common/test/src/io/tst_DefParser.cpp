@@ -31,6 +31,7 @@
 
 namespace tb::io
 {
+using namespace mdl::PropertyValueTypes;
 
 TEST_CASE("DefParser")
 {
@@ -193,21 +194,20 @@ Set sounds to the cd track to play.
     CHECK(
       pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
-    const auto& properties = definition.propertyDefinitions();
-    CHECK(properties.size() == 1u); // spawnflags
-
-    const auto property = properties[0];
-    CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto* spawnflags = definition.spawnflags();
-    CHECK(spawnflags != nullptr);
-    CHECK(spawnflags->defaultValue() == 0);
-
     CHECK(
-      spawnflags->options()
-      == std::vector<mdl::FlagsPropertyOption>{
-        {1, "Crucified", "", false},
-        {2, "ambush", "", false},
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {
+          mdl::EntityPropertyKeys::Spawnflags,
+          Flags{
+            {
+              {1, "Crucified", ""},
+              {2, "ambush", ""},
+            },
+          },
+          "",
+          "",
+        },
       });
   }
 
@@ -235,24 +235,23 @@ Set sounds to the cd track to play.
     CHECK(
       pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
-    const auto& properties = definition.propertyDefinitions();
-    CHECK(properties.size() == 1u); // spawnflags
-
-    const auto property = properties[0];
-    CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto* spawnflags = definition.spawnflags();
-    CHECK(spawnflags != nullptr);
-    CHECK(spawnflags->defaultValue() == 0);
-
     CHECK(
-      spawnflags->options()
-      == std::vector<mdl::FlagsPropertyOption>{
-        {1, "", "", false},
-        {2, "SUSPENDED", "", false},
-        {4, "SPIN", "", false},
-        {8, "", "", false},
-        {16, "RESPAWN", "", false},
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {
+          mdl::EntityPropertyKeys::Spawnflags,
+          Flags{
+            {
+              {1, "", ""},
+              {2, "SUSPENDED", ""},
+              {4, "SPIN", ""},
+              {8, "", ""},
+              {16, "RESPAWN", ""},
+            },
+          },
+          "",
+          "",
+        },
       });
   }
 
@@ -275,23 +274,22 @@ Set sounds to the cd track to play.
     CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
     CHECK(definition.description() == "some desc");
 
-    const auto& properties = definition.propertyDefinitions();
-    CHECK(properties.size() == 1u); // spawnflags
-
-    const auto property = properties[0];
-    CHECK(property->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto* spawnflags = definition.spawnflags();
-    CHECK(spawnflags != nullptr);
-    CHECK(spawnflags->defaultValue() == 0);
-
     CHECK(
-      spawnflags->options()
-      == std::vector<mdl::FlagsPropertyOption>{
-        {1, "SUSPENDED", "", false},
-        {2, "SPIN", "", false},
-        {4, "", "", false},
-        {8, "RESPAWN", "", false},
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {
+          mdl::EntityPropertyKeys::Spawnflags,
+          Flags{
+            {
+              {1, "SUSPENDED", ""},
+              {2, "SPIN", ""},
+              {4, "", ""},
+              {8, "RESPAWN", ""},
+            },
+          },
+          "",
+          "",
+        },
       });
   }
 
@@ -338,39 +336,38 @@ Set sounds to the cd track to play.
     CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
     CHECK(definition.name() == "light");
 
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* stylePropertyDefinition = definition.propertyDefinition("style");
-    CHECK(stylePropertyDefinition != nullptr);
-    CHECK(stylePropertyDefinition->key() == "style");
-    CHECK(stylePropertyDefinition->type() == mdl::PropertyDefinitionType::ChoiceProperty);
-
-    const auto* spawnflagsPropertyDefinition =
-      definition.propertyDefinition(mdl::EntityPropertyKeys::Spawnflags);
-    CHECK(spawnflagsPropertyDefinition != nullptr);
-    CHECK(spawnflagsPropertyDefinition->key() == mdl::EntityPropertyKeys::Spawnflags);
     CHECK(
-      spawnflagsPropertyDefinition->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto* choice =
-      static_cast<const mdl::ChoicePropertyDefinition*>(stylePropertyDefinition);
-
-    CHECK(
-      choice->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"0", "normal"},
-        {"1", "flicker (first variety)"},
-        {"2", "slow strong pulse"},
-        {"3", "candle (first variety)"},
-        {"4", "fast strobe"},
-        {"5", "gentle pulse 1"},
-        {"6", "flicker (second variety)"},
-        {"7", "candle (second variety)"},
-        {"8", "candle (third variety)"},
-        {"9", "slow strobe (fourth variety)"},
-        {"10", "fluorescent flicker"},
-        {"11", "slow pulse not fade to black"},
-      });
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {
+          mdl::EntityPropertyKeys::Spawnflags,
+          Flags{
+            {
+              {1, "START_OFF", ""},
+            },
+          },
+          "",
+          "",
+        },
+        {"style",
+         Choice{
+           {
+             {"0", "normal"},
+             {"1", "flicker (first variety)"},
+             {"2", "slow strong pulse"},
+             {"3", "candle (first variety)"},
+             {"4", "fast strobe"},
+             {"5", "gentle pulse 1"},
+             {"6", "flicker (second variety)"},
+             {"7", "candle (second variety)"},
+             {"8", "candle (third variety)"},
+             {"9", "slow strobe (fourth variety)"},
+             {"10", "fluorescent flicker"},
+             {"11", "slow pulse not fade to black"},
+           },
+         },
+         "",
+         ""}});
   }
 
   static const auto DefModelDefinitionTemplate = R"(

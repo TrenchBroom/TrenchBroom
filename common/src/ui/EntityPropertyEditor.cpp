@@ -110,63 +110,53 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
 QString EntityPropertyEditor::optionDescriptions(
   const mdl::PropertyDefinition& definition)
 {
+  using namespace mdl::PropertyValueTypes;
+
   static const auto bullet = QString{" "} + QChar{0x2022} + QString{" "};
 
-  switch (definition.type())
-  {
-  case mdl::PropertyDefinitionType::ChoiceProperty: {
-    const auto& choiceDef =
-      dynamic_cast<const mdl::ChoicePropertyDefinition&>(definition);
+  return std::visit(
+    kdl::overload(
+      [](const Choice& valueType) {
+        auto result = QString{};
+        auto stream = QTextStream{&result};
+        for (const auto& option : valueType.options)
+        {
+          stream << bullet << option.value.c_str();
+          if (!option.description.empty())
+          {
+            stream << " (" << option.description.c_str() << ")";
+          }
+          stream << "\n";
+        }
+        return result;
+      },
+      [](const Flags& valueType) {
+        // The options are not necessarily sorted by value, so we sort the descriptions
+        // here by inserting into a map sorted by the flag value.
+        auto flagDescriptors = std::map<int, QString>{};
+        for (const auto& flag : valueType.flags)
+        {
+          auto line = QString{};
+          auto stream = QTextStream{&line};
+          stream << bullet << flag.value << " = " << flag.shortDescription.c_str();
+          if (!flag.longDescription.empty())
+          {
+            stream << " (" << flag.longDescription.c_str() << ")";
+          }
+          flagDescriptors[flag.value] = line;
+        }
 
-    auto result = QString{};
-    auto stream = QTextStream{&result};
-    for (const auto& option : choiceDef.options())
-    {
-      stream << bullet << option.value().c_str();
-      if (!option.description().empty())
-      {
-        stream << " (" << option.description().c_str() << ")";
-      }
-      stream << "\n";
-    }
-    return result;
-  }
-  case mdl::PropertyDefinitionType::FlagsProperty: {
-    const auto& flagsDef = dynamic_cast<const mdl::FlagsPropertyDefinition&>(definition);
-
-    // The options are not necessarily sorted by value, so we sort the descriptions here
-    // by inserting into a map sorted by the flag value.
-    auto flagDescriptors = std::map<int, QString>{};
-    for (const auto& option : flagsDef.options())
-    {
-      auto line = QString{};
-      auto stream = QTextStream{&line};
-      stream << bullet << option.value() << " = " << option.shortDescription().c_str();
-      if (!option.longDescription().empty())
-      {
-        stream << " (" << option.longDescription().c_str() << ")";
-      }
-      flagDescriptors[option.value()] = line;
-    }
-
-    // Concatenate the flag descriptions and return.
-    auto result = QString{};
-    auto stream = QTextStream{&result};
-    for (const auto& [value, description] : flagDescriptors)
-    {
-      stream << description << "\n";
-    }
-    return result;
-  }
-  case mdl::PropertyDefinitionType::StringProperty:
-  case mdl::PropertyDefinitionType::BooleanProperty:
-  case mdl::PropertyDefinitionType::IntegerProperty:
-  case mdl::PropertyDefinitionType::FloatProperty:
-  case mdl::PropertyDefinitionType::TargetSourceProperty:
-  case mdl::PropertyDefinitionType::TargetDestinationProperty:
-    return {};
-    switchDefault();
-  }
+        // Concatenate the flag descriptions and return.
+        auto result = QString{};
+        auto stream = QTextStream{&result};
+        for (const auto& [value, description] : flagDescriptors)
+        {
+          stream << description << "\n";
+        }
+        return result;
+      },
+      [](const auto&) { return QString{}; }),
+    definition.valueType);
 }
 
 void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
@@ -188,8 +178,8 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
     {
       const auto optionsDescription = optionDescriptions(*propertyDefinition);
 
-      const auto propertyHasDocs = !propertyDefinition->longDescription().empty()
-                                   || !propertyDefinition->shortDescription().empty()
+      const auto propertyHasDocs = !propertyDefinition->longDescription.empty()
+                                   || !propertyDefinition->shortDescription.empty()
                                    || !optionsDescription.isEmpty();
 
       if (propertyHasDocs)
@@ -197,11 +187,11 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
         // e.g. "Property "delay" (Attenuation formula)", in bold
         {
           auto title =
-            tr("Property \"%1\"").arg(QString::fromStdString(propertyDefinition->key()));
-          if (!propertyDefinition->shortDescription().empty())
+            tr("Property \"%1\"").arg(QString::fromStdString(propertyDefinition->key));
+          if (!propertyDefinition->shortDescription.empty())
           {
             title += tr(" (%1)").arg(
-              QString::fromStdString(propertyDefinition->shortDescription()));
+              QString::fromStdString(propertyDefinition->shortDescription));
           }
 
           m_documentationText->setCurrentCharFormat(boldFormat);
@@ -209,10 +199,10 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
           m_documentationText->setCurrentCharFormat(normalFormat);
         }
 
-        if (!propertyDefinition->longDescription().empty())
+        if (!propertyDefinition->longDescription.empty())
         {
           m_documentationText->append("");
-          m_documentationText->append(propertyDefinition->longDescription().c_str());
+          m_documentationText->append(propertyDefinition->longDescription.c_str());
         }
 
         if (!optionsDescription.isEmpty())

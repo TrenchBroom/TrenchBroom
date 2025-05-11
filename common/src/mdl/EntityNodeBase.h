@@ -30,7 +30,7 @@
 
 namespace tb::mdl
 {
-class PropertyDefinition;
+struct PropertyDefinition;
 class EntityDefinition;
 
 const EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& nodes);
