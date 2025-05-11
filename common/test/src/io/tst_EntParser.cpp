@@ -31,99 +31,99 @@
 
 namespace tb::io
 {
+namespace
+{
 
-static void assertPropertyDefinition(
+void assertPropertyDefinition(
   const std::string& key,
   const mdl::PropertyDefinitionType expectedType,
   const mdl::EntityDefinition* entityDefinition)
 {
   const auto* propDefinition = entityDefinition->propertyDefinition(key);
-  UNSCOPED_INFO("Missing property definition for '" + key + "' key");
   CHECK(propDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected '" + key + "' property definition to be of expected type");
   CHECK(propDefinition->type() == expectedType);
 }
 
-TEST_CASE("EntParserTest.parseIncludedEntFiles")
+} // namespace
+
+TEST_CASE("EntParser")
 {
-  const auto basePath = std::filesystem::current_path() / "fixture/games/";
-  const auto cfgFiles =
-    Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}))
-    | kdl::value();
-
-  for (const auto& path : cfgFiles)
+  SECTION("parseIncludedEntFiles")
   {
-    CAPTURE(path);
+    const auto basePath = std::filesystem::current_path() / "fixture/games/";
+    const auto cfgFiles =
+      Disk::find(basePath, TraversalMode::Recursive, makeExtensionPathMatcher({".ent"}))
+      | kdl::value();
 
-    auto file = Disk::openFile(path) | kdl::value();
-    auto reader = file->reader().buffer();
+    for (const auto& path : cfgFiles)
+    {
+      CAPTURE(path);
 
-    auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
+      auto file = Disk::openFile(path) | kdl::value();
+      auto reader = file->reader().buffer();
+
+      auto parser = EntParser{reader.stringView(), Color{1.0f, 1.0f, 1.0f, 1.0f}};
+
+      auto status = TestParserStatus{};
+      CHECK(parser.parseDefinitions(status).is_success());
+
+      /* Disabled because our files are full of previously undetected problems
+      if (status.countStatus(LogLevel::Warn) > 0u) {
+          for (const auto& message : status.messages(LogLevel::Warn)) {
+          }
+          CHECK(status.countStatus(LogLevel::Warn) == 0u);
+      }
+
+      if (status.countStatus(LogLevel::Error) > 0u) {
+          for (const auto& message : status.messages(LogLevel::Error)) {
+          }
+          CHECK(status.countStatus(LogLevel::Error) == 0u);
+      }
+      */
+    }
+  }
+
+  SECTION("parseEmptyFile")
+  {
+    const auto file = "";
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
     auto status = TestParserStatus{};
-    CHECK(parser.parseDefinitions(status).is_success());
-
-    /* Disabled because our files are full of previously undetected problems
-    if (status.countStatus(LogLevel::Warn) > 0u) {
-        UNSCOPED_INFO("Parsing ENT file " << path.string() << " produced warnings");
-        for (const auto& message : status.messages(LogLevel::Warn)) {
-            UNSCOPED_INFO(message);
-        }
-        CHECK(status.countStatus(LogLevel::Warn) == 0u);
-    }
-
-    if (status.countStatus(LogLevel::Error) > 0u) {
-        UNSCOPED_INFO("Parsing ENT file " << path.string() << " produced errors");
-        for (const auto& message : status.messages(LogLevel::Error)) {
-            UNSCOPED_INFO(message);
-        }
-        CHECK(status.countStatus(LogLevel::Error) == 0u);
-    }
-    */
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().empty());
   }
-}
 
-TEST_CASE("EntParserTest.parseEmptyFile")
-{
-  const auto file = "";
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.value().empty());
-}
-
-TEST_CASE("EntParserTest.parseWhitespaceFile")
-{
-  const auto file = R"(     
+  SECTION("parseWhitespaceFile")
+  {
+    const auto file = R"(     
   	 
   )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.value().empty());
-}
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().empty());
+  }
 
-TEST_CASE("EntParserTest.parseMalformedXML")
-{
-  const std::string file =
-    R"(<?xml version="1.0"?>
+  SECTION("parseMalformedXML")
+  {
+    const std::string file =
+      R"(<?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
 </classes>)";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  CHECK(parser.parseDefinitions(status).is_error());
-}
+    auto status = TestParserStatus{};
+    CHECK(parser.parseDefinitions(status).is_error());
+  }
 
-TEST_CASE("EntParserTest.parseSimplePointEntityDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseSimplePointEntityDefinition")
+  {
+    const std::string file = R"(
 <?xml version="1.0"?>
 <!--
 Quake3 Arena entity definition file for Q3Radiant
@@ -158,97 +158,80 @@ Updated: 2011-03-02
 </classes>
 )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a point entity definition");
-  CHECK(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    CHECK(pointDefinition != nullptr);
 
-  const auto expectedDescription = R"(
+    const auto expectedDescription = R"(
     -------- KEYS --------
     asdf
     -------- NOTES --------
     Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
     )";
-  UNSCOPED_INFO("Expected text value as entity defintion description");
-  CHECK(pointDefinition->description() == expectedDescription);
+    CHECK(pointDefinition->description() == expectedDescription);
 
-  UNSCOPED_INFO("Expected matching color");
-  CHECK(vm::is_equal(Color{0.77f, 0.88f, 1.0f, 1.0f}, pointDefinition->color(), 0.01f));
+    CHECK(vm::is_equal(Color{0.77f, 0.88f, 1.0f, 1.0f}, pointDefinition->color(), 0.01f));
 
-  UNSCOPED_INFO("Expected matching bounds");
-  CHECK(vm::is_equal(
-    vm::bbox3d{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}}, pointDefinition->bounds(), 0.01));
+    CHECK(vm::is_equal(
+      vm::bbox3d{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}},
+      pointDefinition->bounds(),
+      0.01));
 
-  UNSCOPED_INFO("Expected three property definitions");
-  CHECK(pointDefinition->propertyDefinitions().size() == 3u);
+    CHECK(pointDefinition->propertyDefinitions().size() == 3u);
 
-  const auto* angleDefinition = pointDefinition->propertyDefinition("angle");
-  UNSCOPED_INFO("Missing property definition for 'angle' key");
-  CHECK(angleDefinition != nullptr);
+    const auto* angleDefinition = pointDefinition->propertyDefinition("angle");
+    CHECK(angleDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected angle property definition to be of String type");
-  CHECK(angleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
+    CHECK(angleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
 
-  UNSCOPED_INFO("Expected matching property definition name");
-  CHECK(angleDefinition->key() == "angle");
+    CHECK(angleDefinition->key() == "angle");
 
-  UNSCOPED_INFO("Expected property definition's short description to match name");
-  CHECK(angleDefinition->shortDescription() == "Yaw Angle");
+    CHECK(angleDefinition->shortDescription() == "Yaw Angle");
 
-  UNSCOPED_INFO("Expected property definition's long description to match element text");
-  CHECK(angleDefinition->longDescription() == "Rotation angle of the sky surfaces.");
+      "Expected property definition's long description to match element text");
+      CHECK(angleDefinition->longDescription() == "Rotation angle of the sky surfaces.");
 
-  const auto* anglesDefinition = pointDefinition->propertyDefinition("angles");
-  UNSCOPED_INFO("Missing property definition for 'angles' key");
-  CHECK(anglesDefinition != nullptr);
+      const auto* anglesDefinition = pointDefinition->propertyDefinition("angles");
+      CHECK(anglesDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected angles property definition to be of String type");
-  CHECK(anglesDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
+      CHECK(anglesDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
 
-  UNSCOPED_INFO("Expected matching property definition name");
-  CHECK(anglesDefinition->key() == "angles");
+      CHECK(anglesDefinition->key() == "angles");
 
-  UNSCOPED_INFO("Expected property definition's short description to match name");
-  CHECK(anglesDefinition->shortDescription() == "Pitch Yaw Roll");
+      CHECK(anglesDefinition->shortDescription() == "Pitch Yaw Roll");
 
-  UNSCOPED_INFO("Expected property definition's long description to match element text");
-  CHECK(
-    anglesDefinition->longDescription()
-    == "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
+      "Expected property definition's long description to match element text");
+      CHECK(
+        anglesDefinition->longDescription()
+        == "Individual control of PITCH, YAW, and ROLL (default 0 0 0).");
 
-  const auto* scaleDefinition = dynamic_cast<const mdl::FloatPropertyDefinition*>(
-    pointDefinition->propertyDefinition("_scale"));
-  UNSCOPED_INFO("Missing property definition for '_scale' key");
-  CHECK(scaleDefinition != nullptr);
+      const auto* scaleDefinition = dynamic_cast<const mdl::FloatPropertyDefinition*>(
+        pointDefinition->propertyDefinition("_scale"));
+      CHECK(scaleDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected angles property definition to be of Float type");
-  CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::FloatProperty);
+      CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::FloatProperty);
 
-  UNSCOPED_INFO("Expected matching property definition name");
-  CHECK(scaleDefinition->key() == "_scale");
+      CHECK(scaleDefinition->key() == "_scale");
 
-  UNSCOPED_INFO("Expected property definition's short description to match name");
-  CHECK(scaleDefinition->shortDescription() == "Scale");
+      CHECK(scaleDefinition->shortDescription() == "Scale");
 
-  UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
-  CHECK(scaleDefinition->defaultValue() == 64.0f);
+      CHECK(scaleDefinition->defaultValue() == 64.0f);
 
-  UNSCOPED_INFO("Expected property definition's long description to match element text");
-  CHECK(
+      "Expected property definition's long description to match element text");
+      CHECK(
     scaleDefinition->longDescription()
     == "Scaling factor (default 64), good values are between 50 and 300, depending on the map.");
-}
+  }
 
-TEST_CASE("EntParserTest.parseSimpleGroupEntityDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseSimpleGroupEntityDefinition")
+  {
+    const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <group name="func_bobbing" color="0 .4 1">
@@ -271,19 +254,17 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </group>
 </classes>)";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* brushDefinition =
-    dynamic_cast<const mdl::BrushEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a brush entity definition");
-  CHECK(brushDefinition != nullptr);
+    const auto* brushDefinition =
+      dynamic_cast<const mdl::BrushEntityDefinition*>(definitions.value().front().get());
+    CHECK(brushDefinition != nullptr);
 
-  const auto expectedDescription = R"(
+    const auto expectedDescription = R"(
 Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
 -------- KEYS --------
 
@@ -292,45 +273,41 @@ In order for the sound to be emitted from the entity, it is recommended to inclu
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
 )";
-  UNSCOPED_INFO("Expected text value as entity defintion description");
-  CHECK(brushDefinition->description() == expectedDescription);
+    CHECK(brushDefinition->description() == expectedDescription);
 
-  UNSCOPED_INFO("Expected matching color");
-  CHECK(vm::is_equal(Color{0.0f, 0.4f, 1.0f}, brushDefinition->color(), 0.01f));
+    CHECK(vm::is_equal(Color{0.0f, 0.4f, 1.0f}, brushDefinition->color(), 0.01f));
 
-  UNSCOPED_INFO("Expected seven property definitions");
-  CHECK(brushDefinition->propertyDefinitions().size() == 7u);
-  assertPropertyDefinition(
-    "noise", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-  assertPropertyDefinition(
-    "model2", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-  assertPropertyDefinition(
-    "color", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-  assertPropertyDefinition(
-    "targetname", mdl::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
-  assertPropertyDefinition(
-    "_castshadows", mdl::PropertyDefinitionType::IntegerProperty, brushDefinition);
-  assertPropertyDefinition(
-    "_celshader", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
-  assertPropertyDefinition(
-    "spawnflags", mdl::PropertyDefinitionType::FlagsProperty, brushDefinition);
+    CHECK(brushDefinition->propertyDefinitions().size() == 7u);
+    assertPropertyDefinition(
+      "noise", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
+    assertPropertyDefinition(
+      "model2", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
+    assertPropertyDefinition(
+      "color", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
+    assertPropertyDefinition(
+      "targetname", mdl::PropertyDefinitionType::TargetSourceProperty, brushDefinition);
+    assertPropertyDefinition(
+      "_castshadows", mdl::PropertyDefinitionType::IntegerProperty, brushDefinition);
+    assertPropertyDefinition(
+      "_celshader", mdl::PropertyDefinitionType::StringProperty, brushDefinition);
+    assertPropertyDefinition(
+      "spawnflags", mdl::PropertyDefinitionType::FlagsProperty, brushDefinition);
 
-  UNSCOPED_INFO("Expected matching spawnflag definitions");
-  const auto* spawnflags = brushDefinition->spawnflags();
-  CHECK(spawnflags != nullptr);
-  CHECK(spawnflags->defaultValue() == 0);
+    const auto* spawnflags = brushDefinition->spawnflags();
+    CHECK(spawnflags != nullptr);
+    CHECK(spawnflags->defaultValue() == 0);
 
-  CHECK(
-    spawnflags->options()
-    == std::vector<mdl::FlagsPropertyOption>{
-      {1, "X_AXIS", "X Axis", false},
-      {2, "Y_AXIS", "Y Axis", false},
-    });
-}
+    CHECK(
+      spawnflags->options()
+      == std::vector<mdl::FlagsPropertyOption>{
+        {1, "X_AXIS", "X Axis", false},
+        {2, "Y_AXIS", "Y Axis", false},
+      });
+  }
 
-TEST_CASE("EntParserTest.parseListPropertyDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseListPropertyDefinition")
+  {
+    const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <list name="colorIndex">
@@ -352,34 +329,28 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
 </classes>
             )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a point entity definition");
-  CHECK(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    CHECK(pointDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected one property definitions");
-  CHECK(pointDefinition->propertyDefinitions().size() == 1u);
+    CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
-  const auto* colorIndexDefinition = dynamic_cast<const mdl::ChoicePropertyDefinition*>(
-    pointDefinition->propertyDefinition("count"));
-  UNSCOPED_INFO("Missing property definition for 'count' key");
-  CHECK(colorIndexDefinition != nullptr);
+    const auto* colorIndexDefinition = dynamic_cast<const mdl::ChoicePropertyDefinition*>(
+      pointDefinition->propertyDefinition("count"));
+    CHECK(colorIndexDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected count property definition to be of choice type");
-  CHECK(colorIndexDefinition->type() == mdl::PropertyDefinitionType::ChoiceProperty);
+    CHECK(colorIndexDefinition->type() == mdl::PropertyDefinitionType::ChoiceProperty);
 
-  UNSCOPED_INFO("Expected name value as entity property definition short description");
-  CHECK(colorIndexDefinition->shortDescription() == "Text Color");
+    CHECK(colorIndexDefinition->shortDescription() == "Text Color");
 
-  const auto expectedDescription =
-    R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
+    const auto expectedDescription =
+      R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
 0 : White (default)
 1 : Red
 2 : Green
@@ -388,21 +359,20 @@ TEST_CASE("EntParserTest.parseListPropertyDefinition")
 5 : Cyan
 6 : Magenta
 7 : White)";
-  UNSCOPED_INFO("Expected text value as entity property defintion long description");
-  CHECK(colorIndexDefinition->longDescription() == expectedDescription);
+    CHECK(colorIndexDefinition->longDescription() == expectedDescription);
 
-  CHECK(
-    colorIndexDefinition->options()
-    == std::vector<mdl::ChoicePropertyOption>{
-      {"0", "white"},
-      {"1", "red"},
-      {"2", "green"},
-    });
-}
+    CHECK(
+      colorIndexDefinition->options()
+      == std::vector<mdl::ChoicePropertyOption>{
+        {"0", "white"},
+        {"1", "red"},
+        {"2", "green"},
+      });
+  }
 
-TEST_CASE("EntParserTest.parseBooleanProperty")
-{
-  const auto file = R"(
+  SECTION("parseBooleanProperty")
+  {
+    const auto file = R"(
 <?xml version="1.0"?>
 <classes>
   <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -418,36 +388,37 @@ TEST_CASE("EntParserTest.parseBooleanProperty")
 </classes>
 )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  REQUIRE(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    REQUIRE(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  REQUIRE(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    REQUIRE(pointDefinition != nullptr);
 
-  const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
-    const auto* propertyDefinition = dynamic_cast<const mdl::BooleanPropertyDefinition*>(
-      pointDefinition->propertyDefinition(key));
-    return propertyDefinition ? std::optional{propertyDefinition->defaultValue()}
-                              : std::nullopt;
-  };
+    const auto getDefaultValue = [&](const auto& key) -> std::optional<bool> {
+      const auto* propertyDefinition =
+        dynamic_cast<const mdl::BooleanPropertyDefinition*>(
+          pointDefinition->propertyDefinition(key));
+      return propertyDefinition ? std::optional{propertyDefinition->defaultValue()}
+                                : std::nullopt;
+    };
 
-  CHECK(getDefaultValue("prop_true") == true);
-  CHECK(getDefaultValue("prop_false") == false);
-  CHECK(getDefaultValue("prop_True") == true);
-  CHECK(getDefaultValue("prop_False") == false);
-  CHECK(getDefaultValue("prop_0") == false);
-  CHECK(getDefaultValue("prop_1") == true);
-  CHECK(getDefaultValue("prop_2") == true);
-  CHECK(getDefaultValue("prop_n1") == true);
-}
+    CHECK(getDefaultValue("prop_true") == true);
+    CHECK(getDefaultValue("prop_false") == false);
+    CHECK(getDefaultValue("prop_True") == true);
+    CHECK(getDefaultValue("prop_False") == false);
+    CHECK(getDefaultValue("prop_0") == false);
+    CHECK(getDefaultValue("prop_1") == true);
+    CHECK(getDefaultValue("prop_2") == true);
+    CHECK(getDefaultValue("prop_n1") == true);
+  }
 
-TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseInvalidRealPropertyDefinition")
+  {
+    const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
     <point name="_skybox" color="0.77 0.88 1.0" box="-4 -4 -4 4 4 4">
@@ -456,89 +427,79 @@ TEST_CASE("EntParserTest.parseInvalidRealPropertyDefinition")
 </classes>
                         )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a point entity definition");
-  CHECK(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    CHECK(pointDefinition != nullptr);
 
-  UNSCOPED_INFO("Expected one property definitions");
-  CHECK(pointDefinition->propertyDefinitions().size() == 1u);
+    CHECK(pointDefinition->propertyDefinitions().size() == 1u);
 
-  const auto* scaleDefinition = dynamic_cast<const mdl::StringPropertyDefinition*>(
-    pointDefinition->propertyDefinition("_scale"));
-  UNSCOPED_INFO("Missing property definition for '_scale' key");
-  CHECK(scaleDefinition != nullptr);
-  UNSCOPED_INFO("Expected angles property definition to be of Float type");
-  CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
+    const auto* scaleDefinition = dynamic_cast<const mdl::StringPropertyDefinition*>(
+      pointDefinition->propertyDefinition("_scale"));
+    CHECK(scaleDefinition != nullptr);
+    CHECK(scaleDefinition->type() == mdl::PropertyDefinitionType::StringProperty);
 
-  UNSCOPED_INFO("Expected correct default value for '_scale' property definition");
-  CHECK(scaleDefinition->defaultValue() == "asdf");
-}
+    CHECK(scaleDefinition->defaultValue() == "asdf");
+  }
 
-TEST_CASE("EntParserTest.parseLegacyModelDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseLegacyModelDefinition")
+  {
+    const std::string file = R"(
 <?xml version="1.0"?>
 <classes>
 <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="models/powerups/ammo/bfgam.md3" />
 </classes>
             )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a point entity definition");
-  CHECK(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    CHECK(pointDefinition != nullptr);
 
-  const auto& modelDefinition = pointDefinition->modelDefinition();
-  CHECK(
-    modelDefinition.defaultModelSpecification().value().path
-    == "models/powerups/ammo/bfgam.md3");
-}
+    const auto& modelDefinition = pointDefinition->modelDefinition();
+    CHECK(
+      modelDefinition.defaultModelSpecification().value().path
+      == "models/powerups/ammo/bfgam.md3");
+  }
 
-TEST_CASE("EntParserTest.parseELStaticModelDefinition")
-{
-  const std::string file = R"(
+  SECTION("parseELStaticModelDefinition")
+  {
+    const std::string file = R"(
             <?xml version="1.0"?>
             <classes>
             <point name="ammo_bfg" color=".3 .3 1" box="-16 -16 -16 16 16 16" model="{{ spawnflags == 1 -> 'models/powerups/ammo/bfgam.md3', 'models/powerups/ammo/bfgam2.md3' }}" />
             </classes>
             )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  UNSCOPED_INFO("Expected one entity definition");
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto* pointDefinition =
-    dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-  UNSCOPED_INFO("Definition must be a point entity definition");
-  CHECK(pointDefinition != nullptr);
+    const auto* pointDefinition =
+      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
+    CHECK(pointDefinition != nullptr);
 
-  const auto& modelDefinition = pointDefinition->modelDefinition();
-  CHECK(
-    modelDefinition.defaultModelSpecification().value().path
-    == "models/powerups/ammo/bfgam2.md3");
-}
+    const auto& modelDefinition = pointDefinition->modelDefinition();
+    CHECK(
+      modelDefinition.defaultModelSpecification().value().path
+      == "models/powerups/ammo/bfgam2.md3");
+  }
 
-TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
-{
-  const auto file = R"(
+  SECTION("parsePointEntityWithMissingBoxAttribute")
+  {
+    const auto file = R"(
 <?xml version="1.0"?>
   <classes>
     <point name= "linkEmitter" color="0.2 0.5 0.2 ">
@@ -547,15 +508,16 @@ TEST_CASE("EntParserTest.parsePointEntityWithMissingBoxAttribute")
   </classes>
 )";
 
-  auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
+    auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
 
-  auto status = TestParserStatus{};
-  auto definitions = parser.parseDefinitions(status);
-  CHECK(definitions.value().size() == 1u);
+    auto status = TestParserStatus{};
+    auto definitions = parser.parseDefinitions(status);
+    CHECK(definitions.value().size() == 1u);
 
-  const auto& definition =
-    static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
-  CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
+    const auto& definition =
+      static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
+    CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
+  }
 }
 
 } // namespace tb::io
