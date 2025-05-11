@@ -27,7 +27,7 @@
 
 namespace tb::mdl
 {
-class PropertyDefinition;
+struct PropertyDefinition;
 class EntityDefinition;
 } // namespace tb::mdl
 

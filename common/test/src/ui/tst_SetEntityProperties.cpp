@@ -49,7 +49,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
     Color{},
     vm::bbox3d{16.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
+    std::vector<mdl::PropertyDefinition>{},
     mdl::ModelDefinition{},
     mdl::DecalDefinition{});
   m_pointEntityDef = pointEntityDefOwner.get();
@@ -59,7 +59,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
     Color{},
     vm::bbox3d{64.0},
     "this is a point entity",
-    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
+    std::vector<mdl::PropertyDefinition>{},
     mdl::ModelDefinition{},
     mdl::DecalDefinition{});
   auto* largeEntityDef = largeEntityDefOwner.get();

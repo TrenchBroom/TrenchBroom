@@ -22,19 +22,16 @@
 #include "Color.h"
 #include "mdl/DecalDefinition.h"
 #include "mdl/ModelDefinition.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "vm/bbox.h"
 
 #include <atomic>
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace tb::mdl
 {
-class PropertyDefinition;
-class FlagsPropertyDefinition;
-class FlagsPropertyOption;
 
 enum class EntityDefinitionType
 {
@@ -56,7 +53,7 @@ private:
   Color m_color;
   std::string m_description;
   std::atomic<size_t> m_usageCount;
-  std::vector<std::shared_ptr<PropertyDefinition>> m_propertyDefinitions;
+  std::vector<PropertyDefinition> m_propertyDefinitions;
 
 public:
   virtual ~EntityDefinition();
@@ -74,13 +71,13 @@ public:
   void incUsageCount();
   void decUsageCount();
 
-  const FlagsPropertyDefinition* spawnflags() const;
-  const std::vector<std::shared_ptr<PropertyDefinition>>& propertyDefinitions() const;
+  const PropertyDefinition* spawnflags() const;
+  const std::vector<PropertyDefinition>& propertyDefinitions() const;
   const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
 
   static const PropertyDefinition* safeGetPropertyDefinition(
     const EntityDefinition* entityDefinition, const std::string& propertyKey);
-  static const FlagsPropertyDefinition* safeGetFlagsPropertyDefinition(
+  static const PropertyDefinition* safeGetFlagsPropertyDefinition(
     const EntityDefinition* entityDefinition, const std::string& propertyKey);
 
   static std::vector<EntityDefinition*> filterAndSort(
@@ -93,7 +90,7 @@ protected:
     std::string name,
     const Color& color,
     std::string description,
-    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
+    std::vector<PropertyDefinition> propertyDefinitions);
 };
 
 class PointEntityDefinition : public EntityDefinition
@@ -109,7 +106,7 @@ public:
     const Color& color,
     const vm::bbox3d& bounds,
     std::string description,
-    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions,
+    std::vector<PropertyDefinition> propertyDefinitions,
     ModelDefinition modelDefinition,
     DecalDefinition decalDefinition);
 
@@ -126,7 +123,7 @@ public:
     std::string name,
     const Color& color,
     std::string description,
-    std::vector<std::shared_ptr<PropertyDefinition>> propertyDefinitions);
+    std::vector<PropertyDefinition> propertyDefinitions);
   EntityDefinitionType type() const override;
 };
 } // namespace tb::mdl

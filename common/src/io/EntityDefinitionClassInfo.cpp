@@ -55,12 +55,11 @@ std::ostream& operator<<(std::ostream& str, const EntityDefinitionClassType type
 kdl_reflect_impl(EntityDefinitionClassInfo);
 
 bool addPropertyDefinition(
-  std::vector<std::shared_ptr<mdl::PropertyDefinition>>& propertyDefinitions,
-  std::shared_ptr<mdl::PropertyDefinition> propertyDefinition)
+  std::vector<mdl::PropertyDefinition>& propertyDefinitions,
+  mdl::PropertyDefinition propertyDefinition)
 {
-  assert(propertyDefinition != nullptr);
   if (kdl::vec_contains(propertyDefinitions, [&](const auto& a) {
-        return a->key() == propertyDefinition->key();
+        return a.key == propertyDefinition.key;
       }))
   {
     return false;

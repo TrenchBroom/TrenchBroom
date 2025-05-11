@@ -35,7 +35,6 @@
 #include "mdl/PropertyDefinition.h"
 #include "mdl/WorldNode.h"
 
-#include "kdl/k.h"
 #include "kdl/map_utils.h"
 #include "kdl/result.h"
 #include "kdl/vector_utils.h"
@@ -356,9 +355,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
         Color{},
         vm::bbox3d{32.0},
         "",
-        std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
-          std::make_shared<mdl::StringPropertyDefinition>(
-            "some_default_prop", "", "", !K(readOnly), "value"),
+        std::vector<mdl::PropertyDefinition>{
+          {"some_default_prop", mdl::PropertyValueTypes::String{"value"}, "", ""},
         },
         mdl::ModelDefinition{},
         mdl::DecalDefinition{});
@@ -428,9 +426,8 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
         "some_name",
         Color{},
         "",
-        std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
-          std::make_shared<mdl::StringPropertyDefinition>(
-            "some_default_prop", "", "", !K(readOnly), "value"),
+        std::vector<mdl::PropertyDefinition>{
+          {"some_default_prop", mdl::PropertyValueTypes::String{"value"}, "", ""},
         });
       auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
 
@@ -464,13 +461,10 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       Color{},
       vm::bbox3d{32.0},
       "",
-      std::vector<std::shared_ptr<mdl::PropertyDefinition>>{
-        std::make_shared<mdl::StringPropertyDefinition>(
-          "some_prop", "", "", !K(readOnly)),
-        std::make_shared<mdl::StringPropertyDefinition>(
-          "default_prop_a", "", "", !K(readOnly), "default_value_a"),
-        std::make_shared<mdl::StringPropertyDefinition>(
-          "default_prop_b", "", "", !K(readOnly), "default_value_b"),
+      std::vector<mdl::PropertyDefinition>{
+        {"some_prop", mdl::PropertyValueTypes::String{}, "", ""},
+        {"default_prop_a", mdl::PropertyValueTypes::String{"default_value_a"}, "", ""},
+        {"default_prop_b", mdl::PropertyValueTypes::String{"default_value_b"}, "", ""},
       },
       mdl::ModelDefinition{},
       mdl::DecalDefinition{});

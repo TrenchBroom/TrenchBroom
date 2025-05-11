@@ -42,29 +42,30 @@ namespace
 
 /**
  * Matches if all of the nodes have a property definition for the give property key that
- * is of the type passed to the constructor.
+ * is of the type passed as a type parameter.
  */
-SmartPropertyEditorMatcher makeSmartTypeEditorMatcher(
-  const mdl::PropertyDefinitionType type)
+template <typename Type>
+SmartPropertyEditorMatcher makeSmartTypeEditorMatcher()
 {
-  return [=](const auto& propertyKey, const auto& nodes) {
+  return [](const auto& propertyKey, const auto& nodes) {
     return !nodes.empty() && std::ranges::all_of(nodes, [&](const auto* node) {
       const auto* propDef = mdl::propertyDefinition(node, propertyKey);
-      return propDef && propDef->type() == type;
+      return propDef && std::holds_alternative<Type>(propDef->valueType);
     });
   };
 }
 
 /**
  * Matches if all of the nodes have a property definition for the give property key that
- * is of the type passed to the constructor, and these property definitions are all equal.
+ * is of the type passed as a type parameter, and these property definitions are all
+ * equal.
  */
-SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher(
-  const mdl::PropertyDefinitionType type)
+template <typename Type>
+SmartPropertyEditorMatcher makeSmartTypeWithSameDefinitionEditorMatcher()
 {
-  return [=](const auto& propertyKey, const auto& nodes) {
+  return [](const auto& propertyKey, const auto& nodes) {
     const auto* propDef = mdl::selectPropertyDefinition(propertyKey, nodes);
-    return propDef && propDef->type() == type;
+    return propDef && std::holds_alternative<Type>(propDef->valueType);
   };
 }
 
@@ -116,11 +117,10 @@ void SmartPropertyEditorManager::createEditors()
   assert(m_editors.empty());
 
   registerEditor(
-    makeSmartTypeEditorMatcher(mdl::PropertyDefinitionType::FlagsProperty),
+    makeSmartTypeEditorMatcher<mdl::PropertyValueTypes::Flags>(),
     new SmartFlagsEditor{m_document, this});
   registerEditor(
-    makeSmartTypeWithSameDefinitionEditorMatcher(
-      mdl::PropertyDefinitionType::ChoiceProperty),
+    makeSmartTypeWithSameDefinitionEditorMatcher<mdl::PropertyValueTypes::Choice>(),
     new SmartChoiceEditor{m_document, this});
   registerEditor(
     [&](const auto& propertyKey, const auto& nodes) {

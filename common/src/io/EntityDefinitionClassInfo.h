@@ -23,20 +23,20 @@
 #include "FileLocation.h"
 #include "mdl/DecalDefinition.h"
 #include "mdl/ModelDefinition.h"
+#include "mdl/PropertyDefinition.h"
 
 #include "kdl/reflection_decl.h"
 
 #include "vm/bbox.h"
 
 #include <iosfwd>
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
 
 namespace tb::mdl
 {
-class PropertyDefinition;
+struct PropertyDefinition;
 }
 
 namespace tb::io
@@ -62,7 +62,7 @@ struct EntityDefinitionClassInfo
   std::optional<mdl::ModelDefinition> modelDefinition;
   std::optional<mdl::DecalDefinition> decalDefinition;
 
-  std::vector<std::shared_ptr<mdl::PropertyDefinition>> propertyDefinitions;
+  std::vector<mdl::PropertyDefinition> propertyDefinitions;
   std::vector<std::string> superClasses;
 
   kdl_reflect_decl(
@@ -80,7 +80,7 @@ struct EntityDefinitionClassInfo
 };
 
 bool addPropertyDefinition(
-  std::vector<std::shared_ptr<mdl::PropertyDefinition>>& propertyDefinitions,
-  std::shared_ptr<mdl::PropertyDefinition> propertyDefinition);
+  std::vector<mdl::PropertyDefinition>& propertyDefinitions,
+  mdl::PropertyDefinition propertyDefinition);
 
 } // namespace tb::io

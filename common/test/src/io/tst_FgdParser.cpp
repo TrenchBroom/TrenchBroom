@@ -34,6 +34,7 @@
 
 namespace tb::io
 {
+using namespace mdl::PropertyValueTypes;
 
 TEST_CASE("FgdParser")
 {
@@ -304,15 +305,11 @@ TEST_CASE("FgdParser")
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
     CHECK(definition.description() == "Wildcard entity");
 
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 1u);
-
-    auto propertyDefinition = propertyDefinitions[0];
     CHECK(
-      propertyDefinition->type() == mdl::PropertyDefinitionType::TargetSourceProperty);
-    CHECK(propertyDefinition->key() == "targetname");
-    CHECK(propertyDefinition->shortDescription() == "Source");
-    CHECK(propertyDefinition->longDescription() == "A long description");
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"targetname", TargetSource{}, "Source", "A long description"},
+      });
   }
 
   SECTION("parseType_TargetDestinationPropertyDefinition")
@@ -336,16 +333,11 @@ TEST_CASE("FgdParser")
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
     CHECK(definition.description() == "Wildcard entity");
 
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 1u);
-
-    auto propertyDefinition = propertyDefinitions[0];
     CHECK(
-      propertyDefinition->type()
-      == mdl::PropertyDefinitionType::TargetDestinationProperty);
-    CHECK(propertyDefinition->key() == "target");
-    CHECK(propertyDefinition->shortDescription() == "Target");
-    CHECK(propertyDefinition->longDescription().empty());
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"target", TargetDestination{}, "Target", ""},
+      });
   }
 
   SECTION("parseStringPropertyDefinition")
@@ -370,30 +362,15 @@ TEST_CASE("FgdParser")
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("message");
-    CHECK(propertyDefinition1 != nullptr);
-    CHECK(propertyDefinition1->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    const auto* stringPropertyDefinition1 =
-      static_cast<const mdl::StringPropertyDefinition*>(propertyDefinition1);
-    CHECK(stringPropertyDefinition1->key() == "message");
-    CHECK(stringPropertyDefinition1->shortDescription() == "Text on entering the world");
-    CHECK(stringPropertyDefinition1->longDescription() == "Long description 1");
-    CHECK_FALSE(stringPropertyDefinition1->hasDefaultValue());
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("message2");
-    CHECK(propertyDefinition2 != nullptr);
-    CHECK(propertyDefinition2->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    const auto* stringPropertyDefinition2 =
-      static_cast<const mdl::StringPropertyDefinition*>(propertyDefinition2);
-    CHECK(stringPropertyDefinition2->key() == "message2");
-    CHECK(stringPropertyDefinition2->shortDescription() == "With a default value");
-    CHECK(stringPropertyDefinition2->longDescription() == "Long description 2");
-    CHECK(stringPropertyDefinition2->hasDefaultValue());
-    CHECK(stringPropertyDefinition2->defaultValue() == "DefaultValue");
+    CHECK(
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"message", String{}, "Text on entering the world", "Long description 1"},
+        {"message2",
+         String{"DefaultValue"},
+         "With a default value",
+         "Long description 2"},
+      });
   }
 
   SECTION("parsePropertyDefinitionWithNumericKey")
@@ -442,31 +419,10 @@ TEST_CASE("FgdParser")
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("name");
-    CHECK(propertyDefinition1 != nullptr);
-    CHECK(propertyDefinition1->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    const auto* stringPropertyDefinition1 =
-      static_cast<const mdl::StringPropertyDefinition*>(propertyDefinition1);
-    CHECK(stringPropertyDefinition1->key() == "name");
-    CHECK(stringPropertyDefinition1->shortDescription() == "Description");
-    CHECK(stringPropertyDefinition1->longDescription().empty());
-    CHECK(stringPropertyDefinition1->hasDefaultValue());
-    CHECK(stringPropertyDefinition1->defaultValue() == "3");
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("other");
-    CHECK(propertyDefinition2 != nullptr);
-    CHECK(propertyDefinition2->type() == mdl::PropertyDefinitionType::StringProperty);
-
-    const auto* stringPropertyDefinition2 =
-      static_cast<const mdl::StringPropertyDefinition*>(propertyDefinition2);
-    CHECK(stringPropertyDefinition2->key() == "other");
-    CHECK(stringPropertyDefinition2->shortDescription().empty());
-    CHECK(stringPropertyDefinition2->longDescription().empty());
-    CHECK(stringPropertyDefinition2->hasDefaultValue());
-    CHECK(stringPropertyDefinition2->defaultValue() == "1.5");
+    CHECK(
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"name", String{"3"}, "Description", ""}, {"other", String{"1.5"}, "", ""}});
   }
 
   SECTION("parseIntegerPropertyDefinition")
@@ -490,30 +446,12 @@ TEST_CASE("FgdParser")
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
-    CHECK(propertyDefinition1 != nullptr);
-    CHECK(propertyDefinition1->type() == mdl::PropertyDefinitionType::IntegerProperty);
-
-    const auto* intPropertyDefinition1 =
-      static_cast<const mdl::IntegerPropertyDefinition*>(propertyDefinition1);
-    CHECK(intPropertyDefinition1->key() == "sounds");
-    CHECK(intPropertyDefinition1->shortDescription() == "CD track to play");
-    CHECK(intPropertyDefinition1->longDescription() == "Longer description");
-    CHECK_FALSE(intPropertyDefinition1->hasDefaultValue());
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("sounds2");
-    CHECK(propertyDefinition2 != nullptr);
-    CHECK(propertyDefinition2->type() == mdl::PropertyDefinitionType::IntegerProperty);
-
-    const auto* intPropertyDefinition2 =
-      static_cast<const mdl::IntegerPropertyDefinition*>(propertyDefinition2);
-    CHECK(intPropertyDefinition2->key() == "sounds2");
-    CHECK(intPropertyDefinition2->shortDescription() == "CD track to play with default");
-    CHECK(intPropertyDefinition2->longDescription() == "Longer description");
-    CHECK(intPropertyDefinition2->hasDefaultValue());
-    CHECK(intPropertyDefinition2->defaultValue() == 2);
+    CHECK(
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"sounds", Integer{}, "CD track to play", "Longer description"},
+        {"sounds2", Integer{2}, "CD track to play with default", "Longer description"},
+      });
   }
 
   SECTION("parseReadOnlyPropertyDefinition")
@@ -533,13 +471,16 @@ TEST_CASE("FgdParser")
     CHECK(definitions.value().size() == 1u);
 
     const auto& definition = *definitions.value()[0];
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("sounds");
-    CHECK(propertyDefinition1->readOnly());
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("sounds2");
-    CHECK_FALSE(propertyDefinition2->readOnly());
+    CHECK(
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"sounds", Integer{}, "CD track to play", "Longer description", true},
+        {"sounds2",
+         Integer{2},
+         "CD track to play with default",
+         R"(Longe
+    description)"},
+      });
   }
 
   SECTION("parseFloatPropertyDefinition")
@@ -562,35 +503,17 @@ TEST_CASE("FgdParser")
     CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
     CHECK(definition.name() == "info_notnull");
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    ;
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 2u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("test");
-    CHECK(propertyDefinition1 != nullptr);
-    CHECK(propertyDefinition1->type() == mdl::PropertyDefinitionType::FloatProperty);
-
-    const auto* floatPropertyDefinition1 =
-      static_cast<const mdl::FloatPropertyDefinition*>(propertyDefinition1);
-    CHECK(floatPropertyDefinition1->key() == "test");
-    CHECK(floatPropertyDefinition1->shortDescription() == "Some test propertyDefinition");
-    CHECK(floatPropertyDefinition1->longDescription() == "Longer description 1");
-    CHECK_FALSE(floatPropertyDefinition1->hasDefaultValue());
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("test2");
-    CHECK(propertyDefinition2 != nullptr);
-    CHECK(propertyDefinition2->type() == mdl::PropertyDefinitionType::FloatProperty);
-
-    const auto* floatPropertyDefinition2 =
-      static_cast<const mdl::FloatPropertyDefinition*>(propertyDefinition2);
-    CHECK(floatPropertyDefinition2->key() == "test2");
     CHECK(
-      floatPropertyDefinition2->shortDescription()
-      == "Some test propertyDefinition with default");
-    CHECK(floatPropertyDefinition2->longDescription() == "Longer description 2");
-    CHECK(floatPropertyDefinition2->hasDefaultValue());
-    CHECK(floatPropertyDefinition2->defaultValue() == 2.7f);
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"test", Float{}, "Some test propertyDefinition", "Longer description 1"},
+        {"test2",
+         Float{2.7f},
+         "Some test propertyDefinition with default",
+         "Longer description 2"},
+      });
   }
 
   SECTION("parseChoicePropertyDefinition")
@@ -640,98 +563,58 @@ TEST_CASE("FgdParser")
     CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
     CHECK(definition.name() == "info_notnull");
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    ;
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 5u);
-
-    const auto* propertyDefinition1 = definition.propertyDefinition("worldtype");
-    CHECK(propertyDefinition1 != nullptr);
-    CHECK(propertyDefinition1->type() == mdl::PropertyDefinitionType::ChoiceProperty);
-
-    const auto* choicePropertyDefinition1 =
-      static_cast<const mdl::ChoicePropertyDefinition*>(propertyDefinition1);
-    CHECK(choicePropertyDefinition1->key() == "worldtype");
-    CHECK(choicePropertyDefinition1->shortDescription() == "Ambience");
-    CHECK(choicePropertyDefinition1->longDescription() == "Long description 1");
-    CHECK_FALSE(choicePropertyDefinition1->hasDefaultValue());
-
     CHECK(
-      choicePropertyDefinition1->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"0", "Medieval"},
-        {"1", "Metal (runic)"},
-        {"2", "Base"},
-      });
-
-    const auto* propertyDefinition2 = definition.propertyDefinition("worldtype2");
-    CHECK(propertyDefinition2 != nullptr);
-    CHECK(propertyDefinition2->type() == mdl::PropertyDefinitionType::ChoiceProperty);
-
-    const auto* choicePropertyDefinition2 =
-      static_cast<const mdl::ChoicePropertyDefinition*>(propertyDefinition2);
-    CHECK(choicePropertyDefinition2->key() == "worldtype2");
-    CHECK(choicePropertyDefinition2->shortDescription() == "Ambience with default");
-    CHECK(choicePropertyDefinition2->longDescription() == "Long description 2");
-    CHECK(choicePropertyDefinition2->hasDefaultValue());
-    CHECK(choicePropertyDefinition2->defaultValue() == "1");
-
-    CHECK(
-      choicePropertyDefinition2->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"0", "Medieval"},
-        {"1", "Metal (runic)"},
-      });
-
-    const auto* propertyDefinition3 = definition.propertyDefinition("puzzle_id");
-    const auto* choicePropertyDefinition3 =
-      static_cast<const mdl::ChoicePropertyDefinition*>(propertyDefinition3);
-    CHECK(choicePropertyDefinition3->key() == "puzzle_id");
-    CHECK(choicePropertyDefinition3->shortDescription() == "Puzzle id");
-    CHECK(choicePropertyDefinition3->longDescription().empty());
-    CHECK(choicePropertyDefinition3->hasDefaultValue());
-    CHECK(choicePropertyDefinition3->defaultValue() == "cskey");
-
-    CHECK(
-      choicePropertyDefinition3->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"keep3", "Mill key"},
-        {"cskey", "Castle key"},
-        {"scrol", "Disrupt Magic Scroll"},
-      });
-
-    const auto* propertyDefinition4 = definition.propertyDefinition("floaty");
-    const auto* choicePropertyDefinition4 =
-      static_cast<const mdl::ChoicePropertyDefinition*>(propertyDefinition4);
-    CHECK(choicePropertyDefinition4->key() == "floaty");
-    CHECK(choicePropertyDefinition4->shortDescription() == "Floaty");
-    CHECK(choicePropertyDefinition4->longDescription().empty());
-    CHECK(choicePropertyDefinition4->hasDefaultValue());
-    CHECK(choicePropertyDefinition4->defaultValue() == "2.3");
-
-    CHECK(
-      choicePropertyDefinition4->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"1.0", "Something"},
-        {"2.3", "Something else"},
-        {"0.1", "Yet more"},
-      });
-
-    const auto* propertyDefinition5 = definition.propertyDefinition("negative");
-    const auto* choicePropertyDefinition5 =
-      static_cast<const mdl::ChoicePropertyDefinition*>(propertyDefinition5);
-    CHECK(choicePropertyDefinition5->key() == "negative");
-    CHECK(choicePropertyDefinition5->shortDescription() == "Negative values");
-    CHECK(choicePropertyDefinition5->longDescription().empty());
-    CHECK(choicePropertyDefinition5->hasDefaultValue());
-    CHECK(choicePropertyDefinition5->defaultValue() == "-1");
-
-    CHECK(
-      choicePropertyDefinition5->options()
-      == std::vector<mdl::ChoicePropertyOption>{
-        {"-2", "Something"},
-        {"-1", "Something else"},
-        {"1", "Yet more"},
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"worldtype",
+         Choice{{
+           {"0", "Medieval"},
+           {"1", "Metal (runic)"},
+           {"2", "Base"},
+         }},
+         "Ambience",
+         "Long description 1"},
+        {"worldtype2",
+         Choice{
+           {
+             {"0", "Medieval"},
+             {"1", "Metal (runic)"},
+           },
+           "1"},
+         "Ambience with default",
+         "Long description 2"},
+        {"puzzle_id",
+         Choice{
+           {
+             {"keep3", "Mill key"},
+             {"cskey", "Castle key"},
+             {"scrol", "Disrupt Magic Scroll"},
+           },
+           "cskey"},
+         "Puzzle id",
+         ""},
+        {"floaty",
+         Choice{
+           {
+             {"1.0", "Something"},
+             {"2.3", "Something else"},
+             {"0.1", "Yet more"},
+           },
+           "2.3"},
+         "Floaty",
+         ""},
+        {"negative",
+         Choice{
+           {
+             {"-2", "Something"},
+             {"-1", "Something else"},
+             {"1", "Yet more"},
+           },
+           "-1"},
+         "Negative values",
+         ""},
       });
   }
 
@@ -760,28 +643,22 @@ TEST_CASE("FgdParser")
     CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
     CHECK(definition.name() == "info_notnull");
     CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    ;
     CHECK(definition.description() == "Wildcard entity");
 
-    CHECK(definition.propertyDefinitions().size() == 1u);
-
-    const auto* propertyDefinition = definition.propertyDefinition("spawnflags");
-    CHECK(propertyDefinition != nullptr);
-    CHECK(propertyDefinition->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto* flagsPropertyDefinition =
-      static_cast<const mdl::FlagsPropertyDefinition*>(propertyDefinition);
-    CHECK(flagsPropertyDefinition->key() == "spawnflags");
-    CHECK(flagsPropertyDefinition->shortDescription().empty());
-    CHECK(flagsPropertyDefinition->defaultValue() == 2560);
-
     CHECK(
-      flagsPropertyDefinition->options()
-      == std::vector<mdl::FlagsPropertyOption>{
-        {256, "Not on Easy", "", false},
-        {512, "Not on Normal", "", true},
-        {1024, "Not on Hard", "", false},
-        {2048, "Not in Deathmatch", "", true},
+      definition.propertyDefinitions()
+      == std::vector<mdl::PropertyDefinition>{
+        {"spawnflags",
+         Flags{
+           {
+             {256, "Not on Easy", ""},
+             {512, "Not on Normal", ""},
+             {1024, "Not on Hard", ""},
+             {2048, "Not in Deathmatch", ""},
+           },
+           512 | 2048},
+         "",
+         ""},
       });
   }
 
