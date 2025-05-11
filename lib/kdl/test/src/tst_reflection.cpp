@@ -138,7 +138,7 @@ TEST_CASE("operator<<")
 {
   CHECK(str_to_string(empty{}) == "empty{}");
   CHECK(str_to_string(test{1, "asdf"}) == "test{someName: 1, otherName: asdf}");
-  CHECK(str_to_string(test_ns::custom{{1, 2, 3}}) == "custom{v: [1,2,3]}");
+  CHECK(str_to_string(test_ns::custom{{1, 2, 3}}) == "custom{v: [1, 2, 3]}");
 }
 
 } // namespace kdl
