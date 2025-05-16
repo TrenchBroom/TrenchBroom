@@ -746,6 +746,36 @@ TEST_CASE("EntityTest")
       }
     }
   }
+
+  SECTION("modelScaleExpressionThrows")
+  {
+    // see https://github.com/TrenchBroom/TrenchBroom/issues/3914
+
+    const auto modelExpression = io::ELParser{io::ELParser::Mode::Strict, R"(
+{{
+  spawnflags & 2 ->   ":maps/b_bh100.bsp",
+  spawnflags & 1 ->   ":maps/b_bh10.bsp",
+                      ":maps/b_bh25.bsp"
+}})"}
+                                   .parse()
+                                   .value();
+
+    auto definition = PointEntityDefinition{
+      "some_name",
+      Color{},
+      vm::bbox3d{32.0},
+      "",
+      {},
+      ModelDefinition{modelExpression},
+      {}};
+
+    auto entity = Entity{};
+    entity.setDefinition(&definition);
+
+    // throws because 'a & 2' cannot be evaluated -- we must catch the exception in
+    // Entity::updateCachedProperties
+    CHECK_NOTHROW(entity.addOrUpdateProperty("spawnflags", "a"));
+  }
 }
 
 } // namespace tb::mdl
