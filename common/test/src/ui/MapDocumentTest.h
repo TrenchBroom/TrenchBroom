@@ -32,9 +32,7 @@
 namespace tb::mdl
 {
 class Brush;
-class BrushEntityDefinition;
 class PatchNode;
-class PointEntityDefinition;
 class TestGame;
 } // namespace tb::mdl
 

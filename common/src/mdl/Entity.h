@@ -38,7 +38,7 @@ namespace tb::mdl
 {
 struct DecalSpecification;
 class Entity;
-class EntityDefinition;
+struct EntityDefinition;
 class EntityModel;
 class EntityModelFrame;
 struct ModelSpecification;
@@ -137,10 +137,9 @@ public: // property management
   bool pointEntity() const;
   void setPointEntity(bool pointEntity);
 
-  EntityDefinition* definition();
   const EntityDefinition* definition() const;
   const vm::bbox3d& definitionBounds() const;
-  void setDefinition(EntityDefinition* definition);
+  void setDefinition(const EntityDefinition* definition);
 
   const EntityModel* model() const;
   void setModel(const EntityModel* model);

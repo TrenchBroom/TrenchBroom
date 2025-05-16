@@ -26,6 +26,7 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionGroup.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityModel.h"
 #include "mdl/EntityModelManager.h"
 #include "render/ActiveShader.h"
@@ -151,13 +152,11 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   {
     for (const auto& group : entityDefinitionManager.groups())
     {
-      const auto& definitions =
-        group.definitions(mdl::EntityDefinitionType::PointEntity, m_sortOrder);
-
-      if (!definitions.empty())
+      if (const auto definitions = filterAndSort(
+            group.definitions, mdl::EntityDefinitionType::Point, m_sortOrder);
+          !definitions.empty())
       {
-        const auto displayName = group.displayName();
-        layout.addGroup(displayName, static_cast<float>(fontSize) + 2.0f);
+        layout.addGroup(displayName(group), static_cast<float>(fontSize) + 2.0f);
 
         addEntitiesToLayout(layout, definitions, font);
       }
@@ -165,8 +164,8 @@ void EntityBrowserView::doReloadLayout(Layout& layout)
   }
   else
   {
-    const auto& definitions = entityDefinitionManager.definitions(
-      mdl::EntityDefinitionType::PointEntity, m_sortOrder);
+    const auto& definitions =
+      entityDefinitionManager.definitions(mdl::EntityDefinitionType::Point, m_sortOrder);
     addEntitiesToLayout(layout, definitions, font);
   }
 }
@@ -179,7 +178,7 @@ bool EntityBrowserView::dndEnabled()
 QString EntityBrowserView::dndData(const Cell& cell)
 {
   static const auto prefix = QString{"entity:"};
-  const auto name = QString::fromStdString(cellData(cell).entityDefinition->name());
+  const auto name = QString::fromStdString(cellData(cell).entityDefinition.name);
   return prefix + name;
 }
 
@@ -191,52 +190,53 @@ void EntityBrowserView::resourcesWereProcessed(const std::vector<mdl::ResourceId
 
 void EntityBrowserView::addEntitiesToLayout(
   Layout& layout,
-  const std::vector<mdl::EntityDefinition*>& definitions,
+  const std::vector<const mdl::EntityDefinition*>& definitions,
   const render::FontDescriptor& font)
 {
   for (const auto* definition : definitions)
   {
-    const auto* pointEntityDefinition =
-      static_cast<const mdl::PointEntityDefinition*>(definition);
-    addEntityToLayout(layout, pointEntityDefinition, font);
+    addEntityToLayout(layout, *definition, font);
   }
 }
 
 namespace
 {
 bool matchesFilterText(
-  const mdl::PointEntityDefinition& definition, const std::string& filterText)
+  const mdl::EntityDefinition& definition, const std::string& filterText)
 {
   return filterText.empty()
          || kdl::all_of(kdl::str_split(filterText, " "), [&](const auto& pattern) {
-              return kdl::ci::str_contains(definition.name(), pattern);
+              return kdl::ci::str_contains(definition.name, pattern);
             });
 }
 } // namespace
 
 void EntityBrowserView::addEntityToLayout(
   Layout& layout,
-  const mdl::PointEntityDefinition* definition,
+  const mdl::EntityDefinition& definition,
   const render::FontDescriptor& font)
 {
   if (
-    (!m_hideUnused || definition->usageCount() > 0)
-    && matchesFilterText(*definition, m_filterText))
+    (!m_hideUnused || definition.usageCount() > 0)
+    && matchesFilterText(definition, m_filterText))
   {
+    assert(definition.pointEntityDefinition != std::nullopt);
+    const auto& pointEntityDefinition = *definition.pointEntityDefinition;
+
     const auto document = kdl::mem_lock(m_document);
     const auto& entityModelManager = document->entityModelManager();
 
     const auto maxCellWidth = layout.maxCellWidth();
     const auto actualFont =
-      fontManager().selectFontSize(font, definition->name(), maxCellWidth, 5);
-    const auto actualSize = fontManager().font(actualFont).measure(definition->name());
+      fontManager().selectFontSize(font, definition.name, maxCellWidth, 5);
+    const auto actualSize = fontManager().font(actualFont).measure(definition.name);
     const auto spec =
-      mdl::safeGetModelSpecification(document->logger(), definition->name(), [&]() {
-        return definition->modelDefinition().defaultModelSpecification();
+      mdl::safeGetModelSpecification(document->logger(), definition.name, [&]() {
+        return pointEntityDefinition.modelDefinition.defaultModelSpecification();
       });
 
     const auto modelScale = vm::vec3f{mdl::safeGetModelScale(
-      definition->modelDefinition(),
+      pointEntityDefinition.modelDefinition,
       el::NullVariableStore{},
       m_defaultScaleModelExpression)};
 
@@ -263,7 +263,7 @@ void EntityBrowserView::addEntityToLayout(
     }
     else
     {
-      bounds = vm::bbox3f{definition->bounds()};
+      bounds = vm::bbox3f{pointEntityDefinition.bounds};
 
       const auto center = bounds.center();
       transform = vm::translation_matrix(-center) * vm::rotation_matrix(m_rotation)
@@ -282,7 +282,7 @@ void EntityBrowserView::addEntityToLayout(
         bounds,
         transform,
         modelScale},
-      definition->name(),
+      definition.name,
       rotatedBoundsSize.y(),
       rotatedBoundsSize.z(),
       actualSize.x(),
@@ -334,14 +334,15 @@ void EntityBrowserView::renderBounds(Layout& layout, const float y, const float 
         {
           for (const auto& cell : row.cells())
           {
-            const auto* definition = cellData(cell).entityDefinition;
+            const auto& definition = cellData(cell).entityDefinition;
+            const auto& pointEntityDefinition = *definition.pointEntityDefinition;
             auto* modelRenderer = cellData(cell).modelRenderer;
 
             if (modelRenderer == nullptr)
             {
               const auto itemTrans = itemTransformation(cell, y, height);
-              const auto& color = definition->color();
-              vm::bbox3f{definition->bounds()}.for_each_edge(
+              const auto& color = definition.color;
+              vm::bbox3f{pointEntityDefinition.bounds}.for_each_edge(
                 [&](const vm::vec3f& v1, const vm::vec3f& v2) {
                   vertices.emplace_back(itemTrans * v1, color);
                   vertices.emplace_back(itemTrans * v2, color);
@@ -433,7 +434,7 @@ vm::mat4x4f EntityBrowserView::itemTransformation(
 
 QString EntityBrowserView::tooltip(const Cell& cell)
 {
-  return QString::fromStdString(cellData(cell).entityDefinition->name());
+  return QString::fromStdString(cellData(cell).entityDefinition.name);
 }
 
 const EntityCellData& EntityBrowserView::cellData(const Cell& cell) const

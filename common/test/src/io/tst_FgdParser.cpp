@@ -81,20 +81,18 @@ TEST_CASE("FgdParser")
   {
     const auto file = "";
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseWhitespaceFile")
   {
     const auto file = "     \n  \t \n  ";
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseCommentsFile")
@@ -103,10 +101,9 @@ TEST_CASE("FgdParser")
 //kj3k4jkdjfkjdf
 )";
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseEmptyFlagDescription")
@@ -123,10 +120,28 @@ TEST_CASE("FgdParser")
     // 0221 - changed inheritance from "light" to "light_min1"
 )";
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "light_mine1",
+          Color{0, 255, 0},
+          "Dusty fluorescent light fixture",
+          {
+            {"spawnflags",
+             Flags{
+               {
+                 {1, "", ""},
+               },
+             },
+             "",
+             ""},
+          },
+          mdl::PointEntityDefinition{{{-2, -2, -12}, {2, 2, 12}}, {}, {}},
+        },
+      });
   }
 
   SECTION("parseSolidClass")
@@ -148,19 +163,34 @@ TEST_CASE("FgdParser")
     ])-";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
-    CHECK(definition.name() == "worldspawn");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "World entity");
-
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 6u);
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "worlspawn",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "World entity",
+          {
+            {"message", String{}, "Text on entering the world", ""},
+            {"worldtype",
+             Choice{
+               {
+                 {"0", "Medieval"},
+                 {"1", "Metal (runic)"},
+                 {"2", "Base"},
+               },
+               "0"},
+             "Ambience",
+             ""},
+            {"sounds", Integer{0}, "CD track to play", ""},
+            {"light", Integer{}, "Ambient light", ""},
+            {"_sunlight", Integer{}, "Sunlight", ""},
+            {"_sun_mangle", String{}, "Sun mangle (Yaw pitch roll)", ""},
+          },
+        },
+      });
   }
 
   SECTION("parsePointClass")
@@ -176,19 +206,23 @@ TEST_CASE("FgdParser")
     ])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
-
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 5u);
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_notnull",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Wildcard entity",
+         {
+           {"use", String{}, "self.use", ""},
+           {"think", String{}, "self.think", ""},
+           {"nextthink", Integer{}, "nextthink", ""},
+           {"noise", String{}, "noise", ""},
+           {"touch", String{}, "self.touch", ""},
+         },
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
+      });
   }
 
   SECTION("parseBaseProperty")
@@ -206,10 +240,9 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parsePointClassWithBaseClasses")
@@ -240,19 +273,19 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
-
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 9u);
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_notnull",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Wildcard entity",
+         {
+           // todo: enter 9 properties
+         },
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
+      });
   }
 
   SECTION("parsePointClassWithUnknownClassProperties")
@@ -269,19 +302,23 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
-
-    const auto& propertyDefinitions = definition.propertyDefinitions();
-    CHECK(propertyDefinitions.size() == 5u);
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"info_notnull",
+         Color{1.0f, 1.0f, 1.0f, 1.0f},
+         "Wildcard entity",
+         {
+           {"use", String{}, "self.use", ""},
+           {"think", String{}, "self.think", ""},
+           {"nextthink", Integer{}, "nextthink", ""},
+           {"noise", String{}, "noise", ""},
+           {"touch", String{}, "self.touch", ""},
+         },
+         mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}}},
+      });
   }
 
   SECTION("parseType_TargetSourcePropertyDefinition")
@@ -294,21 +331,20 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"targetname", TargetSource{}, "Source", "A long description"},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"target_source", TargetSource{}, "Source", "A long description"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -322,21 +358,21 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"target", TargetDestination{}, "Target", ""},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"target", TargetDestination{}, "Target", ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -351,25 +387,24 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"message", String{}, "Text on entering the world", "Long description 1"},
-        {"message2",
-         String{"DefaultValue"},
-         "With a default value",
-         "Long description 2"},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"message", String{}, "Text on entering the world", "Long description 1"},
+            {"message2",
+             String{"DefaultValue"},
+             "With a default value",
+             "Long description 2"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -384,14 +419,22 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    REQUIRE(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.propertyDefinition("123") != nullptr);
-    CHECK(definition.propertyDefinition("456") != nullptr);
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"123", String{}, "Something", "Long description 1"},
+            {"456", String{}, "Something", "Long description 1"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
   }
 
   /**
@@ -408,21 +451,22 @@ TEST_CASE("FgdParser")
 ])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"name", String{"3"}, "Description", ""}, {"other", String{"1.5"}, "", ""}});
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"name", String{"3"}, "Description", ""},
+            {"other", String{"1.5"}, "", ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
   }
 
   SECTION("parseIntegerPropertyDefinition")
@@ -435,22 +479,24 @@ TEST_CASE("FgdParser")
     ])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"sounds", Integer{}, "CD track to play", "Longer description"},
-        {"sounds2", Integer{2}, "CD track to play with default", "Longer description"},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"sounds", Integer{}, "CD track to play", "Longer description"},
+            {"sounds2",
+             Integer{2},
+             "CD track to play with default",
+             "Longer description"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -465,21 +511,25 @@ TEST_CASE("FgdParser")
     ])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"sounds", Integer{}, "CD track to play", "Longer description", true},
-        {"sounds2",
-         Integer{2},
-         "CD track to play with default",
-         R"(Longe
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"sounds", Integer{}, "CD track to play", "Longer description", true},
+            {"sounds2",
+             Integer{2},
+             "CD track to play with default",
+             R"(Longe
     description)"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -494,25 +544,24 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"test", Float{}, "Some test propertyDefinition", "Longer description 1"},
-        {"test2",
-         Float{2.7f},
-         "Some test propertyDefinition with default",
-         "Longer description 2"},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"test", Float{}, "Some test propertyDefinition", "Longer description 1"},
+            {"test2",
+             Float{2.7f},
+             "Some test propertyDefinition with default",
+             "Longer description 2"},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -554,67 +603,66 @@ TEST_CASE("FgdParser")
             )-";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"worldtype",
-         Choice{{
-           {"0", "Medieval"},
-           {"1", "Metal (runic)"},
-           {"2", "Base"},
-         }},
-         "Ambience",
-         "Long description 1"},
-        {"worldtype2",
-         Choice{
-           {
-             {"0", "Medieval"},
-             {"1", "Metal (runic)"},
-           },
-           "1"},
-         "Ambience with default",
-         "Long description 2"},
-        {"puzzle_id",
-         Choice{
-           {
-             {"keep3", "Mill key"},
-             {"cskey", "Castle key"},
-             {"scrol", "Disrupt Magic Scroll"},
-           },
-           "cskey"},
-         "Puzzle id",
-         ""},
-        {"floaty",
-         Choice{
-           {
-             {"1.0", "Something"},
-             {"2.3", "Something else"},
-             {"0.1", "Yet more"},
-           },
-           "2.3"},
-         "Floaty",
-         ""},
-        {"negative",
-         Choice{
-           {
-             {"-2", "Something"},
-             {"-1", "Something else"},
-             {"1", "Yet more"},
-           },
-           "-1"},
-         "Negative values",
-         ""},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"worldtype",
+             Choice{{
+               {"0", "Medieval"},
+               {"1", "Metal (runic)"},
+               {"2", "Base"},
+             }},
+             "Ambience",
+             "Long description 1"},
+            {"worldtype2",
+             Choice{
+               {
+                 {"0", "Medieval"},
+                 {"1", "Metal (runic)"},
+               },
+               "1"},
+             "Ambience with default",
+             "Long description 2"},
+            {"puzzle_id",
+             Choice{
+               {
+                 {"keep3", "Mill key"},
+                 {"cskey", "Castle key"},
+                 {"scrol", "Disrupt Magic Scroll"},
+               },
+               "cskey"},
+             "Puzzle id",
+             ""},
+            {"floaty",
+             Choice{
+               {
+                 {"1.0", "Something"},
+                 {"2.3", "Something else"},
+                 {"0.1", "Yet more"},
+               },
+               "2.3"},
+             "Floaty",
+             ""},
+            {"negative",
+             Choice{
+               {
+                 {"-2", "Something"},
+                 {"-1", "Something else"},
+                 {"1", "Yet more"},
+               },
+               "-1"},
+             "Negative values",
+             ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -634,31 +682,30 @@ TEST_CASE("FgdParser")
 )";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "info_notnull");
-    CHECK(definition.color() == Color{1.0f, 1.0f, 1.0f, 1.0f});
-    CHECK(definition.description() == "Wildcard entity");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"spawnflags",
-         Flags{
-           {
-             {256, "Not on Easy", ""},
-             {512, "Not on Normal", ""},
-             {1024, "Not on Hard", ""},
-             {2048, "Not in Deathmatch", ""},
-           },
-           512 | 2048},
-         "",
-         ""},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "info_notnull",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Wildcard entity",
+          {
+            {"spawnflags",
+             Flags{
+               {
+                 {256, "Not on Easy", ""},
+                 {512, "Not on Normal", ""},
+                 {1024, "Not on Hard", ""},
+                 {2048, "Not in Deathmatch", ""},
+               },
+               512 | 2048},
+             "",
+             ""},
+          },
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
       });
   }
 
@@ -721,10 +768,29 @@ TEST_CASE("FgdParser")
 ])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
+
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "monster_polyp",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Polyp",
+          {
+            {"startonground",
+             Choice{
+               {
+                 {"0", "Flying"},
+                 {"1", "On ground"},
+               },
+               "0"},
+             "Starting pose",
+             ""},
+          },
+          mdl::PointEntityDefinition{{{-16, -16, -24}, {16, 16, 40}}, {}, {}},
+        },
+      });
   }
 
   static const auto FgdDecalDefinitionTemplate =
@@ -790,14 +856,23 @@ decor_goddess_statue : "Goddess Statue" []
 )";
 
     auto parser = FgdParser(file, Color{1.0f, 1.0f, 1.0f, 1.0f});
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition =
-      static_cast<const mdl::PointEntityDefinition&>(*definitions.value()[0]);
-    CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "decor_goddess_statue",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Goddess Statue",
+          {},
+          mdl::PointEntityDefinition{
+            {{-8, -8, -8}, {8, 8, 8}},
+            mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{
+              el::Value{el::MapType{{"path", el::Value{":progs/goddess-statue.mdl"}}}}}}},
+            {}},
+        },
+      });
   }
 
   SECTION("parseInvalidBounds")
@@ -807,14 +882,23 @@ decor_goddess_statue : "Goddess Statue" []
 decor_goddess_statue : "Goddess Statue" [])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition =
-      static_cast<const mdl::PointEntityDefinition&>(*definitions.value()[0]);
-    CHECK(definition.bounds() == vm::bbox3d{{-32.0, -32.0, 0.0}, {32.0, 32.0, 256.0}});
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "decor_goddess_statue",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          "Goddess Statue",
+          {},
+          mdl::PointEntityDefinition{
+            {{-32, -32, 0}, {32, 32, 256}},
+            mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{
+              el::Value{el::MapType{"path", ":progs/goddess-statue.mdl"}}}}},
+            {}},
+        },
+      });
   }
 
   SECTION("parseInvalidModel")
@@ -825,8 +909,8 @@ model({1}) =
 decor_goddess_statue : "Goddess Statue" [])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
+
     CHECK(parser.parseDefinitions(status).is_error());
   }
 
@@ -838,8 +922,8 @@ model({"path"
        : ":progs/goddess-statue.mdl" }) = decor_goddess_statue ; "Goddess Statue" [])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
+
     CHECK(parser.parseDefinitions(status).is_error());
   }
 
@@ -857,9 +941,9 @@ model({"path"
     REQUIRE(defs.is_success());
     CHECK(defs.value().size() == 2u);
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
+      defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "info_player_start"; }));
+      defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
   }
 
   SECTION("parseNestedInclude")
@@ -876,11 +960,11 @@ model({"path"
     REQUIRE(defs.is_success());
     CHECK(defs.value().size() == 3u);
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
+      defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "info_player_start"; }));
+      defs.value(), [](const auto& def) { return def.name == "info_player_start"; }));
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "info_player_coop"; }));
+      defs.value(), [](const auto& def) { return def.name == "info_player_coop"; }));
   }
 
   SECTION("parseRecursiveInclude")
@@ -897,7 +981,7 @@ model({"path"
     REQUIRE(defs.is_success());
     CHECK(defs.value().size() == 1u);
     CHECK(std::ranges::any_of(
-      defs.value(), [](const auto& def) { return def->name() == "worldspawn"; }));
+      defs.value(), [](const auto& def) { return def.name == "worldspawn"; }));
   }
 
   SECTION("parseStringContinuations")
@@ -910,15 +994,20 @@ model({"path"
 [])";
 
     auto parser = FgdParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value().front();
+
     CHECK(
-      definition.description()
-      == R"(This is an example description for this example entity. It will appear in the help dialog for this entity)");
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "cont_description",
+          Color{1.0f, 1.0f, 1.0f, 1.0f},
+          R"(This is an example description for this example entity. It will appear in the help dialog for this entity)",
+          {},
+          mdl::PointEntityDefinition{{{-8, -8, -8}, {8, 8, 8}}, {}, {}},
+        },
+      });
   }
 }
 

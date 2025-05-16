@@ -24,7 +24,6 @@
 #include "mdl/GameFileSystem.h"
 
 #include <filesystem>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -49,7 +48,7 @@ public:
   GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& logger);
 
 public: // implement EntityDefinitionLoader interface:
-  Result<std::vector<std::unique_ptr<EntityDefinition>>> loadEntityDefinitions(
+  Result<std::vector<EntityDefinition>> loadEntityDefinitions(
     io::ParserStatus& status, const std::filesystem::path& path) const override;
 
 public: // implement Game interface

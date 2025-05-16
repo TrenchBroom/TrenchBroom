@@ -174,7 +174,8 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
 
     // add property documentation, if available
     if (
-      const auto* propertyDefinition = entityDefinition->propertyDefinition(propertyKey))
+      const auto* propertyDefinition =
+        getPropertyDefinition(*entityDefinition, propertyKey))
     {
       const auto optionsDescription = optionDescriptions(*propertyDefinition);
 
@@ -215,7 +216,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
     }
 
     // add class description, if available
-    if (!entityDefinition->description().empty())
+    if (!entityDefinition->description.empty())
     {
       // add space after property text
       if (!m_documentationText->document()->isEmpty())
@@ -227,12 +228,12 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
       {
         m_documentationText->setCurrentCharFormat(boldFormat);
         m_documentationText->append(
-          tr("Class \"%1\"").arg(QString::fromStdString(entityDefinition->name())));
+          tr("Class \"%1\"").arg(QString::fromStdString(entityDefinition->name)));
         m_documentationText->setCurrentCharFormat(normalFormat);
       }
 
       m_documentationText->append("");
-      m_documentationText->append(entityDefinition->description().c_str());
+      m_documentationText->append(entityDefinition->description.c_str());
       m_documentationText->append("");
     }
   }

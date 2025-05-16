@@ -52,8 +52,8 @@ bool CreateEntityTool::createEntity(const std::string& classname)
 {
   auto document = kdl::mem_lock(m_document);
   const auto& definitionManager = document->entityDefinitionManager();
-  auto* definition = definitionManager.definition(classname);
-  if (!definition || definition->type() != mdl::EntityDefinitionType::PointEntity)
+  const auto* definition = definitionManager.definition(classname);
+  if (!definition || getType(*definition) != mdl::EntityDefinitionType::Point)
   {
     return false;
   }
@@ -61,9 +61,8 @@ bool CreateEntityTool::createEntity(const std::string& classname)
   m_referenceBounds = document->referenceBounds();
 
   document->startTransaction(
-    "Create '" + definition->name() + "'", TransactionScope::LongRunning);
-  m_entity = document->createPointEntity(
-    static_cast<mdl::PointEntityDefinition*>(definition), {0, 0, 0});
+    "Create '" + definition->name + "'", TransactionScope::LongRunning);
+  m_entity = document->createPointEntity(*definition, {0, 0, 0});
 
   return m_entity != nullptr;
 }

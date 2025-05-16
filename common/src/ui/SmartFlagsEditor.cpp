@@ -106,8 +106,8 @@ void SmartFlagsEditor::getFlags(
       auto tooltip = QString{""};
 
       if (
-        const auto* propDef = mdl::EntityDefinition::safeGetFlagsPropertyDefinition(
-          node->entity().definition(), propertyKey()))
+        const auto* propDef =
+          getPropertyDefinition(node->entity().definition(), propertyKey()))
       {
         if (
           const auto* flagType =
