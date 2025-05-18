@@ -62,7 +62,7 @@ class BrushFaceAttributes;
 class BrushFaceHandle;
 class EditorContext;
 class Entity;
-class EntityDefinition;
+struct EntityDefinition;
 class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
 class EntityModelManager;
@@ -460,9 +460,8 @@ public:
 
 public: // entity management
   mdl::EntityNode* createPointEntity(
-    const mdl::PointEntityDefinition* definition, const vm::vec3d& delta) override;
-  mdl::EntityNode* createBrushEntity(
-    const mdl::BrushEntityDefinition* definition) override;
+    const mdl::EntityDefinition& definition, const vm::vec3d& delta) override;
+  mdl::EntityNode* createBrushEntity(const mdl::EntityDefinition& definition) override;
 
 public: // group management
   mdl::GroupNode* groupSelection(const std::string& name);
@@ -714,8 +713,7 @@ public: // asset management
   void setEntityDefinitionFile(const mdl::EntityDefinitionFileSpec& spec);
 
   // For testing
-  void setEntityDefinitions(
-    std::vector<std::unique_ptr<mdl::EntityDefinition>> definitions);
+  void setEntityDefinitions(std::vector<mdl::EntityDefinition> definitions);
 
   void reloadMaterialCollections();
   void reloadEntityDefinitions();

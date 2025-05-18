@@ -621,6 +621,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionFileSpec.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionGroup.h
         ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionManager.h
+        ${COMMON_SOURCE_DIR}/mdl/EntityDefinitionUtils.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel_Forward.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModel.h
         ${COMMON_SOURCE_DIR}/mdl/EntityModelDataResource.h

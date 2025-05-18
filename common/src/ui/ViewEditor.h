@@ -35,7 +35,7 @@ class QButtonGroup;
 namespace tb::mdl
 {
 class EditorContext;
-class EntityDefinition;
+struct EntityDefinition;
 class EntityDefinitionManager;
 class SmartTag;
 } // namespace tb::mdl
@@ -64,7 +64,7 @@ public:
   void refresh();
 private slots:
   void groupCheckBoxChanged(size_t groupIndex, bool checked);
-  void defCheckBoxChanged(const mdl::EntityDefinition* definition, bool checked);
+  void defCheckBoxChanged(const mdl::EntityDefinition& definition, bool checked);
   void showAllClicked();
   void hideAllClicked();
 

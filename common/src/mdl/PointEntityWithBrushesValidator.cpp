@@ -70,9 +70,9 @@ PointEntityWithBrushesValidator::PointEntityWithBrushesValidator()
 void PointEntityWithBrushesValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  const auto* definition =
-    dynamic_cast<const PointEntityDefinition*>(entityNode.entity().definition());
-  if (definition && entityNode.hasChildren())
+  if (
+    getPointEntityDefinition(entityNode.entity().definition())
+    && entityNode.hasChildren())
   {
     issues.push_back(
       std::make_unique<Issue>(Type, entityNode, entityNode.name() + " contains brushes"));

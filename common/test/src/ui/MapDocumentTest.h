@@ -32,9 +32,8 @@
 namespace tb::mdl
 {
 class Brush;
-class BrushEntityDefinition;
+struct EntityDefinition;
 class PatchNode;
-class PointEntityDefinition;
 class TestGame;
 } // namespace tb::mdl
 
@@ -50,8 +49,8 @@ protected:
   std::unique_ptr<kdl::task_manager> taskManager;
   std::shared_ptr<mdl::TestGame> game;
   std::shared_ptr<MapDocument> document;
-  mdl::PointEntityDefinition* m_pointEntityDef = nullptr;
-  mdl::BrushEntityDefinition* m_brushEntityDef = nullptr;
+  const mdl::EntityDefinition* m_pointEntityDef = nullptr;
+  const mdl::EntityDefinition* m_brushEntityDef = nullptr;
 
 protected:
   MapDocumentTest();

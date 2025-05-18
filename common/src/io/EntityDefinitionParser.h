@@ -21,14 +21,13 @@
 
 #include "Color.h"
 #include "Result.h"
+#include "mdl/EntityDefinition.h"
 
-#include <memory>
 #include <vector>
 
 namespace tb::mdl
 {
 struct PropertyDefinition;
-class EntityDefinition;
 } // namespace tb::mdl
 
 namespace tb::io
@@ -49,8 +48,7 @@ public:
   explicit EntityDefinitionParser(const Color& defaultEntityColor);
   virtual ~EntityDefinitionParser();
 
-  Result<std::vector<std::unique_ptr<mdl::EntityDefinition>>> parseDefinitions(
-    ParserStatus& status);
+  Result<std::vector<mdl::EntityDefinition>> parseDefinitions(ParserStatus& status);
 
 private:
   virtual std::vector<EntityDefinitionClassInfo> parseClassInfos(

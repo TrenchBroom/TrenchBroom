@@ -309,27 +309,25 @@ std::vector<Action> ActionManager::createTagActions(
 }
 
 std::vector<Action> ActionManager::createEntityDefinitionActions(
-  const std::vector<mdl::EntityDefinition*>& entityDefinitions) const
+  const std::vector<mdl::EntityDefinition>& entityDefinitions) const
 {
   std::vector<Action> result;
 
-  for (const auto* definition : entityDefinitions)
+  for (const auto& definition : entityDefinitions)
   {
     result.emplace_back(
-      std::filesystem::path{"Entities/" + definition->name() + "/Toggle"},
-      QObject::tr("Toggle %1 visible").arg(QString::fromStdString(definition->name())),
+      std::filesystem::path{"Entities/" + definition.name + "/Toggle"},
+      QObject::tr("Toggle %1 visible").arg(QString::fromStdString(definition.name)),
       ActionContext::Any,
-      [definition](auto& context) {
-        context.view()->toggleEntityDefinitionVisible(definition);
-      },
+      [&](auto& context) { context.view()->toggleEntityDefinitionVisible(definition); },
       [](const auto& context) { return context.hasDocument(); });
-    if (definition->name() != mdl::EntityPropertyValues::WorldspawnClassname)
+    if (definition.name != mdl::EntityPropertyValues::WorldspawnClassname)
     {
       result.emplace_back(
-        std::filesystem::path{"Entities/" + definition->name() + "/Create"},
-        QObject::tr("Create %1").arg(QString::fromStdString(definition->name())),
+        std::filesystem::path{"Entities/" + definition.name + "/Create"},
+        QObject::tr("Create %1").arg(QString::fromStdString(definition.name)),
         ActionContext::Any,
-        [definition](auto& context) { context.view()->createEntity(definition); },
+        [&](auto& context) { context.view()->createEntity(definition); },
         [](const auto& context) { return context.hasDocument(); });
     }
   }

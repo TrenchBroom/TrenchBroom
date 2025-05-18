@@ -97,10 +97,9 @@ TEST_CASE("DefParser")
   {
     const auto file = R"()";
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseWhitespaceFile")
@@ -110,10 +109,9 @@ TEST_CASE("DefParser")
   )";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseCommentsFile")
@@ -123,10 +121,9 @@ TEST_CASE("DefParser")
 )";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseSolidClass")
@@ -149,22 +146,34 @@ Set sounds to the cd track to play.
 )";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
-    CHECK(definition.name() == "worldspawn");
-    CHECK(definition.color() == Color{0.0f, 0.0f, 0.0f, 1.0f});
-    CHECK(definition.description() == R"(Only used for the world entity. 
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "worldspawn",
+          Color{0.0f, 0.0f, 0.0f, 1.0f},
+          R"(Only used for the world entity. 
 Set message to the level name. 
 Set sounds to the cd track to play. 
-"worldtype"	type of world)");
-
-    const auto& properties = definition.propertyDefinitions();
-    CHECK(properties.size() == 1u);
+"worldtype"	type of world)",
+          {
+            {
+              "worldtype",
+              Choice{
+                {
+                  {"0", "medieval"},
+                  {"1", "metal"},
+                  {"2", "base"},
+                },
+              },
+              "",
+              "",
+            },
+          },
+        },
+      });
   }
 
   SECTION("parsePointClass")
@@ -176,37 +185,33 @@ Set sounds to the cd track to play.
 )";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "monster_zombie");
-    CHECK(definition.color() == Color{1.0f, 0.0f, 0.0f, 1.0f});
-    CHECK(
-      definition.description()
-      == R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)");
-
-    const auto& pointDefinition =
-      static_cast<const mdl::PointEntityDefinition&>(definition);
-    CHECK(
-      pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}});
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
         {
-          mdl::EntityPropertyKeys::Spawnflags,
-          Flags{
+          "monster_zombie",
+          Color{1.0f, 0.0f, 0.0f, 1.0f},
+          R"(If crucified, stick the bounding box 12 pixels back into a wall to look right.)",
+          {
             {
-              {1, "Crucified", ""},
-              {2, "ambush", ""},
+              mdl::EntityPropertyKeys::Spawnflags,
+              Flags{
+                {
+                  {1, "Crucified", ""},
+                  {2, "ambush", ""},
+                },
+              },
+              "",
+              "",
             },
           },
-          "",
-          "",
+          mdl::PointEntityDefinition{
+            {{-16.0, -16.0, -24.0}, {16.0, 16.0, 32.0}},
+            {},
+            {},
+          },
         },
       });
   }
@@ -219,38 +224,36 @@ Set sounds to the cd track to play.
     */)";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "item_health");
-    CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
-    CHECK(definition.description() == "some desc");
-
-    const auto& pointDefinition =
-      static_cast<const mdl::PointEntityDefinition&>(definition);
-    CHECK(
-      pointDefinition.bounds() == vm::bbox3d{{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}});
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
         {
-          mdl::EntityPropertyKeys::Spawnflags,
-          Flags{
+          "item_health",
+          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          "some desc",
+          {
             {
-              {1, "", ""},
-              {2, "SUSPENDED", ""},
-              {4, "SPIN", ""},
-              {8, "", ""},
-              {16, "RESPAWN", ""},
+              mdl::EntityPropertyKeys::Spawnflags,
+              Flags{
+                {
+                  {1, "", ""},
+                  {2, "SUSPENDED", ""},
+                  {4, "SPIN", ""},
+                  {8, "", ""},
+                  {16, "RESPAWN", ""},
+                },
+              },
+              "",
+              "",
             },
           },
-          "",
-          "",
+          mdl::PointEntityDefinition{
+            {{-16.0, -16.0, -16.0}, {16.0, 16.0, 16.0}},
+            {},
+            {},
+          },
         },
       });
   }
@@ -263,32 +266,30 @@ Set sounds to the cd track to play.
     */)";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::BrushEntity);
-    CHECK(definition.name() == "item_health");
-    CHECK(definition.color() == Color{0.3f, 0.3f, 1.0f, 1.0f});
-    CHECK(definition.description() == "some desc");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
         {
-          mdl::EntityPropertyKeys::Spawnflags,
-          Flags{
+          "item_health",
+          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          "some desc",
+          {
             {
-              {1, "SUSPENDED", ""},
-              {2, "SPIN", ""},
-              {4, "", ""},
-              {8, "RESPAWN", ""},
+              mdl::EntityPropertyKeys::Spawnflags,
+              Flags{
+                {
+                  {1, "SUSPENDED", ""},
+                  {2, "SPIN", ""},
+                  {4, "", ""},
+                  {8, "RESPAWN", ""},
+                },
+              },
+              "",
+              "",
             },
           },
-          "",
-          "",
         },
       });
   }
@@ -327,47 +328,57 @@ Set sounds to the cd track to play.
     */)-";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto& definition = *definitions.value()[0];
-    CHECK(definition.type() == mdl::EntityDefinitionType::PointEntity);
-    CHECK(definition.name() == "light");
 
     CHECK(
-      definition.propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
         {
-          mdl::EntityPropertyKeys::Spawnflags,
-          Flags{
+          "light",
+          Color{0.0f, 1.0f, 0.0f, 1.0f},
+          R"(Non-displayed light.
+    Default light value is 300
+    If targeted, it will toggle between on or off.
+    Default "style" is 0.)",
+          {
             {
-              {1, "START_OFF", ""},
+              mdl::EntityPropertyKeys::Spawnflags,
+              Flags{
+                {
+                  {1, "START_OFF", ""},
+                },
+              },
+              "",
+              "",
             },
+            {"style",
+             Choice{
+               {
+                 {"0", "normal"},
+                 {"1", "flicker (first variety)"},
+                 {"2", "slow strong pulse"},
+                 {"3", "candle (first variety)"},
+                 {"4", "fast strobe"},
+                 {"5", "gentle pulse 1"},
+                 {"6", "flicker (second variety)"},
+                 {"7", "candle (second variety)"},
+                 {"8", "candle (third variety)"},
+                 {"9", "slow strobe (fourth variety)"},
+                 {"10", "fluorescent flicker"},
+                 {"11", "slow pulse not fade to black"},
+               },
+             },
+             "",
+             ""},
           },
-          "",
-          "",
+          mdl::PointEntityDefinition{
+            {{-8, -8, -8}, {8, 8, 8}},
+            {},
+            {},
+          },
+
         },
-        {"style",
-         Choice{
-           {
-             {"0", "normal"},
-             {"1", "flicker (first variety)"},
-             {"2", "slow strong pulse"},
-             {"3", "candle (first variety)"},
-             {"4", "fast strobe"},
-             {"5", "gentle pulse 1"},
-             {"6", "flicker (second variety)"},
-             {"7", "candle (second variety)"},
-             {"8", "candle (third variety)"},
-             {"9", "slow strobe (fourth variety)"},
-             {"10", "fluorescent flicker"},
-             {"11", "slow pulse not fade to black"},
-           },
-         },
-         "",
-         ""}});
+      });
   }
 
   static const auto DefModelDefinitionTemplate = R"(
@@ -425,23 +436,36 @@ Set sounds to the cd track to play.
     const std::string file = R"(
     /*QUAKED light (0.0 1.0 0.0) (8 -8 -8) (-8 8 8) START_OFF
     {
-    base("_light_style");
     }
-    Non-displayed light.
-    Default light value is 300
-    If targeted, it will toggle between on or off.
-    Default "style" is 0.
     */)";
 
     auto parser = DefParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition =
-      static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
-    CHECK(definition.bounds() == vm::bbox3d{8.0});
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {"light",
+         Color{0.0f, 1.0f, 0.0f, 1.0f},
+         "",
+         {
+           {
+             mdl::EntityPropertyKeys::Spawnflags,
+             Flags{
+               {
+                 {1, "START_OFF", ""},
+               },
+             },
+             "",
+             "",
+           },
+         },
+         mdl::PointEntityDefinition{
+           vm::bbox3d{8.0},
+           {},
+           {},
+         }},
+      });
   }
 }
 

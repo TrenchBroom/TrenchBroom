@@ -23,7 +23,6 @@
 #include "Macros.h"
 #include "io/EntityDefinitionClassInfo.h"
 #include "io/ParserStatus.h"
-#include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
@@ -31,6 +30,7 @@
 #include "kdl/range_to_vector.h"
 
 #include <algorithm>
+#include <optional>
 #include <ranges>
 #include <unordered_map>
 #include <unordered_set>
@@ -402,7 +402,7 @@ EntityDefinitionClassInfo resolveInheritance(
   return inheritingClass;
 }
 
-std::unique_ptr<mdl::EntityDefinition> createDefinition(
+std::optional<mdl::EntityDefinition> createDefinition(
   EntityDefinitionClassInfo classInfo, const Color& defaultEntityColor)
 {
   auto name = std::move(classInfo.name);
@@ -410,32 +410,35 @@ std::unique_ptr<mdl::EntityDefinition> createDefinition(
   auto size = std::move(classInfo.size).value_or(DefaultSize);
   auto description = std::move(classInfo.description).value_or("");
   auto propertyDefinitions = std::move(classInfo.propertyDefinitions);
-  auto modelDefinition =
-    std::move(classInfo.modelDefinition).value_or(mdl::ModelDefinition{});
-  auto decalDefinition =
-    std::move(classInfo.decalDefinition).value_or(mdl::DecalDefinition{});
 
   switch (classInfo.type)
   {
   case EntityDefinitionClassType::PointClass:
-    return std::make_unique<mdl::PointEntityDefinition>(
+    return mdl::EntityDefinition{
       std::move(name),
       color,
-      size,
       std::move(description),
       std::move(propertyDefinitions),
-      std::move(modelDefinition),
-      std::move(decalDefinition));
+      mdl::PointEntityDefinition{
+        size,
+        std::move(classInfo.modelDefinition).value_or(mdl::ModelDefinition{}),
+        std::move(classInfo.decalDefinition).value_or(mdl::DecalDefinition{}),
+      },
+    };
   case EntityDefinitionClassType::BrushClass:
-    return std::make_unique<mdl::BrushEntityDefinition>(
-      std::move(name), color, std::move(description), std::move(propertyDefinitions));
+    return mdl::EntityDefinition{
+      std::move(name),
+      color,
+      std::move(description),
+      std::move(propertyDefinitions),
+    };
   case EntityDefinitionClassType::BaseClass:
-    return nullptr;
+    return std::nullopt;
     switchDefault();
   };
 }
 
-std::vector<std::unique_ptr<mdl::EntityDefinition>> createDefinitions(
+std::vector<mdl::EntityDefinition> createDefinitions(
   ParserStatus& status,
   const std::vector<EntityDefinitionClassInfo>& classInfos,
   const Color& defaultEntityColor)
@@ -443,12 +446,12 @@ std::vector<std::unique_ptr<mdl::EntityDefinition>> createDefinitions(
   const auto resolvedClasses =
     resolveInheritance(status, filterRedundantClasses(status, classInfos));
 
-  auto result = std::vector<std::unique_ptr<mdl::EntityDefinition>>{};
+  auto result = std::vector<mdl::EntityDefinition>{};
   for (auto classInfo : resolvedClasses)
   {
     if (auto definition = createDefinition(std::move(classInfo), defaultEntityColor))
     {
-      result.push_back(std::move(definition));
+      result.push_back(std::move(*definition));
     }
   }
 
@@ -490,8 +493,8 @@ EntityDefinitionParser::EntityDefinitionParser(const Color& defaultEntityColor)
 
 EntityDefinitionParser::~EntityDefinitionParser() {}
 
-Result<std::vector<std::unique_ptr<mdl::EntityDefinition>>> EntityDefinitionParser::
-  parseDefinitions(ParserStatus& status)
+Result<std::vector<mdl::EntityDefinition>> EntityDefinitionParser::parseDefinitions(
+  ParserStatus& status)
 {
   try
   {

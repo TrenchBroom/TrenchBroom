@@ -41,7 +41,7 @@ namespace tb::ui
 TEST_CASE_METHOD(MapDocumentTest, "ValidatorTest.emptyProperty")
 {
   mdl::EntityNode* entityNode =
-    document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
+    document->createPointEntity(*m_pointEntityDef, vm::vec3d{0, 0, 0});
 
   document->deselectAll();
   document->selectNodes({entityNode});

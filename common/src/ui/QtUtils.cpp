@@ -143,6 +143,11 @@ bool SyncHeightEventFilter::eventFilter(QObject* target, QEvent* event)
   }
 }
 
+QString fromStdStringView(std::string_view sv)
+{
+  return QString::fromUtf8(sv.data(), static_cast<int>(sv.size()));
+}
+
 QString fileDialogDefaultDirectory(const FileDialogDir dir)
 {
   const auto key = fileDialogDefaultDirectorySettingsPath(dir);

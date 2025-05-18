@@ -17,6 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "el/ELTestUtils.h"
 #include "io/DiskIO.h"
 #include "io/EntParser.h"
 #include "io/TestParserStatus.h"
@@ -74,10 +75,9 @@ TEST_CASE("EntParser")
   {
     const auto file = "";
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseWhitespaceFile")
@@ -87,10 +87,9 @@ TEST_CASE("EntParser")
   )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().empty());
+
+    CHECK(parser.parseDefinitions(status) == std::vector<mdl::EntityDefinition>{});
   }
 
   SECTION("parseMalformedXML")
@@ -102,8 +101,8 @@ TEST_CASE("EntParser")
 </classes>)";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
+
     CHECK(parser.parseDefinitions(status).is_error());
   }
 
@@ -145,42 +144,37 @@ Updated: 2011-03-02
 )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    CHECK(pointDefinition != nullptr);
-
-    const auto expectedDescription = R"(
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "_skybox",
+          Color{0.77f, 0.88f, 1.0f},
+          R"(
     -------- KEYS --------
     asdf
     -------- NOTES --------
     Compiler-only entity that specifies the origin of a skybox (a wholly contained, separate area of the map), similar to some games portal skies. When compiled with Q3Map2, the skybox surfaces will be visible from any place where sky is normally visible. It will cast shadows on the normal parts of the map, and can be used with cloud layers and other effects.
-    )";
-    CHECK(pointDefinition->description() == expectedDescription);
-
-    CHECK(vm::is_equal(Color{0.77f, 0.88f, 1.0f, 1.0f}, pointDefinition->color(), 0.01f));
-
-    CHECK(vm::is_equal(
-      vm::bbox3d{{-4.0, -4.0, -4.0}, {+4.0, +4.0, +4.0}},
-      pointDefinition->bounds(),
-      0.01));
-
-    CHECK(
-      pointDefinition->propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"angle", Unknown{}, "Yaw Angle", R"(Rotation angle of the sky surfaces.)"},
-        {"angles",
-         Unknown{},
-         "Pitch Yaw Roll",
-         R"(Individual control of PITCH, YAW, and ROLL (default 0 0 0).)"},
-        {"_scale",
-         Float{64.0f},
-         "Scale",
-         R"(Scaling factor (default 64), good values are between 50 and 300, depending on the map.)"},
+    )",
+          std::vector<mdl::PropertyDefinition>{
+            {"angle", Unknown{}, "Yaw Angle", R"(Rotation angle of the sky surfaces.)"},
+            {"angles",
+             Unknown{},
+             "Pitch Yaw Roll",
+             R"(Individual control of PITCH, YAW, and ROLL (default 0 0 0).)"},
+            {"_scale",
+             Float{64.0f},
+             "Scale",
+             R"(Scaling factor (default 64), good values are between 50 and 300, depending on the map.)"},
+          },
+          mdl::PointEntityDefinition{
+            {{-4, -4, -4}, {+4, +4, +4}},
+            {},
+            {},
+          },
+        },
       });
   }
 
@@ -210,16 +204,15 @@ Target this entity with a misc_model to have the model attached to the entity (s
 </classes>)";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto* brushDefinition =
-      dynamic_cast<const mdl::BrushEntityDefinition*>(definitions.value().front().get());
-    CHECK(brushDefinition != nullptr);
-
-    const auto expectedDescription = R"(
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "func_bobbing",
+          Color{0.0f, 0.4f, 1.0f},
+          R"(
 Solid entity that oscillates back and forth in a linear motion. By default, it will have an amount of displacement in either direction equal to the dimension of the brush in the axis in which it's bobbing. Entity bobs on the Z axis (up-down) by default. It can also emit sound if the "noise" key is set. Will crush the player when blocked.
 -------- KEYS --------
 
@@ -227,45 +220,41 @@ Solid entity that oscillates back and forth in a linear motion. By default, it w
 In order for the sound to be emitted from the entity, it is recommended to include a brush with an origin shader at its center, otherwise the sound will not follow the entity as it moves. When using the model2 key, the origin point of the model will correspond to the origin point defined by the origin brush.
 
 Target this entity with a misc_model to have the model attached to the entity (set the model's "target" key to the same value as this entity's "targetname").
-)";
-    CHECK(brushDefinition->description() == expectedDescription);
-
-    CHECK(vm::is_equal(Color{0.0f, 0.4f, 1.0f}, brushDefinition->color(), 0.01f));
-
-    CHECK(
-      brushDefinition->propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"spawnflags",
-         Flags{{
-           {1, "X_AXIS", "X Axis"},
-           {2, "Y_AXIS", "Y Axis"},
-         }},
-         "",
-         ""},
-        {"noise",
-         Unknown{},
-         "Sound File",
-         R"(Path/name of .wav file to play. Use looping sounds only (e.g. sound/world/drone6.wav - see notes).)"},
-        {"model2",
-         Unknown{},
-         "Model File",
-         R"(Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).)"},
-        {"color",
-         Unknown{"1 1 1"},
-         "Model Light Color",
-         R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
-        {"targetname",
-         TargetSource{},
-         "Target Name",
-         R"(Used to attach a misc_model entity to this entity.)"},
-        {"_castshadows",
-         Integer{0},
-         "Shadow Caster Level",
-         R"(Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.)"},
-        {"_celshader",
-         Unknown{},
-         "Cel Shader",
-         R"(Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.)"},
+)",
+          {
+            {"spawnflags",
+             Flags{{
+               {1, "X_AXIS", "X Axis"},
+               {2, "Y_AXIS", "Y Axis"},
+             }},
+             "",
+             ""},
+            {"noise",
+             Unknown{},
+             "Sound File",
+             R"(Path/name of .wav file to play. Use looping sounds only (e.g. sound/world/drone6.wav - see notes).)"},
+            {"model2",
+             Unknown{},
+             "Model File",
+             R"(Path/name of model to include (.md3 files only, e.g. models/mapobjects/jets/jets01.md3).)"},
+            {"color",
+             Unknown{"1 1 1"},
+             "Model Light Color",
+             R"(Color of constant light of .md3 model, included with entity (default 1 1 1).)"},
+            {"targetname",
+             TargetSource{},
+             "Target Name",
+             R"(Used to attach a misc_model entity to this entity.)"},
+            {"_castshadows",
+             Integer{0},
+             "Shadow Caster Level",
+             R"(Allows per-entity control over shadow casting. Defaults to 0 on entities, 1 on world. 0 = no shadow casting. 1 = cast shadows on world. > 1 = cast shadows on entities with _rs (or _receiveshadows) with the corresponding value, AND world. Negative values imply same, but DO NOT cast shadows on world.)"},
+            {"_celshader",
+             Unknown{},
+             "Cel Shader",
+             R"(Sets the cel shader used for this geometry. Note: Omit the "textures/" prefix.)"},
+          },
+        },
       });
   }
 
@@ -294,28 +283,26 @@ Target this entity with a misc_model to have the model attached to the entity (s
             )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    CHECK(pointDefinition != nullptr);
 
     CHECK(
-      pointDefinition->propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"count",
-         Choice{
-           {
-             {"0", "white"},
-             {"1", "red"},
-             {"2", "green"},
-           },
-           "0"},
-         "Text Color",
-         R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "_skybox",
+          Color{0.77f, 0.88f, 1.0f},
+          "",
+          {
+            {"count",
+             Choice{
+               {
+                 {"0", "white"},
+                 {"1", "red"},
+                 {"2", "green"},
+               },
+               "0"},
+             "Text Color",
+             R"(Color of the location text displayed in parentheses during team chat. Set to 0-7 for color.
 0 : White (default)
 1 : Red
 2 : Green
@@ -324,6 +311,13 @@ Target this entity with a misc_model to have the model attached to the entity (s
 5 : Cyan
 6 : Magenta
 7 : White)"},
+          },
+          mdl::PointEntityDefinition{
+            {{-4, -4, -4}, {4, 4, 4}},
+            {},
+            {},
+          },
+        },
       });
   }
 
@@ -346,26 +340,31 @@ Target this entity with a misc_model to have the model attached to the entity (s
 )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    REQUIRE(definitions.value().size() == 1u);
-
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    REQUIRE(pointDefinition != nullptr);
 
     CHECK(
-      pointDefinition->propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"prop_true", Boolean{true}, "true", ""},
-        {"prop_false", Boolean{false}, "false", ""},
-        {"prop_True", Boolean{true}, "True", ""},
-        {"prop_False", Boolean{false}, "False", ""},
-        {"prop_0", Boolean{false}, "0", ""},
-        {"prop_1", Boolean{true}, "1", ""},
-        {"prop_2", Boolean{true}, "2", ""},
-        {"prop_n1", Boolean{true}, "-1", ""},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "_skybox",
+          Color{0.77f, 0.88f, 1.0f, 1.0f},
+          "",
+          {
+            {"prop_true", Boolean{true}, "true", ""},
+            {"prop_false", Boolean{false}, "false", ""},
+            {"prop_True", Boolean{true}, "True", ""},
+            {"prop_False", Boolean{false}, "False", ""},
+            {"prop_0", Boolean{false}, "0", ""},
+            {"prop_1", Boolean{true}, "1", ""},
+            {"prop_2", Boolean{true}, "2", ""},
+            {"prop_n1", Boolean{true}, "-1", ""},
+          },
+          mdl::PointEntityDefinition{
+            {{-4, -4, -4}, {4, 4, 4}},
+            {},
+            {},
+          },
+        },
       });
   }
 
@@ -381,19 +380,24 @@ Target this entity with a misc_model to have the model attached to the entity (s
                         )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
-
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    CHECK(pointDefinition != nullptr);
 
     CHECK(
-      pointDefinition->propertyDefinitions()
-      == std::vector<mdl::PropertyDefinition>{
-        {"_scale", Unknown{"asdf"}, "Scale", ""},
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "_skybox",
+          Color{0.77f, 0.88f, 1.0f, 1.0f},
+          "",
+          {
+            {"_scale", Unknown{"asdf"}, "Scale", ""},
+          },
+          mdl::PointEntityDefinition{
+            {{-4, -4, -4}, {4, 4, 4}},
+            {},
+            {},
+          },
+        },
       });
   }
 
@@ -407,19 +411,24 @@ Target this entity with a misc_model to have the model attached to the entity (s
             )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    CHECK(pointDefinition != nullptr);
-
-    const auto& modelDefinition = pointDefinition->modelDefinition();
     CHECK(
-      modelDefinition.defaultModelSpecification().value().path
-      == "models/powerups/ammo/bfgam.md3");
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "ammo_bfg",
+          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          "",
+          {},
+          mdl::PointEntityDefinition{
+            {{-16, -16, -16}, {16, 16, 16}},
+            mdl::ModelDefinition{el::lit(
+              el::MapType{{"path", el::Value{"models/powerups/ammo/bfgam.md3"}}})},
+            {},
+          },
+        },
+      });
   }
 
   SECTION("parseELStaticModelDefinition")
@@ -432,19 +441,28 @@ Target this entity with a misc_model to have the model attached to the entity (s
             )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto* pointDefinition =
-      dynamic_cast<const mdl::PointEntityDefinition*>(definitions.value().front().get());
-    CHECK(pointDefinition != nullptr);
-
-    const auto& modelDefinition = pointDefinition->modelDefinition();
     CHECK(
-      modelDefinition.defaultModelSpecification().value().path
-      == "models/powerups/ammo/bfgam2.md3");
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "ammo_bfg",
+          Color{0.3f, 0.3f, 1.0f, 1.0f},
+          "",
+          {},
+          mdl::PointEntityDefinition{
+            {{-16, -16, -16}, {16, 16, 16}},
+            mdl::ModelDefinition{el::swt({
+              el::cs(
+                el::eq(el::var("spawnflags"), el::lit(1)),
+                el::lit("models/powerups/ammo/bfgam.md3")),
+              el::lit("models/powerups/ammo/bfgam2.md3"),
+            })},
+            {},
+          },
+        },
+      });
   }
 
   SECTION("parsePointEntityWithMissingBoxAttribute")
@@ -459,14 +477,30 @@ Target this entity with a misc_model to have the model attached to the entity (s
 )";
 
     auto parser = EntParser{file, Color{1.0f, 1.0f, 1.0f, 1.0f}};
-
     auto status = TestParserStatus{};
-    auto definitions = parser.parseDefinitions(status);
-    CHECK(definitions.value().size() == 1u);
 
-    const auto& definition =
-      static_cast<mdl::PointEntityDefinition&>(*definitions.value()[0]);
-    CHECK(definition.bounds() == vm::bbox3d{{-8.0, -8.0, -8.0}, {8.0, 8.0, 8.0}});
+    CHECK(
+      parser.parseDefinitions(status)
+      == std::vector<mdl::EntityDefinition>{
+        {
+          "linkEmitter",
+          Color{0.2f, 0.5f, 0.2f, 1.0f},
+          "",
+          {
+            {
+              "target",
+              TargetDestination{},
+              "target",
+              "",
+            },
+          },
+          mdl::PointEntityDefinition{
+            {{-8, -8, -8}, {8, 8, 8}},
+            {},
+            {},
+          },
+        },
+      });
   }
 }
 

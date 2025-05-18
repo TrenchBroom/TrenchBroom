@@ -368,7 +368,7 @@ TEST_CASE_METHOD(MapDocumentTest, "PickingTest.pickBrushEntity")
 
   document->selectAllNodes();
 
-  document->createBrushEntity(m_brushEntityDef);
+  document->createBrushEntity(*m_brushEntityDef);
   document->deselectAll();
 
   auto pickResult = mdl::PickResult{};

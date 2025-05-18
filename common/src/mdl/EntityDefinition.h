@@ -24,106 +24,74 @@
 #include "mdl/ModelDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
+#include "kdl/reflection_decl.h"
+
 #include "vm/bbox.h"
 
 #include <atomic>
+#include <memory>
 #include <string>
+#include <string_view>
 #include <vector>
 
 namespace tb::mdl
 {
 
+struct PointEntityDefinition
+{
+  vm::bbox3d bounds;
+  ModelDefinition modelDefinition;
+  DecalDefinition decalDefinition;
+
+  kdl_reflect_decl(PointEntityDefinition, bounds, modelDefinition, decalDefinition);
+};
+
+struct EntityDefinition
+{
+  std::string name;
+  Color color;
+  std::string description;
+  std::vector<PropertyDefinition> propertyDefinitions;
+  std::optional<PointEntityDefinition> pointEntityDefinition = std::nullopt;
+  size_t index = 0;
+
+  size_t usageCount() const;
+  void incUsageCount() const;
+  void decUsageCount() const;
+
+  kdl_reflect_decl(
+    EntityDefinition,
+    index,
+    name,
+    color,
+    description,
+    propertyDefinitions,
+    pointEntityDefinition);
+
+  // Use a shared pointer to enable copying
+  std::shared_ptr<std::atomic<size_t>> m_usageCount =
+    std::make_shared<std::atomic<size_t>>(0);
+};
+
+const PropertyDefinition* getPropertyDefinition(
+  const EntityDefinition& entityDefinition, const std::string& key);
+
+const PropertyDefinition* getPropertyDefinition(
+  const EntityDefinition* entityDefinition, const std::string& key);
+
 enum class EntityDefinitionType
 {
-  PointEntity,
-  BrushEntity
+  Point,
+  Brush,
 };
 
-enum class EntityDefinitionSortOrder
-{
-  Name,
-  Usage
-};
+std::string_view getShortName(const EntityDefinition& entityDefinition);
 
-class EntityDefinition
-{
-private:
-  size_t m_index;
-  std::string m_name;
-  Color m_color;
-  std::string m_description;
-  std::atomic<size_t> m_usageCount;
-  std::vector<PropertyDefinition> m_propertyDefinitions;
+std::string_view getGroupName(const EntityDefinition& entityDefinition);
 
-public:
-  virtual ~EntityDefinition();
+EntityDefinitionType getType(const EntityDefinition& entityDefinition);
 
-  size_t index() const;
-  void setIndex(size_t index);
+const PointEntityDefinition* getPointEntityDefinition(
+  const EntityDefinition* entityDefinition);
 
-  virtual EntityDefinitionType type() const = 0;
-  const std::string& name() const;
-  std::string shortName() const;
-  std::string groupName() const;
-  const Color& color() const;
-  const std::string& description() const;
-  size_t usageCount() const;
-  void incUsageCount();
-  void decUsageCount();
-
-  const PropertyDefinition* spawnflags() const;
-  const std::vector<PropertyDefinition>& propertyDefinitions() const;
-  const PropertyDefinition* propertyDefinition(const std::string& propertyKey) const;
-
-  static const PropertyDefinition* safeGetPropertyDefinition(
-    const EntityDefinition* entityDefinition, const std::string& propertyKey);
-  static const PropertyDefinition* safeGetFlagsPropertyDefinition(
-    const EntityDefinition* entityDefinition, const std::string& propertyKey);
-
-  static std::vector<EntityDefinition*> filterAndSort(
-    const std::vector<EntityDefinition*>& definitions,
-    EntityDefinitionType type,
-    EntityDefinitionSortOrder prder = EntityDefinitionSortOrder::Name);
-
-protected:
-  EntityDefinition(
-    std::string name,
-    const Color& color,
-    std::string description,
-    std::vector<PropertyDefinition> propertyDefinitions);
-};
-
-class PointEntityDefinition : public EntityDefinition
-{
-private:
-  vm::bbox3d m_bounds;
-  ModelDefinition m_modelDefinition;
-  DecalDefinition m_decalDefinition;
-
-public:
-  PointEntityDefinition(
-    std::string name,
-    const Color& color,
-    const vm::bbox3d& bounds,
-    std::string description,
-    std::vector<PropertyDefinition> propertyDefinitions,
-    ModelDefinition modelDefinition,
-    DecalDefinition decalDefinition);
-
-  EntityDefinitionType type() const override;
-  const vm::bbox3d& bounds() const;
-  const ModelDefinition& modelDefinition() const;
-  const DecalDefinition& decalDefinition() const;
-};
-
-class BrushEntityDefinition : public EntityDefinition
-{
-public:
-  BrushEntityDefinition(
-    std::string name,
-    const Color& color,
-    std::string description,
-    std::vector<PropertyDefinition> propertyDefinitions);
-  EntityDefinitionType type() const override;
-};
 } // namespace tb::mdl

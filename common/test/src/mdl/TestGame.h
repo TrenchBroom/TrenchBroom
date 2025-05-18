@@ -22,6 +22,7 @@
 #include "Result.h"
 #include "io/VirtualFileSystem.h"
 #include "mdl/BrushFaceAttributes.h"
+#include "mdl/EntityDefinition.h"
 #include "mdl/Game.h"
 
 #include <filesystem>
@@ -95,7 +96,7 @@ public:
   std::vector<std::string> extractEnabledMods(const Entity& entity) const override;
   std::string defaultMod() const override;
 
-  Result<std::vector<std::unique_ptr<EntityDefinition>>> loadEntityDefinitions(
+  Result<std::vector<EntityDefinition>> loadEntityDefinitions(
     io::ParserStatus& status, const std::filesystem::path& path) const override;
 
   void setSmartTags(std::vector<SmartTag> smartTags);
