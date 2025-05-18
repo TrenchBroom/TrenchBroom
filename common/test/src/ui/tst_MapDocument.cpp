@@ -27,6 +27,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
@@ -46,6 +47,8 @@
 
 namespace tb::ui
 {
+
+using namespace mdl::PropertyValueTypes;
 
 TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
 {
@@ -324,7 +327,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     SECTION("Point entity is created and selected")
     {
       auto* entityNode =
-        document->createPointEntity(m_pointEntityDef, vm::vec3d{16.0, 32.0, 48.0});
+        document->createPointEntity(*m_pointEntityDef, vm::vec3d{16.0, 32.0, 48.0});
       CHECK(entityNode != nullptr);
       CHECK(entityNode->entity().definition() == m_pointEntityDef);
       CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
@@ -334,11 +337,11 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     SECTION("Selected objects are deselect and not translated")
     {
       auto* existingNode =
-        document->createPointEntity(m_pointEntityDef, vm::vec3d{0, 0, 0});
+        document->createPointEntity(*m_pointEntityDef, vm::vec3d{0, 0, 0});
       document->selectNodes({existingNode});
 
       const auto origin = existingNode->entity().origin();
-      document->createPointEntity(m_pointEntityDef, {16, 16, 16});
+      document->createPointEntity(*m_pointEntityDef, {16, 16, 16});
 
       CHECK(existingNode->entity().origin() == origin);
     }
@@ -350,20 +353,24 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       document->newDocument(mdl::MapFormat::Standard, document->worldBounds(), game)
         | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-      auto definitionWithDefaultsOwner = std::make_unique<mdl::PointEntityDefinition>(
-        "some_name",
-        Color{},
-        vm::bbox3d{32.0},
-        "",
-        std::vector<mdl::PropertyDefinition>{
-          {"some_default_prop", mdl::PropertyValueTypes::String{"value"}, "", ""},
+      document->setEntityDefinitions({
+        mdl::EntityDefinition{
+          "some_name",
+          Color{},
+          "",
+          {
+            {"some_default_prop", String{"value"}, "", ""},
+          },
+          mdl::PointEntityDefinition{
+            vm::bbox3d{32.0},
+            {},
+            {},
+          },
         },
-        mdl::ModelDefinition{},
-        mdl::DecalDefinition{});
-      auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
-      document->setEntityDefinitions(
-        kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
-          std::move(definitionWithDefaultsOwner)));
+      });
+
+      const auto& definitionWithDefaults =
+        document->entityDefinitionManager().definitions().front();
 
       auto* entityNode = document->createPointEntity(definitionWithDefaults, {0, 0, 0});
       REQUIRE(entityNode != nullptr);
@@ -387,7 +394,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       document->addNodes({{document->parentForNodes(), {brushNode}}});
 
       document->selectNodes({brushNode});
-      auto* entityNode = document->createBrushEntity(m_brushEntityDef);
+      auto* entityNode = document->createBrushEntity(*m_brushEntityDef);
       CHECK(entityNode != nullptr);
       CHECK(entityNode->entity().definition() == m_brushEntityDef);
       CHECK(document->selectedNodes().nodes() == std::vector<mdl::Node*>{brushNode});
@@ -402,7 +409,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
         {{document->parentForNodes(), {brushNode1, brushNode2, brushNode3}}});
 
       document->selectNodes({brushNode1, brushNode2, brushNode3});
-      auto* previousEntityNode = document->createBrushEntity(m_brushEntityDef);
+      auto* previousEntityNode = document->createBrushEntity(*m_brushEntityDef);
 
       document->setProperty("prop", "value");
       REQUIRE(previousEntityNode->entity().hasProperty("prop", "value"));
@@ -410,7 +417,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       document->deselectAll();
       document->selectNodes({brushNode1, brushNode2});
 
-      auto* newEntityNode = document->createBrushEntity(m_brushEntityDef);
+      auto* newEntityNode = document->createBrushEntity(*m_brushEntityDef);
       CHECK(newEntityNode != nullptr);
       CHECK(newEntityNode->entity().hasProperty("prop", "value"));
     }
@@ -422,18 +429,19 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       document->newDocument(mdl::MapFormat::Standard, document->worldBounds(), game)
         | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
-      auto definitionWithDefaultsOwner = std::make_unique<mdl::BrushEntityDefinition>(
-        "some_name",
-        Color{},
-        "",
-        std::vector<mdl::PropertyDefinition>{
-          {"some_default_prop", mdl::PropertyValueTypes::String{"value"}, "", ""},
-        });
-      auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
+      document->setEntityDefinitions({
+        mdl::EntityDefinition{
+          "some_name",
+          Color{},
+          "",
+          {
+            {"some_default_prop", String{"value"}, "", ""},
+          },
+        },
+      });
 
-      document->setEntityDefinitions(
-        kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
-          std::move(definitionWithDefaultsOwner)));
+      const auto& definitionWithDefaults =
+        document->entityDefinitionManager().definitions().front();
 
       auto* brushNode = createBrushNode("some_material");
       document->addNodes({{document->parentForNodes(), {brushNode}}});
@@ -456,22 +464,26 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     document->deleteObjects();
 
     // Note: The test document does not automatically set the default properties
-    auto definitionWithDefaultsOwner = std::make_unique<mdl::PointEntityDefinition>(
-      "some_name",
-      Color{},
-      vm::bbox3d{32.0},
-      "",
-      std::vector<mdl::PropertyDefinition>{
-        {"some_prop", mdl::PropertyValueTypes::String{}, "", ""},
-        {"default_prop_a", mdl::PropertyValueTypes::String{"default_value_a"}, "", ""},
-        {"default_prop_b", mdl::PropertyValueTypes::String{"default_value_b"}, "", ""},
+    document->setEntityDefinitions({
+      mdl::EntityDefinition{
+        "some_name",
+        Color{},
+        "",
+        {
+          {"some_prop", mdl::PropertyValueTypes::String{}, "", ""},
+          {"default_prop_a", mdl::PropertyValueTypes::String{"default_value_a"}, "", ""},
+          {"default_prop_b", mdl::PropertyValueTypes::String{"default_value_b"}, "", ""},
+        },
+        mdl::PointEntityDefinition{
+          vm::bbox3d{32.0},
+          {},
+          {},
+        },
       },
-      mdl::ModelDefinition{},
-      mdl::DecalDefinition{});
-    auto* definitionWithDefaults = definitionWithDefaultsOwner.get();
+    });
 
-    document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
-      std::move(definitionWithDefaultsOwner)));
+    const auto& definitionWithDefaults =
+      document->entityDefinitionManager().definitions().front();
 
     auto* entityNodeWithoutDefinition = new mdl::EntityNode{mdl::Entity{{
       {"classname", "some_class"},
@@ -484,7 +496,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     auto* entityNodeWithProp =
       document->createPointEntity(definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithProp != nullptr);
-    REQUIRE(entityNodeWithProp->entity().definition() == definitionWithDefaults);
+    REQUIRE(entityNodeWithProp->entity().definition() == &definitionWithDefaults);
     document->selectNodes({entityNodeWithProp});
     document->setProperty("some_prop", "some_value");
     document->deselectAll();
@@ -492,7 +504,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     auto* entityNodeWithPropA =
       document->createPointEntity(definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithPropA != nullptr);
-    REQUIRE(entityNodeWithPropA->entity().definition() == definitionWithDefaults);
+    REQUIRE(entityNodeWithPropA->entity().definition() == &definitionWithDefaults);
     document->selectNodes({entityNodeWithPropA});
     document->setProperty("some_prop", "some_value");
     document->setProperty("default_prop_a", "default_value_a");
@@ -503,7 +515,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     REQUIRE(entityNodeWithPropAWithValueChanged != nullptr);
     REQUIRE(
       entityNodeWithPropAWithValueChanged->entity().definition()
-      == definitionWithDefaults);
+      == &definitionWithDefaults);
     document->selectNodes({entityNodeWithPropAWithValueChanged});
     document->setProperty("default_prop_a", "some_other_value");
     document->deselectAll();
@@ -511,7 +523,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     auto* entityNodeWithPropsAB =
       document->createPointEntity(definitionWithDefaults, {0, 0, 0});
     REQUIRE(entityNodeWithPropsAB != nullptr);
-    REQUIRE(entityNodeWithPropsAB->entity().definition() == definitionWithDefaults);
+    REQUIRE(entityNodeWithPropsAB->entity().definition() == &definitionWithDefaults);
     document->selectNodes({entityNodeWithPropsAB});
     document->setProperty("some_prop", "some_value");
     document->setProperty("default_prop_a", "default_value_a");

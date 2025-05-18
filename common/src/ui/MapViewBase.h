@@ -38,12 +38,10 @@ class QAction;
 
 namespace tb::mdl
 {
-class BrushEntityDefinition;
-class EntityDefinition;
+struct EntityDefinition;
 class GroupNode;
 class Node;
 class NodeCollection;
-class PointEntityDefinition;
 class SmartTag;
 enum class EntityDefinitionType;
 } // namespace tb::mdl
@@ -254,10 +252,10 @@ public: // reparenting objects
   void createBrushEntity();
   virtual vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const = 0;
 
-  mdl::EntityDefinition* findEntityDefinition(
+  const mdl::EntityDefinition* findEntityDefinition(
     mdl::EntityDefinitionType type, size_t index) const;
-  void createPointEntity(const mdl::PointEntityDefinition* definition);
-  void createBrushEntity(const mdl::BrushEntityDefinition* definition);
+  void createPointEntity(const mdl::EntityDefinition& definition);
+  void createBrushEntity(const mdl::EntityDefinition& definition);
   bool canCreateBrushEntity();
 
 public: // tags
@@ -269,8 +267,8 @@ public: // make structural
   void makeStructural();
 
 public: // entity definitions
-  void toggleEntityDefinitionVisible(const mdl::EntityDefinition* definition);
-  void createEntity(const mdl::EntityDefinition* definition);
+  void toggleEntityDefinitionVisible(const mdl::EntityDefinition& definition);
+  void createEntity(const mdl::EntityDefinition& definition);
 
 public: // view filters
   void toggleShowEntityClassnames();

@@ -531,7 +531,7 @@ const Color& EntityRenderer::boundsColor(const mdl::EntityNode* entityNode) cons
 {
   if (const auto* definition = entityNode->entity().definition())
   {
-    return definition->color();
+    return definition->color;
   }
   return m_boundsColor;
 }
