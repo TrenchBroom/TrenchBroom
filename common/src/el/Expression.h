@@ -223,6 +223,7 @@ enum class BinaryOperation
   NotEqual,
   BoundedRange,
   Case,
+  Coalesce,
 };
 
 struct BinaryExpression

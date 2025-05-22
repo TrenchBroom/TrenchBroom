@@ -77,6 +77,7 @@ auto tokenNames()
     {BitwiseShiftRight, "'>>'"},
     {DoubleOBrace, "'{{'"},
     {DoubleCBrace, "'}}'"},
+    {Coalesce, "'??'"},
     {Null, "'null'"},
     {Eof, "end of file"},
   };
@@ -258,6 +259,13 @@ ELTokenizer::Token ELTokenizer::emitToken()
         {
           advance(2);
           return Token{ELToken::Range, c, c + 2, offset(c), line, column};
+        }
+        break;
+      case '?':
+        if (lookAhead() == '?')
+        {
+          advance(2);
+          return Token{ELToken::Coalesce, c, c + 2, offset(c), line, column};
         }
         break;
       case '=':
@@ -675,6 +683,7 @@ el::ExpressionNode ELParser::parseCompoundTerm(el::ExpressionNode lhs)
     {ELToken::NotEqual, el::BinaryOperation::NotEqual},
     {ELToken::Range, el::BinaryOperation::BoundedRange},
     {ELToken::Case, el::BinaryOperation::Case},
+    {ELToken::Coalesce, el::BinaryOperation::Coalesce},
   };
 
   while (m_tokenizer.peekToken().hasType(ELToken::CompoundTerm))
