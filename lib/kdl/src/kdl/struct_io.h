@@ -67,6 +67,12 @@ private:
   template <typename T>
   static void append_to_stream(struct_stream& lhs, const T& rhs)
   {
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wswitch-default"
+#endif
+
+    // Xcode 16.3 erroneously warns about this switch statement missing a default
     switch (lhs.m_expected)
     {
     case expected::type_name:
@@ -89,6 +95,10 @@ private:
       lhs.m_expected = expected::attr_name;
       break;
     }
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
   }
 };
 
