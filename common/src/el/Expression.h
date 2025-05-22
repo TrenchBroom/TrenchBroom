@@ -287,4 +287,6 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
     *m_expression);
 }
 
+  const ExpressionNode UndefinedLiteralNode = ExpressionNode{LiteralExpression{Value::Undefined}};
+
 } // namespace tb::el

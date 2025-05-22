@@ -341,6 +341,8 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
   classInfo.type = classType;
   classInfo.location = token.location();
 
+  std::optional<el::MapExpression> modelDefMap;
+
   while (token.type() == FgdToken::Word)
   {
     const auto typeName = token.data();
@@ -368,19 +370,47 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
       }
       classInfo.size = parseSize();
     }
-    else if (
-      kdl::ci::str_is_equal(typeName, "model")
-      || kdl::ci::str_is_equal(typeName, "studio")
-      || kdl::ci::str_is_equal(typeName, "studioprop")
-      || kdl::ci::str_is_equal(typeName, "sprite")
-      || kdl::ci::str_is_equal(typeName, "iconsprite"))
+    else if (kdl::ci::str_is_equal(typeName, "model"))
     {
       if (classInfo.modelDefinition)
       {
         status.warn(token.location(), "Found multiple model properties");
       }
-      classInfo.modelDefinition =
-        parseModel(status, kdl::ci::str_is_equal(typeName, "sprite"));
+      classInfo.modelDefinition = parseModel(status);
+    }
+    else if (
+      kdl::ci::str_is_equal(typeName, "studio")
+      || kdl::ci::str_is_equal(typeName, "studioprop")
+      || kdl::ci::str_is_equal(typeName, "lightprop")
+      || kdl::ci::str_is_equal(typeName, "sprite")
+      || kdl::ci::str_is_equal(typeName, "iconsprite"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Path,
+         parseExpressionWithOverride(status, FgdToken::OParenthesis, FgdToken::CParenthesis, "model")});
+      //ideally, if iconsprite, should be displayed in addition to the model and at a default 0.25 scale
+    }
+    else if (kdl::ci::str_is_equal(typeName, "skin"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Skin,
+         parseExpressionWithOverride(status, FgdToken::OParenthesis, FgdToken::CParenthesis, "skin")});
+    }
+    else if (kdl::ci::str_is_equal(typeName, "sequence"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Frame,
+         parseExpressionWithOverride(status, FgdToken::OParenthesis, FgdToken::CParenthesis, "sequence")});
+    }
+    else if (kdl::ci::str_is_equal(typeName, "scale"))
+    {
+      if (!modelDefMap) modelDefMap = el::MapExpression();
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Scale,
+         parseExpressionWithOverride(status, FgdToken::OParenthesis, FgdToken::CParenthesis, "scale")});
     }
     else if (kdl::ci::str_is_equal(typeName, "decal"))
     {
@@ -411,6 +441,29 @@ EntityDefinitionClassInfo FgdParser::parseClassInfo(
   }
 
   classInfo.propertyDefinitions = parsePropertyDefinitions(status);
+
+  // If the entity has a defined studio/studioprop/lightprop/sprite then it is meant to be displayed
+  if (
+    modelDefMap && modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Path)
+    && !classInfo.modelDefinition)
+  {
+    // If any of the other model definition keys weren't found, then ensure they can be pulled from the entity key-values
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Skin))
+      modelDefMap->elements.insert({
+        mdl::ModelSpecificationKeys::Skin,
+         el::ExpressionNode{el::VariableExpression{"skin"}}});
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Frame))
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Frame,
+         el::ExpressionNode{el::VariableExpression{"sequence"}}});
+    if (!modelDefMap->elements.contains(mdl::ModelSpecificationKeys::Scale))
+      modelDefMap->elements.insert(
+        {mdl::ModelSpecificationKeys::Scale,
+         el::ExpressionNode{el::VariableExpression{"scale"}}});
+    // Then compile all this information into a model definition
+    classInfo.modelDefinition =
+      mdl::ModelDefinition{el::ExpressionNode{std::move(modelDefMap.value())}};
+  }
 
   return classInfo;
 }
@@ -450,27 +503,55 @@ std::vector<std::string> FgdParser::parseSuperClasses()
   return superClasses;
 }
 
-mdl::ModelDefinition FgdParser::parseModel(
-  ParserStatus& status, const bool allowEmptyExpression)
+mdl::ModelDefinition FgdParser::parseModel(ParserStatus& status)
 {
   m_tokenizer.nextToken(FgdToken::OParenthesis);
-
-  if (allowEmptyExpression && m_tokenizer.peekToken().hasType(FgdToken::CParenthesis))
-  {
-    const auto location = m_tokenizer.location();
-    m_tokenizer.skipToken();
-
-    auto defaultModel = el::MapExpression{{
-      {"path", el::ExpressionNode{el::VariableExpression{"model"}, location}},
-      {"scale", el::ExpressionNode{el::VariableExpression{"scale"}, location}},
-    }};
-    auto defaultExp = el::ExpressionNode{std::move(defaultModel), location};
-    return mdl::ModelDefinition{std::move(defaultExp)};
-  }
 
   return io::parseModelDefinition(m_tokenizer, status, FgdToken::CParenthesis)
          | kdl::if_error([](const auto& e) { throw ParserException{e.msg}; })
          | kdl::value();
+}
+
+el::ExpressionNode FgdParser::parseExpression(
+  ParserStatus& status, FgdToken::Type oToken, FgdToken::Type cToken)
+{
+  m_tokenizer.nextToken(oToken);
+
+  if (m_tokenizer.peekToken().hasType(cToken))
+  {
+    m_tokenizer.skipToken();
+    return el::UndefinedLiteralNode;
+  }
+
+  const auto location = m_tokenizer.location();
+  const auto line = location.line;
+  const auto column = *location.column;
+
+  auto parser = ELParser{ELParser::Mode::Lenient, m_tokenizer.remainder(), line, column};
+  return parser.parse() | kdl::and_then([&](auto expression) {
+           // advance our tokenizer by the amount that the `parser` parsed
+           m_tokenizer.adoptState(parser.tokenizerState());
+           return ensureNextToken(m_tokenizer, cToken, std::move(expression));
+         })
+         | kdl::value();
+}
+el::ExpressionNode FgdParser::parseExpressionWithOverride(
+  ParserStatus& status, FgdToken::Type oToken, FgdToken::Type cToken, std::string overrideKey)
+{
+  auto ex = parseExpression(status, oToken, cToken);
+  if (ex == el::UndefinedLiteralNode)
+  {
+    // if empty, then explicitly use the entity property
+    return el::ExpressionNode{el::VariableExpression{overrideKey}};
+  }
+  else
+  {
+    // otherwise, coalesce the entity property using the parsed expression as default/backup
+    return el::ExpressionNode{el::BinaryExpression{
+      el::BinaryOperation::Coalesce,
+      el::ExpressionNode{el::VariableExpression{overrideKey}},
+      ex}};
+  }
 }
 
 mdl::DecalDefinition FgdParser::parseDecal()
