@@ -77,7 +77,6 @@
 #include <fmt/std.h>
 
 #include <chrono>
-#include <clocale>
 #include <csignal>
 #include <cstdlib>
 #include <iostream>

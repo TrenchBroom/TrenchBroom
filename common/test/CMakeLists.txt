@@ -140,6 +140,7 @@ set(COMMON_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MapDocument.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_MoveHandleDragTracker.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_Picking.cpp"
+        "${COMMON_TEST_SOURCE_DIR}/ui/tst_QtUtils.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RecentDocuments.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_RemoveNodes.cpp"
         "${COMMON_TEST_SOURCE_DIR}/ui/tst_ReparentNodes.cpp"
