@@ -223,6 +223,7 @@ enum class BinaryOperation
   NotEqual,
   BoundedRange,
   Case,
+  Coalesce,
 };
 
 struct BinaryExpression
@@ -285,5 +286,7 @@ VisitorResultType_t<Visitor> ExpressionNode::accept(const Visitor& visitor) cons
     },
     *m_expression);
 }
+
+  const ExpressionNode UndefinedLiteralNode = ExpressionNode{LiteralExpression{Value::Undefined}};
 
 } // namespace tb::el

@@ -70,15 +70,16 @@ constexpr auto BitwiseShiftLeft = Type{1} << 33;
 constexpr auto BitwiseShiftRight = Type{1} << 34;
 constexpr auto DoubleOBrace = Type{1} << 35;
 constexpr auto DoubleCBrace = Type{1} << 36;
-constexpr auto Null = Type{1} << 37;
-constexpr auto Eof = Type{1} << 38;
+constexpr auto Coalesce = Type{1} << 37;
+constexpr auto Null = Type{1} << 38;
+constexpr auto Eof = Type{1} << 39;
 constexpr auto Literal = String | Number | Boolean | Null;
 constexpr auto UnaryOperator = Addition | Subtraction | LogicalNegation | BitwiseNegation;
 constexpr auto SimpleTerm = Name | Literal | OParen | OBracket | OBrace | UnaryOperator;
 constexpr auto CompoundTerm =
   Addition | Subtraction | Multiplication | Division | Modulus | LogicalAnd | LogicalOr
   | Less | LessOrEqual | Equal | NotEqual | GreaterOrEqual | Greater | Case | BitwiseAnd
-  | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight;
+  | BitwiseXOr | BitwiseOr | BitwiseShiftLeft | BitwiseShiftRight | Coalesce;
 } // namespace ELToken
 
 class ELTokenizer : public Tokenizer<ELToken::Type>
