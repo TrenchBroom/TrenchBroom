@@ -271,11 +271,7 @@ QString nativeModifierLabel(int modifier);
 template <typename T, size_t S>
 QString toString(const vm::vec<T, S>& vec)
 {
-  const auto locale = QLocale{};
-  return QString{"%1 %2 %3"}
-    .arg(locale.toString(vec.x()))
-    .arg(locale.toString(vec.y()))
-    .arg(locale.toString(vec.z()));
+  return QString{"%L1 %L2 %L3"}.arg(vec.x()).arg(vec.y()).arg(vec.z());
 }
 
 template <std::floating_point T, size_t S>
