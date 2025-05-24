@@ -80,6 +80,7 @@ TEST_CASE("QtUtils")
       {en_US, "1 2 3", vm::vec3d{1, 2, 3}},
       {de_DE, "asdf", std::nullopt},
       {de_DE, "1,1 2,2 3,3", vm::vec3d{1.1, 2.2, 3.3}},
+      {de_DE, "1.1 2.2 3.3", vm::vec3d{1.1, 2.2, 3.3}},
       {de_DE, "1 2 3", vm::vec3d{1, 2, 3}},
     }));
 

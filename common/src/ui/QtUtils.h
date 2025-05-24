@@ -274,16 +274,12 @@ QString toString(const vm::vec<T, S>& vec)
   return QString{"%L1 %L2 %L3"}.arg(vec.x()).arg(vec.y()).arg(vec.z());
 }
 
-template <std::floating_point T, size_t S>
-std::optional<vm::vec<T, S>> parse(const QString& str)
+namespace detail
 {
-  const auto parts = str.split(' ', Qt::SkipEmptyParts);
-  if (parts.size() != S)
-  {
-    return std::nullopt;
-  }
 
-  const auto locale = QLocale{};
+template <std::floating_point T, size_t S>
+std::optional<vm::vec<T, S>> parse(const QStringList& parts, const QLocale& locale)
+{
   auto result = vm::vec<T, S>{};
   for (size_t i = 0; i < S; ++i)
   {
@@ -294,7 +290,28 @@ std::optional<vm::vec<T, S>> parse(const QString& str)
       return std::nullopt;
     }
   }
+
   return result;
+}
+
+} // namespace detail
+
+template <std::floating_point T, size_t S>
+std::optional<vm::vec<T, S>> parse(const QString& str)
+{
+  const auto parts = str.split(' ', Qt::SkipEmptyParts);
+  if (parts.size() != S)
+  {
+    return std::nullopt;
+  }
+
+  if (const auto result = detail::parse<T, S>(parts, QLocale{}))
+  {
+    return result;
+  }
+
+  // try to parse as english format to allow pasting from compiler output and such:
+  return detail::parse<T, S>(parts, QLocale::c());
 }
 
 template <std::integral T, size_t S>
