@@ -23,8 +23,9 @@ along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
 
 #include "vm/vec.h"
 
-#include "Catch2.h" // IWYU pragma: keep
+#include <optional>
 
+#include "Catch2.h" // IWYU pragma: keep
 
 namespace tb::ui
 {
@@ -67,6 +68,26 @@ TEST_CASE("QtUtils")
     const auto overrideLocale = OverrideLocale{locale};
 
     CHECK(toString(vec) == expectedString);
+  }
+
+  SECTION("parse")
+  {
+    using T = std::tuple<QLocale, QString, std::optional<vm::vec3d>>;
+
+    const auto& [locale, str, expectedVec] = GENERATE_COPY(values<T>({
+      {en_US, "asdf", std::nullopt},
+      {en_US, "1.1 2.2 3.3", vm::vec3d{1.1, 2.2, 3.3}},
+      {en_US, "1 2 3", vm::vec3d{1, 2, 3}},
+      {de_DE, "asdf", std::nullopt},
+      {de_DE, "1,1 2,2 3,3", vm::vec3d{1.1, 2.2, 3.3}},
+      {de_DE, "1 2 3", vm::vec3d{1, 2, 3}},
+    }));
+
+    CAPTURE(locale.name(), str);
+
+    const auto overrideLocale = OverrideLocale{locale};
+
+    CHECK(parse<double, 3>(str) == expectedVec);
   }
 }
 
