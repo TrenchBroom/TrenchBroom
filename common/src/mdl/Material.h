@@ -92,7 +92,7 @@ private:
 
   std::shared_ptr<TextureResource> m_textureResource;
 
-  std::atomic<size_t> m_usageCount = 0;
+  mutable std::atomic<size_t> m_usageCount = 0;
 
   // Quake 3 surface parameters; move these to materials when we add proper support for
   // those.
@@ -160,8 +160,8 @@ public:
   void disableBlend();
 
   size_t usageCount() const;
-  void incUsageCount();
-  void decUsageCount();
+  void incUsageCount() const;
+  void decUsageCount() const;
 
   void activate(int minFilter, int magFilter) const;
   void deactivate() const;

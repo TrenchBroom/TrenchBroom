@@ -106,14 +106,19 @@ void SmartFlagsEditor::getFlags(
       auto tooltip = QString{""};
 
       if (
-        const auto* propDef = mdl::EntityDefinition::safeGetFlagsPropertyDefinition(
-          node->entity().definition(), propertyKey()))
+        const auto* propDef =
+          getPropertyDefinition(node->entity().definition(), propertyKey()))
       {
-        const int flag = int(1 << i);
-        if (const auto* flagDef = propDef->option(flag))
+        if (
+          const auto* flagType =
+            std::get_if<mdl::PropertyValueTypes::Flags>(&propDef->valueType))
         {
-          label = QString::fromStdString(flagDef->shortDescription());
-          tooltip = QString::fromStdString(flagDef->longDescription());
+          const auto flagValue = int(1 << i);
+          if (const auto* flag = flagType->flag(flagValue))
+          {
+            label = QString::fromStdString(flag->shortDescription);
+            tooltip = QString::fromStdString(flag->longDescription);
+          }
         }
       }
 

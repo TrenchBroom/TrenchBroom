@@ -46,9 +46,9 @@ TEST_CASE("range IO")
 {
   CHECK(str_to_string(make_streamable(std::vector<int>{})) == "[]");
   CHECK(str_to_string(make_streamable(std::vector<int>{1})) == "[1]");
-  CHECK(str_to_string(make_streamable(std::vector<int>{1, 2})) == "[1,2]");
+  CHECK(str_to_string(make_streamable(std::vector<int>{1, 2})) == "[1, 2]");
   CHECK(
-    str_to_string(make_streamable(std::vector<some_ns::test>{{}, {}})) == "[test,test]");
+    str_to_string(make_streamable(std::vector<some_ns::test>{{}, {}})) == "[test, test]");
 }
 
 TEST_CASE("optional IO")

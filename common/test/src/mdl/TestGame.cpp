@@ -23,7 +23,6 @@
 #include "io/BrushFaceReader.h"
 #include "io/DiskFileSystem.h"
 #include "io/NodeReader.h"
-#include "io/NodeWriter.h"
 #include "io/VirtualFileSystem.h"
 #include "io/WadFileSystem.h"
 #include "mdl/Entity.h"
@@ -31,7 +30,7 @@
 #include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
 #include "mdl/MaterialManager.h"
-#include "mdl/WorldNode.h"
+#include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include <memory>
 #include <vector>
@@ -141,10 +140,10 @@ std::string TestGame::defaultMod() const
   return "";
 }
 
-Result<std::vector<std::unique_ptr<EntityDefinition>>> TestGame::loadEntityDefinitions(
+Result<std::vector<EntityDefinition>> TestGame::loadEntityDefinitions(
   io::ParserStatus& /* status */, const std::filesystem::path& /* path */) const
 {
-  return std::vector<std::unique_ptr<EntityDefinition>>{};
+  return std::vector<EntityDefinition>{};
 }
 
 void TestGame::setSmartTags(std::vector<SmartTag> smartTags)

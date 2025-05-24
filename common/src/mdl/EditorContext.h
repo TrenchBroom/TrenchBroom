@@ -26,7 +26,7 @@
 
 namespace tb::mdl
 {
-class EntityDefinition;
+struct EntityDefinition;
 class EntityNodeBase;
 class BrushNode;
 class BrushFace;
@@ -46,7 +46,7 @@ private:
 
   bool m_blockSelection;
 
-  mdl::GroupNode* m_currentGroup;
+  GroupNode* m_currentGroup;
 
 public:
   Notifier<> editorContextDidChangeNotifier;
@@ -59,46 +59,46 @@ public:
   TagType::Type hiddenTags() const;
   void setHiddenTags(TagType::Type hiddenTags);
 
-  bool entityDefinitionHidden(const mdl::EntityNodeBase* entityNode) const;
-  bool entityDefinitionHidden(const EntityDefinition* definition) const;
-  void setEntityDefinitionHidden(const EntityDefinition* definition, bool hidden);
+  bool entityDefinitionHidden(const EntityNodeBase* entityNode) const;
+  bool entityDefinitionHidden(const EntityDefinition& definition) const;
+  void setEntityDefinitionHidden(const EntityDefinition& definition, bool hidden);
 
   bool blockSelection() const;
   void setBlockSelection(bool blockSelection);
 
 public:
-  mdl::GroupNode* currentGroup() const;
-  void pushGroup(mdl::GroupNode* groupNode);
+  GroupNode* currentGroup() const;
+  void pushGroup(GroupNode* groupNode);
   void popGroup();
 
 public:
-  bool visible(const mdl::Node* node) const;
-  bool visible(const mdl::WorldNode* worldNode) const;
-  bool visible(const mdl::LayerNode* layerNode) const;
-  bool visible(const mdl::GroupNode* groupNode) const;
-  bool visible(const mdl::EntityNode* entityNode) const;
-  bool visible(const mdl::BrushNode* brushNode) const;
-  bool visible(const mdl::BrushNode* brushNode, const mdl::BrushFace& face) const;
-  bool visible(const mdl::PatchNode* patchNode) const;
+  bool visible(const Node* node) const;
+  bool visible(const WorldNode* worldNode) const;
+  bool visible(const LayerNode* layerNode) const;
+  bool visible(const GroupNode* groupNode) const;
+  bool visible(const EntityNode* entityNode) const;
+  bool visible(const BrushNode* brushNode) const;
+  bool visible(const BrushNode* brushNode, const BrushFace& face) const;
+  bool visible(const PatchNode* patchNode) const;
 
 private:
-  bool anyChildVisible(const mdl::Node* node) const;
+  bool anyChildVisible(const Node* node) const;
 
 public:
-  bool editable(const mdl::Node* node) const;
-  bool editable(const mdl::BrushNode* brushNode, const mdl::BrushFace& face) const;
+  bool editable(const Node* node) const;
+  bool editable(const BrushNode* brushNode, const BrushFace& face) const;
 
-  bool selectable(const mdl::Node* node) const;
-  bool selectable(const mdl::WorldNode* worldNode) const;
-  bool selectable(const mdl::LayerNode* layerNode) const;
-  bool selectable(const mdl::GroupNode* groupNode) const;
-  bool selectable(const mdl::EntityNode* entityNode) const;
-  bool selectable(const mdl::BrushNode* brushNode) const;
-  bool selectable(const mdl::BrushNode* brushNode, const mdl::BrushFace& face) const;
-  bool selectable(const mdl::PatchNode* patchNode) const;
+  bool selectable(const Node* node) const;
+  bool selectable(const WorldNode* worldNode) const;
+  bool selectable(const LayerNode* layerNode) const;
+  bool selectable(const GroupNode* groupNode) const;
+  bool selectable(const EntityNode* entityNode) const;
+  bool selectable(const BrushNode* brushNode) const;
+  bool selectable(const BrushNode* brushNode, const BrushFace& face) const;
+  bool selectable(const PatchNode* patchNode) const;
 
   bool canChangeSelection() const;
-  bool inOpenGroup(const mdl::Object* object) const;
+  bool inOpenGroup(const Object* object) const;
 
 private:
   EditorContext(const EditorContext&);

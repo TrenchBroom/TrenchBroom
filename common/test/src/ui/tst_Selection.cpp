@@ -424,7 +424,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
   document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   document->selectNodes({brushNode1, brushNode2});
-  mdl::EntityNode* brushEnt = document->createBrushEntity(m_brushEntityDef);
+  mdl::EntityNode* brushEnt = document->createBrushEntity(*m_brushEntityDef);
 
   document->deselectAll();
 
@@ -513,7 +513,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
   document->addNodes({{document->parentForNodes(), {patchNode}}});
 
   document->selectNodes({brushNode1, brushNode2});
-  document->createBrushEntity(m_brushEntityDef);
+  document->createBrushEntity(*m_brushEntityDef);
 
   document->deselectAll();
 

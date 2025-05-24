@@ -33,7 +33,7 @@ class EntityDefinitionParser;
 
 namespace tb::mdl
 {
-class EntityDefinition;
+struct EntityDefinition;
 class ModelDefinition;
 struct ModelSpecification;
 class DecalDefinition;

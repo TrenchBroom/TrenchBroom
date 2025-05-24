@@ -65,20 +65,21 @@ void EditorContext::setHiddenTags(const TagType::Type hiddenTags)
 
 bool EditorContext::entityDefinitionHidden(const mdl::EntityNodeBase* entityNode) const
 {
-  return entityNode && entityDefinitionHidden(entityNode->entity().definition());
+  return entityNode && entityNode->entity().definition()
+         && entityDefinitionHidden(*entityNode->entity().definition());
 }
 
-bool EditorContext::entityDefinitionHidden(const EntityDefinition* definition) const
+bool EditorContext::entityDefinitionHidden(const EntityDefinition& definition) const
 {
-  return definition && m_hiddenEntityDefinitions[definition->index()];
+  return m_hiddenEntityDefinitions[definition.index];
 }
 
 void EditorContext::setEntityDefinitionHidden(
-  const EntityDefinition* definition, const bool hidden)
+  const EntityDefinition& definition, const bool hidden)
 {
-  if (definition && entityDefinitionHidden(definition) != hidden)
+  if (entityDefinitionHidden(definition) != hidden)
   {
-    m_hiddenEntityDefinitions[definition->index()] = hidden;
+    m_hiddenEntityDefinitions[definition.index] = hidden;
     editorContextDidChangeNotifier();
   }
 }

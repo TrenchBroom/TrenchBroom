@@ -37,7 +37,7 @@
 
 namespace tb::mdl
 {
-class EntityDefinition;
+struct EntityDefinition;
 class SmartTag;
 } // namespace tb::mdl
 
@@ -232,7 +232,7 @@ public:
    * Note, unlike createAction(), these are not registered / owned by the ActionManager.
    */
   std::vector<Action> createEntityDefinitionActions(
-    const std::vector<mdl::EntityDefinition*>& entityDefinitions) const;
+    const std::vector<mdl::EntityDefinition>& entityDefinitions) const;
 
   template <typename MenuVisitor>
   void visitMainMenu(const MenuVisitor& visitor) const

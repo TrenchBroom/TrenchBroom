@@ -102,8 +102,8 @@ std::optional<std::tuple<std::string, EntityRotationType>> selectEntityRotationT
   for (const auto& [propertyKey, entityRotationType] :
        propertyToEntityRotationTypeMapping)
   {
-    const auto* definition = entity.definition();
-    if (definition != nullptr && definition->propertyDefinition(propertyKey) != nullptr)
+    if (const auto* definition = entity.definition();
+        definition && getPropertyDefinition(definition, propertyKey))
     {
       return {{propertyKey, entityRotationType}};
     }

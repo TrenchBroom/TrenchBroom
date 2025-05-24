@@ -102,26 +102,26 @@ void SmartChoiceEditor::doUpdateVisual(const std::vector<mdl::EntityNodeBase*>& 
 
   const auto ignoreTextChanged = kdl::set_temp{m_ignoreEditTextChanged};
   m_comboBox->clear();
+  m_comboBox->setDisabled(true);
 
-  if (
-    const auto* choiceDef = dynamic_cast<const mdl::ChoicePropertyDefinition*>(
-      mdl::selectPropertyDefinition(propertyKey(), nodes)))
+  if (const auto* propertyDef = mdl::selectPropertyDefinition(propertyKey(), nodes))
   {
-    m_comboBox->setDisabled(false);
-    const auto& options = choiceDef->options();
-
-    for (const auto& option : options)
+    if (
+      const auto* choiceType =
+        std::get_if<mdl::PropertyValueTypes::Choice>(&propertyDef->valueType))
     {
-      m_comboBox->addItem(mapStringToUnicode(
-        document()->encoding(), option.value() + " : " + option.description()));
-    }
+      m_comboBox->setDisabled(false);
+      const auto& options = choiceType->options;
 
-    const auto value = mdl::selectPropertyValue(propertyKey(), nodes);
-    m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
-  }
-  else
-  {
-    m_comboBox->setDisabled(true);
+      for (const auto& option : options)
+      {
+        m_comboBox->addItem(mapStringToUnicode(
+          document()->encoding(), option.value + " : " + option.description));
+      }
+
+      const auto value = mdl::selectPropertyValue(propertyKey(), nodes);
+      m_comboBox->setCurrentText(mapStringToUnicode(document()->encoding(), value));
+    }
   }
 }
 

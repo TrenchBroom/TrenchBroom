@@ -20,7 +20,6 @@
 #include "EntityDefinitionTestUtils.h"
 
 #include "el/EvaluationContext.h"
-#include "el/Value.h"
 #include "el/VariableStore.h"
 #include "io/ELParser.h"
 #include "io/EntityDefinitionParser.h"
@@ -28,7 +27,6 @@
 #include "mdl/EntityDefinition.h"
 
 #include <string>
-#include <vector>
 
 #include "Catch2.h"
 
@@ -42,8 +40,8 @@ ModelSpecification getModelSpecification(
   REQUIRE(definitions.is_success());
   CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions.value()[0];
-  CHECK(definition.type() == EntityDefinitionType::PointEntity);
+  const auto& definition = definitions.value()[0];
+  CHECK(getType(definition) == EntityDefinitionType::Point);
 
   return getModelSpecification(definition, entityPropertiesStr);
 }
@@ -51,10 +49,10 @@ ModelSpecification getModelSpecification(
 ModelSpecification getModelSpecification(
   const EntityDefinition& definition, const std::string& entityPropertiesStr)
 {
-  assert(definition.type() == EntityDefinitionType::PointEntity);
+  assert(getType(definition) == EntityDefinitionType::Point);
 
-  const auto& pointDefinition = static_cast<const PointEntityDefinition&>(definition);
-  const auto& modelDefinition = pointDefinition.modelDefinition();
+  const auto& pointDefinition = *definition.pointEntityDefinition;
+  const auto& modelDefinition = pointDefinition.modelDefinition;
   return getModelSpecification(modelDefinition, entityPropertiesStr);
 }
 
@@ -82,8 +80,8 @@ void assertDecalDefinition(
   REQUIRE(definitions.is_success());
   CHECK(definitions.value().size() == 1u);
 
-  const auto& definition = *definitions.value()[0];
-  CHECK(definition.type() == EntityDefinitionType::PointEntity);
+  const auto& definition = definitions.value()[0];
+  CHECK(getType(definition) == EntityDefinitionType::Point);
 
   assertDecalDefinition(expected, definition, entityPropertiesStr);
 }
@@ -93,10 +91,10 @@ void assertDecalDefinition(
   const EntityDefinition& definition,
   const std::string& entityPropertiesStr)
 {
-  assert(definition.type() == EntityDefinitionType::PointEntity);
+  assert(getType(definition) == EntityDefinitionType::Point);
 
-  const auto& pointDefinition = static_cast<const PointEntityDefinition&>(definition);
-  const auto& modelDefinition = pointDefinition.decalDefinition();
+  const auto& pointDefinition = *definition.pointEntityDefinition;
+  const auto& modelDefinition = pointDefinition.decalDefinition;
   assertDecalDefinition(expected, modelDefinition, entityPropertiesStr);
 }
 

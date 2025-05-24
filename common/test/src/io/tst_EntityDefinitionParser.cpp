@@ -518,12 +518,12 @@ TEST_CASE("resolveInheritance")
 
   SECTION("inheritPropertyDefinitions")
   {
-    const auto a1_1 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a1_2 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
+    using namespace mdl::PropertyValueTypes;
+
+    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
+    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
+    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
+    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -571,15 +571,27 @@ TEST_CASE("resolveInheritance")
 
   SECTION("mergeSpawnflagsSimpleInheritance")
   {
-    auto a1 =
-      std::make_shared<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
-    a1->addOption(1 << 1, "a1_1", "", true);
-    a1->addOption(1 << 2, "a1_2", "", false);
+    auto a1 = mdl::PropertyDefinition{
+      mdl::EntityPropertyKeys::Spawnflags,
+      mdl::PropertyValueTypes::Flags{
+        {
+          {1 << 1, "a1_1", ""},
+          {1 << 2, "a1_2", ""},
+        },
+        1 << 1},
+      "",
+      ""};
 
-    auto a2 =
-      std::make_shared<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
-    a2->addOption(1 << 2, "a2_2", "", true);
-    a2->addOption(1 << 4, "a2_4", "", false);
+    auto a2 = mdl::PropertyDefinition{
+      mdl::EntityPropertyKeys::Spawnflags,
+      mdl::PropertyValueTypes::Flags{
+        {
+          {1 << 2, "a2_2", ""},
+          {1 << 4, "a2_4", ""},
+        },
+        1 << 2},
+      "",
+      ""};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,
@@ -613,33 +625,30 @@ TEST_CASE("resolveInheritance")
     CHECK(output.size() == 1u);
 
     const auto& classInfo = output.front();
-    CHECK(classInfo.propertyDefinitions.size() == 1u);
-
-    const auto propertyDefinition = classInfo.propertyDefinitions.front();
-    CHECK(propertyDefinition->type() == mdl::PropertyDefinitionType::FlagsProperty);
-
-    const auto& flagsPropertyDefinition =
-      static_cast<const mdl::FlagsPropertyDefinition&>(*propertyDefinition.get());
-    CHECK(flagsPropertyDefinition.key() == mdl::EntityPropertyKeys::Spawnflags);
-
-    const auto& options = flagsPropertyDefinition.options();
-    CHECK_THAT(
-      options,
-      Catch::Equals(std::vector<mdl::FlagsPropertyOption>{
-        {1 << 1, "a1_1", "", true},
-        {1 << 2, "a2_2", "", true},
-        {1 << 4, "a2_4", "", false},
-      }));
+    CHECK(
+      classInfo.propertyDefinitions
+      == std::vector<mdl::PropertyDefinition>{
+        {mdl::EntityPropertyKeys::Spawnflags,
+         mdl::PropertyValueTypes::Flags{
+           {
+             {1 << 1, "a1_1", ""},
+             {1 << 2, "a2_2", ""},
+             {1 << 4, "a2_4", ""},
+           },
+           (1 << 1) | (1 << 2)},
+         "",
+         ""},
+      });
   }
 
   SECTION("chainOfBaseClasses")
   {
-    const auto a1_1 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a1_2 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
+    using namespace mdl::PropertyValueTypes;
+
+    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
+    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
+    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
+    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
 
     const auto base1ModelDef =
       mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
@@ -718,12 +727,12 @@ TEST_CASE("resolveInheritance")
 
   SECTION("multipleBaseClasses")
   {
-    const auto a1_1 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a1_2 =
-      std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2 = std::make_shared<mdl::StringPropertyDefinition>("a2", "", "", false);
-    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
+    using namespace mdl::PropertyValueTypes;
+
+    const auto a1_1 = mdl::PropertyDefinition{"a1", String{}, "a1_1", ""};
+    const auto a1_2 = mdl::PropertyDefinition{"a1", String{}, "a1_2", ""};
+    const auto a2 = mdl::PropertyDefinition{"a2", String{}, "a2", ""};
+    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
 
     const auto base1ModelDef =
       mdl::ModelDefinition{el::ExpressionNode{el::LiteralExpression{el::Value{"abc"}}}};
@@ -802,12 +811,12 @@ TEST_CASE("resolveInheritance")
 
   SECTION("diamondInheritance")
   {
-    const auto a1 = std::make_shared<mdl::StringPropertyDefinition>("a1", "", "", false);
-    const auto a2_1 =
-      std::make_shared<mdl::StringPropertyDefinition>("a2_1", "", "", false);
-    const auto a2_2 =
-      std::make_shared<mdl::StringPropertyDefinition>("a2_2", "", "", false);
-    const auto a3 = std::make_shared<mdl::StringPropertyDefinition>("a3", "", "", false);
+    using namespace mdl::PropertyValueTypes;
+
+    const auto a1 = mdl::PropertyDefinition{"a1", String{}, "a1", ""};
+    const auto a2_1 = mdl::PropertyDefinition{"a2_1", String{}, "a2_1", ""};
+    const auto a2_2 = mdl::PropertyDefinition{"a2_2", String{}, "a2_2", ""};
+    const auto a3 = mdl::PropertyDefinition{"a3", String{}, "a3", ""};
 
     const auto input = std::vector<EntityDefinitionClassInfo>{
       {EntityDefinitionClassType::BaseClass,

@@ -177,7 +177,7 @@ std::ostream& operator<<(std::ostream& lhs, const streamable_range_wrapper<R>& a
     lhs << make_streamable(*cur++);
     while (cur != end(adapter.range))
     {
-      lhs << "," << make_streamable(*cur++);
+      lhs << ", " << make_streamable(*cur++);
     }
   }
   lhs << "]";

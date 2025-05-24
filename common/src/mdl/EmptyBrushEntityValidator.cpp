@@ -44,9 +44,9 @@ EmptyBrushEntityValidator::EmptyBrushEntityValidator()
 void EmptyBrushEntityValidator::doValidate(
   EntityNode& entityNode, std::vector<std::unique_ptr<Issue>>& issues) const
 {
-  const auto* definition =
-    dynamic_cast<const BrushEntityDefinition*>(entityNode.entity().definition());
-  if (definition && !entityNode.hasChildren())
+  if (const auto* definition = entityNode.entity().definition();
+      definition && getType(*definition) == EntityDefinitionType::Brush
+      && !entityNode.hasChildren())
   {
     issues.push_back(std::make_unique<Issue>(
       Type,

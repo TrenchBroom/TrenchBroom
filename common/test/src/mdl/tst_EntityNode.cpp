@@ -126,14 +126,18 @@ TEST_CASE("EntityNodeTest.setPointEntity")
 
 TEST_CASE("EntityNodeTest.area")
 {
-  auto definition = PointEntityDefinition(
+  const auto definition = EntityDefinition{
     "some_name",
-    Color(),
-    vm::bbox3d(vm::vec3d{0, 0, 0}, vm::vec3d(1.0, 2.0, 3.0)),
+    Color{},
     "",
     {},
-    {},
-    {});
+    PointEntityDefinition{
+      vm::bbox3d{{0, 0, 0}, {1, 2, 3}},
+      {},
+      {},
+    },
+  };
+
   auto entityNode = EntityNode{Entity{}};
   entityNode.setDefinition(&definition);
 

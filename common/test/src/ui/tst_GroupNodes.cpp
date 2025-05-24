@@ -1190,12 +1190,12 @@ TEST_CASE_METHOD(
 
   SECTION("create point entity")
   {
-    REQUIRE(m_pointEntityDef->bounds() == vm::bbox3d{{-16, -16, -16}, {16, 16, 16}});
+    REQUIRE(m_pointEntityDef->pointEntityDefinition->bounds == vm::bbox3d{16.0});
 
     // create a new point entity below the origin -- this entity is temporarily created
     // at the origin and then moved to its eventual position, but the entity at the
     // origin is propagated into the linked group, where it ends up out of  world bounds
-    CHECK(document->createPointEntity(m_pointEntityDef, {0, 0, -32}) != nullptr);
+    CHECK(document->createPointEntity(*m_pointEntityDef, {0, 0, -32}) != nullptr);
   }
 
   SECTION("create brush entity")
@@ -1212,7 +1212,7 @@ TEST_CASE_METHOD(
     // create a brush entity - a temporarily empty entity will be created at the origin
     // and propagated into the linked group, where it ends up out of world bounds and
     // thus failing
-    CHECK(document->createBrushEntity(m_brushEntityDef) != nullptr);
+    CHECK(document->createBrushEntity(*m_brushEntityDef) != nullptr);
   }
 }
 
