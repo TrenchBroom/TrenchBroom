@@ -23,8 +23,6 @@
 #include "TestPreferenceManager.h"
 #include "TrenchBroomApp.h"
 
-#include <clocale>
-
 #include "Catch2.h"
 
 int main(int argc, char** argv)
@@ -35,9 +33,6 @@ int main(int argc, char** argv)
   tb::ui::setCrashReportGUIEnbled(false);
 
   ensure(qApp == &app, "invalid app instance");
-
-  // set the locale to US so that we can parse floats attribute
-  std::setlocale(LC_NUMERIC, "C");
 
   return Catch::Session().run(argc, argv);
 }
