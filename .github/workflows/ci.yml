@@ -34,10 +34,15 @@ jobs:
       # Record pull request head commit SHA
       TB_PULL_REQUEST_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
       TB_OS_IMAGE: ${{ matrix.os }}
-      # Tells vcpkg where binary packages are stored.
-      VCPKG_DEFAULT_BINARY_CACHE: ${{ github.workspace }}/vcpkg/bincache
-      # Let's use GitHub Action cache as storage for the vcpkg Binary Caching feature.
-      VCPKG_BINARY_SOURCES: 'clear;x-gha,readwrite'
+      # Set up environment variables required for caching vcpkg packages using NuGet
+      # See https://learn.microsoft.com/en-us/vcpkg/consume/binary-caching-github-packages?pivots=windows-runner
+      USERNAME: TrenchBroom
+      VCPKG_EXE: ${{ github.workspace }}/vcpkg/vcpkg
+      FEED_URL: https://nuget.pkg.github.com/TrenchBroom/index.json
+      VCPKG_BINARY_SOURCES: "clear;nuget,https://nuget.pkg.github.com/TrenchBroom/index.json,readwrite"
+      # Set up environment variables required for Mono (on macOS)
+      # See https://formulae.brew.sh/formula/mono
+      MONO_GAC_PREFIX: "$HOMEBREW_PREFIX"
 
     steps:
       # See: https://github.com/actions/checkout
@@ -47,19 +52,6 @@ jobs:
           fetch-depth: 0
           submodules: 'recursive'
 
-      - name: "Create directory '${{ env.VCPKG_DEFAULT_BINARY_CACHE }}'"
-        run: mkdir -p $VCPKG_DEFAULT_BINARY_CACHE
-        shell: bash
-
-      # Set env vars needed for vcpkg to leverage the GitHub Actions cache as a storage
-      # for Binary Caching.
-      - name: Set vcpkg environment variables
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
-            core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
-
       # Install Qt
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
@@ -67,6 +59,11 @@ jobs:
           version: '6.7.0'
 
       # Windows
+      - name: Windows - Bootstrap vcpkg
+        if: ${{ matrix.os == 'windows-2022' }}
+        shell: pwsh
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.bat
+
       - name: Windows - Install dependencies
         if: ${{ matrix.os == 'windows-2022' }}
         run: |
@@ -79,6 +76,21 @@ jobs:
           echo "Pandoc path: $tb_pandoc_path"
           # See: https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-commands-for-github-actions#environment-files
           echo "$tb_pandoc_path" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Windows - Add NuGet sources
+        if: ${{ matrix.os == 'windows-2022' }}
+        shell: pwsh
+        run: |
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            sources add `
+            -Source "${{ env.FEED_URL }}" `
+            -StorePasswordInClearText `
+            -Name GitHubPackages `
+            -UserName "${{ env.USERNAME }}" `
+            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+          .$(${{ env.VCPKG_EXE }} fetch nuget) `
+            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" `
+            -Source "${{ env.FEED_URL }}"
 
       - name: Windows - Build
         if: ${{ matrix.os == 'windows-2022' }}
@@ -94,11 +106,31 @@ jobs:
             cmakebuild/*.zip.md5
 
       # Linux
+      - name: Linux - Bootstrap vcpkg
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        shell: bash
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
+
       - name: Linux - Install dependencies
-        if: ${{ startsWith(matrix.os, 'ubuntu-22.04') }}
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
         run: |
           sudo apt update
           sudo apt install build-essential libxi-dev libxrandr-dev libxxf86vm-dev freeglut3-dev mesa-common-dev libgl1-mesa-dev libglu1-mesa-dev libglm-dev pandoc cmake p7zip-full ninja-build xvfb libglew-dev libfreeimage-dev libfreetype6-dev libtinyxml2-dev libassimp-dev libfuse2
+
+      - name: Linux - Add NuGet sources
+        if: ${{ matrix.os == 'ubuntu-22.04' }}
+        shell: bash
+        run: |
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            sources add \
+            -Source "${{ env.FEED_URL }}" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ env.USERNAME }}" \
+            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            -Source "${{ env.FEED_URL }}"
 
       - name: Linux - Build
         if: ${{ matrix.os == 'ubuntu-22.04' }}
@@ -115,6 +147,11 @@ jobs:
             cmakebuild/*.md5
 
       # macOS
+      - name: macOS - Bootstrap vcpkg
+        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        shell: bash
+        run: ${{ github.workspace }}/vcpkg/bootstrap-vcpkg.sh
+
       - name: macOS - Set up signing environment
         if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
         run: |
@@ -161,6 +198,21 @@ jobs:
         with:
           p12-file-base64: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12 }}
           p12-password: ${{ secrets.ACTIONS_MAC_SIGN_CERTIFICATES_P12_PASSWORD }}
+
+      - name: macOS - Add NuGet sources
+        if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
+        shell: bash
+        run: |
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            sources add \
+            -Source "${{ env.FEED_URL }}" \
+            -StorePasswordInClearText \
+            -Name GitHubPackages \
+            -UserName "${{ env.USERNAME }}" \
+            -Password "${{ secrets.GH_PACKAGES_TOKEN }}"
+          mono `${{ env.VCPKG_EXE }} fetch nuget | tail -n 1` \
+            setapikey "${{ secrets.GH_PACKAGES_TOKEN }}" \
+            -Source "${{ env.FEED_URL }}"
 
       - name: macOS - Build
         if: ${{ matrix.os == 'macos-13' || matrix.os == 'macos-14' }}
