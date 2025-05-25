@@ -61,6 +61,8 @@ struct UpdateConfig
    * is the app bundle, and on Linux, this is the AppImage.
    */
   QString appFolderPath;
+  /** Whether installing the update requires admin privileges (Windows only). */
+  bool requiresAdminPrivileges;
   /** The relative path to the executable in the app folder. This is used to restart the
    * app after the update was installed. */
   QString relativeAppPath;

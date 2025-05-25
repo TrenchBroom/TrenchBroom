@@ -117,6 +117,7 @@ TEST_CASE("UpdateController")
       "some_app",
       "/path/to/scripts",
       "/path/to/app",
+      false,
       "relative/app",
       workDirPath,
       logFile.fileName()};
@@ -241,7 +242,8 @@ TEST_CASE("UpdateController")
           finishPrepareUpdate(QString{"/some/path"});
 
           CHECK(waitForState<UpdatePendingState>(*updateController, loop));
-          CHECK(spyState() == UpdateControllerState{UpdatePendingState{"/some/path"}});
+          CHECK(
+            spyState() == UpdateControllerState{UpdatePendingState{"/some/path", false}});
 
           SECTION("calls installUpdate when destroyed")
           {

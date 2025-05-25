@@ -75,6 +75,63 @@ auto getAppToLaunchPath(QString targetPath, const QString& relativeAppPath)
   return targetPath;
 }
 
+void configureProcess(
+  QProcess& process,
+  const QString& scriptPath,
+  const QString& targetPath,
+  const QString& sourcePath,
+  const QString& relativeAppPath,
+  const QString& logFilePath,
+  const bool requiresAdminPrivileges,
+  const bool restartApp)
+{
+  const auto pid = QCoreApplication::applicationPid();
+  const auto appToLaunchPath = getAppToLaunchPath(targetPath, relativeAppPath);
+  const auto scriptFolderDir = QFileInfo{scriptPath}.absoluteDir();
+
+  auto arguments = QStringList{};
+  arguments << QString::number(pid) << targetPath << sourcePath;
+  if (restartApp)
+  {
+    arguments << appToLaunchPath;
+  }
+
+  if (requiresAdminPrivileges)
+  {
+    logToFile(
+      logFilePath,
+      QString{"Target path requires administrator privileges: %1"}.arg(targetPath));
+
+    // we need to run cmd.exe from powershell with the RunAs verb to ask for admin rights
+    process.setProgram("powershell");
+
+    // pass /c and the script path to cmd.exe in order to run the installer script
+    arguments.insert(0, "/c");
+    arguments.insert(1, scriptPath);
+
+    // surround each argument with quotation marks
+    for (auto& argument : arguments)
+    {
+      argument = QString{R"("%1")"}.arg(argument);
+    }
+
+    const auto command =
+      QString{
+        R"(Start-Process -FilePath "cmd.exe" -ArgumentList '%1' -WindowStyle Hidden -Verb RunAs)"}
+        .arg(arguments.join(" "));
+    process.setArguments(QStringList{"-Command", command});
+  }
+  else
+  {
+    process.setProgram(scriptPath);
+    process.setArguments(arguments);
+  }
+
+  process.setWorkingDirectory(scriptFolderDir.absolutePath());
+  process.setStandardOutputFile(logFilePath, QIODevice::Append);
+  process.setStandardErrorFile(logFilePath, QIODevice::Append);
+}
+
 } // namespace
 
 bool installUpdate(
@@ -84,6 +141,7 @@ bool installUpdate(
   const QString& relativeAppPath,
   const QString& workDirPath,
   const QString& logFilePath,
+  const bool requiresAdminPrivileges,
   const bool restartApp)
 {
   if (!QFileInfo{workDirPath}.exists())
@@ -96,24 +154,26 @@ bool installUpdate(
     const auto scriptPath =
       prepareUpdateScript(updateScriptPath, workDirPath, logFilePath))
   {
-    const auto pid = QCoreApplication::applicationPid();
-    const auto appToLaunchPath = getAppToLaunchPath(targetPath, relativeAppPath);
-    const auto scriptFolderDir = QFileInfo{*scriptPath}.absoluteDir();
-
     auto process = QProcess{};
-    process.setWorkingDirectory(scriptFolderDir.absolutePath());
-    process.setProgram(*scriptPath);
+    configureProcess(
+      process,
+      *scriptPath,
+      targetPath,
+      sourcePath,
+      relativeAppPath,
+      logFilePath,
+      requiresAdminPrivileges,
+      restartApp);
 
-    auto arguments = QStringList{};
-    arguments << QString::number(pid) << targetPath << sourcePath;
-    if (restartApp)
-    {
-      arguments << appToLaunchPath;
-    }
-    process.setArguments(arguments);
-
-    process.setStandardOutputFile(logFilePath, QIODevice::Append);
-    process.setStandardErrorFile(logFilePath, QIODevice::Append);
+    logToFile(
+      logFilePath,
+      QString{R"(Starting process:
+  program: %1
+  arguments: %2
+  working directory: %3)"}
+        .arg(process.program())
+        .arg(process.arguments().join(" "))
+        .arg(process.workingDirectory()));
 
     if (!process.startDetached())
     {

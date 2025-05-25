@@ -106,6 +106,7 @@ struct PreparingUpdateState
 struct UpdatePendingState
 {
   QString preparedUpdatePath;
+  bool requiresAdminPrivileges;
   bool restartApp = false;
 
   friend bool operator==(const UpdatePendingState& lhs, const UpdatePendingState& rhs);

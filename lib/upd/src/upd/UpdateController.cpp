@@ -143,7 +143,9 @@ std::ostream& operator<<(std::ostream& lhs, const PreparingUpdateState&)
 
 bool operator==(const UpdatePendingState& lhs, const UpdatePendingState& rhs)
 {
-  return lhs.preparedUpdatePath == rhs.preparedUpdatePath;
+  return lhs.preparedUpdatePath == rhs.preparedUpdatePath
+         && lhs.requiresAdminPrivileges == rhs.requiresAdminPrivileges
+         && lhs.restartApp == rhs.restartApp;
 }
 
 bool operator!=(const UpdatePendingState& lhs, const UpdatePendingState& rhs)
@@ -154,7 +156,9 @@ bool operator!=(const UpdatePendingState& lhs, const UpdatePendingState& rhs)
 std::ostream& operator<<(std::ostream& lhs, const UpdatePendingState& rhs)
 {
   return lhs << "UpdatePendingState{preparedUpdatePath: "
-             << rhs.preparedUpdatePath.toStdString() << "}";
+             << rhs.preparedUpdatePath.toStdString()
+             << ", requiresAdminPrivileges: " << rhs.requiresAdminPrivileges
+             << ", restartApp: " << rhs.restartApp << "}";
 }
 
 bool operator==(const UpdateErrorState& lhs, const UpdateErrorState& rhs)
@@ -284,7 +288,8 @@ void UpdateController::downloadAndPrepareUpdate()
                 const auto preparedUpdatePath =
                   m_config->prepareUpdate(downloadedUpdatePath, *m_config))
               {
-                return UpdatePendingState{*preparedUpdatePath};
+                return UpdatePendingState{
+                  *preparedUpdatePath, m_config->requiresAdminPrivileges};
               }
               return UpdateErrorState{"Failed to prepare update file"};
             }));

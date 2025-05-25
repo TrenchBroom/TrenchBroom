@@ -82,6 +82,10 @@ private:
 public:
   explicit UpdatePendingWidget(
     const UpdatePendingState& updatePendingState, UpdateDialog* dialog);
+
+private:
+  QWidget* createRequiresAdminPrivilegesWidget(
+    const UpdatePendingState& updatePendingState) const;
 };
 
 class UpdateErrorWidget : public QWidget
