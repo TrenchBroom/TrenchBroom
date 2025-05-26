@@ -94,7 +94,7 @@ UpdateAvailableWidget::UpdateAvailableWidget(
   info1->setWordWrap(true);
 
   auto* info2 = new QLabel{tr(
-    R"(Start the update by clicking the button below. The application will be restarted after the update is installed.)")};
+    R"(Start the update by clicking the button below. The update file will be downloaded and prepared. After that, you will have the option to install the update immediately or later when the application quits)")};
   info2->setWordWrap(true);
 
   auto* link = new QLabel{tr(R"(<a href="%3">Click here for the release notes.</a>)")
