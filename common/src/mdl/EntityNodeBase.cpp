@@ -19,6 +19,7 @@
 
 #include "EntityNodeBase.h"
 
+#include "Ensure.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/PropertyDefinition.h"
 
@@ -63,7 +64,7 @@ const PropertyDefinition* propertyDefinition(
   const EntityNodeBase* node, const std::string& key)
 {
   const auto* definition = node->entity().definition();
-  return definition ? definition->propertyDefinition(key) : nullptr;
+  return definition ? getPropertyDefinition(definition, key) : nullptr;
 }
 
 const PropertyDefinition* selectPropertyDefinition(
@@ -108,7 +109,7 @@ Entity EntityNodeBase::setEntity(Entity entity)
   return oldEntity;
 }
 
-void EntityNodeBase::setDefinition(EntityDefinition* definition)
+void EntityNodeBase::setDefinition(const EntityDefinition* definition)
 {
   if (m_entity.definition() == definition)
   {

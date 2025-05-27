@@ -22,12 +22,11 @@
 #include "Result.h"
 
 #include <filesystem>
-#include <memory>
 #include <vector>
 
 namespace tb::mdl
 {
-class EntityDefinition;
+struct EntityDefinition;
 } // namespace tb::mdl
 
 namespace tb::io
@@ -39,8 +38,7 @@ class EntityDefinitionLoader
 public:
   virtual ~EntityDefinitionLoader();
 
-  virtual Result<std::vector<std::unique_ptr<mdl::EntityDefinition>>>
-  loadEntityDefinitions(
+  virtual Result<std::vector<mdl::EntityDefinition>> loadEntityDefinitions(
     ParserStatus& status, const std::filesystem::path& path) const = 0;
 };
 } // namespace tb::io

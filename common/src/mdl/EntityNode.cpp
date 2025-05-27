@@ -300,9 +300,9 @@ void EntityNode::validateBounds() const
   }
   else
   {
-    const auto* definition =
-      dynamic_cast<const PointEntityDefinition*>(m_entity.definition());
-    const auto definitionBounds = definition ? definition->bounds() : DefaultBounds;
+    const auto* pointEntityDefinition = getPointEntityDefinition(m_entity.definition());
+    const auto definitionBounds =
+      pointEntityDefinition ? pointEntityDefinition->bounds : DefaultBounds;
 
     m_cachedBounds->logicalBounds = definitionBounds.translate(m_entity.origin());
     if (hasModel)

@@ -161,9 +161,9 @@ std::vector<std::string> allKeys(
     {
       if (const auto* entityDefinition = node->entity().definition())
       {
-        for (const auto& propertyDefinition : entityDefinition->propertyDefinitions())
+        for (const auto& propertyDefinition : entityDefinition->propertyDefinitions)
         {
-          result.insert(propertyDefinition->key());
+          result.insert(propertyDefinition.key);
         }
       }
     }
@@ -261,9 +261,9 @@ PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
     m_value = *value;
     m_valueType = ValueType::SingleValue;
   }
-  else if (definition != nullptr)
+  else if (definition)
   {
-    m_value = mdl::PropertyDefinition::defaultValue(*definition);
+    m_value = mdl::PropertyDefinition::defaultValue(*definition).value_or("");
     m_valueType = ValueType::Unset;
   }
   else
@@ -275,7 +275,7 @@ PropertyRow::PropertyRow(std::string key, const mdl::EntityNodeBase* node)
   m_keyMutable = isPropertyKeyMutable(node->entity(), m_key);
   m_valueMutable = isPropertyValueMutable(node->entity(), m_key);
   m_protected = isPropertyProtected(*node, m_key);
-  m_tooltip = (definition != nullptr ? definition->shortDescription() : "");
+  m_tooltip = (definition ? definition->shortDescription : "");
   if (m_tooltip.empty())
   {
     m_tooltip = "No description found";
@@ -659,11 +659,11 @@ std::vector<std::string> EntityPropertyModel::getAllPropertyKeys() const
   auto result = kdl::vector_set<std::string>(index.allKeys());
 
   // also add keys from all loaded entity definitions
-  for (const auto* entityDefinition : document->entityDefinitionManager().definitions())
+  for (const auto& entityDefinition : document->entityDefinitionManager().definitions())
   {
-    for (const auto& attributeDefinition : entityDefinition->propertyDefinitions())
+    for (const auto& propertyDefinition : entityDefinition.propertyDefinitions)
     {
-      result.insert(attributeDefinition->key());
+      result.insert(propertyDefinition.key);
     }
   }
 
@@ -704,9 +704,9 @@ std::vector<std::string> EntityPropertyModel::getAllClassnames() const
   auto resultSet = kdl::wrap_set(result);
 
   // add keys from all loaded entity definitions
-  for (const auto* entityDefinition : document->entityDefinitionManager().definitions())
+  for (const auto& entityDefinition : document->entityDefinitionManager().definitions())
   {
-    resultSet.insert(entityDefinition->name());
+    resultSet.insert(entityDefinition.name);
   }
 
   // remove the empty string

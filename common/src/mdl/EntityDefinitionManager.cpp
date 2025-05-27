@@ -22,14 +22,14 @@
 #include "Ensure.h"
 #include "io/EntityDefinitionLoader.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityDefinition.h"
-#include "mdl/EntityDefinitionGroup.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNodeBase.h"
 
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
+#include <algorithm>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace tb::mdl
@@ -50,8 +50,7 @@ Result<void> EntityDefinitionManager::loadDefinitions(
            [&](auto entityDefinitions) { setDefinitions(std::move(entityDefinitions)); });
 }
 
-void EntityDefinitionManager::setDefinitions(
-  std::vector<std::unique_ptr<EntityDefinition>> newDefinitions)
+void EntityDefinitionManager::setDefinitions(std::vector<EntityDefinition> newDefinitions)
 {
   clear();
 
@@ -59,41 +58,44 @@ void EntityDefinitionManager::setDefinitions(
 
   updateIndices();
   updateGroups();
-  updateCache();
 }
 
 void EntityDefinitionManager::clear()
 {
-  clearCache();
   clearGroups();
 }
 
-EntityDefinition* EntityDefinitionManager::definition(
+const EntityDefinition* EntityDefinitionManager::definition(
   const mdl::EntityNodeBase* node) const
 {
   ensure(node != nullptr, "node is null");
   return definition(node->entity().classname());
 }
 
-EntityDefinition* EntityDefinitionManager::definition(const std::string& classname) const
+const EntityDefinition* EntityDefinitionManager::definition(
+  const std::string_view classname) const
 {
-  if (auto it = m_cache.find(classname); it != m_cache.end())
+  if (const auto it = std::ranges::find_if(
+        m_definitions,
+        [&](const auto& definition) { return definition.name == classname; });
+      it != m_definitions.end())
   {
-    return it->second;
+    return &*it;
   }
+
   return nullptr;
 }
 
-std::vector<EntityDefinition*> EntityDefinitionManager::definitions(
+std::vector<const EntityDefinition*> EntityDefinitionManager::definitions(
   const EntityDefinitionType type, const EntityDefinitionSortOrder order) const
 {
-  return EntityDefinition::filterAndSort(definitions(), type, order);
+  return filterAndSort(
+    definitions() | std::views::transform([](const auto& d) { return &d; }), type, order);
 }
 
-std::vector<EntityDefinition*> EntityDefinitionManager::definitions() const
+const std::vector<EntityDefinition>& EntityDefinitionManager::definitions() const
 {
-  return kdl::vec_transform(
-    m_definitions, [](const auto& definition) { return definition.get(); });
+  return m_definitions;
 }
 
 const std::vector<EntityDefinitionGroup>& EntityDefinitionManager::groups() const
@@ -105,7 +107,7 @@ void EntityDefinitionManager::updateIndices()
 {
   for (size_t i = 0; i < m_definitions.size(); ++i)
   {
-    m_definitions[i]->setIndex(i + 1);
+    m_definitions[i].index = i + 1;
   }
 }
 
@@ -113,33 +115,20 @@ void EntityDefinitionManager::updateGroups()
 {
   clearGroups();
 
-  auto groupMap = std::map<std::string, std::vector<EntityDefinition*>>{};
+  auto groupMap =
+    std::unordered_map<std::string_view, std::vector<const EntityDefinition*>>{};
 
-  for (auto& definition : m_definitions)
+  for (const auto& definition : m_definitions)
   {
-    auto groupName = definition->groupName();
-    groupMap[std::move(groupName)].push_back(definition.get());
+    auto groupName = getGroupName(definition);
+    groupMap[std::move(groupName)].push_back(&definition);
   }
 
   for (auto& [groupName, definitions] : groupMap)
   {
-    m_groups.emplace_back(groupName, std::move(definitions));
+    m_groups.push_back(
+      EntityDefinitionGroup{std::string{groupName}, std::move(definitions)});
   }
-}
-
-void EntityDefinitionManager::updateCache()
-{
-  clearCache();
-
-  for (auto& definition : m_definitions)
-  {
-    m_cache[definition->name()] = definition.get();
-  }
-}
-
-void EntityDefinitionManager::clearCache()
-{
-  m_cache.clear();
 }
 
 void EntityDefinitionManager::clearGroups()

@@ -30,8 +30,7 @@
 
 namespace tb::mdl
 {
-class PropertyDefinition;
-class EntityDefinition;
+struct PropertyDefinition;
 
 const EntityDefinition* selectEntityDefinition(const std::vector<EntityNodeBase*>& nodes);
 const PropertyDefinition* propertyDefinition(
@@ -61,7 +60,7 @@ public: // entity access
   Entity setEntity(Entity entity);
 
 public: // definition
-  void setDefinition(EntityDefinition* definition);
+  void setDefinition(const EntityDefinition* definition);
 
 private: // property management internals
   class NotifyPropertyChange

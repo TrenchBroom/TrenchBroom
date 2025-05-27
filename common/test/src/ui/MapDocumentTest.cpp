@@ -23,11 +23,10 @@
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocumentCommandFacade.h"
-
-#include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
@@ -54,14 +53,21 @@ void MapDocumentTest::SetUp()
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 
   // create two entity definitions
-  m_pointEntityDef = new mdl::PointEntityDefinition{
-    "point_entity", Color{}, vm::bbox3d{16.0}, "this is a point entity", {}, {}, {}};
-  m_brushEntityDef =
-    new mdl::BrushEntityDefinition{"brush_entity", Color{}, "this is a brush entity", {}};
+  document->setEntityDefinitions({
+    {"point_entity",
+     Color{},
+     "this is a point entity",
+     {},
+     mdl::PointEntityDefinition{vm::bbox3d{16.0}, {}, {}}},
+    {"brush_entity", Color{}, "this is a brush entity", {}},
+  });
 
-  document->setEntityDefinitions(kdl::vec_from(
-    std::unique_ptr<mdl::EntityDefinition>{m_pointEntityDef},
-    std::unique_ptr<mdl::EntityDefinition>{m_brushEntityDef}));
+  const auto& definitions = document->entityDefinitionManager().definitions();
+  m_pointEntityDef = &definitions[0];
+  m_brushEntityDef = &definitions[1];
+
+  assert(m_pointEntityDef->name == "point_entity");
+  assert(m_brushEntityDef->name == "brush_entity");
 }
 
 MapDocumentTest::~MapDocumentTest()

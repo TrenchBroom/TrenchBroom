@@ -28,7 +28,6 @@
 #include "vm/bbox.h"
 #include "vm/vec.h"
 
-#include <memory>
 #include <optional>
 #include <string>
 #include <vector>
@@ -82,13 +81,13 @@ private:
   std::vector<EntityDefinitionClassInfo> parseClassInfos(ParserStatus& status) override;
 
   std::optional<EntityDefinitionClassInfo> parseClassInfo(ParserStatus& status);
-  std::unique_ptr<mdl::PropertyDefinition> parseSpawnflags();
+  mdl::PropertyDefinition parseSpawnflags();
   void parseProperties(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
   bool parseProperty(ParserStatus& status, EntityDefinitionClassInfo& classInfo);
 
   void parseDefaultProperty();
   std::string parseBaseProperty();
-  std::unique_ptr<mdl::PropertyDefinition> parseChoicePropertyDefinition();
+  mdl::PropertyDefinition parseChoicePropertyDefinition();
   mdl::ModelDefinition parseModelDefinition(ParserStatus& status);
 
   std::string parseDescription();

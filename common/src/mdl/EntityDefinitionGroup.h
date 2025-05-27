@@ -24,25 +24,14 @@
 
 namespace tb::mdl
 {
-class EntityDefinition;
-enum class EntityDefinitionSortOrder;
-enum class EntityDefinitionType;
+struct EntityDefinition;
 
-class EntityDefinitionGroup
+struct EntityDefinitionGroup
 {
-private:
-  std::string m_name;
-  std::vector<EntityDefinition*> m_definitions;
-
-public:
-  EntityDefinitionGroup(std::string name, std::vector<EntityDefinition*> definitions);
-
-  size_t index() const;
-  const std::string& name() const;
-  const std::string displayName() const;
-  const std::vector<EntityDefinition*>& definitions() const;
-  std::vector<EntityDefinition*> definitions(
-    EntityDefinitionType type, EntityDefinitionSortOrder order) const;
+  std::string name;
+  std::vector<const EntityDefinition*> definitions;
 };
+
+std::string displayName(const EntityDefinitionGroup& group);
 
 } // namespace tb::mdl

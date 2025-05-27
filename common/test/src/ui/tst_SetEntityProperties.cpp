@@ -23,6 +23,7 @@
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/WorldNode.h"
@@ -31,7 +32,6 @@
 #include "ui/Transaction.h"
 
 #include "kdl/result.h"
-#include "kdl/vector_utils.h"
 
 #include <vector>
 
@@ -44,28 +44,25 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 {
   // need to recreate these because document->setEntityDefinitions will delete the old
   // ones
-  auto pointEntityDefOwner = std::make_unique<mdl::PointEntityDefinition>(
-    "point_entity",
-    Color{},
-    vm::bbox3d{16.0},
-    "this is a point entity",
-    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
-    mdl::ModelDefinition{},
-    mdl::DecalDefinition{});
-  m_pointEntityDef = pointEntityDefOwner.get();
+  document->setEntityDefinitions({
+    {
+      "point_entity",
+      Color{},
+      "this is a point entity",
+      {},
+      mdl::PointEntityDefinition{vm::bbox3d{16.0}, {}, {}},
+    },
+    {
+      "large_entity",
+      Color{},
+      "this is a point entity",
+      {},
+      mdl::PointEntityDefinition{vm::bbox3d{64.0}, {}, {}},
+    },
+  });
 
-  auto largeEntityDefOwner = std::make_unique<mdl::PointEntityDefinition>(
-    "large_entity",
-    Color{},
-    vm::bbox3d{64.0},
-    "this is a point entity",
-    std::vector<std::shared_ptr<mdl::PropertyDefinition>>{},
-    mdl::ModelDefinition{},
-    mdl::DecalDefinition{});
-  auto* largeEntityDef = largeEntityDefOwner.get();
-
-  document->setEntityDefinitions(kdl::vec_from<std::unique_ptr<mdl::EntityDefinition>>(
-    std::move(pointEntityDefOwner), std::move(largeEntityDefOwner)));
+  m_pointEntityDef = &document->entityDefinitionManager().definitions()[0];
+  auto* largeEntityDef = &document->entityDefinitionManager().definitions()[1];
 
   auto* entityNode = new mdl::EntityNode(mdl::Entity{{{"classname", "large_entity"}}});
 
@@ -74,11 +71,15 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 
   document->deselectAll();
   document->selectNodes({entityNode});
-  REQUIRE(document->selectionBounds().size() == largeEntityDef->bounds().size());
+  REQUIRE(
+    document->selectionBounds().size()
+    == largeEntityDef->pointEntityDefinition->bounds.size());
 
   document->setProperty("classname", "point_entity");
   CHECK(entityNode->entity().definition() == m_pointEntityDef);
-  CHECK(document->selectionBounds().size() == m_pointEntityDef->bounds().size());
+  CHECK(
+    document->selectionBounds().size()
+    == m_pointEntityDef->pointEntityDefinition->bounds.size());
 
   document->removeProperty("classname");
   CHECK(entityNode->entity().definition() == nullptr);
@@ -92,7 +93,9 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
     transaction.commit();
 
     CHECK(entityNode->entity().definition() == largeEntityDef);
-    CHECK(document->selectionBounds().size() == largeEntityDef->bounds().size());
+    CHECK(
+      document->selectionBounds().size()
+      == largeEntityDef->pointEntityDefinition->bounds.size());
   }
 
   document->undoCommand();
@@ -429,7 +432,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
 
   document->selectAllNodes();
 
-  auto* brushEntNode = document->createBrushEntity(m_brushEntityDef);
+  auto* brushEntNode = document->createBrushEntity(*m_brushEntityDef);
   REQUIRE_THAT(
     document->selectedNodes().nodes(),
     Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode}));

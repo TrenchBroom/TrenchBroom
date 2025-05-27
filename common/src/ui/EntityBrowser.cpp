@@ -27,8 +27,8 @@
 #include <QtGlobal>
 
 #include "PreferenceManager.h"
-#include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
+#include "mdl/EntityDefinitionUtils.h"
 #include "mdl/WorldNode.h"
 #include "ui/EntityBrowserView.h"
 #include "ui/MapDocument.h"

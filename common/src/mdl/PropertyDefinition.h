@@ -19,279 +19,126 @@
 
 #pragma once
 
-#include "Ensure.h"
-
 #include "kdl/reflection_decl.h"
 
-#include <memory>
 #include <optional>
 #include <string>
+#include <variant>
 #include <vector>
 
 namespace tb::mdl
 {
 
-enum class PropertyDefinitionType
+namespace PropertyValueTypes
 {
-  TargetSourceProperty,
-  TargetDestinationProperty,
-  StringProperty,
-  BooleanProperty,
-  IntegerProperty,
-  FloatProperty,
-  ChoiceProperty,
-  FlagsProperty
+struct TargetSource
+{
+  kdl_reflect_decl_empty(TargetSource);
 };
 
-class PropertyDefinition
+struct TargetDestination
 {
-public:
-private:
-  std::string m_key;
-  PropertyDefinitionType m_type;
-  std::string m_shortDescription;
-  std::string m_longDescription;
-  bool m_readOnly;
-
-public:
-  PropertyDefinition(
-    std::string key,
-    PropertyDefinitionType type,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly);
-  virtual ~PropertyDefinition();
-
-  const std::string& key() const;
-  PropertyDefinitionType type() const;
-  const std::string& shortDescription() const;
-  const std::string& longDescription() const;
-
-  bool readOnly() const;
-
-  bool equals(const PropertyDefinition* other) const;
-
-  static std::string defaultValue(const PropertyDefinition& definition);
-
-  std::unique_ptr<PropertyDefinition> clone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const;
-
-private:
-  virtual bool doEquals(const PropertyDefinition* other) const;
-  virtual std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const;
+  kdl_reflect_decl_empty(TargetDestination);
 };
 
-template <typename T>
-class PropertyDefinitionWithDefaultValue : public PropertyDefinition
+struct String
 {
-protected:
-  std::optional<T> m_defaultValue;
+  std::optional<std::string> defaultValue = std::nullopt;
 
-public:
-  bool hasDefaultValue() const { return m_defaultValue.has_value(); }
-
-  const T& defaultValue() const
-  {
-    ensure(hasDefaultValue(), "property definition has no default value");
-    return *m_defaultValue;
-  }
-
-protected:
-  PropertyDefinitionWithDefaultValue(
-    std::string key,
-    PropertyDefinitionType type,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<T> defaultValue = std::nullopt)
-    : PropertyDefinition(key, type, shortDescription, longDescription, readOnly)
-    , m_defaultValue(std::move(defaultValue))
-  {
-  }
+  kdl_reflect_decl(String, defaultValue);
 };
 
-class StringPropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string>
+struct Boolean
 {
-public:
-  StringPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
+  std::optional<bool> defaultValue = std::nullopt;
 
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+  kdl_reflect_decl(Boolean, defaultValue);
 };
 
-class BooleanPropertyDefinition : public PropertyDefinitionWithDefaultValue<bool>
+struct Integer
 {
-public:
-  BooleanPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<bool> defaultValue = std::nullopt);
+  std::optional<int> defaultValue = std::nullopt;
 
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+  kdl_reflect_decl(Integer, defaultValue);
 };
 
-class IntegerPropertyDefinition : public PropertyDefinitionWithDefaultValue<int>
+struct Float
 {
-public:
-  IntegerPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<int> defaultValue = std::nullopt);
+  std::optional<float> defaultValue = std::nullopt;
 
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+  kdl_reflect_decl(Float, defaultValue);
 };
 
-class FloatPropertyDefinition : public PropertyDefinitionWithDefaultValue<float>
+struct ChoiceOption
 {
-public:
-  FloatPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<float> defaultValue = std::nullopt);
+  std::string value;
+  std::string description;
 
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+  kdl_reflect_decl(ChoiceOption, value, description);
 };
 
-class ChoicePropertyOption
+struct Choice
 {
-public:
-  using List = std::vector<ChoicePropertyOption>;
+  std::vector<ChoiceOption> options;
+  std::optional<std::string> defaultValue = std::nullopt;
 
-private:
-  std::string m_value;
-  std::string m_description;
-
-public:
-  ChoicePropertyOption(std::string value, std::string description);
-  const std::string& value() const;
-  const std::string& description() const;
-
-  kdl_reflect_decl(ChoicePropertyOption, m_value, m_description);
+  kdl_reflect_decl(Choice, options, defaultValue);
 };
 
-class ChoicePropertyDefinition : public PropertyDefinitionWithDefaultValue<std::string>
+struct Flag
 {
-private:
-  ChoicePropertyOption::List m_options;
+  int value;
+  std::string shortDescription;
+  std::string longDescription;
 
-public:
-  ChoicePropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    ChoicePropertyOption::List options,
-    bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
-  const ChoicePropertyOption::List& options() const;
-
-private:
-  bool doEquals(const PropertyDefinition* other) const override;
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+  kdl_reflect_decl(Flag, value, shortDescription, longDescription);
 };
 
-class FlagsPropertyOption
+struct Flags
 {
-public:
-  using List = std::vector<FlagsPropertyOption>;
+  std::vector<Flag> flags;
+  int defaultValue = 0;
 
-private:
-  int m_value;
-  std::string m_shortDescription;
-  std::string m_longDescription;
-  bool m_isDefault;
+  const Flag* flag(int flagValue) const;
+  bool isDefault(int flagValue) const;
 
-public:
-  FlagsPropertyOption(
-    int value, std::string shortDescription, std::string longDescription, bool isDefault);
-  int value() const;
-  const std::string& shortDescription() const;
-  const std::string& longDescription() const;
-  bool isDefault() const;
+  kdl_reflect_decl(Flags, defaultValue, flags);
+};
+
+struct Unknown
+{
+  std::optional<std::string> defaultValue = std::nullopt;
+
+  kdl_reflect_decl(Unknown, defaultValue);
+};
+
+} // namespace PropertyValueTypes
+
+using PropertyValueType = std::variant<
+  PropertyValueTypes::TargetSource,
+  PropertyValueTypes::TargetDestination,
+  PropertyValueTypes::String,
+  PropertyValueTypes::Boolean,
+  PropertyValueTypes::Integer,
+  PropertyValueTypes::Float,
+  PropertyValueTypes::Choice,
+  PropertyValueTypes::Flags,
+  PropertyValueTypes::Unknown>;
+
+std::ostream& operator<<(std::ostream& lhs, const PropertyValueType& rhs);
+
+struct PropertyDefinition
+{
+  std::string key;
+  PropertyValueType valueType;
+  std::string shortDescription;
+  std::string longDescription;
+  bool readOnly = false;
+
+  static std::optional<std::string> defaultValue(const PropertyDefinition& definition);
 
   kdl_reflect_decl(
-    FlagsPropertyOption, m_shortDescription, m_longDescription, m_isDefault);
-};
-
-class FlagsPropertyDefinition : public PropertyDefinition
-{
-private:
-  FlagsPropertyOption::List m_options;
-
-public:
-  explicit FlagsPropertyDefinition(std::string key);
-
-  int defaultValue() const;
-  const FlagsPropertyOption::List& options() const;
-  const FlagsPropertyOption* option(int value) const;
-  void addOption(
-    int value, std::string shortDescription, std::string longDescription, bool isDefault);
-
-private:
-  bool doEquals(const PropertyDefinition* other) const override;
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
-};
-
-class UnknownPropertyDefinition : public StringPropertyDefinition
-{
-public:
-  UnknownPropertyDefinition(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly,
-    std::optional<std::string> defaultValue = std::nullopt);
-
-private:
-  std::unique_ptr<PropertyDefinition> doClone(
-    std::string key,
-    std::string shortDescription,
-    std::string longDescription,
-    bool readOnly) const override;
+    PropertyDefinition, key, valueType, shortDescription, longDescription, readOnly);
 };
 
 } // namespace tb::mdl

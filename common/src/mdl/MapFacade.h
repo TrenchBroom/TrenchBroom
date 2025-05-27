@@ -35,11 +35,11 @@
 
 namespace tb::mdl
 {
-class BrushEntityDefinition;
 class BrushFace;
 class BrushFaceAttributes;
 class BrushNode;
 class ChangeBrushFaceAttributesRequest;
+struct EntityDefinition;
 class EntityDefinitionManager;
 class EntityModelManager;
 class EntityNode;
@@ -50,7 +50,6 @@ class Material;
 class MaterialManager;
 class Node;
 class NodeCollection;
-class PointEntityDefinition;
 
 /**
  * Interface of MapDocument that is exposed to the Model package.
@@ -114,8 +113,8 @@ public: // adding, removing, reparenting, and duplicating nodes
 
 public: // entity management
   virtual mdl::EntityNode* createPointEntity(
-    const PointEntityDefinition* definition, const vm::vec3d& delta) = 0;
-  virtual mdl::EntityNode* createBrushEntity(const BrushEntityDefinition* definition) = 0;
+    const EntityDefinition& definition, const vm::vec3d& delta) = 0;
+  virtual mdl::EntityNode* createBrushEntity(const EntityDefinition& definition) = 0;
 
 public:                                            // modifying transient node attributes
   virtual void hide(std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!

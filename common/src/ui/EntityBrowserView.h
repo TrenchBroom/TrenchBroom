@@ -39,10 +39,9 @@ class Logger;
 
 namespace tb::mdl
 {
-class EntityDefinition;
+struct EntityDefinition;
 enum class EntityDefinitionSortOrder;
 enum class Orientation;
-class PointEntityDefinition;
 class ResourceId;
 } // namespace tb::mdl
 
@@ -62,7 +61,7 @@ using EntityGroupData = std::string;
 struct EntityCellData
 {
   using EntityRenderer = render::MaterialRenderer;
-  const mdl::PointEntityDefinition* entityDefinition;
+  const mdl::EntityDefinition& entityDefinition;
   EntityRenderer* modelRenderer;
   mdl::Orientation modelOrientation;
   render::FontDescriptor fontDescriptor;
@@ -122,11 +121,11 @@ private:
 
   void addEntitiesToLayout(
     Layout& layout,
-    const std::vector<mdl::EntityDefinition*>& definitions,
+    const std::vector<const mdl::EntityDefinition*>& definitions,
     const render::FontDescriptor& font);
   void addEntityToLayout(
     Layout& layout,
-    const mdl::PointEntityDefinition* definition,
+    const mdl::EntityDefinition& definition,
     const render::FontDescriptor& font);
 
   void doClear() override;

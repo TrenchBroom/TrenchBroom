@@ -63,7 +63,7 @@ GameImpl::GameImpl(GameConfig& config, std::filesystem::path gamePath, Logger& l
   initializeFileSystem(logger);
 }
 
-Result<std::vector<std::unique_ptr<EntityDefinition>>> GameImpl::loadEntityDefinitions(
+Result<std::vector<EntityDefinition>> GameImpl::loadEntityDefinitions(
   io::ParserStatus& status, const std::filesystem::path& path) const
 {
   const auto extension = kdl::path_to_lower(path.extension());

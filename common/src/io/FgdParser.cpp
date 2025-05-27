@@ -45,6 +45,8 @@
 
 namespace tb::io
 {
+using namespace mdl::PropertyValueTypes;
+
 namespace
 {
 
@@ -527,10 +529,10 @@ void FgdParser::skipClassProperty(ParserStatus& /* status */)
   } while (depth > 0 && token.type() != FgdToken::Eof);
 }
 
-std::vector<std::shared_ptr<mdl::PropertyDefinition>> FgdParser::parsePropertyDefinitions(
+std::vector<mdl::PropertyDefinition> FgdParser::parsePropertyDefinitions(
   ParserStatus& status)
 {
-  auto propertyDefinitions = std::vector<std::shared_ptr<mdl::PropertyDefinition>>{};
+  auto propertyDefinitions = std::vector<mdl::PropertyDefinition>{};
 
   m_tokenizer.nextToken(FgdToken::OBracket);
   auto token =
@@ -562,7 +564,7 @@ std::vector<std::shared_ptr<mdl::PropertyDefinition>> FgdParser::parsePropertyDe
   return propertyDefinitions;
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parsePropertyDefinition(
+mdl::PropertyDefinition FgdParser::parsePropertyDefinition(
   ParserStatus& status,
   std::string propertyKey,
   const std::string& typeName,
@@ -604,82 +606,82 @@ std::unique_ptr<mdl::PropertyDefinition> FgdParser::parsePropertyDefinition(
   return parseUnknownPropertyDefinition(status, std::move(propertyKey));
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseTargetSourcePropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseTargetSourcePropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   parseDefaultStringValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::PropertyDefinition>(
+  return {
     std::move(propertyKey),
-    mdl::PropertyDefinitionType::TargetSourceProperty,
+    TargetSource{},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly);
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::
-  parseTargetDestinationPropertyDefinition(ParserStatus& status, std::string propertyKey)
+mdl::PropertyDefinition FgdParser::parseTargetDestinationPropertyDefinition(
+  ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   parseDefaultStringValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::PropertyDefinition>(
+  return {
     std::move(propertyKey),
-    mdl::PropertyDefinitionType::TargetDestinationProperty,
+    TargetDestination{},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly);
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseStringPropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseStringPropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   auto defaultValue = parseDefaultStringValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::StringPropertyDefinition>(
+  return {
     std::move(propertyKey),
+    String{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly,
-    std::move(defaultValue));
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseIntegerPropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseIntegerPropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   auto defaultValue = parseDefaultIntegerValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::IntegerPropertyDefinition>(
+  return {
     std::move(propertyKey),
+    Integer{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly,
-    std::move(defaultValue));
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseFloatPropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseFloatPropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   auto defaultValue = parseDefaultFloatValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::FloatPropertyDefinition>(
+  return {
     std::move(propertyKey),
+    Float{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly,
-    std::move(defaultValue));
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseChoicesPropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseChoicesPropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
@@ -693,29 +695,27 @@ std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseChoicesPropertyDefiniti
   auto token = m_tokenizer.nextToken(
     FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket);
 
-  auto options = mdl::ChoicePropertyOption::List{};
+  auto options = std::vector<ChoiceOption>{};
   while (token.type() != FgdToken::CBracket)
   {
     auto value = token.data();
     m_tokenizer.nextToken(FgdToken::Colon);
     auto caption = parseString();
 
-    options.emplace_back(std::move(value), std::move(caption));
+    options.push_back(ChoiceOption{std::move(value), std::move(caption)});
     token = m_tokenizer.nextToken(
       FgdToken::Integer | FgdToken::Decimal | FgdToken::String | FgdToken::CBracket);
   }
 
-  return std::make_unique<mdl::ChoicePropertyDefinition>(
+  return {
     std::move(propertyKey),
+    Choice{std::move(options), std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
-    std::move(options),
-    readOnly,
-    std::move(defaultValue));
+    readOnly};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseFlagsPropertyDefinition(
-  std::string propertyKey)
+mdl::PropertyDefinition FgdParser::parseFlagsPropertyDefinition(std::string propertyKey)
 {
   // Flag property definitions do not have descriptions or defaults, see
   // https://developer.valvesoftware.com/wiki/FGD
@@ -725,8 +725,8 @@ std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseFlagsPropertyDefinition
 
   auto token = m_tokenizer.nextToken(FgdToken::Integer | FgdToken::CBracket);
 
-  auto definition =
-    std::make_unique<mdl::FlagsPropertyDefinition>(std::move(propertyKey));
+  auto flags = std::vector<Flag>{};
+  auto defaultValue = 0;
 
   while (token.type() != FgdToken::CBracket)
   {
@@ -734,14 +734,16 @@ std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseFlagsPropertyDefinition
     m_tokenizer.nextToken(FgdToken::Colon);
     auto shortDescription = parseString();
 
-    auto defaultValue = false;
     token =
       m_tokenizer.peekToken(FgdToken::Colon | FgdToken::Integer | FgdToken::CBracket);
     if (token.type() == FgdToken::Colon)
     {
       m_tokenizer.nextToken();
       token = m_tokenizer.nextToken(FgdToken::Integer);
-      defaultValue = token.toInteger<int>() != 0;
+      if (token.toInteger<int>() != 0)
+      {
+        defaultValue = defaultValue | value;
+      }
     }
 
     token =
@@ -754,25 +756,25 @@ std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseFlagsPropertyDefinition
       token = m_tokenizer.nextToken(FgdToken::Integer | FgdToken::CBracket);
     }
 
-    definition->addOption(
-      value, std::move(shortDescription), std::move(longDescription), defaultValue);
+    flags.push_back(Flag{value, std::move(shortDescription), std::move(longDescription)});
   }
-  return definition;
+
+  return {std::move(propertyKey), Flags{std::move(flags), defaultValue}, "", "", false};
 }
 
-std::unique_ptr<mdl::PropertyDefinition> FgdParser::parseUnknownPropertyDefinition(
+mdl::PropertyDefinition FgdParser::parseUnknownPropertyDefinition(
   ParserStatus& status, std::string propertyKey)
 {
   const auto readOnly = parseReadOnlyFlag(status);
   auto shortDescription = parsePropertyDescription();
   auto defaultValue = parseDefaultStringValue(status);
   auto longDescription = parsePropertyDescription();
-  return std::make_unique<mdl::UnknownPropertyDefinition>(
+  return {
     std::move(propertyKey),
+    Unknown{std::move(defaultValue)},
     std::move(shortDescription),
     std::move(longDescription),
-    readOnly,
-    std::move(defaultValue));
+    readOnly};
 }
 
 bool FgdParser::parseReadOnlyFlag(ParserStatus& /* status */)

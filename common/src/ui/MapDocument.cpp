@@ -2092,20 +2092,22 @@ void MapDocument::duplicateObjects()
 }
 
 mdl::EntityNode* MapDocument::createPointEntity(
-  const mdl::PointEntityDefinition* definition, const vm::vec3d& delta)
+  const mdl::EntityDefinition& definition, const vm::vec3d& delta)
 {
-  ensure(definition != nullptr, "definition is null");
+  ensure(
+    getType(definition) == mdl::EntityDefinitionType::Point,
+    "definition is a point entity definition");
 
-  auto entity = mdl::Entity{{{mdl::EntityPropertyKeys::Classname, definition->name()}}};
+  auto entity = mdl::Entity{{{mdl::EntityPropertyKeys::Classname, definition.name}}};
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
-    mdl::setDefaultProperties(*definition, entity, mdl::SetDefaultPropertyMode::SetAll);
+    mdl::setDefaultProperties(definition, entity, mdl::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new mdl::EntityNode{std::move(entity)};
 
-  auto transaction = Transaction{*this, "Create " + definition->name()};
+  auto transaction = Transaction{*this, "Create " + definition.name};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty())
   {
@@ -2127,10 +2129,11 @@ mdl::EntityNode* MapDocument::createPointEntity(
   return entityNode;
 }
 
-mdl::EntityNode* MapDocument::createBrushEntity(
-  const mdl::BrushEntityDefinition* definition)
+mdl::EntityNode* MapDocument::createBrushEntity(const mdl::EntityDefinition& definition)
 {
-  ensure(definition != nullptr, "definition is null");
+  ensure(
+    getType(definition) == mdl::EntityDefinitionType::Brush,
+    "definition is a brush entity definition");
 
   const auto brushes = selectedNodes().brushes();
   assert(!brushes.empty());
@@ -2146,18 +2149,18 @@ mdl::EntityNode* MapDocument::createBrushEntity(
       ? brushes.front()->entity()->entity()
       : mdl::Entity{};
 
-  entity.addOrUpdateProperty(mdl::EntityPropertyKeys::Classname, definition->name());
+  entity.addOrUpdateProperty(mdl::EntityPropertyKeys::Classname, definition.name);
 
   if (m_world->entityPropertyConfig().setDefaultProperties)
   {
-    mdl::setDefaultProperties(*definition, entity, mdl::SetDefaultPropertyMode::SetAll);
+    mdl::setDefaultProperties(definition, entity, mdl::SetDefaultPropertyMode::SetAll);
   }
 
   auto* entityNode = new mdl::EntityNode{std::move(entity)};
 
   const auto nodes = kdl::vec_static_cast<mdl::Node*>(brushes);
 
-  auto transaction = Transaction{*this, "Create " + definition->name()};
+  auto transaction = Transaction{*this, "Create " + definition.name};
   deselectAll();
   if (addNodes({{parentForNodes(), {entityNode}}}).empty())
   {
@@ -4575,8 +4578,7 @@ void MapDocument::setEntityDefinitionFile(const mdl::EntityDefinitionFileSpec& s
     "Set Entity Definitions", {{world(), mdl::NodeContents(std::move(entity))}}, {});
 }
 
-void MapDocument::setEntityDefinitions(
-  std::vector<std::unique_ptr<mdl::EntityDefinition>> definitions)
+void MapDocument::setEntityDefinitions(std::vector<mdl::EntityDefinition> definitions)
 {
   m_entityDefinitionManager->setDefinitions(std::move(definitions));
 }
@@ -4831,7 +4833,7 @@ static auto makeSetEntityDefinitionsVisitor(mdl::EntityDefinitionManager& manage
 {
   // this helper lambda must be captured by value
   const auto setEntityDefinition = [&](auto* node) {
-    auto* definition = manager.definition(node);
+    const auto* definition = manager.definition(node);
     node->setDefinition(definition);
   };
 

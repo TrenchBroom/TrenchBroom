@@ -70,15 +70,14 @@ void EntityDefinitionCheckBoxList::refresh()
   for (size_t i = 0; i < groups.size(); ++i)
   {
     const auto& group = groups[i];
-    const auto& definitions = group.definitions();
-
-    if (!definitions.empty())
+    if (!group.definitions.empty())
     {
-      const auto firstHidden = m_editorContext.entityDefinitionHidden(definitions[0]);
+      const auto firstHidden =
+        m_editorContext.entityDefinitionHidden(*group.definitions[0]);
       auto mixed = false;
-      for (const auto& definition : definitions)
+      for (const auto* definition : group.definitions)
       {
-        const auto hidden = m_editorContext.entityDefinitionHidden(definition);
+        const auto hidden = m_editorContext.entityDefinitionHidden(*definition);
         mixed = mixed || (hidden != firstHidden);
         m_defCheckBoxes[defIndex++]->setChecked(!hidden);
       }
@@ -106,16 +105,16 @@ void EntityDefinitionCheckBoxList::groupCheckBoxChanged(size_t groupIndex, bool 
   const auto& groups = m_entityDefinitionManager.groups();
   const auto& group = groups.at(groupIndex);
 
-  for (const auto* definition : group.definitions())
+  for (const auto* definition : group.definitions)
   {
-    m_editorContext.setEntityDefinitionHidden(definition, !checked);
+    m_editorContext.setEntityDefinitionHidden(*definition, !checked);
   }
 
   refresh();
 }
 
 void EntityDefinitionCheckBoxList::defCheckBoxChanged(
-  const mdl::EntityDefinition* definition, bool checked)
+  const mdl::EntityDefinition& definition, const bool checked)
 {
   m_editorContext.setEntityDefinitionHidden(definition, !checked);
   refresh();
@@ -135,9 +134,9 @@ void EntityDefinitionCheckBoxList::hideAll(const bool hidden)
 {
   for (const auto& group : m_entityDefinitionManager.groups())
   {
-    for (const auto* definition : group.definitions())
+    for (const auto* definition : group.definitions)
     {
-      m_editorContext.setEntityDefinitionHidden(definition, hidden);
+      m_editorContext.setEntityDefinitionHidden(*definition, hidden);
     }
   }
 }
@@ -153,8 +152,7 @@ void EntityDefinitionCheckBoxList::createGui()
   for (size_t i = 0; i < groups.size(); ++i)
   {
     const auto& group = groups[i];
-    const auto& definitions = group.definitions();
-    const auto& groupName = group.displayName();
+    const auto& groupName = displayName(group);
 
     // Checkbox for the prefix, e.g. "func"
     auto* groupCB = new QCheckBox{QString::fromStdString(groupName)};
@@ -166,15 +164,13 @@ void EntityDefinitionCheckBoxList::createGui()
 
     scrollWidgetLayout->addWidget(groupCB);
 
-    for (const auto* definition : definitions)
+    for (const auto* definition : group.definitions)
     {
-      const auto& defName = definition->name();
-
-      auto* defCB = new QCheckBox{QString::fromStdString(defName)};
+      auto* defCB = new QCheckBox{QString::fromStdString(definition->name)};
       defCB->setObjectName("entityDefinition_checkboxWidget");
 
       connect(defCB, &QAbstractButton::clicked, this, [this, definition](bool checked) {
-        this->defCheckBoxChanged(definition, checked);
+        this->defCheckBoxChanged(*definition, checked);
       });
 
       m_defCheckBoxes.push_back(defCB);

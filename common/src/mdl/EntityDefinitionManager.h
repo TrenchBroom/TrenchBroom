@@ -20,10 +20,11 @@
 #pragma once
 
 #include "Result.h"
+#include "mdl/EntityDefinition.h"
+#include "mdl/EntityDefinitionGroup.h"
 
 #include <filesystem>
-#include <map>
-#include <string>
+#include <string_view>
 #include <vector>
 
 
@@ -35,8 +36,6 @@ class ParserStatus;
 
 namespace tb::mdl
 {
-class EntityDefinition;
-class EntityDefinitionGroup;
 class EntityNodeBase;
 enum class EntityDefinitionSortOrder;
 enum class EntityDefinitionType;
@@ -44,10 +43,8 @@ enum class EntityDefinitionType;
 class EntityDefinitionManager
 {
 private:
-  using Cache = std::map<std::string, EntityDefinition*>;
-  std::vector<std::unique_ptr<EntityDefinition>> m_definitions;
+  std::vector<EntityDefinition> m_definitions;
   std::vector<EntityDefinitionGroup> m_groups;
-  Cache m_cache;
 
 public:
   ~EntityDefinitionManager();
@@ -56,22 +53,20 @@ public:
     const std::filesystem::path& path,
     const io::EntityDefinitionLoader& loader,
     io::ParserStatus& status);
-  void setDefinitions(std::vector<std::unique_ptr<EntityDefinition>> newDefinitions);
+  void setDefinitions(std::vector<EntityDefinition> newDefinitions);
   void clear();
 
-  EntityDefinition* definition(const mdl::EntityNodeBase* node) const;
-  EntityDefinition* definition(const std::string& classname) const;
-  std::vector<EntityDefinition*> definitions(
+  const EntityDefinition* definition(const mdl::EntityNodeBase* node) const;
+  const EntityDefinition* definition(std::string_view classname) const;
+  std::vector<const EntityDefinition*> definitions(
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;
-  std::vector<EntityDefinition*> definitions() const;
+  const std::vector<EntityDefinition>& definitions() const;
 
   const std::vector<EntityDefinitionGroup>& groups() const;
 
 private:
   void updateIndices();
   void updateGroups();
-  void updateCache();
-  void clearCache();
   void clearGroups();
 };
 } // namespace tb::mdl

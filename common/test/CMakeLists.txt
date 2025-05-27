@@ -172,7 +172,6 @@ set(COMMON_REGRESSION_TEST_SOURCE
         "${COMMON_TEST_SOURCE_DIR}/io/tst_WorldReaderRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_BrushNodeRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_BrushRegression.cpp"
-        "${COMMON_TEST_SOURCE_DIR}/mdl/tst_EntityRegression.cpp"
         "${COMMON_TEST_SOURCE_DIR}/mdl/tst_PolyhedronRegression.cpp"
 )
 

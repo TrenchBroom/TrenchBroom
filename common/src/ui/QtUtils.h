@@ -36,6 +36,7 @@
 
 #include <filesystem>
 #include <string>
+#include <string_view>
 
 class QButtonGroup;
 class QColor;
@@ -87,6 +88,8 @@ enum class FileDialogDir
   EntityDefinition,
   GamePath
 };
+
+QString fromStdStringView(std::string_view sv);
 
 /**
  * Gets the default directory from QSettings to use for the given type of file chooser.

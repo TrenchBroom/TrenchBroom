@@ -32,6 +32,7 @@
 #include "mdl/NodeCollection.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
+#include "kdl/range_to_vector.h"
 #include "kdl/string_compare.h"
 #include "kdl/struct_io.h"
 #include "kdl/vector_utils.h"
@@ -430,25 +431,17 @@ void EntityClassNameTagMatcher::enable(
     return;
   }
 
-  const auto& definitionManager = facade.entityDefinitionManager();
-  const auto& allDefinitions = definitionManager.definitions();
-  auto matchingDefinitions = std::vector<EntityDefinition*>{};
+  auto matchingDefinitions = facade.entityDefinitionManager().definitions()
+                             | std::views::filter([&](const auto& definition) {
+                                 return getType(definition) == EntityDefinitionType::Brush
+                                        && matchesClassname(definition.name);
+                               })
+                             | std::views::transform([](const auto& d) { return &d; })
+                             | kdl::to_vector;
 
-  std::copy_if(
-    std::begin(allDefinitions),
-    std::end(allDefinitions),
-    std::back_inserter(matchingDefinitions),
-    [this](const auto* definition) {
-      return definition->type() == EntityDefinitionType::BrushEntity
-             && matchesClassname(definition->name());
-    });
-
-  std::sort(
-    std::begin(matchingDefinitions),
-    std::end(matchingDefinitions),
-    [](const auto* lhs, const auto* rhs) {
-      return kdl::ci::str_compare(lhs->name(), rhs->name()) < 0;
-    });
+  std::ranges::sort(matchingDefinitions, [](const auto* lhs, const auto* rhs) {
+    return kdl::ci::str_compare(lhs->name, rhs->name) < 0;
+  });
 
   const EntityDefinition* definition = nullptr;
   if (matchingDefinitions.empty())
@@ -461,8 +454,9 @@ void EntityClassNameTagMatcher::enable(
   }
   else
   {
-    const auto options = kdl::vec_transform(
-      matchingDefinitions, [](const auto* current) { return current->name(); });
+    const auto options = matchingDefinitions
+                         | std::views::transform([](const auto& d) { return d->name; })
+                         | kdl::to_vector;
     const auto index = callback.selectOption(options);
     if (index >= matchingDefinitions.size())
     {
@@ -472,11 +466,11 @@ void EntityClassNameTagMatcher::enable(
   }
 
   assert(definition != nullptr);
-  facade.createBrushEntity(static_cast<const BrushEntityDefinition*>(definition));
+  facade.createBrushEntity(*definition);
 
   if (!m_material.empty())
   {
-    ChangeBrushFaceAttributesRequest request;
+    auto request = ChangeBrushFaceAttributesRequest{};
     request.setMaterialName(m_material);
     facade.setFaceAttributes(request);
   }

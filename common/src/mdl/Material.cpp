@@ -213,12 +213,12 @@ size_t Material::usageCount() const
   return static_cast<size_t>(m_usageCount);
 }
 
-void Material::incUsageCount()
+void Material::incUsageCount() const
 {
   ++m_usageCount;
 }
 
-void Material::decUsageCount()
+void Material::decUsageCount() const
 {
   const size_t previous = m_usageCount--;
   assert(previous > 0);

@@ -33,12 +33,13 @@
 
 #include <fmt/format.h>
 
-#include <memory>
 #include <string>
 #include <vector>
 
 namespace tb::io
 {
+using namespace mdl::PropertyValueTypes;
+
 namespace
 {
 auto tokenNames()
@@ -258,23 +259,20 @@ std::optional<EntityDefinitionClassInfo> DefParser::parseClassInfo(ParserStatus&
   return classInfo;
 }
 
-std::unique_ptr<mdl::PropertyDefinition> DefParser::parseSpawnflags()
+mdl::PropertyDefinition DefParser::parseSpawnflags()
 {
-  auto definition =
-    std::make_unique<mdl::FlagsPropertyDefinition>(mdl::EntityPropertyKeys::Spawnflags);
-  size_t numOptions = 0;
-
+  auto flags = std::vector<Flag>{};
   auto token = m_tokenizer.peekToken();
   while (token.hasType(DefToken::Word | DefToken::Minus))
   {
     token = m_tokenizer.nextToken();
-    const auto name = token.hasType(DefToken::Word) ? token.data() : "";
-    const auto value = 1 << numOptions++;
-    definition->addOption(value, name, "", false);
+    auto name = token.hasType(DefToken::Word) ? token.data() : "";
+    const auto value = 1 << flags.size();
+    flags.push_back(Flag{value, std::move(name), ""});
     token = m_tokenizer.peekToken();
   }
 
-  return definition;
+  return {mdl::EntityPropertyKeys::Spawnflags, Flags{std::move(flags)}, "", ""};
 }
 
 void DefParser::parseProperties(
@@ -311,14 +309,13 @@ bool DefParser::parseProperty(ParserStatus& status, EntityDefinitionClassInfo& c
   }
   else if (typeName == "choice")
   {
-    auto propertyDefinition =
-      std::shared_ptr<mdl::PropertyDefinition>{parseChoicePropertyDefinition()};
+    auto propertyDefinition = parseChoicePropertyDefinition();
     if (!addPropertyDefinition(classInfo.propertyDefinitions, propertyDefinition))
     {
       status.warn(
         location,
         fmt::format(
-          "Skipping duplicate property definition: {}", propertyDefinition->key()));
+          "Skipping duplicate property definition: {}", propertyDefinition.key));
     }
   }
   else if (typeName == "model")
@@ -352,31 +349,30 @@ std::string DefParser::parseBaseProperty()
   return basename;
 }
 
-std::unique_ptr<mdl::PropertyDefinition> DefParser::parseChoicePropertyDefinition()
+mdl::PropertyDefinition DefParser::parseChoicePropertyDefinition()
 {
   auto token = m_tokenizer.nextToken(DefToken::QuotedString);
   auto propertyKey = token.data();
 
-  mdl::ChoicePropertyOption::List options;
+  auto options = std::vector<ChoiceOption>{};
   m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::OParenthesis);
   token = m_tokenizer.skipAndNextToken(DefToken::Newline);
   while (token.type() == DefToken::OParenthesis)
   {
     token = m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::Integer);
-    auto name = token.data();
+    auto value = token.data();
 
     m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::Comma);
     token = m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::QuotedString);
-    auto value = token.data();
-    options.emplace_back(std::move(name), std::move(value));
+    auto name = token.data();
+    options.push_back(ChoiceOption{std::move(value), std::move(name)});
 
     m_tokenizer.skipAndNextToken(DefToken::Newline, DefToken::CParenthesis);
     token = m_tokenizer.skipAndNextToken(
       DefToken::Newline, DefToken::OParenthesis | DefToken::CParenthesis);
   }
 
-  return std::make_unique<mdl::ChoicePropertyDefinition>(
-    std::move(propertyKey), "", "", std::move(options), false);
+  return {std::move(propertyKey), Choice{std::move(options)}, "", ""};
 }
 
 mdl::ModelDefinition DefParser::parseModelDefinition(ParserStatus& status)

@@ -29,10 +29,10 @@ template <typename T>
 class AssetReference
 {
 private:
-  T* m_asset;
+  const T* m_asset;
 
 public:
-  explicit AssetReference(T* asset = nullptr)
+  explicit AssetReference(const T* asset = nullptr)
     : m_asset{asset}
   {
     if (m_asset)
@@ -71,8 +71,6 @@ public:
     using std::swap;
     swap(lhs.m_asset, rhs.m_asset);
   }
-
-  T* get() { return m_asset; }
 
   const T* get() const { return m_asset; }
 
