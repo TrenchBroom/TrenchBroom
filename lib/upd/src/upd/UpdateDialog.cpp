@@ -94,7 +94,7 @@ UpdateAvailableWidget::UpdateAvailableWidget(
   info1->setWordWrap(true);
 
   auto* info2 = new QLabel{tr(
-    R"(Start the update by clicking the button below. The application will be restarted after the update is installed.)")};
+    R"(Start the update by clicking the button below. The update file will be downloaded and prepared. After that, you will have the option to install the update immediately or later when the application quits)")};
   info2->setWordWrap(true);
 
   auto* link = new QLabel{tr(R"(<a href="%3">Click here for the release notes.</a>)")
@@ -261,6 +261,8 @@ UpdatePendingWidget::UpdatePendingWidget(
     R"(The update is now ready to be installed. Alternatively, you can install it later when the application quits.)")};
   info->setWordWrap(true);
 
+  auto* privilegesInfo = createRequiresAdminPrivilegesWidget(updatePendingState);
+
   auto* buttons = new QDialogButtonBox{};
   buttons->addButton(new QPushButton{tr("Install now")}, QDialogButtonBox::AcceptRole);
   buttons->addButton(new QPushButton{tr("Install later")}, QDialogButtonBox::RejectRole);
@@ -288,9 +290,44 @@ UpdatePendingWidget::UpdatePendingWidget(
   layout->addSpacing(20);
   layout->addWidget(info);
   layout->addSpacing(10);
+  if (privilegesInfo)
+  {
+    layout->addWidget(privilegesInfo);
+    layout->addSpacing(10);
+  }
   layout->addWidget(buttons);
 
   setLayout(layout);
+}
+
+QWidget* UpdatePendingWidget::createRequiresAdminPrivilegesWidget(
+  const UpdatePendingState& updatePendingState) const
+{
+  if (updatePendingState.requiresAdminPrivileges)
+  {
+    auto* widget = new QWidget{};
+
+    auto* header = new QLabel{tr("Attention!")};
+    auto font = header->font();
+    font.setBold(true);
+    header->setFont(font);
+
+    auto* info = new QLabel{tr(
+      R"(The updater requires additional privileges to install the update. Please grant these privileges when prompted as the update is installed.)")};
+    info->setWordWrap(true);
+
+    auto* layout = new QVBoxLayout{};
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(header);
+    layout->addSpacing(10);
+    layout->addWidget(info);
+
+    widget->setLayout(layout);
+
+    return widget;
+  }
+
+  return nullptr;
 }
 
 UpdateErrorWidget::UpdateErrorWidget(

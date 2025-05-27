@@ -31,6 +31,7 @@ bool installUpdate(
   const QString& relativeAppPath,
   const QString& tempFolderPath,
   const QString& logFilePath,
+  bool requiresAdminPrivileges,
   bool restartApp);
 
 } // namespace upd

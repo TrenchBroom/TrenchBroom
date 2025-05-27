@@ -19,6 +19,8 @@
 
 #include "UpdateConfig.h"
 
+#include <QFileInfo>                 // IWYU pragma: keep
+#include <QNtfsPermissionCheckGuard> // IWYU pragma: keep
 #include <QProcess>
 
 #include "Macros.h" // IWYU pragma: keep
@@ -78,6 +80,22 @@ std::optional<std::filesystem::path> getAppFolderPath()
   return !appImage.empty() ? std::optional{std::filesystem::path{appImage}}
                            : std::nullopt;
 #endif
+}
+
+bool getRequiresAdminPrivileges([[maybe_unused]] const std::filesystem::path& targetPath)
+{
+#if defined _WIN32
+  // enable NTFS permission checks:
+  const auto permissionGuard = QNtfsPermissionCheckGuard{};
+  Q_ASSERT(qAreNtfsPermissionChecksEnabled());
+
+  const auto targetInfo = QFileInfo{targetPath};
+  if (targetInfo.exists() && !targetInfo.isWritable())
+  {
+    return true;
+  }
+#endif
+  return false;
 }
 
 auto getRelativeAppPath()
@@ -148,6 +166,7 @@ auto installUpdate(
     updateConfig.relativeAppPath,
     updateConfig.workDirPath,
     updateConfig.logFilePath,
+    updateConfig.requiresAdminPrivileges,
     restartApp);
 }
 
@@ -166,18 +185,19 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
     return std::nullopt;
   }
 
-  auto checkForUpdates = makeCheckForUpdates(*currentVersion);
-
-  const auto scriptPath = getScriptPath();
   const auto appFolderPath = getAppFolderPath();
-  const auto relativeAppPath = getRelativeAppPath();
-  const auto workDirPath = getWorkDirPath();
-  const auto logFilePath = getLogFilePath();
-
   if (!appFolderPath)
   {
     return std::nullopt;
   }
+
+  auto checkForUpdates = makeCheckForUpdates(*currentVersion);
+
+  const auto scriptPath = getScriptPath();
+  const auto requiresAdminPrivileges = getRequiresAdminPrivileges(*appFolderPath);
+  const auto relativeAppPath = getRelativeAppPath();
+  const auto workDirPath = getWorkDirPath();
+  const auto logFilePath = getLogFilePath();
 
   return upd::UpdateConfig{
     std::move(checkForUpdates),
@@ -188,6 +208,7 @@ std::optional<upd::UpdateConfig> makeUpdateConfig()
     "TrenchBroom",
     io::pathAsQPath(scriptPath),
     io::pathAsQPath(*appFolderPath),
+    requiresAdminPrivileges,
     io::pathAsQPath(relativeAppPath),
     io::pathAsQPath(workDirPath),
     io::pathAsQPath(logFilePath),
