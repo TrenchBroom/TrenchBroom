@@ -89,7 +89,6 @@ MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
 void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& nodes)
 {
   selectionWillChangeNotifier();
-  updateLastSelectionBounds();
 
   auto selected = std::vector<mdl::Node*>{};
   selected.reserve(nodes.size());
@@ -116,7 +115,6 @@ void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& node
   selection.addSelectedNodes(selected);
 
   selectionDidChangeNotifier(selection);
-  invalidateSelectionBounds();
 }
 
 void MapDocumentCommandFacade::performSelect(
@@ -183,7 +181,6 @@ void MapDocumentCommandFacade::performConvertToBrushFaceSelection()
 void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& nodes)
 {
   selectionWillChangeNotifier();
-  updateLastSelectionBounds();
 
   auto deselected = std::vector<mdl::Node*>{};
   deselected.reserve(nodes.size());
@@ -203,7 +200,6 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& no
   selection.addDeselectedNodes(deselected);
 
   selectionDidChangeNotifier(selection);
-  invalidateSelectionBounds();
 }
 
 void MapDocumentCommandFacade::performDeselect(
