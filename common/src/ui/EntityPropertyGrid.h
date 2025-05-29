@@ -44,7 +44,7 @@ namespace tb::ui
 class EntityPropertyModel;
 class EntityPropertyTable;
 class MapDocument;
-class Selection;
+class SelectionChange;
 
 struct PropertyGridSelection
 {
@@ -98,7 +98,7 @@ private:
   void documentWasLoaded(MapDocument* document);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void entityDefinitionsOrModsDidChange();
 
 private:

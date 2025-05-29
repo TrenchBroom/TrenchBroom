@@ -686,7 +686,7 @@ void ExtrudeTool::nodesDidChange(const std::vector<mdl::Node*>&)
   }
 }
 
-void ExtrudeTool::selectionDidChange(const Selection&)
+void ExtrudeTool::selectionDidChange(const SelectionChange&)
 {
   if (!m_dragging)
   {

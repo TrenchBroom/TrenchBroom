@@ -5356,7 +5356,7 @@ void MapDocument::selectionWillChange()
   updateLastSelectionBounds();
 }
 
-void MapDocument::selectionDidChange(const Selection&)
+void MapDocument::selectionDidChange(const SelectionChange&)
 {
   m_repeatStack->clearOnNextPush();
   invalidateSelectionBounds();

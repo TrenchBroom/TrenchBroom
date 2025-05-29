@@ -31,7 +31,7 @@ class QAbstractButton;
 
 namespace tb::ui
 {
-class Selection;
+class SelectionChange;
 class GLContextManager;
 class MapDocument;
 class UVView;
@@ -69,7 +69,7 @@ private:
 private:
   void createGui(GLContextManager& contextManager);
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
 
   void connectObservers();
 

@@ -43,7 +43,7 @@
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "ui/MapDocument.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"
@@ -782,23 +782,23 @@ void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& f
   }
 }
 
-void MapRenderer::selectionDidChange(const ui::Selection& selection)
+void MapRenderer::selectionDidChange(const ui::SelectionChange& selectionChange)
 {
-  for (const auto& face : selection.deselectedBrushFaces())
+  for (const auto& face : selectionChange.deselectedBrushFaces())
   {
     updateAndInvalidateNode(face.node());
   }
-  for (const auto& face : selection.selectedBrushFaces())
+  for (const auto& face : selectionChange.selectedBrushFaces())
   {
     updateAndInvalidateNode(face.node());
   }
   // These need to be recursive otherwise selecting a Group doesn't render the contents
   // selected
-  for (auto* node : selection.deselectedNodes())
+  for (auto* node : selectionChange.deselectedNodes())
   {
     updateAndInvalidateNodeRecursive(node);
   }
-  for (auto* node : selection.selectedNodes())
+  for (auto* node : selectionChange.selectedNodes())
   {
     updateAndInvalidateNodeRecursive(node);
   }

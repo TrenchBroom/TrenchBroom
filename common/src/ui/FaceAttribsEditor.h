@@ -42,7 +42,7 @@ namespace tb::ui
 class FlagsPopupEditor;
 class GLContextManager;
 class MapDocument;
-class Selection;
+class SelectionChange;
 class SignalDelayer;
 class SpinControl;
 class UVEditor;
@@ -118,7 +118,7 @@ private:
   void documentWasLoaded(MapDocument* document);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsDidChange();
 
   void updateControls();

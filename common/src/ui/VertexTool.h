@@ -43,7 +43,7 @@ namespace tb::ui
 class BrushVertexCommandBase;
 class Grid;
 class Lasso;
-class Selection;
+class SelectionChange;
 
 class VertexTool : public VertexToolBase<vm::vec3d>
 {

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "Selection.h"
+#include "SelectionChange.h"
 
 #include "kdl/vector_utils.h"
 
@@ -26,42 +26,44 @@
 namespace tb::ui
 {
 
-const std::vector<mdl::Node*>& Selection::selectedNodes() const
+const std::vector<mdl::Node*>& SelectionChange::selectedNodes() const
 {
   return m_selectedNodes;
 }
 
-const std::vector<mdl::Node*>& Selection::deselectedNodes() const
+const std::vector<mdl::Node*>& SelectionChange::deselectedNodes() const
 {
   return m_deselectedNodes;
 }
 
-const std::vector<mdl::BrushFaceHandle>& Selection::selectedBrushFaces() const
+const std::vector<mdl::BrushFaceHandle>& SelectionChange::selectedBrushFaces() const
 {
   return m_selectedBrushFaces;
 }
 
-const std::vector<mdl::BrushFaceHandle>& Selection::deselectedBrushFaces() const
+const std::vector<mdl::BrushFaceHandle>& SelectionChange::deselectedBrushFaces() const
 {
   return m_deselectedBrushFaces;
 }
 
-void Selection::addSelectedNodes(const std::vector<mdl::Node*>& nodes)
+void SelectionChange::addSelectedNodes(const std::vector<mdl::Node*>& nodes)
 {
   m_selectedNodes = kdl::vec_concat(std::move(m_selectedNodes), nodes);
 }
 
-void Selection::addDeselectedNodes(const std::vector<mdl::Node*>& nodes)
+void SelectionChange::addDeselectedNodes(const std::vector<mdl::Node*>& nodes)
 {
   m_deselectedNodes = kdl::vec_concat(std::move(m_deselectedNodes), nodes);
 }
 
-void Selection::addSelectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces)
+void SelectionChange::addSelectedBrushFaces(
+  const std::vector<mdl::BrushFaceHandle>& faces)
 {
   m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), faces);
 }
 
-void Selection::addDeselectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces)
+void SelectionChange::addDeselectedBrushFaces(
+  const std::vector<mdl::BrushFaceHandle>& faces)
 {
   m_deselectedBrushFaces = kdl::vec_concat(std::move(m_deselectedBrushFaces), faces);
 }

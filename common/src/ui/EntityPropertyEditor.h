@@ -47,7 +47,7 @@ namespace ui
 {
 class EntityPropertyGrid;
 class MapDocument;
-class Selection;
+class SelectionChange;
 class SmartPropertyEditorManager;
 
 /**
@@ -77,7 +77,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   void updateIfSelectedEntityDefinitionChanged();
