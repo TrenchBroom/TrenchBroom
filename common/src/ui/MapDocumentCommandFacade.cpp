@@ -112,7 +112,7 @@ void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& node
   m_selectedNodes.addNodes(selected);
 
   auto selectionChange = SelectionChange{};
-  selectionChange.addSelectedNodes(selected);
+  selectionChange.selectedNodes = selected;
 
   selectionDidChangeNotifier(selectionChange);
 }
@@ -149,7 +149,7 @@ void MapDocumentCommandFacade::performSelect(
   m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), selected);
 
   auto selectionChange = SelectionChange{};
-  selectionChange.addSelectedBrushFaces(selected);
+  selectionChange.selectedBrushFaces = selected;
 
   selectionDidChangeNotifier(selectionChange);
 }
@@ -197,7 +197,7 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& no
   m_selectedNodes.removeNodes(deselected);
 
   auto selectionChange = SelectionChange{};
-  selectionChange.addDeselectedNodes(deselected);
+  selectionChange.deselectedNodes = deselected;
 
   selectionDidChangeNotifier(selectionChange);
 }
@@ -228,7 +228,7 @@ void MapDocumentCommandFacade::performDeselect(
   m_selectedBrushFaces = kdl::vec_erase_all(std::move(m_selectedBrushFaces), deselected);
 
   auto selectionChange = SelectionChange{};
-  selectionChange.addDeselectedBrushFaces(deselected);
+  selectionChange.deselectedBrushFaces = deselected;
 
   selectionDidChangeNotifier(selectionChange);
 

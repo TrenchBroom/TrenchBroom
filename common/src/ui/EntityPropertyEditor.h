@@ -47,7 +47,7 @@ namespace ui
 {
 class EntityPropertyGrid;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 class SmartPropertyEditorManager;
 
 /**

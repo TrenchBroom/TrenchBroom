@@ -38,7 +38,7 @@ class Node;
 namespace tb::ui
 {
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =

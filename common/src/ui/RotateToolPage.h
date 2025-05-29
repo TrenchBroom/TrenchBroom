@@ -36,7 +36,7 @@ namespace tb::ui
 {
 class MapDocument;
 class RotateTool;
-class SelectionChange;
+struct SelectionChange;
 class SpinControl;
 
 class RotateToolPage : public QWidget

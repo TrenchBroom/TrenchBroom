@@ -36,7 +36,7 @@ namespace tb::ui
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 } // namespace tb::ui
 
 namespace tb::mdl
