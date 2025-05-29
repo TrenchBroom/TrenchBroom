@@ -26,7 +26,7 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
-#include "mdl/EntityDefinitionFileSpec.h"
+#include "mdl/EntityDefinitionFileSpec.h" // IWYU pragma: keep
 #include "mdl/EntityNode.h"
 #include "mdl/Game.h"
 #include "mdl/GroupNode.h"
