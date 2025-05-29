@@ -825,6 +825,8 @@ private:
 
 private: // observers
   void connectObservers();
+  void selectionWillChange();
+  void selectionDidChange(const Selection& selection);
   void materialCollectionsWillChange();
   void materialCollectionsDidChange();
   void entityDefinitionsWillChange();

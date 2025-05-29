@@ -1405,7 +1405,6 @@ void MapDocument::setCurrentMaterialName(const std::string& currentMaterialName)
 
 void MapDocument::selectAllNodes()
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::selectAllNodes());
 }
 
@@ -1585,13 +1584,11 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
 
 void MapDocument::selectNodes(const std::vector<mdl::Node*>& nodes)
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::select(nodes));
 }
 
 void MapDocument::selectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles)
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::select(handles));
   if (!handles.empty())
   {
@@ -1601,7 +1598,6 @@ void MapDocument::selectBrushFaces(const std::vector<mdl::BrushFaceHandle>& hand
 
 void MapDocument::convertToFaceSelection()
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::convertToFaces());
 }
 
@@ -1697,20 +1693,17 @@ void MapDocument::deselectAll()
 {
   if (hasSelection())
   {
-    m_repeatStack->clearOnNextPush();
     executeAndStore(SelectionCommand::deselectAll());
   }
 }
 
 void MapDocument::deselectNodes(const std::vector<mdl::Node*>& nodes)
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::deselect(nodes));
 }
 
 void MapDocument::deselectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles)
 {
-  m_repeatStack->clearOnNextPush();
   executeAndStore(SelectionCommand::deselect(handles));
 }
 
@@ -5306,6 +5299,11 @@ void MapDocument::clearModificationCount()
 
 void MapDocument::connectObservers()
 {
+  m_notifierConnection +=
+    selectionDidChangeNotifier.connect(this, &MapDocument::selectionDidChange);
+  m_notifierConnection +=
+    selectionWillChangeNotifier.connect(this, &MapDocument::selectionWillChange);
+
   m_notifierConnection += materialCollectionsWillChangeNotifier.connect(
     this, &MapDocument::materialCollectionsWillChange);
   m_notifierConnection += materialCollectionsDidChangeNotifier.connect(
@@ -5351,6 +5349,17 @@ void MapDocument::connectObservers()
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection += resourcesWereProcessedNotifier.connect(
     this, &MapDocument::updateFaceTagsAfterResourcesWhereProcessed);
+}
+
+void MapDocument::selectionWillChange()
+{
+  updateLastSelectionBounds();
+}
+
+void MapDocument::selectionDidChange(const Selection&)
+{
+  m_repeatStack->clearOnNextPush();
+  invalidateSelectionBounds();
 }
 
 void MapDocument::materialCollectionsWillChange()
