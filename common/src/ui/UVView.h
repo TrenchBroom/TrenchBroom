@@ -50,7 +50,7 @@ class RenderContext;
 namespace tb::ui
 {
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 class UVRotateTool;
 class UVOriginTool;
 class UVScaleTool;

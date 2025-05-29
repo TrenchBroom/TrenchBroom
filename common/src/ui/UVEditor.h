@@ -31,7 +31,7 @@ class QAbstractButton;
 
 namespace tb::ui
 {
-class SelectionChange;
+struct SelectionChange;
 class GLContextManager;
 class MapDocument;
 class UVView;

@@ -44,7 +44,7 @@ namespace tb::ui
 class EntityPropertyModel;
 class EntityPropertyTable;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 
 struct PropertyGridSelection
 {

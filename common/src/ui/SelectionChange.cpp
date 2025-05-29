@@ -19,53 +19,11 @@
 
 #include "SelectionChange.h"
 
-#include "kdl/vector_utils.h"
-
-#include <vector>
+#include "kdl/reflection_impl.h"
 
 namespace tb::ui
 {
 
-const std::vector<mdl::Node*>& SelectionChange::selectedNodes() const
-{
-  return m_selectedNodes;
-}
-
-const std::vector<mdl::Node*>& SelectionChange::deselectedNodes() const
-{
-  return m_deselectedNodes;
-}
-
-const std::vector<mdl::BrushFaceHandle>& SelectionChange::selectedBrushFaces() const
-{
-  return m_selectedBrushFaces;
-}
-
-const std::vector<mdl::BrushFaceHandle>& SelectionChange::deselectedBrushFaces() const
-{
-  return m_deselectedBrushFaces;
-}
-
-void SelectionChange::addSelectedNodes(const std::vector<mdl::Node*>& nodes)
-{
-  m_selectedNodes = kdl::vec_concat(std::move(m_selectedNodes), nodes);
-}
-
-void SelectionChange::addDeselectedNodes(const std::vector<mdl::Node*>& nodes)
-{
-  m_deselectedNodes = kdl::vec_concat(std::move(m_deselectedNodes), nodes);
-}
-
-void SelectionChange::addSelectedBrushFaces(
-  const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), faces);
-}
-
-void SelectionChange::addDeselectedBrushFaces(
-  const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  m_deselectedBrushFaces = kdl::vec_concat(std::move(m_deselectedBrushFaces), faces);
-}
+kdl_reflect_impl(SelectionChange);
 
 } // namespace tb::ui

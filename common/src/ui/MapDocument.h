@@ -92,7 +92,7 @@ class CommandResult;
 class Grid;
 enum class PasteType;
 class RepeatStack;
-class SelectionChange;
+struct SelectionChange;
 class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;

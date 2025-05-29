@@ -550,8 +550,8 @@ private: // Observers and state management
 
   void selectionDidChange(const SelectionChange& selectionChange)
   {
-    addHandles(selectionChange.selectedNodes());
-    removeHandles(selectionChange.deselectedNodes());
+    addHandles(selectionChange.selectedNodes);
+    removeHandles(selectionChange.deselectedNodes);
   }
 
   void nodesWillChange(const std::vector<mdl::Node*>& nodes)

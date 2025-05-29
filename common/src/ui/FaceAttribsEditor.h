@@ -42,7 +42,7 @@ namespace tb::ui
 class FlagsPopupEditor;
 class GLContextManager;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 class SignalDelayer;
 class SpinControl;
 class UVEditor;

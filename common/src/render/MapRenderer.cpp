@@ -784,21 +784,21 @@ void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& f
 
 void MapRenderer::selectionDidChange(const ui::SelectionChange& selectionChange)
 {
-  for (const auto& face : selectionChange.deselectedBrushFaces())
+  for (const auto& face : selectionChange.deselectedBrushFaces)
   {
     updateAndInvalidateNode(face.node());
   }
-  for (const auto& face : selectionChange.selectedBrushFaces())
+  for (const auto& face : selectionChange.selectedBrushFaces)
   {
     updateAndInvalidateNode(face.node());
   }
   // These need to be recursive otherwise selecting a Group doesn't render the contents
   // selected
-  for (auto* node : selectionChange.deselectedNodes())
+  for (auto* node : selectionChange.deselectedNodes)
   {
     updateAndInvalidateNodeRecursive(node);
   }
-  for (auto* node : selectionChange.selectedNodes())
+  for (auto* node : selectionChange.selectedNodes)
   {
     updateAndInvalidateNodeRecursive(node);
   }

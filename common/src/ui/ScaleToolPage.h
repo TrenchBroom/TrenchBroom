@@ -37,7 +37,7 @@ class QAbstractButton;
 namespace tb::ui
 {
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 class ScaleToolPage : public QWidget
 {
   Q_OBJECT

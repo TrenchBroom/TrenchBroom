@@ -43,7 +43,7 @@ class VertexTool;
 class EdgeTool;
 class FaceTool;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 
 class MapViewToolBox : public ToolBox
 {

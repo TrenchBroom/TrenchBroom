@@ -64,7 +64,7 @@ class AnimationManager;
 class Command;
 class MapDocument;
 class MapViewToolBox;
-class SelectionChange;
+struct SelectionChange;
 class SignalDelayer;
 class Tool;
 class UndoableCommand;

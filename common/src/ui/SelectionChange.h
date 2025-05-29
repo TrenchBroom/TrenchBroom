@@ -21,6 +21,8 @@
 
 #include "mdl/BrushFaceHandle.h"
 
+#include "kdl/reflection_decl.h"
+
 #include <vector>
 
 namespace tb::mdl
@@ -31,24 +33,19 @@ class Node;
 namespace tb::ui
 {
 
-class SelectionChange
+struct SelectionChange
 {
-private:
-  std::vector<mdl::Node*> m_selectedNodes;
-  std::vector<mdl::Node*> m_deselectedNodes;
-  std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
-  std::vector<mdl::BrushFaceHandle> m_deselectedBrushFaces;
+  std::vector<mdl::Node*> selectedNodes;
+  std::vector<mdl::Node*> deselectedNodes;
+  std::vector<mdl::BrushFaceHandle> selectedBrushFaces;
+  std::vector<mdl::BrushFaceHandle> deselectedBrushFaces;
 
-public:
-  const std::vector<mdl::Node*>& selectedNodes() const;
-  const std::vector<mdl::Node*>& deselectedNodes() const;
-  const std::vector<mdl::BrushFaceHandle>& selectedBrushFaces() const;
-  const std::vector<mdl::BrushFaceHandle>& deselectedBrushFaces() const;
-
-  void addSelectedNodes(const std::vector<mdl::Node*>& nodes);
-  void addDeselectedNodes(const std::vector<mdl::Node*>& nodes);
-  void addSelectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces);
-  void addDeselectedBrushFaces(const std::vector<mdl::BrushFaceHandle>& faces);
+  kdl_reflect_decl(
+    SelectionChange,
+    selectedNodes,
+    deselectedNodes,
+    selectedBrushFaces,
+    deselectedBrushFaces);
 };
 
 } // namespace tb::ui

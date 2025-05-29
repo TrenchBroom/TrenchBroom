@@ -51,7 +51,7 @@ namespace tb::ui
 {
 class Grid;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 
 class ClipStrategy;
 

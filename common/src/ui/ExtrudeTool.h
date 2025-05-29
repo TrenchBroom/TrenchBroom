@@ -55,7 +55,7 @@ namespace ui
 {
 class Grid;
 class MapDocument;
-class SelectionChange;
+struct SelectionChange;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
