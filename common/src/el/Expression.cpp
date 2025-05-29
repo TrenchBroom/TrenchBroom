@@ -779,6 +779,23 @@ Value evaluateBoundedRange(EvaluationContext& context, const Value& lhs, const V
 }
 
 template <typename EvaluateLhs, typename EvaluateRhs>
+Value evaluateCoalesce(
+  EvaluationContext& context,
+  const EvaluateLhs& evaluateLhs,
+  const EvaluateRhs& evaluateRhs)
+{
+  const auto lhs = evaluateLhs();
+  const auto type = lhs.type();
+
+  if (type == ValueType::Undefined || type == ValueType::Null || (type == ValueType::String && !lhs.convertTo(context, ValueType::Boolean).booleanValue(context)))
+  {
+    return evaluateRhs();
+  }
+
+  return lhs;
+}
+
+template <typename EvaluateLhs, typename EvaluateRhs>
 Value evaluateCase(
   EvaluationContext& context,
   const EvaluateLhs& evaluateLhs,
@@ -852,6 +869,8 @@ Value evaluateBinaryExpression(
       evaluateCompare(context, evaluateLhs(), evaluateRhs(), expressionNode) != 0};
   case BinaryOperation::BoundedRange:
     return Value{evaluateBoundedRange(context, evaluateLhs(), evaluateRhs())};
+  case BinaryOperation::Coalesce:
+    return evaluateCoalesce(context, evaluateLhs, evaluateRhs);
   case BinaryOperation::Case:
     return evaluateCase(context, evaluateLhs, evaluateRhs);
     switchDefault();
@@ -1304,30 +1323,32 @@ size_t precedence(const BinaryOperation operation)
   case BinaryOperation::Multiplication:
   case BinaryOperation::Division:
   case BinaryOperation::Modulus:
-    return 12;
+    return 13;
   case BinaryOperation::Addition:
   case BinaryOperation::Subtraction:
-    return 11;
+    return 12;
   case BinaryOperation::BitwiseShiftLeft:
   case BinaryOperation::BitwiseShiftRight:
-    return 10;
+    return 11;
   case BinaryOperation::Less:
   case BinaryOperation::LessOrEqual:
   case BinaryOperation::Greater:
   case BinaryOperation::GreaterOrEqual:
-    return 9;
+    return 10;
   case BinaryOperation::Equal:
   case BinaryOperation::NotEqual:
-    return 8;
+    return 9;
   case BinaryOperation::BitwiseAnd:
-    return 7;
+    return 8;
   case BinaryOperation::BitwiseXOr:
-    return 6;
+    return 7;
   case BinaryOperation::BitwiseOr:
-    return 5;
+    return 6;
   case BinaryOperation::LogicalAnd:
-    return 4;
+    return 5;
   case BinaryOperation::LogicalOr:
+    return 4;
+  case BinaryOperation::Coalesce:
     return 3;
   case BinaryOperation::BoundedRange:
     return 2;
@@ -1693,6 +1714,9 @@ std::ostream& operator<<(std::ostream& lhs, const BinaryExpression& rhs)
     break;
   case BinaryOperation::BoundedRange:
     lhs << rhs.leftOperand << ".." << rhs.rightOperand;
+    break;
+  case BinaryOperation::Coalesce:
+    lhs << rhs.leftOperand << "??" << rhs.rightOperand;
     break;
   case BinaryOperation::Case:
     lhs << rhs.leftOperand << " -> " << rhs.rightOperand;
