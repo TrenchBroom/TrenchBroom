@@ -173,7 +173,7 @@ MapFrame::~MapFrame()
   // so we don't try to log to a dangling pointer (#1885).
   m_document->setParentLogger(nullptr);
 
-  m_mapView->deactivateTool();
+  m_mapView->deactivateCurrentTool();
 
   m_notifierConnection.disconnect();
   removeRecentDocumentsMenu();
@@ -1271,7 +1271,7 @@ void MapFrame::cutSelection()
   {
     copyToClipboard();
     auto transaction = Transaction{m_document, "Cut"};
-    m_document->deleteObjects();
+    m_document->remove();
     transaction.commit();
   }
 }
@@ -1298,7 +1298,7 @@ void MapFrame::copyToClipboard()
 bool MapFrame::canCutSelection() const
 {
   return widgetOrChildHasFocus(m_mapView) && m_document->hasSelectedNodes()
-         && !m_mapView->anyToolActive();
+         && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::canCopySelection() const
@@ -1330,7 +1330,7 @@ void MapFrame::pasteAtCursorPosition()
         const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
         m_document->show(nodes);
         m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
-        if (!m_document->translateObjects(delta))
+        if (!m_document->translate(delta))
         {
           transaction.cancel();
           break;
@@ -1390,7 +1390,7 @@ void MapFrame::duplicateSelection()
 {
   if (canDuplicateSelectino())
   {
-    m_document->duplicateObjects();
+    m_document->duplicate();
   }
 }
 
@@ -1419,9 +1419,9 @@ void MapFrame::deleteSelection()
     {
       m_mapView->faceTool().removeSelection();
     }
-    else if (!m_mapView->anyToolActive())
+    else if (!m_mapView->anyModalToolActive())
     {
-      m_document->deleteObjects();
+      m_document->remove();
     }
   }
 }
@@ -1579,7 +1579,7 @@ void MapFrame::groupSelectedObjects()
 
 bool MapFrame::canGroupSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::ungroupSelectedObjects()
@@ -1592,7 +1592,7 @@ void MapFrame::ungroupSelectedObjects()
 
 bool MapFrame::canUngroupSelectedObjects() const
 {
-  return m_document->selectedNodes().hasGroups() && !m_mapView->anyToolActive();
+  return m_document->selectedNodes().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::renameSelectedGroups()
@@ -1637,7 +1637,7 @@ void MapFrame::moveSelectedObjects()
   {
     if (const auto offset = parse<double, 3>(str))
     {
-      m_document->translateObjects(*offset);
+      m_document->translate(*offset);
     }
     else
     {
@@ -1648,12 +1648,12 @@ void MapFrame::moveSelectedObjects()
 
 bool MapFrame::canMoveSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyToolActive();
+  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
 }
 
-bool MapFrame::anyToolActive() const
+bool MapFrame::anyModalToolActive() const
 {
-  return m_mapView->anyToolActive();
+  return m_mapView->anyModalToolActive();
 }
 
 void MapFrame::toggleAssembleBrushTool()
@@ -1692,63 +1692,63 @@ bool MapFrame::clipToolActive() const
   return m_mapView->clipToolActive();
 }
 
-void MapFrame::toggleRotateObjectsTool()
+void MapFrame::toggleRotateTool()
 {
-  if (canToggleRotateObjectsTool())
+  if (canToggleRotateTool())
   {
-    m_mapView->toggleRotateObjectsTool();
+    m_mapView->toggleRotateTool();
   }
 }
 
-bool MapFrame::canToggleRotateObjectsTool() const
+bool MapFrame::canToggleRotateTool() const
 {
-  return m_mapView->canToggleRotateObjectsTool();
+  return m_mapView->canToggleRotateTool();
 }
 
-bool MapFrame::rotateObjectsToolActive() const
+bool MapFrame::rotateToolActive() const
 {
-  return m_mapView->rotateObjectsToolActive();
+  return m_mapView->rotateToolActive();
 }
 
-void MapFrame::toggleScaleObjectsTool()
+void MapFrame::toggleScaleTool()
 {
-  if (canToggleScaleObjectsTool())
+  if (canToggleScaleTool())
   {
-    m_mapView->toggleScaleObjectsTool();
+    m_mapView->toggleScaleTool();
   }
 }
 
-bool MapFrame::canToggleScaleObjectsTool() const
+bool MapFrame::canToggleScaleTool() const
 {
-  return m_mapView->canToggleScaleObjectsTool();
+  return m_mapView->canToggleScaleTool();
 }
 
-bool MapFrame::scaleObjectsToolActive() const
+bool MapFrame::scaleToolActive() const
 {
-  return m_mapView->scaleObjectsToolActive();
+  return m_mapView->scaleToolActive();
 }
 
-void MapFrame::toggleShearObjectsTool()
+void MapFrame::toggleShearTool()
 {
-  if (canToggleShearObjectsTool())
+  if (canToggleShearTool())
   {
-    m_mapView->toggleShearObjectsTool();
+    m_mapView->toggleShearTool();
   }
 }
 
-bool MapFrame::canToggleShearObjectsTool() const
+bool MapFrame::canToggleShearTool() const
 {
-  return m_mapView->canToggleShearObjectsTool();
+  return m_mapView->canToggleShearTool();
 }
 
-bool MapFrame::shearObjectsToolActive() const
+bool MapFrame::shearToolActive() const
 {
-  return m_mapView->shearObjectsToolActive();
+  return m_mapView->shearToolActive();
 }
 
 bool MapFrame::anyVertexToolActive() const
 {
-  return vertexToolActive() || edgeToolActive() || faceToolActive();
+  return m_mapView->anyVertexToolActive();
 }
 
 void MapFrame::toggleVertexTool()

@@ -45,7 +45,6 @@
 #include "kdl/result.h"
 #include "kdl/set_temp.h"
 #include "kdl/string_utils.h"
-#include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
 #include "vm/vec.h"
@@ -54,6 +53,7 @@
 #include <cassert>
 #include <map>
 #include <memory>
+#include <ranges>
 #include <string>
 #include <vector>
 
@@ -116,46 +116,28 @@ public:
   }
 
 public:
-  template <typename M, typename I>
-  std::map<typename M::Handle, std::vector<mdl::BrushNode*>> buildBrushMap(
-    const M& manager, I cur, I end) const
-  {
-    using H2 = typename M::Handle;
-
-    auto result = std::map<H2, std::vector<mdl::BrushNode*>>{};
-    while (cur != end)
-    {
-      const auto& handle = *cur++;
-      result[handle] = findIncidentBrushes(manager, handle);
-    }
-    return result;
-  }
-
-  // FIXME: use vector_set
   template <typename M, typename H2>
+    requires(!std::ranges::range<H2>)
   std::vector<mdl::BrushNode*> findIncidentBrushes(
     const M& manager, const H2& handle) const
   {
-    const auto& brushes = selectedBrushes();
-    return manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes));
+    return manager.findIncidentBrushes(handle, selectedBrushes());
   }
 
-  // FIXME: use vector_set
-  template <typename M, typename I>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(const M& manager, I cur, I end) const
+  template <typename M, std::ranges::range R>
+  std::vector<mdl::BrushNode*> findIncidentBrushes(
+    const M& manager, const R& handles) const
   {
     const auto& brushes = selectedBrushes();
-    auto result = kdl::vector_set<mdl::BrushNode*>{};
-    auto out = std::inserter(result, std::end(result));
+    auto result = std::vector<mdl::BrushNode*>{};
+    auto out = std::back_inserter(result);
 
-    while (cur != end)
+    for (const auto& handle : handles)
     {
-      const auto& handle = *cur;
-      manager.findIncidentBrushes(handle, std::begin(brushes), std::end(brushes), out);
-      ++cur;
+      manager.findIncidentBrushes(handle, brushes, out);
     }
 
-    return result.release_data();
+    return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
 
   virtual void pick(
@@ -207,16 +189,15 @@ public: // Handle selection
 
   void select(const Lasso& lasso, const bool modifySelection)
   {
-    const auto allHandles = handleManager().allHandles();
     auto selectedHandles = std::vector<H>{};
+    lasso.selected(handleManager().allHandles(), std::back_inserter(selectedHandles));
 
-    lasso.selected(
-      std::begin(allHandles), std::end(allHandles), std::back_inserter(selectedHandles));
     if (!modifySelection)
     {
       handleManager().deselectAll();
     }
-    handleManager().toggle(std::begin(selectedHandles), std::end(selectedHandles));
+    handleManager().toggle(selectedHandles);
+
     refreshViews();
     notifyToolHandleSelectionChanged();
   }
@@ -488,9 +469,8 @@ protected: // Tool interface
     m_changeCount = 0;
     connectObservers();
 
-    const std::vector<mdl::BrushNode*>& brushes = selectedBrushes();
     handleManager().clear();
-    handleManager().addHandles(std::begin(brushes), std::end(brushes));
+    handleManager().addHandles(selectedBrushes());
 
     return true;
   }

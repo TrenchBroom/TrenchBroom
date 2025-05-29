@@ -33,7 +33,6 @@
 #include "vm/approx.h"
 #include "vm/polygon.h"
 #include "vm/vec.h"
-#include "vm/vec_ext.h"
 
 #include <filesystem>
 #include <string>
@@ -378,8 +377,10 @@ TEST_CASE("Brush_Regression")
       {
         if (i != j)
         {
-          CHECK_FALSE(brush.canMoveVertices(
-            worldBounds, {oldPositions[i]}, oldPositions[j] - oldPositions[i]));
+          CHECK_FALSE(brush.canTransformVertices(
+            worldBounds,
+            {oldPositions[i]},
+            vm::translation_matrix(oldPositions[j] - oldPositions[i])));
         }
       }
     }
@@ -413,13 +414,14 @@ TEST_CASE("Brush_Regression")
     const auto p = vm::vec3d{192, 128, 352};
 
     const auto oldVertexPositions = std::vector{p};
-    const auto delta = 4.0 * 16.0 * vm::vec3d{0, -1, 0};
-    CHECK(brush.moveVertices(worldBounds, oldVertexPositions, delta).is_success());
+    const auto transform = vm::translation_matrix(4.0 * 16.0 * vm::vec3d{0, -1, 0});
+    CHECK(
+      brush.transformVertices(worldBounds, oldVertexPositions, transform).is_success());
     auto newVertexPositions =
-      brush.findClosestVertexPositions(oldVertexPositions + delta);
+      brush.findClosestVertexPositions(transform * oldVertexPositions);
 
     CHECK(newVertexPositions.size() == 1u);
-    CHECK(newVertexPositions.front() == vm::approx(p + delta));
+    CHECK(newVertexPositions.front() == vm::approx(transform * p));
 
     kdl::col_delete_all(nodes.value());
   }
@@ -427,7 +429,7 @@ TEST_CASE("Brush_Regression")
   SECTION("moveVerticesFail_2158")
   {
     // see https://github.com/TrenchBroom/TrenchBroom/issues/2158
-    const std::string data = R"({
+    const auto data = R"({
     ( 404.63242807195160822 -1696.09174007488900315 211.96202895796943722 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 415.37140289843625851 -1630.10750076058616287 474.93304004273147712 ) rock4_2 30.92560005187988281 0.960906982421875 5.59741020202636719 0.98696297407150269 0.98029798269271851
     ( 1164.16895096277721677 -1797.72592376172019613 578.31488545196270934 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 1169.17641562068342864 -1800.29610138592852309 568.7974852992444994 ) rock4_2 67.89600372314453125 -61.20909881591796875 13.658599853515625 0.85491102933883667 1.12606000900268555
     ( 415.37140289843625851 -1630.10750076058616287 474.93304004273147712 ) ( 1195.3323608207340385 -1812.61180985669875554 293.31661882168685906 ) ( 1164.16895096277721677 -1797.72592376172019613 578.31488545196270934 ) rock4_2 -3.77819991111755371 -44.42710113525390625 7.24881982803344727 0.95510202646255493 1.04886996746063232
@@ -486,8 +488,9 @@ TEST_CASE("Brush_Regression")
       brush.findClosestVertexPosition(
         {1120.5128684458623, -1855.3192739534061, 574.53563498325116})};
 
-    CHECK(brush.canMoveVertices(worldBounds, vertexPositions, vm::vec3d{16, 0, 0}));
-    CHECK_NOTHROW(brush.moveVertices(worldBounds, vertexPositions, vm::vec3d{16, 0, 0}));
+    const auto transform = vm::translation_matrix(vm::vec3d{16, 0, 0});
+    CHECK(brush.canTransformVertices(worldBounds, vertexPositions, transform));
+    CHECK_NOTHROW(brush.transformVertices(worldBounds, vertexPositions, transform));
 
     kdl::col_delete_all(nodes.value());
   }
@@ -880,10 +883,9 @@ TEST_CASE("Brush_Regression")
       brush.findClosestVertexPosition(vm::vec3d{-5730.730280440197, 486, 1108});
     const auto segment = vm::segment3d(vertex1, vertex2);
 
-    CHECK(brush.canMoveEdges(
-      worldBounds, std::vector<vm::segment3d>{segment}, vm::vec3d{0, -4, 0}));
-    CHECK_NOTHROW(brush.moveEdges(
-      worldBounds, std::vector<vm::segment3d>{segment}, vm::vec3d{0, -4, 0}));
+    const auto transform = vm::translation_matrix(vm::vec3d{0, -4, 0});
+    CHECK(brush.canTransformEdges(worldBounds, {segment}, transform));
+    CHECK_NOTHROW(brush.transformEdges(worldBounds, {segment}, transform));
 
     kdl::col_delete_all(nodes.value());
   }
@@ -912,12 +914,18 @@ TEST_CASE("Brush_Regression")
 
     const auto topFace = vm::polygon3d{std::vector{p1, p2, p3, p4, p5, p6}};
 
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {+16, 0, 0}));
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {-16, 0, 0}));
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {0, +16, 0}));
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {0, -16, 0}));
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {0, 0, +16}));
-    CHECK(brush.canMoveFaces(worldBounds, {topFace}, {0, 0, -16}));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{+16, 0, 0})));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{-16, 0, 0})));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{0, +16, 0})));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{0, -16, 0})));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{0, 0, +16})));
+    CHECK(brush.canTransformFaces(
+      worldBounds, {topFace}, vm::translation_matrix(vm::vec3d{0, 0, -16})));
   }
 
   SECTION("convexMergeCrash_2789")

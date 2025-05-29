@@ -125,15 +125,14 @@ void SwitchableMapViewContainer::switchToMapView(const MapViewLayout viewId)
   m_mapView->setFocus();
 }
 
-bool SwitchableMapViewContainer::anyToolActive() const
+bool SwitchableMapViewContainer::anyModalToolActive() const
 {
-  return assembleBrushToolActive() || clipToolActive() || rotateObjectsToolActive()
-         || scaleObjectsToolActive() || shearObjectsToolActive() || anyVertexToolActive();
+  return m_toolBox->anyModalToolActive();
 }
 
-void SwitchableMapViewContainer::deactivateTool()
+void SwitchableMapViewContainer::deactivateCurrentTool()
 {
-  m_toolBox->deactivateAllTools();
+  m_toolBox->deactivateCurrentTool();
 }
 
 bool SwitchableMapViewContainer::assembleBrushToolActive() const
@@ -173,52 +172,52 @@ ClipTool& SwitchableMapViewContainer::clipTool()
   return m_toolBox->clipTool();
 }
 
-bool SwitchableMapViewContainer::rotateObjectsToolActive() const
+bool SwitchableMapViewContainer::rotateToolActive() const
 {
-  return m_toolBox->rotateObjectsToolActive();
+  return m_toolBox->rotateToolActive();
 }
 
-bool SwitchableMapViewContainer::canToggleRotateObjectsTool() const
+bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  return rotateObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return rotateToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-void SwitchableMapViewContainer::toggleRotateObjectsTool()
+void SwitchableMapViewContainer::toggleRotateTool()
 {
-  assert(canToggleRotateObjectsTool());
-  m_toolBox->toggleRotateObjectsTool();
+  assert(canToggleRotateTool());
+  m_toolBox->toggleRotateTool();
 }
 
-bool SwitchableMapViewContainer::scaleObjectsToolActive() const
+bool SwitchableMapViewContainer::scaleToolActive() const
 {
-  return m_toolBox->scaleObjectsToolActive();
+  return m_toolBox->scaleToolActive();
 }
 
-bool SwitchableMapViewContainer::shearObjectsToolActive() const
+bool SwitchableMapViewContainer::shearToolActive() const
 {
-  return m_toolBox->shearObjectsToolActive();
+  return m_toolBox->shearToolActive();
 }
 
-bool SwitchableMapViewContainer::canToggleScaleObjectsTool() const
+bool SwitchableMapViewContainer::canToggleScaleTool() const
 {
-  return scaleObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return scaleToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-void SwitchableMapViewContainer::toggleScaleObjectsTool()
+void SwitchableMapViewContainer::toggleScaleTool()
 {
-  assert(canToggleScaleObjectsTool());
-  m_toolBox->toggleScaleObjectsTool();
+  assert(canToggleScaleTool());
+  m_toolBox->toggleScaleTool();
 }
 
-bool SwitchableMapViewContainer::canToggleShearObjectsTool() const
+bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  return shearObjectsToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return shearToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
 }
 
-void SwitchableMapViewContainer::toggleShearObjectsTool()
+void SwitchableMapViewContainer::toggleShearTool()
 {
-  assert(canToggleShearObjectsTool());
-  m_toolBox->toggleShearObjectsTool();
+  assert(canToggleShearTool());
+  m_toolBox->toggleShearTool();
 }
 
 bool SwitchableMapViewContainer::canToggleVertexTools() const

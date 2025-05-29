@@ -108,8 +108,8 @@ public: // adding, removing, reparenting, and duplicating nodes
   virtual void removeNodes(const std::vector<Node*>& nodes) = 0;
 
   virtual bool reparentNodes(const std::map<Node*, std::vector<Node*>>& nodes) = 0;
-  virtual void deleteObjects() = 0;
-  virtual void duplicateObjects() = 0;
+  virtual void remove() = 0;
+  virtual void duplicate() = 0;
 
 public: // entity management
   virtual mdl::EntityNode* createPointEntity(
@@ -126,14 +126,13 @@ public:                                            // modifying transient node a
   virtual void resetLock(const std::vector<Node*>& nodes) = 0;
 
 public: // modifying objects
-  virtual bool translateObjects(const vm::vec3d& delta) = 0;
-  virtual bool rotateObjects(
-    const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
-  virtual bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
-  virtual bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
-  virtual bool shearObjects(
+  virtual bool translate(const vm::vec3d& delta) = 0;
+  virtual bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) = 0;
+  virtual bool scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) = 0;
+  virtual bool scale(const vm::vec3d& center, const vm::vec3d& scaleFactors) = 0;
+  virtual bool shear(
     const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) = 0;
-  virtual bool flipObjects(const vm::vec3d& center, vm::axis::type axis) = 0;
+  virtual bool flip(const vm::vec3d& center, vm::axis::type axis) = 0;
 
 public: // modifying entity properties
   virtual bool setProperty(
@@ -165,19 +164,18 @@ public: // modifying face attributes
 public: // modifying vertices
   virtual bool snapVertices(double snapTo) = 0;
 
-  struct MoveVerticesResult
+  struct TransformVerticesResult
   {
     bool success;
     bool hasRemainingVertices;
-    MoveVerticesResult(bool i_success, bool i_hasRemainingVertices);
   };
 
-  virtual MoveVerticesResult moveVertices(
-    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) = 0;
-  virtual bool moveEdges(
-    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) = 0;
-  virtual bool moveFaces(
-    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) = 0;
+  virtual TransformVerticesResult transformVertices(
+    std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform) = 0;
+  virtual bool transformEdges(
+    std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform) = 0;
+  virtual bool transformFaces(
+    std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform) = 0;
 
 public: // search paths and mods
   virtual std::vector<std::string> mods() const = 0;

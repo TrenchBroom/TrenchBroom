@@ -78,8 +78,8 @@ public:
   bool active() const;
   void switchToMapView(MapViewLayout viewId);
 
-  bool anyToolActive() const;
-  void deactivateTool();
+  bool anyModalToolActive() const;
+  void deactivateCurrentTool();
 
   bool assembleBrushToolActive() const;
   bool canToggleAssembleBrushTool() const;
@@ -90,17 +90,17 @@ public:
   void toggleClipTool();
   ClipTool& clipTool();
 
-  bool rotateObjectsToolActive() const;
-  bool canToggleRotateObjectsTool() const;
-  void toggleRotateObjectsTool();
+  bool rotateToolActive() const;
+  bool canToggleRotateTool() const;
+  void toggleRotateTool();
 
-  bool scaleObjectsToolActive() const;
-  bool canToggleScaleObjectsTool() const;
-  void toggleScaleObjectsTool();
+  bool scaleToolActive() const;
+  bool canToggleScaleTool() const;
+  void toggleScaleTool();
 
-  bool shearObjectsToolActive() const;
-  bool canToggleShearObjectsTool() const;
-  void toggleShearObjectsTool();
+  bool shearToolActive() const;
+  bool canToggleShearTool() const;
+  void toggleShearTool();
 
   bool canToggleVertexTools() const;
   bool anyVertexToolActive() const;

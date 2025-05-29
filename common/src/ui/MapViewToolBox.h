@@ -36,9 +36,9 @@ class CreateEntityTool;
 class DrawShapeTool;
 class MoveObjectsTool;
 class ExtrudeTool;
-class RotateObjectsTool;
-class ScaleObjectsTool;
-class ShearObjectsTool;
+class RotateTool;
+class ScaleTool;
+class ShearTool;
 class VertexTool;
 class EdgeTool;
 class FaceTool;
@@ -56,9 +56,9 @@ private:
   std::unique_ptr<DrawShapeTool> m_drawShapeTool;
   std::unique_ptr<MoveObjectsTool> m_moveObjectsTool;
   std::unique_ptr<ExtrudeTool> m_extrudeTool;
-  std::unique_ptr<RotateObjectsTool> m_rotateObjectsTool;
-  std::unique_ptr<ScaleObjectsTool> m_scaleObjectsTool;
-  std::unique_ptr<ShearObjectsTool> m_shearObjectsTool;
+  std::unique_ptr<RotateTool> m_rotateTool;
+  std::unique_ptr<ScaleTool> m_scaleTool;
+  std::unique_ptr<ShearTool> m_shearTool;
   std::unique_ptr<VertexTool> m_vertexTool;
   std::unique_ptr<EdgeTool> m_edgeTool;
   std::unique_ptr<FaceTool> m_faceTool;
@@ -76,9 +76,9 @@ public: // tools
   DrawShapeTool& drawShapeTool();
   MoveObjectsTool& moveObjectsTool();
   ExtrudeTool& extrudeTool();
-  RotateObjectsTool& rotateObjectsTool();
-  ScaleObjectsTool& scaleObjectsTool();
-  ShearObjectsTool& shearObjectsTool();
+  RotateTool& rotateTool();
+  ScaleTool& scaleTool();
+  ShearTool& shearTool();
   VertexTool& vertexTool();
   EdgeTool& edgeTool();
   FaceTool& faceTool();
@@ -93,17 +93,17 @@ public: // tools
   void performClip();
   void removeLastClipPoint();
 
-  void toggleRotateObjectsTool();
-  bool rotateObjectsToolActive() const;
+  void toggleRotateTool();
+  bool rotateToolActive() const;
   double rotateToolAngle() const;
   vm::vec3d rotateToolCenter() const;
   void moveRotationCenter(const vm::vec3d& delta);
 
-  void toggleScaleObjectsTool();
-  bool scaleObjectsToolActive() const;
+  void toggleScaleTool();
+  bool scaleToolActive() const;
 
-  void toggleShearObjectsTool();
-  bool shearObjectsToolActive() const;
+  void toggleShearTool();
+  bool shearToolActive() const;
 
   bool anyVertexToolActive() const;
 
@@ -115,6 +115,8 @@ public: // tools
 
   void toggleFaceTool();
   bool faceToolActive() const;
+
+  bool anyModalToolActive() const;
 
   void moveVertices(const vm::vec3d& delta);
 

@@ -24,9 +24,9 @@
 #include "Notifier.h"
 #include "NotifierConnection.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class QWindow;
@@ -60,9 +60,10 @@ class ToolBox : public QObject
 private:
   std::unique_ptr<GestureTracker> m_gestureTracker;
   std::unique_ptr<DropTracker> m_dropTracker;
-  Tool* m_modalTool = nullptr;
+  std::vector<Tool*> m_modalToolStack;
 
-  std::map<Tool*, std::vector<Tool*>> m_suppressedTools;
+  std::vector<std::vector<Tool*>> m_exclusiveToolGroups;
+  std::unordered_map<Tool*, std::vector<Tool*>> m_suppressedTools;
 
   bool m_enabled = true;
 
@@ -114,18 +115,30 @@ public: // event handling
   bool cancel(ToolChain& chain);
 
 public: // tool management
+  template <typename... T>
+  void addExclusiveToolGroup(T&... exclusiveToolGroup)
+  {
+    if constexpr (sizeof...(exclusiveToolGroup) > 0)
+    {
+      m_exclusiveToolGroups.emplace_back(std::vector<Tool*>{&exclusiveToolGroup...});
+    }
+  }
+
   /**
    * Suppress a tool when another becomes active. The suppressed tool becomes temporarily
    * deactivated.
    *
-   * @param suppressedTool the tool that becomes supressed while the other is active
    * @param primaryTool the tool that controls when the suppressed tool is deactivated
+   * @param suppressedTool the tool that becomes supressed while the other is active
    */
-  void suppressWhileActive(Tool& suppressedTool, Tool& primaryTool);
+  template <typename... T>
+  void suppressWhileActive(Tool& primaryTool, T&... suppressedTool)
+  {
+    (m_suppressedTools[&primaryTool].push_back(&suppressedTool), ...);
+  }
 
-  bool anyToolActive() const;
-  Tool* activeTool();
   void toggleTool(Tool& tool);
+  bool deactivateCurrentTool();
   void deactivateAllTools();
 
   bool enabled() const;
@@ -144,6 +157,9 @@ public: // rendering
 private:
   void activateTool(Tool& tool);
   void deactivateTool(Tool& tool);
+
+  std::vector<Tool*> excludedTools(const Tool& tool) const;
+  std::vector<Tool*> currentlySuppressedTools() const;
 };
 
 } // namespace tb::ui

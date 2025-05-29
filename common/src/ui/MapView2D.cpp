@@ -50,10 +50,10 @@
 #include "ui/MapDocument.h"
 #include "ui/MapViewToolBox.h"
 #include "ui/MoveObjectsToolController.h"
-#include "ui/RotateObjectsToolController.h"
-#include "ui/ScaleObjectsToolController.h"
+#include "ui/RotateToolController.h"
+#include "ui/ScaleToolController.h"
 #include "ui/SelectionTool.h"
-#include "ui/ShearObjectsToolController.h"
+#include "ui/ShearToolController.h"
 #include "ui/VertexTool.h"
 #include "ui/VertexToolController.h"
 
@@ -120,21 +120,23 @@ void MapView2D::initializeCamera(const ViewPlane viewPlane)
 
 void MapView2D::initializeToolChain(MapViewToolBox& toolBox)
 {
-  addTool(std::make_unique<CameraTool2D>(*m_camera));
-  addTool(std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
-  addTool(std::make_unique<RotateObjectsToolController2D>(toolBox.rotateObjectsTool()));
-  addTool(std::make_unique<ScaleObjectsToolController2D>(
-    toolBox.scaleObjectsTool(), m_document));
-  addTool(std::make_unique<ShearObjectsToolController2D>(
-    toolBox.shearObjectsTool(), m_document));
-  addTool(std::make_unique<ExtrudeToolController2D>(toolBox.extrudeTool()));
-  addTool(std::make_unique<ClipToolController2D>(toolBox.clipTool()));
-  addTool(std::make_unique<VertexToolController>(toolBox.vertexTool()));
-  addTool(std::make_unique<EdgeToolController>(toolBox.edgeTool()));
-  addTool(std::make_unique<FaceToolController>(toolBox.faceTool()));
-  addTool(std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
-  addTool(std::make_unique<SelectionTool>(m_document));
-  addTool(
+  addToolController(std::make_unique<CameraTool2D>(*m_camera));
+  addToolController(
+    std::make_unique<MoveObjectsToolController>(toolBox.moveObjectsTool()));
+  addToolController(std::make_unique<RotateToolController2D>(toolBox.rotateTool()));
+  addToolController(
+    std::make_unique<ScaleToolController2D>(toolBox.scaleTool(), m_document));
+  addToolController(
+    std::make_unique<ShearToolController2D>(toolBox.shearTool(), m_document));
+  addToolController(std::make_unique<ExtrudeToolController2D>(toolBox.extrudeTool()));
+  addToolController(std::make_unique<ClipToolController2D>(toolBox.clipTool()));
+  addToolController(std::make_unique<VertexToolController>(toolBox.vertexTool()));
+  addToolController(std::make_unique<EdgeToolController>(toolBox.edgeTool()));
+  addToolController(std::make_unique<FaceToolController>(toolBox.faceTool()));
+  addToolController(
+    std::make_unique<CreateEntityToolController2D>(toolBox.createEntityTool()));
+  addToolController(std::make_unique<SelectionTool>(m_document));
+  addToolController(
     std::make_unique<DrawShapeToolController2D>(toolBox.drawShapeTool(), m_document));
 }
 

@@ -322,7 +322,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
   SECTION("createPointEntity")
   {
     document->selectAllNodes();
-    document->deleteObjects();
+    document->remove();
 
     SECTION("Point entity is created and selected")
     {
@@ -386,7 +386,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
   SECTION("createBrushEntity")
   {
     document->selectAllNodes();
-    document->deleteObjects();
+    document->remove();
 
     SECTION("Brush entity is created and selected")
     {
@@ -461,7 +461,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
   SECTION("resetDefaultProperties")
   {
     document->selectAllNodes();
-    document->deleteObjects();
+    document->remove();
 
     // Note: The test document does not automatically set the default properties
     document->setEntityDefinitions({

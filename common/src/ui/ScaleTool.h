@@ -51,7 +51,7 @@ namespace tb::ui
 {
 class Grid;
 class MapDocument;
-class ScaleObjectsToolPage;
+class ScaleToolPage;
 
 /**
  * Identifies the side of a bbox using a normal. The normal will be one of +/- 1.0 along
@@ -222,7 +222,7 @@ struct BackSide
 BackSide pickBackSideOfBox(
   const vm::ray3d& pickRay, const render::Camera& camera, const vm::bbox3d& box);
 
-class ScaleObjectsTool : public Tool
+class ScaleTool : public Tool
 {
 public:
   static const mdl::HitType::Type ScaleToolSideHitType;
@@ -231,7 +231,7 @@ public:
 
 private:
   std::weak_ptr<MapDocument> m_document;
-  ScaleObjectsToolPage* m_toolPage = nullptr;
+  ScaleToolPage* m_toolPage = nullptr;
   bool m_resizing = false;
   AnchorPos m_anchorPos = AnchorPos::Opposite;
   vm::bbox3d m_bboxAtDragStart;
@@ -240,8 +240,8 @@ private:
   ProportionalAxes m_proportionalAxes = ProportionalAxes::None();
 
 public:
-  explicit ScaleObjectsTool(std::weak_ptr<MapDocument> document);
-  ~ScaleObjectsTool() override;
+  explicit ScaleTool(std::weak_ptr<MapDocument> document);
+  ~ScaleTool() override;
 
   bool doActivate() override;
 

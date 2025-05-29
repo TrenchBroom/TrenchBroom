@@ -32,6 +32,7 @@
 #include "mdl/PortalFile.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
+#include "ui/VertexHandleManager.h"
 
 #include "vm/bbox.h"
 #include "vm/ray.h"
@@ -145,6 +146,10 @@ protected:
 
   mdl::NodeCollection m_selectedNodes;
   std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
+
+  VertexHandleManager m_vertexHandles;
+  EdgeHandleManager m_edgeHandles;
+  FaceHandleManager m_faceHandles;
 
   mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
@@ -399,6 +404,10 @@ public: // selection
   std::vector<mdl::BrushFaceHandle> allSelectedBrushFaces() const override;
   std::vector<mdl::BrushFaceHandle> selectedBrushFaces() const override;
 
+  VertexHandleManager& vertexHandles();
+  EdgeHandleManager& edgeHandles();
+  FaceHandleManager& faceHandles();
+
   const vm::bbox3d& referenceBounds() const override;
   const vm::bbox3d& lastSelectionBounds() const override;
   const vm::bbox3d& selectionBounds() const override;
@@ -455,8 +464,8 @@ private:
     const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodesToAdd) const;
 
 public:
-  void deleteObjects() override;
-  void duplicateObjects() override;
+  void remove() override;
+  void duplicate() override;
 
 public: // entity management
   mdl::EntityNode* createPointEntity(
@@ -566,17 +575,15 @@ public: // modifying objects, declared in MapFacade interface
   bool swapNodeContents(
     const std::string& commandName,
     std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodesToSwap);
-  bool transformObjects(
-    const std::string& commandName, const vm::mat4x4d& transformation);
+  bool transform(const std::string& commandName, const vm::mat4x4d& transformation);
 
-  bool translateObjects(const vm::vec3d& delta) override;
-  bool rotateObjects(
-    const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
-  bool scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) override;
-  bool scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors) override;
-  bool shearObjects(
+  bool translate(const vm::vec3d& delta) override;
+  bool rotate(const vm::vec3d& center, const vm::vec3d& axis, double angle) override;
+  bool scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox) override;
+  bool scale(const vm::vec3d& center, const vm::vec3d& scaleFactors) override;
+  bool shear(
     const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta) override;
-  bool flipObjects(const vm::vec3d& center, vm::axis::type axis) override;
+  bool flip(const vm::vec3d& center, vm::axis::type axis) override;
 
 public: // CSG operations, declared in MapFacade interface
   bool createBrush(const std::vector<vm::vec3d>& points);
@@ -634,12 +641,12 @@ public:
 public: // modifying vertices, declared in MapFacade interface
   bool snapVertices(double snapTo) override;
 
-  MoveVerticesResult moveVertices(
-    std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta) override;
-  bool moveEdges(
-    std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta) override;
-  bool moveFaces(
-    std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta) override;
+  TransformVerticesResult transformVertices(
+    std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform) override;
+  bool transformEdges(
+    std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform) override;
+  bool transformFaces(
+    std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform) override;
 
   bool addVertex(const vm::vec3d& vertexPosition);
   bool removeVertices(

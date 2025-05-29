@@ -784,6 +784,8 @@ Down          #action(Controls/Map view/Move objects down; Move objects backward
 Forward       #action(Controls/Map view/Move objects forward; Move objects down)       #action(Controls/Map view/Move objects up; Move objects forward)
 Backward      #action(Controls/Map view/Move objects backward; Move objects up)        #action(Controls/Map view/Move objects down; Move objects backward)
 
+In addition to moving vertices, the vertex tool can also rotate, scale and shear vertices. To rotate vertices, bring up the [rotate tool](#rotating_objects) via #menu(Menu/Edit/Tools/Rotate Tool), then use the rotation handle as usual. To scale them, use #menu(Menu/Edit/Tools/Scale Tool) to enable the [scale tool](#scaling_objects), and use #menu(Menu/Edit/Tools/Shear Tool) to shear them with the [shear tool](#shearing_objects).
+
 This concludes the functionality of the vertex tool. While it is very powerful, it should also be used with care, as vertex editing can sometimes create invalid brushes and microleaks in the map. To help you avoid such problems, the following section contains a few best practices you should keep in mind when you use the vertex tool.
 
 

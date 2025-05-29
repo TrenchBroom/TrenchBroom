@@ -105,18 +105,18 @@ public:
   {
   }
 
-private:
-  mdl::Hit doFindDraggableHandle(const InputState& inputState) const override
+protected:
+  mdl::Hit findDraggableHandle(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> doFindDraggableHandles(
-    const InputState& inputState) const override
+  std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }
 
+private:
   bool equalHandles(const vm::vec3d& lhs, const vm::vec3d& rhs) const override
   {
     return vm::squared_distance(lhs, rhs) < MaxHandleDistance * MaxHandleDistance;
@@ -202,14 +202,13 @@ private:
     }
   }
 
-private:
-  mdl::Hit doFindDraggableHandle(const InputState& inputState) const override
+protected:
+  mdl::Hit findDraggableHandle(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHit(inputState, *this);
   }
 
-  std::vector<mdl::Hit> doFindDraggableHandles(
-    const InputState& inputState) const override
+  std::vector<mdl::Hit> findDraggableHandles(const InputState& inputState) const override
   {
     return VertexToolController::findHandleHits(inputState, *this);
   }

@@ -28,14 +28,14 @@ namespace tb::ui
 
 FaceTool::FaceTool(std::weak_ptr<MapDocument> document)
   : VertexToolBase{std::move(document)}
-  , m_faceHandles(std::make_unique<FaceHandleManager>())
 {
 }
 
 std::vector<mdl::BrushNode*> FaceTool::findIncidentBrushes(
   const vm::polygon3d& handle) const
 {
-  return findIncidentBrushes(*m_faceHandles, handle);
+  auto document = kdl::mem_lock(m_document);
+  return findIncidentBrushes(document->faceHandles(), handle);
 }
 
 void FaceTool::pick(
@@ -43,17 +43,20 @@ void FaceTool::pick(
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
 {
-  m_faceHandles->pickCenterHandle(pickRay, camera, pickResult);
+  auto document = kdl::mem_lock(m_document);
+  document->faceHandles().pickCenterHandle(pickRay, camera, pickResult);
 }
 
 FaceHandleManager& FaceTool::handleManager()
 {
-  return *m_faceHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->faceHandles();
 }
 
 const FaceHandleManager& FaceTool::handleManager() const
 {
-  return *m_faceHandles;
+  auto document = kdl::mem_lock(m_document);
+  return document->faceHandles();
 }
 
 std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
@@ -71,10 +74,11 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 {
   auto document = kdl::mem_lock(m_document);
 
-  auto handles = m_faceHandles->selectedHandles();
-  if (document->moveFaces(std::move(handles), delta))
+  auto handles = document->faceHandles().selectedHandles();
+  const auto transform = vm::translation_matrix(delta);
+  if (document->transformFaces(std::move(handles), transform))
   {
-    m_dragHandlePosition = m_dragHandlePosition.translate(delta);
+    m_dragHandlePosition = m_dragHandlePosition.transform(transform);
     return MoveResult::Continue;
   }
   return MoveResult::Deny;
@@ -82,12 +86,16 @@ FaceTool::MoveResult FaceTool::move(const vm::vec3d& delta)
 
 std::string FaceTool::actionName() const
 {
-  return kdl::str_plural(m_faceHandles->selectedHandleCount(), "Move Face", "Move Faces");
+  auto document = kdl::mem_lock(m_document);
+  return kdl::str_plural(
+    document->faceHandles().selectedHandleCount(), "Move Face", "Move Faces");
 }
 
 void FaceTool::removeSelection()
 {
-  const auto handles = m_faceHandles->selectedHandles();
+  auto document = kdl::mem_lock(m_document);
+
+  const auto handles = document->faceHandles().selectedHandles();
   auto vertexPositions = std::vector<vm::vec3d>{};
   vm::polygon3d::get_vertices(
     std::begin(handles), std::end(handles), std::back_inserter(vertexPositions));

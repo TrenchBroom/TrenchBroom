@@ -1351,6 +1351,21 @@ std::vector<mdl::BrushFaceHandle> MapDocument::selectedBrushFaces() const
   return m_selectedBrushFaces;
 }
 
+VertexHandleManager& MapDocument::vertexHandles()
+{
+  return m_vertexHandles;
+}
+
+EdgeHandleManager& MapDocument::edgeHandles()
+{
+  return m_edgeHandles;
+}
+
+FaceHandleManager& MapDocument::faceHandles()
+{
+  return m_faceHandles;
+}
+
 const vm::bbox3d& MapDocument::referenceBounds() const
 {
   return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();
@@ -1428,7 +1443,7 @@ void MapDocument::selectTouching(const bool del)
   auto transaction = Transaction{*this, "Select Touching"};
   if (del)
   {
-    deleteObjects();
+    remove();
   }
   else
   {
@@ -1448,7 +1463,7 @@ void MapDocument::selectInside(const bool del)
   auto transaction = Transaction{*this, "Select Inside"};
   if (del)
   {
-    deleteObjects();
+    remove();
   }
   else
   {
@@ -1658,7 +1673,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
         // delete the original selection brushes before searching for the objects to
         // select
         auto transaction = Transaction{*this, "Select Tall"};
-        deleteObjects();
+        remove();
 
         const auto nodesToSelect = kdl::vec_filter(
           mdl::collectContainedNodes(
@@ -1969,7 +1984,7 @@ bool MapDocument::checkReparenting(
   return true;
 }
 
-void MapDocument::deleteObjects()
+void MapDocument::remove()
 {
   const auto nodes = m_selectedNodes.nodes();
 
@@ -2021,7 +2036,7 @@ void resetLinkIdsOfNonGroupedNodes(
 
 } // namespace
 
-void MapDocument::duplicateObjects()
+void MapDocument::duplicate()
 {
   auto nodesToAdd = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
   auto nodesToSelect = std::vector<mdl::Node*>{};
@@ -2088,7 +2103,7 @@ void MapDocument::duplicateObjects()
   {
     m_viewEffectsService->flashSelection();
   }
-  m_repeatStack->push([&]() { duplicateObjects(); });
+  m_repeatStack->push([&]() { duplicate(); });
 }
 
 mdl::EntityNode* MapDocument::createPointEntity(
@@ -2115,7 +2130,7 @@ mdl::EntityNode* MapDocument::createPointEntity(
     return nullptr;
   }
   selectNodes({entityNode});
-  if (!translateObjects(delta))
+  if (!translate(delta))
   {
     transaction.cancel();
     return nullptr;
@@ -3064,9 +3079,14 @@ bool MapDocument::swapNodeContents(
     commandName, std::move(nodesToSwap), std::move(changedLinkedGroups));
 }
 
-bool MapDocument::transformObjects(
+bool MapDocument::transform(
   const std::string& commandName, const vm::mat4x4d& transformation)
 {
+  if (m_vertexHandles.anySelected())
+  {
+    return transformVertices(m_vertexHandles.selectedHandles(), transformation).success;
+  }
+
   auto nodesToTransform = std::vector<mdl::Node*>{};
   auto entitiesToTransform = std::unordered_map<mdl::EntityNodeBase*, size_t>{};
 
@@ -3171,7 +3191,7 @@ bool MapDocument::transformObjects(
              if (success)
              {
                m_repeatStack->push([&, commandName, transformation]() {
-                 transformObjects(commandName, transformation);
+                 transform(commandName, transformation);
                });
              }
              return success;
@@ -3179,47 +3199,47 @@ bool MapDocument::transformObjects(
          | kdl::value_or(false);
 }
 
-bool MapDocument::translateObjects(const vm::vec3d& delta)
+bool MapDocument::translate(const vm::vec3d& delta)
 {
-  return transformObjects("Translate Objects", vm::translation_matrix(delta));
+  return transform("Translate Objects", vm::translation_matrix(delta));
 }
 
-bool MapDocument::rotateObjects(
+bool MapDocument::rotate(
   const vm::vec3d& center, const vm::vec3d& axis, const double angle)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::rotation_matrix(axis, angle)
                               * vm::translation_matrix(-center);
-  return transformObjects("Rotate Objects", transformation);
+  return transform("Rotate Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
+bool MapDocument::scale(const vm::bbox3d& oldBBox, const vm::bbox3d& newBBox)
 {
   const auto transformation = vm::scale_bbox_matrix(oldBBox, newBBox);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
-bool MapDocument::scaleObjects(const vm::vec3d& center, const vm::vec3d& scaleFactors)
+bool MapDocument::scale(const vm::vec3d& center, const vm::vec3d& scaleFactors)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::scaling_matrix(scaleFactors)
                               * vm::translation_matrix(-center);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
-bool MapDocument::shearObjects(
+bool MapDocument::shear(
   const vm::bbox3d& box, const vm::vec3d& sideToShear, const vm::vec3d& delta)
 {
   const auto transformation = vm::shear_bbox_matrix(box, sideToShear, delta);
-  return transformObjects("Scale Objects", transformation);
+  return transform("Scale Objects", transformation);
 }
 
-bool MapDocument::flipObjects(const vm::vec3d& center, const vm::axis::type axis)
+bool MapDocument::flip(const vm::vec3d& center, const vm::axis::type axis)
 {
   const auto transformation = vm::translation_matrix(center)
                               * vm::mirror_matrix<double>(axis)
                               * vm::translation_matrix(-center);
-  return transformObjects("Flip Objects", transformation);
+  return transform("Flip Objects", transformation);
 }
 
 bool MapDocument::createBrush(const std::vector<vm::vec3d>& points)
@@ -3978,8 +3998,8 @@ bool MapDocument::snapVertices(const double snapTo)
   return true;
 }
 
-MapDocument::MoveVerticesResult MapDocument::moveVertices(
-  std::vector<vm::vec3d> vertexPositions, const vm::vec3d& delta)
+MapDocument::TransformVerticesResult MapDocument::transformVertices(
+  std::vector<vm::vec3d> vertexPositions, const vm::mat4x4d& transform)
 {
   auto newVertexPositions = std::vector<vm::vec3d>{};
   auto newNodes = applyToNodeContents(
@@ -3996,16 +4016,16 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
           return true;
         }
 
-        if (!brush.canMoveVertices(m_worldBounds, verticesToMove, delta))
+        if (!brush.canTransformVertices(m_worldBounds, verticesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveVertices(
-                 m_worldBounds, verticesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformVertices(
+                 m_worldBounds, verticesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions =
-                     brush.findClosestVertexPositions(verticesToMove + delta);
+                     brush.findClosestVertexPositions(transform * verticesToMove);
                    newVertexPositions = kdl::vec_concat(
                      std::move(newVertexPositions), std::move(newPositions));
                  })
@@ -4035,14 +4055,14 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
     if (!result->success())
     {
       transaction.cancel();
-      return MoveVerticesResult{false, false};
+      return TransformVerticesResult{false, false};
     }
 
     setHasPendingChanges(changedLinkedGroups, true);
 
     if (!transaction.commit())
     {
-      return MoveVerticesResult{false, false};
+      return TransformVerticesResult{false, false};
     }
 
     const auto* moveVerticesResult =
@@ -4054,11 +4074,11 @@ MapDocument::MoveVerticesResult MapDocument::moveVertices(
     return {moveVerticesResult->success(), moveVerticesResult->hasRemainingVertices()};
   }
 
-  return MoveVerticesResult{false, false};
+  return TransformVerticesResult{false, false};
 }
 
-bool MapDocument::moveEdges(
-  std::vector<vm::segment3d> edgePositions, const vm::vec3d& delta)
+bool MapDocument::transformEdges(
+  std::vector<vm::segment3d> edgePositions, const vm::mat4x4d& transform)
 {
   auto newEdgePositions = std::vector<vm::segment3d>{};
   auto newNodes = applyToNodeContents(
@@ -4075,17 +4095,17 @@ bool MapDocument::moveEdges(
           return true;
         }
 
-        if (!brush.canMoveEdges(m_worldBounds, edgesToMove, delta))
+        if (!brush.canTransformEdges(m_worldBounds, edgesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveEdges(
-                 m_worldBounds, edgesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformEdges(
+                 m_worldBounds, edgesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestEdgePositions(kdl::vec_transform(
                      edgesToMove,
-                     [&](const auto& edge) { return edge.translate(delta); }));
+                     [&](const auto& edge) { return edge.transform(transform); }));
                    newEdgePositions = kdl::vec_concat(
                      std::move(newEdgePositions), std::move(newPositions));
                  })
@@ -4125,8 +4145,8 @@ bool MapDocument::moveEdges(
   return false;
 }
 
-bool MapDocument::moveFaces(
-  std::vector<vm::polygon3d> facePositions, const vm::vec3d& delta)
+bool MapDocument::transformFaces(
+  std::vector<vm::polygon3d> facePositions, const vm::mat4x4d& transform)
 {
   auto newFacePositions = std::vector<vm::polygon3d>{};
   auto newNodes = applyToNodeContents(
@@ -4143,17 +4163,17 @@ bool MapDocument::moveFaces(
           return true;
         }
 
-        if (!brush.canMoveFaces(m_worldBounds, facesToMove, delta))
+        if (!brush.canTransformFaces(m_worldBounds, facesToMove, transform))
         {
           return false;
         }
 
-        return brush.moveFaces(
-                 m_worldBounds, facesToMove, delta, pref(Preferences::UVLock))
+        return brush.transformFaces(
+                 m_worldBounds, facesToMove, transform, pref(Preferences::UVLock))
                | kdl::transform([&]() {
                    auto newPositions = brush.findClosestFacePositions(kdl::vec_transform(
                      facesToMove,
-                     [&](const auto& face) { return face.translate(delta); }));
+                     [&](const auto& face) { return face.transform(transform); }));
                    newFacePositions = kdl::vec_concat(
                      std::move(newFacePositions), std::move(newPositions));
                  })

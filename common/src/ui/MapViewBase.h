@@ -173,11 +173,11 @@ public: // move, rotate, flip actions
   void duplicateAndMoveObjects(vm::direction direction);
   void duplicateObjects();
 
-  void rotateObjects(vm::rotation_axis axis, bool clockwise);
+  void rotate(vm::rotation_axis axis, bool clockwise);
   vm::vec3d rotationAxis(vm::rotation_axis axis, bool clockwise) const;
 
-  void flipObjects(vm::direction direction);
-  bool canFlipObjects() const;
+  void flip(vm::direction direction);
+  bool canFlip() const;
   virtual size_t flipAxis(vm::direction direction) const = 0;
 
 public: // UV actions
@@ -208,7 +208,7 @@ public: // tool mode actions
 public: // misc actions
   void resetCameraZoom();
   void cancel();
-  void deactivateTool();
+  void deactivateCurrentTool();
 
 public: // reparenting objects
   void addSelectedObjectsToGroup();

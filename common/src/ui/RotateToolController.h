@@ -29,18 +29,18 @@ class RenderContext;
 
 namespace tb::ui
 {
-class RotateObjectsTool;
+class RotateTool;
 
-class RotateObjectsToolController : public ToolControllerGroup
+class RotateToolController : public ToolControllerGroup
 {
 protected:
-  RotateObjectsTool& m_tool;
+  RotateTool& m_tool;
 
 protected:
-  explicit RotateObjectsToolController(RotateObjectsTool& tool);
+  explicit RotateToolController(RotateTool& tool);
 
 public:
-  ~RotateObjectsToolController() override;
+  ~RotateToolController() override;
 
 private:
   Tool& tool() override;
@@ -63,10 +63,10 @@ private: // subclassing interface
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) = 0;
 };
 
-class RotateObjectsToolController2D : public RotateObjectsToolController
+class RotateToolController2D : public RotateToolController
 {
 public:
-  explicit RotateObjectsToolController2D(RotateObjectsTool& tool);
+  explicit RotateToolController2D(RotateTool& tool);
 
 private:
   mdl::Hit doPick(const InputState& inputState) override;
@@ -74,10 +74,10 @@ private:
     render::RenderContext& renderContext, render::RenderBatch& renderBatch) override;
 };
 
-class RotateObjectsToolController3D : public RotateObjectsToolController
+class RotateToolController3D : public RotateToolController
 {
 public:
-  explicit RotateObjectsToolController3D(RotateObjectsTool& tool);
+  explicit RotateToolController3D(RotateTool& tool);
 
 private:
   mdl::Hit doPick(const InputState& inputState) override;

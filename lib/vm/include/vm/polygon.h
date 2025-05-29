@@ -149,34 +149,6 @@ public:
   size_t vertexCount() const { return m_vertices.size(); }
 
   /**
-   * Returns an iterator to the beginning of the vertices.
-   *
-   * @return an iterator to the beginning of the vertices
-   */
-  auto begin() const { return std::begin(m_vertices); }
-
-  /**
-   * Returns an iterator to the end of the vertices.
-   *
-   * @return an iterator to the end of the vertices
-   */
-  auto end() const { return std::end(m_vertices); }
-
-  /**
-   * Returns an iterator to the beginning of the vertices.
-   *
-   * @return an iterator to the beginning of the vertices
-   */
-  auto rbegin() const { return std::begin(m_vertices); }
-
-  /**
-   * Returns an iterator to the end of the vertices.
-   *
-   * @return an iterator to the end of the vertices
-   */
-  auto rend() const { return std::end(m_vertices); }
-
-  /**
    * Returns the vertices of this polygon.
    *
    * @return the vertices
@@ -252,7 +224,7 @@ public:
     while (cur != end)
     {
       const auto& polygon = *cur;
-      for (const auto& vertex : polygon)
+      for (const auto& vertex : polygon.vertices())
       {
         out++ = vertex;
       }

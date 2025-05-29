@@ -620,14 +620,17 @@ bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
   auto document = kdl::mem_lock(m_document);
 
   document->rollbackTransaction();
-  if (document->moveFaces(getPolygons(dragState.initialDragHandles), delta))
+  if (document->transformFaces(
+        getPolygons(dragState.initialDragHandles), vm::translation_matrix(delta)))
   {
     dragState.totalDelta = delta;
   }
   else
   {
     // restore the last successful position
-    document->moveFaces(getPolygons(dragState.initialDragHandles), dragState.totalDelta);
+    document->transformFaces(
+      getPolygons(dragState.initialDragHandles),
+      vm::translation_matrix(dragState.totalDelta));
   }
 
   dragState.currentDragFaces = getDragFaces(m_proposedDragHandles);

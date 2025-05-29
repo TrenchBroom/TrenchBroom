@@ -280,7 +280,7 @@ public:
   void moveSelectedObjects();
   bool canMoveSelectedObjects() const;
 
-  bool anyToolActive() const;
+  bool anyModalToolActive() const;
 
   void toggleAssembleBrushTool();
   bool canToggleAssembleBrushTool() const;
@@ -290,17 +290,17 @@ public:
   bool canToggleClipTool() const;
   bool clipToolActive() const;
 
-  void toggleRotateObjectsTool();
-  bool canToggleRotateObjectsTool() const;
-  bool rotateObjectsToolActive() const;
+  void toggleRotateTool();
+  bool canToggleRotateTool() const;
+  bool rotateToolActive() const;
 
-  void toggleScaleObjectsTool();
-  bool canToggleScaleObjectsTool() const;
-  bool scaleObjectsToolActive() const;
+  void toggleScaleTool();
+  bool canToggleScaleTool() const;
+  bool scaleToolActive() const;
 
-  void toggleShearObjectsTool();
-  bool canToggleShearObjectsTool() const;
-  bool shearObjectsToolActive() const;
+  void toggleShearTool();
+  bool canToggleShearTool() const;
+  bool shearToolActive() const;
 
   bool anyVertexToolActive() const;
 

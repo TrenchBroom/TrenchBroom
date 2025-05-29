@@ -397,15 +397,15 @@ public:
     auto err = vm::squared_length(p - *ps);
 
     if (!vm::polygon_contains_point(
-          *ps, plane.normal, std::begin(polygon), std::end(polygon)))
+          *ps, plane.normal, polygon.vertices().begin(), polygon.vertices().end()))
     {
       ps = std::nullopt;
       err = std::numeric_limits<T>::max();
     }
 
-    auto last = std::begin(polygon);
+    auto last = polygon.vertices().begin();
     auto cur = std::next(last);
-    auto end = std::end(polygon);
+    auto end = polygon.vertices().end();
 
     while (cur != end)
     {

@@ -18,7 +18,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ScaleObjectsToolController.h"
+#include "ScaleToolController.h"
 
 #include "PreferenceManager.h"
 #include "Preferences.h"
@@ -31,7 +31,7 @@
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/ScaleObjectsTool.h"
+#include "ui/ScaleTool.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/vector_utils.h"
@@ -46,27 +46,26 @@
 
 namespace tb::ui
 {
-ScaleObjectsToolController::ScaleObjectsToolController(
-  ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document)
+ScaleToolController::ScaleToolController(
+  ScaleTool& tool, std::weak_ptr<MapDocument> document)
   : m_tool{tool}
   , m_document{std::move(document)}
 {
 }
 
-ScaleObjectsToolController::~ScaleObjectsToolController() = default;
+ScaleToolController::~ScaleToolController() = default;
 
-Tool& ScaleObjectsToolController::tool()
+Tool& ScaleToolController::tool()
 {
   return m_tool;
 }
 
-const Tool& ScaleObjectsToolController::tool() const
+const Tool& ScaleToolController::tool() const
 {
   return m_tool;
 }
 
-void ScaleObjectsToolController::pick(
-  const InputState& inputState, mdl::PickResult& pickResult)
+void ScaleToolController::pick(const InputState& inputState, mdl::PickResult& pickResult)
 {
   if (m_tool.applies())
   {
@@ -84,7 +83,7 @@ static HandlePositionProposer makeHandlePositionProposer(
   const bool scaleAllAxes = inputState.modifierKeysDown(ModifierKeys::Shift);
 
   if (
-    dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
+    dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType
     && inputState.camera().orthographicProjection() && !scaleAllAxes)
   {
     const auto plane = vm::plane3d{
@@ -96,9 +95,9 @@ static HandlePositionProposer makeHandlePositionProposer(
   else
   {
     assert(
-      dragStartHit.type() == ScaleObjectsTool::ScaleToolSideHitType
-      || dragStartHit.type() == ScaleObjectsTool::ScaleToolEdgeHitType
-      || dragStartHit.type() == ScaleObjectsTool::ScaleToolCornerHitType);
+      dragStartHit.type() == ScaleTool::ScaleToolSideHitType
+      || dragStartHit.type() == ScaleTool::ScaleToolEdgeHitType
+      || dragStartHit.type() == ScaleTool::ScaleToolCornerHitType);
 
     const auto handleLine = handleLineForHit(bboxAtDragStart, dragStartHit);
 
@@ -132,7 +131,7 @@ static std::pair<AnchorPos, ProportionalAxes> modifierSettingsForInputState(
   return {centerAnchor, scaleAllAxes};
 }
 
-void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState)
+void ScaleToolController::modifierKeyChange(const InputState& inputState)
 {
   const auto [centerAnchor, scaleAllAxes] = modifierSettingsForInputState(inputState);
 
@@ -147,7 +146,7 @@ void ScaleObjectsToolController::modifierKeyChange(const InputState& inputState)
   m_tool.refreshViews();
 }
 
-void ScaleObjectsToolController::mouseMove(const InputState& inputState)
+void ScaleToolController::mouseMove(const InputState& inputState)
 {
   if (m_tool.applies() && !inputState.anyToolDragging())
   {
@@ -157,13 +156,13 @@ void ScaleObjectsToolController::mouseMove(const InputState& inputState)
 
 namespace
 {
-class ScaleObjectsDragDelegate : public HandleDragTrackerDelegate
+class ScaleDragDelegate : public HandleDragTrackerDelegate
 {
 private:
-  ScaleObjectsTool& m_tool;
+  ScaleTool& m_tool;
 
 public:
-  explicit ScaleObjectsDragDelegate(ScaleObjectsTool& tool)
+  explicit ScaleDragDelegate(ScaleTool& tool)
     : m_tool{tool}
   {
   }
@@ -228,7 +227,7 @@ static std::tuple<vm::vec3d, vm::vec3d> getInitialHandlePositionAndHitPoint(
   return {handleLine.get_origin(), dragStartHit.hitPoint()};
 }
 
-std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
+std::unique_ptr<GestureTracker> ScaleToolController::acceptMouseDrag(
   const InputState& inputState)
 {
   using namespace mdl::HitFilters;
@@ -245,8 +244,8 @@ std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
   auto document = kdl::mem_lock(m_document);
 
   const auto& hit = inputState.pickResult().first(type(
-    ScaleObjectsTool::ScaleToolSideHitType | ScaleObjectsTool::ScaleToolEdgeHitType
-    | ScaleObjectsTool::ScaleToolCornerHitType));
+    ScaleTool::ScaleToolSideHitType | ScaleTool::ScaleToolEdgeHitType
+    | ScaleTool::ScaleToolCornerHitType));
   if (!hit.isMatch())
   {
     return nullptr;
@@ -257,10 +256,10 @@ std::unique_ptr<GestureTracker> ScaleObjectsToolController::acceptMouseDrag(
   const auto [handlePosition, hitPoint] =
     getInitialHandlePositionAndHitPoint(m_tool.bounds(), hit);
   return createHandleDragTracker(
-    ScaleObjectsDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
+    ScaleDragDelegate{m_tool}, inputState, handlePosition, hitPoint);
 }
 
-void ScaleObjectsToolController::setRenderOptions(
+void ScaleToolController::setRenderOptions(
   const InputState&, render::RenderContext& renderContext) const
 {
   renderContext.setForceHideSelectionGuide();
@@ -374,7 +373,7 @@ static void renderDragCorner(
 }
 
 static std::vector<vm::vec3d> visibleCornerHandles(
-  const ScaleObjectsTool& tool, const render::Camera& camera)
+  const ScaleTool& tool, const render::Camera& camera)
 {
   using namespace mdl::HitFilters;
 
@@ -397,12 +396,11 @@ static std::vector<vm::vec3d> visibleCornerHandles(
       tool.pick3D(ray, camera, pr);
     }
 
-    return !pr.empty()
-           && pr.all().front().type() == ScaleObjectsTool::ScaleToolCornerHitType;
+    return !pr.empty() && pr.all().front().type() == ScaleTool::ScaleToolCornerHitType;
   });
 }
 
-void ScaleObjectsToolController::render(
+void ScaleToolController::render(
   const InputState&,
   render::RenderContext& renderContext,
   render::RenderBatch& renderBatch)
@@ -433,20 +431,20 @@ void ScaleObjectsToolController::render(
   }
 }
 
-bool ScaleObjectsToolController::cancel()
+bool ScaleToolController::cancel()
 {
   return false;
 }
 
-// ScaleObjectsToolController2D
+// ScaleToolController2D
 
-ScaleObjectsToolController2D::ScaleObjectsToolController2D(
-  ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document)
-  : ScaleObjectsToolController(tool, document)
+ScaleToolController2D::ScaleToolController2D(
+  ScaleTool& tool, std::weak_ptr<MapDocument> document)
+  : ScaleToolController(tool, document)
 {
 }
 
-void ScaleObjectsToolController2D::doPick(
+void ScaleToolController2D::doPick(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const
@@ -454,15 +452,15 @@ void ScaleObjectsToolController2D::doPick(
   m_tool.pick2D(pickRay, camera, pickResult);
 }
 
-// ScaleObjectsToolController3D
+// ScaleToolController3D
 
-ScaleObjectsToolController3D::ScaleObjectsToolController3D(
-  ScaleObjectsTool& tool, std::weak_ptr<MapDocument> document)
-  : ScaleObjectsToolController(tool, document)
+ScaleToolController3D::ScaleToolController3D(
+  ScaleTool& tool, std::weak_ptr<MapDocument> document)
+  : ScaleToolController(tool, document)
 {
 }
 
-void ScaleObjectsToolController3D::doPick(
+void ScaleToolController3D::doPick(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
   mdl::PickResult& pickResult) const

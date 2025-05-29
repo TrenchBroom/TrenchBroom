@@ -29,13 +29,14 @@
 #include "ui/ToolChain.h"
 #include "ui/ToolController.h"
 
+#include "kdl/vector_utils.h"
+
 #include <cassert>
 #include <string>
 #include <utility>
 
 namespace tb::ui
 {
-
 ToolBox::ToolBox() = default;
 ToolBox::~ToolBox() = default;
 
@@ -268,52 +269,37 @@ bool ToolBox::cancel(ToolChain& chain)
     return true;
   }
 
-  if (anyToolActive())
-  {
-    deactivateAllTools();
-    return true;
-  }
-
-  return false;
-}
-
-void ToolBox::suppressWhileActive(Tool& suppressedTool, Tool& primaryTool)
-{
-  assert(&primaryTool != &suppressedTool);
-  m_suppressedTools[&primaryTool].push_back(&suppressedTool);
-}
-
-bool ToolBox::anyToolActive() const
-{
-  return m_modalTool != nullptr;
-}
-
-Tool* ToolBox::activeTool()
-{
-  return m_modalTool;
+  return deactivateCurrentTool();
 }
 
 void ToolBox::toggleTool(Tool& tool)
 {
-  if (&tool == m_modalTool)
+  if (tool.active())
   {
-    deactivateTool(*m_modalTool);
+    deactivateTool(tool);
   }
   else
   {
-    if (m_modalTool)
-    {
-      deactivateTool(*m_modalTool);
-    }
     activateTool(tool);
   }
 }
 
+bool ToolBox::deactivateCurrentTool()
+{
+  if (!m_modalToolStack.empty())
+  {
+    deactivateTool(*m_modalToolStack.back());
+    return true;
+  }
+  return false;
+}
+
 void ToolBox::deactivateAllTools()
 {
-  if (m_modalTool)
+  while (!m_modalToolStack.empty())
   {
-    deactivateTool(*m_modalTool);
+    deactivateTool(*m_modalToolStack.back());
+    m_modalToolStack.pop_back();
   }
 }
 
@@ -358,19 +344,26 @@ void ToolBox::renderTools(
 
 void ToolBox::activateTool(Tool& tool)
 {
+  for (auto* excludedTool : excludedTools(tool))
+  {
+    if (excludedTool->active())
+    {
+      deactivateTool(*excludedTool);
+    }
+  }
+
+  const auto previouslySuppressedTools = currentlySuppressedTools();
   if (tool.activate())
   {
-    auto it = m_suppressedTools.find(&tool);
-    if (it != std::end(m_suppressedTools))
+    const auto toolsToSuppress =
+      kdl::set_difference(currentlySuppressedTools(), previouslySuppressedTools);
+    for (auto* toolToSuppress : toolsToSuppress)
     {
-      for (auto* suppress : it->second)
-      {
-        suppress->deactivate();
-        toolDeactivatedNotifier(*suppress);
-      }
+      toolToSuppress->deactivate();
+      toolDeactivatedNotifier(*toolToSuppress);
     }
 
-    m_modalTool = &tool;
+    m_modalToolStack.push_back(&tool);
     toolActivatedNotifier(tool);
   }
 }
@@ -382,19 +375,47 @@ void ToolBox::deactivateTool(Tool& tool)
     cancelMouseDrag();
   }
 
-  auto it = m_suppressedTools.find(&tool);
-  if (it != std::end(m_suppressedTools))
-  {
-    for (auto* suppress : it->second)
-    {
-      suppress->activate();
-      toolActivatedNotifier(*suppress);
-    }
-  }
+  const auto previouslySuppressedTools = currentlySuppressedTools();
 
   tool.deactivate();
-  m_modalTool = nullptr;
+  m_modalToolStack.erase(
+    std::remove(m_modalToolStack.begin(), m_modalToolStack.end(), &tool),
+    m_modalToolStack.end());
   toolDeactivatedNotifier(tool);
+
+  const auto toolsToRelease =
+    kdl::set_difference(previouslySuppressedTools, currentlySuppressedTools());
+  for (auto* toolToRelease : toolsToRelease)
+  {
+    toolToRelease->activate();
+    toolActivatedNotifier(*toolToRelease);
+  }
+}
+
+std::vector<Tool*> ToolBox::excludedTools(const Tool& tool) const
+{
+  auto result = std::vector<Tool*>{};
+  for (const auto& exclusiveToolGroup : m_exclusiveToolGroups)
+  {
+    if (kdl::vec_contains(exclusiveToolGroup, &tool))
+    {
+      result = kdl::vec_concat(std::move(result), exclusiveToolGroup);
+    }
+  }
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
+}
+
+std::vector<Tool*> ToolBox::currentlySuppressedTools() const
+{
+  auto result = std::vector<Tool*>{};
+  for (const auto& [primaryTool, suppressedTools] : m_suppressedTools)
+  {
+    if (primaryTool->active())
+    {
+      result = kdl::vec_concat(std::move(result), suppressedTools);
+    }
+  }
+  return kdl::vec_sort_and_remove_duplicates(std::move(result));
 }
 
 } // namespace tb::ui

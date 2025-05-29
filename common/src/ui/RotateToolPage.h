@@ -22,42 +22,45 @@
 #include <QWidget>
 
 #include "NotifierConnection.h"
+#include "ui/RotateTool.h"
 
 #include "vm/vec.h"
 
 #include <memory>
-#include <optional>
 
+class QCheckBox;
 class QComboBox;
-class QStackedLayout;
-class QLineEdit;
-class QComboBox;
-class QAbstractButton;
+class QPushButton;
 
 namespace tb::ui
 {
 class MapDocument;
+class RotateTool;
 class Selection;
-class ScaleObjectsToolPage : public QWidget
+class SpinControl;
+
+class RotateToolPage : public QWidget
 {
   Q_OBJECT
 private:
   std::weak_ptr<MapDocument> m_document;
+  RotateTool& m_tool;
 
-  QStackedLayout* m_book = nullptr;
+  QComboBox* m_recentlyUsedCentersList = nullptr;
+  QPushButton* m_resetCenterButton = nullptr;
 
-  QLineEdit* m_sizeTextBox = nullptr;
-  QLineEdit* m_factorsTextBox = nullptr;
-
-  QComboBox* m_scaleFactorsOrSize = nullptr;
-  QAbstractButton* m_button = nullptr;
+  SpinControl* m_angle = nullptr;
+  QComboBox* m_axis = nullptr;
+  QPushButton* m_rotateButton = nullptr;
+  QCheckBox* m_updateAnglePropertyAfterTransformCheckBox = nullptr;
 
   NotifierConnection m_notifierConnection;
 
+  std::vector<vm::vec3d> m_recentlyUsedCenters;
+
 public:
-  explicit ScaleObjectsToolPage(
-    std::weak_ptr<MapDocument> document, QWidget* parent = nullptr);
-  void activate();
+  RotateToolPage(
+    std::weak_ptr<MapDocument> document, RotateTool& tool, QWidget* parent = nullptr);
 
 private:
   void connectObservers();
@@ -65,12 +68,19 @@ private:
   void createGui();
   void updateGui();
 
-  bool canScale() const;
-  std::optional<vm::vec3d> getScaleFactors() const;
-
   void selectionDidChange(const Selection& selection);
+  void documentWasNewedOrLoaded(MapDocument* document);
 
-  void applyScale();
+  void rotationCenterDidChange(const vm::vec3d& center);
+  void rotationCenterWasUsed(const vm::vec3d& center);
+  void handleHitAreaDidChange(RotateHandle::HitArea area);
+
+  void centerChanged();
+  void resetCenterClicked();
+  void angleChanged(double value);
+  void rotateClicked();
+  void updateAnglePropertyAfterTransformClicked();
+  vm::vec3d getAxis() const;
 };
 
 } // namespace tb::ui
