@@ -55,7 +55,7 @@ namespace ui
 {
 class Grid;
 class MapDocument;
-class Selection;
+class SelectionChange;
 
 /**
  * Similar to mdl::BrushFaceHandle but caches the Brush state at the beginning of the
@@ -160,7 +160,7 @@ public:
 private:
   void connectObservers();
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
 };
 } // namespace ui
 } // namespace tb

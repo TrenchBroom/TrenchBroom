@@ -64,7 +64,7 @@ class AnimationManager;
 class Command;
 class MapDocument;
 class MapViewToolBox;
-class Selection;
+class SelectionChange;
 class SignalDelayer;
 class Tool;
 class UndoableCommand;
@@ -142,7 +142,7 @@ private:
   void toolChanged(Tool& tool);
   void commandDone(Command& command);
   void commandUndone(UndoableCommand& command);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();

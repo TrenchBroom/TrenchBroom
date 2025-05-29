@@ -413,7 +413,7 @@ void EntityPropertyGrid::nodesDidChange(const std::vector<mdl::Node*>&)
 
 void EntityPropertyGrid::selectionWillChange() {}
 
-void EntityPropertyGrid::selectionDidChange(const Selection&)
+void EntityPropertyGrid::selectionDidChange(const SelectionChange&)
 {
   updateControls();
 }

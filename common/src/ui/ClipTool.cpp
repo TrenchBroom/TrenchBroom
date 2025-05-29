@@ -32,7 +32,7 @@
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 #include "ui/Transaction.h"
 
 #include "kdl/map_utils.h"
@@ -977,7 +977,7 @@ void ClipTool::connectObservers()
     document->brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
 }
 
-void ClipTool::selectionDidChange(const Selection&)
+void ClipTool::selectionDidChange(const SelectionChange&)
 {
   if (!m_ignoreNotifications)
   {

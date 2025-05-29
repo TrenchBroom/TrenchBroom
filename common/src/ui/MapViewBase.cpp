@@ -231,7 +231,7 @@ void MapViewBase::commandUndone(UndoableCommand&)
   update();
 }
 
-void MapViewBase::selectionDidChange(const Selection&)
+void MapViewBase::selectionDidChange(const SelectionChange&)
 {
   updateActionStatesDelayed();
 }

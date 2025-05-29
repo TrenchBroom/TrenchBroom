@@ -429,7 +429,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ScaleTool.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.cpp
-        ${COMMON_SOURCE_DIR}/ui/Selection.cpp
+        ${COMMON_SOURCE_DIR}/ui/SelectionChange.cpp
         ${COMMON_SOURCE_DIR}/ui/SelectionCommand.cpp
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.cpp
         ${COMMON_SOURCE_DIR}/ui/SetBrushFaceAttributesTool.cpp
@@ -972,7 +972,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ScaleTool.h
         ${COMMON_SOURCE_DIR}/ui/ScaleToolController.h
         ${COMMON_SOURCE_DIR}/ui/ScaleToolPage.h
-        ${COMMON_SOURCE_DIR}/ui/Selection.h
+        ${COMMON_SOURCE_DIR}/ui/SelectionChange.h
         ${COMMON_SOURCE_DIR}/ui/SelectionCommand.h
         ${COMMON_SOURCE_DIR}/ui/SelectionTool.h
         ${COMMON_SOURCE_DIR}/ui/SetBrushFaceAttributesTool.h

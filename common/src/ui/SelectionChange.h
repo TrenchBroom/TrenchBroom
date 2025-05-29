@@ -31,7 +31,7 @@ class Node;
 namespace tb::ui
 {
 
-class Selection
+class SelectionChange
 {
 private:
   std::vector<mdl::Node*> m_selectedNodes;

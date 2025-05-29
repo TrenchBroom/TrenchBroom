@@ -36,7 +36,7 @@ namespace tb::ui
 {
 // FIXME: Renderer should not depend on View
 class MapDocument;
-class Selection;
+class SelectionChange;
 } // namespace tb::ui
 
 namespace tb::mdl
@@ -144,7 +144,7 @@ private: // notification
 
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
 
-  void selectionDidChange(const ui::Selection& selection);
+  void selectionDidChange(const ui::SelectionChange& selectionChange);
 
   void resourcesWereProcessed(const std::vector<mdl::ResourceId>& resourceIds);
 

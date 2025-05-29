@@ -34,7 +34,7 @@
 #include "ui/BrushVertexCommands.h"
 #include "ui/Lasso.h"
 #include "ui/MapDocument.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 #include "ui/Tool.h"
 #include "ui/Transaction.h"
 #include "ui/TransactionScope.h"
@@ -548,10 +548,10 @@ private: // Observers and state management
     }
   }
 
-  void selectionDidChange(const Selection& selection)
+  void selectionDidChange(const SelectionChange& selectionChange)
   {
-    addHandles(selection.selectedNodes());
-    removeHandles(selection.deselectedNodes());
+    addHandles(selectionChange.selectedNodes());
+    removeHandles(selectionChange.deselectedNodes());
   }
 
   void nodesWillChange(const std::vector<mdl::Node*>& nodes)

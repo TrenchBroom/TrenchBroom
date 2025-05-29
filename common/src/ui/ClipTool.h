@@ -51,7 +51,7 @@ namespace tb::ui
 {
 class Grid;
 class MapDocument;
-class Selection;
+class SelectionChange;
 
 class ClipStrategy;
 
@@ -168,7 +168,7 @@ private:
   bool doRemove();
 
   void connectObservers();
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void nodesWillChange(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& nodes);

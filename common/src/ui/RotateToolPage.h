@@ -36,7 +36,7 @@ namespace tb::ui
 {
 class MapDocument;
 class RotateTool;
-class Selection;
+class SelectionChange;
 class SpinControl;
 
 class RotateToolPage : public QWidget
@@ -68,7 +68,7 @@ private:
   void createGui();
   void updateGui();
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void documentWasNewedOrLoaded(MapDocument* document);
 
   void rotationCenterDidChange(const vm::vec3d& center);

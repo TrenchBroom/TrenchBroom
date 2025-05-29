@@ -814,7 +814,7 @@ void MapFrame::toolHandleSelectionChanged(Tool&)
   updateActionStateDelayed();
 }
 
-void MapFrame::selectionDidChange(const Selection&)
+void MapFrame::selectionDidChange(const SelectionChange&)
 {
   updateActionStateDelayed();
   updateStatusBarDelayed();

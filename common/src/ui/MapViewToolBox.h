@@ -43,7 +43,7 @@ class VertexTool;
 class EdgeTool;
 class FaceTool;
 class MapDocument;
-class Selection;
+class SelectionChange;
 
 class MapViewToolBox : public ToolBox
 {
@@ -130,7 +130,7 @@ private: // notification
   void toolDeactivated(Tool& tool);
   void updateEditorContext();
   void documentWasNewedOrLoaded(MapDocument* document);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
 
   void updateToolPage();
 };

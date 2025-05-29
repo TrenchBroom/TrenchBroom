@@ -38,7 +38,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 #include "ui/CommandProcessor.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 #include "ui/UndoableCommand.h"
 
 #include "kdl/map_utils.h"
@@ -111,10 +111,10 @@ void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& node
 
   m_selectedNodes.addNodes(selected);
 
-  auto selection = Selection{};
-  selection.addSelectedNodes(selected);
+  auto selectionChange = SelectionChange{};
+  selectionChange.addSelectedNodes(selected);
 
-  selectionDidChangeNotifier(selection);
+  selectionDidChangeNotifier(selectionChange);
 }
 
 void MapDocumentCommandFacade::performSelect(
@@ -148,10 +148,10 @@ void MapDocumentCommandFacade::performSelect(
 
   m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), selected);
 
-  auto selection = Selection{};
-  selection.addSelectedBrushFaces(selected);
+  auto selectionChange = SelectionChange{};
+  selectionChange.addSelectedBrushFaces(selected);
 
-  selectionDidChangeNotifier(selection);
+  selectionDidChangeNotifier(selectionChange);
 }
 
 void MapDocumentCommandFacade::performSelectAllNodes()
@@ -196,10 +196,10 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& no
 
   m_selectedNodes.removeNodes(deselected);
 
-  auto selection = Selection{};
-  selection.addDeselectedNodes(deselected);
+  auto selectionChange = SelectionChange{};
+  selectionChange.addDeselectedNodes(deselected);
 
-  selectionDidChangeNotifier(selection);
+  selectionDidChangeNotifier(selectionChange);
 }
 
 void MapDocumentCommandFacade::performDeselect(
@@ -227,10 +227,10 @@ void MapDocumentCommandFacade::performDeselect(
 
   m_selectedBrushFaces = kdl::vec_erase_all(std::move(m_selectedBrushFaces), deselected);
 
-  auto selection = Selection{};
-  selection.addDeselectedBrushFaces(deselected);
+  auto selectionChange = SelectionChange{};
+  selectionChange.addDeselectedBrushFaces(deselected);
 
-  selectionDidChangeNotifier(selection);
+  selectionDidChangeNotifier(selectionChange);
 
   // Selection change is done. Next, update implicit locking of linked groups.
   // The strategy is to figure out what needs to be locked given m_selectedBrushFaces,

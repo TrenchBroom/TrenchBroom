@@ -92,7 +92,7 @@ class CommandResult;
 class Grid;
 enum class PasteType;
 class RepeatStack;
-class Selection;
+class SelectionChange;
 class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
@@ -190,7 +190,7 @@ public: // notification
   Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;
-  Notifier<const Selection&> selectionDidChangeNotifier;
+  Notifier<const SelectionChange&> selectionDidChangeNotifier;
 
   Notifier<const std::vector<mdl::Node*>&> nodesWereAddedNotifier;
   Notifier<const std::vector<mdl::Node*>&> nodesWillBeRemovedNotifier;
@@ -826,7 +826,7 @@ private:
 private: // observers
   void connectObservers();
   void selectionWillChange();
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsWillChange();
   void materialCollectionsDidChange();
   void entityDefinitionsWillChange();

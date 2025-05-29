@@ -37,7 +37,7 @@ class QAbstractButton;
 namespace tb::ui
 {
 class MapDocument;
-class Selection;
+class SelectionChange;
 class ScaleToolPage : public QWidget
 {
   Q_OBJECT
@@ -67,7 +67,7 @@ private:
   bool canScale() const;
   std::optional<vm::vec3d> getScaleFactors() const;
 
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
 
   void applyScale();
 };
