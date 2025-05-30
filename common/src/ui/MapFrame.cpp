@@ -528,27 +528,27 @@ QString describeSelection(const MapDocument& document)
   // build a vector of strings describing the things that are selected
   auto tokens = std::vector<std::string>{};
 
-  const auto& selectedNodes = document.selectedNodes();
+  const auto& selection = document.selection();
 
   // selected brushes
-  if (selectedNodes.hasBrushes())
+  if (selection.hasBrushes())
   {
-    const auto* commonEntityNode = commonEntityForNodeList(selectedNodes.brushes);
+    const auto* commonEntityNode = commonEntityForNodeList(selection.brushes);
 
     // if all selected brushes are from the same entity, print the entity name
-    auto token = numberWithSuffix(selectedNodes.brushes.size(), "brush", "brushes");
+    auto token = numberWithSuffix(selection.brushes.size(), "brush", "brushes");
     token += commonEntityNode ? " (" + commonEntityNode->entity().classname() + ")"
                               : " (multiple entities)";
     tokens.push_back(token);
   }
 
   // selected patches
-  if (selectedNodes.hasPatches())
+  if (selection.hasPatches())
   {
-    const auto* commonEntityNode = commonEntityForNodeList(selectedNodes.patches);
+    const auto* commonEntityNode = commonEntityForNodeList(selection.patches);
 
     // if all selected patches are from the same entity, print the entity name
-    auto token = numberWithSuffix(selectedNodes.patches.size(), "patch", "patches");
+    auto token = numberWithSuffix(selection.patches.size(), "patch", "patches");
     token += commonEntityNode ? " (" + commonEntityNode->entity().classname() + ")"
                               : " (multiple entities)";
     tokens.push_back(token);
@@ -563,24 +563,24 @@ QString describeSelection(const MapDocument& document)
   }
 
   // entities
-  if (selectedNodes.hasEntities())
+  if (selection.hasEntities())
   {
-    const auto commonClassname = commonClassnameForEntityList(selectedNodes.entities);
+    const auto commonClassname = commonClassnameForEntityList(selection.entities);
 
-    auto token = numberWithSuffix(selectedNodes.entities.size(), "entity", "entities");
+    auto token = numberWithSuffix(selection.entities.size(), "entity", "entities");
     token += " (" + commonClassname.value_or("multiple classnames") + ") ";
     tokens.push_back(token);
   }
 
   // groups
-  if (selectedNodes.hasGroups())
+  if (selection.hasGroups())
   {
-    tokens.push_back(numberWithSuffix(selectedNodes.groups.size(), "group", "groups"));
+    tokens.push_back(numberWithSuffix(selection.groups.size(), "group", "groups"));
   }
 
   // get the layers of the selected nodes
   const auto selectedObjectLayers =
-    mdl::collectContainingLayersUserSorted(selectedNodes.nodes);
+    mdl::collectContainingLayersUserSorted(selection.nodes);
   auto layersDescription = QString{};
   if (selectedObjectLayers.size() == 1)
   {
@@ -1324,7 +1324,7 @@ void MapFrame::pasteAtCursorPosition()
         // The pasted objects must be hidden to prevent the picking done in
         // pasteObjectsDelta from hitting them
         // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
-        const auto nodes = m_document->selectedNodes().nodes;
+        const auto nodes = m_document->selection().nodes;
 
         m_document->hide(nodes);
         const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
@@ -1541,12 +1541,12 @@ bool MapFrame::canSelectSiblings() const
 
 bool MapFrame::canSelectByBrush() const
 {
-  return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes();
+  return canChangeSelection() && m_document->selection().hasOnlyBrushes();
 }
 
 bool MapFrame::canSelectTall() const
 {
-  return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes()
+  return canChangeSelection() && m_document->selection().hasOnlyBrushes()
          && m_mapView->canSelectTall();
 }
 
@@ -1592,7 +1592,7 @@ void MapFrame::ungroupSelectedObjects()
 
 bool MapFrame::canUngroupSelectedObjects() const
 {
-  return m_document->selectedNodes().hasGroups() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::renameSelectedGroups()
@@ -1600,9 +1600,9 @@ void MapFrame::renameSelectedGroups()
   if (canRenameSelectedGroups())
   {
     auto document = kdl::mem_lock(m_document);
-    assert(document->selectedNodes().hasOnlyGroups());
+    assert(document->selection().hasOnlyGroups());
 
-    const auto suggestion = document->selectedNodes().groups.front()->name();
+    const auto suggestion = document->selection().groups.front()->name();
     const auto name = queryGroupName(this, suggestion);
     if (!name.empty())
     {
@@ -1614,7 +1614,7 @@ void MapFrame::renameSelectedGroups()
 bool MapFrame::canRenameSelectedGroups() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectedNodes().hasOnlyGroups();
+  return document->selection().hasOnlyGroups();
 }
 
 void MapFrame::replaceMaterial()
@@ -1832,7 +1832,7 @@ bool MapFrame::canDoCsgConvexMerge() const
 {
   return (m_document->hasSelectedBrushFaces()
           && m_document->selectedBrushFaces().size() > 1)
-         || (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushes.size() > 1)
+         || (m_document->selection().hasOnlyBrushes() && m_document->selection().brushes.size() > 1)
          || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
          || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
          || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
@@ -1848,8 +1848,8 @@ void MapFrame::csgSubtract()
 
 bool MapFrame::canDoCsgSubtract() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushes.size() >= 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() >= 1;
 }
 
 void MapFrame::csgHollow()
@@ -1862,8 +1862,8 @@ void MapFrame::csgHollow()
 
 bool MapFrame::canDoCsgHollow() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushes.size() >= 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() >= 1;
 }
 
 void MapFrame::csgIntersect()
@@ -1876,8 +1876,8 @@ void MapFrame::csgIntersect()
 
 bool MapFrame::canDoCsgIntersect() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushes.size() > 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() > 1;
 }
 
 void MapFrame::snapVerticesToInteger()

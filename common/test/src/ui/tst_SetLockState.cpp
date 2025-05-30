@@ -134,17 +134,17 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
     document->selectNodes({selectedBrushNode, unlockedBrushNode});
 
     REQUIRE_THAT(
-      document->selectedNodes().nodes,
+      document->selection().nodes,
       Catch::UnorderedEquals(
         std::vector<mdl::Node*>{selectedBrushNode, unlockedBrushNode}));
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
-      document->selectedNodes().nodes,
+      document->selection().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{unlockedBrushNode}));
 
     document->undoCommand();
     CHECK_THAT(
-      document->selectedNodes().nodes,
+      document->selection().nodes,
       Catch::UnorderedEquals(
         std::vector<mdl::Node*>{selectedBrushNode, unlockedBrushNode}));
   }

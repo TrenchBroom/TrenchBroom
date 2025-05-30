@@ -32,7 +32,7 @@ class LayerNode;
 class Node;
 class PatchNode;
 
-struct NodeCollection
+struct Selection
 {
   std::vector<Node*> nodes;
   std::vector<LayerNode*> layers;
@@ -41,7 +41,7 @@ struct NodeCollection
   std::vector<BrushNode*> brushes;
   std::vector<PatchNode*> patches;
 
-  kdl_reflect_decl(NodeCollection, nodes, layers, groups, entities, brushes, patches);
+  kdl_reflect_decl(Selection, nodes, layers, groups, entities, brushes, patches);
 
   bool empty() const;
 
@@ -65,6 +65,6 @@ struct NodeCollection
   void clear();
 };
 
-NodeCollection makeNodeCollection(const std::vector<Node*>& nodes);
+Selection makeSelection(const std::vector<Node*>& nodes);
 
 } // namespace tb::mdl

@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mdl/NodeCollection.h"
+#include "mdl/Selection.h"
 #include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
@@ -51,7 +51,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244"
   document->paste(brush);
   document->selectAllNodes();
 
-  CHECK(document->selectedNodes().brushes.size() == 1u);
+  CHECK(document->selection().brushes.size() == 1u);
   CHECK_NOTHROW(document->snapVertices(document->grid().actualSize()));
 }
 

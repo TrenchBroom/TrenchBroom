@@ -49,7 +49,7 @@ class LayerNode;
 class Material;
 class MaterialManager;
 class Node;
-struct NodeCollection;
+struct Selection;
 
 /**
  * Interface of MapDocument that is exposed to the Model package.
@@ -79,7 +79,7 @@ public: // selection
   virtual bool hasAnySelectedBrushFaces() const = 0;
 
   virtual std::vector<EntityNodeBase*> allSelectedEntityNodes() const = 0;
-  virtual const NodeCollection& selectedNodes() const = 0;
+  virtual const Selection& selection() const = 0;
   virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
   virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
 

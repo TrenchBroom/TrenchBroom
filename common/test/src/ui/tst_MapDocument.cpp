@@ -244,7 +244,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
 
       document->selectNodesWithFilePosition(lineNumbers);
       CHECK_THAT(
-        mapNodeNames(document->selectedNodes().nodes),
+        mapNodeNames(document->selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
     }
 
@@ -263,7 +263,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
 
       document->selectNodesWithFilePosition(lineNumbers);
       CHECK_THAT(
-        mapNodeNames(document->selectedNodes().nodes),
+        mapNodeNames(document->selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
     }
 
@@ -283,7 +283,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
 
       document->selectNodesWithFilePosition(lineNumbers);
       CHECK_THAT(
-        mapNodeNames(document->selectedNodes().nodes),
+        mapNodeNames(document->selection().nodes),
         Catch::Matchers::UnorderedEquals(expectedNodeNames));
     }
   }
@@ -331,7 +331,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       CHECK(entityNode != nullptr);
       CHECK(entityNode->entity().definition() == m_pointEntityDef);
       CHECK(entityNode->entity().origin() == vm::vec3d{16.0, 32.0, 48.0});
-      CHECK(document->selectedNodes().nodes == std::vector<mdl::Node*>{entityNode});
+      CHECK(document->selection().nodes == std::vector<mdl::Node*>{entityNode});
     }
 
     SECTION("Selected objects are deselect and not translated")
@@ -397,7 +397,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       auto* entityNode = document->createBrushEntity(*m_brushEntityDef);
       CHECK(entityNode != nullptr);
       CHECK(entityNode->entity().definition() == m_brushEntityDef);
-      CHECK(document->selectedNodes().nodes == std::vector<mdl::Node*>{brushNode});
+      CHECK(document->selection().nodes == std::vector<mdl::Node*>{brushNode});
     }
 
     SECTION("Copies properties from existing brush entity")

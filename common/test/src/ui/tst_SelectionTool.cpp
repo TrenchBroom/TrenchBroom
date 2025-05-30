@@ -89,7 +89,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("The group gets selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::makeNodeCollection({groupNode}));
+          CHECK(document->selection() == mdl::makeSelection({groupNode}));
         }
       }
 
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("The group is opened")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes().empty());
+          CHECK(document->selection().empty());
           CHECK(document->currentGroup() == groupNode);
         }
       }
@@ -160,7 +160,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           CHECK(
             document->selectedBrushFaces()
             == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-          CHECK(document->selectedNodes().empty());
+          CHECK(document->selection().empty());
         }
 
         AND_WHEN("I shift click on the selected face again")
@@ -175,7 +175,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
             CHECK(
               document->selectedBrushFaces()
               == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -189,7 +189,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The top face gets deselected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
       }
@@ -203,7 +203,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("The brush gets selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::makeNodeCollection({brushNode}));
+          CHECK(document->selection() == mdl::makeSelection({brushNode}));
         }
 
         AND_WHEN("I click on the selected brushagain")
@@ -215,7 +215,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush remains selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::makeNodeCollection({brushNode}));
+            CHECK(document->selection() == mdl::makeSelection({brushNode}));
           }
         }
 
@@ -229,7 +229,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets deselected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
       }
@@ -244,7 +244,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("All brush faces are selected")
         {
           CHECK(document->selectedBrushFaces().size() == 6);
-          CHECK(document->selectedNodes().empty());
+          CHECK(document->selection().empty());
         }
       }
 
@@ -257,9 +257,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
         THEN("All nodes are selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(
-            document->selectedNodes()
-            == mdl::makeNodeCollection({brushNode, entityNode}));
+          CHECK(document->selection() == mdl::makeSelection({brushNode, entityNode}));
         }
       }
 
@@ -279,7 +277,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
             CHECK(
               document->selectedBrushFaces()
               == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -296,7 +294,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
               document->selectedBrushFaces(),
               Catch::Matchers::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
                 {brushNode, topFaceIndex}, {brushNode, frontFaceIndex}}));
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -309,7 +307,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::makeNodeCollection({brushNode}));
+            CHECK(document->selection() == mdl::makeSelection({brushNode}));
           }
         }
 
@@ -323,7 +321,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::makeNodeCollection({brushNode}));
+            CHECK(document->selection() == mdl::makeSelection({brushNode}));
           }
         }
       }
@@ -344,7 +342,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
             CHECK(
               document->selectedBrushFaces()
               == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -360,7 +358,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
             CHECK(
               document->selectedBrushFaces()
               == std::vector<mdl::BrushFaceHandle>{{brushNode, topFaceIndex}});
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -373,7 +371,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush gets selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes() == mdl::makeNodeCollection({brushNode}));
+            CHECK(document->selection() == mdl::makeSelection({brushNode}));
           }
         }
 
@@ -387,9 +385,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("The brush and entity both get selected")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(
-              document->selectedNodes()
-              == mdl::makeNodeCollection({entityNode, brushNode}));
+            CHECK(document->selection() == mdl::makeSelection({entityNode, brushNode}));
           }
         }
       }
@@ -420,7 +416,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("Nothing happens")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
 
@@ -433,7 +429,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
           THEN("Nothing happens")
           {
             CHECK(document->selectedBrushFaces().empty());
-            CHECK(document->selectedNodes().empty());
+            CHECK(document->selection().empty());
           }
         }
       }
@@ -518,7 +514,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clickingThroughHidden")
 
         THEN("The top face of the visible brush get selected")
         {
-          CHECK(document->selectedNodes().empty());
+          CHECK(document->selection().empty());
           CHECK(
             document->selectedBrushFaces()
             == std::vector<mdl::BrushFaceHandle>{
@@ -535,7 +531,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clickingThroughHidden")
         THEN("The visible brush gets selected")
         {
           CHECK(document->selectedBrushFaces().empty());
-          CHECK(document->selectedNodes() == mdl::makeNodeCollection({visibleBrushNode}));
+          CHECK(document->selection() == mdl::makeSelection({visibleBrushNode}));
         }
       }
     }

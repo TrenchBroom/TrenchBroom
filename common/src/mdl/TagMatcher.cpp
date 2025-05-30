@@ -29,7 +29,7 @@
 #include "mdl/MapFacade.h"
 #include "mdl/Material.h"
 #include "mdl/MaterialManager.h"
-#include "mdl/NodeCollection.h"
+#include "mdl/Selection.h"
 #include "mdl/WorldNode.h" // IWYU pragma: keep
 
 #include "kdl/range_to_vector.h"
@@ -426,7 +426,7 @@ bool EntityClassNameTagMatcher::matches(const Taggable& taggable) const
 void EntityClassNameTagMatcher::enable(
   TagMatcherCallback& callback, MapFacade& facade) const
 {
-  if (!facade.selectedNodes().hasOnlyBrushes())
+  if (!facade.selection().hasOnlyBrushes())
   {
     return;
   }
@@ -481,7 +481,7 @@ void EntityClassNameTagMatcher::disable(
 {
   // entities will be removed automatically when they become empty
 
-  const auto selectedBrushes = facade.selectedNodes().nodes;
+  const auto selectedBrushes = facade.selection().nodes;
   auto detailBrushes = std::vector<Node*>{};
   for (auto* brush : selectedBrushes)
   {

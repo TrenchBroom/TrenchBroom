@@ -265,14 +265,14 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   document->selectNodes({subtrahend1});
   CHECK(document->csgSubtract());
   CHECK(entityNode->children().size() == 0u);
-  CHECK(document->selectedNodes().empty());
+  CHECK(document->selection().empty());
 
   // check that the selection is restored after undo
   document->undoCommand();
 
-  CHECK(document->selectedNodes().hasOnlyBrushes());
+  CHECK(document->selection().hasOnlyBrushes());
   CHECK_THAT(
-    document->selectedNodes().brushes,
+    document->selection().brushes,
     Catch::Equals(std::vector<mdl::BrushNode*>{subtrahend1}));
 }
 

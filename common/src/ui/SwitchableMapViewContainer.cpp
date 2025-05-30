@@ -158,7 +158,7 @@ bool SwitchableMapViewContainer::clipToolActive() const
 
 bool SwitchableMapViewContainer::canToggleClipTool() const
 {
-  return clipToolActive() || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
+  return clipToolActive() || kdl::mem_lock(m_document)->selection().hasOnlyBrushes();
 }
 
 void SwitchableMapViewContainer::toggleClipTool()
@@ -223,7 +223,7 @@ void SwitchableMapViewContainer::toggleShearTool()
 bool SwitchableMapViewContainer::canToggleVertexTools() const
 {
   return vertexToolActive() || edgeToolActive() || faceToolActive()
-         || kdl::mem_lock(m_document)->selectedNodes().hasOnlyBrushes();
+         || kdl::mem_lock(m_document)->selection().hasOnlyBrushes();
 }
 
 bool SwitchableMapViewContainer::anyVertexToolActive() const

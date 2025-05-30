@@ -41,7 +41,7 @@ namespace tb::mdl
 struct EntityDefinition;
 class GroupNode;
 class Node;
-struct NodeCollection;
+struct Selection;
 class SmartTag;
 enum class EntityDefinitionType;
 } // namespace tb::mdl
@@ -216,8 +216,7 @@ public: // reparenting objects
   mdl::Node* findNewGroupForObjects(const std::vector<mdl::Node*>& nodes) const;
 
   void mergeSelectedGroups();
-  mdl::GroupNode* findGroupToMergeGroupsInto(
-    const mdl::NodeCollection& selectedNodes) const;
+  mdl::GroupNode* findGroupToMergeGroupsInto(const mdl::Selection& selection) const;
 
   /**
    * Checks whether the given node can be reparented under the given new parent.
