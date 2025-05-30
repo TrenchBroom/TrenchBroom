@@ -17,17 +17,20 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "TestUtils.h"
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
-#include "mdl/MapFormat.h"
+#include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/result.h"
 
@@ -37,325 +40,169 @@
 
 namespace tb::mdl
 {
-
-TEST_CASE("Selection.hasNodes")
+TEST_CASE("Selection")
 {
-  auto selection = Selection{};
-  CHECK_FALSE(selection.hasNodes());
+  /*
+   worldNode
+     outerGroupNode
+       innerGroupNode
+         patchNode
+       brushNode
+     entityNode
+  */
 
-  auto entityNode = EntityNode{Entity{}};
-  selection.addNode(&entityNode);
-  REQUIRE_THAT(
-    selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{&entityNode}));
-
-  CHECK(selection.hasNodes());
-}
-
-TEST_CASE("Selection.has")
-{
-  const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
+  auto worldNode = WorldNode{{}, {}, MapFormat::Valve};
+  auto brushBuilder = BrushBuilder{worldNode.mapFormat(), worldBounds};
 
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
+  auto& layerNode = *worldNode.defaultLayer();
+
+  auto& outerGroupNode =
+    dynamic_cast<GroupNode&>(layerNode.addChild(new GroupNode{Group{"outer"}}));
+  auto& innerGroupNode =
+    dynamic_cast<GroupNode&>(outerGroupNode.addChild(new GroupNode{Group{"inner"}}));
+
+  auto& entityNode = dynamic_cast<EntityNode&>(layerNode.addChild(new EntityNode{{}}));
+  auto& brushNode = dynamic_cast<BrushNode&>(outerGroupNode.addChild(
+    brushBuilder.createCube(64.0, "material")
+      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
+      .value()
+      .release()));
 
   // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
+  auto& patchNode = dynamic_cast<PatchNode&>(innerGroupNode.addChild(new PatchNode{BezierPatch{3, 3, {
     {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
+    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}}));
   // clang-format on
 
-  auto selection = Selection{};
-
-  REQUIRE_FALSE(selection.hasGroups());
-  REQUIRE_FALSE(selection.hasOnlyGroups());
-  REQUIRE_FALSE(selection.hasEntities());
-  REQUIRE_FALSE(selection.hasOnlyEntities());
-  REQUIRE_FALSE(selection.hasBrushes());
-  REQUIRE_FALSE(selection.hasOnlyBrushes());
-  REQUIRE_FALSE(selection.hasPatches());
-  REQUIRE_FALSE(selection.hasOnlyPatches());
-
-  SECTION("groups")
+  SECTION("hasAny")
   {
-    selection.addNode(&groupNode);
-    CHECK(selection.hasGroups());
-    CHECK(selection.hasOnlyGroups());
-
-    selection.addNode(&brushNode);
-    CHECK(selection.hasGroups());
-    CHECK_FALSE(selection.hasOnlyGroups());
+    CHECK_FALSE(Selection{}.hasAny());
+    CHECK(makeSelection({&outerGroupNode}).hasAny());
+    CHECK(makeSelection({&entityNode}).hasAny());
+    CHECK(makeSelection({&brushNode}).hasAny());
+    CHECK(makeSelection({&patchNode}).hasAny());
+    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasAny());
   }
 
-  SECTION("entities")
+  SECTION("hasNodes")
   {
-    selection.addNode(&entityNode);
-    CHECK(selection.hasEntities());
-    CHECK(selection.hasOnlyEntities());
-
-    selection.addNode(&brushNode);
-    CHECK(selection.hasEntities());
-    CHECK_FALSE(selection.hasOnlyEntities());
+    CHECK_FALSE(Selection{}.hasNodes());
+    CHECK(makeSelection({&outerGroupNode}).hasNodes());
+    CHECK(makeSelection({&entityNode}).hasNodes());
+    CHECK(makeSelection({&brushNode}).hasNodes());
+    CHECK(makeSelection({&patchNode}).hasNodes());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasNodes());
   }
 
-  SECTION("brushes")
+  SECTION("hasGroups")
   {
-    SECTION("only top level")
+    CHECK_FALSE(Selection{}.hasGroups());
+    CHECK(makeSelection({&outerGroupNode}).hasGroups());
+    CHECK(makeSelection({&outerGroupNode, &entityNode}).hasGroups());
+    CHECK_FALSE(makeSelection({&entityNode}).hasGroups());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasGroups());
+  }
+
+  SECTION("hasOnlyGroups")
+  {
+    CHECK_FALSE(Selection{}.hasOnlyGroups());
+    CHECK(makeSelection({&outerGroupNode}).hasOnlyGroups());
+    CHECK_FALSE(makeSelection({&outerGroupNode, &entityNode}).hasOnlyGroups());
+    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyGroups());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyGroups());
+  }
+
+  SECTION("hasEntities")
+  {
+    CHECK_FALSE(Selection{}.hasEntities());
+    CHECK(makeSelection({&entityNode}).hasEntities());
+    CHECK(makeSelection({&entityNode, &brushNode}).hasEntities());
+    CHECK_FALSE(makeSelection({&brushNode}).hasEntities());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasEntities());
+  }
+
+  SECTION("hasOnlyEntities")
+  {
+    CHECK_FALSE(Selection{}.hasOnlyEntities());
+    CHECK(makeSelection({&entityNode}).hasOnlyEntities());
+    CHECK_FALSE(makeSelection({&entityNode, &brushNode}).hasOnlyEntities());
+    CHECK_FALSE(makeSelection({&brushNode}).hasOnlyEntities());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyEntities());
+  }
+
+  SECTION("hasBrushes")
+  {
+    CHECK_FALSE(Selection{}.hasBrushes());
+    CHECK(makeSelection({&brushNode}).hasBrushes());
+    CHECK(makeSelection({&brushNode, &entityNode}).hasBrushes());
+    CHECK_FALSE(makeSelection({&entityNode}).hasBrushes());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasBrushes());
+  }
+
+  SECTION("hasOnlyBrushes")
+  {
+    CHECK_FALSE(Selection{}.hasOnlyBrushes());
+    CHECK(makeSelection({&brushNode}).hasOnlyBrushes());
+    CHECK_FALSE(makeSelection({&brushNode, &entityNode}).hasOnlyBrushes());
+    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyBrushes());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyBrushes());
+  }
+
+  SECTION("hasPatches")
+  {
+    CHECK_FALSE(Selection{}.hasPatches());
+    CHECK(makeSelection({&patchNode}).hasPatches());
+    CHECK(makeSelection({&patchNode, &entityNode}).hasPatches());
+    CHECK_FALSE(makeSelection({&entityNode}).hasPatches());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasPatches());
+  }
+
+  SECTION("hasOnlyPatches")
+  {
+    CHECK_FALSE(Selection{}.hasOnlyPatches());
+    CHECK(makeSelection({&patchNode}).hasOnlyPatches());
+    CHECK_FALSE(makeSelection({&patchNode, &entityNode}).hasOnlyPatches());
+    CHECK_FALSE(makeSelection({&entityNode}).hasOnlyPatches());
+    CHECK_FALSE(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasOnlyPatches());
+  }
+
+  SECTION("hasBrushFaces")
+  {
+    CHECK_FALSE(Selection{}.hasBrushFaces());
+    CHECK_FALSE(makeSelection({&outerGroupNode}).hasBrushFaces());
+    CHECK_FALSE(makeSelection({&entityNode}).hasBrushFaces());
+    CHECK_FALSE(makeSelection({&brushNode}).hasBrushFaces());
+    CHECK_FALSE(makeSelection({&patchNode}).hasBrushFaces());
+    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasBrushFaces());
+  }
+
+  SECTION("computeSelection")
+  {
+    CHECK(computeSelection(worldNode) == Selection{});
+
+    SECTION("face selection")
     {
-      selection.addNode(&brushNode);
-      CHECK(selection.hasBrushes());
-      CHECK(selection.hasOnlyBrushes());
+      brushNode.selectFace(0);
+      CHECK(
+        computeSelection(worldNode) == makeSelection({BrushFaceHandle{&brushNode, 0}}));
     }
 
-    SECTION("nested brushes")
+    SECTION("node selection")
     {
-      auto* entityNodePtr = static_cast<Node*>(&entityNode);
-      auto* groupNodePtr = static_cast<Node*>(&groupNode);
-      auto* node = GENERATE_COPY(entityNodePtr, groupNodePtr);
+      brushNode.select();
+      CHECK(computeSelection(worldNode) == makeSelection({&brushNode}));
 
-      SECTION("adding already nested brush")
-      {
-        node->addChild(brushNode.clone(worldBounds));
+      outerGroupNode.select();
+      CHECK(computeSelection(worldNode) == makeSelection({&outerGroupNode, &brushNode}));
 
-        selection.addNode(node);
-        CHECK_FALSE(selection.hasBrushes());
-        CHECK_FALSE(selection.hasOnlyBrushes());
-      }
-
-      SECTION("adding brushes to containers")
-      {
-        selection.addNode(node);
-        REQUIRE_FALSE(selection.hasBrushes());
-        REQUIRE_FALSE(selection.hasOnlyBrushes());
-
-        node->addChild(brushNode.clone(worldBounds));
-        CHECK_FALSE(selection.hasBrushes());
-        CHECK_FALSE(selection.hasOnlyBrushes());
-      }
+      entityNode.select();
+      CHECK(
+        computeSelection(worldNode)
+        == makeSelection({&outerGroupNode, &brushNode, &entityNode}));
     }
   }
-
-  SECTION("patches")
-  {
-    selection.addNode(&patchNode);
-    CHECK(selection.hasPatches());
-    CHECK(selection.hasOnlyPatches());
-
-    selection.addNode(&brushNode);
-    CHECK(selection.hasPatches());
-    CHECK_FALSE(selection.hasOnlyPatches());
-  }
-}
-
-TEST_CASE("Selection.collections")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto selection = Selection{};
-
-  REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
-
-  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
-
-  CHECK_THAT(
-    selection.nodes,
-    Catch::Matchers::UnorderedEquals(
-      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
-
-  CHECK_THAT(
-    selection.groups,
-    Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{&groupNode}));
-
-  CHECK_THAT(
-    selection.entities,
-    Catch::Matchers::UnorderedEquals(std::vector<EntityNode*>{&entityNode}));
-
-  CHECK_THAT(
-    selection.brushes,
-    Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{&brushNode}));
-
-  CHECK_THAT(
-    selection.patches,
-    Catch::Matchers::UnorderedEquals(std::vector<PatchNode*>{&patchNode}));
-}
-
-TEST_CASE("Selection.addNode")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto selection = Selection{};
-
-  REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
-
-  SECTION("group")
-  {
-    selection.addNode(&groupNode);
-    CHECK(selection.nodes == std::vector<Node*>{&groupNode});
-    CHECK(selection.groups == std::vector<GroupNode*>{&groupNode});
-  }
-
-  SECTION("entity")
-  {
-    selection.addNode(&entityNode);
-    CHECK(selection.nodes == std::vector<Node*>{&entityNode});
-    CHECK(selection.entities == std::vector<EntityNode*>{&entityNode});
-  }
-
-  SECTION("brush")
-  {
-    selection.addNode(&brushNode);
-    CHECK(selection.nodes == std::vector<Node*>{&brushNode});
-    CHECK(selection.brushes == std::vector<BrushNode*>{&brushNode});
-  }
-
-  SECTION("patch")
-  {
-    selection.addNode(&patchNode);
-    CHECK(selection.nodes == std::vector<Node*>{&patchNode});
-    CHECK(selection.patches == std::vector<PatchNode*>{&patchNode});
-  }
-}
-
-TEST_CASE("Selection.addNodes")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto selection = Selection{};
-
-  REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
-
-  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
-
-  CHECK(
-    selection.nodes
-    == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
-  CHECK(selection.groups == std::vector<GroupNode*>{&groupNode});
-  CHECK(selection.entities == std::vector<EntityNode*>{&entityNode});
-  CHECK(selection.brushes == std::vector<BrushNode*>{&brushNode});
-  CHECK(selection.patches == std::vector<PatchNode*>{&patchNode});
-}
-
-TEST_CASE("Selection.removeNode")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto selection = Selection{};
-  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
-
-  SECTION("group")
-  {
-    selection.removeNode(&groupNode);
-    CHECK(selection.nodes == std::vector<Node*>{&entityNode, &brushNode, &patchNode});
-    CHECK(selection.groups == std::vector<GroupNode*>{});
-  }
-
-  SECTION("entity")
-  {
-    selection.removeNode(&entityNode);
-    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &brushNode, &patchNode});
-    CHECK(selection.entities == std::vector<EntityNode*>{});
-  }
-
-  SECTION("brush")
-  {
-    selection.removeNode(&brushNode);
-    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &entityNode, &patchNode});
-    CHECK(selection.brushes == std::vector<BrushNode*>{});
-  }
-
-  SECTION("patch")
-  {
-    selection.removeNode(&patchNode);
-    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &entityNode, &brushNode});
-    CHECK(selection.patches == std::vector<PatchNode*>{});
-  }
-}
-
-TEST_CASE("Selection.clear")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto selection = Selection{};
-  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
-  REQUIRE(
-    selection.nodes
-    == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
-
-  selection.clear();
-
-  CHECK(selection.nodes == std::vector<Node*>{});
-  CHECK(selection.groups == std::vector<GroupNode*>{});
-  CHECK(selection.entities == std::vector<EntityNode*>{});
-  CHECK(selection.brushes == std::vector<BrushNode*>{});
-  CHECK(selection.patches == std::vector<PatchNode*>{});
 }
 
 } // namespace tb::mdl
