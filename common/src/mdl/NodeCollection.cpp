@@ -101,26 +101,6 @@ bool NodeCollection::hasOnlyPatches() const
   return !empty() && m_nodes.size() == m_patches.size();
 }
 
-std::vector<Node*>::iterator NodeCollection::begin()
-{
-  return std::begin(m_nodes);
-}
-
-std::vector<Node*>::iterator NodeCollection::end()
-{
-  return std::end(m_nodes);
-}
-
-std::vector<Node*>::const_iterator NodeCollection::begin() const
-{
-  return std::begin(m_nodes);
-}
-
-std::vector<Node*>::const_iterator NodeCollection::end() const
-{
-  return std::end(m_nodes);
-}
-
 const std::vector<Node*>& NodeCollection::nodes() const
 {
   return m_nodes;
