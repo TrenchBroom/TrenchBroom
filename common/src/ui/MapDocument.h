@@ -152,9 +152,8 @@ protected:
 
   mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
-  vm::bbox3d m_lastSelectionBounds = vm::bbox3d{0.0, 32.0};
-  mutable vm::bbox3d m_selectionBounds;
-  mutable bool m_selectionBoundsValid = true;
+  std::optional<vm::bbox3d> m_lastSelectionBounds;
+  mutable std::optional<vm::bbox3d> m_selectionBounds;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
@@ -407,9 +406,9 @@ public: // selection
   EdgeHandleManager& edgeHandles();
   FaceHandleManager& faceHandles();
 
-  const vm::bbox3d& referenceBounds() const override;
-  const vm::bbox3d& lastSelectionBounds() const override;
-  const vm::bbox3d& selectionBounds() const override;
+  const vm::bbox3d referenceBounds() const override;
+  const std::optional<vm::bbox3d>& lastSelectionBounds() const override;
+  const std::optional<vm::bbox3d>& selectionBounds() const override;
   const std::string& currentMaterialName() const override;
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
@@ -435,7 +434,6 @@ protected:
   void invalidateSelectionBounds();
 
 private:
-  void validateSelectionBounds() const;
   void clearSelection();
 
 public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade

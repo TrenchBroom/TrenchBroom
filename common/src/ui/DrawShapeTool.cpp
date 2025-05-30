@@ -73,9 +73,9 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
   auto* page = new DrawShapeToolPage{m_document, m_extensionManager, parent};
   m_notifierConnection += page->applyParametersNotifier.connect([&]() {
     auto document = kdl::mem_lock(m_document);
-    if (document->hasSelectedNodes())
+    if (const auto& selectionBounds = document->selectionBounds())
     {
-      m_extensionManager.createBrushes(document->selectionBounds())
+      m_extensionManager.createBrushes(*selectionBounds)
         | kdl::transform([](auto brushes) {
             return brushes | std::views::transform([](auto brush) {
                      return std::make_unique<mdl::BrushNode>(std::move(brush));

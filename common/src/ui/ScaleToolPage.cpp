@@ -61,9 +61,7 @@ void ScaleToolPage::connectObservers()
 void ScaleToolPage::activate()
 {
   const auto document = kdl::mem_lock(m_document);
-  const auto suggestedSize = document->hasSelectedNodes()
-                               ? document->selectionBounds().size()
-                               : vm::vec3d{0, 0, 0};
+  const auto suggestedSize = document->selectionBounds().value_or(vm::bbox3d{}).size();
 
   m_sizeTextBox->setText(toString(suggestedSize));
   m_factorsTextBox->setText(toString(vm::vec3d{1, 1, 1}));
@@ -128,9 +126,12 @@ std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const
   {
   case 0: {
     auto document = kdl::mem_lock(m_document);
-    if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
+    if (const auto& selectionBounds = document->selectionBounds())
     {
-      return *desiredSize / document->selectionBounds().size();
+      if (const auto desiredSize = parse<double, 3>(m_sizeTextBox->text()))
+      {
+        return *desiredSize / selectionBounds->size();
+      }
     }
     return std::nullopt;
   }
@@ -151,8 +152,10 @@ void ScaleToolPage::applyScale()
     if (const auto scaleFactors = getScaleFactors())
     {
       auto document = kdl::mem_lock(m_document);
-      const auto box = document->selectionBounds();
-      document->scale(box.center(), *scaleFactors);
+      if (const auto& selectionBounds = document->selectionBounds())
+      {
+        document->scale(selectionBounds->center(), *scaleFactors);
+      }
     }
   }
 }

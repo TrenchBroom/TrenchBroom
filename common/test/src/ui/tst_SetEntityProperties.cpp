@@ -72,18 +72,18 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
   document->deselectAll();
   document->selectNodes({entityNode});
   REQUIRE(
-    document->selectionBounds().size()
+    document->selectionBounds()->size()
     == largeEntityDef->pointEntityDefinition->bounds.size());
 
   document->setProperty("classname", "point_entity");
   CHECK(entityNode->entity().definition() == m_pointEntityDef);
   CHECK(
-    document->selectionBounds().size()
+    document->selectionBounds()->size()
     == m_pointEntityDef->pointEntityDefinition->bounds.size());
 
   document->removeProperty("classname");
   CHECK(entityNode->entity().definition() == nullptr);
-  CHECK(document->selectionBounds().size() == mdl::EntityNode::DefaultBounds.size());
+  CHECK(document->selectionBounds()->size() == mdl::EntityNode::DefaultBounds.size());
 
   {
     // we only want to undo the following changes later
@@ -94,13 +94,13 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.changeClassname"
 
     CHECK(entityNode->entity().definition() == largeEntityDef);
     CHECK(
-      document->selectionBounds().size()
+      document->selectionBounds()->size()
       == largeEntityDef->pointEntityDefinition->bounds.size());
   }
 
   document->undoCommand();
   CHECK(entityNode->entity().definition() == nullptr);
-  CHECK(document->selectionBounds().size() == mdl::EntityNode::DefaultBounds.size());
+  CHECK(document->selectionBounds()->size() == mdl::EntityNode::DefaultBounds.size());
 }
 
 TEST_CASE_METHOD(ValveMapDocumentTest, "SetEntityPropertiesTest.setProtectedProperty")

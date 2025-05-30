@@ -107,7 +107,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.flip")
 
   document->selectNodes({brushNode1, brushNode2});
 
-  const auto boundsCenter = document->selectionBounds().center();
+  const auto boundsCenter = document->selectionBounds()->center();
   CHECK(boundsCenter == vm::approx{vm::vec3d{15.5, 15.5, 15.5}});
 
   document->flip(boundsCenter, vm::axis::x);
@@ -252,7 +252,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
       document->addNodes({{document->parentForNodes(), {brushNode1, brushNode2}}});
       document->selectNodes({brushNode1, brushNode2});
 
-      const auto boundsCenter = document->selectionBounds().center();
+      const auto boundsCenter = document->selectionBounds()->center();
       CHECK(boundsCenter == vm::vec3d{15.5, 15.5, 15.5});
 
       // 90 degrees CCW about the Z axis through the center of the selection
@@ -285,7 +285,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
       {
         document->selectNodes({brushNode1});
         document->rotate(
-          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          document->selectionBounds()->center(),
+          vm::vec3d{0, 0, 1},
+          vm::to_radians(90.0));
 
         CHECK(*entityNode->entity().property("angle") == "45");
       }
@@ -294,7 +296,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
       {
         document->selectNodes({brushNode1, brushNode2});
         document->rotate(
-          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          document->selectionBounds()->center(),
+          vm::vec3d{0, 0, 1},
+          vm::to_radians(90.0));
 
         CHECK(*entityNode->entity().property("angle") == "135");
       }
@@ -307,7 +311,9 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.rotate")
         document->deselectAll();
         document->selectNodes({groupNode});
         document->rotate(
-          document->selectionBounds().center(), vm::vec3d{0, 0, 1}, vm::to_radians(90.0));
+          document->selectionBounds()->center(),
+          vm::vec3d{0, 0, 1},
+          vm::to_radians(90.0));
 
         CHECK(*entityNode->entity().property("angle") == "135");
       }

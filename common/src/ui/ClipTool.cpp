@@ -37,6 +37,7 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 #include "kdl/overload.h"
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"
@@ -653,10 +654,11 @@ std::map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
   return result;
 }
 
-vm::vec3d ClipTool::defaultClipPointPos() const
+std::optional<vm::vec3d> ClipTool::defaultClipPointPos() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds().center();
+  return document->selectionBounds()
+         | kdl::optional_transform([](const auto& bounds) { return bounds.center(); });
 }
 
 bool ClipTool::canAddPoint(const vm::vec3d& point) const
