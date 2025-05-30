@@ -1223,7 +1223,7 @@ bool MapDocument::hasSelection() const
 
 bool MapDocument::hasSelectedNodes() const
 {
-  return !m_selectedNodes.empty();
+  return m_selectedNodes.hasNodes();
 }
 
 bool MapDocument::hasSelectedBrushFaces() const

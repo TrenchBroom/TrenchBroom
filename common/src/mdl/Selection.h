@@ -43,7 +43,7 @@ struct Selection
 
   kdl_reflect_decl(Selection, nodes, layers, groups, entities, brushes, patches);
 
-  bool empty() const;
+  bool hasNodes() const;
 
   bool hasLayers() const;
   bool hasOnlyLayers() const;

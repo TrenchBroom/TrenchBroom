@@ -592,7 +592,7 @@ const mdl::Hit& ScaleTool::dragStartHit() const
 bool ScaleTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !document->selection().empty();
+  return document->selection().hasNodes();
 }
 
 BackSide pickBackSideOfBox(

@@ -35,7 +35,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
   document->remove();
   document->selectAllNodes();
 
-  REQUIRE(document->selection().empty());
+  REQUIRE_FALSE(document->selection().hasNodes());
 
   auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
 
@@ -59,7 +59,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
     document->undoCommand();
     document->selectAllNodes();
 
-    CHECK(document->selection().empty());
+    CHECK_FALSE(document->selection().hasNodes());
   }
 
   SECTION("rollback")
@@ -69,7 +69,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
     CHECK(transaction.state() == Transaction::State::Running);
 
     document->selectAllNodes();
-    CHECK(document->selection().empty());
+    CHECK_FALSE(document->selection().hasNodes());
 
     // must commit the transaction in order to destroy it
     transaction.commit();
@@ -82,7 +82,7 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
     CHECK(transaction.state() == Transaction::State::Cancelled);
 
     document->selectAllNodes();
-    CHECK(document->selection().empty());
+    CHECK_FALSE(document->selection().hasNodes());
   }
 }
 
