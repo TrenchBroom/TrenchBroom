@@ -81,7 +81,7 @@ void RotateTool::resetRotationCenter()
 {
   auto document = kdl::mem_lock(m_document);
   const auto selectedNodes = document->selectedNodes();
-  if (selectedNodes.nodeCount() == 1 && selectedNodes.entityCount() == 1)
+  if (selectedNodes.hasOnlyEntities() && selectedNodes.entities().size() == 1)
   {
     const auto& entityNode = *selectedNodes.entities().front();
     setRotationCenter(entityNode.entity().origin());

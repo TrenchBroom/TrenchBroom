@@ -292,7 +292,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
 {
   document->selectAllNodes();
   document->remove();
-  assert(document->selectedNodes().nodeCount() == 0);
+  assert(document->selectedNodes().nodes().size() == 0);
 
   auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
@@ -317,14 +317,14 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
   document->selectNodes({selectionBrush});
   document->selectTouching(true);
 
-  CHECK(document->selectedNodes().nodeCount() == 1u);
+  CHECK(document->selectedNodes().nodes().size() == 1u);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
 {
   document->selectAllNodes();
   document->remove();
-  assert(document->selectedNodes().nodeCount() == 0);
+  assert(document->selectedNodes().nodes().size() == 0);
 
   auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
@@ -349,7 +349,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
   document->selectNodes({selectionBrush});
   document->selectInside(true);
 
-  CHECK(document->selectedNodes().nodeCount() == 1u);
+  CHECK(document->selectedNodes().nodes().size() == 1u);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")

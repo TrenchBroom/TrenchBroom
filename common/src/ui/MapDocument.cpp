@@ -2330,7 +2330,7 @@ void MapDocument::renameGroups(const std::string& name)
   if (hasSelectedNodes() && m_selectedNodes.hasOnlyGroups())
   {
     const auto commandName =
-      kdl::str_plural("Rename ", m_selectedNodes.groupCount(), "Group", "Groups");
+      kdl::str_plural("Rename ", m_selectedNodes.groups().size(), "Group", "Groups");
     applyAndSwap(
       *this,
       commandName,
@@ -2419,7 +2419,7 @@ mdl::GroupNode* MapDocument::createLinkedDuplicate()
 
 bool MapDocument::canCreateLinkedDuplicate() const
 {
-  return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groupCount() == 1u;
+  return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groups().size() == 1u;
 }
 
 void MapDocument::selectLinkedGroups()

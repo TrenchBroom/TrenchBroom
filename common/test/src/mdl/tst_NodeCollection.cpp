@@ -54,41 +54,6 @@ TEST_CASE("NodeCollection.empty")
   CHECK_FALSE(nodeCollection.empty());
 }
 
-TEST_CASE("NodeCollection.counts")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto nodeCollection = NodeCollection{};
-  REQUIRE(nodeCollection.nodeCount() == 0u);
-  REQUIRE(nodeCollection.layerCount() == 0u);
-  REQUIRE(nodeCollection.groupCount() == 0u);
-  REQUIRE(nodeCollection.entityCount() == 0u);
-  REQUIRE(nodeCollection.brushCount() == 0u);
-  REQUIRE(nodeCollection.patchCount() == 0u);
-
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-  CHECK(nodeCollection.nodeCount() == 5u);
-  CHECK(nodeCollection.layerCount() == 1u);
-  CHECK(nodeCollection.groupCount() == 1u);
-  CHECK(nodeCollection.entityCount() == 1u);
-  CHECK(nodeCollection.brushCount() == 1u);
-  CHECK(nodeCollection.patchCount() == 1u);
-}
-
 TEST_CASE("NodeCollection.has")
 {
   const auto mapFormat = MapFormat::Quake3;

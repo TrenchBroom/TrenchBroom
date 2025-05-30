@@ -1524,7 +1524,7 @@ mdl::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
 {
   using namespace mdl::HitFilters;
 
-  if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groupCount() >= 2))
+  if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groups().size() >= 2))
   {
     return nullptr;
   }

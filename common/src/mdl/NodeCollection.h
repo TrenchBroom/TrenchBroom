@@ -51,12 +51,6 @@ public:
   explicit NodeCollection(const std::vector<Node*>& nodes);
 
   bool empty() const;
-  size_t nodeCount() const;
-  size_t layerCount() const;
-  size_t groupCount() const;
-  size_t entityCount() const;
-  size_t brushCount() const;
-  size_t patchCount() const;
 
   bool hasLayers() const;
   bool hasOnlyLayers() const;

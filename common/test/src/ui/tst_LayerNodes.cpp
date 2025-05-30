@@ -91,7 +91,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->selectNodes({entity});
   document->duplicate(); // the duplicate should stay in layer1
 
-  REQUIRE(document->selectedNodes().entityCount() == 1);
+  REQUIRE(document->selectedNodes().entities().size() == 1);
   auto* entityClone = document->selectedNodes().entities().at(0);
   CHECK(entityClone->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2);
@@ -229,8 +229,8 @@ TEST_CASE_METHOD(
 
   // Duplicate entity1 and brush1
   document->duplicate();
-  REQUIRE(document->selectedNodes().entityCount() == 1u);
-  REQUIRE(document->selectedNodes().brushCount() == 1u);
+  REQUIRE(document->selectedNodes().entities().size() == 1u);
+  REQUIRE(document->selectedNodes().brushes().size() == 1u);
   auto* entity2 = document->selectedNodes().entities().front();
   auto* brush2 = document->selectedNodes().brushes().front();
 

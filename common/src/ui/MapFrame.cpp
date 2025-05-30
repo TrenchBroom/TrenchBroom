@@ -1832,7 +1832,7 @@ bool MapFrame::canDoCsgConvexMerge() const
 {
   return (m_document->hasSelectedBrushFaces()
           && m_document->selectedBrushFaces().size() > 1)
-         || (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1)
+         || (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushes().size() > 1)
          || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
          || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
          || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
@@ -1849,7 +1849,7 @@ void MapFrame::csgSubtract()
 bool MapFrame::canDoCsgSubtract() const
 {
   return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() >= 1;
+         && m_document->selectedNodes().brushes().size() >= 1;
 }
 
 void MapFrame::csgHollow()
@@ -1863,7 +1863,7 @@ void MapFrame::csgHollow()
 bool MapFrame::canDoCsgHollow() const
 {
   return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() >= 1;
+         && m_document->selectedNodes().brushes().size() >= 1;
 }
 
 void MapFrame::csgIntersect()
@@ -1877,7 +1877,7 @@ void MapFrame::csgIntersect()
 bool MapFrame::canDoCsgIntersect() const
 {
   return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() > 1;
+         && m_document->selectedNodes().brushes().size() > 1;
 }
 
 void MapFrame::snapVerticesToInteger()
