@@ -171,38 +171,6 @@ TEST_CASE("NodeCollection.has")
   }
 }
 
-TEST_CASE("NodeCollection.iterators")
-{
-  const auto mapFormat = MapFormat::Quake3;
-  const auto worldBounds = vm::bbox3d{8192.0};
-
-  auto layerNode = LayerNode{Layer{"layer"}};
-  auto groupNode = GroupNode{Group{"group"}};
-  auto entityNode = EntityNode{Entity{}};
-  auto brushNode = BrushNode{
-    BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-  // clang-format off
-  auto patchNode = PatchNode{BezierPatch{3, 3, {
-    {0, 0, 0}, {1, 0, 1}, {2, 0, 0},
-    {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
-    {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}};
-  // clang-format on
-
-  auto nodeCollection = NodeCollection{};
-
-  REQUIRE_THAT(
-    std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
-
-  nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-
-  CHECK_THAT(
-    std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
-    Catch::Matchers::UnorderedEquals(
-      std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
-}
-
 TEST_CASE("NodeCollection.collections")
 {
   const auto mapFormat = MapFormat::Quake3;
@@ -224,8 +192,7 @@ TEST_CASE("NodeCollection.collections")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
@@ -290,8 +257,7 @@ TEST_CASE("NodeCollection.addNode")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   SECTION("layer")
   {
@@ -350,8 +316,7 @@ TEST_CASE("NodeCollection.addNodes")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    std::vector<Node*>(nodeCollection.begin(), nodeCollection.end()),
-    Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 

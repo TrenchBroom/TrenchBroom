@@ -1245,7 +1245,7 @@ std::vector<mdl::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
   }
 
   auto result = std::vector<mdl::EntityNodeBase*>{};
-  for (auto* node : m_selectedNodes)
+  for (auto* node : m_selectedNodes.nodes())
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, mdl::WorldNode* world) {
@@ -3083,7 +3083,7 @@ bool MapDocument::transform(
   auto nodesToTransform = std::vector<mdl::Node*>{};
   auto entitiesToTransform = std::unordered_map<mdl::EntityNodeBase*, size_t>{};
 
-  for (auto* node : m_selectedNodes)
+  for (auto* node : m_selectedNodes.nodes())
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, mdl::WorldNode* worldNode) {

@@ -63,11 +63,6 @@ public:
   bool hasPatches() const;
   bool hasOnlyPatches() const;
 
-  std::vector<Node*>::iterator begin();
-  std::vector<Node*>::iterator end();
-  std::vector<Node*>::const_iterator begin() const;
-  std::vector<Node*>::const_iterator end() const;
-
   const std::vector<Node*>& nodes() const;
   const std::vector<LayerNode*>& layers() const;
   const std::vector<GroupNode*>& groups() const;
