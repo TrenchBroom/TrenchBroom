@@ -242,7 +242,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching")
 
   using Catch::Matchers::UnorderedEquals;
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
 }
 
@@ -268,7 +268,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
   document->selectAllNodes();
 
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode1, brushNode2}));
   CHECK_THAT(
     document->currentLayer()->children(),
@@ -278,7 +278,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouching_2476")
 
   // only this next line was failing
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{}));
   CHECK_THAT(
     document->currentLayer()->children(), Catch::Equals(std::vector<mdl::Node*>{}));
@@ -292,7 +292,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
 {
   document->selectAllNodes();
   document->remove();
-  assert(document->selectedNodes().nodes().size() == 0);
+  assert(document->selectedNodes().nodes.size() == 0);
 
   auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
@@ -317,14 +317,14 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingWithGroup")
   document->selectNodes({selectionBrush});
   document->selectTouching(true);
 
-  CHECK(document->selectedNodes().nodes().size() == 1u);
+  CHECK(document->selectedNodes().nodes.size() == 1u);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
 {
   document->selectAllNodes();
   document->remove();
-  assert(document->selectedNodes().nodes().size() == 0);
+  assert(document->selectedNodes().nodes.size() == 0);
 
   auto* layer = new mdl::LayerNode{mdl::Layer{"Layer 1"}};
   document->addNodes({{document->world(), {layer}}});
@@ -349,7 +349,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInsideWithGroup")
   document->selectNodes({selectionBrush});
   document->selectInside(true);
 
-  CHECK(document->selectedNodes().nodes().size() == 1u);
+  CHECK(document->selectedNodes().nodes.size() == 1u);
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
@@ -385,7 +385,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
     document->selectTall(vm::axis::z);
 
     CHECK_THAT(
-      document->selectedNodes().brushes(),
+      document->selectedNodes().brushes,
       UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
   }
   SECTION("x camera")
@@ -393,7 +393,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTall")
     document->selectTall(vm::axis::x);
 
     CHECK_THAT(
-      document->selectedNodes().brushes(),
+      document->selectedNodes().brushes,
       UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode3}));
   }
 }
@@ -444,7 +444,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectInverse")
   document->selectInverse();
 
   CHECK_THAT(
-    document->selectedNodes().nodes(),
+    document->selectedNodes().nodes,
     Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode2, brushNode3, patchNode}));
   CHECK(!brushNode1->selected());
   CHECK(brushNode2->selected());
@@ -484,7 +484,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectTouchingInsideNestedGroup
   document->selectTouching(false);
 
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::UnorderedEquals(std::vector<mdl::BrushNode*>{brushNode2}));
 }
 
@@ -527,18 +527,18 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
   {
     document->selectNodes({brushNode3});
     REQUIRE_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode3}));
 
     document->selectSiblings();
     CHECK_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(
         std::vector<mdl::Node*>{brushNode1, brushNode2, brushNode3, patchNode}));
 
     document->undoCommand();
     CHECK_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode3}));
   }
 
@@ -546,17 +546,17 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.selectSiblings")
   {
     document->selectNodes({brushNode1});
     REQUIRE_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1}));
 
     document->selectSiblings();
     CHECK_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1, brushNode2}));
 
     document->undoCommand();
     CHECK_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode1}));
   }
 }
@@ -613,7 +613,7 @@ TEST_CASE_METHOD(
   // select the brush
   document->selectNodes({brushNode});
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
 
   // translate the brush
@@ -625,14 +625,14 @@ TEST_CASE_METHOD(
   document->undoCommand();
   CHECK(brushNode->logicalBounds().center() == vm::vec3d{0, 0, 0});
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
   CHECK_THAT(
     document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
-    document->selectedNodes().brushes(), Catch::Equals(std::vector<mdl::BrushNode*>{}));
+    document->selectedNodes().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{}));
   CHECK_THAT(
     document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 

@@ -51,7 +51,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SnapBrushVerticesTest.snapVerticesCrash_2244"
   document->paste(brush);
   document->selectAllNodes();
 
-  CHECK(document->selectedNodes().brushes().size() == 1u);
+  CHECK(document->selectedNodes().brushes.size() == 1u);
   CHECK_NOTHROW(document->snapVertices(document->grid().actualSize()));
 }
 

@@ -21,7 +21,6 @@
 
 #include "kdl/reflection_decl.h"
 
-#include <cstddef>
 #include <vector>
 
 namespace tb::mdl
@@ -33,22 +32,16 @@ class LayerNode;
 class Node;
 class PatchNode;
 
-class NodeCollection
+struct NodeCollection
 {
-private:
-  std::vector<Node*> m_nodes;
-  std::vector<LayerNode*> m_layers;
-  std::vector<GroupNode*> m_groups;
-  std::vector<EntityNode*> m_entities;
-  std::vector<BrushNode*> m_brushes;
-  std::vector<PatchNode*> m_patches;
+  std::vector<Node*> nodes;
+  std::vector<LayerNode*> layers;
+  std::vector<GroupNode*> groups;
+  std::vector<EntityNode*> entities;
+  std::vector<BrushNode*> brushes;
+  std::vector<PatchNode*> patches;
 
-public:
-  kdl_reflect_decl(
-    NodeCollection, m_nodes, m_layers, m_groups, m_entities, m_brushes, m_patches);
-
-  NodeCollection();
-  explicit NodeCollection(const std::vector<Node*>& nodes);
+  kdl_reflect_decl(NodeCollection, nodes, layers, groups, entities, brushes, patches);
 
   bool empty() const;
 
@@ -63,13 +56,6 @@ public:
   bool hasPatches() const;
   bool hasOnlyPatches() const;
 
-  const std::vector<Node*>& nodes() const;
-  const std::vector<LayerNode*>& layers() const;
-  const std::vector<GroupNode*>& groups() const;
-  const std::vector<EntityNode*>& entities() const;
-  const std::vector<BrushNode*>& brushes() const;
-  const std::vector<PatchNode*>& patches() const;
-
   void addNodes(const std::vector<Node*>& nodes);
   void addNode(Node* node);
 
@@ -78,5 +64,7 @@ public:
 
   void clear();
 };
+
+NodeCollection makeNodeCollection(const std::vector<Node*>& nodes);
 
 } // namespace tb::mdl

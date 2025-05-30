@@ -64,7 +64,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
       {
         document->selectNodes({nodeToIsolate});
 
-        const auto selectedNodes = document->selectedNodes().nodes();
+        const auto selectedNodes = document->selectedNodes().nodes;
         document->isolate();
 
         THEN("The node is isolated and selected")
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
             CHECK_FALSE(nodeToHide->hidden());
 
             CHECK_THAT(
-              document->selectedNodes().nodes(),
+              document->selectedNodes().nodes,
               Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }
@@ -124,7 +124,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
         }
         REQUIRE_FALSE(entityNode->selected());
 
-        const auto selectedNodes = document->selectedNodes().nodes();
+        const auto selectedNodes = document->selectedNodes().nodes;
         document->isolate();
 
         // https://github.com/TrenchBroom/TrenchBroom/issues/3117
@@ -158,7 +158,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SetVisibilityState.isolate")
             CHECK_FALSE(childNode2->hidden());
 
             CHECK_THAT(
-              document->selectedNodes().nodes(),
+              document->selectedNodes().nodes,
               Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }

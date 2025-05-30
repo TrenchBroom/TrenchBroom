@@ -204,7 +204,7 @@ TEST_CASE_METHOD(MapDocumentTest, "TransformNodesTest.translate")
     document->deselectAll();
     document->selectNodes({linkedGroup});
     REQUIRE_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{linkedGroup}));
 
     auto* linkedBrushNode = dynamic_cast<mdl::BrushNode*>(linkedGroup->children().at(0));

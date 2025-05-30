@@ -175,7 +175,7 @@ void MapDocumentCommandFacade::performConvertToBrushFaceSelection()
 {
   performDeselectAll();
   performSelect(
-    mdl::collectSelectableBrushFaces(m_selectedNodes.nodes(), *m_editorContext));
+    mdl::collectSelectableBrushFaces(m_selectedNodes.nodes, *m_editorContext));
 }
 
 void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& nodes)
@@ -256,7 +256,7 @@ void MapDocumentCommandFacade::performDeselectAll()
 {
   if (hasSelectedNodes())
   {
-    const auto previousSelection = m_selectedNodes.nodes();
+    const auto previousSelection = m_selectedNodes.nodes;
     performDeselect(previousSelection);
   }
   if (hasSelectedBrushFaces())

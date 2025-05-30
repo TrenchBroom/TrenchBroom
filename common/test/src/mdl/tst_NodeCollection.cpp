@@ -48,7 +48,7 @@ TEST_CASE("NodeCollection.empty")
   auto entityNode = EntityNode{Entity{}};
   nodeCollection.addNode(&entityNode);
   REQUIRE_THAT(
-    nodeCollection.nodes(),
+    nodeCollection.nodes,
     Catch::Matchers::UnorderedEquals(std::vector<Node*>{&entityNode}));
 
   CHECK_FALSE(nodeCollection.empty());
@@ -192,33 +192,33 @@ TEST_CASE("NodeCollection.collections")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK_THAT(
-    nodeCollection.nodes(),
+    nodeCollection.nodes,
     Catch::Matchers::UnorderedEquals(
       std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
 
   CHECK_THAT(
-    nodeCollection.layers(),
+    nodeCollection.layers,
     Catch::Matchers::UnorderedEquals(std::vector<LayerNode*>{&layerNode}));
 
   CHECK_THAT(
-    nodeCollection.groups(),
+    nodeCollection.groups,
     Catch::Matchers::UnorderedEquals(std::vector<GroupNode*>{&groupNode}));
 
   CHECK_THAT(
-    nodeCollection.entities(),
+    nodeCollection.entities,
     Catch::Matchers::UnorderedEquals(std::vector<EntityNode*>{&entityNode}));
 
   CHECK_THAT(
-    nodeCollection.brushes(),
+    nodeCollection.brushes,
     Catch::Matchers::UnorderedEquals(std::vector<BrushNode*>{&brushNode}));
 
   CHECK_THAT(
-    nodeCollection.patches(),
+    nodeCollection.patches,
     Catch::Matchers::UnorderedEquals(std::vector<PatchNode*>{&patchNode}));
 
   SECTION("nested brushes")
@@ -257,41 +257,41 @@ TEST_CASE("NodeCollection.addNode")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   SECTION("layer")
   {
     nodeCollection.addNode(&layerNode);
-    CHECK(nodeCollection.nodes() == std::vector<Node*>{&layerNode});
-    CHECK(nodeCollection.layers() == std::vector<LayerNode*>{&layerNode});
+    CHECK(nodeCollection.nodes == std::vector<Node*>{&layerNode});
+    CHECK(nodeCollection.layers == std::vector<LayerNode*>{&layerNode});
   }
 
   SECTION("group")
   {
     nodeCollection.addNode(&groupNode);
-    CHECK(nodeCollection.nodes() == std::vector<Node*>{&groupNode});
-    CHECK(nodeCollection.groups() == std::vector<GroupNode*>{&groupNode});
+    CHECK(nodeCollection.nodes == std::vector<Node*>{&groupNode});
+    CHECK(nodeCollection.groups == std::vector<GroupNode*>{&groupNode});
   }
 
   SECTION("entity")
   {
     nodeCollection.addNode(&entityNode);
-    CHECK(nodeCollection.nodes() == std::vector<Node*>{&entityNode});
-    CHECK(nodeCollection.entities() == std::vector<EntityNode*>{&entityNode});
+    CHECK(nodeCollection.nodes == std::vector<Node*>{&entityNode});
+    CHECK(nodeCollection.entities == std::vector<EntityNode*>{&entityNode});
   }
 
   SECTION("brush")
   {
     nodeCollection.addNode(&brushNode);
-    CHECK(nodeCollection.nodes() == std::vector<Node*>{&brushNode});
-    CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{&brushNode});
+    CHECK(nodeCollection.nodes == std::vector<Node*>{&brushNode});
+    CHECK(nodeCollection.brushes == std::vector<BrushNode*>{&brushNode});
   }
 
   SECTION("patch")
   {
     nodeCollection.addNode(&patchNode);
-    CHECK(nodeCollection.nodes() == std::vector<Node*>{&patchNode});
-    CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
+    CHECK(nodeCollection.nodes == std::vector<Node*>{&patchNode});
+    CHECK(nodeCollection.patches == std::vector<PatchNode*>{&patchNode});
   }
 }
 
@@ -316,18 +316,18 @@ TEST_CASE("NodeCollection.addNodes")
   auto nodeCollection = NodeCollection{};
 
   REQUIRE_THAT(
-    nodeCollection.nodes(), Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
+    nodeCollection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK(
-    nodeCollection.nodes()
+    nodeCollection.nodes
     == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-  CHECK(nodeCollection.layers() == std::vector<LayerNode*>{&layerNode});
-  CHECK(nodeCollection.groups() == std::vector<GroupNode*>{&groupNode});
-  CHECK(nodeCollection.entities() == std::vector<EntityNode*>{&entityNode});
-  CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{&brushNode});
-  CHECK(nodeCollection.patches() == std::vector<PatchNode*>{&patchNode});
+  CHECK(nodeCollection.layers == std::vector<LayerNode*>{&layerNode});
+  CHECK(nodeCollection.groups == std::vector<GroupNode*>{&groupNode});
+  CHECK(nodeCollection.entities == std::vector<EntityNode*>{&entityNode});
+  CHECK(nodeCollection.brushes == std::vector<BrushNode*>{&brushNode});
+  CHECK(nodeCollection.patches == std::vector<PatchNode*>{&patchNode});
 }
 
 TEST_CASE("NodeCollection.removeNode")
@@ -351,52 +351,52 @@ TEST_CASE("NodeCollection.removeNode")
   auto nodeCollection = NodeCollection{};
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
   REQUIRE(
-    nodeCollection.nodes()
+    nodeCollection.nodes
     == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   SECTION("layer")
   {
     nodeCollection.removeNode(&layerNode);
     CHECK(
-      nodeCollection.nodes()
+      nodeCollection.nodes
       == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
-    CHECK(nodeCollection.layers() == std::vector<LayerNode*>{});
+    CHECK(nodeCollection.layers == std::vector<LayerNode*>{});
   }
 
   SECTION("group")
   {
     nodeCollection.removeNode(&groupNode);
     CHECK(
-      nodeCollection.nodes()
+      nodeCollection.nodes
       == std::vector<Node*>{&layerNode, &entityNode, &brushNode, &patchNode});
-    CHECK(nodeCollection.groups() == std::vector<GroupNode*>{});
+    CHECK(nodeCollection.groups == std::vector<GroupNode*>{});
   }
 
   SECTION("entity")
   {
     nodeCollection.removeNode(&entityNode);
     CHECK(
-      nodeCollection.nodes()
+      nodeCollection.nodes
       == std::vector<Node*>{&layerNode, &groupNode, &brushNode, &patchNode});
-    CHECK(nodeCollection.entities() == std::vector<EntityNode*>{});
+    CHECK(nodeCollection.entities == std::vector<EntityNode*>{});
   }
 
   SECTION("brush")
   {
     nodeCollection.removeNode(&brushNode);
     CHECK(
-      nodeCollection.nodes()
+      nodeCollection.nodes
       == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &patchNode});
-    CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
+    CHECK(nodeCollection.brushes == std::vector<BrushNode*>{});
   }
 
   SECTION("patch")
   {
     nodeCollection.removeNode(&patchNode);
     CHECK(
-      nodeCollection.nodes()
+      nodeCollection.nodes
       == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
-    CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
+    CHECK(nodeCollection.patches == std::vector<PatchNode*>{});
   }
 }
 
@@ -421,17 +421,17 @@ TEST_CASE("NodeCollection.clear")
   auto nodeCollection = NodeCollection{};
   nodeCollection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
   REQUIRE(
-    nodeCollection.nodes()
+    nodeCollection.nodes
     == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
 
   nodeCollection.clear();
 
-  CHECK(nodeCollection.nodes() == std::vector<Node*>{});
-  CHECK(nodeCollection.layers() == std::vector<LayerNode*>{});
-  CHECK(nodeCollection.groups() == std::vector<GroupNode*>{});
-  CHECK(nodeCollection.entities() == std::vector<EntityNode*>{});
-  CHECK(nodeCollection.brushes() == std::vector<BrushNode*>{});
-  CHECK(nodeCollection.patches() == std::vector<PatchNode*>{});
+  CHECK(nodeCollection.nodes == std::vector<Node*>{});
+  CHECK(nodeCollection.layers == std::vector<LayerNode*>{});
+  CHECK(nodeCollection.groups == std::vector<GroupNode*>{});
+  CHECK(nodeCollection.entities == std::vector<EntityNode*>{});
+  CHECK(nodeCollection.brushes == std::vector<BrushNode*>{});
+  CHECK(nodeCollection.patches == std::vector<PatchNode*>{});
 }
 
 } // namespace tb::mdl

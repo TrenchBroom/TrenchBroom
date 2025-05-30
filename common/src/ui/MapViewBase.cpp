@@ -732,7 +732,7 @@ void MapViewBase::makeStructural()
   }
 
   auto toReparent = std::vector<mdl::Node*>{};
-  const auto& selectedBrushes = document->selectedNodes().brushes();
+  const auto& selectedBrushes = document->selectedNodes().brushes;
   std::copy_if(
     selectedBrushes.begin(),
     selectedBrushes.end(),
@@ -748,7 +748,7 @@ void MapViewBase::makeStructural()
 
   auto anyTagDisabled = false;
   auto callback = EnableDisableTagCallback{};
-  for (auto* brush : document->selectedNodes().brushes())
+  for (auto* brush : document->selectedNodes().brushes)
   {
     for (const auto& tag : document->smartTags())
     {
@@ -1191,7 +1191,7 @@ void MapViewBase::showPopupMenuLater()
   beforePopupMenu();
 
   auto document = kdl::mem_lock(m_document);
-  const auto& nodes = document->selectedNodes().nodes();
+  const auto& nodes = document->selectedNodes().nodes;
   auto* newBrushParent = findNewParentEntityForBrushes(nodes);
   auto* currentGroup = document->editorContext().currentGroup();
   auto* newGroup = findNewGroupForObjects(nodes);
@@ -1475,7 +1475,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
 void MapViewBase::addSelectedObjectsToGroup()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = document->selectedNodes().nodes();
+  const auto nodes = document->selectedNodes().nodes;
   auto* newGroup = findNewGroupForObjects(nodes);
   ensure(newGroup != nullptr, "newGroup is null");
 
@@ -1489,7 +1489,7 @@ void MapViewBase::addSelectedObjectsToGroup()
 void MapViewBase::removeSelectedObjectsFromGroup()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = document->selectedNodes().nodes();
+  const auto nodes = document->selectedNodes().nodes;
   auto* currentGroup = document->editorContext().currentGroup();
   ensure(currentGroup != nullptr, "currentGroup is null");
 
@@ -1536,7 +1536,7 @@ mdl::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
 {
   using namespace mdl::HitFilters;
 
-  if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groups().size() >= 2))
+  if (!(selectedNodes.hasOnlyGroups() && selectedNodes.groups.size() >= 2))
   {
     return nullptr;
   }
@@ -1547,7 +1547,7 @@ mdl::GroupNode* MapViewBase::findGroupToMergeGroupsInto(
   {
     if (auto* mergeTarget = findOutermostClosedGroup(mdl::hitToNode(hits.front())))
     {
-      if (kdl::all_of(selectedNodes.nodes(), [&](const auto* node) {
+      if (kdl::all_of(selectedNodes.nodes, [&](const auto* node) {
             return node == mergeTarget || canReparentNode(node, mergeTarget);
           }))
       {
@@ -1567,7 +1567,7 @@ bool MapViewBase::canReparentNode(const mdl::Node* node, const mdl::Node* newPar
 void MapViewBase::moveSelectedBrushesToEntity()
 {
   auto document = kdl::mem_lock(m_document);
-  const auto nodes = document->selectedNodes().nodes();
+  const auto nodes = document->selectedNodes().nodes;
   auto* newParent = findNewParentEntityForBrushes(nodes);
   ensure(newParent != nullptr, "newParent is null");
 
@@ -1703,7 +1703,7 @@ bool MapViewBase::canMakeStructural() const
   auto document = kdl::mem_lock(m_document);
   if (document->selectedNodes().hasOnlyBrushes())
   {
-    const auto& brushes = document->selectedNodes().brushes();
+    const auto& brushes = document->selectedNodes().brushes;
     return std::any_of(brushes.begin(), brushes.end(), [&](const auto* brush) {
       return brush->hasAnyTag() || brush->entity() != document->world()
              || brush->anyFaceHasAnyTag();

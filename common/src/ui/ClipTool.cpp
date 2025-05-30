@@ -608,7 +608,7 @@ void ClipTool::performClip()
 
     // need to make a copies here so that we are not affected by the deselection
     const auto toAdd = clipBrushes();
-    const auto toRemove = document->selectedNodes().nodes();
+    const auto toRemove = document->selectedNodes().nodes;
     const auto addedNodes = document->addNodes(toAdd);
 
     document->deselectAll();
@@ -801,7 +801,7 @@ void ClipTool::updateBrushes()
 {
   auto document = kdl::mem_lock(m_document);
 
-  const auto& brushNodes = document->selectedNodes().brushes();
+  const auto& brushNodes = document->selectedNodes().brushes;
   const auto& worldBounds = document->worldBounds();
 
   const auto clip =

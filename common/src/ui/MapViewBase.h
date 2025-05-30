@@ -41,7 +41,7 @@ namespace tb::mdl
 struct EntityDefinition;
 class GroupNode;
 class Node;
-class NodeCollection;
+struct NodeCollection;
 class SmartTag;
 enum class EntityDefinitionType;
 } // namespace tb::mdl

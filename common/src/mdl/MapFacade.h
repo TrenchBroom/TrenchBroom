@@ -49,7 +49,7 @@ class LayerNode;
 class Material;
 class MaterialManager;
 class Node;
-class NodeCollection;
+struct NodeCollection;
 
 /**
  * Interface of MapDocument that is exposed to the Model package.

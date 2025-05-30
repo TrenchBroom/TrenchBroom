@@ -272,7 +272,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
 
   CHECK(document->selectedNodes().hasOnlyBrushes());
   CHECK_THAT(
-    document->selectedNodes().brushes(),
+    document->selectedNodes().brushes,
     Catch::Equals(std::vector<mdl::BrushNode*>{subtrahend1}));
 }
 

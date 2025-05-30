@@ -481,7 +481,7 @@ void EntityClassNameTagMatcher::disable(
 {
   // entities will be removed automatically when they become empty
 
-  const auto selectedBrushes = facade.selectedNodes().nodes();
+  const auto selectedBrushes = facade.selectedNodes().nodes;
   auto detailBrushes = std::vector<Node*>{};
   for (auto* brush : selectedBrushes)
   {

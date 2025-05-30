@@ -282,7 +282,7 @@ void MapView3D::reset2dCameras(const render::Camera&, const bool)
 void MapView3D::focusCameraOnSelection(const bool animate)
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto& nodes = document->selectedNodes().nodes(); !nodes.empty())
+  if (const auto& nodes = document->selectedNodes().nodes; !nodes.empty())
   {
     const auto newPosition = focusCameraOnObjectsPosition(nodes);
     moveCameraToPosition(newPosition, animate);

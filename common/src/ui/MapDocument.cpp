@@ -828,7 +828,7 @@ std::string MapDocument::serializeSelectedNodes()
 {
   std::stringstream stream;
   auto writer = io::NodeWriter{*m_world, stream};
-  writer.writeNodes(selectedNodes().nodes(), m_taskManager);
+  writer.writeNodes(selectedNodes().nodes, m_taskManager);
   return stream.str();
 }
 
@@ -1245,7 +1245,7 @@ std::vector<mdl::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
   }
 
   auto result = std::vector<mdl::EntityNodeBase*>{};
-  for (auto* node : m_selectedNodes.nodes())
+  for (auto* node : m_selectedNodes.nodes)
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, mdl::WorldNode* world) {
@@ -1273,7 +1273,7 @@ std::vector<mdl::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
 std::vector<mdl::BrushNode*> MapDocument::allSelectedBrushNodes() const
 {
   auto brushes = std::vector<mdl::BrushNode*>{};
-  for (auto* node : m_selectedNodes.nodes())
+  for (auto* node : m_selectedNodes.nodes)
   {
     node->accept(kdl::overload(
       [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
@@ -1303,7 +1303,7 @@ bool MapDocument::hasAnySelectedBrushNodes() const
     return false;
   };
 
-  for (const auto* node : m_selectedNodes.nodes())
+  for (const auto* node : m_selectedNodes.nodes)
   {
     const auto hasBrush = node->accept(kdl::overload(
       [&](auto&& thisLambda, const mdl::WorldNode* world) -> bool {
@@ -1341,7 +1341,7 @@ std::vector<mdl::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const
     return selectedBrushFaces();
   }
 
-  const auto faces = mdl::collectBrushFaces(m_selectedNodes.nodes());
+  const auto faces = mdl::collectBrushFaces(m_selectedNodes.nodes);
   return mdl::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces)
     .facesToSelect;
 }
@@ -1406,7 +1406,7 @@ void MapDocument::selectAllNodes()
 
 void MapDocument::selectSiblings()
 {
-  const auto& nodes = selectedNodes().nodes();
+  const auto& nodes = selectedNodes().nodes;
   if (nodes.empty())
   {
     return;
@@ -1436,7 +1436,7 @@ void MapDocument::selectTouching(const bool del)
 {
   const auto nodes = kdl::vec_filter(
     mdl::collectTouchingNodes(
-      std::vector<mdl::Node*>{m_world.get()}, m_selectedNodes.brushes()),
+      std::vector<mdl::Node*>{m_world.get()}, m_selectedNodes.brushes),
     [&](mdl::Node* node) { return m_editorContext->selectable(node); });
 
   auto transaction = Transaction{*this, "Select Touching"};
@@ -1456,7 +1456,7 @@ void MapDocument::selectInside(const bool del)
 {
   const auto nodes = kdl::vec_filter(
     mdl::collectContainedNodes(
-      std::vector<mdl::Node*>{m_world.get()}, m_selectedNodes.brushes()),
+      std::vector<mdl::Node*>{m_world.get()}, m_selectedNodes.brushes),
     [&](mdl::Node* node) { return m_editorContext->selectable(node); });
 
   auto transaction = Transaction{*this, "Select Inside"};
@@ -1640,7 +1640,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
   const auto minPlane = vm::plane3d{min, cameraAbsDirection};
   const auto maxPlane = vm::plane3d{max, cameraAbsDirection};
 
-  const auto& selectionBrushNodes = selectedNodes().brushes();
+  const auto& selectionBrushNodes = selectedNodes().brushes;
   assert(!selectionBrushNodes.empty());
 
   const auto brushBuilder = mdl::BrushBuilder{world()->mapFormat(), worldBounds()};
@@ -1718,7 +1718,7 @@ void MapDocument::invalidateSelectionBounds()
 
 void MapDocument::validateSelectionBounds() const
 {
-  m_selectionBounds = computeLogicalBounds(m_selectedNodes.nodes());
+  m_selectionBounds = computeLogicalBounds(m_selectedNodes.nodes);
   m_selectionBoundsValid = true;
 }
 
@@ -1979,7 +1979,7 @@ bool MapDocument::checkReparenting(
 
 void MapDocument::remove()
 {
-  const auto nodes = m_selectedNodes.nodes();
+  const auto nodes = m_selectedNodes.nodes;
 
   auto transaction = Transaction{*this, "Delete Objects"};
   deselectAll();
@@ -2035,7 +2035,7 @@ void MapDocument::duplicate()
   auto nodesToSelect = std::vector<mdl::Node*>{};
   auto newParentMap = std::map<mdl::Node*, mdl::Node*>{};
 
-  for (auto* original : selectedNodes().nodes())
+  for (auto* original : selectedNodes().nodes)
   {
     auto* suggestedParent = parentForNodes({original});
     auto* clone = original->cloneRecursively(m_worldBounds);
@@ -2143,7 +2143,7 @@ mdl::EntityNode* MapDocument::createBrushEntity(const mdl::EntityDefinition& def
     getType(definition) == mdl::EntityDefinitionType::Brush,
     "definition is a brush entity definition");
 
-  const auto brushes = selectedNodes().brushes();
+  const auto brushes = selectedNodes().brushes;
   assert(!brushes.empty());
 
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
@@ -2224,7 +2224,7 @@ mdl::GroupNode* MapDocument::groupSelection(const std::string& name)
     return nullptr;
   }
 
-  const auto nodes = collectGroupableNodes(selectedNodes().nodes(), world());
+  const auto nodes = collectGroupableNodes(selectedNodes().nodes, world());
   if (nodes.empty())
   {
     return nullptr;
@@ -2258,7 +2258,7 @@ void MapDocument::mergeSelectedGroupsWithGroup(mdl::GroupNode* group)
     return;
   }
 
-  const auto groupsToMerge = m_selectedNodes.groups();
+  const auto groupsToMerge = m_selectedNodes.groups;
 
   auto transaction = Transaction{*this, "Merge Groups"};
   deselectAll();
@@ -2289,7 +2289,7 @@ void MapDocument::ungroupSelection()
   auto transaction = Transaction{*this, "Ungroup"};
   separateSelectedLinkedGroups(false);
 
-  const auto selectedNodes = m_selectedNodes.nodes();
+  const auto selectedNodes = m_selectedNodes.nodes;
   auto nodesToReselect = std::vector<mdl::Node*>{};
 
   deselectAll();
@@ -2325,11 +2325,11 @@ void MapDocument::renameGroups(const std::string& name)
   if (hasSelectedNodes() && m_selectedNodes.hasOnlyGroups())
   {
     const auto commandName =
-      kdl::str_plural("Rename ", m_selectedNodes.groups().size(), "Group", "Groups");
+      kdl::str_plural("Rename ", m_selectedNodes.groups.size(), "Group", "Groups");
     applyAndSwap(
       *this,
       commandName,
-      m_selectedNodes.groups(),
+      m_selectedNodes.groups,
       {},
       kdl::overload(
         [](mdl::Layer&) { return true; },
@@ -2394,7 +2394,7 @@ mdl::GroupNode* MapDocument::createLinkedDuplicate()
 
   auto transaction = Transaction{*this, "Create Linked Duplicate"};
 
-  auto* groupNode = m_selectedNodes.groups().front();
+  auto* groupNode = m_selectedNodes.groups.front();
   auto* groupNodeClone =
     static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(m_worldBounds));
   auto* suggestedParent = parentForNodes({groupNode});
@@ -2414,7 +2414,7 @@ mdl::GroupNode* MapDocument::createLinkedDuplicate()
 
 bool MapDocument::canCreateLinkedDuplicate() const
 {
-  return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groups().size() == 1u;
+  return m_selectedNodes.hasOnlyGroups() && m_selectedNodes.groups.size() == 1u;
 }
 
 void MapDocument::selectLinkedGroups()
@@ -2425,7 +2425,7 @@ void MapDocument::selectLinkedGroups()
   }
 
   const auto linkIdsToSelect = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
+    m_selectedNodes.groups, [](const auto* groupNode) { return groupNode->linkId(); }));
   const auto groupNodesToSelect =
     kdl::vec_flatten(kdl::vec_transform(linkIdsToSelect, [&](const auto& linkId) {
       return mdl::collectNodesWithLinkId({m_world.get()}, linkId);
@@ -2448,7 +2448,7 @@ bool MapDocument::canSelectLinkedGroups() const
     mdl::collectGroups({m_world.get()}),
     [](const auto& groupNode) { return groupNode->linkId(); }));
 
-  return kdl::all_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
+  return kdl::all_of(m_selectedNodes.groups, [&](const auto* groupNode) {
     const auto [iBegin, iEnd] =
       std::equal_range(allLinkIds.begin(), allLinkIds.end(), groupNode->linkId());
     return std::distance(iBegin, iEnd) > 1;
@@ -2523,7 +2523,7 @@ void MapDocument::separateLinkedGroups()
 
 bool MapDocument::canSeparateLinkedGroups() const
 {
-  return kdl::any_of(m_selectedNodes.groups(), [&](const auto* groupNode) {
+  return kdl::any_of(m_selectedNodes.groups, [&](const auto* groupNode) {
     const auto linkedGroups =
       mdl::collectNodesWithLinkId({m_world.get()}, groupNode->linkId());
     return linkedGroups.size() > 1u
@@ -2599,7 +2599,7 @@ bool MapDocument::updateLinkedGroups()
 void MapDocument::separateSelectedLinkedGroups(const bool relinkGroups)
 {
   const auto selectedLinkIds = kdl::vec_sort_and_remove_duplicates(kdl::vec_transform(
-    m_selectedNodes.groups(), [](const auto* groupNode) { return groupNode->linkId(); }));
+    m_selectedNodes.groups, [](const auto* groupNode) { return groupNode->linkId(); }));
 
   auto groupsToUnlink = std::vector<mdl::GroupNode*>{};
   auto groupsToRelink = std::vector<std::vector<mdl::GroupNode*>>{};
@@ -2751,7 +2751,7 @@ bool MapDocument::canMoveLayer(mdl::LayerNode* layer, const int offset) const
 
 void MapDocument::moveSelectionToLayer(mdl::LayerNode* layer)
 {
-  const auto& selectedNodes = this->selectedNodes().nodes();
+  const auto& selectedNodes = this->selectedNodes().nodes;
 
   auto nodesToMove = std::vector<mdl::Node*>{};
   auto nodesToSelect = std::vector<mdl::Node*>{};
@@ -2825,7 +2825,7 @@ void MapDocument::moveSelectionToLayer(mdl::LayerNode* layer)
 bool MapDocument::canMoveSelectionToLayer(mdl::LayerNode* layer) const
 {
   ensure(layer != nullptr, "null layer");
-  const auto& nodes = selectedNodes().nodes();
+  const auto& nodes = selectedNodes().nodes;
 
   const bool isAnyNodeInGroup =
     std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) {
@@ -2948,7 +2948,7 @@ void MapDocument::hide(const std::vector<mdl::Node*> nodes)
 
 void MapDocument::hideSelection()
 {
-  hide(m_selectedNodes.nodes());
+  hide(m_selectedNodes.nodes);
 }
 
 void MapDocument::show(const std::vector<mdl::Node*>& nodes)
@@ -3083,7 +3083,7 @@ bool MapDocument::transform(
   auto nodesToTransform = std::vector<mdl::Node*>{};
   auto entitiesToTransform = std::unordered_map<mdl::EntityNodeBase*, size_t>{};
 
-  for (auto* node : m_selectedNodes.nodes())
+  for (auto* node : m_selectedNodes.nodes)
   {
     node->accept(kdl::overload(
       [&](auto&& thisLambda, mdl::WorldNode* worldNode) {
@@ -3179,7 +3179,7 @@ bool MapDocument::transform(
              const auto success = swapNodeContents(
                commandName,
                std::move(nodesToUpdate),
-               collectContainingGroups(m_selectedNodes.nodes()));
+               collectContainingGroups(m_selectedNodes.nodes));
 
              if (success)
              {
@@ -3284,7 +3284,7 @@ bool MapDocument::csgConvexMerge()
   }
   else if (selectedNodes().hasOnlyBrushes())
   {
-    for (const auto* brushNode : selectedNodes().brushes())
+    for (const auto* brushNode : selectedNodes().brushes)
     {
       for (const auto* vertex : brushNode->brush().vertices())
       {
@@ -3304,18 +3304,18 @@ bool MapDocument::csgConvexMerge()
   return builder.createBrush(polyhedron, currentMaterialName())
          | kdl::transform([&](auto b) {
              b.cloneFaceAttributesFrom(kdl::vec_transform(
-               selectedNodes().brushes(),
+               selectedNodes().brushes,
                [](const auto* brushNode) { return &brushNode->brush(); }));
 
              // The nodelist is either empty or contains only brushes.
-             const auto toRemove = selectedNodes().nodes();
+             const auto toRemove = selectedNodes().nodes;
 
              // We could be merging brushes that have different parents; use the parent
              // of the first brush.
              auto* parentNode = static_cast<mdl::Node*>(nullptr);
-             if (!selectedNodes().brushes().empty())
+             if (!selectedNodes().brushes.empty())
              {
-               parentNode = selectedNodes().brushes().front()->parent();
+               parentNode = selectedNodes().brushes.front()->parent();
              }
              else if (!selectedBrushFaces().empty())
              {
@@ -3345,7 +3345,7 @@ bool MapDocument::csgConvexMerge()
 
 bool MapDocument::csgSubtract()
 {
-  const auto subtrahendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes()};
+  const auto subtrahendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes};
   if (subtrahendNodes.empty())
   {
     return false;
@@ -3355,7 +3355,7 @@ bool MapDocument::csgSubtract()
   // Select touching, but don't delete the subtrahends yet
   selectTouching(false);
 
-  const auto minuendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes()};
+  const auto minuendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes};
   const auto subtrahends = kdl::vec_transform(
     subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
 
@@ -3405,7 +3405,7 @@ bool MapDocument::csgSubtract()
 
 bool MapDocument::csgIntersect()
 {
-  const auto brushes = selectedNodes().brushes();
+  const auto brushes = selectedNodes().brushes;
   if (brushes.size() < 2u)
   {
     return false;
@@ -3452,7 +3452,7 @@ bool MapDocument::csgIntersect()
 
 bool MapDocument::csgHollow()
 {
-  const auto brushNodes = selectedNodes().brushes();
+  const auto brushNodes = selectedNodes().brushes;
   if (brushNodes.empty())
   {
     return false;
@@ -3515,7 +3515,7 @@ bool MapDocument::clipBrushes(
   const vm::vec3d& p1, const vm::vec3d& p2, const vm::vec3d& p3)
 {
   return kdl::vec_transform(
-           m_selectedNodes.brushes(),
+           m_selectedNodes.brushes,
            [&](const mdl::BrushNode* originalBrush) {
              auto clippedBrush = originalBrush->brush();
              return mdl::BrushFace::create(
@@ -3535,7 +3535,7 @@ bool MapDocument::clipBrushes(
          | kdl::fold | kdl::and_then([&](auto&& clippedBrushAndParents) -> Result<void> {
              auto toAdd = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
              const auto toRemove =
-               kdl::vec_static_cast<mdl::Node*>(m_selectedNodes.brushes());
+               kdl::vec_static_cast<mdl::Node*>(m_selectedNodes.brushes);
 
              for (auto& [parentNode, clippedBrush] : clippedBrushAndParents)
              {
@@ -3821,7 +3821,7 @@ void MapDocument::setDefaultProperties(const mdl::SetDefaultPropertyMode mode)
 bool MapDocument::extrudeBrushes(
   const std::vector<vm::polygon3d>& faces, const vm::vec3d& delta)
 {
-  const auto nodes = m_selectedNodes.nodes();
+  const auto nodes = m_selectedNodes.nodes;
   return applyAndSwap(
     *this,
     "Resize Brushes",
@@ -3996,7 +3996,7 @@ MapDocument::TransformVerticesResult MapDocument::transformVertices(
 {
   auto newVertexPositions = std::vector<vm::vec3d>{};
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(),
+    m_selectedNodes.nodes,
     kdl::overload(
       [](mdl::Layer&) { return true; },
       [](mdl::Group&) { return true; },
@@ -4075,7 +4075,7 @@ bool MapDocument::transformEdges(
 {
   auto newEdgePositions = std::vector<vm::segment3d>{};
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(),
+    m_selectedNodes.nodes,
     kdl::overload(
       [](mdl::Layer&) { return true; },
       [](mdl::Group&) { return true; },
@@ -4143,7 +4143,7 @@ bool MapDocument::transformFaces(
 {
   auto newFacePositions = std::vector<vm::polygon3d>{};
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(),
+    m_selectedNodes.nodes,
     kdl::overload(
       [](mdl::Layer&) { return true; },
       [](mdl::Group&) { return true; },
@@ -4209,7 +4209,7 @@ bool MapDocument::transformFaces(
 bool MapDocument::addVertex(const vm::vec3d& vertexPosition)
 {
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(),
+    m_selectedNodes.nodes,
     kdl::overload(
       [](mdl::Layer&) { return true; },
       [](mdl::Group&) { return true; },
@@ -4258,7 +4258,7 @@ bool MapDocument::removeVertices(
   const std::string& commandName, std::vector<vm::vec3d> vertexPositions)
 {
   auto newNodes = applyToNodeContents(
-    m_selectedNodes.nodes(),
+    m_selectedNodes.nodes,
     kdl::overload(
       [](mdl::Layer&) { return true; },
       [](mdl::Group&) { return true; },
@@ -4326,7 +4326,7 @@ void MapDocument::printVertices()
   }
   else if (selectedNodes().hasBrushes())
   {
-    for (const mdl::BrushNode* brushNode : selectedNodes().brushes())
+    for (const mdl::BrushNode* brushNode : selectedNodes().brushes)
     {
       const mdl::Brush& brush = brushNode->brush();
 

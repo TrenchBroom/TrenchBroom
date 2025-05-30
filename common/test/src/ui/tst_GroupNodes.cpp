@@ -266,7 +266,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
       document->selectNodes({brushNode});
       duplicateOrCopyPaste();
 
-      const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+      const auto* brushNodeCopy = document->selectedNodes().brushes.at(0u);
       CHECK(brushNodeCopy->linkId() != brushNode->linkId());
 
       const auto* entityNodeCopy =
@@ -288,7 +288,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
       document->selectNodes({entityNode});
       duplicateOrCopyPaste();
 
-      const auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+      const auto* brushNodeCopy = document->selectedNodes().brushes.at(0u);
       CHECK(brushNodeCopy->linkId() != brushNode->linkId());
 
       const auto* entityNodeCopy =
@@ -312,7 +312,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
 
     duplicateOrCopyPaste();
 
-    auto* groupNodeCopy = document->selectedNodes().groups().at(0u);
+    auto* groupNodeCopy = document->selectedNodes().groups.at(0u);
     CHECK(groupNodeCopy->linkId() == groupNode->linkId());
   }
 
@@ -333,7 +333,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
     document->selectNodes({brushNode});
     duplicateOrCopyPaste();
 
-    auto* brushNodeCopy = document->selectedNodes().brushes().at(0u);
+    auto* brushNodeCopy = document->selectedNodes().brushes.at(0u);
     CHECK(brushNodeCopy->linkId() != brushNode->linkId());
   }
 
@@ -360,7 +360,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
     document->selectNodes({innerGroupNode});
     duplicateOrCopyPaste();
 
-    auto* innerGroupNodeCopy = document->selectedNodes().groups().at(0u);
+    auto* innerGroupNodeCopy = document->selectedNodes().groups.at(0u);
     CHECK(innerGroupNodeCopy->linkId() == innerGroupNode->linkId());
   }
 
@@ -385,7 +385,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
 
     duplicateOrCopyPaste();
 
-    const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0u);
+    const auto* outerGroupNodeCopy = document->selectedNodes().groups.at(0u);
     const auto [groupNodeCopy, outerBrushNodeCopy] =
       getChildrenAs<mdl::GroupNode, mdl::BrushNode>(*outerGroupNodeCopy);
 
@@ -431,7 +431,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
 
     duplicateOrCopyPaste();
 
-    const auto* outerGroupNodeCopy = document->selectedNodes().groups().at(0);
+    const auto* outerGroupNodeCopy = document->selectedNodes().groups.at(0);
     REQUIRE(outerGroupNodeCopy != nullptr);
     REQUIRE(outerGroupNodeCopy->childCount() == 3u);
 
@@ -515,12 +515,11 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesPointEntitySelect
 
   auto* groupNode = document->groupSelection("Group");
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<mdl::Node*>{groupNode}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{groupNode}));
 
   document->ungroupSelection();
   CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<mdl::Node*>{entityNode1}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{entityNode1}));
 }
 
 TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelected")
@@ -536,8 +535,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   document->addNodes({{entityNode1, {brushNode1}}});
   document->selectNodes({entityNode1});
   CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
   CHECK_FALSE(entityNode1->selected());
   CHECK(brushNode1->selected());
 
@@ -545,15 +543,14 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   CHECK_THAT(groupNode->children(), Catch::Equals(std::vector<mdl::Node*>{entityNode1}));
   CHECK_THAT(entityNode1->children(), Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
   CHECK_THAT(
-    document->selectedNodes().nodes(), Catch::Equals(std::vector<mdl::Node*>{groupNode}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{groupNode}));
   CHECK(document->allSelectedBrushNodes() == std::vector<mdl::BrushNode*>{brushNode1});
   CHECK(document->hasAnySelectedBrushNodes());
   CHECK(!document->selectedNodes().hasBrushes());
 
   document->ungroupSelection();
   CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
   CHECK_FALSE(entityNode1->selected());
   CHECK(brushNode1->selected());
 }
@@ -571,12 +568,12 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupGroupAndPointEntity")
   auto* groupNode = document->groupSelection("Group");
   document->selectNodes({entityNode2});
   CHECK_THAT(
-    document->selectedNodes().nodes(),
+    document->selectedNodes().nodes,
     Catch::UnorderedEquals(std::vector<mdl::Node*>{groupNode, entityNode2}));
 
   document->ungroupSelection();
   CHECK_THAT(
-    document->selectedNodes().nodes(),
+    document->selectedNodes().nodes,
     Catch::UnorderedEquals(std::vector<mdl::Node*>{entityNode1, entityNode2}));
 }
 
@@ -605,8 +602,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.mergeGroups")
   document->mergeSelectedGroupsWithGroup(groupNode2);
 
   CHECK_THAT(
-    document->selectedNodes().nodes(),
-    Catch::Equals(std::vector<mdl::Node*>{groupNode2}));
+    document->selectedNodes().nodes, Catch::Equals(std::vector<mdl::Node*>{groupNode2}));
   CHECK_THAT(
     document->currentLayer()->children(),
     Catch::Equals(std::vector<mdl::Node*>{groupNode2}));
@@ -856,7 +852,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.selectLinkedGroups")
     REQUIRE(document->canSelectLinkedGroups());
     document->selectLinkedGroups();
     CHECK_THAT(
-      document->selectedNodes().nodes(),
+      document->selectedNodes().nodes,
       Catch::UnorderedEquals(std::vector<mdl::Node*>{groupNode, linkedGroupNode}));
   }
 }
@@ -947,7 +943,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(linkedBrushNode2->linkId() != originalBrushLinkId);
     CHECK(linkedBrushNode3->linkId() == linkedBrushNode2->linkId());
 
-    CHECK(document->selectedNodes().groups().size() == 2u);
+    CHECK(document->selectedNodes().groups.size() == 2u);
 
     document->undoCommand();
 
