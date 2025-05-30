@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include "mdl/BrushFaceHandle.h"
+
 #include "kdl/reflection_decl.h"
 
 #include <vector>
@@ -40,11 +42,13 @@ struct Selection
   std::vector<EntityNode*> entities;
   std::vector<BrushNode*> brushes;
   std::vector<PatchNode*> patches;
+  std::vector<mdl::BrushFaceHandle> brushFaces;
 
-  kdl_reflect_decl(Selection, nodes, layers, groups, entities, brushes, patches);
+  kdl_reflect_decl(
+    Selection, nodes, layers, groups, entities, brushes, patches, brushFaces);
 
+  bool hasAny() const;
   bool hasNodes() const;
-
   bool hasLayers() const;
   bool hasOnlyLayers() const;
   bool hasGroups() const;
@@ -55,6 +59,7 @@ struct Selection
   bool hasOnlyBrushes() const;
   bool hasPatches() const;
   bool hasOnlyPatches() const;
+  bool hasBrushFaces() const;
 
   void addNodes(const std::vector<Node*>& nodes);
   void addNode(Node* node);

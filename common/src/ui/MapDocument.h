@@ -144,8 +144,7 @@ protected:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mdl::Selection m_selectedNodes;
-  std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
+  mdl::Selection m_selection;
 
   VertexHandleManager m_vertexHandles;
   EdgeHandleManager m_edgeHandles;
