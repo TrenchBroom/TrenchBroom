@@ -191,8 +191,7 @@ mdl::Hit ExtrudeTool::pick2D(
     return mdl::Hit::NoHit;
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -241,8 +240,7 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(document->selectedNodes().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -338,7 +336,7 @@ void ExtrudeTool::updateProposedDragHandles(const mdl::PickResult& pickResult)
   }
 
   const auto& hit = pickResult.first(type(ExtrudeHitType));
-  const auto& nodes = document->selectedNodes().nodes();
+  const auto& nodes = document->selectedNodes().nodes;
 
   auto newDragHandles = getDragHandles(nodes, hit);
   if (newDragHandles != m_proposedDragHandles)

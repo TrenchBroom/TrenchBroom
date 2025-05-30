@@ -223,7 +223,7 @@ auto collectSelectedLinks(const mdl::NodeCollection& selectedNodes, Visitor visi
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
-  for (auto* node : selectedNodes.nodes())
+  for (auto* node : selectedNodes.nodes)
   {
     node->accept(kdl::overload(
       [](const mdl::WorldNode*) {},

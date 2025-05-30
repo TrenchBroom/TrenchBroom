@@ -434,7 +434,7 @@ TEST_CASE_METHOD(MapDocumentTest, "EntityNodesTest.updateSpawnflagOnBrushEntity"
 
   auto* brushEntNode = document->createBrushEntity(*m_brushEntityDef);
   REQUIRE_THAT(
-    document->selectedNodes().nodes(),
+    document->selectedNodes().nodes,
     Catch::UnorderedEquals(std::vector<mdl::Node*>{brushNode}));
 
   REQUIRE(!brushEntNode->entity().hasProperty("spawnflags"));

@@ -303,8 +303,8 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
 
   const auto delta = vm::vec3d{16, 16, 16};
   CHECK(document->paste(copied) == PasteType::Node);
-  CHECK(document->selectedNodes().groups().size() == 1u);
-  CHECK(document->selectedNodes().groups().at(0)->name() == groupName);
+  CHECK(document->selectedNodes().groups.size() == 1u);
+  CHECK(document->selectedNodes().groups.at(0)->name() == groupName);
   CHECK(document->translate(delta));
   CHECK(document->selectionBounds() == box.translate(delta));
 }
@@ -328,9 +328,9 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup")
 
   CHECK(document->paste(data) == PasteType::Node);
   CHECK(document->selectedNodes().hasOnlyEntities());
-  CHECK(document->selectedNodes().entities().size() == 1u);
+  CHECK(document->selectedNodes().entities.size() == 1u);
 
-  auto* light = document->selectedNodes().entities().front();
+  auto* light = document->selectedNodes().entities.front();
   CHECK(light->parent() == groupNode);
 }
 
@@ -561,23 +561,23 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
   const auto& worldNode = *document->world();
 
   const auto& defaultLayerNode = *worldNode.defaultLayer();
-  REQUIRE(document->selectedNodes().brushes().size() == 0u);
+  REQUIRE(document->selectedNodes().brushes.size() == 0u);
   REQUIRE(defaultLayerNode.childCount() == 0u);
 
   REQUIRE(document->paste(data) == PasteType::Node);
   REQUIRE(defaultLayerNode.childCount() == 1u);
   REQUIRE(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
-  REQUIRE(document->selectedNodes().brushes().size() == 1u);
+  REQUIRE(document->selectedNodes().brushes.size() == 1u);
 
   CHECK(document->canUndoCommand());
   document->undoCommand();
   CHECK(defaultLayerNode.childCount() == 0u);
-  CHECK(document->selectedNodes().brushes().size() == 0u);
+  CHECK(document->selectedNodes().brushes.size() == 0u);
 
   document->redoCommand();
   CHECK(defaultLayerNode.childCount() == 1u);
   CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
-  CHECK(document->selectedNodes().brushes().size() == 1u);
+  CHECK(document->selectedNodes().brushes.size() == 1u);
 }
 
 } // namespace tb::ui

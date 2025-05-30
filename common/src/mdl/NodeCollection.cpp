@@ -26,114 +26,75 @@
 #include "mdl/LayerNode.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
-#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
 
 #include <algorithm>
-#include <vector>
 
 namespace tb::mdl
 {
 
 kdl_reflect_impl(NodeCollection);
 
-NodeCollection::NodeCollection() = default;
-
-NodeCollection::NodeCollection(const std::vector<Node*>& nodes)
-{
-  addNodes(nodes);
-}
-
 bool NodeCollection::empty() const
 {
-  return m_nodes.empty();
+  return nodes.empty();
 }
 
 bool NodeCollection::hasLayers() const
 {
-  return !m_layers.empty();
+  return !layers.empty();
 }
 
 bool NodeCollection::hasOnlyLayers() const
 {
-  return !empty() && m_nodes.size() == m_layers.size();
+  return !empty() && nodes.size() == layers.size();
 }
 
 bool NodeCollection::hasGroups() const
 {
-  return !m_groups.empty();
+  return !groups.empty();
 }
 
 bool NodeCollection::hasOnlyGroups() const
 {
-  return !empty() && m_nodes.size() == m_groups.size();
+  return !empty() && nodes.size() == groups.size();
 }
 
 bool NodeCollection::hasEntities() const
 {
-  return !m_entities.empty();
+  return !entities.empty();
 }
 
 bool NodeCollection::hasOnlyEntities() const
 {
-  return !empty() && m_nodes.size() == m_entities.size();
+  return !empty() && nodes.size() == entities.size();
 }
 
 bool NodeCollection::hasBrushes() const
 {
-  return !m_brushes.empty();
+  return !brushes.empty();
 }
 
 bool NodeCollection::hasOnlyBrushes() const
 {
-  return !empty() && m_nodes.size() == m_brushes.size();
+  return !empty() && nodes.size() == brushes.size();
 }
 
 bool NodeCollection::hasPatches() const
 {
-  return !m_patches.empty();
+  return !patches.empty();
 }
 
 bool NodeCollection::hasOnlyPatches() const
 {
-  return !empty() && m_nodes.size() == m_patches.size();
+  return !empty() && nodes.size() == patches.size();
 }
 
-const std::vector<Node*>& NodeCollection::nodes() const
+void NodeCollection::addNodes(const std::vector<Node*>& nodesToAdd)
 {
-  return m_nodes;
-}
-
-const std::vector<LayerNode*>& NodeCollection::layers() const
-{
-  return m_layers;
-}
-
-const std::vector<mdl::GroupNode*>& NodeCollection::groups() const
-{
-  return m_groups;
-}
-
-const std::vector<EntityNode*>& NodeCollection::entities() const
-{
-  return m_entities;
-}
-
-const std::vector<BrushNode*>& NodeCollection::brushes() const
-{
-  return m_brushes;
-}
-
-const std::vector<PatchNode*>& NodeCollection::patches() const
-{
-  return m_patches;
-}
-
-void NodeCollection::addNodes(const std::vector<Node*>& nodes)
-{
-  for (auto* node : nodes)
+  for (auto* node : nodesToAdd)
   {
     addNode(node);
   }
@@ -145,24 +106,24 @@ void NodeCollection::addNode(Node* node)
   node->accept(kdl::overload(
     [](WorldNode*) {},
     [&](LayerNode* layer) {
-      m_nodes.push_back(layer);
-      m_layers.push_back(layer);
+      nodes.push_back(layer);
+      layers.push_back(layer);
     },
     [&](GroupNode* group) {
-      m_nodes.push_back(group);
-      m_groups.push_back(group);
+      nodes.push_back(group);
+      groups.push_back(group);
     },
     [&](EntityNode* entity) {
-      m_nodes.push_back(entity);
-      m_entities.push_back(entity);
+      nodes.push_back(entity);
+      entities.push_back(entity);
     },
     [&](BrushNode* brush) {
-      m_nodes.push_back(brush);
-      m_brushes.push_back(brush);
+      nodes.push_back(brush);
+      brushes.push_back(brush);
     },
     [&](PatchNode* patch) {
-      m_nodes.push_back(patch);
-      m_patches.push_back(patch);
+      nodes.push_back(patch);
+      patches.push_back(patch);
     }));
 }
 
@@ -217,41 +178,42 @@ static const auto doRemoveNodes = [](
   patches.erase(patchEnd, std::end(patches));
 };
 
-void NodeCollection::removeNodes(const std::vector<Node*>& nodes)
+void NodeCollection::removeNodes(const std::vector<Node*>& nodesToRemovew)
 {
   doRemoveNodes(
-    m_nodes,
-    m_layers,
-    m_groups,
-    m_entities,
-    m_brushes,
-    m_patches,
-    std::begin(nodes),
-    std::end(nodes));
+    nodes,
+    layers,
+    groups,
+    entities,
+    brushes,
+    patches,
+    std::begin(nodesToRemovew),
+    std::end(nodesToRemovew));
 }
 
 void NodeCollection::removeNode(Node* node)
 {
   ensure(node != nullptr, "node is null");
   doRemoveNodes(
-    m_nodes,
-    m_layers,
-    m_groups,
-    m_entities,
-    m_brushes,
-    m_patches,
-    &node,
-    std::next(&node));
+    nodes, layers, groups, entities, brushes, patches, &node, std::next(&node));
 }
 
 void NodeCollection::clear()
 {
-  m_nodes.clear();
-  m_layers.clear();
-  m_groups.clear();
-  m_entities.clear();
-  m_brushes.clear();
-  m_patches.clear();
+  nodes.clear();
+  layers.clear();
+  groups.clear();
+  entities.clear();
+  brushes.clear();
+  patches.clear();
 }
+
+NodeCollection makeNodeCollection(const std::vector<Node*>& nodes)
+{
+  auto result = NodeCollection{};
+  result.addNodes(nodes);
+  return result;
+}
+
 
 } // namespace tb::mdl
