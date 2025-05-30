@@ -145,6 +145,7 @@ protected:
   size_t m_modificationCount = 0;
 
   mutable std::optional<mdl::Selection> m_cachedSelection;
+  mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
 
   VertexHandleManager m_vertexHandles;
   EdgeHandleManager m_edgeHandles;
@@ -153,7 +154,6 @@ protected:
   mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
   std::optional<vm::bbox3d> m_lastSelectionBounds;
-  mutable std::optional<vm::bbox3d> m_selectionBounds;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
@@ -431,7 +431,6 @@ public: // selection
 
 protected:
   void updateLastSelectionBounds();
-  void invalidateSelectionBounds();
 
 public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade
         // interface
@@ -819,6 +818,9 @@ private:
 
 private: // observers
   void connectObservers();
+  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void selectionWillChange();
   void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsWillChange();

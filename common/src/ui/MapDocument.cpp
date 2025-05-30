@@ -1391,11 +1391,11 @@ const std::optional<vm::bbox3d>& MapDocument::lastSelectionBounds() const
 
 const std::optional<vm::bbox3d>& MapDocument::selectionBounds() const
 {
-  if (!m_selectionBounds && selection().hasNodes())
+  if (!m_cachedSelectionBounds && selection().hasNodes())
   {
-    m_selectionBounds = computeLogicalBounds(selection().nodes);
+    m_cachedSelectionBounds = computeLogicalBounds(selection().nodes);
   }
-  return m_selectionBounds;
+  return m_cachedSelectionBounds;
 }
 
 const std::string& MapDocument::currentMaterialName() const
@@ -1721,11 +1721,6 @@ void MapDocument::updateLastSelectionBounds()
   {
     m_lastSelectionBounds = selectionBounds();
   }
-}
-
-void MapDocument::invalidateSelectionBounds()
-{
-  m_selectionBounds = std::nullopt;
 }
 
 /**
@@ -5296,6 +5291,13 @@ void MapDocument::clearModificationCount()
 void MapDocument::connectObservers()
 {
   m_notifierConnection +=
+    nodesWereAddedNotifier.connect(this, &MapDocument::nodesWereAdded);
+  m_notifierConnection +=
+    nodesWereRemovedNotifier.connect(this, &MapDocument::nodesWereRemoved);
+  m_notifierConnection +=
+    nodesDidChangeNotifier.connect(this, &MapDocument::nodesDidChange);
+
+  m_notifierConnection +=
     selectionDidChangeNotifier.connect(this, &MapDocument::selectionDidChange);
   m_notifierConnection +=
     selectionWillChangeNotifier.connect(this, &MapDocument::selectionWillChange);
@@ -5347,6 +5349,23 @@ void MapDocument::connectObservers()
     this, &MapDocument::updateFaceTagsAfterResourcesWhereProcessed);
 }
 
+void MapDocument::nodesWereAdded(const std::vector<mdl::Node*>&)
+{
+  m_cachedSelection = std::nullopt;
+  m_cachedSelectionBounds = std::nullopt;
+}
+
+void MapDocument::nodesWereRemoved(const std::vector<mdl::Node*>&)
+{
+  m_cachedSelection = std::nullopt;
+  m_cachedSelectionBounds = std::nullopt;
+}
+
+void MapDocument::nodesDidChange(const std::vector<mdl::Node*>&)
+{
+  m_cachedSelectionBounds = std::nullopt;
+}
+
 void MapDocument::selectionWillChange()
 {
   updateLastSelectionBounds();
@@ -5355,8 +5374,8 @@ void MapDocument::selectionWillChange()
 void MapDocument::selectionDidChange(const SelectionChange&)
 {
   m_repeatStack->clearOnNextPush();
-  invalidateSelectionBounds();
   m_cachedSelection = std::nullopt;
+  m_cachedSelectionBounds = std::nullopt;
 }
 
 void MapDocument::materialCollectionsWillChange()
