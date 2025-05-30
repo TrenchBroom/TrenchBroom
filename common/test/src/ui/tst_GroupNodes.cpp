@@ -947,7 +947,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodestTest.separateGroups")
     CHECK(linkedBrushNode2->linkId() != originalBrushLinkId);
     CHECK(linkedBrushNode3->linkId() == linkedBrushNode2->linkId());
 
-    CHECK(document->selectedNodes().groupCount() == 2u);
+    CHECK(document->selectedNodes().groups().size() == 2u);
 
     document->undoCommand();
 

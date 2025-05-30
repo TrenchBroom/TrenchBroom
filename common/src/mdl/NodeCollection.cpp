@@ -51,36 +51,6 @@ bool NodeCollection::empty() const
   return m_nodes.empty();
 }
 
-size_t NodeCollection::nodeCount() const
-{
-  return m_nodes.size();
-}
-
-size_t NodeCollection::layerCount() const
-{
-  return m_layers.size();
-}
-
-size_t NodeCollection::groupCount() const
-{
-  return m_groups.size();
-}
-
-size_t NodeCollection::entityCount() const
-{
-  return m_entities.size();
-}
-
-size_t NodeCollection::brushCount() const
-{
-  return m_brushes.size();
-}
-
-size_t NodeCollection::patchCount() const
-{
-  return m_patches.size();
-}
-
 bool NodeCollection::hasLayers() const
 {
   return !m_layers.empty();
@@ -88,7 +58,7 @@ bool NodeCollection::hasLayers() const
 
 bool NodeCollection::hasOnlyLayers() const
 {
-  return !empty() && nodeCount() == layerCount();
+  return !empty() && m_nodes.size() == m_layers.size();
 }
 
 bool NodeCollection::hasGroups() const
@@ -98,7 +68,7 @@ bool NodeCollection::hasGroups() const
 
 bool NodeCollection::hasOnlyGroups() const
 {
-  return !empty() && nodeCount() == groupCount();
+  return !empty() && m_nodes.size() == m_groups.size();
 }
 
 bool NodeCollection::hasEntities() const
@@ -108,7 +78,7 @@ bool NodeCollection::hasEntities() const
 
 bool NodeCollection::hasOnlyEntities() const
 {
-  return !empty() && nodeCount() == entityCount();
+  return !empty() && m_nodes.size() == m_entities.size();
 }
 
 bool NodeCollection::hasBrushes() const
@@ -118,7 +88,7 @@ bool NodeCollection::hasBrushes() const
 
 bool NodeCollection::hasOnlyBrushes() const
 {
-  return !empty() && nodeCount() == brushCount();
+  return !empty() && m_nodes.size() == m_brushes.size();
 }
 
 bool NodeCollection::hasPatches() const
@@ -128,7 +98,7 @@ bool NodeCollection::hasPatches() const
 
 bool NodeCollection::hasOnlyPatches() const
 {
-  return !empty() && nodeCount() == patchCount();
+  return !empty() && m_nodes.size() == m_patches.size();
 }
 
 std::vector<Node*>::iterator NodeCollection::begin()
