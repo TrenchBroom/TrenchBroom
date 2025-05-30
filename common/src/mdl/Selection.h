@@ -37,20 +37,16 @@ class PatchNode;
 struct Selection
 {
   std::vector<Node*> nodes;
-  std::vector<LayerNode*> layers;
   std::vector<GroupNode*> groups;
   std::vector<EntityNode*> entities;
   std::vector<BrushNode*> brushes;
   std::vector<PatchNode*> patches;
   std::vector<mdl::BrushFaceHandle> brushFaces;
 
-  kdl_reflect_decl(
-    Selection, nodes, layers, groups, entities, brushes, patches, brushFaces);
+  kdl_reflect_decl(Selection, nodes, groups, entities, brushes, patches, brushFaces);
 
   bool hasAny() const;
   bool hasNodes() const;
-  bool hasLayers() const;
-  bool hasOnlyLayers() const;
   bool hasGroups() const;
   bool hasOnlyGroups() const;
   bool hasEntities() const;

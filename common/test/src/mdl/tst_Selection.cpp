@@ -25,8 +25,6 @@
 #include "mdl/EntityNode.h"
 #include "mdl/Group.h"
 #include "mdl/GroupNode.h"
-#include "mdl/Layer.h"
-#include "mdl/LayerNode.h"
 #include "mdl/MapFormat.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Selection.h"
@@ -58,7 +56,6 @@ TEST_CASE("Selection.has")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -73,8 +70,6 @@ TEST_CASE("Selection.has")
 
   auto selection = Selection{};
 
-  REQUIRE_FALSE(selection.hasLayers());
-  REQUIRE_FALSE(selection.hasOnlyLayers());
   REQUIRE_FALSE(selection.hasGroups());
   REQUIRE_FALSE(selection.hasOnlyGroups());
   REQUIRE_FALSE(selection.hasEntities());
@@ -83,17 +78,6 @@ TEST_CASE("Selection.has")
   REQUIRE_FALSE(selection.hasOnlyBrushes());
   REQUIRE_FALSE(selection.hasPatches());
   REQUIRE_FALSE(selection.hasOnlyPatches());
-
-  SECTION("layer")
-  {
-    selection.addNode(&layerNode);
-    CHECK(selection.hasLayers());
-    CHECK(selection.hasOnlyLayers());
-
-    selection.addNode(&brushNode);
-    CHECK(selection.hasLayers());
-    CHECK_FALSE(selection.hasOnlyLayers());
-  }
 
   SECTION("groups")
   {
@@ -124,10 +108,6 @@ TEST_CASE("Selection.has")
       selection.addNode(&brushNode);
       CHECK(selection.hasBrushes());
       CHECK(selection.hasOnlyBrushes());
-
-      selection.addNode(&layerNode);
-      CHECK(selection.hasBrushes());
-      CHECK_FALSE(selection.hasOnlyBrushes());
     }
 
     SECTION("nested brushes")
@@ -175,7 +155,6 @@ TEST_CASE("Selection.collections")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -192,16 +171,12 @@ TEST_CASE("Selection.collections")
 
   REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-  selection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK_THAT(
     selection.nodes,
     Catch::Matchers::UnorderedEquals(
-      std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode}));
-
-  CHECK_THAT(
-    selection.layers,
-    Catch::Matchers::UnorderedEquals(std::vector<LayerNode*>{&layerNode}));
+      std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode}));
 
   CHECK_THAT(
     selection.groups,
@@ -218,20 +193,6 @@ TEST_CASE("Selection.collections")
   CHECK_THAT(
     selection.patches,
     Catch::Matchers::UnorderedEquals(std::vector<PatchNode*>{&patchNode}));
-
-  SECTION("nested brushes")
-  {
-    auto* brushInLayer = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    auto* brushInGroup = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-    auto* brushInEntity = new BrushNode{
-      BrushBuilder{mapFormat, worldBounds}.createCube(64.0, "material") | kdl::value()};
-
-    layerNode.addChild(brushInLayer);
-    groupNode.addChild(brushInGroup);
-    entityNode.addChild(brushInEntity);
-  }
 }
 
 TEST_CASE("Selection.addNode")
@@ -239,7 +200,6 @@ TEST_CASE("Selection.addNode")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -255,13 +215,6 @@ TEST_CASE("Selection.addNode")
   auto selection = Selection{};
 
   REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
-
-  SECTION("layer")
-  {
-    selection.addNode(&layerNode);
-    CHECK(selection.nodes == std::vector<Node*>{&layerNode});
-    CHECK(selection.layers == std::vector<LayerNode*>{&layerNode});
-  }
 
   SECTION("group")
   {
@@ -297,7 +250,6 @@ TEST_CASE("Selection.addNodes")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -314,12 +266,11 @@ TEST_CASE("Selection.addNodes")
 
   REQUIRE_THAT(selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{}));
 
-  selection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
 
   CHECK(
     selection.nodes
-    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-  CHECK(selection.layers == std::vector<LayerNode*>{&layerNode});
+    == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
   CHECK(selection.groups == std::vector<GroupNode*>{&groupNode});
   CHECK(selection.entities == std::vector<EntityNode*>{&entityNode});
   CHECK(selection.brushes == std::vector<BrushNode*>{&brushNode});
@@ -331,7 +282,6 @@ TEST_CASE("Selection.removeNode")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -345,53 +295,33 @@ TEST_CASE("Selection.removeNode")
   // clang-format on
 
   auto selection = Selection{};
-  selection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-  REQUIRE(
-    selection.nodes
-    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
-
-  SECTION("layer")
-  {
-    selection.removeNode(&layerNode);
-    CHECK(
-      selection.nodes
-      == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
-    CHECK(selection.layers == std::vector<LayerNode*>{});
-  }
+  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
 
   SECTION("group")
   {
     selection.removeNode(&groupNode);
-    CHECK(
-      selection.nodes
-      == std::vector<Node*>{&layerNode, &entityNode, &brushNode, &patchNode});
+    CHECK(selection.nodes == std::vector<Node*>{&entityNode, &brushNode, &patchNode});
     CHECK(selection.groups == std::vector<GroupNode*>{});
   }
 
   SECTION("entity")
   {
     selection.removeNode(&entityNode);
-    CHECK(
-      selection.nodes
-      == std::vector<Node*>{&layerNode, &groupNode, &brushNode, &patchNode});
+    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &brushNode, &patchNode});
     CHECK(selection.entities == std::vector<EntityNode*>{});
   }
 
   SECTION("brush")
   {
     selection.removeNode(&brushNode);
-    CHECK(
-      selection.nodes
-      == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &patchNode});
+    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &entityNode, &patchNode});
     CHECK(selection.brushes == std::vector<BrushNode*>{});
   }
 
   SECTION("patch")
   {
     selection.removeNode(&patchNode);
-    CHECK(
-      selection.nodes
-      == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode});
+    CHECK(selection.nodes == std::vector<Node*>{&groupNode, &entityNode, &brushNode});
     CHECK(selection.patches == std::vector<PatchNode*>{});
   }
 }
@@ -401,7 +331,6 @@ TEST_CASE("Selection.clear")
   const auto mapFormat = MapFormat::Quake3;
   const auto worldBounds = vm::bbox3d{8192.0};
 
-  auto layerNode = LayerNode{Layer{"layer"}};
   auto groupNode = GroupNode{Group{"group"}};
   auto entityNode = EntityNode{Entity{}};
   auto brushNode = BrushNode{
@@ -415,15 +344,14 @@ TEST_CASE("Selection.clear")
   // clang-format on
 
   auto selection = Selection{};
-  selection.addNodes({&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+  selection.addNodes({&groupNode, &entityNode, &brushNode, &patchNode});
   REQUIRE(
     selection.nodes
-    == std::vector<Node*>{&layerNode, &groupNode, &entityNode, &brushNode, &patchNode});
+    == std::vector<Node*>{&groupNode, &entityNode, &brushNode, &patchNode});
 
   selection.clear();
 
   CHECK(selection.nodes == std::vector<Node*>{});
-  CHECK(selection.layers == std::vector<LayerNode*>{});
   CHECK(selection.groups == std::vector<GroupNode*>{});
   CHECK(selection.entities == std::vector<EntityNode*>{});
   CHECK(selection.brushes == std::vector<BrushNode*>{});
