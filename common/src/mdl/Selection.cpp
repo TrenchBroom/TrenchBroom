@@ -37,7 +37,7 @@ namespace tb::mdl
 
 kdl_reflect_impl(Selection);
 
-bool Selection::empty() const
+bool Selection::hasNodes() const
 {
   return nodes.empty();
 }
@@ -49,7 +49,7 @@ bool Selection::hasLayers() const
 
 bool Selection::hasOnlyLayers() const
 {
-  return !empty() && nodes.size() == layers.size();
+  return hasNodes() && nodes.size() == layers.size();
 }
 
 bool Selection::hasGroups() const
@@ -59,7 +59,7 @@ bool Selection::hasGroups() const
 
 bool Selection::hasOnlyGroups() const
 {
-  return !empty() && nodes.size() == groups.size();
+  return hasNodes() && nodes.size() == groups.size();
 }
 
 bool Selection::hasEntities() const
@@ -69,7 +69,7 @@ bool Selection::hasEntities() const
 
 bool Selection::hasOnlyEntities() const
 {
-  return !empty() && nodes.size() == entities.size();
+  return hasNodes() && nodes.size() == entities.size();
 }
 
 bool Selection::hasBrushes() const
@@ -79,7 +79,7 @@ bool Selection::hasBrushes() const
 
 bool Selection::hasOnlyBrushes() const
 {
-  return !empty() && nodes.size() == brushes.size();
+  return hasNodes() && nodes.size() == brushes.size();
 }
 
 bool Selection::hasPatches() const
@@ -89,7 +89,7 @@ bool Selection::hasPatches() const
 
 bool Selection::hasOnlyPatches() const
 {
-  return !empty() && nodes.size() == patches.size();
+  return hasNodes() && nodes.size() == patches.size();
 }
 
 void Selection::addNodes(const std::vector<Node*>& nodesToAdd)

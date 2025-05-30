@@ -55,7 +55,7 @@ const Grid& ShearTool::grid() const
 bool ShearTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !document->selection().empty();
+  return document->selection().hasNodes();
 }
 
 void ShearTool::pickBackSides(

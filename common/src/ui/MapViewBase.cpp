@@ -1229,7 +1229,7 @@ void MapViewBase::showPopupMenuLater()
       this,
       &MapViewBase::addSelectedObjectsToGroup);
   }
-  if (currentGroup && !document->selection().empty())
+  if (currentGroup && document->selection().hasNodes())
   {
     menu.addAction(
       tr("Remove Objects from Group %1")

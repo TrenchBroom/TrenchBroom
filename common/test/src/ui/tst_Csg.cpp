@@ -265,7 +265,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CsgTest.csgSubtractAndUndoRestoresSelection")
   document->selectNodes({subtrahend1});
   CHECK(document->csgSubtract());
   CHECK(entityNode->children().size() == 0u);
-  CHECK(document->selection().empty());
+  CHECK_FALSE(document->selection().hasNodes());
 
   // check that the selection is restored after undo
   document->undoCommand();

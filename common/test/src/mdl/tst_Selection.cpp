@@ -40,17 +40,17 @@
 namespace tb::mdl
 {
 
-TEST_CASE("Selection.empty")
+TEST_CASE("Selection.hasNodes")
 {
   auto selection = Selection{};
-  CHECK(selection.empty());
+  CHECK_FALSE(selection.hasNodes());
 
   auto entityNode = EntityNode{Entity{}};
   selection.addNode(&entityNode);
   REQUIRE_THAT(
     selection.nodes, Catch::Matchers::UnorderedEquals(std::vector<Node*>{&entityNode}));
 
-  CHECK_FALSE(selection.empty());
+  CHECK(selection.hasNodes());
 }
 
 TEST_CASE("Selection.has")
