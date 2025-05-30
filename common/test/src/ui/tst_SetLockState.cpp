@@ -155,18 +155,18 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "SetLockStateTest.selection")
       {{selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}});
 
     REQUIRE_THAT(
-      document->selectedBrushFaces(),
+      document->selection().brushFaces,
       Catch::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
         {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
 
     document->lock({document->world()->defaultLayer()});
     CHECK_THAT(
-      document->selectedBrushFaces(),
+      document->selection().brushFaces,
       Catch::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{{unlockedBrushNode, 0}}));
 
     document->undoCommand();
     CHECK_THAT(
-      document->selectedBrushFaces(),
+      document->selection().brushFaces,
       Catch::UnorderedEquals(std::vector<mdl::BrushFaceHandle>{
         {selectedBrushNode, 0}, {selectedBrushNode, 1}, {unlockedBrushNode, 0}}));
   }

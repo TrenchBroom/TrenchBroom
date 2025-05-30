@@ -29,6 +29,7 @@ namespace tb::mdl
 {
 class BrushNode;
 class EntityNode;
+class EntityNodeBase;
 class GroupNode;
 class LayerNode;
 class Node;
@@ -42,7 +43,11 @@ struct Selection
   std::vector<EntityNode*> entities;
   std::vector<BrushNode*> brushes;
   std::vector<PatchNode*> patches;
-  std::vector<mdl::BrushFaceHandle> brushFaces;
+  std::vector<BrushFaceHandle> brushFaces;
+
+  std::vector<EntityNodeBase*> cachedAllEntities;
+  std::vector<BrushNode*> cachedAllBrushes;
+  std::vector<BrushFaceHandle> cachedAllBrushFaces;
 
   kdl_reflect_decl(Selection, nodes, groups, entities, brushes, patches, brushFaces);
 
@@ -57,6 +62,32 @@ struct Selection
   bool hasPatches() const;
   bool hasOnlyPatches() const;
   bool hasBrushFaces() const;
+  bool hasAnyBrushFaces() const;
+
+  /**
+   * For commands that modify entities, this returns all entities that should be acted on,
+   * based on the current selection.
+   *
+   * - selected brushes/patches act on their parent entities
+   * - selected groups implicitly act on any contained entities
+   *
+   * If multiple linked groups are selected, returns entities from all of them, so
+   * attempting to perform commands on all of them will be blocked as a conflict.
+   */
+  const std::vector<EntityNodeBase*>& allEntities() const;
+
+  /**
+   * For commands that modify brushes, this returns all brushes that should be acted on,
+   * based on the current selection.
+   *
+   * - selected groups implicitly act on any contained brushes
+   *
+   * If multiple linked groups are selected, returns brushes from all of them, so
+   * attempting to perform commands on all of them will be blocked as a conflict.
+   */
+  const std::vector<BrushNode*>& allBrushes() const;
+
+  const std::vector<BrushFaceHandle>& allBrushFaces() const;
 };
 
 Selection computeSelection(WorldNode& rootNode);

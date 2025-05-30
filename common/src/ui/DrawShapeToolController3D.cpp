@@ -261,7 +261,7 @@ std::unique_ptr<GestureTracker> DrawShapeToolController3D::acceptMouseDrag(
   }
 
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelection())
+  if (document->selection().hasAny())
   {
     return nullptr;
   }

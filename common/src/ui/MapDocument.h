@@ -146,6 +146,7 @@ protected:
 
   mutable std::optional<mdl::Selection> m_cachedSelection;
   mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
+  std::optional<vm::bbox3d> m_lastSelectionBounds;
 
   VertexHandleManager m_vertexHandles;
   EdgeHandleManager m_edgeHandles;
@@ -153,7 +154,6 @@ protected:
 
   mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
-  std::optional<vm::bbox3d> m_lastSelectionBounds;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
@@ -356,51 +356,7 @@ public: // portal file management
   void unloadPortalFile();
 
 public: // selection
-  bool hasSelection() const override;
-  bool hasSelectedNodes() const override;
-  bool hasSelectedBrushFaces() const override;
-  bool hasAnySelectedBrushFaces() const override;
-
-  /**
-   * For commands that modify entities, this returns all entities that should be acted on,
-   * based on the current selection.
-   *
-   * - selected brushes/patches act on their parent entities
-   * - selected groups implicitly act on any contained entities
-   *
-   * If multiple linked groups are selected, returns entities from all of them, so
-   * attempting to perform commands on all of them will be blocked as a conflict.
-   */
-  std::vector<mdl::EntityNodeBase*> allSelectedEntityNodes() const override;
-
-  /**
-   * For commands that modify brushes, this returns all brushes that should be acted on,
-   * based on the current selection.
-   *
-   * - selected groups implicitly act on any contained brushes
-   *
-   * If multiple linked groups are selected, returns brushes from all of them, so
-   * attempting to perform commands on all of them will be blocked as a conflict.
-   */
-  std::vector<mdl::BrushNode*> allSelectedBrushNodes() const;
-  bool hasAnySelectedBrushNodes() const;
   const mdl::Selection& selection() const override;
-
-  /**
-   * For commands that modify brush faces, this returns all that should be acted on, based
-   * on the current selection.
-   *
-   * - if brush faces are explicitly selected (hasSelectedBrushFaces()), use those
-   * - selected groups implicitly act on any contained brushes
-   * - selected brushes implicitly act on their faces
-   *
-   * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link
-   * set are selected, only return one representative face per brush, so that user actions
-   * can be performed without generating conflicts. (e.g. this allows selecting 2 closed
-   * linked groups in a link set and applying materials.)
-   */
-  std::vector<mdl::BrushFaceHandle> allSelectedBrushFaces() const override;
-  std::vector<mdl::BrushFaceHandle> selectedBrushFaces() const override;
 
   VertexHandleManager& vertexHandles();
   EdgeHandleManager& edgeHandles();
@@ -428,9 +384,6 @@ public: // selection
   void deselectAll() override;
   void deselectNodes(const std::vector<mdl::Node*>& nodes) override;
   void deselectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles) override;
-
-protected:
-  void updateLastSelectionBounds();
 
 public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade
         // interface

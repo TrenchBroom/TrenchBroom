@@ -158,13 +158,13 @@ void SmartPropertyEditorManager::connectObservers()
 void SmartPropertyEditorManager::selectionDidChange(const SelectionChange&)
 {
   auto document = kdl::mem_lock(m_document);
-  switchEditor(m_propertyKey, document->allSelectedEntityNodes());
+  switchEditor(m_propertyKey, document->selection().allEntities());
 }
 
 void SmartPropertyEditorManager::nodesDidChange(const std::vector<mdl::Node*>&)
 {
   auto document = kdl::mem_lock(m_document);
-  switchEditor(m_propertyKey, document->allSelectedEntityNodes());
+  switchEditor(m_propertyKey, document->selection().allEntities());
 }
 
 SmartPropertyEditor* SmartPropertyEditorManager::selectEditor(
@@ -218,7 +218,7 @@ void SmartPropertyEditorManager::updateEditor()
   if (activeEditor())
   {
     auto document = kdl::mem_lock(m_document);
-    activeEditor()->update(document->allSelectedEntityNodes());
+    activeEditor()->update(document->selection().allEntities());
   }
 }
 

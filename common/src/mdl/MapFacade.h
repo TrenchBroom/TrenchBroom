@@ -73,15 +73,7 @@ public: // getters
   virtual MaterialManager& materialManager() = 0;
 
 public: // selection
-  virtual bool hasSelection() const = 0;
-  virtual bool hasSelectedNodes() const = 0;
-  virtual bool hasSelectedBrushFaces() const = 0;
-  virtual bool hasAnySelectedBrushFaces() const = 0;
-
-  virtual std::vector<EntityNodeBase*> allSelectedEntityNodes() const = 0;
   virtual const Selection& selection() const = 0;
-  virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
-  virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
 
   virtual const vm::bbox3d referenceBounds() const = 0;
   virtual const std::optional<vm::bbox3d>& lastSelectionBounds() const = 0;

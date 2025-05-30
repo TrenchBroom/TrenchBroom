@@ -35,7 +35,7 @@ PushSelection::PushSelection(MapFacade* facade)
 PushSelection::PushSelection(MapFacade& facade)
   : m_facade{facade}
   , m_nodes{m_facade.selection().nodes}
-  , m_faces{m_facade.selectedBrushFaces()}
+  , m_faces{m_facade.selection().brushFaces}
 {
 }
 
@@ -46,7 +46,7 @@ PushSelection::~PushSelection()
   {
     m_facade.selectNodes(m_nodes);
   }
-  else if (!m_faces.empty() && m_facade.selectedBrushFaces() != m_faces)
+  else if (!m_faces.empty() && m_facade.selection().brushFaces != m_faces)
   {
     m_facade.selectBrushFaces(m_faces);
   }

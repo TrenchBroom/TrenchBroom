@@ -179,7 +179,7 @@ bool SwitchableMapViewContainer::rotateToolActive() const
 
 bool SwitchableMapViewContainer::canToggleRotateTool() const
 {
-  return rotateToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return rotateToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleRotateTool()
@@ -200,7 +200,7 @@ bool SwitchableMapViewContainer::shearToolActive() const
 
 bool SwitchableMapViewContainer::canToggleScaleTool() const
 {
-  return scaleToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return scaleToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleScaleTool()
@@ -211,7 +211,7 @@ void SwitchableMapViewContainer::toggleScaleTool()
 
 bool SwitchableMapViewContainer::canToggleShearTool() const
 {
-  return shearToolActive() || kdl::mem_lock(m_document)->hasSelectedNodes();
+  return shearToolActive() || kdl::mem_lock(m_document)->selection().hasNodes();
 }
 
 void SwitchableMapViewContainer::toggleShearTool()

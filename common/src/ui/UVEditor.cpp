@@ -53,7 +53,7 @@ bool UVEditor::cancelMouseDrag()
 void UVEditor::updateButtons()
 {
   auto document = kdl::mem_lock(m_document);
-  const bool enabled = !document->allSelectedBrushFaces().empty();
+  const bool enabled = !document->selection().allBrushFaces().empty();
 
   m_resetUVButton->setEnabled(enabled);
   m_resetUVToWorldButton->setEnabled(enabled);

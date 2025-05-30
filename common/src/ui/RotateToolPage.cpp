@@ -169,7 +169,7 @@ void RotateToolPage::updateGui()
   m_angle->setIncrements(vm::to_degrees(grid.angle()), 90.0, 1.0);
 
   auto document = kdl::mem_lock(m_document);
-  m_rotateButton->setEnabled(document->hasSelectedNodes());
+  m_rotateButton->setEnabled(document->selection().hasNodes());
 
   if (const auto* worldNode = document->world())
   {
