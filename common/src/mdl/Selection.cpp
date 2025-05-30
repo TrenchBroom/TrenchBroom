@@ -19,18 +19,17 @@
 
 #include "Selection.h"
 
-#include "Ensure.h"
+#include "mdl/BrushFace.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
+#include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
 #include "kdl/reflection_impl.h"
-
-#include <algorithm>
 
 namespace tb::mdl
 {
@@ -92,117 +91,58 @@ bool Selection::hasBrushFaces() const
   return !brushFaces.empty();
 }
 
-void Selection::addNodes(const std::vector<Node*>& nodesToAdd)
+Selection computeSelection(WorldNode& rootNode)
 {
-  for (auto* node : nodesToAdd)
-  {
-    addNode(node);
-  }
-}
+  auto selection = Selection{};
 
-void Selection::addNode(Node* node)
-{
-  ensure(node != nullptr, "node is null");
-  node->accept(kdl::overload(
-    [](WorldNode*) {},
-    [](LayerNode*) {},
-    [&](GroupNode* group) {
-      nodes.push_back(group);
-      groups.push_back(group);
+  rootNode.accept(kdl::overload(
+    [&](auto&& thisLambda, mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [&](EntityNode* entity) {
-      nodes.push_back(entity);
-      entities.push_back(entity);
+    [&](auto&& thisLambda, mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](BrushNode* brush) {
-      nodes.push_back(brush);
-      brushes.push_back(brush);
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      if (groupNode->selected())
+      {
+        selection.nodes.push_back(groupNode);
+        selection.groups.push_back(groupNode);
+      }
+      groupNode->visitChildren(thisLambda);
     },
-    [&](PatchNode* patch) {
-      nodes.push_back(patch);
-      patches.push_back(patch);
+    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      if (entityNode->selected())
+      {
+        selection.nodes.push_back(entityNode);
+        selection.entities.push_back(entityNode);
+      }
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](mdl::BrushNode* brushNode) {
+      if (brushNode->selected())
+      {
+        selection.nodes.push_back(brushNode);
+        selection.brushes.push_back(brushNode);
+      }
+
+      const auto& faces = brushNode->brush().faces();
+      for (size_t i = 0; i < faces.size(); ++i)
+      {
+        if (faces[i].selected())
+        {
+          selection.brushFaces.emplace_back(brushNode, i);
+        }
+      }
+    },
+    [&](mdl::PatchNode* patchNode) {
+      if (patchNode->selected())
+      {
+        selection.nodes.push_back(patchNode);
+        selection.patches.push_back(patchNode);
+      }
     }));
+
+  return selection;
 }
-
-static const auto doRemoveNodes = [](
-                                    auto& nodes,
-                                    auto& groups,
-                                    auto& entities,
-                                    auto& brushes,
-                                    auto& patches,
-                                    auto cur,
-                                    auto end) {
-  auto nodeEnd = std::end(nodes);
-  auto groupEnd = std::end(groups);
-  auto entityEnd = std::end(entities);
-  auto brushEnd = std::end(brushes);
-  auto patchEnd = std::end(patches);
-
-  while (cur != end)
-  {
-    (*cur)->accept(kdl::overload(
-      [](WorldNode*) {},
-      [](LayerNode*) {},
-      [&](GroupNode* group) {
-        nodeEnd = std::remove(std::begin(nodes), nodeEnd, group);
-        groupEnd = std::remove(std::begin(groups), groupEnd, group);
-      },
-      [&](EntityNode* entity) {
-        nodeEnd = std::remove(std::begin(nodes), nodeEnd, entity);
-        entityEnd = std::remove(std::begin(entities), entityEnd, entity);
-      },
-      [&](BrushNode* brush) {
-        nodeEnd = std::remove(std::begin(nodes), nodeEnd, brush);
-        brushEnd = std::remove(std::begin(brushes), brushEnd, brush);
-      },
-      [&](PatchNode* patch) {
-        nodeEnd = std::remove(std::begin(nodes), nodeEnd, patch);
-        patchEnd = std::remove(std::begin(patches), patchEnd, patch);
-      }));
-    ++cur;
-  }
-
-  nodes.erase(nodeEnd, std::end(nodes));
-  groups.erase(groupEnd, std::end(groups));
-  entities.erase(entityEnd, std::end(entities));
-  brushes.erase(brushEnd, std::end(brushes));
-  patches.erase(patchEnd, std::end(patches));
-};
-
-void Selection::removeNodes(const std::vector<Node*>& nodesToRemovew)
-{
-  doRemoveNodes(
-    nodes,
-    groups,
-    entities,
-    brushes,
-    patches,
-    std::begin(nodesToRemovew),
-    std::end(nodesToRemovew));
-}
-
-void Selection::removeNode(Node* node)
-{
-  ensure(node != nullptr, "node is null");
-  doRemoveNodes(nodes, groups, entities, brushes, patches, &node, std::next(&node));
-}
-
-void Selection::clear()
-{
-  nodes.clear();
-  groups.clear();
-  entities.clear();
-  brushes.clear();
-  patches.clear();
-  brushFaces.clear();
-}
-
-Selection makeSelection(const std::vector<Node*>& nodes)
-{
-  auto result = Selection{};
-  result.addNodes(nodes);
-  return result;
-}
-
 
 } // namespace tb::mdl

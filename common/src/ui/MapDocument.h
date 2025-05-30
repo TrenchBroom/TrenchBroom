@@ -144,7 +144,7 @@ protected:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mdl::Selection m_selection;
+  mutable std::optional<mdl::Selection> m_cachedSelection;
 
   VertexHandleManager m_vertexHandles;
   EdgeHandleManager m_edgeHandles;
@@ -432,9 +432,6 @@ public: // selection
 protected:
   void updateLastSelectionBounds();
   void invalidateSelectionBounds();
-
-private:
-  void clearSelection();
 
 public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade
         // interface

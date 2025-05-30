@@ -809,7 +809,7 @@ void MapDocument::clearDocument()
     documentWillBeClearedNotifier(this);
 
     m_editorContext->reset();
-    clearSelection();
+    m_cachedSelection = std::nullopt;
     unloadAssets();
     clearTagActions();
     clearWorld();
@@ -1331,7 +1331,12 @@ bool MapDocument::hasAnySelectedBrushNodes() const
 
 const mdl::Selection& MapDocument::selection() const
 {
-  return m_selection;
+  if (!m_cachedSelection)
+  {
+    m_cachedSelection =
+      m_world ? mdl::computeSelection(*m_world.get()) : mdl::Selection{};
+  }
+  return *m_cachedSelection;
 }
 
 std::vector<mdl::BrushFaceHandle> MapDocument::allSelectedBrushFaces() const
@@ -1721,11 +1726,6 @@ void MapDocument::updateLastSelectionBounds()
 void MapDocument::invalidateSelectionBounds()
 {
   m_selectionBounds = std::nullopt;
-}
-
-void MapDocument::clearSelection()
-{
-  m_selection.clear();
 }
 
 /**
@@ -5356,6 +5356,7 @@ void MapDocument::selectionDidChange(const SelectionChange&)
 {
   m_repeatStack->clearOnNextPush();
   invalidateSelectionBounds();
+  m_cachedSelection = std::nullopt;
 }
 
 void MapDocument::materialCollectionsWillChange()

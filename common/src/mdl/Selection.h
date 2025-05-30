@@ -33,6 +33,7 @@ class GroupNode;
 class LayerNode;
 class Node;
 class PatchNode;
+class WorldNode;
 
 struct Selection
 {
@@ -56,16 +57,8 @@ struct Selection
   bool hasPatches() const;
   bool hasOnlyPatches() const;
   bool hasBrushFaces() const;
-
-  void addNodes(const std::vector<Node*>& nodes);
-  void addNode(Node* node);
-
-  void removeNodes(const std::vector<Node*>& nodes);
-  void removeNode(Node* node);
-
-  void clear();
 };
 
-Selection makeSelection(const std::vector<Node*>& nodes);
+Selection computeSelection(WorldNode& rootNode);
 
 } // namespace tb::mdl
