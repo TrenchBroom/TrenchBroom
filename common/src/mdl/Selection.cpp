@@ -47,16 +47,6 @@ bool Selection::hasNodes() const
   return !nodes.empty();
 }
 
-bool Selection::hasLayers() const
-{
-  return !layers.empty();
-}
-
-bool Selection::hasOnlyLayers() const
-{
-  return hasNodes() && nodes.size() == layers.size();
-}
-
 bool Selection::hasGroups() const
 {
   return !groups.empty();
@@ -115,10 +105,7 @@ void Selection::addNode(Node* node)
   ensure(node != nullptr, "node is null");
   node->accept(kdl::overload(
     [](WorldNode*) {},
-    [&](LayerNode* layer) {
-      nodes.push_back(layer);
-      layers.push_back(layer);
-    },
+    [](LayerNode*) {},
     [&](GroupNode* group) {
       nodes.push_back(group);
       groups.push_back(group);
@@ -139,7 +126,6 @@ void Selection::addNode(Node* node)
 
 static const auto doRemoveNodes = [](
                                     auto& nodes,
-                                    auto& layers,
                                     auto& groups,
                                     auto& entities,
                                     auto& brushes,
@@ -147,7 +133,6 @@ static const auto doRemoveNodes = [](
                                     auto cur,
                                     auto end) {
   auto nodeEnd = std::end(nodes);
-  auto layerEnd = std::end(layers);
   auto groupEnd = std::end(groups);
   auto entityEnd = std::end(entities);
   auto brushEnd = std::end(brushes);
@@ -157,10 +142,7 @@ static const auto doRemoveNodes = [](
   {
     (*cur)->accept(kdl::overload(
       [](WorldNode*) {},
-      [&](LayerNode* layer) {
-        nodeEnd = std::remove(std::begin(nodes), nodeEnd, layer);
-        layerEnd = std::remove(std::begin(layers), layerEnd, layer);
-      },
+      [](LayerNode*) {},
       [&](GroupNode* group) {
         nodeEnd = std::remove(std::begin(nodes), nodeEnd, group);
         groupEnd = std::remove(std::begin(groups), groupEnd, group);
@@ -181,7 +163,6 @@ static const auto doRemoveNodes = [](
   }
 
   nodes.erase(nodeEnd, std::end(nodes));
-  layers.erase(layerEnd, std::end(layers));
   groups.erase(groupEnd, std::end(groups));
   entities.erase(entityEnd, std::end(entities));
   brushes.erase(brushEnd, std::end(brushes));
@@ -192,7 +173,6 @@ void Selection::removeNodes(const std::vector<Node*>& nodesToRemovew)
 {
   doRemoveNodes(
     nodes,
-    layers,
     groups,
     entities,
     brushes,
@@ -204,14 +184,12 @@ void Selection::removeNodes(const std::vector<Node*>& nodesToRemovew)
 void Selection::removeNode(Node* node)
 {
   ensure(node != nullptr, "node is null");
-  doRemoveNodes(
-    nodes, layers, groups, entities, brushes, patches, &node, std::next(&node));
+  doRemoveNodes(nodes, groups, entities, brushes, patches, &node, std::next(&node));
 }
 
 void Selection::clear()
 {
   nodes.clear();
-  layers.clear();
   groups.clear();
   entities.clear();
   brushes.clear();
