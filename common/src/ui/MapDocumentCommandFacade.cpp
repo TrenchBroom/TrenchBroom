@@ -109,7 +109,7 @@ void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& node
     }
   }
 
-  m_selectedNodes.addNodes(selected);
+  m_selection.addNodes(selected);
 
   auto selectionChange = SelectionChange{};
   selectionChange.selectedNodes = selected;
@@ -146,7 +146,7 @@ void MapDocumentCommandFacade::performSelect(
     }
   }
 
-  m_selectedBrushFaces = kdl::vec_concat(std::move(m_selectedBrushFaces), selected);
+  m_selection.brushFaces = kdl::vec_concat(std::move(m_selection.brushFaces), selected);
 
   auto selectionChange = SelectionChange{};
   selectionChange.selectedBrushFaces = selected;
@@ -174,8 +174,7 @@ void MapDocumentCommandFacade::performSelectAllBrushFaces()
 void MapDocumentCommandFacade::performConvertToBrushFaceSelection()
 {
   performDeselectAll();
-  performSelect(
-    mdl::collectSelectableBrushFaces(m_selectedNodes.nodes, *m_editorContext));
+  performSelect(mdl::collectSelectableBrushFaces(m_selection.nodes, *m_editorContext));
 }
 
 void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& nodes)
@@ -194,7 +193,7 @@ void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& no
     }
   }
 
-  m_selectedNodes.removeNodes(deselected);
+  m_selection.removeNodes(deselected);
 
   auto selectionChange = SelectionChange{};
   selectionChange.deselectedNodes = deselected;
@@ -225,7 +224,8 @@ void MapDocumentCommandFacade::performDeselect(
     }
   }
 
-  m_selectedBrushFaces = kdl::vec_erase_all(std::move(m_selectedBrushFaces), deselected);
+  m_selection.brushFaces =
+    kdl::vec_erase_all(std::move(m_selection.brushFaces), deselected);
 
   auto selectionChange = SelectionChange{};
   selectionChange.deselectedBrushFaces = deselected;
@@ -233,10 +233,10 @@ void MapDocumentCommandFacade::performDeselect(
   selectionDidChangeNotifier(selectionChange);
 
   // Selection change is done. Next, update implicit locking of linked groups.
-  // The strategy is to figure out what needs to be locked given m_selectedBrushFaces,
+  // The strategy is to figure out what needs to be locked given m_selection.brushFaces,
   // and then un-implicitly-lock all other linked groups.
   const auto groupsToLock = kdl::vector_set<mdl::GroupNode*>{
-    mdl::faceSelectionWithLinkedGroupConstraints(*m_world.get(), m_selectedBrushFaces)
+    mdl::faceSelectionWithLinkedGroupConstraints(*m_world.get(), m_selection.brushFaces)
       .groupsToLock};
   for (auto* node : groupsToLock)
   {
@@ -256,12 +256,12 @@ void MapDocumentCommandFacade::performDeselectAll()
 {
   if (hasSelectedNodes())
   {
-    const auto previousSelection = m_selectedNodes.nodes;
+    const auto previousSelection = m_selection.nodes;
     performDeselect(previousSelection);
   }
   if (hasSelectedBrushFaces())
   {
-    const auto previousSelection = m_selectedBrushFaces;
+    const auto previousSelection = m_selection.brushFaces;
     performDeselect(previousSelection);
   }
 }

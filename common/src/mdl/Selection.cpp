@@ -37,9 +37,14 @@ namespace tb::mdl
 
 kdl_reflect_impl(Selection);
 
+bool Selection::hasAny() const
+{
+  return hasNodes() || hasBrushFaces();
+}
+
 bool Selection::hasNodes() const
 {
-  return nodes.empty();
+  return !nodes.empty();
 }
 
 bool Selection::hasLayers() const
@@ -90,6 +95,11 @@ bool Selection::hasPatches() const
 bool Selection::hasOnlyPatches() const
 {
   return hasNodes() && nodes.size() == patches.size();
+}
+
+bool Selection::hasBrushFaces() const
+{
+  return !brushFaces.empty();
 }
 
 void Selection::addNodes(const std::vector<Node*>& nodesToAdd)
@@ -206,6 +216,7 @@ void Selection::clear()
   entities.clear();
   brushes.clear();
   patches.clear();
+  brushFaces.clear();
 }
 
 Selection makeSelection(const std::vector<Node*>& nodes)
