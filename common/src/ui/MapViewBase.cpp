@@ -419,16 +419,15 @@ void MapViewBase::duplicateAndMoveObjects(const vm::direction direction)
 void MapViewBase::rotate(const vm::rotation_axis axisSpec, const bool clockwise)
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelectedNodes())
+  if (const auto& bounds = document->selectionBounds())
   {
     const auto axis = rotationAxis(axisSpec, clockwise);
     const auto angle = m_toolBox.rotateToolActive() ? vm::abs(m_toolBox.rotateToolAngle())
                                                     : vm::Cd::half_pi();
 
     const auto& grid = document->grid();
-    const auto center = m_toolBox.rotateToolActive()
-                          ? m_toolBox.rotateToolCenter()
-                          : grid.referencePoint(document->selectionBounds());
+    const auto center = m_toolBox.rotateToolActive() ? m_toolBox.rotateToolCenter()
+                                                     : grid.referencePoint(*bounds);
 
     document->rotate(center, axis, angle);
   }
@@ -468,7 +467,7 @@ void MapViewBase::flip(const vm::direction direction)
     auto halfGrid = Grid{document->grid().size()};
     halfGrid.decSize();
 
-    const auto center = halfGrid.referencePoint(document->selectionBounds());
+    const auto center = halfGrid.referencePoint(*document->selectionBounds());
     const auto axis = flipAxis(direction);
 
     document->flip(center, axis);

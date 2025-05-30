@@ -1370,21 +1370,29 @@ FaceHandleManager& MapDocument::faceHandles()
   return m_faceHandles;
 }
 
-const vm::bbox3d& MapDocument::referenceBounds() const
+const vm::bbox3d MapDocument::referenceBounds() const
 {
-  return hasSelectedNodes() ? selectionBounds() : lastSelectionBounds();
+  if (const auto bounds = selectionBounds())
+  {
+    return *bounds;
+  }
+  if (const auto bounds = lastSelectionBounds())
+  {
+    return *bounds;
+  }
+  return vm::bbox3d{16.0};
 }
 
-const vm::bbox3d& MapDocument::lastSelectionBounds() const
+const std::optional<vm::bbox3d>& MapDocument::lastSelectionBounds() const
 {
   return m_lastSelectionBounds;
 }
 
-const vm::bbox3d& MapDocument::selectionBounds() const
+const std::optional<vm::bbox3d>& MapDocument::selectionBounds() const
 {
-  if (!m_selectionBoundsValid)
+  if (!m_selectionBounds && m_selection.hasNodes())
   {
-    validateSelectionBounds();
+    m_selectionBounds = computeLogicalBounds(m_selection.nodes);
   }
   return m_selectionBounds;
 }
@@ -1709,8 +1717,7 @@ void MapDocument::deselectBrushFaces(const std::vector<mdl::BrushFaceHandle>& ha
 
 void MapDocument::updateLastSelectionBounds()
 {
-  const auto currentSelectionBounds = selectionBounds();
-  if (currentSelectionBounds.is_valid() && !currentSelectionBounds.is_empty())
+  if (const auto currentSelectionBounds = selectionBounds())
   {
     m_lastSelectionBounds = selectionBounds();
   }
@@ -1718,13 +1725,7 @@ void MapDocument::updateLastSelectionBounds()
 
 void MapDocument::invalidateSelectionBounds()
 {
-  m_selectionBoundsValid = false;
-}
-
-void MapDocument::validateSelectionBounds() const
-{
-  m_selectionBounds = computeLogicalBounds(m_selection.nodes);
-  m_selectionBoundsValid = true;
+  m_selectionBounds = std::nullopt;
 }
 
 void MapDocument::clearSelection()

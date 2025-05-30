@@ -1317,17 +1317,15 @@ void MapFrame::pasteAtCursorPosition()
     switch (paste())
     {
     case PasteType::Node:
-      if (m_document->hasSelectedNodes())
+      if (const auto& bounds = m_document->selectionBounds())
       {
-        const auto bounds = m_document->selectionBounds();
-
         // The pasted objects must be hidden to prevent the picking done in
         // pasteObjectsDelta from hitting them
         // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
         const auto nodes = m_document->selection().nodes;
 
         m_document->hide(nodes);
-        const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+        const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
         m_document->show(nodes);
         m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
         if (!m_document->translate(delta))

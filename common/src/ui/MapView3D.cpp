@@ -546,15 +546,15 @@ void MapView3D::renderMap(
   renderer.render(renderContext, renderBatch);
 
   auto document = kdl::mem_lock(m_document);
-  if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
+  if (const auto& bounds = document->selectionBounds();
+      bounds && renderContext.showSelectionGuide())
   {
-    const auto& bounds = document->selectionBounds();
-    auto boundsRenderer = render::SelectionBoundsRenderer{bounds};
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
     auto* guideRenderer = new render::BoundsGuideRenderer{m_document};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
-    guideRenderer->setBounds(bounds);
+    guideRenderer->setBounds(*bounds);
     renderBatch.addOneShot(guideRenderer);
   }
 }

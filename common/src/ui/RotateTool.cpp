@@ -86,10 +86,9 @@ void RotateTool::resetRotationCenter()
     const auto& entityNode = *selection.entities.front();
     setRotationCenter(entityNode.entity().origin());
   }
-  else
+  else if (const auto& bounds = document->selectionBounds())
   {
-    const auto& bounds = document->selectionBounds();
-    const auto position = document->grid().snap(bounds.center());
+    const auto position = document->grid().snap(bounds->center());
     setRotationCenter(position);
   }
 }

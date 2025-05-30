@@ -124,7 +124,7 @@ private:
   std::map<mdl::Node*, std::vector<mdl::Node*>> clipBrushes();
 
 public:
-  vm::vec3d defaultClipPointPos() const;
+  std::optional<vm::vec3d> defaultClipPointPos() const;
 
   bool canAddPoint(const vm::vec3d& point) const;
   bool hasPoints() const;
