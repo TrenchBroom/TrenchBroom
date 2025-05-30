@@ -21,6 +21,7 @@
 #include "mdl/BezierPatch.h"
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
+#include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
 #include "mdl/Entity.h"
@@ -49,6 +50,10 @@ TEST_CASE("Selection")
          patchNode
        brushNode
      entityNode
+     brushEntityNode
+       entityBrushNode
+     otherGroupNode
+       groupedEntityNode
   */
 
   const auto worldBounds = vm::bbox3d{8192.0};
@@ -75,6 +80,19 @@ TEST_CASE("Selection")
     {0, 1, 1}, {1, 1, 2}, {2, 1, 1},
     {0, 2, 0}, {1, 2, 1}, {2, 2, 0} }, "material"}}));
   // clang-format on
+
+  auto& brushEntityNode =
+    dynamic_cast<EntityNode&>(layerNode.addChild(new EntityNode{{}}));
+  auto& entityBrushNode = dynamic_cast<BrushNode&>(brushEntityNode.addChild(
+    brushBuilder.createCube(64.0, "material")
+      .transform([](auto brush) { return std::make_unique<BrushNode>(std::move(brush)); })
+      .value()
+      .release()));
+
+  auto& otherGroupNode =
+    dynamic_cast<GroupNode&>(layerNode.addChild(new GroupNode{Group{"other"}}));
+  auto& groupedEntityNode =
+    dynamic_cast<EntityNode&>(otherGroupNode.addChild(new EntityNode{{}}));
 
   SECTION("hasAny")
   {
@@ -178,6 +196,31 @@ TEST_CASE("Selection")
     CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasBrushFaces());
   }
 
+  SECTION("hasAnyBrushFaces")
+  {
+    CHECK_FALSE(Selection{}.hasAnyBrushFaces());
+    CHECK_FALSE(makeSelection({&outerGroupNode}).hasAnyBrushFaces());
+    CHECK_FALSE(makeSelection({&entityNode}).hasAnyBrushFaces());
+    CHECK(makeSelection({&brushNode}).hasAnyBrushFaces());
+    CHECK(makeSelection({&brushNode, &entityNode}).hasAnyBrushFaces());
+    CHECK_FALSE(makeSelection({&patchNode}).hasAnyBrushFaces());
+    CHECK(makeSelection({BrushFaceHandle{&brushNode, 0}}).hasAnyBrushFaces());
+  }
+
+  SECTION("allEntities")
+  {
+    auto selection = Selection{};
+    selection.cachedAllEntities = std::vector<EntityNodeBase*>{&entityNode};
+    CHECK(selection.allEntities() == std::vector<EntityNodeBase*>{&entityNode});
+  }
+
+  SECTION("allBrushes")
+  {
+    auto selection = Selection{};
+    selection.cachedAllBrushes = std::vector<BrushNode*>{&brushNode};
+    CHECK(selection.allBrushes() == std::vector<BrushNode*>{&brushNode});
+  }
+
   SECTION("computeSelection")
   {
     CHECK(computeSelection(worldNode) == Selection{});
@@ -201,6 +244,144 @@ TEST_CASE("Selection")
       CHECK(
         computeSelection(worldNode)
         == makeSelection({&outerGroupNode, &brushNode, &entityNode}));
+    }
+
+    SECTION("allEntities")
+    {
+      SECTION("selection is empty")
+      {
+        CHECK(Selection{}.allEntities() == std::vector<EntityNodeBase*>{});
+      }
+
+      SECTION("nothing selected")
+      {
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&worldNode});
+      }
+
+      SECTION("outer group node selected")
+      {
+        outerGroupNode.select();
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&worldNode});
+      }
+
+      SECTION("entity node selected")
+      {
+        entityNode.select();
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&entityNode});
+      }
+
+      SECTION("mixed selection")
+      {
+        brushNode.select();
+        entityNode.select();
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&entityNode});
+      }
+
+      SECTION("other group selected")
+      {
+        otherGroupNode.select();
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&groupedEntityNode});
+      }
+
+      SECTION("nested entity selected")
+      {
+        groupedEntityNode.select();
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&groupedEntityNode});
+      }
+
+      SECTION("face selected")
+      {
+        brushNode.selectFace(0);
+        CHECK(
+          computeSelection(worldNode).allEntities()
+          == std::vector<EntityNodeBase*>{&worldNode});
+      }
+    }
+
+    SECTION("allBrushes")
+    {
+      SECTION("selection is empty")
+      {
+        CHECK(Selection{}.allBrushes() == std::vector<BrushNode*>{});
+      }
+
+      SECTION("nothing selected")
+      {
+        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
+      }
+
+      SECTION("outer group node selected")
+      {
+        outerGroupNode.select();
+        CHECK(
+          computeSelection(worldNode).allBrushes()
+          == std::vector<BrushNode*>{&brushNode});
+      }
+
+      SECTION("entity node selected")
+      {
+        entityNode.select();
+        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
+      }
+
+      SECTION("mixed selection")
+      {
+        brushNode.select();
+        entityNode.select();
+        CHECK(
+          computeSelection(worldNode).allBrushes()
+          == std::vector<BrushNode*>{&brushNode});
+      }
+
+      SECTION("entity brush selected")
+      {
+        entityBrushNode.select();
+        CHECK(
+          computeSelection(worldNode).allBrushes()
+          == std::vector<BrushNode*>{&entityBrushNode});
+      }
+
+      SECTION("face selected")
+      {
+        brushNode.selectFace(0);
+        CHECK(computeSelection(worldNode).allBrushes() == std::vector<BrushNode*>{});
+      }
+    }
+
+    SECTION("allBrushFaces")
+    {
+      SECTION("face selected")
+      {
+        brushNode.selectFace(0);
+        CHECK(
+          computeSelection(worldNode).allBrushFaces()
+          == std::vector<BrushFaceHandle>{BrushFaceHandle{&brushNode, 0}});
+      }
+
+      SECTION("brush selected")
+      {
+        brushNode.select();
+        CHECK(computeSelection(worldNode).allBrushFaces().size() == 6);
+      }
+
+      SECTION("mixed selection")
+      {
+        entityNode.select();
+        brushNode.select();
+        CHECK(computeSelection(worldNode).allBrushFaces().size() == 6);
+      }
     }
   }
 }

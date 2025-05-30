@@ -215,7 +215,7 @@ public:
     using namespace mdl::HitFilters;
 
     const auto& editorContext = m_document->editorContext();
-    if (m_document->hasSelectedBrushFaces())
+    if (m_document->selection().hasBrushFaces())
     {
       const auto hit = firstHit(
         inputState,
@@ -232,7 +232,7 @@ public:
     }
     else
     {
-      assert(m_document->hasSelectedNodes());
+      assert(m_document->selection().hasNodes());
       const auto hit =
         firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
       if (hit.isMatch())
@@ -304,7 +304,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
       {
         if (isMultiClick(inputState))
         {
-          const auto objects = document->hasSelectedNodes();
+          const auto objects = document->selection().hasNodes();
           if (objects)
           {
             if (brush->selected())
@@ -363,7 +363,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           else
           {
             auto transaction = Transaction{document, "Select Object"};
-            if (document->hasSelectedBrushFaces())
+            if (document->selection().hasBrushFaces())
             {
               document->deselectAll();
             }
@@ -412,7 +412,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       {
         if (isMultiClick(inputState))
         {
-          if (document->hasSelectedNodes())
+          if (document->selection().hasNodes())
           {
             document->convertToFaceSelection();
           }
@@ -457,7 +457,7 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
             const auto siblings = collectSelectableChildren(editorContext, container);
             if (isMultiClick(inputState))
             {
-              if (document->hasSelectedBrushFaces())
+              if (document->selection().hasBrushFaces())
               {
                 document->deselectAll();
               }
@@ -527,7 +527,7 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
       {
         document->startTransaction(
           "Drag Select Brush Faces", TransactionScope::LongRunning);
-        if (document->hasSelection() && !document->hasSelectedBrushFaces())
+        if (document->selection().hasAny() && !document->selection().hasBrushFaces())
         {
           document->deselectAll();
         }
@@ -553,7 +553,7 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     if (editorContext.selectable(node))
     {
       document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
-      if (document->hasSelection() && !document->hasSelectedNodes())
+      if (document->selection().hasAny() && !document->selection().hasNodes())
       {
         document->deselectAll();
       }

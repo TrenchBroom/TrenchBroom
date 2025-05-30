@@ -71,7 +71,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("The world node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
@@ -84,7 +84,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("The world node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
@@ -97,7 +97,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("The world node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
@@ -107,11 +107,12 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
     {
       document->selectNodes({emptyGroupNode});
 
-      THEN("An empty vector is returned")
+      THEN("Worldspawn is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
-          Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityNodeBase*>{}));
+          document->selection().allEntities(),
+          Catch::Matchers::UnorderedEquals(
+            std::vector<mdl::EntityNodeBase*>{document->world()}));
       }
     }
 
@@ -122,7 +123,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("The grouped entity node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{groupedEntityNode}));
       }
@@ -134,7 +135,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         THEN("The top level entity node and the grouped entity node are returned")
         {
           CHECK_THAT(
-            document->allSelectedEntityNodes(),
+            document->selection().allEntities(),
             Catch::Matchers::UnorderedEquals(
               std::vector<mdl::EntityNodeBase*>{groupedEntityNode, topLevelEntityNode}));
         }
@@ -148,7 +149,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("That entity node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{topLevelEntityNode}));
       }
@@ -176,7 +177,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
       THEN("The containing entity node is returned")
       {
         CHECK_THAT(
-          document->allSelectedEntityNodes(),
+          document->selection().allEntities(),
           Catch::Matchers::UnorderedEquals(
             std::vector<mdl::EntityNodeBase*>{topLevelBrushEntityNode}));
       }
@@ -188,7 +189,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         THEN("The containing entity node is returned only once")
         {
           CHECK_THAT(
-            document->allSelectedEntityNodes(),
+            document->selection().allEntities(),
             Catch::Matchers::UnorderedEquals(
               std::vector<mdl::EntityNodeBase*>{topLevelBrushEntityNode}));
         }
@@ -201,7 +202,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionTest.allSelectedEntityNodes")
         THEN("The top level entity node and the brush entity node are returned")
         {
           CHECK_THAT(
-            document->allSelectedEntityNodes(),
+            document->selection().allEntities(),
             Catch::Matchers::UnorderedEquals(std::vector<mdl::EntityNodeBase*>{
               topLevelBrushEntityNode, topLevelEntityNode}));
         }
@@ -602,13 +603,13 @@ TEST_CASE_METHOD(
   // select the top face
   document->selectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
-    document->selectedBrushFaces(),
+    document->selection().brushFaces,
     Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 
   // deselect it
   document->deselectBrushFaces({{brushNode, *topFaceIndex}});
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+    document->selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   // select the brush
   document->selectNodes({brushNode});
@@ -628,17 +629,17 @@ TEST_CASE_METHOD(
     document->selection().brushes,
     Catch::Equals(std::vector<mdl::BrushNode*>{brushNode}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+    document->selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
     document->selection().brushes, Catch::Equals(std::vector<mdl::BrushNode*>{}));
   CHECK_THAT(
-    document->selectedBrushFaces(), Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
+    document->selection().brushFaces, Catch::Equals(std::vector<mdl::BrushFaceHandle>{}));
 
   document->undoCommand();
   CHECK_THAT(
-    document->selectedBrushFaces(),
+    document->selection().brushFaces,
     Catch::Equals(std::vector<mdl::BrushFaceHandle>{{brushNode, *topFaceIndex}}));
 }
 

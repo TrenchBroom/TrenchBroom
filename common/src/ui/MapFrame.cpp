@@ -555,10 +555,10 @@ QString describeSelection(const MapDocument& document)
   }
 
   // selected brush faces
-  if (document.hasSelectedBrushFaces())
+  if (document.selection().hasBrushFaces())
   {
     const auto token =
-      numberWithSuffix(document.selectedBrushFaces().size(), "face", "faces");
+      numberWithSuffix(document.selection().brushFaces.size(), "face", "faces");
     tokens.push_back(token);
   }
 
@@ -1286,10 +1286,10 @@ void MapFrame::copySelection()
 
 void MapFrame::copyToClipboard()
 {
-  const auto str = m_document->hasSelectedNodes() ? m_document->serializeSelectedNodes()
-                   : m_document->hasSelectedBrushFaces()
-                     ? m_document->serializeSelectedBrushFaces()
-                     : std::string{};
+  const auto str =
+    m_document->selection().hasNodes()        ? m_document->serializeSelectedNodes()
+    : m_document->selection().hasBrushFaces() ? m_document->serializeSelectedBrushFaces()
+                                              : std::string{};
 
   auto* clipboard = QApplication::clipboard();
   clipboard->setText(mapStringToUnicode(m_document->encoding(), str));
@@ -1297,14 +1297,14 @@ void MapFrame::copyToClipboard()
 
 bool MapFrame::canCutSelection() const
 {
-  return widgetOrChildHasFocus(m_mapView) && m_document->hasSelectedNodes()
+  return widgetOrChildHasFocus(m_mapView) && m_document->selection().hasNodes()
          && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::canCopySelection() const
 {
   return widgetOrChildHasFocus(m_mapView)
-         && (m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces());
+         && (m_document->selection().hasNodes() || m_document->selection().hasBrushFaces());
 }
 
 void MapFrame::pasteAtCursorPosition()
@@ -1394,7 +1394,7 @@ void MapFrame::duplicateSelection()
 
 bool MapFrame::canDuplicateSelectino() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::deleteSelection()
@@ -1534,7 +1534,7 @@ bool MapFrame::canSelect() const
 
 bool MapFrame::canSelectSiblings() const
 {
-  return canChangeSelection() && m_document->hasSelectedNodes();
+  return canChangeSelection() && m_document->selection().hasNodes();
 }
 
 bool MapFrame::canSelectByBrush() const
@@ -1550,7 +1550,7 @@ bool MapFrame::canSelectTall() const
 
 bool MapFrame::canDeselect() const
 {
-  return canChangeSelection() && m_document->hasSelectedNodes();
+  return canChangeSelection() && m_document->selection().hasNodes();
 }
 
 bool MapFrame::canChangeSelection() const
@@ -1577,7 +1577,7 @@ void MapFrame::groupSelectedObjects()
 
 bool MapFrame::canGroupSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::ungroupSelectedObjects()
@@ -1646,7 +1646,7 @@ void MapFrame::moveSelectedObjects()
 
 bool MapFrame::canMoveSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::anyModalToolActive() const
@@ -1828,8 +1828,8 @@ void MapFrame::csgConvexMerge()
 
 bool MapFrame::canDoCsgConvexMerge() const
 {
-  return (m_document->hasSelectedBrushFaces()
-          && m_document->selectedBrushFaces().size() > 1)
+  return (m_document->selection().hasBrushFaces()
+          && m_document->selection().brushFaces.size() > 1)
          || (m_document->selection().hasOnlyBrushes() && m_document->selection().brushes.size() > 1)
          || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
          || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
@@ -1896,7 +1896,7 @@ void MapFrame::snapVerticesToGrid()
 
 bool MapFrame::canSnapVertices() const
 {
-  return m_document->hasAnySelectedBrushNodes();
+  return !m_document->selection().allBrushes().empty();
 }
 
 void MapFrame::toggleAlignmentLock()
@@ -1994,7 +1994,7 @@ void MapFrame::focusCameraOnSelection()
 
 bool MapFrame::canFocusCamera() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::moveCameraToPosition()
@@ -2026,7 +2026,7 @@ void MapFrame::isolateSelection()
 
 bool MapFrame::canIsolateSelection() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::hideSelection()
@@ -2039,7 +2039,7 @@ void MapFrame::hideSelection()
 
 bool MapFrame::canHideSelection() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::showAll()
@@ -2129,9 +2129,10 @@ namespace
 
 const mdl::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 {
-  const auto* firstMaterial = document->allSelectedBrushFaces().front().face().material();
+  const auto* firstMaterial =
+    document->selection().allBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalMaterial = kdl::all_of(
-    document->allSelectedBrushFaces(),
+    document->selection().allBrushFaces(),
     [&](const auto& face) { return face.face().material() == firstMaterial; });
 
   return allFacesHaveIdenticalMaterial ? firstMaterial : nullptr;

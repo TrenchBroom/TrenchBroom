@@ -245,12 +245,12 @@ void MapDocumentCommandFacade::performDeselect(
 
 void MapDocumentCommandFacade::performDeselectAll()
 {
-  if (hasSelectedNodes())
+  if (selection().hasNodes())
   {
     const auto previousSelection = selection().nodes;
     performDeselect(previousSelection);
   }
-  if (hasSelectedBrushFaces())
+  if (selection().hasBrushFaces())
   {
     const auto previousSelection = selection().brushFaces;
     performDeselect(previousSelection);

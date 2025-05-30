@@ -82,7 +82,7 @@ void EntityPropertyEditor::updateIfSelectedEntityDefinitionChanged()
 {
   auto document = kdl::mem_lock(m_document);
   const auto* entityDefinition =
-    mdl::selectEntityDefinition(document->allSelectedEntityNodes());
+    mdl::selectEntityDefinition(document->selection().allEntities());
 
   if (entityDefinition != m_currentDefinition)
   {
@@ -96,7 +96,7 @@ void EntityPropertyEditor::updateDocumentationAndSmartEditor()
   auto document = kdl::mem_lock(m_document);
   const auto& propertyKey = m_propertyGrid->selectedRowName();
 
-  m_smartEditorManager->switchEditor(propertyKey, document->allSelectedEntityNodes());
+  m_smartEditorManager->switchEditor(propertyKey, document->selection().allEntities());
 
   updateDocumentation(propertyKey);
 
@@ -166,7 +166,7 @@ void EntityPropertyEditor::updateDocumentation(const std::string& propertyKey)
   auto document = kdl::mem_lock(m_document);
   if (
     const auto* entityDefinition =
-      mdl::selectEntityDefinition(document->allSelectedEntityNodes()))
+      mdl::selectEntityDefinition(document->selection().allEntities()))
   {
     auto normalFormat = QTextCharFormat{};
     auto boldFormat = QTextCharFormat{};

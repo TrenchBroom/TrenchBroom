@@ -157,7 +157,7 @@ QWidget* FaceInspector::createMaterialBrowserInfo()
 void FaceInspector::materialSelected(const mdl::Material* material)
 {
   auto document = kdl::mem_lock(m_document);
-  const auto faces = document->allSelectedBrushFaces();
+  const auto faces = document->selection().allBrushFaces();
 
   if (material)
   {

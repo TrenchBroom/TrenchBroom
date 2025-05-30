@@ -544,8 +544,7 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.ungroupLeavesBrushEntitySelect
   CHECK_THAT(entityNode1->children(), Catch::Equals(std::vector<mdl::Node*>{brushNode1}));
   CHECK_THAT(
     document->selection().nodes, Catch::Equals(std::vector<mdl::Node*>{groupNode}));
-  CHECK(document->allSelectedBrushNodes() == std::vector<mdl::BrushNode*>{brushNode1});
-  CHECK(document->hasAnySelectedBrushNodes());
+  CHECK(document->selection().allBrushes() == std::vector<mdl::BrushNode*>{brushNode1});
   CHECK(!document->selection().hasBrushes());
 
   document->ungroupSelection();

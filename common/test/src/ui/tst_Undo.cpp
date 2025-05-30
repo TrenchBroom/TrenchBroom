@@ -85,11 +85,11 @@ TEST_CASE_METHOD(MapDocumentTest, "UndoTest.setMaterialsAfterRestore")
 
     document->undoCommand(); // undo move
     CHECK(material->usageCount() == 6u);
-    REQUIRE(document->hasSelectedBrushFaces());
+    REQUIRE(document->selection().hasBrushFaces());
 
     document->undoCommand(); // undo select
     CHECK(material->usageCount() == 6u);
-    REQUIRE(!document->hasSelectedBrushFaces());
+    REQUIRE(!document->selection().hasBrushFaces());
   }
 
   for (const auto& face : brushNode->brush().faces())

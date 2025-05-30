@@ -113,34 +113,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
       document->selectNodes(nodes);
 
       CHECK_THAT(
-        document->allSelectedBrushNodes(), Catch::Matchers::UnorderedEquals(brushNodes));
-    }
-
-    SECTION("hasAnySelectedBrushNodes")
-    {
-      using T = std::tuple<std::vector<mdl::NodePath>, bool>;
-
-      // clang-format off
-    const auto 
-    [pathsToSelect,                      expectedResult] = GENERATE_COPY(values<T>({
-    {std::vector<mdl::NodePath>{},     false},
-    {{getPath(pointEntityNode)},         false},
-    {{getPath(brushEntityNode)},         true},
-    {{getPath(outerGroupNode)},          true},
-    {{getPath(brushNodeInDefaultLayer)}, true},
-    {{getPath(brushNodeInCustomLayer)},  true},
-    {{getPath(brushNodeInEntity)},       true},
-    {{getPath(brushNodeInGroup)},        true},
-    {{getPath(brushNodeInNestedGroup)},  true},
-    }));
-      // clang-format on
-
-      CAPTURE(pathsToSelect);
-
-      const auto nodes = resolvePaths(pathsToSelect);
-      document->selectNodes(nodes);
-
-      CHECK(document->hasAnySelectedBrushNodes() == expectedResult);
+        document->selection().allBrushes(), Catch::Matchers::UnorderedEquals(brushNodes));
     }
   }
 
@@ -307,7 +280,7 @@ TEST_CASE_METHOD(MapDocumentTest, "MapDocumentTestFixture")
     document->addNodes({{document->parentForNodes(), {outerGroupNode}}});
     document->selectNodes({outerGroupNode});
 
-    const auto entityNodes = document->allSelectedEntityNodes();
+    const auto entityNodes = document->selection().allEntities();
     REQUIRE_THAT(
       entityNodes,
       Catch::UnorderedEquals(

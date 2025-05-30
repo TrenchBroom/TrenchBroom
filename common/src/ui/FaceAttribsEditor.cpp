@@ -78,7 +78,7 @@ bool FaceAttribsEditor::cancelMouseDrag()
 void FaceAttribsEditor::xOffsetChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -94,7 +94,7 @@ void FaceAttribsEditor::xOffsetChanged(const double value)
 void FaceAttribsEditor::yOffsetChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -110,7 +110,7 @@ void FaceAttribsEditor::yOffsetChanged(const double value)
 void FaceAttribsEditor::rotationChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -126,7 +126,7 @@ void FaceAttribsEditor::rotationChanged(const double value)
 void FaceAttribsEditor::xScaleChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -142,7 +142,7 @@ void FaceAttribsEditor::xScaleChanged(const double value)
 void FaceAttribsEditor::yScaleChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -159,7 +159,7 @@ void FaceAttribsEditor::surfaceFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -183,7 +183,7 @@ void FaceAttribsEditor::contentFlagChanged(
   const size_t /* index */, const int value, const int setFlag, const int /* mixedFlag */)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -206,7 +206,7 @@ void FaceAttribsEditor::contentFlagChanged(
 void FaceAttribsEditor::surfaceValueChanged(const double value)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -222,7 +222,7 @@ void FaceAttribsEditor::surfaceValueChanged(const double value)
 void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -254,7 +254,7 @@ void FaceAttribsEditor::colorValueChanged(const QString& /* text */)
 void FaceAttribsEditor::surfaceFlagsUnset()
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -270,7 +270,7 @@ void FaceAttribsEditor::surfaceFlagsUnset()
 void FaceAttribsEditor::contentFlagsUnset()
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -286,7 +286,7 @@ void FaceAttribsEditor::contentFlagsUnset()
 void FaceAttribsEditor::surfaceValueUnset()
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -302,7 +302,7 @@ void FaceAttribsEditor::surfaceValueUnset()
 void FaceAttribsEditor::colorValueUnset()
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->hasAnySelectedBrushFaces())
+  if (!document->selection().hasAnyBrushFaces())
   {
     return;
   }
@@ -674,7 +674,7 @@ void FaceAttribsEditor::updateControls()
     hideColorAttribEditor();
   }
 
-  const auto faceHandles = kdl::mem_lock(m_document)->allSelectedBrushFaces();
+  const auto faceHandles = kdl::mem_lock(m_document)->selection().allBrushFaces();
   if (!faceHandles.empty())
   {
     auto materialMulti = false;

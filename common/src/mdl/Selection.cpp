@@ -24,15 +24,99 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/LinkedGroupUtils.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 
 #include "kdl/overload.h"
+#include "kdl/range_to_vector.h"
 #include "kdl/reflection_impl.h"
+
+#include <ranges>
 
 namespace tb::mdl
 {
+namespace
+{
+
+std::vector<EntityNodeBase*> computeAllEntities(
+  const Selection& selection, WorldNode& worldNode)
+{
+  if (!selection.hasAny())
+  {
+    return {&worldNode};
+  }
+
+  auto result = std::vector<mdl::EntityNodeBase*>{};
+  for (auto* node : selection.nodes)
+  {
+    node->accept(kdl::overload(
+      [](mdl::WorldNode*) {},
+      [](mdl::LayerNode*) {},
+      [](auto&& thisLambda, mdl::GroupNode* groupNode) {
+        groupNode->visitChildren(thisLambda);
+      },
+      [&](mdl::EntityNode* entityNode) { result.push_back(entityNode); },
+      [&](mdl::BrushNode* brushNode) { result.push_back(brushNode->entity()); },
+      [&](mdl::PatchNode* patchNode) { result.push_back(patchNode->entity()); }));
+  }
+
+  if (result.empty())
+  {
+    return {&worldNode};
+  }
+
+  result = kdl::vec_sort_and_remove_duplicates(std::move(result));
+  if (result.size() > 1)
+  {
+    // filter out worldspawn
+    result = result | std::views::filter([](const auto* entityNode) {
+               return entityNode->entity().classname()
+                      != mdl::EntityPropertyValues::WorldspawnClassname;
+             })
+             | kdl::to_vector;
+  }
+
+  return result;
+}
+
+std::vector<BrushNode*> computeAllBrushes(const Selection& selection)
+{
+  auto result = std::vector<mdl::BrushNode*>{};
+
+  for (auto* node : selection.nodes)
+  {
+    node->accept(kdl::overload(
+      [](mdl::WorldNode*) {},
+      [](mdl::LayerNode*) {},
+      [](auto&& thisLambda, mdl::GroupNode* groupNode) {
+        groupNode->visitChildren(thisLambda);
+      },
+      [](auto&& thisLambda, mdl::EntityNode* entityNode) {
+        entityNode->visitChildren(thisLambda);
+      },
+      [&](mdl::BrushNode* brushNode) { result.push_back(brushNode); },
+      [&](mdl::PatchNode*) {}));
+  }
+
+  return result;
+}
+
+std::vector<BrushFaceHandle> computeAllBrushFaces(
+  const Selection& selection, WorldNode& worldNode)
+{
+  if (selection.hasBrushFaces())
+  {
+    return selection.brushFaces;
+  }
+
+  const auto faces = mdl::collectBrushFaces(selection.nodes);
+  return mdl::faceSelectionWithLinkedGroupConstraints(worldNode, faces).facesToSelect;
+}
+
+} // namespace
 
 kdl_reflect_impl(Selection);
 
@@ -91,6 +175,26 @@ bool Selection::hasBrushFaces() const
   return !brushFaces.empty();
 }
 
+bool Selection::hasAnyBrushFaces() const
+{
+  return hasBrushFaces() || hasBrushes();
+}
+
+const std::vector<EntityNodeBase*>& Selection::allEntities() const
+{
+  return cachedAllEntities;
+}
+
+const std::vector<BrushNode*>& Selection::allBrushes() const
+{
+  return cachedAllBrushes;
+}
+
+const std::vector<BrushFaceHandle>& Selection::allBrushFaces() const
+{
+  return cachedAllBrushFaces;
+}
+
 Selection computeSelection(WorldNode& rootNode)
 {
   auto selection = Selection{};
@@ -141,6 +245,10 @@ Selection computeSelection(WorldNode& rootNode)
         selection.patches.push_back(patchNode);
       }
     }));
+
+  selection.cachedAllEntities = computeAllEntities(selection, rootNode);
+  selection.cachedAllBrushes = computeAllBrushes(selection);
+  selection.cachedAllBrushFaces = computeAllBrushFaces(selection, rootNode);
 
   return selection;
 }

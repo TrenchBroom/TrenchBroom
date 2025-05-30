@@ -728,7 +728,7 @@ void EntityPropertyModel::updateFromMapDocument()
 
   auto document = kdl::mem_lock(m_document);
 
-  const auto entityNodes = document->allSelectedEntityNodes();
+  const auto entityNodes = document->selection().allEntities();
   const auto rowsMap = rowsForEntityNodes(entityNodes, m_showDefaultRows, true);
 
   setRows(rowsMap);
@@ -922,7 +922,7 @@ bool EntityPropertyModel::setData(
   auto document = kdl::mem_lock(m_document);
 
   const auto rowIndex = static_cast<size_t>(index.row());
-  const auto nodes = document->allSelectedEntityNodes();
+  const auto nodes = document->selection().allEntities();
   if (nodes.empty())
   {
     return false;

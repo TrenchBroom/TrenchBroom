@@ -117,7 +117,7 @@ void ScaleToolPage::updateGui()
 
 bool ScaleToolPage::canScale() const
 {
-  return kdl::mem_lock(m_document)->hasSelectedNodes();
+  return kdl::mem_lock(m_document)->selection().hasNodes();
 }
 
 std::optional<vm::vec3d> ScaleToolPage::getScaleFactors() const

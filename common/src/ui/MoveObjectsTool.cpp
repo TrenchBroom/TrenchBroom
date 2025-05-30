@@ -49,7 +49,7 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 {
   auto document = kdl::mem_lock(m_document);
 
-  if (!document->selectedBrushFaces().empty())
+  if (!document->selection().brushFaces.empty())
   {
     return false;
   }

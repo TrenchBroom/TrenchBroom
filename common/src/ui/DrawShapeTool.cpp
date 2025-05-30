@@ -59,7 +59,7 @@ void DrawShapeTool::update(const vm::bbox3d& bounds)
 bool DrawShapeTool::cancel()
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelection())
+  if (document->selection().hasAny())
   {
     // Let the map view deselect before we switch the shapes
     return false;

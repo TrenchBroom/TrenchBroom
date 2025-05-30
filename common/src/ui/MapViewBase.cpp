@@ -402,7 +402,7 @@ void MapViewBase::moveObjects(const vm::direction direction)
 void MapViewBase::duplicateObjects()
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelectedNodes())
+  if (document->selection().hasNodes())
   {
     document->duplicate();
   }
@@ -477,13 +477,13 @@ void MapViewBase::flip(const vm::direction direction)
 bool MapViewBase::canFlip() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !m_toolBox.anyModalToolActive() && document->hasSelectedNodes();
+  return !m_toolBox.anyModalToolActive() && document->selection().hasNodes();
 }
 
 void MapViewBase::moveUV(const vm::direction direction, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelectedBrushFaces())
+  if (document->selection().hasBrushFaces())
   {
     const auto offset = moveUVOffset(direction, mode);
     document->translateUV(camera().up(), camera().right(), offset);
@@ -530,7 +530,7 @@ float MapViewBase::moveUVDistance(const UVActionMode mode) const
 void MapViewBase::rotateUV(const bool clockwise, const UVActionMode mode)
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelectedBrushFaces())
+  if (document->selection().hasBrushFaces())
   {
     const auto angle = rotateUVAngle(clockwise, mode);
     document->rotateUV(angle);
@@ -561,7 +561,7 @@ float MapViewBase::rotateUVAngle(const bool clockwise, const UVActionMode mode) 
 void MapViewBase::flipUV(const vm::direction direction)
 {
   auto document = kdl::mem_lock(m_document);
-  if (document->hasSelectedBrushFaces())
+  if (document->selection().hasBrushFaces())
   {
     document->flipUV(camera().up(), camera().right(), direction);
   }
@@ -613,7 +613,7 @@ void MapViewBase::cancel()
   if (!ToolBoxConnector::cancel())
   {
     auto document = kdl::mem_lock(m_document);
-    if (document->hasSelection())
+    if (document->selection().hasAny())
     {
       document->deselectAll();
     }
@@ -915,9 +915,9 @@ ActionContext::Type MapViewBase::actionContext() const
     : m_toolBox.shearToolActive()       ? ActionContext::ShearTool
                                         : ActionContext::NoTool;
   const auto selectionContext =
-    document->hasSelectedNodes()        ? ActionContext::NodeSelection
-    : document->hasSelectedBrushFaces() ? ActionContext::FaceSelection
-                                        : ActionContext::NoSelection;
+    document->selection().hasNodes()        ? ActionContext::NodeSelection
+    : document->selection().hasBrushFaces() ? ActionContext::FaceSelection
+                                            : ActionContext::NoSelection;
   return viewContext | toolContext | selectionContext;
 }
 
