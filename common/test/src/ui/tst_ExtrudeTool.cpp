@@ -236,7 +236,7 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
 
   document->selectAllNodes();
 
-  auto brushes = document->selectedNodes().brushes;
+  auto brushes = document->selection().brushes;
   REQUIRE(brushes.size() == 2);
 
   const auto brushIt = std::find_if(
@@ -250,10 +250,9 @@ TEST_CASE("ExtrudeToolTest.findDragFaces")
     brushNode->brush().face(brushNode->brush().findFace("larger_top_face").value());
 
   // Find the entity defining the camera position for our test
-  auto* cameraEntity =
-    kdl::vec_filter(document->selectedNodes().entities, [](const auto* e) {
-      return e->entity().classname() == "trigger_relay";
-    }).front();
+  auto* cameraEntity = kdl::vec_filter(document->selection().entities, [](const auto* e) {
+                         return e->entity().classname() == "trigger_relay";
+                       }).front();
 
   // Fire a pick ray at largerTopFace
   const auto pickRay = vm::ray3d{
@@ -282,17 +281,17 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
   document->selectAllNodes();
 
-  auto brushes = document->selectedNodes().brushes;
+  auto brushes = document->selection().brushes;
   REQUIRE(brushes.size() == 2);
 
   // Find the entity defining the camera position for our test
   const auto* cameraEntity =
-    kdl::vec_filter(document->selectedNodes().entities, [](const auto* node) {
+    kdl::vec_filter(document->selection().entities, [](const auto* node) {
       return node->entity().classname() == "trigger_relay";
     }).front();
 
   const auto* cameraTarget =
-    kdl::vec_filter(document->selectedNodes().entities, [](const auto* node) {
+    kdl::vec_filter(document->selection().entities, [](const auto* node) {
       return node->entity().classname() == "info_null";
     }).front();
 
@@ -335,7 +334,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
-    CHECK(document->selectedNodes().brushes.size() == 4);
+    CHECK(document->selection().brushes.size() == 4);
 
     SECTION("check 2 resulting worldspawn brushes")
     {
@@ -359,7 +358,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     CHECK_THAT(
       kdl::vec_transform(
-        document->selectedNodes().brushes,
+        document->selection().brushes,
         [](const auto* brushNode) { return brushNode->linkId(); }),
       AllDifferent<std::vector<std::string>>());
   }
@@ -374,7 +373,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
-    CHECK(document->selectedNodes().brushes.size() == 3);
+    CHECK(document->selection().brushes.size() == 3);
 
     SECTION("check 2 resulting worldspawn brushes")
     {
@@ -407,7 +406,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
-    CHECK(document->selectedNodes().brushes.size() == 2);
+    CHECK(document->selection().brushes.size() == 2);
 
     SECTION("check 1 resulting worldspawn brushes")
     {
@@ -441,7 +440,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
     REQUIRE(tool.extrude(delta, dragState));
     tool.commit(dragState);
 
-    CHECK(document->selectedNodes().brushes.size() == 2);
+    CHECK(document->selection().brushes.size() == 2);
 
     SECTION("check 1 resulting worldspawn brush")
     {
@@ -472,7 +471,7 @@ TEST_CASE("ExtrudeToolTest.splitBrushes")
 
     CHECK_THAT(
       kdl::vec_transform(
-        document->selectedNodes().brushes,
+        document->selection().brushes,
         [](const auto* brushNode) { return brushNode->linkId(); }),
       AllDifferent<std::vector<std::string>>());
   }

@@ -155,7 +155,7 @@ std::string SelectionCommand::makeName(
 std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
   MapDocumentCommandFacade& document)
 {
-  m_previouslySelectedNodes = document.selectedNodes().nodes;
+  m_previouslySelectedNodes = document.selection().nodes;
   m_previouslySelectedFaceRefs = mdl::createRefs(document.selectedBrushFaces());
 
   switch (m_action)

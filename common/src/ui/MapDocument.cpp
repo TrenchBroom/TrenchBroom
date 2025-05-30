@@ -828,7 +828,7 @@ std::string MapDocument::serializeSelectedNodes()
 {
   std::stringstream stream;
   auto writer = io::NodeWriter{*m_world, stream};
-  writer.writeNodes(selectedNodes().nodes, m_taskManager);
+  writer.writeNodes(selection().nodes, m_taskManager);
   return stream.str();
 }
 
@@ -1233,7 +1233,7 @@ bool MapDocument::hasSelectedBrushFaces() const
 
 bool MapDocument::hasAnySelectedBrushFaces() const
 {
-  return hasSelectedBrushFaces() || selectedNodes().hasBrushes();
+  return hasSelectedBrushFaces() || selection().hasBrushes();
 }
 
 std::vector<mdl::EntityNodeBase*> MapDocument::allSelectedEntityNodes() const
@@ -1329,7 +1329,7 @@ bool MapDocument::hasAnySelectedBrushNodes() const
   return false;
 }
 
-const mdl::NodeCollection& MapDocument::selectedNodes() const
+const mdl::Selection& MapDocument::selection() const
 {
   return m_selectedNodes;
 }
@@ -1406,7 +1406,7 @@ void MapDocument::selectAllNodes()
 
 void MapDocument::selectSiblings()
 {
-  const auto& nodes = selectedNodes().nodes;
+  const auto& nodes = selection().nodes;
   if (nodes.empty())
   {
     return;
@@ -1640,7 +1640,7 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
   const auto minPlane = vm::plane3d{min, cameraAbsDirection};
   const auto maxPlane = vm::plane3d{max, cameraAbsDirection};
 
-  const auto& selectionBrushNodes = selectedNodes().brushes;
+  const auto& selectionBrushNodes = selection().brushes;
   assert(!selectionBrushNodes.empty());
 
   const auto brushBuilder = mdl::BrushBuilder{world()->mapFormat(), worldBounds()};
@@ -2035,7 +2035,7 @@ void MapDocument::duplicate()
   auto nodesToSelect = std::vector<mdl::Node*>{};
   auto newParentMap = std::map<mdl::Node*, mdl::Node*>{};
 
-  for (auto* original : selectedNodes().nodes)
+  for (auto* original : selection().nodes)
   {
     auto* suggestedParent = parentForNodes({original});
     auto* clone = original->cloneRecursively(m_worldBounds);
@@ -2143,7 +2143,7 @@ mdl::EntityNode* MapDocument::createBrushEntity(const mdl::EntityDefinition& def
     getType(definition) == mdl::EntityDefinitionType::Brush,
     "definition is a brush entity definition");
 
-  const auto brushes = selectedNodes().brushes;
+  const auto brushes = selection().brushes;
   assert(!brushes.empty());
 
   // if all brushes belong to the same entity, and that entity is not worldspawn, copy
@@ -2224,7 +2224,7 @@ mdl::GroupNode* MapDocument::groupSelection(const std::string& name)
     return nullptr;
   }
 
-  const auto nodes = collectGroupableNodes(selectedNodes().nodes, world());
+  const auto nodes = collectGroupableNodes(selection().nodes, world());
   if (nodes.empty())
   {
     return nullptr;
@@ -2751,7 +2751,7 @@ bool MapDocument::canMoveLayer(mdl::LayerNode* layer, const int offset) const
 
 void MapDocument::moveSelectionToLayer(mdl::LayerNode* layer)
 {
-  const auto& selectedNodes = this->selectedNodes().nodes;
+  const auto& selectedNodes = this->selection().nodes;
 
   auto nodesToMove = std::vector<mdl::Node*>{};
   auto nodesToSelect = std::vector<mdl::Node*>{};
@@ -2825,7 +2825,7 @@ void MapDocument::moveSelectionToLayer(mdl::LayerNode* layer)
 bool MapDocument::canMoveSelectionToLayer(mdl::LayerNode* layer) const
 {
   ensure(layer != nullptr, "null layer");
-  const auto& nodes = selectedNodes().nodes;
+  const auto& nodes = selection().nodes;
 
   const bool isAnyNodeInGroup =
     std::any_of(std::begin(nodes), std::end(nodes), [&](auto* node) {
@@ -3265,7 +3265,7 @@ bool MapDocument::createBrush(const std::vector<vm::vec3d>& points)
 
 bool MapDocument::csgConvexMerge()
 {
-  if (!hasSelectedBrushFaces() && !selectedNodes().hasOnlyBrushes())
+  if (!hasSelectedBrushFaces() && !selection().hasOnlyBrushes())
   {
     return false;
   }
@@ -3282,9 +3282,9 @@ bool MapDocument::csgConvexMerge()
       }
     }
   }
-  else if (selectedNodes().hasOnlyBrushes())
+  else if (selection().hasOnlyBrushes())
   {
-    for (const auto* brushNode : selectedNodes().brushes)
+    for (const auto* brushNode : selection().brushes)
     {
       for (const auto* vertex : brushNode->brush().vertices())
       {
@@ -3304,18 +3304,18 @@ bool MapDocument::csgConvexMerge()
   return builder.createBrush(polyhedron, currentMaterialName())
          | kdl::transform([&](auto b) {
              b.cloneFaceAttributesFrom(kdl::vec_transform(
-               selectedNodes().brushes,
+               selection().brushes,
                [](const auto* brushNode) { return &brushNode->brush(); }));
 
              // The nodelist is either empty or contains only brushes.
-             const auto toRemove = selectedNodes().nodes;
+             const auto toRemove = selection().nodes;
 
              // We could be merging brushes that have different parents; use the parent
              // of the first brush.
              auto* parentNode = static_cast<mdl::Node*>(nullptr);
-             if (!selectedNodes().brushes.empty())
+             if (!selection().brushes.empty())
              {
-               parentNode = selectedNodes().brushes.front()->parent();
+               parentNode = selection().brushes.front()->parent();
              }
              else if (!selectedBrushFaces().empty())
              {
@@ -3345,7 +3345,7 @@ bool MapDocument::csgConvexMerge()
 
 bool MapDocument::csgSubtract()
 {
-  const auto subtrahendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes};
+  const auto subtrahendNodes = std::vector<mdl::BrushNode*>{selection().brushes};
   if (subtrahendNodes.empty())
   {
     return false;
@@ -3355,7 +3355,7 @@ bool MapDocument::csgSubtract()
   // Select touching, but don't delete the subtrahends yet
   selectTouching(false);
 
-  const auto minuendNodes = std::vector<mdl::BrushNode*>{selectedNodes().brushes};
+  const auto minuendNodes = std::vector<mdl::BrushNode*>{selection().brushes};
   const auto subtrahends = kdl::vec_transform(
     subtrahendNodes, [](const auto* subtrahendNode) { return &subtrahendNode->brush(); });
 
@@ -3405,7 +3405,7 @@ bool MapDocument::csgSubtract()
 
 bool MapDocument::csgIntersect()
 {
-  const auto brushes = selectedNodes().brushes;
+  const auto brushes = selection().brushes;
   if (brushes.size() < 2u)
   {
     return false;
@@ -3452,7 +3452,7 @@ bool MapDocument::csgIntersect()
 
 bool MapDocument::csgHollow()
 {
-  const auto brushNodes = selectedNodes().brushes;
+  const auto brushNodes = selection().brushes;
   if (brushNodes.empty())
   {
     return false;
@@ -4324,9 +4324,9 @@ void MapDocument::printVertices()
       info(str.str());
     }
   }
-  else if (selectedNodes().hasBrushes())
+  else if (selection().hasBrushes())
   {
-    for (const mdl::BrushNode* brushNode : selectedNodes().brushes)
+    for (const mdl::BrushNode* brushNode : selection().brushes)
     {
       const mdl::Brush& brush = brushNode->brush();
 

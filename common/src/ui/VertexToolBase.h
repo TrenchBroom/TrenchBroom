@@ -112,7 +112,7 @@ public:
   const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {
     auto document = kdl::mem_lock(m_document);
-    return document->selectedNodes().brushes;
+    return document->selection().brushes;
   }
 
 public:
@@ -311,12 +311,12 @@ public: // csg convex merge
       game->config().faceAttribsConfig.defaults};
     builder.createBrush(polyhedron, document->currentMaterialName())
       | kdl::transform([&](auto b) {
-          for (const auto* selectedBrushNode : document->selectedNodes().brushes)
+          for (const auto* selectedBrushNode : document->selection().brushes)
           {
             b.cloneFaceAttributesFrom(selectedBrushNode->brush());
           }
 
-          auto* newParent = document->parentForNodes(document->selectedNodes().nodes);
+          auto* newParent = document->parentForNodes(document->selection().nodes);
           auto transaction = Transaction{document, "CSG Convex Merge"};
           deselectAll();
           if (document->addNodes({{newParent, {new mdl::BrushNode{std::move(b)}}}})

@@ -26,10 +26,10 @@
 #include "mdl/ColorRange.h"
 #include "mdl/Game.h"
 #include "mdl/MapFacade.h"
-#include "mdl/NodeCollection.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PointTrace.h"
 #include "mdl/PortalFile.h"
+#include "mdl/Selection.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
 #include "ui/VertexHandleManager.h"
@@ -144,7 +144,7 @@ protected:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mdl::NodeCollection m_selectedNodes;
+  mdl::Selection m_selectedNodes;
   std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
 
   VertexHandleManager m_vertexHandles;
@@ -386,7 +386,7 @@ public: // selection
    */
   std::vector<mdl::BrushNode*> allSelectedBrushNodes() const;
   bool hasAnySelectedBrushNodes() const;
-  const mdl::NodeCollection& selectedNodes() const override;
+  const mdl::Selection& selection() const override;
 
   /**
    * For commands that modify brush faces, this returns all that should be acted on, based

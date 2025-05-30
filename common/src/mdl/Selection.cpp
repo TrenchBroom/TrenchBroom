@@ -17,7 +17,7 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "NodeCollection.h"
+#include "Selection.h"
 
 #include "Ensure.h"
 #include "mdl/BrushNode.h"
@@ -35,64 +35,64 @@
 namespace tb::mdl
 {
 
-kdl_reflect_impl(NodeCollection);
+kdl_reflect_impl(Selection);
 
-bool NodeCollection::empty() const
+bool Selection::empty() const
 {
   return nodes.empty();
 }
 
-bool NodeCollection::hasLayers() const
+bool Selection::hasLayers() const
 {
   return !layers.empty();
 }
 
-bool NodeCollection::hasOnlyLayers() const
+bool Selection::hasOnlyLayers() const
 {
   return !empty() && nodes.size() == layers.size();
 }
 
-bool NodeCollection::hasGroups() const
+bool Selection::hasGroups() const
 {
   return !groups.empty();
 }
 
-bool NodeCollection::hasOnlyGroups() const
+bool Selection::hasOnlyGroups() const
 {
   return !empty() && nodes.size() == groups.size();
 }
 
-bool NodeCollection::hasEntities() const
+bool Selection::hasEntities() const
 {
   return !entities.empty();
 }
 
-bool NodeCollection::hasOnlyEntities() const
+bool Selection::hasOnlyEntities() const
 {
   return !empty() && nodes.size() == entities.size();
 }
 
-bool NodeCollection::hasBrushes() const
+bool Selection::hasBrushes() const
 {
   return !brushes.empty();
 }
 
-bool NodeCollection::hasOnlyBrushes() const
+bool Selection::hasOnlyBrushes() const
 {
   return !empty() && nodes.size() == brushes.size();
 }
 
-bool NodeCollection::hasPatches() const
+bool Selection::hasPatches() const
 {
   return !patches.empty();
 }
 
-bool NodeCollection::hasOnlyPatches() const
+bool Selection::hasOnlyPatches() const
 {
   return !empty() && nodes.size() == patches.size();
 }
 
-void NodeCollection::addNodes(const std::vector<Node*>& nodesToAdd)
+void Selection::addNodes(const std::vector<Node*>& nodesToAdd)
 {
   for (auto* node : nodesToAdd)
   {
@@ -100,7 +100,7 @@ void NodeCollection::addNodes(const std::vector<Node*>& nodesToAdd)
   }
 }
 
-void NodeCollection::addNode(Node* node)
+void Selection::addNode(Node* node)
 {
   ensure(node != nullptr, "node is null");
   node->accept(kdl::overload(
@@ -178,7 +178,7 @@ static const auto doRemoveNodes = [](
   patches.erase(patchEnd, std::end(patches));
 };
 
-void NodeCollection::removeNodes(const std::vector<Node*>& nodesToRemovew)
+void Selection::removeNodes(const std::vector<Node*>& nodesToRemovew)
 {
   doRemoveNodes(
     nodes,
@@ -191,14 +191,14 @@ void NodeCollection::removeNodes(const std::vector<Node*>& nodesToRemovew)
     std::end(nodesToRemovew));
 }
 
-void NodeCollection::removeNode(Node* node)
+void Selection::removeNode(Node* node)
 {
   ensure(node != nullptr, "node is null");
   doRemoveNodes(
     nodes, layers, groups, entities, brushes, patches, &node, std::next(&node));
 }
 
-void NodeCollection::clear()
+void Selection::clear()
 {
   nodes.clear();
   layers.clear();
@@ -208,9 +208,9 @@ void NodeCollection::clear()
   patches.clear();
 }
 
-NodeCollection makeNodeCollection(const std::vector<Node*>& nodes)
+Selection makeSelection(const std::vector<Node*>& nodes)
 {
-  auto result = NodeCollection{};
+  auto result = Selection{};
   result.addNodes(nodes);
   return result;
 }

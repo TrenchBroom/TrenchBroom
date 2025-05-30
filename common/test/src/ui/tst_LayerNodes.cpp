@@ -91,8 +91,8 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.duplicateObjectGoesIntoSourceLa
   document->selectNodes({entity});
   document->duplicate(); // the duplicate should stay in layer1
 
-  REQUIRE(document->selectedNodes().entities.size() == 1);
-  auto* entityClone = document->selectedNodes().entities.at(0);
+  REQUIRE(document->selection().entities.size() == 1);
+  auto* entityClone = document->selection().entities.at(0);
   CHECK(entityClone->parent() == layerNode1);
   CHECK(layerNode1->childCount() == 2);
   CHECK(document->currentLayer() == layerNode2);
@@ -229,10 +229,10 @@ TEST_CASE_METHOD(
 
   // Duplicate entity1 and brush1
   document->duplicate();
-  REQUIRE(document->selectedNodes().entities.size() == 1u);
-  REQUIRE(document->selectedNodes().brushes.size() == 1u);
-  auto* entity2 = document->selectedNodes().entities.front();
-  auto* brush2 = document->selectedNodes().brushes.front();
+  REQUIRE(document->selection().entities.size() == 1u);
+  REQUIRE(document->selection().brushes.size() == 1u);
+  auto* entity2 = document->selection().entities.front();
+  auto* brush2 = document->selection().brushes.front();
 
   CHECK(entity2 != entity1);
   CHECK(brush2 != brush1);
@@ -417,7 +417,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
         AND_THEN("The node is selected")
         {
-          CHECK(document->selectedNodes().nodes == std::vector<mdl::Node*>{node});
+          CHECK(document->selection().nodes == std::vector<mdl::Node*>{node});
         }
       }
 
@@ -431,7 +431,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
           AND_THEN("The node is selected")
           {
-            CHECK(document->selectedNodes().nodes == std::vector<mdl::Node*>{node});
+            CHECK(document->selection().nodes == std::vector<mdl::Node*>{node});
           }
         }
       }
@@ -468,7 +468,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
         document->selectNodes({childNode2});
       }
 
-      const auto selectedNodes = document->selectedNodes().nodes;
+      const auto selectedNodes = document->selection().nodes;
       document->moveSelectionToLayer(customLayer);
 
       THEN("The brush entity node is moved to the target layer")
@@ -479,7 +479,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
 
         AND_THEN("The child nodes are selected")
         {
-          CHECK(document->selectedNodes().nodes == entityNode->children());
+          CHECK(document->selection().nodes == entityNode->children());
         }
       }
 
@@ -496,7 +496,7 @@ TEST_CASE_METHOD(MapDocumentTest, "LayerNodeTest.moveSelectionToLayer")
           AND_THEN("The originally selected nodes are selected")
           {
             CHECK_THAT(
-              document->selectedNodes().nodes,
+              document->selection().nodes,
               Catch::Matchers::UnorderedEquals(selectedNodes));
           }
         }

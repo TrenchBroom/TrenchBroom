@@ -219,11 +219,11 @@ struct CollectDirectSelectedLinksVisitor
 };
 
 template <typename Visitor>
-auto collectSelectedLinks(const mdl::NodeCollection& selectedNodes, Visitor visitor)
+auto collectSelectedLinks(const mdl::Selection& selection, Visitor visitor)
 {
   auto links = std::vector<LinkRenderer::LineVertex>{};
 
-  for (auto* node : selectedNodes.nodes)
+  for (auto* node : selection.nodes)
   {
     node->accept(kdl::overload(
       [](const mdl::WorldNode*) {},
@@ -274,7 +274,7 @@ auto getTransitiveSelectedLinks(
 {
   auto visitor = CollectTransitiveSelectedLinksVisitor{
     document.editorContext(), defaultColor, selectedColor, {}};
-  return collectSelectedLinks(document.selectedNodes(), visitor);
+  return collectSelectedLinks(document.selection(), visitor);
 }
 
 auto getDirectSelectedLinks(
@@ -282,7 +282,7 @@ auto getDirectSelectedLinks(
 {
   auto visitor = CollectDirectSelectedLinksVisitor{
     document.editorContext(), defaultColor, selectedColor};
-  return collectSelectedLinks(document.selectedNodes(), visitor);
+  return collectSelectedLinks(document.selection(), visitor);
 }
 
 auto getLinks(
