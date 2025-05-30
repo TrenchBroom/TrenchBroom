@@ -275,7 +275,6 @@ void MapDocumentCommandFacade::performAddNodes(
   setEntityDefinitions(addedNodes);
   setEntityModels(addedNodes);
   setMaterials(addedNodes);
-  invalidateSelectionBounds();
 
   nodesWereAddedNotifier(addedNodes);
 }
@@ -298,8 +297,6 @@ void MapDocumentCommandFacade::performRemoveNodes(
     unsetMaterials(children);
     parent->removeChildren(std::begin(children), std::end(children));
   }
-
-  invalidateSelectionBounds();
 }
 
 std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
@@ -341,8 +338,6 @@ MapDocumentCommandFacade::performReplaceChildren(
   setEntityDefinitions(allNewChildren);
   setEntityModels(allNewChildren);
   setMaterials(allNewChildren);
-
-  invalidateSelectionBounds();
 
   nodesWereAddedNotifier(allNewChildren);
 
@@ -453,8 +448,6 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   {
     setMaterials(nodes);
   }
-
-  invalidateSelectionBounds();
 }
 
 std::map<mdl::Node*, mdl::VisibilityState> MapDocumentCommandFacade::setVisibilityState(
