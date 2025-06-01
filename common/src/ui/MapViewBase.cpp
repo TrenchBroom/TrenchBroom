@@ -1422,7 +1422,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
     break;
   }
 
-  const bool enableMakeBrushEntity = canCreateBrushEntity();
+  const auto enableMakeBrushEntity = canCreateBrushEntity();
   size_t id = 0;
 
   auto document = kdl::mem_lock(m_document);
@@ -1448,17 +1448,15 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
 
         switch (type)
         {
-        case mdl::EntityDefinitionType::Point: {
+        case mdl::EntityDefinitionType::Point:
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createPointEntity));
           break;
-        }
-        case mdl::EntityDefinitionType::Brush: {
+        case mdl::EntityDefinitionType::Brush:
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createBrushEntity));
           action->setEnabled(enableMakeBrushEntity);
           break;
-        }
         }
 
         // TODO: Would be cleaner to pass this as the string entity name
