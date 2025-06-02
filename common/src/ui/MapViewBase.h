@@ -252,8 +252,6 @@ public: // reparenting objects
   void createBrushEntity();
   virtual vm::vec3d computePointEntityPosition(const vm::bbox3d& bounds) const = 0;
 
-  const mdl::EntityDefinition* findEntityDefinition(
-    mdl::EntityDefinitionType type, size_t index) const;
   void createPointEntity(const mdl::EntityDefinition& definition);
   void createBrushEntity(const mdl::EntityDefinition& definition);
   bool canCreateBrushEntity();

@@ -634,40 +634,33 @@ void MapViewBase::createPointEntity()
 {
   auto* action = qobject_cast<const QAction*>(sender());
   auto document = kdl::mem_lock(m_document);
-  const auto index = action->data().toUInt();
-  const auto* definition = findEntityDefinition(mdl::EntityDefinitionType::Point, index);
-  ensure(definition != nullptr, "definition is null");
-  assert(getType(*definition) == mdl::EntityDefinitionType::Point);
 
-  createPointEntity(*definition);
+  const auto classname = action->data().toString().toStdString();
+  if (const auto* definition = document->entityDefinitionManager().definition(classname))
+  {
+    assert(getType(*definition) == mdl::EntityDefinitionType::Point);
+    createPointEntity(*definition);
+  }
+  else
+  {
+    document->error() << "Unknown entity classname: " << classname;
+  }
 }
 
 void MapViewBase::createBrushEntity()
 {
   auto* action = qobject_cast<const QAction*>(sender());
   auto document = kdl::mem_lock(m_document);
-  const auto index = action->data().toUInt();
-  const auto* definition = findEntityDefinition(mdl::EntityDefinitionType::Brush, index);
-  ensure(definition != nullptr, "definition is null");
-  assert(getType(*definition) == mdl::EntityDefinitionType::Brush);
-  createBrushEntity(*definition);
-}
 
-const mdl::EntityDefinition* MapViewBase::findEntityDefinition(
-  const mdl::EntityDefinitionType type, const size_t index) const
-{
-  size_t count = 0;
-  for (const auto& group : kdl::mem_lock(m_document)->entityDefinitionManager().groups())
+  const auto classname = action->data().toString().toStdString();
+  if (const auto* definition = document->entityDefinitionManager().definition(classname))
   {
-    const auto definitions =
-      mdl::filterAndSort(group.definitions, type, mdl::EntityDefinitionSortOrder::Name);
-    if (index < count + definitions.size())
-    {
-      return definitions[index - count];
-    }
-    count += definitions.size();
+    createBrushEntity(*definition);
   }
-  return nullptr;
+  else
+  {
+    document->error() << "Unknown entity classname: " << classname;
+  }
 }
 
 void MapViewBase::createPointEntity(const mdl::EntityDefinition& definition)
@@ -1422,8 +1415,7 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
     break;
   }
 
-  const bool enableMakeBrushEntity = canCreateBrushEntity();
-  size_t id = 0;
+  const auto enableMakeBrushEntity = canCreateBrushEntity();
 
   auto document = kdl::mem_lock(m_document);
   for (const auto& group : document->entityDefinitionManager().groups())
@@ -1448,21 +1440,18 @@ QMenu* MapViewBase::makeEntityGroupsMenu(const mdl::EntityDefinitionType type)
 
         switch (type)
         {
-        case mdl::EntityDefinitionType::Point: {
+        case mdl::EntityDefinitionType::Point:
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createPointEntity));
           break;
-        }
-        case mdl::EntityDefinitionType::Brush: {
+        case mdl::EntityDefinitionType::Brush:
           action = groupMenu->addAction(
             label, this, qOverload<>(&MapViewBase::createBrushEntity));
           action->setEnabled(enableMakeBrushEntity);
           break;
         }
-        }
 
-        // TODO: Would be cleaner to pass this as the string entity name
-        action->setData(QVariant::fromValue<size_t>(id++));
+        action->setData(QVariant::fromValue(QString::fromStdString(definition->name)));
       }
 
       menu->addMenu(groupMenu);
