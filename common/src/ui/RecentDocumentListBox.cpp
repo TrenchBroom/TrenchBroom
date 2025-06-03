@@ -25,6 +25,8 @@
 #include "io/ResourceUtils.h"
 
 #include <cassert>
+#include <QKeyEvent>
+#include <QKeySequence>
 
 namespace tb::ui
 {
@@ -82,6 +84,24 @@ void RecentDocumentListBox::doubleClicked(const size_t index)
   {
     const auto& documentPath = recentDocuments[index];
     emit loadRecentDocument(documentPath);
+  }
+}
+
+void RecentDocumentListBox::keyPressEvent(QKeyEvent* event)
+{
+  if (
+    (event->key() == Qt::Key_Return || event->key() == Qt::Key_Enter)
+    && (event->modifiers() == Qt::NoModifier || event->modifiers() == Qt::KeypadModifier))
+  {
+
+    if (currentRow() >= 0)
+    {
+      doubleClicked(static_cast<size_t>(currentRow()));
+    }
+  }
+  else
+  {
+    ImageListBox::keyPressEvent(event);
   }
 }
 
