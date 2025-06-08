@@ -375,19 +375,6 @@ void MapDocumentCommandFacade::restoreLockState(
   nodeLockingDidChangeNotifier(changedNodes);
 }
 
-void MapDocumentCommandFacade::performPushGroup(mdl::GroupNode* group)
-{
-  m_editorContext->pushGroup(group);
-  groupWasOpenedNotifier(group);
-}
-
-void MapDocumentCommandFacade::performPopGroup()
-{
-  auto* previousGroup = m_editorContext->currentGroup();
-  m_editorContext->popGroup();
-  groupWasClosedNotifier(previousGroup);
-}
-
 void MapDocumentCommandFacade::doSetIssueHidden(
   const mdl::Issue& issue, const bool hidden)
 {
