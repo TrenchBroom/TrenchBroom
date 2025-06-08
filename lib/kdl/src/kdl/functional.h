@@ -60,4 +60,12 @@ auto logical_or(F&&... fun)
     std::tuple{std::forward<F>(fun)...}, std::make_index_sequence<sizeof...(F)>{});
 }
 
+template <typename F>
+auto logical_not(F&& fun_)
+{
+  return [fun = std::forward<F>(fun_)](auto&&... x) {
+    return !fun(std::forward<decltype(x)>(x)...);
+  };
+}
+
 } // namespace kdl

@@ -79,4 +79,25 @@ TEST_CASE("logical_or")
   }
 }
 
+TEST_CASE("logical_not")
+{
+  const auto f = [](int a, int b) { return a == b; };
+
+  SECTION("Lambdas")
+  {
+    const auto fn = logical_not(f);
+
+    CHECK_FALSE(fn(1, 1));
+    CHECK(fn(1, 2));
+  }
+
+  SECTION("std::function")
+  {
+    const auto fn = logical_not(std::function{f});
+
+    CHECK_FALSE(fn(1, 1));
+    CHECK(fn(1, 2));
+  }
+}
+
 } // namespace kdl
