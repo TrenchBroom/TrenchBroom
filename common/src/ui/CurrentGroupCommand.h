@@ -34,7 +34,7 @@ namespace tb::ui
 class CurrentGroupCommand : public UndoableCommand
 {
 private:
-  mdl::GroupNode* m_group;
+  mdl::GroupNode* m_group = nullptr;
 
 public:
   static std::unique_ptr<CurrentGroupCommand> push(mdl::GroupNode* group);

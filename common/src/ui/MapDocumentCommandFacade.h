@@ -89,10 +89,6 @@ public: // Node Visibility
 public: // layers
   using MapDocument::performSetCurrentLayer;
 
-public:
-  void performPushGroup(mdl::GroupNode* group);
-  void performPopGroup();
-
 private:
   void doSetIssueHidden(const mdl::Issue& issue, bool hidden) override;
 
