@@ -19,11 +19,8 @@
 
 #include "MapDocumentCommandFacade.h"
 
-#include "Ensure.h"
 #include "mdl/Brush.h"
-#include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
-#include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/EditorContext.h"
 #include "mdl/Entity.h"
 #include "mdl/EntityDefinitionFileSpec.h" // IWYU pragma: keep
@@ -43,7 +40,6 @@
 
 #include "kdl/map_utils.h"
 #include "kdl/overload.h"
-#include "kdl/vector_set.h"
 #include "kdl/vector_utils.h"
 
 #include <map>
@@ -85,177 +81,6 @@ MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManage
 }
 
 MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
-
-void MapDocumentCommandFacade::performSelect(const std::vector<mdl::Node*>& nodes)
-{
-  selectionWillChangeNotifier();
-
-  auto selected = std::vector<mdl::Node*>{};
-  selected.reserve(nodes.size());
-
-  for (auto* initialNode : nodes)
-  {
-    ensure(
-      initialNode->isDescendantOf(m_world.get()) || initialNode == m_world.get(),
-      "to select a node, it must be world or a descendant");
-    const auto nodesToSelect = initialNode->nodesRequiredForViewSelection();
-    for (auto* node : nodesToSelect)
-    {
-      if (!node->selected() /* && m_editorContext->selectable(node) remove check to allow issue objects to be selected */)
-      {
-        node->select();
-        selected.push_back(node);
-      }
-    }
-  }
-
-  auto selectionChange = SelectionChange{};
-  selectionChange.selectedNodes = selected;
-
-  selectionDidChangeNotifier(selectionChange);
-}
-
-void MapDocumentCommandFacade::performSelect(
-  const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  selectionWillChangeNotifier();
-
-  const auto constrained =
-    mdl::faceSelectionWithLinkedGroupConstraints(*m_world.get(), faces);
-
-  for (auto* node : constrained.groupsToLock)
-  {
-    node->setLockedByOtherSelection(true);
-  }
-  nodeLockingDidChangeNotifier(
-    kdl::vec_static_cast<mdl::Node*>(constrained.groupsToLock));
-
-  auto selected = std::vector<mdl::BrushFaceHandle>{};
-  selected.reserve(constrained.facesToSelect.size());
-
-  for (const auto& handle : constrained.facesToSelect)
-  {
-    auto* node = handle.node();
-    const auto& face = handle.face();
-    if (!face.selected() && m_editorContext->selectable(node, face))
-    {
-      node->selectFace(handle.faceIndex());
-      selected.push_back(handle);
-    }
-  }
-
-  auto selectionChange = SelectionChange{};
-  selectionChange.selectedBrushFaces = selected;
-
-  selectionDidChangeNotifier(selectionChange);
-}
-
-void MapDocumentCommandFacade::performSelectAllNodes()
-{
-  performDeselectAll();
-
-  auto* target = currentGroupOrWorld();
-  const auto nodesToSelect =
-    mdl::collectSelectableNodes(target->children(), *m_editorContext);
-  performSelect(nodesToSelect);
-}
-
-void MapDocumentCommandFacade::performSelectAllBrushFaces()
-{
-  performDeselectAll();
-  performSelect(mdl::collectSelectableBrushFaces(
-    std::vector<mdl::Node*>{m_world.get()}, *m_editorContext));
-}
-
-void MapDocumentCommandFacade::performConvertToBrushFaceSelection()
-{
-  performDeselectAll();
-  performSelect(mdl::collectSelectableBrushFaces(selection().nodes, *m_editorContext));
-}
-
-void MapDocumentCommandFacade::performDeselect(const std::vector<mdl::Node*>& nodes)
-{
-  selectionWillChangeNotifier();
-
-  auto deselected = std::vector<mdl::Node*>{};
-  deselected.reserve(nodes.size());
-
-  for (auto* node : nodes)
-  {
-    if (node->selected())
-    {
-      node->deselect();
-      deselected.push_back(node);
-    }
-  }
-
-  auto selectionChange = SelectionChange{};
-  selectionChange.deselectedNodes = deselected;
-
-  selectionDidChangeNotifier(selectionChange);
-}
-
-void MapDocumentCommandFacade::performDeselect(
-  const std::vector<mdl::BrushFaceHandle>& faces)
-{
-  const auto implicitlyLockedGroups = kdl::vector_set{kdl::vec_filter(
-    mdl::collectGroups({m_world.get()}),
-    [](const auto* groupNode) { return groupNode->lockedByOtherSelection(); })};
-
-  selectionWillChangeNotifier();
-
-  auto deselected = std::vector<mdl::BrushFaceHandle>{};
-  deselected.reserve(faces.size());
-
-  for (const auto& handle : faces)
-  {
-    const auto& face = handle.face();
-    if (face.selected())
-    {
-      auto* node = handle.node();
-      node->deselectFace(handle.faceIndex());
-      deselected.push_back(handle);
-    }
-  }
-
-  auto selectionChange = SelectionChange{};
-  selectionChange.deselectedBrushFaces = deselected;
-
-  selectionDidChangeNotifier(selectionChange);
-
-  // Selection change is done. Next, update implicit locking of linked groups.
-  // The strategy is to figure out what needs to be locked given selection().brushFaces,
-  // and then un-implicitly-lock all other linked groups.
-  const auto groupsToLock = kdl::vector_set<mdl::GroupNode*>{
-    mdl::faceSelectionWithLinkedGroupConstraints(*m_world.get(), selection().brushFaces)
-      .groupsToLock};
-  for (auto* node : groupsToLock)
-  {
-    node->setLockedByOtherSelection(true);
-  }
-  nodeLockingDidChangeNotifier(kdl::vec_static_cast<mdl::Node*>(groupsToLock.get_data()));
-
-  const auto groupsToUnlock = kdl::set_difference(implicitlyLockedGroups, groupsToLock);
-  for (auto* node : groupsToUnlock)
-  {
-    node->setLockedByOtherSelection(false);
-  }
-  nodeLockingDidChangeNotifier(kdl::vec_static_cast<mdl::Node*>(groupsToUnlock));
-}
-
-void MapDocumentCommandFacade::performDeselectAll()
-{
-  if (selection().hasNodes())
-  {
-    const auto previousSelection = selection().nodes;
-    performDeselect(previousSelection);
-  }
-  if (selection().hasBrushFaces())
-  {
-    const auto previousSelection = selection().brushFaces;
-    performDeselect(previousSelection);
-  }
-}
 
 void MapDocumentCommandFacade::performAddNodes(
   const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
