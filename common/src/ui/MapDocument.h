@@ -199,8 +199,8 @@ public: // notification
   Notifier<const std::vector<mdl::Node*>&> nodeVisibilityDidChangeNotifier;
   Notifier<const std::vector<mdl::Node*>&> nodeLockingDidChangeNotifier;
 
-  Notifier<mdl::GroupNode*> groupWasOpenedNotifier;
-  Notifier<mdl::GroupNode*> groupWasClosedNotifier;
+  Notifier<mdl::GroupNode&> groupWasOpenedNotifier;
+  Notifier<mdl::GroupNode&> groupWasClosedNotifier;
 
   Notifier<const std::vector<mdl::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 

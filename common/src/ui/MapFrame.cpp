@@ -825,12 +825,12 @@ void MapFrame::currentLayerDidChange(const tb::mdl::LayerNode*)
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened(mdl::GroupNode*)
+void MapFrame::groupWasOpened(mdl::GroupNode&)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed(mdl::GroupNode*)
+void MapFrame::groupWasClosed(mdl::GroupNode&)
 {
   updateStatusBarDelayed();
 }
