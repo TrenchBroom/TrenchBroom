@@ -20,6 +20,8 @@
 #pragma once
 
 #include "Macros.h"
+#include "Result.h"
+#include "ui/SelectionChange.h"
 #include "ui/UndoableCommand.h"
 
 #include <memory>
@@ -37,6 +39,7 @@ class Node;
 
 namespace tb::ui
 {
+class MapDocument;
 
 class SelectionCommand : public UndoableCommand
 {
@@ -77,6 +80,8 @@ private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(
     MapDocumentCommandFacade& document) override;
+
+  Result<void> doSelect(MapDocument& document) const;
 
   deleteCopyAndMove(SelectionCommand);
 };

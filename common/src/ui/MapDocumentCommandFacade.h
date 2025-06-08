@@ -64,17 +64,6 @@ public:
 
   ~MapDocumentCommandFacade() override;
 
-public: // selection modification
-  void performSelect(const std::vector<mdl::Node*>& nodes);
-  void performSelect(const std::vector<mdl::BrushFaceHandle>& faces);
-  void performSelectAllNodes();
-  void performSelectAllBrushFaces();
-  void performConvertToBrushFaceSelection();
-
-  void performDeselect(const std::vector<mdl::Node*>& nodes);
-  void performDeselect(const std::vector<mdl::BrushFaceHandle>& faces);
-  void performDeselectAll();
-
 public: // adding and removing nodes
   void performAddNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
   void performRemoveNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
