@@ -19,10 +19,30 @@
 
 #include "CurrentGroupCommand.h"
 
+#include "mdl/EditorContext.h"
 #include "ui/MapDocumentCommandFacade.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+void doPushGroup(mdl::GroupNode& groupNode, MapDocument& document)
+{
+  document.editorContext().pushGroup(&groupNode);
+  document.groupWasOpenedNotifier(&groupNode);
+}
+
+mdl::GroupNode& doPopGroup(MapDocument& document)
+{
+  auto& editorContext = document.editorContext();
+  auto& previousGroup = *editorContext.currentGroup();
+  editorContext.popGroup();
+  document.groupWasClosedNotifier(&previousGroup);
+  return previousGroup;
+}
+
+} // namespace
 
 std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(mdl::GroupNode* group)
 {
@@ -45,13 +65,12 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(
 {
   if (m_group)
   {
-    document.performPushGroup(m_group);
+    doPushGroup(*m_group, document);
     m_group = nullptr;
   }
   else
   {
-    m_group = document.currentGroup();
-    document.performPopGroup();
+    m_group = &doPopGroup(document);
   }
   return std::make_unique<CommandResult>(true);
 }
@@ -59,17 +78,7 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(
 std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
   MapDocumentCommandFacade& document)
 {
-  if (m_group)
-  {
-    document.performPushGroup(m_group);
-    m_group = nullptr;
-  }
-  else
-  {
-    m_group = document.currentGroup();
-    document.performPopGroup();
-  }
-  return std::make_unique<CommandResult>(true);
+  return doPerformDo(document);
 }
 
 } // namespace tb::ui
