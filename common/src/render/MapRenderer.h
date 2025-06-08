@@ -139,8 +139,8 @@ private: // notification
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void nodeLockingDidChange(const std::vector<mdl::Node*>& nodes);
 
-  void groupWasOpened(mdl::GroupNode* group);
-  void groupWasClosed(mdl::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode& group);
+  void groupWasClosed(mdl::GroupNode& group);
 
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
 

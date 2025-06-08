@@ -181,8 +181,8 @@ private: // notification handlers
   void toolHandleSelectionChanged(Tool& tool);
   void selectionDidChange(const SelectionChange& selectionChange);
   void currentLayerDidChange(const tb::mdl::LayerNode* layer);
-  void groupWasOpened(mdl::GroupNode* group);
-  void groupWasClosed(mdl::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode& group);
+  void groupWasClosed(mdl::GroupNode& group);
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void editorContextDidChange();
   void pointFileDidChange();

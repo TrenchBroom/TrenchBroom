@@ -30,7 +30,7 @@ namespace
 void doPushGroup(mdl::GroupNode& groupNode, MapDocument& document)
 {
   document.editorContext().pushGroup(&groupNode);
-  document.groupWasOpenedNotifier(&groupNode);
+  document.groupWasOpenedNotifier(groupNode);
 }
 
 mdl::GroupNode& doPopGroup(MapDocument& document)
@@ -38,7 +38,7 @@ mdl::GroupNode& doPopGroup(MapDocument& document)
   auto& editorContext = document.editorContext();
   auto& previousGroup = *editorContext.currentGroup();
   editorContext.popGroup();
-  document.groupWasClosedNotifier(&previousGroup);
+  document.groupWasClosedNotifier(previousGroup);
   return previousGroup;
 }
 
