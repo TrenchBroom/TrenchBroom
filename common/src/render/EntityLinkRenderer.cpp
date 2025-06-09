@@ -69,19 +69,19 @@ namespace
 {
 
 void addLink(
-  const mdl::EntityNodeBase& source,
-  const mdl::EntityNodeBase& target,
+  const mdl::EntityNodeBase& sourceNode,
+  const mdl::EntityNodeBase& targetNode,
   const Color& defaultColor,
   const Color& selectedColor,
   std::vector<LinkRenderer::LineVertex>& links)
 {
-  const auto anySelected = source.selected() || source.descendantSelected()
-                           || target.selected() || target.descendantSelected();
+  const auto anySelected = sourceNode.selected() || sourceNode.descendantSelected()
+                           || targetNode.selected() || targetNode.descendantSelected();
   const auto& sourceColor = anySelected ? selectedColor : defaultColor;
   const auto& targetColor = anySelected ? selectedColor : defaultColor;
 
-  links.emplace_back(vm::vec3f{source.linkSourceAnchor()}, sourceColor);
-  links.emplace_back(vm::vec3f{target.linkTargetAnchor()}, targetColor);
+  links.emplace_back(vm::vec3f{sourceNode.linkSourceAnchor()}, sourceColor);
+  links.emplace_back(vm::vec3f{targetNode.linkTargetAnchor()}, targetColor);
 }
 
 struct CollectAllLinksVisitor
@@ -93,7 +93,7 @@ struct CollectAllLinksVisitor
   void visit(
     const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
   {
-    if (editorContext.visible(&node))
+    if (editorContext.visible(node))
     {
       addTargets(node, node.linkTargets(), links);
       addTargets(node, node.killTargets(), links);
@@ -101,15 +101,15 @@ struct CollectAllLinksVisitor
   }
 
   void addTargets(
-    const mdl::EntityNodeBase& source,
-    const std::vector<mdl::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& sourceNode,
+    const std::vector<mdl::EntityNodeBase*>& targetNodes,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (const mdl::EntityNodeBase* target : targets)
+    for (const auto* targetNode : targetNodes)
     {
-      if (editorContext.visible(target))
+      if (editorContext.visible(*targetNode))
       {
-        addLink(source, *target, defaultColor, selectedColor, links);
+        addLink(sourceNode, *targetNode, defaultColor, selectedColor, links);
       }
     }
   }
@@ -126,7 +126,7 @@ struct CollectTransitiveSelectedLinksVisitor
   void visit(
     const mdl::EntityNodeBase& node, std::vector<LinkRenderer::LineVertex>& links)
   {
-    if (editorContext.visible(&node))
+    if (editorContext.visible(node))
     {
       if (visited.insert(&node).second)
       {
@@ -139,31 +139,31 @@ struct CollectTransitiveSelectedLinksVisitor
   }
 
   void addSources(
-    const std::vector<mdl::EntityNodeBase*>& sources,
-    const mdl::EntityNodeBase& target,
+    const std::vector<mdl::EntityNodeBase*>& sourceNodes,
+    const mdl::EntityNodeBase& targetNode,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (auto* source : sources)
+    for (auto* sourceNode : sourceNodes)
     {
-      if (editorContext.visible(source))
+      if (editorContext.visible(*sourceNode))
       {
-        addLink(*source, target, defaultColor, selectedColor, links);
-        visit(*source, links);
+        addLink(*sourceNode, targetNode, defaultColor, selectedColor, links);
+        visit(*sourceNode, links);
       }
     }
   }
 
   void addTargets(
-    const mdl::EntityNodeBase& source,
-    const std::vector<mdl::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& sourceNode,
+    const std::vector<mdl::EntityNodeBase*>& targetNodes,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (auto* target : targets)
+    for (auto* targetNode : targetNodes)
     {
-      if (editorContext.visible(target))
+      if (editorContext.visible(*targetNode))
       {
-        addLink(source, *target, defaultColor, selectedColor, links);
-        visit(*target, links);
+        addLink(sourceNode, *targetNode, defaultColor, selectedColor, links);
+        visit(*targetNode, links);
       }
     }
   }
@@ -188,31 +188,31 @@ struct CollectDirectSelectedLinksVisitor
   }
 
   void addSources(
-    const std::vector<mdl::EntityNodeBase*>& sources,
-    const mdl::EntityNodeBase& target,
+    const std::vector<mdl::EntityNodeBase*>& sourceNodes,
+    const mdl::EntityNodeBase& targetNode,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (const auto* source : sources)
+    for (const auto* sourceNode : sourceNodes)
     {
       if (
-        !source->selected() && !source->descendantSelected()
-        && editorContext.visible(source))
+        !sourceNode->selected() && !sourceNode->descendantSelected()
+        && editorContext.visible(*sourceNode))
       {
-        addLink(*source, target, defaultColor, selectedColor, links);
+        addLink(*sourceNode, targetNode, defaultColor, selectedColor, links);
       }
     }
   }
 
   void addTargets(
-    const mdl::EntityNodeBase& source,
-    const std::vector<mdl::EntityNodeBase*>& targets,
+    const mdl::EntityNodeBase& sourceNode,
+    const std::vector<mdl::EntityNodeBase*>& targetNodes,
     std::vector<LinkRenderer::LineVertex>& links)
   {
-    for (const auto* target : targets)
+    for (const auto* targetNode : targetNodes)
     {
-      if (editorContext.visible(target))
+      if (editorContext.visible(*targetNode))
       {
-        addLink(source, *target, defaultColor, selectedColor, links);
+        addLink(sourceNode, *targetNode, defaultColor, selectedColor, links);
       }
     }
   }

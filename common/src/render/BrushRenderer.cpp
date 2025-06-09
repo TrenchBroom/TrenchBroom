@@ -84,15 +84,15 @@ BrushRenderer::DefaultFilter::DefaultFilter(const mdl::EditorContext& context)
 {
 }
 
-bool BrushRenderer::DefaultFilter::visible(const mdl::BrushNode& brush) const
+bool BrushRenderer::DefaultFilter::visible(const mdl::BrushNode& brushNode) const
 {
-  return m_context.visible(&brush);
+  return m_context.visible(brushNode);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
-  const mdl::BrushNode& brush, const mdl::BrushFace& face) const
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
 {
-  return m_context.visible(&brush, face);
+  return m_context.visible(brushNode, face);
 }
 
 bool BrushRenderer::DefaultFilter::visible(
@@ -106,19 +106,19 @@ bool BrushRenderer::DefaultFilter::visible(
   const auto& firstFace = brush.face(*firstFaceIndex);
   const auto& secondFace = brush.face(*secondFaceIndex);
 
-  return m_context.visible(&brushNode, firstFace)
-         || m_context.visible(&brushNode, secondFace);
+  return m_context.visible(brushNode, firstFace)
+         || m_context.visible(brushNode, secondFace);
 }
 
 bool BrushRenderer::DefaultFilter::editable(const mdl::BrushNode& brush) const
 {
-  return m_context.editable(&brush);
+  return m_context.editable(brush);
 }
 
 bool BrushRenderer::DefaultFilter::editable(
   const mdl::BrushNode& brush, const mdl::BrushFace& face) const
 {
-  return m_context.editable(&brush, face);
+  return m_context.editable(brush, face);
 }
 
 bool BrushRenderer::DefaultFilter::selected(const mdl::BrushNode& brush) const

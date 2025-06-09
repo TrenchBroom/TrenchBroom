@@ -610,34 +610,34 @@ QString describeSelection(const MapDocument& document)
 
   const auto& editorContext = document.editorContext();
   document.world()->accept(kdl::overload(
-    [](auto&& thisLambda, const mdl::WorldNode* world) {
-      world->visitChildren(thisLambda);
+    [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [](auto&& thisLambda, const mdl::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const mdl::GroupNode* group) {
-      if (!editorContext.visible(group))
+    [&](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      if (!editorContext.visible(*groupNode))
       {
         ++hiddenGroups;
       }
-      group->visitChildren(thisLambda);
+      groupNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const mdl::EntityNode* entity) {
-      if (!editorContext.visible(entity))
+    [&](auto&& thisLambda, const mdl::EntityNode* entityNode) {
+      if (!editorContext.visible(*entityNode))
       {
         ++hiddenEntities;
       }
-      entity->visitChildren(thisLambda);
+      entityNode->visitChildren(thisLambda);
     },
-    [&](const mdl::BrushNode* brush) {
-      if (!editorContext.visible(brush))
+    [&](const mdl::BrushNode* brushNode) {
+      if (!editorContext.visible(*brushNode))
       {
         ++hiddenBrushes;
       }
     },
-    [&](const mdl::PatchNode* patch) {
-      if (!editorContext.visible(patch))
+    [&](const mdl::PatchNode* patchNode) {
+      if (!editorContext.visible(*patchNode))
       {
         ++hiddenPatches;
       }

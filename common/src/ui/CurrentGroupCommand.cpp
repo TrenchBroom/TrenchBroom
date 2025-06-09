@@ -29,7 +29,7 @@ namespace
 
 void doPushGroup(mdl::GroupNode& groupNode, MapDocument& document)
 {
-  document.editorContext().pushGroup(&groupNode);
+  document.editorContext().pushGroup(groupNode);
   document.groupWasOpenedNotifier(groupNode);
 }
 

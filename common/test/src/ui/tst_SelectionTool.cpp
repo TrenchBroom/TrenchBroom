@@ -405,7 +405,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clicking")
 
         document->editorContext().setHiddenTags(hiddenTag.type());
         REQUIRE_FALSE(document->editorContext().visible(
-          brushNode, brushNode->brush().face(topFaceIndex)));
+          *brushNode, brushNode->brush().face(topFaceIndex)));
 
         WHEN("I shift click once")
         {
@@ -487,7 +487,7 @@ TEST_CASE_METHOD(MapDocumentTest, "SelectionToolTest.clickingThroughHidden")
 
     REQUIRE(hiddenBrushNode->brush().face(hiddenTopFaceIndex).hasTag(hiddenTag));
     CHECK_FALSE(document->editorContext().visible(
-      hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
+      *hiddenBrushNode, hiddenBrushNode->brush().face(hiddenTopFaceIndex)));
 
     auto camera = render::OrthographicCamera{};
     AND_GIVEN("A pick ray that points at the top face of the brushes")
