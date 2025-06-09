@@ -5223,21 +5223,34 @@ void MapDocument::connectObservers()
     this, &MapDocument::updateFaceTagsAfterResourcesWhereProcessed);
 }
 
-void MapDocument::nodesWereAdded(const std::vector<mdl::Node*>&)
+void MapDocument::nodesWereAdded(const std::vector<mdl::Node*>& nodes)
 {
   m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
+
+  setHasPendingChanges(mdl::collectGroups(nodes), false);
+  setEntityDefinitions(nodes);
+  setEntityModels(nodes);
+  setMaterials(nodes);
 }
 
-void MapDocument::nodesWereRemoved(const std::vector<mdl::Node*>&)
+void MapDocument::nodesWereRemoved(const std::vector<mdl::Node*>& nodes)
 {
   m_cachedSelection = std::nullopt;
   m_cachedSelectionBounds = std::nullopt;
+
+  unsetEntityModels(nodes);
+  unsetEntityDefinitions(nodes);
+  unsetMaterials(nodes);
 }
 
-void MapDocument::nodesDidChange(const std::vector<mdl::Node*>&)
+void MapDocument::nodesDidChange(const std::vector<mdl::Node*>& nodes)
 {
   m_cachedSelectionBounds = std::nullopt;
+
+  setEntityDefinitions(nodes);
+  setEntityModels(nodes);
+  setMaterials(nodes);
 }
 
 void MapDocument::selectionWillChange()
