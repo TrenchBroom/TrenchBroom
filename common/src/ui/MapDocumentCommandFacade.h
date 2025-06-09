@@ -76,16 +76,6 @@ public: // swapping node contents
   void performSwapNodeContents(
     std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap);
 
-public: // Node Visibility
-  std::map<mdl::Node*, mdl::VisibilityState> setVisibilityState(
-    const std::vector<mdl::Node*>& nodes, mdl::VisibilityState visibilityState);
-  std::map<mdl::Node*, mdl::VisibilityState> setVisibilityEnsured(
-    const std::vector<mdl::Node*>& nodes);
-  void restoreVisibilityState(const std::map<mdl::Node*, mdl::VisibilityState>& nodes);
-  std::map<mdl::Node*, mdl::LockState> setLockState(
-    const std::vector<mdl::Node*>& nodes, mdl::LockState lockState);
-  void restoreLockState(const std::map<mdl::Node*, mdl::LockState>& nodes);
-
 public: // layers
   using MapDocument::performSetCurrentLayer;
 
