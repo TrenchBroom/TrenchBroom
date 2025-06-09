@@ -22,9 +22,9 @@
 #include "Macros.h"
 #include "ui/UndoableCommand.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace tb::mdl
@@ -43,7 +43,7 @@ private:
 
   std::vector<mdl::Node*> m_nodes;
   Action m_action;
-  std::map<mdl::Node*, mdl::VisibilityState> m_oldState;
+  std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>> m_oldState;
 
 public:
   static std::unique_ptr<SetVisibilityCommand> show(std::vector<mdl::Node*> nodes);

@@ -27,6 +27,76 @@
 
 namespace tb::ui
 {
+namespace
+{
+auto setVisibilityState(
+  const std::vector<mdl::Node*>& nodes,
+  const mdl::VisibilityState visibilityState,
+  MapDocument& document)
+{
+  auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
+  result.reserve(nodes.size());
+
+  auto changedNodes = std::vector<mdl::Node*>{};
+  changedNodes.reserve(nodes.size());
+
+  for (auto* node : nodes)
+  {
+    const auto oldState = node->visibilityState();
+    if (node->setVisibilityState(visibilityState))
+    {
+      changedNodes.push_back(node);
+      result.emplace_back(node, oldState);
+    }
+  }
+
+  document.nodeVisibilityDidChangeNotifier(changedNodes);
+
+  return result;
+}
+
+auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, MapDocument& document)
+{
+  auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
+  result.reserve(nodes.size());
+
+  auto changedNodes = std::vector<mdl::Node*>{};
+  changedNodes.reserve(nodes.size());
+
+  for (auto* node : nodes)
+  {
+    const auto oldState = node->visibilityState();
+    if (node->ensureVisible())
+    {
+      changedNodes.push_back(node);
+      result.emplace_back(node, oldState);
+    }
+  }
+
+  document.nodeVisibilityDidChangeNotifier(changedNodes);
+
+  return result;
+}
+
+void restoreVisibilityState(
+  const std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>& nodes,
+  MapDocument& document)
+{
+  auto changedNodes = std::vector<mdl::Node*>{};
+  changedNodes.reserve(nodes.size());
+
+  for (const auto& [node, state] : nodes)
+  {
+    if (node->setVisibilityState(state))
+    {
+      changedNodes.push_back(node);
+    }
+  }
+
+  document.nodeVisibilityDidChangeNotifier(changedNodes);
+}
+
+} // namespace
 
 enum class SetVisibilityCommand::Action
 {
@@ -90,16 +160,16 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
   switch (m_action)
   {
   case Action::Reset:
-    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Inherited);
+    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Inherited, document);
     break;
   case Action::Hide:
-    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Hidden);
+    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Hidden, document);
     break;
   case Action::Show:
-    m_oldState = document.setVisibilityState(m_nodes, mdl::VisibilityState::Shown);
+    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Shown, document);
     break;
   case Action::Ensure:
-    m_oldState = document.setVisibilityEnsured(m_nodes);
+    m_oldState = setVisibilityEnsured(m_nodes, document);
     break;
     switchDefault();
   }
@@ -109,7 +179,7 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
 std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
   MapDocumentCommandFacade& document)
 {
-  document.restoreVisibilityState(m_oldState);
+  restoreVisibilityState(m_oldState, document);
   return std::make_unique<CommandResult>(true);
 }
 

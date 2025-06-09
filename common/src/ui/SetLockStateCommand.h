@@ -22,9 +22,9 @@
 #include "Macros.h"
 #include "ui/UndoableCommand.h"
 
-#include <map>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace tb::mdl
@@ -40,7 +40,7 @@ class SetLockStateCommand : public UndoableCommand
 private:
   std::vector<mdl::Node*> m_nodes;
   mdl::LockState m_lockState;
-  std::map<mdl::Node*, mdl::LockState> m_oldLockState;
+  std::vector<std::tuple<mdl::Node*, mdl::LockState>> m_oldLockState;
 
 public:
   static std::unique_ptr<SetLockStateCommand> lock(std::vector<mdl::Node*> nodes);

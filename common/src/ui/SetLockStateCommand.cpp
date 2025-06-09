@@ -36,6 +36,52 @@
 
 namespace tb::ui
 {
+namespace
+{
+auto setLockState(
+  const std::vector<mdl::Node*>& nodes,
+  const mdl::LockState lockState,
+  MapDocument& document)
+{
+  auto result = std::vector<std::tuple<mdl::Node*, mdl::LockState>>{};
+  result.reserve(nodes.size());
+
+  auto changedNodes = std::vector<mdl::Node*>{};
+  changedNodes.reserve(nodes.size());
+
+  for (mdl::Node* node : nodes)
+  {
+    const auto oldState = node->lockState();
+    if (node->setLockState(lockState))
+    {
+      changedNodes.push_back(node);
+      result.emplace_back(node, oldState);
+    }
+  }
+
+  document.nodeLockingDidChangeNotifier(changedNodes);
+
+  return result;
+}
+
+void restoreLockState(
+  const std::vector<std::tuple<mdl::Node*, mdl::LockState>>& nodes, MapDocument& document)
+{
+  auto changedNodes = std::vector<mdl::Node*>{};
+  changedNodes.reserve(nodes.size());
+
+  for (const auto& [node, state] : nodes)
+  {
+    if (node->setLockState(state))
+    {
+      changedNodes.push_back(node);
+    }
+  }
+
+  document.nodeLockingDidChangeNotifier(changedNodes);
+}
+
+} // namespace
 
 std::unique_ptr<SetLockStateCommand> SetLockStateCommand::lock(
   std::vector<mdl::Node*> nodes)
@@ -93,14 +139,14 @@ std::string SetLockStateCommand::makeName(const mdl::LockState state)
 std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(
   MapDocumentCommandFacade& document)
 {
-  m_oldLockState = document.setLockState(m_nodes, m_lockState);
+  m_oldLockState = setLockState(m_nodes, m_lockState, document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
   MapDocumentCommandFacade& document)
 {
-  document.restoreLockState(m_oldLockState);
+  restoreLockState(m_oldLockState, document);
   return std::make_unique<CommandResult>(true);
 }
 
