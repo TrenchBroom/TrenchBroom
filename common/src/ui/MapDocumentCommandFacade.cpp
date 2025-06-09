@@ -96,11 +96,6 @@ void MapDocumentCommandFacade::performAddNodes(
     addedNodes = kdl::vec_concat(std::move(addedNodes), children);
   }
 
-  setHasPendingChanges(mdl::collectGroups(addedNodes), false);
-  setEntityDefinitions(addedNodes);
-  setEntityModels(addedNodes);
-  setMaterials(addedNodes);
-
   nodesWereAddedNotifier(addedNodes);
 }
 
@@ -119,10 +114,6 @@ void MapDocumentCommandFacade::performRemoveNodes(
   {
     parent->removeChildren(std::begin(children), std::end(children));
   }
-
-  unsetEntityModels(allChildren);
-  unsetEntityDefinitions(allChildren);
-  unsetMaterials(allChildren);
 }
 
 std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
@@ -156,14 +147,6 @@ MapDocumentCommandFacade::performReplaceChildren(
 
     result.emplace_back(parent, std::move(oldChildren));
   }
-
-  unsetEntityModels(allOldChildren);
-  unsetEntityDefinitions(allOldChildren);
-  unsetMaterials(allOldChildren);
-
-  setEntityDefinitions(allNewChildren);
-  setEntityModels(allNewChildren);
-  setMaterials(allNewChildren);
 
   nodesWereAddedNotifier(allNewChildren);
 
@@ -263,16 +246,6 @@ void MapDocumentCommandFacade::performSwapNodeContents(
         return mdl::NodeContents{
           patchNode->setPatch(std::get<mdl::BezierPatch>(std::move(contents)))};
       }));
-  }
-
-  if (!notifyEntityDefinitionsChange && !notifyModsChange)
-  {
-    setEntityDefinitions(nodes);
-    setEntityModels(nodes);
-  }
-  if (!notifyWadsChange)
-  {
-    setMaterials(nodes);
   }
 }
 
