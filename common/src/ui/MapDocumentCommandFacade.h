@@ -79,9 +79,6 @@ public: // swapping node contents
 public: // layers
   using MapDocument::performSetCurrentLayer;
 
-private:
-  void doSetIssueHidden(const mdl::Issue& issue, bool hidden) override;
-
 public: // modification count
   void incModificationCount(size_t delta = 1);
   void decModificationCount(size_t delta = 1);
