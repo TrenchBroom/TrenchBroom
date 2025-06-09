@@ -730,9 +730,6 @@ private: // validator management
 public:
   void setIssueHidden(const mdl::Issue& issue, bool hidden);
 
-private:
-  virtual void doSetIssueHidden(const mdl::Issue& issue, bool hidden) = 0;
-
 public:                     // tag management
   void registerSmartTags(); // public for testing
   const std::vector<mdl::SmartTag>& smartTags() const;

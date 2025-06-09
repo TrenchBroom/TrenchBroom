@@ -275,16 +275,6 @@ void MapDocumentCommandFacade::performSwapNodeContents(
   }
 }
 
-void MapDocumentCommandFacade::doSetIssueHidden(
-  const mdl::Issue& issue, const bool hidden)
-{
-  if (issue.hidden() != hidden)
-  {
-    issue.node().setIssueHidden(issue.type(), hidden);
-    incModificationCount();
-  }
-}
-
 void MapDocumentCommandFacade::incModificationCount(const size_t delta)
 {
   m_modificationCount += delta;

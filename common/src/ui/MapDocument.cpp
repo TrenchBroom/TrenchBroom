@@ -61,6 +61,7 @@
 #include "mdl/GameFactory.h"
 #include "mdl/GroupNode.h"
 #include "mdl/InvalidUVScaleValidator.h"
+#include "mdl/Issue.h"
 #include "mdl/LayerNode.h"
 #include "mdl/LinkSourceValidator.h"
 #include "mdl/LinkTargetValidator.h"
@@ -4922,7 +4923,10 @@ mdl::Game::SoftMapBounds MapDocument::softMapBounds() const
 
 void MapDocument::setIssueHidden(const mdl::Issue& issue, const bool hidden)
 {
-  doSetIssueHidden(issue, hidden);
+  if (issue.hidden() != hidden)
+  {
+    issue.node().setIssueHidden(issue.type(), hidden);
+  }
 }
 
 void MapDocument::registerValidators()
