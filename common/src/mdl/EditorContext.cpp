@@ -63,10 +63,10 @@ void EditorContext::setHiddenTags(const TagType::Type hiddenTags)
   }
 }
 
-bool EditorContext::entityDefinitionHidden(const mdl::EntityNodeBase* entityNode) const
+bool EditorContext::entityDefinitionHidden(const mdl::EntityNodeBase& entityNode) const
 {
-  return entityNode && entityNode->entity().definition()
-         && entityDefinitionHidden(*entityNode->entity().definition());
+  return entityNode.entity().definition()
+         && entityDefinitionHidden(*entityNode.entity().definition());
 }
 
 bool EditorContext::entityDefinitionHidden(const EntityDefinition& definition) const
@@ -103,16 +103,15 @@ mdl::GroupNode* EditorContext::currentGroup() const
   return m_currentGroup;
 }
 
-void EditorContext::pushGroup(mdl::GroupNode* groupNode)
+void EditorContext::pushGroup(mdl::GroupNode& groupNode)
 {
-  ensure(groupNode, "group is null");
-  assert(!m_currentGroup || groupNode->containingGroup() == m_currentGroup);
+  assert(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
 
   if (m_currentGroup)
   {
     m_currentGroup->close();
   }
-  m_currentGroup = groupNode;
+  m_currentGroup = &groupNode;
   m_currentGroup->open();
 }
 
@@ -128,30 +127,30 @@ void EditorContext::popGroup()
   }
 }
 
-bool EditorContext::visible(const mdl::Node* node) const
+bool EditorContext::visible(const mdl::Node& node) const
 {
-  return node->accept(kdl::overload(
-    [&](const WorldNode* worldNode) { return visible(worldNode); },
-    [&](const LayerNode* layerNode) { return visible(layerNode); },
-    [&](const GroupNode* groupNode) { return visible(groupNode); },
-    [&](const EntityNode* entityNode) { return visible(entityNode); },
-    [&](const BrushNode* brushNode) { return visible(brushNode); },
-    [&](const PatchNode* patchNode) { return visible(patchNode); }));
+  return node.accept(kdl::overload(
+    [&](const WorldNode* worldNode) { return visible(*worldNode); },
+    [&](const LayerNode* layerNode) { return visible(*layerNode); },
+    [&](const GroupNode* groupNode) { return visible(*groupNode); },
+    [&](const EntityNode* entityNode) { return visible(*entityNode); },
+    [&](const BrushNode* brushNode) { return visible(*brushNode); },
+    [&](const PatchNode* patchNode) { return visible(*patchNode); }));
 }
 
-bool EditorContext::visible(const mdl::WorldNode* worldNode) const
+bool EditorContext::visible(const mdl::WorldNode& worldNode) const
 {
-  return worldNode->visible();
+  return worldNode.visible();
 }
 
-bool EditorContext::visible(const mdl::LayerNode* layerNode) const
+bool EditorContext::visible(const mdl::LayerNode& layerNode) const
 {
-  return layerNode->visible();
+  return layerNode.visible();
 }
 
-bool EditorContext::visible(const mdl::GroupNode* groupNode) const
+bool EditorContext::visible(const mdl::GroupNode& groupNode) const
 {
-  if (groupNode->selected())
+  if (groupNode.selected())
   {
     return true;
   }
@@ -159,27 +158,27 @@ bool EditorContext::visible(const mdl::GroupNode* groupNode) const
   {
     return false;
   }
-  return groupNode->visible();
+  return groupNode.visible();
 }
 
-bool EditorContext::visible(const mdl::EntityNode* entityNode) const
+bool EditorContext::visible(const mdl::EntityNode& entityNode) const
 {
-  if (entityNode->selected())
+  if (entityNode.selected())
   {
     return true;
   }
 
-  if (!entityNode->entity().pointEntity())
+  if (!entityNode.entity().pointEntity())
   {
     return anyChildVisible(entityNode);
   }
 
-  if (!entityNode->visible())
+  if (!entityNode.visible())
   {
     return false;
   }
 
-  if (entityNode->entity().pointEntity() && !pref(Preferences::ShowPointEntities))
+  if (entityNode.entity().pointEntity() && !pref(Preferences::ShowPointEntities))
   {
     return false;
   }
@@ -192,9 +191,9 @@ bool EditorContext::visible(const mdl::EntityNode* entityNode) const
   return true;
 }
 
-bool EditorContext::visible(const mdl::BrushNode* brushNode) const
+bool EditorContext::visible(const mdl::BrushNode& brushNode) const
 {
-  if (brushNode->selected())
+  if (brushNode.selected())
   {
     return true;
   }
@@ -204,107 +203,108 @@ bool EditorContext::visible(const mdl::BrushNode* brushNode) const
     return false;
   }
 
-  if (brushNode->hasTag(m_hiddenTags))
+  if (brushNode.hasTag(m_hiddenTags))
   {
     return false;
   }
 
-  if (brushNode->allFacesHaveAnyTagInMask(m_hiddenTags))
+  if (brushNode.allFacesHaveAnyTagInMask(m_hiddenTags))
   {
     return false;
   }
 
-  if (entityDefinitionHidden(brushNode->entity()))
+  if (const auto* entityNode = brushNode.entity();
+      entityNode && entityDefinitionHidden(*entityNode))
   {
     return false;
   }
 
-  return brushNode->visible();
+  return brushNode.visible();
 }
 
 bool EditorContext::visible(
-  const mdl::BrushNode* brushNode, const mdl::BrushFace& face) const
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
 {
   return visible(brushNode) && !face.hasTag(m_hiddenTags);
 }
 
-bool EditorContext::visible(const mdl::PatchNode* patchNode) const
+bool EditorContext::visible(const mdl::PatchNode& patchNode) const
 {
-  if (patchNode->selected())
+  if (patchNode.selected())
   {
     return true;
   }
 
-  if (patchNode->hasTag(m_hiddenTags))
+  if (patchNode.hasTag(m_hiddenTags))
   {
     return false;
   }
 
-  return patchNode->visible();
+  return patchNode.visible();
 }
 
-bool EditorContext::anyChildVisible(const mdl::Node* node) const
+bool EditorContext::anyChildVisible(const mdl::Node& node) const
 {
-  const auto& children = node->children();
+  const auto& children = node.children();
   return std::ranges::any_of(
-    children, [this](const Node* child) { return visible(child); });
+    children, [this](const Node* childNode) { return visible(*childNode); });
 }
 
-bool EditorContext::editable(const mdl::Node* node) const
+bool EditorContext::editable(const mdl::Node& node) const
 {
-  return node->editable();
+  return node.editable();
 }
 
-bool EditorContext::editable(const mdl::BrushNode* brushNode, const mdl::BrushFace&) const
+bool EditorContext::editable(const mdl::BrushNode& brushNode, const mdl::BrushFace&) const
 {
   return editable(brushNode);
 }
 
-bool EditorContext::selectable(const mdl::Node* node) const
+bool EditorContext::selectable(const mdl::Node& node) const
 {
-  return node->accept(kdl::overload(
-    [&](const WorldNode* worldNode) { return selectable(worldNode); },
-    [&](const LayerNode* layerNode) { return selectable(layerNode); },
-    [&](const GroupNode* groupNode) { return selectable(groupNode); },
-    [&](const EntityNode* entityNode) { return selectable(entityNode); },
-    [&](const BrushNode* brushNode) { return selectable(brushNode); },
-    [&](const PatchNode* patchNode) { return selectable(patchNode); }));
+  return node.accept(kdl::overload(
+    [&](const WorldNode* worldNode) { return selectable(*worldNode); },
+    [&](const LayerNode* layerNode) { return selectable(*layerNode); },
+    [&](const GroupNode* groupNode) { return selectable(*groupNode); },
+    [&](const EntityNode* entityNode) { return selectable(*entityNode); },
+    [&](const BrushNode* brushNode) { return selectable(*brushNode); },
+    [&](const PatchNode* patchNode) { return selectable(*patchNode); }));
 }
 
-bool EditorContext::selectable(const mdl::WorldNode*) const
+bool EditorContext::selectable(const mdl::WorldNode&) const
 {
   return false;
 }
 
-bool EditorContext::selectable(const mdl::LayerNode*) const
+bool EditorContext::selectable(const mdl::LayerNode&) const
 {
   return false;
 }
 
-bool EditorContext::selectable(const mdl::GroupNode* groupNode) const
+bool EditorContext::selectable(const mdl::GroupNode& groupNode) const
 {
-  return visible(groupNode) && editable(groupNode) && !groupNode->opened()
+  return visible(groupNode) && editable(groupNode) && !groupNode.opened()
          && inOpenGroup(groupNode);
 }
 
-bool EditorContext::selectable(const mdl::EntityNode* entityNode) const
+bool EditorContext::selectable(const mdl::EntityNode& entityNode) const
 {
-  return visible(entityNode) && editable(entityNode) && !entityNode->hasChildren()
+  return visible(entityNode) && editable(entityNode) && !entityNode.hasChildren()
          && inOpenGroup(entityNode);
 }
 
-bool EditorContext::selectable(const mdl::BrushNode* brushNode) const
+bool EditorContext::selectable(const mdl::BrushNode& brushNode) const
 {
   return visible(brushNode) && editable(brushNode) && inOpenGroup(brushNode);
 }
 
 bool EditorContext::selectable(
-  const mdl::BrushNode* brushNode, const mdl::BrushFace& face) const
+  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
 {
   return visible(brushNode, face) && editable(brushNode, face);
 }
 
-bool EditorContext::selectable(const mdl::PatchNode* patchNode) const
+bool EditorContext::selectable(const mdl::PatchNode& patchNode) const
 {
   return visible(patchNode) && editable(patchNode) && inOpenGroup(patchNode);
 }
@@ -314,9 +314,9 @@ bool EditorContext::canChangeSelection() const
   return !m_blockSelection;
 }
 
-bool EditorContext::inOpenGroup(const mdl::Object* object) const
+bool EditorContext::inOpenGroup(const mdl::Object& object) const
 {
-  return object->containingGroupOpened();
+  return object.containingGroupOpened();
 }
 
 } // namespace tb::mdl

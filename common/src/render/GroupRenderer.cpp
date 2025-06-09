@@ -248,11 +248,11 @@ void GroupRenderer::validateBounds()
   m_boundsValid = true;
 }
 
-bool GroupRenderer::shouldRenderGroup(const mdl::GroupNode& group) const
+bool GroupRenderer::shouldRenderGroup(const mdl::GroupNode& groupNode) const
 {
   const auto* currentGroup = m_editorContext.currentGroup();
-  const auto* parentGroup = group.containingGroup();
-  return parentGroup == currentGroup && m_editorContext.visible(&group);
+  const auto* parentGroup = groupNode.containingGroup();
+  return parentGroup == currentGroup && m_editorContext.visible(groupNode);
 }
 
 AttrString GroupRenderer::groupString(const mdl::GroupNode& groupNode) const
