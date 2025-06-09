@@ -117,11 +117,12 @@ void MapDocumentCommandFacade::performRemoveNodes(
 
   for (const auto& [parent, children] : nodes)
   {
-    unsetEntityModels(children);
-    unsetEntityDefinitions(children);
-    unsetMaterials(children);
     parent->removeChildren(std::begin(children), std::end(children));
   }
+
+  unsetEntityModels(allChildren);
+  unsetEntityDefinitions(allChildren);
+  unsetMaterials(allChildren);
 }
 
 std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
