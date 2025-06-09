@@ -1317,10 +1317,10 @@ void MapDocument::selectSiblings()
 
 void MapDocument::selectTouching(const bool del)
 {
-  const auto nodes = kdl::vec_filter(
-    mdl::collectTouchingNodes(
-      std::vector<mdl::Node*>{m_world.get()}, selection().brushes),
-    [&](mdl::Node* node) { return m_editorContext->selectable(node); });
+  auto nodes = mdl::collectTouchingNodes({m_world.get()}, selection().brushes)
+               | std::views::filter(
+                 [&](const auto* node) { return m_editorContext->selectable(*node); })
+               | kdl::to_vector;
 
   auto transaction = Transaction{*this, "Select Touching"};
   if (del)
@@ -1337,10 +1337,10 @@ void MapDocument::selectTouching(const bool del)
 
 void MapDocument::selectInside(const bool del)
 {
-  const auto nodes = kdl::vec_filter(
-    mdl::collectContainedNodes(
-      std::vector<mdl::Node*>{m_world.get()}, selection().brushes),
-    [&](mdl::Node* node) { return m_editorContext->selectable(node); });
+  auto nodes = mdl::collectContainedNodes({m_world.get()}, selection().brushes)
+               | std::views::filter(
+                 [&](const auto* node) { return m_editorContext->selectable(*node); })
+               | kdl::to_vector;
 
   auto transaction = Transaction{*this, "Select Inside"};
   if (del)
@@ -1366,25 +1366,29 @@ void MapDocument::selectInverse()
   const auto collectNode = [&](auto* node) {
     if (
       !node->transitivelySelected() && !node->descendantSelected()
-      && m_editorContext->selectable(node))
+      && m_editorContext->selectable(*node))
     {
       nodesToSelect.push_back(node);
     }
   };
 
   currentGroupOrWorld()->accept(kdl::overload(
-    [](auto&& thisLambda, mdl::WorldNode* world) { world->visitChildren(thisLambda); },
-    [](auto&& thisLambda, mdl::LayerNode* layer) { layer->visitChildren(thisLambda); },
-    [&](auto&& thisLambda, mdl::GroupNode* group) {
-      collectNode(group);
-      group->visitChildren(thisLambda);
+    [](auto&& thisLambda, mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, mdl::EntityNode* entity) {
-      collectNode(entity);
-      entity->visitChildren(thisLambda);
+    [](auto&& thisLambda, mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](mdl::BrushNode* brush) { collectNode(brush); },
-    [&](mdl::PatchNode* patch) { collectNode(patch); }));
+    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      collectNode(groupNode);
+      groupNode->visitChildren(thisLambda);
+    },
+    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      collectNode(entityNode);
+      entityNode->visitChildren(thisLambda);
+    },
+    [&](mdl::BrushNode* brushNode) { collectNode(brushNode); },
+    [&](mdl::PatchNode* patchNode) { collectNode(patchNode); }));
 
   auto transaction = Transaction{*this, "Select Inverse"};
   deselectAll();
@@ -1411,7 +1415,7 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
     [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
       if (hasFilePosition(groupNode))
       {
-        if (m_editorContext->selectable(groupNode))
+        if (m_editorContext->selectable(*groupNode))
         {
           nodesToSelect.push_back(groupNode);
         }
@@ -1424,7 +1428,7 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
     [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
       if (hasFilePosition(entityNode))
       {
-        if (m_editorContext->selectable(entityNode))
+        if (m_editorContext->selectable(*entityNode))
         {
           nodesToSelect.push_back(entityNode);
         }
@@ -1443,13 +1447,13 @@ void MapDocument::selectNodesWithFilePosition(const std::vector<size_t>& positio
       }
     },
     [&](mdl::BrushNode* brushNode) {
-      if (hasFilePosition(brushNode) && m_editorContext->selectable(brushNode))
+      if (hasFilePosition(brushNode) && m_editorContext->selectable(*brushNode))
       {
         nodesToSelect.push_back(brushNode);
       }
     },
     [&](mdl::PatchNode* patchNode) {
-      if (hasFilePosition(patchNode) && m_editorContext->selectable(patchNode))
+      if (hasFilePosition(patchNode) && m_editorContext->selectable(*patchNode))
       {
         nodesToSelect.push_back(patchNode);
       }
@@ -1555,11 +1559,14 @@ void MapDocument::selectTall(const vm::axis::type cameraAxis)
         auto transaction = Transaction{*this, "Select Tall"};
         remove();
 
-        const auto nodesToSelect = kdl::vec_filter(
+        const auto nodesToSelect =
           mdl::collectContainedNodes(
-            {world()},
-            kdl::vec_transform(tallBrushes, [](const auto& b) { return b.get(); })),
-          [&](const auto* node) { return editorContext().selectable(node); });
+            {world()}, tallBrushes | std::views::transform([](const auto& b) {
+                         return b.get();
+                       }) | kdl::to_vector)
+          | std::views::filter(
+            [&](const auto* node) { return editorContext().selectable(*node); })
+          | kdl::to_vector;
         selectNodes(nodesToSelect);
 
         transaction.commit();

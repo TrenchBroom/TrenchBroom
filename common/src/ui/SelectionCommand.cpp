@@ -176,7 +176,7 @@ void doSelectBrushFaces(
   {
     auto* node = handle.node();
     const auto& face = handle.face();
-    if (!face.selected() && editorContext.selectable(node, face))
+    if (!face.selected() && editorContext.selectable(*node, face))
     {
       node->selectFace(handle.faceIndex());
       selected.push_back(handle);
