@@ -22,6 +22,7 @@
 #include "Ensure.h"
 #include "Macros.h"
 #include "mdl/Node.h"
+#include "ui/AddRemoveNodesUtils.h"
 #include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/map_utils.h"
@@ -104,10 +105,10 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
   switch (m_action)
   {
   case Action::Add:
-    document.performAddNodes(m_nodesToAdd);
+    addNodesAndNotify(m_nodesToAdd, document);
     break;
   case Action::Remove:
-    document.performRemoveNodes(m_nodesToRemove);
+    removeNodesAndNotify(m_nodesToRemove, document);
     break;
   }
 
@@ -120,10 +121,10 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
   switch (m_action)
   {
   case Action::Add:
-    document.performRemoveNodes(m_nodesToRemove);
+    removeNodesAndNotify(m_nodesToRemove, document);
     break;
   case Action::Remove:
-    document.performAddNodes(m_nodesToAdd);
+    addNodesAndNotify(m_nodesToAdd, document);
     break;
   }
 

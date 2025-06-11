@@ -276,6 +276,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/ActionContext.cpp
         ${COMMON_SOURCE_DIR}/ui/Actions.cpp
         ${COMMON_SOURCE_DIR}/ui/AddRemoveNodesCommand.cpp
+        ${COMMON_SOURCE_DIR}/ui/AddRemoveNodesUtils.cpp
         ${COMMON_SOURCE_DIR}/ui/Animation.cpp
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.cpp
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.cpp
@@ -818,6 +819,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/ActionContext.h
         ${COMMON_SOURCE_DIR}/ui/Actions.h
         ${COMMON_SOURCE_DIR}/ui/AddRemoveNodesCommand.h
+        ${COMMON_SOURCE_DIR}/ui/AddRemoveNodesUtils.h
         ${COMMON_SOURCE_DIR}/ui/Animation.h
         ${COMMON_SOURCE_DIR}/ui/AppInfoPanel.h
         ${COMMON_SOURCE_DIR}/ui/AssembleBrushTool.h

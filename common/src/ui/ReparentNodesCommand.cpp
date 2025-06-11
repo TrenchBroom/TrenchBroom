@@ -19,6 +19,7 @@
 
 #include "ReparentNodesCommand.h"
 
+#include "ui/AddRemoveNodesUtils.h"
 #include "ui/MapDocumentCommandFacade.h"
 
 namespace tb::ui
@@ -44,16 +45,16 @@ ReparentNodesCommand::ReparentNodesCommand(
 std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformDo(
   MapDocumentCommandFacade& document)
 {
-  document.performRemoveNodes(m_nodesToRemove);
-  document.performAddNodes(m_nodesToAdd);
+  removeNodesAndNotify(m_nodesToRemove, document);
+  addNodesAndNotify(m_nodesToAdd, document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> ReparentNodesCommand::doPerformUndo(
   MapDocumentCommandFacade& document)
 {
-  document.performRemoveNodes(m_nodesToAdd);
-  document.performAddNodes(m_nodesToRemove);
+  removeNodesAndNotify(m_nodesToAdd, document);
+  addNodesAndNotify(m_nodesToRemove, document);
   return std::make_unique<CommandResult>(true);
 }
 
