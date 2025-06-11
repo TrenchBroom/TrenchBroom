@@ -100,7 +100,6 @@
 #include "ui/Grid.h"
 #include "ui/MapTextEncoding.h"
 #include "ui/PasteType.h"
-#include "ui/ReparentNodesCommand.h"
 #include "ui/RepeatStack.h"
 #include "ui/SelectionCommand.h"
 #include "ui/SetCurrentLayerCommand.h"
@@ -1804,9 +1803,11 @@ bool MapDocument::reparentNodes(
   executeAndStore(std::make_unique<SetLinkIdsCommand>(
     "Set Link ID", setLinkIdsForReparentingNodes(nodesToAdd)));
 
-  const auto result =
-    executeAndStore(ReparentNodesCommand::reparent(nodesToAdd, nodesToRemove));
-  if (!result->success())
+  const auto success =
+    executeAndStore(AddRemoveNodesCommand::remove(nodesToRemove))->success()
+    && executeAndStore(AddRemoveNodesCommand::add(nodesToAdd))->success();
+
+  if (!success)
   {
     transaction.cancel();
     return false;
