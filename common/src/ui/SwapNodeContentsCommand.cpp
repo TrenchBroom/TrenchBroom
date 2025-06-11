@@ -19,13 +19,120 @@
 
 #include "SwapNodeContentsCommand.h"
 
+#include "mdl/Game.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "ui/MapDocumentCommandFacade.h"
 
+#include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
+
+#include <ranges>
 
 namespace tb::ui
 {
+namespace
+{
+
+auto notifySpecialWorldProperties(
+  const mdl::Game& game,
+  const std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
+{
+  for (const auto& [node, contents] : nodesToSwap)
+  {
+    if (const auto* worldNode = dynamic_cast<const mdl::WorldNode*>(node))
+    {
+      const auto& oldEntity = worldNode->entity();
+      const auto& newEntity = std::get<mdl::Entity>(contents.get());
+
+      const auto* oldWads = oldEntity.property(mdl::EntityPropertyKeys::Wad);
+      const auto* newWads = newEntity.property(mdl::EntityPropertyKeys::Wad);
+
+      const bool notifyWadsChange =
+        (oldWads == nullptr) != (newWads == nullptr)
+        || (oldWads != nullptr && newWads != nullptr && *oldWads != *newWads);
+
+      const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
+      const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
+      const bool notifyEntityDefinitionsChange =
+        oldEntityDefinitionSpec != newEntityDefinitionSpec;
+
+      const auto oldMods = game.extractEnabledMods(oldEntity);
+      const auto newMods = game.extractEnabledMods(newEntity);
+      const bool notifyModsChange = oldMods != newMods;
+
+      return std::tuple{
+        notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange};
+    }
+  }
+
+  return std::tuple{false, false, false};
+}
+
+void doSwapNodeContents(
+  std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap,
+  MapDocument& document)
+{
+  const auto nodes = nodesToSwap
+                     | std::views::transform([](const auto& pair) { return pair.first; })
+                     | kdl::to_vector;
+  const auto parents = collectAncestors(nodes);
+  const auto descendants = collectDescendants(nodes);
+
+  auto notifyNodes = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, nodes};
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+  auto notifyDescendants = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, descendants};
+
+  const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
+    notifySpecialWorldProperties(*document.game(), nodesToSwap);
+  auto notifyWads = NotifyBeforeAndAfter{
+    notifyWadsChange,
+    document.materialCollectionsWillChangeNotifier,
+    document.materialCollectionsDidChangeNotifier};
+  auto notifyEntityDefinitions = NotifyBeforeAndAfter{
+    notifyEntityDefinitionsChange,
+    document.entityDefinitionsWillChangeNotifier,
+    document.entityDefinitionsDidChangeNotifier};
+  auto notifyMods = NotifyBeforeAndAfter{
+    notifyModsChange, document.modsWillChangeNotifier, document.modsDidChangeNotifier};
+
+  for (auto& pair : nodesToSwap)
+  {
+    auto* node = pair.first;
+    auto& contents = pair.second.get();
+
+    pair.second = node->accept(kdl::overload(
+      [&](mdl::WorldNode* worldNode) {
+        return mdl::NodeContents{
+          worldNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
+      },
+      [&](mdl::LayerNode* layerNode) {
+        return mdl::NodeContents(
+          layerNode->setLayer(std::get<mdl::Layer>(std::move(contents))));
+      },
+      [&](mdl::GroupNode* groupNode) {
+        return mdl::NodeContents{
+          groupNode->setGroup(std::get<mdl::Group>(std::move(contents)))};
+      },
+      [&](mdl::EntityNode* entityNode) {
+        return mdl::NodeContents{
+          entityNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
+      },
+      [&](mdl::BrushNode* brushNode) {
+        return mdl::NodeContents{
+          brushNode->setBrush(std::get<mdl::Brush>(std::move(contents)))};
+      },
+      [&](mdl::PatchNode* patchNode) {
+        return mdl::NodeContents{
+          patchNode->setPatch(std::get<mdl::BezierPatch>(std::move(contents)))};
+      }));
+  }
+}
+
+} // namespace
 
 SwapNodeContentsCommand::SwapNodeContentsCommand(
   std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes)
@@ -39,14 +146,14 @@ SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
   MapDocumentCommandFacade& document)
 {
-  document.performSwapNodeContents(m_nodes);
+  doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
   MapDocumentCommandFacade& document)
 {
-  document.performSwapNodeContents(m_nodes);
+  doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);
 }
 
