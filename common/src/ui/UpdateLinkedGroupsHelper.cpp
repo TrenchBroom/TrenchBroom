@@ -22,7 +22,8 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/ModelUtils.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "mdl/NodeQueries.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/overload.h"
 #include "kdl/range_to_vector.h"
@@ -47,6 +48,58 @@ auto compareByAncestry(const mdl::GroupNode* lhs, const mdl::GroupNode* rhs)
   return rhs->isAncestorOf(lhs);
 }
 
+std::vector<mdl::Node*> collectOldChildren(
+  const std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>&
+    nodes)
+{
+  auto result = std::vector<mdl::Node*>{};
+  for (auto& [parent, newChildren] : nodes)
+  {
+    result = kdl::vec_concat(std::move(result), parent->children());
+  }
+  return result;
+}
+
+auto doReplaceChildren(
+  std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes,
+  MapDocument& document)
+{
+  auto result =
+    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>{};
+
+  if (nodes.empty())
+  {
+    return result;
+  }
+
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+
+  const auto allOldChildren = collectOldChildren(nodes);
+  auto notifyChildren = NotifyBeforeAndAfter{
+    document.nodesWillBeRemovedNotifier,
+    document.nodesWereRemovedNotifier,
+    allOldChildren};
+
+  auto allNewChildren = std::vector<mdl::Node*>{};
+
+  for (auto& [parent, newChildren] : nodes)
+  {
+    allNewChildren = kdl::vec_concat(
+      std::move(allNewChildren),
+      kdl::vec_transform(newChildren, [](auto& child) { return child.get(); }));
+
+    auto oldChildren = parent->replaceChildren(std::move(newChildren));
+
+    result.emplace_back(parent, std::move(oldChildren));
+  }
+
+  document.nodesWereAddedNotifier(allNewChildren);
+
+  return result;
+}
+
 } // namespace
 
 bool checkLinkedGroupsToUpdate(const std::vector<mdl::GroupNode*>& changedLinkedGroups)
@@ -67,14 +120,13 @@ UpdateLinkedGroupsHelper::UpdateLinkedGroupsHelper(
 
 UpdateLinkedGroupsHelper::~UpdateLinkedGroupsHelper() = default;
 
-Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(
-  MapDocumentCommandFacade& document)
+Result<void> UpdateLinkedGroupsHelper::applyLinkedGroupUpdates(MapDocument& document)
 {
   return computeLinkedGroupUpdates(document)
          | kdl::transform([&]() { doApplyOrUndoLinkedGroupUpdates(document); });
 }
 
-void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(MapDocumentCommandFacade& document)
+void UpdateLinkedGroupsHelper::undoLinkedGroupUpdates(MapDocument& document)
 {
   doApplyOrUndoLinkedGroupUpdates(document);
 }
@@ -112,8 +164,7 @@ void UpdateLinkedGroupsHelper::collateWith(UpdateLinkedGroupsHelper& other)
   }
 }
 
-Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
-  MapDocumentCommandFacade& document)
+Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(MapDocument& document)
 {
   return std::visit(
     kdl::overload(
@@ -130,7 +181,7 @@ Result<void> UpdateLinkedGroupsHelper::computeLinkedGroupUpdates(
 
 Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   computeLinkedGroupUpdates(
-    const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document)
+    const ChangedLinkedGroups& changedLinkedGroups, MapDocument& document)
 {
   if (!checkLinkedGroupsToUpdate(changedLinkedGroups))
   {
@@ -152,14 +203,13 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
            });
 }
 
-void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(
-  MapDocumentCommandFacade& document)
+void UpdateLinkedGroupsHelper::doApplyOrUndoLinkedGroupUpdates(MapDocument& document)
 {
   std::visit(
     kdl::overload(
       [](const ChangedLinkedGroups&) {},
       [&](LinkedGroupUpdates&& linkedGroupUpdates) {
-        m_state = document.performReplaceChildren(std::move(linkedGroupUpdates));
+        m_state = doReplaceChildren(std::move(linkedGroupUpdates), document);
       }),
     std::move(m_state));
 }

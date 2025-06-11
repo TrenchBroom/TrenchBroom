@@ -64,11 +64,6 @@ public:
 
   ~MapDocumentCommandFacade() override;
 
-public: // adding and removing nodes
-  std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
-  performReplaceChildren(
-    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes);
-
 public: // swapping node contents
   void performSwapNodeContents(
     std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap);

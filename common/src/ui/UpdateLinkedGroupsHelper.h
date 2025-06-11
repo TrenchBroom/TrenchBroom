@@ -34,7 +34,7 @@ class Node;
 
 namespace tb::ui
 {
-class MapDocumentCommandFacade;
+class MapDocument;
 
 /**
  * Checks whether the given vector of linked group can be updated consistently.
@@ -66,16 +66,16 @@ public:
   explicit UpdateLinkedGroupsHelper(ChangedLinkedGroups changedLinkedGroups);
   ~UpdateLinkedGroupsHelper();
 
-  Result<void> applyLinkedGroupUpdates(MapDocumentCommandFacade& document);
-  void undoLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  Result<void> applyLinkedGroupUpdates(MapDocument& document);
+  void undoLinkedGroupUpdates(MapDocument& document);
   void collateWith(UpdateLinkedGroupsHelper& other);
 
 private:
-  Result<void> computeLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  Result<void> computeLinkedGroupUpdates(MapDocument& document);
   static Result<LinkedGroupUpdates> computeLinkedGroupUpdates(
-    const ChangedLinkedGroups& changedLinkedGroups, MapDocumentCommandFacade& document);
+    const ChangedLinkedGroups& changedLinkedGroups, MapDocument& document);
 
-  void doApplyOrUndoLinkedGroupUpdates(MapDocumentCommandFacade& document);
+  void doApplyOrUndoLinkedGroupUpdates(MapDocument& document);
 };
 
 } // namespace tb::ui
