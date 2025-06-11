@@ -47,24 +47,10 @@
 
 namespace tb::ui
 {
-
-std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument(
-  kdl::task_manager& taskManager)
+namespace
 {
-  // can't use std::make_shared here because the constructor is private
-  return std::shared_ptr<MapDocument>{new MapDocumentCommandFacade{taskManager}};
-}
 
-MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManager)
-  : MapDocument{taskManager}
-  , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
-{
-  connectObservers();
-}
-
-MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
-
-static auto notifySpecialWorldProperties(
+auto notifySpecialWorldProperties(
   const mdl::Game& game,
   const std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
 {
@@ -98,6 +84,24 @@ static auto notifySpecialWorldProperties(
 
   return std::tuple{false, false, false};
 }
+
+} // namespace
+
+std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument(
+  kdl::task_manager& taskManager)
+{
+  // can't use std::make_shared here because the constructor is private
+  return std::shared_ptr<MapDocument>{new MapDocumentCommandFacade{taskManager}};
+}
+
+MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManager)
+  : MapDocument{taskManager}
+  , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
+{
+  connectObservers();
+}
+
+MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
 
 void MapDocumentCommandFacade::performSwapNodeContents(
   std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
