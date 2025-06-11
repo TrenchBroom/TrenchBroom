@@ -465,8 +465,7 @@ mdl::LayerNode* MapDocument::performSetCurrentLayer(mdl::LayerNode* currentLayer
 {
   ensure(currentLayer != nullptr, "currentLayer is null");
 
-  mdl::LayerNode* oldCurrentLayer = m_currentLayer;
-  m_currentLayer = currentLayer;
+  auto* oldCurrentLayer = std::exchange(m_currentLayer, currentLayer);
   currentLayerDidChangeNotifier(m_currentLayer);
 
   return oldCurrentLayer;
@@ -474,12 +473,12 @@ mdl::LayerNode* MapDocument::performSetCurrentLayer(mdl::LayerNode* currentLayer
 
 void MapDocument::setCurrentLayer(mdl::LayerNode* currentLayer)
 {
-  ensure(m_currentLayer != nullptr, "old currentLayer is null");
-  ensure(currentLayer != nullptr, "new currentLayer is null");
+  ensure(m_currentLayer != nullptr, "old currentLayer is not null");
+  ensure(currentLayer != nullptr, "new currentLayer is not null");
 
   auto transaction = Transaction{*this, "Set Current Layer"};
 
-  while (currentGroup() != nullptr)
+  while (currentGroup())
   {
     closeGroup();
   }
