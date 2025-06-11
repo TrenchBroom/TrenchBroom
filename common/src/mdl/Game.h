@@ -21,6 +21,7 @@
 
 #include "Result.h"
 #include "io/EntityDefinitionLoader.h"
+#include "mdl/EntityDefinitionFileSpec.h"
 #include "mdl/GameConfig.h"
 
 #include "vm/bbox.h"
