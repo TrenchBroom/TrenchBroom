@@ -47,45 +47,6 @@
 
 namespace tb::ui
 {
-namespace
-{
-
-auto notifySpecialWorldProperties(
-  const mdl::Game& game,
-  const std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
-{
-  for (const auto& [node, contents] : nodesToSwap)
-  {
-    if (const auto* worldNode = dynamic_cast<const mdl::WorldNode*>(node))
-    {
-      const auto& oldEntity = worldNode->entity();
-      const auto& newEntity = std::get<mdl::Entity>(contents.get());
-
-      const auto* oldWads = oldEntity.property(mdl::EntityPropertyKeys::Wad);
-      const auto* newWads = newEntity.property(mdl::EntityPropertyKeys::Wad);
-
-      const bool notifyWadsChange =
-        (oldWads == nullptr) != (newWads == nullptr)
-        || (oldWads != nullptr && newWads != nullptr && *oldWads != *newWads);
-
-      const auto oldEntityDefinitionSpec = game.extractEntityDefinitionFile(oldEntity);
-      const auto newEntityDefinitionSpec = game.extractEntityDefinitionFile(newEntity);
-      const bool notifyEntityDefinitionsChange =
-        oldEntityDefinitionSpec != newEntityDefinitionSpec;
-
-      const auto oldMods = game.extractEnabledMods(oldEntity);
-      const auto newMods = game.extractEnabledMods(newEntity);
-      const bool notifyModsChange = oldMods != newMods;
-
-      return std::tuple{
-        notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange};
-    }
-  }
-
-  return std::tuple{false, false, false};
-}
-
-} // namespace
 
 std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument(
   kdl::task_manager& taskManager)
@@ -102,67 +63,6 @@ MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManage
 }
 
 MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
-
-void MapDocumentCommandFacade::performSwapNodeContents(
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
-{
-  const auto nodes =
-    kdl::vec_transform(nodesToSwap, [](const auto& pair) { return pair.first; });
-  const auto parents = collectAncestors(nodes);
-  const auto descendants = collectDescendants(nodes);
-
-  auto notifyNodes =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, nodes};
-  auto notifyParents =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
-  auto notifyDescendants =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, descendants};
-
-  const auto [notifyWadsChange, notifyEntityDefinitionsChange, notifyModsChange] =
-    notifySpecialWorldProperties(*game(), nodesToSwap);
-  auto notifyWads = NotifyBeforeAndAfter{
-    notifyWadsChange,
-    materialCollectionsWillChangeNotifier,
-    materialCollectionsDidChangeNotifier};
-  auto notifyEntityDefinitions = NotifyBeforeAndAfter{
-    notifyEntityDefinitionsChange,
-    entityDefinitionsWillChangeNotifier,
-    entityDefinitionsDidChangeNotifier};
-  auto notifyMods =
-    NotifyBeforeAndAfter{notifyModsChange, modsWillChangeNotifier, modsDidChangeNotifier};
-
-  for (auto& pair : nodesToSwap)
-  {
-    auto* node = pair.first;
-    auto& contents = pair.second.get();
-
-    pair.second = node->accept(kdl::overload(
-      [&](mdl::WorldNode* worldNode) {
-        return mdl::NodeContents{
-          worldNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
-      },
-      [&](mdl::LayerNode* layerNode) {
-        return mdl::NodeContents(
-          layerNode->setLayer(std::get<mdl::Layer>(std::move(contents))));
-      },
-      [&](mdl::GroupNode* groupNode) {
-        return mdl::NodeContents{
-          groupNode->setGroup(std::get<mdl::Group>(std::move(contents)))};
-      },
-      [&](mdl::EntityNode* entityNode) {
-        return mdl::NodeContents{
-          entityNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
-      },
-      [&](mdl::BrushNode* brushNode) {
-        return mdl::NodeContents{
-          brushNode->setBrush(std::get<mdl::Brush>(std::move(contents)))};
-      },
-      [&](mdl::PatchNode* patchNode) {
-        return mdl::NodeContents{
-          patchNode->setPatch(std::get<mdl::BezierPatch>(std::move(contents)))};
-      }));
-  }
-}
 
 void MapDocumentCommandFacade::incModificationCount(const size_t delta)
 {
