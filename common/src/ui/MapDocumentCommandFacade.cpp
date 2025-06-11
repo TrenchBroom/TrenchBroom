@@ -38,33 +38,15 @@
 #include "ui/SelectionChange.h"
 #include "ui/UndoableCommand.h"
 
-#include "kdl/map_utils.h"
 #include "kdl/overload.h"
 #include "kdl/vector_utils.h"
 
-#include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
 namespace tb::ui
 {
-namespace
-{
-
-std::vector<mdl::Node*> collectOldChildren(
-  const std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>&
-    nodes)
-{
-  auto result = std::vector<mdl::Node*>{};
-  for (auto& [parent, newChildren] : nodes)
-  {
-    result = kdl::vec_concat(std::move(result), parent->children());
-  }
-  return result;
-}
-
-} // namespace
 
 std::shared_ptr<MapDocument> MapDocumentCommandFacade::newMapDocument(
   kdl::task_manager& taskManager)
@@ -81,43 +63,6 @@ MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManage
 }
 
 MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
-
-std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
-MapDocumentCommandFacade::performReplaceChildren(
-  std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes)
-{
-  if (nodes.empty())
-  {
-    return {};
-  }
-
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  auto notifyParents =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
-
-  const auto allOldChildren = collectOldChildren(nodes);
-  auto notifyChildren = NotifyBeforeAndAfter{
-    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allOldChildren};
-
-  auto result =
-    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>{};
-  auto allNewChildren = std::vector<mdl::Node*>{};
-
-  for (auto& [parent, newChildren] : nodes)
-  {
-    allNewChildren = kdl::vec_concat(
-      std::move(allNewChildren),
-      kdl::vec_transform(newChildren, [](auto& child) { return child.get(); }));
-
-    auto oldChildren = parent->replaceChildren(std::move(newChildren));
-
-    result.emplace_back(parent, std::move(oldChildren));
-  }
-
-  nodesWereAddedNotifier(allNewChildren);
-
-  return result;
-}
 
 static auto notifySpecialWorldProperties(
   const mdl::Game& game,
