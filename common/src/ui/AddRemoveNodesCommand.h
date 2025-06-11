@@ -33,6 +33,7 @@ class Node;
 
 namespace tb::ui
 {
+
 class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
 {
 private:
