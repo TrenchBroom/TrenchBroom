@@ -20,13 +20,10 @@
 #pragma once
 
 #include "NotifierConnection.h"
-#include "mdl/NodeContents.h"
 #include "ui/MapDocument.h"
 
-#include <map>
 #include <memory>
 #include <string>
-#include <vector>
 
 namespace kdl
 {
@@ -63,10 +60,6 @@ public:
   explicit MapDocumentCommandFacade(kdl::task_manager& taskManager);
 
   ~MapDocumentCommandFacade() override;
-
-public: // swapping node contents
-  void performSwapNodeContents(
-    std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap);
 
 public: // layers
   using MapDocument::performSetCurrentLayer;
