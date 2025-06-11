@@ -22,12 +22,52 @@
 #include "Ensure.h"
 #include "Macros.h"
 #include "mdl/Node.h"
+#include "mdl/NodeQueries.h"
 #include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/map_utils.h"
+#include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+void doAddNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+{
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+
+  auto addedNodes = std::vector<mdl::Node*>{};
+  for (const auto& [parent, children] : nodes)
+  {
+    parent->addChildren(children);
+    addedNodes = kdl::vec_concat(std::move(addedNodes), children);
+  }
+
+  document.nodesWereAddedNotifier(addedNodes);
+}
+
+void doRemoveNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+{
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+
+  const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
+  auto notifyChildren = NotifyBeforeAndAfter{
+    document.nodesWillBeRemovedNotifier, document.nodesWereRemovedNotifier, allChildren};
+
+  for (const auto& [parent, children] : nodes)
+  {
+    parent->removeChildren(std::begin(children), std::end(children));
+  }
+}
+
+} // namespace
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   mdl::Node* parent, const std::vector<mdl::Node*>& children)
@@ -104,10 +144,10 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
   switch (m_action)
   {
   case Action::Add:
-    document.performAddNodes(m_nodesToAdd);
+    doAddNodes(m_nodesToAdd, document);
     break;
   case Action::Remove:
-    document.performRemoveNodes(m_nodesToRemove);
+    doRemoveNodes(m_nodesToRemove, document);
     break;
   }
 
@@ -120,10 +160,10 @@ void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
   switch (m_action)
   {
   case Action::Add:
-    document.performRemoveNodes(m_nodesToRemove);
+    doRemoveNodes(m_nodesToRemove, document);
     break;
   case Action::Remove:
-    document.performAddNodes(m_nodesToAdd);
+    doAddNodes(m_nodesToAdd, document);
     break;
   }
 

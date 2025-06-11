@@ -65,9 +65,6 @@ public:
   ~MapDocumentCommandFacade() override;
 
 public: // adding and removing nodes
-  void performAddNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
-  void performRemoveNodes(const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
-
   std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
   performReplaceChildren(
     std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes);

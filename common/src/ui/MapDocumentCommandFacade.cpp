@@ -82,40 +82,6 @@ MapDocumentCommandFacade::MapDocumentCommandFacade(kdl::task_manager& taskManage
 
 MapDocumentCommandFacade::~MapDocumentCommandFacade() = default;
 
-void MapDocumentCommandFacade::performAddNodes(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
-{
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  auto notifyParents =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
-
-  auto addedNodes = std::vector<mdl::Node*>{};
-  for (const auto& [parent, children] : nodes)
-  {
-    parent->addChildren(children);
-    addedNodes = kdl::vec_concat(std::move(addedNodes), children);
-  }
-
-  nodesWereAddedNotifier(addedNodes);
-}
-
-void MapDocumentCommandFacade::performRemoveNodes(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
-{
-  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
-  auto notifyParents =
-    NotifyBeforeAndAfter{nodesWillChangeNotifier, nodesDidChangeNotifier, parents};
-
-  const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
-  auto notifyChildren = NotifyBeforeAndAfter{
-    nodesWillBeRemovedNotifier, nodesWereRemovedNotifier, allChildren};
-
-  for (const auto& [parent, children] : nodes)
-  {
-    parent->removeChildren(std::begin(children), std::end(children));
-  }
-}
-
 std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>
 MapDocumentCommandFacade::performReplaceChildren(
   std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes)
