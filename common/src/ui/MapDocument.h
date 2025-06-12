@@ -137,9 +137,8 @@ private:
   std::unique_ptr<mdl::EditorContext> m_editorContext;
   std::unique_ptr<Grid> m_grid;
 
-  using ActionList = std::vector<Action>;
-  ActionList m_tagActions;
-  ActionList m_entityDefinitionActions;
+  std::vector<Action> m_tagActions;
+  std::vector<Action> m_entityDefinitionActions;
 
   std::filesystem::path m_path = DefaultDocumentName;
   size_t m_lastSaveModificationCount = 0;
@@ -294,7 +293,8 @@ public: // tag and entity definition actions
 
 private: // tag and entity definition actions
   template <typename ActionVisitor>
-  void visitActions(const ActionVisitor& visitor, const ActionList& actions) const
+  void visitActions(
+    const ActionVisitor& visitor, const std::vector<Action>& actions) const
   {
     for (const auto& action : actions)
     {
