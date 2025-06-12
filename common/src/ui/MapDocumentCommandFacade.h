@@ -42,10 +42,6 @@ class CommandProcessor;
 
 /**
  * MapDocument API that is private to Command classes.
- *
- * These `performSomething()` methods will actually do an action, where
- * the corresponding `something()` in MapDocument would create and execute a
- * Command object which then calls `performSomething()`.
  */
 class MapDocumentCommandFacade : public MapDocument
 {
@@ -60,9 +56,6 @@ public:
   explicit MapDocumentCommandFacade(kdl::task_manager& taskManager);
 
   ~MapDocumentCommandFacade() override;
-
-public: // layers
-  using MapDocument::performSetCurrentLayer;
 
 public: // modification count
   void incModificationCount(size_t delta = 1);

@@ -47,6 +47,7 @@ void EditorContext::reset()
   m_hiddenEntityDefinitions.reset();
   m_blockSelection = false;
   m_currentGroup = nullptr;
+  m_currentLayer = nullptr;
 }
 
 TagType::Type EditorContext::hiddenTags() const
@@ -96,6 +97,16 @@ void EditorContext::setBlockSelection(const bool blockSelection)
     m_blockSelection = blockSelection;
     editorContextDidChangeNotifier();
   }
+}
+
+LayerNode* EditorContext::currentLayer() const
+{
+  return m_currentLayer;
+}
+
+void EditorContext::setCurrentLayer(LayerNode* layerNode)
+{
+  m_currentLayer = layerNode;
 }
 
 mdl::GroupNode* EditorContext::currentGroup() const
