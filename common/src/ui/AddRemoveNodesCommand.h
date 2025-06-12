@@ -62,12 +62,11 @@ public:
 private:
   static std::string makeName(Action action);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  void doAction(MapDocumentCommandFacade& document);
-  void undoAction(MapDocumentCommandFacade& document);
+  void doAction(MapDocument& document);
+  void undoAction(MapDocument& document);
 
   deleteCopyAndMove(AddRemoveNodesCommand);
 };

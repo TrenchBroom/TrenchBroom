@@ -28,7 +28,7 @@
 #include "mdl/LinkedGroupUtils.h"
 #include "mdl/ModelUtils.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/result.h"
@@ -341,8 +341,7 @@ std::string SelectionCommand::makeName(
   return result.str();
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(MapDocument& document)
 {
   m_previouslySelectedNodes = document.selection().nodes;
   m_previouslySelectedFaceRefs = mdl::createRefs(document.selection().brushFaces);
@@ -353,8 +352,7 @@ std::unique_ptr<CommandResult> SelectionCommand::doPerformDo(
     | kdl::is_success());
 }
 
-std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SelectionCommand::doPerformUndo(MapDocument& document)
 {
   doDeselectAll(document);
 

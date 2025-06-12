@@ -54,7 +54,7 @@ const std::string& Command::name() const
   return m_name;
 }
 
-std::unique_ptr<CommandResult> Command::performDo(MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> Command::performDo(MapDocument& document)
 {
   m_state = CommandState::Doing;
   auto result = doPerformDo(document);

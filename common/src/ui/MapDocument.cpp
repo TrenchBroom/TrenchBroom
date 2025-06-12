@@ -96,6 +96,7 @@
 #include "ui/Actions.h"
 #include "ui/AddRemoveNodesCommand.h"
 #include "ui/BrushVertexCommands.h"
+#include "ui/CommandProcessor.h"
 #include "ui/CurrentGroupCommand.h"
 #include "ui/Grid.h"
 #include "ui/MapTextEncoding.h"
@@ -404,6 +405,7 @@ MapDocument::MapDocument(kdl::task_manager& taskManager)
   , m_editorContext{std::make_unique<mdl::EditorContext>()}
   , m_grid{std::make_unique<Grid>(4)}
   , m_repeatStack{std::make_unique<RepeatStack>()}
+  , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
 {
   connectObservers();
 }
@@ -787,7 +789,7 @@ void MapDocument::doSaveDocument(const std::filesystem::path& path)
 void MapDocument::clearDocument()
 {
   clearRepeatableCommands();
-  doClearCommandProcessor();
+  m_commandProcessor->clear();
 
   if (m_world)
   {
@@ -4208,12 +4210,12 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument&) override
   {
     throw CommandProcessorException();
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument&) override
   {
     return std::make_unique<CommandResult>(true);
   }
@@ -4229,27 +4231,27 @@ bool MapDocument::throwExceptionDuringCommand()
 
 bool MapDocument::canUndoCommand() const
 {
-  return doCanUndoCommand();
+  return m_commandProcessor->canUndo();
 }
 
 bool MapDocument::canRedoCommand() const
 {
-  return doCanRedoCommand();
+  return m_commandProcessor->canRedo();
 }
 
 const std::string& MapDocument::undoCommandName() const
 {
-  return doGetUndoCommandName();
+  return m_commandProcessor->undoCommandName();
 }
 
 const std::string& MapDocument::redoCommandName() const
 {
-  return doGetRedoCommandName();
+  return m_commandProcessor->redoCommandName();
 }
 
 void MapDocument::undoCommand()
 {
-  doUndoCommand();
+  m_commandProcessor->undo();
   updateLinkedGroups();
 
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
@@ -4259,7 +4261,7 @@ void MapDocument::undoCommand()
 
 void MapDocument::redoCommand()
 {
-  doRedoCommand();
+  m_commandProcessor->redo();
   updateLinkedGroups();
 
   // Undo/redo in the repeat system is not supported for now, so just clear the repeat
@@ -4285,14 +4287,14 @@ void MapDocument::clearRepeatableCommands()
 void MapDocument::startTransaction(std::string name, const TransactionScope scope)
 {
   debug("Starting transaction '" + name + "'");
-  doStartTransaction(std::move(name), scope);
+  m_commandProcessor->startTransaction(std::move(name), scope);
   m_repeatStack->startTransaction();
 }
 
 void MapDocument::rollbackTransaction()
 {
   debug("Rolling back transaction");
-  doRollbackTransaction();
+  m_commandProcessor->rollbackTransaction();
   m_repeatStack->rollbackTransaction();
 }
 
@@ -4306,7 +4308,7 @@ bool MapDocument::commitTransaction()
     return false;
   }
 
-  doCommitTransaction();
+  m_commandProcessor->commitTransaction();
   m_repeatStack->commitTransaction();
   return true;
 }
@@ -4314,21 +4316,26 @@ bool MapDocument::commitTransaction()
 void MapDocument::cancelTransaction()
 {
   debug("Cancelling transaction");
-  doRollbackTransaction();
+  m_commandProcessor->rollbackTransaction();
   m_repeatStack->rollbackTransaction();
-  doCommitTransaction();
+  m_commandProcessor->commitTransaction();
   m_repeatStack->commitTransaction();
+}
+
+bool MapDocument::isCurrentDocumentStateObservable() const
+{
+  return m_commandProcessor->isCurrentDocumentStateObservable();
 }
 
 std::unique_ptr<CommandResult> MapDocument::execute(std::unique_ptr<Command>&& command)
 {
-  return doExecute(std::move(command));
+  return m_commandProcessor->execute(std::move(command));
 }
 
 std::unique_ptr<CommandResult> MapDocument::executeAndStore(
   std::unique_ptr<UndoableCommand>&& command)
 {
-  return doExecuteAndStore(std::move(command));
+  return m_commandProcessor->executeAndStore(std::move(command));
 }
 
 void MapDocument::processResourcesSync(const mdl::ProcessContext& processContext)
@@ -4979,6 +4986,19 @@ const mdl::SmartTag& MapDocument::smartTag(const size_t index) const
   return m_tagManager->smartTag(index);
 }
 
+void MapDocument::incModificationCount(const size_t delta)
+{
+  m_modificationCount += delta;
+  documentModificationStateDidChangeNotifier();
+}
+
+void MapDocument::decModificationCount(const size_t delta)
+{
+  assert(m_modificationCount >= delta);
+  m_modificationCount -= delta;
+  documentModificationStateDidChangeNotifier();
+}
+
 static auto makeInitializeNodeTagsVisitor(mdl::TagManager& tagManager)
 {
   return kdl::overload(
@@ -5206,6 +5226,24 @@ void MapDocument::connectObservers()
     modsDidChangeNotifier.connect(this, &MapDocument::updateAllFaceTags);
   m_notifierConnection += resourcesWereProcessedNotifier.connect(
     this, &MapDocument::updateFaceTagsAfterResourcesWhereProcessed);
+
+  // command processing
+  m_notifierConnection +=
+    m_commandProcessor->commandDoNotifier.connect(commandDoNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->commandDoneNotifier.connect(commandDoneNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->commandDoFailedNotifier.connect(commandDoFailedNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->commandUndoNotifier.connect(commandUndoNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->commandUndoneNotifier.connect(commandUndoneNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->commandUndoFailedNotifier.connect(commandUndoFailedNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->transactionDoneNotifier.connect(transactionDoneNotifier);
+  m_notifierConnection +=
+    m_commandProcessor->transactionUndoneNotifier.connect(transactionUndoneNotifier);
 }
 
 void MapDocument::nodesWereAdded(const std::vector<mdl::Node*>& nodes)

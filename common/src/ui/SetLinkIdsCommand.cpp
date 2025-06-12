@@ -28,7 +28,7 @@
 #include "mdl/Object.h"
 #include "mdl/PatchNode.h" // IWYU pragma: keep
 #include "mdl/WorldNode.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
@@ -72,13 +72,13 @@ SetLinkIdsCommand::SetLinkIdsCommand(
 
 SetLinkIdsCommand::~SetLinkIdsCommand() = default;
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(MapDocumentCommandFacade&)
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformDo(MapDocument&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(MapDocumentCommandFacade&)
+std::unique_ptr<CommandResult> SetLinkIdsCommand::doPerformUndo(MapDocument&)
 {
   m_linkIds = setLinkIds(m_linkIds);
   return std::make_unique<CommandResult>(true);

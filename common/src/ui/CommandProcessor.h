@@ -30,7 +30,7 @@ namespace tb::ui
 {
 class Command;
 class CommandResult;
-class MapDocumentCommandFacade;
+class MapDocument;
 class UndoableCommand;
 enum class TransactionScope;
 
@@ -58,7 +58,7 @@ private:
   /**
    * The document to pass on to commands when they are executed or undone.
    */
-  MapDocumentCommandFacade& m_document;
+  MapDocument& m_document;
 
   /**
    * Limits the time after which to succeeding commands can be collated.
@@ -99,7 +99,7 @@ public:
    * @param document the document to pass to commands, may be null
    */
   explicit CommandProcessor(
-    MapDocumentCommandFacade& document,
+    MapDocument& document,
     std::chrono::milliseconds collationInterval = std::chrono::milliseconds{1000});
 
   ~CommandProcessor();

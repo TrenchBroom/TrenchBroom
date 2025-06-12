@@ -35,8 +35,7 @@ BrushVertexCommandBase::BrushVertexCommandBase(
 {
 }
 
-std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> BrushVertexCommandBase::doPerformDo(MapDocument& document)
 {
   return createCommandResult(SwapNodeContentsCommand::doPerformDo(document));
 }
