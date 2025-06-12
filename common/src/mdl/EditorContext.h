@@ -46,7 +46,8 @@ private:
 
   bool m_blockSelection;
 
-  GroupNode* m_currentGroup;
+  LayerNode* m_currentLayer = nullptr;
+  GroupNode* m_currentGroup = nullptr;
 
 public:
   Notifier<> editorContextDidChangeNotifier;
@@ -67,6 +68,9 @@ public:
   void setBlockSelection(bool blockSelection);
 
 public:
+  LayerNode* currentLayer() const;
+  void setCurrentLayer(LayerNode* layerNode);
+
   GroupNode* currentGroup() const;
   void pushGroup(GroupNode& groupNode);
   void popGroup();

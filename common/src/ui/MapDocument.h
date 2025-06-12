@@ -152,7 +152,6 @@ protected:
   EdgeHandleManager m_edgeHandles;
   FaceHandleManager m_faceHandles;
 
-  mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
@@ -244,9 +243,6 @@ public: // accessors and such
   bool isGamePathPreference(const std::filesystem::path& path) const;
 
   mdl::LayerNode* currentLayer() const override;
-
-protected:
-  mdl::LayerNode* performSetCurrentLayer(mdl::LayerNode* currentLayer);
 
 public:
   void setCurrentLayer(mdl::LayerNode* currentLayer);
