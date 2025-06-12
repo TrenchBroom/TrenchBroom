@@ -4,7 +4,7 @@
 
 # Introduction {#introduction}
 
-TrenchBroom is a modern cross-platform level editor for Quake-engine based games, such as Quake, Quake 2, Quake 3, Half-Life, and Hexen 2.
+TrenchBroom is a modern cross-platform 3D level editor. It is designed for Quake engine games, such as Quake, Quake 2, Quake 3, Half-Life, and Hexen 2 - but it can also be used for other engines like Godot, Unreal, or Unity.
 
 ## Features {#features}
 
@@ -24,33 +24,39 @@ TrenchBroom is a modern cross-platform level editor for Quake-engine based games
 
 # Getting Started {#getting_started}
 
-Let's begin with an introductory tour of TrenchBroom. 
+First we'll begin with an overview of key concepts, then we'll tour TrenchBroom's interface and features.
 
-(**NOTE: this is just a manual, not a tutorial.** Beyond editor functionality, this will not teach you how to make levels. See [References and Links](#references_and_links) to find a mapping community for help and support.)
+> **NOTE: this is just a manual, not a tutorial.** Beyond editor functionality, this will not teach you how to make levels. See [References and Links](#references_and_links) to find a mapping community for help and support.
 
 ## Key Concepts {#key_concepts}
 
-To use TrenchBroom effectively, you'll need to know some core Quake engine concepts.
+To use TrenchBroom effectively, you'll need to know some core Quake engine concepts and workflows.
 
 ### Entities and Brushes
 
-Maps are made of **entities**: Quake's general word for game objects, actors, or things. Players, monsters, items, doors, lights, sounds - each of these is a different type of entity you might have in your game.
+Maps are made of **entities**: Quake's general word for game objects, actors, or things. Players, monsters, items, doors, lights, sounds - each of these is a different type of entity you might have in your game. There are two types of entities:
+* **point entity**: a thing with an "origin" (center) at a single 3D point
+* **brush entity** a thing made of 3D shapes called "brushes"
 
-There are two types of entities: a **point entity** has an "origin" (center) at a specific 3D point, but a **brush entity** has 3D shapes called "brushes". **Brushes** are **convex** solids that must always bulge outward, like a cube or a sphere. Brushes cannot be concave or curve inward, like a bowl or a banana.
+**Brushes** are **convex** solids that must always bulge outward, like a cube or a sphere. Brushes cannot be concave or curve inward, like a bowl or a banana.
 
 ### Entity Definitions and Mods
 
-To place entities, you need an [entity definition file](#entity_definitions) that lists each entity class and its **properties** like name, color, angle, or health. For example, a "light" entity could have a "light color" property, or a "monster_zombie" entity might have a "health" property. See [Entity Definition Setup](#entity_definition_setup) for more info.
+To use entities, you need an [entity definition file](#entity_definitions) that lists each entity class and its **properties** like name, color, angle, or health. For example, a "light" entity could have a "light color" property, or a "monster_zombie" entity might have a "health" property. See [Entity Definition Setup](#entity_definition_setup) for more info.
  
-To display models and other assets, set a **mod directory**, a project folder that contains all the files and subfolders you want to use. (This is also a great place to put your entity definition file.) Note that you can load multiple mods at once; if mods conflict and use the same file name, the higher priority mod will override others. See [Mod Setup](#mod_setup) for more info.
+To display models and other assets, you set a **mod directory**, a project folder that contains all the files and subfolders you want to use. (This is also a great place to put your entity definition file.) If you load multiple mods that use the same filenames, the higher priority mod's files will override the others. See [Mod Setup](#mod_setup) for more info.
 
 ### Textures and Materials
 
 **Textures** are flat 2D images wrapped around 3D objects. You can use Quake texture formats like .WAD or .WAL, or you can load loose image files like .PNG and .TGA.
 
-In game engines, **materials** are files that define the overall surface appearance of a 3D model such as its color, shininess, or transparency. However, **TrenchBroom does not currently have a generic material system** and material support differs for each engine, e.g. Quake 3 shader scripts. For now, treat "material" as a generic word for "texture."
+In game engines, **materials** are files that define the overall surface appearance of a 3D model ("shading") such as color, shininess, or transparency. However, **TrenchBroom does not have a lighting system** and **material handling differs for each engine**. Currently only Quake 3 shader scripts are supported. Most users just use simple textures with no shader features.
 
 Materials / textures are grouped together into **material collections**, by .WAD file or subfolder. When collections have a material with the same name, TrenchBroom will use the most recently loaded material. See [Material Management](#material_management) for more info.
+
+### Map Compile / Export
+
+TrenchBroom saves maps as .MAP files, but usually you must **compile** (bake) maps into .BSP files to play in a Quake engine. Other engines (like Godot, Unreal, or Unity) must import .MAP or .BSP files, or you can export directly to .OBJ from TrenchBroom #menu(File/Export). See [Compiling Maps](#compiling_maps) or [Engine Support](#engine_support) for more info.
 
 ## Startup {#startup}
 
@@ -2884,6 +2890,14 @@ Open the "About TrenchBroom" dialog from the menu. The light gray text on the le
 - [Quake Mapping Discord] - Quake Mapping Discord
 - [Tome of Preach] - Quake Map Hacks and QuakeC Hacks
 
+## Engine support {#engine_support}
+
+- Godot: [func_godot](https://github.com/func-godot/func_godot_plugin) or [godot-mapper](https://github.com/ELF32bit/godot-mapper)
+- Unreal: [HammUEr](https://nte.itch.io/hammuer)
+- Unity: [Tremble](https://assetstore.unity.com/packages/tools/level-design/tremble-map-importer-277805) or [Scopa](https://github.com/radiatoryang/scopa)
+- You may have to write your own .MAP or .BSP file importer.
+- TrenchBroom can export level geometry directly to .OBJ #menu(File/Export) but it won't have entity data.
+  
 [TrenchBroom on GitHub]: https://github.com/TrenchBroom/TrenchBroom/
 [TrenchBroom issue tracker]: https://github.com/TrenchBroom/TrenchBroom/issues/
 [TrenchBroom Discord]: https://discord.gg/WGf9uve
