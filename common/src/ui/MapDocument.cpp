@@ -453,27 +453,13 @@ bool MapDocument::isGamePathPreference(const std::filesystem::path& path) const
 
 mdl::LayerNode* MapDocument::currentLayer() const
 {
-  ensure(m_currentLayer != nullptr, "currentLayer is null");
-  return m_currentLayer;
+  return m_editorContext->currentLayer();
 }
 
-/**
- * Sets the current layer immediately, without adding a Command to the undo stack.
- */
-mdl::LayerNode* MapDocument::performSetCurrentLayer(mdl::LayerNode* currentLayer)
+void MapDocument::setCurrentLayer(mdl::LayerNode* layerNode)
 {
-  ensure(currentLayer != nullptr, "currentLayer is null");
-
-  auto* oldCurrentLayer = std::exchange(m_currentLayer, currentLayer);
-  currentLayerDidChangeNotifier(m_currentLayer);
-
-  return oldCurrentLayer;
-}
-
-void MapDocument::setCurrentLayer(mdl::LayerNode* currentLayer)
-{
-  ensure(m_currentLayer != nullptr, "old currentLayer is not null");
-  ensure(currentLayer != nullptr, "new currentLayer is not null");
+  ensure(currentLayer() != nullptr, "old currentLayer is not null");
+  ensure(layerNode != nullptr, "new currentLayer is not null");
 
   auto transaction = Transaction{*this, "Set Current Layer"};
 
@@ -482,17 +468,17 @@ void MapDocument::setCurrentLayer(mdl::LayerNode* currentLayer)
     closeGroup();
   }
 
-  const auto descendants = mdl::collectDescendants({m_currentLayer});
+  const auto descendants = mdl::collectDescendants({currentLayer()});
   downgradeShownToInherit(descendants);
   downgradeUnlockedToInherit(descendants);
 
-  executeAndStore(SetCurrentLayerCommand::set(currentLayer));
+  executeAndStore(SetCurrentLayerCommand::set(layerNode));
   transaction.commit();
 }
 
-bool MapDocument::canSetCurrentLayer(mdl::LayerNode* currentLayer) const
+bool MapDocument::canSetCurrentLayer(mdl::LayerNode* layerNode) const
 {
-  return m_currentLayer != currentLayer;
+  return currentLayer() != layerNode;
 }
 
 mdl::GroupNode* MapDocument::currentGroup() const
@@ -4418,7 +4404,7 @@ void MapDocument::setWorld(
   m_game = game;
 
   m_entityModelManager->setGame(game.get(), m_taskManager);
-  performSetCurrentLayer(m_world->defaultLayer());
+  m_editorContext->setCurrentLayer(m_world->defaultLayer());
 
   updateGameSearchPaths();
   setPath(path);
@@ -4432,7 +4418,7 @@ void MapDocument::setWorld(
 void MapDocument::clearWorld()
 {
   m_world.reset();
-  m_currentLayer = nullptr;
+  m_editorContext->reset();
 }
 
 mdl::EntityDefinitionFileSpec MapDocument::entityDefinitionFile() const
