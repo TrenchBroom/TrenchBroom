@@ -24,6 +24,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
@@ -33,7 +34,6 @@
 #include "render/Camera.h"
 #include "render/RenderService.h"
 #include "ui/AssembleBrushTool.h"
-#include "ui/Grid.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 

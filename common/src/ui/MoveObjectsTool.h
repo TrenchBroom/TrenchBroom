@@ -25,9 +25,13 @@
 
 #include <memory>
 
-namespace tb::ui
+namespace tb::mdl
 {
 class Grid;
+}
+
+namespace tb::ui
+{
 class InputState;
 class MapDocument;
 
@@ -49,7 +53,7 @@ public:
   explicit MoveObjectsTool(std::weak_ptr<MapDocument> document);
 
 public:
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   bool startMove(const InputState& inputState);
   MoveResult move(const InputState& inputState, const vm::vec3d& delta);

@@ -20,9 +20,9 @@
 #include "mdl/Brush.h"
 #include "mdl/BrushBuilder.h"
 #include "mdl/BrushFace.h"
+#include "mdl/Grid.h"
 #include "mdl/MapFormat.h"
 #include "mdl/WorldNode.h"
-#include "ui/Grid.h"
 
 #include "kdl/result.h"
 
@@ -34,7 +34,7 @@
 
 #include "Catch2.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
@@ -43,7 +43,7 @@ const auto worldBounds = vm::bbox3d{8192.0};
 
 TEST_CASE("GridTest.size")
 {
-  for (int i = Grid::MinSize; i < Grid::MaxSize; ++i)
+  for (int i = mdl::Grid::MinSize; i < mdl::Grid::MaxSize; ++i)
   {
     CHECK(Grid{i}.size() == i);
   }
@@ -51,7 +51,7 @@ TEST_CASE("GridTest.size")
 
 TEST_CASE("GridTest.actualSizeInteger")
 {
-  for (int i = 0; i < Grid::MaxSize; ++i)
+  for (int i = 0; i < mdl::Grid::MaxSize; ++i)
   {
     const auto actualSize = int(std::pow(2, i));
     CHECK(Grid{i}.actualSize() == actualSize);
@@ -397,4 +397,4 @@ TEST_CASE("GridTest.snapMoveDeltaForFace")
     grid.snapMoveDistanceForFace(face, moveDistance) == vm::approx{expectedMoveDistance});
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

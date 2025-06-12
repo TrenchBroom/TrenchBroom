@@ -17,8 +17,8 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include "mdl/Grid.h"
 #include "mdl/Selection.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
 

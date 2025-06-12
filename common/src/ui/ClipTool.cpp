@@ -496,7 +496,7 @@ ClipTool::~ClipTool()
   kdl::map_clear_and_delete(m_backBrushes);
 }
 
-const Grid& ClipTool::grid() const
+const mdl::Grid& ClipTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

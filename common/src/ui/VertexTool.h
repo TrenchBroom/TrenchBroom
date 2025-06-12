@@ -28,7 +28,7 @@
 namespace tb::mdl
 {
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -41,7 +41,6 @@ class RenderService;
 namespace tb::ui
 {
 class BrushVertexCommandBase;
-class Grid;
 class Lasso;
 struct SelectionChange;
 

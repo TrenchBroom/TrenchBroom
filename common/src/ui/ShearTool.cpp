@@ -21,11 +21,11 @@
 #include "ShearTool.h"
 
 #include "Ensure.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "render/Camera.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/ScaleTool.h"
 #include "ui/TransactionScope.h"
@@ -47,7 +47,7 @@ ShearTool::ShearTool(std::weak_ptr<MapDocument> document)
 
 ShearTool::~ShearTool() = default;
 
-const Grid& ShearTool::grid() const
+const mdl::Grid& ShearTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

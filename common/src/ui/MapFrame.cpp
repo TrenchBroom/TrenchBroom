@@ -53,6 +53,7 @@
 #include "mdl/EntityNodeBase.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/MapFormat.h"
@@ -73,7 +74,6 @@
 #include "ui/FaceTool.h"
 #include "ui/FrameManager.h"
 #include "ui/GLContextManager.h"
-#include "ui/Grid.h"
 #include "ui/InfoPanel.h"
 #include "ui/Inspector.h"
 #include "ui/LaunchGameEngineDialog.h"
@@ -429,9 +429,9 @@ void MapFrame::createToolBar()
   });
 
   m_gridChoice = new QComboBox{};
-  for (int i = Grid::MinSize; i <= Grid::MaxSize; ++i)
+  for (int i = mdl::Grid::MinSize; i <= mdl::Grid::MaxSize; ++i)
   {
-    const auto gridSize = Grid::actualSize(i);
+    const auto gridSize = mdl::Grid::actualSize(i);
     const auto gridSizeStr = tr("Grid %1").arg(QString::number(gridSize, 'g'));
     m_gridChoice->addItem(gridSizeStr, QVariant(i));
   }
@@ -442,7 +442,7 @@ void MapFrame::createToolBar()
 void MapFrame::updateToolBarWidgets()
 {
   const auto& grid = m_document->grid();
-  const auto sizeIndex = grid.size() - Grid::MinSize;
+  const auto sizeIndex = grid.size() - mdl::Grid::MinSize;
   m_gridChoice->setCurrentIndex(sizeIndex);
 }
 
@@ -727,7 +727,7 @@ void MapFrame::connectObservers()
   m_notifierConnection += m_document->portalFileWasUnloadedNotifier.connect(
     this, &MapFrame::portalFileDidChange);
 
-  Grid& grid = m_document->grid();
+  auto& grid = m_document->grid();
   m_notifierConnection +=
     grid.gridDidChangeNotifier.connect(this, &MapFrame::gridDidChange);
 
@@ -867,7 +867,7 @@ void MapFrame::bindEvents()
     m_gridChoice,
     QOverload<int>::of(&QComboBox::activated),
     this,
-    [this](const int index) { setGridSize(index + Grid::MinSize); });
+    [this](const int index) { setGridSize(index + mdl::Grid::MinSize); });
   connect(QApplication::clipboard(), &QClipboard::dataChanged, this, [this]() {
     // update the "Paste" menu items
     this->updateActionState();
@@ -1929,7 +1929,7 @@ void MapFrame::incGridSize()
 
 bool MapFrame::canIncGridSize() const
 {
-  return m_document->grid().size() < Grid::MaxSize;
+  return m_document->grid().size() < mdl::Grid::MaxSize;
 }
 
 void MapFrame::decGridSize()
@@ -1942,7 +1942,7 @@ void MapFrame::decGridSize()
 
 bool MapFrame::canDecGridSize() const
 {
-  return m_document->grid().size() > Grid::MinSize;
+  return m_document->grid().size() > mdl::Grid::MinSize;
 }
 
 void MapFrame::setGridSize(const int size)

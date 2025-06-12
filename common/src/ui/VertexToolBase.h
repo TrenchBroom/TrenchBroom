@@ -59,8 +59,9 @@
 
 namespace tb::mdl
 {
+class Grid;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -69,7 +70,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
 class Lasso;
 class MapDocument;
 
@@ -107,7 +107,7 @@ public:
   ~VertexToolBase() override = default;
 
 public:
-  const Grid& grid() const { return kdl::mem_lock(m_document)->grid(); }
+  const mdl::Grid& grid() const { return kdl::mem_lock(m_document)->grid(); }
 
   const std::vector<mdl::BrushNode*>& selectedBrushes() const
   {

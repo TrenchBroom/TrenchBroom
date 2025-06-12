@@ -27,7 +27,8 @@
 namespace tb::mdl
 {
 class BrushNode;
-}
+class Grid;
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -38,7 +39,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
 class MapDocument;
 
 class CreateBrushesToolBase : public Tool
@@ -55,7 +55,7 @@ public:
   ~CreateBrushesToolBase() override;
 
 public:
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void createBrushes();
   void clearBrushes();

@@ -33,6 +33,11 @@
 #include <ranges>
 #include <vector>
 
+namespace tb::mdl
+{
+class Grid;
+}
+
 namespace tb::render
 {
 class Camera;
@@ -40,7 +45,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
 
 class VertexHandleManagerBase
 {
@@ -621,7 +625,7 @@ public:
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
-    const Grid& grid,
+    const mdl::Grid& grid,
     mdl::PickResult& pickResult) const;
 
   /**
@@ -679,7 +683,7 @@ public:
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
-    const Grid& grid,
+    const mdl::Grid& grid,
     mdl::PickResult& pickResult) const;
 
   /**

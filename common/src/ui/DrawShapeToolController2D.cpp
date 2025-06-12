@@ -19,9 +19,9 @@
 
 #include "DrawShapeToolController2D.h"
 
+#include "mdl/Grid.h"
 #include "render/Camera.h"
 #include "ui/DrawShapeTool.h"
-#include "ui/Grid.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"

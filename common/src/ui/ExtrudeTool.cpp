@@ -94,7 +94,7 @@ bool ExtrudeTool::applies() const
   return document->selection().hasBrushes();
 }
 
-const Grid& ExtrudeTool::grid() const
+const mdl::Grid& ExtrudeTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

@@ -19,12 +19,12 @@
 
 #include "MapDocumentTest.h"
 #include "mdl/BrushNode.h"
+#include "mdl/Grid.h"
 #include "mdl/LayerNode.h"
 #include "mdl/WorldNode.h"
 #include "render/PerspectiveCamera.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
-#include "ui/Grid.h"
 #include "ui/PasteType.h"
 
 #include "Catch2.h"

@@ -20,7 +20,7 @@
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
-#include "ui/Grid.h"
+#include "mdl/Grid.h"
 #include "ui/MapDocumentTest.h"
 #include "ui/RotateTool.h"
 

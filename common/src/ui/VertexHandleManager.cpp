@@ -22,8 +22,8 @@
 #include "PreferenceManager.h"
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
+#include "mdl/Grid.h"
 #include "mdl/Polyhedron.h"
-#include "ui/Grid.h"
 
 #include "vm/distance.h"
 #include "vm/polygon.h"
@@ -90,7 +90,7 @@ const mdl::HitType::Type EdgeHandleManager::HandleHitType = mdl::HitType::freeTy
 void EdgeHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
-  const Grid& grid,
+  const mdl::Grid& grid,
   mdl::PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)
@@ -171,7 +171,7 @@ const mdl::HitType::Type FaceHandleManager::HandleHitType = mdl::HitType::freeTy
 void FaceHandleManager::pickGridHandle(
   const vm::ray3d& pickRay,
   const render::Camera& camera,
-  const Grid& grid,
+  const mdl::Grid& grid,
   mdl::PickResult& pickResult) const
 {
   for (const auto& [position, info] : m_handles)

@@ -49,7 +49,7 @@ namespace
 
 HandlePositionProposer makeHandlePositionProposer(
   const InputState& inputState,
-  const Grid& grid,
+  const mdl::Grid& grid,
   const mdl::Hit& dragStartHit,
   const vm::bbox3d& bboxAtDragStart,
   const vm::vec3d& handleOffset)
