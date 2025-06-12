@@ -74,7 +74,7 @@ public:
   }
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override
   {
     for (auto& command : m_commands)
     {
@@ -88,8 +88,7 @@ private:
     return std::make_unique<CommandResult>(true);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override
   {
     for (auto it = m_commands.rbegin(), end = m_commands.rend(); it != end; ++it)
     {
@@ -162,7 +161,7 @@ struct CommandProcessor::SubmitAndStoreResult
 };
 
 CommandProcessor::CommandProcessor(
-  MapDocumentCommandFacade& document, const std::chrono::milliseconds collationInterval)
+  MapDocument& document, const std::chrono::milliseconds collationInterval)
   : m_document{document}
   , m_collationInterval{collationInterval}
   , m_lastCommandTimestamp{std::chrono::time_point<std::chrono::system_clock>{}}

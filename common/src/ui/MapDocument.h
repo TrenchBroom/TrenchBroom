@@ -88,6 +88,7 @@ struct ProcessContext;
 namespace tb::ui
 {
 class Command;
+class CommandProcessor;
 class CommandResult;
 class Grid;
 enum class PasteType;
@@ -117,7 +118,7 @@ public:
   static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
-protected:
+private:
   kdl::task_manager& m_taskManager;
 
   vm::bbox3d m_worldBounds = DefaultWorldBounds;
@@ -164,6 +165,8 @@ protected:
    * was changed.
    */
   std::unique_ptr<RepeatStack> m_repeatStack;
+
+  std::unique_ptr<CommandProcessor> m_commandProcessor;
 
 public: // notification
   Notifier<Command&> commandDoNotifier;
@@ -225,10 +228,8 @@ public: // notification
 private:
   NotifierConnection m_notifierConnection;
 
-protected:
-  explicit MapDocument(kdl::task_manager& taskManager);
-
 public:
+  explicit MapDocument(kdl::task_manager& taskManager);
   ~MapDocument() override;
 
 public: // accessors and such
@@ -615,29 +616,12 @@ public: // transactions
   bool commitTransaction();
   void cancelTransaction();
 
-  virtual bool isCurrentDocumentStateObservable() const = 0;
+  bool isCurrentDocumentStateObservable() const;
 
 private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
   std::unique_ptr<CommandResult> executeAndStore(
     std::unique_ptr<UndoableCommand>&& command);
-
-private: // subclassing interface for command processing
-  virtual bool doCanUndoCommand() const = 0;
-  virtual bool doCanRedoCommand() const = 0;
-  virtual const std::string& doGetUndoCommandName() const = 0;
-  virtual const std::string& doGetRedoCommandName() const = 0;
-  virtual void doUndoCommand() = 0;
-  virtual void doRedoCommand() = 0;
-
-  virtual void doClearCommandProcessor() = 0;
-  virtual void doStartTransaction(std::string name, TransactionScope scope) = 0;
-  virtual void doCommitTransaction() = 0;
-  virtual void doRollbackTransaction() = 0;
-
-  virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command> command) = 0;
-  virtual std::unique_ptr<CommandResult> doExecuteAndStore(
-    std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
   void processResourcesSync(const mdl::ProcessContext& processContext);
@@ -734,6 +718,10 @@ public:                     // tag management
   bool isRegisteredSmartTag(size_t index) const;
   const mdl::SmartTag& smartTag(size_t index) const;
 
+public: // modification count
+  void incModificationCount(size_t delta = 1);
+  void decModificationCount(size_t delta = 1);
+
 private:
   void initializeAllNodeTags(MapDocument* document);
   void initializeNodeTags(const std::vector<mdl::Node*>& nodes);
@@ -764,6 +752,8 @@ private:
 
 private: // observers
   void connectObservers();
+  void documentWasNewed(MapDocument* document);
+  void documentWasLoaded(MapDocument* document);
   void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
   void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);

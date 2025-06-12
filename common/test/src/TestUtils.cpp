@@ -38,7 +38,6 @@
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
-#include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
 
@@ -461,7 +460,7 @@ DocumentGameConfig loadMapDocument(
   const mdl::MapFormat mapFormat)
 {
   auto taskManager = createTestTaskManager();
-  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
+  auto document = std::make_shared<MapDocument>(*taskManager);
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
   document->loadDocument(
@@ -478,7 +477,7 @@ DocumentGameConfig newMapDocument(
   const std::string& gameName, const mdl::MapFormat mapFormat)
 {
   auto taskManager = createTestTaskManager();
-  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
+  auto document = std::make_shared<MapDocument>(*taskManager);
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
   document->newDocument(mapFormat, vm::bbox3d{8192.0}, game)

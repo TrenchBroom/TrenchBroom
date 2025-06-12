@@ -43,9 +43,8 @@ public:
   explicit CurrentGroupCommand(mdl::GroupNode* group);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
   deleteCopyAndMove(CurrentGroupCommand);
 };

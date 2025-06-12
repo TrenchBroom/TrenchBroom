@@ -19,7 +19,7 @@
 
 #include "UpdateLinkedGroupsCommandBase.h"
 
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 #include "ui/UpdateLinkedGroupsCommand.h"
 
 #include "kdl/result.h"
@@ -41,7 +41,7 @@ UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
 UpdateLinkedGroupsCommandBase::~UpdateLinkedGroupsCommandBase() = default;
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
-  MapDocumentCommandFacade& document)
+  MapDocument& document)
 {
   // reimplemented from UndoableCommand::performDo
   auto commandResult = Command::performDo(document);
@@ -64,7 +64,7 @@ std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performDo(
 }
 
 std::unique_ptr<CommandResult> UpdateLinkedGroupsCommandBase::performUndo(
-  MapDocumentCommandFacade& document)
+  MapDocument& document)
 {
   auto commandResult = UndoableCommand::performUndo(document);
   if (commandResult->success())

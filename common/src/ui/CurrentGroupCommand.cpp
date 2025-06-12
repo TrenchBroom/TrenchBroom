@@ -20,7 +20,7 @@
 #include "CurrentGroupCommand.h"
 
 #include "mdl/EditorContext.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 namespace tb::ui
 {
@@ -60,8 +60,7 @@ CurrentGroupCommand::CurrentGroupCommand(mdl::GroupNode* group)
 {
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocument& document)
 {
   if (m_group)
   {
@@ -75,8 +74,7 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(MapDocument& document)
 {
   return doPerformDo(document);
 }

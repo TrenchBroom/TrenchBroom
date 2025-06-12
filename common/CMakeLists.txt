@@ -387,7 +387,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/LayerListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/LimitedKeySequenceEdit.cpp
         ${COMMON_SOURCE_DIR}/ui/MapDocument.cpp
-        ${COMMON_SOURCE_DIR}/ui/MapDocumentCommandFacade.cpp
         ${COMMON_SOURCE_DIR}/ui/MapFrame.cpp
         ${COMMON_SOURCE_DIR}/ui/MapInspector.cpp
         ${COMMON_SOURCE_DIR}/ui/MapView.cpp
@@ -927,7 +926,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/LayerListBox.h
         ${COMMON_SOURCE_DIR}/ui/LimitedKeySequenceEdit.h
         ${COMMON_SOURCE_DIR}/ui/MapDocument.h
-        ${COMMON_SOURCE_DIR}/ui/MapDocumentCommandFacade.h
         ${COMMON_SOURCE_DIR}/ui/MapFrame.h
         ${COMMON_SOURCE_DIR}/ui/MapInspector.h
         ${COMMON_SOURCE_DIR}/ui/MapView.h

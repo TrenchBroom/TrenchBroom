@@ -19,7 +19,7 @@
 
 #include "UpdateLinkedGroupsCommand.h"
 
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 namespace tb::ui
 {
@@ -33,14 +33,12 @@ UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
 
 UpdateLinkedGroupsCommand::~UpdateLinkedGroupsCommand() = default;
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformDo(
-  MapDocumentCommandFacade&)
+std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformDo(MapDocument&)
 {
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(
-  MapDocumentCommandFacade&)
+std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(MapDocument&)
 {
   return std::make_unique<CommandResult>(true);
 }

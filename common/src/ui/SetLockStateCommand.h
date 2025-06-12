@@ -52,9 +52,8 @@ public:
 private:
   static std::string makeName(mdl::LockState lockState);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
   deleteCopyAndMove(SetLockStateCommand);
 };

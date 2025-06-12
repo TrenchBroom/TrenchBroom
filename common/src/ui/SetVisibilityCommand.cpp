@@ -21,7 +21,7 @@
 
 #include "Macros.h"
 #include "mdl/VisibilityState.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include <string>
 
@@ -154,8 +154,7 @@ std::string SetVisibilityCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(MapDocument& document)
 {
   switch (m_action)
   {
@@ -176,8 +175,7 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformUndo(MapDocument& document)
 {
   restoreVisibilityState(m_oldState, document);
   return std::make_unique<CommandResult>(true);
