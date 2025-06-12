@@ -23,6 +23,7 @@
 #include "Preferences.h"
 #include "mdl/BrushFace.h"
 #include "mdl/BrushFaceHandle.h"
+#include "mdl/Grid.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
 #include "render/Camera.h"
@@ -33,7 +34,6 @@
 #include "render/VertexArray.h"
 #include "ui/ExtrudeTool.h"
 #include "ui/GestureTracker.h"
-#include "ui/Grid.h"
 #include "ui/HandleDragTracker.h"
 #include "ui/InputState.h"
 

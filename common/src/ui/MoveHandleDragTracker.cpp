@@ -39,7 +39,7 @@ void MoveHandleDragTrackerDelegate::render(
 }
 
 DragHandleSnapper makeDragHandleSnapperFromSnapMode(
-  const Grid& grid, const SnapMode snapMode)
+  const mdl::Grid& grid, const SnapMode snapMode)
 {
   switch (snapMode)
   {

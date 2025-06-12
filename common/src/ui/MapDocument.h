@@ -68,6 +68,7 @@ class EntityDefinitionFileSpec;
 class EntityDefinitionManager;
 class EntityModelManager;
 class Game;
+class Grid;
 class Issue;
 class Material;
 class MaterialManager;
@@ -90,7 +91,6 @@ namespace tb::ui
 class Command;
 class CommandProcessor;
 class CommandResult;
-class Grid;
 enum class PasteType;
 class RepeatStack;
 struct SelectionChange;
@@ -135,7 +135,7 @@ private:
   std::unique_ptr<mdl::TagManager> m_tagManager;
 
   std::unique_ptr<mdl::EditorContext> m_editorContext;
-  std::unique_ptr<Grid> m_grid;
+  std::unique_ptr<mdl::Grid> m_grid;
 
   std::vector<Action> m_tagActions;
   std::vector<Action> m_entityDefinitionActions;
@@ -271,7 +271,7 @@ public:
   mdl::EntityModelManager& entityModelManager() override;
   mdl::MaterialManager& materialManager() override;
 
-  Grid& grid() const;
+  mdl::Grid& grid() const;
 
   mdl::PointTrace* pointFile();
   const mdl::PortalFile* portalFile() const;

@@ -35,6 +35,7 @@ namespace tb::mdl
 {
 class BrushFace;
 class BrushFaceHandle;
+class Grid;
 class Node;
 class PickResult;
 } // namespace tb::mdl
@@ -49,7 +50,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
 class MapDocument;
 struct SelectionChange;
 
@@ -89,7 +89,7 @@ public:
   explicit ClipTool(std::weak_ptr<MapDocument> document);
   ~ClipTool() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void toggleSide();
 

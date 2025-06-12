@@ -24,6 +24,7 @@
 #include "mdl/BrushFace.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EditorContext.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
 #include "mdl/Hit.h"
 #include "mdl/HitAdapter.h"
@@ -32,7 +33,6 @@
 #include "mdl/Node.h"
 #include "render/RenderContext.h"
 #include "ui/GestureTracker.h"
-#include "ui/Grid.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/Transaction.h"
@@ -130,7 +130,7 @@ bool handleClick(const InputState& inputState, const mdl::EditorContext& editorC
   return editorContext.canChangeSelection();
 }
 
-void adjustGrid(const InputState& inputState, Grid& grid)
+void adjustGrid(const InputState& inputState, mdl::Grid& grid)
 {
   const auto factor = pref(Preferences::CameraMouseWheelInvert) ? -1.0f : 1.0f;
   if (factor * inputState.scrollY() < 0.0f)

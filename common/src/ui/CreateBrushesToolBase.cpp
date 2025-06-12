@@ -42,7 +42,7 @@ CreateBrushesToolBase::CreateBrushesToolBase(
 
 CreateBrushesToolBase::~CreateBrushesToolBase() = default;
 
-const Grid& CreateBrushesToolBase::grid() const
+const mdl::Grid& CreateBrushesToolBase::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

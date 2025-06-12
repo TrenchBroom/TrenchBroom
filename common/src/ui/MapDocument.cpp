@@ -59,6 +59,7 @@
 #include "mdl/EntityProperties.h"
 #include "mdl/Game.h"
 #include "mdl/GameFactory.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/InvalidUVScaleValidator.h"
 #include "mdl/Issue.h"
@@ -98,7 +99,6 @@
 #include "ui/BrushVertexCommands.h"
 #include "ui/CommandProcessor.h"
 #include "ui/CurrentGroupCommand.h"
-#include "ui/Grid.h"
 #include "ui/MapTextEncoding.h"
 #include "ui/PasteType.h"
 #include "ui/RepeatStack.h"
@@ -403,7 +403,7 @@ MapDocument::MapDocument(kdl::task_manager& taskManager)
   , m_materialManager{std::make_unique<mdl::MaterialManager>(logger())}
   , m_tagManager{std::make_unique<mdl::TagManager>()}
   , m_editorContext{std::make_unique<mdl::EditorContext>()}
-  , m_grid{std::make_unique<Grid>(4)}
+  , m_grid{std::make_unique<mdl::Grid>(4)}
   , m_repeatStack{std::make_unique<RepeatStack>()}
   , m_commandProcessor{std::make_unique<CommandProcessor>(*this)}
 {
@@ -542,7 +542,7 @@ mdl::MaterialManager& MapDocument::materialManager()
   return *m_materialManager;
 }
 
-Grid& MapDocument::grid() const
+mdl::Grid& MapDocument::grid() const
 {
   return *m_grid;
 }

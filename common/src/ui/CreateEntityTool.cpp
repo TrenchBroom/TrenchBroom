@@ -25,12 +25,12 @@
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/TransactionScope.h"
 

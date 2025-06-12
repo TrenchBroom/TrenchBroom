@@ -41,6 +41,7 @@ namespace tb
 namespace mdl
 {
 class BrushFace;
+class Grid;
 class Hit;
 class Node;
 class PickResult;
@@ -53,7 +54,6 @@ class Camera;
 
 namespace ui
 {
-class Grid;
 class MapDocument;
 struct SelectionChange;
 
@@ -129,7 +129,7 @@ public:
 
   bool applies() const;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   mdl::Hit pick2D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;
   mdl::Hit pick3D(const vm::ray3d& pickRay, const mdl::PickResult& pickResult) const;

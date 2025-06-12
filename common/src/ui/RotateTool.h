@@ -26,6 +26,11 @@
 
 #include <memory>
 
+namespace tb::mdl
+{
+class Grid;
+}
+
 namespace tb::render
 {
 class Camera;
@@ -35,7 +40,6 @@ class RenderContext;
 
 namespace tb::ui
 {
-class Grid;
 class MapDocument;
 
 class RotateTool : public Tool
@@ -54,7 +58,7 @@ public:
 
   bool doActivate() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   void updateToolPageAxis(RotateHandle::HitArea area);
 

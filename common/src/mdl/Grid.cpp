@@ -30,7 +30,7 @@
 
 #include <cmath>
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 Grid::Grid(const int size)
@@ -265,9 +265,9 @@ double Grid::snapToGridPlane(const vm::line3d& line, const double distance) cons
 }
 
 double Grid::snapMoveDistanceForFace(
-  const mdl::BrushFace& face, const double moveDistance) const
+  const BrushFace& face, const double moveDistance) const
 {
-  const auto isBoundaryEdge = [&](const mdl::BrushEdge* edge) {
+  const auto isBoundaryEdge = [&](const BrushEdge* edge) {
     return edge->firstFace() == face.geometry() || edge->secondFace() == face.geometry();
   };
 
@@ -311,4 +311,4 @@ vm::vec3d Grid::referencePoint(const vm::bbox3d& bounds) const
   return snap(bounds.center());
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

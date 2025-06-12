@@ -34,8 +34,9 @@
 
 namespace tb::mdl
 {
+class Grid;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -44,7 +45,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
 class MapDocument;
 
 class ShearTool : public Tool
@@ -64,7 +64,7 @@ public:
   explicit ShearTool(std::weak_ptr<MapDocument> document);
   ~ShearTool() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   bool applies() const;
 

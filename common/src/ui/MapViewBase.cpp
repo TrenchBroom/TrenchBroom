@@ -39,6 +39,7 @@
 #include "mdl/EntityDefinitionUtils.h"
 #include "mdl/EntityNode.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/Grid.h"
 #include "mdl/GroupNode.h"
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
@@ -62,7 +63,6 @@
 #include "ui/EnableDisableTagCallback.h"
 #include "ui/FlashSelectionAnimation.h"
 #include "ui/GLContextManager.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"
 #include "ui/MapViewActivationTracker.h"
@@ -464,7 +464,7 @@ void MapViewBase::flip(const vm::direction direction)
     // selections that are an odd number of grid units wide get translated.
     // Instead, snap to 1/2 the grid size.
     // (see: https://github.com/TrenchBroom/TrenchBroom/issues/1495 )
-    auto halfGrid = Grid{document->grid().size()};
+    auto halfGrid = mdl::Grid{document->grid().size()};
     halfGrid.decSize();
 
     const auto center = halfGrid.referencePoint(*document->selectionBounds());

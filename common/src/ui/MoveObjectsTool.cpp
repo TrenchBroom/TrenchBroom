@@ -19,7 +19,7 @@
 
 #include "MoveObjectsTool.h"
 
-#include "ui/Grid.h"
+#include "mdl/Grid.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
 #include "ui/TransactionScope.h"
@@ -40,7 +40,7 @@ MoveObjectsTool::MoveObjectsTool(std::weak_ptr<MapDocument> document)
 {
 }
 
-const Grid& MoveObjectsTool::grid() const
+const mdl::Grid& MoveObjectsTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

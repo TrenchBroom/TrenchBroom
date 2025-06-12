@@ -37,10 +37,6 @@
 namespace tb::mdl
 {
 class BrushFace;
-}
-
-namespace tb::ui
-{
 
 class Grid
 {
@@ -449,9 +445,9 @@ public:
    */
   double snapToGridPlane(const vm::line3d& line, double distance) const;
 
-  double snapMoveDistanceForFace(const mdl::BrushFace& face, double moveDistance) const;
+  double snapMoveDistanceForFace(const BrushFace& face, double moveDistance) const;
 
   vm::vec3d referencePoint(const vm::bbox3d& bounds) const;
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

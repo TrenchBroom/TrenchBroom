@@ -506,6 +506,7 @@ createMoveHandleDragTracker(
 /**
  * Returns a relative or an absolute handle snapper according to the given snap mode.
  */
-DragHandleSnapper makeDragHandleSnapperFromSnapMode(const Grid& grid, SnapMode snapMode);
+DragHandleSnapper makeDragHandleSnapperFromSnapMode(
+  const mdl::Grid& grid, SnapMode snapMode);
 
 } // namespace tb::ui

@@ -131,6 +131,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.cpp
         ${COMMON_SOURCE_DIR}/mdl/GameImpl.cpp
+        ${COMMON_SOURCE_DIR}/mdl/Grid.cpp
         ${COMMON_SOURCE_DIR}/mdl/Group.cpp
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/Hit.cpp
@@ -367,7 +368,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/GetVersion.cpp
         ${COMMON_SOURCE_DIR}/ui/GLContextManager.cpp
-        ${COMMON_SOURCE_DIR}/ui/Grid.cpp
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.cpp
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.cpp
         ${COMMON_SOURCE_DIR}/ui/InfoPanel.cpp
@@ -637,6 +637,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/GameFactory.h
         ${COMMON_SOURCE_DIR}/mdl/GameFileSystem.h
         ${COMMON_SOURCE_DIR}/mdl/GameImpl.h
+        ${COMMON_SOURCE_DIR}/mdl/Grid.h
         ${COMMON_SOURCE_DIR}/mdl/Group.h
         ${COMMON_SOURCE_DIR}/mdl/GroupNode.h
         ${COMMON_SOURCE_DIR}/mdl/Hit.h
@@ -906,7 +907,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/GestureTracker.h
         ${COMMON_SOURCE_DIR}/ui/GetVersion.h
         ${COMMON_SOURCE_DIR}/ui/GLContextManager.h
-        ${COMMON_SOURCE_DIR}/ui/Grid.h
         ${COMMON_SOURCE_DIR}/ui/HandleDragTracker.h
         ${COMMON_SOURCE_DIR}/ui/ImageListBox.h
         ${COMMON_SOURCE_DIR}/ui/InfoPanel.h

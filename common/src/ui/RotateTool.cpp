@@ -21,8 +21,8 @@
 
 #include "mdl/Entity.h"
 #include "mdl/EntityNode.h"
+#include "mdl/Grid.h"
 #include "mdl/Hit.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/RotateHandle.h"
 #include "ui/RotateToolPage.h"
@@ -45,7 +45,7 @@ bool RotateTool::doActivate()
   return true;
 }
 
-const Grid& RotateTool::grid() const
+const mdl::Grid& RotateTool::grid() const
 {
   return kdl::mem_lock(m_document)->grid();
 }

@@ -31,13 +31,13 @@
 #include "mdl/ChangeBrushFaceAttributesRequest.h"
 #include "mdl/Game.h"
 #include "mdl/GameConfig.h"
+#include "mdl/Grid.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Material.h"
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/BorderLine.h"
 #include "ui/FlagsPopupEditor.h"
-#include "ui/Grid.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
 #include "ui/SignalDelayer.h"
@@ -318,7 +318,7 @@ void FaceAttribsEditor::colorValueUnset()
 void FaceAttribsEditor::updateIncrements()
 {
   auto document = kdl::mem_lock(m_document);
-  Grid& grid = document->grid();
+  auto& grid = document->grid();
 
   m_xOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);
   m_yOffsetEditor->setIncrements(grid.actualSize(), 2.0 * grid.actualSize(), 1.0);

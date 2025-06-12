@@ -27,8 +27,8 @@
 #include "TrenchBroomApp.h"
 #include "mdl/EntityDefinition.h"
 #include "mdl/EntityProperties.h"
+#include "mdl/Grid.h" // IWYU pragma: keep
 #include "mdl/Tag.h"
-#include "ui/Grid.h" // IWYU pragma: keep
 #include "ui/Inspector.h"
 #include "ui/MapDocument.h"
 #include "ui/MapFrame.h"

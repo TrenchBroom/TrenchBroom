@@ -39,8 +39,9 @@
 
 namespace tb::mdl
 {
+class Grid;
 class PickResult;
-}
+} // namespace tb::mdl
 
 namespace tb::render
 {
@@ -49,7 +50,6 @@ class Camera;
 
 namespace tb::ui
 {
-class Grid;
 class MapDocument;
 class ScaleToolPage;
 
@@ -245,7 +245,7 @@ public:
 
   bool doActivate() override;
 
-  const Grid& grid() const;
+  const mdl::Grid& grid() const;
 
   const mdl::Hit& dragStartHit() const;
   bool applies() const;
