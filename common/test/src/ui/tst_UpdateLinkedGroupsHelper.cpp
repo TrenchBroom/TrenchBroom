@@ -26,7 +26,6 @@
 #include "mdl/LayerNode.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
-#include "ui/MapDocumentCommandFacade.h"
 #include "ui/MapDocumentTest.h"
 #include "ui/UpdateLinkedGroupsHelper.h"
 
@@ -92,9 +91,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
   {
     {
       auto helper = UpdateLinkedGroupsHelper{{linkedNode}};
-      REQUIRE(helper
-                .applyLinkedGroupUpdates(
-                  *static_cast<MapDocumentCommandFacade*>(document.get()))
+      REQUIRE(helper.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
                 .is_success());
     }
     CHECK(deleted);
@@ -104,12 +101,9 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
   {
     {
       auto helper = UpdateLinkedGroupsHelper{{linkedNode}};
-      REQUIRE(helper
-                .applyLinkedGroupUpdates(
-                  *static_cast<MapDocumentCommandFacade*>(document.get()))
+      REQUIRE(helper.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
                 .is_success());
-      helper.undoLinkedGroupUpdates(
-        *static_cast<MapDocumentCommandFacade*>(document.get()));
+      helper.undoLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()));
     }
     CHECK_FALSE(deleted);
   }
@@ -175,10 +169,8 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 
   // propagate changes
   auto helper = UpdateLinkedGroupsHelper{{groupNode}};
-  REQUIRE(
-    helper
-      .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-      .is_success());
+  REQUIRE(helper.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+            .is_success());
 
   /*
   world
@@ -198,7 +190,7 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
     == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 0.0)));
 
   // undo change propagation
-  helper.undoLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()));
+  helper.undoLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()));
 
   /*
   world
@@ -399,10 +391,8 @@ TEST_CASE_METHOD(
   SECTION("First propagate changes to innerGroupNode, then outerGroupNode")
   {
     auto helper1 = UpdateLinkedGroupsHelper{{innerGroupNode}};
-    CHECK(
-      helper1
-        .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-        .is_success());
+    CHECK(helper1.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+            .is_success());
 
     /*
     world
@@ -439,10 +429,8 @@ TEST_CASE_METHOD(
       == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 8.0)));
 
     auto helper2 = UpdateLinkedGroupsHelper{{outerGroupNode}};
-    CHECK(
-      helper2
-        .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-        .is_success());
+    CHECK(helper2.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+            .is_success());
 
     // see end of test for assertions of final state
   }
@@ -450,10 +438,8 @@ TEST_CASE_METHOD(
   SECTION("First propagate changes to outerGroupNode, then innerGroupNode")
   {
     auto helper1 = UpdateLinkedGroupsHelper{{outerGroupNode}};
-    REQUIRE(
-      helper1
-        .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-        .is_success());
+    REQUIRE(helper1.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+              .is_success());
 
     /*
     world
@@ -488,10 +474,8 @@ TEST_CASE_METHOD(
       == originalBrushBounds.translate(vm::vec3d(32.0, 16.0, 8.0)));
 
     auto helper2 = UpdateLinkedGroupsHelper{{innerGroupNode}};
-    REQUIRE(
-      helper2
-        .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-        .is_success());
+    REQUIRE(helper2.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+              .is_success());
 
     // see end of test for assertions of final state
   }
@@ -509,10 +493,8 @@ TEST_CASE_METHOD(
     }
 
     auto helper = UpdateLinkedGroupsHelper{groupNodes};
-    REQUIRE(
-      helper
-        .applyLinkedGroupUpdates(*static_cast<MapDocumentCommandFacade*>(document.get()))
-        .is_success());
+    REQUIRE(helper.applyLinkedGroupUpdates(*static_cast<MapDocument*>(document.get()))
+              .is_success());
   }
 
   /*

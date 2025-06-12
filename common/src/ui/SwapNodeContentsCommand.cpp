@@ -22,7 +22,7 @@
 #include "mdl/Game.h"
 #include "mdl/Node.h"
 #include "mdl/NodeQueries.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/range_to_vector.h"
 #include "kdl/vector_utils.h"
@@ -143,15 +143,14 @@ SwapNodeContentsCommand::SwapNodeContentsCommand(
 
 SwapNodeContentsCommand::~SwapNodeContentsCommand() = default;
 
-std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformDo(MapDocument& document)
 {
   doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);
 }
 
 std::unique_ptr<CommandResult> SwapNodeContentsCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+  MapDocument& document)
 {
   doSwapNodeContents(m_nodes, document);
   return std::make_unique<CommandResult>(true);

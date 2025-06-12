@@ -23,7 +23,7 @@
 #include "Macros.h"
 #include "mdl/Node.h"
 #include "ui/AddRemoveNodesUtils.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/map_utils.h"
 
@@ -86,21 +86,19 @@ std::string AddRemoveNodesCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(MapDocument& document)
 {
   doAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(MapDocument& document)
 {
   undoAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
+void AddRemoveNodesCommand::doAction(MapDocument& document)
 {
   switch (m_action)
   {
@@ -116,7 +114,7 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
+void AddRemoveNodesCommand::undoAction(MapDocument& document)
 {
   switch (m_action)
   {

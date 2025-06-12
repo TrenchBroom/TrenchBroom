@@ -20,7 +20,7 @@
 #include "mdl/BrushNode.h" // IWYU pragma: keep
 #include "mdl/GroupNode.h" // IWYU pragma: keep
 #include "ui/CurrentGroupCommand.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
 #include "ui/UpdateLinkedGroupsCommand.h"
 
@@ -53,8 +53,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = UpdateLinkedGroupsCommand{{groupNode1, groupNode2}};
 
-    firstCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
-    secondCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
+    firstCommand.performDo(static_cast<MapDocument&>(*document));
+    secondCommand.performDo(static_cast<MapDocument&>(*document));
 
     CHECK(firstCommand.collateWith(secondCommand));
   }
@@ -64,8 +64,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = CurrentGroupCommand{groupNode2};
 
-    firstCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
-    secondCommand.performDo(static_cast<MapDocumentCommandFacade&>(*document));
+    firstCommand.performDo(static_cast<MapDocument&>(*document));
+    secondCommand.performDo(static_cast<MapDocument&>(*document));
 
     CHECK_FALSE(firstCommand.collateWith(secondCommand));
   }

@@ -45,9 +45,8 @@ public:
     std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
   ~SwapNodeContentsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 

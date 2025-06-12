@@ -34,6 +34,7 @@ class Node;
 
 namespace tb::ui
 {
+class MapDocument;
 
 class ReparentNodesCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -51,9 +52,8 @@ public:
     std::map<mdl::Node*, std::vector<mdl::Node*>> nodesToRemove);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(
-    MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
   deleteCopyAndMove(ReparentNodesCommand);
 };

@@ -27,7 +27,7 @@
 #include "mdl/LockState.h"
 #include "mdl/Node.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/overload.h"
 
@@ -136,15 +136,13 @@ std::string SetLockStateCommand::makeName(const mdl::LockState state)
   }
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformDo(MapDocument& document)
 {
   m_oldLockState = setLockState(m_nodes, m_lockState, document);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> SetLockStateCommand::doPerformUndo(MapDocument& document)
 {
   restoreLockState(m_oldLockState, document);
   return std::make_unique<CommandResult>(true);
