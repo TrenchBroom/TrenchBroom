@@ -32,11 +32,12 @@
 #include "render/RenderService.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 #include "ui/Transaction.h"
 
 #include "kdl/map_utils.h"
 #include "kdl/memory_utils.h"
+#include "kdl/optional_utils.h"
 #include "kdl/overload.h"
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"
@@ -589,7 +590,7 @@ void ClipTool::renderFeedback(
 bool ClipTool::hasBrushes() const
 {
   const auto document = kdl::mem_lock(m_document);
-  return document->selectedNodes().hasBrushes();
+  return document->selection().hasBrushes();
 }
 
 bool ClipTool::canClip() const
@@ -608,7 +609,7 @@ void ClipTool::performClip()
 
     // need to make a copies here so that we are not affected by the deselection
     const auto toAdd = clipBrushes();
-    const auto toRemove = document->selectedNodes().nodes();
+    const auto toRemove = document->selection().nodes;
     const auto addedNodes = document->addNodes(toAdd);
 
     document->deselectAll();
@@ -653,10 +654,11 @@ std::map<mdl::Node*, std::vector<mdl::Node*>> ClipTool::clipBrushes()
   return result;
 }
 
-vm::vec3d ClipTool::defaultClipPointPos() const
+std::optional<vm::vec3d> ClipTool::defaultClipPointPos() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds().center();
+  return document->selectionBounds()
+         | kdl::optional_transform([](const auto& bounds) { return bounds.center(); });
 }
 
 bool ClipTool::canAddPoint(const vm::vec3d& point) const
@@ -801,7 +803,7 @@ void ClipTool::updateBrushes()
 {
   auto document = kdl::mem_lock(m_document);
 
-  const auto& brushNodes = document->selectedNodes().brushes();
+  const auto& brushNodes = document->selection().brushes;
   const auto& worldBounds = document->worldBounds();
 
   const auto clip =
@@ -938,7 +940,7 @@ bool ClipTool::keepBackBrushes() const
 bool ClipTool::doActivate()
 {
   auto document = kdl::mem_lock(m_document);
-  if (!document->selectedNodes().hasOnlyBrushes())
+  if (!document->selection().hasOnlyBrushes())
   {
     return false;
   }
@@ -977,7 +979,7 @@ void ClipTool::connectObservers()
     document->brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
 }
 
-void ClipTool::selectionDidChange(const Selection&)
+void ClipTool::selectionDidChange(const SelectionChange&)
 {
   if (!m_ignoreNotifications)
   {

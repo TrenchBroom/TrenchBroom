@@ -21,7 +21,7 @@
 #include "NotifierConnection.h"
 #include "TestUtils.h"
 #include "ui/CommandProcessor.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 #include "ui/TransactionScope.h"
 #include "ui/UndoableCommand.h"
 
@@ -171,13 +171,13 @@ private:
     return call;
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument&) override
   {
     const auto expectedCall = popCall<DoPerformDo>();
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument&) override
   {
     const auto expectedCall = popCall<DoPerformUndo>();
     return std::make_unique<CommandResult>(expectedCall.returnSuccess);
@@ -233,12 +233,12 @@ public:
   {
   }
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument&) override
   {
     return std::make_unique<CommandResult>(true);
   }
 
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocumentCommandFacade&) override
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument&) override
   {
     return std::make_unique<CommandResult>(true);
   }
@@ -253,7 +253,7 @@ TEST_CASE("CommandProcessorTest.doAndUndoSuccessfulCommand")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -300,7 +300,7 @@ TEST_CASE("CommandProcessorTest.doSuccessfulCommandAndFailAtUndo")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -343,7 +343,7 @@ TEST_CASE("CommandProcessorTest.doFailingCommand")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -373,7 +373,7 @@ TEST_CASE("CommandProcessorTest.commitUndoRedoTransaction")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -457,7 +457,7 @@ TEST_CASE("CommandProcessorTest.rollbackTransaction")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -523,7 +523,7 @@ TEST_CASE("CommandProcessorTest.nestedTransactions")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -602,7 +602,7 @@ TEST_CASE("CommandProceossor.isCurrentDocumentStateObservable")
 
 {
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
 
   SECTION("No enclosing transaction")
@@ -687,7 +687,7 @@ TEST_CASE("CommandProcessorTest.collateCommands")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 
@@ -748,7 +748,7 @@ TEST_CASE("CommandProcessorTest.collationInterval")
    */
 
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade, std::chrono::milliseconds(100)};
   auto observer = TestObserver{commandProcessor};
 
@@ -809,7 +809,7 @@ TEST_CASE("CommandProcessorTest.collateTransactions")
 
 {
   auto taskManager = createTestTaskManager();
-  auto facade = MapDocumentCommandFacade{*taskManager};
+  auto facade = MapDocument{*taskManager};
   auto commandProcessor = CommandProcessor{facade};
   auto observer = TestObserver{commandProcessor};
 

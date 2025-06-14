@@ -437,12 +437,12 @@ TEST_CASE("ModelUtils.collectSelectableNodes")
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));
 
-  editorContext.pushGroup(outerGroupNode);
+  editorContext.pushGroup(*outerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{innerGroupNode, patchNode}));
 
-  editorContext.pushGroup(innerGroupNode);
+  editorContext.pushGroup(*innerGroupNode);
   CHECK_THAT(
     collectSelectableNodes({&worldNode}, editorContext),
     Catch::Matchers::Equals(std::vector<Node*>{outerGroupNode}));

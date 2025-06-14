@@ -79,14 +79,14 @@ mdl::HitFilter isNodeSelectable(const mdl::EditorContext& editorContext)
   return [&](const auto& hit) {
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      if (!editorContext.selectable(faceHandle->node(), faceHandle->face()))
+      if (!editorContext.selectable(*faceHandle->node(), faceHandle->face()))
       {
         return false;
       }
     }
     if (const auto* node = mdl::hitToNode(hit))
     {
-      return editorContext.selectable(findOutermostClosedGroupOrNode(node));
+      return editorContext.selectable(*findOutermostClosedGroupOrNode(node));
     }
     return false;
   };
@@ -215,16 +215,16 @@ public:
     using namespace mdl::HitFilters;
 
     const auto& editorContext = m_document->editorContext();
-    if (m_document->hasSelectedBrushFaces())
+    if (m_document->selection().hasBrushFaces())
     {
       const auto hit = firstHit(
         inputState,
         type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
       if (const auto faceHandle = mdl::hitToFaceHandle(hit))
       {
-        const auto* brush = faceHandle->node();
+        const auto* brushNode = faceHandle->node();
         const auto& face = faceHandle->face();
-        if (!face.selected() && editorContext.selectable(brush, face))
+        if (!face.selected() && editorContext.selectable(*brushNode, face))
         {
           m_document->selectBrushFaces({*faceHandle});
         }
@@ -232,13 +232,13 @@ public:
     }
     else
     {
-      assert(m_document->hasSelectedNodes());
+      assert(m_document->selection().hasNodes());
       const auto hit =
         firstHit(inputState, type(mdl::nodeHitType()) && isNodeSelectable(editorContext));
       if (hit.isMatch())
       {
         auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
-        if (!node->selected() && editorContext.selectable(node))
+        if (!node->selected() && editorContext.selectable(*node))
         {
           m_document->selectNodes({node});
         }
@@ -298,16 +298,16 @@ bool SelectionTool::mouseClick(const InputState& inputState)
       inputState, type(mdl::BrushNode::BrushHitType) && isNodeSelectable(editorContext));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      const auto* brush = faceHandle->node();
+      const auto* brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(brush, face))
+      if (editorContext.selectable(*brushNode, face))
       {
         if (isMultiClick(inputState))
         {
-          const auto objects = document->hasSelectedNodes();
+          const auto objects = document->selection().hasNodes();
           if (objects)
           {
-            if (brush->selected())
+            if (brushNode->selected())
             {
               document->deselectBrushFaces({*faceHandle});
             }
@@ -352,7 +352,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
     if (hit.isMatch())
     {
       auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
-      if (editorContext.selectable(node))
+      if (editorContext.selectable(*node))
       {
         if (isMultiClick(inputState))
         {
@@ -363,7 +363,7 @@ bool SelectionTool::mouseClick(const InputState& inputState)
           else
           {
             auto transaction = Transaction{document, "Select Object"};
-            if (document->hasSelectedBrushFaces())
+            if (document->selection().hasBrushFaces())
             {
               document->deselectAll();
             }
@@ -406,23 +406,23 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
     const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      auto* brush = faceHandle->node();
+      auto* brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(brush, face))
+      if (editorContext.selectable(*brushNode, face))
       {
         if (isMultiClick(inputState))
         {
-          if (document->hasSelectedNodes())
+          if (document->selection().hasNodes())
           {
             document->convertToFaceSelection();
           }
-          document->selectBrushFaces(mdl::toHandles(brush));
+          document->selectBrushFaces(mdl::toHandles(brushNode));
         }
         else
         {
           auto transaction = Transaction{document, "Select Brush Faces"};
           document->deselectAll();
-          document->selectBrushFaces(mdl::toHandles(brush));
+          document->selectBrushFaces(mdl::toHandles(brushNode));
           transaction.commit();
         }
       }
@@ -440,24 +440,24 @@ bool SelectionTool::mouseDoubleClick(const InputState& inputState)
       if (!inGroup || hitInGroup)
       {
         // If the hit node is inside a closed group, treat it as a hit on the group insted
-        auto* group = findOutermostClosedGroup(mdl::hitToNode(hit));
-        if (group != nullptr)
+        auto* groupNode = findOutermostClosedGroup(mdl::hitToNode(hit));
+        if (groupNode != nullptr)
         {
-          if (editorContext.selectable(group))
+          if (editorContext.selectable(*groupNode))
           {
-            document->openGroup(group);
+            document->openGroup(groupNode);
           }
         }
         else
         {
           const auto* node = mdl::hitToNode(hit);
-          if (editorContext.selectable(node))
+          if (editorContext.selectable(*node))
           {
             const auto* container = node->parent();
             const auto siblings = collectSelectableChildren(editorContext, container);
             if (isMultiClick(inputState))
             {
-              if (document->hasSelectedBrushFaces())
+              if (document->selection().hasBrushFaces())
               {
                 document->deselectAll();
               }
@@ -521,13 +521,13 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     const auto hit = firstHit(inputState, type(mdl::BrushNode::BrushHitType));
     if (const auto faceHandle = mdl::hitToFaceHandle(hit))
     {
-      const auto* brush = faceHandle->node();
+      const auto* brushNode = faceHandle->node();
       const auto& face = faceHandle->face();
-      if (editorContext.selectable(brush, face))
+      if (editorContext.selectable(*brushNode, face))
       {
         document->startTransaction(
           "Drag Select Brush Faces", TransactionScope::LongRunning);
-        if (document->hasSelection() && !document->hasSelectedBrushFaces())
+        if (document->selection().hasAny() && !document->selection().hasBrushFaces())
         {
           document->deselectAll();
         }
@@ -550,10 +550,10 @@ std::unique_ptr<GestureTracker> SelectionTool::acceptMouseDrag(
     }
 
     auto* node = findOutermostClosedGroupOrNode(mdl::hitToNode(hit));
-    if (editorContext.selectable(node))
+    if (editorContext.selectable(*node))
     {
       document->startTransaction("Drag Select Objects", TransactionScope::LongRunning);
-      if (document->hasSelection() && !document->hasSelectedNodes())
+      if (document->selection().hasAny() && !document->selection().hasNodes())
       {
         document->deselectAll();
       }

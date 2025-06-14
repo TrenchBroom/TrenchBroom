@@ -386,9 +386,10 @@ void MapView2D::renderMap(
   renderer.render(renderContext, renderBatch);
 
   auto document = kdl::mem_lock(m_document);
-  if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
+  if (const auto& bounds = document->selectionBounds();
+      bounds && renderContext.showSelectionGuide())
   {
-    auto boundsRenderer = render::SelectionBoundsRenderer{document->selectionBounds()};
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
   }
 }

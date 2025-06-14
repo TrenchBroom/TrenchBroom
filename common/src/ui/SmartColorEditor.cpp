@@ -207,7 +207,7 @@ void SmartColorEditor::updateColorHistory()
     collectColors(std::vector{document()->world()}, propertyKey()));
 
   const auto selectedColors =
-    collectColors(document()->allSelectedEntityNodes(), propertyKey());
+    collectColors(document()->selection().allEntities(), propertyKey());
   m_colorHistory->setSelection(selectedColors);
   m_colorPicker->setColor(
     !selectedColors.empty() ? selectedColors.back() : QColor(Qt::black));

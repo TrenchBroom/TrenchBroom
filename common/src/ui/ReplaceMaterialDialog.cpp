@@ -116,7 +116,7 @@ std::vector<mdl::BrushFaceHandle> ReplaceMaterialDialog::getApplicableFaces() co
   ensure(subject != nullptr, "subject is null");
 
   auto document = kdl::mem_lock(m_document);
-  auto faces = document->allSelectedBrushFaces();
+  auto faces = document->selection().allBrushFaces();
   if (faces.empty())
   {
     faces = mdl::collectBrushFaces({document->world()});

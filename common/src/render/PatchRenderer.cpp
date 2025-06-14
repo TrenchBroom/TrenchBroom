@@ -158,7 +158,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    if (editorContext.visible(patchNode))
+    if (editorContext.visible(*patchNode))
     {
       vertexCount += patchNode->grid().pointRowCount * patchNode->grid().pointColumnCount;
 
@@ -178,7 +178,7 @@ static MaterialIndexArrayRenderer buildMeshRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    if (editorContext.visible(patchNode))
+    if (editorContext.visible(*patchNode))
     {
       const auto vertexOffset = vertices.size();
 
@@ -232,7 +232,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    if (editorContext.visible(patchNode))
+    if (editorContext.visible(*patchNode))
     {
       vertexCount +=
         (patchNode->grid().pointRowCount + patchNode->grid().pointColumnCount - 2u) * 2u;
@@ -245,7 +245,7 @@ static DirectEdgeRenderer buildEdgeRenderer(
 
   for (const auto* patchNode : patchNodes)
   {
-    if (editorContext.visible(patchNode))
+    if (editorContext.visible(*patchNode))
     {
       const auto& grid = patchNode->grid();
 

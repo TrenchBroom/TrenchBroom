@@ -28,7 +28,7 @@
 
 namespace tb::ui
 {
-class MapDocumentCommandFacade;
+class MapDocument;
 
 class UpdateLinkedGroupsCommandBase : public UndoableCommand
 {
@@ -44,8 +44,8 @@ protected:
 public:
   ~UpdateLinkedGroupsCommandBase() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocumentCommandFacade& document) override;
-  std::unique_ptr<CommandResult> performUndo(MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> performDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> performUndo(MapDocument& document) override;
 
   bool collateWith(UndoableCommand& command) override;
 

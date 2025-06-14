@@ -43,7 +43,7 @@ protected:
     std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocumentCommandFacade& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   virtual std::unique_ptr<CommandResult> createCommandResult(
     std::unique_ptr<CommandResult> swapResult);
 
