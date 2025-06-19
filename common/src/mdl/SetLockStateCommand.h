@@ -31,10 +31,7 @@ namespace tb::mdl
 {
 enum class LockState;
 class Node;
-} // namespace tb::mdl
 
-namespace tb::ui
-{
 class SetLockStateCommand : public UndoableCommand
 {
 private:
@@ -52,10 +49,10 @@ public:
 private:
   static std::string makeName(mdl::LockState lockState);
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   deleteCopyAndMove(SetLockStateCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

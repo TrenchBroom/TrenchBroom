@@ -599,7 +599,7 @@ void FaceAttribsEditor::brushFacesDidChange(const std::vector<mdl::BrushFaceHand
   updateControlsDelayed();
 }
 
-void FaceAttribsEditor::selectionDidChange(const SelectionChange&)
+void FaceAttribsEditor::selectionDidChange(const mdl::SelectionChange&)
 {
   updateControlsDelayed();
 }

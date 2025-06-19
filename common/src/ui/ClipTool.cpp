@@ -605,7 +605,7 @@ void ClipTool::performClip()
     const auto ignoreNotifications = kdl::set_temp{m_ignoreNotifications};
 
     auto document = kdl::mem_lock(m_document);
-    auto transaction = Transaction{document, "Clip Brushes"};
+    auto transaction = mdl::Transaction{document, "Clip Brushes"};
 
     // need to make a copies here so that we are not affected by the deselection
     const auto toAdd = clipBrushes();
@@ -979,7 +979,7 @@ void ClipTool::connectObservers()
     document->brushFacesDidChangeNotifier.connect(this, &ClipTool::brushFacesDidChange);
 }
 
-void ClipTool::selectionDidChange(const SelectionChange&)
+void ClipTool::selectionDidChange(const mdl::SelectionChange&)
 {
   if (!m_ignoreNotifications)
   {

@@ -27,10 +27,7 @@
 namespace tb::mdl
 {
 class LayerNode;
-}
 
-namespace tb::ui
-{
 class SetCurrentLayerCommand : public UndoableCommand
 {
 private:
@@ -43,12 +40,12 @@ public:
   explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(SetCurrentLayerCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

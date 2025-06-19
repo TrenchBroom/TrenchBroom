@@ -34,10 +34,14 @@ class QLineEdit;
 class QComboBox;
 class QAbstractButton;
 
+namespace tb::mdl
+{
+struct SelectionChange;
+}
+
 namespace tb::ui
 {
 class MapDocument;
-struct SelectionChange;
 class ScaleToolPage : public QWidget
 {
   Q_OBJECT
@@ -67,7 +71,7 @@ private:
   bool canScale() const;
   std::optional<vm::vec3d> getScaleFactors() const;
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
 
   void applyScale();
 };

@@ -1025,7 +1025,7 @@ void ScaleTool::startScaleWithHit(const mdl::Hit& hit)
   m_dragCumulativeDelta = vm::vec3d{0, 0, 0};
 
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Scale Objects", TransactionScope::LongRunning);
+  document->startTransaction("Scale Objects", mdl::TransactionScope::LongRunning);
   m_resizing = true;
 }
 

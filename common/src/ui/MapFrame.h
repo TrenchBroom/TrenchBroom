@@ -27,7 +27,6 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/MapFormat.h"
-#include "mdl/SelectionChange.h"
 
 #include <chrono>
 #include <filesystem>
@@ -56,6 +55,8 @@ class Game;
 class GroupNode;
 class LayerNode;
 class Material;
+class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -179,7 +180,7 @@ private: // notification handlers
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void currentLayerDidChange(const tb::mdl::LayerNode* layer);
   void groupWasOpened(mdl::GroupNode& group);
   void groupWasClosed(mdl::GroupNode& group);

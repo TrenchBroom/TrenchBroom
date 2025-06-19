@@ -28,13 +28,13 @@
 #include "kdl/map_utils.h"
 #include "kdl/vector_utils.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
 
 void doAddNodes(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, ui::MapDocument& document)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   auto notifyParents = NotifyBeforeAndAfter{
@@ -51,7 +51,7 @@ void doAddNodes(
 }
 
 void doRemoveNodes(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, ui::MapDocument& document)
 {
   const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
   auto notifyParents = NotifyBeforeAndAfter{
@@ -125,19 +125,21 @@ std::string AddRemoveNodesCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
+  ui::MapDocument& document)
 {
   doAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(MapDocument& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
+  ui::MapDocument& document)
 {
   undoAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-void AddRemoveNodesCommand::doAction(MapDocument& document)
+void AddRemoveNodesCommand::doAction(ui::MapDocument& document)
 {
   switch (m_action)
   {
@@ -153,7 +155,7 @@ void AddRemoveNodesCommand::doAction(MapDocument& document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-void AddRemoveNodesCommand::undoAction(MapDocument& document)
+void AddRemoveNodesCommand::undoAction(ui::MapDocument& document)
 {
   switch (m_action)
   {
@@ -169,4 +171,4 @@ void AddRemoveNodesCommand::undoAction(MapDocument& document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -782,7 +782,7 @@ void MapRenderer::brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& f
   }
 }
 
-void MapRenderer::selectionDidChange(const ui::SelectionChange& selectionChange)
+void MapRenderer::selectionDidChange(const mdl::SelectionChange& selectionChange)
 {
   for (const auto& face : selectionChange.deselectedBrushFaces)
   {

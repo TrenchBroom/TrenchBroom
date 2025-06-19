@@ -24,20 +24,20 @@
 
 #include "kdl/memory_utils.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
-Transaction::Transaction(std::weak_ptr<MapDocument> document, std::string name)
+Transaction::Transaction(std::weak_ptr<ui::MapDocument> document, std::string name)
   : Transaction{kdl::mem_lock(document), std::move(name)}
 {
 }
 
-Transaction::Transaction(std::shared_ptr<MapDocument> document, std::string name)
+Transaction::Transaction(std::shared_ptr<ui::MapDocument> document, std::string name)
   : Transaction{*document, std::move(name)}
 {
 }
 
-Transaction::Transaction(MapDocument& document, std::string name)
+Transaction::Transaction(ui::MapDocument& document, std::string name)
   : m_document{document}
   , m_name{std::move(name)}
   , m_state{State::Running}
@@ -103,4 +103,4 @@ void Transaction::begin()
   m_document.startTransaction(m_name, TransactionScope::Oneshot);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

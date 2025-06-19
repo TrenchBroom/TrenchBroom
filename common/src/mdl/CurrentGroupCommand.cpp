@@ -22,18 +22,18 @@
 #include "mdl/EditorContext.h"
 #include "ui/MapDocument.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 namespace
 {
 
-void doPushGroup(mdl::GroupNode& groupNode, MapDocument& document)
+void doPushGroup(mdl::GroupNode& groupNode, ui::MapDocument& document)
 {
   document.editorContext().pushGroup(groupNode);
   document.groupWasOpenedNotifier(groupNode);
 }
 
-mdl::GroupNode& doPopGroup(MapDocument& document)
+mdl::GroupNode& doPopGroup(ui::MapDocument& document)
 {
   auto& editorContext = document.editorContext();
   auto& previousGroup = *editorContext.currentGroup();
@@ -60,7 +60,7 @@ CurrentGroupCommand::CurrentGroupCommand(mdl::GroupNode* group)
 {
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocument& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(ui::MapDocument& document)
 {
   if (m_group)
   {
@@ -74,9 +74,10 @@ std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformDo(MapDocument& doc
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(MapDocument& document)
+std::unique_ptr<CommandResult> CurrentGroupCommand::doPerformUndo(
+  ui::MapDocument& document)
 {
   return doPerformDo(document);
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -28,9 +28,13 @@
 
 namespace tb::ui
 {
+class MapDocument;
+}
+
+namespace tb::mdl
+{
 class Command;
 class CommandResult;
-class MapDocument;
 class UndoableCommand;
 enum class TransactionScope;
 
@@ -58,7 +62,7 @@ private:
   /**
    * The document to pass on to commands when they are executed or undone.
    */
-  MapDocument& m_document;
+  ui::MapDocument& m_document;
 
   /**
    * Limits the time after which to succeeding commands can be collated.
@@ -99,7 +103,7 @@ public:
    * @param document the document to pass to commands, may be null
    */
   explicit CommandProcessor(
-    MapDocument& document,
+    ui::MapDocument& document,
     std::chrono::milliseconds collationInterval = std::chrono::milliseconds{1000});
 
   ~CommandProcessor();
@@ -390,4 +394,4 @@ private:
   std::unique_ptr<UndoableCommand> popFromRedoStack();
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

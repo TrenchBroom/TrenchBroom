@@ -83,7 +83,7 @@ QWidget* DrawShapeTool::doCreatePage(QWidget* parent)
                    | kdl::to_vector;
           })
         | kdl::transform([&](auto brushNodes) {
-            auto transaction = Transaction{document, "Update Brushes"};
+            auto transaction = mdl::Transaction{document, "Update Brushes"};
 
             document->remove();
             const auto addedNodes = document->addNodes({

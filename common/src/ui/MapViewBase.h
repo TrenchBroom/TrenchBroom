@@ -39,10 +39,13 @@ class QAction;
 namespace tb::mdl
 {
 struct EntityDefinition;
+class Command;
 class GroupNode;
 class Node;
 struct Selection;
+struct SelectionChange;
 class SmartTag;
+class UndoableCommand;
 enum class EntityDefinitionType;
 } // namespace tb::mdl
 
@@ -61,13 +64,10 @@ namespace tb::ui
 {
 class Action;
 class AnimationManager;
-class Command;
 class MapDocument;
 class MapViewToolBox;
-struct SelectionChange;
 class SignalDelayer;
 class Tool;
-class UndoableCommand;
 
 class MapViewBase : public RenderView,
                     public MapView,
@@ -140,9 +140,9 @@ private:
 
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void toolChanged(Tool& tool);
-  void commandDone(Command& command);
-  void commandUndone(UndoableCommand& command);
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void commandDone(mdl::Command& command);
+  void commandUndone(mdl::UndoableCommand& command);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsDidChange();
   void entityDefinitionsDidChange();
   void modsDidChange();

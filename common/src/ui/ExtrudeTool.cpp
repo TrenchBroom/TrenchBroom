@@ -373,7 +373,7 @@ void ExtrudeTool::beginExtrude()
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
   kdl::mem_lock(m_document)
-    ->startTransaction("Resize Brushes", TransactionScope::LongRunning);
+    ->startTransaction("Resize Brushes", mdl::TransactionScope::LongRunning);
 }
 
 namespace
@@ -608,7 +608,7 @@ void ExtrudeTool::beginMove()
   ensure(!m_dragging, "may not be called during a drag");
   m_dragging = true;
   kdl::mem_lock(m_document)
-    ->startTransaction("Move Faces", TransactionScope::LongRunning);
+    ->startTransaction("Move Faces", mdl::TransactionScope::LongRunning);
 }
 
 bool ExtrudeTool::move(const vm::vec3d& delta, ExtrudeDragState& dragState)
@@ -684,7 +684,7 @@ void ExtrudeTool::nodesDidChange(const std::vector<mdl::Node*>&)
   }
 }
 
-void ExtrudeTool::selectionDidChange(const SelectionChange&)
+void ExtrudeTool::selectionDidChange(const mdl::SelectionChange&)
 {
   if (!m_dragging)
   {

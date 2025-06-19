@@ -30,10 +30,6 @@
 namespace tb::mdl
 {
 class Node;
-} // namespace tb::mdl
-
-namespace tb::ui
-{
 
 class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
 {
@@ -45,12 +41,12 @@ public:
     std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
   ~SwapNodeContentsCommand() override;
 
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
   deleteCopyAndMove(SwapNodeContentsCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

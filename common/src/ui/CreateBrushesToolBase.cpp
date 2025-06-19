@@ -57,7 +57,7 @@ void CreateBrushesToolBase::createBrushes()
     });
     clearBrushes();
 
-    auto transaction = Transaction{document, "Create Brush"};
+    auto transaction = mdl::Transaction{document, "Create Brush"};
     document->deselectAll();
     auto addedNodes = document->addNodes({{document->parentForNodes(), nodesToAdd}});
     document->selectNodes(addedNodes);

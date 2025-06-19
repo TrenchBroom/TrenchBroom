@@ -21,15 +21,14 @@
 #include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
 #include "mdl/UpdateLinkedGroupsCommand.h"
-#include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
 
 #include "Catch2.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
+TEST_CASE_METHOD(ui::MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
 {
   const auto createLinkedGroup = [&]() {
     auto* brushNode = createBrushNode();
@@ -53,8 +52,8 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = UpdateLinkedGroupsCommand{{groupNode1, groupNode2}};
 
-    firstCommand.performDo(static_cast<MapDocument&>(*document));
-    secondCommand.performDo(static_cast<MapDocument&>(*document));
+    firstCommand.performDo(*document);
+    secondCommand.performDo(*document);
 
     CHECK(firstCommand.collateWith(secondCommand));
   }
@@ -64,11 +63,11 @@ TEST_CASE_METHOD(MapDocumentTest, "UpdateLinkedGroupsCommandTest.collateWith")
     auto firstCommand = UpdateLinkedGroupsCommand{{groupNode1}};
     auto secondCommand = CurrentGroupCommand{groupNode2};
 
-    firstCommand.performDo(static_cast<MapDocument&>(*document));
-    secondCommand.performDo(static_cast<MapDocument&>(*document));
+    firstCommand.performDo(*document);
+    secondCommand.performDo(*document);
 
     CHECK_FALSE(firstCommand.collateWith(secondCommand));
   }
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

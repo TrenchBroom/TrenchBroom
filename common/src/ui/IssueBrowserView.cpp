@@ -179,7 +179,7 @@ void IssueBrowserView::applyQuickFix(const mdl::IssueQuickFix& quickFix)
   const auto issues = collectIssues(getSelection());
 
   auto transaction =
-    Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
+    mdl::Transaction{document, "Apply Quick Fix (" + quickFix.description() + ")"};
   updateSelection();
   quickFix.apply(*document, issues);
   transaction.commit();

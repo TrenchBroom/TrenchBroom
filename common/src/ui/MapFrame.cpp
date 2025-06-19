@@ -814,7 +814,7 @@ void MapFrame::toolHandleSelectionChanged(Tool&)
   updateActionStateDelayed();
 }
 
-void MapFrame::selectionDidChange(const SelectionChange&)
+void MapFrame::selectionDidChange(const mdl::SelectionChange&)
 {
   updateActionStateDelayed();
   updateStatusBarDelayed();
@@ -1270,7 +1270,7 @@ void MapFrame::cutSelection()
   if (canCutSelection())
   {
     copyToClipboard();
-    auto transaction = Transaction{m_document, "Cut"};
+    auto transaction = mdl::Transaction{m_document, "Cut"};
     m_document->remove();
     transaction.commit();
   }
@@ -1313,7 +1313,7 @@ void MapFrame::pasteAtCursorPosition()
   {
     const auto referenceBounds = m_document->referenceBounds();
 
-    auto transaction = Transaction{m_document, "Paste"};
+    auto transaction = mdl::Transaction{m_document, "Paste"};
     switch (paste())
     {
     case PasteType::Node:

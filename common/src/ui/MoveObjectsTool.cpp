@@ -56,7 +56,7 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 
   document->startTransaction(
     duplicateObjects(inputState) ? "Duplicate Objects" : "Move Objects",
-    TransactionScope::LongRunning);
+    mdl::TransactionScope::LongRunning);
   m_duplicateObjects = duplicateObjects(inputState);
   return true;
 }

@@ -106,7 +106,7 @@ double RotateTool::minorHandleRadius(const render::Camera& camera) const
 void RotateTool::beginRotation()
 {
   auto document = kdl::mem_lock(m_document);
-  document->startTransaction("Rotate Objects", TransactionScope::LongRunning);
+  document->startTransaction("Rotate Objects", mdl::TransactionScope::LongRunning);
 }
 
 void RotateTool::commitRotation()

@@ -59,7 +59,7 @@ void replaceMaterials(
 
   const auto pushSelection = mdl::PushSelection{document};
 
-  auto transaction = Transaction{document, "Replace Materials"};
+  auto transaction = mdl::Transaction{document, "Replace Materials"};
   document.selectBrushFaces(faces);
   if (!document.setFaceAttributes(request))
   {

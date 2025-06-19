@@ -32,11 +32,15 @@ class QCheckBox;
 class QComboBox;
 class QPushButton;
 
+namespace tb::mdl
+{
+struct SelectionChange;
+}
+
 namespace tb::ui
 {
 class MapDocument;
 class RotateTool;
-struct SelectionChange;
 class SpinControl;
 
 class RotateToolPage : public QWidget
@@ -68,7 +72,7 @@ private:
   void createGui();
   void updateGui();
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void documentWasNewedOrLoaded(MapDocument* document);
 
   void rotationCenterDidChange(const vm::vec3d& center);

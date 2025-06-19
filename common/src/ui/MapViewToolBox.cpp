@@ -356,7 +356,7 @@ void MapViewToolBox::documentWasNewedOrLoaded(MapDocument*)
   deactivateAllTools();
 }
 
-void MapViewToolBox::selectionDidChange(const SelectionChange&)
+void MapViewToolBox::selectionDidChange(const mdl::SelectionChange&)
 {
   updateToolPage();
 }

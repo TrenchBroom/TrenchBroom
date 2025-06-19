@@ -19,7 +19,7 @@
 
 #pragma once
 
-namespace tb::ui
+namespace tb::mdl
 {
 
 enum class TransactionScope
@@ -30,4 +30,4 @@ enum class TransactionScope
   LongRunning,
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

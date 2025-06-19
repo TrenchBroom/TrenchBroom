@@ -155,7 +155,7 @@ void SmartPropertyEditorManager::connectObservers()
     this, &SmartPropertyEditorManager::nodesDidChange);
 }
 
-void SmartPropertyEditorManager::selectionDidChange(const SelectionChange&)
+void SmartPropertyEditorManager::selectionDidChange(const mdl::SelectionChange&)
 {
   auto document = kdl::mem_lock(m_document);
   switchEditor(m_propertyKey, document->selection().allEntities());

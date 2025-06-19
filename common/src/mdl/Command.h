@@ -27,6 +27,10 @@
 namespace tb::ui
 {
 class MapDocument;
+}
+
+namespace tb::mdl
+{
 
 class CommandResult
 {
@@ -63,12 +67,12 @@ public:
   CommandState state() const;
   const std::string& name() const;
 
-  virtual std::unique_ptr<CommandResult> performDo(MapDocument& document);
+  virtual std::unique_ptr<CommandResult> performDo(ui::MapDocument& document);
 
 private:
-  virtual std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) = 0;
+  virtual std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) = 0;
 
   deleteCopyAndMove(Command);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

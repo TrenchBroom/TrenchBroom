@@ -35,6 +35,7 @@ namespace tb::mdl
 {
 class BrushFaceHandle;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
@@ -42,7 +43,6 @@ namespace tb::ui
 class FlagsPopupEditor;
 class GLContextManager;
 class MapDocument;
-struct SelectionChange;
 class SignalDelayer;
 class SpinControl;
 class UVEditor;
@@ -118,7 +118,7 @@ private:
   void documentWasLoaded(MapDocument* document);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
   void brushFacesDidChange(const std::vector<mdl::BrushFaceHandle>& faces);
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void materialCollectionsDidChange();
 
   void updateControls();

@@ -26,10 +26,10 @@
 
 #include "Catch2.h"
 
-namespace tb::ui
+namespace tb::mdl
 {
 
-TEST_CASE_METHOD(MapDocumentTest, "Transaction")
+TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
 {
   document->selectAllNodes();
   document->remove();
@@ -86,4 +86,4 @@ TEST_CASE_METHOD(MapDocumentTest, "Transaction")
   }
 }
 
-} // namespace tb::ui
+} // namespace tb::mdl

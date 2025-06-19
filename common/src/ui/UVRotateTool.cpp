@@ -191,7 +191,7 @@ public:
     , m_helper{helper}
     , m_initialAngle{initialAngle}
   {
-    document.startTransaction("Rotate UV", TransactionScope::LongRunning);
+    document.startTransaction("Rotate UV", mdl::TransactionScope::LongRunning);
   }
 
   bool update(const InputState& inputState) override

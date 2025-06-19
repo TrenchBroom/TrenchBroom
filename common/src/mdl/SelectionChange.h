@@ -28,10 +28,6 @@
 namespace tb::mdl
 {
 class Node;
-}
-
-namespace tb::ui
-{
 
 struct SelectionChange
 {
@@ -48,4 +44,4 @@ struct SelectionChange
     deselectedBrushFaces);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

@@ -33,12 +33,12 @@ namespace tb::mdl
 {
 class EntityNodeBase;
 class Node;
+struct SelectionChange;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 class MapDocument;
-struct SelectionChange;
 class SmartPropertyEditor;
 
 using SmartPropertyEditorMatcher =
@@ -70,7 +70,7 @@ private:
 
   void connectObservers();
 
-  void selectionDidChange(const SelectionChange& selectionChange);
+  void selectionDidChange(const mdl::SelectionChange& selectionChange);
   void nodesDidChange(const std::vector<mdl::Node*>& nodes);
 
   SmartPropertyEditor* selectEditor(

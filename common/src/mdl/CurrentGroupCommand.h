@@ -27,10 +27,7 @@
 namespace tb::mdl
 {
 class GroupNode;
-}
 
-namespace tb::ui
-{
 class CurrentGroupCommand : public UndoableCommand
 {
 private:
@@ -43,10 +40,10 @@ public:
   explicit CurrentGroupCommand(mdl::GroupNode* group);
 
 private:
-  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;
 
   deleteCopyAndMove(CurrentGroupCommand);
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl
