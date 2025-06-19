@@ -29,10 +29,10 @@
 #include "mdl/HitAdapter.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "mdl/TransactionScope.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/k.h"
 #include "kdl/memory_utils.h"

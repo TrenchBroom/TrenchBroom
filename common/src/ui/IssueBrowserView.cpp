@@ -32,10 +32,10 @@
 #include "mdl/IssueQuickFix.h"
 #include "mdl/LayerNode.h"
 #include "mdl/PatchNode.h"
+#include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
 #include "ui/QtUtils.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"

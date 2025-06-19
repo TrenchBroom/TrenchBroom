@@ -23,9 +23,9 @@
 
 #include "Exceptions.h"
 #include "Notifier.h"
-#include "ui/Command.h"
-#include "ui/TransactionScope.h"
-#include "ui/UndoableCommand.h"
+#include "mdl/Command.h"
+#include "mdl/TransactionScope.h"
+#include "mdl/UndoableCommand.h"
 
 #include "kdl/set_temp.h"
 #include "kdl/vector_utils.h"

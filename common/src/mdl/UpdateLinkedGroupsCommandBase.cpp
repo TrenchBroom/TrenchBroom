@@ -19,8 +19,8 @@
 
 #include "UpdateLinkedGroupsCommandBase.h"
 
+#include "mdl/UpdateLinkedGroupsCommand.h"
 #include "ui/MapDocument.h"
-#include "ui/UpdateLinkedGroupsCommand.h"
 
 #include "kdl/result.h"
 

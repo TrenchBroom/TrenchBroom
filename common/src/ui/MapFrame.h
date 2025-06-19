@@ -27,7 +27,7 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/MapFormat.h"
-#include "ui/SelectionChange.h"
+#include "mdl/SelectionChange.h"
 
 #include <chrono>
 #include <filesystem>

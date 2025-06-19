@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2020 Kristian Duske
+ Copyright (C) 2024 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,11 +20,11 @@
 #pragma once
 
 #include "Macros.h"
-#include "mdl/NodeContents.h"
-#include "ui/UpdateLinkedGroupsCommandBase.h"
+#include "mdl/UndoableCommand.h"
 
 #include <memory>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace tb::mdl
@@ -35,22 +35,22 @@ class Node;
 namespace tb::ui
 {
 
-class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
+class SetLinkIdsCommand : public UndoableCommand
 {
 protected:
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> m_nodes;
+  std::vector<std::tuple<mdl::Node*, std::string>> m_linkIds;
 
 public:
-  SwapNodeContentsCommand(
-    std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
-  ~SwapNodeContentsCommand() override;
+  SetLinkIdsCommand(
+    const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds);
+  ~SetLinkIdsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
   bool doCollateWith(UndoableCommand& command) override;
 
-  deleteCopyAndMove(SwapNodeContentsCommand);
+  deleteCopyAndMove(SetLinkIdsCommand);
 };
 
 } // namespace tb::ui

@@ -17,10 +17,10 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ui/Transaction.h"
+#include "mdl/Transaction.h"
 
+#include "mdl/TransactionScope.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 
 #include "kdl/memory_utils.h"
 

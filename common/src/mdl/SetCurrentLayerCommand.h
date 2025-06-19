@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2022 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -20,28 +20,35 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UpdateLinkedGroupsCommandBase.h"
+#include "mdl/UndoableCommand.h"
 
-#include <vector>
+#include <memory>
 
 namespace tb::mdl
 {
-class GroupNode;
-} // namespace tb::mdl
+class LayerNode;
+}
 
 namespace tb::ui
 {
-
-class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
+class SetCurrentLayerCommand : public UndoableCommand
 {
-public:
-  explicit UpdateLinkedGroupsCommand(std::vector<mdl::GroupNode*> changedLinkedGroups);
-  ~UpdateLinkedGroupsCommand() override;
+private:
+  mdl::LayerNode* m_currentLayer = nullptr;
+  mdl::LayerNode* m_oldCurrentLayer = nullptr;
 
+public:
+  static std::unique_ptr<SetCurrentLayerCommand> set(mdl::LayerNode* layer);
+
+  explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
+
+private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  deleteCopyAndMove(UpdateLinkedGroupsCommand);
+  bool doCollateWith(UndoableCommand& command) override;
+
+  deleteCopyAndMove(SetCurrentLayerCommand);
 };
 
 } // namespace tb::ui

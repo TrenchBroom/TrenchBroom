@@ -20,37 +20,28 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UndoableCommand.h"
-#include "ui/UpdateLinkedGroupsHelper.h"
+#include "mdl/UpdateLinkedGroupsCommandBase.h"
 
-#include <memory>
-#include <string>
+#include <vector>
+
+namespace tb::mdl
+{
+class GroupNode;
+} // namespace tb::mdl
 
 namespace tb::ui
 {
-class MapDocument;
 
-class UpdateLinkedGroupsCommandBase : public UndoableCommand
+class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
-private:
-  UpdateLinkedGroupsHelper m_updateLinkedGroupsHelper;
-
-protected:
-  UpdateLinkedGroupsCommandBase(
-    std::string name,
-    bool updateModificationCount,
-    std::vector<mdl::GroupNode*> changedLinkedGroups = {});
-
 public:
-  ~UpdateLinkedGroupsCommandBase() override;
+  explicit UpdateLinkedGroupsCommand(std::vector<mdl::GroupNode*> changedLinkedGroups);
+  ~UpdateLinkedGroupsCommand() override;
 
-  std::unique_ptr<CommandResult> performDo(MapDocument& document) override;
-  std::unique_ptr<CommandResult> performUndo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
+  std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  bool collateWith(UndoableCommand& command) override;
-
-private:
-  deleteCopyAndMove(UpdateLinkedGroupsCommandBase);
+  deleteCopyAndMove(UpdateLinkedGroupsCommand);
 };
 
 } // namespace tb::ui

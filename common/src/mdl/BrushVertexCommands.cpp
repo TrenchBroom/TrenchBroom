@@ -19,7 +19,7 @@
 
 #include "BrushVertexCommands.h"
 
-#include "ui/SwapNodeContentsCommand.h"
+#include "mdl/SwapNodeContentsCommand.h"
 #include "ui/VertexTool.h"
 
 #include "kdl/range_to_vector.h"

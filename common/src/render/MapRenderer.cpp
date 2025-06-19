@@ -33,6 +33,7 @@
 #include "mdl/Node.h"
 #include "mdl/PatchNode.h"
 #include "mdl/Resource.h"
+#include "mdl/SelectionChange.h"
 #include "mdl/WorldNode.h"
 #include "render/BrushRenderer.h"
 #include "render/EntityDecalRenderer.h"
@@ -43,7 +44,6 @@
 #include "render/RenderContext.h"
 #include "render/RenderUtils.h"
 #include "ui/MapDocument.h"
-#include "ui/SelectionChange.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/overload.h"

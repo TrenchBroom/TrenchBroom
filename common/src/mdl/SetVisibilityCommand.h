@@ -20,44 +20,39 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/UpdateLinkedGroupsCommandBase.h"
+#include "mdl/UndoableCommand.h"
 
-#include <map>
 #include <memory>
+#include <string>
+#include <tuple>
 #include <vector>
 
 namespace tb::mdl
 {
 class Node;
+enum class VisibilityState;
 } // namespace tb::mdl
 
 namespace tb::ui
 {
 
-class AddRemoveNodesCommand : public UpdateLinkedGroupsCommandBase
+class SetVisibilityCommand : public UndoableCommand
 {
 private:
-  enum class Action
-  {
-    Add,
-    Remove
-  };
+  enum class Action;
 
+  std::vector<mdl::Node*> m_nodes;
   Action m_action;
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToAdd;
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToRemove;
+  std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>> m_oldState;
 
 public:
-  static std::unique_ptr<AddRemoveNodesCommand> add(
-    mdl::Node* parent, const std::vector<mdl::Node*>& children);
-  static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
-  static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
+  static std::unique_ptr<SetVisibilityCommand> show(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> ensureVisible(
+    std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<mdl::Node*> nodes);
 
-  AddRemoveNodesCommand(
-    Action action, const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
-  ~AddRemoveNodesCommand() override;
+  SetVisibilityCommand(std::vector<mdl::Node*> nodes, Action action);
 
 private:
   static std::string makeName(Action action);
@@ -65,10 +60,7 @@ private:
   std::unique_ptr<CommandResult> doPerformDo(MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(MapDocument& document) override;
 
-  void doAction(MapDocument& document);
-  void undoAction(MapDocument& document);
-
-  deleteCopyAndMove(AddRemoveNodesCommand);
+  deleteCopyAndMove(SetVisibilityCommand);
 };
 
 } // namespace tb::ui

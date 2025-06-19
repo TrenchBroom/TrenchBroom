@@ -25,6 +25,7 @@
 #include "mdl/Hit.h"
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
+#include "mdl/TransactionScope.h"
 #include "render/EdgeRenderer.h"
 #include "render/GLVertexType.h"
 #include "render/PrimType.h"
@@ -33,7 +34,6 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 #include "ui/UVOriginTool.h"
 #include "ui/UVViewHelper.h"
 

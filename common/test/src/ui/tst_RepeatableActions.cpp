@@ -20,9 +20,9 @@
 #include "TestUtils.h"
 #include "mdl/BrushNode.h"
 #include "mdl/EntityNode.h"
+#include "mdl/TransactionScope.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/TransactionScope.h"
 
 #include "vm/approx.h"
 #include "vm/mat.h"

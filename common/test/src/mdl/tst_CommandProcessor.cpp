@@ -20,10 +20,10 @@
 #include "Macros.h"
 #include "NotifierConnection.h"
 #include "TestUtils.h"
-#include "ui/CommandProcessor.h"
+#include "mdl/CommandProcessor.h"
+#include "mdl/TransactionScope.h"
+#include "mdl/UndoableCommand.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
-#include "ui/UndoableCommand.h"
 
 #include "kdl/vector_utils.h"
 

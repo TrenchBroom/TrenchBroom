@@ -48,6 +48,7 @@
 #include "mdl/PatchNode.h"
 #include "mdl/PointTrace.h"
 #include "mdl/PortalFile.h"
+#include "mdl/Transaction.h"
 #include "mdl/WorldNode.h"
 #include "render/Camera.h"
 #include "render/Compass.h"
@@ -70,7 +71,6 @@
 #include "ui/QtUtils.h"
 #include "ui/SelectionTool.h"
 #include "ui/SignalDelayer.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/string_compare.h"

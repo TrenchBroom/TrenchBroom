@@ -20,7 +20,7 @@
 #pragma once
 
 #include "Macros.h"
-#include "ui/Command.h"
+#include "mdl/Command.h"
 
 #include <memory>
 #include <string>

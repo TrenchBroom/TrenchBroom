@@ -27,6 +27,7 @@
 #include "mdl/HitFilter.h"
 #include "mdl/PickResult.h"
 #include "mdl/Polyhedron.h"
+#include "mdl/TransactionScope.h"
 #include "render/ActiveShader.h"
 #include "render/Circle.h"
 #include "render/RenderBatch.h"
@@ -38,7 +39,6 @@
 #include "ui/GestureTracker.h"
 #include "ui/InputState.h"
 #include "ui/MapDocument.h"
-#include "ui/TransactionScope.h"
 #include "ui/UVViewHelper.h"
 
 #include "kdl/memory_utils.h"

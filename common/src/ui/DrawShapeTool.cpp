@@ -21,10 +21,10 @@
 
 #include "mdl/Brush.h" // IWYU pragma: keep
 #include "mdl/BrushNode.h"
+#include "mdl/Transaction.h"
 #include "ui/DrawShapeToolExtension.h"
 #include "ui/DrawShapeToolPage.h"
 #include "ui/MapDocument.h"
-#include "ui/Transaction.h"
 
 #include "kdl/memory_utils.h"
 #include "kdl/range_to_vector.h"

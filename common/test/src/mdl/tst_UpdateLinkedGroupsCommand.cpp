@@ -18,11 +18,11 @@
  */
 
 #include "mdl/BrushNode.h" // IWYU pragma: keep
+#include "mdl/CurrentGroupCommand.h"
 #include "mdl/GroupNode.h" // IWYU pragma: keep
-#include "ui/CurrentGroupCommand.h"
+#include "mdl/UpdateLinkedGroupsCommand.h"
 #include "ui/MapDocument.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/UpdateLinkedGroupsCommand.h"
 
 #include "Catch2.h"
 
