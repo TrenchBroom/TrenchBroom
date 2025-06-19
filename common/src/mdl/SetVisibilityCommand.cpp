@@ -31,14 +31,14 @@ namespace
 {
 
 auto setVisibilityState(
-  const std::vector<mdl::Node*>& nodes,
-  const mdl::VisibilityState visibilityState,
+  const std::vector<Node*>& nodes,
+  const VisibilityState visibilityState,
   ui::MapDocument& document)
 {
-  auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
+  auto result = std::vector<std::tuple<Node*, VisibilityState>>{};
   result.reserve(nodes.size());
 
-  auto changedNodes = std::vector<mdl::Node*>{};
+  auto changedNodes = std::vector<Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (auto* node : nodes)
@@ -56,12 +56,12 @@ auto setVisibilityState(
   return result;
 }
 
-auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, ui::MapDocument& document)
+auto setVisibilityEnsured(const std::vector<Node*>& nodes, ui::MapDocument& document)
 {
-  auto result = std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>{};
+  auto result = std::vector<std::tuple<Node*, VisibilityState>>{};
   result.reserve(nodes.size());
 
-  auto changedNodes = std::vector<mdl::Node*>{};
+  auto changedNodes = std::vector<Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (auto* node : nodes)
@@ -80,10 +80,9 @@ auto setVisibilityEnsured(const std::vector<mdl::Node*>& nodes, ui::MapDocument&
 }
 
 void restoreVisibilityState(
-  const std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>>& nodes,
-  ui::MapDocument& document)
+  const std::vector<std::tuple<Node*, VisibilityState>>& nodes, ui::MapDocument& document)
 {
-  auto changedNodes = std::vector<mdl::Node*>{};
+  auto changedNodes = std::vector<Node*>{};
   changedNodes.reserve(nodes.size());
 
   for (const auto& [node, state] : nodes)
@@ -107,32 +106,29 @@ enum class SetVisibilityCommand::Action
   Ensure,
 };
 
-std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(
-  std::vector<mdl::Node*> nodes)
+std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::show(std::vector<Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Show);
 }
 
-std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(
-  std::vector<mdl::Node*> nodes)
+std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::hide(std::vector<Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Hide);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::ensureVisible(
-  std::vector<mdl::Node*> nodes)
+  std::vector<Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Ensure);
 }
 
 std::unique_ptr<SetVisibilityCommand> SetVisibilityCommand::reset(
-  std::vector<mdl::Node*> nodes)
+  std::vector<Node*> nodes)
 {
   return std::make_unique<SetVisibilityCommand>(std::move(nodes), Action::Reset);
 }
 
-SetVisibilityCommand::SetVisibilityCommand(
-  std::vector<mdl::Node*> nodes, const Action action)
+SetVisibilityCommand::SetVisibilityCommand(std::vector<Node*> nodes, const Action action)
   : UndoableCommand{makeName(action), false}
   , m_nodes{std::move(nodes)}
   , m_action{action}
@@ -161,13 +157,13 @@ std::unique_ptr<CommandResult> SetVisibilityCommand::doPerformDo(
   switch (m_action)
   {
   case Action::Reset:
-    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Inherited, document);
+    m_oldState = setVisibilityState(m_nodes, VisibilityState::Inherited, document);
     break;
   case Action::Hide:
-    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Hidden, document);
+    m_oldState = setVisibilityState(m_nodes, VisibilityState::Hidden, document);
     break;
   case Action::Show:
-    m_oldState = setVisibilityState(m_nodes, mdl::VisibilityState::Shown, document);
+    m_oldState = setVisibilityState(m_nodes, VisibilityState::Shown, document);
     break;
   case Action::Ensure:
     m_oldState = setVisibilityEnsured(m_nodes, document);

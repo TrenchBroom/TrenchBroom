@@ -44,7 +44,7 @@ class BrushVertexCommandBase : public SwapNodeContentsCommand
 {
 protected:
   BrushVertexCommandBase(
-    std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
+    std::string name, std::vector<std::pair<Node*, NodeContents>> nodes);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
@@ -92,7 +92,7 @@ private:
 public:
   BrushVertexCommand(
     std::string name,
-    std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+    std::vector<std::pair<Node*, NodeContents>> nodes,
     std::vector<vm::vec3d> oldVertexPositions,
     std::vector<vm::vec3d> newVertexPositions);
 
@@ -119,7 +119,7 @@ private:
 public:
   BrushEdgeCommand(
     std::string name,
-    std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+    std::vector<std::pair<Node*, NodeContents>> nodes,
     std::vector<vm::segment3d> oldEdgePositions,
     std::vector<vm::segment3d> newEdgePositions);
 
@@ -143,7 +143,7 @@ private:
 public:
   BrushFaceCommand(
     std::string name,
-    std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+    std::vector<std::pair<Node*, NodeContents>> nodes,
     std::vector<vm::polygon3d> oldFacePositions,
     std::vector<vm::polygon3d> newFacePositions);
 

@@ -33,7 +33,7 @@ TEST_CASE("PortalFileTest.parseInvalidPRT1")
 {
   const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1_invalid.prt";
   CHECK(io::Disk::withInputStream(path, [](auto& stream) {
-          return mdl::loadPortalFile(stream);
+          return loadPortalFile(stream);
         }).is_error());
 }
 
@@ -62,8 +62,7 @@ TEST_CASE("PortalFileTest.parsePRT1")
 {
   const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1.prt";
   CHECK(
-    (io::Disk::withInputStream(
-       path, [](auto& stream) { return mdl::loadPortalFile(stream); })
+    (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
       .portals()
     == ExpectedPortals);
@@ -73,8 +72,7 @@ TEST_CASE("PortalFileTest.parsePRT1Q3")
 {
   const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1q3.prt";
   CHECK(
-    (io::Disk::withInputStream(
-       path, [](auto& stream) { return mdl::loadPortalFile(stream); })
+    (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
       .portals()
     == ExpectedPortals);
@@ -84,8 +82,7 @@ TEST_CASE("PortalFileTest.parsePRT1AM")
 {
   const auto path = "fixture/test/mdl/PortalFile/portaltest_prt1am.prt";
   CHECK(
-    (io::Disk::withInputStream(
-       path, [](auto& stream) { return mdl::loadPortalFile(stream); })
+    (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
       .portals()
     == ExpectedPortals);
@@ -95,8 +92,7 @@ TEST_CASE("PortalFileTest.parsePRT2")
 {
   const auto path = "fixture/test/mdl/PortalFile/portaltest_prt2.prt";
   CHECK(
-    (io::Disk::withInputStream(
-       path, [](auto& stream) { return mdl::loadPortalFile(stream); })
+    (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
       .portals()
     == ExpectedPortals);

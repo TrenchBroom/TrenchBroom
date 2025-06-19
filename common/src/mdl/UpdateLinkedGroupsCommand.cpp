@@ -25,7 +25,7 @@ namespace tb::mdl
 {
 
 UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
-  std::vector<mdl::GroupNode*> changedLinkedGroups)
+  std::vector<GroupNode*> changedLinkedGroups)
   : UpdateLinkedGroupsCommandBase{
       "Update Linked Groups", true, std::move(changedLinkedGroups)}
 {

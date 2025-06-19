@@ -47,7 +47,7 @@ MaterialManager::~MaterialManager() = default;
 
 void MaterialManager::reload(
   const io::FileSystem& fs,
-  const mdl::MaterialConfig& materialConfig,
+  const MaterialConfig& materialConfig,
   const CreateTextureResource& createResource,
   kdl::task_manager& taskManager)
 {

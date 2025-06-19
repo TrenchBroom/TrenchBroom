@@ -61,7 +61,7 @@ public:
   virtual ~MapFacade();
 
 public: // getters
-  virtual std::shared_ptr<mdl::Game> game() const = 0;
+  virtual std::shared_ptr<Game> game() const = 0;
 
   virtual LayerNode* currentLayer() const = 0;
   virtual GroupNode* currentGroup() const = 0;
@@ -104,9 +104,9 @@ public: // adding, removing, reparenting, and duplicating nodes
   virtual void duplicate() = 0;
 
 public: // entity management
-  virtual mdl::EntityNode* createPointEntity(
+  virtual EntityNode* createPointEntity(
     const EntityDefinition& definition, const vm::vec3d& delta) = 0;
-  virtual mdl::EntityNode* createBrushEntity(const EntityDefinition& definition) = 0;
+  virtual EntityNode* createBrushEntity(const EntityDefinition& definition) = 0;
 
 public:                                            // modifying transient node attributes
   virtual void hide(std::vector<Node*> nodes) = 0; // Don't take the nodes by reference!

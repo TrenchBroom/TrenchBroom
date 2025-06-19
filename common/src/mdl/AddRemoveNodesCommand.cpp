@@ -31,23 +31,23 @@ namespace tb::mdl
 {
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  mdl::Node* parent, const std::vector<mdl::Node*>& children)
+  Node* parent, const std::vector<Node*>& children)
 {
   ensure(parent != nullptr, "parent is null");
-  auto nodes = std::map<mdl::Node*, std::vector<mdl::Node*>>{};
+  auto nodes = std::map<Node*, std::vector<Node*>>{};
   nodes[parent] = children;
 
   return add(nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
+  const std::map<Node*, std::vector<Node*>>& nodes)
 {
   return std::make_unique<AddRemoveNodesCommand>(Action::Add, nodes);
 }
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::remove(
-  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
+  const std::map<Node*, std::vector<Node*>>& nodes)
 {
   return std::make_unique<AddRemoveNodesCommand>(Action::Remove, nodes);
 }
@@ -58,7 +58,7 @@ AddRemoveNodesCommand::~AddRemoveNodesCommand()
 }
 
 AddRemoveNodesCommand::AddRemoveNodesCommand(
-  const Action action, const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes)
+  const Action action, const std::map<Node*, std::vector<Node*>>& nodes)
   : UpdateLinkedGroupsCommandBase{makeName(action), true}
   , m_action{action}
 {

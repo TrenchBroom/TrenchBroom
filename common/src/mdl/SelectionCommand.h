@@ -43,30 +43,26 @@ private:
 
   Action m_action;
 
-  std::vector<mdl::Node*> m_nodes;
-  std::vector<mdl::BrushFaceReference> m_faceRefs;
+  std::vector<Node*> m_nodes;
+  std::vector<BrushFaceReference> m_faceRefs;
 
-  std::vector<mdl::Node*> m_previouslySelectedNodes;
-  std::vector<mdl::BrushFaceReference> m_previouslySelectedFaceRefs;
+  std::vector<Node*> m_previouslySelectedNodes;
+  std::vector<BrushFaceReference> m_previouslySelectedFaceRefs;
 
 public:
-  static std::unique_ptr<SelectionCommand> select(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SelectionCommand> select(
-    std::vector<mdl::BrushFaceHandle> faces);
+  static std::unique_ptr<SelectionCommand> select(std::vector<Node*> nodes);
+  static std::unique_ptr<SelectionCommand> select(std::vector<BrushFaceHandle> faces);
 
   static std::unique_ptr<SelectionCommand> convertToFaces();
   static std::unique_ptr<SelectionCommand> selectAllNodes();
   static std::unique_ptr<SelectionCommand> selectAllFaces();
 
-  static std::unique_ptr<SelectionCommand> deselect(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SelectionCommand> deselect(
-    std::vector<mdl::BrushFaceHandle> faces);
+  static std::unique_ptr<SelectionCommand> deselect(std::vector<Node*> nodes);
+  static std::unique_ptr<SelectionCommand> deselect(std::vector<BrushFaceHandle> faces);
   static std::unique_ptr<SelectionCommand> deselectAll();
 
   SelectionCommand(
-    Action action,
-    std::vector<mdl::Node*> nodes,
-    std::vector<mdl::BrushFaceHandle> faces);
+    Action action, std::vector<Node*> nodes, std::vector<BrushFaceHandle> faces);
   ~SelectionCommand() override;
 
 private:

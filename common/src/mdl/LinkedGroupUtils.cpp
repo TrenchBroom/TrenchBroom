@@ -746,7 +746,7 @@ void resetLinkIds(const std::vector<GroupNode*>& groupNodes)
 Result<std::unordered_map<Node*, std::string>> copyAndReturnLinkIds(
   const GroupNode& sourceGroupNode, const std::vector<GroupNode*>& targetGroupNodes)
 {
-  return copyLinkIds(sourceGroupNode, targetGroupNodes, mdl::GroupRecursionMode::Deep);
+  return copyLinkIds(sourceGroupNode, targetGroupNodes, GroupRecursionMode::Deep);
 }
 
 std::vector<Error> copyAndSetLinkIds(
@@ -754,7 +754,7 @@ std::vector<Error> copyAndSetLinkIds(
 {
   auto errors = std::vector<Error>{};
   setLinkIds(
-    copyLinkIds(sourceGroupNode, targetGroupNodes, mdl::GroupRecursionMode::Shallow),
+    copyLinkIds(sourceGroupNode, targetGroupNodes, GroupRecursionMode::Shallow),
     targetGroupNodes,
     errors);
   return errors;

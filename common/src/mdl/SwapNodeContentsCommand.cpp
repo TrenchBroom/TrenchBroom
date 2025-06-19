@@ -35,18 +35,17 @@ namespace
 {
 
 auto notifySpecialWorldProperties(
-  const mdl::Game& game,
-  const std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap)
+  const Game& game, const std::vector<std::pair<Node*, NodeContents>>& nodesToSwap)
 {
   for (const auto& [node, contents] : nodesToSwap)
   {
-    if (const auto* worldNode = dynamic_cast<const mdl::WorldNode*>(node))
+    if (const auto* worldNode = dynamic_cast<const WorldNode*>(node))
     {
       const auto& oldEntity = worldNode->entity();
-      const auto& newEntity = std::get<mdl::Entity>(contents.get());
+      const auto& newEntity = std::get<Entity>(contents.get());
 
-      const auto* oldWads = oldEntity.property(mdl::EntityPropertyKeys::Wad);
-      const auto* newWads = newEntity.property(mdl::EntityPropertyKeys::Wad);
+      const auto* oldWads = oldEntity.property(EntityPropertyKeys::Wad);
+      const auto* newWads = newEntity.property(EntityPropertyKeys::Wad);
 
       const bool notifyWadsChange =
         (oldWads == nullptr) != (newWads == nullptr)
@@ -70,8 +69,7 @@ auto notifySpecialWorldProperties(
 }
 
 void doSwapNodeContents(
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>>& nodesToSwap,
-  ui::MapDocument& document)
+  std::vector<std::pair<Node*, NodeContents>>& nodesToSwap, ui::MapDocument& document)
 {
   const auto nodes = nodesToSwap
                      | std::views::transform([](const auto& pair) { return pair.first; })
@@ -105,29 +103,24 @@ void doSwapNodeContents(
     auto& contents = pair.second.get();
 
     pair.second = node->accept(kdl::overload(
-      [&](mdl::WorldNode* worldNode) {
-        return mdl::NodeContents{
-          worldNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
+      [&](WorldNode* worldNode) {
+        return NodeContents{worldNode->setEntity(std::get<Entity>(std::move(contents)))};
       },
-      [&](mdl::LayerNode* layerNode) {
-        return mdl::NodeContents(
-          layerNode->setLayer(std::get<mdl::Layer>(std::move(contents))));
+      [&](LayerNode* layerNode) {
+        return NodeContents(layerNode->setLayer(std::get<Layer>(std::move(contents))));
       },
-      [&](mdl::GroupNode* groupNode) {
-        return mdl::NodeContents{
-          groupNode->setGroup(std::get<mdl::Group>(std::move(contents)))};
+      [&](GroupNode* groupNode) {
+        return NodeContents{groupNode->setGroup(std::get<Group>(std::move(contents)))};
       },
-      [&](mdl::EntityNode* entityNode) {
-        return mdl::NodeContents{
-          entityNode->setEntity(std::get<mdl::Entity>(std::move(contents)))};
+      [&](EntityNode* entityNode) {
+        return NodeContents{entityNode->setEntity(std::get<Entity>(std::move(contents)))};
       },
-      [&](mdl::BrushNode* brushNode) {
-        return mdl::NodeContents{
-          brushNode->setBrush(std::get<mdl::Brush>(std::move(contents)))};
+      [&](BrushNode* brushNode) {
+        return NodeContents{brushNode->setBrush(std::get<Brush>(std::move(contents)))};
       },
-      [&](mdl::PatchNode* patchNode) {
-        return mdl::NodeContents{
-          patchNode->setPatch(std::get<mdl::BezierPatch>(std::move(contents)))};
+      [&](PatchNode* patchNode) {
+        return NodeContents{
+          patchNode->setPatch(std::get<BezierPatch>(std::move(contents)))};
       }));
   }
 }
@@ -135,7 +128,7 @@ void doSwapNodeContents(
 } // namespace
 
 SwapNodeContentsCommand::SwapNodeContentsCommand(
-  std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes)
+  std::string name, std::vector<std::pair<Node*, NodeContents>> nodes)
   : UpdateLinkedGroupsCommandBase{std::move(name), true}
   , m_nodes{std::move(nodes)}
 {

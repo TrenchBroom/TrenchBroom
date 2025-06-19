@@ -42,7 +42,7 @@ namespace tb::mdl
 TEST_CASE("BSP model intersection test")
 {
   auto logger = TestLogger{};
-  auto [game, gameConfig] = mdl::loadGame("Quake");
+  auto [game, gameConfig] = loadGame("Quake");
 
   const auto path = std::filesystem::path{"cube.bsp"};
   const auto loadMaterial = [](auto) -> Material {

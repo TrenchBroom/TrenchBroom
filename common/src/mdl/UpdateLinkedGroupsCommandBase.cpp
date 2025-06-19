@@ -32,7 +32,7 @@ namespace tb::mdl
 UpdateLinkedGroupsCommandBase::UpdateLinkedGroupsCommandBase(
   std::string name,
   const bool updateModificationCount,
-  std::vector<mdl::GroupNode*> changedLinkedGroups)
+  std::vector<GroupNode*> changedLinkedGroups)
   : UndoableCommand{std::move(name), updateModificationCount}
   , m_updateLinkedGroupsHelper{std::move(changedLinkedGroups)}
 {

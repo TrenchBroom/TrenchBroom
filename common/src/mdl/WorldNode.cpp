@@ -216,7 +216,7 @@ void WorldNode::enableNodeTreeUpdates()
 
 void WorldNode::rebuildNodeTree()
 {
-  auto nodes = std::vector<mdl::Node*>{};
+  auto nodes = std::vector<Node*>{};
   const auto addNode = [&](auto* node) {
     if (node->shouldAddToSpacialIndex())
     {
@@ -474,7 +474,7 @@ const EntityPropertyConfig& WorldNode::doGetEntityPropertyConfig() const
 void WorldNode::doFindEntityNodesWithProperty(
   const std::string& name,
   const std::string& value,
-  std::vector<mdl::EntityNodeBase*>& result) const
+  std::vector<EntityNodeBase*>& result) const
 {
   result = kdl::vec_concat(
     std::move(result),
@@ -484,7 +484,7 @@ void WorldNode::doFindEntityNodesWithProperty(
 void WorldNode::doFindEntityNodesWithNumberedProperty(
   const std::string& prefix,
   const std::string& value,
-  std::vector<mdl::EntityNodeBase*>& result) const
+  std::vector<EntityNodeBase*>& result) const
 {
   result = kdl::vec_concat(
     std::move(result),

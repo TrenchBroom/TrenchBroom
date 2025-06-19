@@ -37,18 +37,17 @@ class SetVisibilityCommand : public UndoableCommand
 private:
   enum class Action;
 
-  std::vector<mdl::Node*> m_nodes;
+  std::vector<Node*> m_nodes;
   Action m_action;
-  std::vector<std::tuple<mdl::Node*, mdl::VisibilityState>> m_oldState;
+  std::vector<std::tuple<Node*, VisibilityState>> m_oldState;
 
 public:
-  static std::unique_ptr<SetVisibilityCommand> show(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> ensureVisible(
-    std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> show(std::vector<Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> hide(std::vector<Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> ensureVisible(std::vector<Node*> nodes);
+  static std::unique_ptr<SetVisibilityCommand> reset(std::vector<Node*> nodes);
 
-  SetVisibilityCommand(std::vector<mdl::Node*> nodes, Action action);
+  SetVisibilityCommand(std::vector<Node*> nodes, Action action);
 
 private:
   static std::string makeName(Action action);

@@ -37,7 +37,7 @@ TEST_CASE_METHOD(ui::MapDocumentTest, "Transaction")
 
   REQUIRE_FALSE(document->selection().hasNodes());
 
-  auto* entityNode = new mdl::EntityNode{mdl::Entity{}};
+  auto* entityNode = new EntityNode{Entity{}};
 
   auto transaction = Transaction{document};
   CHECK(transaction.state() == Transaction::State::Running);

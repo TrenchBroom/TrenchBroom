@@ -42,7 +42,7 @@ class Node;
  * The given linked groups can be updated consistently if no two of them are in the same
  * linked set.
  */
-bool checkLinkedGroupsToUpdate(const std::vector<mdl::GroupNode*>& changedLinkedGroups);
+bool checkLinkedGroupsToUpdate(const std::vector<GroupNode*>& changedLinkedGroups);
 
 /**
  * A helper class to add support for updating linked groups to commands.
@@ -57,9 +57,9 @@ bool checkLinkedGroupsToUpdate(const std::vector<mdl::GroupNode*>& changedLinked
 class UpdateLinkedGroupsHelper
 {
 private:
-  using ChangedLinkedGroups = std::vector<mdl::GroupNode*>;
+  using ChangedLinkedGroups = std::vector<GroupNode*>;
   using LinkedGroupUpdates =
-    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>;
+    std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>;
   std::variant<ChangedLinkedGroups, LinkedGroupUpdates> m_state;
 
 public:

@@ -43,16 +43,15 @@ namespace
 {
 
 // Order groups so that descendants will be updated before their ancestors
-auto compareByAncestry(const mdl::GroupNode* lhs, const mdl::GroupNode* rhs)
+auto compareByAncestry(const GroupNode* lhs, const GroupNode* rhs)
 {
   return rhs->isAncestorOf(lhs);
 }
 
-std::vector<mdl::Node*> collectOldChildren(
-  const std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>&
-    nodes)
+std::vector<Node*> collectOldChildren(
+  const std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>& nodes)
 {
-  auto result = std::vector<mdl::Node*>{};
+  auto result = std::vector<Node*>{};
   for (auto& [parent, newChildren] : nodes)
   {
     result = kdl::vec_concat(std::move(result), parent->children());
@@ -61,11 +60,10 @@ std::vector<mdl::Node*> collectOldChildren(
 }
 
 auto doReplaceChildren(
-  std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>> nodes,
+  std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>> nodes,
   ui::MapDocument& document)
 {
-  auto result =
-    std::vector<std::pair<mdl::Node*, std::vector<std::unique_ptr<mdl::Node>>>>{};
+  auto result = std::vector<std::pair<Node*, std::vector<std::unique_ptr<Node>>>>{};
 
   if (nodes.empty())
   {
@@ -82,7 +80,7 @@ auto doReplaceChildren(
     document.nodesWereRemovedNotifier,
     allOldChildren};
 
-  auto allNewChildren = std::vector<mdl::Node*>{};
+  auto allNewChildren = std::vector<Node*>{};
 
   for (auto& [parent, newChildren] : nodes)
   {
@@ -102,7 +100,7 @@ auto doReplaceChildren(
 
 } // namespace
 
-bool checkLinkedGroupsToUpdate(const std::vector<mdl::GroupNode*>& changedLinkedGroups)
+bool checkLinkedGroupsToUpdate(const std::vector<GroupNode*>& changedLinkedGroups)
 {
   const auto linkedGroupIds = kdl::vec_sort(
     changedLinkedGroups
@@ -192,10 +190,9 @@ Result<UpdateLinkedGroupsHelper::LinkedGroupUpdates> UpdateLinkedGroupsHelper::
   const auto& worldBounds = document.worldBounds();
   return changedLinkedGroups | std::views::transform([&](const auto* groupNode) {
            const auto groupNodesToUpdate = kdl::vec_erase(
-             mdl::collectGroupsWithLinkId({document.world()}, groupNode->linkId()),
-             groupNode);
+             collectGroupsWithLinkId({document.world()}, groupNode->linkId()), groupNode);
 
-           return mdl::updateLinkedGroups(
+           return updateLinkedGroups(
              *groupNode, groupNodesToUpdate, worldBounds, document.taskManager());
          })
          | kdl::fold

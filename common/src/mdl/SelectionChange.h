@@ -31,10 +31,10 @@ class Node;
 
 struct SelectionChange
 {
-  std::vector<mdl::Node*> selectedNodes;
-  std::vector<mdl::Node*> deselectedNodes;
-  std::vector<mdl::BrushFaceHandle> selectedBrushFaces;
-  std::vector<mdl::BrushFaceHandle> deselectedBrushFaces;
+  std::vector<Node*> selectedNodes;
+  std::vector<Node*> deselectedNodes;
+  std::vector<BrushFaceHandle> selectedBrushFaces;
+  std::vector<BrushFaceHandle> deselectedBrushFaces;
 
   kdl_reflect_decl(
     SelectionChange,

@@ -668,7 +668,7 @@ TEST_CASE("NodeTest.acceptAndVisitChildren")
 
   auto* entityNode1 = new EntityNode{Entity{}};
   auto* entityNode2 = new EntityNode{Entity{}};
-  auto* groupNode = new mdl::GroupNode(mdl::Group{"name"});
+  auto* groupNode = new GroupNode(Group{"name"});
   auto* groupEntityNode = new EntityNode{Entity{}};
 
   layerNode->addChild(entityNode1);

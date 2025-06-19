@@ -1413,9 +1413,8 @@ TEST_CASE("BrushTest.movePointRemainingPolygon")
     kdl::vec_concat(std::vector<vm::vec3d>{peakPosition}, baseQuadVertexPositions);
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   assertCanMoveVertex(brush, peakPosition, vm::vec3d{0, 0, -127});
   assertCanNotMoveVertex(
@@ -1480,9 +1479,8 @@ TEST_CASE("BrushTest.movePointRemainingPolyhedron")
     peakPosition};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   assertMovingVertexDeletes(
     brush, peakPosition, vm::vec3d{0, 0, -65}); // Move inside the remaining cuboid
@@ -1696,7 +1694,7 @@ TEST_CASE("BrushTest.moveEdgeRemainingPolyhedron")
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
-    builder.createCube(128, mdl::BrushFaceAttributes::NoMaterialName) | kdl::value();
+    builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 
@@ -1723,7 +1721,7 @@ TEST_CASE("BrushTest.moveEdgesRemainingPolyhedron")
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
-    builder.createCube(128, mdl::BrushFaceAttributes::NoMaterialName) | kdl::value();
+    builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge1.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge1.end()).is_success());
   CHECK(brush.addVertex(worldBounds, edge2.start()).is_success());
@@ -1789,9 +1787,9 @@ TEST_CASE("BrushNodeTest.cannotMoveFace")
   const auto worldBounds = vm::bbox3d{4096.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush = builder.createCuboid(
-                 vm::vec3d{128, 128, 32}, mdl::BrushFaceAttributes::NoMaterialName)
-               | kdl::value();
+  auto brush =
+    builder.createCuboid(vm::vec3d{128, 128, 32}, BrushFaceAttributes::NoMaterialName)
+    | kdl::value();
 
   const auto face = vm::polygon3d{
     {-64, -64, -16},
@@ -1818,9 +1816,8 @@ TEST_CASE("BrushTest.movePolygonRemainingPoint")
   };
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1839,9 +1836,8 @@ TEST_CASE("BrushTest.movePolygonRemainingEdge")
     {+64, 0, -64}};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1852,7 +1848,7 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon")
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
-    builder.createCube(128.0, mdl::BrushFaceAttributes::NoMaterialName) | kdl::value();
+    builder.createCube(128.0, BrushFaceAttributes::NoMaterialName) | kdl::value();
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
 }
@@ -1875,9 +1871,8 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon2")
     {-64, +64, +64}};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
   CHECK(brush.bounds() == vm::bbox3d{{-64, -64, -64}, {64, 64, 64}});
 
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -1910,9 +1905,8 @@ TEST_CASE("BrushTest.movePolygonRemainingPolygon_DisallowVertexCombining")
   const auto topFaceNormal = vm::vec3d{sqrt(2.0) / 2.0, 0.0, sqrt(2.0) / 2.0};
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   const auto topFaceIndex = brush.findFace(topFaceNormal);
   assertCanMoveFace(brush, topFaceIndex, vm::vec3d{0, 0, -127});
@@ -1956,9 +1950,8 @@ TEST_CASE("BrushTest.movePolygonRemainingPolyhedron")
     kdl::vec_concat(smallerTopPolygon, cubeTopFace, cubeBottomFace);
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   // Try to move the top face down along the Z axis
   assertCanNotMoveTopFaceBeyond127UnitsDown(brush);
@@ -2019,9 +2012,8 @@ TEST_CASE("BrushTest.moveTwoFaces")
     kdl::vec_concat(leftPolygon, bottomPolygon, bottomRightPolygon);
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
-  auto brush =
-    builder.createBrush(vertexPositions, mdl::BrushFaceAttributes::NoMaterialName)
-    | kdl::value();
+  auto brush = builder.createBrush(vertexPositions, BrushFaceAttributes::NoMaterialName)
+               | kdl::value();
 
   CHECK(brush.hasFace(vm::polygon3d{leftPolygon}));
   CHECK(brush.hasFace(vm::polygon3d{bottomPolygon}));
@@ -2045,7 +2037,7 @@ TEST_CASE("BrushNodeTest.movePolyhedronRemainingEdge")
 
   auto builder = BrushBuilder{MapFormat::Standard, worldBounds};
   auto brush =
-    builder.createCube(128, mdl::BrushFaceAttributes::NoMaterialName) | kdl::value();
+    builder.createCube(128, BrushFaceAttributes::NoMaterialName) | kdl::value();
   CHECK(brush.addVertex(worldBounds, edge.start()).is_success());
   CHECK(brush.addVertex(worldBounds, edge.end()).is_success());
 

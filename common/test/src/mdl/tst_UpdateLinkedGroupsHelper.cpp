@@ -38,12 +38,12 @@ namespace tb::mdl
 
 TEST_CASE("checkLinkedGroupsToUpdate")
 {
-  auto groupNode1 = mdl::GroupNode{mdl::Group{"test"}};
-  auto linkedGroupNode = mdl::GroupNode{mdl::Group{"test"}};
+  auto groupNode1 = GroupNode{Group{"test"}};
+  auto linkedGroupNode = GroupNode{Group{"test"}};
   setLinkId(groupNode1, "asdf");
   setLinkId(linkedGroupNode, "asdf");
 
-  auto groupNode2 = mdl::GroupNode{mdl::Group{"test"}};
+  auto groupNode2 = GroupNode{Group{"test"}};
   setLinkId(groupNode2, "fdsa");
 
   CHECK(checkLinkedGroupsToUpdate({}));
@@ -59,13 +59,13 @@ class UpdateLinkedGroupsHelperTest : public ui::MapDocumentTest
 
 TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 {
-  class TestNode : public mdl::EntityNode
+  class TestNode : public EntityNode
   {
   private:
     bool& m_deleted;
 
   public:
-    TestNode(mdl::Entity entity, bool& deleted)
+    TestNode(Entity entity, bool& deleted)
       : EntityNode(std::move(entity))
       , m_deleted(deleted)
     {
@@ -75,15 +75,15 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
     ~TestNode() override { m_deleted = true; };
   };
 
-  auto* groupNode = new mdl::GroupNode{mdl::Group{""}};
+  auto* groupNode = new GroupNode{Group{""}};
   setLinkId(*groupNode, "asdf");
 
   bool deleted = false;
-  auto* entityNode = new TestNode{mdl::Entity{}, deleted};
+  auto* entityNode = new TestNode{Entity{}, deleted};
   groupNode->addChild(entityNode);
 
   auto* linkedNode =
-    static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+    static_cast<GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
 
   document->addNodes({{document->parentForNodes(), {groupNode, linkedNode}}});
 
@@ -113,18 +113,17 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "ownership")
 
 TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 {
-  auto* groupNode = new mdl::GroupNode{mdl::Group{"test"}};
+  auto* groupNode = new GroupNode{Group{"test"}};
   setLinkId(*groupNode, "asdf");
 
   auto* brushNode = createBrushNode();
   groupNode->addChild(brushNode);
 
   auto* linkedGroupNode =
-    static_cast<mdl::GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
+    static_cast<GroupNode*>(groupNode->cloneRecursively(document->worldBounds()));
 
   REQUIRE(linkedGroupNode->children().size() == 1u);
-  auto* linkedBrushNode =
-    dynamic_cast<mdl::BrushNode*>(linkedGroupNode->children().front());
+  auto* linkedBrushNode = dynamic_cast<BrushNode*>(linkedGroupNode->children().front());
   REQUIRE(linkedBrushNode != nullptr);
 
   transformNode(
@@ -200,23 +199,23 @@ TEST_CASE_METHOD(UpdateLinkedGroupsHelperTest, "applyLinkedGroupUpdates")
 
   REQUIRE(linkedGroupNode->childCount() == 1u);
   CHECK_THAT(
-    linkedGroupNode->children(), Catch::Equals(std::vector<mdl::Node*>{linkedBrushNode}));
+    linkedGroupNode->children(), Catch::Equals(std::vector<Node*>{linkedBrushNode}));
   CHECK(linkedBrushNode->parent() == linkedGroupNode);
   CHECK(
     linkedBrushNode->physicalBounds()
     == originalBrushBounds.translate(vm::vec3d(32.0, 0.0, 0.0)));
 }
 
-static void setGroupName(mdl::GroupNode& groupNode, const std::string& name)
+static void setGroupName(GroupNode& groupNode, const std::string& name)
 {
   auto group = groupNode.group();
   group.setName(name);
   groupNode.setGroup(std::move(group));
 }
 
-static mdl::GroupNode* findGroupByName(mdl::Node& node, const std::string& name)
+static GroupNode* findGroupByName(Node& node, const std::string& name)
 {
-  const auto visitChildren = [&](auto&& lambda, mdl::Node* n) -> mdl::GroupNode* {
+  const auto visitChildren = [&](auto&& lambda, Node* n) -> GroupNode* {
     for (auto* child : n->children())
     {
       if (auto* result = child->accept(lambda))
@@ -227,22 +226,22 @@ static mdl::GroupNode* findGroupByName(mdl::Node& node, const std::string& name)
     return nullptr;
   };
   return node.accept(kdl::overload(
-    [&](auto&& thisLambda, mdl::WorldNode* worldNode) -> mdl::GroupNode* {
+    [&](auto&& thisLambda, WorldNode* worldNode) -> GroupNode* {
       return visitChildren(thisLambda, worldNode);
     },
-    [&](auto&& thisLambda, mdl::LayerNode* layerNode) -> mdl::GroupNode* {
+    [&](auto&& thisLambda, LayerNode* layerNode) -> GroupNode* {
       return visitChildren(thisLambda, layerNode);
     },
-    [&](auto&& thisLambda, mdl::GroupNode* groupNode) -> mdl::GroupNode* {
+    [&](auto&& thisLambda, GroupNode* groupNode) -> GroupNode* {
       if (groupNode->name() == name)
       {
         return groupNode;
       }
       return visitChildren(thisLambda, groupNode);
     },
-    [](mdl::EntityNode*) -> mdl::GroupNode* { return nullptr; },
-    [](mdl::BrushNode*) -> mdl::GroupNode* { return nullptr; },
-    [](mdl::PatchNode*) -> mdl::GroupNode* { return nullptr; }));
+    [](EntityNode*) -> GroupNode* { return nullptr; },
+    [](BrushNode*) -> GroupNode* { return nullptr; },
+    [](PatchNode*) -> GroupNode* { return nullptr; }));
 }
 
 TEST_CASE_METHOD(
@@ -250,10 +249,10 @@ TEST_CASE_METHOD(
 {
   document->deselectAll();
 
-  auto* outerGroupNode = new mdl::GroupNode{mdl::Group{"outerGroupNode"}};
+  auto* outerGroupNode = new GroupNode{Group{"outerGroupNode"}};
   setLinkId(*outerGroupNode, "outerGroupNode");
 
-  auto* innerGroupNode = new mdl::GroupNode{mdl::Group{"innerGroupNode"}};
+  auto* innerGroupNode = new GroupNode{Group{"innerGroupNode"}};
   setLinkId(*innerGroupNode, "innerGroupNode");
 
   auto* brushNode = createBrushNode();
@@ -264,22 +263,22 @@ TEST_CASE_METHOD(
 
   // create a linked group of the inner group node so that cloning the outer group node
   // will create a linked clone of the inner group node
-  auto* linkedInnerGroupNode = static_cast<mdl::GroupNode*>(
-    innerGroupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedInnerGroupNode =
+    static_cast<GroupNode*>(innerGroupNode->cloneRecursively(document->worldBounds()));
   setGroupName(*linkedInnerGroupNode, "linkedInnerGroupNode");
   REQUIRE(linkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedInnerGroupNode}}});
 
-  auto* linkedOuterGroupNode = static_cast<mdl::GroupNode*>(
-    outerGroupNode->cloneRecursively(document->worldBounds()));
+  auto* linkedOuterGroupNode =
+    static_cast<GroupNode*>(outerGroupNode->cloneRecursively(document->worldBounds()));
   setGroupName(*linkedOuterGroupNode, "linkedOuterGroupNode");
   REQUIRE(linkedOuterGroupNode->linkId() == outerGroupNode->linkId());
 
   document->addNodes({{document->parentForNodes(), {linkedOuterGroupNode}}});
 
   auto* nestedLinkedInnerGroupNode =
-    static_cast<mdl::GroupNode*>(linkedOuterGroupNode->children().front());
+    static_cast<GroupNode*>(linkedOuterGroupNode->children().front());
   setGroupName(*nestedLinkedInnerGroupNode, "nestedLinkedInnerGroupNode");
   REQUIRE(nestedLinkedInnerGroupNode->linkId() == innerGroupNode->linkId());
 
@@ -475,7 +474,7 @@ TEST_CASE_METHOD(
 
   SECTION("Propagate both changes at once")
   {
-    auto groupNodes = std::vector<mdl::GroupNode*>{outerGroupNode, innerGroupNode};
+    auto groupNodes = std::vector<GroupNode*>{outerGroupNode, innerGroupNode};
     std::sort(std::begin(groupNodes), std::end(groupNodes));
 
     // The following code generates both permutations of the group nodes

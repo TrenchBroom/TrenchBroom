@@ -64,7 +64,7 @@ void EditorContext::setHiddenTags(const TagType::Type hiddenTags)
   }
 }
 
-bool EditorContext::entityDefinitionHidden(const mdl::EntityNodeBase& entityNode) const
+bool EditorContext::entityDefinitionHidden(const EntityNodeBase& entityNode) const
 {
   return entityNode.entity().definition()
          && entityDefinitionHidden(*entityNode.entity().definition());
@@ -109,12 +109,12 @@ void EditorContext::setCurrentLayer(LayerNode* layerNode)
   m_currentLayer = layerNode;
 }
 
-mdl::GroupNode* EditorContext::currentGroup() const
+GroupNode* EditorContext::currentGroup() const
 {
   return m_currentGroup;
 }
 
-void EditorContext::pushGroup(mdl::GroupNode& groupNode)
+void EditorContext::pushGroup(GroupNode& groupNode)
 {
   assert(!m_currentGroup || groupNode.containingGroup() == m_currentGroup);
 
@@ -138,7 +138,7 @@ void EditorContext::popGroup()
   }
 }
 
-bool EditorContext::visible(const mdl::Node& node) const
+bool EditorContext::visible(const Node& node) const
 {
   return node.accept(kdl::overload(
     [&](const WorldNode* worldNode) { return visible(*worldNode); },
@@ -149,17 +149,17 @@ bool EditorContext::visible(const mdl::Node& node) const
     [&](const PatchNode* patchNode) { return visible(*patchNode); }));
 }
 
-bool EditorContext::visible(const mdl::WorldNode& worldNode) const
+bool EditorContext::visible(const WorldNode& worldNode) const
 {
   return worldNode.visible();
 }
 
-bool EditorContext::visible(const mdl::LayerNode& layerNode) const
+bool EditorContext::visible(const LayerNode& layerNode) const
 {
   return layerNode.visible();
 }
 
-bool EditorContext::visible(const mdl::GroupNode& groupNode) const
+bool EditorContext::visible(const GroupNode& groupNode) const
 {
   if (groupNode.selected())
   {
@@ -172,7 +172,7 @@ bool EditorContext::visible(const mdl::GroupNode& groupNode) const
   return groupNode.visible();
 }
 
-bool EditorContext::visible(const mdl::EntityNode& entityNode) const
+bool EditorContext::visible(const EntityNode& entityNode) const
 {
   if (entityNode.selected())
   {
@@ -202,7 +202,7 @@ bool EditorContext::visible(const mdl::EntityNode& entityNode) const
   return true;
 }
 
-bool EditorContext::visible(const mdl::BrushNode& brushNode) const
+bool EditorContext::visible(const BrushNode& brushNode) const
 {
   if (brushNode.selected())
   {
@@ -233,13 +233,12 @@ bool EditorContext::visible(const mdl::BrushNode& brushNode) const
   return brushNode.visible();
 }
 
-bool EditorContext::visible(
-  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
+bool EditorContext::visible(const BrushNode& brushNode, const BrushFace& face) const
 {
   return visible(brushNode) && !face.hasTag(m_hiddenTags);
 }
 
-bool EditorContext::visible(const mdl::PatchNode& patchNode) const
+bool EditorContext::visible(const PatchNode& patchNode) const
 {
   if (patchNode.selected())
   {
@@ -254,24 +253,24 @@ bool EditorContext::visible(const mdl::PatchNode& patchNode) const
   return patchNode.visible();
 }
 
-bool EditorContext::anyChildVisible(const mdl::Node& node) const
+bool EditorContext::anyChildVisible(const Node& node) const
 {
   const auto& children = node.children();
   return std::ranges::any_of(
     children, [this](const Node* childNode) { return visible(*childNode); });
 }
 
-bool EditorContext::editable(const mdl::Node& node) const
+bool EditorContext::editable(const Node& node) const
 {
   return node.editable();
 }
 
-bool EditorContext::editable(const mdl::BrushNode& brushNode, const mdl::BrushFace&) const
+bool EditorContext::editable(const BrushNode& brushNode, const BrushFace&) const
 {
   return editable(brushNode);
 }
 
-bool EditorContext::selectable(const mdl::Node& node) const
+bool EditorContext::selectable(const Node& node) const
 {
   return node.accept(kdl::overload(
     [&](const WorldNode* worldNode) { return selectable(*worldNode); },
@@ -282,40 +281,39 @@ bool EditorContext::selectable(const mdl::Node& node) const
     [&](const PatchNode* patchNode) { return selectable(*patchNode); }));
 }
 
-bool EditorContext::selectable(const mdl::WorldNode&) const
+bool EditorContext::selectable(const WorldNode&) const
 {
   return false;
 }
 
-bool EditorContext::selectable(const mdl::LayerNode&) const
+bool EditorContext::selectable(const LayerNode&) const
 {
   return false;
 }
 
-bool EditorContext::selectable(const mdl::GroupNode& groupNode) const
+bool EditorContext::selectable(const GroupNode& groupNode) const
 {
   return visible(groupNode) && editable(groupNode) && !groupNode.opened()
          && inOpenGroup(groupNode);
 }
 
-bool EditorContext::selectable(const mdl::EntityNode& entityNode) const
+bool EditorContext::selectable(const EntityNode& entityNode) const
 {
   return visible(entityNode) && editable(entityNode) && !entityNode.hasChildren()
          && inOpenGroup(entityNode);
 }
 
-bool EditorContext::selectable(const mdl::BrushNode& brushNode) const
+bool EditorContext::selectable(const BrushNode& brushNode) const
 {
   return visible(brushNode) && editable(brushNode) && inOpenGroup(brushNode);
 }
 
-bool EditorContext::selectable(
-  const mdl::BrushNode& brushNode, const mdl::BrushFace& face) const
+bool EditorContext::selectable(const BrushNode& brushNode, const BrushFace& face) const
 {
   return visible(brushNode, face) && editable(brushNode, face);
 }
 
-bool EditorContext::selectable(const mdl::PatchNode& patchNode) const
+bool EditorContext::selectable(const PatchNode& patchNode) const
 {
   return visible(patchNode) && editable(patchNode) && inOpenGroup(patchNode);
 }
@@ -325,7 +323,7 @@ bool EditorContext::canChangeSelection() const
   return !m_blockSelection;
 }
 
-bool EditorContext::inOpenGroup(const mdl::Object& object) const
+bool EditorContext::inOpenGroup(const Object& object) const
 {
   return object.containingGroupOpened();
 }

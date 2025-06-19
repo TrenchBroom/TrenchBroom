@@ -137,7 +137,7 @@ using UpdateLinkedGroupsResult =
  */
 Result<UpdateLinkedGroupsResult> updateLinkedGroups(
   const GroupNode& sourceGroupNode,
-  const std::vector<mdl::GroupNode*>& targetGroupNodes,
+  const std::vector<GroupNode*>& targetGroupNodes,
   const vm::bbox3d& worldBounds,
   kdl::task_manager& taskManager);
 
