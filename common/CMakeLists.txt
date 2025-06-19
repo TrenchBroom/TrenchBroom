@@ -95,7 +95,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/BrushFace.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceAttributes.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceHandle.cpp
-        ${COMMON_SOURCE_DIR}/mdl/BrushFacePredicates.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.cpp
         ${COMMON_SOURCE_DIR}/mdl/BrushVertexCommands.cpp
@@ -599,7 +598,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/BrushFace.h
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceAttributes.h
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceHandle.h
-        ${COMMON_SOURCE_DIR}/mdl/BrushFacePredicates.h
         ${COMMON_SOURCE_DIR}/mdl/BrushFaceReference.h
         ${COMMON_SOURCE_DIR}/mdl/BrushGeometry.h
         ${COMMON_SOURCE_DIR}/mdl/BrushNode.h
