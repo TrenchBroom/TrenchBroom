@@ -85,6 +85,7 @@
 #include "mdl/NodeContents.h"
 #include "mdl/NodeQueries.h"
 #include "mdl/NonIntegerVerticesValidator.h"
+#include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/PointEntityWithBrushesValidator.h"
 #include "mdl/Polyhedron.h"
@@ -112,7 +113,6 @@
 #include "mdl/WorldNode.h"
 #include "ui/Actions.h"
 #include "ui/MapTextEncoding.h"
-#include "ui/PasteType.h"
 #include "ui/RepeatStack.h"
 #include "ui/ViewEffectsService.h"
 
@@ -832,7 +832,7 @@ std::string MapDocument::serializeSelectedBrushFaces()
   return stream.str();
 }
 
-PasteType MapDocument::paste(const std::string& str)
+mdl::PasteType MapDocument::paste(const std::string& str)
 {
   auto parserStatus = io::SimpleParserStatus{logger()};
 
@@ -845,7 +845,7 @@ PasteType MapDocument::paste(const std::string& str)
            parserStatus,
            m_taskManager)
          | kdl::transform([&](auto nodes) {
-             return pasteNodes(nodes) ? PasteType::Node : PasteType::Failed;
+             return pasteNodes(nodes) ? mdl::PasteType::Node : mdl::PasteType::Failed;
            })
          | kdl::or_else([&](const auto& nodeError) {
              // Try parsing as brush faces
@@ -853,15 +853,15 @@ PasteType MapDocument::paste(const std::string& str)
              return reader.read(m_worldBounds, parserStatus)
                     | kdl::transform([&](const auto& faces) {
                         return !faces.empty() && pasteBrushFaces(faces)
-                                 ? PasteType::BrushFace
-                                 : PasteType::Failed;
+                                 ? mdl::PasteType::BrushFace
+                                 : mdl::PasteType::Failed;
                       })
                     | kdl::transform_error([&](const auto& faceError) {
                         error() << "Could not parse clipboard contents as nodes: "
                                 << nodeError.msg;
                         error() << "Could not parse clipboard contents as faces: "
                                 << faceError.msg;
-                        return PasteType::Failed;
+                        return mdl::PasteType::Failed;
                       });
            })
          | kdl::value();

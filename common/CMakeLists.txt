@@ -685,6 +685,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/Palette.h
         ${COMMON_SOURCE_DIR}/mdl/ParallelUVCoordSystem.h
         ${COMMON_SOURCE_DIR}/mdl/ParaxialUVCoordSystem.h
+        ${COMMON_SOURCE_DIR}/mdl/PasteType.h
         ${COMMON_SOURCE_DIR}/mdl/PatchNode.h
         ${COMMON_SOURCE_DIR}/mdl/PickResult.h
         ${COMMON_SOURCE_DIR}/mdl/PointEntityWithBrushesValidator.h
@@ -965,7 +966,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/MultiPaneMapView.h
         ${COMMON_SOURCE_DIR}/ui/ObjExportDialog.h
         ${COMMON_SOURCE_DIR}/ui/OnePaneMapView.h
-        ${COMMON_SOURCE_DIR}/ui/PasteType.h
         ${COMMON_SOURCE_DIR}/ui/PickRequest.h
         ${COMMON_SOURCE_DIR}/ui/PopupButton.h
         ${COMMON_SOURCE_DIR}/ui/PopupWindow.h

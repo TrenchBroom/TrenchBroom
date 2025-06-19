@@ -25,9 +25,9 @@
 #include "mdl/EntityNode.h"
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
-#include "ui/PasteType.h"
 
 #include "kdl/result.h"
 
@@ -67,7 +67,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     REQUIRE(defaultLayerNode.childCount() == 0u);
     REQUIRE(worldNode.customLayers().empty());
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(worldNode.customLayers().empty());
     CHECK(defaultLayerNode.childCount() == 1u);
@@ -102,7 +102,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     const auto& defaultLayerNode = *worldNode.defaultLayer();
     REQUIRE(defaultLayerNode.childCount() == 0u);
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(defaultLayerNode.childCount() == 1u);
 
@@ -139,7 +139,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     const auto& defaultLayerNode = *worldNode.defaultLayer();
     REQUIRE(defaultLayerNode.childCount() == 0u);
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(defaultLayerNode.childCount() == 1u);
 
@@ -173,7 +173,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     const auto& defaultLayerNode = *worldNode.defaultLayer();
     REQUIRE(defaultLayerNode.childCount() == 0u);
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK_FALSE(worldNode.entity().hasProperty("to_be_ignored"));
     CHECK(defaultLayerNode.childCount() == 1u);
     CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
@@ -196,7 +196,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.paste")
     const auto& defaultLayerNode = *worldNode.defaultLayer();
     REQUIRE(defaultLayerNode.childCount() == 0u);
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK(defaultLayerNode.childCount() == 1u);
     CHECK(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   }
@@ -227,7 +227,7 @@ common/caulk
     const auto& defaultLayerNode = *worldNode.defaultLayer();
     REQUIRE(defaultLayerNode.childCount() == 0u);
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK(defaultLayerNode.childCount() == 1u);
     CHECK(dynamic_cast<mdl::PatchNode*>(defaultLayerNode.children().front()) != nullptr);
   }
@@ -252,7 +252,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGr
   SECTION("Copy and paste resets persistent group ID")
   {
     document->deselectAll();
-    REQUIRE(document->paste(str) == PasteType::Node);
+    REQUIRE(document->paste(str) == mdl::PasteType::Node);
 
     auto* pastedGroupNode =
       dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children().back());
@@ -266,7 +266,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicateGr
   {
     document->remove();
     document->deselectAll();
-    REQUIRE(document->paste(str) == PasteType::Node);
+    REQUIRE(document->paste(str) == mdl::PasteType::Node);
 
     auto* pastedGroupNode =
       dynamic_cast<mdl::GroupNode*>(document->world()->defaultLayer()->children().back());
@@ -302,7 +302,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteAndTranslateGroup")
   const auto copied = document->serializeSelectedNodes();
 
   const auto delta = vm::vec3d{16, 16, 16};
-  CHECK(document->paste(copied) == PasteType::Node);
+  CHECK(document->paste(copied) == mdl::PasteType::Node);
   CHECK(document->selection().groups.size() == 1u);
   CHECK(document->selection().groups.at(0)->name() == groupName);
   CHECK(document->translate(delta));
@@ -326,7 +326,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.pasteInGroup")
   auto* groupNode = document->groupSelection("test");
   document->openGroup(groupNode);
 
-  CHECK(document->paste(data) == PasteType::Node);
+  CHECK(document->paste(data) == mdl::PasteType::Node);
   CHECK(document->selection().hasOnlyEntities());
   CHECK(document->selection().entities.size() == 1u);
 
@@ -367,7 +367,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
 
     document->deselectAll();
 
-    CHECK(document->paste(data) == PasteType::Node);
+    CHECK(document->paste(data) == mdl::PasteType::Node);
     CHECK(groupNode->childCount() == 2);
 
     const auto* pastedBrushNode =
@@ -389,7 +389,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       document->selectAllNodes();
       document->remove();
 
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 1);
 
       const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
@@ -404,7 +404,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       document->selectNodes({linkedGroup});
       document->remove();
 
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 2);
 
       const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
@@ -422,7 +422,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
 
     SECTION("If more than one linked group exists")
     {
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);
 
       const auto* pastedGroupNode = dynamic_cast<mdl::GroupNode*>(
@@ -442,7 +442,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
     {
       document->openGroup(groupNode);
 
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(groupNode->childCount() == 2);
       CHECK(linkedGroup->childCount() == 2);
 
@@ -483,7 +483,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
       document->selectNodes({linkedGroup});
       document->remove();
 
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 3);
 
       const auto* pastedGroupNode1 =
@@ -515,7 +515,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.copyPasteGroupResetsDuplicatedL
 
     SECTION("If both original groups exist")
     {
-      CHECK(document->paste(data) == PasteType::Node);
+      CHECK(document->paste(data) == mdl::PasteType::Node);
       CHECK(document->world()->defaultLayer()->childCount() == 4);
 
       const auto* pastedGroupNode1 =
@@ -564,7 +564,7 @@ TEST_CASE_METHOD(MapDocumentTest, "CopyPasteTest.undoRedo")
   REQUIRE(document->selection().brushes.size() == 0u);
   REQUIRE(defaultLayerNode.childCount() == 0u);
 
-  REQUIRE(document->paste(data) == PasteType::Node);
+  REQUIRE(document->paste(data) == mdl::PasteType::Node);
   REQUIRE(defaultLayerNode.childCount() == 1u);
   REQUIRE(dynamic_cast<mdl::BrushNode*>(defaultLayerNode.children().front()) != nullptr);
   REQUIRE(document->selection().brushes.size() == 1u);

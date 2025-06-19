@@ -30,10 +30,10 @@
 #include "mdl/GroupNode.h"
 #include "mdl/LayerNode.h"
 #include "mdl/ModelUtils.h"
+#include "mdl/PasteType.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocumentTest.h"
-#include "ui/PasteType.h"
 
 #include "kdl/result.h"
 
@@ -236,7 +236,8 @@ TEST_CASE_METHOD(MapDocumentTest, "GroupNodesTest.duplicateCopyPaste")
     switch (mode)
     {
     case Mode::CopyPaste:
-      REQUIRE(document->paste(document->serializeSelectedNodes()) == PasteType::Node);
+      REQUIRE(
+        document->paste(document->serializeSelectedNodes()) == mdl::PasteType::Node);
       break;
     case Mode::Duplicate:
       document->duplicate();

@@ -21,10 +21,10 @@
 #include "MapDocumentTest.h"
 #include "mdl/BrushNode.h"
 #include "mdl/LayerNode.h"
+#include "mdl/PasteType.h"
 #include "mdl/WorldNode.h"
 #include "ui/ClipTool.h"
 #include "ui/ClipToolController.h"
-#include "ui/PasteType.h"
 
 #include "Catch2.h"
 
@@ -52,7 +52,7 @@ TEST_CASE_METHOD(ValveMapDocumentTest, "ClipToolTest")
 }
 }
 )";
-    REQUIRE(document->paste(data) == PasteType::Node);
+    REQUIRE(document->paste(data) == mdl::PasteType::Node);
 
     const auto* defaultLayer = document->world()->defaultLayer();
 
