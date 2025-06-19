@@ -33,18 +33,14 @@
 #include <ranges>
 #include <vector>
 
-namespace tb::mdl
-{
-class Grid;
-}
-
 namespace tb::render
 {
 class Camera;
 }
 
-namespace tb::ui
+namespace tb::mdl
 {
+class Grid;
 
 class VertexHandleManagerBase
 {
@@ -72,7 +68,7 @@ public:
    *
    * @param brushNode the brush whose handles to add
    */
-  virtual void addHandles(const mdl::BrushNode* brushNode) = 0;
+  virtual void addHandles(const BrushNode* brushNode) = 0;
 
   /**
    * Removes all handles of the given range of brushes from this handle manager.
@@ -94,7 +90,7 @@ public:
    *
    * @param brushNode the brush whose handles to remove
    */
-  virtual void removeHandles(const mdl::BrushNode* brushNode) = 0;
+  virtual void removeHandles(const BrushNode* brushNode) = 0;
 };
 
 template <typename H>
@@ -164,7 +160,7 @@ public:
    *
    * @return the hit type value
    */
-  virtual mdl::HitType::Type hitType() const = 0;
+  virtual HitType::Type hitType() const = 0;
 
   /**
    * The total number of selected handles, not counting duplicates.
@@ -473,7 +469,7 @@ public:
    * @param pickResult the pick result to add hits to
    */
   template <typename P>
-  void pick(const P& test, mdl::PickResult& pickResult) const
+  void pick(const P& test, PickResult& pickResult) const
   {
     for (const auto& [handle, info] : m_handles)
     {
@@ -496,10 +492,10 @@ public:
    * @return a set of all brushes that are incident to the given handle
    */
   template <std::ranges::range R>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(
+  std::vector<BrushNode*> findIncidentBrushes(
     const Handle& handle, const R& brushes) const
   {
-    auto result = std::vector<mdl::BrushNode*>{};
+    auto result = std::vector<BrushNode*>{};
     findIncidentBrushes(handle, brushes, std::back_inserter(result));
     return kdl::vec_sort_and_remove_duplicates(std::move(result));
   }
@@ -515,10 +511,10 @@ public:
    * @return a vector containing all incident brushes
    */
   template <std::ranges::range HandleRange, std::ranges::range BrushRange>
-  std::vector<mdl::BrushNode*> findIncidentBrushes(
+  std::vector<BrushNode*> findIncidentBrushes(
     const HandleRange& handles, const BrushRange& brushes) const
   {
-    auto result = std::vector<mdl::BrushNode*>{};
+    auto result = std::vector<BrushNode*>{};
     auto out = std::back_inserter(result);
 
     for (const auto& handle : handles)
@@ -552,8 +548,7 @@ private:
    * @param brushNode the brush to check
    * @return true if and only if the given brush is incident to the given handle
    */
-  virtual bool isIncident(
-    const Handle& handle, const mdl::BrushNode* brushNode) const = 0;
+  virtual bool isIncident(const Handle& handle, const BrushNode* brushNode) const = 0;
 };
 
 /**
@@ -562,7 +557,7 @@ private:
 class VertexHandleManager : public VertexHandleManagerBaseT<vm::vec3d>
 {
 public:
-  static const mdl::HitType::Type HandleHitType;
+  static const HitType::Type HandleHitType;
 
 public:
   using VertexHandleManagerBase::addHandles;
@@ -578,18 +573,16 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pick(
-    const vm::ray3d& pickRay,
-    const render::Camera& camera,
-    mdl::PickResult& pickResult) const;
+    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
 
 public:
-  void addHandles(const mdl::BrushNode* brushNode) override;
-  void removeHandles(const mdl::BrushNode* brushNode) override;
+  void addHandles(const BrushNode* brushNode) override;
+  void removeHandles(const BrushNode* brushNode) override;
 
-  mdl::HitType::Type hitType() const override;
+  HitType::Type hitType() const override;
 
 private:
-  bool isIncident(const Handle& handle, const mdl::BrushNode* brushNode) const override;
+  bool isIncident(const Handle& handle, const BrushNode* brushNode) const override;
 };
 
 /**
@@ -604,8 +597,8 @@ private:
 class EdgeHandleManager : public VertexHandleManagerBaseT<vm::segment3d>
 {
 public:
-  static const mdl::HitType::Type HandleHitType;
-  using HitType = std::tuple<vm::segment3d, vm::vec3d>;
+  static const HitType::Type HandleHitType;
+  using HitData = std::tuple<vm::segment3d, vm::vec3d>;
 
 public:
   using VertexHandleManagerBase::addHandles;
@@ -625,8 +618,8 @@ public:
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
-    const mdl::Grid& grid,
-    mdl::PickResult& pickResult) const;
+    const Grid& grid,
+    PickResult& pickResult) const;
 
   /**
    * Picks the center point of the edge handles contained in this manager.
@@ -636,18 +629,16 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3d& pickRay,
-    const render::Camera& camera,
-    mdl::PickResult& pickResult) const;
+    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
 
 public:
-  void addHandles(const mdl::BrushNode* brushNode) override;
-  void removeHandles(const mdl::BrushNode* brushNode) override;
+  void addHandles(const BrushNode* brushNode) override;
+  void removeHandles(const BrushNode* brushNode) override;
 
-  mdl::HitType::Type hitType() const override;
+  HitType::Type hitType() const override;
 
 private:
-  bool isIncident(const Handle& handle, const mdl::BrushNode* brushNode) const override;
+  bool isIncident(const Handle& handle, const BrushNode* brushNode) const override;
 };
 
 /**
@@ -662,8 +653,8 @@ private:
 class FaceHandleManager : public VertexHandleManagerBaseT<vm::polygon3d>
 {
 public:
-  static const mdl::HitType::Type HandleHitType;
-  using HitType = std::tuple<vm::polygon3d, vm::vec3d>;
+  static const HitType::Type HandleHitType;
+  using HitData = std::tuple<vm::polygon3d, vm::vec3d>;
 
 public:
   using VertexHandleManagerBase::addHandles;
@@ -683,8 +674,8 @@ public:
   void pickGridHandle(
     const vm::ray3d& pickRay,
     const render::Camera& camera,
-    const mdl::Grid& grid,
-    mdl::PickResult& pickResult) const;
+    const Grid& grid,
+    PickResult& pickResult) const;
 
   /**
    * Picks the center point of the face handles contained in this manager.
@@ -694,18 +685,16 @@ public:
    * @param pickResult the picking result to add the hits to
    */
   void pickCenterHandle(
-    const vm::ray3d& pickRay,
-    const render::Camera& camera,
-    mdl::PickResult& pickResult) const;
+    const vm::ray3d& pickRay, const render::Camera& camera, PickResult& pickResult) const;
 
 public:
-  void addHandles(const mdl::BrushNode* brushNode) override;
-  void removeHandles(const mdl::BrushNode* brushNode) override;
+  void addHandles(const BrushNode* brushNode) override;
+  void removeHandles(const BrushNode* brushNode) override;
 
-  mdl::HitType::Type hitType() const override;
+  HitType::Type hitType() const override;
 
 private:
-  bool isIncident(const Handle& handle, const mdl::BrushNode* brushNode) const override;
+  bool isIncident(const Handle& handle, const BrushNode* brushNode) const override;
 };
 
-} // namespace tb::ui
+} // namespace tb::mdl

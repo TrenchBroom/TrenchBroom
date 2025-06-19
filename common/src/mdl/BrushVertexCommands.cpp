@@ -57,40 +57,40 @@ static auto collectBrushNodes(const std::vector<std::pair<Node*, NodeContents>> 
          | kdl::to_vector;
 }
 
-void BrushVertexCommandBase::removeHandles(ui::VertexHandleManagerBase& manager)
+void BrushVertexCommandBase::removeHandles(VertexHandleManagerBase& manager)
 {
   const auto nodes = collectBrushNodes(m_nodes);
   manager.removeHandles(nodes);
 }
 
-void BrushVertexCommandBase::addHandles(ui::VertexHandleManagerBase& manager)
+void BrushVertexCommandBase::addHandles(VertexHandleManagerBase& manager)
 {
   const auto nodes = collectBrushNodes(m_nodes);
   manager.addHandles(nodes);
 }
 
 void BrushVertexCommandBase::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::vec3d>&) const
+  VertexHandleManagerBaseT<vm::vec3d>&) const
 {
 }
 void BrushVertexCommandBase::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::vec3d>&) const
+  VertexHandleManagerBaseT<vm::vec3d>&) const
 {
 }
 void BrushVertexCommandBase::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::segment3d>&) const
+  VertexHandleManagerBaseT<vm::segment3d>&) const
 {
 }
 void BrushVertexCommandBase::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::segment3d>&) const
+  VertexHandleManagerBaseT<vm::segment3d>&) const
 {
 }
 void BrushVertexCommandBase::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::polygon3d>&) const
+  VertexHandleManagerBaseT<vm::polygon3d>&) const
 {
 }
 void BrushVertexCommandBase::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::polygon3d>&) const
+  VertexHandleManagerBaseT<vm::polygon3d>&) const
 {
 }
 
@@ -138,13 +138,13 @@ bool BrushVertexCommand::doCollateWith(UndoableCommand& command)
 }
 
 void BrushVertexCommand::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const
+  VertexHandleManagerBaseT<vm::vec3d>& manager) const
 {
   manager.select(m_newVertexPositions);
 }
 
 void BrushVertexCommand::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::vec3d>& manager) const
+  VertexHandleManagerBaseT<vm::vec3d>& manager) const
 {
   manager.select(m_oldVertexPositions);
 }
@@ -174,13 +174,13 @@ bool BrushEdgeCommand::doCollateWith(UndoableCommand& command)
 }
 
 void BrushEdgeCommand::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const
+  VertexHandleManagerBaseT<vm::segment3d>& manager) const
 {
   manager.select(m_newEdgePositions);
 }
 
 void BrushEdgeCommand::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::segment3d>& manager) const
+  VertexHandleManagerBaseT<vm::segment3d>& manager) const
 {
   manager.select(m_oldEdgePositions);
 }
@@ -209,13 +209,13 @@ bool BrushFaceCommand::doCollateWith(UndoableCommand& command)
 }
 
 void BrushFaceCommand::selectNewHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const
+  VertexHandleManagerBaseT<vm::polygon3d>& manager) const
 {
   manager.select(m_newFacePositions);
 }
 
 void BrushFaceCommand::selectOldHandlePositions(
-  ui::VertexHandleManagerBaseT<vm::polygon3d>& manager) const
+  VertexHandleManagerBaseT<vm::polygon3d>& manager) const
 {
   manager.select(m_oldFacePositions);
 }

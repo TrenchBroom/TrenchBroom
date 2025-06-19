@@ -89,13 +89,13 @@ bool VertexTool::deselectAll()
   return false;
 }
 
-VertexHandleManager& VertexTool::handleManager()
+mdl::VertexHandleManager& VertexTool::handleManager()
 {
   auto document = kdl::mem_lock(m_document);
   return document->vertexHandles();
 }
 
-const VertexHandleManager& VertexTool::handleManager() const
+const mdl::VertexHandleManager& VertexTool::handleManager() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->vertexHandles();
@@ -108,14 +108,14 @@ std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
 
   const auto& hit = hits.front();
   assert(hit.hasType(
-    VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType
-    | FaceHandleManager::HandleHitType));
+    mdl::VertexHandleManager::HandleHitType | mdl::EdgeHandleManager::HandleHitType
+    | mdl::FaceHandleManager::HandleHitType));
 
-  const auto position = hit.hasType(VertexHandleManager::HandleHitType)
+  const auto position = hit.hasType(mdl::VertexHandleManager::HandleHitType)
                           ? hit.target<vm::vec3d>()
-                        : hit.hasType(EdgeHandleManager::HandleHitType)
-                          ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
-                          : std::get<1>(hit.target<FaceHandleManager::HitType>());
+                        : hit.hasType(mdl::EdgeHandleManager::HandleHitType)
+                          ? std::get<1>(hit.target<mdl::EdgeHandleManager::HitData>())
+                          : std::get<1>(hit.target<mdl::FaceHandleManager::HitData>());
 
   return {position, hit.hitPoint()};
 }
@@ -123,20 +123,23 @@ std::tuple<vm::vec3d, vm::vec3d> VertexTool::handlePositionAndHitPoint(
 bool VertexTool::startMove(const std::vector<mdl::Hit>& hits)
 {
   const auto& hit = hits.front();
-  if (hit.hasType(EdgeHandleManager::HandleHitType | FaceHandleManager::HandleHitType))
+  if (hit.hasType(
+        mdl::EdgeHandleManager::HandleHitType | mdl::FaceHandleManager::HandleHitType))
   {
     auto document = kdl::mem_lock(m_document);
 
     document->vertexHandles().deselectAll();
-    if (hit.hasType(EdgeHandleManager::HandleHitType))
+    if (hit.hasType(mdl::EdgeHandleManager::HandleHitType))
     {
-      const auto& handle = std::get<0>(hit.target<const EdgeHandleManager::HitType&>());
+      const auto& handle =
+        std::get<0>(hit.target<const mdl::EdgeHandleManager::HitData&>());
       document->edgeHandles().select(handle);
       m_mode = Mode::SplitEdge;
     }
     else
     {
-      const auto& handle = std::get<0>(hit.target<const FaceHandleManager::HitType&>());
+      const auto& handle =
+        std::get<0>(hit.target<const mdl::FaceHandleManager::HitData&>());
       document->faceHandles().select(handle);
       m_mode = Mode::SplitFace;
     }
@@ -241,13 +244,13 @@ vm::vec3d VertexTool::getHandlePosition(const mdl::Hit& hit) const
 {
   assert(hit.isMatch());
   assert(hit.hasType(
-    VertexHandleManager::HandleHitType | EdgeHandleManager::HandleHitType
-    | FaceHandleManager::HandleHitType));
+    mdl::VertexHandleManager::HandleHitType | mdl::EdgeHandleManager::HandleHitType
+    | mdl::FaceHandleManager::HandleHitType));
 
-  return hit.hasType(VertexHandleManager::HandleHitType) ? hit.target<vm::vec3d>()
-         : hit.hasType(EdgeHandleManager::HandleHitType)
-           ? std::get<1>(hit.target<EdgeHandleManager::HitType>())
-           : std::get<1>(hit.target<FaceHandleManager::HitType>());
+  return hit.hasType(mdl::VertexHandleManager::HandleHitType) ? hit.target<vm::vec3d>()
+         : hit.hasType(mdl::EdgeHandleManager::HandleHitType)
+           ? std::get<1>(hit.target<mdl::EdgeHandleManager::HitData>())
+           : std::get<1>(hit.target<mdl::FaceHandleManager::HitData>());
 }
 
 std::string VertexTool::actionName() const

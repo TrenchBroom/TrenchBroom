@@ -47,13 +47,13 @@ void FaceTool::pick(
   document->faceHandles().pickCenterHandle(pickRay, camera, pickResult);
 }
 
-FaceHandleManager& FaceTool::handleManager()
+mdl::FaceHandleManager& FaceTool::handleManager()
 {
   auto document = kdl::mem_lock(m_document);
   return document->faceHandles();
 }
 
-const FaceHandleManager& FaceTool::handleManager() const
+const mdl::FaceHandleManager& FaceTool::handleManager() const
 {
   auto document = kdl::mem_lock(m_document);
   return document->faceHandles();
@@ -65,7 +65,7 @@ std::tuple<vm::vec3d, vm::vec3d> FaceTool::handlePositionAndHitPoint(
   assert(!hits.empty());
 
   const auto& hit = hits.front();
-  assert(hit.hasType(FaceHandleManager::HandleHitType));
+  assert(hit.hasType(mdl::FaceHandleManager::HandleHitType));
 
   return {hit.target<vm::polygon3d>().center(), hit.hitPoint()};
 }

@@ -48,8 +48,8 @@ public:
     mdl::PickResult& pickResult) const override;
 
 public:
-  FaceHandleManager& handleManager() override;
-  const FaceHandleManager& handleManager() const override;
+  mdl::FaceHandleManager& handleManager() override;
+  const mdl::FaceHandleManager& handleManager() const override;
 
 public:
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(

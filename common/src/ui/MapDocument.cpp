@@ -1215,17 +1215,17 @@ const mdl::Selection& MapDocument::selection() const
   return *m_cachedSelection;
 }
 
-VertexHandleManager& MapDocument::vertexHandles()
+mdl::VertexHandleManager& MapDocument::vertexHandles()
 {
   return m_vertexHandles;
 }
 
-EdgeHandleManager& MapDocument::edgeHandles()
+mdl::EdgeHandleManager& MapDocument::edgeHandles()
 {
   return m_edgeHandles;
 }
 
-FaceHandleManager& MapDocument::faceHandles()
+mdl::FaceHandleManager& MapDocument::faceHandles()
 {
   return m_faceHandles;
 }

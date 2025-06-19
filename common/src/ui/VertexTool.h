@@ -78,8 +78,8 @@ public: // Handle selection
   bool deselectAll() override;
 
 public:
-  VertexHandleManager& handleManager() override;
-  const VertexHandleManager& handleManager() const override;
+  mdl::VertexHandleManager& handleManager() override;
+  const mdl::VertexHandleManager& handleManager() const override;
 
 public: // Vertex moving
   std::tuple<vm::vec3d, vm::vec3d> handlePositionAndHitPoint(

@@ -211,6 +211,7 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/mdl/UVCoordSystem.cpp
         ${COMMON_SOURCE_DIR}/mdl/Validator.cpp
         ${COMMON_SOURCE_DIR}/mdl/ValidatorRegistry.cpp
+        ${COMMON_SOURCE_DIR}/mdl/VertexHandleManager.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.cpp
         ${COMMON_SOURCE_DIR}/mdl/WorldNode.cpp
         ${COMMON_SOURCE_DIR}/NotifierConnection.cpp
@@ -482,7 +483,6 @@ set(COMMON_SOURCE
         ${COMMON_SOURCE_DIR}/ui/UVView.cpp
         ${COMMON_SOURCE_DIR}/ui/UVViewHelper.cpp
         ${COMMON_SOURCE_DIR}/ui/VariableStoreModel.cpp
-        ${COMMON_SOURCE_DIR}/ui/VertexHandleManager.cpp
         ${COMMON_SOURCE_DIR}/ui/VertexTool.cpp
         ${COMMON_SOURCE_DIR}/ui/VertexToolController.cpp
         ${COMMON_SOURCE_DIR}/ui/ViewConstants.cpp
@@ -741,6 +741,7 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/mdl/UVCoordSystem.h
         ${COMMON_SOURCE_DIR}/mdl/Validator.h
         ${COMMON_SOURCE_DIR}/mdl/ValidatorRegistry.h
+        ${COMMON_SOURCE_DIR}/mdl/VertexHandleManager.h
         ${COMMON_SOURCE_DIR}/mdl/VisibilityState.cpp
         ${COMMON_SOURCE_DIR}/mdl/VisibilityState.h
         ${COMMON_SOURCE_DIR}/mdl/WorldBoundsValidator.h
@@ -1025,7 +1026,6 @@ set(COMMON_HEADER
         ${COMMON_SOURCE_DIR}/ui/UVView.h
         ${COMMON_SOURCE_DIR}/ui/UVViewHelper.h
         ${COMMON_SOURCE_DIR}/ui/VariableStoreModel.h
-        ${COMMON_SOURCE_DIR}/ui/VertexHandleManager.h
         ${COMMON_SOURCE_DIR}/ui/VertexTool.h
         ${COMMON_SOURCE_DIR}/ui/VertexToolBase.h
         ${COMMON_SOURCE_DIR}/ui/VertexToolController.h
