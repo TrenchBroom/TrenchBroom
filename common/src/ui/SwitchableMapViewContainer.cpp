@@ -287,9 +287,9 @@ MapViewToolBox& SwitchableMapViewContainer::mapViewToolBox()
 bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = document->pointTrace())
   {
-    return pointFile->hasNextPoint();
+    return pointTrace->hasNextPoint();
   }
   return false;
 }
@@ -297,9 +297,9 @@ bool SwitchableMapViewContainer::canMoveCameraToNextTracePoint() const
 bool SwitchableMapViewContainer::canMoveCameraToPreviousTracePoint() const
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointTrace = document->pointTrace())
   {
-    return pointFile->hasPreviousPoint();
+    return pointTrace->hasPreviousPoint();
   }
   return false;
 }
@@ -309,9 +309,9 @@ void SwitchableMapViewContainer::moveCameraToNextTracePoint()
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  if (auto* pointFile = document->pointFile())
+  if (auto* pointTrace = document->pointTrace())
   {
-    pointFile->advance();
+    pointTrace->advance();
     m_mapView->moveCameraToCurrentTracePoint();
   }
 }
@@ -321,9 +321,9 @@ void SwitchableMapViewContainer::moveCameraToPreviousTracePoint()
   auto document = kdl::mem_lock(m_document);
   assert(document->isPointFileLoaded());
 
-  if (auto* pointFile = document->pointFile())
+  if (auto* pointTrace = document->pointTrace())
   {
-    pointFile->retreat();
+    pointTrace->retreat();
     m_mapView->moveCameraToCurrentTracePoint();
   }
 }

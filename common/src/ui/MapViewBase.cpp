@@ -1084,7 +1084,7 @@ void MapViewBase::renderPointFile(
   render::RenderContext& renderContext, render::RenderBatch& renderBatch)
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto* pointFile = document->pointFile())
+  if (const auto* pointFile = document->pointTrace())
   {
     auto renderService = render::RenderService{renderContext, renderBatch};
     renderService.setForegroundColor(pref(Preferences::PointFileColor));
@@ -1114,23 +1114,22 @@ void MapViewBase::validatePortalFileRenderer(render::RenderContext&)
   m_portalFileRenderer = std::make_unique<render::PrimitiveRenderer>();
 
   auto document = kdl::mem_lock(m_document);
-  auto* portalFile = document->portalFile();
-  if (portalFile)
+  if (const auto* portals = document->portals())
   {
-    for (const auto& poly : portalFile->portals())
+    for (const auto& portal : *portals)
     {
       m_portalFileRenderer->renderFilledPolygon(
         pref(Preferences::PortalFileFillColor),
         render::PrimitiveRendererOcclusionPolicy::Hide,
         render::PrimitiveRendererCullingPolicy::ShowBackfaces,
-        poly.vertices());
+        portal.vertices());
 
       const auto lineWidth = 4.0f;
       m_portalFileRenderer->renderPolygon(
         pref(Preferences::PortalFileBorderColor),
         lineWidth,
         render::PrimitiveRendererOcclusionPolicy::Hide,
-        poly.vertices());
+        portal.vertices());
     }
   }
 }

@@ -64,7 +64,6 @@ TEST_CASE("PortalFileTest.parsePRT1")
   CHECK(
     (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
-      .portals()
     == ExpectedPortals);
 }
 
@@ -74,7 +73,6 @@ TEST_CASE("PortalFileTest.parsePRT1Q3")
   CHECK(
     (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
-      .portals()
     == ExpectedPortals);
 }
 
@@ -84,7 +82,6 @@ TEST_CASE("PortalFileTest.parsePRT1AM")
   CHECK(
     (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
-      .portals()
     == ExpectedPortals);
 }
 
@@ -94,7 +91,6 @@ TEST_CASE("PortalFileTest.parsePRT2")
   CHECK(
     (io::Disk::withInputStream(path, [](auto& stream) { return loadPortalFile(stream); })
      | kdl::value())
-      .portals()
     == ExpectedPortals);
 }
 

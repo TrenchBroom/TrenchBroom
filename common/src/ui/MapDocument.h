@@ -28,7 +28,6 @@
 #include "mdl/MapFacade.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PointTrace.h"
-#include "mdl/PortalFile.h"
 #include "mdl/Selection.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
@@ -77,7 +76,7 @@ class Material;
 class MaterialManager;
 class PickResult;
 class PointTrace;
-class PortalFile;
+class Portals;
 class ResourceId;
 class ResourceManager;
 struct SelectionChange;
@@ -109,7 +108,7 @@ struct PointFile
 
 struct PortalFile
 {
-  mdl::PortalFile portalFile;
+  std::vector<vm::polygon3f> portals;
   std::filesystem::path path;
 };
 
@@ -274,8 +273,8 @@ public:
 
   mdl::Grid& grid() const;
 
-  mdl::PointTrace* pointFile();
-  const mdl::PortalFile* portalFile() const;
+  mdl::PointTrace* pointTrace();
+  const std::vector<vm::polygon3f>* portals() const;
 
   void setViewEffectsService(ViewEffectsService* viewEffectsService);
 
