@@ -1,5 +1,5 @@
 /*
- Copyright (C) 2022 Kristian Duske
+ Copyright (C) 2010 Kristian Duske
 
  This file is part of TrenchBroom.
 
@@ -17,30 +17,13 @@
  along with TrenchBroom. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "UpdateLinkedGroupsCommand.h"
+#include "SelectionChange.h"
 
-#include "ui/MapDocument.h"
+#include "kdl/reflection_impl.h"
 
 namespace tb::ui
 {
 
-UpdateLinkedGroupsCommand::UpdateLinkedGroupsCommand(
-  std::vector<mdl::GroupNode*> changedLinkedGroups)
-  : UpdateLinkedGroupsCommandBase{
-      "Update Linked Groups", true, std::move(changedLinkedGroups)}
-{
-}
-
-UpdateLinkedGroupsCommand::~UpdateLinkedGroupsCommand() = default;
-
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformDo(MapDocument&)
-{
-  return std::make_unique<CommandResult>(true);
-}
-
-std::unique_ptr<CommandResult> UpdateLinkedGroupsCommand::doPerformUndo(MapDocument&)
-{
-  return std::make_unique<CommandResult>(true);
-}
+kdl_reflect_impl(SelectionChange);
 
 } // namespace tb::ui

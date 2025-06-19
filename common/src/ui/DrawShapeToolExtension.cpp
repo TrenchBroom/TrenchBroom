@@ -60,7 +60,7 @@ void DrawShapeToolExtensionPage::addApplyButton(std::weak_ptr<MapDocument> docum
 
   auto doc = kdl::mem_lock(document);
   m_notifierConnection += doc->selectionDidChangeNotifier.connect(
-    [=](const auto&) { applyButton->setEnabled(doc->hasSelectedNodes()); });
+    [=](const auto&) { applyButton->setEnabled(doc->selection().hasNodes()); });
 }
 
 vm::axis::type ShapeParameters::axis() const

@@ -26,7 +26,7 @@
 #include "mdl/EntityDefinitionManager.h"
 #include "mdl/PatchNode.h"
 #include "mdl/WorldNode.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 namespace tb::ui
 {
@@ -48,7 +48,7 @@ void MapDocumentTest::SetUp()
   game = std::make_shared<mdl::TestGame>();
   game->config().forceEmptyNewMap = true;
 
-  document = MapDocumentCommandFacade::newMapDocument(*taskManager);
+  document = std::make_shared<MapDocument>(*taskManager);
   document->newDocument(m_mapFormat, vm::bbox3d{8192.0}, game)
     | kdl::transform_error([](auto e) { throw std::runtime_error{e.msg}; });
 

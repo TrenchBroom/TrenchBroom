@@ -23,6 +23,7 @@
 #include "io/ImageFileSystem.h"
 #include "mdl/MapFormat.h"
 #include "mdl/Node.h"
+#include "mdl/Selection.h"
 
 #include "kdl/task_manager.h"
 
@@ -187,6 +188,9 @@ Child* getChildAs(const Node& node)
   auto children = node.children();
   return getFirstChildOfType<Child>(children);
 }
+
+Selection makeSelection(const std::vector<Node*>& nodes);
+Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces);
 
 } // namespace mdl
 

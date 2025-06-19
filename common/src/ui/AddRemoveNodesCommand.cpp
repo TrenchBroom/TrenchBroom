@@ -22,12 +22,52 @@
 #include "Ensure.h"
 #include "Macros.h"
 #include "mdl/Node.h"
-#include "ui/MapDocumentCommandFacade.h"
+#include "mdl/NodeQueries.h"
+#include "ui/MapDocument.h"
 
 #include "kdl/map_utils.h"
+#include "kdl/vector_utils.h"
 
 namespace tb::ui
 {
+namespace
+{
+
+void doAddNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+{
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+
+  auto addedNodes = std::vector<mdl::Node*>{};
+  for (const auto& [parent, children] : nodes)
+  {
+    parent->addChildren(children);
+    addedNodes = kdl::vec_concat(std::move(addedNodes), children);
+  }
+
+  document.nodesWereAddedNotifier(addedNodes);
+}
+
+void doRemoveNodes(
+  const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes, MapDocument& document)
+{
+  const auto parents = collectNodesAndAncestors(kdl::map_keys(nodes));
+  auto notifyParents = NotifyBeforeAndAfter{
+    document.nodesWillChangeNotifier, document.nodesDidChangeNotifier, parents};
+
+  const auto allChildren = kdl::vec_flatten(kdl::map_values(nodes));
+  auto notifyChildren = NotifyBeforeAndAfter{
+    document.nodesWillBeRemovedNotifier, document.nodesWereRemovedNotifier, allChildren};
+
+  for (const auto& [parent, children] : nodes)
+  {
+    parent->removeChildren(std::begin(children), std::end(children));
+  }
+}
+
+} // namespace
 
 std::unique_ptr<AddRemoveNodesCommand> AddRemoveNodesCommand::add(
   mdl::Node* parent, const std::vector<mdl::Node*>& children)
@@ -85,29 +125,27 @@ std::string AddRemoveNodesCommand::makeName(const Action action)
   }
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformDo(MapDocument& document)
 {
   doAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> AddRemoveNodesCommand::doPerformUndo(MapDocument& document)
 {
   undoAction(document);
   return std::make_unique<CommandResult>(true);
 }
 
-void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
+void AddRemoveNodesCommand::doAction(MapDocument& document)
 {
   switch (m_action)
   {
   case Action::Add:
-    document.performAddNodes(m_nodesToAdd);
+    doAddNodes(m_nodesToAdd, document);
     break;
   case Action::Remove:
-    document.performRemoveNodes(m_nodesToRemove);
+    doRemoveNodes(m_nodesToRemove, document);
     break;
   }
 
@@ -115,15 +153,15 @@ void AddRemoveNodesCommand::doAction(MapDocumentCommandFacade& document)
   swap(m_nodesToAdd, m_nodesToRemove);
 }
 
-void AddRemoveNodesCommand::undoAction(MapDocumentCommandFacade& document)
+void AddRemoveNodesCommand::undoAction(MapDocument& document)
 {
   switch (m_action)
   {
   case Action::Add:
-    document.performRemoveNodes(m_nodesToRemove);
+    doRemoveNodes(m_nodesToRemove, document);
     break;
   case Action::Remove:
-    document.performAddNodes(m_nodesToAdd);
+    doAddNodes(m_nodesToAdd, document);
     break;
   }
 

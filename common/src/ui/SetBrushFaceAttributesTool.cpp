@@ -369,7 +369,7 @@ std::unique_ptr<GestureTracker> SetBrushFaceAttributesTool::acceptMouseDrag(
   auto document = kdl::mem_lock(m_document);
 
   // Need to have a selected face to start painting alignment
-  const auto& selectedFaces = document->selectedBrushFaces();
+  const auto& selectedFaces = document->selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return nullptr;
@@ -395,7 +395,7 @@ void SetBrushFaceAttributesTool::copyAttributesFromSelection(
 
   auto document = kdl::mem_lock(m_document);
 
-  const auto selectedFaces = document->selectedBrushFaces();
+  const auto selectedFaces = document->selection().brushFaces;
   assert(!selectedFaces.empty());
 
   const auto& hit = inputState.pickResult().first(type(mdl::BrushNode::BrushHitType));
@@ -423,7 +423,7 @@ bool SetBrushFaceAttributesTool::canCopyAttributesFromSelection(
 
   auto document = kdl::mem_lock(m_document);
 
-  const auto selectedFaces = document->selectedBrushFaces();
+  const auto selectedFaces = document->selection().brushFaces;
   if (selectedFaces.size() != 1)
   {
     return false;

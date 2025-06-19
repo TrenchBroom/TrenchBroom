@@ -91,7 +91,7 @@ ExtrudeTool::ExtrudeTool(std::weak_ptr<MapDocument> document)
 bool ExtrudeTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectedNodes().hasBrushes();
+  return document->selection().hasBrushes();
 }
 
 const Grid& ExtrudeTool::grid() const
@@ -191,8 +191,7 @@ mdl::Hit ExtrudeTool::pick2D(
     return mdl::Hit::NoHit;
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(document->selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -241,8 +240,7 @@ mdl::Hit ExtrudeTool::pick3D(
         hit.hitPoint()}};
   }
 
-  const auto edgeInfo =
-    findClosestHorizonEdge(document->selectedNodes().nodes(), pickRay);
+  const auto edgeInfo = findClosestHorizonEdge(document->selection().nodes, pickRay);
   if (!edgeInfo)
   {
     return mdl::Hit::NoHit;
@@ -338,7 +336,7 @@ void ExtrudeTool::updateProposedDragHandles(const mdl::PickResult& pickResult)
   }
 
   const auto& hit = pickResult.first(type(ExtrudeHitType));
-  const auto& nodes = document->selectedNodes().nodes();
+  const auto& nodes = document->selection().nodes;
 
   auto newDragHandles = getDragHandles(nodes, hit);
   if (newDragHandles != m_proposedDragHandles)
@@ -686,7 +684,7 @@ void ExtrudeTool::nodesDidChange(const std::vector<mdl::Node*>&)
   }
 }
 
-void ExtrudeTool::selectionDidChange(const Selection&)
+void ExtrudeTool::selectionDidChange(const SelectionChange&)
 {
   if (!m_dragging)
   {

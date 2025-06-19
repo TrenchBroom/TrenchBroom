@@ -49,7 +49,7 @@ class LayerNode;
 class Material;
 class MaterialManager;
 class Node;
-class NodeCollection;
+struct Selection;
 
 /**
  * Interface of MapDocument that is exposed to the Model package.
@@ -73,19 +73,11 @@ public: // getters
   virtual MaterialManager& materialManager() = 0;
 
 public: // selection
-  virtual bool hasSelection() const = 0;
-  virtual bool hasSelectedNodes() const = 0;
-  virtual bool hasSelectedBrushFaces() const = 0;
-  virtual bool hasAnySelectedBrushFaces() const = 0;
+  virtual const Selection& selection() const = 0;
 
-  virtual std::vector<EntityNodeBase*> allSelectedEntityNodes() const = 0;
-  virtual const NodeCollection& selectedNodes() const = 0;
-  virtual std::vector<BrushFaceHandle> allSelectedBrushFaces() const = 0;
-  virtual std::vector<BrushFaceHandle> selectedBrushFaces() const = 0;
-
-  virtual const vm::bbox3d& referenceBounds() const = 0;
-  virtual const vm::bbox3d& lastSelectionBounds() const = 0;
-  virtual const vm::bbox3d& selectionBounds() const = 0;
+  virtual const vm::bbox3d referenceBounds() const = 0;
+  virtual const std::optional<vm::bbox3d>& lastSelectionBounds() const = 0;
+  virtual const std::optional<vm::bbox3d>& selectionBounds() const = 0;
   virtual const std::string& currentMaterialName() const = 0;
 
   virtual void selectAllNodes() = 0;

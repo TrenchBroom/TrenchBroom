@@ -157,6 +157,10 @@ Result<void> CFile::read(char* val, const size_t position, const size_t size) co
       return makeError("fseek failed");
     }
   }
+  if (position + size > m_size)
+  {
+    return makeError("read past EOF");
+  }
   if (std::fread(val, 1, size, *m_file) != size)
   {
     return makeError("fread failed");

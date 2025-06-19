@@ -192,7 +192,7 @@ void EntityModelRenderer::doRender(RenderContext& renderContext)
 
     for (const auto& [entityNode, renderer] : m_entities)
     {
-      if (!m_showHiddenEntities && !m_editorContext.visible(entityNode))
+      if (!m_showHiddenEntities && !m_editorContext.visible(*entityNode))
       {
         continue;
       }

@@ -49,7 +49,7 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
   auto document = kdl::mem_lock(m_document);
   auto links = std::vector<LineVertex>{};
 
-  const auto selectedGroupNodes = document->selectedNodes().groups();
+  const auto selectedGroupNodes = document->selection().groups;
 
   const auto& editorContext = document->editorContext();
   const auto* groupNode = selectedGroupNodes.size() == 1 ? selectedGroupNodes.front()
@@ -65,7 +65,7 @@ std::vector<LinkRenderer::LineVertex> GroupLinkRenderer::getLinks()
     const auto sourcePosition = getLinkAnchorPosition(*groupNode);
     for (const auto* linkedGroupNode : linkedGroupNodes)
     {
-      if (linkedGroupNode != groupNode && editorContext.visible(linkedGroupNode))
+      if (linkedGroupNode != groupNode && editorContext.visible(*linkedGroupNode))
       {
         const auto targetPosition = getLinkAnchorPosition(*linkedGroupNode);
         links.emplace_back(sourcePosition, linkColor);

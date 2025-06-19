@@ -49,7 +49,7 @@ bool MoveObjectsTool::startMove(const InputState& inputState)
 {
   auto document = kdl::mem_lock(m_document);
 
-  if (!document->selectedBrushFaces().empty())
+  if (!document->selection().brushFaces.empty())
   {
     return false;
   }
@@ -67,7 +67,12 @@ MoveObjectsTool::MoveResult MoveObjectsTool::move(
   auto document = kdl::mem_lock(m_document);
   const auto& worldBounds = document->worldBounds();
   const auto bounds = document->selectionBounds();
-  if (!worldBounds.contains(bounds.translate(delta)))
+  if (!bounds)
+  {
+    return MoveResult::Cancel;
+  }
+
+  if (!worldBounds.contains(bounds->translate(delta)))
   {
     return MoveResult::Deny;
   }

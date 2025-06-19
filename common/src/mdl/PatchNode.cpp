@@ -418,7 +418,7 @@ bool PatchNode::doSelectable() const
 void PatchNode::doPick(
   const EditorContext& editorContext, const vm::ray3d& pickRay, PickResult& pickResult)
 {
-  if (!editorContext.visible(this))
+  if (!editorContext.visible(*this))
   {
     return;
   }

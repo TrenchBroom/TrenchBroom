@@ -26,10 +26,10 @@
 #include "mdl/ColorRange.h"
 #include "mdl/Game.h"
 #include "mdl/MapFacade.h"
-#include "mdl/NodeCollection.h"
 #include "mdl/NodeContents.h"
 #include "mdl/PointTrace.h"
 #include "mdl/PortalFile.h"
+#include "mdl/Selection.h"
 #include "ui/Actions.h"
 #include "ui/CachingLogger.h"
 #include "ui/VertexHandleManager.h"
@@ -88,11 +88,12 @@ struct ProcessContext;
 namespace tb::ui
 {
 class Command;
+class CommandProcessor;
 class CommandResult;
 class Grid;
 enum class PasteType;
 class RepeatStack;
-class Selection;
+struct SelectionChange;
 class UndoableCommand;
 class ViewEffectsService;
 enum class MapTextEncoding;
@@ -117,7 +118,7 @@ public:
   static const vm::bbox3d DefaultWorldBounds;
   static const std::string DefaultDocumentName;
 
-protected:
+private:
   kdl::task_manager& m_taskManager;
 
   vm::bbox3d m_worldBounds = DefaultWorldBounds;
@@ -144,18 +145,15 @@ protected:
   size_t m_lastSaveModificationCount = 0;
   size_t m_modificationCount = 0;
 
-  mdl::NodeCollection m_selectedNodes;
-  std::vector<mdl::BrushFaceHandle> m_selectedBrushFaces;
+  mutable std::optional<mdl::Selection> m_cachedSelection;
+  mutable std::optional<vm::bbox3d> m_cachedSelectionBounds;
+  std::optional<vm::bbox3d> m_lastSelectionBounds;
 
   VertexHandleManager m_vertexHandles;
   EdgeHandleManager m_edgeHandles;
   FaceHandleManager m_faceHandles;
 
-  mdl::LayerNode* m_currentLayer = nullptr;
   std::string m_currentMaterialName = mdl::BrushFaceAttributes::NoMaterialName;
-  vm::bbox3d m_lastSelectionBounds = vm::bbox3d{0.0, 32.0};
-  mutable vm::bbox3d m_selectionBounds;
-  mutable bool m_selectionBoundsValid = true;
 
   ViewEffectsService* m_viewEffectsService = nullptr;
 
@@ -167,6 +165,8 @@ protected:
    * was changed.
    */
   std::unique_ptr<RepeatStack> m_repeatStack;
+
+  std::unique_ptr<CommandProcessor> m_commandProcessor;
 
 public: // notification
   Notifier<Command&> commandDoNotifier;
@@ -190,7 +190,7 @@ public: // notification
   Notifier<const std::string&> currentMaterialNameDidChangeNotifier;
 
   Notifier<> selectionWillChangeNotifier;
-  Notifier<const Selection&> selectionDidChangeNotifier;
+  Notifier<const SelectionChange&> selectionDidChangeNotifier;
 
   Notifier<const std::vector<mdl::Node*>&> nodesWereAddedNotifier;
   Notifier<const std::vector<mdl::Node*>&> nodesWillBeRemovedNotifier;
@@ -201,8 +201,8 @@ public: // notification
   Notifier<const std::vector<mdl::Node*>&> nodeVisibilityDidChangeNotifier;
   Notifier<const std::vector<mdl::Node*>&> nodeLockingDidChangeNotifier;
 
-  Notifier<mdl::GroupNode*> groupWasOpenedNotifier;
-  Notifier<mdl::GroupNode*> groupWasClosedNotifier;
+  Notifier<mdl::GroupNode&> groupWasOpenedNotifier;
+  Notifier<mdl::GroupNode&> groupWasClosedNotifier;
 
   Notifier<const std::vector<mdl::BrushFaceHandle>&> brushFacesDidChangeNotifier;
 
@@ -228,10 +228,8 @@ public: // notification
 private:
   NotifierConnection m_notifierConnection;
 
-protected:
-  explicit MapDocument(kdl::task_manager& taskManager);
-
 public:
+  explicit MapDocument(kdl::task_manager& taskManager);
   ~MapDocument() override;
 
 public: // accessors and such
@@ -246,9 +244,6 @@ public: // accessors and such
   bool isGamePathPreference(const std::filesystem::path& path) const;
 
   mdl::LayerNode* currentLayer() const override;
-
-protected:
-  mdl::LayerNode* performSetCurrentLayer(mdl::LayerNode* currentLayer);
 
 public:
   void setCurrentLayer(mdl::LayerNode* currentLayer);
@@ -358,59 +353,15 @@ public: // portal file management
   void unloadPortalFile();
 
 public: // selection
-  bool hasSelection() const override;
-  bool hasSelectedNodes() const override;
-  bool hasSelectedBrushFaces() const override;
-  bool hasAnySelectedBrushFaces() const override;
-
-  /**
-   * For commands that modify entities, this returns all entities that should be acted on,
-   * based on the current selection.
-   *
-   * - selected brushes/patches act on their parent entities
-   * - selected groups implicitly act on any contained entities
-   *
-   * If multiple linked groups are selected, returns entities from all of them, so
-   * attempting to perform commands on all of them will be blocked as a conflict.
-   */
-  std::vector<mdl::EntityNodeBase*> allSelectedEntityNodes() const override;
-
-  /**
-   * For commands that modify brushes, this returns all brushes that should be acted on,
-   * based on the current selection.
-   *
-   * - selected groups implicitly act on any contained brushes
-   *
-   * If multiple linked groups are selected, returns brushes from all of them, so
-   * attempting to perform commands on all of them will be blocked as a conflict.
-   */
-  std::vector<mdl::BrushNode*> allSelectedBrushNodes() const;
-  bool hasAnySelectedBrushNodes() const;
-  const mdl::NodeCollection& selectedNodes() const override;
-
-  /**
-   * For commands that modify brush faces, this returns all that should be acted on, based
-   * on the current selection.
-   *
-   * - if brush faces are explicitly selected (hasSelectedBrushFaces()), use those
-   * - selected groups implicitly act on any contained brushes
-   * - selected brushes implicitly act on their faces
-   *
-   * Unlike allSelectedBrushNodes()/allSelectedEntityNodes(), if multiple groups in a link
-   * set are selected, only return one representative face per brush, so that user actions
-   * can be performed without generating conflicts. (e.g. this allows selecting 2 closed
-   * linked groups in a link set and applying materials.)
-   */
-  std::vector<mdl::BrushFaceHandle> allSelectedBrushFaces() const override;
-  std::vector<mdl::BrushFaceHandle> selectedBrushFaces() const override;
+  const mdl::Selection& selection() const override;
 
   VertexHandleManager& vertexHandles();
   EdgeHandleManager& edgeHandles();
   FaceHandleManager& faceHandles();
 
-  const vm::bbox3d& referenceBounds() const override;
-  const vm::bbox3d& lastSelectionBounds() const override;
-  const vm::bbox3d& selectionBounds() const override;
+  const vm::bbox3d referenceBounds() const override;
+  const std::optional<vm::bbox3d>& lastSelectionBounds() const override;
+  const std::optional<vm::bbox3d>& selectionBounds() const override;
   const std::string& currentMaterialName() const override;
   void setCurrentMaterialName(const std::string& currentMaterialName);
 
@@ -430,14 +381,6 @@ public: // selection
   void deselectAll() override;
   void deselectNodes(const std::vector<mdl::Node*>& nodes) override;
   void deselectBrushFaces(const std::vector<mdl::BrushFaceHandle>& handles) override;
-
-protected:
-  void updateLastSelectionBounds();
-  void invalidateSelectionBounds();
-
-private:
-  void validateSelectionBounds() const;
-  void clearSelection();
 
 public: // adding, removing, reparenting, and duplicating nodes, declared in MapFacade
         // interface
@@ -673,29 +616,12 @@ public: // transactions
   bool commitTransaction();
   void cancelTransaction();
 
-  virtual bool isCurrentDocumentStateObservable() const = 0;
+  bool isCurrentDocumentStateObservable() const;
 
 private:
   std::unique_ptr<CommandResult> execute(std::unique_ptr<Command>&& command);
   std::unique_ptr<CommandResult> executeAndStore(
     std::unique_ptr<UndoableCommand>&& command);
-
-private: // subclassing interface for command processing
-  virtual bool doCanUndoCommand() const = 0;
-  virtual bool doCanRedoCommand() const = 0;
-  virtual const std::string& doGetUndoCommandName() const = 0;
-  virtual const std::string& doGetRedoCommandName() const = 0;
-  virtual void doUndoCommand() = 0;
-  virtual void doRedoCommand() = 0;
-
-  virtual void doClearCommandProcessor() = 0;
-  virtual void doStartTransaction(std::string name, TransactionScope scope) = 0;
-  virtual void doCommitTransaction() = 0;
-  virtual void doRollbackTransaction() = 0;
-
-  virtual std::unique_ptr<CommandResult> doExecute(std::unique_ptr<Command> command) = 0;
-  virtual std::unique_ptr<CommandResult> doExecuteAndStore(
-    std::unique_ptr<UndoableCommand> command) = 0;
 
 public: // asset state management
   void processResourcesSync(const mdl::ProcessContext& processContext);
@@ -784,9 +710,6 @@ private: // validator management
 public:
   void setIssueHidden(const mdl::Issue& issue, bool hidden);
 
-private:
-  virtual void doSetIssueHidden(const mdl::Issue& issue, bool hidden) = 0;
-
 public:                     // tag management
   void registerSmartTags(); // public for testing
   const std::vector<mdl::SmartTag>& smartTags() const;
@@ -794,6 +717,10 @@ public:                     // tag management
   const mdl::SmartTag& smartTag(const std::string& name) const;
   bool isRegisteredSmartTag(size_t index) const;
   const mdl::SmartTag& smartTag(size_t index) const;
+
+public: // modification count
+  void incModificationCount(size_t delta = 1);
+  void decModificationCount(size_t delta = 1);
 
 private:
   void initializeAllNodeTags(MapDocument* document);
@@ -825,6 +752,13 @@ private:
 
 private: // observers
   void connectObservers();
+  void documentWasNewed(MapDocument* document);
+  void documentWasLoaded(MapDocument* document);
+  void nodesWereAdded(const std::vector<mdl::Node*>& nodes);
+  void nodesWereRemoved(const std::vector<mdl::Node*>& nodes);
+  void nodesDidChange(const std::vector<mdl::Node*>& nodes);
+  void selectionWillChange();
+  void selectionDidChange(const SelectionChange& selectionChange);
   void materialCollectionsWillChange();
   void materialCollectionsDidChange();
   void entityDefinitionsWillChange();

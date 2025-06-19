@@ -38,7 +38,6 @@
 #include "mdl/Texture.h"
 #include "mdl/WorldNode.h"
 #include "ui/MapDocument.h"
-#include "ui/MapDocumentCommandFacade.h"
 
 #include "kdl/result.h"
 
@@ -415,6 +414,42 @@ void setLinkId(Node& node, std::string linkId)
     [&](Object* object) { object->setLinkId(std::move(linkId)); }));
 }
 
+Selection makeSelection(const std::vector<Node*>& nodes)
+{
+  auto selection = mdl::Selection{};
+
+  mdl::Node::visitAll(
+    nodes,
+    kdl::overload(
+      [](mdl::WorldNode*) {},
+      [](mdl::LayerNode*) {},
+      [&](mdl::GroupNode* group) {
+        selection.nodes.push_back(group);
+        selection.groups.push_back(group);
+      },
+      [&](mdl::EntityNode* entity) {
+        selection.nodes.push_back(entity);
+        selection.entities.push_back(entity);
+      },
+      [&](mdl::BrushNode* brush) {
+        selection.nodes.push_back(brush);
+        selection.brushes.push_back(brush);
+      },
+      [&](mdl::PatchNode* patch) {
+        selection.nodes.push_back(patch);
+        selection.patches.push_back(patch);
+      }));
+
+  return selection;
+}
+
+Selection makeSelection(const std::vector<BrushFaceHandle>& brushFaces)
+{
+  auto selection = Selection{};
+  selection.brushFaces = brushFaces;
+  return selection;
+}
+
 } // namespace mdl
 
 namespace ui
@@ -425,7 +460,7 @@ DocumentGameConfig loadMapDocument(
   const mdl::MapFormat mapFormat)
 {
   auto taskManager = createTestTaskManager();
-  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
+  auto document = std::make_shared<MapDocument>(*taskManager);
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
   document->loadDocument(
@@ -442,7 +477,7 @@ DocumentGameConfig newMapDocument(
   const std::string& gameName, const mdl::MapFormat mapFormat)
 {
   auto taskManager = createTestTaskManager();
-  auto document = MapDocumentCommandFacade::newMapDocument(*taskManager);
+  auto document = std::make_shared<MapDocument>(*taskManager);
 
   auto [game, gameConfig] = mdl::loadGame(gameName);
   document->newDocument(mapFormat, vm::bbox3d{8192.0}, game)

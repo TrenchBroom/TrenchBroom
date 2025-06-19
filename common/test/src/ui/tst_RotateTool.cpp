@@ -70,7 +70,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
       tool.resetRotationCenter();
       CHECK(
         tool.rotationCenter()
-        == document->grid().snap(document->selectionBounds().center()));
+        == document->grid().snap(document->selectionBounds()->center()));
     }
 
     SECTION("If a mix of nodes is selected")
@@ -80,7 +80,7 @@ TEST_CASE_METHOD(MapDocumentTest, "RotateTool")
       tool.resetRotationCenter();
       CHECK(
         tool.rotationCenter()
-        == document->grid().snap(document->selectionBounds().center()));
+        == document->grid().snap(document->selectionBounds()->center()));
     }
   }
 }

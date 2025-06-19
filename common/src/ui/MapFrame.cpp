@@ -528,59 +528,59 @@ QString describeSelection(const MapDocument& document)
   // build a vector of strings describing the things that are selected
   auto tokens = std::vector<std::string>{};
 
-  const auto& selectedNodes = document.selectedNodes();
+  const auto& selection = document.selection();
 
   // selected brushes
-  if (!selectedNodes.brushes().empty())
+  if (selection.hasBrushes())
   {
-    const auto* commonEntityNode = commonEntityForNodeList(selectedNodes.brushes());
+    const auto* commonEntityNode = commonEntityForNodeList(selection.brushes);
 
     // if all selected brushes are from the same entity, print the entity name
-    auto token = numberWithSuffix(selectedNodes.brushes().size(), "brush", "brushes");
+    auto token = numberWithSuffix(selection.brushes.size(), "brush", "brushes");
     token += commonEntityNode ? " (" + commonEntityNode->entity().classname() + ")"
                               : " (multiple entities)";
     tokens.push_back(token);
   }
 
   // selected patches
-  if (!selectedNodes.patches().empty())
+  if (selection.hasPatches())
   {
-    const auto* commonEntityNode = commonEntityForNodeList(selectedNodes.patches());
+    const auto* commonEntityNode = commonEntityForNodeList(selection.patches);
 
     // if all selected patches are from the same entity, print the entity name
-    auto token = numberWithSuffix(selectedNodes.patches().size(), "patch", "patches");
+    auto token = numberWithSuffix(selection.patches.size(), "patch", "patches");
     token += commonEntityNode ? " (" + commonEntityNode->entity().classname() + ")"
                               : " (multiple entities)";
     tokens.push_back(token);
   }
 
   // selected brush faces
-  if (document.hasSelectedBrushFaces())
+  if (document.selection().hasBrushFaces())
   {
     const auto token =
-      numberWithSuffix(document.selectedBrushFaces().size(), "face", "faces");
+      numberWithSuffix(document.selection().brushFaces.size(), "face", "faces");
     tokens.push_back(token);
   }
 
   // entities
-  if (!selectedNodes.entities().empty())
+  if (selection.hasEntities())
   {
-    const auto commonClassname = commonClassnameForEntityList(selectedNodes.entities());
+    const auto commonClassname = commonClassnameForEntityList(selection.entities);
 
-    auto token = numberWithSuffix(selectedNodes.entities().size(), "entity", "entities");
+    auto token = numberWithSuffix(selection.entities.size(), "entity", "entities");
     token += " (" + commonClassname.value_or("multiple classnames") + ") ";
     tokens.push_back(token);
   }
 
   // groups
-  if (!selectedNodes.groups().empty())
+  if (selection.hasGroups())
   {
-    tokens.push_back(numberWithSuffix(selectedNodes.groups().size(), "group", "groups"));
+    tokens.push_back(numberWithSuffix(selection.groups.size(), "group", "groups"));
   }
 
   // get the layers of the selected nodes
   const auto selectedObjectLayers =
-    mdl::collectContainingLayersUserSorted(selectedNodes.nodes());
+    mdl::collectContainingLayersUserSorted(selection.nodes);
   auto layersDescription = QString{};
   if (selectedObjectLayers.size() == 1)
   {
@@ -610,34 +610,34 @@ QString describeSelection(const MapDocument& document)
 
   const auto& editorContext = document.editorContext();
   document.world()->accept(kdl::overload(
-    [](auto&& thisLambda, const mdl::WorldNode* world) {
-      world->visitChildren(thisLambda);
+    [](auto&& thisLambda, const mdl::WorldNode* worldNode) {
+      worldNode->visitChildren(thisLambda);
     },
-    [](auto&& thisLambda, const mdl::LayerNode* layer) {
-      layer->visitChildren(thisLambda);
+    [](auto&& thisLambda, const mdl::LayerNode* layerNode) {
+      layerNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const mdl::GroupNode* group) {
-      if (!editorContext.visible(group))
+    [&](auto&& thisLambda, const mdl::GroupNode* groupNode) {
+      if (!editorContext.visible(*groupNode))
       {
         ++hiddenGroups;
       }
-      group->visitChildren(thisLambda);
+      groupNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, const mdl::EntityNode* entity) {
-      if (!editorContext.visible(entity))
+    [&](auto&& thisLambda, const mdl::EntityNode* entityNode) {
+      if (!editorContext.visible(*entityNode))
       {
         ++hiddenEntities;
       }
-      entity->visitChildren(thisLambda);
+      entityNode->visitChildren(thisLambda);
     },
-    [&](const mdl::BrushNode* brush) {
-      if (!editorContext.visible(brush))
+    [&](const mdl::BrushNode* brushNode) {
+      if (!editorContext.visible(*brushNode))
       {
         ++hiddenBrushes;
       }
     },
-    [&](const mdl::PatchNode* patch) {
-      if (!editorContext.visible(patch))
+    [&](const mdl::PatchNode* patchNode) {
+      if (!editorContext.visible(*patchNode))
       {
         ++hiddenPatches;
       }
@@ -814,7 +814,7 @@ void MapFrame::toolHandleSelectionChanged(Tool&)
   updateActionStateDelayed();
 }
 
-void MapFrame::selectionDidChange(const Selection&)
+void MapFrame::selectionDidChange(const SelectionChange&)
 {
   updateActionStateDelayed();
   updateStatusBarDelayed();
@@ -825,12 +825,12 @@ void MapFrame::currentLayerDidChange(const tb::mdl::LayerNode*)
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasOpened(mdl::GroupNode*)
+void MapFrame::groupWasOpened(mdl::GroupNode&)
 {
   updateStatusBarDelayed();
 }
 
-void MapFrame::groupWasClosed(mdl::GroupNode*)
+void MapFrame::groupWasClosed(mdl::GroupNode&)
 {
   updateStatusBarDelayed();
 }
@@ -1286,10 +1286,10 @@ void MapFrame::copySelection()
 
 void MapFrame::copyToClipboard()
 {
-  const auto str = m_document->hasSelectedNodes() ? m_document->serializeSelectedNodes()
-                   : m_document->hasSelectedBrushFaces()
-                     ? m_document->serializeSelectedBrushFaces()
-                     : std::string{};
+  const auto str =
+    m_document->selection().hasNodes()        ? m_document->serializeSelectedNodes()
+    : m_document->selection().hasBrushFaces() ? m_document->serializeSelectedBrushFaces()
+                                              : std::string{};
 
   auto* clipboard = QApplication::clipboard();
   clipboard->setText(mapStringToUnicode(m_document->encoding(), str));
@@ -1297,14 +1297,14 @@ void MapFrame::copyToClipboard()
 
 bool MapFrame::canCutSelection() const
 {
-  return widgetOrChildHasFocus(m_mapView) && m_document->hasSelectedNodes()
+  return widgetOrChildHasFocus(m_mapView) && m_document->selection().hasNodes()
          && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::canCopySelection() const
 {
   return widgetOrChildHasFocus(m_mapView)
-         && (m_document->hasSelectedNodes() || m_document->hasSelectedBrushFaces());
+         && (m_document->selection().hasNodes() || m_document->selection().hasBrushFaces());
 }
 
 void MapFrame::pasteAtCursorPosition()
@@ -1317,17 +1317,15 @@ void MapFrame::pasteAtCursorPosition()
     switch (paste())
     {
     case PasteType::Node:
-      if (m_document->hasSelectedNodes())
+      if (const auto& bounds = m_document->selectionBounds())
       {
-        const auto bounds = m_document->selectionBounds();
-
         // The pasted objects must be hidden to prevent the picking done in
         // pasteObjectsDelta from hitting them
         // (https://github.com/TrenchBroom/TrenchBroom/issues/2755)
-        const auto nodes = m_document->selectedNodes().nodes();
+        const auto nodes = m_document->selection().nodes;
 
         m_document->hide(nodes);
-        const auto delta = m_mapView->pasteObjectsDelta(bounds, referenceBounds);
+        const auto delta = m_mapView->pasteObjectsDelta(*bounds, referenceBounds);
         m_document->show(nodes);
         m_document->selectNodes(nodes); // Hiding deselected the nodes, so reselect them
         if (!m_document->translate(delta))
@@ -1396,7 +1394,7 @@ void MapFrame::duplicateSelection()
 
 bool MapFrame::canDuplicateSelectino() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::deleteSelection()
@@ -1536,23 +1534,23 @@ bool MapFrame::canSelect() const
 
 bool MapFrame::canSelectSiblings() const
 {
-  return canChangeSelection() && m_document->hasSelectedNodes();
+  return canChangeSelection() && m_document->selection().hasNodes();
 }
 
 bool MapFrame::canSelectByBrush() const
 {
-  return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes();
+  return canChangeSelection() && m_document->selection().hasOnlyBrushes();
 }
 
 bool MapFrame::canSelectTall() const
 {
-  return canChangeSelection() && m_document->selectedNodes().hasOnlyBrushes()
+  return canChangeSelection() && m_document->selection().hasOnlyBrushes()
          && m_mapView->canSelectTall();
 }
 
 bool MapFrame::canDeselect() const
 {
-  return canChangeSelection() && m_document->hasSelectedNodes();
+  return canChangeSelection() && m_document->selection().hasNodes();
 }
 
 bool MapFrame::canChangeSelection() const
@@ -1579,7 +1577,7 @@ void MapFrame::groupSelectedObjects()
 
 bool MapFrame::canGroupSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::ungroupSelectedObjects()
@@ -1592,7 +1590,7 @@ void MapFrame::ungroupSelectedObjects()
 
 bool MapFrame::canUngroupSelectedObjects() const
 {
-  return m_document->selectedNodes().hasGroups() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasGroups() && !m_mapView->anyModalToolActive();
 }
 
 void MapFrame::renameSelectedGroups()
@@ -1600,9 +1598,9 @@ void MapFrame::renameSelectedGroups()
   if (canRenameSelectedGroups())
   {
     auto document = kdl::mem_lock(m_document);
-    assert(document->selectedNodes().hasOnlyGroups());
+    assert(document->selection().hasOnlyGroups());
 
-    const auto suggestion = document->selectedNodes().groups().front()->name();
+    const auto suggestion = document->selection().groups.front()->name();
     const auto name = queryGroupName(this, suggestion);
     if (!name.empty())
     {
@@ -1614,7 +1612,7 @@ void MapFrame::renameSelectedGroups()
 bool MapFrame::canRenameSelectedGroups() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectedNodes().hasOnlyGroups();
+  return document->selection().hasOnlyGroups();
 }
 
 void MapFrame::replaceMaterial()
@@ -1648,7 +1646,7 @@ void MapFrame::moveSelectedObjects()
 
 bool MapFrame::canMoveSelectedObjects() const
 {
-  return m_document->hasSelectedNodes() && !m_mapView->anyModalToolActive();
+  return m_document->selection().hasNodes() && !m_mapView->anyModalToolActive();
 }
 
 bool MapFrame::anyModalToolActive() const
@@ -1830,9 +1828,9 @@ void MapFrame::csgConvexMerge()
 
 bool MapFrame::canDoCsgConvexMerge() const
 {
-  return (m_document->hasSelectedBrushFaces()
-          && m_document->selectedBrushFaces().size() > 1)
-         || (m_document->selectedNodes().hasOnlyBrushes() && m_document->selectedNodes().brushCount() > 1)
+  return (m_document->selection().hasBrushFaces()
+          && m_document->selection().brushFaces.size() > 1)
+         || (m_document->selection().hasOnlyBrushes() && m_document->selection().brushes.size() > 1)
          || (m_mapView->vertexToolActive() && m_mapView->vertexTool().canDoCsgConvexMerge())
          || (m_mapView->edgeToolActive() && m_mapView->edgeTool().canDoCsgConvexMerge())
          || (m_mapView->faceToolActive() && m_mapView->faceTool().canDoCsgConvexMerge());
@@ -1848,8 +1846,8 @@ void MapFrame::csgSubtract()
 
 bool MapFrame::canDoCsgSubtract() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() >= 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() >= 1;
 }
 
 void MapFrame::csgHollow()
@@ -1862,8 +1860,8 @@ void MapFrame::csgHollow()
 
 bool MapFrame::canDoCsgHollow() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() >= 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() >= 1;
 }
 
 void MapFrame::csgIntersect()
@@ -1876,8 +1874,8 @@ void MapFrame::csgIntersect()
 
 bool MapFrame::canDoCsgIntersect() const
 {
-  return m_document->selectedNodes().hasOnlyBrushes()
-         && m_document->selectedNodes().brushCount() > 1;
+  return m_document->selection().hasOnlyBrushes()
+         && m_document->selection().brushes.size() > 1;
 }
 
 void MapFrame::snapVerticesToInteger()
@@ -1898,7 +1896,7 @@ void MapFrame::snapVerticesToGrid()
 
 bool MapFrame::canSnapVertices() const
 {
-  return m_document->hasAnySelectedBrushNodes();
+  return !m_document->selection().allBrushes().empty();
 }
 
 void MapFrame::toggleAlignmentLock()
@@ -1996,7 +1994,7 @@ void MapFrame::focusCameraOnSelection()
 
 bool MapFrame::canFocusCamera() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::moveCameraToPosition()
@@ -2028,7 +2026,7 @@ void MapFrame::isolateSelection()
 
 bool MapFrame::canIsolateSelection() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::hideSelection()
@@ -2041,7 +2039,7 @@ void MapFrame::hideSelection()
 
 bool MapFrame::canHideSelection() const
 {
-  return m_document->hasSelectedNodes();
+  return m_document->selection().hasNodes();
 }
 
 void MapFrame::showAll()
@@ -2131,9 +2129,10 @@ namespace
 
 const mdl::Material* materialToReveal(std::shared_ptr<MapDocument> document)
 {
-  const auto* firstMaterial = document->allSelectedBrushFaces().front().face().material();
+  const auto* firstMaterial =
+    document->selection().allBrushFaces().front().face().material();
   const auto allFacesHaveIdenticalMaterial = kdl::all_of(
-    document->allSelectedBrushFaces(),
+    document->selection().allBrushFaces(),
     [&](const auto& face) { return face.face().material() == firstMaterial; });
 
   return allFacesHaveIdenticalMaterial ? firstMaterial : nullptr;

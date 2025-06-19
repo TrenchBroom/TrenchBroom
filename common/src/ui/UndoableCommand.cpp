@@ -19,7 +19,7 @@
 
 #include "UndoableCommand.h"
 
-#include "ui/MapDocumentCommandFacade.h"
+#include "ui/MapDocument.h"
 
 #include <string>
 
@@ -34,8 +34,7 @@ UndoableCommand::UndoableCommand(std::string name, const bool updateModification
 
 UndoableCommand::~UndoableCommand() = default;
 
-std::unique_ptr<CommandResult> UndoableCommand::performDo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> UndoableCommand::performDo(MapDocument& document)
 {
   auto result = Command::performDo(document);
   if (result->success())
@@ -45,8 +44,7 @@ std::unique_ptr<CommandResult> UndoableCommand::performDo(
   return result;
 }
 
-std::unique_ptr<CommandResult> UndoableCommand::performUndo(
-  MapDocumentCommandFacade& document)
+std::unique_ptr<CommandResult> UndoableCommand::performUndo(MapDocument& document)
 {
   m_state = CommandState::Undoing;
   auto result = doPerformUndo(document);
@@ -78,7 +76,7 @@ bool UndoableCommand::doCollateWith(UndoableCommand&)
   return false;
 }
 
-void UndoableCommand::setModificationCount(MapDocumentCommandFacade& document) const
+void UndoableCommand::setModificationCount(MapDocument& document) const
 {
   if (m_modificationCount)
   {
@@ -86,7 +84,7 @@ void UndoableCommand::setModificationCount(MapDocumentCommandFacade& document) c
   }
 }
 
-void UndoableCommand::resetModificationCount(MapDocumentCommandFacade& document) const
+void UndoableCommand::resetModificationCount(MapDocument& document) const
 {
   document.decModificationCount(m_modificationCount);
 }

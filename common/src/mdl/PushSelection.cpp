@@ -20,7 +20,7 @@
 #include "PushSelection.h"
 
 #include "mdl/MapFacade.h"
-#include "mdl/NodeCollection.h"
+#include "mdl/Selection.h"
 
 #include <cassert>
 
@@ -34,19 +34,19 @@ PushSelection::PushSelection(MapFacade* facade)
 
 PushSelection::PushSelection(MapFacade& facade)
   : m_facade{facade}
-  , m_nodes{m_facade.selectedNodes().nodes()}
-  , m_faces{m_facade.selectedBrushFaces()}
+  , m_nodes{m_facade.selection().nodes}
+  , m_faces{m_facade.selection().brushFaces}
 {
 }
 
 PushSelection::~PushSelection()
 {
   m_facade.deselectAll();
-  if (!m_nodes.empty() && m_facade.selectedNodes().nodes() != m_nodes)
+  if (!m_nodes.empty() && m_facade.selection().nodes != m_nodes)
   {
     m_facade.selectNodes(m_nodes);
   }
-  else if (!m_faces.empty() && m_facade.selectedBrushFaces() != m_faces)
+  else if (!m_faces.empty() && m_facade.selection().brushFaces != m_faces)
   {
     m_facade.selectBrushFaces(m_faces);
   }

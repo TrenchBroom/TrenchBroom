@@ -55,7 +55,7 @@ const Grid& ShearTool::grid() const
 bool ShearTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !document->selectedNodes().empty();
+  return document->selection().hasNodes();
 }
 
 void ShearTool::pickBackSides(
@@ -149,7 +149,10 @@ void ShearTool::pick3D(
 vm::bbox3d ShearTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds();
+
+  const auto& bounds = document->selectionBounds();
+  ensure(bounds, "selection bounds are available");
+  return *bounds;
 }
 
 // for rendering sheared bbox

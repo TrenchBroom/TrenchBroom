@@ -27,7 +27,7 @@
 #include "Result.h"
 #include "io/ExportOptions.h"
 #include "mdl/MapFormat.h"
-#include "ui/Selection.h"
+#include "ui/SelectionChange.h"
 
 #include <chrono>
 #include <filesystem>
@@ -179,10 +179,10 @@ private: // notification handlers
   void toolActivated(Tool& tool);
   void toolDeactivated(Tool& tool);
   void toolHandleSelectionChanged(Tool& tool);
-  void selectionDidChange(const Selection& selection);
+  void selectionDidChange(const SelectionChange& selectionChange);
   void currentLayerDidChange(const tb::mdl::LayerNode* layer);
-  void groupWasOpened(mdl::GroupNode* group);
-  void groupWasClosed(mdl::GroupNode* group);
+  void groupWasOpened(mdl::GroupNode& group);
+  void groupWasClosed(mdl::GroupNode& group);
   void nodeVisibilityDidChange(const std::vector<mdl::Node*>& nodes);
   void editorContextDidChange();
   void pointFileDidChange();

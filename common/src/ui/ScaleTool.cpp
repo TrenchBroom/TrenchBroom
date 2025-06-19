@@ -592,7 +592,7 @@ const mdl::Hit& ScaleTool::dragStartHit() const
 bool ScaleTool::applies() const
 {
   auto document = kdl::mem_lock(m_document);
-  return !document->selectedNodes().empty();
+  return document->selection().hasNodes();
 }
 
 BackSide pickBackSideOfBox(
@@ -783,7 +783,10 @@ void ScaleTool::pick3D(
 vm::bbox3d ScaleTool::bounds() const
 {
   auto document = kdl::mem_lock(m_document);
-  return document->selectionBounds();
+
+  const auto& bounds = document->selectionBounds();
+  ensure(bounds, "selection bounds are available");
+  return *bounds;
 }
 
 std::vector<vm::polygon3f> ScaleTool::polygonsHighlightedByDrag() const

@@ -282,7 +282,7 @@ void MapView3D::reset2dCameras(const render::Camera&, const bool)
 void MapView3D::focusCameraOnSelection(const bool animate)
 {
   auto document = kdl::mem_lock(m_document);
-  if (const auto& nodes = document->selectedNodes().nodes(); !nodes.empty())
+  if (const auto& nodes = document->selection().nodes; !nodes.empty())
   {
     const auto newPosition = focusCameraOnObjectsPosition(nodes);
     moveCameraToPosition(newPosition, animate);
@@ -546,15 +546,15 @@ void MapView3D::renderMap(
   renderer.render(renderContext, renderBatch);
 
   auto document = kdl::mem_lock(m_document);
-  if (renderContext.showSelectionGuide() && document->hasSelectedNodes())
+  if (const auto& bounds = document->selectionBounds();
+      bounds && renderContext.showSelectionGuide())
   {
-    const auto& bounds = document->selectionBounds();
-    auto boundsRenderer = render::SelectionBoundsRenderer{bounds};
+    auto boundsRenderer = render::SelectionBoundsRenderer{*bounds};
     boundsRenderer.render(renderContext, renderBatch);
 
     auto* guideRenderer = new render::BoundsGuideRenderer{m_document};
     guideRenderer->setColor(pref(Preferences::SelectionBoundsColor));
-    guideRenderer->setBounds(bounds);
+    guideRenderer->setBounds(*bounds);
     renderBatch.addOneShot(guideRenderer);
   }
 }

@@ -195,7 +195,7 @@ void EntityDecalRenderer::updateEntity(const mdl::EntityNode* entityNode)
 
   // check if the entity has a decal specification
   const auto spec =
-    editorContext.visible(entityNode) ? getDecalSpecification(entityNode) : std::nullopt;
+    editorContext.visible(*entityNode) ? getDecalSpecification(entityNode) : std::nullopt;
 
   // see if we are tracking this entity
   const auto entity = m_entities.find(entityNode);
@@ -241,7 +241,7 @@ void EntityDecalRenderer::updateBrush(const mdl::BrushNode* brushNode)
     // if the brush is not visible, then it doesn't (currently) intersect
     const auto& editorContext = kdl::mem_lock(m_document)->editorContext();
     const auto intersects =
-      editorContext.visible(brushNode) && brushNode->intersects(ent);
+      editorContext.visible(*brushNode) && brushNode->intersects(ent);
     const auto tracked = std::find(data.brushes.begin(), data.brushes.end(), brushNode)
                          != data.brushes.end();
 
@@ -333,7 +333,7 @@ void EntityDecalRenderer::validateDecalData(
   for (const auto* node : intersectors)
   {
     const auto* brushNode = dynamic_cast<const mdl::BrushNode*>(node);
-    if (brushNode && editorContext.visible(brushNode))
+    if (brushNode && editorContext.visible(*brushNode))
     {
       data.brushes.push_back(brushNode);
     }
