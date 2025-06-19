@@ -61,7 +61,7 @@ private:
   CreateEntityModelDataResource m_createResource;
   Logger& m_logger;
 
-  const mdl::Game* m_game = nullptr;
+  const Game* m_game = nullptr;
 
   // Cache Quake 3 shaders to use when loading models
   std::vector<Quake3Shader> m_shaders;
@@ -81,7 +81,7 @@ public:
   void clear();
   void reloadShaders(kdl::task_manager& taskManager);
 
-  void setGame(const mdl::Game* game, kdl::task_manager& taskManager);
+  void setGame(const Game* game, kdl::task_manager& taskManager);
 
   render::MaterialRenderer* renderer(const ModelSpecification& spec) const;
 

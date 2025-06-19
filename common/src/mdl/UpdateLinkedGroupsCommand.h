@@ -31,7 +31,7 @@ class GroupNode;
 class UpdateLinkedGroupsCommand : public UpdateLinkedGroupsCommandBase
 {
 public:
-  explicit UpdateLinkedGroupsCommand(std::vector<mdl::GroupNode*> changedLinkedGroups);
+  explicit UpdateLinkedGroupsCommand(std::vector<GroupNode*> changedLinkedGroups);
   ~UpdateLinkedGroupsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;

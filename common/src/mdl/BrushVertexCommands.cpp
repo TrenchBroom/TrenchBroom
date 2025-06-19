@@ -30,7 +30,7 @@ namespace tb::mdl
 {
 
 BrushVertexCommandBase::BrushVertexCommandBase(
-  std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes)
+  std::string name, std::vector<std::pair<Node*, NodeContents>> nodes)
   : SwapNodeContentsCommand{std::move(name), std::move(nodes)}
 {
 }
@@ -47,14 +47,13 @@ std::unique_ptr<CommandResult> BrushVertexCommandBase::createCommandResult(
   return swapResult;
 }
 
-static auto collectBrushNodes(
-  const std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes)
+static auto collectBrushNodes(const std::vector<std::pair<Node*, NodeContents>> nodes)
 {
   return nodes | std::views::filter([](const auto& pair) {
-           return dynamic_cast<mdl::BrushNode*>(pair.first) != nullptr;
+           return dynamic_cast<BrushNode*>(pair.first) != nullptr;
          })
          | std::views::transform(
-           [](const auto& pair) { return static_cast<mdl::BrushNode*>(pair.first); })
+           [](const auto& pair) { return static_cast<BrushNode*>(pair.first); })
          | kdl::to_vector;
 }
 
@@ -109,7 +108,7 @@ bool BrushVertexCommandResult::hasRemainingVertices() const
 
 BrushVertexCommand::BrushVertexCommand(
   std::string name,
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+  std::vector<std::pair<Node*, NodeContents>> nodes,
   std::vector<vm::vec3d> oldVertexPositions,
   std::vector<vm::vec3d> newVertexPositions)
   : BrushVertexCommandBase{std::move(name), std::move(nodes)}
@@ -152,7 +151,7 @@ void BrushVertexCommand::selectOldHandlePositions(
 
 BrushEdgeCommand::BrushEdgeCommand(
   std::string name,
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+  std::vector<std::pair<Node*, NodeContents>> nodes,
   std::vector<vm::segment3d> oldEdgePositions,
   std::vector<vm::segment3d> newEdgePositions)
   : BrushVertexCommandBase{std::move(name), std::move(nodes)}
@@ -188,7 +187,7 @@ void BrushEdgeCommand::selectOldHandlePositions(
 
 BrushFaceCommand::BrushFaceCommand(
   std::string name,
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes,
+  std::vector<std::pair<Node*, NodeContents>> nodes,
   std::vector<vm::polygon3d> oldFacePositions,
   std::vector<vm::polygon3d> newFacePositions)
   : BrushVertexCommandBase{std::move(name), std::move(nodes)}

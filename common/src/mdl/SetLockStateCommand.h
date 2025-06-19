@@ -35,19 +35,19 @@ class Node;
 class SetLockStateCommand : public UndoableCommand
 {
 private:
-  std::vector<mdl::Node*> m_nodes;
-  mdl::LockState m_lockState;
-  std::vector<std::tuple<mdl::Node*, mdl::LockState>> m_oldLockState;
+  std::vector<Node*> m_nodes;
+  LockState m_lockState;
+  std::vector<std::tuple<Node*, LockState>> m_oldLockState;
 
 public:
-  static std::unique_ptr<SetLockStateCommand> lock(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<mdl::Node*> nodes);
-  static std::unique_ptr<SetLockStateCommand> reset(std::vector<mdl::Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> lock(std::vector<Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> unlock(std::vector<Node*> nodes);
+  static std::unique_ptr<SetLockStateCommand> reset(std::vector<Node*> nodes);
 
-  SetLockStateCommand(std::vector<mdl::Node*> nodes, mdl::LockState lockState);
+  SetLockStateCommand(std::vector<Node*> nodes, LockState lockState);
 
 private:
-  static std::string makeName(mdl::LockState lockState);
+  static std::string makeName(LockState lockState);
 
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;
   std::unique_ptr<CommandResult> doPerformUndo(ui::MapDocument& document) override;

@@ -70,7 +70,7 @@ Node& Issue::node() const
   return m_node;
 }
 
-bool Issue::addSelectableNodes(std::vector<mdl::Node*>& nodes) const
+bool Issue::addSelectableNodes(std::vector<Node*>& nodes) const
 {
   if (m_node.parent() == nullptr)
   {

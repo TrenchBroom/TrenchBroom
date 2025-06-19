@@ -27,13 +27,13 @@ namespace tb::mdl
 namespace
 {
 
-void doPushGroup(mdl::GroupNode& groupNode, ui::MapDocument& document)
+void doPushGroup(GroupNode& groupNode, ui::MapDocument& document)
 {
   document.editorContext().pushGroup(groupNode);
   document.groupWasOpenedNotifier(groupNode);
 }
 
-mdl::GroupNode& doPopGroup(ui::MapDocument& document)
+GroupNode& doPopGroup(ui::MapDocument& document)
 {
   auto& editorContext = document.editorContext();
   auto& previousGroup = *editorContext.currentGroup();
@@ -44,7 +44,7 @@ mdl::GroupNode& doPopGroup(ui::MapDocument& document)
 
 } // namespace
 
-std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(mdl::GroupNode* group)
+std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::push(GroupNode* group)
 {
   return std::make_unique<CurrentGroupCommand>(group);
 }
@@ -54,7 +54,7 @@ std::unique_ptr<CurrentGroupCommand> CurrentGroupCommand::pop()
   return std::make_unique<CurrentGroupCommand>(nullptr);
 }
 
-CurrentGroupCommand::CurrentGroupCommand(mdl::GroupNode* group)
+CurrentGroupCommand::CurrentGroupCommand(GroupNode* group)
   : UndoableCommand{group ? "Push Group" : "Pop Group", false}
   , m_group{group}
 {

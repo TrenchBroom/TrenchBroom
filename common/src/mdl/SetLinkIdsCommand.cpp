@@ -39,19 +39,19 @@ namespace tb::mdl
 namespace
 {
 
-auto setLinkIds(const std::vector<std::tuple<mdl::Node*, std::string>>& linkIds)
+auto setLinkIds(const std::vector<std::tuple<Node*, std::string>>& linkIds)
 {
   return linkIds | std::views::transform([](const auto& nodeAndLinkId) {
-           auto* node = std::get<mdl::Node*>(nodeAndLinkId);
+           auto* node = std::get<Node*>(nodeAndLinkId);
            const auto& linkId = std::get<std::string>(nodeAndLinkId);
            return node->accept(kdl::overload(
-             [&](const mdl::WorldNode*) -> std::tuple<mdl::Node*, std::string> {
+             [&](const WorldNode*) -> std::tuple<Node*, std::string> {
                ensure(false, "no unexpected world node");
              },
-             [](const mdl::LayerNode*) -> std::tuple<mdl::Node*, std::string> {
+             [](const LayerNode*) -> std::tuple<Node*, std::string> {
                ensure(false, "no unexpected layer node");
              },
-             [&](mdl::Object* object) -> std::tuple<mdl::Node*, std::string> {
+             [&](Object* object) -> std::tuple<Node*, std::string> {
                auto oldLinkId = object->linkId();
                object->setLinkId(std::move(linkId));
                return {node, std::move(oldLinkId)};
@@ -63,7 +63,7 @@ auto setLinkIds(const std::vector<std::tuple<mdl::Node*, std::string>>& linkIds)
 } // namespace
 
 SetLinkIdsCommand::SetLinkIdsCommand(
-  const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds)
+  const std::string& name, std::vector<std::tuple<Node*, std::string>> linkIds)
   : UndoableCommand{name, true}
   , m_linkIds{std::move(linkIds)}
 {

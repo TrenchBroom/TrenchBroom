@@ -34,11 +34,11 @@ class Node;
 class SetLinkIdsCommand : public UndoableCommand
 {
 protected:
-  std::vector<std::tuple<mdl::Node*, std::string>> m_linkIds;
+  std::vector<std::tuple<Node*, std::string>> m_linkIds;
 
 public:
   SetLinkIdsCommand(
-    const std::string& name, std::vector<std::tuple<mdl::Node*, std::string>> linkIds);
+    const std::string& name, std::vector<std::tuple<Node*, std::string>> linkIds);
   ~SetLinkIdsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;

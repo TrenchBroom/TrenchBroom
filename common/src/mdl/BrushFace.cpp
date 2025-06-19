@@ -122,21 +122,20 @@ Result<BrushFace> BrushFace::create(
   const BrushFaceAttributes& attributes,
   const MapFormat mapFormat)
 {
-  return mdl::isParallelUVCoordSystem(mapFormat)
-           ? BrushFace::create(
-               point0,
-               point1,
-               point2,
-               attributes,
-               std::make_unique<ParallelUVCoordSystem>(
-                 point0, point1, point2, attributes))
-           : BrushFace::create(
-               point0,
-               point1,
-               point2,
-               attributes,
-               std::make_unique<ParaxialUVCoordSystem>(
-                 point0, point1, point2, attributes));
+  return isParallelUVCoordSystem(mapFormat) ? BrushFace::create(
+                                                point0,
+                                                point1,
+                                                point2,
+                                                attributes,
+                                                std::make_unique<ParallelUVCoordSystem>(
+                                                  point0, point1, point2, attributes))
+                                            : BrushFace::create(
+                                                point0,
+                                                point1,
+                                                point2,
+                                                attributes,
+                                                std::make_unique<ParaxialUVCoordSystem>(
+                                                  point0, point1, point2, attributes));
 }
 
 Result<BrushFace> BrushFace::createFromStandard(
@@ -151,7 +150,7 @@ Result<BrushFace> BrushFace::createFromStandard(
   auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
   auto attribs = BrushFaceAttributes{""};
 
-  if (mdl::isParallelUVCoordSystem(mapFormat))
+  if (isParallelUVCoordSystem(mapFormat))
   {
     // Convert paraxial to parallel
     std::tie(uvCoordSystem, attribs) =
@@ -182,7 +181,7 @@ Result<BrushFace> BrushFace::createFromValve(
   auto uvCoordSystem = std::unique_ptr<UVCoordSystem>{};
   auto attribs = BrushFaceAttributes{""};
 
-  if (mdl::isParallelUVCoordSystem(mapFormat))
+  if (isParallelUVCoordSystem(mapFormat))
   {
     // Pass through parallel
     uvCoordSystem = std::make_unique<ParallelUVCoordSystem>(uAxis, vAxis);

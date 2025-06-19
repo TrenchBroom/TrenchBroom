@@ -34,11 +34,11 @@ class Node;
 class SwapNodeContentsCommand : public UpdateLinkedGroupsCommandBase
 {
 protected:
-  std::vector<std::pair<mdl::Node*, mdl::NodeContents>> m_nodes;
+  std::vector<std::pair<Node*, NodeContents>> m_nodes;
 
 public:
   SwapNodeContentsCommand(
-    std::string name, std::vector<std::pair<mdl::Node*, mdl::NodeContents>> nodes);
+    std::string name, std::vector<std::pair<Node*, NodeContents>> nodes);
   ~SwapNodeContentsCommand() override;
 
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;

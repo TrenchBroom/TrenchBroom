@@ -49,18 +49,18 @@ std::vector<EntityNodeBase*> computeAllEntities(
     return {&worldNode};
   }
 
-  auto result = std::vector<mdl::EntityNodeBase*>{};
+  auto result = std::vector<EntityNodeBase*>{};
   for (auto* node : selection.nodes)
   {
     node->accept(kdl::overload(
-      [](mdl::WorldNode*) {},
-      [](mdl::LayerNode*) {},
-      [](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      [](WorldNode*) {},
+      [](LayerNode*) {},
+      [](auto&& thisLambda, GroupNode* groupNode) {
         groupNode->visitChildren(thisLambda);
       },
-      [&](mdl::EntityNode* entityNode) { result.push_back(entityNode); },
-      [&](mdl::BrushNode* brushNode) { result.push_back(brushNode->entity()); },
-      [&](mdl::PatchNode* patchNode) { result.push_back(patchNode->entity()); }));
+      [&](EntityNode* entityNode) { result.push_back(entityNode); },
+      [&](BrushNode* brushNode) { result.push_back(brushNode->entity()); },
+      [&](PatchNode* patchNode) { result.push_back(patchNode->entity()); }));
   }
 
   if (result.empty())
@@ -74,7 +74,7 @@ std::vector<EntityNodeBase*> computeAllEntities(
     // filter out worldspawn
     result = result | std::views::filter([](const auto* entityNode) {
                return entityNode->entity().classname()
-                      != mdl::EntityPropertyValues::WorldspawnClassname;
+                      != EntityPropertyValues::WorldspawnClassname;
              })
              | kdl::to_vector;
   }
@@ -84,21 +84,21 @@ std::vector<EntityNodeBase*> computeAllEntities(
 
 std::vector<BrushNode*> computeAllBrushes(const Selection& selection)
 {
-  auto result = std::vector<mdl::BrushNode*>{};
+  auto result = std::vector<BrushNode*>{};
 
   for (auto* node : selection.nodes)
   {
     node->accept(kdl::overload(
-      [](mdl::WorldNode*) {},
-      [](mdl::LayerNode*) {},
-      [](auto&& thisLambda, mdl::GroupNode* groupNode) {
+      [](WorldNode*) {},
+      [](LayerNode*) {},
+      [](auto&& thisLambda, GroupNode* groupNode) {
         groupNode->visitChildren(thisLambda);
       },
-      [](auto&& thisLambda, mdl::EntityNode* entityNode) {
+      [](auto&& thisLambda, EntityNode* entityNode) {
         entityNode->visitChildren(thisLambda);
       },
-      [&](mdl::BrushNode* brushNode) { result.push_back(brushNode); },
-      [&](mdl::PatchNode*) {}));
+      [&](BrushNode* brushNode) { result.push_back(brushNode); },
+      [&](PatchNode*) {}));
   }
 
   return result;
@@ -112,8 +112,8 @@ std::vector<BrushFaceHandle> computeAllBrushFaces(
     return selection.brushFaces;
   }
 
-  const auto faces = mdl::collectBrushFaces(selection.nodes);
-  return mdl::faceSelectionWithLinkedGroupConstraints(worldNode, faces).facesToSelect;
+  const auto faces = collectBrushFaces(selection.nodes);
+  return faceSelectionWithLinkedGroupConstraints(worldNode, faces).facesToSelect;
 }
 
 } // namespace
@@ -200,13 +200,11 @@ Selection computeSelection(WorldNode& rootNode)
   auto selection = Selection{};
 
   rootNode.accept(kdl::overload(
-    [&](auto&& thisLambda, mdl::WorldNode* worldNode) {
-      worldNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, mdl::LayerNode* layerNode) {
-      layerNode->visitChildren(thisLambda);
-    },
-    [&](auto&& thisLambda, mdl::GroupNode* groupNode) {
+    [&](
+      auto&& thisLambda, WorldNode* worldNode) { worldNode->visitChildren(thisLambda); },
+    [&](
+      auto&& thisLambda, LayerNode* layerNode) { layerNode->visitChildren(thisLambda); },
+    [&](auto&& thisLambda, GroupNode* groupNode) {
       if (groupNode->selected())
       {
         selection.nodes.push_back(groupNode);
@@ -214,7 +212,7 @@ Selection computeSelection(WorldNode& rootNode)
       }
       groupNode->visitChildren(thisLambda);
     },
-    [&](auto&& thisLambda, mdl::EntityNode* entityNode) {
+    [&](auto&& thisLambda, EntityNode* entityNode) {
       if (entityNode->selected())
       {
         selection.nodes.push_back(entityNode);
@@ -222,7 +220,7 @@ Selection computeSelection(WorldNode& rootNode)
       }
       entityNode->visitChildren(thisLambda);
     },
-    [&](mdl::BrushNode* brushNode) {
+    [&](BrushNode* brushNode) {
       if (brushNode->selected())
       {
         selection.nodes.push_back(brushNode);
@@ -238,7 +236,7 @@ Selection computeSelection(WorldNode& rootNode)
         }
       }
     },
-    [&](mdl::PatchNode* patchNode) {
+    [&](PatchNode* patchNode) {
       if (patchNode->selected())
       {
         selection.nodes.push_back(patchNode);

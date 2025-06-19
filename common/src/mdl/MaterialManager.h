@@ -67,7 +67,7 @@ public:
 
   void reload(
     const io::FileSystem& fs,
-    const mdl::MaterialConfig& materialConfig,
+    const MaterialConfig& materialConfig,
     const CreateTextureResource& createResource,
     kdl::task_manager& taskManager);
 

@@ -31,13 +31,13 @@ class LayerNode;
 class SetCurrentLayerCommand : public UndoableCommand
 {
 private:
-  mdl::LayerNode* m_currentLayer = nullptr;
-  mdl::LayerNode* m_oldCurrentLayer = nullptr;
+  LayerNode* m_currentLayer = nullptr;
+  LayerNode* m_oldCurrentLayer = nullptr;
 
 public:
-  static std::unique_ptr<SetCurrentLayerCommand> set(mdl::LayerNode* layer);
+  static std::unique_ptr<SetCurrentLayerCommand> set(LayerNode* layer);
 
-  explicit SetCurrentLayerCommand(mdl::LayerNode* layer);
+  explicit SetCurrentLayerCommand(LayerNode* layer);
 
 private:
   std::unique_ptr<CommandResult> doPerformDo(ui::MapDocument& document) override;

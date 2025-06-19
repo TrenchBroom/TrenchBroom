@@ -151,8 +151,7 @@ void TestGame::setSmartTags(std::vector<SmartTag> smartTags)
   m_config.smartTags = std::move(smartTags);
 }
 
-void TestGame::setDefaultFaceAttributes(
-  const mdl::BrushFaceAttributes& defaultFaceAttributes)
+void TestGame::setDefaultFaceAttributes(const BrushFaceAttributes& defaultFaceAttributes)
 {
   m_config.faceAttribsConfig.defaults = defaultFaceAttributes;
 }

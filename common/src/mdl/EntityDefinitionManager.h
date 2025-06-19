@@ -56,7 +56,7 @@ public:
   void setDefinitions(std::vector<EntityDefinition> newDefinitions);
   void clear();
 
-  const EntityDefinition* definition(const mdl::EntityNodeBase* node) const;
+  const EntityDefinition* definition(const EntityNodeBase* node) const;
   const EntityDefinition* definition(std::string_view classname) const;
   std::vector<const EntityDefinition*> definitions(
     EntityDefinitionType type, EntityDefinitionSortOrder order) const;

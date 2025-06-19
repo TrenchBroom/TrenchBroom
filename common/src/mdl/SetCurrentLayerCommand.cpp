@@ -25,12 +25,12 @@
 namespace tb::mdl
 {
 
-std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(mdl::LayerNode* layer)
+std::unique_ptr<SetCurrentLayerCommand> SetCurrentLayerCommand::set(LayerNode* layer)
 {
   return std::make_unique<SetCurrentLayerCommand>(layer);
 }
 
-SetCurrentLayerCommand::SetCurrentLayerCommand(mdl::LayerNode* layer)
+SetCurrentLayerCommand::SetCurrentLayerCommand(LayerNode* layer)
   : UndoableCommand{"Set Current Layer", false}
   , m_currentLayer{layer}
 {

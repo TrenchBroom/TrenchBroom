@@ -40,19 +40,18 @@ private:
   };
 
   Action m_action;
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToAdd;
-  std::map<mdl::Node*, std::vector<mdl::Node*>> m_nodesToRemove;
+  std::map<Node*, std::vector<Node*>> m_nodesToAdd;
+  std::map<Node*, std::vector<Node*>> m_nodesToRemove;
 
 public:
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    mdl::Node* parent, const std::vector<mdl::Node*>& children);
+    Node* parent, const std::vector<Node*>& children);
   static std::unique_ptr<AddRemoveNodesCommand> add(
-    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
+    const std::map<Node*, std::vector<Node*>>& nodes);
   static std::unique_ptr<AddRemoveNodesCommand> remove(
-    const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
+    const std::map<Node*, std::vector<Node*>>& nodes);
 
-  AddRemoveNodesCommand(
-    Action action, const std::map<mdl::Node*, std::vector<mdl::Node*>>& nodes);
+  AddRemoveNodesCommand(Action action, const std::map<Node*, std::vector<Node*>>& nodes);
   ~AddRemoveNodesCommand() override;
 
 private:

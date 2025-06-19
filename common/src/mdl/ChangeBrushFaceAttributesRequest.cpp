@@ -417,25 +417,24 @@ void ChangeBrushFaceAttributesRequest::setColor(const std::optional<Color>& colo
   m_colorValueOp = ValueOp::Set;
 }
 
-void ChangeBrushFaceAttributesRequest::setAll(const mdl::BrushFace& face)
+void ChangeBrushFaceAttributesRequest::setAll(const BrushFace& face)
 {
   setAll(face.attributes());
 }
 
-void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
-  const mdl::BrushFace& face)
+void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(const BrushFace& face)
 {
   setAllExceptContentFlags(face.attributes());
 }
 
-void ChangeBrushFaceAttributesRequest::setAll(const mdl::BrushFaceAttributes& attributes)
+void ChangeBrushFaceAttributesRequest::setAll(const BrushFaceAttributes& attributes)
 {
   setAllExceptContentFlags(attributes);
   replaceContentFlags(attributes.surfaceContents());
 }
 
 void ChangeBrushFaceAttributesRequest::setAllExceptContentFlags(
-  const mdl::BrushFaceAttributes& attributes)
+  const BrushFaceAttributes& attributes)
 {
   setMaterialName(attributes.materialName());
   setXOffset(attributes.xOffset());

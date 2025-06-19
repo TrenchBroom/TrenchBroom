@@ -275,7 +275,7 @@ TEST_CASE("Brush_Regression")
   {
     /*
      See https://github.com/TrenchBroom/TrenchBroom/issues/1153
-     The faces have been reordered according to mdl::BrushFace::sortFaces and all
+     The faces have been reordered according to BrushFace::sortFaces and all
      non-interesting faces have been removed from the brush.
 
      {

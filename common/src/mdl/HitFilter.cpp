@@ -47,7 +47,7 @@ HitFilter type(const HitType::Type typeMask)
 HitFilter selected()
 {
   return [](const Hit& hit) {
-    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+    if (const auto faceHandle = hitToFaceHandle(hit))
     {
       return faceHandle->node()->selected() || faceHandle->face().selected();
     }
@@ -62,7 +62,7 @@ HitFilter selected()
 HitFilter transitivelySelected()
 {
   return [](const Hit& hit) {
-    if (const auto faceHandle = mdl::hitToFaceHandle(hit))
+    if (const auto faceHandle = hitToFaceHandle(hit))
     {
       return faceHandle->node()->transitivelySelected() || faceHandle->face().selected();
     }
