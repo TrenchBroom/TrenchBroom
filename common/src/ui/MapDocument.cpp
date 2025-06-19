@@ -89,6 +89,7 @@
 #include "mdl/PointEntityWithBrushesValidator.h"
 #include "mdl/Polyhedron.h"
 #include "mdl/Polyhedron3.h"
+#include "mdl/PortalFile.h"
 #include "mdl/PropertyKeyWithDoubleQuotationMarksValidator.h"
 #include "mdl/PropertyValueWithDoubleQuotationMarksValidator.h"
 #include "mdl/PushSelection.h"
@@ -548,14 +549,14 @@ mdl::Grid& MapDocument::grid() const
   return *m_grid;
 }
 
-mdl::PointTrace* MapDocument::pointFile()
+mdl::PointTrace* MapDocument::pointTrace()
 {
   return m_pointFile ? &m_pointFile->trace : nullptr;
 }
 
-const mdl::PortalFile* MapDocument::portalFile() const
+const std::vector<vm::polygon3f>* MapDocument::portals() const
 {
-  return m_portalFile ? &m_portalFile->portalFile : nullptr;
+  return m_portalFile ? &m_portalFile->portals : nullptr;
 }
 
 void MapDocument::setViewEffectsService(ViewEffectsService* viewEffectsService)
